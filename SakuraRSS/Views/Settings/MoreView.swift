@@ -79,6 +79,7 @@ struct MoreView: View {
                                 .foregroundStyle(.secondary)
                         }
                     }
+                    .tint(.primary)
                     NavigationLink(String(localized: "More.Attribution")) {
                         AttributesView()
                     }
