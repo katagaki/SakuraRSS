@@ -220,6 +220,11 @@ nonisolated final class DatabaseManager: @unchecked Sendable {
         try database.run(target.update(articleIsRead <- true))
     }
 
+    func markAllRead() throws {
+        let target = articles.filter(articleIsRead == false)
+        try database.run(target.update(articleIsRead <- true))
+    }
+
     func unreadCount(forFeedID fid: Int64) throws -> Int {
         try database.scalar(articles.filter(articleFeedID == fid && articleIsRead == false).count)
     }

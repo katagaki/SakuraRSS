@@ -4,6 +4,7 @@ struct FeedArticlesView: View {
 
     @Environment(FeedManager.self) var feedManager
     let feed: Feed
+    @State private var isShowingMarkAllReadConfirmation = false
 
     var body: some View {
         ArticleListView(
@@ -15,15 +16,23 @@ struct FeedArticlesView: View {
         }
         .toolbar {
             ToolbarItemGroup(placement: .topBarTrailing) {
-                Menu {
-                    Button {
-                        feedManager.markAllRead(feed: feed)
-                    } label: {
-                        Label(String(localized: "Articles.MarkAllRead"),
-                              systemImage: "checkmark.circle")
-                    }
+                Button {
+                    isShowingMarkAllReadConfirmation = true
                 } label: {
-                    Image(systemName: "ellipsis")
+                    Image(systemName: "checkmark.circle")
+                }
+                .popover(isPresented: $isShowingMarkAllReadConfirmation) {
+                    VStack(spacing: 12) {
+                        Text(String(localized: "Articles.MarkAllRead.Confirm"))
+                            .font(.subheadline)
+                        Button(String(localized: "Articles.MarkAllRead")) {
+                            feedManager.markAllRead(feed: feed)
+                            isShowingMarkAllReadConfirmation = false
+                        }
+                        .buttonStyle(.borderedProminent)
+                    }
+                    .padding()
+                    .presentationCompactAdaptation(.popover)
                 }
             }
         }

@@ -449,6 +449,23 @@
         }
       }
     },
+    "Articles.MarkAllRead.Confirm" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mark all articles as read?"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "すべての記事を既読にしますか？"
+          }
+        }
+      }
+    },
     "Articles.Style.Compact" : {
       "extractionState" : "manual",
       "localizations" : {
