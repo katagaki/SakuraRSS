@@ -15,8 +15,8 @@ struct ContentView: View {
                 BookmarksView()
             }
 
-            Tab(String(localized: "Tabs.Settings"), systemImage: "gear") {
-                SettingsView()
+            Tab(String(localized: "Tabs.More"), systemImage: "ellipsis") {
+                MoreView()
             }
         }
     }
