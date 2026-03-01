@@ -104,21 +104,7 @@ struct MediumWidgetView: View {
             }
         } else {
             VStack(alignment: .leading, spacing: 6) {
-                HStack {
-                    Image(systemName: "dot.radiowaves.up.forward")
-                        .font(.caption)
-                        .foregroundStyle(.pink)
-                    Text(String(localized: "Shared.AppName"))
-                        .font(.caption)
-                        .fontWeight(.semibold)
-                        .foregroundStyle(.pink)
-                    Spacer()
-                    Text(String(localized: "Widget.Unread \(entry.articles.count)"))
-                        .font(.caption2)
-                        .foregroundStyle(.secondary)
-                }
-
-                ForEach(entry.articles.prefix(3)) { article in
+                ForEach(entry.articles.prefix(4)) { article in
                     VStack(alignment: .leading, spacing: 1) {
                         Text(article.title)
                             .font(.caption)
@@ -151,21 +137,7 @@ struct LargeWidgetView: View {
             }
         } else {
             VStack(alignment: .leading, spacing: 8) {
-                HStack {
-                    Image(systemName: "dot.radiowaves.up.forward")
-                        .font(.caption)
-                        .foregroundStyle(.pink)
-                    Text(String(localized: "Shared.AppName"))
-                        .font(.caption)
-                        .fontWeight(.semibold)
-                        .foregroundStyle(.pink)
-                    Spacer()
-                    Text(String(localized: "Widget.Unread \(entry.articles.count)"))
-                        .font(.caption2)
-                        .foregroundStyle(.secondary)
-                }
-
-                ForEach(entry.articles.prefix(8)) { article in
+                ForEach(entry.articles.prefix(7)) { article in
                     VStack(alignment: .leading, spacing: 2) {
                         Text(article.title)
                             .font(.caption)
@@ -187,7 +159,7 @@ struct LargeWidgetView: View {
                         }
                     }
 
-                    if article.id != entry.articles.prefix(8).last?.id {
+                    if article.id != entry.articles.prefix(7).last?.id {
                         Divider()
                     }
                 }
