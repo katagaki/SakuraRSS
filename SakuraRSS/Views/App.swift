@@ -5,7 +5,7 @@ import BackgroundTasks
 struct SakuraRSSApp: App {
 
     @State private var feedManager = FeedManager()
-    private let backgroundTaskID = "com.tsubuzaki.SakuraRSS.refresh"
+    private let backgroundTaskID = "com.tsubuzaki.SakuraRSS.RefreshFeeds"
 
     var body: some Scene {
         WindowGroup {
