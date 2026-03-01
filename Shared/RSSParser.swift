@@ -34,6 +34,7 @@ nonisolated final class RSSParser: NSObject, XMLParserDelegate, @unchecked Senda
 
     private var parsedArticles: [ParsedArticle] = []
     private var isInsideItem = false
+    private var isInsideImage = false
     private var isAtom = false
     private var currentAttributes: [String: String] = [:]
 
@@ -64,6 +65,7 @@ nonisolated final class RSSParser: NSObject, XMLParserDelegate, @unchecked Senda
         feedDescription = ""
         parsedArticles = []
         isInsideItem = false
+        isInsideImage = false
         isAtom = false
     }
 
@@ -78,6 +80,8 @@ nonisolated final class RSSParser: NSObject, XMLParserDelegate, @unchecked Senda
         switch elementName {
         case "feed":
             isAtom = true
+        case "image":
+            if !isInsideItem { isInsideImage = true }
         case "item", "entry":
             isInsideItem = true
             resetItemState()
@@ -144,6 +148,7 @@ nonisolated final class RSSParser: NSObject, XMLParserDelegate, @unchecked Senda
     }
 
     private func appendFeedCharacters(_ string: String) {
+        guard !isInsideImage else { return }
         switch currentElement {
         case "title": feedTitle += string
         case "link": if !isAtom { feedLink += string }
@@ -154,7 +159,9 @@ nonisolated final class RSSParser: NSObject, XMLParserDelegate, @unchecked Senda
 
     func parser(_ parser: XMLParser, didEndElement elementName: String,
                 namespaceURI: String?, qualifiedName qName: String?) {
-        if elementName == "item" || elementName == "entry" {
+        if elementName == "image" {
+            isInsideImage = false
+        } else if elementName == "item" || elementName == "entry" {
             let trimmedAuthor = currentAuthor.trimmingCharacters(in: .whitespacesAndNewlines)
             let article = ParsedArticle(
                 title: decodeHTMLEntities(currentTitle.trimmingCharacters(in: .whitespacesAndNewlines)),

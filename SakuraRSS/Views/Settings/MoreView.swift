@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct SettingsView: View {
+struct MoreView: View {
 
     @Environment(FeedManager.self) var feedManager
     @AppStorage("refreshInterval") private var refreshInterval: Int = 60
@@ -67,8 +67,24 @@ struct SettingsView: View {
                 } header: {
                     Text(String(localized: "Settings.Section.Stats"))
                 }
+
+                Section {
+                    Link(destination: URL(string: "https://github.com/katagaki/SakuraRSS")!) {
+                        HStack {
+                            Text(String(localized: "More.SourceCode"))
+                            Spacer()
+                            Text("katagaki/SakuraRSS")
+                                .foregroundStyle(.secondary)
+                            Image(systemName: "safari")
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                    NavigationLink(String(localized: "More.Attribution")) {
+                        AttributesView()
+                    }
+                }
             }
-            .navigationTitle(String(localized: "Tabs.Settings"))
+            .navigationTitle(String(localized: "Tabs.More"))
             .scrollContentBackground(.hidden)
             .sakuraBackground()
         }
