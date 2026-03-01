@@ -25,11 +25,14 @@ struct BookmarksView: View {
                         } label: {
                             InboxArticleRow(article: article)
                         }
+                        .listRowBackground(Color.clear)
                     }
                     .listStyle(.plain)
                 }
             }
             .navigationTitle(String(localized: "Tabs.Bookmarks"))
+            .scrollContentBackground(.hidden)
+            .sakuraBackground()
         }
     }
 }

@@ -17,6 +17,8 @@ struct ArticleListView: View {
                 CompactStyleView(articles: articles)
             }
         }
+        .scrollContentBackground(.hidden)
+        .sakuraBackground()
         .navigationTitle(title)
         .toolbar {
             ToolbarItemGroup(placement: .topBarTrailing) {
@@ -61,6 +63,7 @@ struct InboxStyleView: View {
             } label: {
                 InboxArticleRow(article: article)
             }
+            .listRowBackground(Color.clear)
         }
         .listStyle(.plain)
     }
@@ -166,8 +169,8 @@ struct MagazineStyleView: View {
     ]
 
     var body: some View {
-        ScrollView {
-            LazyVGrid(columns: columns, spacing: 16) {
+        ScrollView(.vertical) {
+            LazyVGrid(columns: columns, spacing: 20) {
                 ForEach(articles) { article in
                     NavigationLink {
                         ArticleDetailView(article: article)
@@ -177,7 +180,8 @@ struct MagazineStyleView: View {
                     .buttonStyle(.plain)
                 }
             }
-            .padding()
+            .padding(.horizontal, 20)
+            .padding(.vertical)
         }
     }
 }
@@ -189,16 +193,20 @@ struct MagazineArticleCard: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             if let imageURL = article.imageURL, let url = URL(string: imageURL) {
-                AsyncImage(url: url) { image in
-                    image
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                } placeholder: {
-                    Rectangle()
-                        .fill(.secondary.opacity(0.1))
-                }
-                .frame(height: 120)
-                .clipShape(RoundedRectangle(cornerRadius: 8))
+                Color.clear
+                    .frame(height: 120)
+                    .overlay {
+                        AsyncImage(url: url) { image in
+                            image
+                                .resizable()
+                                .aspectRatio(contentMode: .fill)
+                        } placeholder: {
+                            Rectangle()
+                                .fill(.secondary.opacity(0.1))
+                        }
+                    }
+                    .clipped()
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
             }
 
             Text(article.title)
@@ -207,6 +215,7 @@ struct MagazineArticleCard: View {
                 .lineLimit(3)
                 .multilineTextAlignment(.leading)
                 .foregroundStyle(article.isRead ? .secondary : .primary)
+                .frame(maxWidth: .infinity, alignment: .leading)
 
             if let date = article.publishedDate {
                 Text(date, style: .relative)
@@ -214,8 +223,8 @@ struct MagazineArticleCard: View {
                     .foregroundStyle(.tertiary)
             }
         }
-        .padding(10)
         .background(.background)
+        .contentShape(RoundedRectangle(cornerRadius: 12))
         .clipShape(RoundedRectangle(cornerRadius: 12))
         .shadow(color: .black.opacity(0.05), radius: 2, y: 1)
     }
@@ -235,7 +244,7 @@ struct CompactStyleView: View {
             } label: {
                 HStack {
                     Text(article.title)
-                        .font(.subheadline)
+                        .font(.caption)
                         .fontWeight(article.isRead ? .regular : .medium)
                         .foregroundStyle(article.isRead ? .secondary : .primary)
                         .lineLimit(1)
@@ -249,7 +258,8 @@ struct CompactStyleView: View {
                     }
                 }
             }
-            .listRowInsets(EdgeInsets(top: 1, leading: 16, bottom: 1, trailing: 16))
+            .listRowBackground(Color.clear)
+            .listRowInsets(EdgeInsets(top: 4, leading: 16, bottom: 4, trailing: 16))
             .listRowSpacing(0.0)
             .swipeActions(edge: .trailing) {
                 Button {

@@ -103,6 +103,7 @@ struct ArticleDetailView: View {
             }
             .padding()
         }
+        .sakuraBackground()
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItemGroup(placement: .topBarTrailing) {

@@ -69,6 +69,8 @@ struct SettingsView: View {
                 }
             }
             .navigationTitle(String(localized: "Tabs.Settings"))
+            .scrollContentBackground(.hidden)
+            .sakuraBackground()
         }
     }
 }

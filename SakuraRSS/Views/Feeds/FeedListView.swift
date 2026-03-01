@@ -65,7 +65,7 @@ struct FeedListView: View {
                     }
                 }
             }
-            .navigationTitle(String(localized: "Shared.AppName"))
+            .navigationTitle(String(localized: "Shared.Feeds"))
             .searchable(text: $searchText, prompt: Text(String(localized: "FeedList.SearchPrompt")))
             .refreshable {
                 await feedManager.refreshAllFeeds()
@@ -80,6 +80,8 @@ struct FeedListView: View {
                     .buttonStyle(.glassProminent)
                 }
             }
+            .scrollContentBackground(.hidden)
+            .sakuraBackground()
             .sheet(isPresented: $isShowingAddFeed) {
                 AddFeedView()
             }
