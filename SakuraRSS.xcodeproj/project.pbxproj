@@ -6,14 +6,99 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		E47D102E2F5497AC006081EF /* SQLite in Frameworks */ = {isa = PBXBuildFile; productRef = E47D102D2F5497AC006081EF /* SQLite */; };
+		E47D10372F54980E006081EF /* UniformTypeIdentifiers.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E47D10362F54980E006081EF /* UniformTypeIdentifiers.framework */; };
+		E47D10432F54980E006081EF /* Add Feed.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = E47D10342F54980E006081EF /* Add Feed.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		E47D104F2F549821006081EF /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E47D104E2F549821006081EF /* WidgetKit.framework */; };
+		E47D10512F549821006081EF /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E47D10502F549821006081EF /* SwiftUI.framework */; };
+		E47D105C2F549822006081EF /* WidgetsExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = E47D104D2F549821006081EF /* WidgetsExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		E47D10632F54986D006081EF /* FaviconFinder in Frameworks */ = {isa = PBXBuildFile; productRef = E47D10622F54986D006081EF /* FaviconFinder */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		E47D10412F54980E006081EF /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = E47D10132F549605006081EF /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = E47D10332F54980E006081EF;
+			remoteInfo = "Add Feed";
+		};
+		E47D105A2F549822006081EF /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = E47D10132F549605006081EF /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = E47D104C2F549821006081EF;
+			remoteInfo = WidgetsExtension;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		E47D10482F54980E006081EF /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				E47D105C2F549822006081EF /* WidgetsExtension.appex in Embed Foundation Extensions */,
+				E47D10432F54980E006081EF /* Add Feed.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
 		E47D101B2F549605006081EF /* SakuraRSS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SakuraRSS.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		E47D10342F54980E006081EF /* Add Feed.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "Add Feed.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
+		E47D10362F54980E006081EF /* UniformTypeIdentifiers.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UniformTypeIdentifiers.framework; path = System/Library/Frameworks/UniformTypeIdentifiers.framework; sourceTree = SDKROOT; };
+		E47D104D2F549821006081EF /* WidgetsExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = WidgetsExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		E47D104E2F549821006081EF /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
+		E47D10502F549821006081EF /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		E47D10442F54980E006081EF /* Exceptions for "Add Feed" folder in "Add Feed" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = E47D10332F54980E006081EF /* Add Feed */;
+		};
+		E47D105D2F549822006081EF /* Exceptions for "Widgets" folder in "WidgetsExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = E47D104C2F549821006081EF /* WidgetsExtension */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		E47D101D2F549605006081EF /* SakuraRSS */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = SakuraRSS;
+			sourceTree = "<group>";
+		};
+		E47D10292F549709006081EF /* Shared */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Shared;
+			sourceTree = "<group>";
+		};
+		E47D10382F54980E006081EF /* Add Feed */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				E47D10442F54980E006081EF /* Exceptions for "Add Feed" folder in "Add Feed" target */,
+			);
+			path = "Add Feed";
+			sourceTree = "<group>";
+		};
+		E47D10522F549821006081EF /* Widgets */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				E47D105D2F549822006081EF /* Exceptions for "Widgets" folder in "WidgetsExtension" target */,
+			);
+			path = Widgets;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -23,6 +108,25 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E47D102E2F5497AC006081EF /* SQLite in Frameworks */,
+				E47D10632F54986D006081EF /* FaviconFinder in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E47D10312F54980E006081EF /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E47D10372F54980E006081EF /* UniformTypeIdentifiers.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E47D104A2F549821006081EF /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E47D10512F549821006081EF /* SwiftUI.framework in Frameworks */,
+				E47D104F2F549821006081EF /* WidgetKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -32,7 +136,11 @@
 		E47D10122F549605006081EF = {
 			isa = PBXGroup;
 			children = (
+				E47D10292F549709006081EF /* Shared */,
 				E47D101D2F549605006081EF /* SakuraRSS */,
+				E47D10382F54980E006081EF /* Add Feed */,
+				E47D10522F549821006081EF /* Widgets */,
+				E47D10352F54980E006081EF /* Frameworks */,
 				E47D101C2F549605006081EF /* Products */,
 			);
 			sourceTree = "<group>";
@@ -41,8 +149,20 @@
 			isa = PBXGroup;
 			children = (
 				E47D101B2F549605006081EF /* SakuraRSS.app */,
+				E47D10342F54980E006081EF /* Add Feed.appex */,
+				E47D104D2F549821006081EF /* WidgetsExtension.appex */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		E47D10352F54980E006081EF /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				E47D10362F54980E006081EF /* UniformTypeIdentifiers.framework */,
+				E47D104E2F549821006081EF /* WidgetKit.framework */,
+				E47D10502F549821006081EF /* SwiftUI.framework */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -55,20 +175,70 @@
 				E47D10172F549605006081EF /* Sources */,
 				E47D10182F549605006081EF /* Frameworks */,
 				E47D10192F549605006081EF /* Resources */,
+				E47D10482F54980E006081EF /* Embed Foundation Extensions */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				E47D10422F54980E006081EF /* PBXTargetDependency */,
+				E47D105B2F549822006081EF /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				E47D101D2F549605006081EF /* SakuraRSS */,
+				E47D10292F549709006081EF /* Shared */,
+			);
+			name = SakuraRSS;
+			packageProductDependencies = (
+				E47D102D2F5497AC006081EF /* SQLite */,
+				E47D10622F54986D006081EF /* FaviconFinder */,
+			);
+			productName = SakuraRSS;
+			productReference = E47D101B2F549605006081EF /* SakuraRSS.app */;
+			productType = "com.apple.product-type.application";
+		};
+		E47D10332F54980E006081EF /* Add Feed */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = E47D10452F54980E006081EF /* Build configuration list for PBXNativeTarget "Add Feed" */;
+			buildPhases = (
+				E47D10302F54980E006081EF /* Sources */,
+				E47D10312F54980E006081EF /* Frameworks */,
+				E47D10322F54980E006081EF /* Resources */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				E47D101D2F549605006081EF /* SakuraRSS */,
+				E47D10382F54980E006081EF /* Add Feed */,
 			);
-			name = SakuraRSS;
+			name = "Add Feed";
 			packageProductDependencies = (
 			);
-			productName = SakuraRSS;
-			productReference = E47D101B2F549605006081EF /* SakuraRSS.app */;
-			productType = "com.apple.product-type.application";
+			productName = "Add Feed";
+			productReference = E47D10342F54980E006081EF /* Add Feed.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+		E47D104C2F549821006081EF /* WidgetsExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = E47D105E2F549822006081EF /* Build configuration list for PBXNativeTarget "WidgetsExtension" */;
+			buildPhases = (
+				E47D10492F549821006081EF /* Sources */,
+				E47D104A2F549821006081EF /* Frameworks */,
+				E47D104B2F549821006081EF /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				E47D10522F549821006081EF /* Widgets */,
+			);
+			name = WidgetsExtension;
+			packageProductDependencies = (
+			);
+			productName = WidgetsExtension;
+			productReference = E47D104D2F549821006081EF /* WidgetsExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
 		};
 /* End PBXNativeTarget section */
 
@@ -83,6 +253,12 @@
 					E47D101A2F549605006081EF = {
 						CreatedOnToolsVersion = 26.3;
 					};
+					E47D10332F54980E006081EF = {
+						CreatedOnToolsVersion = 26.3;
+					};
+					E47D104C2F549821006081EF = {
+						CreatedOnToolsVersion = 26.3;
+					};
 				};
 			};
 			buildConfigurationList = E47D10162F549605006081EF /* Build configuration list for PBXProject "SakuraRSS" */;
@@ -91,21 +267,42 @@
 			knownRegions = (
 				en,
 				Base,
+				ja,
 			);
 			mainGroup = E47D10122F549605006081EF;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				E47D102C2F5497AC006081EF /* XCRemoteSwiftPackageReference "SQLite.swift" */,
+				E47D10612F54986D006081EF /* XCRemoteSwiftPackageReference "FaviconFinder" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = E47D101C2F549605006081EF /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
 				E47D101A2F549605006081EF /* SakuraRSS */,
+				E47D10332F54980E006081EF /* Add Feed */,
+				E47D104C2F549821006081EF /* WidgetsExtension */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
 		E47D10192F549605006081EF /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E47D10322F54980E006081EF /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E47D104B2F549821006081EF /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -122,7 +319,34 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		E47D10302F54980E006081EF /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E47D10492F549821006081EF /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		E47D10422F54980E006081EF /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = E47D10332F54980E006081EF /* Add Feed */;
+			targetProxy = E47D10412F54980E006081EF /* PBXContainerItemProxy */;
+		};
+		E47D105B2F549822006081EF /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = E47D104C2F549821006081EF /* WidgetsExtension */;
+			targetProxy = E47D105A2F549822006081EF /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		E47D10242F549606006081EF /* Debug */ = {
@@ -185,6 +409,7 @@
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
 			name = Debug;
@@ -242,6 +467,7 @@
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
 				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_EMIT_LOC_STRINGS = YES;
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;
@@ -251,16 +477,18 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Shared/SakuraRSS.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = YYM4Z6MU8F;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.news";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -269,12 +497,16 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.tsubuzaki.SakuraRSS;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
 		};
@@ -283,16 +515,18 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Shared/SakuraRSS.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = YYM4Z6MU8F;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.news";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -301,8 +535,132 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.tsubuzaki.SakuraRSS;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
+		E47D10462F54980E006081EF /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = Shared/SakuraRSS.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = YYM4Z6MU8F;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Add Feed/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "Add Feed";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.tsubuzaki.SakuraRSS.Add-Feed";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		E47D10472F54980E006081EF /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = Shared/SakuraRSS.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = YYM4Z6MU8F;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Add Feed/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "Add Feed";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.tsubuzaki.SakuraRSS.Add-Feed";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		E47D105F2F549822006081EF /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_ENTITLEMENTS = Shared/SakuraRSS.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = YYM4Z6MU8F;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Widgets/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Widgets;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.tsubuzaki.SakuraRSS.Widgets;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		E47D10602F549822006081EF /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_ENTITLEMENTS = Shared/SakuraRSS.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = YYM4Z6MU8F;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Widgets/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Widgets;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.tsubuzaki.SakuraRSS.Widgets;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
@@ -331,7 +689,57 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
+		E47D10452F54980E006081EF /* Build configuration list for PBXNativeTarget "Add Feed" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E47D10462F54980E006081EF /* Debug */,
+				E47D10472F54980E006081EF /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		E47D105E2F549822006081EF /* Build configuration list for PBXNativeTarget "WidgetsExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E47D105F2F549822006081EF /* Debug */,
+				E47D10602F549822006081EF /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		E47D102C2F5497AC006081EF /* XCRemoteSwiftPackageReference "SQLite.swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/stephencelis/SQLite.swift.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.15.5;
+			};
+		};
+		E47D10612F54986D006081EF /* XCRemoteSwiftPackageReference "FaviconFinder" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/will-lumley/FaviconFinder";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.1.5;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		E47D102D2F5497AC006081EF /* SQLite */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = E47D102C2F5497AC006081EF /* XCRemoteSwiftPackageReference "SQLite.swift" */;
+			productName = SQLite;
+		};
+		E47D10622F54986D006081EF /* FaviconFinder */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = E47D10612F54986D006081EF /* XCRemoteSwiftPackageReference "FaviconFinder" */;
+			productName = FaviconFinder;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = E47D10132F549605006081EF /* Project object */;
 }
