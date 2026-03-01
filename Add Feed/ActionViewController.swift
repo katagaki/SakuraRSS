@@ -1,57 +1,183 @@
-//
-//  ActionViewController.swift
-//  Add Feed
-//
-//  Created by シン・ジャスティン on 2026/03/02.
-//
-
 import UIKit
-import MobileCoreServices
 import UniformTypeIdentifiers
 
 class ActionViewController: UIViewController {
 
-    @IBOutlet weak var imageView: UIImageView!
+    private let stackView = UIStackView()
+    private let statusLabel = UILabel()
+    private let feedsStackView = UIStackView()
+    private let activityIndicator = UIActivityIndicatorView(style: .large)
+    private var discoveredFeeds: [DiscoveredFeed] = []
 
     override func viewDidLoad() {
         super.viewDidLoad()
-    
-        // Get the item[s] we're handling from the extension context.
-        
-        // For example, look for an image and place it into an image view.
-        // Replace this with something appropriate for the type[s] your extension supports.
-        var imageFound = false
-        for item in self.extensionContext!.inputItems as! [NSExtensionItem] {
-            for provider in item.attachments! {
-                if provider.hasItemConformingToTypeIdentifier(UTType.image.identifier) {
-                    // This is an image. We'll load it, then place it in our image view.
-                    weak var weakImageView = self.imageView
-                    provider.loadItem(forTypeIdentifier: UTType.image.identifier) { (imageURL, error) in
-                        if let imageURL = imageURL as? URL {
+        setupUI()
+        extractURLAndDiscover()
+    }
+
+    private func setupUI() {
+        view.backgroundColor = .systemBackground
+
+        let navBar = UINavigationBar()
+        navBar.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(navBar)
+
+        let navItem = UINavigationItem(title: NSLocalizedString("AddFeed.Title", comment: ""))
+        navItem.rightBarButtonItem = UIBarButtonItem(
+            barButtonSystemItem: .done,
+            target: self,
+            action: #selector(done)
+        )
+        navBar.items = [navItem]
+
+        NSLayoutConstraint.activate([
+            navBar.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            navBar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            navBar.trailingAnchor.constraint(equalTo: view.trailingAnchor)
+        ])
+
+        stackView.axis = .vertical
+        stackView.spacing = 16
+        stackView.alignment = .center
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(stackView)
+
+        NSLayoutConstraint.activate([
+            stackView.topAnchor.constraint(equalTo: navBar.bottomAnchor, constant: 24),
+            stackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            stackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20)
+        ])
+
+        statusLabel.font = .preferredFont(forTextStyle: .headline)
+        statusLabel.textAlignment = .center
+        statusLabel.numberOfLines = 0
+        statusLabel.text = NSLocalizedString("AddFeed.Extension.Searching", comment: "")
+        stackView.addArrangedSubview(statusLabel)
+
+        activityIndicator.startAnimating()
+        stackView.addArrangedSubview(activityIndicator)
+
+        feedsStackView.axis = .vertical
+        feedsStackView.spacing = 8
+        feedsStackView.alignment = .fill
+        stackView.addArrangedSubview(feedsStackView)
+    }
+
+    private func extractURLAndDiscover() {
+        guard let extensionItems = extensionContext?.inputItems as? [NSExtensionItem] else {
+            showError(NSLocalizedString("AddFeed.Extension.NoURL", comment: ""))
+            return
+        }
+
+        for item in extensionItems {
+            guard let attachments = item.attachments else { continue }
+            for provider in attachments {
+                if provider.hasItemConformingToTypeIdentifier(UTType.url.identifier) {
+                    provider.loadItem(forTypeIdentifier: UTType.url.identifier) { [weak self] item, _ in
+                        guard let url = item as? URL else {
                             Task { @MainActor in
-                                if let strongImageView = weakImageView {
-                                    strongImageView.image = UIImage(data: try! Data(contentsOf: imageURL))
-                                }
+                                self?.showError(NSLocalizedString("AddFeed.Extension.NoURL", comment: ""))
                             }
+                            return
+                        }
+                        Task { @MainActor in
+                            await self?.discoverFeeds(from: url)
                         }
                     }
-                    
-                    imageFound = true
-                    break
+                    return
+                }
+
+                if provider.hasItemConformingToTypeIdentifier(UTType.plainText.identifier) {
+                    provider.loadItem(forTypeIdentifier: UTType.plainText.identifier) { [weak self] item, _ in
+                        guard let text = item as? String, let url = URL(string: text) else {
+                            Task { @MainActor in
+                                self?.showError(NSLocalizedString("AddFeed.Extension.NoURL", comment: ""))
+                            }
+                            return
+                        }
+                        Task { @MainActor in
+                            await self?.discoverFeeds(from: url)
+                        }
+                    }
+                    return
                 }
             }
-            
-            if (imageFound) {
-                // We only handle one image, so stop looking for more.
-                break
-            }
+        }
+
+        showError(NSLocalizedString("AddFeed.Extension.NoURL", comment: ""))
+    }
+
+    private func discoverFeeds(from url: URL) async {
+        guard let host = url.host else {
+            showError(NSLocalizedString("AddFeed.Extension.NoURL", comment: ""))
+            return
+        }
+
+        statusLabel.text = String(format: NSLocalizedString("AddFeed.Extension.SearchingDomain", comment: ""), host)
+
+        let feeds = await FeedDiscovery.shared.discoverFeeds(forDomain: host)
+
+        activityIndicator.stopAnimating()
+        activityIndicator.isHidden = true
+
+        if feeds.isEmpty {
+            statusLabel.text = NSLocalizedString("AddFeed.NoFeedsFound", comment: "")
+        } else {
+            discoveredFeeds = feeds
+            statusLabel.text = String(
+                format: NSLocalizedString("AddFeed.Extension.FoundFeeds", comment: ""),
+                feeds.count
+            )
+            showDiscoveredFeeds()
         }
     }
 
-    @IBAction func done() {
-        // Return any edited content to the host app.
-        // This template doesn't do anything, so we just echo the passed in items.
-        self.extensionContext!.completeRequest(returningItems: self.extensionContext!.inputItems, completionHandler: nil)
+    private func showDiscoveredFeeds() {
+        for (index, feed) in discoveredFeeds.enumerated() {
+            let button = UIButton(type: .system)
+            button.tag = index
+
+            var config = UIButton.Configuration.filled()
+            config.title = feed.title
+            config.subtitle = feed.url
+            config.titleAlignment = .leading
+            config.cornerStyle = .medium
+            button.configuration = config
+
+            button.addTarget(self, action: #selector(addFeedTapped(_:)), for: .touchUpInside)
+            feedsStackView.addArrangedSubview(button)
+
+            button.translatesAutoresizingMaskIntoConstraints = false
+            button.widthAnchor.constraint(equalTo: feedsStackView.widthAnchor).isActive = true
+        }
     }
 
+    @objc private func addFeedTapped(_ sender: UIButton) {
+        let feed = discoveredFeeds[sender.tag]
+
+        do {
+            try DatabaseManager.shared.insertFeed(
+                title: feed.title,
+                url: feed.url,
+                siteURL: feed.siteURL
+            )
+
+            sender.configuration?.title = NSLocalizedString("AddFeed.Extension.Added", comment: "")
+            sender.configuration?.baseBackgroundColor = .systemGreen
+            sender.isEnabled = false
+        } catch {
+            sender.configuration?.title = NSLocalizedString("AddFeed.Extension.AlreadyAdded", comment: "")
+            sender.isEnabled = false
+        }
+    }
+
+    private func showError(_ message: String) {
+        activityIndicator.stopAnimating()
+        activityIndicator.isHidden = true
+        statusLabel.text = message
+    }
+
+    @objc func done() {
+        extensionContext?.completeRequest(returningItems: extensionContext?.inputItems, completionHandler: nil)
+    }
 }
