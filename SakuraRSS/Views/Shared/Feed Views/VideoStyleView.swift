@@ -9,8 +9,9 @@ struct VideoStyleView: View {
         ScrollView(.vertical) {
             LazyVStack(spacing: 24) {
                 ForEach(articles) { article in
-                    NavigationLink {
-                        ArticleDetailView(article: article)
+                    Button {
+                        feedManager.markRead(article)
+                        YouTubeHelper.openInApp(url: article.url)
                     } label: {
                         VideoArticleCard(article: article)
                     }
@@ -51,7 +52,7 @@ struct VideoArticleCard: View {
             // Channel avatar + title + metadata
             HStack(alignment: .top, spacing: 12) {
                 if let favicon = favicon {
-                    FaviconImage(favicon, size: 36, circle: true)
+                    FaviconImage(favicon, size: 36, circle: true, skipInset: true)
                 } else {
                     Circle()
                         .fill(.secondary.opacity(0.2))

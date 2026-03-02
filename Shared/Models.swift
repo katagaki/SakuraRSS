@@ -31,6 +31,11 @@ nonisolated struct Article: Identifiable, Hashable, Sendable {
     var publishedDate: Date?
     var isRead: Bool
     var isBookmarked: Bool
+
+    var isYouTubeURL: Bool {
+        let lowered = url.lowercased()
+        return lowered.contains("youtube.com") || lowered.contains("youtu.be")
+    }
 }
 
 nonisolated enum FeedDisplayStyle: String, CaseIterable, Sendable {

@@ -114,6 +114,11 @@ final class FeedManager {
         loadFromDatabase()
     }
 
+    func toggleRead(_ article: Article) {
+        try? database.markArticleRead(id: article.id, read: !article.isRead)
+        loadFromDatabase()
+    }
+
     func toggleBookmark(_ article: Article) {
         try? database.toggleBookmark(id: article.id)
         loadFromDatabase()

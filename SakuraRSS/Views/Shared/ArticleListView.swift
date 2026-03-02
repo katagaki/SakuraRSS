@@ -10,6 +10,10 @@ struct ArticleListView: View {
 
     @State private var displayStyle: FeedDisplayStyle
 
+    private var hasImages: Bool {
+        articles.contains { $0.imageURL != nil }
+    }
+
     init(articles: [Article], title: String, feedKey: String, isYouTube: Bool = false) {
         self.articles = articles
         self.title = title
@@ -22,8 +26,9 @@ struct ArticleListView: View {
     }
 
     var body: some View {
+        let effectiveStyle = effectiveDisplayStyle
         Group {
-            switch displayStyle {
+            switch effectiveStyle {
             case .inbox:
                 InboxStyleView(articles: articles)
             case .feed:
@@ -49,12 +54,16 @@ struct ArticleListView: View {
                             .tag(FeedDisplayStyle.inbox)
                         Label(String(localized: "Articles.Style.Feed"), systemImage: "newspaper")
                             .tag(FeedDisplayStyle.feed)
-                        Label(String(localized: "Articles.Style.Magazine"), systemImage: "rectangle.grid.2x2")
-                            .tag(FeedDisplayStyle.magazine)
+                        if hasImages {
+                            Label(String(localized: "Articles.Style.Magazine"), systemImage: "rectangle.grid.2x2")
+                                .tag(FeedDisplayStyle.magazine)
+                        }
                         Label(String(localized: "Articles.Style.Compact"), systemImage: "list.dash")
                             .tag(FeedDisplayStyle.compact)
-                        Label(String(localized: "Articles.Style.Photos"), systemImage: "photo.stack")
-                            .tag(FeedDisplayStyle.photos)
+                        if hasImages {
+                            Label(String(localized: "Articles.Style.Photos"), systemImage: "photo.stack")
+                                .tag(FeedDisplayStyle.photos)
+                        }
                         if isYouTubeFeed {
                             Label(String(localized: "Articles.Style.Video"), systemImage: "play.rectangle")
                                 .tag(FeedDisplayStyle.video)
@@ -78,5 +87,13 @@ struct ArticleListView: View {
                 }
             }
         }
+    }
+
+    /// Falls back to inbox if the selected style requires images but none are available.
+    private var effectiveDisplayStyle: FeedDisplayStyle {
+        if !hasImages && (displayStyle == .magazine || displayStyle == .photos) {
+            return .inbox
+        }
+        return displayStyle
     }
 }

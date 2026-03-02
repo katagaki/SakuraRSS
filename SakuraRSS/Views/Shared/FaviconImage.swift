@@ -6,17 +6,20 @@ struct FaviconImage: View {
     let size: CGFloat
     let cornerRadius: CGFloat
     let isCircle: Bool
+    let skipInset: Bool
 
-    init(_ image: UIImage, size: CGFloat = 20, cornerRadius: CGFloat = 3, circle: Bool = false) {
+    init(_ image: UIImage, size: CGFloat = 20, cornerRadius: CGFloat = 3,
+         circle: Bool = false, skipInset: Bool = false) {
         self.image = image
         self.size = size
         self.cornerRadius = cornerRadius
         self.isCircle = circle
+        self.skipInset = skipInset
     }
 
     var body: some View {
-        let showInset = isCircle && !image.isCircular
-        let needsWhiteBackground = image.isDark
+        let showInset = !skipInset && isCircle && !image.isCircular
+        let needsWhiteBackground = !skipInset && image.isDark
         let iconScale: CGFloat = showInset || needsWhiteBackground ? 0.7 : 1.0
 
         Image(uiImage: image)

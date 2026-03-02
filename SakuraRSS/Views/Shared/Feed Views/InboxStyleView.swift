@@ -7,13 +7,24 @@ struct InboxStyleView: View {
 
     var body: some View {
         List(articles) { article in
-            NavigationLink {
-                ArticleDetailView(article: article)
-            } label: {
-                InboxArticleRow(article: article)
+            if article.isYouTubeURL {
+                Button {
+                    feedManager.markRead(article)
+                    YouTubeHelper.openInApp(url: article.url)
+                } label: {
+                    InboxArticleRow(article: article)
+                }
+                .listRowBackground(Color.clear)
+                .listRowInsets(EdgeInsets(top: 8, leading: 12, bottom: 8, trailing: 12))
+            } else {
+                NavigationLink {
+                    ArticleDetailView(article: article)
+                } label: {
+                    InboxArticleRow(article: article)
+                }
+                .listRowBackground(Color.clear)
+                .listRowInsets(EdgeInsets(top: 8, leading: 12, bottom: 8, trailing: 12))
             }
-            .listRowBackground(Color.clear)
-            .listRowInsets(EdgeInsets(top: 8, leading: 12, bottom: 8, trailing: 12))
         }
         .listStyle(.plain)
     }
@@ -82,9 +93,9 @@ struct InboxArticleRow: View {
         }
         .swipeActions(edge: .leading) {
             Button {
-                feedManager.markRead(article)
+                feedManager.toggleRead(article)
             } label: {
-                Image(systemName: "checkmark.circle")
+                Image(systemName: article.isRead ? "envelope.badge" : "checkmark.circle")
             }
             .tint(.blue)
         }

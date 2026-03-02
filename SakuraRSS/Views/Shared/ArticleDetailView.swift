@@ -94,7 +94,7 @@ struct ArticleDetailView: View {
                     openArticleURL()
                 } label: {
                     Label(String(localized: "Article.OpenInBrowser"),
-                          systemImage: isYouTubeURL ? "play.rectangle.fill" : "safari")
+                          systemImage: article.isYouTubeURL ? "play.rectangle.fill" : "safari")
                 }
                 .buttonStyle(.borderedProminent)
                 .padding(.top, 8)
@@ -176,25 +176,12 @@ struct ArticleDetailView: View {
         }
     }
 
-    private var isYouTubeURL: Bool {
-        let url = article.url.lowercased()
-        return url.contains("youtube.com") || url.contains("youtu.be")
-    }
-
     private func openArticleURL() {
-        guard let url = URL(string: article.url) else { return }
-
-        if isYouTubeURL,
-           var components = URLComponents(url: url, resolvingAgainstBaseURL: false) {
-            components.scheme = "youtube"
-            if let youtubeURL = components.url,
-               UIApplication.shared.canOpenURL(youtubeURL) {
-                UIApplication.shared.open(youtubeURL)
-                return
-            }
+        if article.isYouTubeURL {
+            YouTubeHelper.openInApp(url: article.url)
+        } else if let url = URL(string: article.url) {
+            openURL(url)
         }
-
-        openURL(url)
     }
 
     private func triggerTranslation() {

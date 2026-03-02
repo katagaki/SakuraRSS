@@ -9,12 +9,22 @@ struct PhotosStyleView: View {
         ScrollView(.vertical) {
             LazyVStack(spacing: 0) {
                 ForEach(articles) { article in
-                    NavigationLink {
-                        ArticleDetailView(article: article)
-                    } label: {
-                        PhotosArticleCard(article: article)
+                    if article.isYouTubeURL {
+                        Button {
+                            feedManager.markRead(article)
+                            YouTubeHelper.openInApp(url: article.url)
+                        } label: {
+                            PhotosArticleCard(article: article)
+                        }
+                        .buttonStyle(.plain)
+                    } else {
+                        NavigationLink {
+                            ArticleDetailView(article: article)
+                        } label: {
+                            PhotosArticleCard(article: article)
+                        }
+                        .buttonStyle(.plain)
                     }
-                    .buttonStyle(.plain)
                 }
             }
         }
@@ -27,13 +37,14 @@ struct PhotosArticleCard: View {
     let article: Article
     @State private var favicon: UIImage?
     @State private var feedName: String?
+    @State private var isYouTube = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             // Profile photo and feed name header
             HStack(spacing: 10) {
                 if let favicon = favicon {
-                    FaviconImage(favicon, size: 32, circle: true)
+                    FaviconImage(favicon, size: 32, circle: true, skipInset: isYouTube)
                 } else {
                     Circle()
                         .fill(.secondary.opacity(0.2))
@@ -88,6 +99,7 @@ struct PhotosArticleCard: View {
             if let feed = feedManager.feed(forArticle: article) {
                 favicon = await FaviconCache.shared.favicon(for: feed.domain, siteURL: feed.siteURL)
                 feedName = feed.title
+                isYouTube = feed.isYouTube
             }
         }
     }

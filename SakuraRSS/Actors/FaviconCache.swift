@@ -80,8 +80,20 @@ actor FaviconCache {
             }
         }
 
+        guard let url = URL(string: "https://\(domain)") else { return nil }
+
+        // Try PWA / apple-touch-icon first for higher quality
+        if let image = await fetchPWAIcon(from: url) {
+            let trimmed = await image.trimmed()
+            if let pngData = trimmed.pngData() {
+                try? pngData.write(to: filePath)
+            }
+            memoryCache[cacheKey] = trimmed
+            return trimmed
+        }
+
+        // Fall back to FaviconFinder
         do {
-            guard let url = URL(string: "https://\(domain)") else { return nil }
             let faviconURLs = try await FaviconFinder(url: url).fetchFaviconURLs()
             guard let bestFaviconURL = faviconURLs.first else { return nil }
             let favicon = try await bestFaviconURL.download()
@@ -99,6 +111,76 @@ actor FaviconCache {
         }
     }
 
+    // MARK: - PWA / Apple Touch Icon
+
+    /// Fetches a high-quality icon from a web app manifest or apple-touch-icon.
+    private nonisolated func fetchPWAIcon(from siteURL: URL) async -> UIImage? {
+        do {
+            let (data, _) = try await URLSession.shared.data(from: siteURL)
+            guard let html = String(data: data, encoding: .utf8) else { return nil }
+
+            // 1. Try web app manifest
+            if let manifestHref = extractLinkHref(from: html, rel: "manifest"),
+               let manifestURL = URL(string: manifestHref, relativeTo: siteURL) {
+                if let icon = await fetchManifestIcon(from: manifestURL.absoluteURL) {
+                    return icon
+                }
+            }
+
+            // 2. Try apple-touch-icon (typically 180x180)
+            if let touchIconHref = extractLinkHref(from: html, rel: "apple-touch-icon"),
+               let iconURL = URL(string: touchIconHref, relativeTo: siteURL) {
+                let (iconData, _) = try await URLSession.shared.data(from: iconURL.absoluteURL)
+                if let image = UIImage(data: iconData), image.size.width >= 64 {
+                    return image
+                }
+            }
+
+            return nil
+        } catch {
+            return nil
+        }
+    }
+
+    /// Fetches the largest icon from a web app manifest JSON.
+    private nonisolated func fetchManifestIcon(from manifestURL: URL) async -> UIImage? {
+        do {
+            let (data, _) = try await URLSession.shared.data(from: manifestURL)
+            guard let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+                  let icons = json["icons"] as? [[String: Any]] else { return nil }
+
+            // Find the largest square icon
+            var bestIcon: (url: String, size: Int)?
+            for icon in icons {
+                guard let src = icon["src"] as? String else { continue }
+                let size = parseIconSize(icon["sizes"] as? String)
+                if size > (bestIcon?.size ?? 0) {
+                    bestIcon = (src, size)
+                }
+            }
+
+            guard let iconSrc = bestIcon?.url,
+                  let iconURL = URL(string: iconSrc, relativeTo: manifestURL) else { return nil }
+
+            let (iconData, _) = try await URLSession.shared.data(from: iconURL.absoluteURL)
+            if let image = UIImage(data: iconData), image.size.width >= 64 {
+                return image
+            }
+            return nil
+        } catch {
+            return nil
+        }
+    }
+
+    /// Parses icon size strings like "192x192" and returns the width.
+    private nonisolated func parseIconSize(_ sizes: String?) -> Int {
+        guard let sizes = sizes else { return 0 }
+        let parts = sizes.lowercased().split(separator: "x")
+        return Int(parts.first ?? "") ?? 0
+    }
+
+    // MARK: - YouTube
+
     /// Fetches the YouTube channel avatar by scraping the channel page for the og:image meta tag.
     private nonisolated func fetchYouTubeAvatar(from siteURL: String) async -> UIImage? {
         guard let url = URL(string: siteURL) else { return nil }
@@ -106,7 +188,6 @@ actor FaviconCache {
             let (data, _) = try await URLSession.shared.data(from: url)
             guard let html = String(data: data, encoding: .utf8) else { return nil }
 
-            // Look for <meta property="og:image" content="...">
             guard let imageURL = extractMetaContent(from: html, property: "og:image"),
                   let avatarURL = URL(string: imageURL) else { return nil }
 
@@ -117,9 +198,26 @@ actor FaviconCache {
         }
     }
 
+    // MARK: - HTML Parsing Helpers
+
+    /// Extracts the href attribute from a link tag with the given rel value.
+    private nonisolated func extractLinkHref(from html: String, rel: String) -> String? {
+        let patterns = [
+            "<link[^>]+rel=\"\(rel)\"[^>]+href=\"([^\"]+)\"",
+            "<link[^>]+href=\"([^\"]+)\"[^>]+rel=\"\(rel)\""
+        ]
+        for pattern in patterns {
+            if let regex = try? NSRegularExpression(pattern: pattern, options: .caseInsensitive),
+               let match = regex.firstMatch(in: html, range: NSRange(html.startIndex..., in: html)),
+               let range = Range(match.range(at: 1), in: html) {
+                return String(html[range])
+            }
+        }
+        return nil
+    }
+
     /// Extracts the content attribute from a meta tag with the given property.
     private nonisolated func extractMetaContent(from html: String, property: String) -> String? {
-        // Match <meta property="og:image" content="..."> or <meta content="..." property="og:image">
         let patterns = [
             "<meta[^>]+property=\"\(property)\"[^>]+content=\"([^\"]+)\"",
             "<meta[^>]+content=\"([^\"]+)\"[^>]+property=\"\(property)\""

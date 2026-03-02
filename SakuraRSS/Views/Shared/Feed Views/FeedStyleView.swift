@@ -7,19 +7,31 @@ struct FeedStyleView: View {
 
     var body: some View {
         List(articles) { article in
-            ZStack {
-                NavigationLink {
-                    ArticleDetailView(article: article)
+            if article.isYouTubeURL {
+                Button {
+                    feedManager.markRead(article)
+                    YouTubeHelper.openInApp(url: article.url)
                 } label: {
-                    EmptyView()
+                    FeedArticleRow(article: article)
                 }
-                .opacity(0)
+                .listRowBackground(Color.clear)
+                .listRowInsets(EdgeInsets(top: 10, leading: 16, bottom: 10, trailing: 16))
+                .listRowSeparator(.visible)
+            } else {
+                ZStack {
+                    NavigationLink {
+                        ArticleDetailView(article: article)
+                    } label: {
+                        EmptyView()
+                    }
+                    .opacity(0)
 
-                FeedArticleRow(article: article)
+                    FeedArticleRow(article: article)
+                }
+                .listRowBackground(Color.clear)
+                .listRowInsets(EdgeInsets(top: 10, leading: 16, bottom: 10, trailing: 16))
+                .listRowSeparator(.visible)
             }
-            .listRowBackground(Color.clear)
-            .listRowInsets(EdgeInsets(top: 10, leading: 16, bottom: 10, trailing: 16))
-            .listRowSeparator(.visible)
         }
         .listStyle(.plain)
     }
@@ -31,11 +43,12 @@ struct FeedArticleRow: View {
     let article: Article
     @State private var favicon: UIImage?
     @State private var feedName: String?
+    @State private var isYouTube = false
 
     var body: some View {
         HStack(alignment: .top, spacing: 10) {
             if let favicon = favicon {
-                FaviconImage(favicon, size: 40, circle: true)
+                FaviconImage(favicon, size: 40, circle: true, skipInset: isYouTube)
             } else {
                 Circle()
                     .fill(.secondary.opacity(0.2))
@@ -89,9 +102,8 @@ struct FeedArticleRow: View {
             if let feed = feedManager.feed(forArticle: article) {
                 favicon = await FaviconCache.shared.favicon(for: feed.domain, siteURL: feed.siteURL)
                 feedName = feed.title
+                isYouTube = feed.isYouTube
             }
         }
-
-
     }
 }

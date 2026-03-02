@@ -27,27 +27,61 @@ struct ArticleExtractor {
         "aside",
         ".sidebar",
         ".navigation",
+        ".nav",
+        ".navbar",
         ".menu",
+        ".main-menu",
+        ".site-menu",
+        ".mobile-menu",
+        ".dropdown-menu",
         ".breadcrumb",
+        ".breadcrumbs",
         ".social-share",
         ".share-buttons",
+        ".sharing",
         ".related-posts",
+        ".related-articles",
         ".comments",
+        ".comment-section",
         ".advertisement",
         ".ad-container",
+        ".ad",
+        ".ads",
+        ".cookie-banner",
+        ".cookie-notice",
+        ".popup",
+        ".modal",
+        ".newsletter",
+        ".subscribe",
+        ".signup",
+        ".toolbar",
+        ".pagination",
+        ".pager",
+        ".tags",
+        ".tag-list",
         "[role=navigation]",
         "[role=banner]",
         "[role=complementary]",
         "[role=contentinfo]",
+        "[aria-label*=menu]",
+        "[aria-label*=Menu]",
+        "[aria-label*=navigation]",
+        "[aria-label*=Navigation]",
         "script",
         "style",
         "noscript",
-        "iframe"
+        "iframe",
+        "form",
+        "button",
+        "select",
+        "input",
+        "svg",
+        "canvas"
     ]
 
     private static let blockElements = [
         "p", "h1", "h2", "h3", "h4", "h5", "h6",
-        "blockquote", "li", "figcaption", "pre"
+        "blockquote", "li", "figcaption", "pre", "td", "th"
     ]
 
     static func extractText(fromHTML html: String) -> String? {
@@ -56,9 +90,12 @@ struct ArticleExtractor {
             let doc = try SwiftSoup.parse(html)
             removeNoise(from: doc)
             let element = try findMainContent(from: doc)
+            // Remove any remaining noise inside content area
+            removeNoise(from: element)
             let paragraphs = try extractParagraphs(from: element)
             let result = paragraphs.joined(separator: "\n\n")
-            return result.isEmpty ? nil : result
+            let cleaned = stripRemainingHTMLTags(result)
+            return cleaned.isEmpty ? nil : cleaned
         } catch {
             return nil
         }
@@ -87,6 +124,34 @@ struct ArticleExtractor {
                 continue
             }
         }
+    }
+
+    private static func removeNoise(from element: Element) {
+        for selector in noiseSelectors {
+            do {
+                let elements = try element.select(selector)
+                try elements.remove()
+            } catch {
+                continue
+            }
+        }
+
+        // Remove elements that look like menus (lists of links with little text)
+        do {
+            let lists = try element.select("ul, ol")
+            for list in lists {
+                let links = try list.select("a")
+                let items = try list.select("li")
+                // If most list items are just links, it's likely a menu
+                if items.size() > 2 && links.size() >= items.size() {
+                    let totalText = try list.text()
+                    let avgTextPerItem = totalText.count / max(items.size(), 1)
+                    if avgTextPerItem < 50 {
+                        try list.remove()
+                    }
+                }
+            }
+        } catch {}
     }
 
     private static func findMainContent(from doc: Document) throws -> Element {
@@ -144,6 +209,39 @@ struct ArticleExtractor {
         let fragment = try SwiftSoup.parseBodyFragment(html)
         var text = try fragment.body()?.text() ?? ""
         text = text.replacingOccurrences(of: brPlaceholder, with: "\n")
+        text = stripRemainingHTMLTags(text)
         return text.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
+    /// Strips any remaining HTML tags that may have leaked through parsing.
+    private static func stripRemainingHTMLTags(_ text: String) -> String {
+        var result = text
+        // Remove any HTML tags
+        result = result.replacingOccurrences(
+            of: "<[^>]+>",
+            with: "",
+            options: .regularExpression
+        )
+        // Decode common HTML entities
+        result = result.replacingOccurrences(of: "&amp;", with: "&")
+        result = result.replacingOccurrences(of: "&lt;", with: "<")
+        result = result.replacingOccurrences(of: "&gt;", with: ">")
+        result = result.replacingOccurrences(of: "&quot;", with: "\"")
+        result = result.replacingOccurrences(of: "&#39;", with: "'")
+        result = result.replacingOccurrences(of: "&apos;", with: "'")
+        result = result.replacingOccurrences(of: "&nbsp;", with: " ")
+        // Collapse excessive whitespace
+        result = result.replacingOccurrences(
+            of: "[ \\t]+",
+            with: " ",
+            options: .regularExpression
+        )
+        // Collapse more than 2 consecutive newlines
+        result = result.replacingOccurrences(
+            of: "\\n{3,}",
+            with: "\n\n",
+            options: .regularExpression
+        )
+        return result.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 }
