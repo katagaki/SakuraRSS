@@ -15,7 +15,7 @@ struct InboxStyleView: View {
                     InboxArticleRow(article: article)
                 }
                 .listRowBackground(Color.clear)
-                .listRowInsets(EdgeInsets(top: 8, leading: 12, bottom: 8, trailing: 12))
+                .listRowInsets(EdgeInsets(top: 8, leading: 12, bottom: 8, trailing: 16))
             } else {
                 NavigationLink {
                     ArticleDetailView(article: article)
@@ -23,7 +23,7 @@ struct InboxStyleView: View {
                     InboxArticleRow(article: article)
                 }
                 .listRowBackground(Color.clear)
-                .listRowInsets(EdgeInsets(top: 8, leading: 12, bottom: 8, trailing: 12))
+                .listRowInsets(EdgeInsets(top: 8, leading: 12, bottom: 8, trailing: 16))
             }
         }
         .listStyle(.plain)
@@ -38,31 +38,31 @@ struct InboxArticleRow: View {
     @State private var feedName: String?
 
     var body: some View {
-        HStack(alignment: .top, spacing: 6) {
+        HStack(alignment: .center, spacing: 8) {
             Circle()
                 .fill(article.isRead ? .clear : .blue)
                 .frame(width: 8, height: 8)
                 .padding(.leading, -4)
                 .padding(.top, 6)
 
-            if let favicon = favicon {
-                FaviconImage(favicon, size: 20, cornerRadius: 3)
-                    .padding(.top, 2)
-            } else if let feedName {
-                InitialsAvatarView(feedName, size: 20, cornerRadius: 3)
-                    .padding(.top, 2)
+            if let imageURL = article.imageURL, let url = URL(string: imageURL) {
+                CachedAsyncImage(url: url) {
+                    Color.secondary.opacity(0.1)
+                }
+                .frame(width: 48, height: 48)
+                .clipShape(RoundedRectangle(cornerRadius: 8))
             }
 
             VStack(alignment: .leading, spacing: 4) {
                 Text(article.title)
                     .font(.body)
                     .fontWeight(article.isRead ? .regular : .semibold)
-                    .lineLimit(2)
+                    .lineLimit(1)
                     .foregroundStyle(article.isRead ? .secondary : .primary)
 
                 if let summary = article.summary {
                     Text(summary)
-                        .font(.caption)
+                        .font(.subheadline)
                         .foregroundStyle(.secondary)
                         .lineLimit(2)
                 }
@@ -81,14 +81,6 @@ struct InboxArticleRow: View {
                 }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
-
-            if let imageURL = article.imageURL, let url = URL(string: imageURL) {
-                CachedAsyncImage(url: url) {
-                    Color.secondary.opacity(0.1)
-                }
-                .frame(width: 60, height: 60)
-                .clipShape(RoundedRectangle(cornerRadius: 6))
-            }
         }
         .task {
             if let feed = feedManager.feed(forArticle: article) {

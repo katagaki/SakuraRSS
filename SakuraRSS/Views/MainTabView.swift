@@ -1,15 +1,19 @@
 import SwiftUI
 
-struct ContentView: View {
+struct MainTabView: View {
 
     @Environment(FeedManager.self) var feedManager
 
     var body: some View {
         TabView {
+            Tab(String(localized: "Tabs.Home"), systemImage: "text.rectangle.page") {
+                HomeView()
+            }
+            .badge(feedManager.totalUnreadCount())
+
             Tab(String(localized: "Tabs.Feeds"), systemImage: "dot.radiowaves.up.forward") {
                 FeedListView()
             }
-            .badge(feedManager.totalUnreadCount())
 
             Tab(String(localized: "Tabs.Bookmarks"), systemImage: "bookmark") {
                 BookmarksView()
@@ -19,5 +23,6 @@ struct ContentView: View {
                 MoreView()
             }
         }
+        .tabBarMinimizeBehavior(.onScrollDown)
     }
 }

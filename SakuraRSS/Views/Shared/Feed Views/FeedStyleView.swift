@@ -16,7 +16,8 @@ struct FeedStyleView: View {
                 }
                 .listRowBackground(Color.clear)
                 .listRowInsets(EdgeInsets(top: 10, leading: 16, bottom: 10, trailing: 16))
-                .listRowSeparator(.visible)
+                .listRowSeparator(.hidden, edges: .top)
+                .listRowSeparator(.visible, edges: .bottom)
             } else {
                 ZStack {
                     NavigationLink {
@@ -28,9 +29,17 @@ struct FeedStyleView: View {
 
                     FeedArticleRow(article: article)
                 }
+                .padding(.horizontal, 12)
                 .listRowBackground(Color.clear)
-                .listRowInsets(EdgeInsets(top: 10, leading: 16, bottom: 10, trailing: 16))
-                .listRowSeparator(.visible)
+                .listRowInsets(EdgeInsets(top: 10, leading: 0, bottom: 10, trailing: 0))
+                .listRowSeparator(.hidden, edges: .top)
+                .listRowSeparator(.visible, edges: .bottom)
+                .alignmentGuide(.listRowSeparatorLeading) { _ in
+                    return 0
+                }
+                .alignmentGuide(.listRowSeparatorTrailing) { dimensions in
+                    return dimensions.width
+                }
             }
         }
         .listStyle(.plain)
@@ -61,7 +70,7 @@ struct FeedArticleRow: View {
                 HStack(spacing: 4) {
                     if let feedName {
                         Text(feedName)
-                            .font(.body)
+                            .font(.subheadline)
                             .fontWeight(.bold)
                             .foregroundStyle(.primary)
                             .lineLimit(1)
@@ -69,10 +78,10 @@ struct FeedArticleRow: View {
 
                     if let date = article.publishedDate {
                         Text("·")
-                            .font(.body)
+                            .font(.subheadline)
                             .foregroundStyle(.secondary)
                         Text(date, style: .relative)
-                            .font(.body)
+                            .font(.subheadline)
                             .foregroundStyle(.secondary)
                     }
 
@@ -85,20 +94,27 @@ struct FeedArticleRow: View {
                     }
                 }
 
-                if let summary = article.summary {
-                    Text(summary)
-                        .font(.body)
-                        .foregroundStyle(.primary)
-                        .lineLimit(3)
+                Group {
+                    if let summary = article.summary {
+                        Text(summary)
+                    } else {
+                        Text(article.title)
+                    }
                 }
+                .font(.subheadline)
+                .foregroundStyle(.primary)
+                .lineLimit(3)
 
                 if let imageURL = article.imageURL, let url = URL(string: imageURL) {
                     CachedAsyncImage(url: url) {
                         Color.secondary.opacity(0.1)
                     }
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 180)
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                    .frame(maxWidth: .infinity, maxHeight: 180)
+                    .clipShape(.rect(cornerRadius: 12))
+                    .overlay {
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(.thickMaterial, lineWidth: 0.5)
+                    }
                     .padding(.top, 4)
                 }
             }

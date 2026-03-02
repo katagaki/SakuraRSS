@@ -5,16 +5,22 @@ struct MoreView: View {
     @Environment(FeedManager.self) var feedManager
     @AppStorage("refreshInterval") private var refreshInterval: Int = 60
     @AppStorage("defaultDisplayStyle") private var defaultDisplayStyle: String = FeedDisplayStyle.inbox.rawValue
+
     var body: some View {
         NavigationStack {
             Form {
                 Section {
                     Picker(String(localized: "Settings.DisplayStyle"), selection: $defaultDisplayStyle) {
-                        Text(String(localized: "Articles.Style.Inbox")).tag(FeedDisplayStyle.inbox.rawValue)
-                        Text(String(localized: "Articles.Style.Feed")).tag(FeedDisplayStyle.feed.rawValue)
-                        Text(String(localized: "Articles.Style.Magazine")).tag(FeedDisplayStyle.magazine.rawValue)
-                        Text(String(localized: "Articles.Style.Compact")).tag(FeedDisplayStyle.compact.rawValue)
-                        Text(String(localized: "Articles.Style.Photos")).tag(FeedDisplayStyle.photos.rawValue)
+                        Text(String(localized: "Articles.Style.Inbox"))
+                            .tag(FeedDisplayStyle.inbox.rawValue)
+                        Text(String(localized: "Articles.Style.Feed"))
+                            .tag(FeedDisplayStyle.feed.rawValue)
+                        Text(String(localized: "Articles.Style.Magazine"))
+                            .tag(FeedDisplayStyle.magazine.rawValue)
+                        Text(String(localized: "Articles.Style.Compact"))
+                            .tag(FeedDisplayStyle.compact.rawValue)
+                        Text(String(localized: "Articles.Style.Photos"))
+                            .tag(FeedDisplayStyle.photos.rawValue)
                     }
                 } header: {
                     Text(String(localized: "Settings.Section.Display"))

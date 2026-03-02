@@ -31,8 +31,8 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "E47D101A2F549605006081EF"
-               BuildableName = "SakuraRSS.app"
-               BlueprintName = "SakuraRSS"
+               BuildableName = "Sakura.app"
+               BlueprintName = "Sakura"
                ReferencedContainer = "container:SakuraRSS.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -62,8 +62,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "E47D101A2F549605006081EF"
-            BuildableName = "SakuraRSS.app"
-            BlueprintName = "SakuraRSS"
+            BuildableName = "Sakura.app"
+            BlueprintName = "Sakura"
             ReferencedContainer = "container:SakuraRSS.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
@@ -81,8 +81,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "E47D101A2F549605006081EF"
-            BuildableName = "SakuraRSS.app"
-            BlueprintName = "SakuraRSS"
+            BuildableName = "Sakura.app"
+            BlueprintName = "Sakura"
             ReferencedContainer = "container:SakuraRSS.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>

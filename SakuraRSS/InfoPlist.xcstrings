@@ -8,13 +8,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "new",
-            "value" : "SakuraRSS"
+            "value" : "Sakura"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "サクラRSS"
+            "value" : "サクラ"
           }
         }
       }

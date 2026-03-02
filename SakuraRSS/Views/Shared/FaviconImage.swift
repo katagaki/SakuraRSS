@@ -7,7 +7,7 @@ struct FaviconImage: View {
     let cornerRadius: CGFloat
     let isCircle: Bool
     let skipInset: Bool
-    
+
     var isNonSquare: Bool { !image.isSquare }
     var showInset: Bool { !skipInset && isCircle && !image.isCircular && !image.isFilledSquare }
     var needsWhiteBackground: Bool { !skipInset && image.isDark }
@@ -96,8 +96,8 @@ extension UIImage {
             (last, last), (last - 1, last), (last, last - 1)
         ]
 
-        let corners = cornerPoints.map { (x, y) in
-            pixelData[(y * sampleSize + x) * bytesPerPixel + 3]
+        let corners = cornerPoints.map { (xCoord, yCoord) in
+            pixelData[(yCoord * sampleSize + xCoord) * bytesPerPixel + 3]
         }
         let mid = sampleSize / 2
         let centerAlpha = pixelData[(mid * sampleSize + mid) * bytesPerPixel + 3]
@@ -149,17 +149,17 @@ extension UIImage {
         var opaquePixelCount: CGFloat = 0
         let pixelCount = sampleSize * sampleSize
 
-        for i in 0..<pixelCount {
-            let offset = i * 4
+        for index in 0..<pixelCount {
+            let offset = index * 4
             let alpha = CGFloat(pixelData[offset + 3]) / 255.0
             guard alpha > 0.1 else { continue }
 
-            let r = CGFloat(pixelData[offset]) / 255.0
-            let g = CGFloat(pixelData[offset + 1]) / 255.0
-            let b = CGFloat(pixelData[offset + 2]) / 255.0
+            let red = CGFloat(pixelData[offset]) / 255.0
+            let green = CGFloat(pixelData[offset + 1]) / 255.0
+            let blue = CGFloat(pixelData[offset + 2]) / 255.0
 
             // Relative luminance (ITU-R BT.709)
-            totalLuminance += 0.2126 * r + 0.7152 * g + 0.0722 * b
+            totalLuminance += 0.2126 * red + 0.7152 * green + 0.0722 * blue
             opaquePixelCount += 1
         }
 

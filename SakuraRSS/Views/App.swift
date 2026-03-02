@@ -9,7 +9,7 @@ struct SakuraRSSApp: App {
 
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            MainTabView()
                 .environment(\.defaultMinListRowHeight, 10.0)
                 .environment(feedManager)
                 .task {

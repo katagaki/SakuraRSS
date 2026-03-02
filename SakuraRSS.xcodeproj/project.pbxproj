@@ -52,7 +52,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		E47D101B2F549605006081EF /* SakuraRSS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SakuraRSS.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		E47D101B2F549605006081EF /* Sakura.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Sakura.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E47D10342F54980E006081EF /* Add Feed.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "Add Feed.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
 		E47D10362F54980E006081EF /* UniformTypeIdentifiers.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UniformTypeIdentifiers.framework; path = System/Library/Frameworks/UniformTypeIdentifiers.framework; sourceTree = SDKROOT; };
 		E47D104D2F549821006081EF /* WidgetsExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = WidgetsExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -75,12 +75,12 @@
 			);
 			target = E47D104C2F549821006081EF /* WidgetsExtension */;
 		};
-		E47D13142F549D4D006081EF /* Exceptions for "SakuraRSS" folder in "SakuraRSS" target */ = {
+		E47D13142F549D4D006081EF /* Exceptions for "SakuraRSS" folder in "Sakura" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
 			);
-			target = E47D101A2F549605006081EF /* SakuraRSS */;
+			target = E47D101A2F549605006081EF /* Sakura */;
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
@@ -88,7 +88,7 @@
 		E47D101D2F549605006081EF /* SakuraRSS */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				E47D13142F549D4D006081EF /* Exceptions for "SakuraRSS" folder in "SakuraRSS" target */,
+				E47D13142F549D4D006081EF /* Exceptions for "SakuraRSS" folder in "Sakura" target */,
 			);
 			path = SakuraRSS;
 			sourceTree = "<group>";
@@ -164,7 +164,7 @@
 		E47D101C2F549605006081EF /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				E47D101B2F549605006081EF /* SakuraRSS.app */,
+				E47D101B2F549605006081EF /* Sakura.app */,
 				E47D10342F54980E006081EF /* Add Feed.appex */,
 				E47D104D2F549821006081EF /* WidgetsExtension.appex */,
 			);
@@ -184,9 +184,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		E47D101A2F549605006081EF /* SakuraRSS */ = {
+		E47D101A2F549605006081EF /* Sakura */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = E47D10262F549606006081EF /* Build configuration list for PBXNativeTarget "SakuraRSS" */;
+			buildConfigurationList = E47D10262F549606006081EF /* Build configuration list for PBXNativeTarget "Sakura" */;
 			buildPhases = (
 				E47D10172F549605006081EF /* Sources */,
 				E47D10182F549605006081EF /* Frameworks */,
@@ -204,14 +204,14 @@
 				E47D101D2F549605006081EF /* SakuraRSS */,
 				E47D10292F549709006081EF /* Shared */,
 			);
-			name = SakuraRSS;
+			name = Sakura;
 			packageProductDependencies = (
 				E47D102D2F5497AC006081EF /* SQLite */,
 				E47D10622F54986D006081EF /* FaviconFinder */,
 				E47D13172F549F92006081EF /* SwiftSoup */,
 			);
 			productName = SakuraRSS;
-			productReference = E47D101B2F549605006081EF /* SakuraRSS.app */;
+			productReference = E47D101B2F549605006081EF /* Sakura.app */;
 			productType = "com.apple.product-type.application";
 		};
 		E47D10332F54980E006081EF /* Add Feed */ = {
@@ -303,7 +303,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				E47D101A2F549605006081EF /* SakuraRSS */,
+				E47D101A2F549605006081EF /* Sakura */,
 				E47D10332F54980E006081EF /* Add Feed */,
 				E47D104C2F549821006081EF /* WidgetsExtension */,
 			);
@@ -758,7 +758,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		E47D10262F549606006081EF /* Build configuration list for PBXNativeTarget "SakuraRSS" */ = {
+		E47D10262F549606006081EF /* Build configuration list for PBXNativeTarget "Sakura" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				E47D10272F549606006081EF /* Debug */,

@@ -8,7 +8,7 @@ struct CompactStyleView: View {
     private func articleLabel(for article: Article) -> some View {
         HStack {
             Text(article.title)
-                .font(.body)
+                .font(.caption)
                 .fontWeight(article.isRead ? .regular : .medium)
                 .foregroundStyle(article.isRead ? .secondary : .primary)
                 .lineLimit(1)
@@ -17,7 +17,7 @@ struct CompactStyleView: View {
 
             if let date = article.publishedDate {
                 Text(date, style: .relative)
-                    .font(.caption2)
+                    .font(.caption)
                     .foregroundStyle(.tertiary)
             }
         }

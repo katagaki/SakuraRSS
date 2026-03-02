@@ -2,10 +2,10 @@
   "sourceLanguage" : "en",
   "strings" : {
     "·" : {
-
+      "shouldTranslate" : false
     },
     "%lld" : {
-
+      "shouldTranslate" : false
     },
     "AddFeed.AddDirectly" : {
       "extractionState" : "manual",
@@ -54,23 +54,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "example.com"
-          }
-        }
-      }
-    },
-    "AddFeed.URLPlaceholder" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "example.com/feed or example.com"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "example.com/feed または example.com"
           }
         }
       }
@@ -326,6 +309,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "フィードを追加"
+          }
+        }
+      }
+    },
+    "AddFeed.URLPlaceholder" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "example.com/feed or example.com"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "example.com/feed または example.com"
           }
         }
       }
@@ -671,7 +671,15 @@
       }
     },
     "katagaki/SakuraRSS" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "katagaki/SakuraRSS"
+          }
+        }
+      },
+      "shouldTranslate" : false
     },
     "More.Attribution" : {
       "extractionState" : "manual",
@@ -1026,6 +1034,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "フィード"
+          }
+        }
+      }
+    },
+    "Tabs.Home" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Home"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ホーム"
           }
         }
       }

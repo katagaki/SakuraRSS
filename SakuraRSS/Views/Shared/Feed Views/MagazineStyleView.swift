@@ -58,7 +58,7 @@ struct MagazineArticleCard: View {
                             }
                         }
                         .clipped()
-                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                        .clipShape(.rect(cornerRadius: 12))
                 } else {
                     RoundedRectangle(cornerRadius: 10)
                         .fill(.secondary.opacity(0.15))
@@ -82,7 +82,7 @@ struct MagazineArticleCard: View {
                     .frame(width: 6, height: 6)
 
                 Text(article.title)
-                    .font(.caption)
+                    .font(.subheadline)
                     .fontWeight(article.isRead ? .regular : .semibold)
                     .lineLimit(2)
                     .multilineTextAlignment(.leading)
@@ -97,10 +97,7 @@ struct MagazineArticleCard: View {
                     .foregroundStyle(.tertiary)
             }
         }
-        .padding(6)
-        .background(.background)
-        .contentShape(RoundedRectangle(cornerRadius: 12))
-        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .contentShape(.rect)
         .shadow(color: .black.opacity(0.05), radius: 2, y: 1)
         .task {
             if let feed = feedManager.feed(forArticle: article) {

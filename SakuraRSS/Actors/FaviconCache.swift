@@ -268,12 +268,12 @@ private enum BlankPaddingTrimmer {
         context.draw(cgImage, in: CGRect(x: 0, y: 0, width: width, height: height))
 
         func isBlank(at offset: Int) -> Bool {
-            let a = CGFloat(pixelData[offset + 3]) / 255.0
-            if a < 0.1 { return true }
-            let r = CGFloat(pixelData[offset]) / 255.0 / a
-            let g = CGFloat(pixelData[offset + 1]) / 255.0 / a
-            let b = CGFloat(pixelData[offset + 2]) / 255.0 / a
-            return r >= tolerance && g >= tolerance && b >= tolerance
+            let alpha = CGFloat(pixelData[offset + 3]) / 255.0
+            if alpha < 0.1 { return true }
+            let red = CGFloat(pixelData[offset]) / 255.0 / alpha
+            let green = CGFloat(pixelData[offset + 1]) / 255.0 / alpha
+            let blue = CGFloat(pixelData[offset + 2]) / 255.0 / alpha
+            return red >= tolerance && green >= tolerance && blue >= tolerance
         }
 
         var top = 0
@@ -281,32 +281,32 @@ private enum BlankPaddingTrimmer {
         var left = 0
         var right = width - 1
 
-        topScan: for y in 0..<height {
-            for x in 0..<width {
-                if !isBlank(at: (y * width + x) * bytesPerPixel) { break topScan }
+        topScan: for yValue in 0..<height {
+            for xValue in 0..<width {
+                if !isBlank(at: (yValue * width + xValue) * bytesPerPixel) { break topScan }
             }
-            top = y + 1
+            top = yValue + 1
         }
 
-        bottomScan: for y in stride(from: height - 1, through: top, by: -1) {
-            for x in 0..<width {
-                if !isBlank(at: (y * width + x) * bytesPerPixel) { break bottomScan }
+        bottomScan: for yValue in stride(from: height - 1, through: top, by: -1) {
+            for xValue in 0..<width {
+                if !isBlank(at: (yValue * width + xValue) * bytesPerPixel) { break bottomScan }
             }
-            bottom = y - 1
+            bottom = yValue - 1
         }
 
-        leftScan: for x in 0..<width {
-            for y in top...bottom {
-                if !isBlank(at: (y * width + x) * bytesPerPixel) { break leftScan }
+        leftScan: for xValue in 0..<width {
+            for yValue in top...bottom {
+                if !isBlank(at: (yValue * width + xValue) * bytesPerPixel) { break leftScan }
             }
-            left = x + 1
+            left = xValue + 1
         }
 
-        rightScan: for x in stride(from: width - 1, through: left, by: -1) {
-            for y in top...bottom {
-                if !isBlank(at: (y * width + x) * bytesPerPixel) { break rightScan }
+        rightScan: for xValue in stride(from: width - 1, through: left, by: -1) {
+            for yValue in top...bottom {
+                if !isBlank(at: (yValue * width + xValue) * bytesPerPixel) { break rightScan }
             }
-            right = x - 1
+            right = xValue - 1
         }
 
         let cropWidth = right - left + 1
@@ -329,8 +329,8 @@ extension UIImage {
 
     /// Returns a copy with transparent/near-white padding cropped, or self if no significant padding.
     @MainActor func trimmed() -> UIImage {
-        guard let cg = cgImage,
-              let cropped = BlankPaddingTrimmer.trim(cg) else {
+        guard let cgImage,
+              let cropped = BlankPaddingTrimmer.trim(cgImage) else {
             return self
         }
         return UIImage(cgImage: cropped, scale: scale, orientation: imageOrientation)
