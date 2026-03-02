@@ -58,10 +58,7 @@ actor FeedDiscovery {
         let feeds = await discoverFromHTML(url: pageURL)
         if !feeds.isEmpty { return feeds }
 
-        let probeFeeds = await probeCommonPaths(domain: pageURL.host ?? "")
-        if !probeFeeds.isEmpty { return probeFeeds }
-
-        return []
+        return await probeCommonPaths(domain: pageURL.host ?? "")
     }
 
     // MARK: - HTML Link Discovery
@@ -169,10 +166,13 @@ actor FeedDiscovery {
             let contentType = httpResponse.value(forHTTPHeaderField: "Content-Type") ?? ""
             let isXML = contentType.contains("xml") || contentType.contains("rss") || contentType.contains("atom")
 
-            if isXML || data.prefix(100).contains(where: { _ in
-                String(data: data.prefix(500), encoding: .utf8)?.contains("<rss") == true ||
-                String(data: data.prefix(500), encoding: .utf8)?.contains("<feed") == true
-            }) {
+            let looksLikeFeed: Bool = {
+                guard !isXML else { return false }
+                guard let prefix = String(data: data.prefix(500), encoding: .utf8) else { return false }
+                return prefix.contains("<rss") || prefix.contains("<feed")
+            }()
+
+            if isXML || looksLikeFeed {
                 let parser = RSSParser()
                 if let parsed = parser.parse(data: data) {
                     return DiscoveredFeed(

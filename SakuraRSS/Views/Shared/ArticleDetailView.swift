@@ -116,8 +116,10 @@ struct ArticleDetailView: View {
             }
             ToolbarSpacer(.fixed, placement: .topBarTrailing)
             ToolbarItemGroup(placement: .topBarTrailing) {
-                ShareLink(item: URL(string: article.url)!) {
-                    Label(String(localized: "Article.Share"), systemImage: "square.and.arrow.up")
+                if let shareURL = URL(string: article.url) {
+                    ShareLink(item: shareURL) {
+                        Label(String(localized: "Article.Share"), systemImage: "square.and.arrow.up")
+                    }
                 }
             }
         }

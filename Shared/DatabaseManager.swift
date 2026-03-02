@@ -105,46 +105,17 @@ nonisolated final class DatabaseManager: @unchecked Sendable {
     }
 
     func allFeeds() throws -> [Feed] {
-        try database.prepare(feeds.order(feedTitle.asc)).map { row in
-            Feed(
-                id: row[feedID],
-                title: row[feedTitle],
-                url: row[feedURL],
-                siteURL: row[feedSiteURL],
-                feedDescription: row[feedDescription],
-                faviconURL: row[feedFaviconURL],
-                lastFetched: row[feedLastFetched].map { Date(timeIntervalSince1970: $0) },
-                category: row[feedCategory]
-            )
-        }
+        try database.prepare(feeds.order(feedTitle.asc)).map(rowToFeed)
     }
 
     func feed(byID id: Int64) throws -> Feed? {
         guard let row = try database.pluck(feeds.filter(feedID == id)) else { return nil }
-        return Feed(
-            id: row[feedID],
-            title: row[feedTitle],
-            url: row[feedURL],
-            siteURL: row[feedSiteURL],
-            feedDescription: row[feedDescription],
-            faviconURL: row[feedFaviconURL],
-            lastFetched: row[feedLastFetched].map { Date(timeIntervalSince1970: $0) },
-            category: row[feedCategory]
-        )
+        return rowToFeed(row)
     }
 
     func feed(byURL url: String) throws -> Feed? {
         guard let row = try database.pluck(feeds.filter(feedURL == url)) else { return nil }
-        return Feed(
-            id: row[feedID],
-            title: row[feedTitle],
-            url: row[feedURL],
-            siteURL: row[feedSiteURL],
-            feedDescription: row[feedDescription],
-            faviconURL: row[feedFaviconURL],
-            lastFetched: row[feedLastFetched].map { Date(timeIntervalSince1970: $0) },
-            category: row[feedCategory]
-        )
+        return rowToFeed(row)
     }
 
     func updateFeedLastFetched(id: Int64, date: Date) throws {
@@ -276,6 +247,19 @@ nonisolated final class DatabaseManager: @unchecked Sendable {
     }
 
     // MARK: - Helpers
+
+    private func rowToFeed(_ row: Row) -> Feed {
+        Feed(
+            id: row[feedID],
+            title: row[feedTitle],
+            url: row[feedURL],
+            siteURL: row[feedSiteURL],
+            feedDescription: row[feedDescription],
+            faviconURL: row[feedFaviconURL],
+            lastFetched: row[feedLastFetched].map { Date(timeIntervalSince1970: $0) },
+            category: row[feedCategory]
+        )
+    }
 
     private func rowToArticle(_ row: Row) -> Article {
         Article(
