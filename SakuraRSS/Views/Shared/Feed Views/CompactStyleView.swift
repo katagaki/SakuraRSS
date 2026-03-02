@@ -29,14 +29,8 @@ struct CompactStyleView: View {
             .listRowBackground(Color.clear)
             .listRowInsets(EdgeInsets(top: 4, leading: 16, bottom: 4, trailing: 16))
             .listRowSpacing(0.0)
-            .swipeActions(edge: .trailing) {
-                Button {
-                    feedManager.markRead(article)
-                } label: {
-                    Image(systemName: "checkmark.circle")
-                }
-                .tint(.blue)
-            }
+
+
         }
         .listStyle(.plain)
     }

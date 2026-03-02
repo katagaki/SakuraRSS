@@ -10,6 +10,8 @@ struct ArticleDetailView: View {
     @State private var extractedText: String?
     @State private var isExtracting = false
     @State private var translatedText: String?
+    @State private var translatedTitle: String?
+    @State private var isTranslating = false
     @State private var translationConfig: TranslationSession.Configuration?
 
     var displayText: String? {
@@ -19,7 +21,7 @@ struct ArticleDetailView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
-                Text(article.title)
+                Text(translatedTitle ?? article.title)
                     .font(.title2)
                     .fontWeight(.bold)
 
@@ -75,12 +77,17 @@ struct ArticleDetailView: View {
                     Button {
                         triggerTranslation()
                     } label: {
+                        if isTranslating {
+                            ProgressView()
+                                .padding(.trailing, 4)
+                        }
                         Label(
                             String(localized: "Article.Translate"),
                             systemImage: "translate"
                         )
                     }
                     .buttonStyle(.bordered)
+                    .disabled(isTranslating)
                 }
 
                 Button {
@@ -121,11 +128,22 @@ struct ArticleDetailView: View {
             await extractArticleContent()
         }
         .translationTask(translationConfig) { session in
+            isTranslating = true
+            defer { isTranslating = false }
+
             let source = extractedText ?? article.summary ?? ""
             guard !source.isEmpty else { return }
+
             do {
-                let response = try await session.translate(source)
-                translatedText = response.targetText
+                let requests = [
+                    TranslationSession.Request(sourceText: article.title),
+                    TranslationSession.Request(sourceText: source)
+                ]
+                let responses = try await session.translations(from: requests)
+                if responses.count >= 2 {
+                    translatedTitle = responses[0].targetText
+                    translatedText = responses[1].targetText
+                }
             } catch {
                 // Translation failed; user can retry
             }

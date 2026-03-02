@@ -42,14 +42,23 @@ actor FeedDiscovery {
     }
 
     func discoverFeeds(fromPageURL pageURL: URL) async -> [DiscoveredFeed] {
-        guard let host = pageURL.host else { return [] }
-        return await discoverFeeds(forDomain: host)
+        let feeds = await discoverFromHTML(url: pageURL)
+        if !feeds.isEmpty { return feeds }
+
+        let probeFeeds = await probeCommonPaths(domain: pageURL.host ?? "")
+        if !probeFeeds.isEmpty { return probeFeeds }
+
+        return []
     }
 
     // MARK: - HTML Link Discovery
 
     private func discoverFromHTML(domain: String) async -> [DiscoveredFeed] {
         guard let url = URL(string: "https://\(domain)") else { return [] }
+        return await discoverFromHTML(url: url)
+    }
+
+    private func discoverFromHTML(url: URL) async -> [DiscoveredFeed] {
 
         do {
             let (data, _) = try await URLSession.shared.data(from: url)

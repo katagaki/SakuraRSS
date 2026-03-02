@@ -18,12 +18,14 @@ struct FaviconImage: View {
         Image(uiImage: image)
             .resizable()
             .aspectRatio(contentMode: .fill)
-            .frame(width: size, height: size)
+            .frame(width: isCircle ? size * 0.7 : size, height: isCircle ? size * 0.7 : size)
             .if(image.isDark) { view in
                 view
                     .padding(2)
                     .background(.white)
             }
+            .frame(width: size, height: size)
+            .background(isCircle ? Color(.secondarySystemBackground) : .clear)
             .clipShape(isCircle ? AnyShape(Circle()) : AnyShape(RoundedRectangle(cornerRadius: cornerRadius)))
     }
 }

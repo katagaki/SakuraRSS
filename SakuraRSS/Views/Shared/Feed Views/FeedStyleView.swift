@@ -98,21 +98,7 @@ struct FeedArticleRow: View {
                 feedName = feed.title
             }
         }
-        .swipeActions(edge: .leading) {
-            Button {
-                feedManager.toggleBookmark(article)
-            } label: {
-                Image(systemName: article.isBookmarked ? "bookmark.slash" : "bookmark")
-            }
-            .tint(.orange)
-        }
-        .swipeActions(edge: .trailing) {
-            Button {
-                feedManager.markRead(article)
-            } label: {
-                Image(systemName: "checkmark.circle")
-            }
-            .tint(.blue)
-        }
+
+
     }
 }

@@ -79,14 +79,6 @@ struct InboxArticleRow: View {
                 favicon = await FaviconCache.shared.favicon(for: feed.domain)
             }
         }
-        .swipeActions(edge: .leading) {
-            Button {
-                feedManager.toggleBookmark(article)
-            } label: {
-                Image(systemName: article.isBookmarked ? "bookmark.slash" : "bookmark")
-            }
-            .tint(.orange)
-        }
         .swipeActions(edge: .trailing) {
             Button {
                 feedManager.markRead(article)
