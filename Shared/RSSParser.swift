@@ -198,13 +198,13 @@ nonisolated final class RSSParser: NSObject, XMLParserDelegate, @unchecked Senda
         }
     }()
 
-    private static let iso8601WithFractional: ISO8601DateFormatter = {
+    nonisolated(unsafe) private static let iso8601WithFractional: ISO8601DateFormatter = {
         let formatter = ISO8601DateFormatter()
         formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
         return formatter
     }()
 
-    private static let iso8601Standard: ISO8601DateFormatter = {
+    nonisolated(unsafe) private static let iso8601Standard: ISO8601DateFormatter = {
         let formatter = ISO8601DateFormatter()
         formatter.formatOptions = [.withInternetDateTime]
         return formatter
