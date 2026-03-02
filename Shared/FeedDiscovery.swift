@@ -18,12 +18,25 @@ actor FeedDiscovery {
         "/rss/",
         "/rss.xml",
         "/feed.xml",
+        "/feed.rss",
         "/atom.xml",
+        "/atom",
         "/index.xml",
+        "/index.rss",
+        "/_rss",
+        "/.rss",
+        "/feed/atom",
+        "/feed/rss2",
         "/feeds/posts/default",
         "/blog/feed",
         "/blog/rss",
-        "/?feed=rss2"
+        "/blog/feed.xml",
+        "/blog/rss.xml",
+        "/blog/atom.xml",
+        "/blog/index.xml",
+        "/?feed=rss2",
+        "/?format=rss",
+        "/blog?format=rss"
     ]
 
     func discoverFeeds(forDomain domain: String) async -> [DiscoveredFeed] {
