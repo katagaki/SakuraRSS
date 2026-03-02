@@ -5,24 +5,26 @@ struct FaviconImage: View {
     let image: UIImage
     let size: CGFloat
     let cornerRadius: CGFloat
+    let isCircle: Bool
 
-    init(_ image: UIImage, size: CGFloat = 20, cornerRadius: CGFloat = 3) {
+    init(_ image: UIImage, size: CGFloat = 20, cornerRadius: CGFloat = 3, circle: Bool = false) {
         self.image = image
         self.size = size
         self.cornerRadius = cornerRadius
+        self.isCircle = circle
     }
 
     var body: some View {
         Image(uiImage: image)
             .resizable()
-            .aspectRatio(contentMode: .fit)
+            .aspectRatio(contentMode: .fill)
             .frame(width: size, height: size)
             .if(image.isDark) { view in
                 view
                     .padding(2)
                     .background(.white)
             }
-            .clipShape(RoundedRectangle(cornerRadius: cornerRadius))
+            .clipShape(isCircle ? AnyShape(Circle()) : AnyShape(RoundedRectangle(cornerRadius: cornerRadius)))
     }
 }
 

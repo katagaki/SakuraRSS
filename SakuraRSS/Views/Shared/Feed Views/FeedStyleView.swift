@@ -35,7 +35,7 @@ struct FeedArticleRow: View {
     var body: some View {
         HStack(alignment: .top, spacing: 10) {
             if let favicon = favicon {
-                FaviconImage(favicon, size: 28, cornerRadius: 14)
+                FaviconImage(favicon, size: 28, circle: true)
             } else {
                 Circle()
                     .fill(.secondary.opacity(0.2))
