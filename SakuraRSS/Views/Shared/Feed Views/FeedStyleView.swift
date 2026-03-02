@@ -49,6 +49,7 @@ struct FeedStyleView: View {
 struct FeedArticleRow: View {
 
     @Environment(FeedManager.self) var feedManager
+    @Environment(\.openURL) var openURL
     let article: Article
     @State private var favicon: UIImage?
     @State private var feedName: String?
@@ -117,6 +118,47 @@ struct FeedArticleRow: View {
                     }
                     .padding(.top, 4)
                 }
+
+                HStack {
+                    Button {
+                        if article.isYouTubeURL {
+                            YouTubeHelper.openInApp(url: article.url)
+                        } else if let url = URL(string: article.url) {
+                            openURL(url)
+                        }
+                    } label: {
+                        Image(systemName: article.isYouTubeURL ? "play.rectangle.fill" : "safari")
+                    }
+                    .buttonStyle(.plain)
+
+                    Spacer()
+
+                    Button {
+                        UIPasteboard.general.string = article.url
+                    } label: {
+                        Image(systemName: "square.on.square")
+                    }
+                    .buttonStyle(.plain)
+
+                    Spacer()
+
+                    Button {
+                        feedManager.toggleBookmark(article)
+                    } label: {
+                        Image(systemName: article.isBookmarked ? "bookmark.fill" : "bookmark")
+                    }
+                    .buttonStyle(.plain)
+
+                    Spacer()
+
+                    if let shareURL = URL(string: article.url) {
+                        ShareLink(item: shareURL) {
+                            Image(systemName: "square.and.arrow.up")
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+                .foregroundStyle(.secondary)
             }
         }
         .task {

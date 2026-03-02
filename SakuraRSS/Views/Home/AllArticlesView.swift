@@ -15,7 +15,7 @@ struct AllArticlesView: View {
             await feedManager.refreshAllFeeds()
         }
         .toolbar {
-            ToolbarItemGroup(placement: .topBarTrailing) {
+            ToolbarItemGroup(placement: .topBarLeading) {
                 Button {
                     isShowingMarkAllReadConfirmation = true
                 } label: {
