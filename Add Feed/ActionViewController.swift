@@ -24,8 +24,7 @@ class ActionViewController: UIViewController {
 
         let navItem = UINavigationItem(title: NSLocalizedString("AddFeed.Title", comment: ""))
         navItem.rightBarButtonItem = UIBarButtonItem(
-            image: UIImage(systemName: "xmark.circle.fill"),
-            style: .plain,
+            barButtonSystemItem: .done,
             target: self,
             action: #selector(done)
         )
