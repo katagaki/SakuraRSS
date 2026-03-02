@@ -13,6 +13,10 @@ nonisolated struct Feed: Identifiable, Hashable, Sendable {
     var domain: String {
         URL(string: siteURL)?.host ?? URL(string: url)?.host ?? ""
     }
+
+    var isYouTube: Bool {
+        domain.contains("youtube.com") || domain.contains("youtu.be")
+    }
 }
 
 nonisolated struct Article: Identifiable, Hashable, Sendable {
@@ -34,4 +38,5 @@ nonisolated enum FeedDisplayStyle: String, CaseIterable, Sendable {
     case feed
     case magazine
     case compact
+    case video
 }

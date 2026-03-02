@@ -10,7 +10,8 @@ struct FeedArticlesView: View {
         ArticleListView(
             articles: feedManager.articles(for: feed),
             title: feed.title,
-            feedKey: String(feed.id)
+            feedKey: String(feed.id),
+            isYouTube: feed.isYouTube
         )
         .refreshable {
             try? await feedManager.refreshFeed(feed)
@@ -25,10 +26,14 @@ struct FeedArticlesView: View {
                 .popover(isPresented: $isShowingMarkAllReadConfirmation) {
                     VStack(spacing: 12) {
                         Text(String(localized: "Articles.MarkAllRead.Confirm"))
-                            .font(.subheadline)
-                        Button(String(localized: "Articles.MarkAllRead")) {
+                            .font(.body)
+                        Button {
                             feedManager.markAllRead(feed: feed)
                             isShowingMarkAllReadConfirmation = false
+                        } label: {
+                            Text(String(localized: "Articles.MarkAllRead"))
+                                .padding(.horizontal, 12)
+                                .padding(.vertical, 6)
                         }
                         .buttonStyle(.bordered)
                     }

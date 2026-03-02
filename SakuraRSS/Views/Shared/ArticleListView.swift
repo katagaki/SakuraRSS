@@ -6,16 +6,18 @@ struct ArticleListView: View {
     let articles: [Article]
     let title: String
     let feedKey: String
+    let isYouTubeFeed: Bool
 
     @State private var displayStyle: FeedDisplayStyle
 
-    init(articles: [Article], title: String, feedKey: String) {
+    init(articles: [Article], title: String, feedKey: String, isYouTube: Bool = false) {
         self.articles = articles
         self.title = title
         self.feedKey = feedKey
+        self.isYouTubeFeed = isYouTube
         let raw = UserDefaults.standard.string(forKey: "displayStyle-\(feedKey)")
         let defaultRaw = UserDefaults.standard.string(forKey: "defaultDisplayStyle") ?? FeedDisplayStyle.inbox.rawValue
-        let fallback = FeedDisplayStyle(rawValue: defaultRaw) ?? .inbox
+        let fallback = isYouTube ? .video : (FeedDisplayStyle(rawValue: defaultRaw) ?? .inbox)
         self._displayStyle = State(initialValue: raw.flatMap(FeedDisplayStyle.init(rawValue:)) ?? fallback)
     }
 
@@ -30,6 +32,8 @@ struct ArticleListView: View {
                 MagazineStyleView(articles: articles)
             case .compact:
                 CompactStyleView(articles: articles)
+            case .video:
+                VideoStyleView(articles: articles)
             }
         }
         .scrollContentBackground(.hidden)
@@ -47,6 +51,10 @@ struct ArticleListView: View {
                             .tag(FeedDisplayStyle.magazine)
                         Label(String(localized: "Articles.Style.Compact"), systemImage: "list.dash")
                             .tag(FeedDisplayStyle.compact)
+                        if isYouTubeFeed {
+                            Label(String(localized: "Articles.Style.Video"), systemImage: "play.rectangle")
+                                .tag(FeedDisplayStyle.video)
+                        }
                     }
                 } label: {
                     Image(systemName: "line.3.horizontal.decrease")
