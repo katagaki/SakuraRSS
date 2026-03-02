@@ -80,12 +80,14 @@ struct AddFeedView: View {
 
                                 if addedURLs.contains(feed.url) {
                                     Image(systemName: "checkmark.circle.fill")
+                                        .font(.title2)
                                         .foregroundStyle(.green)
                                 } else {
                                     Button {
                                         addFeed(feed)
                                     } label: {
                                         Image(systemName: "plus.circle.fill")
+                                            .font(.title2)
                                     }
                                     .buttonStyle(.borderless)
                                 }

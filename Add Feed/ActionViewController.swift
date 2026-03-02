@@ -92,15 +92,18 @@ struct ActionExtensionView: View {
 
                             if model.addedFeedIDs.contains(feed.id) {
                                 Image(systemName: "checkmark.circle.fill")
+                                    .font(.title2)
                                     .foregroundStyle(.green)
                             } else if model.duplicateFeedIDs.contains(feed.id) {
                                 Image(systemName: "checkmark.circle.fill")
+                                    .font(.title2)
                                     .foregroundStyle(.secondary)
                             } else {
                                 Button {
                                     addFeed(feed)
                                 } label: {
                                     Image(systemName: "plus.circle.fill")
+                                        .font(.title2)
                                 }
                                 .buttonStyle(.borderless)
                             }
