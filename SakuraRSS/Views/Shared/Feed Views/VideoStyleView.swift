@@ -82,6 +82,35 @@ struct VideoArticleCard: View {
                     .foregroundStyle(.secondary)
                     .lineLimit(1)
                 }
+
+                Spacer(minLength: 0)
+
+                Menu {
+                    Button {
+                        feedManager.toggleBookmark(article)
+                    } label: {
+                        Label(
+                            article.isBookmarked
+                                ? String(localized: "Article.RemoveBookmark")
+                                : String(localized: "Article.Bookmark"),
+                            systemImage: article.isBookmarked ? "bookmark.fill" : "bookmark"
+                        )
+                    }
+                    Button {
+                        UIPasteboard.general.string = article.url
+                    } label: {
+                        Label(String(localized: "Article.CopyLink"), systemImage: "link")
+                    }
+                    if let shareURL = URL(string: article.url) {
+                        ShareLink(item: shareURL) {
+                            Label(String(localized: "Article.Share"), systemImage: "square.and.arrow.up")
+                        }
+                    }
+                } label: {
+                    Image(systemName: "ellipsis")
+                        .frame(width: 28, height: 28)
+                        .contentShape(.rect)
+                }
             }
             .padding(.horizontal, 16)
         }
