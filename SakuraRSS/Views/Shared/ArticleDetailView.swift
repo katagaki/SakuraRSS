@@ -24,6 +24,7 @@ struct ArticleDetailView: View {
                 Text(translatedTitle ?? article.title)
                     .font(.title2)
                     .fontWeight(.bold)
+                    .textSelection(.enabled)
 
                 HStack(spacing: 12) {
                     if let favicon = favicon {
@@ -71,6 +72,7 @@ struct ArticleDetailView: View {
                     Text(text)
                         .font(.body)
                         .foregroundStyle(.primary)
+                        .textSelection(.enabled)
                 }
 
                 if !isExtracting && displayText != nil {
