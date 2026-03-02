@@ -17,7 +17,6 @@ struct VideoStyleView: View {
                     .buttonStyle(.plain)
                 }
             }
-            .padding(.horizontal, 16)
             .padding(.vertical)
         }
     }
@@ -43,9 +42,8 @@ struct VideoArticleCard: View {
                         }
                     }
                     .clipped()
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
             } else {
-                RoundedRectangle(cornerRadius: 12)
+                Rectangle()
                     .fill(.secondary.opacity(0.15))
                     .aspectRatio(16 / 9, contentMode: .fit)
             }
@@ -82,6 +80,7 @@ struct VideoArticleCard: View {
                     .lineLimit(1)
                 }
             }
+            .padding(.horizontal, 16)
         }
         .task {
             if let feed = feedManager.feed(forArticle: article) {
