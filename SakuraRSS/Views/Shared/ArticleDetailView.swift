@@ -25,11 +25,7 @@ struct ArticleDetailView: View {
 
                 HStack(spacing: 12) {
                     if let favicon = favicon {
-                        Image(uiImage: favicon)
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .frame(width: 18, height: 18)
-                            .clipShape(RoundedRectangle(cornerRadius: 3))
+                        FaviconImage(favicon, size: 18, cornerRadius: 3)
                     }
 
                     if let feed = feedManager.feed(forArticle: article) {

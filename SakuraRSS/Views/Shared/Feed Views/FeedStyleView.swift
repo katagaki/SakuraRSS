@@ -35,11 +35,7 @@ struct FeedArticleRow: View {
                     .padding(.top, 6)
 
                 if let favicon = favicon {
-                    Image(uiImage: favicon)
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .frame(width: 20, height: 20)
-                        .clipShape(RoundedRectangle(cornerRadius: 3))
+                    FaviconImage(favicon, size: 20, cornerRadius: 3)
                         .padding(.top, 2)
                 }
 

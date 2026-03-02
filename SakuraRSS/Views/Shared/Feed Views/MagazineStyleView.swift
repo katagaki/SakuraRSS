@@ -55,11 +55,7 @@ struct MagazineArticleCard: View {
                     .frame(width: 6, height: 6)
 
                 if let favicon = favicon {
-                    Image(uiImage: favicon)
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .frame(width: 14, height: 14)
-                        .clipShape(RoundedRectangle(cornerRadius: 2))
+                    FaviconImage(favicon, size: 14, cornerRadius: 2)
                 }
 
                 Spacer()

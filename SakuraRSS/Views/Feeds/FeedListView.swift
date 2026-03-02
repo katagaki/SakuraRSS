@@ -114,11 +114,7 @@ struct FeedRowView: View {
     var body: some View {
         HStack(spacing: 12) {
             if let favicon = favicon {
-                Image(uiImage: favicon)
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(width: 24, height: 24)
-                    .clipShape(RoundedRectangle(cornerRadius: 4))
+                FaviconImage(favicon, size: 24, cornerRadius: 4)
             } else {
                 Image(systemName: "dot.radiowaves.up.forward")
                     .frame(width: 24, height: 24)
@@ -127,6 +123,7 @@ struct FeedRowView: View {
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(feed.title)
+                    .font(.subheadline)
                     .lineLimit(1)
                 Text(feed.domain)
                     .font(.caption)
