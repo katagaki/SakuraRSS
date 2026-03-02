@@ -25,7 +25,7 @@ actor FaviconCache {
         let filePath = cacheDirectory.appendingPathComponent(sanitizedFileName(domain))
         if let data = try? Data(contentsOf: filePath),
            let image = UIImage(data: data) {
-            let trimmed = image.trimmed()
+            let trimmed = await image.trimmed()
             memoryCache[domain] = trimmed
             return trimmed
         }
@@ -64,7 +64,7 @@ actor FaviconCache {
             let favicon = try await bestFaviconURL.download()
             guard let faviconImage = favicon.image else { return nil }
             let uiImage = faviconImage.image
-            let trimmed = uiImage.trimmed()
+            let trimmed = await uiImage.trimmed()
 
             if let pngData = trimmed.pngData() {
                 try? pngData.write(to: filePath)
@@ -170,7 +170,7 @@ private enum BlankPaddingTrimmer {
 extension UIImage {
 
     /// Returns a copy with transparent/near-white padding cropped, or self if no significant padding.
-    nonisolated func trimmed() -> UIImage {
+    @MainActor func trimmed() -> UIImage {
         guard let cg = cgImage,
               let cropped = BlankPaddingTrimmer.trim(cg) else {
             return self
