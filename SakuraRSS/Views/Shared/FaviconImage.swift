@@ -7,6 +7,31 @@ struct FaviconImage: View {
     let cornerRadius: CGFloat
     let isCircle: Bool
     let skipInset: Bool
+    
+    var isNonSquare: Bool { !image.isSquare }
+    var showInset: Bool { !skipInset && isCircle && !image.isCircular && !image.isFilledSquare }
+    var needsWhiteBackground: Bool { !skipInset && image.isDark }
+
+    var iconSize: CGFloat {
+        if isNonSquare {
+            let padding: CGFloat = isCircle ? 3 : 2
+             return size - padding * 2
+        } else if showInset || needsWhiteBackground {
+            return size * 0.7
+        } else {
+            return size
+        }
+    }
+
+    var bgColor: Color {
+        if isNonSquare || needsWhiteBackground {
+            return .white
+        } else if showInset {
+            return Color(.secondarySystemBackground)
+        } else {
+            return .clear
+        }
+    }
 
     init(_ image: UIImage, size: CGFloat = 20, cornerRadius: CGFloat = 3,
          circle: Bool = false, skipInset: Bool = false) {
@@ -18,29 +43,6 @@ struct FaviconImage: View {
     }
 
     var body: some View {
-        let isNonSquare = !image.isSquare
-        let showInset = !skipInset && isCircle && !image.isCircular && !image.isFilledSquare
-        let needsWhiteBackground = !skipInset && image.isDark
-
-        let iconSize: CGFloat
-        if isNonSquare {
-            let padding: CGFloat = isCircle ? 3 : 2
-            iconSize = size - padding * 2
-        } else if showInset || needsWhiteBackground {
-            iconSize = size * 0.7
-        } else {
-            iconSize = size
-        }
-
-        let bgColor: Color
-        if isNonSquare || needsWhiteBackground {
-            bgColor = .white
-        } else if showInset {
-            bgColor = Color(.secondarySystemBackground)
-        } else {
-            bgColor = .clear
-        }
-
         Image(uiImage: image)
             .resizable()
             .aspectRatio(contentMode: isNonSquare ? .fit : .fill)
