@@ -163,13 +163,13 @@ nonisolated final class RSSParser: NSObject, XMLParserDelegate, @unchecked Senda
             isInsideImage = false
         } else if elementName == "item" || elementName == "entry" {
             let trimmedAuthor = currentAuthor.trimmingCharacters(in: .whitespacesAndNewlines)
+            let trimmedContent = currentContent.trimmingCharacters(in: .whitespacesAndNewlines)
             let article = ParsedArticle(
                 title: decodeHTMLEntities(currentTitle.trimmingCharacters(in: .whitespacesAndNewlines)),
                 url: currentLink.trimmingCharacters(in: .whitespacesAndNewlines),
                 author: trimmedAuthor.isEmpty ? nil : decodeHTMLEntities(trimmedAuthor),
                 summary: cleanHTML(currentDescription.trimmingCharacters(in: .whitespacesAndNewlines)),
-                content: currentContent.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-                    ? nil : currentContent.trimmingCharacters(in: .whitespacesAndNewlines),
+                content: trimmedContent.isEmpty ? nil : trimmedContent,
                 imageURL: currentImageURL.isEmpty ? extractImageFromHTML(currentDescription) : currentImageURL,
                 publishedDate: parseDate(currentPubDate.trimmingCharacters(in: .whitespacesAndNewlines))
             )
@@ -183,43 +183,45 @@ nonisolated final class RSSParser: NSObject, XMLParserDelegate, @unchecked Senda
 
     // MARK: - Date Parsing
 
+    private static let dateFormatters: [DateFormatter] = {
+        let formats = [
+            "EEE, dd MMM yyyy HH:mm:ss Z",
+            "EEE, dd MMM yyyy HH:mm:ss zzz",
+            "yyyy-MM-dd'T'HH:mm:ssZ",
+            "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
+        ]
+        return formats.map { format in
+            let formatter = DateFormatter()
+            formatter.locale = Locale(identifier: "en_US_POSIX")
+            formatter.dateFormat = format
+            return formatter
+        }
+    }()
+
+    nonisolated(unsafe) private static let iso8601WithFractional: ISO8601DateFormatter = {
+        let formatter = ISO8601DateFormatter()
+        formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        return formatter
+    }()
+
+    nonisolated(unsafe) private static let iso8601Standard: ISO8601DateFormatter = {
+        let formatter = ISO8601DateFormatter()
+        formatter.formatOptions = [.withInternetDateTime]
+        return formatter
+    }()
+
     private func parseDate(_ string: String) -> Date? {
         let trimmed = string.trimmingCharacters(in: .whitespacesAndNewlines)
         if trimmed.isEmpty { return nil }
 
-        let formatters: [DateFormatter] = {
-            let rfc822 = DateFormatter()
-            rfc822.locale = Locale(identifier: "en_US_POSIX")
-            rfc822.dateFormat = "EEE, dd MMM yyyy HH:mm:ss Z"
-
-            let rfc822Short = DateFormatter()
-            rfc822Short.locale = Locale(identifier: "en_US_POSIX")
-            rfc822Short.dateFormat = "EEE, dd MMM yyyy HH:mm:ss zzz"
-
-            let iso8601 = DateFormatter()
-            iso8601.locale = Locale(identifier: "en_US_POSIX")
-            iso8601.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZ"
-
-            let iso8601Millis = DateFormatter()
-            iso8601Millis.locale = Locale(identifier: "en_US_POSIX")
-            iso8601Millis.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
-
-            return [rfc822, rfc822Short, iso8601, iso8601Millis]
-        }()
-
-        for formatter in formatters {
+        for formatter in Self.dateFormatters {
             if let date = formatter.date(from: trimmed) {
                 return date
             }
         }
 
-        let isoFormatter = ISO8601DateFormatter()
-        isoFormatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
-        if let date = isoFormatter.date(from: trimmed) {
-            return date
-        }
-        isoFormatter.formatOptions = [.withInternetDateTime]
-        return isoFormatter.date(from: trimmed)
+        return Self.iso8601WithFractional.date(from: trimmed)
+            ?? Self.iso8601Standard.date(from: trimmed)
     }
 
 }

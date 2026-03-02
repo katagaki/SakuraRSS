@@ -115,17 +115,6 @@ struct ArticleExtractor {
 
     // MARK: - Private Helpers
 
-    private static func removeNoise(from doc: Document) {
-        for selector in noiseSelectors {
-            do {
-                let elements = try doc.select(selector)
-                try elements.remove()
-            } catch {
-                continue
-            }
-        }
-    }
-
     private static func removeNoise(from element: Element) {
         for selector in noiseSelectors {
             do {

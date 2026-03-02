@@ -63,6 +63,15 @@ actor FaviconCache {
         try? FileManager.default.createDirectory(at: cacheDirectory, withIntermediateDirectories: true)
     }
 
+    private func trimAndCache(_ image: UIImage, cacheKey: String, filePath: URL) async -> UIImage {
+        let trimmed = await image.trimmed()
+        if let pngData = trimmed.pngData() {
+            try? pngData.write(to: filePath)
+        }
+        memoryCache[cacheKey] = trimmed
+        return trimmed
+    }
+
     private func fetchAndCacheFavicon(
         for domain: String, siteURL: String? = nil,
         cacheKey: String, filePath: URL
@@ -71,12 +80,7 @@ actor FaviconCache {
 
         if isYouTube, let siteURL = siteURL {
             if let image = await fetchYouTubeAvatar(from: siteURL) {
-                let trimmed = await image.trimmed()
-                if let pngData = trimmed.pngData() {
-                    try? pngData.write(to: filePath)
-                }
-                memoryCache[cacheKey] = trimmed
-                return trimmed
+                return await trimAndCache(image, cacheKey: cacheKey, filePath: filePath)
             }
         }
 
@@ -84,12 +88,7 @@ actor FaviconCache {
 
         // Try PWA / apple-touch-icon first for higher quality
         if let image = await fetchPWAIcon(from: url) {
-            let trimmed = await image.trimmed()
-            if let pngData = trimmed.pngData() {
-                try? pngData.write(to: filePath)
-            }
-            memoryCache[cacheKey] = trimmed
-            return trimmed
+            return await trimAndCache(image, cacheKey: cacheKey, filePath: filePath)
         }
 
         // Fall back to FaviconFinder
@@ -98,14 +97,7 @@ actor FaviconCache {
             guard let bestFaviconURL = faviconURLs.first else { return nil }
             let favicon = try await bestFaviconURL.download()
             guard let faviconImage = favicon.image else { return nil }
-            let uiImage = faviconImage.image
-            let trimmed = await uiImage.trimmed()
-
-            if let pngData = trimmed.pngData() {
-                try? pngData.write(to: filePath)
-            }
-            memoryCache[cacheKey] = trimmed
-            return trimmed
+            return await trimAndCache(faviconImage.image, cacheKey: cacheKey, filePath: filePath)
         } catch {
             return nil
         }
