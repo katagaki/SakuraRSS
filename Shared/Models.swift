@@ -39,4 +39,5 @@ nonisolated enum FeedDisplayStyle: String, CaseIterable, Sendable {
     case magazine
     case compact
     case video
+    case photos
 }

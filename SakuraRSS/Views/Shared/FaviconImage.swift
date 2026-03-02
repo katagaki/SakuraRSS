@@ -16,31 +16,16 @@ struct FaviconImage: View {
 
     var body: some View {
         let showInset = isCircle && !image.isCircular
+        let needsWhiteBackground = image.isDark
+        let iconScale: CGFloat = showInset || needsWhiteBackground ? 0.7 : 1.0
+
         Image(uiImage: image)
             .resizable()
             .aspectRatio(contentMode: .fill)
-            .frame(width: showInset ? size * 0.7 : size, height: showInset ? size * 0.7 : size)
-            .if(image.isDark) { view in
-                view
-                    .padding(2)
-                    .background(.white)
-            }
+            .frame(width: size * iconScale, height: size * iconScale)
             .frame(width: size, height: size)
-            .background(showInset ? Color(.secondarySystemBackground) : .clear)
+            .background(needsWhiteBackground ? .white : (showInset ? Color(.secondarySystemBackground) : .clear))
             .clipShape(isCircle ? AnyShape(Circle()) : AnyShape(RoundedRectangle(cornerRadius: cornerRadius)))
-    }
-}
-
-// MARK: - Conditional Modifier
-
-private extension View {
-    @ViewBuilder
-    func `if`<Content: View>(_ condition: Bool, transform: (Self) -> Content) -> some View {
-        if condition {
-            transform(self)
-        } else {
-            self
-        }
     }
 }
 

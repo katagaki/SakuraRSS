@@ -14,6 +14,7 @@ struct MoreView: View {
                         Text(String(localized: "Articles.Style.Feed")).tag(FeedDisplayStyle.feed.rawValue)
                         Text(String(localized: "Articles.Style.Magazine")).tag(FeedDisplayStyle.magazine.rawValue)
                         Text(String(localized: "Articles.Style.Compact")).tag(FeedDisplayStyle.compact.rawValue)
+                        Text(String(localized: "Articles.Style.Photos")).tag(FeedDisplayStyle.photos.rawValue)
                     }
                 } header: {
                     Text(String(localized: "Settings.Section.Display"))

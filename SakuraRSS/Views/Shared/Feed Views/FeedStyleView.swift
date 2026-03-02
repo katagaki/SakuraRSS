@@ -35,11 +35,11 @@ struct FeedArticleRow: View {
     var body: some View {
         HStack(alignment: .top, spacing: 10) {
             if let favicon = favicon {
-                FaviconImage(favicon, size: 32, circle: true)
+                FaviconImage(favicon, size: 40, circle: true)
             } else {
                 Circle()
                     .fill(.secondary.opacity(0.2))
-                    .frame(width: 32, height: 32)
+                    .frame(width: 40, height: 40)
             }
 
             VStack(alignment: .leading, spacing: 6) {
@@ -66,13 +66,6 @@ struct FeedArticleRow: View {
                             .foregroundStyle(.secondary)
                     }
                 }
-
-                Text(article.title)
-                    .font(.subheadline)
-                    .fontWeight(article.isRead ? .regular : .semibold)
-                    .foregroundStyle(.primary)
-                    .lineLimit(3)
-                    .multilineTextAlignment(.leading)
 
                 if let summary = article.summary {
                     Text(summary)

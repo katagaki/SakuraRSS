@@ -34,6 +34,8 @@ struct ArticleListView: View {
                 CompactStyleView(articles: articles)
             case .video:
                 VideoStyleView(articles: articles)
+            case .photos:
+                PhotosStyleView(articles: articles)
             }
         }
         .scrollContentBackground(.hidden)
@@ -51,6 +53,8 @@ struct ArticleListView: View {
                             .tag(FeedDisplayStyle.magazine)
                         Label(String(localized: "Articles.Style.Compact"), systemImage: "list.dash")
                             .tag(FeedDisplayStyle.compact)
+                        Label(String(localized: "Articles.Style.Photos"), systemImage: "photo.stack")
+                            .tag(FeedDisplayStyle.photos)
                         if isYouTubeFeed {
                             Label(String(localized: "Articles.Style.Video"), systemImage: "play.rectangle")
                                 .tag(FeedDisplayStyle.video)
