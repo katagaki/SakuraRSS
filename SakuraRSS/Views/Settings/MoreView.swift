@@ -13,6 +13,7 @@ struct MoreView: View {
                 Section {
                     Picker(String(localized: "Settings.DisplayStyle"), selection: $defaultDisplayStyle) {
                         Text(String(localized: "Articles.Style.Inbox")).tag(FeedDisplayStyle.inbox.rawValue)
+                        Text(String(localized: "Articles.Style.Feed")).tag(FeedDisplayStyle.feed.rawValue)
                         Text(String(localized: "Articles.Style.Magazine")).tag(FeedDisplayStyle.magazine.rawValue)
                         Text(String(localized: "Articles.Style.Compact")).tag(FeedDisplayStyle.compact.rawValue)
                     }

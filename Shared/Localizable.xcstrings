@@ -483,6 +483,23 @@
         }
       }
     },
+    "Articles.Style.Feed" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Feed"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "フィード"
+          }
+        }
+      }
+    },
     "Articles.Style.Inbox" : {
       "extractionState" : "manual",
       "localizations" : {

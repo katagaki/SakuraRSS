@@ -19,6 +19,11 @@ nonisolated final class DatabaseManager: @unchecked Sendable {
     private let feedLastFetched = SQLite.Expression<Double?>("last_fetched")
     private let feedCategory = SQLite.Expression<String?>("category")
 
+    private let imageCache = Table("image_cache")
+    private let imageCacheURL = SQLite.Expression<String>("url")
+    private let imageCacheData = SQLite.Expression<Data>("data")
+    private let imageCachedAt = SQLite.Expression<Double>("cached_at")
+
     private let articles = Table("articles")
     private let articleID = SQLite.Expression<Int64>("id")
     private let articleFeedID = SQLite.Expression<Int64>("feed_id")
@@ -75,6 +80,12 @@ nonisolated final class DatabaseManager: @unchecked Sendable {
 
         try database.run(articles.createIndex(articleFeedID, ifNotExists: true))
         try database.run(articles.createIndex(articlePublishedDate, ifNotExists: true))
+
+        try database.run(imageCache.create(ifNotExists: true) { table in
+            table.column(imageCacheURL, primaryKey: true)
+            table.column(imageCacheData)
+            table.column(imageCachedAt)
+        })
     }
 
     // MARK: - Feed CRUD
@@ -231,6 +242,37 @@ nonisolated final class DatabaseManager: @unchecked Sendable {
 
     func totalUnreadCount() throws -> Int {
         try database.scalar(articles.filter(articleIsRead == false).count)
+    }
+
+    // MARK: - Image Cache
+
+    func cachedImageData(for url: String) throws -> Data? {
+        guard let row = try database.pluck(imageCache.filter(imageCacheURL == url)) else { return nil }
+        return row[imageCacheData]
+    }
+
+    func cacheImageData(_ data: Data, for url: String) throws {
+        try database.run(imageCache.insert(or: .replace,
+            imageCacheURL <- url,
+            imageCacheData <- data,
+            imageCachedAt <- Date().timeIntervalSince1970
+        ))
+    }
+
+    func clearImageCache() throws {
+        try database.run(imageCache.delete())
+    }
+
+    // MARK: - Full Article Text Cache
+
+    func cachedArticleContent(for articleId: Int64) throws -> String? {
+        guard let row = try database.pluck(articles.filter(articleID == articleId)) else { return nil }
+        return row[articleContent]
+    }
+
+    func cacheArticleContent(_ content: String, for articleId: Int64) throws {
+        let target = articles.filter(articleID == articleId)
+        try database.run(target.update(articleContent <- content))
     }
 
     // MARK: - Helpers

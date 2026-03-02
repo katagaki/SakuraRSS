@@ -56,15 +56,12 @@ struct ArticleDetailView: View {
                 }
 
                 if let imageURL = article.imageURL, let url = URL(string: imageURL) {
-                    AsyncImage(url: url) { image in
-                        image
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                    } placeholder: {
+                    CachedAsyncImage(url: url) {
                         Rectangle()
                             .fill(.secondary.opacity(0.1))
                             .frame(height: 200)
                     }
+                    .aspectRatio(contentMode: .fit)
                     .clipShape(RoundedRectangle(cornerRadius: 12))
                 }
 
@@ -143,16 +140,27 @@ struct ArticleDetailView: View {
         isExtracting = true
         defer { isExtracting = false }
 
+        if let cached = try? DatabaseManager.shared.cachedArticleContent(for: article.id),
+           !cached.isEmpty {
+            extractedText = cached
+            return
+        }
+
         if let content = article.content, !content.isEmpty {
             let text = ArticleExtractor.extractText(fromHTML: content)
             if let text, !text.isEmpty {
                 extractedText = text
+                try? DatabaseManager.shared.cacheArticleContent(text, for: article.id)
                 return
             }
         }
 
         if let url = URL(string: article.url) {
-            extractedText = await ArticleExtractor.extractText(fromURL: url)
+            let text = await ArticleExtractor.extractText(fromURL: url)
+            extractedText = text
+            if let text, !text.isEmpty {
+                try? DatabaseManager.shared.cacheArticleContent(text, for: article.id)
+            }
         }
     }
 

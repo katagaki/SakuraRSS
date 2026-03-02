@@ -31,6 +31,7 @@ nonisolated struct Article: Identifiable, Hashable, Sendable {
 
 nonisolated enum FeedDisplayStyle: String, CaseIterable, Sendable {
     case inbox
+    case feed
     case magazine
     case compact
 }

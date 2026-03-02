@@ -84,6 +84,7 @@ struct FeedListView: View {
             .sakuraBackground()
             .sheet(isPresented: $isShowingAddFeed) {
                 AddFeedView()
+                    .presentationDetents([.medium, .large])
             }
             .overlay {
                 if feedManager.feeds.isEmpty {
