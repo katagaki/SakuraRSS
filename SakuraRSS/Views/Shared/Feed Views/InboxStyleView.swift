@@ -7,13 +7,24 @@ struct InboxStyleView: View {
 
     var body: some View {
         List(articles) { article in
-            NavigationLink {
-                ArticleDetailView(article: article)
-            } label: {
-                InboxArticleRow(article: article)
+            if article.isYouTubeURL {
+                Button {
+                    feedManager.markRead(article)
+                    YouTubeHelper.openInApp(url: article.url)
+                } label: {
+                    InboxArticleRow(article: article)
+                }
+                .listRowBackground(Color.clear)
+                .listRowInsets(EdgeInsets(top: 8, leading: 12, bottom: 8, trailing: 12))
+            } else {
+                NavigationLink {
+                    ArticleDetailView(article: article)
+                } label: {
+                    InboxArticleRow(article: article)
+                }
+                .listRowBackground(Color.clear)
+                .listRowInsets(EdgeInsets(top: 8, leading: 12, bottom: 8, trailing: 12))
             }
-            .listRowBackground(Color.clear)
-            .listRowInsets(EdgeInsets(top: 8, leading: 12, bottom: 8, trailing: 12))
         }
         .listStyle(.plain)
     }
@@ -24,6 +35,7 @@ struct InboxArticleRow: View {
     @Environment(FeedManager.self) var feedManager
     let article: Article
     @State private var favicon: UIImage?
+    @State private var feedName: String?
 
     var body: some View {
         HStack(alignment: .top, spacing: 6) {
@@ -36,11 +48,14 @@ struct InboxArticleRow: View {
             if let favicon = favicon {
                 FaviconImage(favicon, size: 20, cornerRadius: 3)
                     .padding(.top, 2)
+            } else if let feedName {
+                InitialsAvatarView(feedName, size: 20, cornerRadius: 3)
+                    .padding(.top, 2)
             }
 
             VStack(alignment: .leading, spacing: 4) {
                 Text(article.title)
-                    .font(.subheadline)
+                    .font(.body)
                     .fontWeight(article.isRead ? .regular : .semibold)
                     .lineLimit(2)
                     .foregroundStyle(article.isRead ? .secondary : .primary)
@@ -77,14 +92,15 @@ struct InboxArticleRow: View {
         }
         .task {
             if let feed = feedManager.feed(forArticle: article) {
-                favicon = await FaviconCache.shared.favicon(for: feed.domain)
+                feedName = feed.title
+                favicon = await FaviconCache.shared.favicon(for: feed.domain, siteURL: feed.siteURL)
             }
         }
         .swipeActions(edge: .leading) {
             Button {
-                feedManager.markRead(article)
+                feedManager.toggleRead(article)
             } label: {
-                Image(systemName: "checkmark.circle")
+                Image(systemName: article.isRead ? "envelope.badge" : "checkmark.circle")
             }
             .tint(.blue)
         }

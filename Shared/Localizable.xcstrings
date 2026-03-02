@@ -534,6 +534,23 @@
         }
       }
     },
+    "Articles.Style.Photos" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Photos"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "フォト"
+          }
+        }
+      }
+    },
     "Articles.Style.Video" : {
       "extractionState" : "manual",
       "localizations" : {

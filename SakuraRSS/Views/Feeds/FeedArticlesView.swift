@@ -32,7 +32,7 @@ struct FeedArticlesView: View {
                             isShowingMarkAllReadConfirmation = false
                         } label: {
                             Text(String(localized: "Articles.MarkAllRead"))
-                                .padding(.horizontal, 12)
+                                .frame(maxWidth: .infinity)
                                 .padding(.vertical, 6)
                         }
                         .buttonStyle(.bordered)

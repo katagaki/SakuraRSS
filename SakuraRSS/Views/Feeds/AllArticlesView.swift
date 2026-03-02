@@ -25,9 +25,13 @@ struct AllArticlesView: View {
                     VStack(spacing: 12) {
                         Text(String(localized: "Articles.MarkAllRead.Confirm"))
                             .font(.subheadline)
-                        Button(String(localized: "Articles.MarkAllRead")) {
+                        Button {
                             feedManager.markAllRead()
                             isShowingMarkAllReadConfirmation = false
+                        } label: {
+                            Text(String(localized: "Articles.MarkAllRead"))
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 6)
                         }
                         .buttonStyle(.bordered)
                     }

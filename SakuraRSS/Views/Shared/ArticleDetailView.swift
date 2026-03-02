@@ -7,6 +7,7 @@ struct ArticleDetailView: View {
     @Environment(\.openURL) var openURL
     let article: Article
     @State private var favicon: UIImage?
+    @State private var feedName: String?
     @State private var extractedText: String?
     @State private var isExtracting = false
     @State private var translatedText: String?
@@ -30,6 +31,8 @@ struct ArticleDetailView: View {
                 HStack(spacing: 12) {
                     if let favicon = favicon {
                         FaviconImage(favicon, size: 18, cornerRadius: 3)
+                    } else if let feedName {
+                        InitialsAvatarView(feedName, size: 18, cornerRadius: 3)
                     }
 
                     if let feed = feedManager.feed(forArticle: article) {
@@ -91,12 +94,10 @@ struct ArticleDetailView: View {
                 }
 
                 Button {
-                    if let url = URL(string: article.url) {
-                        openURL(url)
-                    }
+                    openArticleURL()
                 } label: {
                     Label(String(localized: "Article.OpenInBrowser"),
-                          systemImage: "safari")
+                          systemImage: article.isYouTubeURL ? "play.rectangle.fill" : "safari")
                 }
                 .buttonStyle(.borderedProminent)
                 .padding(.top, 8)
@@ -123,7 +124,8 @@ struct ArticleDetailView: View {
         .task {
             feedManager.markRead(article)
             if let feed = feedManager.feed(forArticle: article) {
-                favicon = await FaviconCache.shared.favicon(for: feed.domain)
+                feedName = feed.title
+                favicon = await FaviconCache.shared.favicon(for: feed.domain, siteURL: feed.siteURL)
             }
             await extractArticleContent()
         }
@@ -175,6 +177,14 @@ struct ArticleDetailView: View {
             if let text, !text.isEmpty {
                 try? DatabaseManager.shared.cacheArticleContent(text, for: article.id)
             }
+        }
+    }
+
+    private func openArticleURL() {
+        if article.isYouTubeURL {
+            YouTubeHelper.openInApp(url: article.url)
+        } else if let url = URL(string: article.url) {
+            openURL(url)
         }
     }
 

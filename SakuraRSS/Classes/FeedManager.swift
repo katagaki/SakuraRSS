@@ -97,7 +97,7 @@ final class FeedManager {
             }
         }
         async let faviconRefresh: Void = FaviconCache.shared.refreshFavicons(
-            for: currentFeeds.map(\.domain)
+            for: currentFeeds.map { ($0.domain, $0.siteURL as String?) }
         )
         _ = await (feedRefresh, faviconRefresh)
         loadFromDatabase()
@@ -111,6 +111,11 @@ final class FeedManager {
 
     func markRead(_ article: Article) {
         try? database.markArticleRead(id: article.id, read: true)
+        loadFromDatabase()
+    }
+
+    func toggleRead(_ article: Article) {
+        try? database.markArticleRead(id: article.id, read: !article.isRead)
         loadFromDatabase()
     }
 

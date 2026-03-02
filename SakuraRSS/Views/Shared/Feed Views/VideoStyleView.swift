@@ -9,15 +9,16 @@ struct VideoStyleView: View {
         ScrollView(.vertical) {
             LazyVStack(spacing: 24) {
                 ForEach(articles) { article in
-                    NavigationLink {
-                        ArticleDetailView(article: article)
+                    Button {
+                        feedManager.markRead(article)
+                        YouTubeHelper.openInApp(url: article.url)
                     } label: {
                         VideoArticleCard(article: article)
                     }
                     .buttonStyle(.plain)
                 }
             }
-            .padding(.vertical)
+            .padding(.bottom)
         }
     }
 }
@@ -51,7 +52,9 @@ struct VideoArticleCard: View {
             // Channel avatar + title + metadata
             HStack(alignment: .top, spacing: 12) {
                 if let favicon = favicon {
-                    FaviconImage(favicon, size: 36, circle: true)
+                    FaviconImage(favicon, size: 36, circle: true, skipInset: true)
+                } else if let feedName {
+                    InitialsAvatarView(feedName, size: 36, circle: true)
                 } else {
                     Circle()
                         .fill(.secondary.opacity(0.2))
@@ -60,7 +63,7 @@ struct VideoArticleCard: View {
 
                 VStack(alignment: .leading, spacing: 4) {
                     Text(article.title)
-                        .font(.subheadline)
+                        .font(.body)
                         .fontWeight(article.isRead ? .regular : .semibold)
                         .foregroundStyle(article.isRead ? .secondary : .primary)
                         .lineLimit(2)
@@ -84,7 +87,7 @@ struct VideoArticleCard: View {
         }
         .task {
             if let feed = feedManager.feed(forArticle: article) {
-                favicon = await FaviconCache.shared.favicon(for: feed.domain)
+                favicon = await FaviconCache.shared.favicon(for: feed.domain, siteURL: feed.siteURL)
                 feedName = feed.title
             }
         }
