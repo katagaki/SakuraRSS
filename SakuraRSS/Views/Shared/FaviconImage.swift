@@ -18,16 +18,35 @@ struct FaviconImage: View {
     }
 
     var body: some View {
+        let isNonSquare = !image.isSquare
         let showInset = !skipInset && isCircle && !image.isCircular && !image.isFilledSquare
         let needsWhiteBackground = !skipInset && image.isDark
-        let iconScale: CGFloat = showInset || needsWhiteBackground ? 0.7 : 1.0
+
+        let iconSize: CGFloat
+        if isNonSquare {
+            let padding: CGFloat = isCircle ? 3 : 2
+            iconSize = size - padding * 2
+        } else if showInset || needsWhiteBackground {
+            iconSize = size * 0.7
+        } else {
+            iconSize = size
+        }
+
+        let bgColor: Color
+        if isNonSquare || needsWhiteBackground {
+            bgColor = .white
+        } else if showInset {
+            bgColor = Color(.secondarySystemBackground)
+        } else {
+            bgColor = .clear
+        }
 
         Image(uiImage: image)
             .resizable()
-            .aspectRatio(contentMode: .fill)
-            .frame(width: size * iconScale, height: size * iconScale)
+            .aspectRatio(contentMode: isNonSquare ? .fit : .fill)
+            .frame(width: iconSize, height: iconSize)
             .frame(width: size, height: size)
-            .background(needsWhiteBackground ? .white : (showInset ? Color(.secondarySystemBackground) : .clear))
+            .background(bgColor)
             .clipShape(isCircle ? AnyShape(Circle()) : AnyShape(RoundedRectangle(cornerRadius: cornerRadius)))
     }
 }
@@ -35,6 +54,12 @@ struct FaviconImage: View {
 // MARK: - Shape Detection
 
 extension UIImage {
+
+    /// Returns `true` when the image has equal width and height.
+    var isSquare: Bool {
+        guard let cgImage = cgImage else { return true }
+        return cgImage.width == cgImage.height
+    }
 
     /// Samples corner and center pixel alpha values from a downscaled version of the image.
     private func sampleCornerAlphas() -> (corners: [UInt8], centerAlpha: UInt8)? {
