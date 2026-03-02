@@ -68,6 +68,33 @@ struct ArticleDetailView: View {
                     .clipShape(RoundedRectangle(cornerRadius: 12))
                 }
 
+                HStack(spacing: 12) {
+                    if !isExtracting && displayText != nil {
+                        Button {
+                            triggerTranslation()
+                        } label: {
+                            if isTranslating {
+                                ProgressView()
+                                    .padding(.trailing, 4)
+                            }
+                            Label(
+                                String(localized: "Article.Translate"),
+                                systemImage: "translate"
+                            )
+                        }
+                        .disabled(isTranslating)
+                    }
+
+                    Button {
+                        openArticleURL()
+                    } label: {
+                        Label(String(localized: "Article.OpenInBrowser"),
+                              systemImage: article.isYouTubeURL ? "play.rectangle.fill" : "safari")
+                    }
+                }
+                .buttonStyle(.bordered)
+                .tint(.primary)
+
                 if isExtracting {
                     ProgressView()
                         .frame(maxWidth: .infinity, alignment: .center)
@@ -75,32 +102,6 @@ struct ArticleDetailView: View {
                 } else if let text = displayText {
                     SelectableText(text)
                 }
-
-                if !isExtracting && displayText != nil {
-                    Button {
-                        triggerTranslation()
-                    } label: {
-                        if isTranslating {
-                            ProgressView()
-                                .padding(.trailing, 4)
-                        }
-                        Label(
-                            String(localized: "Article.Translate"),
-                            systemImage: "translate"
-                        )
-                    }
-                    .buttonStyle(.bordered)
-                    .disabled(isTranslating)
-                }
-
-                Button {
-                    openArticleURL()
-                } label: {
-                    Label(String(localized: "Article.OpenInBrowser"),
-                          systemImage: article.isYouTubeURL ? "play.rectangle.fill" : "safari")
-                }
-                .buttonStyle(.borderedProminent)
-                .padding(.top, 8)
             }
             .padding()
         }
