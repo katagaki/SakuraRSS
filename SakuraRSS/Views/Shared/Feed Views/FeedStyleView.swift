@@ -70,14 +70,14 @@ struct FeedArticleRow: View {
                 Text(article.title)
                     .font(.subheadline)
                     .fontWeight(article.isRead ? .regular : .semibold)
-                    .foregroundStyle(article.isRead ? .secondary : .primary)
+                    .foregroundStyle(.primary)
                     .lineLimit(3)
                     .multilineTextAlignment(.leading)
 
                 if let summary = article.summary {
                     Text(summary)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .font(.subheadline)
+                        .foregroundStyle(.primary)
                         .lineLimit(3)
                 }
 
