@@ -3,10 +3,7 @@ import SwiftUI
 struct BookmarksView: View {
 
     @Environment(FeedManager.self) var feedManager
-
-    private var bookmarkedArticles: [Article] {
-        (try? DatabaseManager.shared.bookmarkedArticles()) ?? []
-    }
+    @State private var bookmarkedArticles: [Article] = []
 
     var body: some View {
         NavigationStack {
@@ -33,6 +30,9 @@ struct BookmarksView: View {
             .navigationTitle(String(localized: "Tabs.Bookmarks"))
             .scrollContentBackground(.hidden)
             .sakuraBackground()
+            .onAppear {
+                bookmarkedArticles = (try? DatabaseManager.shared.bookmarkedArticles()) ?? []
+            }
         }
     }
 }

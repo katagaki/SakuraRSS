@@ -33,7 +33,8 @@ struct SelectableText: UIViewRepresentable {
     }
 
     func sizeThatFits(_ proposal: ProposedViewSize, uiView: UITextView, context: Context) -> CGSize? {
-        let width = proposal.width ?? UIScreen.main.bounds.width
+        let fallbackWidth = uiView.window?.windowScene?.screen.bounds.width ?? 390
+        let width = proposal.width ?? fallbackWidth
         let size = uiView.sizeThatFits(CGSize(width: width, height: CGFloat.greatestFiniteMagnitude))
         return CGSize(width: width, height: size.height)
     }

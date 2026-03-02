@@ -179,6 +179,17 @@ nonisolated final class DatabaseManager: @unchecked Sendable {
         return try database.prepare(query).map(rowToArticle)
     }
 
+    func searchArticles(query: String) throws -> [Article] {
+        let pattern = "%\(query)%"
+        let query = articles
+            .filter(articleTitle.like(pattern) ||
+                    articleAuthor.like(pattern) ||
+                    articleSummary.like(pattern))
+            .order(articlePublishedDate.desc)
+            .limit(200)
+        return try database.prepare(query).map(rowToArticle)
+    }
+
     func bookmarkedArticles() throws -> [Article] {
         let query = articles
             .filter(articleIsBookmarked == true)

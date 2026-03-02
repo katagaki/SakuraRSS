@@ -19,6 +19,10 @@ struct MainTabView: View {
                 BookmarksView()
             }
 
+            Tab(String(localized: "Tabs.Search"), systemImage: "magnifyingglass", role: .search) {
+                SearchView()
+            }
+
             Tab(String(localized: "Tabs.More"), systemImage: "ellipsis") {
                 MoreView()
             }

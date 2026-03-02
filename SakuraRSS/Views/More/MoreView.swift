@@ -5,12 +5,25 @@ struct MoreView: View {
     @Environment(FeedManager.self) var feedManager
     @AppStorage("refreshInterval") private var refreshInterval: Int = 60
     @AppStorage("defaultDisplayStyle") private var defaultDisplayStyle: String = FeedDisplayStyle.inbox.rawValue
+    @AppStorage("searchDisplayStyle") private var searchDisplayStyle: String = FeedDisplayStyle.inbox.rawValue
 
     var body: some View {
         NavigationStack {
             Form {
                 Section {
                     Picker(String(localized: "Settings.DisplayStyle"), selection: $defaultDisplayStyle) {
+                        Text(String(localized: "Articles.Style.Inbox"))
+                            .tag(FeedDisplayStyle.inbox.rawValue)
+                        Text(String(localized: "Articles.Style.Feed"))
+                            .tag(FeedDisplayStyle.feed.rawValue)
+                        Text(String(localized: "Articles.Style.Magazine"))
+                            .tag(FeedDisplayStyle.magazine.rawValue)
+                        Text(String(localized: "Articles.Style.Compact"))
+                            .tag(FeedDisplayStyle.compact.rawValue)
+                        Text(String(localized: "Articles.Style.Photos"))
+                            .tag(FeedDisplayStyle.photos.rawValue)
+                    }
+                    Picker(String(localized: "Settings.SearchDisplayStyle"), selection: $searchDisplayStyle) {
                         Text(String(localized: "Articles.Style.Inbox"))
                             .tag(FeedDisplayStyle.inbox.rawValue)
                         Text(String(localized: "Articles.Style.Feed"))
@@ -35,23 +48,6 @@ struct MoreView: View {
                     }
                 } header: {
                     Text(String(localized: "Settings.Section.Refresh"))
-                }
-
-                Section {
-                    HStack {
-                        Text(String(localized: "Settings.FeedCount"))
-                        Spacer()
-                        Text("\(feedManager.feeds.count)")
-                            .foregroundStyle(.secondary)
-                    }
-                    HStack {
-                        Text(String(localized: "Settings.ArticleCount"))
-                        Spacer()
-                        Text("\(feedManager.articles.count)")
-                            .foregroundStyle(.secondary)
-                    }
-                } header: {
-                    Text(String(localized: "Settings.Section.Stats"))
                 }
 
                 Section {
