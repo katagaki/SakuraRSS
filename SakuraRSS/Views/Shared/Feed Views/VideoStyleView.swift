@@ -34,17 +34,20 @@ struct VideoArticleCard: View {
         VStack(alignment: .leading, spacing: 12) {
             // Thumbnail
             if let imageURL = article.imageURL, let url = URL(string: imageURL) {
-                CachedAsyncImage(url: url) {
-                    Rectangle()
-                        .fill(.secondary.opacity(0.15))
-                }
-                .aspectRatio(16 / 9, contentMode: .fill)
-                .clipped()
-                .clipShape(RoundedRectangle(cornerRadius: 12))
+                Color.clear
+                    .aspectRatio(16 / 9, contentMode: .fit)
+                    .overlay {
+                        CachedAsyncImage(url: url) {
+                            Rectangle()
+                                .fill(.secondary.opacity(0.15))
+                        }
+                    }
+                    .clipped()
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
             } else {
                 RoundedRectangle(cornerRadius: 12)
                     .fill(.secondary.opacity(0.15))
-                    .aspectRatio(16 / 9, contentMode: .fill)
+                    .aspectRatio(16 / 9, contentMode: .fit)
             }
 
             // Channel avatar + title + metadata
