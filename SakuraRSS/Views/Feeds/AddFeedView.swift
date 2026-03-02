@@ -10,6 +10,7 @@ struct AddFeedView: View {
     @State private var isSearching = false
     @State private var errorMessage: String?
     @State private var addedURLs: Set<String> = []
+    @State private var pasteboardHasURL = false
 
     var body: some View {
         NavigationStack {
@@ -20,6 +21,20 @@ struct AddFeedView: View {
                         .autocorrectionDisabled()
                         .textInputAutocapitalization(.never)
                         .onSubmit { searchFeeds() }
+
+                    if pasteboardHasURL && urlInput.isEmpty {
+                        Button {
+                            if let url = UIPasteboard.general.url {
+                                urlInput = url.absoluteString
+                            } else if let string = UIPasteboard.general.string,
+                                      let url = URL(string: string),
+                                      url.scheme != nil {
+                                urlInput = string
+                            }
+                        } label: {
+                            Label(String(localized: "AddFeed.Paste"), systemImage: "doc.on.clipboard")
+                        }
+                    }
 
                     Button {
                         searchFeeds()
@@ -89,6 +104,9 @@ struct AddFeedView: View {
                 }
             }
             .interactiveDismissDisabled()
+            .onAppear {
+                pasteboardHasURL = UIPasteboard.general.hasURLs
+            }
         }
     }
 
