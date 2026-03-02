@@ -3,6 +3,33 @@ import SwiftUI
 struct FeedListView: View {
 
     @Environment(FeedManager.self) var feedManager
+    @State private var path = NavigationPath()
+
+    var body: some View {
+        NavigationStack(path: $path) {
+            AllArticlesView()
+                .toolbar {
+                    ToolbarItem(placement: .topBarLeading) {
+                        Button {
+                            path.append("feeds")
+                        } label: {
+                            Image(systemName: "list.bullet")
+                        }
+                    }
+                }
+                .navigationDestination(for: String.self) { _ in
+                    FeedsListPage()
+                }
+                .navigationDestination(for: Feed.self) { feed in
+                    FeedArticlesView(feed: feed)
+                }
+        }
+    }
+}
+
+struct FeedsListPage: View {
+
+    @Environment(FeedManager.self) var feedManager
     @State private var isShowingAddFeed = false
     @State private var searchText = ""
 
@@ -17,88 +44,54 @@ struct FeedListView: View {
     }
 
     var body: some View {
-        NavigationStack {
-            List {
-                if !feedManager.feeds.isEmpty {
-                    NavigationLink {
-                        AllArticlesView()
-                    } label: {
-                        Label {
-                            HStack {
-                                Text(String(localized: "Shared.AllArticles"))
-                                Spacer()
-                                let count = feedManager.totalUnreadCount()
-                                if count > 0 {
-                                    Text("\(count)")
-                                        .font(.caption)
-                                        .fontWeight(.semibold)
-                                        .padding(.horizontal, 8)
-                                        .padding(.vertical, 2)
-                                        .background(.red)
-                                        .foregroundStyle(.white)
-                                        .clipShape(Capsule())
-                                }
-                            }
-                        } icon: {
-                            Image(systemName: "tray.full")
-                        }
+        List {
+            Section {
+                ForEach(filteredFeeds) { feed in
+                    NavigationLink(value: feed) {
+                        FeedRowView(feed: feed)
                     }
                 }
-
-                Section {
-                    ForEach(filteredFeeds) { feed in
-                        NavigationLink {
-                            FeedArticlesView(feed: feed)
-                        } label: {
-                            FeedRowView(feed: feed)
-                        }
-                    }
-                    .onDelete { indexSet in
-                        for index in indexSet {
-                            let feed = filteredFeeds[index]
-                            try? feedManager.deleteFeed(feed)
-                        }
-                    }
-                } header: {
-                    if !feedManager.feeds.isEmpty {
-                        Text(String(localized: "Shared.Feeds"))
+                .onDelete { indexSet in
+                    for index in indexSet {
+                        let feed = filteredFeeds[index]
+                        try? feedManager.deleteFeed(feed)
                     }
                 }
             }
-            .navigationTitle(String(localized: "Shared.Feeds"))
-            .searchable(text: $searchText, prompt: Text(String(localized: "FeedList.SearchPrompt")))
-            .refreshable {
-                await feedManager.refreshAllFeedsAndFavicons()
+        }
+        .navigationTitle(String(localized: "Shared.Feeds"))
+        .searchable(text: $searchText, prompt: Text(String(localized: "FeedList.SearchPrompt")))
+        .refreshable {
+            await feedManager.refreshAllFeedsAndFavicons()
+        }
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    isShowingAddFeed = true
+                } label: {
+                    Image(systemName: "plus")
+                }
+                .buttonStyle(.glassProminent)
             }
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button {
+        }
+        .scrollContentBackground(.hidden)
+        .sakuraBackground()
+        .sheet(isPresented: $isShowingAddFeed) {
+            AddFeedView()
+                .presentationDetents([.medium, .large])
+        }
+        .overlay {
+            if feedManager.feeds.isEmpty {
+                ContentUnavailableView {
+                    Label(String(localized: "FeedList.Empty.Title"),
+                          systemImage: "newspaper")
+                } description: {
+                    Text(String(localized: "FeedList.Empty.Description"))
+                } actions: {
+                    Button(String(localized: "FeedList.Empty.AddFeed")) {
                         isShowingAddFeed = true
-                    } label: {
-                        Image(systemName: "plus")
                     }
-                    .buttonStyle(.glassProminent)
-                }
-            }
-            .scrollContentBackground(.hidden)
-            .sakuraBackground()
-            .sheet(isPresented: $isShowingAddFeed) {
-                AddFeedView()
-                    .presentationDetents([.medium, .large])
-            }
-            .overlay {
-                if feedManager.feeds.isEmpty {
-                    ContentUnavailableView {
-                        Label(String(localized: "FeedList.Empty.Title"),
-                              systemImage: "newspaper")
-                    } description: {
-                        Text(String(localized: "FeedList.Empty.Description"))
-                    } actions: {
-                        Button(String(localized: "FeedList.Empty.AddFeed")) {
-                            isShowingAddFeed = true
-                        }
-                        .buttonStyle(.borderedProminent)
-                    }
+                    .buttonStyle(.borderedProminent)
                 }
             }
         }

@@ -85,7 +85,7 @@ struct PhotosArticleCard: View {
 
             // Article title below photo
             Text(article.title)
-                .font(.subheadline)
+                .font(.body)
                 .foregroundStyle(.primary)
                 .lineLimit(3)
                 .multilineTextAlignment(.leading)

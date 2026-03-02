@@ -59,30 +59,33 @@ struct FeedArticleRow: View {
                 HStack(spacing: 4) {
                     if let feedName {
                         Text(feedName)
-                            .font(.subheadline)
+                            .font(.body)
                             .fontWeight(.bold)
                             .foregroundStyle(.primary)
                             .lineLimit(1)
                     }
 
-                    if !article.isRead {
-                        Circle()
-                            .fill(.blue)
-                            .frame(width: 6, height: 6)
+                    if let date = article.publishedDate {
+                        Text("·")
+                            .font(.body)
+                            .foregroundStyle(.secondary)
+                        Text(date, style: .relative)
+                            .font(.body)
+                            .foregroundStyle(.secondary)
                     }
 
                     Spacer()
 
-                    if let date = article.publishedDate {
-                        Text(date, style: .relative)
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
+                    if !article.isRead {
+                        Circle()
+                            .fill(.blue)
+                            .frame(width: 8, height: 8)
                     }
                 }
 
                 if let summary = article.summary {
                     Text(summary)
-                        .font(.subheadline)
+                        .font(.body)
                         .foregroundStyle(.primary)
                         .lineLimit(3)
                 }

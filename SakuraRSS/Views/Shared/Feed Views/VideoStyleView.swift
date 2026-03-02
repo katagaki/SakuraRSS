@@ -61,7 +61,7 @@ struct VideoArticleCard: View {
 
                 VStack(alignment: .leading, spacing: 4) {
                     Text(article.title)
-                        .font(.subheadline)
+                        .font(.body)
                         .fontWeight(article.isRead ? .regular : .semibold)
                         .foregroundStyle(article.isRead ? .secondary : .primary)
                         .lineLimit(2)

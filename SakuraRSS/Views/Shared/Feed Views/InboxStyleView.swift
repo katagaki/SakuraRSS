@@ -51,7 +51,7 @@ struct InboxArticleRow: View {
 
             VStack(alignment: .leading, spacing: 4) {
                 Text(article.title)
-                    .font(.subheadline)
+                    .font(.body)
                     .fontWeight(article.isRead ? .regular : .semibold)
                     .lineLimit(2)
                     .foregroundStyle(article.isRead ? .secondary : .primary)
