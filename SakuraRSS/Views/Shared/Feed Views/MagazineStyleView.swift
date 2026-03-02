@@ -23,7 +23,7 @@ struct MagazineStyleView: View {
                 }
             }
             .padding(.horizontal, 16)
-            .padding(.vertical)
+            .padding(.bottom)
         }
     }
 }
@@ -89,7 +89,7 @@ struct MagazineArticleCard: View {
         .shadow(color: .black.opacity(0.05), radius: 2, y: 1)
         .task {
             if let feed = feedManager.feed(forArticle: article) {
-                favicon = await FaviconCache.shared.favicon(for: feed.domain)
+                favicon = await FaviconCache.shared.favicon(for: feed.domain, siteURL: feed.siteURL)
             }
         }
     }

@@ -17,7 +17,7 @@ struct VideoStyleView: View {
                     .buttonStyle(.plain)
                 }
             }
-            .padding(.vertical)
+            .padding(.bottom)
         }
     }
 }
@@ -84,7 +84,7 @@ struct VideoArticleCard: View {
         }
         .task {
             if let feed = feedManager.feed(forArticle: article) {
-                favicon = await FaviconCache.shared.favicon(for: feed.domain)
+                favicon = await FaviconCache.shared.favicon(for: feed.domain, siteURL: feed.siteURL)
                 feedName = feed.title
             }
         }

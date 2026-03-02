@@ -17,34 +17,41 @@ actor FaviconCache {
         try? FileManager.default.createDirectory(at: cacheDirectory, withIntermediateDirectories: true)
     }
 
-    func favicon(for domain: String) async -> UIImage? {
-        if let cached = memoryCache[domain] {
+    func favicon(for domain: String, siteURL: String? = nil) async -> UIImage? {
+        let cacheKey = Self.cacheKey(domain: domain, siteURL: siteURL)
+
+        if let cached = memoryCache[cacheKey] {
             return cached
         }
 
-        let filePath = cacheDirectory.appendingPathComponent(sanitizedFileName(domain))
+        let filePath = cacheDirectory.appendingPathComponent(sanitizedFileName(cacheKey))
         if let data = try? Data(contentsOf: filePath),
            let image = UIImage(data: data) {
             let trimmed = await image.trimmed()
-            memoryCache[domain] = trimmed
+            memoryCache[cacheKey] = trimmed
             return trimmed
         }
 
-        return await fetchAndCacheFavicon(for: domain, filePath: filePath)
+        return await fetchAndCacheFavicon(for: domain, siteURL: siteURL, cacheKey: cacheKey, filePath: filePath)
     }
 
     /// Clears caches for the given domains and re-fetches their favicons.
-    func refreshFavicons(for domains: [String]) async {
-        for domain in domains {
-            memoryCache[domain] = nil
-            let filePath = cacheDirectory.appendingPathComponent(sanitizedFileName(domain))
+    func refreshFavicons(for entries: [(domain: String, siteURL: String?)]) async {
+        for entry in entries {
+            let cacheKey = Self.cacheKey(domain: entry.domain, siteURL: entry.siteURL)
+            memoryCache[cacheKey] = nil
+            let filePath = cacheDirectory.appendingPathComponent(sanitizedFileName(cacheKey))
             try? FileManager.default.removeItem(at: filePath)
         }
         await withTaskGroup(of: Void.self) { group in
-            for domain in domains {
-                let filePath = cacheDirectory.appendingPathComponent(sanitizedFileName(domain))
+            for entry in entries {
+                let cacheKey = Self.cacheKey(domain: entry.domain, siteURL: entry.siteURL)
+                let filePath = cacheDirectory.appendingPathComponent(sanitizedFileName(cacheKey))
                 group.addTask {
-                    _ = await self.fetchAndCacheFavicon(for: domain, filePath: filePath)
+                    _ = await self.fetchAndCacheFavicon(
+                        for: entry.domain, siteURL: entry.siteURL,
+                        cacheKey: cacheKey, filePath: filePath
+                    )
                 }
             }
         }
@@ -56,7 +63,23 @@ actor FaviconCache {
         try? FileManager.default.createDirectory(at: cacheDirectory, withIntermediateDirectories: true)
     }
 
-    private func fetchAndCacheFavicon(for domain: String, filePath: URL) async -> UIImage? {
+    private func fetchAndCacheFavicon(
+        for domain: String, siteURL: String? = nil,
+        cacheKey: String, filePath: URL
+    ) async -> UIImage? {
+        let isYouTube = domain.contains("youtube.com") || domain.contains("youtu.be")
+
+        if isYouTube, let siteURL = siteURL {
+            if let image = await fetchYouTubeAvatar(from: siteURL) {
+                let trimmed = await image.trimmed()
+                if let pngData = trimmed.pngData() {
+                    try? pngData.write(to: filePath)
+                }
+                memoryCache[cacheKey] = trimmed
+                return trimmed
+            }
+        }
+
         do {
             guard let url = URL(string: "https://\(domain)") else { return nil }
             let faviconURLs = try await FaviconFinder(url: url).fetchFaviconURLs()
@@ -69,15 +92,60 @@ actor FaviconCache {
             if let pngData = trimmed.pngData() {
                 try? pngData.write(to: filePath)
             }
-            memoryCache[domain] = trimmed
+            memoryCache[cacheKey] = trimmed
             return trimmed
         } catch {
             return nil
         }
     }
 
-    private func sanitizedFileName(_ domain: String) -> String {
-        domain.replacingOccurrences(of: "/", with: "_")
+    /// Fetches the YouTube channel avatar by scraping the channel page for the og:image meta tag.
+    private nonisolated func fetchYouTubeAvatar(from siteURL: String) async -> UIImage? {
+        guard let url = URL(string: siteURL) else { return nil }
+        do {
+            let (data, _) = try await URLSession.shared.data(from: url)
+            guard let html = String(data: data, encoding: .utf8) else { return nil }
+
+            // Look for <meta property="og:image" content="...">
+            guard let imageURL = extractMetaContent(from: html, property: "og:image"),
+                  let avatarURL = URL(string: imageURL) else { return nil }
+
+            let (imageData, _) = try await URLSession.shared.data(from: avatarURL)
+            return UIImage(data: imageData)
+        } catch {
+            return nil
+        }
+    }
+
+    /// Extracts the content attribute from a meta tag with the given property.
+    private nonisolated func extractMetaContent(from html: String, property: String) -> String? {
+        // Match <meta property="og:image" content="..."> or <meta content="..." property="og:image">
+        let patterns = [
+            "<meta[^>]+property=\"\(property)\"[^>]+content=\"([^\"]+)\"",
+            "<meta[^>]+content=\"([^\"]+)\"[^>]+property=\"\(property)\""
+        ]
+        for pattern in patterns {
+            if let regex = try? NSRegularExpression(pattern: pattern, options: .caseInsensitive),
+               let match = regex.firstMatch(in: html, range: NSRange(html.startIndex..., in: html)),
+               let range = Range(match.range(at: 1), in: html) {
+                return String(html[range])
+            }
+        }
+        return nil
+    }
+
+    private nonisolated static func cacheKey(domain: String, siteURL: String?) -> String {
+        let isYouTube = domain.contains("youtube.com") || domain.contains("youtu.be")
+        guard isYouTube, let siteURL = siteURL, let url = URL(string: siteURL) else {
+            return domain
+        }
+        let host = url.host ?? domain
+        let path = url.path
+        return path.isEmpty ? host : host + path
+    }
+
+    private func sanitizedFileName(_ key: String) -> String {
+        key.replacingOccurrences(of: "/", with: "_")
             .replacingOccurrences(of: ":", with: "_") + ".png"
     }
 }

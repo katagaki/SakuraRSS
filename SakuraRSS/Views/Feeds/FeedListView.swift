@@ -146,11 +146,11 @@ struct FeedRowView: View {
             }
         }
         .task {
-            favicon = await FaviconCache.shared.favicon(for: feed.domain)
+            favicon = await FaviconCache.shared.favicon(for: feed.domain, siteURL: feed.siteURL)
         }
         .onChange(of: feedManager.faviconRevision) {
             Task {
-                favicon = await FaviconCache.shared.favicon(for: feed.domain)
+                favicon = await FaviconCache.shared.favicon(for: feed.domain, siteURL: feed.siteURL)
             }
         }
     }
