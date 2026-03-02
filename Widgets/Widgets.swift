@@ -103,7 +103,7 @@ struct MediumWidgetView: View {
                     .foregroundStyle(.secondary)
             }
         } else {
-            VStack(alignment: .leading, spacing: 6) {
+            VStack(alignment: .leading, spacing: 4) {
                 ForEach(entry.articles.prefix(4)) { article in
                     VStack(alignment: .leading, spacing: 1) {
                         Text(article.title)
@@ -114,6 +114,10 @@ struct MediumWidgetView: View {
                             .font(.caption2)
                             .foregroundStyle(.secondary)
                             .lineLimit(1)
+                    }
+
+                    if article.id != entry.articles.prefix(4).last?.id {
+                        Divider()
                     }
                 }
             }
@@ -136,30 +140,20 @@ struct LargeWidgetView: View {
                     .foregroundStyle(.secondary)
             }
         } else {
-            VStack(alignment: .leading, spacing: 8) {
-                ForEach(entry.articles.prefix(7)) { article in
+            VStack(alignment: .leading, spacing: 4) {
+                ForEach(entry.articles.prefix(8)) { article in
                     VStack(alignment: .leading, spacing: 2) {
                         Text(article.title)
                             .font(.caption)
                             .fontWeight(.medium)
                             .lineLimit(2)
 
-                        HStack(spacing: 4) {
-                            Text(article.feedName)
-                                .font(.caption2)
-                                .foregroundStyle(.secondary)
-                            if let date = article.publishedDate {
-                                Text("·")
-                                    .font(.caption2)
-                                    .foregroundStyle(.tertiary)
-                                Text(date, style: .relative)
-                                    .font(.caption2)
-                                    .foregroundStyle(.tertiary)
-                            }
-                        }
+                        Text(article.feedName)
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
                     }
 
-                    if article.id != entry.articles.prefix(7).last?.id {
+                    if article.id != entry.articles.prefix(8).last?.id {
                         Divider()
                     }
                 }

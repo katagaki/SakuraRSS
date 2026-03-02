@@ -160,6 +160,22 @@
         }
       }
     },
+    "AddFeed.Extension.SearchingDomain %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Searching %@…"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@を検索中…"
+          }
+        }
+      }
+    },
     "AddFeed.InvalidURL" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -347,23 +363,6 @@
         }
       }
     },
-    "Article.CopyPhoto" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Copy Photo"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "写真をコピー"
-          }
-        }
-      }
-    },
     "Article.CopyLink" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -377,6 +376,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "リンクをコピー"
+          }
+        }
+      }
+    },
+    "Article.CopyPhoto" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copy Photo"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "写真をコピー"
           }
         }
       }
@@ -1258,6 +1274,23 @@
         }
       }
     },
+    "Time.JustNow" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Just now"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "たった今"
+          }
+        }
+      }
+    },
     "Widget.Description" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1322,23 +1355,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%lld件未読"
-          }
-        }
-      }
-    },
-    "Time.JustNow" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Just now"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "たった今"
           }
         }
       }

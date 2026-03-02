@@ -13,7 +13,7 @@
 			</dict>
 		</dict>
 		<key>NSExtensionPrincipalClass</key>
-		<string>ActionViewController</string>
+		<string>Add_Feed.ActionViewController</string>
 		<key>NSExtensionPointIdentifier</key>
 		<string>com.apple.ui-services</string>
 	</dict>

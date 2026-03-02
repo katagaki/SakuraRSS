@@ -11,12 +11,14 @@ struct AddFeedView: View {
     @State private var errorMessage: String?
     @State private var addedURLs: Set<String> = []
     @State private var pasteboardHasURL = false
+    @FocusState private var isURLFieldFocused: Bool
 
     var body: some View {
         NavigationStack {
             Form {
                 Section {
                     TextField(String(localized: "AddFeed.URLPlaceholder"), text: $urlInput)
+                        .focused($isURLFieldFocused)
                         .textContentType(.URL)
                         .autocorrectionDisabled()
                         .textInputAutocapitalization(.never)
@@ -98,7 +100,7 @@ struct AddFeedView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
-                    Button(role: .close) {
+                    Button(role: .confirm) {
                         dismiss()
                     }
                 }
@@ -106,6 +108,7 @@ struct AddFeedView: View {
             .interactiveDismissDisabled()
             .onAppear {
                 pasteboardHasURL = UIPasteboard.general.hasURLs
+                isURLFieldFocused = true
             }
         }
     }

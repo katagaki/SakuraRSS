@@ -71,6 +71,7 @@ nonisolated final class RSSParser: NSObject, XMLParserDelegate, @unchecked Senda
 
     // MARK: - XMLParserDelegate
 
+    // swiftlint:disable cyclomatic_complexity
     func parser(_ parser: XMLParser, didStartElement elementName: String,
                 namespaceURI: String?, qualifiedName qName: String?,
                 attributes attributeDict: [String: String] = [:]) {
@@ -101,6 +102,7 @@ nonisolated final class RSSParser: NSObject, XMLParserDelegate, @unchecked Senda
             break
         }
     }
+    // swiftlint:enable cyclomatic_complexity
 
     private func resetItemState() {
         currentTitle = ""
@@ -387,7 +389,7 @@ nonisolated extension RSSParser {
             "ad.", "ads.", "doubleclick", "googlesyndication"
         ]
         for pattern in skipPatterns {
-            if lowered.contains(pattern) { return false }
+            if lowered.contains(pattern) { return false } // swiftlint:disable:this for_where
         }
         return true
     }

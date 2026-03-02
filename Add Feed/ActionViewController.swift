@@ -1,71 +1,131 @@
-import UIKit
+import SwiftUI
 import UniformTypeIdentifiers
 
 class ActionViewController: UIViewController {
 
-    private let stackView = UIStackView()
-    private let statusLabel = UILabel()
-    private let feedsStackView = UIStackView()
-    private let activityIndicator = UIActivityIndicatorView(style: .large)
-    private var discoveredFeeds: [DiscoveredFeed] = []
-
     override func viewDidLoad() {
         super.viewDidLoad()
-        setupUI()
-        extractURLAndDiscover()
-    }
 
-    private func setupUI() {
-        view.backgroundColor = .systemBackground
-
-        let navBar = UINavigationBar()
-        navBar.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(navBar)
-
-        let navItem = UINavigationItem(title: NSLocalizedString("AddFeed.Title", comment: ""))
-        navItem.rightBarButtonItem = UIBarButtonItem(
-            barButtonSystemItem: .done,
-            target: self,
-            action: #selector(done)
+        let hostingController = UIHostingController(
+            rootView: ActionExtensionView(extensionContext: extensionContext)
         )
-        navBar.items = [navItem]
+        addChild(hostingController)
+        hostingController.view.frame = view.bounds
+        hostingController.view.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        view.addSubview(hostingController.view)
+        hostingController.didMove(toParent: self)
+    }
+}
 
-        NSLayoutConstraint.activate([
-            navBar.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
-            navBar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            navBar.trailingAnchor.constraint(equalTo: view.trailingAnchor)
-        ])
+@Observable
+class ActionExtensionModel {
+    var status: Status = .searching
+    var discoveredFeeds: [DiscoveredFeed] = []
+    var addedFeedIDs: Set<UUID> = []
+    var duplicateFeedIDs: Set<UUID> = []
 
-        stackView.axis = .vertical
-        stackView.spacing = 16
-        stackView.alignment = .center
-        stackView.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(stackView)
+    enum Status {
+        case searching
+        case searchingDomain(String)
+        case found(Int)
+        case noFeeds
+        case noURL
+    }
+}
 
-        NSLayoutConstraint.activate([
-            stackView.topAnchor.constraint(equalTo: navBar.bottomAnchor, constant: 24),
-            stackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            stackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20)
-        ])
+struct ActionExtensionView: View {
 
-        statusLabel.font = .preferredFont(forTextStyle: .headline)
-        statusLabel.textAlignment = .center
-        statusLabel.numberOfLines = 0
-        statusLabel.text = NSLocalizedString("AddFeed.Extension.Searching", comment: "")
-        stackView.addArrangedSubview(statusLabel)
+    weak var extensionContext: NSExtensionContext?
+    @State private var model = ActionExtensionModel()
 
-        activityIndicator.startAnimating()
-        stackView.addArrangedSubview(activityIndicator)
-
-        feedsStackView.axis = .vertical
-        feedsStackView.spacing = 8
-        feedsStackView.alignment = .fill
-        stackView.addArrangedSubview(feedsStackView)
+    var body: some View {
+        NavigationStack {
+            content
+                .navigationTitle(String(localized: "AddFeed.Title"))
+                .navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    ToolbarItem(placement: .confirmationAction) {
+                        Button(role: .confirm) {
+                            extensionContext?.completeRequest(
+                                returningItems: extensionContext?.inputItems,
+                                completionHandler: nil
+                            )
+                        }
+                    }
+                }
+        }
+        .task {
+            await extractURLAndDiscover()
+        }
     }
 
-    private func extractURLAndDiscover() {
+    @ViewBuilder
+    private var content: some View {
+        switch model.status {
+        case .searching:
+            ContentUnavailableView {
+                ProgressView()
+            } description: {
+                Text("AddFeed.Extension.Searching")
+            }
+        case .searchingDomain(let domain):
+            ContentUnavailableView {
+                ProgressView()
+            } description: {
+                Text("AddFeed.Extension.SearchingDomain \(domain)")
+            }
+        case .found:
+            List {
+                Section {
+                    ForEach(model.discoveredFeeds) { feed in
+                        HStack {
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(feed.title)
+                                    .lineLimit(1)
+                                Text(feed.url)
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                                    .lineLimit(1)
+                            }
+
+                            Spacer()
+
+                            if model.addedFeedIDs.contains(feed.id) {
+                                Image(systemName: "checkmark.circle.fill")
+                                    .foregroundStyle(.green)
+                            } else if model.duplicateFeedIDs.contains(feed.id) {
+                                Image(systemName: "checkmark.circle.fill")
+                                    .foregroundStyle(.secondary)
+                            } else {
+                                Button {
+                                    addFeed(feed)
+                                } label: {
+                                    Image(systemName: "plus.circle.fill")
+                                }
+                                .buttonStyle(.borderless)
+                            }
+                        }
+                    }
+                } header: {
+                    Text("AddFeed.Section.Discovered")
+                }
+            }
+        case .noFeeds:
+            ContentUnavailableView(
+                String(localized: "AddFeed.NoFeedsFound"),
+                systemImage: "rectangle.on.rectangle.slash"
+            )
+        case .noURL:
+            ContentUnavailableView(
+                String(localized: "AddFeed.Extension.NoURL"),
+                systemImage: "link.badge.plus"
+            )
+        }
+    }
+
+    private func extractURLAndDiscover() async {
         guard let extensionItems = extensionContext?.inputItems as? [NSExtensionItem] else {
-            showError(NSLocalizedString("AddFeed.Extension.NoURL", comment: ""))
+            model.status = .noURL
             return
         }
 
@@ -73,111 +133,55 @@ class ActionViewController: UIViewController {
             guard let attachments = item.attachments else { continue }
             for provider in attachments {
                 if provider.hasItemConformingToTypeIdentifier(UTType.url.identifier) {
-                    provider.loadItem(forTypeIdentifier: UTType.url.identifier) { [weak self] item, _ in
-                        guard let url = item as? URL else {
-                            Task { @MainActor in
-                                self?.showError(NSLocalizedString("AddFeed.Extension.NoURL", comment: ""))
-                            }
-                            return
-                        }
-                        Task { @MainActor in
-                            await self?.discoverFeeds(from: url)
-                        }
+                    if let item = try? await provider.loadItem(forTypeIdentifier: UTType.url.identifier),
+                       let url = item as? URL {
+                        await discoverFeeds(from: url)
+                        return
                     }
-                    return
                 }
 
                 if provider.hasItemConformingToTypeIdentifier(UTType.plainText.identifier) {
-                    provider.loadItem(forTypeIdentifier: UTType.plainText.identifier) { [weak self] item, _ in
-                        guard let text = item as? String, let url = URL(string: text) else {
-                            Task { @MainActor in
-                                self?.showError(NSLocalizedString("AddFeed.Extension.NoURL", comment: ""))
-                            }
-                            return
-                        }
-                        Task { @MainActor in
-                            await self?.discoverFeeds(from: url)
-                        }
+                    if let item = try? await provider.loadItem(forTypeIdentifier: UTType.plainText.identifier),
+                       let text = item as? String,
+                       let url = URL(string: text) {
+                        await discoverFeeds(from: url)
+                        return
                     }
-                    return
                 }
             }
         }
 
-        showError(NSLocalizedString("AddFeed.Extension.NoURL", comment: ""))
+        model.status = .noURL
     }
 
     private func discoverFeeds(from url: URL) async {
         guard let host = url.host else {
-            showError(NSLocalizedString("AddFeed.Extension.NoURL", comment: ""))
+            model.status = .noURL
             return
         }
 
-        statusLabel.text = String(format: NSLocalizedString("AddFeed.Extension.SearchingDomain", comment: ""), host)
+        model.status = .searchingDomain(host)
 
         let feeds = await FeedDiscovery.shared.discoverFeeds(forDomain: host)
 
-        activityIndicator.stopAnimating()
-        activityIndicator.isHidden = true
-
         if feeds.isEmpty {
-            statusLabel.text = NSLocalizedString("AddFeed.NoFeedsFound", comment: "")
+            model.status = .noFeeds
         } else {
-            discoveredFeeds = feeds
-            statusLabel.text = String(
-                format: NSLocalizedString("AddFeed.Extension.FoundFeeds", comment: ""),
-                feeds.count
-            )
-            showDiscoveredFeeds()
+            model.discoveredFeeds = feeds
+            model.status = .found(feeds.count)
         }
     }
 
-    private func showDiscoveredFeeds() {
-        for (index, feed) in discoveredFeeds.enumerated() {
-            let button = UIButton(type: .system)
-            button.tag = index
-
-            var config = UIButton.Configuration.filled()
-            config.title = feed.title
-            config.subtitle = feed.url
-            config.titleAlignment = .leading
-            config.cornerStyle = .medium
-            button.configuration = config
-
-            button.addTarget(self, action: #selector(addFeedTapped(_:)), for: .touchUpInside)
-            feedsStackView.addArrangedSubview(button)
-
-            button.translatesAutoresizingMaskIntoConstraints = false
-            button.widthAnchor.constraint(equalTo: feedsStackView.widthAnchor).isActive = true
-        }
-    }
-
-    @objc private func addFeedTapped(_ sender: UIButton) {
-        let feed = discoveredFeeds[sender.tag]
-
+    private func addFeed(_ feed: DiscoveredFeed) {
         do {
             try DatabaseManager.shared.insertFeed(
                 title: feed.title,
                 url: feed.url,
                 siteURL: feed.siteURL
             )
-
-            sender.configuration?.title = NSLocalizedString("AddFeed.Extension.Added", comment: "")
-            sender.configuration?.baseBackgroundColor = .systemGreen
-            sender.isEnabled = false
+            model.addedFeedIDs.insert(feed.id)
         } catch {
-            sender.configuration?.title = NSLocalizedString("AddFeed.Extension.AlreadyAdded", comment: "")
-            sender.isEnabled = false
+            model.duplicateFeedIDs.insert(feed.id)
         }
-    }
-
-    private func showError(_ message: String) {
-        activityIndicator.stopAnimating()
-        activityIndicator.isHidden = true
-        statusLabel.text = message
-    }
-
-    @objc func done() {
-        extensionContext?.completeRequest(returningItems: extensionContext?.inputItems, completionHandler: nil)
     }
 }

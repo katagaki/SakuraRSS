@@ -244,6 +244,7 @@ actor FaviconCache {
 
 private enum BlankPaddingTrimmer {
 
+    // swiftlint:disable cyclomatic_complexity for_where function_body_length
     /// Crops transparent or near-white padding from a CGImage.
     static func trim(_ cgImage: CGImage, tolerance: CGFloat = 0.95) -> CGImage? {
         let width = cgImage.width
@@ -323,6 +324,7 @@ private enum BlankPaddingTrimmer {
         let cropRect = CGRect(x: left, y: top, width: cropWidth, height: cropHeight)
         return cgImage.cropping(to: cropRect)
     }
+    // swiftlint:enable cyclomatic_complexity for_where function_body_length
 }
 
 extension UIImage {

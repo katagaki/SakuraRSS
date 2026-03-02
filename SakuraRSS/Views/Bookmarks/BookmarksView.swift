@@ -58,7 +58,10 @@ struct BookmarksView: View {
                                 Label(String(localized: "Articles.Style.Feed"), systemImage: "newspaper")
                                     .tag(FeedDisplayStyle.feed)
                                 if hasImages {
-                                    Label(String(localized: "Articles.Style.Magazine"), systemImage: "rectangle.grid.2x2")
+                                    Label(
+                                        String(localized: "Articles.Style.Magazine"),
+                                        systemImage: "rectangle.grid.2x2"
+                                    )
                                         .tag(FeedDisplayStyle.magazine)
                                 }
                                 Label(String(localized: "Articles.Style.Compact"), systemImage: "list.dash")
