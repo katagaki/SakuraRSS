@@ -68,7 +68,7 @@ struct FeedListView: View {
             .navigationTitle(String(localized: "Shared.Feeds"))
             .searchable(text: $searchText, prompt: Text(String(localized: "FeedList.SearchPrompt")))
             .refreshable {
-                await feedManager.refreshAllFeeds()
+                await feedManager.refreshAllFeedsAndFavicons()
             }
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
@@ -147,6 +147,11 @@ struct FeedRowView: View {
         }
         .task {
             favicon = await FaviconCache.shared.favicon(for: feed.domain)
+        }
+        .onChange(of: feedManager.faviconRevision) {
+            Task {
+                favicon = await FaviconCache.shared.favicon(for: feed.domain)
+            }
         }
     }
 }

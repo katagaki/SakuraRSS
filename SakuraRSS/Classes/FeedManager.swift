@@ -8,6 +8,7 @@ final class FeedManager {
     var articles: [Article] = []
     var isLoading = false
     private(set) var dataRevision: Int = 0
+    private(set) var faviconRevision: Int = 0
 
     private let database = DatabaseManager.shared
 
@@ -81,6 +82,26 @@ final class FeedManager {
             }
         }
         loadFromDatabase()
+    }
+
+    func refreshAllFeedsAndFavicons() async {
+        isLoading = true
+        defer { isLoading = false }
+
+        let currentFeeds = feeds
+        async let feedRefresh: Void = withTaskGroup(of: Void.self) { group in
+            for feed in currentFeeds {
+                group.addTask {
+                    try? await self.refreshFeed(feed)
+                }
+            }
+        }
+        async let faviconRefresh: Void = FaviconCache.shared.refreshFavicons(
+            for: currentFeeds.map(\.domain)
+        )
+        _ = await (feedRefresh, faviconRefresh)
+        loadFromDatabase()
+        faviconRevision += 1
     }
 
     func articles(for feed: Feed) -> [Article] {
