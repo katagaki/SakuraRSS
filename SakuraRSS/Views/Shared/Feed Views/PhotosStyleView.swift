@@ -103,8 +103,7 @@ struct PhotosArticleCard: View {
             }
             .labelStyle(.iconOnly)
             .buttonStyle(.plain)
-            .font(.title3)
-            .fontWeight(.medium)
+            .font(.system(size: 18.0, weight: .medium))
             .foregroundStyle(.primary)
             .padding(.horizontal, 12)
             .padding(.vertical, 10)

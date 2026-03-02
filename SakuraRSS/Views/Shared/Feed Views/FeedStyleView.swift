@@ -144,6 +144,7 @@ struct FeedArticleRow: View {
                         .buttonStyle(.plain)
                     }
                 }
+                .fontWeight(.semibold)
                 .foregroundStyle(.secondary)
             }
         }

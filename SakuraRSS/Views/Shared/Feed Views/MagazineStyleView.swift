@@ -65,10 +65,6 @@ struct MagazineArticleCard: View {
             }
 
             HStack(spacing: 4) {
-                Circle()
-                    .fill(article.isRead ? .clear : .blue)
-                    .frame(width: 6, height: 6)
-
                 Text(article.title)
                     .font(.subheadline)
                     .fontWeight(article.isRead ? .regular : .semibold)
