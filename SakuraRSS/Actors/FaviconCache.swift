@@ -25,7 +25,7 @@ actor FaviconCache {
         let filePath = cacheDirectory.appendingPathComponent(sanitizedFileName(domain))
         if let data = try? Data(contentsOf: filePath),
            let image = UIImage(data: data) {
-            let trimmed = trimBlankPadding(from: image) ?? image
+            let trimmed = image.trimmed()
             memoryCache[domain] = trimmed
             return trimmed
         }
@@ -64,7 +64,7 @@ actor FaviconCache {
             let favicon = try await bestFaviconURL.download()
             guard let faviconImage = favicon.image else { return nil }
             let uiImage = faviconImage.image
-            let trimmed = trimBlankPadding(from: uiImage) ?? uiImage
+            let trimmed = uiImage.trimmed()
 
             if let pngData = trimmed.pngData() {
                 try? pngData.write(to: filePath)
@@ -84,11 +84,20 @@ actor FaviconCache {
 
 // MARK: - Blank Padding Trimming
 
-/// Crops transparent or near-white padding around the icon content.
-/// Uses CGImage directly to avoid main-actor isolation requirements of UIImage.
-private func trimBlankPadding(from image: UIImage, tolerance: CGFloat = 0.95) -> UIImage? {
-    guard let cgImage = image.cgImage else { return nil }
+extension UIImage {
 
+    /// Returns a copy with transparent/near-white padding cropped, or self if no significant padding.
+    nonisolated func trimmed() -> UIImage {
+        guard let cg = cgImage,
+              let cropped = trimBlankPadding(from: cg) else {
+            return self
+        }
+        return UIImage(cgImage: cropped, scale: scale, orientation: imageOrientation)
+    }
+}
+
+/// Pure CGImage operation — no UIImage or MainActor dependency.
+private func trimBlankPadding(from cgImage: CGImage, tolerance: CGFloat = 0.95) -> CGImage? {
     let width = cgImage.width
     let height = cgImage.height
     guard width > 1, height > 1 else { return nil }
@@ -169,6 +178,5 @@ private func trimBlankPadding(from image: UIImage, tolerance: CGFloat = 0.95) ->
     guard cropWidth > 0, cropHeight > 0 else { return nil }
 
     let cropRect = CGRect(x: left, y: top, width: cropWidth, height: cropHeight)
-    guard let cropped = cgImage.cropping(to: cropRect) else { return nil }
-    return UIImage(cgImage: cropped, scale: image.scale, orientation: image.imageOrientation)
+    return cgImage.cropping(to: cropRect)
 }
