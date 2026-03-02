@@ -9,7 +9,8 @@ struct FeedArticlesView: View {
     var body: some View {
         ArticleListView(
             articles: feedManager.articles(for: feed),
-            title: feed.title
+            title: feed.title,
+            feedKey: String(feed.id)
         )
         .refreshable {
             try? await feedManager.refreshFeed(feed)
@@ -29,9 +30,9 @@ struct FeedArticlesView: View {
                             feedManager.markAllRead(feed: feed)
                             isShowingMarkAllReadConfirmation = false
                         }
-                        .buttonStyle(.borderedProminent)
+                        .buttonStyle(.bordered)
                     }
-                    .padding()
+                    .padding(20)
                     .presentationCompactAdaptation(.popover)
                 }
             }

@@ -8,7 +8,8 @@ struct AllArticlesView: View {
     var body: some View {
         ArticleListView(
             articles: feedManager.articles,
-            title: String(localized: "Shared.AllArticles")
+            title: String(localized: "Shared.AllArticles"),
+            feedKey: "all"
         )
         .refreshable {
             await feedManager.refreshAllFeeds()
@@ -28,9 +29,9 @@ struct AllArticlesView: View {
                             feedManager.markAllRead()
                             isShowingMarkAllReadConfirmation = false
                         }
-                        .buttonStyle(.borderedProminent)
+                        .buttonStyle(.bordered)
                     }
-                    .padding()
+                    .padding(20)
                     .presentationCompactAdaptation(.popover)
                 }
             }

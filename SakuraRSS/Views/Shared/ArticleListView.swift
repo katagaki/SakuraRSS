@@ -5,10 +5,23 @@ struct ArticleListView: View {
     @Environment(FeedManager.self) var feedManager
     let articles: [Article]
     let title: String
+    let feedKey: String
+
+    @State private var displayStyle: FeedDisplayStyle
+
+    init(articles: [Article], title: String, feedKey: String) {
+        self.articles = articles
+        self.title = title
+        self.feedKey = feedKey
+        let raw = UserDefaults.standard.string(forKey: "displayStyle-\(feedKey)")
+        let defaultRaw = UserDefaults.standard.string(forKey: "defaultDisplayStyle") ?? FeedDisplayStyle.inbox.rawValue
+        let fallback = FeedDisplayStyle(rawValue: defaultRaw) ?? .inbox
+        self._displayStyle = State(initialValue: raw.flatMap(FeedDisplayStyle.init(rawValue:)) ?? fallback)
+    }
 
     var body: some View {
         Group {
-            switch feedManager.displayStyle {
+            switch displayStyle {
             case .inbox:
                 InboxStyleView(articles: articles)
             case .magazine:
@@ -23,7 +36,7 @@ struct ArticleListView: View {
         .toolbar {
             ToolbarItemGroup(placement: .topBarTrailing) {
                 Menu {
-                    Picker(String(localized: "Articles.DisplayStyle"), selection: Bindable(feedManager).displayStyle) {
+                    Picker(String(localized: "Articles.DisplayStyle"), selection: $displayStyle) {
                         Label(String(localized: "Articles.Style.Inbox"), systemImage: "list.bullet")
                             .tag(FeedDisplayStyle.inbox)
                         Label(String(localized: "Articles.Style.Magazine"), systemImage: "rectangle.grid.2x2")
@@ -35,6 +48,9 @@ struct ArticleListView: View {
                     Image(systemName: "line.3.horizontal.decrease")
                 }
             }
+        }
+        .onChange(of: displayStyle) { _, newValue in
+            UserDefaults.standard.set(newValue.rawValue, forKey: "displayStyle-\(feedKey)")
         }
         .overlay {
             if articles.isEmpty {

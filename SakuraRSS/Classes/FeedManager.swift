@@ -7,7 +7,6 @@ final class FeedManager {
     var feeds: [Feed] = []
     var articles: [Article] = []
     var isLoading = false
-    var displayStyle: FeedDisplayStyle = .inbox
     private(set) var dataRevision: Int = 0
 
     private let database = DatabaseManager.shared
