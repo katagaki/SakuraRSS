@@ -68,7 +68,7 @@ struct FeedListView: View {
             .navigationTitle(String(localized: "Shared.Feeds"))
             .searchable(text: $searchText, prompt: Text(String(localized: "FeedList.SearchPrompt")))
             .refreshable {
-                await feedManager.refreshAllFeeds()
+                await feedManager.refreshAllFeedsAndFavicons()
             }
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
@@ -84,6 +84,7 @@ struct FeedListView: View {
             .sakuraBackground()
             .sheet(isPresented: $isShowingAddFeed) {
                 AddFeedView()
+                    .presentationDetents([.medium, .large])
             }
             .overlay {
                 if feedManager.feeds.isEmpty {
@@ -113,11 +114,7 @@ struct FeedRowView: View {
     var body: some View {
         HStack(spacing: 12) {
             if let favicon = favicon {
-                Image(uiImage: favicon)
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(width: 24, height: 24)
-                    .clipShape(RoundedRectangle(cornerRadius: 4))
+                FaviconImage(favicon, size: 24, cornerRadius: 4)
             } else {
                 Image(systemName: "dot.radiowaves.up.forward")
                     .frame(width: 24, height: 24)
@@ -126,6 +123,7 @@ struct FeedRowView: View {
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(feed.title)
+                    .font(.subheadline)
                     .lineLimit(1)
                 Text(feed.domain)
                     .font(.caption)
@@ -149,6 +147,11 @@ struct FeedRowView: View {
         }
         .task {
             favicon = await FaviconCache.shared.favicon(for: feed.domain)
+        }
+        .onChange(of: feedManager.faviconRevision) {
+            Task {
+                favicon = await FaviconCache.shared.favicon(for: feed.domain)
+            }
         }
     }
 }

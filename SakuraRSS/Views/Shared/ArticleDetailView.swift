@@ -10,6 +10,8 @@ struct ArticleDetailView: View {
     @State private var extractedText: String?
     @State private var isExtracting = false
     @State private var translatedText: String?
+    @State private var translatedTitle: String?
+    @State private var isTranslating = false
     @State private var translationConfig: TranslationSession.Configuration?
 
     var displayText: String? {
@@ -19,17 +21,15 @@ struct ArticleDetailView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
-                Text(article.title)
-                    .font(.title2)
-                    .fontWeight(.bold)
+                SelectableText(
+                    translatedTitle ?? article.title,
+                    font: .preferredFont(forTextStyle: .title2).bold(),
+                    textColor: .label
+                )
 
                 HStack(spacing: 12) {
                     if let favicon = favicon {
-                        Image(uiImage: favicon)
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .frame(width: 18, height: 18)
-                            .clipShape(RoundedRectangle(cornerRadius: 3))
+                        FaviconImage(favicon, size: 18, cornerRadius: 3)
                     }
 
                     if let feed = feedManager.feed(forArticle: article) {
@@ -56,15 +56,12 @@ struct ArticleDetailView: View {
                 }
 
                 if let imageURL = article.imageURL, let url = URL(string: imageURL) {
-                    AsyncImage(url: url) { image in
-                        image
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                    } placeholder: {
+                    CachedAsyncImage(url: url) {
                         Rectangle()
                             .fill(.secondary.opacity(0.1))
                             .frame(height: 200)
                     }
+                    .aspectRatio(contentMode: .fit)
                     .clipShape(RoundedRectangle(cornerRadius: 12))
                 }
 
@@ -73,21 +70,24 @@ struct ArticleDetailView: View {
                         .frame(maxWidth: .infinity, alignment: .center)
                         .padding(.vertical, 8)
                 } else if let text = displayText {
-                    Text(text)
-                        .font(.body)
-                        .foregroundStyle(.primary)
+                    SelectableText(text)
                 }
 
                 if !isExtracting && displayText != nil {
                     Button {
                         triggerTranslation()
                     } label: {
+                        if isTranslating {
+                            ProgressView()
+                                .padding(.trailing, 4)
+                        }
                         Label(
                             String(localized: "Article.Translate"),
                             systemImage: "translate"
                         )
                     }
                     .buttonStyle(.bordered)
+                    .disabled(isTranslating)
                 }
 
                 Button {
@@ -128,11 +128,22 @@ struct ArticleDetailView: View {
             await extractArticleContent()
         }
         .translationTask(translationConfig) { session in
+            isTranslating = true
+            defer { isTranslating = false }
+
             let source = extractedText ?? article.summary ?? ""
             guard !source.isEmpty else { return }
+
             do {
-                let response = try await session.translate(source)
-                translatedText = response.targetText
+                let requests = [
+                    TranslationSession.Request(sourceText: article.title),
+                    TranslationSession.Request(sourceText: source)
+                ]
+                let responses = try await session.translations(from: requests)
+                if responses.count >= 2 {
+                    translatedTitle = responses[0].targetText
+                    translatedText = responses[1].targetText
+                }
             } catch {
                 // Translation failed; user can retry
             }
@@ -143,16 +154,27 @@ struct ArticleDetailView: View {
         isExtracting = true
         defer { isExtracting = false }
 
+        if let cached = try? DatabaseManager.shared.cachedArticleContent(for: article.id),
+           !cached.isEmpty {
+            extractedText = cached
+            return
+        }
+
         if let content = article.content, !content.isEmpty {
             let text = ArticleExtractor.extractText(fromHTML: content)
             if let text, !text.isEmpty {
                 extractedText = text
+                try? DatabaseManager.shared.cacheArticleContent(text, for: article.id)
                 return
             }
         }
 
         if let url = URL(string: article.url) {
-            extractedText = await ArticleExtractor.extractText(fromURL: url)
+            let text = await ArticleExtractor.extractText(fromURL: url)
+            extractedText = text
+            if let text, !text.isEmpty {
+                try? DatabaseManager.shared.cacheArticleContent(text, for: article.id)
+            }
         }
     }
 

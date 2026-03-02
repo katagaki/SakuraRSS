@@ -7,7 +7,8 @@ final class FeedManager {
     var feeds: [Feed] = []
     var articles: [Article] = []
     var isLoading = false
-    var displayStyle: FeedDisplayStyle = .inbox
+    private(set) var dataRevision: Int = 0
+    private(set) var faviconRevision: Int = 0
 
     private let database = DatabaseManager.shared
 
@@ -19,6 +20,7 @@ final class FeedManager {
         do {
             feeds = try database.allFeeds()
             articles = try database.allArticles(limit: 200)
+            dataRevision += 1
         } catch {
             print("Failed to load from database: \(error)")
         }
@@ -82,8 +84,29 @@ final class FeedManager {
         loadFromDatabase()
     }
 
+    func refreshAllFeedsAndFavicons() async {
+        isLoading = true
+        defer { isLoading = false }
+
+        let currentFeeds = feeds
+        async let feedRefresh: Void = withTaskGroup(of: Void.self) { group in
+            for feed in currentFeeds {
+                group.addTask {
+                    try? await self.refreshFeed(feed)
+                }
+            }
+        }
+        async let faviconRefresh: Void = FaviconCache.shared.refreshFavicons(
+            for: currentFeeds.map(\.domain)
+        )
+        _ = await (feedRefresh, faviconRefresh)
+        loadFromDatabase()
+        faviconRevision += 1
+    }
+
     func articles(for feed: Feed) -> [Article] {
-        (try? database.articles(forFeedID: feed.id)) ?? []
+        _ = dataRevision
+        return (try? database.articles(forFeedID: feed.id)) ?? []
     }
 
     func markRead(_ article: Article) {
@@ -101,12 +124,19 @@ final class FeedManager {
         loadFromDatabase()
     }
 
+    func markAllRead() {
+        try? database.markAllRead()
+        loadFromDatabase()
+    }
+
     func unreadCount(for feed: Feed) -> Int {
-        (try? database.unreadCount(forFeedID: feed.id)) ?? 0
+        _ = dataRevision
+        return (try? database.unreadCount(forFeedID: feed.id)) ?? 0
     }
 
     func totalUnreadCount() -> Int {
-        (try? database.totalUnreadCount()) ?? 0
+        _ = dataRevision
+        return (try? database.totalUnreadCount()) ?? 0
     }
 
     func feed(forArticle article: Article) -> Feed? {

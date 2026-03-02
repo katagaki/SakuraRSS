@@ -103,23 +103,47 @@ struct ArticleExtractor {
     }
 
     private static func extractParagraphs(from element: Element) throws -> [String] {
-        let selector = blockElements.joined(separator: ", ")
-        let blocks = try element.select(selector)
+        var paragraphs: [String] = []
+        try collectBlocks(from: element, into: &paragraphs)
 
-        if blocks.isEmpty() {
-            let text = try element.text()
-                .trimmingCharacters(in: .whitespacesAndNewlines)
+        if paragraphs.isEmpty {
+            let text = try textContent(of: element)
             return text.isEmpty ? [] : [text]
         }
 
-        var paragraphs: [String] = []
-        for block in blocks {
-            let text = try block.text()
-                .trimmingCharacters(in: .whitespacesAndNewlines)
-            if !text.isEmpty {
-                paragraphs.append(text)
+        return paragraphs
+    }
+
+    /// Walks the DOM tree collecting text from block-level elements.
+    /// Recurses into non-block wrappers (div, section, etc.) so that
+    /// nested blocks like `<div><p>…</p></div>` don't produce duplicates.
+    private static func collectBlocks(from element: Element, into paragraphs: inout [String]) throws {
+        for child in element.children() {
+            let tag = child.tagName().lowercased()
+            if blockElements.contains(tag) {
+                let text = try textContent(of: child)
+                if !text.isEmpty {
+                    paragraphs.append(text)
+                }
+            } else {
+                try collectBlocks(from: child, into: &paragraphs)
             }
         }
-        return paragraphs
+    }
+
+    private static let brPlaceholder = "{{SAKURA_BR}}"
+
+    /// Extracts text from a block element, preserving `<br>` tags as newlines.
+    private static func textContent(of element: Element) throws -> String {
+        var html = try element.html()
+        html = html.replacingOccurrences(
+            of: "<br\\s*/?>",
+            with: brPlaceholder,
+            options: .regularExpression
+        )
+        let fragment = try SwiftSoup.parseBodyFragment(html)
+        var text = try fragment.body()?.text() ?? ""
+        text = text.replacingOccurrences(of: brPlaceholder, with: "\n")
+        return text.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 }

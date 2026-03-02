@@ -18,12 +18,25 @@ actor FeedDiscovery {
         "/rss/",
         "/rss.xml",
         "/feed.xml",
+        "/feed.rss",
         "/atom.xml",
+        "/atom",
         "/index.xml",
+        "/index.rss",
+        "/_rss",
+        "/.rss",
+        "/feed/atom",
+        "/feed/rss2",
         "/feeds/posts/default",
         "/blog/feed",
         "/blog/rss",
-        "/?feed=rss2"
+        "/blog/feed.xml",
+        "/blog/rss.xml",
+        "/blog/atom.xml",
+        "/blog/index.xml",
+        "/?feed=rss2",
+        "/?format=rss",
+        "/blog?format=rss"
     ]
 
     func discoverFeeds(forDomain domain: String) async -> [DiscoveredFeed] {
@@ -42,14 +55,23 @@ actor FeedDiscovery {
     }
 
     func discoverFeeds(fromPageURL pageURL: URL) async -> [DiscoveredFeed] {
-        guard let host = pageURL.host else { return [] }
-        return await discoverFeeds(forDomain: host)
+        let feeds = await discoverFromHTML(url: pageURL)
+        if !feeds.isEmpty { return feeds }
+
+        let probeFeeds = await probeCommonPaths(domain: pageURL.host ?? "")
+        if !probeFeeds.isEmpty { return probeFeeds }
+
+        return []
     }
 
     // MARK: - HTML Link Discovery
 
     private func discoverFromHTML(domain: String) async -> [DiscoveredFeed] {
         guard let url = URL(string: "https://\(domain)") else { return [] }
+        return await discoverFromHTML(url: url)
+    }
+
+    private func discoverFromHTML(url: URL) async -> [DiscoveredFeed] {
 
         do {
             let (data, _) = try await URLSession.shared.data(from: url)

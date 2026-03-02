@@ -4,26 +4,41 @@ struct FeedArticlesView: View {
 
     @Environment(FeedManager.self) var feedManager
     let feed: Feed
+    @State private var isShowingMarkAllReadConfirmation = false
 
     var body: some View {
         ArticleListView(
             articles: feedManager.articles(for: feed),
-            title: feed.title
+            title: feed.title,
+            feedKey: String(feed.id),
+            isYouTube: feed.isYouTube
         )
         .refreshable {
             try? await feedManager.refreshFeed(feed)
         }
         .toolbar {
             ToolbarItemGroup(placement: .topBarTrailing) {
-                Menu {
-                    Button {
-                        feedManager.markAllRead(feed: feed)
-                    } label: {
-                        Label(String(localized: "Articles.MarkAllRead"),
-                              systemImage: "checkmark.circle")
-                    }
+                Button {
+                    isShowingMarkAllReadConfirmation = true
                 } label: {
-                    Image(systemName: "ellipsis")
+                    Image(systemName: "checkmark.circle")
+                }
+                .popover(isPresented: $isShowingMarkAllReadConfirmation) {
+                    VStack(spacing: 12) {
+                        Text(String(localized: "Articles.MarkAllRead.Confirm"))
+                            .font(.body)
+                        Button {
+                            feedManager.markAllRead(feed: feed)
+                            isShowingMarkAllReadConfirmation = false
+                        } label: {
+                            Text(String(localized: "Articles.MarkAllRead"))
+                                .padding(.horizontal, 12)
+                                .padding(.vertical, 6)
+                        }
+                        .buttonStyle(.bordered)
+                    }
+                    .padding(20)
+                    .presentationCompactAdaptation(.popover)
                 }
             }
         }

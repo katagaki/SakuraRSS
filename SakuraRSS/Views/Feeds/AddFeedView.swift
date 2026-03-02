@@ -5,21 +5,36 @@ struct AddFeedView: View {
     @Environment(FeedManager.self) var feedManager
     @Environment(\.dismiss) var dismiss
 
-    @State private var domainOrURL = ""
+    @State private var urlInput = ""
     @State private var discoveredFeeds: [DiscoveredFeed] = []
     @State private var isSearching = false
     @State private var errorMessage: String?
     @State private var addedURLs: Set<String> = []
+    @State private var pasteboardHasURL = false
 
     var body: some View {
         NavigationStack {
             Form {
                 Section {
-                    TextField(String(localized: "AddFeed.DomainPlaceholder"), text: $domainOrURL)
+                    TextField(String(localized: "AddFeed.URLPlaceholder"), text: $urlInput)
                         .textContentType(.URL)
                         .autocorrectionDisabled()
                         .textInputAutocapitalization(.never)
                         .onSubmit { searchFeeds() }
+
+                    if pasteboardHasURL && urlInput.isEmpty {
+                        Button {
+                            if let url = UIPasteboard.general.url {
+                                urlInput = url.absoluteString
+                            } else if let string = UIPasteboard.general.string,
+                                      let url = URL(string: string),
+                                      url.scheme != nil {
+                                urlInput = string
+                            }
+                        } label: {
+                            Label(String(localized: "AddFeed.Paste"), systemImage: "doc.on.clipboard")
+                        }
+                    }
 
                     Button {
                         searchFeeds()
@@ -32,7 +47,7 @@ struct AddFeedView: View {
                             }
                         }
                     }
-                    .disabled(domainOrURL.isEmpty || isSearching)
+                    .disabled(urlInput.isEmpty || isSearching)
                 } header: {
                     Text(String(localized: "AddFeed.Section.Search"))
                 } footer: {
@@ -78,31 +93,19 @@ struct AddFeedView: View {
                         Text(String(localized: "AddFeed.Section.Discovered"))
                     }
                 }
-
-                Section {
-                    TextField(String(localized: "AddFeed.DirectURL"), text: $domainOrURL)
-                        .textContentType(.URL)
-                        .autocorrectionDisabled()
-                        .textInputAutocapitalization(.never)
-
-                    Button(String(localized: "AddFeed.AddDirectly")) {
-                        addDirectURL()
-                    }
-                    .disabled(domainOrURL.isEmpty)
-                } header: {
-                    Text(String(localized: "AddFeed.Section.Direct"))
-                } footer: {
-                    Text(String(localized: "AddFeed.Section.DirectFooter"))
-                }
             }
             .navigationTitle(String(localized: "AddFeed.Title"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
+                ToolbarItem(placement: .confirmationAction) {
                     Button(String(localized: "Shared.Done")) {
                         dismiss()
                     }
                 }
+            }
+            .interactiveDismissDisabled()
+            .onAppear {
+                pasteboardHasURL = UIPasteboard.general.hasURLs
             }
         }
     }
@@ -112,16 +115,55 @@ struct AddFeedView: View {
         errorMessage = nil
         discoveredFeeds = []
 
-        let domain = extractDomain(from: domainOrURL)
-
         Task {
-            let feeds = await FeedDiscovery.shared.discoverFeeds(forDomain: domain)
+            // 1. Try as direct feed URL
+            let directResult = await tryDirectFeedURL(urlInput)
+            if let feed = directResult {
+                isSearching = false
+                discoveredFeeds = [feed]
+                return
+            }
+
+            // 2. Search for feeds on the full URL
+            let normalizedURL = normalizeURL(urlInput)
+            if let url = URL(string: normalizedURL) {
+                let urlFeeds = await FeedDiscovery.shared.discoverFeeds(fromPageURL: url)
+                if !urlFeeds.isEmpty {
+                    isSearching = false
+                    discoveredFeeds = urlFeeds
+                    return
+                }
+            }
+
+            // 3. Fall back to root domain search
+            let domain = extractDomain(from: urlInput)
+            let domainFeeds = await FeedDiscovery.shared.discoverFeeds(forDomain: domain)
             isSearching = false
-            if feeds.isEmpty {
+            if domainFeeds.isEmpty {
                 errorMessage = String(localized: "AddFeed.NoFeedsFound")
             } else {
-                discoveredFeeds = feeds
+                discoveredFeeds = domainFeeds
             }
+        }
+    }
+
+    private func tryDirectFeedURL(_ input: String) async -> DiscoveredFeed? {
+        let urlString = normalizeURL(input)
+        guard let url = URL(string: urlString) else { return nil }
+
+        do {
+            let (data, response) = try await URLSession.shared.data(from: url)
+            guard let httpResponse = response as? HTTPURLResponse,
+                  httpResponse.statusCode == 200 else { return nil }
+
+            let parser = RSSParser()
+            guard let parsed = parser.parse(data: data) else { return nil }
+
+            let siteURL = parsed.siteURL.isEmpty ? urlString : parsed.siteURL
+            let title = parsed.title.isEmpty ? (url.host ?? urlString) : parsed.title
+            return DiscoveredFeed(title: title, url: urlString, siteURL: siteURL)
+        } catch {
+            return nil
         }
     }
 
@@ -138,42 +180,11 @@ struct AddFeedView: View {
         }
     }
 
-    private func addDirectURL() {
-        var urlString = domainOrURL
-        if !urlString.hasPrefix("http://") && !urlString.hasPrefix("https://") {
-            urlString = "https://" + urlString
+    private func normalizeURL(_ input: String) -> String {
+        if input.hasPrefix("http://") || input.hasPrefix("https://") {
+            return input
         }
-
-        Task {
-            isSearching = true
-            defer { isSearching = false }
-
-            guard let url = URL(string: urlString) else {
-                errorMessage = String(localized: "AddFeed.InvalidURL")
-                return
-            }
-
-            do {
-                let (data, _) = try await URLSession.shared.data(from: url)
-                let parser = RSSParser()
-                if let parsed = parser.parse(data: data) {
-                    let siteURL = parsed.siteURL.isEmpty ? urlString : parsed.siteURL
-                    let title = parsed.title.isEmpty
-                        ? (url.host ?? urlString) : parsed.title
-                    try feedManager.addFeed(
-                        url: urlString,
-                        title: title,
-                        siteURL: siteURL,
-                        description: parsed.description
-                    )
-                    dismiss()
-                } else {
-                    errorMessage = String(localized: "AddFeed.NotAFeed")
-                }
-            } catch {
-                errorMessage = error.localizedDescription
-            }
-        }
+        return "https://" + input
     }
 
     private func extractDomain(from input: String) -> String {

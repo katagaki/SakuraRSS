@@ -58,6 +58,23 @@
         }
       }
     },
+    "AddFeed.URLPlaceholder" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "example.com/feed or example.com"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "example.com/feed または example.com"
+          }
+        }
+      }
+    },
     "AddFeed.Extension.Added" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -211,6 +228,23 @@
         }
       }
     },
+    "AddFeed.Paste" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Paste"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ペースト"
+          }
+        }
+      }
+    },
     "AddFeed.Search" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -224,40 +258,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "フィードを検索"
-          }
-        }
-      }
-    },
-    "AddFeed.Section.Direct" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Direct URL"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "URLを直接入力"
-          }
-        }
-      }
-    },
-    "AddFeed.Section.DirectFooter" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "If you know the exact RSS feed URL, enter it directly."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "RSSフィードのURLが分かっている場合は直接入力できます。"
           }
         }
       }
@@ -285,13 +285,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Search by Domain"
+            "value" : "URL"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "ドメインで検索"
+            "value" : "URL"
           }
         }
       }
@@ -302,13 +302,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Enter a website domain to automatically discover RSS feeds."
+            "value" : "Enter a feed URL, website URL, or domain. Sakura will try the URL as a feed first, then search the page for feeds, then search the root domain."
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "ウェブサイトのドメインを入力してRSSフィードを自動検出します。"
+            "value" : "フィードURL、ウェブサイトURL、またはドメインを入力してください。SakuraはまずURLをフィードとして試し、次にページ内のフィードを検索し、最後にルートドメインを検索します。"
           }
         }
       }
@@ -449,6 +449,23 @@
         }
       }
     },
+    "Articles.MarkAllRead.Confirm" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mark all articles as read?"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "すべての記事を既読にしますか？"
+          }
+        }
+      }
+    },
     "Articles.Style.Compact" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -462,6 +479,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "コンパクト"
+          }
+        }
+      }
+    },
+    "Articles.Style.Feed" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Feed"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "フィード"
           }
         }
       }
@@ -496,6 +530,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "マガジン"
+          }
+        }
+      }
+    },
+    "Articles.Style.Video" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Video"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ビデオ"
           }
         }
       }
