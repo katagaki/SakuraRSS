@@ -1,0 +1,115 @@
+import Foundation
+import WebKit
+
+final class WebViewExtractor: NSObject, WKNavigationDelegate {
+
+    // MARK: - Domain Whitelist
+
+    static let allowlistedDomains: Set<String> = [
+        "apple.com"
+    ]
+
+    static func requiresWebView(for url: URL) -> Bool {
+        guard let host = url.host?.lowercased() else { return false }
+        return allowlistedDomains.contains(where: { host == $0 || host.hasSuffix(".\($0)") })
+    }
+
+    // MARK: - Extraction
+
+    private var webView: WKWebView?
+    private var continuation: CheckedContinuation<String?, Never>?
+    private var timeoutTask: Task<Void, Never>?
+
+    func extractText(from url: URL) async -> String? {
+        let html = await loadAndExtractHTML(from: url)
+        guard let html, !html.isEmpty else { return nil }
+        return ArticleExtractor.extractText(fromHTML: html)
+    }
+
+    private func loadAndExtractHTML(from url: URL) async -> String? {
+        await withCheckedContinuation { continuation in
+            self.continuation = continuation
+
+            let config = WKWebViewConfiguration()
+            config.suppressesIncrementalRendering = true
+            let webView = WKWebView(frame: CGRect(x: 0, y: 0, width: 1024, height: 768), configuration: config)
+            webView.navigationDelegate = self
+            self.webView = webView
+
+            webView.load(URLRequest(url: url))
+
+            self.timeoutTask = Task { [weak self] in
+                try? await Task.sleep(for: .seconds(5))
+                guard !Task.isCancelled else { return }
+                self?.handleTimeout()
+            }
+        }
+    }
+
+    private func handleTimeout() {
+        guard let continuation else { return }
+        self.continuation = nil
+        timeoutTask?.cancel()
+        timeoutTask = nil
+        cleanup()
+        continuation.resume(returning: nil)
+    }
+
+    private func cleanup() {
+        webView?.stopLoading()
+        webView?.navigationDelegate = nil
+        webView = nil
+    }
+
+    // MARK: - WKNavigationDelegate
+
+    func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+        // Page loaded successfully — cancel the load timeout
+        // and give JS frameworks time to hydrate before extracting
+        timeoutTask?.cancel()
+        timeoutTask = nil
+        Task {
+            try? await Task.sleep(for: .seconds(2))
+            self.extractHTML()
+        }
+    }
+
+    func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
+        guard let continuation else { return }
+        self.continuation = nil
+        timeoutTask?.cancel()
+        timeoutTask = nil
+        cleanup()
+        continuation.resume(returning: nil)
+    }
+
+    func webView(
+        _ webView: WKWebView,
+        didFailProvisionalNavigation navigation: WKNavigation!,
+        withError error: Error
+    ) {
+        guard let continuation else { return }
+        self.continuation = nil
+        timeoutTask?.cancel()
+        timeoutTask = nil
+        cleanup()
+        continuation.resume(returning: nil)
+    }
+
+    private func extractHTML() {
+        guard let continuation else { return }
+        self.continuation = nil
+        timeoutTask?.cancel()
+        timeoutTask = nil
+
+        guard let webView else {
+            continuation.resume(returning: nil)
+            return
+        }
+
+        webView.evaluateJavaScript("document.documentElement.outerHTML") { [weak self] result, _ in
+            self?.cleanup()
+            continuation.resume(returning: result as? String)
+        }
+    }
+}

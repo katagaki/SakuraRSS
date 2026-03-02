@@ -82,9 +82,10 @@ struct FeedRowView: View {
     var body: some View {
         HStack(spacing: 12) {
             if let favicon = favicon {
-                FaviconImage(favicon, size: 32, cornerRadius: 4)
+                FaviconImage(favicon, size: 32, cornerRadius: feed.isVideoFeed ? 0 : 4,
+                             circle: feed.isVideoFeed, skipInset: feed.isVideoFeed)
             } else {
-                InitialsAvatarView(feed.title, size: 32, cornerRadius: 4)
+                InitialsAvatarView(feed.title, size: 32, circle: feed.isVideoFeed, cornerRadius: feed.isVideoFeed ? 0 : 4)
             }
 
             VStack(alignment: .leading, spacing: 2) {

@@ -14,22 +14,10 @@ struct MagazineStyleView: View {
         ScrollView(.vertical) {
             LazyVGrid(columns: columns, spacing: 12) {
                 ForEach(articles) { article in
-                    if article.isYouTubeURL {
-                        Button {
-                            feedManager.markRead(article)
-                            YouTubeHelper.openInApp(url: article.url)
-                        } label: {
-                            MagazineArticleCard(article: article)
-                        }
-                        .buttonStyle(.plain)
-                    } else {
-                        NavigationLink {
-                            ArticleDetailView(article: article)
-                        } label: {
-                            MagazineArticleCard(article: article)
-                        }
-                        .buttonStyle(.plain)
+                    ArticleLink(article: article) {
+                        MagazineArticleCard(article: article)
                     }
+                    .buttonStyle(.plain)
                 }
             }
             .padding(.horizontal, 16)
@@ -92,7 +80,7 @@ struct MagazineArticleCard: View {
             }
 
             if let date = article.publishedDate {
-                Text(date, style: .relative)
+                RelativeTimeText(date: date)
                     .font(.caption2)
                     .foregroundStyle(.tertiary)
             }

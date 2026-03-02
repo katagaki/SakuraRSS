@@ -7,24 +7,11 @@ struct InboxStyleView: View {
 
     var body: some View {
         List(articles) { article in
-            if article.isYouTubeURL {
-                Button {
-                    feedManager.markRead(article)
-                    YouTubeHelper.openInApp(url: article.url)
-                } label: {
-                    InboxArticleRow(article: article)
-                }
-                .listRowBackground(Color.clear)
-                .listRowInsets(EdgeInsets(top: 8, leading: 12, bottom: 8, trailing: 16))
-            } else {
-                NavigationLink {
-                    ArticleDetailView(article: article)
-                } label: {
-                    InboxArticleRow(article: article)
-                }
-                .listRowBackground(Color.clear)
-                .listRowInsets(EdgeInsets(top: 8, leading: 12, bottom: 8, trailing: 16))
+            ArticleLink(article: article) {
+                InboxArticleRow(article: article)
             }
+            .listRowBackground(Color.clear)
+            .listRowInsets(EdgeInsets(top: 8, leading: 12, bottom: 8, trailing: 16))
         }
         .listStyle(.plain)
     }
@@ -74,7 +61,7 @@ struct InboxArticleRow: View {
                             .foregroundStyle(.tertiary)
                     }
                     if let date = article.publishedDate {
-                        Text(date, style: .relative)
+                        RelativeTimeText(date: date)
                             .font(.caption2)
                             .foregroundStyle(.tertiary)
                     }

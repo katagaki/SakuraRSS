@@ -7,39 +7,24 @@ struct FeedStyleView: View {
 
     var body: some View {
         List(articles) { article in
-            if article.isYouTubeURL {
-                Button {
-                    feedManager.markRead(article)
-                    YouTubeHelper.openInApp(url: article.url)
-                } label: {
-                    FeedArticleRow(article: article)
+            ZStack {
+                ArticleLink(article: article) {
+                    EmptyView()
                 }
-                .listRowBackground(Color.clear)
-                .listRowInsets(EdgeInsets(top: 10, leading: 16, bottom: 10, trailing: 16))
-                .listRowSeparator(.hidden, edges: .top)
-                .listRowSeparator(.visible, edges: .bottom)
-            } else {
-                ZStack {
-                    NavigationLink {
-                        ArticleDetailView(article: article)
-                    } label: {
-                        EmptyView()
-                    }
-                    .opacity(0)
+                .opacity(0)
 
-                    FeedArticleRow(article: article)
-                }
-                .padding(.horizontal, 12)
-                .listRowBackground(Color.clear)
-                .listRowInsets(EdgeInsets(top: 10, leading: 0, bottom: 10, trailing: 0))
-                .listRowSeparator(.hidden, edges: .top)
-                .listRowSeparator(.visible, edges: .bottom)
-                .alignmentGuide(.listRowSeparatorLeading) { _ in
-                    return 0
-                }
-                .alignmentGuide(.listRowSeparatorTrailing) { dimensions in
-                    return dimensions.width
-                }
+                FeedArticleRow(article: article)
+            }
+            .padding(.horizontal, 12)
+            .listRowBackground(Color.clear)
+            .listRowInsets(EdgeInsets(top: 10, leading: 0, bottom: 10, trailing: 0))
+            .listRowSeparator(.hidden, edges: .top)
+            .listRowSeparator(.visible, edges: .bottom)
+            .alignmentGuide(.listRowSeparatorLeading) { _ in
+                return 0
+            }
+            .alignmentGuide(.listRowSeparatorTrailing) { dimensions in
+                return dimensions.width
             }
         }
         .listStyle(.plain)
@@ -54,6 +39,7 @@ struct FeedArticleRow: View {
     @State private var favicon: UIImage?
     @State private var feedName: String?
     @State private var isYouTube = false
+    @State private var preferTitle = false
 
     var body: some View {
         HStack(alignment: .top, spacing: 10) {
@@ -81,7 +67,7 @@ struct FeedArticleRow: View {
                         Text("·")
                             .font(.subheadline)
                             .foregroundStyle(.secondary)
-                        Text(date, style: .relative)
+                        RelativeTimeText(date: date)
                             .font(.subheadline)
                             .foregroundStyle(.secondary)
                     }
@@ -96,7 +82,7 @@ struct FeedArticleRow: View {
                 }
 
                 Group {
-                    if let summary = article.summary {
+                    if !preferTitle, let summary = article.summary {
                         Text(summary)
                     } else {
                         Text(article.title)
@@ -165,7 +151,8 @@ struct FeedArticleRow: View {
             if let feed = feedManager.feed(forArticle: article) {
                 favicon = await FaviconCache.shared.favicon(for: feed.domain, siteURL: feed.siteURL)
                 feedName = feed.title
-                isYouTube = feed.isYouTube
+                isYouTube = feed.isVideoFeed
+                preferTitle = TitleOnlyDomains.shouldPreferTitle(feedDomain: feed.domain)
             }
         }
     }

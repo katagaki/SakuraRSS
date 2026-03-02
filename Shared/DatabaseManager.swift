@@ -36,6 +36,7 @@ nonisolated final class DatabaseManager: @unchecked Sendable {
     private let articlePublishedDate = SQLite.Expression<Double?>("published_date")
     private let articleIsRead = SQLite.Expression<Bool>("is_read")
     private let articleIsBookmarked = SQLite.Expression<Bool>("is_bookmarked")
+    private let articleHasFullText = SQLite.Expression<Bool>("has_full_text")
 
     // MARK: - Init
 
@@ -76,7 +77,11 @@ nonisolated final class DatabaseManager: @unchecked Sendable {
             table.column(articlePublishedDate)
             table.column(articleIsRead, defaultValue: false)
             table.column(articleIsBookmarked, defaultValue: false)
+            table.column(articleHasFullText, defaultValue: false)
         })
+
+        // Migration: add has_full_text column if missing from existing databases
+        _ = try? database.run(articles.addColumn(articleHasFullText, defaultValue: false))
 
         try database.run(articles.createIndex(articleFeedID, ifNotExists: true))
         try database.run(articles.createIndex(articlePublishedDate, ifNotExists: true))
@@ -248,13 +253,22 @@ nonisolated final class DatabaseManager: @unchecked Sendable {
     // MARK: - Full Article Text Cache
 
     func cachedArticleContent(for articleId: Int64) throws -> String? {
-        guard let row = try database.pluck(articles.filter(articleID == articleId)) else { return nil }
+        let query = articles.filter(articleID == articleId && articleHasFullText == true)
+        guard let row = try database.pluck(query) else { return nil }
         return row[articleContent]
     }
 
     func cacheArticleContent(_ content: String, for articleId: Int64) throws {
         let target = articles.filter(articleID == articleId)
-        try database.run(target.update(articleContent <- content))
+        try database.run(target.update(
+            articleContent <- content,
+            articleHasFullText <- true
+        ))
+    }
+
+    func clearCachedArticleContent(for articleId: Int64) throws {
+        let target = articles.filter(articleID == articleId)
+        try database.run(target.update(articleHasFullText <- false))
     }
 
     // MARK: - Helpers

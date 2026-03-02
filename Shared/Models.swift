@@ -14,8 +14,8 @@ nonisolated struct Feed: Identifiable, Hashable, Sendable {
         URL(string: siteURL)?.host ?? URL(string: url)?.host ?? ""
     }
 
-    var isYouTube: Bool {
-        domain.contains("youtube.com") || domain.contains("youtu.be")
+    var isVideoFeed: Bool {
+        VideoDomains.shouldPreferVideo(feedDomain: domain)
     }
 }
 

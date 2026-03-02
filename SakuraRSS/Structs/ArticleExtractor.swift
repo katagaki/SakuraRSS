@@ -102,6 +102,16 @@ struct ArticleExtractor {
     }
 
     static func extractText(fromURL url: URL) async -> String? {
+        if WebViewExtractor.requiresWebView(for: url) {
+            #if DEBUG
+            debugPrint("Extracting text using WebView from \(url)")
+            #endif
+            let extractor = WebViewExtractor()
+            if let text = await extractor.extractText(from: url) {
+                return text
+            }
+        }
+
         do {
             let (data, _) = try await URLSession.shared.data(from: url)
             guard let html = String(data: data, encoding: .utf8) else {
@@ -171,6 +181,7 @@ struct ArticleExtractor {
     /// Walks the DOM tree collecting text from block-level elements.
     /// Recurses into non-block wrappers (div, section, etc.) so that
     /// nested blocks like `<div><p>…</p></div>` don't produce duplicates.
+    /// Treats leaf divs (divs with no block-level children) as paragraphs.
     private static func collectBlocks(from element: Element, into paragraphs: inout [String]) throws {
         for child in element.children() {
             let tag = child.tagName().lowercased()
@@ -179,10 +190,30 @@ struct ArticleExtractor {
                 if !text.isEmpty {
                     paragraphs.append(text)
                 }
+            } else if isLeafBlock(child) {
+                // Div/section/etc. with no nested block elements — treat as a paragraph
+                let text = try textContent(of: child)
+                if !text.isEmpty {
+                    paragraphs.append(text)
+                }
             } else {
                 try collectBlocks(from: child, into: &paragraphs)
             }
         }
+    }
+
+    /// A wrapper element (div, section, span, etc.) that contains no nested
+    /// block-level or structural children should be treated as a leaf paragraph.
+    private static func isLeafBlock(_ element: Element) -> Bool {
+        let structuralTags: Set<String> = ["div", "section", "article", "main", "aside"]
+        for child in element.children() {
+            let tag = child.tagName().lowercased()
+            if blockElements.contains(tag) || structuralTags.contains(tag) {
+                return false
+            }
+        }
+        let text = (try? element.text()) ?? ""
+        return !text.isEmpty
     }
 
     private static let brPlaceholder = "{{SAKURA_BR}}"

@@ -75,7 +75,7 @@ struct VideoArticleCard: View {
                         }
                         if let date = article.publishedDate {
                             Text("·")
-                            Text(date, style: .relative)
+                            RelativeTimeText(date: date)
                         }
                     }
                     .font(.caption)

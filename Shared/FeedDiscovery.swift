@@ -58,6 +58,10 @@ actor FeedDiscovery {
         let feeds = await discoverFromHTML(url: pageURL)
         if !feeds.isEmpty { return feeds }
 
+        if let rssFeed = await probeRSSSuffix(for: pageURL) {
+            return [rssFeed]
+        }
+
         return await probeCommonPaths(domain: pageURL.host ?? "")
     }
 
@@ -127,6 +131,27 @@ actor FeedDiscovery {
         guard let match = regex.firstMatch(in: tag, range: NSRange(tag.startIndex..., in: tag)),
               let range = Range(match.range(at: 1), in: tag) else { return nil }
         return String(tag[range])
+    }
+
+    // MARK: - RSS Suffix Probing
+
+    /// For non-root URLs, tries appending `.rss` to the path.
+    /// Works for sites like Reddit where /r/subreddit.rss is a valid feed.
+    private func probeRSSSuffix(for url: URL) async -> DiscoveredFeed? {
+        let path = url.path
+        // Only try for non-root paths that don't already have a feed-like extension
+        guard !path.isEmpty,
+              path != "/",
+              !path.hasSuffix(".rss"),
+              !path.hasSuffix(".xml"),
+              !path.hasSuffix(".atom") else {
+            return nil
+        }
+
+        let trimmedPath = path.hasSuffix("/") ? String(path.dropLast()) : path
+        guard let domain = url.host else { return nil }
+
+        return await probeFeedAt(domain: domain, path: "\(trimmedPath).rss")
     }
 
     // MARK: - Common Path Probing

@@ -9,22 +9,10 @@ struct PhotosStyleView: View {
         ScrollView(.vertical) {
             LazyVStack(spacing: 0) {
                 ForEach(articles) { article in
-                    if article.isYouTubeURL {
-                        Button {
-                            feedManager.markRead(article)
-                            YouTubeHelper.openInApp(url: article.url)
-                        } label: {
-                            PhotosArticleCard(article: article)
-                        }
-                        .buttonStyle(.plain)
-                    } else {
-                        NavigationLink {
-                            ArticleDetailView(article: article)
-                        } label: {
-                            PhotosArticleCard(article: article)
-                        }
-                        .buttonStyle(.plain)
+                    ArticleLink(article: article) {
+                        PhotosArticleCard(article: article)
                     }
+                    .buttonStyle(.plain)
                 }
             }
         }
@@ -131,7 +119,7 @@ struct PhotosArticleCard: View {
                 .padding(.bottom, 10)
 
             if let date = article.publishedDate {
-                Text(date, style: .relative)
+                RelativeTimeText(date: date)
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .padding(.horizontal, 12)
@@ -145,7 +133,7 @@ struct PhotosArticleCard: View {
             if let feed = feedManager.feed(forArticle: article) {
                 favicon = await FaviconCache.shared.favicon(for: feed.domain, siteURL: feed.siteURL)
                 feedName = feed.title
-                isYouTube = feed.isYouTube
+                isYouTube = feed.isVideoFeed
             }
         }
     }

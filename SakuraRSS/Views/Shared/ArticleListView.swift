@@ -6,7 +6,7 @@ struct ArticleListView: View {
     let articles: [Article]
     let title: String
     let feedKey: String
-    let isYouTubeFeed: Bool
+    let isVideoFeed: Bool
 
     @State private var displayStyle: FeedDisplayStyle
 
@@ -14,14 +14,14 @@ struct ArticleListView: View {
         articles.contains { $0.imageURL != nil }
     }
 
-    init(articles: [Article], title: String, feedKey: String, isYouTube: Bool = false) {
+    init(articles: [Article], title: String, feedKey: String, isVideoFeed: Bool = false) {
         self.articles = articles
         self.title = title
         self.feedKey = feedKey
-        self.isYouTubeFeed = isYouTube
+        self.isVideoFeed = isVideoFeed
         let raw = UserDefaults.standard.string(forKey: "displayStyle-\(feedKey)")
         let defaultRaw = UserDefaults.standard.string(forKey: "defaultDisplayStyle") ?? FeedDisplayStyle.inbox.rawValue
-        let fallback = isYouTube ? .video : (FeedDisplayStyle(rawValue: defaultRaw) ?? .inbox)
+        let fallback = isVideoFeed ? .video : (FeedDisplayStyle(rawValue: defaultRaw) ?? .inbox)
         self._displayStyle = State(initialValue: raw.flatMap(FeedDisplayStyle.init(rawValue:)) ?? fallback)
     }
 
@@ -64,7 +64,7 @@ struct ArticleListView: View {
                             Label(String(localized: "Articles.Style.Photos"), systemImage: "photo.stack")
                                 .tag(FeedDisplayStyle.photos)
                         }
-                        if isYouTubeFeed {
+                        if isVideoFeed {
                             Label(String(localized: "Articles.Style.Video"), systemImage: "play.rectangle")
                                 .tag(FeedDisplayStyle.video)
                         }

@@ -52,7 +52,7 @@ struct ArticleDetailView: View {
                     if let date = article.publishedDate {
                         Text("·")
                             .foregroundStyle(.tertiary)
-                        Text(date, format: .dateTime.month().day().year())
+                        RelativeTimeText(date: date)
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
@@ -104,6 +104,9 @@ struct ArticleDetailView: View {
                 }
             }
             .padding()
+        }
+        .refreshable {
+            await refreshArticleContent()
         }
         .sakuraBackground()
         .navigationBarTitleDisplayMode(.inline)
@@ -159,9 +162,26 @@ struct ArticleDetailView: View {
         isExtracting = true
         defer { isExtracting = false }
 
+        #if DEBUG
+                debugPrint("Extracting article content: \(article.url)")
+        #endif
+
         if let cached = try? DatabaseManager.shared.cachedArticleContent(for: article.id),
            !cached.isEmpty {
             extractedText = cached
+            #if DEBUG
+            debugPrint("Using cached content: \(article.url)")
+            #endif
+            return
+        }
+
+        // For whitelisted domains, always fetch the full article via WKWebView
+        if let url = URL(string: article.url), WebViewExtractor.requiresWebView(for: url) {
+            let text = await ArticleExtractor.extractText(fromURL: url)
+            extractedText = text
+            if let text, !text.isEmpty {
+                try? DatabaseManager.shared.cacheArticleContent(text, for: article.id)
+            }
             return
         }
 
@@ -181,6 +201,14 @@ struct ArticleDetailView: View {
                 try? DatabaseManager.shared.cacheArticleContent(text, for: article.id)
             }
         }
+    }
+
+    private func refreshArticleContent() async {
+        try? DatabaseManager.shared.clearCachedArticleContent(for: article.id)
+        translatedText = nil
+        translatedTitle = nil
+        extractedText = nil
+        await extractArticleContent()
     }
 
     private func openArticleURL() {
