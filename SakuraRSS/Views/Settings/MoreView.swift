@@ -5,8 +5,6 @@ struct MoreView: View {
     @Environment(FeedManager.self) var feedManager
     @AppStorage("refreshInterval") private var refreshInterval: Int = 60
     @AppStorage("defaultDisplayStyle") private var defaultDisplayStyle: String = FeedDisplayStyle.inbox.rawValue
-    @State private var isClearingCache = false
-
     var body: some View {
         NavigationStack {
             Form {
@@ -30,27 +28,6 @@ struct MoreView: View {
                     }
                 } header: {
                     Text(String(localized: "Settings.Section.Refresh"))
-                }
-
-                Section {
-                    Button(role: .destructive) {
-                        isClearingCache = true
-                        Task {
-                            await FaviconCache.shared.clearCache()
-                            isClearingCache = false
-                        }
-                    } label: {
-                        HStack {
-                            Text(String(localized: "Settings.ClearFaviconCache"))
-                            if isClearingCache {
-                                Spacer()
-                                ProgressView()
-                            }
-                        }
-                    }
-                    .disabled(isClearingCache)
-                } header: {
-                    Text(String(localized: "Settings.Section.Cache"))
                 }
 
                 Section {
