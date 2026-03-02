@@ -64,6 +64,7 @@ struct InboxStyleView: View {
                 InboxArticleRow(article: article)
             }
             .listRowBackground(Color.clear)
+            .listRowInsets(EdgeInsets(top: 8, leading: 12, bottom: 8, trailing: 12))
         }
         .listStyle(.plain)
     }
@@ -180,7 +181,7 @@ struct MagazineStyleView: View {
                     .buttonStyle(.plain)
                 }
             }
-            .padding(.horizontal, 20)
+            .padding(.horizontal, 12)
             .padding(.vertical)
         }
     }
@@ -259,7 +260,7 @@ struct CompactStyleView: View {
                 }
             }
             .listRowBackground(Color.clear)
-            .listRowInsets(EdgeInsets(top: 4, leading: 16, bottom: 4, trailing: 16))
+            .listRowInsets(EdgeInsets(top: 4, leading: 12, bottom: 4, trailing: 12))
             .listRowSpacing(0.0)
             .swipeActions(edge: .trailing) {
                 Button {
