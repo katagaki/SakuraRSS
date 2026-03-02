@@ -65,6 +65,7 @@ struct InboxArticleRow: View {
                     }
                 }
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
 
             if let imageURL = article.imageURL, let url = URL(string: imageURL) {
                 CachedAsyncImage(url: url) {
