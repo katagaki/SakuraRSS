@@ -79,7 +79,7 @@ struct InboxArticleRow: View {
                 favicon = await FaviconCache.shared.favicon(for: feed.domain)
             }
         }
-        .swipeActions(edge: .trailing) {
+        .swipeActions(edge: .leading) {
             Button {
                 feedManager.markRead(article)
             } label: {

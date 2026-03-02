@@ -15,17 +15,18 @@ struct FaviconImage: View {
     }
 
     var body: some View {
+        let showInset = isCircle && !image.isCircular
         Image(uiImage: image)
             .resizable()
             .aspectRatio(contentMode: .fill)
-            .frame(width: isCircle ? size * 0.7 : size, height: isCircle ? size * 0.7 : size)
+            .frame(width: showInset ? size * 0.7 : size, height: showInset ? size * 0.7 : size)
             .if(image.isDark) { view in
                 view
                     .padding(2)
                     .background(.white)
             }
             .frame(width: size, height: size)
-            .background(isCircle ? Color(.secondarySystemBackground) : .clear)
+            .background(showInset ? Color(.secondarySystemBackground) : .clear)
             .clipShape(isCircle ? AnyShape(Circle()) : AnyShape(RoundedRectangle(cornerRadius: cornerRadius)))
     }
 }
@@ -40,6 +41,57 @@ private extension View {
         } else {
             self
         }
+    }
+}
+
+// MARK: - Shape Detection
+
+extension UIImage {
+
+    /// Returns `true` when the image corners are transparent and the centre is opaque,
+    /// indicating the favicon is already circular (or rounded) and needs no inset treatment.
+    var isCircular: Bool {
+        guard let cgImage = cgImage else { return false }
+        let width = cgImage.width
+        let height = cgImage.height
+        guard width >= 8, height >= 8 else { return false }
+
+        let sampleSize = min(min(width, height), 32)
+        let colorSpace = CGColorSpaceCreateDeviceRGB()
+        let bytesPerPixel = 4
+        let bytesPerRow = sampleSize * bytesPerPixel
+        var pixelData = [UInt8](repeating: 0, count: sampleSize * sampleSize * bytesPerPixel)
+
+        guard let context = CGContext(
+            data: &pixelData,
+            width: sampleSize,
+            height: sampleSize,
+            bitsPerComponent: 8,
+            bytesPerRow: bytesPerRow,
+            space: colorSpace,
+            bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
+        ) else { return false }
+
+        context.draw(cgImage, in: CGRect(x: 0, y: 0, width: sampleSize, height: sampleSize))
+
+        func alpha(x: Int, y: Int) -> UInt8 {
+            pixelData[(y * sampleSize + x) * bytesPerPixel + 3]
+        }
+
+        let last = sampleSize - 1
+        let cornerSamples = [
+            (0, 0), (1, 0), (0, 1),
+            (last, 0), (last - 1, 0), (last, 1),
+            (0, last), (1, last), (0, last - 1),
+            (last, last), (last - 1, last), (last, last - 1)
+        ]
+
+        for (x, y) in cornerSamples {
+            if alpha(x: x, y: y) > 25 { return false }
+        }
+
+        let mid = sampleSize / 2
+        return alpha(x: mid, y: mid) >= 200
     }
 }
 

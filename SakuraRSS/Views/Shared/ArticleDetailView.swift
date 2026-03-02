@@ -21,10 +21,11 @@ struct ArticleDetailView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
-                Text(translatedTitle ?? article.title)
-                    .font(.title2)
-                    .fontWeight(.bold)
-                    .textSelection(.enabled)
+                SelectableText(
+                    translatedTitle ?? article.title,
+                    font: .preferredFont(forTextStyle: .title2).bold(),
+                    textColor: .label
+                )
 
                 HStack(spacing: 12) {
                     if let favicon = favicon {
@@ -69,10 +70,7 @@ struct ArticleDetailView: View {
                         .frame(maxWidth: .infinity, alignment: .center)
                         .padding(.vertical, 8)
                 } else if let text = displayText {
-                    Text(text)
-                        .font(.body)
-                        .foregroundStyle(.primary)
-                        .textSelection(.enabled)
+                    SelectableText(text)
                 }
 
                 if !isExtracting && displayText != nil {
