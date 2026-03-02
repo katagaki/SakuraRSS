@@ -27,7 +27,7 @@ struct CompactStyleView: View {
                 }
             }
             .listRowBackground(Color.clear)
-            .listRowInsets(EdgeInsets(top: 4, leading: 16, bottom: 4, trailing: 16))
+            .listRowInsets(EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16))
             .listRowSpacing(0.0)
 
 
