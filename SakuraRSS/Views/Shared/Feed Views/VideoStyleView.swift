@@ -53,6 +53,8 @@ struct VideoArticleCard: View {
             HStack(alignment: .top, spacing: 12) {
                 if let favicon = favicon {
                     FaviconImage(favicon, size: 36, circle: true, skipInset: true)
+                } else if let feedName {
+                    InitialsAvatarView(feedName, size: 36, circle: true)
                 } else {
                     Circle()
                         .fill(.secondary.opacity(0.2))

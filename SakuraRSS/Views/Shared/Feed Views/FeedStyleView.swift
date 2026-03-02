@@ -49,6 +49,8 @@ struct FeedArticleRow: View {
         HStack(alignment: .top, spacing: 10) {
             if let favicon = favicon {
                 FaviconImage(favicon, size: 40, circle: true, skipInset: isYouTube)
+            } else if let feedName {
+                InitialsAvatarView(feedName, size: 40, circle: true)
             } else {
                 Circle()
                     .fill(.secondary.opacity(0.2))

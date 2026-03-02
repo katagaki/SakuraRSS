@@ -43,6 +43,7 @@ struct MagazineArticleCard: View {
     @Environment(FeedManager.self) var feedManager
     let article: Article
     @State private var favicon: UIImage?
+    @State private var feedName: String?
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
@@ -66,6 +67,10 @@ struct MagazineArticleCard: View {
 
                 if let favicon = favicon {
                     FaviconImage(favicon, size: 20, cornerRadius: 4)
+                        .shadow(color: .black.opacity(0.3), radius: 2, y: 1)
+                        .padding(6)
+                } else if let feedName {
+                    InitialsAvatarView(feedName, size: 20, cornerRadius: 4)
                         .shadow(color: .black.opacity(0.3), radius: 2, y: 1)
                         .padding(6)
                 }
@@ -99,6 +104,7 @@ struct MagazineArticleCard: View {
         .shadow(color: .black.opacity(0.05), radius: 2, y: 1)
         .task {
             if let feed = feedManager.feed(forArticle: article) {
+                feedName = feed.title
                 favicon = await FaviconCache.shared.favicon(for: feed.domain, siteURL: feed.siteURL)
             }
         }

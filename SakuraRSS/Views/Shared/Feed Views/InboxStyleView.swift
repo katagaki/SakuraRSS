@@ -35,6 +35,7 @@ struct InboxArticleRow: View {
     @Environment(FeedManager.self) var feedManager
     let article: Article
     @State private var favicon: UIImage?
+    @State private var feedName: String?
 
     var body: some View {
         HStack(alignment: .top, spacing: 6) {
@@ -46,6 +47,9 @@ struct InboxArticleRow: View {
 
             if let favicon = favicon {
                 FaviconImage(favicon, size: 20, cornerRadius: 3)
+                    .padding(.top, 2)
+            } else if let feedName {
+                InitialsAvatarView(feedName, size: 20, cornerRadius: 3)
                     .padding(.top, 2)
             }
 
@@ -88,6 +92,7 @@ struct InboxArticleRow: View {
         }
         .task {
             if let feed = feedManager.feed(forArticle: article) {
+                feedName = feed.title
                 favicon = await FaviconCache.shared.favicon(for: feed.domain, siteURL: feed.siteURL)
             }
         }

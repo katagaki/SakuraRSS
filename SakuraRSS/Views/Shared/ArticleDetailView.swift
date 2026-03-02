@@ -7,6 +7,7 @@ struct ArticleDetailView: View {
     @Environment(\.openURL) var openURL
     let article: Article
     @State private var favicon: UIImage?
+    @State private var feedName: String?
     @State private var extractedText: String?
     @State private var isExtracting = false
     @State private var translatedText: String?
@@ -30,6 +31,8 @@ struct ArticleDetailView: View {
                 HStack(spacing: 12) {
                     if let favicon = favicon {
                         FaviconImage(favicon, size: 18, cornerRadius: 3)
+                    } else if let feedName {
+                        InitialsAvatarView(feedName, size: 18, cornerRadius: 3)
                     }
 
                     if let feed = feedManager.feed(forArticle: article) {
@@ -121,6 +124,7 @@ struct ArticleDetailView: View {
         .task {
             feedManager.markRead(article)
             if let feed = feedManager.feed(forArticle: article) {
+                feedName = feed.title
                 favicon = await FaviconCache.shared.favicon(for: feed.domain, siteURL: feed.siteURL)
             }
             await extractArticleContent()

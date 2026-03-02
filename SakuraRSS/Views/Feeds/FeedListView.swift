@@ -109,9 +109,7 @@ struct FeedRowView: View {
             if let favicon = favicon {
                 FaviconImage(favicon, size: 24, cornerRadius: 4)
             } else {
-                Image(systemName: "dot.radiowaves.up.forward")
-                    .frame(width: 24, height: 24)
-                    .foregroundStyle(.secondary)
+                InitialsAvatarView(feed.title, size: 24, cornerRadius: 4)
             }
 
             VStack(alignment: .leading, spacing: 2) {
