@@ -93,6 +93,10 @@ nonisolated final class RSSParser: NSObject, XMLParserDelegate, @unchecked Senda
             if let url = attributeDict["url"] {
                 currentImageURL = url
             }
+        case "itunes:image" where isInsideItem:
+            if let url = attributeDict["href"], currentImageURL.isEmpty {
+                currentImageURL = url
+            }
         default:
             break
         }
@@ -119,10 +123,16 @@ nonisolated final class RSSParser: NSObject, XMLParserDelegate, @unchecked Senda
     }
 
     private func handleMediaElement(_ elementName: String, attributes: [String: String]) {
-        if let url = attributes["url"],
-           let type = attributes["type"], type.hasPrefix("image/") {
+        guard let url = attributes["url"], !url.isEmpty else { return }
+
+        if let type = attributes["type"], type.hasPrefix("image/") {
             currentImageURL = url
-        } else if let url = attributes["url"], elementName == "media:content" {
+        } else if attributes["medium"] == "image" {
+            currentImageURL = url
+        } else if elementName == "media:content", currentImageURL.isEmpty {
+            currentImageURL = url
+        } else if elementName == "enclosure",
+                  let type = attributes["type"], type.hasPrefix("image/") {
             currentImageURL = url
         }
     }
@@ -170,7 +180,7 @@ nonisolated final class RSSParser: NSObject, XMLParserDelegate, @unchecked Senda
                 author: trimmedAuthor.isEmpty ? nil : decodeHTMLEntities(trimmedAuthor),
                 summary: cleanHTML(currentDescription.trimmingCharacters(in: .whitespacesAndNewlines)),
                 content: trimmedContent.isEmpty ? nil : trimmedContent,
-                imageURL: currentImageURL.isEmpty ? extractImageFromHTML(currentDescription) : currentImageURL,
+                imageURL: resolveImageURL(),
                 publishedDate: parseDate(currentPubDate.trimmingCharacters(in: .whitespacesAndNewlines))
             )
             if !article.title.isEmpty && !article.url.isEmpty {
@@ -179,6 +189,24 @@ nonisolated final class RSSParser: NSObject, XMLParserDelegate, @unchecked Senda
             isInsideItem = false
         }
         currentElement = ""
+    }
+
+    // MARK: - Image Resolution
+
+    private func resolveImageURL() -> String? {
+        // Prefer explicitly tagged image from feed elements
+        if !currentImageURL.isEmpty {
+            return currentImageURL
+        }
+        // Try extracting from content:encoded (usually has full article HTML)
+        if !currentContent.isEmpty, let url = extractImageFromHTML(currentContent) {
+            return url
+        }
+        // Try extracting from description/summary
+        if !currentDescription.isEmpty, let url = extractImageFromHTML(currentDescription) {
+            return url
+        }
+        return nil
     }
 
     // MARK: - Date Parsing
@@ -316,15 +344,51 @@ nonisolated extension RSSParser {
     }
 
     func extractImageFromHTML(_ html: String) -> String? {
-        guard let range = html.range(of: #"<img[^>]+src="([^"]+)""#, options: .regularExpression) else {
-            return nil
+        // Try double-quoted src first, then single-quoted
+        let patterns = [
+            #"<img[^>]+src="([^"]+)""#,
+            #"<img[^>]+src='([^']+)'"#
+        ]
+        for pattern in patterns {
+            if let range = html.range(of: pattern, options: .regularExpression) {
+                let match = html[range]
+                if let srcRange = match.range(of: #"src=["']([^"']+)["']"#, options: .regularExpression) {
+                    let src = match[srcRange]
+                    let url = src.dropFirst(5).dropLast(1)
+                    let urlString = String(url)
+                    if isLikelyHeroImage(urlString) {
+                        return urlString
+                    }
+                }
+            }
         }
-        let match = html[range]
-        guard let srcRange = match.range(of: #"src="([^"]+)""#, options: .regularExpression) else {
-            return nil
+        // No hero-quality image found, return first image as fallback
+        for pattern in patterns {
+            if let range = html.range(of: pattern, options: .regularExpression) {
+                let match = html[range]
+                if let srcRange = match.range(of: #"src=["']([^"']+)["']"#, options: .regularExpression) {
+                    let src = match[srcRange]
+                    let url = src.dropFirst(5).dropLast(1)
+                    return String(url)
+                }
+            }
         }
-        let src = match[srcRange]
-        let url = src.dropFirst(5).dropLast(1)
-        return String(url)
+        return nil
+    }
+
+    private func isLikelyHeroImage(_ url: String) -> Bool {
+        let lowered = url.lowercased()
+        // Skip tracking pixels, icons, and spacers
+        let skipPatterns = [
+            "gravatar.com", "pixel", "spacer", "blank",
+            "1x1", "transparent", "tracking", "beacon",
+            ".gif", "feeds.feedburner.com", "badge",
+            "icon", "emoji", "smiley", "avatar",
+            "ad.", "ads.", "doubleclick", "googlesyndication"
+        ]
+        for pattern in skipPatterns {
+            if lowered.contains(pattern) { return false }
+        }
+        return true
     }
 }

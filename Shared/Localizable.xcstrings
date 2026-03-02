@@ -347,6 +347,23 @@
         }
       }
     },
+    "Article.CopyPhoto" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copy Photo"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "写真をコピー"
+          }
+        }
+      }
+    },
     "Article.CopyLink" : {
       "extractionState" : "manual",
       "localizations" : {

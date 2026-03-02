@@ -98,7 +98,7 @@ struct AddFeedView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
-                    Button(String(localized: "Shared.Done")) {
+                    Button(role: .close) {
                         dismiss()
                     }
                 }

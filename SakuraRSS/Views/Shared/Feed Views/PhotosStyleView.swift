@@ -38,6 +38,7 @@ struct PhotosArticleCard: View {
     @State private var favicon: UIImage?
     @State private var feedName: String?
     @State private var isYouTube = false
+    @State private var photoImage: UIImage?
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -53,20 +54,12 @@ struct PhotosArticleCard: View {
                         .frame(width: 32, height: 32)
                 }
 
-                VStack(alignment: .leading, spacing: 2) {
-                    if let feedName {
-                        Text(feedName)
-                            .font(.subheadline)
-                            .fontWeight(.semibold)
-                            .foregroundStyle(.primary)
-                            .lineLimit(1)
-                    }
-
-                    if let date = article.publishedDate {
-                        Text(date, style: .relative)
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
+                if let feedName {
+                    Text(feedName)
+                        .font(.subheadline)
+                        .fontWeight(.semibold)
+                        .foregroundStyle(.primary)
+                        .lineLimit(1)
                 }
 
                 Spacer()
@@ -83,16 +76,67 @@ struct PhotosArticleCard: View {
                 }
                 .frame(maxWidth: .infinity)
                 .aspectRatio(contentMode: .fit)
+                .task {
+                    photoImage = await CachedAsyncImage<EmptyView>.loadImage(from: url)
+                }
             }
+
+            // Action buttons below photo
+            HStack(spacing: 16) {
+                Button {
+                    if let photoImage {
+                        UIPasteboard.general.image = photoImage
+                    }
+                } label: {
+                    Label(String(localized: "Article.CopyPhoto"),
+                          systemImage: "square.on.square")
+                }
+                .disabled(photoImage == nil)
+
+                if let shareURL = URL(string: article.url) {
+                    ShareLink(item: shareURL) {
+                        Label(String(localized: "Article.Share"),
+                              systemImage: "square.and.arrow.up")
+                    }
+                }
+
+                Spacer()
+
+                Button {
+                    feedManager.toggleBookmark(article)
+                } label: {
+                    Label(
+                        article.isBookmarked
+                            ? String(localized: "Article.RemoveBookmark")
+                            : String(localized: "Article.Bookmark"),
+                        systemImage: article.isBookmarked ? "bookmark.fill" : "bookmark"
+                    )
+                }
+            }
+            .labelStyle(.iconOnly)
+            .buttonStyle(.plain)
+            .font(.title3)
+            .fontWeight(.medium)
+            .foregroundStyle(.primary)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 10)
 
             // Article title below photo
             Text(article.title)
-                .font(.body)
+                .font(.subheadline)
                 .foregroundStyle(.primary)
                 .lineLimit(3)
                 .multilineTextAlignment(.leading)
                 .padding(.horizontal, 12)
-                .padding(.vertical, 10)
+                .padding(.bottom, 10)
+
+            if let date = article.publishedDate {
+                Text(date, style: .relative)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .padding(.horizontal, 12)
+                    .padding(.bottom, 10)
+            }
 
             Divider()
                 .padding(.top, 4)
