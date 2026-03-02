@@ -18,7 +18,7 @@ struct FaviconImage: View {
     }
 
     var body: some View {
-        let showInset = !skipInset && isCircle && !image.isCircular
+        let showInset = !skipInset && isCircle && !image.isCircular && !image.isFilledSquare
         let needsWhiteBackground = !skipInset && image.isDark
         let iconScale: CGFloat = showInset || needsWhiteBackground ? 0.7 : 1.0
 
@@ -80,6 +80,51 @@ extension UIImage {
 
         let mid = sampleSize / 2
         return alpha(x: mid, y: mid) >= 200
+    }
+
+    /// Returns `true` when all corners are opaque, meaning the image completely fills
+    /// the square and can be clipped to a circle at full size without needing an inset.
+    var isFilledSquare: Bool {
+        guard let cgImage = cgImage else { return false }
+        let width = cgImage.width
+        let height = cgImage.height
+        guard width >= 8, height >= 8 else { return false }
+
+        let sampleSize = min(min(width, height), 32)
+        let colorSpace = CGColorSpaceCreateDeviceRGB()
+        let bytesPerPixel = 4
+        let bytesPerRow = sampleSize * bytesPerPixel
+        var pixelData = [UInt8](repeating: 0, count: sampleSize * sampleSize * bytesPerPixel)
+
+        guard let context = CGContext(
+            data: &pixelData,
+            width: sampleSize,
+            height: sampleSize,
+            bitsPerComponent: 8,
+            bytesPerRow: bytesPerRow,
+            space: colorSpace,
+            bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
+        ) else { return false }
+
+        context.draw(cgImage, in: CGRect(x: 0, y: 0, width: sampleSize, height: sampleSize))
+
+        func alpha(x: Int, y: Int) -> UInt8 {
+            pixelData[(y * sampleSize + x) * bytesPerPixel + 3]
+        }
+
+        let last = sampleSize - 1
+        let cornerSamples = [
+            (0, 0), (1, 0), (0, 1),
+            (last, 0), (last - 1, 0), (last, 1),
+            (0, last), (1, last), (0, last - 1),
+            (last, last), (last - 1, last), (last, last - 1)
+        ]
+
+        for (x, y) in cornerSamples {
+            if alpha(x: x, y: y) < 200 { return false }
+        }
+
+        return true
     }
 }
 
