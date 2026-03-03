@@ -296,6 +296,8 @@ private enum BlankPaddingTrimmer {
             bottom = yValue - 1
         }
 
+        guard top <= bottom else { return nil }
+
         leftScan: for xValue in 0..<width {
             for yValue in top...bottom {
                 if !isBlank(at: (yValue * width + xValue) * bytesPerPixel) { break leftScan }
@@ -309,6 +311,8 @@ private enum BlankPaddingTrimmer {
             }
             right = xValue - 1
         }
+
+        guard left <= right else { return nil }
 
         let cropWidth = right - left + 1
         let cropHeight = bottom - top + 1
