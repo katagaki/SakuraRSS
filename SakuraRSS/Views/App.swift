@@ -1,7 +1,7 @@
 import SwiftUI
 import BackgroundTasks
 import TipKit
-import UserNotifications
+@preconcurrency import UserNotifications
 
 @main
 struct SakuraRSSApp: App {
@@ -106,15 +106,16 @@ struct SakuraRSSApp: App {
 
     private func updateBadgeCount() {
         let badgeEnabled = UserDefaults.standard.bool(forKey: "BackgroundRefresh.BadgeEnabled")
+        let center = UNUserNotificationCenter.current()
         guard badgeEnabled else {
-            try? UNUserNotificationCenter.current().setBadgeCount(0)
+            Task { try? await center.setBadgeCount(0) }
             return
         }
-        let center = UNUserNotificationCenter.current()
-        center.getNotificationSettings { settings in
+        Task {
+            let settings = await center.notificationSettings()
             guard settings.badgeSetting == .enabled else { return }
             let count = feedManager.totalUnreadCount()
-            try? center.setBadgeCount(count)
+            try? await center.setBadgeCount(count)
         }
     }
 }

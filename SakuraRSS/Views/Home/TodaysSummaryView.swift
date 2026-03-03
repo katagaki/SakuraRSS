@@ -236,7 +236,6 @@ struct TodaysSummaryView: View {
 
         let calendar = Calendar.current
         let midnight = calendar.startOfDay(for: date)
-        let morning = calendar.date(bySettingHour: 9, minute: 0, second: 0, of: date)!
         let afternoon = calendar.date(bySettingHour: 13, minute: 0, second: 0, of: date)!
         let evening = calendar.date(bySettingHour: 17, minute: 0, second: 0, of: date)!
 
