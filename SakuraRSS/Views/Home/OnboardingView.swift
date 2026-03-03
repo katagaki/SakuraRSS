@@ -68,12 +68,12 @@ struct OnboardingView: View {
     private var featuresSection: some View {
         VStack(alignment: .leading, spacing: 16) {
             featureRow(
-                icon: "newspaper",
+                icon: "newspaper.fill",
                 title: String(localized: "Onboarding.Feature.Feeds"),
                 description: String(localized: "Onboarding.Feature.Feeds.Description")
             )
             featureRow(
-                icon: "rectangle.grid.2x2",
+                icon: "rectangle.grid.2x2.fill",
                 title: String(localized: "Onboarding.Feature.ViewStyles"),
                 description: String(localized: "Onboarding.Feature.ViewStyles.Description")
             )
@@ -93,9 +93,9 @@ struct OnboardingView: View {
     private func featureRow(icon: String, title: String, description: String) -> some View {
         HStack(alignment: .top, spacing: 14) {
             Image(systemName: icon)
-                .font(.title2)
-                .foregroundStyle(.tint)
-                .frame(width: 32, alignment: .center)
+                .font(.title)
+                .symbolRenderingMode(.multicolor)
+                .frame(width: 36, alignment: .center)
             VStack(alignment: .leading, spacing: 2) {
                 Text(title)
                     .font(.subheadline.weight(.semibold))
