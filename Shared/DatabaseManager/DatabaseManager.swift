@@ -62,6 +62,7 @@ nonisolated final class DatabaseManager: @unchecked Sendable {
         }
     }
 
+    // swiftlint:disable function_body_length
     private func createTables() throws {
         try database.run(feeds.create(ifNotExists: true) { table in
             table.column(feedID, primaryKey: .autoincrement)
@@ -129,4 +130,5 @@ nonisolated final class DatabaseManager: @unchecked Sendable {
             })
         }
     }
+    // swiftlint:enable function_body_length
 }

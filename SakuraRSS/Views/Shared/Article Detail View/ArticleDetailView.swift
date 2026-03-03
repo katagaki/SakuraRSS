@@ -7,22 +7,22 @@ struct ArticleDetailView: View {
     @Environment(FeedManager.self) var feedManager
     @Environment(\.openURL) var openURL
     let article: Article
-    @State private var favicon: UIImage?
-    @State private var feedName: String?
-    @State private var skipFaviconInset = false
-    @State private var isVideoFeed = false
-    @State private var extractedText: String?
-    @State private var isExtracting = false
-    @State private var translatedText: String?
-    @State private var translatedTitle: String?
-    @State private var isTranslating = false
-    @State private var translationConfig: TranslationSession.Configuration?
-    @State private var summarizedText: String?
-    @State private var isSummarizing = false
-    @State private var hasCachedSummary = false
-    @State private var showingSummary = false
+    @State var favicon: UIImage?
+    @State var feedName: String?
+    @State var skipFaviconInset = false
+    @State var isVideoFeed = false
+    @State var extractedText: String?
+    @State var isExtracting = false
+    @State var translatedText: String?
+    @State var translatedTitle: String?
+    @State var isTranslating = false
+    @State var translationConfig: TranslationSession.Configuration?
+    @State var summarizedText: String?
+    @State var isSummarizing = false
+    @State var hasCachedSummary = false
+    @State var showingSummary = false
 
-    private var isAppleIntelligenceAvailable: Bool {
+    var isAppleIntelligenceAvailable: Bool {
         SystemLanguageModel.default.availability == .available
     }
 
@@ -269,109 +269,6 @@ struct ArticleDetailView: View {
             } catch {
                 // Translation failed; user can retry
             }
-        }
-    }
-
-    private func extractArticleContent() async {
-        isExtracting = true
-        defer { isExtracting = false }
-
-        #if DEBUG
-                debugPrint("Extracting article content: \(article.url)")
-        #endif
-
-        if let cached = try? DatabaseManager.shared.cachedArticleContent(for: article.id),
-           !cached.isEmpty {
-            extractedText = cached
-            #if DEBUG
-            debugPrint("Using cached content: \(article.url)")
-            #endif
-            return
-        }
-
-        // For whitelisted domains, always fetch the full article via WKWebView
-        if let url = URL(string: article.url), WebViewExtractor.requiresWebView(for: url) {
-            let text = await ArticleExtractor.extractText(fromURL: url)
-            extractedText = text
-            if let text, !text.isEmpty {
-                try? DatabaseManager.shared.cacheArticleContent(text, for: article.id)
-            }
-            return
-        }
-
-        if let content = article.content, !content.isEmpty {
-            let text = ArticleExtractor.extractText(fromHTML: content)
-            if let text, !text.isEmpty {
-                extractedText = text
-                try? DatabaseManager.shared.cacheArticleContent(text, for: article.id)
-                return
-            }
-        }
-
-        if let url = URL(string: article.url) {
-            let text = await ArticleExtractor.extractText(fromURL: url)
-            extractedText = text
-            if let text, !text.isEmpty {
-                try? DatabaseManager.shared.cacheArticleContent(text, for: article.id)
-            }
-        }
-    }
-
-    private func refreshArticleContent() async {
-        try? DatabaseManager.shared.clearCachedArticleContent(for: article.id)
-        try? DatabaseManager.shared.clearCachedArticleSummary(for: article.id)
-        translatedText = nil
-        translatedTitle = nil
-        summarizedText = nil
-        hasCachedSummary = false
-        showingSummary = false
-        extractedText = nil
-        await extractArticleContent()
-    }
-
-    private func openArticleURL() {
-        if article.isYouTubeURL {
-            YouTubeHelper.openInApp(url: article.url)
-        } else if let url = URL(string: article.url) {
-            openURL(url)
-        }
-    }
-
-    private func summarizeArticle() async {
-        let source = extractedText ?? article.summary ?? ""
-        guard !source.isEmpty else { return }
-
-        if let cached = try? DatabaseManager.shared.cachedArticleSummary(for: article.id),
-           !cached.isEmpty {
-            summarizedText = cached
-            return
-        }
-
-        isSummarizing = true
-        defer { isSummarizing = false }
-
-        let instructions = String(localized: "Article.Summarize.Prompt")
-        let prompt = "\(instructions)\n\n\(source)"
-
-        #if DEBUG
-        debugPrint(prompt)
-        #endif
-
-        do {
-            let session = LanguageModelSession()
-            let response = try await session.respond(to: prompt)
-            summarizedText = response.content
-            try? DatabaseManager.shared.cacheArticleSummary(response.content, for: article.id)
-        } catch {
-            // Summarization failed; user can retry
-        }
-    }
-
-    private func triggerTranslation() {
-        if translationConfig == nil {
-            translationConfig = .init()
-        } else {
-            translationConfig?.invalidate()
         }
     }
 }

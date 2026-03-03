@@ -6,8 +6,8 @@ nonisolated extension DatabaseManager {
     // MARK: - Summary Cache Types
 
     enum SummaryCacheType: String {
-        case whileYouSlept = "whileYouSlept"
-        case todaysSummary = "todaysSummary"
+        case whileYouSlept
+        case todaysSummary
     }
 
     // MARK: - Daily Summary Cache
