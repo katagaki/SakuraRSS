@@ -56,6 +56,11 @@ actor FeedDiscovery {
     }
 
     func discoverFeeds(fromPageURL pageURL: URL) async -> [DiscoveredFeed] {
+        // Check for social media profile URLs first (fast path)
+        if let socialFeed = await detectSocialMediaFeed(url: pageURL) {
+            return [socialFeed]
+        }
+
         let feeds = await discoverFromHTML(url: pageURL)
         if !feeds.isEmpty { return feeds }
 
@@ -240,5 +245,51 @@ actor FeedDiscovery {
         }
 
         return nil
+    }
+
+    // MARK: - Social Media Feed Detection
+
+    /// Detects Bluesky and Mastodon profile URLs and constructs their RSS feed URLs.
+    private func detectSocialMediaFeed(url: URL) async -> DiscoveredFeed? {
+        if let blueskyFeed = await detectBlueskyFeed(url: url) {
+            return blueskyFeed
+        }
+        if let mastodonFeed = await detectMastodonFeed(url: url) {
+            return mastodonFeed
+        }
+        return nil
+    }
+
+    /// Detects Bluesky profile URLs and constructs the RSS feed URL.
+    /// Format: bsky.app/profile/<handle> → bsky.app/profile/<handle>/rss
+    private func detectBlueskyFeed(url: URL) async -> DiscoveredFeed? {
+        guard let host = url.host?.lowercased(),
+              host == "bsky.app" || host.hasSuffix(".bsky.app") else {
+            return nil
+        }
+
+        let path = url.path
+        guard path.hasPrefix("/profile/") else { return nil }
+
+        let afterProfile = String(path.dropFirst("/profile/".count))
+        guard let handle = afterProfile.split(separator: "/").first,
+              !handle.isEmpty else { return nil }
+
+        return await probeFeedAt(domain: "bsky.app", path: "/profile/\(handle)/rss")
+    }
+
+    /// Detects Mastodon profile URLs and constructs the RSS feed URL.
+    /// Format: <instance>/@<username> → <instance>/@<username>.rss
+    private func detectMastodonFeed(url: URL) async -> DiscoveredFeed? {
+        guard let host = url.host?.lowercased() else { return nil }
+
+        let path = url.path
+        guard path.hasPrefix("/@") else { return nil }
+
+        let afterAt = String(path.dropFirst(2))
+        guard let username = afterAt.split(separator: "/").first,
+              !username.isEmpty else { return nil }
+
+        return await probeFeedAt(domain: host, path: "/@\(username).rss")
     }
 }
