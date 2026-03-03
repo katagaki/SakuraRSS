@@ -52,6 +52,10 @@ nonisolated extension DatabaseManager {
         ))
     }
 
+    func feedExists(url: String) -> Bool {
+        (try? database.pluck(feeds.filter(feedURL == url))) != nil
+    }
+
     func deleteFeed(id: Int64) throws {
         try database.run(articles.filter(articleFeedID == id).delete())
         try database.run(feeds.filter(feedID == id).delete())

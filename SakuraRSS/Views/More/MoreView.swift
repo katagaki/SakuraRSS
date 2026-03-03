@@ -1,5 +1,6 @@
 import SwiftUI
 import FoundationModels
+import UniformTypeIdentifiers
 import UserNotifications
 
 struct MoreView: View {
@@ -12,6 +13,12 @@ struct MoreView: View {
     @AppStorage("Search.DisplayStyle") private var searchDisplayStyle: FeedDisplayStyle = .inbox
     @AppStorage("TodaysSummary.Enabled") private var todaysSummaryEnabled: Bool = true
     @AppStorage("WhileYouSlept.Enabled") private var whileYouSleptEnabled: Bool = true
+    @State private var isExporting = false
+    @State private var isImporting = false
+    @State private var showImportModeChoice = false
+    @State private var importedFileData: Data?
+    @State private var alertMessage: String?
+    @State private var showAlert = false
     #if DEBUG
     @AppStorage("Debug.ForceWhileYouSlept") private var forceWhileYouSlept: Bool = false
     @AppStorage("Debug.ForceTodaysSummary") private var forceTodaysSummary: Bool = false
@@ -92,6 +99,23 @@ struct MoreView: View {
                     }
                 }
 
+                Section {
+                    Button {
+                        isExporting = true
+                    } label: {
+                        Label(String(localized: "DataManagement.ExportOPML"), systemImage: "square.and.arrow.up")
+                    }
+                    Button {
+                        isImporting = true
+                    } label: {
+                        Label(String(localized: "DataManagement.ImportOPML"), systemImage: "square.and.arrow.down")
+                    }
+                } header: {
+                    Text("Settings.Section.DataManagement")
+                } footer: {
+                    Text("DataManagement.OPML.Footer")
+                }
+
                 #if DEBUG
                 Section {
                     Toggle(isOn: $forceWhileYouSlept) {
@@ -130,6 +154,83 @@ struct MoreView: View {
             .navigationTitle(String(localized: "Tabs.More"))
             .scrollContentBackground(.hidden)
             .sakuraBackground()
+            .fileExporter(
+                isPresented: $isExporting,
+                document: OPMLDocument(content: feedManager.exportOPML()),
+                contentType: .opml,
+                defaultFilename: "SakuraRSS.opml"
+            ) { result in
+                switch result {
+                case .success:
+                    alertMessage = String(localized: "DataManagement.Export.Success")
+                    showAlert = true
+                case .failure:
+                    alertMessage = String(localized: "DataManagement.Export.Error")
+                    showAlert = true
+                }
+            }
+            .fileImporter(
+                isPresented: $isImporting,
+                allowedContentTypes: [.opml, .xml],
+                allowsMultipleSelection: false
+            ) { result in
+                switch result {
+                case .success(let urls):
+                    guard let url = urls.first else { return }
+                    guard url.startAccessingSecurityScopedResource() else {
+                        alertMessage = String(localized: "DataManagement.Import.Error")
+                        showAlert = true
+                        return
+                    }
+                    defer { url.stopAccessingSecurityScopedResource() }
+                    if let data = try? Data(contentsOf: url) {
+                        importedFileData = data
+                        showImportModeChoice = true
+                    } else {
+                        alertMessage = String(localized: "DataManagement.Import.Error")
+                        showAlert = true
+                    }
+                case .failure:
+                    alertMessage = String(localized: "DataManagement.Import.Error")
+                    showAlert = true
+                }
+            }
+            .confirmationDialog(
+                String(localized: "DataManagement.Import.ModeTitle"),
+                isPresented: $showImportModeChoice,
+                titleVisibility: .visible
+            ) {
+                Button(String(localized: "DataManagement.Import.Merge")) {
+                    performImport(overwrite: false)
+                }
+                Button(String(localized: "DataManagement.Import.Overwrite"), role: .destructive) {
+                    performImport(overwrite: true)
+                }
+                Button(String(localized: "Shared.Cancel"), role: .cancel) {
+                    importedFileData = nil
+                }
+            } message: {
+                Text("DataManagement.Import.ModeMessage")
+            }
+            .alert(String(localized: "DataManagement.Title"), isPresented: $showAlert) {
+                Button(String(localized: "Shared.OK")) {}
+            } message: {
+                if let alertMessage {
+                    Text(alertMessage)
+                }
+            }
         }
+    }
+
+    private func performImport(overwrite: Bool) {
+        guard let data = importedFileData else { return }
+        importedFileData = nil
+        do {
+            let count = try feedManager.importOPML(data: data, overwrite: overwrite)
+            alertMessage = String(localized: "DataManagement.Import.Success \(count)")
+        } catch {
+            alertMessage = String(localized: "DataManagement.Import.Error")
+        }
+        showAlert = true
     }
 }
