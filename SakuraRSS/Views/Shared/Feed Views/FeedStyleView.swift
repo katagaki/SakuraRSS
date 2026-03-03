@@ -95,6 +95,7 @@ struct FeedArticleRow: View {
                 if let imageURL = article.imageURL, let url = URL(string: imageURL) {
                     CachedAsyncImage(url: url) {
                         Color.secondary.opacity(0.1)
+                            .frame(height: 180)
                     }
                     .frame(maxWidth: .infinity, maxHeight: 180)
                     .clipShape(.rect(cornerRadius: 12))
