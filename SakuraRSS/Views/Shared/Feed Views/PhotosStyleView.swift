@@ -25,7 +25,7 @@ struct PhotosArticleCard: View {
     let article: Article
     @State private var favicon: UIImage?
     @State private var feedName: String?
-    @State private var isYouTube = false
+    @State private var skipFaviconInset = false
     @State private var photoImage: UIImage?
 
     var body: some View {
@@ -33,7 +33,7 @@ struct PhotosArticleCard: View {
             // Profile photo and feed name header
             HStack(spacing: 10) {
                 if let favicon = favicon {
-                    FaviconImage(favicon, size: 32, circle: true, skipInset: isYouTube)
+                    FaviconImage(favicon, size: 32, circle: true, skipInset: skipFaviconInset)
                 } else if let feedName {
                     InitialsAvatarView(feedName, size: 32, circle: true)
                 } else {
@@ -132,7 +132,8 @@ struct PhotosArticleCard: View {
             if let feed = feedManager.feed(forArticle: article) {
                 favicon = await FaviconCache.shared.favicon(for: feed.domain, siteURL: feed.siteURL)
                 feedName = feed.title
-                isYouTube = feed.isVideoFeed
+                skipFaviconInset = feed.isVideoFeed
+                    || FullFaviconDomains.shouldUseFullImage(feedDomain: feed.domain)
             }
         }
     }

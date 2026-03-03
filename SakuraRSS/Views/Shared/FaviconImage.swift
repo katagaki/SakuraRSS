@@ -11,9 +11,14 @@ struct FaviconImage: View {
     var isNonSquare: Bool { !image.isSquare }
     var showInset: Bool { !skipInset && isCircle && !image.isCircular && !image.isFilledSquare }
     var needsWhiteBackground: Bool { !skipInset && image.isDark }
+    var isNearBlack: Bool { image.isNearBlack }
 
     var iconSize: CGFloat {
-        if isNonSquare {
+        if isNearBlack {
+            return size * 0.7
+        } else if skipInset {
+            return size
+        } else if isNonSquare {
             let padding: CGFloat = isCircle ? 3 : 2
              return size - padding * 2
         } else if showInset || needsWhiteBackground {
@@ -24,7 +29,11 @@ struct FaviconImage: View {
     }
 
     var bgColor: Color {
-        if isNonSquare || needsWhiteBackground {
+        if isNearBlack {
+            return .white
+        } else if skipInset {
+            return .clear
+        } else if isNonSquare || needsWhiteBackground {
             return .white
         } else if showInset {
             return Color(.secondarySystemBackground)
@@ -124,6 +133,46 @@ extension UIImage {
 extension UIImage {
     var isDark: Bool {
         averageLuminance < 0.3
+    }
+
+    /// Returns `true` when virtually all opaque pixels are near-black,
+    /// meaning the icon would be invisible on a dark background.
+    var isNearBlack: Bool {
+        guard let cgImage = cgImage else { return false }
+
+        let sampleSize = 16
+        let colorSpace = CGColorSpaceCreateDeviceRGB()
+        var pixelData = [UInt8](repeating: 0, count: sampleSize * sampleSize * 4)
+
+        guard let context = CGContext(
+            data: &pixelData,
+            width: sampleSize,
+            height: sampleSize,
+            bitsPerComponent: 8,
+            bytesPerRow: sampleSize * 4,
+            space: colorSpace,
+            bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
+        ) else { return false }
+
+        context.draw(cgImage, in: CGRect(x: 0, y: 0, width: sampleSize, height: sampleSize))
+
+        var opaqueCount = 0
+        var nearBlackCount = 0
+        let pixelCount = sampleSize * sampleSize
+
+        for index in 0..<pixelCount {
+            let offset = index * 4
+            let alpha = pixelData[offset + 3]
+            guard alpha > 25 else { continue }
+            opaqueCount += 1
+            let maxChannel = max(pixelData[offset], max(pixelData[offset + 1], pixelData[offset + 2]))
+            if maxChannel < 30 {
+                nearBlackCount += 1
+            }
+        }
+
+        guard opaqueCount > 0 else { return false }
+        return Double(nearBlackCount) / Double(opaqueCount) > 0.9
     }
 
     private var averageLuminance: CGFloat {
