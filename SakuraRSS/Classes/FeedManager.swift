@@ -159,4 +159,8 @@ final class FeedManager {
     func feed(forArticle article: Article) -> Feed? {
         feeds.first { $0.id == article.feedID }
     }
+
+    func article(byID id: Int64) -> Article? {
+        articles.first { $0.id == id } ?? (try? database.article(byID: id))
+    }
 }

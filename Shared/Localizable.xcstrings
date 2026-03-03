@@ -1213,13 +1213,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Feeds"
+            "value" : "Following"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "フィード"
+            "value" : "フォロー中"
           }
         }
       }
@@ -1247,13 +1247,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Feeds"
+            "value" : "Following"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "フィード"
+            "value" : "フォロー中"
           }
         }
       }

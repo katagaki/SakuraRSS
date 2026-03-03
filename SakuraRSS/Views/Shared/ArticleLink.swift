@@ -30,9 +30,7 @@ struct ArticleLink<Label: View>: View {
                     .ignoresSafeArea()
             }
         } else {
-            NavigationLink {
-                ArticleDetailView(article: article)
-            } label: {
+            NavigationLink(value: article) {
                 label()
             }
         }

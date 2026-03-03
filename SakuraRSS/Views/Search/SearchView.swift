@@ -58,6 +58,9 @@ struct SearchView: View {
             }
             .scrollContentBackground(.hidden)
             .sakuraBackground()
+            .navigationDestination(for: Article.self) { article in
+                ArticleDetailView(article: article)
+            }
             .searchable(text: $searchText, prompt: String(localized: "Search.Prompt"))
         }
     }

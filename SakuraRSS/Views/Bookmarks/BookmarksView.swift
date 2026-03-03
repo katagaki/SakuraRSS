@@ -80,6 +80,9 @@ struct BookmarksView: View {
             .onChange(of: displayStyle) { _, newValue in
                 UserDefaults.standard.set(newValue.rawValue, forKey: "displayStyle-bookmarks")
             }
+            .navigationDestination(for: Article.self) { article in
+                ArticleDetailView(article: article)
+            }
             .onAppear {
                 bookmarkedArticles = (try? DatabaseManager.shared.bookmarkedArticles()) ?? []
             }

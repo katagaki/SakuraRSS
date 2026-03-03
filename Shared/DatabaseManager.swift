@@ -302,6 +302,11 @@ nonisolated final class DatabaseManager: @unchecked Sendable {
         )
     }
 
+    func article(byID id: Int64) throws -> Article? {
+        let query = articles.filter(articleID == id).limit(1)
+        return try database.prepare(query).map(rowToArticle).first
+    }
+
     private func rowToArticle(_ row: Row) -> Article {
         Article(
             id: row[articleID],
