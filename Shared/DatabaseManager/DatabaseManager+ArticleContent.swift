@@ -23,4 +23,22 @@ nonisolated extension DatabaseManager {
         let target = articles.filter(articleID == articleId)
         try database.run(target.update(articleHasFullText <- false))
     }
+
+    // MARK: - AI Summary Cache
+
+    func cachedArticleSummary(for articleId: Int64) throws -> String? {
+        let query = articles.filter(articleID == articleId)
+        guard let row = try database.pluck(query) else { return nil }
+        return row[articleAISummary]
+    }
+
+    func cacheArticleSummary(_ summary: String, for articleId: Int64) throws {
+        let target = articles.filter(articleID == articleId)
+        try database.run(target.update(articleAISummary <- summary))
+    }
+
+    func clearCachedArticleSummary(for articleId: Int64) throws {
+        let target = articles.filter(articleID == articleId)
+        try database.run(target.update(articleAISummary <- nil))
+    }
 }

@@ -120,8 +120,8 @@ struct WhileYouSleptView: View {
                 .buttonStyle(.plain)
             }
 
-            Text("WhileYouSlept.Subtitle")
-                .font(.caption2)
+            Text("AppleIntelligence.VerifyImportantInformation")
+                .font(.caption)
                 .foregroundStyle(.tertiary)
         }
         .padding(.horizontal)

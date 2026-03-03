@@ -1,4 +1,5 @@
 import SwiftUI
+import FoundationModels
 @preconcurrency import Translation
 
 struct ArticleDetailView: View {
@@ -16,9 +17,20 @@ struct ArticleDetailView: View {
     @State private var translatedTitle: String?
     @State private var isTranslating = false
     @State private var translationConfig: TranslationSession.Configuration?
+    @State private var summarizedText: String?
+    @State private var isSummarizing = false
+    @State private var hasCachedSummary = false
+    @State private var showingSummary = false
+
+    private var isAppleIntelligenceAvailable: Bool {
+        SystemLanguageModel.default.availability == .available
+    }
 
     var displayText: String? {
-        translatedText ?? extractedText ?? article.summary
+        if showingSummary, let summarizedText {
+            return translatedText ?? summarizedText
+        }
+        return translatedText ?? extractedText ?? article.summary
     }
 
     var body: some View {
@@ -71,21 +83,82 @@ struct ArticleDetailView: View {
                     .clipShape(RoundedRectangle(cornerRadius: 12))
                 }
 
-                HStack(spacing: 12) {
+            }
+            .padding(.horizontal)
+            .padding(.top)
+
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 8) {
                     if !isExtracting && displayText != nil {
                         Button {
                             triggerTranslation()
                         } label: {
-                            if isTranslating {
-                                ProgressView()
-                                    .padding(.trailing, 4)
-                            }
                             Label(
                                 String(localized: "Article.Translate"),
                                 systemImage: "translate"
                             )
+                            .opacity(isTranslating ? 0 : 1)
+                            .overlay {
+                                if isTranslating {
+                                    ProgressView()
+                                }
+                            }
+                            .padding(.horizontal, 2)
+                            .padding(.vertical, 2)
                         }
                         .disabled(isTranslating)
+                        .animation(.smooth.speed(2.0), value: isTranslating)
+
+                        if isAppleIntelligenceAvailable {
+                            if (summarizedText != nil || hasCachedSummary) && !isSummarizing {
+                                Button {
+                                    translatedText = nil
+                                    translatedTitle = nil
+                                    if summarizedText == nil {
+                                        Task {
+                                            await summarizeArticle()
+                                            showingSummary = true
+                                        }
+                                    } else {
+                                        showingSummary.toggle()
+                                    }
+                                } label: {
+                                    Label(
+                                        String(localized: showingSummary
+                                               ? "Article.ShowOriginal"
+                                               : "Article.ShowSummary"),
+                                        systemImage: showingSummary
+                                            ? "doc.plaintext" : "apple.intelligence"
+                                    )
+                                    .padding(.horizontal, 2)
+                                    .padding(.vertical, 2)
+                                }
+                            } else {
+                                Button {
+                                    translatedText = nil
+                                    translatedTitle = nil
+                                    Task {
+                                        await summarizeArticle()
+                                        showingSummary = true
+                                    }
+                                } label: {
+                                    Label(
+                                        String(localized: "Article.Summarize"),
+                                        systemImage: "apple.intelligence"
+                                    )
+                                    .opacity(isSummarizing ? 0 : 1)
+                                    .overlay {
+                                        if isSummarizing {
+                                            ProgressView()
+                                        }
+                                    }
+                                    .padding(.horizontal, 2)
+                                    .padding(.vertical, 2)
+                                }
+                                .disabled(isSummarizing)
+                                .animation(.smooth.speed(2.0), value: isSummarizing)
+                            }
+                        }
                     }
 
                     Button {
@@ -97,19 +170,34 @@ struct ArticleDetailView: View {
                                 article.isYouTubeURL && YouTubeHelper.isAppInstalled ? "play.rectangle" : "safari"
                             )
                         )
+                        .padding(.horizontal, 2)
+                        .padding(.vertical, 2)
                     }
                 }
                 .buttonStyle(.bordered)
                 .tint(.primary)
+                .padding(.horizontal)
+            }
+            .padding(.top)
+
+            VStack(alignment: .leading, spacing: 16) {
 
                 if isExtracting {
                     ProgressView()
                         .frame(maxWidth: .infinity, alignment: .center)
                         .padding(.vertical, 8)
                 } else if let text = displayText {
+                    if showingSummary && summarizedText != nil {
+                        Text("AppleIntelligence.VerifyImportantInformation")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
                     SelectableText(text)
+                        .id(showingSummary)
+                        .transition(.blurReplace)
                 }
             }
+            .animation(.smooth, value: showingSummary)
             .padding()
         }
         .refreshable {
@@ -144,21 +232,37 @@ struct ArticleDetailView: View {
                     || FullFaviconDomains.shouldUseFullImage(feedDomain: feed.domain)
             }
             await extractArticleContent()
+            if let cached = try? DatabaseManager.shared.cachedArticleSummary(for: article.id),
+               !cached.isEmpty {
+                hasCachedSummary = true
+            }
         }
         .translationTask(translationConfig) { session in
             isTranslating = true
             defer { isTranslating = false }
 
-            let source = extractedText ?? article.summary ?? ""
+            let source: String
+            if showingSummary, let summarizedText {
+                source = summarizedText
+            } else {
+                source = extractedText ?? article.summary ?? ""
+            }
             guard !source.isEmpty else { return }
 
             do {
-                let requests = [
-                    TranslationSession.Request(sourceText: article.title),
+                var requests = [
                     TranslationSession.Request(sourceText: source)
                 ]
+                if !showingSummary {
+                    requests.insert(
+                        TranslationSession.Request(sourceText: article.title),
+                        at: 0
+                    )
+                }
                 let responses = try await session.translations(from: requests)
-                if responses.count >= 2 {
+                if showingSummary {
+                    translatedText = responses[0].targetText
+                } else if responses.count >= 2 {
                     translatedTitle = responses[0].targetText
                     translatedText = responses[1].targetText
                 }
@@ -215,8 +319,12 @@ struct ArticleDetailView: View {
 
     private func refreshArticleContent() async {
         try? DatabaseManager.shared.clearCachedArticleContent(for: article.id)
+        try? DatabaseManager.shared.clearCachedArticleSummary(for: article.id)
         translatedText = nil
         translatedTitle = nil
+        summarizedText = nil
+        hasCachedSummary = false
+        showingSummary = false
         extractedText = nil
         await extractArticleContent()
     }
@@ -226,6 +334,36 @@ struct ArticleDetailView: View {
             YouTubeHelper.openInApp(url: article.url)
         } else if let url = URL(string: article.url) {
             openURL(url)
+        }
+    }
+
+    private func summarizeArticle() async {
+        let source = extractedText ?? article.summary ?? ""
+        guard !source.isEmpty else { return }
+
+        if let cached = try? DatabaseManager.shared.cachedArticleSummary(for: article.id),
+           !cached.isEmpty {
+            summarizedText = cached
+            return
+        }
+
+        isSummarizing = true
+        defer { isSummarizing = false }
+
+        let instructions = String(localized: "Article.Summarize.Prompt")
+        let prompt = "\(instructions)\n\n\(source)"
+
+        #if DEBUG
+        debugPrint(prompt)
+        #endif
+
+        do {
+            let session = LanguageModelSession()
+            let response = try await session.respond(to: prompt)
+            summarizedText = response.content
+            try? DatabaseManager.shared.cacheArticleSummary(response.content, for: article.id)
+        } catch {
+            // Summarization failed; user can retry
         }
     }
 

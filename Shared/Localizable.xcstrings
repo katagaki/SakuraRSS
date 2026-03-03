@@ -349,6 +349,23 @@
         }
       }
     },
+    "AppleIntelligence.VerifyImportantInformation" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Summaries may be inaccurate. Verify important information."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "要約は不正確な場合があります。重要な情報はご確認ください。"
+          }
+        }
+      }
+    },
     "Article.Bookmark" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -447,6 +464,74 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "共有"
+          }
+        }
+      }
+    },
+    "Article.ShowOriginal" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Show Original"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "原文を表示"
+          }
+        }
+      }
+    },
+    "Article.ShowSummary" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Show Summary"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "要約を表示"
+          }
+        }
+      }
+    },
+    "Article.Summarize" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Summarize"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "要約"
+          }
+        }
+      }
+    },
+    "Article.Summarize.Prompt" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Below is the full text of an article. Summarize it by extracting the key points from each paragraph. Respond in the same language as the article. Use plain language. Do not use markdown formatting. Do not include any introduction or conclusion. Only output the key points as concise bullet points.\n\nArticle:"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "以下は記事の全文です。各段落の要点を抽出して要約してください。記事と同じ言語で回答してください。平易な言葉を使ってください。マークダウン記法は使わないでください。導入文やまとめは含めないでください。簡潔な箇条書きで要点のみを出力してください。\n\n記事:"
           }
         }
       }
@@ -1549,23 +1634,6 @@
         }
       }
     },
-    "TodaysSummary.Subtitle" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Summaries may be inaccurate. Verify important information."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "要約は不正確な場合があります。重要な情報はご確認ください。"
-          }
-        }
-      }
-    },
     "TodaysSummary.Title" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1681,23 +1749,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "もっと見る"
-          }
-        }
-      }
-    },
-    "WhileYouSlept.Subtitle" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Summaries may be inaccurate. Verify important information."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "要約は不正確な場合があります。重要な情報はご確認ください。"
           }
         }
       }

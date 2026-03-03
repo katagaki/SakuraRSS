@@ -40,6 +40,7 @@ nonisolated final class DatabaseManager: @unchecked Sendable {
     let articleHasFullText = SQLite.Expression<Bool>("has_full_text")
     let articleAudioURL = SQLite.Expression<String?>("audio_url")
     let articleDuration = SQLite.Expression<Int?>("duration")
+    let articleAISummary = SQLite.Expression<String?>("ai_summary")
 
     let summaryCache = Table("summary_cache")
     let summaryCacheType = SQLite.Expression<String>("type")
@@ -95,6 +96,9 @@ nonisolated final class DatabaseManager: @unchecked Sendable {
         _ = try? database.run(feeds.addColumn(feedIsPodcast, defaultValue: false))
         _ = try? database.run(articles.addColumn(articleAudioURL))
         _ = try? database.run(articles.addColumn(articleDuration))
+
+        // Migration: add AI summary column
+        _ = try? database.run(articles.addColumn(articleAISummary))
 
         try database.run(articles.createIndex(articleFeedID, ifNotExists: true))
         try database.run(articles.createIndex(articlePublishedDate, ifNotExists: true))

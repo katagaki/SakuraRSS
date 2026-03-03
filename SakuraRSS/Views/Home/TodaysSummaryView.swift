@@ -120,7 +120,7 @@ struct TodaysSummaryView: View {
                 .buttonStyle(.plain)
             }
 
-            Text("TodaysSummary.Subtitle")
+            Text("AppleIntelligence.VerifyImportantInformation")
                 .font(.caption2)
                 .foregroundStyle(.tertiary)
         }
