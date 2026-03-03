@@ -46,13 +46,13 @@ struct FeedArticleRow: View {
     let article: Article
     @State private var favicon: UIImage?
     @State private var feedName: String?
-    @State private var isYouTube = false
+    @State private var skipFaviconInset = false
     @State private var preferTitle = false
 
     var body: some View {
         HStack(alignment: .top, spacing: 10) {
             if let favicon = favicon {
-                FaviconImage(favicon, size: 40, circle: true, skipInset: isYouTube)
+                FaviconImage(favicon, size: 40, circle: true, skipInset: skipFaviconInset)
             } else if let feedName {
                 InitialsAvatarView(feedName, size: 40, circle: true)
             } else {
@@ -103,6 +103,7 @@ struct FeedArticleRow: View {
                 if let imageURL = article.imageURL, let url = URL(string: imageURL) {
                     CachedAsyncImage(url: url) {
                         Color.secondary.opacity(0.1)
+                            .frame(height: 180)
                     }
                     .frame(maxWidth: .infinity, maxHeight: 180)
                     .clipShape(.rect(cornerRadius: 12))
@@ -160,7 +161,8 @@ struct FeedArticleRow: View {
             if let feed = feedManager.feed(forArticle: article) {
                 favicon = await FaviconCache.shared.favicon(for: feed.domain, siteURL: feed.siteURL)
                 feedName = feed.title
-                isYouTube = feed.isVideoFeed
+                skipFaviconInset = feed.isVideoFeed
+                    || FullFaviconDomains.shouldUseFullImage(feedDomain: feed.domain)
                 preferTitle = TitleOnlyDomains.shouldPreferTitle(feedDomain: feed.domain)
             }
         }

@@ -32,7 +32,7 @@ struct CachedAsyncImage<Placeholder: View>: View {
         }
     }
 
-    static func loadImage(from url: URL) async -> UIImage? {
+    nonisolated static func loadImage(from url: URL) async -> UIImage? {
         let urlString = url.absoluteString
         let database = DatabaseManager.shared
 

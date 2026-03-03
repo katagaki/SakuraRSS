@@ -7,6 +7,7 @@ nonisolated enum VideoDomains {
         "youtube.com",
         "youtu.be",
         "vimeo.com",
+        "nicovideo.jp",
         "ch.nicovideo.jp"
     ]
 

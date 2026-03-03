@@ -83,7 +83,9 @@ struct FeedRowView: View {
         HStack(spacing: 12) {
             if let favicon = favicon {
                 FaviconImage(favicon, size: 32, cornerRadius: feed.isVideoFeed ? 0 : 4,
-                             circle: feed.isVideoFeed, skipInset: feed.isVideoFeed)
+                             circle: feed.isVideoFeed,
+                             skipInset: feed.isVideoFeed
+                                || FullFaviconDomains.shouldUseFullImage(feedDomain: feed.domain))
             } else {
                 InitialsAvatarView(
                     feed.title,
@@ -112,8 +114,8 @@ struct FeedRowView: View {
                     .fontWeight(.semibold)
                     .padding(.horizontal, 8)
                     .padding(.vertical, 2)
-                    .background(.red)
-                    .foregroundStyle(.white)
+                    .background(.tertiary)
+                    .foregroundStyle(.secondary)
                     .clipShape(Capsule())
             }
         }
