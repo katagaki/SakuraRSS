@@ -36,7 +36,8 @@ actor FeedDiscovery {
         "/blog/index.xml",
         "/?feed=rss2",
         "/?format=rss",
-        "/blog?format=rss"
+        "/blog?format=rss",
+        "/history.rss"
     ]
 
     func discoverFeeds(forDomain domain: String) async -> [DiscoveredFeed] {
@@ -86,41 +87,68 @@ actor FeedDiscovery {
     private func extractFeedLinks(from html: String, baseURL: URL) -> [DiscoveredFeed] {
         var feeds: [DiscoveredFeed] = []
 
-        let pattern = #"<link[^>]+type="application/(rss|atom)\+xml"[^>]*>"#
-        guard let regex = try? NSRegularExpression(pattern: pattern, options: .caseInsensitive) else {
-            return feeds
+        // 1. Standard <link> tags with RSS/Atom type
+        let linkPattern = #"<link[^>]+type="application/(rss|atom)\+xml"[^>]*>"#
+        if let linkRegex = try? NSRegularExpression(pattern: linkPattern, options: .caseInsensitive) {
+            let matches = linkRegex.matches(in: html, range: NSRange(html.startIndex..., in: html))
+            for match in matches {
+                guard let range = Range(match.range, in: html) else { continue }
+                let tag = String(html[range])
+
+                let href = extractAttribute("href", from: tag)
+                let rawTitle = extractAttribute("title", from: tag) ?? "RSS Feed"
+                let title = RSSParser().decodeHTMLEntities(rawTitle)
+
+                if let href = href, let feedURL = resolveURL(href, base: baseURL) {
+                    feeds.append(DiscoveredFeed(
+                        title: title,
+                        url: feedURL,
+                        siteURL: baseURL.absoluteString
+                    ))
+                }
+            }
         }
 
-        let matches = regex.matches(in: html, range: NSRange(html.startIndex..., in: html))
-        for match in matches {
-            guard let range = Range(match.range, in: html) else { continue }
-            let tag = String(html[range])
+        // 2. <a> tags with "RSS Feed" or "RSS" in their link text
+        let anchorPattern = #"<a\s[^>]*href="([^"]*)"[^>]*>(.*?)</a>"#
+        let anchorOptions: NSRegularExpression.Options = [.caseInsensitive, .dotMatchesLineSeparators]
+        if let anchorRegex = try? NSRegularExpression(pattern: anchorPattern, options: anchorOptions) {
+            let matches = anchorRegex.matches(in: html, range: NSRange(html.startIndex..., in: html))
+            for match in matches {
+                guard let hrefRange = Range(match.range(at: 1), in: html),
+                      let textRange = Range(match.range(at: 2), in: html) else { continue }
+                let href = String(html[hrefRange])
+                let rawText = String(html[textRange])
+                    .replacingOccurrences(of: "<[^>]+>", with: "", options: .regularExpression)
+                    .trimmingCharacters(in: .whitespacesAndNewlines)
 
-            let href = extractAttribute("href", from: tag)
-            let rawTitle = extractAttribute("title", from: tag) ?? "RSS Feed"
-            let title = RSSParser().decodeHTMLEntities(rawTitle)
+                let textLower = rawText.lowercased()
+                guard textLower == "rss feed" || textLower == "rss" else { continue }
 
-            if let href = href {
-                let feedURL: String
-                if href.hasPrefix("http") {
-                    feedURL = href
-                } else if href.hasPrefix("//") {
-                    feedURL = "https:" + href
-                } else {
-                    feedURL = baseURL.absoluteString.hasSuffix("/")
-                        ? baseURL.absoluteString + href.dropFirst(href.hasPrefix("/") ? 1 : 0)
-                        : baseURL.absoluteString + (href.hasPrefix("/") ? "" : "/") + href
+                if let feedURL = resolveURL(href, base: baseURL) {
+                    feeds.append(DiscoveredFeed(
+                        title: rawText,
+                        url: feedURL,
+                        siteURL: baseURL.absoluteString
+                    ))
                 }
-
-                feeds.append(DiscoveredFeed(
-                    title: title,
-                    url: feedURL,
-                    siteURL: baseURL.absoluteString
-                ))
             }
         }
 
         return feeds
+    }
+
+    private func resolveURL(_ href: String, base: URL) -> String? {
+        guard !href.isEmpty else { return nil }
+        if href.hasPrefix("http") {
+            return href
+        } else if href.hasPrefix("//") {
+            return "https:" + href
+        } else {
+            return base.absoluteString.hasSuffix("/")
+                ? base.absoluteString + href.dropFirst(href.hasPrefix("/") ? 1 : 0)
+                : base.absoluteString + (href.hasPrefix("/") ? "" : "/") + href
+        }
     }
 
     private func extractAttribute(_ name: String, from tag: String) -> String? {

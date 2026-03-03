@@ -126,33 +126,39 @@ struct AddFeedView: View {
         discoveredFeeds = []
 
         Task {
-            // 1. Try as direct feed URL
-            let directResult = await tryDirectFeedURL(urlInput)
-            if let feed = directResult {
-                isSearching = false
-                discoveredFeeds = [feed]
-                return
+            var results: [DiscoveredFeed] = []
+
+            // 1. Try as direct feed URL (highest priority)
+            if let feed = await tryDirectFeedURL(urlInput) {
+                results.append(feed)
             }
 
             // 2. Search for feeds on the full URL
             let normalizedURL = normalizeURL(urlInput)
             if let url = URL(string: normalizedURL) {
                 let urlFeeds = await FeedDiscovery.shared.discoverFeeds(fromPageURL: url)
-                if !urlFeeds.isEmpty {
-                    isSearching = false
-                    discoveredFeeds = urlFeeds
-                    return
-                }
+                results.append(contentsOf: urlFeeds)
             }
 
-            // 3. Fall back to root domain search
-            let domain = extractDomain(from: urlInput)
-            let domainFeeds = await FeedDiscovery.shared.discoverFeeds(forDomain: domain)
+            // 3. Fall back to root domain search if nothing found yet
+            if results.isEmpty {
+                let domain = extractDomain(from: urlInput)
+                let domainFeeds = await FeedDiscovery.shared.discoverFeeds(forDomain: domain)
+                results.append(contentsOf: domainFeeds)
+            }
+
+            // Deduplicate by URL, keeping the first (highest priority) occurrence
+            var seen = Set<String>()
+            results = results.filter { seen.insert($0.url).inserted }
+
+            // Sort alphabetically by title
+            results.sort { $0.title.localizedCaseInsensitiveCompare($1.title) == .orderedAscending }
+
             isSearching = false
-            if domainFeeds.isEmpty {
+            if results.isEmpty {
                 errorMessage = String(localized: "AddFeed.NoFeedsFound")
             } else {
-                discoveredFeeds = domainFeeds
+                discoveredFeeds = results
             }
         }
     }

@@ -10,7 +10,8 @@ struct FeedArticlesView: View {
             title: feed.title,
             feedKey: String(feed.id),
             isVideoFeed: feed.isVideoFeed,
-            isPodcastFeed: feed.isPodcast
+            isPodcastFeed: feed.isPodcast,
+            isFeedViewDomain: feed.isFeedViewDomain
         )
         .refreshable {
             try? await feedManager.refreshFeed(feed)

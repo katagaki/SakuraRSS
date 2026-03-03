@@ -18,6 +18,10 @@ nonisolated struct Feed: Identifiable, Hashable, Sendable {
     var isVideoFeed: Bool {
         VideoDomains.shouldPreferVideo(feedDomain: domain)
     }
+
+    var isFeedViewDomain: Bool {
+        FeedViewDomains.shouldPreferFeedView(feedDomain: domain)
+    }
 }
 
 nonisolated struct Article: Identifiable, Hashable, Sendable {
