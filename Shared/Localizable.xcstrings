@@ -494,7 +494,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "スワイプして新しい記事を読み込みましょう。"
+            "value" : "下にスワイプして新しい記事を読み込みましょう。"
           }
         }
       }
@@ -914,6 +914,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "キャッシュ済み記事"
+          }
+        }
+      }
+    },
+    "Settings.BackgroundRefresh" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fetch Articles Periodically"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "定期的に記事を更新"
           }
         }
       }

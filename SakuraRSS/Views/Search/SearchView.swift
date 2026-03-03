@@ -3,7 +3,7 @@ import SwiftUI
 struct SearchView: View {
 
     @Environment(FeedManager.self) var feedManager
-    @AppStorage("searchDisplayStyle") private var searchDisplayStyle: String = FeedDisplayStyle.inbox.rawValue
+    @AppStorage("searchDisplayStyle") private var searchDisplayStyle: FeedDisplayStyle = .inbox
     @State private var searchText = ""
 
     private var searchResults: [Article] {
@@ -11,19 +11,15 @@ struct SearchView: View {
         return (try? DatabaseManager.shared.searchArticles(query: searchText)) ?? []
     }
 
-    private var displayStyle: FeedDisplayStyle {
-        FeedDisplayStyle(rawValue: searchDisplayStyle) ?? .inbox
-    }
-
     private var hasImages: Bool {
         searchResults.contains { $0.imageURL != nil }
     }
 
     private var effectiveStyle: FeedDisplayStyle {
-        if !hasImages && (displayStyle == .magazine || displayStyle == .photos) {
+        if !hasImages && (searchDisplayStyle == .magazine || searchDisplayStyle == .photos) {
             return .inbox
         }
-        return displayStyle
+        return searchDisplayStyle
     }
 
     var body: some View {

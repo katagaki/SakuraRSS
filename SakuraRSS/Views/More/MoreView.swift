@@ -3,9 +3,10 @@ import SwiftUI
 struct MoreView: View {
 
     @Environment(FeedManager.self) var feedManager
+    @AppStorage("backgroundRefreshEnabled") private var backgroundRefreshEnabled: Bool = true
     @AppStorage("refreshInterval") private var refreshInterval: Int = 60
-    @AppStorage("defaultDisplayStyle") private var defaultDisplayStyle: String = FeedDisplayStyle.inbox.rawValue
-    @AppStorage("searchDisplayStyle") private var searchDisplayStyle: String = FeedDisplayStyle.inbox.rawValue
+    @AppStorage("defaultDisplayStyle") private var defaultDisplayStyle: FeedDisplayStyle = .inbox
+    @AppStorage("searchDisplayStyle") private var searchDisplayStyle: FeedDisplayStyle = .inbox
 
     var body: some View {
         NavigationStack {
@@ -13,38 +14,41 @@ struct MoreView: View {
                 Section {
                     Picker(String(localized: "Settings.DisplayStyle"), selection: $defaultDisplayStyle) {
                         Text("Articles.Style.Inbox")
-                            .tag(FeedDisplayStyle.inbox.rawValue)
+                            .tag(FeedDisplayStyle.inbox)
                         Text("Articles.Style.Feed")
-                            .tag(FeedDisplayStyle.feed.rawValue)
+                            .tag(FeedDisplayStyle.feed)
                         Text("Articles.Style.Magazine")
-                            .tag(FeedDisplayStyle.magazine.rawValue)
+                            .tag(FeedDisplayStyle.magazine)
                         Text("Articles.Style.Compact")
-                            .tag(FeedDisplayStyle.compact.rawValue)
+                            .tag(FeedDisplayStyle.compact)
                         Text("Articles.Style.Photos")
-                            .tag(FeedDisplayStyle.photos.rawValue)
+                            .tag(FeedDisplayStyle.photos)
                     }
                     Picker(String(localized: "Settings.SearchDisplayStyle"), selection: $searchDisplayStyle) {
                         Text("Articles.Style.Inbox")
-                            .tag(FeedDisplayStyle.inbox.rawValue)
+                            .tag(FeedDisplayStyle.inbox)
                         Text("Articles.Style.Feed")
-                            .tag(FeedDisplayStyle.feed.rawValue)
+                            .tag(FeedDisplayStyle.feed)
                         Text("Articles.Style.Magazine")
-                            .tag(FeedDisplayStyle.magazine.rawValue)
+                            .tag(FeedDisplayStyle.magazine)
                         Text("Articles.Style.Compact")
-                            .tag(FeedDisplayStyle.compact.rawValue)
+                            .tag(FeedDisplayStyle.compact)
                         Text("Articles.Style.Photos")
-                            .tag(FeedDisplayStyle.photos.rawValue)
+                            .tag(FeedDisplayStyle.photos)
                     }
                 } header: {
                     Text("Settings.Section.Display")
                 }
 
                 Section {
-                    Picker(String(localized: "Settings.RefreshInterval"), selection: $refreshInterval) {
-                        Text("Settings.Refresh.15min").tag(15)
-                        Text("Settings.Refresh.30min").tag(30)
-                        Text("Settings.Refresh.1hour").tag(60)
-                        Text("Settings.Refresh.4hours").tag(240)
+                    Toggle(String(localized: "Settings.BackgroundRefresh"), isOn: $backgroundRefreshEnabled)
+                    if backgroundRefreshEnabled {
+                        Picker(String(localized: "Settings.RefreshInterval"), selection: $refreshInterval) {
+                            Text("Settings.Refresh.15min").tag(15)
+                            Text("Settings.Refresh.30min").tag(30)
+                            Text("Settings.Refresh.1hour").tag(60)
+                            Text("Settings.Refresh.4hours").tag(240)
+                        }
                     }
                 } header: {
                     Text("Settings.Section.Refresh")
