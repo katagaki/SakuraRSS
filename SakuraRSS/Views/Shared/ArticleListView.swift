@@ -86,7 +86,7 @@ struct ArticleListView: View {
                     Label(String(localized: "Articles.Empty.Title"),
                           systemImage: "doc.text")
                 } description: {
-                    Text(String(localized: "Articles.Empty.Description"))
+                    Text("Articles.Empty.Description")
                 }
             }
         }
@@ -108,7 +108,7 @@ struct LoadPreviousArticlesButton: View {
         Button(action: action) {
             HStack {
                 Image(systemName: "clock.arrow.circlepath")
-                Text(String(localized: "Articles.LoadPrevious"))
+                Text("Articles.LoadPrevious")
             }
             .font(.subheadline)
             .frame(maxWidth: .infinity)

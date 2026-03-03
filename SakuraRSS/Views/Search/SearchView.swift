@@ -34,14 +34,14 @@ struct SearchView: View {
                         Label(String(localized: "Search.Empty.Title"),
                               systemImage: "magnifyingglass")
                     } description: {
-                        Text(String(localized: "Search.Empty.Description"))
+                        Text("Search.Empty.Description")
                     }
                 } else if searchResults.isEmpty {
                     ContentUnavailableView {
                         Label(String(localized: "Search.NoResults.Title"),
                               systemImage: "magnifyingglass")
                     } description: {
-                        Text(String(localized: "Search.NoResults.Description"))
+                        Text("Search.NoResults.Description")
                     }
                 } else {
                     switch effectiveStyle {

@@ -26,7 +26,7 @@ struct BookmarksView: View {
                         Label(String(localized: "Bookmarks.Empty.Title"),
                               systemImage: "bookmark")
                     } description: {
-                        Text(String(localized: "Bookmarks.Empty.Description"))
+                        Text("Bookmarks.Empty.Description")
                     }
                 } else {
                     switch effectiveStyle {

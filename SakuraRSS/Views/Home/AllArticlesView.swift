@@ -3,6 +3,18 @@ import SwiftUI
 struct AllArticlesView: View {
 
     @Environment(FeedManager.self) var feedManager
+
+    @State private var isShowingMarkAllReadConfirmation = false
+    @State private var showingOlderArticles = false
+
+    private var displayedArticles: [Article] {
+        if showingOlderArticles {
+            return feedManager.todayArticles() + feedManager.olderArticles()
+        } else {
+            return feedManager.todayArticles()
+        }
+    }
+
     var body: some View {
         ArticleListView(
             articles: displayedArticles,

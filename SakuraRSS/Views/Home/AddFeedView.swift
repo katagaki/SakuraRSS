@@ -27,7 +27,7 @@ struct AddFeedView: View {
                         searchFeeds()
                     } label: {
                         HStack {
-                            Text(String(localized: "AddFeed.Search"))
+                            Text("AddFeed.Search")
                             if isSearching {
                                 Spacer()
                                 ProgressView()
@@ -37,7 +37,7 @@ struct AddFeedView: View {
                     .disabled(urlInput.isEmpty || isSearching)
                 } header: {
                     HStack {
-                        Text(String(localized: "AddFeed.Section.Search"))
+                        Text("AddFeed.Section.Search")
                         Spacer()
                         if urlInput.isEmpty {
                             PasteButton(payloadType: URL.self) { urls in
@@ -51,7 +51,7 @@ struct AddFeedView: View {
                         }
                     }
                 } footer: {
-                    Text(String(localized: "AddFeed.Section.SearchFooter"))
+                    Text("AddFeed.Section.SearchFooter")
                 }
 
                 if let errorMessage = errorMessage {
@@ -92,7 +92,7 @@ struct AddFeedView: View {
                             }
                         }
                     } header: {
-                        Text(String(localized: "AddFeed.Section.Discovered"))
+                        Text("AddFeed.Section.Discovered")
                     }
                 }
             }

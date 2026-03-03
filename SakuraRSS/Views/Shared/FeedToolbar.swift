@@ -18,13 +18,13 @@ struct FeedToolbar: View {
         .padding()
         .popover(isPresented: $isShowingMarkAllReadConfirmation) {
             VStack(spacing: 12) {
-                Text(String(localized: "Articles.MarkAllRead.Confirm"))
+                Text("Articles.MarkAllRead.Confirm")
                     .font(.body)
                 Button {
                     onMarkAllRead()
                     isShowingMarkAllReadConfirmation = false
                 } label: {
-                    Text(String(localized: "Articles.MarkAllRead"))
+                    Text("Articles.MarkAllRead")
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 6)
                 }

@@ -98,7 +98,7 @@ struct MediumWidgetView: View {
                 Image(systemName: "newspaper")
                     .font(.title2)
                     .foregroundStyle(.secondary)
-                Text(String(localized: "Widget.NoArticles"))
+                Text("Widget.NoArticles")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
@@ -135,7 +135,7 @@ struct LargeWidgetView: View {
                 Image(systemName: "newspaper")
                     .font(.largeTitle)
                     .foregroundStyle(.secondary)
-                Text(String(localized: "Widget.NoArticles"))
+                Text("Widget.NoArticles")
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
             }

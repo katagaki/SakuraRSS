@@ -35,7 +35,7 @@ struct FeedsListPage: View {
         }
         .listStyle(.plain)
         .navigationTitle(String(localized: "Shared.Feeds"))
-        .searchable(text: $searchText, prompt: Text(String(localized: "FeedList.SearchPrompt")))
+        .searchable(text: $searchText, prompt: Text("FeedList.SearchPrompt"))
         .refreshable {
             await feedManager.refreshAllFeedsAndFavicons()
         }
@@ -61,7 +61,7 @@ struct FeedsListPage: View {
                     Label(String(localized: "FeedList.Empty.Title"),
                           systemImage: "newspaper")
                 } description: {
-                    Text(String(localized: "FeedList.Empty.Description"))
+                    Text("FeedList.Empty.Description")
                 } actions: {
                     Button(String(localized: "FeedList.Empty.AddFeed")) {
                         isShowingAddFeed = true
