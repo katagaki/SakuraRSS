@@ -10,7 +10,6 @@ struct AddFeedView: View {
     @State private var isSearching = false
     @State private var errorMessage: String?
     @State private var addedURLs: Set<String> = []
-    @State private var pasteboardHasURL = false
     @FocusState private var isURLFieldFocused: Bool
 
     var body: some View {
@@ -23,20 +22,6 @@ struct AddFeedView: View {
                         .autocorrectionDisabled()
                         .textInputAutocapitalization(.never)
                         .onSubmit { searchFeeds() }
-
-                    if pasteboardHasURL && urlInput.isEmpty {
-                        Button {
-                            if let url = UIPasteboard.general.url {
-                                urlInput = url.absoluteString
-                            } else if let string = UIPasteboard.general.string,
-                                      let url = URL(string: string),
-                                      url.scheme != nil {
-                                urlInput = string
-                            }
-                        } label: {
-                            Label(String(localized: "AddFeed.Paste"), systemImage: "doc.on.clipboard")
-                        }
-                    }
 
                     Button {
                         searchFeeds()
@@ -51,7 +36,20 @@ struct AddFeedView: View {
                     }
                     .disabled(urlInput.isEmpty || isSearching)
                 } header: {
-                    Text(String(localized: "AddFeed.Section.Search"))
+                    HStack {
+                        Text(String(localized: "AddFeed.Section.Search"))
+                        Spacer()
+                        if urlInput.isEmpty {
+                            PasteButton(payloadType: URL.self) { urls in
+                                if let url = urls.first {
+                                    urlInput = url.absoluteString
+                                }
+                            }
+                            .buttonStyle(.plain)
+                            .buttonBorderShape(.capsule)
+                            .controlSize(.mini)
+                        }
+                    }
                 } footer: {
                     Text(String(localized: "AddFeed.Section.SearchFooter"))
                 }
@@ -109,7 +107,6 @@ struct AddFeedView: View {
             }
             .interactiveDismissDisabled()
             .onAppear {
-                pasteboardHasURL = UIPasteboard.general.hasURLs
                 isURLFieldFocused = true
             }
         }
