@@ -1,5 +1,6 @@
 import Foundation
 import SwiftUI
+@preconcurrency import UserNotifications
 
 @Observable
 final class FeedManager {
@@ -152,11 +153,13 @@ final class FeedManager {
     func markRead(_ article: Article) {
         try? database.markArticleRead(id: article.id, read: true)
         loadFromDatabase()
+        updateBadgeCount()
     }
 
     func toggleRead(_ article: Article) {
         try? database.markArticleRead(id: article.id, read: !article.isRead)
         loadFromDatabase()
+        updateBadgeCount()
     }
 
     func toggleBookmark(_ article: Article) {
@@ -167,11 +170,13 @@ final class FeedManager {
     func markAllRead(feed: Feed) {
         try? database.markAllRead(feedID: feed.id)
         loadFromDatabase()
+        updateBadgeCount()
     }
 
     func markAllRead() {
         try? database.markAllRead()
         loadFromDatabase()
+        updateBadgeCount()
     }
 
     func unreadCount(for feed: Feed) -> Int {
@@ -182,6 +187,21 @@ final class FeedManager {
     func totalUnreadCount() -> Int {
         _ = dataRevision
         return (try? database.totalUnreadCount()) ?? 0
+    }
+
+    func updateBadgeCount() {
+        let badgeEnabled = UserDefaults.standard.bool(forKey: "BackgroundRefresh.BadgeEnabled")
+        let center = UNUserNotificationCenter.current()
+        guard badgeEnabled else {
+            Task { try? await center.setBadgeCount(0) }
+            return
+        }
+        Task {
+            let settings = await center.notificationSettings()
+            guard settings.badgeSetting == .enabled else { return }
+            let count = self.totalUnreadCount()
+            try? await center.setBadgeCount(count)
+        }
     }
 
     func feed(forArticle article: Article) -> Feed? {
