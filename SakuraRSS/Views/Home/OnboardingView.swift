@@ -1,6 +1,13 @@
 import SwiftUI
 import FoundationModels
 
+private enum OnboardingStep: Int, CaseIterable {
+    case welcome
+    case backgroundRefresh
+    case displayStyle
+    case appleIntelligence
+}
+
 struct OnboardingView: View {
 
     @Environment(FeedManager.self) var feedManager
@@ -10,7 +17,8 @@ struct OnboardingView: View {
     @AppStorage("TodaysSummary.Enabled") private var todaysSummaryEnabled: Bool = true
     @AppStorage("WhileYouSlept.Enabled") private var whileYouSleptEnabled: Bool = true
 
-    @State private var showAddFirstFeed = false
+    @State private var currentStep: OnboardingStep = .welcome
+    @State private var showAddFeed = false
     var onComplete: () -> Void
 
     private var appName: String {
@@ -23,72 +31,217 @@ struct OnboardingView: View {
 
     var body: some View {
         NavigationStack {
-            ScrollView {
-                VStack(alignment: .leading, spacing: 28) {
-                    headerSection
-                    featuresSection
-                    settingsSection
-                    stylePreviewSection
+            currentStepContent
+                .scrollContentBackground(.hidden)
+                .sakuraBackground()
+                .navigationDestination(isPresented: $showAddFeed) {
+                    AddFirstFeedView(onComplete: onComplete)
+                        .environment(feedManager)
                 }
-                .padding(.horizontal)
-                .padding(.bottom, 100)
-            }
-            .scrollContentBackground(.hidden)
-            .sakuraBackground()
-            .safeAreaInset(edge: .bottom) {
-                getStartedButton
-                    .padding(.horizontal)
-                    .padding(.vertical, 12)
-            }
-            .navigationDestination(isPresented: $showAddFirstFeed) {
-                AddFirstFeedView(onComplete: onComplete)
-                    .environment(feedManager)
-            }
         }
         .interactiveDismissDisabled()
     }
 
-    // MARK: - Header
+    // MARK: - Step Content
 
-    private var headerSection: some View {
+    @ViewBuilder
+    private var currentStepContent: some View {
+        switch currentStep {
+        case .welcome:
+            welcomeStep
+        case .backgroundRefresh:
+            backgroundRefreshStep
+        case .displayStyle:
+            displayStyleStep
+        case .appleIntelligence:
+            appleIntelligenceStep
+        }
+    }
+
+    // MARK: - Welcome
+
+    private var welcomeStep: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 28) {
+                VStack(alignment: .leading, spacing: 12) {
+                    Image(.sakuraIcon)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 80, height: 80)
+                        .foregroundStyle(.tint)
+                        .padding(.top, 40)
+                    Text("Onboarding.Welcome.Title.\(appName)")
+                        .font(.largeTitle.bold())
+                }
+
+                VStack(alignment: .leading, spacing: 16) {
+                    featureRow(
+                        icon: "newspaper.fill",
+                        title: String(localized: "Onboarding.Feature.Feeds"),
+                        description: String(localized: "Onboarding.Feature.Feeds.Description")
+                    )
+                    featureRow(
+                        icon: "rectangle.grid.2x2.fill",
+                        title: String(localized: "Onboarding.Feature.ViewStyles"),
+                        description: String(localized: "Onboarding.Feature.ViewStyles.Description")
+                    )
+                    featureRow(
+                        icon: "headphones",
+                        title: String(localized: "Onboarding.Feature.Podcasts"),
+                        description: String(localized: "Onboarding.Feature.Podcasts.Description")
+                    )
+                    featureRow(
+                        icon: "apple.intelligence",
+                        title: String(localized: "Onboarding.Feature.Summaries"),
+                        description: String(localized: "Onboarding.Feature.Summaries.Description")
+                    )
+                }
+            }
+            .padding(.horizontal)
+            .padding(.bottom, 100)
+        }
+        .safeAreaInset(edge: .bottom) {
+            continueButton { advanceStep() }
+        }
+    }
+
+    // MARK: - Background Refresh
+
+    private var backgroundRefreshStep: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 20) {
+                stepHeader(
+                    icon: "arrow.trianglehead.clockwise",
+                    title: String(localized: "Onboarding.Step.BackgroundRefresh.Title"),
+                    description: String(localized: "Onboarding.Step.BackgroundRefresh.Description")
+                )
+
+                VStack(spacing: 0) {
+                    Toggle(String(localized: "Settings.BackgroundRefresh"), isOn: $backgroundRefreshEnabled)
+                        .padding(.horizontal)
+                        .padding(.vertical, 12)
+                }
+                .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 16))
+            }
+            .padding(.horizontal)
+            .padding(.bottom, 100)
+        }
+        .safeAreaInset(edge: .bottom) {
+            continueButton { advanceStep() }
+        }
+    }
+
+    // MARK: - Display Style
+
+    private var displayStyleStep: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 20) {
+                stepHeader(
+                    icon: "rectangle.grid.2x2.fill",
+                    title: String(localized: "Onboarding.Step.DisplayStyle.Title"),
+                    description: String(localized: "Onboarding.Step.DisplayStyle.Description")
+                )
+
+                VStack(spacing: 0) {
+                    HStack {
+                        Text("Onboarding.Setting.DefaultStyle")
+                        Spacer()
+                        Picker(String(localized: "Onboarding.Setting.DefaultStyle"), selection: Binding(
+                            get: { defaultDisplayStyle },
+                            set: { newValue in
+                                defaultDisplayStyle = newValue
+                                searchDisplayStyle = newValue
+                            }
+                        )) {
+                            Text("Articles.Style.Inbox")
+                                .tag(FeedDisplayStyle.inbox)
+                            Text("Articles.Style.Feed")
+                                .tag(FeedDisplayStyle.feed)
+                            Text("Articles.Style.Magazine")
+                                .tag(FeedDisplayStyle.magazine)
+                            Text("Articles.Style.Compact")
+                                .tag(FeedDisplayStyle.compact)
+                            Text("Articles.Style.Photos")
+                                .tag(FeedDisplayStyle.photos)
+                        }
+                        .labelsHidden()
+                    }
+                    .padding(.horizontal)
+                    .padding(.vertical, 12)
+                }
+                .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 16))
+
+                StylePreviewView(style: defaultDisplayStyle)
+                    .allowsHitTesting(false)
+            }
+            .padding(.horizontal)
+            .padding(.bottom, 100)
+        }
+        .safeAreaInset(edge: .bottom) {
+            continueButton { advanceStep() }
+        }
+    }
+
+    // MARK: - Apple Intelligence
+
+    private var appleIntelligenceStep: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 20) {
+                stepHeader(
+                    icon: "apple.intelligence",
+                    title: String(localized: "Onboarding.Step.AppleIntelligence.Title"),
+                    description: String(localized: "Onboarding.Step.AppleIntelligence.Description")
+                )
+
+                VStack(spacing: 0) {
+                    Toggle(String(localized: "Onboarding.Setting.AISummaries"), isOn: Binding(
+                        get: { todaysSummaryEnabled && whileYouSleptEnabled },
+                        set: { newValue in
+                            todaysSummaryEnabled = newValue
+                            whileYouSleptEnabled = newValue
+                        }
+                    ))
+                    .padding(.horizontal)
+                    .padding(.vertical, 12)
+                }
+                .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 16))
+            }
+            .padding(.horizontal)
+            .padding(.bottom, 100)
+        }
+        .safeAreaInset(edge: .bottom) {
+            VStack(spacing: 8) {
+                continueButton { advanceStep() }
+                Button {
+                    todaysSummaryEnabled = false
+                    whileYouSleptEnabled = false
+                    showAddFeed = true
+                } label: {
+                    Text("Onboarding.Skip")
+                        .font(.body)
+                }
+                .padding(.bottom, 12)
+            }
+        }
+    }
+
+    // MARK: - Step Header
+
+    private func stepHeader(icon: String, title: String, description: String) -> some View {
         VStack(alignment: .leading, spacing: 12) {
-            Image(.sakuraIcon)
-                .resizable()
-                .scaledToFit()
-                .frame(width: 80, height: 80)
-                .foregroundStyle(.tint)
+            Image(systemName: icon)
+                .font(.system(size: 48))
+                .symbolRenderingMode(.multicolor)
                 .padding(.top, 40)
-            Text("Onboarding.Welcome.Title.\(appName)")
+            Text(title)
                 .font(.largeTitle.bold())
+            Text(description)
+                .font(.body)
+                .foregroundStyle(.secondary)
         }
     }
 
-    // MARK: - Features
-
-    private var featuresSection: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            featureRow(
-                icon: "newspaper.fill",
-                title: String(localized: "Onboarding.Feature.Feeds"),
-                description: String(localized: "Onboarding.Feature.Feeds.Description")
-            )
-            featureRow(
-                icon: "rectangle.grid.2x2.fill",
-                title: String(localized: "Onboarding.Feature.ViewStyles"),
-                description: String(localized: "Onboarding.Feature.ViewStyles.Description")
-            )
-            featureRow(
-                icon: "headphones",
-                title: String(localized: "Onboarding.Feature.Podcasts"),
-                description: String(localized: "Onboarding.Feature.Podcasts.Description")
-            )
-            featureRow(
-                icon: "apple.intelligence",
-                title: String(localized: "Onboarding.Feature.Summaries"),
-                description: String(localized: "Onboarding.Feature.Summaries.Description")
-            )
-        }
-    }
+    // MARK: - Feature Row
 
     private func featureRow(icon: String, title: String, description: String) -> some View {
         HStack(alignment: .top, spacing: 14) {
@@ -106,83 +259,43 @@ struct OnboardingView: View {
         }
     }
 
-    // MARK: - Settings
+    // MARK: - Buttons
 
-    private var settingsSection: some View {
-        VStack(spacing: 0) {
-            // Background Refresh
-            Toggle(String(localized: "Settings.BackgroundRefresh"), isOn: $backgroundRefreshEnabled)
-                .padding(.horizontal)
-                .padding(.vertical, 12)
-
-            if isAppleIntelligenceAvailable {
-                Divider()
-                    .padding(.leading)
-
-                // AI Summaries
-                Toggle(String(localized: "Onboarding.Setting.AISummaries"), isOn: Binding(
-                    get: { todaysSummaryEnabled && whileYouSleptEnabled },
-                    set: { newValue in
-                        todaysSummaryEnabled = newValue
-                        whileYouSleptEnabled = newValue
-                    }
-                ))
-                .padding(.horizontal)
-                .padding(.vertical, 12)
-            }
-
-            Divider()
-                .padding(.leading)
-
-            // Default Style
-            HStack {
-                Text("Onboarding.Setting.DefaultStyle")
-                Spacer()
-                Picker(String(localized: "Onboarding.Setting.DefaultStyle"), selection: Binding(
-                    get: { defaultDisplayStyle },
-                    set: { newValue in
-                        defaultDisplayStyle = newValue
-                        searchDisplayStyle = newValue
-                    }
-                )) {
-                    Text("Articles.Style.Inbox")
-                        .tag(FeedDisplayStyle.inbox)
-                    Text("Articles.Style.Feed")
-                        .tag(FeedDisplayStyle.feed)
-                    Text("Articles.Style.Magazine")
-                        .tag(FeedDisplayStyle.magazine)
-                    Text("Articles.Style.Compact")
-                        .tag(FeedDisplayStyle.compact)
-                    Text("Articles.Style.Photos")
-                        .tag(FeedDisplayStyle.photos)
-                }
-                .labelsHidden()
-            }
-            .padding(.horizontal)
-            .padding(.vertical, 12)
-        }
-        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 16))
-    }
-
-    // MARK: - Style Preview
-
-    private var stylePreviewSection: some View {
-        StylePreviewView(style: defaultDisplayStyle)
-            .allowsHitTesting(false)
-    }
-
-    // MARK: - Get Started
-
-    private var getStartedButton: some View {
+    private func continueButton(action: @escaping () -> Void) -> some View {
         Button {
-            showAddFirstFeed = true
+            action()
         } label: {
-            Text("Onboarding.GetStarted")
+            Text("Onboarding.Continue")
                 .padding()
                 .frame(maxWidth: .infinity)
         }
         .buttonStyle(.borderedProminent)
         .buttonBorderShape(.capsule)
+        .padding(.horizontal)
+        .padding(.vertical, 12)
+    }
+
+    // MARK: - Navigation
+
+    private func advanceStep() {
+        withAnimation {
+            switch currentStep {
+            case .welcome:
+                currentStep = .backgroundRefresh
+            case .backgroundRefresh:
+                currentStep = .displayStyle
+            case .displayStyle:
+                if isAppleIntelligenceAvailable {
+                    currentStep = .appleIntelligence
+                } else {
+                    todaysSummaryEnabled = false
+                    whileYouSleptEnabled = false
+                    showAddFeed = true
+                }
+            case .appleIntelligence:
+                showAddFeed = true
+            }
+        }
     }
 }
 
