@@ -52,11 +52,9 @@ struct OnboardingView: View {
 
     private var headerSection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Image(.appIcon)
-                .resizable()
-                .scaledToFit()
-                .frame(width: 80, height: 80)
-                .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+            Image(systemName: "dot.radiowaves.up.forward")
+                .font(.system(size: 72))
+                .foregroundStyle(.tint)
                 .padding(.top, 40)
             Text("Onboarding.Welcome.Title.\(appName)")
                 .font(.largeTitle.bold())
