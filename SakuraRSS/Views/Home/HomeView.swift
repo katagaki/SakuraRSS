@@ -5,6 +5,7 @@ struct HomeView: View {
     @Environment(FeedManager.self) var feedManager
     @AppStorage("Home.FeedID") private var savedFeedID: Int = -1
     @AppStorage("Home.ArticleID") private var savedArticleID: Int = -1
+    @Binding var pendingArticleID: Int64?
     @State private var path = NavigationPath()
     @State private var hasRestored = false
 
@@ -44,6 +45,18 @@ struct HomeView: View {
         .onAppear {
             if !hasRestored {
                 restorePath()
+            }
+        }
+        .onChange(of: pendingArticleID) {
+            if let articleID = pendingArticleID {
+                path = NavigationPath()
+                Task {
+                    try? await Task.sleep(for: .milliseconds(300))
+                    if let article = feedManager.article(byID: articleID) {
+                        path.append(article)
+                    }
+                    pendingArticleID = nil
+                }
             }
         }
     }

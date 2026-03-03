@@ -10,6 +10,10 @@ struct MoreView: View {
     @AppStorage("Search.DisplayStyle") private var searchDisplayStyle: FeedDisplayStyle = .inbox
     @AppStorage("TodaysSummary.Enabled") private var todaysSummaryEnabled: Bool = true
     @AppStorage("WhileYouSlept.Enabled") private var whileYouSleptEnabled: Bool = true
+    #if DEBUG
+    @AppStorage("Debug.ForceWhileYouSlept") private var forceWhileYouSlept: Bool = false
+    @AppStorage("Debug.ForceTodaysSummary") private var forceTodaysSummary: Bool = false
+    #endif
 
     private var isAppleIntelligenceAvailable: Bool {
         SystemLanguageModel.default.availability == .available
@@ -71,6 +75,19 @@ struct MoreView: View {
                         Text("Settings.AppleIntelligence.Footer")
                     }
                 }
+
+                #if DEBUG
+                Section {
+                    Toggle(isOn: $forceWhileYouSlept) {
+                        Text(verbatim: "Force While You Slept")
+                    }
+                    Toggle(isOn: $forceTodaysSummary) {
+                        Text(verbatim: "Force Today's Summary")
+                    }
+                } header: {
+                    Text(verbatim: "Debug")
+                }
+                #endif
 
                 Section {
                     Link(destination: URL(string: "https://github.com/katagaki/SakuraRSS")!) {

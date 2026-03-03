@@ -21,6 +21,7 @@ struct ArticleDetailView: View {
     @State var isSummarizing = false
     @State var hasCachedSummary = false
     @State var showingSummary = false
+    @State var isBookmarked = false
 
     var isAppleIntelligenceAvailable: Bool {
         SystemLanguageModel.default.availability == .available
@@ -208,9 +209,10 @@ struct ArticleDetailView: View {
         .toolbar {
             ToolbarItemGroup(placement: .topBarTrailing) {
                 Button {
+                    isBookmarked.toggle()
                     feedManager.toggleBookmark(article)
                 } label: {
-                    Image(systemName: article.isBookmarked ? "bookmark.fill" : "bookmark")
+                    Image(systemName: isBookmarked ? "bookmark.fill" : "bookmark")
                 }
             }
             ToolbarSpacer(.fixed, placement: .topBarTrailing)
@@ -223,6 +225,7 @@ struct ArticleDetailView: View {
             }
         }
         .task {
+            isBookmarked = article.isBookmarked
             feedManager.markRead(article)
             if let feed = feedManager.feed(forArticle: article) {
                 feedName = feed.title

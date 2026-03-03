@@ -5,11 +5,13 @@ import BackgroundTasks
 struct SakuraRSSApp: App {
 
     @State private var feedManager = FeedManager()
+    @State private var pendingFeedURL: String?
+    @State private var pendingArticleID: Int64?
     private let backgroundTaskID = "com.tsubuzaki.SakuraRSS.RefreshFeeds"
 
     var body: some Scene {
         WindowGroup {
-            MainTabView()
+            MainTabView(pendingFeedURL: $pendingFeedURL, pendingArticleID: $pendingArticleID)
                 .environment(\.defaultMinListRowHeight, 10.0)
                 .environment(feedManager)
                 .task {
@@ -20,7 +22,34 @@ struct SakuraRSSApp: App {
                 ) { _ in
                     feedManager.loadFromDatabase()
                 }
+                .onOpenURL { url in
+                    handleOpenURL(url)
+                }
         }
+    }
+
+    private func handleOpenURL(_ url: URL) {
+        if url.scheme == "sakura", url.host == "article",
+           let idString = url.pathComponents.last,
+           let articleID = Int64(idString) {
+            pendingArticleID = articleID
+        } else {
+            pendingFeedURL = convertFeedURL(url)
+        }
+    }
+
+    private func convertFeedURL(_ url: URL) -> String {
+        let urlString = url.absoluteString
+        if urlString.hasPrefix("feed:https://") || urlString.hasPrefix("feed:http://") {
+            return String(urlString.dropFirst("feed:".count))
+        } else if urlString.hasPrefix("feeds:https://") || urlString.hasPrefix("feeds:http://") {
+            return String(urlString.dropFirst("feeds:".count))
+        } else if urlString.hasPrefix("feed://") {
+            return "https://" + urlString.dropFirst("feed://".count)
+        } else if urlString.hasPrefix("feeds://") {
+            return "https://" + urlString.dropFirst("feeds://".count)
+        }
+        return urlString
     }
 
     init() {

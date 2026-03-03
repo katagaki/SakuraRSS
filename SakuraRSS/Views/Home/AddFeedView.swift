@@ -5,6 +5,7 @@ struct AddFeedView: View {
     @Environment(FeedManager.self) var feedManager
     @Environment(\.dismiss) var dismiss
 
+    var initialURL: String = ""
     var onFeedAdded: ((String) -> Void)?
 
     @State private var urlInput = ""
@@ -109,7 +110,12 @@ struct AddFeedView: View {
             }
             .interactiveDismissDisabled()
             .onAppear {
-                isURLFieldFocused = true
+                if !initialURL.isEmpty {
+                    urlInput = initialURL
+                    searchFeeds()
+                } else {
+                    isURLFieldFocused = true
+                }
             }
         }
     }

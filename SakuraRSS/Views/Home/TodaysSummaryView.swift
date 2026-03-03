@@ -7,6 +7,9 @@ struct TodaysSummaryView: View {
     @Environment(\.colorScheme) private var colorScheme
     @AppStorage("TodaysSummary.Enabled") private var isEnabled: Bool = true
     @AppStorage("TodaysSummary.DismissedDate") private var dismissedDate: String = ""
+    #if DEBUG
+    @AppStorage("Debug.ForceTodaysSummary") private var forceVisible: Bool = false
+    #endif
 
     @Binding var hasSummary: Bool
 
@@ -31,8 +34,17 @@ struct TodaysSummaryView: View {
         return hour >= 21
     }
 
+    private var shouldShow: Bool {
+        #if DEBUG
+        if forceVisible {
+            return true
+        }
+        #endif
+        return isEnabled && isSupported && isEveningWindow && !todayArticles.isEmpty && !isHidden
+    }
+
     var body: some View {
-        if isEnabled && isSupported && isEveningWindow && !todayArticles.isEmpty && !isHidden {
+        if shouldShow {
             summaryCard
                 .task {
                     if !hasGenerated {

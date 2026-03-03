@@ -12,11 +12,14 @@ struct MainTabView: View {
 
     @Environment(FeedManager.self) var feedManager
     @AppStorage("App.SelectedTab") private var selectedTab: AppTab = .home
+    @Binding var pendingFeedURL: String?
+    @Binding var pendingArticleID: Int64?
+    @State private var showingAddFeed = false
 
     var body: some View {
         TabView(selection: $selectedTab) {
             Tab(String(localized: "Tabs.Home"), systemImage: "text.rectangle.page", value: .home) {
-                HomeView()
+                HomeView(pendingArticleID: $pendingArticleID)
             }
             .badge(feedManager.totalUnreadCount())
 
@@ -37,5 +40,22 @@ struct MainTabView: View {
             }
         }
         .tabBarMinimizeBehavior(.onScrollDown)
+        .sheet(isPresented: $showingAddFeed) {
+            AddFeedView(initialURL: pendingFeedURL ?? "")
+                .environment(feedManager)
+                .onDisappear {
+                    pendingFeedURL = nil
+                }
+        }
+        .onChange(of: pendingFeedURL) {
+            if pendingFeedURL != nil {
+                showingAddFeed = true
+            }
+        }
+        .onChange(of: pendingArticleID) {
+            if pendingArticleID != nil {
+                selectedTab = .home
+            }
+        }
     }
 }

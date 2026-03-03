@@ -7,6 +7,9 @@ struct WhileYouSleptView: View {
     @Environment(\.colorScheme) private var colorScheme
     @AppStorage("WhileYouSlept.Enabled") private var isEnabled: Bool = true
     @AppStorage("WhileYouSlept.DismissedDate") private var dismissedDate: String = ""
+    #if DEBUG
+    @AppStorage("Debug.ForceWhileYouSlept") private var forceVisible: Bool = false
+    #endif
 
     @Binding var hasSummary: Bool
 
@@ -31,8 +34,17 @@ struct WhileYouSleptView: View {
         return hour >= 6 && hour < 12
     }
 
+    private var shouldShow: Bool {
+        #if DEBUG
+        if forceVisible {
+            return true
+        }
+        #endif
+        return isEnabled && isSupported && isMorningWindow && !overnightArticles.isEmpty && !isHidden
+    }
+
     var body: some View {
-        if isEnabled && isSupported && isMorningWindow && !overnightArticles.isEmpty && !isHidden {
+        if shouldShow {
             summaryCard
                 .task {
                     if !hasGenerated {
