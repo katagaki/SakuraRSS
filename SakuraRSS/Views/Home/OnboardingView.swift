@@ -13,6 +13,10 @@ struct OnboardingView: View {
     @State private var showAddFirstFeed = false
     var onComplete: () -> Void
 
+    private var appName: String {
+        Bundle.main.object(forInfoDictionaryKey: "CFBundleName") as? String ?? "Sakura"
+    }
+
     private var isAppleIntelligenceAvailable: Bool {
         SystemLanguageModel.default.availability == .available
     }
@@ -35,7 +39,6 @@ struct OnboardingView: View {
                 getStartedButton
                     .padding(.horizontal)
                     .padding(.vertical, 12)
-                    .background(.bar)
             }
             .navigationDestination(isPresented: $showAddFirstFeed) {
                 AddFirstFeedView(onComplete: onComplete)
@@ -53,11 +56,8 @@ struct OnboardingView: View {
                 .font(.system(size: 72))
                 .foregroundStyle(.tint)
                 .padding(.top, 40)
-            Text("Onboarding.Welcome.Title")
+            Text("Onboarding.Welcome.Title.\(appName)")
                 .font(.largeTitle.bold())
-            Text("Onboarding.Welcome.Subtitle")
-                .font(.body)
-                .foregroundStyle(.secondary)
         }
     }
 
@@ -109,7 +109,7 @@ struct OnboardingView: View {
     private var settingsSection: some View {
         VStack(spacing: 0) {
             // Background Refresh
-            Toggle(String(localized: "Onboarding.Setting.BackgroundRefresh"), isOn: $backgroundRefreshEnabled)
+            Toggle(String(localized: "Settings.BackgroundRefresh"), isOn: $backgroundRefreshEnabled)
                 .padding(.horizontal)
                 .padding(.vertical, 12)
 
@@ -117,8 +117,8 @@ struct OnboardingView: View {
                 Divider()
                     .padding(.leading)
 
-                // Summaries
-                Toggle(String(localized: "Onboarding.Setting.Summaries"), isOn: Binding(
+                // AI Summaries
+                Toggle(String(localized: "Onboarding.Setting.AISummaries"), isOn: Binding(
                     get: { todaysSummaryEnabled && whileYouSleptEnabled },
                     set: { newValue in
                         todaysSummaryEnabled = newValue
@@ -161,8 +161,6 @@ struct OnboardingView: View {
 
     private var stylePreviewSection: some View {
         StylePreviewView(style: defaultDisplayStyle)
-            .frame(height: 260)
-            .clipShape(RoundedRectangle(cornerRadius: 16))
             .allowsHitTesting(false)
     }
 
@@ -223,7 +221,6 @@ private struct StylePreviewView: View {
                 compactPreview
             }
         }
-        .background(.regularMaterial)
     }
 
     // MARK: - Inbox Preview
