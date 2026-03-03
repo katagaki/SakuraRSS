@@ -104,6 +104,18 @@ final class FeedManager {
         faviconRevision += 1
     }
 
+    func todayArticles() -> [Article] {
+        _ = dataRevision
+        let startOfToday = Calendar.current.startOfDay(for: Date())
+        return (try? database.allArticles(since: startOfToday)) ?? []
+    }
+
+    func olderArticles(limit: Int = 200) -> [Article] {
+        _ = dataRevision
+        let startOfToday = Calendar.current.startOfDay(for: Date())
+        return (try? database.allArticles(before: startOfToday, limit: limit)) ?? []
+    }
+
     func articles(for feed: Feed) -> [Article] {
         _ = dataRevision
         return (try? database.articles(forFeedID: feed.id)) ?? []

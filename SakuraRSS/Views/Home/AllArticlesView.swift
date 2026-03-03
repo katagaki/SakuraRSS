@@ -5,9 +5,12 @@ struct AllArticlesView: View {
     @Environment(FeedManager.self) var feedManager
     var body: some View {
         ArticleListView(
-            articles: feedManager.articles,
+            articles: displayedArticles,
             title: String(localized: "Shared.AllArticles"),
-            feedKey: "all"
+            feedKey: "all",
+            onLoadMore: showingOlderArticles ? nil : {
+                showingOlderArticles = true
+            }
         )
         .refreshable {
             await feedManager.refreshAllFeeds()

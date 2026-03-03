@@ -488,13 +488,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Pull to refresh to load new articles."
+            "value" : "Swipe to refresh to load new articles."
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "プルダウンして新しい記事を読み込みましょう。"
+            "value" : "スワイプして新しい記事を読み込みましょう。"
           }
         }
       }
@@ -512,6 +512,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "記事がありません"
+          }
+        }
+      }
+    },
+    "Articles.LoadPrevious" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Load Previous Articles"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "過去の記事を読み込む"
           }
         }
       }

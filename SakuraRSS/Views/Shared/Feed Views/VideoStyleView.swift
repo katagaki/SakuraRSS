@@ -4,6 +4,7 @@ struct VideoStyleView: View {
 
     @Environment(FeedManager.self) var feedManager
     let articles: [Article]
+    var onLoadMore: (() -> Void)?
 
     var body: some View {
         ScrollView(.vertical) {
@@ -19,6 +20,11 @@ struct VideoStyleView: View {
                 }
             }
             .padding(.bottom)
+            if let onLoadMore {
+                LoadPreviousArticlesButton(action: onLoadMore)
+                    .padding(.horizontal, 16)
+                    .padding(.bottom)
+            }
         }
     }
 }

@@ -7,6 +7,7 @@ struct ArticleListView: View {
     let title: String
     let feedKey: String
     let isVideoFeed: Bool
+    var onLoadMore: (() -> Void)?
 
     @State private var displayStyle: FeedDisplayStyle
 
@@ -14,11 +15,13 @@ struct ArticleListView: View {
         articles.contains { $0.imageURL != nil }
     }
 
-    init(articles: [Article], title: String, feedKey: String, isVideoFeed: Bool = false) {
+    init(articles: [Article], title: String, feedKey: String,
+         isVideoFeed: Bool = false, onLoadMore: (() -> Void)? = nil) {
         self.articles = articles
         self.title = title
         self.feedKey = feedKey
         self.isVideoFeed = isVideoFeed
+        self.onLoadMore = onLoadMore
         let raw = UserDefaults.standard.string(forKey: "displayStyle-\(feedKey)")
         let defaultRaw = UserDefaults.standard.string(forKey: "defaultDisplayStyle") ?? FeedDisplayStyle.inbox.rawValue
         let fallback = isVideoFeed ? .video : (FeedDisplayStyle(rawValue: defaultRaw) ?? .inbox)
@@ -30,17 +33,17 @@ struct ArticleListView: View {
         Group {
             switch effectiveStyle {
             case .inbox:
-                InboxStyleView(articles: articles)
+                InboxStyleView(articles: articles, onLoadMore: onLoadMore)
             case .feed:
-                FeedStyleView(articles: articles)
+                FeedStyleView(articles: articles, onLoadMore: onLoadMore)
             case .magazine:
-                MagazineStyleView(articles: articles)
+                MagazineStyleView(articles: articles, onLoadMore: onLoadMore)
             case .compact:
-                CompactStyleView(articles: articles)
+                CompactStyleView(articles: articles, onLoadMore: onLoadMore)
             case .video:
-                VideoStyleView(articles: articles)
+                VideoStyleView(articles: articles, onLoadMore: onLoadMore)
             case .photos:
-                PhotosStyleView(articles: articles)
+                PhotosStyleView(articles: articles, onLoadMore: onLoadMore)
             }
         }
         .scrollContentBackground(.hidden)
@@ -95,5 +98,23 @@ struct ArticleListView: View {
             return .inbox
         }
         return displayStyle
+    }
+}
+
+struct LoadPreviousArticlesButton: View {
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            HStack {
+                Image(systemName: "clock.arrow.circlepath")
+                Text(String(localized: "Articles.LoadPrevious"))
+            }
+            .font(.subheadline)
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 12)
+        }
+        .buttonStyle(.bordered)
+        .tint(.secondary)
     }
 }

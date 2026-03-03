@@ -92,7 +92,7 @@ struct ArticleDetailView: View {
                         openArticleURL()
                     } label: {
                         Label(String(localized: "Article.OpenInBrowser"),
-                              systemImage: article.isYouTubeURL ? "play.rectangle.fill" : "safari")
+                              systemImage: article.isYouTubeURL && YouTubeHelper.isAppInstalled ? "play.rectangle" : "safari")
                     }
                 }
                 .buttonStyle(.bordered)

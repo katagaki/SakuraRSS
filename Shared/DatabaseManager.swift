@@ -176,6 +176,22 @@ nonisolated final class DatabaseManager: @unchecked Sendable {
         return try database.prepare(query).map(rowToArticle)
     }
 
+    func allArticles(since date: Date, limit: Int = 200) throws -> [Article] {
+        let query = articles
+            .filter(articlePublishedDate >= date.timeIntervalSince1970)
+            .order(articlePublishedDate.desc)
+            .limit(limit)
+        return try database.prepare(query).map(rowToArticle)
+    }
+
+    func allArticles(before date: Date, limit: Int = 200) throws -> [Article] {
+        let query = articles
+            .filter(articlePublishedDate < date.timeIntervalSince1970 || articlePublishedDate == nil)
+            .order(articlePublishedDate.desc)
+            .limit(limit)
+        return try database.prepare(query).map(rowToArticle)
+    }
+
     func unreadArticles(limit: Int = 50) throws -> [Article] {
         let query = articles
             .filter(articleIsRead == false)
