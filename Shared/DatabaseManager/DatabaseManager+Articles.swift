@@ -54,6 +54,15 @@ nonisolated extension DatabaseManager {
         return try database.prepare(query).map(rowToArticle)
     }
 
+    func allArticles(from startDate: Date, to endDate: Date, limit: Int = 200) throws -> [Article] {
+        let query = articles
+            .filter(articlePublishedDate >= startDate.timeIntervalSince1970
+                    && articlePublishedDate < endDate.timeIntervalSince1970)
+            .order(articlePublishedDate.desc)
+            .limit(limit)
+        return try database.prepare(query).map(rowToArticle)
+    }
+
     func allArticles(before date: Date, limit: Int = 200) throws -> [Article] {
         let query = articles
             .filter(articlePublishedDate < date.timeIntervalSince1970 || articlePublishedDate == nil)

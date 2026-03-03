@@ -2,7 +2,7 @@
   "sourceLanguage" : "en",
   "strings" : {
     "-%@" : {
-
+      "shouldTranslate" : false
     },
     "·" : {
       "shouldTranslate" : false
@@ -972,6 +972,23 @@
         }
       }
     },
+    "Settings.AppleIntelligence.Footer" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Use Apple Intelligence to summarize your feed headlines."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple Intelligenceを使用して、フィードの見出しを要約します。"
+          }
+        }
+      }
+    },
     "Settings.ArticleCount" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1159,6 +1176,23 @@
         }
       }
     },
+    "Settings.Section.AppleIntelligence" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple Intelligence"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple Intelligence"
+          }
+        }
+      }
+    },
     "Settings.Section.Cache" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1223,6 +1257,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "統計"
+          }
+        }
+      }
+    },
+    "Settings.TodaysSummary" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Today's Summary"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "今日のまとめ"
+          }
+        }
+      }
+    },
+    "Settings.WhileYouSlept" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "While You Slept"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "おやすみ中のできごと"
           }
         }
       }
@@ -1392,6 +1460,278 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "たった今"
+          }
+        }
+      }
+    },
+    "TodaysSummary.Failed" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unable to generate summary."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "要約を生成できませんでした。"
+          }
+        }
+      }
+    },
+    "TodaysSummary.Generating" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Summarizing today's articles…"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "今日の記事を要約中…"
+          }
+        }
+      }
+    },
+    "TodaysSummary.Prompt" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Below are article headlines from RSS feeds published today. Each entry has a source name and headline, and may include a brief snippet.\n\nRespond with only 3-5 bullet points of the most important things from these headlines. Each bullet point should be one sentence. Group related headlines into single points where possible. Do not repeat the same story twice. Do not speculate beyond what the headlines indicate. Do not include any introduction, overview, conclusion, or commentary. Only output the bullet points. Use plain language. Do not use markdown formatting. Respond in English.\n\nHeadlines:"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "以下は本日公開されたRSSフィードの記事見出しです。各エントリにはソース名と見出しがあり、短い抜粋が含まれる場合もあります。\n\nこれらの見出しから最も重要なことを3〜5個の箇条書きのみで回答してください。各箇条書きは1文にしてください。関連する見出しはできるだけまとめてください。同じ話題を繰り返さないでください。見出しから読み取れる範囲を超えて推測しないでください。導入文、概要、まとめ、コメントは一切含めないでください。箇条書きのみを出力してください。平易な言葉を使ってください。マークダウン記法は使わないでください。日本語で回答してください。\n\n見出し:"
+          }
+        }
+      }
+    },
+    "TodaysSummary.ShowLess" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Show Less"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "折りたたむ"
+          }
+        }
+      }
+    },
+    "TodaysSummary.ShowMore" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Show More"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "もっと見る"
+          }
+        }
+      }
+    },
+    "TodaysSummary.Subtitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Summaries may be inaccurate. Verify important information."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "要約は不正確な場合があります。重要な情報はご確認ください。"
+          }
+        }
+      }
+    },
+    "TodaysSummary.Title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Today's Summary"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "今日のまとめ"
+          }
+        }
+      }
+    },
+    "TodaysSummary.TooFew" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "There were too few headlines to summarize."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "要約するには見出しが少なすぎました。"
+          }
+        }
+      }
+    },
+    "WhileYouSlept.Failed" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unable to generate summary."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "要約を生成できませんでした。"
+          }
+        }
+      }
+    },
+    "WhileYouSlept.Generating" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Summarizing overnight articles…"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "夜間の記事を要約中…"
+          }
+        }
+      }
+    },
+    "WhileYouSlept.Prompt" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Below are article headlines from RSS feeds published overnight. Each entry has a source name and headline, and may include a brief snippet.\n\nRespond with only 3-5 bullet points of the most important things from these headlines. Each bullet point should be one sentence. Group related headlines into single points where possible. Do not repeat the same story twice. Do not speculate beyond what the headlines indicate. Do not include any introduction, overview, conclusion, or commentary. Only output the bullet points. Use plain language. Do not use markdown formatting. Respond in English.\n\nHeadlines:"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "以下は夜間に公開されたRSSフィードの記事見出しです。各エントリにはソース名と見出しがあり、短い抜粋が含まれる場合もあります。\n\nこれらの見出しから最も重要なことを3〜5個の箇条書きのみで回答してください。各箇条書きは1文にしてください。関連する見出しはできるだけまとめてください。同じ話題を繰り返さないでください。見出しから読み取れる範囲を超えて推測しないでください。導入文、概要、まとめ、コメントは一切含めないでください。箇条書きのみを出力してください。平易な言葉を使ってください。マークダウン記法は使わないでください。日本語で回答してください。\n\n見出し:"
+          }
+        }
+      }
+    },
+    "WhileYouSlept.ShowLess" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Show Less"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "折りたたむ"
+          }
+        }
+      }
+    },
+    "WhileYouSlept.ShowMore" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Show More"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "もっと見る"
+          }
+        }
+      }
+    },
+    "WhileYouSlept.Subtitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Summaries may be inaccurate. Verify important information."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "要約は不正確な場合があります。重要な情報はご確認ください。"
+          }
+        }
+      }
+    },
+    "WhileYouSlept.Title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "While You Slept"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "おやすみ中のできごと"
+          }
+        }
+      }
+    },
+    "WhileYouSlept.TooFew" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "There were too few headlines to summarize."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "要約するには見出しが少なすぎました。"
           }
         }
       }

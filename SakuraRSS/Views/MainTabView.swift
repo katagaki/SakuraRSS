@@ -11,7 +11,7 @@ enum AppTab: String, CaseIterable {
 struct MainTabView: View {
 
     @Environment(FeedManager.self) var feedManager
-    @AppStorage("selectedTab") private var selectedTab: AppTab = .home
+    @AppStorage("App.SelectedTab") private var selectedTab: AppTab = .home
 
     var body: some View {
         TabView(selection: $selectedTab) {

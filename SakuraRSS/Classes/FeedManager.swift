@@ -115,6 +115,29 @@ final class FeedManager {
         return (try? database.allArticles(since: startOfToday)) ?? []
     }
 
+    func overnightArticles() -> [Article] {
+        _ = dataRevision
+        let calendar = Calendar.current
+        let now = Date()
+        let midnight = calendar.startOfDay(for: now)
+        let allOvernight = (try? database.allArticles(from: midnight, to: now)) ?? []
+        return filterExcludingPodcastsAndVideos(allOvernight)
+    }
+
+    func todaySummaryArticles() -> [Article] {
+        _ = dataRevision
+        let midnight = Calendar.current.startOfDay(for: Date())
+        let allToday = (try? database.allArticles(from: midnight, to: Date())) ?? []
+        return filterExcludingPodcastsAndVideos(allToday)
+    }
+
+    private func filterExcludingPodcastsAndVideos(_ articles: [Article]) -> [Article] {
+        let excludedFeedIDs = Set(feeds.filter { feed in
+            feed.isPodcast || VideoDomains.shouldPreferVideo(feedDomain: feed.domain)
+        }.map(\.id))
+        return articles.filter { !excludedFeedIDs.contains($0.feedID) }
+    }
+
     func olderArticles(limit: Int = 200) -> [Article] {
         _ = dataRevision
         let startOfToday = Calendar.current.startOfDay(for: Date())

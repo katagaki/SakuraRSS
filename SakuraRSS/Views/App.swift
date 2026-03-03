@@ -39,13 +39,13 @@ struct SakuraRSSApp: App {
     }
 
     private func scheduleAppRefresh() {
-        let isEnabled = UserDefaults.standard.object(forKey: "backgroundRefreshEnabled") as? Bool ?? true
+        let isEnabled = UserDefaults.standard.object(forKey: "BackgroundRefresh.Enabled") as? Bool ?? true
         guard isEnabled else {
             BGTaskScheduler.shared.cancel(taskRequestWithIdentifier: backgroundTaskID)
             return
         }
         let request = BGAppRefreshTaskRequest(identifier: backgroundTaskID)
-        let refreshInterval = UserDefaults.standard.integer(forKey: "refreshInterval")
+        let refreshInterval = UserDefaults.standard.integer(forKey: "BackgroundRefresh.Interval")
         let minutes = refreshInterval > 0 ? refreshInterval : 60
         request.earliestBeginDate = Date(timeIntervalSinceNow: TimeInterval(minutes * 60))
         try? BGTaskScheduler.shared.submit(request)

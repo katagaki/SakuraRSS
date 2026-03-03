@@ -13,7 +13,9 @@ struct InboxStyleView: View {
                     InboxArticleRow(article: article)
                 }
                 .listRowBackground(Color.clear)
-                .listRowInsets(EdgeInsets(top: 8, leading: 12, bottom: 8, trailing: 16))
+                .listRowSeparator(.hidden, edges: .top)
+                .listRowSeparator(.visible, edges: .bottom)
+                .listRowInsets(EdgeInsets(top: 8, leading: 12, bottom: 8, trailing: 22))
             }
             if let onLoadMore {
                 LoadPreviousArticlesButton(action: onLoadMore)

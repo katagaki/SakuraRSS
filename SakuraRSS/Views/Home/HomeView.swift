@@ -3,8 +3,8 @@ import SwiftUI
 struct HomeView: View {
 
     @Environment(FeedManager.self) var feedManager
-    @AppStorage("homeFeedID") private var savedFeedID: Int = -1
-    @AppStorage("homeArticleID") private var savedArticleID: Int = -1
+    @AppStorage("Home.FeedID") private var savedFeedID: Int = -1
+    @AppStorage("Home.ArticleID") private var savedArticleID: Int = -1
     @State private var path = NavigationPath()
     @State private var hasRestored = false
 

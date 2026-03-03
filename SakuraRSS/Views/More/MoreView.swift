@@ -1,12 +1,19 @@
 import SwiftUI
+import FoundationModels
 
 struct MoreView: View {
 
     @Environment(FeedManager.self) var feedManager
-    @AppStorage("backgroundRefreshEnabled") private var backgroundRefreshEnabled: Bool = true
-    @AppStorage("refreshInterval") private var refreshInterval: Int = 60
-    @AppStorage("defaultDisplayStyle") private var defaultDisplayStyle: FeedDisplayStyle = .inbox
-    @AppStorage("searchDisplayStyle") private var searchDisplayStyle: FeedDisplayStyle = .inbox
+    @AppStorage("BackgroundRefresh.Enabled") private var backgroundRefreshEnabled: Bool = true
+    @AppStorage("BackgroundRefresh.Interval") private var refreshInterval: Int = 60
+    @AppStorage("Display.DefaultStyle") private var defaultDisplayStyle: FeedDisplayStyle = .inbox
+    @AppStorage("Search.DisplayStyle") private var searchDisplayStyle: FeedDisplayStyle = .inbox
+    @AppStorage("TodaysSummary.Enabled") private var todaysSummaryEnabled: Bool = true
+    @AppStorage("WhileYouSlept.Enabled") private var whileYouSleptEnabled: Bool = true
+
+    private var isAppleIntelligenceAvailable: Bool {
+        SystemLanguageModel.default.availability == .available
+    }
 
     var body: some View {
         NavigationStack {
@@ -52,6 +59,17 @@ struct MoreView: View {
                     }
                 } header: {
                     Text("Settings.Section.Refresh")
+                }
+
+                if isAppleIntelligenceAvailable {
+                    Section {
+                        Toggle(String(localized: "Settings.WhileYouSlept"), isOn: $whileYouSleptEnabled)
+                        Toggle(String(localized: "Settings.TodaysSummary"), isOn: $todaysSummaryEnabled)
+                    } header: {
+                        Text("Settings.Section.AppleIntelligence")
+                    } footer: {
+                        Text("Settings.AppleIntelligence.Footer")
+                    }
                 }
 
                 Section {

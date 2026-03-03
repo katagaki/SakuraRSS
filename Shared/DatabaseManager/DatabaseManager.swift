@@ -41,6 +41,11 @@ nonisolated final class DatabaseManager: @unchecked Sendable {
     let articleAudioURL = SQLite.Expression<String?>("audio_url")
     let articleDuration = SQLite.Expression<Int?>("duration")
 
+    let summaryCache = Table("summary_cache")
+    let summaryCacheType = SQLite.Expression<String>("type")
+    let summaryCacheDate = SQLite.Expression<String>("date")
+    let summaryCacheContent = SQLite.Expression<String>("content")
+
     // MARK: - Init
 
     private init() {
@@ -99,5 +104,25 @@ nonisolated final class DatabaseManager: @unchecked Sendable {
             table.column(imageCacheData)
             table.column(imageCachedAt)
         })
+
+        try database.run(summaryCache.create(ifNotExists: true) { table in
+            table.column(summaryCacheType)
+            table.column(summaryCacheDate)
+            table.column(summaryCacheContent)
+            table.primaryKey(summaryCacheType, summaryCacheDate)
+        })
+
+        // Migration: add type column if missing from older schema
+        let tableInfo = try database.prepare("PRAGMA table_info(summary_cache)")
+        let columns = tableInfo.map { $0[1] as? String ?? "" }
+        if !columns.contains("type") {
+            try database.run(summaryCache.drop())
+            try database.run(summaryCache.create(ifNotExists: true) { table in
+                table.column(summaryCacheType)
+                table.column(summaryCacheDate)
+                table.column(summaryCacheContent)
+                table.primaryKey(summaryCacheType, summaryCacheDate)
+            })
+        }
     }
 }

@@ -3,7 +3,7 @@ import SwiftUI
 struct SearchView: View {
 
     @Environment(FeedManager.self) var feedManager
-    @AppStorage("searchDisplayStyle") private var searchDisplayStyle: FeedDisplayStyle = .inbox
+    @AppStorage("Search.DisplayStyle") private var searchDisplayStyle: FeedDisplayStyle = .inbox
     @State private var searchText = ""
 
     private var searchResults: [Article] {

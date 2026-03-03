@@ -26,7 +26,7 @@ struct ArticleListView: View {
         self.isPodcastFeed = isPodcastFeed
         self.onLoadMore = onLoadMore
         let raw = UserDefaults.standard.string(forKey: "displayStyle-\(feedKey)")
-        let defaultRaw = UserDefaults.standard.string(forKey: "defaultDisplayStyle") ?? FeedDisplayStyle.inbox.rawValue
+        let defaultRaw = UserDefaults.standard.string(forKey: "Display.DefaultStyle") ?? FeedDisplayStyle.inbox.rawValue
         let fallback: FeedDisplayStyle = isPodcastFeed ? .podcast
             : isVideoFeed ? .video
             : (FeedDisplayStyle(rawValue: defaultRaw) ?? .inbox)

@@ -12,7 +12,7 @@ struct BookmarksView: View {
 
     init() {
         let raw = UserDefaults.standard.string(forKey: "displayStyle-bookmarks")
-        let defaultRaw = UserDefaults.standard.string(forKey: "defaultDisplayStyle") ?? FeedDisplayStyle.inbox.rawValue
+        let defaultRaw = UserDefaults.standard.string(forKey: "Display.DefaultStyle") ?? FeedDisplayStyle.inbox.rawValue
         let fallback = FeedDisplayStyle(rawValue: defaultRaw) ?? .inbox
         self._displayStyle = State(initialValue: raw.flatMap(FeedDisplayStyle.init(rawValue:)) ?? fallback)
     }
