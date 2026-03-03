@@ -72,6 +72,7 @@ struct PhotosArticleCard: View {
                 .task {
                     photoImage = await CachedAsyncImage<EmptyView>.loadImage(from: url)
                 }
+                .padding(.bottom, 10)
             }
 
             // Action buttons below photo
@@ -91,6 +92,7 @@ struct PhotosArticleCard: View {
                         Label(String(localized: "Article.Share"),
                               systemImage: "square.and.arrow.up")
                     }
+                    .padding(.bottom, 1)
                 }
 
                 Spacer()
@@ -108,10 +110,10 @@ struct PhotosArticleCard: View {
             }
             .labelStyle(.iconOnly)
             .buttonStyle(.plain)
-            .font(.system(size: 18.0, weight: .medium))
+            .font(.system(size: 20, weight: .medium))
             .foregroundStyle(.primary)
             .padding(.horizontal, 12)
-            .padding(.vertical, 10)
+            .padding(.bottom, 10)
 
             // Article title below photo
             Text(article.title)
