@@ -4,14 +4,22 @@ struct InboxStyleView: View {
 
     @Environment(FeedManager.self) var feedManager
     let articles: [Article]
+    var onLoadMore: (() -> Void)?
 
     var body: some View {
-        List(articles) { article in
-            ArticleLink(article: article) {
-                InboxArticleRow(article: article)
+        List {
+            ForEach(articles) { article in
+                ArticleLink(article: article) {
+                    InboxArticleRow(article: article)
+                }
+                .listRowBackground(Color.clear)
+                .listRowInsets(EdgeInsets(top: 8, leading: 12, bottom: 8, trailing: 16))
             }
-            .listRowBackground(Color.clear)
-            .listRowInsets(EdgeInsets(top: 8, leading: 12, bottom: 8, trailing: 16))
+            if let onLoadMore {
+                LoadPreviousArticlesButton(action: onLoadMore)
+                    .listRowBackground(Color.clear)
+                    .listRowSeparator(.hidden)
+            }
         }
         .listStyle(.plain)
     }

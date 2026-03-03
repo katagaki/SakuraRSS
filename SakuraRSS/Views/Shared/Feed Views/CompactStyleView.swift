@@ -4,6 +4,7 @@ struct CompactStyleView: View {
 
     @Environment(FeedManager.self) var feedManager
     let articles: [Article]
+    var onLoadMore: (() -> Void)?
 
     private func articleLabel(for article: Article) -> some View {
         HStack {
@@ -24,13 +25,20 @@ struct CompactStyleView: View {
     }
 
     var body: some View {
-        List(articles) { article in
-            ArticleLink(article: article) {
-                articleLabel(for: article)
+        List {
+            ForEach(articles) { article in
+                ArticleLink(article: article) {
+                    articleLabel(for: article)
+                }
+                .listRowBackground(Color.clear)
+                .listRowInsets(EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16))
+                .listRowSpacing(0.0)
             }
-            .listRowBackground(Color.clear)
-            .listRowInsets(EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16))
-            .listRowSpacing(0.0)
+            if let onLoadMore {
+                LoadPreviousArticlesButton(action: onLoadMore)
+                    .listRowBackground(Color.clear)
+                    .listRowSeparator(.hidden)
+            }
         }
         .listStyle(.plain)
     }

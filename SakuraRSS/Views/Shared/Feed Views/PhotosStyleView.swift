@@ -4,6 +4,7 @@ struct PhotosStyleView: View {
 
     @Environment(FeedManager.self) var feedManager
     let articles: [Article]
+    var onLoadMore: (() -> Void)?
 
     var body: some View {
         ScrollView(.vertical) {
@@ -13,6 +14,10 @@ struct PhotosStyleView: View {
                         PhotosArticleCard(article: article)
                     }
                     .buttonStyle(.plain)
+                }
+                if let onLoadMore {
+                    LoadPreviousArticlesButton(action: onLoadMore)
+                        .padding(.vertical, 20)
                 }
             }
         }

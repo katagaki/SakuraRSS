@@ -4,6 +4,7 @@ struct MagazineStyleView: View {
 
     @Environment(FeedManager.self) var feedManager
     let articles: [Article]
+    var onLoadMore: (() -> Void)?
 
     private let columns = [
         GridItem(.flexible(), spacing: 12),
@@ -22,6 +23,11 @@ struct MagazineStyleView: View {
             }
             .padding(.horizontal, 16)
             .padding(.bottom)
+            if let onLoadMore {
+                LoadPreviousArticlesButton(action: onLoadMore)
+                    .padding(.horizontal, 16)
+                    .padding(.bottom)
+            }
         }
     }
 }

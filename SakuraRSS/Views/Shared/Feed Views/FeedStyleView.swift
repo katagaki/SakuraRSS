@@ -4,27 +4,35 @@ struct FeedStyleView: View {
 
     @Environment(FeedManager.self) var feedManager
     let articles: [Article]
+    var onLoadMore: (() -> Void)?
 
     var body: some View {
-        List(articles) { article in
-            ZStack {
-                ArticleLink(article: article) {
-                    EmptyView()
-                }
-                .opacity(0)
+        List {
+            ForEach(articles) { article in
+                ZStack {
+                    ArticleLink(article: article) {
+                        EmptyView()
+                    }
+                    .opacity(0)
 
-                FeedArticleRow(article: article)
+                    FeedArticleRow(article: article)
+                }
+                .padding(.horizontal, 12)
+                .listRowBackground(Color.clear)
+                .listRowInsets(EdgeInsets(top: 10, leading: 0, bottom: 10, trailing: 0))
+                .listRowSeparator(.hidden, edges: .top)
+                .listRowSeparator(.visible, edges: .bottom)
+                .alignmentGuide(.listRowSeparatorLeading) { _ in
+                    return 0
+                }
+                .alignmentGuide(.listRowSeparatorTrailing) { dimensions in
+                    return dimensions.width
+                }
             }
-            .padding(.horizontal, 12)
-            .listRowBackground(Color.clear)
-            .listRowInsets(EdgeInsets(top: 10, leading: 0, bottom: 10, trailing: 0))
-            .listRowSeparator(.hidden, edges: .top)
-            .listRowSeparator(.visible, edges: .bottom)
-            .alignmentGuide(.listRowSeparatorLeading) { _ in
-                return 0
-            }
-            .alignmentGuide(.listRowSeparatorTrailing) { dimensions in
-                return dimensions.width
+            if let onLoadMore {
+                LoadPreviousArticlesButton(action: onLoadMore)
+                    .listRowBackground(Color.clear)
+                    .listRowSeparator(.hidden)
             }
         }
         .listStyle(.plain)
