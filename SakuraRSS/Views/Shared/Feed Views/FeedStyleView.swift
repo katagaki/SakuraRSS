@@ -113,7 +113,7 @@ struct FeedArticleRow: View {
                             openURL(url)
                         }
                     } label: {
-                        Image(systemName: article.isYouTubeURL ? "play.rectangle.fill" : "safari")
+                        Image(systemName: article.isYouTubeURL && YouTubeHelper.isAppInstalled ? "play.rectangle" : "safari")
                     }
                     .buttonStyle(.plain)
 
