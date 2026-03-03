@@ -1,141 +1,8 @@
 import SwiftUI
-import FoundationModels
 
-private enum OnboardingStep: Int, CaseIterable {
-    case welcome
-    case backgroundRefresh
-    case displayStyle
-    case appleIntelligence
-}
+extension OnboardingView {
 
-struct OnboardingView: View {
-
-    @Environment(FeedManager.self) var feedManager
-    @AppStorage("Display.DefaultStyle") private var defaultDisplayStyle: FeedDisplayStyle = .inbox
-    @AppStorage("Search.DisplayStyle") private var searchDisplayStyle: FeedDisplayStyle = .inbox
-    @AppStorage("BackgroundRefresh.Enabled") private var backgroundRefreshEnabled: Bool = true
-    @AppStorage("TodaysSummary.Enabled") private var todaysSummaryEnabled: Bool = true
-    @AppStorage("WhileYouSlept.Enabled") private var whileYouSleptEnabled: Bool = true
-
-    @State private var currentStep: OnboardingStep = .welcome
-    @State private var showAddFeed = false
-    var onComplete: () -> Void
-
-    private var appName: String {
-        Bundle.main.object(forInfoDictionaryKey: "CFBundleName") as? String ?? "Sakura"
-    }
-
-    private var isAppleIntelligenceAvailable: Bool {
-        SystemLanguageModel.default.availability == .available
-    }
-
-    var body: some View {
-        NavigationStack {
-            currentStepContent
-                .scrollContentBackground(.hidden)
-                .sakuraBackground()
-                .navigationDestination(isPresented: $showAddFeed) {
-                    AddFirstFeedView(onComplete: onComplete)
-                        .environment(feedManager)
-                }
-        }
-        .interactiveDismissDisabled()
-    }
-
-    // MARK: - Step Content
-
-    @ViewBuilder
-    private var currentStepContent: some View {
-        switch currentStep {
-        case .welcome:
-            welcomeStep
-        case .backgroundRefresh:
-            backgroundRefreshStep
-        case .displayStyle:
-            displayStyleStep
-        case .appleIntelligence:
-            appleIntelligenceStep
-        }
-    }
-
-    // MARK: - Welcome
-
-    private var welcomeStep: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 28) {
-                VStack(alignment: .leading, spacing: 12) {
-                    Image(.sakuraIcon)
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 80, height: 80)
-                        .foregroundStyle(.tint)
-                        .padding(.top, 40)
-                    Text("Onboarding.Welcome.Title.\(appName)")
-                        .font(.largeTitle.bold())
-                }
-
-                VStack(alignment: .leading, spacing: 24) {
-                    featureRow(
-                        icon: "newspaper.fill",
-                        title: String(localized: "Onboarding.Feature.Feeds"),
-                        description: String(localized: "Onboarding.Feature.Feeds.Description")
-                    )
-                    featureRow(
-                        icon: "rectangle.grid.2x2.fill",
-                        title: String(localized: "Onboarding.Feature.ViewStyles"),
-                        description: String(localized: "Onboarding.Feature.ViewStyles.Description")
-                    )
-                    featureRow(
-                        icon: "headphones",
-                        title: String(localized: "Onboarding.Feature.Podcasts"),
-                        description: String(localized: "Onboarding.Feature.Podcasts.Description")
-                    )
-                    featureRow(
-                        icon: "apple.intelligence",
-                        title: String(localized: "Onboarding.Feature.Summaries"),
-                        description: String(localized: "Onboarding.Feature.Summaries.Description")
-                    )
-                }
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.horizontal, 20)
-            .padding(.bottom, 100)
-        }
-        .safeAreaInset(edge: .bottom) {
-            continueButton { advanceStep() }
-        }
-    }
-
-    // MARK: - Background Refresh
-
-    private var backgroundRefreshStep: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 20) {
-                stepHeader(
-                    icon: "arrow.trianglehead.clockwise",
-                    title: String(localized: "Onboarding.Step.BackgroundRefresh.Title"),
-                    description: String(localized: "Onboarding.Step.BackgroundRefresh.Description")
-                )
-
-                VStack(spacing: 0) {
-                    Toggle(String(localized: "Settings.BackgroundRefresh"), isOn: $backgroundRefreshEnabled)
-                        .padding(.horizontal)
-                        .padding(.vertical, 12)
-                }
-                .background(.regularMaterial, in: .capsule)
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.horizontal, 20)
-            .padding(.bottom, 100)
-        }
-        .safeAreaInset(edge: .bottom) {
-            continueButton { advanceStep() }
-        }
-    }
-
-    // MARK: - Display Style
-
-    private var displayStyleStep: some View {
+    var displayStyleStep: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
                 stepHeader(
@@ -163,8 +30,6 @@ struct OnboardingView: View {
                                 .tag(FeedDisplayStyle.magazine)
                             Text("Articles.Style.Compact")
                                 .tag(FeedDisplayStyle.compact)
-                            Text("Articles.Style.Photos")
-                                .tag(FeedDisplayStyle.photos)
                         }
                         .labelsHidden()
                     }
@@ -172,6 +37,10 @@ struct OnboardingView: View {
                     .padding(.vertical, 12)
                 }
                 .background(.regularMaterial, in: .capsule)
+
+                Text("Onboarding.Step.DisplayStyle.Note")
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
 
                 StylePreviewView(style: defaultDisplayStyle)
                     .allowsHitTesting(false)
@@ -183,133 +52,6 @@ struct OnboardingView: View {
         }
         .safeAreaInset(edge: .bottom) {
             continueButton { advanceStep() }
-        }
-    }
-
-    // MARK: - Apple Intelligence
-
-    private var appleIntelligenceStep: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 20) {
-                stepHeader(
-                    icon: "apple.intelligence",
-                    title: String(localized: "Onboarding.Step.AppleIntelligence.Title"),
-                    description: String(localized: "Onboarding.Step.AppleIntelligence.Description")
-                )
-
-                VStack(spacing: 0) {
-                    Toggle(String(localized: "Onboarding.Setting.AISummaries"), isOn: Binding(
-                        get: { todaysSummaryEnabled && whileYouSleptEnabled },
-                        set: { newValue in
-                            todaysSummaryEnabled = newValue
-                            whileYouSleptEnabled = newValue
-                        }
-                    ))
-                    .padding(.horizontal)
-                    .padding(.vertical, 12)
-                }
-                .background(.regularMaterial, in: .capsule)
-            }
-            .padding(.horizontal)
-            .padding(.bottom, 100)
-        }
-        .safeAreaInset(edge: .bottom) {
-            VStack(spacing: 8) {
-                continueButton { advanceStep() }
-                Button {
-                    todaysSummaryEnabled = false
-                    whileYouSleptEnabled = false
-                    showAddFeed = true
-                } label: {
-                    Text("Onboarding.Skip")
-                        .fontWeight(.semibold)
-                        .padding(.vertical, 8)
-                        .frame(maxWidth: .infinity)
-                }
-                .buttonStyle(.glass)
-                .buttonBorderShape(.capsule)
-                .padding(.horizontal, 20)
-                .padding(.bottom, 8)
-            }
-        }
-    }
-
-    // MARK: - Step Header
-
-    private func stepHeader(icon: String, title: String, description: String) -> some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Image(systemName: icon)
-                .resizable()
-                .scaledToFit()
-                .padding(10)
-                .frame(width: 80, height: 80)
-                .foregroundStyle(.accent)
-                .symbolRenderingMode(.multicolor)
-                .padding(.top, 40)
-            Text(title)
-                .font(.largeTitle.bold())
-            Text(description)
-                .font(.body)
-                .foregroundStyle(.secondary)
-        }
-    }
-
-    // MARK: - Feature Row
-
-    private func featureRow(icon: String, title: String, description: String) -> some View {
-        HStack(alignment: .top, spacing: 14) {
-            Image(systemName: icon)
-                .font(.title)
-                .foregroundStyle(.accent)
-                .symbolRenderingMode(.multicolor)
-                .frame(width: 36, alignment: .center)
-            VStack(alignment: .leading, spacing: 2) {
-                Text(title)
-                    .font(.body.weight(.semibold))
-                Text(description)
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-            }
-        }
-    }
-
-    // MARK: - Buttons
-
-    private func continueButton(action: @escaping () -> Void) -> some View {
-        Button {
-            action()
-        } label: {
-            Text("Onboarding.Continue")
-                .fontWeight(.semibold)
-                .padding(.vertical, 8)
-                .frame(maxWidth: .infinity)
-        }
-        .buttonStyle(.glassProminent)
-        .buttonBorderShape(.capsule)
-        .padding(.horizontal, 20)
-        .padding(.vertical, 8)
-    }
-
-    // MARK: - Navigation
-
-    private func advanceStep() {
-        withAnimation {
-            switch currentStep {
-            case .welcome:
-                currentStep = .backgroundRefresh
-            case .backgroundRefresh:
-                currentStep = .displayStyle
-            case .displayStyle:
-                if isAppleIntelligenceAvailable {
-                    currentStep = .appleIntelligence
-                } else {
-                    todaysSummaryEnabled = false
-                    whileYouSleptEnabled = false
-                    showAddFeed = true
-                }
-            case .appleIntelligence:
-                showAddFeed = true
-            }
         }
     }
 }
@@ -339,7 +81,7 @@ private struct StylePreviewView: View {
                     url: "", author: String(localized: "Onboarding.Sample.Author3"),
                     summary: String(localized: "Onboarding.Sample.Summary3"),
                     imageURL: nil, publishedDate: Date().addingTimeInterval(-10800),
-                    isRead: false, isBookmarked: true),
+                    isRead: false, isBookmarked: true)
         ]
     }
 

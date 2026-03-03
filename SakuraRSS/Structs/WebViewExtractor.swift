@@ -96,6 +96,23 @@ final class WebViewExtractor: NSObject, WKNavigationDelegate {
         continuation.resume(returning: nil)
     }
 
+    private static let cleanupScript = """
+    (function() {
+        document.querySelectorAll('.sosumi').forEach(el => el.remove());
+        const all = document.body.querySelectorAll('*');
+        for (const el of all) {
+            const style = window.getComputedStyle(el);
+            if (style.display === 'none'
+                || style.visibility === 'hidden'
+                || style.opacity === '0'
+                || (el.offsetWidth <= 1 && el.offsetHeight <= 1)) {
+                el.remove();
+            }
+        }
+        return document.documentElement.outerHTML;
+    })()
+    """
+
     private func extractHTML() {
         guard let continuation else { return }
         self.continuation = nil
@@ -107,7 +124,7 @@ final class WebViewExtractor: NSObject, WKNavigationDelegate {
             return
         }
 
-        webView.evaluateJavaScript("document.documentElement.outerHTML") { [weak self] result, _ in
+        webView.evaluateJavaScript(Self.cleanupScript) { [weak self] result, _ in
             self?.cleanup()
             continuation.resume(returning: result as? String)
         }

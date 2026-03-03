@@ -48,6 +48,8 @@ struct AllArticlesView: View {
                     hasSummary: $todaysSummaryAvailable
                 )
             }
+            .animation(.smooth.speed(2.0), value: whileYouSleptDismissedDate)
+            .animation(.smooth.speed(2.0), value: todaysSummaryDismissedDate)
             .padding(.bottom, 8)
         }
         .toolbar {

@@ -1,7 +1,7 @@
 {
   "images" : [
     {
-      "filename" : "Sakura.002.png",
+      "filename" : "Sakura.006.png",
       "idiom" : "universal"
     }
   ],
@@ -10,7 +10,6 @@
     "version" : 1
   },
   "properties" : {
-    "preserves-vector-representation" : false,
     "template-rendering-intent" : "template"
   }
 }

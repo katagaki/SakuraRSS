@@ -3,14 +3,14 @@ import FoundationModels
 
 extension ArticleDetailView {
     func summarizeArticle() async {
-        let source = extractedText ?? article.summary ?? ""
-        guard !source.isEmpty else { return }
-
         if let cached = try? DatabaseManager.shared.cachedArticleSummary(for: article.id),
            !cached.isEmpty {
             summarizedText = cached
             return
         }
+
+        let source = extractedText ?? article.summary ?? ""
+        guard !source.isEmpty else { return }
 
         isSummarizing = true
         defer { isSummarizing = false }
@@ -28,7 +28,7 @@ extension ArticleDetailView {
             summarizedText = response.content
             try? DatabaseManager.shared.cacheArticleSummary(response.content, for: article.id)
         } catch {
-            // Summarization failed; user can retry
+            summarizationError = error.localizedDescription
         }
     }
 }

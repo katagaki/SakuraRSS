@@ -15,6 +15,10 @@ struct AddFeedView: View {
     @State private var addedURLs: Set<String> = []
     @FocusState private var isURLFieldFocused: Bool
 
+    private var appName: String {
+        Bundle.main.object(forInfoDictionaryKey: "CFBundleName") as? String ?? "Sakura"
+    }
+
     var body: some View {
         NavigationStack {
             Form {
@@ -54,7 +58,7 @@ struct AddFeedView: View {
                         }
                     }
                 } footer: {
-                    Text("AddFeed.Section.SearchFooter")
+                    Text("AddFeed.Section.SearchFooter.\(appName)")
                 }
 
                 if let errorMessage = errorMessage {
@@ -154,11 +158,15 @@ struct AddFeedView: View {
             // Sort alphabetically by title
             results.sort { $0.title.localizedCaseInsensitiveCompare($1.title) == .orderedAscending }
 
-            isSearching = false
-            if results.isEmpty {
-                errorMessage = String(localized: "AddFeed.NoFeedsFound")
-            } else {
-                discoveredFeeds = results
+            await MainActor.run {
+                withAnimation(.smooth.speed(2.0)) {
+                    isSearching = false
+                    if results.isEmpty {
+                        errorMessage = String(localized: "AddFeed.NoFeedsFound")
+                    } else {
+                        discoveredFeeds = results
+                    }
+                }
             }
         }
     }
