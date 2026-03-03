@@ -74,7 +74,7 @@ struct OnboardingView: View {
                         .font(.largeTitle.bold())
                 }
 
-                VStack(alignment: .leading, spacing: 16) {
+                VStack(alignment: .leading, spacing: 24) {
                     featureRow(
                         icon: "newspaper.fill",
                         title: String(localized: "Onboarding.Feature.Feeds"),
@@ -97,7 +97,8 @@ struct OnboardingView: View {
                     )
                 }
             }
-            .padding(.horizontal)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, 20)
             .padding(.bottom, 100)
         }
         .safeAreaInset(edge: .bottom) {
@@ -121,9 +122,10 @@ struct OnboardingView: View {
                         .padding(.horizontal)
                         .padding(.vertical, 12)
                 }
-                .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 16))
+                .background(.regularMaterial, in: .capsule)
             }
-            .padding(.horizontal)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, 20)
             .padding(.bottom, 100)
         }
         .safeAreaInset(edge: .bottom) {
@@ -137,7 +139,7 @@ struct OnboardingView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
                 stepHeader(
-                    icon: "rectangle.grid.2x2.fill",
+                    icon: "newspaper.fill",
                     title: String(localized: "Onboarding.Step.DisplayStyle.Title"),
                     description: String(localized: "Onboarding.Step.DisplayStyle.Description")
                 )
@@ -169,12 +171,14 @@ struct OnboardingView: View {
                     .padding(.horizontal)
                     .padding(.vertical, 12)
                 }
-                .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 16))
+                .background(.regularMaterial, in: .capsule)
 
                 StylePreviewView(style: defaultDisplayStyle)
                     .allowsHitTesting(false)
+                    .padding(.horizontal, -20)
             }
-            .padding(.horizontal)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, 20)
             .padding(.bottom, 100)
         }
         .safeAreaInset(edge: .bottom) {
@@ -204,7 +208,7 @@ struct OnboardingView: View {
                     .padding(.horizontal)
                     .padding(.vertical, 12)
                 }
-                .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 16))
+                .background(.regularMaterial, in: .capsule)
             }
             .padding(.horizontal)
             .padding(.bottom, 100)
@@ -218,9 +222,14 @@ struct OnboardingView: View {
                     showAddFeed = true
                 } label: {
                     Text("Onboarding.Skip")
-                        .font(.body)
+                        .fontWeight(.semibold)
+                        .padding(.vertical, 8)
+                        .frame(maxWidth: .infinity)
                 }
-                .padding(.bottom, 12)
+                .buttonStyle(.glass)
+                .buttonBorderShape(.capsule)
+                .padding(.horizontal, 20)
+                .padding(.bottom, 8)
             }
         }
     }
@@ -230,7 +239,11 @@ struct OnboardingView: View {
     private func stepHeader(icon: String, title: String, description: String) -> some View {
         VStack(alignment: .leading, spacing: 12) {
             Image(systemName: icon)
-                .font(.system(size: 48))
+                .resizable()
+                .scaledToFit()
+                .padding(10)
+                .frame(width: 80, height: 80)
+                .foregroundStyle(.accent)
                 .symbolRenderingMode(.multicolor)
                 .padding(.top, 40)
             Text(title)
@@ -247,13 +260,14 @@ struct OnboardingView: View {
         HStack(alignment: .top, spacing: 14) {
             Image(systemName: icon)
                 .font(.title)
+                .foregroundStyle(.accent)
                 .symbolRenderingMode(.multicolor)
                 .frame(width: 36, alignment: .center)
             VStack(alignment: .leading, spacing: 2) {
                 Text(title)
-                    .font(.subheadline.weight(.semibold))
+                    .font(.body.weight(.semibold))
                 Text(description)
-                    .font(.caption)
+                    .font(.subheadline)
                     .foregroundStyle(.secondary)
             }
         }
@@ -270,10 +284,9 @@ struct OnboardingView: View {
                 .padding(.vertical, 8)
                 .frame(maxWidth: .infinity)
         }
-        .buttonStyle(.borderedProminent)
+        .buttonStyle(.glassProminent)
         .buttonBorderShape(.capsule)
-        .glassEffect(.regular.interactive)
-        .padding(.horizontal)
+        .padding(.horizontal, 20)
         .padding(.vertical, 8)
     }
 
