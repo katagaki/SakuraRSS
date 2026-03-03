@@ -114,20 +114,20 @@ struct FeedRowView: View {
             VStack(alignment: .leading, spacing: 2) {
                 HStack(spacing: 4) {
                     Text(feed.title)
-                        .font(.subheadline)
+                        .font(.body)
                         .lineLimit(1)
                     if feed.isPodcast {
                         Image(systemName: "headphones")
-                            .font(.caption2)
+                            .font(.caption)
                             .foregroundStyle(.secondary)
                     } else if feed.isVideoFeed {
                         Image(systemName: "play.rectangle.fill")
-                            .font(.caption2)
+                            .font(.caption)
                             .foregroundStyle(.secondary)
                     }
                 }
                 Text(feed.domain)
-                    .font(.caption)
+                    .font(.subheadline)
                     .foregroundStyle(.secondary)
                     .lineLimit(1)
             }
