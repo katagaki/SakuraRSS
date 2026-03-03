@@ -9,15 +9,20 @@ struct SakuraRSSApp: App {
     @State private var feedManager = FeedManager()
     @State private var pendingFeedURL: String?
     @State private var pendingArticleID: Int64?
+    @State private var isInSafeMode: Bool
     private let backgroundTaskID = "com.tsubuzaki.SakuraRSS.RefreshFeeds"
 
     var body: some Scene {
         WindowGroup {
-            MainTabView(pendingFeedURL: $pendingFeedURL, pendingArticleID: $pendingArticleID)
+            MainTabView(pendingFeedURL: $pendingFeedURL, pendingArticleID: $pendingArticleID,
+                        isInSafeMode: $isInSafeMode)
                 .environment(\.defaultMinListRowHeight, 10.0)
                 .environment(feedManager)
                 .task {
-                    await feedManager.refreshAllFeeds()
+                    if !isInSafeMode {
+                        await feedManager.refreshAllFeeds()
+                    }
+                    UserDefaults.standard.set(false, forKey: "App.StartupInProgress")
                     updateBadgeCount()
                 }
                 .onReceive(
@@ -57,6 +62,21 @@ struct SakuraRSSApp: App {
     }
 
     init() {
+        let defaults = UserDefaults.standard
+        let wasStartupInProgress = defaults.bool(forKey: "App.StartupInProgress")
+
+        if wasStartupInProgress {
+            _isInSafeMode = State(initialValue: true)
+            defaults.removeObject(forKey: "App.SelectedTab")
+            defaults.removeObject(forKey: "Home.FeedID")
+            defaults.removeObject(forKey: "Home.ArticleID")
+            defaults.removeObject(forKey: "FeedsList.FeedID")
+            defaults.removeObject(forKey: "FeedsList.ArticleID")
+        } else {
+            _isInSafeMode = State(initialValue: false)
+        }
+
+        defaults.set(true, forKey: "App.StartupInProgress")
         registerBackgroundTask()
         try? Tips.configure()
     }

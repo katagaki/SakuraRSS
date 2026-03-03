@@ -16,8 +16,10 @@ struct MainTabView: View {
     @AppStorage("Onboarding.Completed") private var onboardingCompleted: Bool = false
     @Binding var pendingFeedURL: String?
     @Binding var pendingArticleID: Int64?
+    @Binding var isInSafeMode: Bool
     @State private var showingAddFeed = false
     @State private var showingOnboarding = false
+    @State private var showingSafeModeAlert = false
 
     var body: some View {
         TabView(selection: $selectedTab) {
@@ -72,6 +74,16 @@ struct MainTabView: View {
             if !onboardingCompleted {
                 showingOnboarding = true
             }
+            if isInSafeMode {
+                showingSafeModeAlert = true
+            }
+        }
+        .alert(String(localized: "SafeMode.Title"), isPresented: $showingSafeModeAlert) {
+            Button(String(localized: "SafeMode.OK"), role: .cancel) {
+                isInSafeMode = false
+            }
+        } message: {
+            Text("SafeMode.Message")
         }
     }
 }
