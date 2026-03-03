@@ -1,11 +1,13 @@
 import SwiftUI
 import FoundationModels
+import UserNotifications
 
 struct MoreView: View {
 
     @Environment(FeedManager.self) var feedManager
     @AppStorage("BackgroundRefresh.Enabled") private var backgroundRefreshEnabled: Bool = true
     @AppStorage("BackgroundRefresh.Interval") private var refreshInterval: Int = 60
+    @AppStorage("BackgroundRefresh.BadgeEnabled") private var badgeEnabled: Bool = false
     @AppStorage("Display.DefaultStyle") private var defaultDisplayStyle: FeedDisplayStyle = .inbox
     @AppStorage("Search.DisplayStyle") private var searchDisplayStyle: FeedDisplayStyle = .inbox
     @AppStorage("TodaysSummary.Enabled") private var todaysSummaryEnabled: Bool = true
@@ -33,8 +35,6 @@ struct MoreView: View {
                             .tag(FeedDisplayStyle.magazine)
                         Text("Articles.Style.Compact")
                             .tag(FeedDisplayStyle.compact)
-                        Text("Articles.Style.Photos")
-                            .tag(FeedDisplayStyle.photos)
                     }
                     Picker(String(localized: "Settings.SearchDisplayStyle"), selection: $searchDisplayStyle) {
                         Text("Articles.Style.Inbox")
@@ -45,8 +45,6 @@ struct MoreView: View {
                             .tag(FeedDisplayStyle.magazine)
                         Text("Articles.Style.Compact")
                             .tag(FeedDisplayStyle.compact)
-                        Text("Articles.Style.Photos")
-                            .tag(FeedDisplayStyle.photos)
                     }
                 } header: {
                     Text("Settings.Section.Display")
@@ -61,6 +59,23 @@ struct MoreView: View {
                             Text("Settings.Refresh.1hour").tag(60)
                             Text("Settings.Refresh.4hours").tag(240)
                         }
+                        Toggle(String(localized: "Settings.BadgeEnabled"), isOn: $badgeEnabled)
+                            .onChange(of: badgeEnabled) { _, isEnabled in
+                                if isEnabled {
+                                    Task {
+                                        let granted = try? await UNUserNotificationCenter.current()
+                                            .requestAuthorization(options: [.badge])
+                                        if granted == true {
+                                            let count = feedManager.totalUnreadCount()
+                                            try? await UNUserNotificationCenter.current().setBadgeCount(count)
+                                        } else {
+                                            badgeEnabled = false
+                                        }
+                                    }
+                                } else {
+                                    UNUserNotificationCenter.current().setBadgeCount(0)
+                                }
+                            }
                     }
                 } header: {
                     Text("Settings.Section.Refresh")

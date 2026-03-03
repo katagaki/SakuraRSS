@@ -1,6 +1,7 @@
 import SwiftUI
 import BackgroundTasks
 import TipKit
+import UserNotifications
 
 @main
 struct SakuraRSSApp: App {
@@ -17,11 +18,13 @@ struct SakuraRSSApp: App {
                 .environment(feedManager)
                 .task {
                     await feedManager.refreshAllFeeds()
+                    updateBadgeCount()
                 }
                 .onReceive(
                     NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)
                 ) { _ in
                     feedManager.loadFromDatabase()
+                    updateBadgeCount()
                 }
                 .onOpenURL { url in
                     handleOpenURL(url)
@@ -88,6 +91,7 @@ struct SakuraRSSApp: App {
         let refreshTask = Task {
             let manager = FeedManager()
             await manager.refreshAllFeeds()
+            updateBadgeCount()
         }
 
         task.expirationHandler = {
@@ -97,6 +101,20 @@ struct SakuraRSSApp: App {
         Task {
             _ = await refreshTask.value
             task.setTaskCompleted(success: true)
+        }
+    }
+
+    private func updateBadgeCount() {
+        let badgeEnabled = UserDefaults.standard.bool(forKey: "BackgroundRefresh.BadgeEnabled")
+        guard badgeEnabled else {
+            try? UNUserNotificationCenter.current().setBadgeCount(0)
+            return
+        }
+        let center = UNUserNotificationCenter.current()
+        center.getNotificationSettings { settings in
+            guard settings.badgeSetting == .enabled else { return }
+            let count = feedManager.totalUnreadCount()
+            try? center.setBadgeCount(count)
         }
     }
 }

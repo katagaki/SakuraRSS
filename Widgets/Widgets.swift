@@ -115,6 +115,7 @@ struct MediumWidgetView: View {
                                 .foregroundStyle(.secondary)
                                 .lineLimit(1)
                         }
+                        .frame(maxWidth: .infinity, alignment: .leading)
                     }
 
                     if article.id != entry.articles.prefix(4).last?.id {
@@ -153,6 +154,7 @@ struct LargeWidgetView: View {
                                 .font(.system(size: 11))
                                 .foregroundStyle(.secondary)
                         }
+                        .frame(maxWidth: .infinity, alignment: .leading)
                     }
 
                     if article.id != entry.articles.prefix(9).last?.id {
