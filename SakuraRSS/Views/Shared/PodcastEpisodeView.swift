@@ -63,27 +63,15 @@ struct PodcastEpisodeView: View {
                 // Playback controls
                 if isThisEpisode {
                     VStack(spacing: 12) {
-                        // Seek slider
-                        Slider(
-                            value: Binding(
+                        // Seek bar
+                        SeekBarView(
+                            currentTime: Binding(
                                 get: { audioPlayer.currentTime },
-                                set: { audioPlayer.seek(to: $0) }
+                                set: { audioPlayer.currentTime = $0 }
                             ),
-                            in: 0...max(audioPlayer.duration, 1)
+                            duration: audioPlayer.duration,
+                            onSeek: { audioPlayer.seek(to: $0) }
                         )
-                        .tint(.accent)
-
-                        HStack {
-                            Text(formatTime(audioPlayer.currentTime))
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                                .monospacedDigit()
-                            Spacer()
-                            Text("-\(formatTime(max(audioPlayer.duration - audioPlayer.currentTime, 0)))")
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                                .monospacedDigit()
-                        }
 
                         // Transport controls
                         HStack(spacing: 40) {
@@ -176,14 +164,4 @@ struct PodcastEpisodeView: View {
         )
     }
 
-    private func formatTime(_ seconds: TimeInterval) -> String {
-        let totalSeconds = Int(max(seconds, 0))
-        let hours = totalSeconds / 3600
-        let minutes = (totalSeconds % 3600) / 60
-        let secs = totalSeconds % 60
-        if hours > 0 {
-            return String(format: "%d:%02d:%02d", hours, minutes, secs)
-        }
-        return String(format: "%d:%02d", minutes, secs)
-    }
 }
