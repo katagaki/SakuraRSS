@@ -1,8 +1,8 @@
 {
   "fill" : {
     "linear-gradient" : [
-      "display-p3:0.83529,0.24314,0.52941,1.00000",
-      "srgb:0.74529,0.12573,0.67708,1.00000"
+      "srgb:0.90846,0.29251,0.61217,1.00000",
+      "srgb:0.76196,0.26420,0.76254,1.00000"
     ],
     "orientation" : {
       "start" : {
@@ -17,6 +17,12 @@
   },
   "groups" : [
     {
+      "blend-mode-specializations" : [
+        {
+          "appearance" : "dark",
+          "value" : "normal"
+        }
+      ],
       "blur-material" : 0.5,
       "layers" : [
         {
@@ -28,7 +34,9 @@
             },
             {
               "appearance" : "dark",
-              "value" : "automatic"
+              "value" : {
+                "solid" : "gray:1.00000,1.00000"
+              }
             },
             {
               "appearance" : "tinted",
@@ -49,7 +57,9 @@
             },
             {
               "appearance" : "dark",
-              "value" : "automatic"
+              "value" : {
+                "solid" : "gray:1.00000,1.00000"
+              }
             },
             {
               "appearance" : "tinted",
@@ -59,9 +69,21 @@
             }
           ],
           "image-name" : "Sakura.004.png",
-          "name" : "Subtitle"
+          "name" : "Subtitle",
+          "opacity-specializations" : [
+            {
+              "appearance" : "dark",
+              "value" : 1
+            }
+          ]
         },
         {
+          "blend-mode-specializations" : [
+            {
+              "appearance" : "dark",
+              "value" : "normal"
+            }
+          ],
           "fill-specializations" : [
             {
               "value" : {
@@ -70,7 +92,9 @@
             },
             {
               "appearance" : "dark",
-              "value" : "automatic"
+              "value" : {
+                "solid" : "gray:1.00000,1.00000"
+              }
             },
             {
               "appearance" : "tinted",
@@ -98,22 +122,45 @@
     {
       "layers" : [
         {
-          "fill" : {
-            "linear-gradient" : [
-              "extended-gray:1.00000,1.00000",
-              "srgb:0.98181,0.86098,1.00000,1.00000"
-            ],
-            "orientation" : {
-              "start" : {
-                "x" : 0.5,
-                "y" : 1
-              },
-              "stop" : {
-                "x" : 0.5,
-                "y" : 0.3
+          "fill-specializations" : [
+            {
+              "value" : {
+                "linear-gradient" : [
+                  "extended-gray:1.00000,1.00000",
+                  "srgb:0.98181,0.86098,1.00000,1.00000"
+                ],
+                "orientation" : {
+                  "start" : {
+                    "x" : 0.5,
+                    "y" : 1
+                  },
+                  "stop" : {
+                    "x" : 0.5,
+                    "y" : 0.3
+                  }
+                }
+              }
+            },
+            {
+              "appearance" : "dark",
+              "value" : {
+                "linear-gradient" : [
+                  "srgb:0.67524,0.11790,0.77045,1.00000",
+                  "srgb:1.00000,0.34031,0.76356,1.00000"
+                ],
+                "orientation" : {
+                  "start" : {
+                    "x" : 0.5,
+                    "y" : 1
+                  },
+                  "stop" : {
+                    "x" : 0.5,
+                    "y" : 0.3
+                  }
+                }
               }
             }
-          },
+          ],
           "image-name" : "Sakura.002.png",
           "name" : "Sakura",
           "position" : {
