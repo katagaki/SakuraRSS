@@ -52,8 +52,10 @@ struct OnboardingView: View {
 
     private var headerSection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Image(systemName: "dot.radiowaves.up.forward")
-                .font(.system(size: 72))
+            Image(.sakuraIcon)
+                .resizable()
+                .scaledToFit()
+                .frame(width: 80, height: 80)
                 .foregroundStyle(.tint)
                 .padding(.top, 40)
             Text("Onboarding.Welcome.Title.\(appName)")
