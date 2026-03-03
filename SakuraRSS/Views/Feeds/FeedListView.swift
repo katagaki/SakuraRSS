@@ -10,7 +10,9 @@ struct FeedListView: View {
 
     var body: some View {
         NavigationStack(path: $path) {
-            FeedsListPage()
+            FeedsListPage { feed in
+                    path.append(feed)
+                }
                 .navigationDestination(for: Feed.self) { feed in
                     FeedArticlesView(feed: feed)
                         .onAppear { savedFeedID = Int(feed.id) }
@@ -19,9 +21,15 @@ struct FeedListView: View {
                         }
                 }
                 .navigationDestination(for: Article.self) { article in
-                    ArticleDetailView(article: article)
-                        .onAppear { savedArticleID = Int(article.id) }
-                        .onDisappear { savedArticleID = -1 }
+                    Group {
+                        if article.isPodcastEpisode {
+                            PodcastEpisodeView(article: article)
+                        } else {
+                            ArticleDetailView(article: article)
+                        }
+                    }
+                    .onAppear { savedArticleID = Int(article.id) }
+                    .onDisappear { savedArticleID = -1 }
                 }
         }
         .onChange(of: path.count) {

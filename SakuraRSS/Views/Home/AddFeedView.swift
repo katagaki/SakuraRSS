@@ -5,6 +5,8 @@ struct AddFeedView: View {
     @Environment(FeedManager.self) var feedManager
     @Environment(\.dismiss) var dismiss
 
+    var onFeedAdded: ((String) -> Void)?
+
     @State private var urlInput = ""
     @State private var discoveredFeeds: [DiscoveredFeed] = []
     @State private var isSearching = false
@@ -177,6 +179,7 @@ struct AddFeedView: View {
                 siteURL: discovered.siteURL
             )
             addedURLs.insert(discovered.url)
+            onFeedAdded?(discovered.url)
         } catch {
             errorMessage = error.localizedDescription
         }

@@ -3,8 +3,10 @@ import SwiftUI
 struct FeedsListPage: View {
 
     @Environment(FeedManager.self) var feedManager
+    var onNavigateToFeed: ((Feed) -> Void)?
     @State private var isShowingAddFeed = false
     @State private var searchText = ""
+    @State private var lastAddedFeedURL: String?
 
     var filteredFeeds: [Feed] {
         if searchText.isEmpty {
@@ -52,8 +54,21 @@ struct FeedsListPage: View {
         .scrollContentBackground(.hidden)
         .sakuraBackground()
         .sheet(isPresented: $isShowingAddFeed) {
-            AddFeedView()
-                .presentationDetents([.medium, .large])
+            if let url = lastAddedFeedURL,
+               let feed = feedManager.feeds.first(where: { $0.url == url }) {
+                lastAddedFeedURL = nil
+                Task {
+                    try? await feedManager.refreshFeed(feed)
+                    if let refreshed = feedManager.feeds.first(where: { $0.url == url }) {
+                        onNavigateToFeed?(refreshed)
+                    }
+                }
+            }
+        } content: {
+            AddFeedView { url in
+                lastAddedFeedURL = url
+            }
+            .presentationDetents([.medium, .large])
         }
         .overlay {
             if feedManager.feeds.isEmpty {
@@ -82,23 +97,35 @@ struct FeedRowView: View {
     var body: some View {
         HStack(spacing: 12) {
             if let favicon = favicon {
-                FaviconImage(favicon, size: 32, cornerRadius: feed.isVideoFeed ? 0 : 4,
-                             circle: feed.isVideoFeed,
-                             skipInset: feed.isVideoFeed
+                FaviconImage(favicon, size: 32,
+                             cornerRadius: feed.isPodcast ? 8 : (feed.isVideoFeed ? 0 : 4),
+                             circle: feed.isVideoFeed && !feed.isPodcast,
+                             skipInset: feed.isVideoFeed || feed.isPodcast
                                 || FullFaviconDomains.shouldUseFullImage(feedDomain: feed.domain))
             } else {
                 InitialsAvatarView(
                     feed.title,
                     size: 32,
-                    circle: feed.isVideoFeed,
-                    cornerRadius: feed.isVideoFeed ? 0 : 4
+                    circle: feed.isVideoFeed && !feed.isPodcast,
+                    cornerRadius: feed.isPodcast ? 8 : (feed.isVideoFeed ? 0 : 4)
                 )
             }
 
             VStack(alignment: .leading, spacing: 2) {
-                Text(feed.title)
-                    .font(.subheadline)
-                    .lineLimit(1)
+                HStack(spacing: 4) {
+                    Text(feed.title)
+                        .font(.subheadline)
+                        .lineLimit(1)
+                    if feed.isPodcast {
+                        Image(systemName: "headphones")
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
+                    } else if feed.isVideoFeed {
+                        Image(systemName: "play.rectangle.fill")
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
+                    }
+                }
                 Text(feed.domain)
                     .font(.caption)
                     .foregroundStyle(.secondary)

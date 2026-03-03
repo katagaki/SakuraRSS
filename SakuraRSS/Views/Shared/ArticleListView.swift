@@ -7,6 +7,7 @@ struct ArticleListView: View {
     let title: String
     let feedKey: String
     let isVideoFeed: Bool
+    let isPodcastFeed: Bool
     var onLoadMore: (() -> Void)?
 
     @State private var displayStyle: FeedDisplayStyle
@@ -16,15 +17,19 @@ struct ArticleListView: View {
     }
 
     init(articles: [Article], title: String, feedKey: String,
-         isVideoFeed: Bool = false, onLoadMore: (() -> Void)? = nil) {
+         isVideoFeed: Bool = false, isPodcastFeed: Bool = false,
+         onLoadMore: (() -> Void)? = nil) {
         self.articles = articles
         self.title = title
         self.feedKey = feedKey
         self.isVideoFeed = isVideoFeed
+        self.isPodcastFeed = isPodcastFeed
         self.onLoadMore = onLoadMore
         let raw = UserDefaults.standard.string(forKey: "displayStyle-\(feedKey)")
         let defaultRaw = UserDefaults.standard.string(forKey: "defaultDisplayStyle") ?? FeedDisplayStyle.inbox.rawValue
-        let fallback = isVideoFeed ? .video : (FeedDisplayStyle(rawValue: defaultRaw) ?? .inbox)
+        let fallback: FeedDisplayStyle = isPodcastFeed ? .podcast
+            : isVideoFeed ? .video
+            : (FeedDisplayStyle(rawValue: defaultRaw) ?? .inbox)
         self._displayStyle = State(initialValue: raw.flatMap(FeedDisplayStyle.init(rawValue:)) ?? fallback)
     }
 
@@ -44,6 +49,8 @@ struct ArticleListView: View {
                 VideoStyleView(articles: articles, onLoadMore: onLoadMore)
             case .photos:
                 PhotosStyleView(articles: articles, onLoadMore: onLoadMore)
+            case .podcast:
+                PodcastStyleView(articles: articles, onLoadMore: onLoadMore)
             }
         }
         .scrollContentBackground(.hidden)
@@ -71,6 +78,10 @@ struct ArticleListView: View {
                             Label(String(localized: "Articles.Style.Video"), systemImage: "play.rectangle")
                                 .tag(FeedDisplayStyle.video)
                         }
+                        if isPodcastFeed {
+                            Label(String(localized: "Articles.Style.Podcast"), systemImage: "headphones")
+                                .tag(FeedDisplayStyle.podcast)
+                        }
                     }
                 } label: {
                     Image(systemName: "line.3.horizontal.decrease")
@@ -92,9 +103,13 @@ struct ArticleListView: View {
         }
     }
 
-    /// Falls back to inbox if the selected style requires images but none are available.
+    /// Falls back to inbox if the selected style requires images but none are available,
+    /// or if podcast style is selected for a non-podcast feed.
     private var effectiveDisplayStyle: FeedDisplayStyle {
         if !hasImages && (displayStyle == .magazine || displayStyle == .photos) {
+            return .inbox
+        }
+        if displayStyle == .podcast && !isPodcastFeed {
             return .inbox
         }
         return displayStyle

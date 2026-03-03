@@ -28,11 +28,11 @@ final class FeedManager {
 
     func addFeed(url: String, title: String, siteURL: String,
                  description: String = "", faviconURL: String? = nil,
-                 category: String? = nil) throws {
+                 category: String? = nil, isPodcast: Bool = false) throws {
         try database.insertFeed(
             title: title, url: url, siteURL: siteURL,
             description: description, faviconURL: faviconURL,
-            category: category
+            category: category, isPodcast: isPodcast
         )
         loadFromDatabase()
     }
@@ -58,10 +58,15 @@ final class FeedManager {
                 summary: article.summary,
                 content: article.content,
                 imageURL: article.imageURL,
-                publishedDate: article.publishedDate
+                publishedDate: article.publishedDate,
+                audioURL: article.audioURL,
+                duration: article.duration
             )
         }
 
+        if parsed.isPodcast != feed.isPodcast {
+            try database.updateFeedIsPodcast(id: feed.id, isPodcast: parsed.isPodcast)
+        }
         if !parsed.title.isEmpty && parsed.title != feed.title {
             try database.updateFeed(id: feed.id, title: parsed.title, category: feed.category)
         }

@@ -9,6 +9,7 @@ nonisolated struct Feed: Identifiable, Hashable, Sendable {
     var faviconURL: String?
     var lastFetched: Date?
     var category: String?
+    var isPodcast: Bool
 
     var domain: String {
         URL(string: siteURL)?.host ?? URL(string: url)?.host ?? ""
@@ -31,10 +32,16 @@ nonisolated struct Article: Identifiable, Hashable, Sendable {
     var publishedDate: Date?
     var isRead: Bool
     var isBookmarked: Bool
+    var audioURL: String?
+    var duration: Int?
 
     var isYouTubeURL: Bool {
         let lowered = url.lowercased()
         return lowered.contains("youtube.com") || lowered.contains("youtu.be")
+    }
+
+    var isPodcastEpisode: Bool {
+        audioURL != nil
     }
 }
 
@@ -45,4 +52,5 @@ nonisolated enum FeedDisplayStyle: String, CaseIterable, Sendable {
     case compact
     case video
     case photos
+    case podcast
 }

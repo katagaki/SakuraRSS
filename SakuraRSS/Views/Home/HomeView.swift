@@ -19,9 +19,15 @@ struct HomeView: View {
                         }
                 }
                 .navigationDestination(for: Article.self) { article in
-                    ArticleDetailView(article: article)
-                        .onAppear { savedArticleID = Int(article.id) }
-                        .onDisappear { savedArticleID = -1 }
+                    Group {
+                        if article.isPodcastEpisode {
+                            PodcastEpisodeView(article: article)
+                        } else {
+                            ArticleDetailView(article: article)
+                        }
+                    }
+                    .onAppear { savedArticleID = Int(article.id) }
+                    .onDisappear { savedArticleID = -1 }
                 }
         }
         .onChange(of: path.count) {

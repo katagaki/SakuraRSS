@@ -1,6 +1,9 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "-%@" : {
+
+    },
     "·" : {
       "shouldTranslate" : false
     },
@@ -652,6 +655,23 @@
         }
       }
     },
+    "Articles.Style.Podcast" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Podcast"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ポッドキャスト"
+          }
+        }
+      }
+    },
     "Articles.Style.Video" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -812,6 +832,57 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "ソースコード"
+          }
+        }
+      }
+    },
+    "Podcast.Duration.HoursMinutes.%lld.%lld" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lldh %2$lldm"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld時間%2$lld分"
+          }
+        }
+      }
+    },
+    "Podcast.Duration.Minutes.%lld" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld min"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld分"
+          }
+        }
+      }
+    },
+    "Podcast.Play" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Play Episode"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "エピソードを再生"
           }
         }
       }

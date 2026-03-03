@@ -11,7 +11,11 @@ struct ArticleLink<Label: View>: View {
     @State private var showSafari = false
 
     var body: some View {
-        if article.isYouTubeURL {
+        if article.isPodcastEpisode {
+            NavigationLink(value: article) {
+                label()
+            }
+        } else if article.isYouTubeURL {
             Button {
                 feedManager.markRead(article)
                 YouTubeHelper.openInApp(url: article.url)

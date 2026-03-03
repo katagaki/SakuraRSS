@@ -42,6 +42,8 @@ struct BookmarksView: View {
                         VideoStyleView(articles: bookmarkedArticles)
                     case .photos:
                         PhotosStyleView(articles: bookmarkedArticles)
+                    case .podcast:
+                        PodcastStyleView(articles: bookmarkedArticles)
                     }
                 }
             }
@@ -81,7 +83,11 @@ struct BookmarksView: View {
                 UserDefaults.standard.set(newValue.rawValue, forKey: "displayStyle-bookmarks")
             }
             .navigationDestination(for: Article.self) { article in
-                ArticleDetailView(article: article)
+                if article.isPodcastEpisode {
+                    PodcastEpisodeView(article: article)
+                } else {
+                    ArticleDetailView(article: article)
+                }
             }
             .onAppear {
                 bookmarkedArticles = (try? DatabaseManager.shared.bookmarkedArticles()) ?? []
@@ -91,6 +97,9 @@ struct BookmarksView: View {
 
     private var effectiveDisplayStyle: FeedDisplayStyle {
         if !hasImages && (displayStyle == .magazine || displayStyle == .photos) {
+            return .inbox
+        }
+        if displayStyle == .podcast {
             return .inbox
         }
         return displayStyle

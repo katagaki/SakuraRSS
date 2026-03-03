@@ -19,6 +19,9 @@ struct SearchView: View {
         if !hasImages && (searchDisplayStyle == .magazine || searchDisplayStyle == .photos) {
             return .inbox
         }
+        if searchDisplayStyle == .podcast {
+            return .inbox
+        }
         return searchDisplayStyle
     }
 
@@ -53,13 +56,19 @@ struct SearchView: View {
                         VideoStyleView(articles: searchResults)
                     case .photos:
                         PhotosStyleView(articles: searchResults)
+                    case .podcast:
+                        PodcastStyleView(articles: searchResults)
                     }
                 }
             }
             .scrollContentBackground(.hidden)
             .sakuraBackground()
             .navigationDestination(for: Article.self) { article in
-                ArticleDetailView(article: article)
+                if article.isPodcastEpisode {
+                    PodcastEpisodeView(article: article)
+                } else {
+                    ArticleDetailView(article: article)
+                }
             }
             .searchable(text: $searchText, prompt: String(localized: "Search.Prompt"))
         }
