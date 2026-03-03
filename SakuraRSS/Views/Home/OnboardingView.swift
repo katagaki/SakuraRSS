@@ -266,13 +266,15 @@ struct OnboardingView: View {
             action()
         } label: {
             Text("Onboarding.Continue")
-                .padding()
+                .fontWeight(.semibold)
+                .padding(.vertical, 8)
                 .frame(maxWidth: .infinity)
         }
         .buttonStyle(.borderedProminent)
         .buttonBorderShape(.capsule)
+        .glassEffect(.regular.interactive)
         .padding(.horizontal)
-        .padding(.vertical, 12)
+        .padding(.vertical, 8)
     }
 
     // MARK: - Navigation
