@@ -135,23 +135,28 @@ struct OnboardingView: View {
                 .padding(.leading)
 
             // Default Style
-            Picker(String(localized: "Onboarding.Setting.DefaultStyle"), selection: Binding(
-                get: { defaultDisplayStyle },
-                set: { newValue in
-                    defaultDisplayStyle = newValue
-                    searchDisplayStyle = newValue
+            HStack {
+                Text("Onboarding.Setting.DefaultStyle")
+                Spacer()
+                Picker(String(localized: "Onboarding.Setting.DefaultStyle"), selection: Binding(
+                    get: { defaultDisplayStyle },
+                    set: { newValue in
+                        defaultDisplayStyle = newValue
+                        searchDisplayStyle = newValue
+                    }
+                )) {
+                    Text("Articles.Style.Inbox")
+                        .tag(FeedDisplayStyle.inbox)
+                    Text("Articles.Style.Feed")
+                        .tag(FeedDisplayStyle.feed)
+                    Text("Articles.Style.Magazine")
+                        .tag(FeedDisplayStyle.magazine)
+                    Text("Articles.Style.Compact")
+                        .tag(FeedDisplayStyle.compact)
+                    Text("Articles.Style.Photos")
+                        .tag(FeedDisplayStyle.photos)
                 }
-            )) {
-                Text("Articles.Style.Inbox")
-                    .tag(FeedDisplayStyle.inbox)
-                Text("Articles.Style.Feed")
-                    .tag(FeedDisplayStyle.feed)
-                Text("Articles.Style.Magazine")
-                    .tag(FeedDisplayStyle.magazine)
-                Text("Articles.Style.Compact")
-                    .tag(FeedDisplayStyle.compact)
-                Text("Articles.Style.Photos")
-                    .tag(FeedDisplayStyle.photos)
+                .labelsHidden()
             }
             .padding(.horizontal)
             .padding(.vertical, 12)
