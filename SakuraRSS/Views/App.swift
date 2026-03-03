@@ -1,5 +1,6 @@
 import SwiftUI
 import BackgroundTasks
+import TipKit
 
 @main
 struct SakuraRSSApp: App {
@@ -54,6 +55,7 @@ struct SakuraRSSApp: App {
 
     init() {
         registerBackgroundTask()
+        try? Tips.configure()
     }
 
     private func registerBackgroundTask() {

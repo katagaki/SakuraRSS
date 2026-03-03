@@ -1,4 +1,5 @@
 import SwiftUI
+import TipKit
 
 struct ArticleListView: View {
 
@@ -12,6 +13,7 @@ struct ArticleListView: View {
     var onLoadMore: (() -> Void)?
 
     @State private var displayStyle: FeedDisplayStyle
+    private let viewStyleSwitcherTip = ViewStyleSwitcherTip()
 
     private var hasImages: Bool {
         articles.contains { $0.imageURL != nil }
@@ -90,6 +92,7 @@ struct ArticleListView: View {
                 } label: {
                     Image(systemName: "line.3.horizontal.decrease")
                 }
+                .popoverTip(viewStyleSwitcherTip)
             }
         }
         .onChange(of: displayStyle) { _, newValue in

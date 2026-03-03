@@ -62,7 +62,6 @@ nonisolated final class DatabaseManager: @unchecked Sendable {
         }
     }
 
-    // swiftlint:disable function_body_length
     private func createTables() throws {
         try database.run(feeds.create(ifNotExists: true) { table in
             table.column(feedID, primaryKey: .autoincrement)
@@ -73,6 +72,7 @@ nonisolated final class DatabaseManager: @unchecked Sendable {
             table.column(feedFaviconURL)
             table.column(feedLastFetched)
             table.column(feedCategory)
+            table.column(feedIsPodcast, defaultValue: false)
         })
 
         try database.run(articles.create(ifNotExists: true) { table in
@@ -88,18 +88,10 @@ nonisolated final class DatabaseManager: @unchecked Sendable {
             table.column(articleIsRead, defaultValue: false)
             table.column(articleIsBookmarked, defaultValue: false)
             table.column(articleHasFullText, defaultValue: false)
+            table.column(articleAudioURL)
+            table.column(articleDuration)
+            table.column(articleAISummary)
         })
-
-        // Migration: add has_full_text column if missing from existing databases
-        _ = try? database.run(articles.addColumn(articleHasFullText, defaultValue: false))
-
-        // Migration: add podcast support columns
-        _ = try? database.run(feeds.addColumn(feedIsPodcast, defaultValue: false))
-        _ = try? database.run(articles.addColumn(articleAudioURL))
-        _ = try? database.run(articles.addColumn(articleDuration))
-
-        // Migration: add AI summary column
-        _ = try? database.run(articles.addColumn(articleAISummary))
 
         try database.run(articles.createIndex(articleFeedID, ifNotExists: true))
         try database.run(articles.createIndex(articlePublishedDate, ifNotExists: true))
@@ -116,19 +108,5 @@ nonisolated final class DatabaseManager: @unchecked Sendable {
             table.column(summaryCacheContent)
             table.primaryKey(summaryCacheType, summaryCacheDate)
         })
-
-        // Migration: add type column if missing from older schema
-        let tableInfo = try database.prepare("PRAGMA table_info(summary_cache)")
-        let columns = tableInfo.map { $0[1] as? String ?? "" }
-        if !columns.contains("type") {
-            try database.run(summaryCache.drop())
-            try database.run(summaryCache.create(ifNotExists: true) { table in
-                table.column(summaryCacheType)
-                table.column(summaryCacheDate)
-                table.column(summaryCacheContent)
-                table.primaryKey(summaryCacheType, summaryCacheDate)
-            })
-        }
     }
-    // swiftlint:enable function_body_length
 }

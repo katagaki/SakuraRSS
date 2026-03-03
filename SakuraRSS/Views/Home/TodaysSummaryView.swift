@@ -18,6 +18,7 @@ struct TodaysSummaryView: View {
     @State private var hasGenerated = false
     @State private var isExpanded = false
     @State private var generationFailed = false
+    @State private var generationError: String?
 
     private var isSupported: Bool {
         SystemLanguageModel.default.availability == .available
@@ -37,7 +38,7 @@ struct TodaysSummaryView: View {
     private var shouldShow: Bool {
         #if DEBUG
         if forceVisible {
-            return true
+            return !isHidden
         }
         #endif
         return isEnabled && isSupported && isEveningWindow && !todayArticles.isEmpty && !isHidden
@@ -46,6 +47,7 @@ struct TodaysSummaryView: View {
     var body: some View {
         if shouldShow {
             summaryCard
+                .transition(.opacity)
                 .task {
                     if !hasGenerated {
                         await loadOrGenerateSummary()
@@ -109,9 +111,16 @@ struct TodaysSummaryView: View {
                         .foregroundStyle(.secondary)
                 }
             } else if generationFailed {
-                Text("TodaysSummary.Failed")
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("TodaysSummary.Failed")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                    if let generationError {
+                        Text(generationError)
+                            .font(.caption)
+                            .foregroundStyle(.tertiary)
+                    }
+                }
             } else if !summary.isEmpty {
                 Text(summary)
                     .font(.subheadline)
@@ -202,6 +211,7 @@ struct TodaysSummaryView: View {
             summary = ""
             isExpanded = false
             generationFailed = false
+            generationError = nil
         }
         await generateSummary(for: today)
     }
@@ -224,32 +234,76 @@ struct TodaysSummaryView: View {
             hasGenerated = true
         }
 
-        let articleDescriptions = articles.prefix(30).map { article in
-            let feed = feedManager.feed(forArticle: article)
-            let source = feed?.title ?? ""
-            let title = article.title
-            let snippet = article.summary ?? ""
-            return "[\(source)] \(title)\n\(snippet)"
-        }.joined(separator: "\n\n")
+        let calendar = Calendar.current
+        let midnight = calendar.startOfDay(for: date)
+        let morning = calendar.date(bySettingHour: 9, minute: 0, second: 0, of: date)!
+        let afternoon = calendar.date(bySettingHour: 13, minute: 0, second: 0, of: date)!
+        let evening = calendar.date(bySettingHour: 17, minute: 0, second: 0, of: date)!
 
-        let instructions = String(localized: "TodaysSummary.Prompt")
-        let prompt = "\(instructions)\n\n\(articleDescriptions)"
-
-        #if DEBUG
-        debugPrint(prompt)
-        #endif
+        let timeWindows: [(start: Date, end: Date)] = [
+            (midnight, afternoon),
+            (afternoon, evening),
+            (evening, date)
+        ]
 
         do {
-            let session = LanguageModelSession()
-            let response = try await session.respond(to: prompt)
-            let content = response.content
+            var partialSummaries: [String] = []
+
+            for window in timeWindows {
+                let windowArticles = articles.filter { article in
+                    guard let published = article.publishedDate else { return false }
+                    return published >= window.start && published < window.end
+                }.prefix(30)
+
+                guard !windowArticles.isEmpty else { continue }
+
+                let descriptions = windowArticles.map { article in
+                    let feed = feedManager.feed(forArticle: article)
+                    let source = feed?.title ?? ""
+                    let title = article.title
+                    let snippet = article.summary ?? ""
+                    return "[\(source)] \(title)\n\(snippet)"
+                }.joined(separator: "\n\n")
+
+                let instructions = String(localized: "TodaysSummary.PartialPrompt")
+                let prompt = "\(instructions)\n\n\(descriptions)"
+
+                #if DEBUG
+                debugPrint("Partial prompt (\(window.start) - \(window.end)):\n\(prompt)")
+                #endif
+
+                let session = LanguageModelSession()
+                let response = try await session.respond(to: prompt)
+                partialSummaries.append(response.content)
+            }
+
+            guard !partialSummaries.isEmpty else { return }
+
+            let finalContent: String
+            if partialSummaries.count == 1 {
+                finalContent = partialSummaries[0]
+            } else {
+                let combined = partialSummaries.joined(separator: "\n\n")
+                let combineInstructions = String(localized: "TodaysSummary.CombinePrompt")
+                let combinePrompt = "\(combineInstructions)\n\n\(combined)"
+
+                #if DEBUG
+                debugPrint("Combine prompt:\n\(combinePrompt)")
+                #endif
+
+                let session = LanguageModelSession()
+                let response = try await session.respond(to: combinePrompt)
+                finalContent = response.content
+            }
+
             withAnimation(.smooth.speed(2.0)) {
-                summary = content
+                summary = finalContent
             }
             hasSummary = true
-            try? DatabaseManager.shared.cacheSummary(content, ofType: .todaysSummary, for: date)
+            try? DatabaseManager.shared.cacheSummary(finalContent, ofType: .todaysSummary, for: date)
         } catch {
             generationFailed = true
+            generationError = error.localizedDescription
         }
     }
 }

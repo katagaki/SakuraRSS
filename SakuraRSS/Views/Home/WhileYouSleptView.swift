@@ -37,7 +37,7 @@ struct WhileYouSleptView: View {
     private var shouldShow: Bool {
         #if DEBUG
         if forceVisible {
-            return true
+            return !isHidden
         }
         #endif
         return isEnabled && isSupported && isMorningWindow && !overnightArticles.isEmpty && !isHidden
@@ -46,6 +46,7 @@ struct WhileYouSleptView: View {
     var body: some View {
         if shouldShow {
             summaryCard
+                .transition(.opacity)
                 .task {
                     if !hasGenerated {
                         await loadOrGenerateSummary()

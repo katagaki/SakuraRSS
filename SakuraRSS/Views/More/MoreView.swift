@@ -13,6 +13,7 @@ struct MoreView: View {
     #if DEBUG
     @AppStorage("Debug.ForceWhileYouSlept") private var forceWhileYouSlept: Bool = false
     @AppStorage("Debug.ForceTodaysSummary") private var forceTodaysSummary: Bool = false
+    @AppStorage("Onboarding.Completed") private var onboardingCompleted: Bool = false
     #endif
 
     private var isAppleIntelligenceAvailable: Bool {
@@ -83,6 +84,11 @@ struct MoreView: View {
                     }
                     Toggle(isOn: $forceTodaysSummary) {
                         Text(verbatim: "Force Today's Summary")
+                    }
+                    Button {
+                        onboardingCompleted = false
+                    } label: {
+                        Text(verbatim: "Show Onboarding on Next Launch")
                     }
                 } header: {
                     Text(verbatim: "Debug")

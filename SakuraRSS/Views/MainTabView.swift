@@ -1,4 +1,5 @@
 import SwiftUI
+import TipKit
 
 enum AppTab: String, CaseIterable {
     case home
@@ -12,9 +13,11 @@ struct MainTabView: View {
 
     @Environment(FeedManager.self) var feedManager
     @AppStorage("App.SelectedTab") private var selectedTab: AppTab = .home
+    @AppStorage("Onboarding.Completed") private var onboardingCompleted: Bool = false
     @Binding var pendingFeedURL: String?
     @Binding var pendingArticleID: Int64?
     @State private var showingAddFeed = false
+    @State private var showingOnboarding = false
 
     var body: some View {
         TabView(selection: $selectedTab) {
@@ -47,6 +50,14 @@ struct MainTabView: View {
                     pendingFeedURL = nil
                 }
         }
+        .sheet(isPresented: $showingOnboarding) {
+            OnboardingView {
+                onboardingCompleted = true
+                ViewStyleSwitcherTip.hasCompletedOnboarding = true
+                showingOnboarding = false
+            }
+            .environment(feedManager)
+        }
         .onChange(of: pendingFeedURL) {
             if pendingFeedURL != nil {
                 showingAddFeed = true
@@ -55,6 +66,11 @@ struct MainTabView: View {
         .onChange(of: pendingArticleID) {
             if pendingArticleID != nil {
                 selectedTab = .home
+            }
+        }
+        .onAppear {
+            if !onboardingCompleted {
+                showingOnboarding = true
             }
         }
     }

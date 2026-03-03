@@ -22,6 +22,7 @@ struct ArticleDetailView: View {
     @State var hasCachedSummary = false
     @State var showingSummary = false
     @State var isBookmarked = false
+    @State var summarizationError: String?
 
     var isAppleIntelligenceAvailable: Bool {
         SystemLanguageModel.default.availability == .available
@@ -42,6 +43,8 @@ struct ArticleDetailView: View {
                     font: .preferredFont(forTextStyle: .title2).bold(),
                     textColor: .label
                 )
+                .id(translatedTitle)
+                .transition(.blurReplace)
 
                 HStack(spacing: 12) {
                     if let favicon = favicon {
@@ -85,6 +88,7 @@ struct ArticleDetailView: View {
                 }
 
             }
+            .animation(.smooth.speed(2.0), value: translatedTitle)
             .padding(.horizontal)
             .padding(.top)
 
@@ -118,10 +122,16 @@ struct ArticleDetailView: View {
                                     if summarizedText == nil {
                                         Task {
                                             await summarizeArticle()
-                                            showingSummary = true
+                                            if summarizedText != nil {
+                                                withAnimation(.smooth.speed(2.0)) {
+                                                    showingSummary = true
+                                                }
+                                            }
                                         }
                                     } else {
-                                        showingSummary.toggle()
+                                        withAnimation(.smooth.speed(2.0)) {
+                                            showingSummary.toggle()
+                                        }
                                     }
                                 } label: {
                                     Label(
@@ -140,7 +150,11 @@ struct ArticleDetailView: View {
                                     translatedTitle = nil
                                     Task {
                                         await summarizeArticle()
-                                        showingSummary = true
+                                        if summarizedText != nil {
+                                            withAnimation(.smooth.speed(2.0)) {
+                                                showingSummary = true
+                                            }
+                                        }
                                     }
                                 } label: {
                                     Label(
@@ -194,11 +208,12 @@ struct ArticleDetailView: View {
                             .foregroundStyle(.secondary)
                     }
                     SelectableText(text)
-                        .id(showingSummary)
+                        .id("\(showingSummary)-\(translatedText ?? "")")
                         .transition(.blurReplace)
                 }
             }
-            .animation(.smooth, value: showingSummary)
+            .animation(.smooth.speed(2.0), value: showingSummary)
+            .animation(.smooth.speed(2.0), value: translatedText)
             .padding()
         }
         .refreshable {
@@ -238,6 +253,15 @@ struct ArticleDetailView: View {
             if let cached = try? DatabaseManager.shared.cachedArticleSummary(for: article.id),
                !cached.isEmpty {
                 hasCachedSummary = true
+            }
+        }
+        .alert(String(localized: "Article.Summarize.Error"), isPresented: Binding(
+            get: { summarizationError != nil },
+            set: { if !$0 { summarizationError = nil } }
+        )) {
+        } message: {
+            if let summarizationError {
+                Text(summarizationError)
             }
         }
         .translationTask(translationConfig) { session in
