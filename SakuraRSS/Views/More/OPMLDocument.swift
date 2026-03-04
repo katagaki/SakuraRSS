@@ -25,5 +25,5 @@ struct OPMLDocument: FileDocument {
 }
 
 extension UTType {
-    nonisolated static let opml = UTType(filenameExtension: "opml", conformingTo: .xml)!
+    nonisolated static let opml = UTType("org.opml.opml") ?? UTType(filenameExtension: "opml", conformingTo: .xml)!
 }
