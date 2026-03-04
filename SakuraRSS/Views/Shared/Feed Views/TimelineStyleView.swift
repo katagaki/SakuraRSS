@@ -8,35 +8,9 @@ struct TimelineStyleView: View {
 
     var body: some View {
         List {
-            if let latest = articles.first {
-                ZStack {
-                    ArticleLink(article: latest) {
-                        EmptyView()
-                    }
-                    .opacity(0)
+            let groups = groupedArticles(from: articles)
 
-                    VStack(alignment: .leading, spacing: 6) {
-                        if let date = latest.publishedDate {
-                            RelativeTimeText(date: date)
-                                .font(.subheadline)
-                                .foregroundStyle(.secondary)
-                        }
-                        Text(latest.title)
-                            .font(.title2)
-                            .fontWeight(.bold)
-                            .foregroundStyle(latest.isRead ? .secondary : .primary)
-                    }
-                    .padding(.vertical, 8)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                }
-                .listRowBackground(Color.clear)
-                .listRowSeparator(.hidden)
-            }
-
-            let remaining = Array(articles.dropFirst())
-            let groups = groupedArticles(from: remaining)
-
-            ForEach(Array(groups.enumerated()), id: \.element.key) { _, group in
+            ForEach(Array(groups.enumerated()), id: \.element.key) { groupIndex, group in
                 Section {
                     ForEach(Array(group.articles.enumerated()), id: \.element.id) { index, article in
                         ZStack {
@@ -48,7 +22,8 @@ struct TimelineStyleView: View {
                             timelineRow(
                                 article: article,
                                 isFirst: index == 0,
-                                isLast: index == group.articles.count - 1
+                                isLast: index == group.articles.count - 1,
+                                isFeatured: groupIndex == 0 && index == 0
                             )
                         }
                         .listRowBackground(Color.clear)
@@ -115,16 +90,17 @@ struct TimelineStyleView: View {
         return formatter.string(from: date)
     }
 
-    private func timelineRow(article: Article, isFirst: Bool, isLast: Bool) -> some View {
+    private func timelineRow(article: Article, isFirst: Bool, isLast: Bool,
+                             isFeatured: Bool = false) -> some View {
         HStack(alignment: .top, spacing: 0) {
             Group {
                 if let date = article.publishedDate {
                     RelativeTimeText(date: date)
-                        .font(.caption)
+                        .font(isFeatured ? .subheadline : .caption)
                         .foregroundStyle(.secondary)
                 } else {
                     Text("")
-                        .font(.caption)
+                        .font(isFeatured ? .subheadline : .caption)
                 }
             }
             .frame(width: 64, alignment: .trailing)
@@ -134,10 +110,10 @@ struct TimelineStyleView: View {
                 .frame(width: 28)
 
             Text(article.title)
-                .font(.subheadline)
-                .fontWeight(article.isRead ? .regular : .medium)
+                .font(isFeatured ? .body : .subheadline)
+                .fontWeight(isFeatured ? .semibold : (article.isRead ? .regular : .medium))
                 .foregroundStyle(article.isRead ? .secondary : .primary)
-                .lineLimit(2)
+                .lineLimit(isFeatured ? 3 : 2)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.vertical, 12)
         }
@@ -173,7 +149,7 @@ private struct TimelineConnector: View {
             }
 
             Circle()
-                .fill(isRead ? Color.secondary.opacity(0.4) : Color.accentColor)
+                .fill(isRead ? Color.blue.opacity(0.3) : Color.blue)
                 .frame(width: dotSize, height: dotSize)
                 .position(x: midX, y: dotY)
         }
