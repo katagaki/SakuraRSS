@@ -14,7 +14,7 @@ struct FeedArticlesView: View {
     }
 
     var body: some View {
-        ArticleListView(
+        ArticlesView(
             articles: feedManager.articles(for: feed, limit: displayLimit),
             title: feed.title,
             feedKey: String(feed.id),
@@ -30,7 +30,7 @@ struct FeedArticlesView: View {
             try? await feedManager.refreshFeed(feed)
         }
         .safeAreaInset(edge: .bottom, alignment: .leading, spacing: 0) {
-            FeedToolbar {
+            ArticlesToolbar {
                 feedManager.markAllRead(feed: feed)
             }
         }

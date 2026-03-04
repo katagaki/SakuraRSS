@@ -3796,61 +3796,61 @@
         }
       }
     },
-    "Onboarding.AddLater": {
+    "Onboarding.SkipForNow": {
       "extractionState": "manual",
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Später hinzufügen"
+            "value": "Vorerst überspringen"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Add Later"
+            "value": "Skip for now"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ajouter plus tard"
+            "value": "Passer pour le moment"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Aggiungi dopo"
+            "value": "Salta per ora"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "あとで追加"
+            "value": "今はスキップ"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "나중에 추가"
+            "value": "지금은 건너뛰기"
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Thêm sau"
+            "value": "Bỏ qua lúc này"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "稍后添加"
+            "value": "暂时跳过"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "稍後加入"
+            "value": "暫時跳過"
           }
         }
       }

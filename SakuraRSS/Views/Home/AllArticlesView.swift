@@ -31,7 +31,7 @@ struct AllArticlesView: View {
     }
 
     var body: some View {
-        ArticleListView(
+        ArticlesView(
             articles: displayedArticles,
             title: String(localized: "Shared.AllArticles"),
             feedKey: "all",
@@ -70,7 +70,7 @@ struct AllArticlesView: View {
             await feedManager.refreshAllFeeds()
         }
         .safeAreaInset(edge: .bottom, alignment: .leading, spacing: 0) {
-            FeedToolbar {
+            ArticlesToolbar {
                 feedManager.markAllRead()
             }
         }

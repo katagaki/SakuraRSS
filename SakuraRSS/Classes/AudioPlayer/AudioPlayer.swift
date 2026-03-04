@@ -29,13 +29,12 @@ final class AudioPlayer {
     var cancellables: Set<AnyCancellable> = []
 
     private init() {
-        configureAudioSession()
         configureRemoteCommands()
     }
 
     // MARK: - Audio Session
 
-    private func configureAudioSession() {
+    private func activateAudioSession() {
         let session = AVAudioSession.sharedInstance()
         try? session.setCategory(.playback, mode: .spokenAudio)
         try? session.setActive(true)
@@ -56,6 +55,7 @@ final class AudioPlayer {
     ) {
         stop()
 
+        activateAudioSession()
         isLoading = true
         currentArticleID = articleID
         currentFeedID = feedID

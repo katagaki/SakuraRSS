@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct FeedToolbar: View {
+struct ArticlesToolbar: View {
 
     var onMarkAllRead: () -> Void
     @State private var isShowingMarkAllReadConfirmation = false
@@ -9,7 +9,7 @@ struct FeedToolbar: View {
         Button {
             isShowingMarkAllReadConfirmation = true
         } label: {
-            Image(systemName: "checkmark.circle")
+            Image(systemName: "envelope.open")
                 .font(.title2)
                 .padding(8)
         }

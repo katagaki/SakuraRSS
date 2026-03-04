@@ -56,9 +56,9 @@ struct CardsStyleView: View {
                                 dismissedIDs.insert(article.id)
                             }
                         )
+                        .cardZoomSource(id: article.id, namespace: zoomNamespace)
                     }
                     .buttonStyle(.plain)
-                    .cardZoomSource(id: article.id, namespace: zoomNamespace)
                     .scaleEffect(1.0 - CGFloat(index) * 0.04)
                     .offset(y: CGFloat(index) * 8)
                     .allowsHitTesting(index == 0)
@@ -157,7 +157,7 @@ private struct CardView: View {
             // Right swipe: mark read indicator
             swipeIndicatorOverlay(
                 localizationKey: "Cards.MarkRead",
-                systemImage: "checkmark.circle.fill",
+                systemImage: "envelope.open.fill",
                 color: .blue,
                 alignment: .topLeading,
                 opacity: offset.width > 0 ? swipeProgress : 0
@@ -182,7 +182,7 @@ private struct CardView: View {
         opacity: Double
     ) -> some View {
         RoundedRectangle(cornerRadius: 24)
-            .stroke(color, lineWidth: 4)
+            .stroke(color, lineWidth: 8)
             .overlay(
                 Label(String(localized: localizationKey), systemImage: systemImage)
                     .font(.title2)
@@ -190,7 +190,8 @@ private struct CardView: View {
                     .foregroundStyle(.white)
                     .padding(.horizontal, 16)
                     .padding(.vertical, 10)
-                    .background(color, in: .capsule),
+                    .background(color, in: .capsule)
+                    .padding(16),
                 alignment: alignment
             )
             .opacity(opacity)
@@ -248,73 +249,94 @@ private extension View {
 /// to reveal only its vertical slice. The result fades from sharp at the top
 /// to heavily blurred at the bottom, with a tint that adapts to the current
 /// color scheme for text contrast.
+///
+/// Uses a custom UIView subclass so that gradient masks are re-applied in
+/// `layoutSubviews`, ensuring the blur is visible on the very first display
+/// (not just after the view reappears).
 private struct ProgressiveBlurView: UIViewRepresentable {
 
     @Environment(\.colorScheme) private var colorScheme
 
-    private static let steps = 6
-
-    func makeUIView(context _: Context) -> UIView {
-        let container = UIView()
-        container.clipsToBounds = true
-
-        for _ in 0..<Self.steps {
-            let blur = UIVisualEffectView(effect: UIBlurEffect(style: blurStyle))
-            blur.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-            container.addSubview(blur)
-        }
-
-        // Add a tint overlay for additional darkening/lightening
-        let tint = UIView()
-        tint.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-        tint.tag = 999
-        container.addSubview(tint)
-
-        return container
+    func makeUIView(context _: Context) -> ProgressiveBlurUIView {
+        ProgressiveBlurUIView(blurStyle: blurStyle)
     }
 
-    func updateUIView(_ container: UIView, context _: Context) {
-        let blurViews = container.subviews.compactMap { $0 as? UIVisualEffectView }
-        guard blurViews.count == Self.steps else { return }
-
-        for (i, blur) in blurViews.enumerated() {
-            blur.effect = UIBlurEffect(style: blurStyle)
-            blur.frame = container.bounds
-
-            let gradientMask = CAGradientLayer()
-            gradientMask.frame = container.bounds
-            gradientMask.colors = [UIColor.clear.cgColor, UIColor.clear.cgColor,
-                                   UIColor.black.cgColor, UIColor.black.cgColor]
-
-            let start = CGFloat(i) / CGFloat(Self.steps)
-            let end = CGFloat(i + 1) / CGFloat(Self.steps)
-            gradientMask.locations = [0, NSNumber(value: start), NSNumber(value: end), 1]
-            gradientMask.startPoint = CGPoint(x: 0.5, y: 0)
-            gradientMask.endPoint = CGPoint(x: 0.5, y: 1)
-            blur.layer.mask = gradientMask
-
-            let fraction = CGFloat(i + 1) / CGFloat(Self.steps)
-            blur.alpha = fraction
-        }
-
-        // Update tint overlay
-        if let tint = container.viewWithTag(999) {
-            tint.frame = container.bounds
-            let tintColor: UIColor = colorScheme == .dark
-                ? UIColor.black.withAlphaComponent(0.3)
-                : UIColor.white.withAlphaComponent(0.3)
-            tint.backgroundColor = tintColor
-
-            let gradientMask = CAGradientLayer()
-            gradientMask.frame = container.bounds
-            gradientMask.colors = [UIColor.clear.cgColor, UIColor.black.cgColor]
-            gradientMask.startPoint = CGPoint(x: 0.5, y: 0)
-            gradientMask.endPoint = CGPoint(x: 0.5, y: 1)
-            tint.layer.mask = gradientMask
-        }
+    func updateUIView(_ view: ProgressiveBlurUIView, context _: Context) {
+        view.update(blurStyle: blurStyle)
     }
 
     private var blurStyle: UIBlurEffect.Style {
         colorScheme == .dark ? .dark : .light
+    }
+}
+
+private final class ProgressiveBlurUIView: UIView {
+
+    static let steps = 6
+    private var blurStyle: UIBlurEffect.Style
+    private let tintOverlay = UIView()
+
+    init(blurStyle: UIBlurEffect.Style) {
+        self.blurStyle = blurStyle
+        super.init(frame: .zero)
+        clipsToBounds = true
+
+        for _ in 0..<Self.steps {
+            let blur = UIVisualEffectView(effect: UIBlurEffect(style: blurStyle))
+            blur.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+            addSubview(blur)
+        }
+
+        tintOverlay.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        addSubview(tintOverlay)
+    }
+
+    @available(*, unavailable)
+    required init?(coder _: NSCoder) { fatalError() }
+
+    func update(blurStyle style: UIBlurEffect.Style) {
+        blurStyle = style
+        for case let blur as UIVisualEffectView in subviews {
+            blur.effect = UIBlurEffect(style: style)
+        }
+        setNeedsLayout()
+    }
+
+    override func layoutSubviews() {
+        super.layoutSubviews()
+
+        let blurViews = subviews.compactMap { $0 as? UIVisualEffectView }
+        guard blurViews.count == Self.steps else { return }
+
+        for (i, blur) in blurViews.enumerated() {
+            blur.frame = bounds
+
+            let mask = CAGradientLayer()
+            mask.frame = bounds
+            mask.colors = [UIColor.clear.cgColor, UIColor.clear.cgColor,
+                           UIColor.black.cgColor, UIColor.black.cgColor]
+
+            let start = CGFloat(i) / CGFloat(Self.steps)
+            let end = CGFloat(i + 1) / CGFloat(Self.steps)
+            mask.locations = [0, NSNumber(value: start), NSNumber(value: end), 1]
+            mask.startPoint = CGPoint(x: 0.5, y: 0)
+            mask.endPoint = CGPoint(x: 0.5, y: 1)
+            blur.layer.mask = mask
+
+            blur.alpha = CGFloat(i + 1) / CGFloat(Self.steps)
+        }
+
+        // Tint overlay
+        tintOverlay.frame = bounds
+        tintOverlay.backgroundColor = blurStyle == .dark
+            ? UIColor.black.withAlphaComponent(0.3)
+            : UIColor.white.withAlphaComponent(0.3)
+
+        let tintMask = CAGradientLayer()
+        tintMask.frame = bounds
+        tintMask.colors = [UIColor.clear.cgColor, UIColor.black.cgColor]
+        tintMask.startPoint = CGPoint(x: 0.5, y: 0)
+        tintMask.endPoint = CGPoint(x: 0.5, y: 1)
+        tintOverlay.layer.mask = tintMask
     }
 }

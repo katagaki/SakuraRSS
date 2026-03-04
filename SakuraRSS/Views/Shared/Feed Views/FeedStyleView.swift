@@ -153,20 +153,20 @@ struct FeedArticleRow: View {
 
                     Spacer()
 
-                    Button {
-                        feedManager.toggleBookmark(article)
-                    } label: {
-                        Image(systemName: article.isBookmarked ? "bookmark.fill" : "bookmark")
-                    }
-                    .buttonStyle(.plain)
-
-                    Spacer()
-
-                    if let shareURL = URL(string: article.url) {
-                        ShareLink(item: shareURL) {
-                            Image(systemName: "square.and.arrow.up")
+                    HStack(spacing: 20) {
+                        Button {
+                            feedManager.toggleBookmark(article)
+                        } label: {
+                            Image(systemName: article.isBookmarked ? "bookmark.fill" : "bookmark")
                         }
                         .buttonStyle(.plain)
+
+                        if let shareURL = URL(string: article.url) {
+                            ShareLink(item: shareURL) {
+                                Image(systemName: "square.and.arrow.up")
+                            }
+                            .buttonStyle(.plain)
+                        }
                     }
                 }
                 .fontWeight(.semibold)
