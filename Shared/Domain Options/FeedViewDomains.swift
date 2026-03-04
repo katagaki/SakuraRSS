@@ -1,6 +1,6 @@
 import Foundation
 
-/// Domains that should use the feed display style by default.
+/// Domains that should use the timeline display style by default.
 nonisolated enum FeedViewDomains {
 
     static let allowlistedDomains: Set<String> = [

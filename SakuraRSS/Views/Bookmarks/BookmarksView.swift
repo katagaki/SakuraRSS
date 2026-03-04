@@ -44,6 +44,8 @@ struct BookmarksView: View {
                         PhotosStyleView(articles: bookmarkedArticles)
                     case .podcast:
                         PodcastStyleView(articles: bookmarkedArticles)
+                    case .timeline:
+                        TimelineStyleView(articles: bookmarkedArticles)
                     }
                 }
             }
@@ -72,6 +74,8 @@ struct BookmarksView: View {
                                     Label(String(localized: "Articles.Style.Photos"), systemImage: "photo.stack")
                                         .tag(FeedDisplayStyle.photos)
                                 }
+                                Label(String(localized: "Articles.Style.Timeline"), systemImage: "clock")
+                                    .tag(FeedDisplayStyle.timeline)
                             }
                         } label: {
                             Image(systemName: "line.3.horizontal.decrease")

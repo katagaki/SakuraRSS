@@ -58,6 +58,8 @@ struct SearchView: View {
                         PhotosStyleView(articles: searchResults)
                     case .podcast:
                         PodcastStyleView(articles: searchResults)
+                    case .timeline:
+                        TimelineStyleView(articles: searchResults)
                     }
                 }
             }
