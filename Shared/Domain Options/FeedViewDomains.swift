@@ -10,7 +10,20 @@ nonisolated enum FeedViewDomains {
         "status.cloud.google.com",
         "www.githubstatus.com",
         "status.gitlab.com",
-        "status.claude.com"
+        "status.claude.com",
+        // Bluesky
+        "bsky.app",
+        // Mastodon
+        "mastodon.social",
+        "mastodon.online",
+        "mastodon.world",
+        "mstdn.social",
+        "mstdn.jp",
+        "fosstodon.org",
+        "hachyderm.io",
+        "infosec.exchange",
+        "techhub.social",
+        "mas.to"
     ]
 
     static func shouldPreferFeedView(feedDomain: String) -> Bool {

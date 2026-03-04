@@ -20,7 +20,14 @@ nonisolated struct Feed: Identifiable, Hashable, Sendable {
     }
 
     var isFeedViewDomain: Bool {
-        FeedViewDomains.shouldPreferFeedView(feedDomain: domain)
+        FeedViewDomains.shouldPreferFeedView(feedDomain: domain) || hasMastodonFeedURL
+    }
+
+    /// Detects Mastodon feeds from unlisted instances by checking for the /@username.rss URL pattern.
+    private var hasMastodonFeedURL: Bool {
+        guard let urlObj = URL(string: url) else { return false }
+        let path = urlObj.path
+        return path.hasPrefix("/@") && path.hasSuffix(".rss")
     }
 }
 
