@@ -133,12 +133,9 @@ nonisolated final class DatabaseManager: @unchecked Sendable {
     }
 
     private func addColumnIfMissing(table: String, column: String, type: String) {
-        let columns = (try? database.prepare("PRAGMA table_info(\(table))")) ?? AnySequence([])
-        let columnNames = columns.compactMap { row -> String? in
-            row[1] as? String
-        }
-        if !columnNames.contains(column) {
-            _ = try? database.run("ALTER TABLE \(table) ADD COLUMN \(column) \(type)")
-        }
+        // ALTER TABLE will fail if the column already exists; that's expected
+        try? database.execute(
+            "ALTER TABLE \(table) ADD COLUMN \(column) \(type)"
+        )
     }
 }
