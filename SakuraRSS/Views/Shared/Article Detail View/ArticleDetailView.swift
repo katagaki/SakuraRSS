@@ -257,6 +257,10 @@ struct ArticleDetailView: View {
                 favicon = await FaviconCache.shared.favicon(for: feed.domain, siteURL: feed.siteURL)
             }
             await extractArticleContent()
+            if let cached = try? DatabaseManager.shared.cachedArticleTranslation(for: article.id) {
+                translatedTitle = cached.title
+                translatedText = cached.text
+            }
             if let cached = try? DatabaseManager.shared.cachedArticleSummary(for: article.id),
                !cached.isEmpty {
                 hasCachedSummary = true
@@ -299,6 +303,11 @@ struct ArticleDetailView: View {
                 } else if responses.count >= 2 {
                     translatedTitle = responses[0].targetText
                     translatedText = responses[1].targetText
+                    try? DatabaseManager.shared.cacheArticleTranslation(
+                        title: responses[0].targetText,
+                        text: responses[1].targetText,
+                        for: article.id
+                    )
                 }
             } catch {
                 // Translation failed; user can retry

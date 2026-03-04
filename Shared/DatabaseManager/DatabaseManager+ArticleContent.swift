@@ -41,4 +41,31 @@ nonisolated extension DatabaseManager {
         let target = articles.filter(articleID == articleId)
         try database.run(target.update(articleAISummary <- nil))
     }
+
+    // MARK: - Translation Cache
+
+    func cachedArticleTranslation(for articleId: Int64) throws -> (title: String?, text: String?)? {
+        let query = articles.filter(articleID == articleId)
+        guard let row = try database.pluck(query) else { return nil }
+        let title = row[articleTranslatedTitle]
+        let text = row[articleTranslatedText]
+        guard title != nil || text != nil else { return nil }
+        return (title: title, text: text)
+    }
+
+    func cacheArticleTranslation(title: String?, text: String?, for articleId: Int64) throws {
+        let target = articles.filter(articleID == articleId)
+        try database.run(target.update(
+            articleTranslatedTitle <- title,
+            articleTranslatedText <- text
+        ))
+    }
+
+    func clearCachedArticleTranslation(for articleId: Int64) throws {
+        let target = articles.filter(articleID == articleId)
+        try database.run(target.update(
+            articleTranslatedTitle <- nil,
+            articleTranslatedText <- nil
+        ))
+    }
 }

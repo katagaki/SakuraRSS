@@ -49,6 +49,7 @@ extension ArticleDetailView {
     func refreshArticleContent() async {
         try? DatabaseManager.shared.clearCachedArticleContent(for: article.id)
         try? DatabaseManager.shared.clearCachedArticleSummary(for: article.id)
+        try? DatabaseManager.shared.clearCachedArticleTranslation(for: article.id)
         translatedText = nil
         translatedTitle = nil
         summarizedText = nil
