@@ -10,7 +10,7 @@ struct ActiveDisplayStyleKey: PreferenceKey {
     }
 }
 
-struct ArticleListView: View {
+struct ArticlesView: View {
 
     @Environment(FeedManager.self) var feedManager
     let articles: [Article]

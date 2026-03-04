@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct FeedToolbar: View {
+struct ArticlesToolbar: View {
 
     var onMarkAllRead: () -> Void
     @State private var isShowingMarkAllReadConfirmation = false
