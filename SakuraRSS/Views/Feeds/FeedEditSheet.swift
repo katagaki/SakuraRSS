@@ -14,6 +14,7 @@ struct FeedEditSheet: View {
     @State private var openMode: FeedOpenMode
     @State private var selectedPhoto: PhotosPickerItem?
     @State private var customIconImage: UIImage?
+    @State private var currentFavicon: UIImage?
 
     init(feed: Feed) {
         self.feed = feed
@@ -49,6 +50,19 @@ struct FeedEditSheet: View {
                 }
 
                 Section {
+                    if let icon = customIconImage ?? currentFavicon {
+                        HStack {
+                            Spacer()
+                            FaviconImage(icon, size: 64,
+                                         cornerRadius: feed.isPodcast ? 16 : (feed.isVideoFeed ? 0 : 8),
+                                         circle: feed.isVideoFeed && !feed.isPodcast,
+                                         skipInset: feed.isVideoFeed || feed.isPodcast
+                                            || FullFaviconDomains.shouldUseFullImage(feedDomain: feed.domain))
+                            Spacer()
+                        }
+                        .listRowBackground(Color.clear)
+                    }
+
                     HStack {
                         Text("FeedEdit.IconURL")
                         TextField(String(localized: "FeedEdit.IconURLPlaceholder"), text: $iconURLInput)
@@ -102,6 +116,9 @@ struct FeedEditSheet: View {
                     .disabled(name.isEmpty || url.isEmpty)
                 }
             }
+            .task {
+                currentFavicon = await loadCurrentFavicon()
+            }
             .onChange(of: selectedPhoto) {
                 Task {
                     if let selectedPhoto,
@@ -113,6 +130,20 @@ struct FeedEditSheet: View {
                 }
             }
         }
+    }
+
+    private func loadCurrentFavicon() async -> UIImage? {
+        if let customURL = feed.customIconURL {
+            if customURL == "photo" {
+                return await FaviconCache.shared.customFavicon(feedID: feed.id)
+            }
+            if let url = URL(string: customURL),
+               let (data, _) = try? await URLSession.shared.data(from: url),
+               let image = UIImage(data: data) {
+                return image
+            }
+        }
+        return await FaviconCache.shared.favicon(for: feed.domain, siteURL: feed.siteURL)
     }
 
     private func save() {
