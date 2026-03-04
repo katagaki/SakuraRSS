@@ -72,6 +72,7 @@ struct FeedsListPage: View {
         }
         .listStyle(.plain)
         .navigationTitle(String(localized: "Shared.Feeds"))
+        .toolbarTitleDisplayMode(.inlineLarge)
         .searchable(text: $searchText, prompt: Text("FeedList.SearchPrompt"))
         .refreshable {
             await feedManager.refreshAllFeedsAndFavicons()

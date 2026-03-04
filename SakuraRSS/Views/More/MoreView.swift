@@ -152,6 +152,7 @@ struct MoreView: View {
                 }
             }
             .navigationTitle(String(localized: "Tabs.More"))
+            .toolbarTitleDisplayMode(.inlineLarge)
             .scrollContentBackground(.hidden)
             .sakuraBackground()
             .fileExporter(
