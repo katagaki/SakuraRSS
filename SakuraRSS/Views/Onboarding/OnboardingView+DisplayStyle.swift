@@ -88,7 +88,7 @@ private struct StylePreviewView: View {
     var body: some View {
         Group {
             switch style {
-            case .inbox, .video, .podcast, .timeline:
+            case .inbox, .video, .podcast, .timeline, .cards:
                 inboxPreview
             case .feed:
                 feedPreview

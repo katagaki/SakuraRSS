@@ -5,6 +5,7 @@ struct BookmarksView: View {
     @Environment(FeedManager.self) var feedManager
     @State private var bookmarkedArticles: [Article] = []
     @State private var displayStyle: FeedDisplayStyle
+    @Namespace private var cardZoom
 
     private var hasImages: Bool {
         bookmarkedArticles.contains { $0.imageURL != nil }
@@ -46,6 +47,8 @@ struct BookmarksView: View {
                         PodcastStyleView(articles: bookmarkedArticles)
                     case .timeline:
                         TimelineStyleView(articles: bookmarkedArticles)
+                    case .cards:
+                        CardsStyleView(articles: bookmarkedArticles)
                     }
                 }
             }
@@ -87,12 +90,16 @@ struct BookmarksView: View {
             .onChange(of: displayStyle) { _, newValue in
                 UserDefaults.standard.set(newValue.rawValue, forKey: "displayStyle-bookmarks")
             }
+            .environment(\.cardZoomNamespace, cardZoom)
             .navigationDestination(for: Article.self) { article in
-                if article.isPodcastEpisode {
-                    PodcastEpisodeView(article: article)
-                } else {
-                    ArticleDetailView(article: article)
+                Group {
+                    if article.isPodcastEpisode {
+                        PodcastEpisodeView(article: article)
+                    } else {
+                        ArticleDetailView(article: article)
+                    }
                 }
+                .navigationTransition(.zoom(sourceID: article.id, in: cardZoom))
             }
             .onAppear {
                 bookmarkedArticles = (try? DatabaseManager.shared.bookmarkedArticles()) ?? []
@@ -101,7 +108,7 @@ struct BookmarksView: View {
     }
 
     private var effectiveDisplayStyle: FeedDisplayStyle {
-        if !hasImages && (displayStyle == .magazine || displayStyle == .photos) {
+        if !hasImages && (displayStyle == .magazine || displayStyle == .photos || displayStyle == .cards) {
             return .inbox
         }
         if displayStyle == .podcast {

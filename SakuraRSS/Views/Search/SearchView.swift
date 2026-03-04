@@ -5,6 +5,7 @@ struct SearchView: View {
     @Environment(FeedManager.self) var feedManager
     @AppStorage("Search.DisplayStyle") private var searchDisplayStyle: FeedDisplayStyle = .inbox
     @State private var searchText = ""
+    @Namespace private var cardZoom
     @State private var showingOnboarding = false
 
     private var searchResults: [Article] {
@@ -17,7 +18,7 @@ struct SearchView: View {
     }
 
     private var effectiveStyle: FeedDisplayStyle {
-        if !hasImages && (searchDisplayStyle == .magazine || searchDisplayStyle == .photos) {
+        if !hasImages && (searchDisplayStyle == .magazine || searchDisplayStyle == .photos || searchDisplayStyle == .cards) {
             return .inbox
         }
         if searchDisplayStyle == .podcast {
@@ -61,17 +62,23 @@ struct SearchView: View {
                         PodcastStyleView(articles: searchResults)
                     case .timeline:
                         TimelineStyleView(articles: searchResults)
+                    case .cards:
+                        CardsStyleView(articles: searchResults)
                     }
                 }
             }
             .scrollContentBackground(.hidden)
             .sakuraBackground()
+            .environment(\.cardZoomNamespace, cardZoom)
             .navigationDestination(for: Article.self) { article in
-                if article.isPodcastEpisode {
-                    PodcastEpisodeView(article: article)
-                } else {
-                    ArticleDetailView(article: article)
+                Group {
+                    if article.isPodcastEpisode {
+                        PodcastEpisodeView(article: article)
+                    } else {
+                        ArticleDetailView(article: article)
+                    }
                 }
+                .navigationTransition(.zoom(sourceID: article.id, in: cardZoom))
             }
             .searchable(text: $searchText, prompt: String(localized: "Search.Prompt"))
             .onChange(of: searchText) {
