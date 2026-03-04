@@ -150,7 +150,9 @@ struct ArticleExtractor {
                     }
                 }
             }
-        } catch {}
+        } catch {
+            // Menu detection is best-effort; failures are non-critical
+        }
     }
 
     private static func findMainContent(from doc: Document) throws -> Element {
@@ -185,13 +187,7 @@ struct ArticleExtractor {
     private static func collectBlocks(from element: Element, into paragraphs: inout [String]) throws {
         for child in element.children() {
             let tag = child.tagName().lowercased()
-            if blockElements.contains(tag) {
-                let text = try textContent(of: child)
-                if !text.isEmpty {
-                    paragraphs.append(text)
-                }
-            } else if isLeafBlock(child) {
-                // Div/section/etc. with no nested block elements — treat as a paragraph
+            if blockElements.contains(tag) || isLeafBlock(child) {
                 let text = try textContent(of: child)
                 if !text.isEmpty {
                     paragraphs.append(text)

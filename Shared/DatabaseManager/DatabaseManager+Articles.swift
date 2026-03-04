@@ -1,29 +1,37 @@
 import Foundation
 @preconcurrency import SQLite
 
+/// Groups optional article fields to keep the insert call under the parameter limit.
+struct ArticleInsertData {
+    var author: String?
+    var summary: String?
+    var content: String?
+    var imageURL: String?
+    var publishedDate: Date?
+    var audioURL: String?
+    var duration: Int?
+}
+
 nonisolated extension DatabaseManager {
 
     // MARK: - Article CRUD
 
     @discardableResult
     func insertArticle(feedID fid: Int64, title: String, url: String,
-                       author: String? = nil, summary: String? = nil,
-                       content: String? = nil, imageURL: String? = nil,
-                       publishedDate: Date? = nil,
-                       audioURL: String? = nil, duration: Int? = nil) throws -> Int64 {
+                       data: ArticleInsertData = ArticleInsertData()) throws -> Int64 {
         try database.run(articles.insert(or: .ignore,
             articleFeedID <- fid,
             articleTitle <- title,
             articleURL <- url,
-            articleAuthor <- author,
-            articleSummary <- summary,
-            articleContent <- content,
-            articleImageURL <- imageURL,
-            articlePublishedDate <- publishedDate?.timeIntervalSince1970,
+            articleAuthor <- data.author,
+            articleSummary <- data.summary,
+            articleContent <- data.content,
+            articleImageURL <- data.imageURL,
+            articlePublishedDate <- data.publishedDate?.timeIntervalSince1970,
             articleIsRead <- false,
             articleIsBookmarked <- false,
-            articleAudioURL <- audioURL,
-            articleDuration <- duration
+            articleAudioURL <- data.audioURL,
+            articleDuration <- data.duration
         ))
     }
 

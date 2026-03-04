@@ -111,8 +111,8 @@ private nonisolated final class OPMLXMLParser: NSObject, XMLParserDelegate, @unc
         return feeds
     }
 
-    func parser(_ parser: XMLParser, didStartElement elementName: String,
-                namespaceURI: String?, qualifiedName: String?,
+    func parser(_: XMLParser, didStartElement elementName: String,
+                namespaceURI _: String?, qualifiedName _: String?,
                 attributes: [String: String] = [:]) {
         guard elementName == "outline" else { return }
 
@@ -137,8 +137,8 @@ private nonisolated final class OPMLXMLParser: NSObject, XMLParserDelegate, @unc
         }
     }
 
-    func parser(_ parser: XMLParser, didEndElement elementName: String,
-                namespaceURI: String?, qualifiedName: String?) {
+    func parser(_: XMLParser, didEndElement elementName: String,
+                namespaceURI _: String?, qualifiedName _: String?) {
         guard elementName == "outline" else { return }
         if isFeedOutline {
             isFeedOutline = false

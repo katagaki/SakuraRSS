@@ -64,8 +64,8 @@ nonisolated final class RSSParser: NSObject, XMLParserDelegate, @unchecked Senda
     // MARK: - XMLParserDelegate
 
     // swiftlint:disable cyclomatic_complexity
-    func parser(_ parser: XMLParser, didStartElement elementName: String,
-                namespaceURI: String?, qualifiedName qName: String?,
+    func parser(_: XMLParser, didStartElement elementName: String,
+                namespaceURI _: String?, qualifiedName _: String?,
                 attributes attributeDict: [String: String] = [:]) {
         currentElement = elementName
         currentAttributes = attributeDict
@@ -147,7 +147,7 @@ nonisolated final class RSSParser: NSObject, XMLParserDelegate, @unchecked Senda
         }
     }
 
-    func parser(_ parser: XMLParser, foundCharacters string: String) {
+    func parser(_: XMLParser, foundCharacters string: String) {
         if isInsideItem {
             appendItemCharacters(string)
         } else {
@@ -178,8 +178,8 @@ nonisolated final class RSSParser: NSObject, XMLParserDelegate, @unchecked Senda
         }
     }
 
-    func parser(_ parser: XMLParser, didEndElement elementName: String,
-                namespaceURI: String?, qualifiedName qName: String?) {
+    func parser(_: XMLParser, didEndElement elementName: String,
+                namespaceURI _: String?, qualifiedName _: String?) {
         if elementName == "image" {
             isInsideImage = false
         } else if elementName == "item" || elementName == "entry" {

@@ -164,11 +164,17 @@ struct FeedRowView: View {
     let feed: Feed
     @State private var favicon: UIImage?
 
+    private var iconCornerRadius: CGFloat {
+        if feed.isPodcast { return 8 }
+        if feed.isVideoFeed { return 0 }
+        return 4
+    }
+
     var body: some View {
         HStack(spacing: 12) {
             if let favicon = favicon {
                 FaviconImage(favicon, size: 32,
-                             cornerRadius: feed.isPodcast ? 8 : (feed.isVideoFeed ? 0 : 4),
+                             cornerRadius: iconCornerRadius,
                              circle: feed.isVideoFeed && !feed.isPodcast,
                              skipInset: feed.isVideoFeed || feed.isPodcast
                                 || FullFaviconDomains.shouldUseFullImage(feedDomain: feed.domain))
@@ -177,7 +183,7 @@ struct FeedRowView: View {
                     feed.title,
                     size: 32,
                     circle: feed.isVideoFeed && !feed.isPodcast,
-                    cornerRadius: feed.isPodcast ? 8 : (feed.isVideoFeed ? 0 : 4)
+                    cornerRadius: iconCornerRadius
                 )
             }
 

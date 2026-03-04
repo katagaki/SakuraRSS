@@ -63,7 +63,7 @@ final class WebViewExtractor: NSObject, WKNavigationDelegate {
 
     // MARK: - WKNavigationDelegate
 
-    func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+    func webView(_: WKWebView, didFinish _: WKNavigation!) {
         // Page loaded successfully — cancel the load timeout
         // and give JS frameworks time to hydrate before extracting
         timeoutTask?.cancel()
@@ -74,7 +74,7 @@ final class WebViewExtractor: NSObject, WKNavigationDelegate {
         }
     }
 
-    func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
+    func webView(_: WKWebView, didFail _: WKNavigation!, withError _: Error) {
         guard let continuation else { return }
         self.continuation = nil
         timeoutTask?.cancel()
@@ -84,9 +84,9 @@ final class WebViewExtractor: NSObject, WKNavigationDelegate {
     }
 
     func webView(
-        _ webView: WKWebView,
-        didFailProvisionalNavigation navigation: WKNavigation!,
-        withError error: Error
+        _: WKWebView,
+        didFailProvisionalNavigation _: WKNavigation!,
+        withError _: Error
     ) {
         guard let continuation else { return }
         self.continuation = nil

@@ -254,7 +254,7 @@ private struct ProgressiveBlurView: UIViewRepresentable {
 
     private static let steps = 6
 
-    func makeUIView(context: Context) -> UIView {
+    func makeUIView(context _: Context) -> UIView {
         let container = UIView()
         container.clipsToBounds = true
 
@@ -273,7 +273,7 @@ private struct ProgressiveBlurView: UIViewRepresentable {
         return container
     }
 
-    func updateUIView(_ container: UIView, context: Context) {
+    func updateUIView(_ container: UIView, context _: Context) {
         let blurViews = container.subviews.compactMap { $0 as? UIVisualEffectView }
         guard blurViews.count == Self.steps else { return }
 
