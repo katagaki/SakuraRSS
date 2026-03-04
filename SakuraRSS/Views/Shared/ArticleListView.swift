@@ -10,6 +10,7 @@ struct ArticleListView: View {
     let isVideoFeed: Bool
     let isPodcastFeed: Bool
     let isFeedViewDomain: Bool
+    let isTimelineViewDomain: Bool
     var onLoadMore: (() -> Void)?
 
     @State private var displayStyle: FeedDisplayStyle
@@ -21,7 +22,7 @@ struct ArticleListView: View {
 
     init(articles: [Article], title: String, feedKey: String,
          isVideoFeed: Bool = false, isPodcastFeed: Bool = false,
-         isFeedViewDomain: Bool = false,
+         isFeedViewDomain: Bool = false, isTimelineViewDomain: Bool = false,
          onLoadMore: (() -> Void)? = nil) {
         self.articles = articles
         self.title = title
@@ -29,12 +30,14 @@ struct ArticleListView: View {
         self.isVideoFeed = isVideoFeed
         self.isPodcastFeed = isPodcastFeed
         self.isFeedViewDomain = isFeedViewDomain
+        self.isTimelineViewDomain = isTimelineViewDomain
         self.onLoadMore = onLoadMore
         let raw = UserDefaults.standard.string(forKey: "displayStyle-\(feedKey)")
         let defaultRaw = UserDefaults.standard.string(forKey: "Display.DefaultStyle") ?? FeedDisplayStyle.inbox.rawValue
         let fallback: FeedDisplayStyle = isPodcastFeed ? .podcast
             : isVideoFeed ? .video
-            : isFeedViewDomain ? .timeline
+            : isTimelineViewDomain ? .timeline
+            : isFeedViewDomain ? .feed
             : (FeedDisplayStyle(rawValue: defaultRaw) ?? .inbox)
         self._displayStyle = State(initialValue: raw.flatMap(FeedDisplayStyle.init(rawValue:)) ?? fallback)
     }

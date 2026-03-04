@@ -21,6 +21,7 @@ struct FeedArticlesView: View {
             isVideoFeed: feed.isVideoFeed,
             isPodcastFeed: feed.isPodcast,
             isFeedViewDomain: feed.isFeedViewDomain,
+            isTimelineViewDomain: feed.isTimelineViewDomain,
             onLoadMore: hasMore ? {
                 displayLimit += Self.pageSize
             } : nil
