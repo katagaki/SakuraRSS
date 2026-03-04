@@ -15,6 +15,8 @@ struct FeedEditSheet: View {
     @State private var selectedPhoto: PhotosPickerItem?
     @State private var customIconImage: UIImage?
     @State private var currentFavicon: UIImage?
+    @State private var isFetchingIcon = false
+    @State private var showIconFetchError = false
 
     init(feed: Feed) {
         self.feed = feed
@@ -72,6 +74,14 @@ struct FeedEditSheet: View {
                             .autocorrectionDisabled()
                             .textInputAutocapitalization(.never)
                             .labelsHidden()
+                            .onSubmit {
+                                Task {
+                                    await fetchIconFromURL()
+                                }
+                            }
+                        if isFetchingIcon {
+                            ProgressView()
+                        }
                     }
 
                     PhotosPicker(selection: $selectedPhoto, matching: .images) {
@@ -129,6 +139,9 @@ struct FeedEditSheet: View {
                     }
                 }
             }
+            .alert(String(localized: "FeedEdit.IconFetchError"), isPresented: $showIconFetchError) {
+                Button(String(localized: "Shared.OK"), role: .cancel) { }
+            }
         }
     }
 
@@ -147,6 +160,19 @@ struct FeedEditSheet: View {
     }
 
     private func save() {
+        let iconURLChanged = !iconURLInput.isEmpty && iconURLInput != feed.customIconURL
+        if customIconImage == nil && iconURLChanged {
+            Task {
+                if await fetchIconFromURL() {
+                    commitSave()
+                }
+            }
+        } else {
+            commitSave()
+        }
+    }
+
+    private func commitSave() {
         let finalCustomIconURL: String?
 
         if customIconImage != nil {
@@ -171,5 +197,26 @@ struct FeedEditSheet: View {
                                       customIconURL: finalCustomIconURL)
         UserDefaults.standard.set(openMode.rawValue, forKey: "openMode-\(feed.id)")
         dismiss()
+    }
+
+    @discardableResult
+    private func fetchIconFromURL() async -> Bool {
+        let input = iconURLInput.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard let url = URL(string: input), url.scheme != nil else {
+            showIconFetchError = true
+            return false
+        }
+        isFetchingIcon = true
+        defer { isFetchingIcon = false }
+        do {
+            let (data, _) = try await URLSession.shared.data(from: url)
+            if let image = UIImage(data: data) {
+                customIconImage = await image.trimmed()
+                selectedPhoto = nil
+                return true
+            }
+        } catch { }
+        showIconFetchError = true
+        return false
     }
 }
