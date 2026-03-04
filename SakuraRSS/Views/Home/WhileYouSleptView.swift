@@ -7,9 +7,7 @@ struct WhileYouSleptView: View {
     @Environment(\.colorScheme) private var colorScheme
     @AppStorage("WhileYouSlept.Enabled") private var isEnabled: Bool = true
     @AppStorage("WhileYouSlept.DismissedDate") private var dismissedDate: String = ""
-    #if DEBUG
-    @AppStorage("Debug.ForceWhileYouSlept") private var forceVisible: Bool = false
-    #endif
+    @AppStorage("ForceWhileYouSlept") private var forceVisible: Bool = false
 
     @Binding var hasSummary: Bool
 
@@ -35,11 +33,9 @@ struct WhileYouSleptView: View {
     }
 
     private var shouldShow: Bool {
-        #if DEBUG
         if forceVisible {
             return !isHidden
         }
-        #endif
         return isEnabled && isSupported && isMorningWindow && !overnightArticles.isEmpty && !isHidden
     }
 
@@ -88,6 +84,7 @@ struct WhileYouSleptView: View {
                     formatter.dateFormat = "yyyy-MM-dd"
                     withAnimation(.smooth.speed(2.0)) {
                         dismissedDate = formatter.string(from: Date())
+                        forceVisible = false
                     }
                 } label: {
                     Image(systemName: "xmark")

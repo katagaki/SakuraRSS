@@ -12,7 +12,7 @@ struct BookmarksView: View {
     }
 
     init() {
-        let raw = UserDefaults.standard.string(forKey: "displayStyle-bookmarks")
+        let raw = UserDefaults.standard.string(forKey: "Display.DefaultBookmarksStyle")
         let defaultRaw = UserDefaults.standard.string(forKey: "Display.DefaultStyle") ?? FeedDisplayStyle.inbox.rawValue
         let fallback = FeedDisplayStyle(rawValue: defaultRaw) ?? .inbox
         self._displayStyle = State(initialValue: raw.flatMap(FeedDisplayStyle.init(rawValue:)) ?? fallback)
@@ -88,7 +88,7 @@ struct BookmarksView: View {
                 }
             }
             .onChange(of: displayStyle) { _, newValue in
-                UserDefaults.standard.set(newValue.rawValue, forKey: "displayStyle-bookmarks")
+                UserDefaults.standard.set(newValue.rawValue, forKey: "Display.DefaultBookmarksStyle")
             }
             .environment(\.zoomNamespace, cardZoom)
             .navigationDestination(for: Article.self) { article in
