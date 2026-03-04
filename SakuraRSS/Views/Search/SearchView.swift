@@ -5,6 +5,7 @@ struct SearchView: View {
     @Environment(FeedManager.self) var feedManager
     @AppStorage("Search.DisplayStyle") private var searchDisplayStyle: FeedDisplayStyle = .inbox
     @State private var searchText = ""
+    @Namespace private var cardZoom
 
     private var searchResults: [Article] {
         guard !searchText.isEmpty else { return [] }
@@ -67,12 +68,16 @@ struct SearchView: View {
             }
             .scrollContentBackground(.hidden)
             .sakuraBackground()
+            .environment(\.cardZoomNamespace, cardZoom)
             .navigationDestination(for: Article.self) { article in
-                if article.isPodcastEpisode {
-                    PodcastEpisodeView(article: article)
-                } else {
-                    ArticleDetailView(article: article)
+                Group {
+                    if article.isPodcastEpisode {
+                        PodcastEpisodeView(article: article)
+                    } else {
+                        ArticleDetailView(article: article)
+                    }
                 }
+                .navigationTransition(.zoom(sourceID: article.id, in: cardZoom))
             }
             .searchable(text: $searchText, prompt: String(localized: "Search.Prompt"))
         }

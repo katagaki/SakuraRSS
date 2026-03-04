@@ -1,8 +1,22 @@
 import SwiftUI
 
+// MARK: - Environment key for zoom transition namespace
+
+private struct CardZoomNamespaceKey: EnvironmentKey {
+    static let defaultValue: Namespace.ID? = nil
+}
+
+extension EnvironmentValues {
+    var cardZoomNamespace: Namespace.ID? {
+        get { self[CardZoomNamespaceKey.self] }
+        set { self[CardZoomNamespaceKey.self] = newValue }
+    }
+}
+
 struct CardsStyleView: View {
 
     @Environment(FeedManager.self) var feedManager
+    @Environment(\.cardZoomNamespace) private var zoomNamespace
     let articles: [Article]
 
     /// Articles with images only, filtered to unread for the current session deck.
@@ -31,16 +45,20 @@ struct CardsStyleView: View {
                 // Show top 3 cards for depth effect, bottom cards drawn first
                 ForEach(Array(visibleCards.prefix(3).enumerated().reversed()),
                         id: \.element.id) { index, article in
-                    CardView(
-                        article: article,
-                        onSwipedLeft: {
-                            dismissedIDs.insert(article.id)
-                        },
-                        onSwipedRight: {
-                            feedManager.markRead(article)
-                            dismissedIDs.insert(article.id)
-                        }
-                    )
+                    ArticleLink(article: article) {
+                        CardView(
+                            article: article,
+                            onSwipedLeft: {
+                                dismissedIDs.insert(article.id)
+                            },
+                            onSwipedRight: {
+                                feedManager.markRead(article)
+                                dismissedIDs.insert(article.id)
+                            }
+                        )
+                    }
+                    .buttonStyle(.plain)
+                    .cardZoomSource(id: article.id, namespace: zoomNamespace)
                     .scaleEffect(1.0 - CGFloat(index) * 0.04)
                     .offset(y: CGFloat(index) * 8)
                     .allowsHitTesting(index == 0)
@@ -189,6 +207,19 @@ private struct CardView: View {
             withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
                 offset = .zero
             }
+        }
+    }
+}
+
+// MARK: - Conditional Zoom Modifier
+
+private extension View {
+    @ViewBuilder
+    func cardZoomSource(id: Int64, namespace: Namespace.ID?) -> some View {
+        if let namespace {
+            self.matchedTransitionSource(id: id, in: namespace)
+        } else {
+            self
         }
     }
 }
