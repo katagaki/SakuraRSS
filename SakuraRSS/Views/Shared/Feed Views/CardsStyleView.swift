@@ -230,18 +230,14 @@ private struct CardView: View {
     }
 }
 
-// MARK: - Conditional Zoom Modifiers
+// MARK: - Zoom Modifier
 
 extension View {
-    /// Applies the zoom navigation transition only when Cards style is active,
-    /// preventing strange animations in other display styles.
-    @ViewBuilder
-    func conditionalZoomTransition(isCards: Bool, sourceID: Int64, in namespace: Namespace.ID) -> some View {
-        if isCards {
-            self.navigationTransition(.zoom(sourceID: sourceID, in: namespace))
-        } else {
-            self
-        }
+    /// Applies the zoom navigation transition for card-style navigation.
+    /// When no matching `matchedTransitionSource` exists (non-cards styles),
+    /// the system falls back to the default push transition automatically.
+    func cardZoomTransition(sourceID: Int64, in namespace: Namespace.ID) -> some View {
+        self.navigationTransition(.zoom(sourceID: sourceID, in: namespace))
     }
 }
 

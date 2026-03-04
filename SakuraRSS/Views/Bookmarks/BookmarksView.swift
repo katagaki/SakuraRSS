@@ -99,8 +99,7 @@ struct BookmarksView: View {
                         ArticleDetailView(article: article)
                     }
                 }
-                .conditionalZoomTransition(isCards: effectiveDisplayStyle == .cards,
-                                           sourceID: article.id, in: cardZoom)
+                .cardZoomTransition(sourceID: article.id, in: cardZoom)
             }
             .onAppear {
                 bookmarkedArticles = (try? DatabaseManager.shared.bookmarkedArticles()) ?? []
