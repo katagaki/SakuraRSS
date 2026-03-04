@@ -308,7 +308,7 @@ private final class ProgressiveBlurUIView: UIView {
         let blurViews = subviews.compactMap { $0 as? UIVisualEffectView }
         guard blurViews.count == Self.steps else { return }
 
-        for (i, blur) in blurViews.enumerated() {
+        for (index, blur) in blurViews.enumerated() {
             blur.frame = bounds
 
             let mask = CAGradientLayer()
@@ -316,14 +316,14 @@ private final class ProgressiveBlurUIView: UIView {
             mask.colors = [UIColor.clear.cgColor, UIColor.clear.cgColor,
                            UIColor.black.cgColor, UIColor.black.cgColor]
 
-            let start = CGFloat(i) / CGFloat(Self.steps)
-            let end = CGFloat(i + 1) / CGFloat(Self.steps)
+            let start = CGFloat(index) / CGFloat(Self.steps)
+            let end = CGFloat(index + 1) / CGFloat(Self.steps)
             mask.locations = [0, NSNumber(value: start), NSNumber(value: end), 1]
             mask.startPoint = CGPoint(x: 0.5, y: 0)
             mask.endPoint = CGPoint(x: 0.5, y: 1)
             blur.layer.mask = mask
 
-            blur.alpha = CGFloat(i + 1) / CGFloat(Self.steps)
+            blur.alpha = CGFloat(index + 1) / CGFloat(Self.steps)
         }
 
         // Tint overlay
