@@ -3507,55 +3507,55 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Abonnements exportieren"
+            "value": "OPML exportieren"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Export Subscriptions"
+            "value": "Export OPML"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Exporter les abonnements"
+            "value": "Exporter OPML"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Esporta abbonamenti"
+            "value": "Esporta OPML"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "購読をエクスポート"
+            "value": "OPMLをエクスポート"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "구독 내보내기"
+            "value": "OPML 내보내기"
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Xuất danh sách đăng ký"
+            "value": "Xuất OPML"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "导出订阅"
+            "value": "导出 OPML"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "匯出訂閱"
+            "value": "匯出 OPML"
           }
         }
       }
@@ -3920,55 +3920,55 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Abonnements importieren"
+            "value": "OPML importieren"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Import Subscriptions"
+            "value": "Import OPML"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Importer des abonnements"
+            "value": "Importer OPML"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Importa abbonamenti"
+            "value": "Importa OPML"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "購読をインポート"
+            "value": "OPMLをインポート"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "구독 가져오기"
+            "value": "OPML 가져오기"
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nhập danh sách đăng ký"
+            "value": "Nhập OPML"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "导入订阅"
+            "value": "导入 OPML"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "匯入訂閱"
+            "value": "匯入 OPML"
           }
         }
       }

@@ -170,10 +170,9 @@ struct MoreView: View {
                     showAlert = true
                 }
             }
-            .confirmationDialog(
+            .alert(
                 String(localized: "DataManagement.Import.ModeTitle"),
-                isPresented: $showImportModeChoice,
-                titleVisibility: .visible
+                isPresented: $showImportModeChoice
             ) {
                 Button(String(localized: "DataManagement.Import.Merge")) {
                     performImport(overwrite: false)
