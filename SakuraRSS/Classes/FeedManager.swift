@@ -167,10 +167,15 @@ final class FeedManager {
         return applyAllRules(all)
     }
 
-    func articles(for feed: Feed) -> [Article] {
+    func articles(for feed: Feed, limit: Int? = nil) -> [Article] {
         _ = dataRevision
-        let all = (try? database.articles(forFeedID: feed.id)) ?? []
+        let all = (try? database.articles(forFeedID: feed.id, limit: limit)) ?? []
         return applyRules(all, feedID: feed.id)
+    }
+
+    func articleCount(for feed: Feed) -> Int {
+        _ = dataRevision
+        return (try? database.articleCount(forFeedID: feed.id)) ?? 0
     }
 
     func markRead(_ article: Article) {
