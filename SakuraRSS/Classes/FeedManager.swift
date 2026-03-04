@@ -30,11 +30,12 @@ final class FeedManager {
     func addFeed(url: String, title: String, siteURL: String,
                  description: String = "", faviconURL: String? = nil,
                  category: String? = nil, isPodcast: Bool = false) throws {
-        try database.insertFeed(
+        let feedID = try database.insertFeed(
             title: title, url: url, siteURL: siteURL,
             description: description, faviconURL: faviconURL,
             category: category, isPodcast: isPodcast
         )
+        generateAcronymIcon(feedID: feedID, title: title)
         loadFromDatabase()
     }
 
@@ -52,6 +53,9 @@ final class FeedManager {
                            customIconURL: String?) {
         try? database.updateFeedDetails(id: feed.id, title: title, url: url,
                                         customIconURL: customIconURL)
+        if title != feed.title {
+            generateAcronymIcon(feedID: feed.id, title: title)
+        }
         loadFromDatabase()
     }
 
@@ -120,6 +124,8 @@ final class FeedManager {
             for: currentFeeds.map { ($0.domain, $0.siteURL as String?) }
         )
         _ = await (feedRefresh, faviconRefresh)
+        loadFromDatabase()
+        regenerateAllAcronymIcons()
         loadFromDatabase()
         faviconRevision += 1
     }
@@ -339,6 +345,20 @@ final class FeedManager {
         return result
     }
 
+    // MARK: - Acronym Icons
+
+    func generateAcronymIcon(feedID: Int64, title: String) {
+        guard let image = InitialsAvatarView.renderToImage(name: title),
+              let pngData = image.pngData() else { return }
+        try? database.updateFeedAcronymIcon(id: feedID, data: pngData)
+    }
+
+    func regenerateAllAcronymIcons() {
+        for feed in feeds {
+            generateAcronymIcon(feedID: feed.id, title: feed.title)
+        }
+    }
+
     // MARK: - OPML Export
 
     func exportOPML() -> String {
@@ -363,13 +383,14 @@ final class FeedManager {
             if database.feedExists(url: opmlFeed.xmlURL) {
                 continue
             }
-            try database.insertFeed(
+            let feedID = try database.insertFeed(
                 title: opmlFeed.title,
                 url: opmlFeed.xmlURL,
                 siteURL: opmlFeed.htmlURL,
                 description: opmlFeed.description,
                 category: opmlFeed.category
             )
+            generateAcronymIcon(feedID: feedID, title: opmlFeed.title)
             added += 1
         }
 

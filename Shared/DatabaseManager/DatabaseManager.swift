@@ -21,6 +21,7 @@ nonisolated final class DatabaseManager: @unchecked Sendable {
     let feedIsPodcast = SQLite.Expression<Bool>("is_podcast")
     let feedIsMuted = SQLite.Expression<Bool>("is_muted")
     let feedCustomIconURL = SQLite.Expression<String?>("custom_icon_url")
+    let feedAcronymIcon = SQLite.Expression<Data?>("acronym_icon")
 
     let imageCache = Table("image_cache")
     let imageCacheURL = SQLite.Expression<String>("url")
@@ -83,6 +84,7 @@ nonisolated final class DatabaseManager: @unchecked Sendable {
             table.column(feedIsPodcast, defaultValue: false)
             table.column(feedIsMuted, defaultValue: false)
             table.column(feedCustomIconURL)
+            table.column(feedAcronymIcon)
         })
 
         try database.run(articles.create(ifNotExists: true) { table in
@@ -125,5 +127,18 @@ nonisolated final class DatabaseManager: @unchecked Sendable {
             table.column(ruleType)
             table.column(ruleValue)
         })
+
+        // Migrations for columns added after initial release
+        addColumnIfMissing(table: "feeds", column: "acronym_icon", type: "BLOB")
+    }
+
+    private func addColumnIfMissing(table: String, column: String, type: String) {
+        let columns = (try? database.prepare("PRAGMA table_info(\(table))")) ?? AnySequence([])
+        let columnNames = columns.compactMap { row -> String? in
+            row[1] as? String
+        }
+        if !columnNames.contains(column) {
+            _ = try? database.run("ALTER TABLE \(table) ADD COLUMN \(column) \(type)")
+        }
     }
 }

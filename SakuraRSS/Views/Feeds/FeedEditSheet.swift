@@ -17,6 +17,7 @@ struct FeedEditSheet: View {
     @State private var currentFavicon: UIImage?
     @State private var isFetchingIcon = false
     @State private var showIconFetchError = false
+    @State private var useDefaultIcon = false
 
     init(feed: Feed) {
         self.feed = feed
@@ -52,7 +53,19 @@ struct FeedEditSheet: View {
                 }
 
                 Section {
-                    if let icon = customIconImage ?? currentFavicon {
+                    if useDefaultIcon {
+                        HStack {
+                            Spacer()
+                            InitialsAvatarView(
+                                name.isEmpty ? feed.title : name,
+                                size: 64,
+                                circle: feed.isVideoFeed && !feed.isPodcast,
+                                cornerRadius: iconCornerRadius(size: 64)
+                            )
+                            Spacer()
+                        }
+                        .listRowBackground(Color.clear)
+                    } else if let icon = customIconImage ?? currentFavicon {
                         HStack {
                             Spacer()
                             FaviconImage(icon, size: 64,
@@ -92,6 +105,17 @@ struct FeedEditSheet: View {
                                 Image(systemName: "checkmark.circle.fill")
                                     .foregroundStyle(.green)
                             }
+                        }
+                    }
+
+                    if !useDefaultIcon && (feed.customIconURL != nil || currentFavicon != nil) {
+                        Button(role: .destructive) {
+                            useDefaultIcon = true
+                            customIconImage = nil
+                            selectedPhoto = nil
+                            iconURLInput = ""
+                        } label: {
+                            Text("FeedEdit.UseDefaultIcon")
                         }
                     }
                 } header: {
@@ -136,6 +160,7 @@ struct FeedEditSheet: View {
                        let image = UIImage(data: data) {
                         customIconImage = await image.trimmed()
                         iconURLInput = ""
+                        useDefaultIcon = false
                     }
                 }
             }
@@ -175,7 +200,9 @@ struct FeedEditSheet: View {
     private func commitSave() {
         let finalCustomIconURL: String?
 
-        if customIconImage != nil {
+        if useDefaultIcon {
+            finalCustomIconURL = nil
+        } else if customIconImage != nil {
             finalCustomIconURL = "photo"
         } else if !iconURLInput.isEmpty {
             finalCustomIconURL = iconURLInput
@@ -183,7 +210,7 @@ struct FeedEditSheet: View {
             finalCustomIconURL = nil
         }
 
-        if let customIconImage {
+        if let customIconImage, !useDefaultIcon {
             Task {
                 await FaviconCache.shared.setCustomFavicon(customIconImage, feedID: feed.id)
             }
@@ -219,6 +246,7 @@ struct FeedEditSheet: View {
             if let image = UIImage(data: data) {
                 customIconImage = await image.trimmed()
                 selectedPhoto = nil
+                useDefaultIcon = false
                 return true
             }
         } catch {

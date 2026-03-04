@@ -8,6 +8,7 @@ struct PodcastEpisodeView: View {
 
     @State private var favicon: UIImage?
     @State private var feedName: String?
+    @State private var acronymIcon: UIImage?
 
     private var isThisEpisode: Bool {
         audioPlayer.currentArticleID == article.id
@@ -39,6 +40,8 @@ struct PodcastEpisodeView: View {
                     HStack(spacing: 8) {
                         if let favicon {
                             FaviconImage(favicon, size: 18, cornerRadius: 4, skipInset: true)
+                        } else if let acronymIcon {
+                            FaviconImage(acronymIcon, size: 18, cornerRadius: 4, skipInset: true)
                         } else if let feedName {
                             InitialsAvatarView(feedName, size: 18, cornerRadius: 4)
                         }
@@ -144,6 +147,9 @@ struct PodcastEpisodeView: View {
             if let feed = feedManager.feed(forArticle: article) {
                 feedName = feed.title
                 favicon = await FaviconCache.shared.favicon(for: feed.domain, siteURL: feed.siteURL)
+                if let data = feed.acronymIcon {
+                    acronymIcon = UIImage(data: data)
+                }
             }
         }
     }

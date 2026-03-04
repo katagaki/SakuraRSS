@@ -51,6 +51,7 @@ struct MagazineArticleCard: View {
     let article: Article
     @State private var favicon: UIImage?
     @State private var feedName: String?
+    @State private var acronymIcon: UIImage?
     @State private var skipFaviconInset = false
     @State private var isVideoFeed = false
 
@@ -77,6 +78,11 @@ struct MagazineArticleCard: View {
                 if let favicon = favicon {
                     FaviconImage(favicon, size: 20, cornerRadius: 4,
                                  circle: isVideoFeed, skipInset: skipFaviconInset)
+                        .shadow(color: .black.opacity(0.3), radius: 2, y: 1)
+                        .padding(6)
+                } else if let acronymIcon {
+                    FaviconImage(acronymIcon, size: 20, cornerRadius: 4,
+                                 circle: isVideoFeed, skipInset: true)
                         .shadow(color: .black.opacity(0.3), radius: 2, y: 1)
                         .padding(6)
                 } else if let feedName {
@@ -109,6 +115,9 @@ struct MagazineArticleCard: View {
             if let feed = feedManager.feed(forArticle: article) {
                 feedName = feed.title
                 favicon = await FaviconCache.shared.favicon(for: feed.domain, siteURL: feed.siteURL)
+                if let data = feed.acronymIcon {
+                    acronymIcon = UIImage(data: data)
+                }
                 isVideoFeed = feed.isVideoFeed
                 skipFaviconInset = feed.isVideoFeed
                     || FullFaviconDomains.shouldUseFullImage(feedDomain: feed.domain)
