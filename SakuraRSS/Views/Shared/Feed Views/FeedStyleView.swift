@@ -90,7 +90,7 @@ struct FeedArticleRow: View {
                 }
 
                 Group {
-                    if !preferTitle, let summary = article.summary {
+                    if !preferTitle, article.hasMeaningfulSummary, let summary = article.summary {
                         Text(summary)
                     } else {
                         Text(article.title)

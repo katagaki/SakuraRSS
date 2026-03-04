@@ -66,6 +66,13 @@ nonisolated struct Article: Identifiable, Hashable, Sendable {
     var isPodcastEpisode: Bool {
         audioURL != nil
     }
+
+    /// Whether the summary has enough meaningful content to display.
+    /// Filters out placeholder text like "Comments" from Hacker News feeds.
+    var hasMeaningfulSummary: Bool {
+        guard let summary else { return false }
+        return summary.count >= 20
+    }
 }
 
 nonisolated enum FeedDisplayStyle: String, CaseIterable, Sendable {

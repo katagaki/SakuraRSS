@@ -29,6 +29,17 @@ struct AddFeedView: View {
                         .autocorrectionDisabled()
                         .textInputAutocapitalization(.never)
                         .onSubmit { searchFeeds() }
+                        .overlay(alignment: .trailing) {
+                            if urlInput.isEmpty {
+                                PasteButton(payloadType: URL.self) { urls in
+                                    if let url = urls.first {
+                                        urlInput = url.absoluteString
+                                    }
+                                }
+                                .buttonBorderShape(.capsule)
+                                .controlSize(.mini)
+                            }
+                        }
 
                     Button {
                         searchFeeds()
@@ -43,20 +54,7 @@ struct AddFeedView: View {
                     }
                     .disabled(urlInput.isEmpty || isSearching)
                 } header: {
-                    HStack {
-                        Text("AddFeed.Section.Search")
-                        Spacer()
-                        if urlInput.isEmpty {
-                            PasteButton(payloadType: URL.self) { urls in
-                                if let url = urls.first {
-                                    urlInput = url.absoluteString
-                                }
-                            }
-                            .buttonStyle(.plain)
-                            .buttonBorderShape(.capsule)
-                            .controlSize(.mini)
-                        }
-                    }
+                    Text("AddFeed.Section.Search")
                 } footer: {
                     Text("AddFeed.Section.SearchFooter.\(appName)")
                 }
