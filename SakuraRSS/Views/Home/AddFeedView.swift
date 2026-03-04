@@ -61,6 +61,10 @@ struct AddFeedView: View {
                     Text("AddFeed.Section.SearchFooter.\(appName)")
                 }
 
+                if urlInput.isEmpty {
+                    RSSDiscoverySection()
+                }
+
                 if let errorMessage = errorMessage {
                     Section {
                         Text(errorMessage)
@@ -103,6 +107,7 @@ struct AddFeedView: View {
                     }
                 }
             }
+            .animation(.smooth.speed(2.0), value: urlInput.isEmpty)
             .navigationTitle(String(localized: "AddFeed.Title"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

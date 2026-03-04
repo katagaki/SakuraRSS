@@ -41,6 +41,10 @@ extension OnboardingView {
                 }
                 .background(.regularMaterial, in: .rect(cornerRadius: 20))
 
+                if urlInput.isEmpty {
+                    RSSDiscoveryInlineSection()
+                }
+
                 if let errorMessage = feedErrorMessage {
                     Text(errorMessage)
                         .foregroundStyle(.red)
@@ -95,6 +99,7 @@ extension OnboardingView {
                     }
                 }
             }
+            .animation(.smooth.speed(2.0), value: urlInput.isEmpty)
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.horizontal, 20)
             .padding(.bottom, 100)
