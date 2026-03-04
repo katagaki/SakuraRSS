@@ -96,6 +96,17 @@ struct VideoArticleCard: View {
 
                 Menu {
                     Button {
+                        feedManager.toggleRead(article)
+                    } label: {
+                        Label(
+                            article.isRead
+                                ? String(localized: "Article.MarkUnread")
+                                : String(localized: "Article.MarkRead"),
+                            systemImage: article.isRead ? "envelope" : "envelope.open"
+                        )
+                    }
+                    Divider()
+                    Button {
                         feedManager.toggleBookmark(article)
                     } label: {
                         Label(
