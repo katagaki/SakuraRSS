@@ -72,6 +72,7 @@ struct FeedsListPage: View {
         }
         .listStyle(.plain)
         .navigationTitle(String(localized: "Shared.Feeds"))
+        .toolbarTitleDisplayMode(.inlineLarge)
         .searchable(text: $searchText, prompt: Text("FeedList.SearchPrompt"))
         .refreshable {
             await feedManager.refreshAllFeedsAndFavicons()
@@ -123,10 +124,14 @@ struct FeedsListPage: View {
         .sheet(item: $feedToEdit) { feed in
             FeedEditSheet(feed: feed)
                 .environment(feedManager)
+                .presentationDetents([.medium, .large])
+                .interactiveDismissDisabled()
         }
         .sheet(item: $feedForRules) { feed in
             FeedRulesSheet(feed: feed)
                 .environment(feedManager)
+                .presentationDetents([.medium, .large])
+                .interactiveDismissDisabled()
         }
         .confirmationDialog(
             String(localized: "FeedMenu.Delete.Title"),

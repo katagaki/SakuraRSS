@@ -8,38 +8,36 @@ struct TimelineStyleView: View {
 
     var body: some View {
         List {
-            if let latest = articles.first {
-                ArticleLink(article: latest) {
-                    VStack(alignment: .leading, spacing: 6) {
-                        if let date = latest.publishedDate {
-                            RelativeTimeText(date: date)
-                                .font(.subheadline)
-                                .foregroundStyle(.secondary)
-                        }
-                        Text(latest.title)
-                            .font(.title2)
-                            .fontWeight(.bold)
-                            .foregroundStyle(latest.isRead ? .secondary : .primary)
-                    }
-                    .padding(.vertical, 8)
-                }
-                .listRowBackground(Color.clear)
-                .listRowSeparator(.hidden)
-            }
+            let groups = groupedArticles(from: articles)
 
-            let timelineArticles = Array(articles.dropFirst())
-            ForEach(Array(timelineArticles.enumerated()), id: \.element.id) { index, article in
-                ArticleLink(article: article) {
-                    timelineRow(
-                        article: article,
-                        isFirst: index == 0,
-                        isLast: index == timelineArticles.count - 1
-                    )
+            ForEach(Array(groups.enumerated()), id: \.element.key) { groupIndex, group in
+                Section {
+                    ForEach(Array(group.articles.enumerated()), id: \.element.id) { index, article in
+                        ZStack {
+                            ArticleLink(article: article) {
+                                EmptyView()
+                            }
+                            .opacity(0)
+
+                            timelineRow(
+                                article: article,
+                                isFirst: index == 0,
+                                isLast: index == group.articles.count - 1,
+                                isFeatured: groupIndex == 0 && index == 0
+                            )
+                        }
+                        .listRowBackground(Color.clear)
+                        .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16))
+                        .listRowSeparator(.hidden)
+                        .listRowSpacing(0)
+                    }
+                } header: {
+                    Text(group.key)
+                        .font(.subheadline)
+                        .fontWeight(.semibold)
+                        .foregroundStyle(.secondary)
+                        .textCase(nil)
                 }
-                .listRowBackground(Color.clear)
-                .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16))
-                .listRowSeparator(.hidden)
-                .listRowSpacing(0)
             }
 
             if let onLoadMore {
@@ -51,16 +49,58 @@ struct TimelineStyleView: View {
         .listStyle(.plain)
     }
 
-    private func timelineRow(article: Article, isFirst: Bool, isLast: Bool) -> some View {
+    private func groupedArticles(from articles: [Article]) -> [(key: String, articles: [Article])] {
+        let calendar = Calendar.current
+        var groups: [(key: String, articles: [Article])] = []
+        var currentKey: String?
+        var currentArticles: [Article] = []
+
+        for article in articles {
+            let key = daySectionTitle(for: article.publishedDate, calendar: calendar)
+            if key == currentKey {
+                currentArticles.append(article)
+            } else {
+                if let currentKey, !currentArticles.isEmpty {
+                    groups.append((key: currentKey, articles: currentArticles))
+                }
+                currentKey = key
+                currentArticles = [article]
+            }
+        }
+        if let currentKey, !currentArticles.isEmpty {
+            groups.append((key: currentKey, articles: currentArticles))
+        }
+        return groups
+    }
+
+    private func daySectionTitle(for date: Date?, calendar: Calendar) -> String {
+        guard let date else {
+            return String(localized: "Timeline.Earlier")
+        }
+        if calendar.isDateInToday(date) {
+            return String(localized: "Timeline.Today")
+        }
+        if calendar.isDateInYesterday(date) {
+            return String(localized: "Timeline.Yesterday")
+        }
+        let formatter = DateFormatter()
+        formatter.doesRelativeDateFormatting = false
+        formatter.dateStyle = .medium
+        formatter.timeStyle = .none
+        return formatter.string(from: date)
+    }
+
+    private func timelineRow(article: Article, isFirst: Bool, isLast: Bool,
+                             isFeatured: Bool = false) -> some View {
         HStack(alignment: .top, spacing: 0) {
             Group {
                 if let date = article.publishedDate {
                     RelativeTimeText(date: date)
-                        .font(.caption)
+                        .font(isFeatured ? .subheadline : .caption)
                         .foregroundStyle(.secondary)
                 } else {
                     Text("")
-                        .font(.caption)
+                        .font(isFeatured ? .subheadline : .caption)
                 }
             }
             .frame(width: 64, alignment: .trailing)
@@ -70,10 +110,10 @@ struct TimelineStyleView: View {
                 .frame(width: 28)
 
             Text(article.title)
-                .font(.subheadline)
-                .fontWeight(article.isRead ? .regular : .medium)
+                .font(isFeatured ? .body : .subheadline)
+                .fontWeight(isFeatured ? .semibold : (article.isRead ? .regular : .medium))
                 .foregroundStyle(article.isRead ? .secondary : .primary)
-                .lineLimit(2)
+                .lineLimit(isFeatured ? 3 : 2)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.vertical, 12)
         }
@@ -109,7 +149,7 @@ private struct TimelineConnector: View {
             }
 
             Circle()
-                .fill(isRead ? Color.secondary.opacity(0.4) : Color.accentColor)
+                .fill(isRead ? Color.blue.opacity(0.3) : Color.blue)
                 .frame(width: dotSize, height: dotSize)
                 .position(x: midX, y: dotY)
         }

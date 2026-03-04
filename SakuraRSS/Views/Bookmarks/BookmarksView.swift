@@ -50,6 +50,7 @@ struct BookmarksView: View {
                 }
             }
             .navigationTitle(String(localized: "Tabs.Bookmarks"))
+            .toolbarTitleDisplayMode(.inlineLarge)
             .scrollContentBackground(.hidden)
             .sakuraBackground()
             .toolbar {

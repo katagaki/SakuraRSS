@@ -32,11 +32,18 @@ nonisolated extension DatabaseManager {
         return try database.prepare(query).map(rowToArticle).first
     }
 
-    func articles(forFeedID fid: Int64) throws -> [Article] {
-        let query = articles
+    func articles(forFeedID fid: Int64, limit: Int? = nil) throws -> [Article] {
+        var query = articles
             .filter(articleFeedID == fid)
             .order(articlePublishedDate.desc)
+        if let limit {
+            query = query.limit(limit)
+        }
         return try database.prepare(query).map(rowToArticle)
+    }
+
+    func articleCount(forFeedID fid: Int64) throws -> Int {
+        try database.scalar(articles.filter(articleFeedID == fid).count)
     }
 
     func allArticles(limit: Int = 100) throws -> [Article] {

@@ -14,6 +14,9 @@ struct FeedEditSheet: View {
     @State private var openMode: FeedOpenMode
     @State private var selectedPhoto: PhotosPickerItem?
     @State private var customIconImage: UIImage?
+    @State private var currentFavicon: UIImage?
+    @State private var isFetchingIcon = false
+    @State private var showIconFetchError = false
 
     init(feed: Feed) {
         self.feed = feed
@@ -31,16 +34,16 @@ struct FeedEditSheet: View {
                 Section {
                     HStack {
                         Text("FeedEdit.Name")
-                        Spacer()
                         TextField(String(localized: "FeedEdit.Name"), text: $name)
                             .multilineTextAlignment(.trailing)
+                            .frame(maxWidth: .infinity)
                             .labelsHidden()
                     }
                     HStack {
                         Text("FeedEdit.URL")
-                        Spacer()
                         TextField(String(localized: "FeedEdit.URL"), text: $url)
                             .multilineTextAlignment(.trailing)
+                            .frame(maxWidth: .infinity)
                             .textContentType(.URL)
                             .autocorrectionDisabled()
                             .textInputAutocapitalization(.never)
@@ -49,15 +52,36 @@ struct FeedEditSheet: View {
                 }
 
                 Section {
+                    if let icon = customIconImage ?? currentFavicon {
+                        HStack {
+                            Spacer()
+                            FaviconImage(icon, size: 64,
+                                         cornerRadius: feed.isPodcast ? 16 : (feed.isVideoFeed ? 0 : 8),
+                                         circle: feed.isVideoFeed && !feed.isPodcast,
+                                         skipInset: feed.isVideoFeed || feed.isPodcast
+                                            || FullFaviconDomains.shouldUseFullImage(feedDomain: feed.domain))
+                            Spacer()
+                        }
+                        .listRowBackground(Color.clear)
+                    }
+
                     HStack {
                         Text("FeedEdit.IconURL")
-                        Spacer()
                         TextField(String(localized: "FeedEdit.IconURLPlaceholder"), text: $iconURLInput)
                             .multilineTextAlignment(.trailing)
+                            .frame(maxWidth: .infinity)
                             .textContentType(.URL)
                             .autocorrectionDisabled()
                             .textInputAutocapitalization(.never)
                             .labelsHidden()
+                            .onSubmit {
+                                Task {
+                                    await fetchIconFromURL()
+                                }
+                            }
+                        if isFetchingIcon {
+                            ProgressView()
+                        }
                     }
 
                     PhotosPicker(selection: $selectedPhoto, matching: .images) {
@@ -102,20 +126,53 @@ struct FeedEditSheet: View {
                     .disabled(name.isEmpty || url.isEmpty)
                 }
             }
+            .task {
+                currentFavicon = await loadCurrentFavicon()
+            }
             .onChange(of: selectedPhoto) {
                 Task {
                     if let selectedPhoto,
                        let data = try? await selectedPhoto.loadTransferable(type: Data.self),
                        let image = UIImage(data: data) {
-                        customIconImage = image
+                        customIconImage = await image.trimmed()
                         iconURLInput = ""
                     }
                 }
             }
+            .alert(String(localized: "FeedEdit.IconFetchError"), isPresented: $showIconFetchError) {
+                Button(String(localized: "Shared.OK"), role: .cancel) { }
+            }
         }
     }
 
+    private func loadCurrentFavicon() async -> UIImage? {
+        if let customURL = feed.customIconURL {
+            if customURL == "photo" {
+                return await FaviconCache.shared.customFavicon(feedID: feed.id)
+            }
+            if let url = URL(string: customURL),
+               let (data, _) = try? await URLSession.shared.data(from: url),
+               let image = UIImage(data: data) {
+                return image
+            }
+        }
+        return await FaviconCache.shared.favicon(for: feed.domain, siteURL: feed.siteURL)
+    }
+
     private func save() {
+        let iconURLChanged = !iconURLInput.isEmpty && iconURLInput != feed.customIconURL
+        if customIconImage == nil && iconURLChanged {
+            Task {
+                if await fetchIconFromURL() {
+                    commitSave()
+                }
+            }
+        } else {
+            commitSave()
+        }
+    }
+
+    private func commitSave() {
         let finalCustomIconURL: String?
 
         if customIconImage != nil {
@@ -140,5 +197,26 @@ struct FeedEditSheet: View {
                                       customIconURL: finalCustomIconURL)
         UserDefaults.standard.set(openMode.rawValue, forKey: "openMode-\(feed.id)")
         dismiss()
+    }
+
+    @discardableResult
+    private func fetchIconFromURL() async -> Bool {
+        let input = iconURLInput.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard let url = URL(string: input), url.scheme != nil else {
+            showIconFetchError = true
+            return false
+        }
+        isFetchingIcon = true
+        defer { isFetchingIcon = false }
+        do {
+            let (data, _) = try await URLSession.shared.data(from: url)
+            if let image = UIImage(data: data) {
+                customIconImage = await image.trimmed()
+                selectedPhoto = nil
+                return true
+            }
+        } catch { }
+        showIconFetchError = true
+        return false
     }
 }
