@@ -89,7 +89,7 @@ struct InboxArticleRow: View {
             Button {
                 feedManager.toggleRead(article)
             } label: {
-                Image(systemName: article.isRead ? "envelope.badge" : "checkmark.circle")
+                Image(systemName: article.isRead ? "envelope.badge" : "envelope.open")
             }
             .tint(.blue)
         }

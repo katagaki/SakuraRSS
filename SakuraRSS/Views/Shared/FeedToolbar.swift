@@ -9,7 +9,7 @@ struct FeedToolbar: View {
         Button {
             isShowingMarkAllReadConfirmation = true
         } label: {
-            Image(systemName: "checkmark.circle")
+            Image(systemName: "envelope.open")
                 .font(.title2)
                 .padding(8)
         }

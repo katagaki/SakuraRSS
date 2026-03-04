@@ -157,7 +157,7 @@ private struct CardView: View {
             // Right swipe: mark read indicator
             swipeIndicatorOverlay(
                 localizationKey: "Cards.MarkRead",
-                systemImage: "checkmark.circle.fill",
+                systemImage: "envelope.open.fill",
                 color: .blue,
                 alignment: .topLeading,
                 opacity: offset.width > 0 ? swipeProgress : 0
