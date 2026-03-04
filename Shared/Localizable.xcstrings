@@ -3389,7 +3389,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Export der Abonnements fehlgeschlagen."
+            "value": "Export der Feeds fehlgeschlagen."
           }
         },
         "en": {
@@ -3401,43 +3401,43 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Échec de l'exportation des abonnements."
+            "value": "Échec de l'exportation des flux."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Esportazione degli abbonamenti non riuscita."
+            "value": "Esportazione dei feed non riuscita."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "購読のエクスポートに失敗しました。"
+            "value": "フィードのエクスポートに失敗しました。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "구독 내보내기에 실패했습니다."
+            "value": "피드 내보내기에 실패했습니다."
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Không thể xuất danh sách đăng ký."
+            "value": "Không thể xuất danh sách nguồn cấp."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "订阅导出失败。"
+            "value": "订阅源导出失败。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "訂閱匯出失敗。"
+            "value": "訂閱源匯出失敗。"
           }
         }
       }
@@ -3448,7 +3448,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Abonnements erfolgreich exportiert."
+            "value": "Feeds erfolgreich exportiert."
           }
         },
         "en": {
@@ -3460,43 +3460,43 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Abonnements exportés avec succès."
+            "value": "Flux exportés avec succès."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Abbonamenti esportati con successo."
+            "value": "Feed esportati con successo."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "購読のエクスポートに成功しました。"
+            "value": "フィードのエクスポートに成功しました。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "구독을 성공적으로 내보냈습니다."
+            "value": "피드를 성공적으로 내보냈습니다."
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Đã xuất danh sách đăng ký thành công."
+            "value": "Đã xuất danh sách nguồn cấp thành công."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "订阅导出成功。"
+            "value": "订阅源导出成功。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "訂閱匯出成功。"
+            "value": "訂閱源匯出成功。"
           }
         }
       }
@@ -3566,7 +3566,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Import der Abonnements fehlgeschlagen."
+            "value": "Import der Feeds fehlgeschlagen."
           }
         },
         "en": {
@@ -3578,43 +3578,43 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Échec de l'importation des abonnements."
+            "value": "Échec de l'importation des flux."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Importazione degli abbonamenti non riuscita."
+            "value": "Importazione dei feed non riuscita."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "購読のインポートに失敗しました。"
+            "value": "フィードのインポートに失敗しました。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "구독 가져오기에 실패했습니다."
+            "value": "피드 가져오기에 실패했습니다."
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Không thể nhập danh sách đăng ký."
+            "value": "Không thể nhập danh sách nguồn cấp."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "订阅导入失败。"
+            "value": "订阅源导入失败。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "訂閱匯入失敗。"
+            "value": "訂閱源匯入失敗。"
           }
         }
       }
@@ -3861,7 +3861,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "%lld Abonnements erfolgreich importiert."
+            "value": "%lld Feeds erfolgreich importiert."
           }
         },
         "en": {
@@ -3873,13 +3873,13 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "%lld abonnements importés avec succès."
+            "value": "%lld flux importés avec succès."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "%lld abbonamenti importati con successo."
+            "value": "%lld feed importati con successo."
           }
         },
         "ja": {
@@ -3979,7 +3979,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Verwenden Sie OPML-Dateien, um Ihre Abonnements zwischen RSS-Readern zu übertragen."
+            "value": "Verwenden Sie OPML-Dateien, um Ihre Feeds zwischen RSS-Readern zu übertragen."
           }
         },
         "en": {
@@ -3991,43 +3991,43 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Utilisez des fichiers OPML pour transférer vos abonnements entre lecteurs RSS."
+            "value": "Utilisez des fichiers OPML pour transférer vos flux entre lecteurs RSS."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Usa i file OPML per trasferire i tuoi abbonamenti tra lettori RSS."
+            "value": "Usa i file OPML per trasferire i tuoi feed tra lettori RSS."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "OPMLファイルを使って、RSSリーダー間で購読を移行できます。"
+            "value": "OPMLファイルを使って、RSSリーダー間でフィードを移行できます。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "OPML 파일을 사용하여 RSS 리더 간에 구독을 전송합니다."
+            "value": "OPML 파일을 사용하여 RSS 리더 간에 피드를 전송합니다."
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sử dụng tệp OPML để chuyển danh sách đăng ký giữa các trình đọc RSS."
+            "value": "Sử dụng tệp OPML để chuyển danh sách nguồn cấp giữa các trình đọc RSS."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "使用 OPML 文件在 RSS 阅读器之间转移订阅。"
+            "value": "使用 OPML 文件在 RSS 阅读器之间转移订阅源。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "使用 OPML 檔案在 RSS 閱讀器之間轉移訂閱。"
+            "value": "使用 OPML 檔案在 RSS 閱讀器之間轉移訂閱源。"
           }
         }
       }
@@ -6291,7 +6291,7 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Suche nach einer Website oder füge eine Feed-URL ein, um dein erstes Abo zu folgen."
+            "value": "Suche nach einer Website oder füge eine Feed-URL ein, um deinen ersten Feed zu folgen."
           }
         },
         "en": {
@@ -6303,13 +6303,13 @@
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Recherchez un site web ou collez l'URL d'un flux pour suivre votre premier abonnement."
+            "value": "Recherchez un site web ou collez l'URL d'un flux pour suivre votre premier flux."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Cerca un sito web o incolla l'URL di un feed per seguire il tuo primo abbonamento."
+            "value": "Cerca un sito web o incolla l'URL di un feed per seguire il tuo primo feed."
           }
         },
         "ja": {
@@ -6321,25 +6321,25 @@
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "웹사이트를 검색하거나 피드 URL을 붙여넣어 첫 번째 구독을 팔로우하세요."
+            "value": "웹사이트를 검색하거나 피드 URL을 붙여넣어 첫 번째 피드를 팔로우하세요."
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tìm kiếm trang web hoặc dán URL nguồn cấp để theo dõi đăng ký đầu tiên của bạn."
+            "value": "Tìm kiếm trang web hoặc dán URL nguồn cấp để theo dõi nguồn cấp đầu tiên của bạn."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "搜索网站或粘贴订阅源URL来关注你的第一个订阅。"
+            "value": "搜索网站或粘贴订阅源URL来关注你的第一个订阅源。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "搜尋網站或貼上訂閱源URL來追蹤你的第一個訂閱。"
+            "value": "搜尋網站或貼上訂閱源URL來追蹤你的第一個訂閱源。"
           }
         }
       }
@@ -8929,13 +8929,13 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "使用 Apple Intelligence 为你的订阅标题生成摘要。"
+            "value": "使用 Apple Intelligence 为你的订阅源标题生成摘要。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "使用 Apple Intelligence 來摘要你的訂閱標題。"
+            "value": "使用 Apple Intelligence 來摘要你的訂閱源標題。"
           }
         }
       }
