@@ -127,15 +127,5 @@ nonisolated final class DatabaseManager: @unchecked Sendable {
             table.column(ruleType)
             table.column(ruleValue)
         })
-
-        // Migrations for columns added after initial release
-        addColumnIfMissing(table: "feeds", column: "acronym_icon", type: "BLOB")
-    }
-
-    private func addColumnIfMissing(table: String, column: String, type: String) {
-        // ALTER TABLE will fail if the column already exists; that's expected
-        try? database.execute(
-            "ALTER TABLE \(table) ADD COLUMN \(column) \(type)"
-        )
     }
 }
