@@ -54,6 +54,27 @@ struct SakuraRSSApp: App {
                 UserDefaults.standard.removeObject(forKey: "TodaysSummary.DismissedDate")
             case "reonboard":
                 UserDefaults.standard.set(false, forKey: "Onboarding.Completed")
+            case "fixup":
+                DatabaseManager.shared.fixup()
+            case "forgetit":
+                let defaults = UserDefaults.standard
+                defaults.removeObject(forKey: "App.SelectedTab")
+                defaults.removeObject(forKey: "Home.FeedID")
+                defaults.removeObject(forKey: "Home.ArticleID")
+                defaults.removeObject(forKey: "FeedsList.FeedID")
+                defaults.removeObject(forKey: "FeedsList.ArticleID")
+                defaults.removeObject(forKey: "Display.DefaultStyle")
+                defaults.removeObject(forKey: "Search.DisplayStyle")
+                defaults.removeObject(forKey: "Display.DefaultBookmarksStyle")
+                defaults.removeObject(forKey: "TodaysSummary.DismissedDate")
+                defaults.removeObject(forKey: "WhileYouSlept.DismissedDate")
+                defaults.removeObject(forKey: "ForceWhileYouSlept")
+                defaults.removeObject(forKey: "ForceTodaysSummary")
+                for key in defaults.dictionaryRepresentation().keys {
+                    if key.hasPrefix("Display.Style.") || key.hasPrefix("openMode-") {
+                        defaults.removeObject(forKey: key)
+                    }
+                }
             default:
                 break
             }
