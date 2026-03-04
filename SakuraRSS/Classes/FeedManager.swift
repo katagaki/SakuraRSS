@@ -43,6 +43,18 @@ final class FeedManager {
         loadFromDatabase()
     }
 
+    func toggleMuted(_ feed: Feed) {
+        try? database.updateFeedMuted(id: feed.id, isMuted: !feed.isMuted)
+        loadFromDatabase()
+    }
+
+    func updateFeedDetails(_ feed: Feed, title: String, url: String,
+                           customIconURL: String?) {
+        try? database.updateFeedDetails(id: feed.id, title: title, url: url,
+                                        customIconURL: customIconURL)
+        loadFromDatabase()
+    }
+
     func refreshFeed(_ feed: Feed) async throws {
         guard let url = URL(string: feed.url) else { return }
 
@@ -113,7 +125,12 @@ final class FeedManager {
     func todayArticles() -> [Article] {
         _ = dataRevision
         let startOfToday = Calendar.current.startOfDay(for: Date())
-        return (try? database.allArticles(since: startOfToday)) ?? []
+        var all = (try? database.allArticles(since: startOfToday)) ?? []
+        let muted = mutedFeedIDs
+        if !muted.isEmpty {
+            all = all.filter { !muted.contains($0.feedID) }
+        }
+        return applyAllRules(all)
     }
 
     func overnightArticles() -> [Article] {
@@ -134,7 +151,7 @@ final class FeedManager {
 
     private func filterExcludingPodcastsAndVideos(_ articles: [Article]) -> [Article] {
         let excludedFeedIDs = Set(feeds.filter { feed in
-            feed.isPodcast || VideoDomains.shouldPreferVideo(feedDomain: feed.domain)
+            feed.isMuted || feed.isPodcast || VideoDomains.shouldPreferVideo(feedDomain: feed.domain)
         }.map(\.id))
         return articles.filter { !excludedFeedIDs.contains($0.feedID) }
     }
@@ -142,12 +159,18 @@ final class FeedManager {
     func olderArticles(limit: Int = 200) -> [Article] {
         _ = dataRevision
         let startOfToday = Calendar.current.startOfDay(for: Date())
-        return (try? database.allArticles(before: startOfToday, limit: limit)) ?? []
+        var all = (try? database.allArticles(before: startOfToday, limit: limit)) ?? []
+        let muted = mutedFeedIDs
+        if !muted.isEmpty {
+            all = all.filter { !muted.contains($0.feedID) }
+        }
+        return applyAllRules(all)
     }
 
     func articles(for feed: Feed) -> [Article] {
         _ = dataRevision
-        return (try? database.articles(forFeedID: feed.id)) ?? []
+        let all = (try? database.articles(forFeedID: feed.id)) ?? []
+        return applyRules(all, feedID: feed.id)
     }
 
     func markRead(_ article: Article) {
@@ -186,7 +209,74 @@ final class FeedManager {
 
     func totalUnreadCount() -> Int {
         _ = dataRevision
-        return (try? database.totalUnreadCount()) ?? 0
+        let mutedFeedIDs = Set(feeds.filter(\.isMuted).map(\.id))
+        if mutedFeedIDs.isEmpty {
+            return (try? database.totalUnreadCount()) ?? 0
+        }
+        return feeds.filter { !$0.isMuted }.reduce(0) { total, feed in
+            total + ((try? database.unreadCount(forFeedID: feed.id)) ?? 0)
+        }
+    }
+
+    private var mutedFeedIDs: Set<Int64> {
+        Set(feeds.filter(\.isMuted).map(\.id))
+    }
+
+    private func applyRules(_ articles: [Article], feedID: Int64) -> [Article] {
+        let keywords = (try? database.rules(forFeedID: feedID, type: "muted_keyword")) ?? []
+        let authors = Set((try? database.rules(forFeedID: feedID, type: "muted_author")) ?? [])
+        guard !keywords.isEmpty || !authors.isEmpty else { return articles }
+        return articles.filter { article in
+            if let author = article.author, authors.contains(author) {
+                return false
+            }
+            for keyword in keywords {
+                if article.title.localizedCaseInsensitiveContains(keyword) {
+                    return false
+                }
+                if let summary = article.summary,
+                   summary.localizedCaseInsensitiveContains(keyword) {
+                    return false
+                }
+            }
+            return true
+        }
+    }
+
+    private func applyAllRules(_ articles: [Article]) -> [Article] {
+        var rulesByFeed: [Int64: (keywords: [String], authors: Set<String>)] = [:]
+        var result: [Article] = []
+        for article in articles {
+            if rulesByFeed[article.feedID] == nil {
+                let keywords = (try? database.rules(forFeedID: article.feedID, type: "muted_keyword")) ?? []
+                let authors = Set((try? database.rules(forFeedID: article.feedID, type: "muted_author")) ?? [])
+                rulesByFeed[article.feedID] = (keywords, authors)
+            }
+            let rules = rulesByFeed[article.feedID]!
+            guard !rules.keywords.isEmpty || !rules.authors.isEmpty else {
+                result.append(article)
+                continue
+            }
+            if let author = article.author, rules.authors.contains(author) {
+                continue
+            }
+            var matched = false
+            for keyword in rules.keywords {
+                if article.title.localizedCaseInsensitiveContains(keyword) {
+                    matched = true
+                    break
+                }
+                if let summary = article.summary,
+                   summary.localizedCaseInsensitiveContains(keyword) {
+                    matched = true
+                    break
+                }
+            }
+            if !matched {
+                result.append(article)
+            }
+        }
+        return result
     }
 
     func updateBadgeCount() {
@@ -210,6 +300,36 @@ final class FeedManager {
 
     func article(byID id: Int64) -> Article? {
         articles.first { $0.id == id } ?? (try? database.article(byID: id))
+    }
+
+    // MARK: - Feed Rules
+
+    func mutedKeywords(for feed: Feed) -> [String] {
+        (try? database.rules(forFeedID: feed.id, type: "muted_keyword")) ?? []
+    }
+
+    func mutedAuthors(for feed: Feed) -> [String] {
+        (try? database.rules(forFeedID: feed.id, type: "muted_author")) ?? []
+    }
+
+    func saveMutedKeywords(_ keywords: [String], for feed: Feed) {
+        try? database.replaceRules(feedID: feed.id, type: "muted_keyword", values: keywords)
+    }
+
+    func saveMutedAuthors(_ authors: [String], for feed: Feed) {
+        try? database.replaceRules(feedID: feed.id, type: "muted_author", values: authors)
+    }
+
+    func uniqueAuthors(for feed: Feed) -> [String] {
+        let allArticles = (try? database.articles(forFeedID: feed.id)) ?? []
+        var seen = Set<String>()
+        var result: [String] = []
+        for article in allArticles {
+            if let author = article.author, !author.isEmpty, seen.insert(author).inserted {
+                result.append(author)
+            }
+        }
+        return result
     }
 
     // MARK: - OPML Export

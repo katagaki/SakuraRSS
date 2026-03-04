@@ -10,6 +10,8 @@ nonisolated struct Feed: Identifiable, Hashable, Sendable {
     var lastFetched: Date?
     var category: String?
     var isPodcast: Bool
+    var isMuted: Bool
+    var customIconURL: String?
 
     var domain: String {
         URL(string: siteURL)?.host ?? URL(string: url)?.host ?? ""
@@ -29,6 +31,12 @@ nonisolated struct Feed: Identifiable, Hashable, Sendable {
         let path = urlObj.path
         return path.hasPrefix("/@") && path.hasSuffix(".rss")
     }
+}
+
+nonisolated enum FeedOpenMode: String, CaseIterable, Sendable {
+    case inAppViewer
+    case inAppBrowser
+    case browser
 }
 
 nonisolated struct Article: Identifiable, Hashable, Sendable {
