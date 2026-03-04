@@ -30,7 +30,7 @@ struct MagazineStyleView: View {
                                     ? String(localized: "Article.MarkUnread")
                                     : String(localized: "Article.MarkRead"),
                                 systemImage: article.isRead
-                                    ? "envelope.badge" : "envelope.open"
+                                    ? "envelope" : "envelope.open"
                             )
                         }
                     }

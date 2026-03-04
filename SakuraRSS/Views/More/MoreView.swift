@@ -38,8 +38,6 @@ struct MoreView: View {
                             .tag(FeedDisplayStyle.inbox)
                         Text("Articles.Style.Feed")
                             .tag(FeedDisplayStyle.feed)
-                        Text("Articles.Style.Magazine")
-                            .tag(FeedDisplayStyle.magazine)
                         Text("Articles.Style.Compact")
                             .tag(FeedDisplayStyle.compact)
                     }
@@ -48,8 +46,6 @@ struct MoreView: View {
                             .tag(FeedDisplayStyle.inbox)
                         Text("Articles.Style.Feed")
                             .tag(FeedDisplayStyle.feed)
-                        Text("Articles.Style.Magazine")
-                            .tag(FeedDisplayStyle.magazine)
                         Text("Articles.Style.Compact")
                             .tag(FeedDisplayStyle.compact)
                     }

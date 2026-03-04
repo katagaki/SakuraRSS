@@ -10,8 +10,8 @@ struct ArticlesToolbar: View {
             isShowingMarkAllReadConfirmation = true
         } label: {
             Image(systemName: "envelope.open")
-                .font(.title2)
-                .padding(8)
+                .font(.system(size: 18.0))
+                .padding(6)
         }
         .buttonStyle(.glass)
         .buttonBorderShape(.circle)

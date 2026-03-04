@@ -151,7 +151,7 @@ struct FeedArticleRow: View {
                     } label: {
                         Image(
                             systemName: article.isRead
-                                ? "envelope.badge" : "envelope.open"
+                                ? "envelope" : "envelope.open"
                         )
                     }
                     .buttonStyle(.plain)
