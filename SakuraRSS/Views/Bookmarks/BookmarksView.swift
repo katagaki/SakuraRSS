@@ -46,6 +46,8 @@ struct BookmarksView: View {
                         PodcastStyleView(articles: bookmarkedArticles)
                     case .timeline:
                         TimelineStyleView(articles: bookmarkedArticles)
+                    case .cards:
+                        CardsStyleView(articles: bookmarkedArticles)
                     }
                 }
             }
@@ -101,7 +103,7 @@ struct BookmarksView: View {
     }
 
     private var effectiveDisplayStyle: FeedDisplayStyle {
-        if !hasImages && (displayStyle == .magazine || displayStyle == .photos) {
+        if !hasImages && (displayStyle == .magazine || displayStyle == .photos || displayStyle == .cards) {
             return .inbox
         }
         if displayStyle == .podcast {

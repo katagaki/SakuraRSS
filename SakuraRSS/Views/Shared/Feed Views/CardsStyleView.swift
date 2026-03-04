@@ -132,7 +132,8 @@ private struct CardView: View {
                 // Title and subtitle
                 VStack(alignment: .leading, spacing: 8) {
                     Text(article.title)
-                        .font(.system(.title, weight: .bold, width: .condensed))
+                        .font(.system(.title, weight: .bold))
+                        .fontWidth(.condensed)
                         .foregroundStyle(.white)
                         .lineLimit(4)
                         .multilineTextAlignment(.leading)
