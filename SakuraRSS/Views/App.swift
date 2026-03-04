@@ -1,7 +1,6 @@
 import SwiftUI
 import BackgroundTasks
 import TipKit
-@preconcurrency import UserNotifications
 
 @main
 struct SakuraRSSApp: App {
@@ -23,13 +22,13 @@ struct SakuraRSSApp: App {
                         await feedManager.refreshAllFeeds()
                     }
                     UserDefaults.standard.set(false, forKey: "App.StartupInProgress")
-                    updateBadgeCount()
+                    feedManager.updateBadgeCount()
                 }
                 .onReceive(
                     NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)
                 ) { _ in
                     feedManager.loadFromDatabase()
-                    updateBadgeCount()
+                    feedManager.updateBadgeCount()
                 }
                 .onOpenURL { url in
                     handleOpenURL(url)
@@ -111,7 +110,7 @@ struct SakuraRSSApp: App {
         let refreshTask = Task {
             let manager = FeedManager()
             await manager.refreshAllFeeds()
-            updateBadgeCount()
+            manager.updateBadgeCount()
         }
 
         task.expirationHandler = {
@@ -124,18 +123,4 @@ struct SakuraRSSApp: App {
         }
     }
 
-    private func updateBadgeCount() {
-        let badgeEnabled = UserDefaults.standard.bool(forKey: "BackgroundRefresh.BadgeEnabled")
-        let center = UNUserNotificationCenter.current()
-        guard badgeEnabled else {
-            Task { try? await center.setBadgeCount(0) }
-            return
-        }
-        Task {
-            let settings = await center.notificationSettings()
-            guard settings.badgeSetting == .enabled else { return }
-            let count = feedManager.totalUnreadCount()
-            try? await center.setBadgeCount(count)
-        }
-    }
 }
