@@ -19,9 +19,15 @@ struct CardsStyleView: View {
     @Environment(\.cardZoomNamespace) private var zoomNamespace
     let articles: [Article]
 
-    /// Articles with images only, filtered to unread for the current session deck.
+    /// Snapshot of article IDs that were unread when the deck was built.
+    /// Using a snapshot prevents cards from disappearing when markRead is
+    /// called during navigation, which would remove the matched transition
+    /// source and break the zoom animation.
+    @State private var deckArticleIDs: Set<Int64>?
+
     private var deckArticles: [Article] {
-        articles.filter { $0.imageURL != nil && !$0.isRead }
+        guard let ids = deckArticleIDs else { return [] }
+        return articles.filter { ids.contains($0.id) && $0.imageURL != nil }
     }
 
     /// Tracks article IDs that have been swiped away during this view's lifetime.
@@ -67,6 +73,13 @@ struct CardsStyleView: View {
         }
         .padding()
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .onAppear {
+            if deckArticleIDs == nil {
+                deckArticleIDs = Set(
+                    articles.filter { $0.imageURL != nil && !$0.isRead }.map(\.id)
+                )
+            }
+        }
     }
 }
 
