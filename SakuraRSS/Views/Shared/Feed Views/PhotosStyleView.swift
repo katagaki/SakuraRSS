@@ -56,6 +56,27 @@ struct PhotosArticleCard: View {
                 }
 
                 Spacer()
+
+                Menu {
+                    Button {
+                        feedManager.toggleRead(article)
+                    } label: {
+                        Label(
+                            article.isRead
+                                ? String(localized: "Article.MarkUnread")
+                                : String(localized: "Article.MarkRead"),
+                            systemImage: article.isRead
+                                ? "envelope.badge" : "envelope.open"
+                        )
+                    }
+                } label: {
+                    Image(systemName: "ellipsis")
+                        .font(.subheadline)
+                        .fontWeight(.semibold)
+                        .foregroundStyle(.secondary)
+                        .frame(width: 32, height: 32)
+                        .contentShape(.rect)
+                }
             }
             .padding(.horizontal, 12)
             .padding(.vertical, 10)

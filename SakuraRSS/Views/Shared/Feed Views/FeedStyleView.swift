@@ -142,6 +142,18 @@ struct FeedArticleRow: View {
                     Spacer()
 
                     Button {
+                        feedManager.toggleRead(article)
+                    } label: {
+                        Image(
+                            systemName: article.isRead
+                                ? "envelope.badge" : "envelope.open"
+                        )
+                    }
+                    .buttonStyle(.plain)
+
+                    Spacer()
+
+                    Button {
                         feedManager.toggleBookmark(article)
                     } label: {
                         Image(systemName: article.isBookmarked ? "bookmark.fill" : "bookmark")
