@@ -78,7 +78,8 @@ struct SearchView: View {
                         ArticleDetailView(article: article)
                     }
                 }
-                .navigationTransition(.zoom(sourceID: article.id, in: cardZoom))
+                .conditionalZoomTransition(isCards: effectiveStyle == .cards,
+                                           sourceID: article.id, in: cardZoom)
             }
             .searchable(text: $searchText, prompt: String(localized: "Search.Prompt"))
             .onChange(of: searchText) {

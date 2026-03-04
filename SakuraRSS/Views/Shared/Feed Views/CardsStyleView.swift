@@ -74,6 +74,7 @@ struct CardsStyleView: View {
 
 private struct CardView: View {
 
+    @Environment(\.colorScheme) private var colorScheme
     let article: Article
     let onSwipedLeft: () -> Void
     let onSwipedRight: () -> Void
@@ -86,6 +87,10 @@ private struct CardView: View {
 
     private var swipeProgress: Double {
         min(abs(offset.width) / 150.0, 1.0)
+    }
+
+    private var cardTextColor: Color {
+        colorScheme == .dark ? .white : .black
     }
 
     var body: some View {
@@ -116,14 +121,14 @@ private struct CardView: View {
                     Text(article.title)
                         .font(.system(.title, weight: .bold))
                         .fontWidth(.condensed)
-                        .foregroundStyle(.white)
+                        .foregroundStyle(cardTextColor)
                         .lineLimit(4)
                         .multilineTextAlignment(.leading)
 
                     if let summary = article.summary, !summary.isEmpty {
                         Text(summary)
                             .font(.subheadline)
-                            .foregroundStyle(.white.secondary)
+                            .foregroundStyle(cardTextColor.secondary)
                             .lineLimit(1)
                     }
                 }
@@ -153,7 +158,7 @@ private struct CardView: View {
             swipeIndicatorOverlay(
                 localizationKey: "Cards.MarkRead",
                 systemImage: "checkmark.circle.fill",
-                color: .green,
+                color: .blue,
                 alignment: .topLeading,
                 opacity: offset.width > 0 ? swipeProgress : 0
             )
@@ -182,12 +187,12 @@ private struct CardView: View {
                 Label(String(localized: localizationKey), systemImage: systemImage)
                     .font(.title2)
                     .fontWeight(.bold)
-                    .foregroundStyle(color)
-                    .padding(12)
-                    .background(.ultraThinMaterial, in: .capsule),
+                    .foregroundStyle(.white)
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 10)
+                    .background(color, in: .capsule),
                 alignment: alignment
             )
-            .padding(8)
             .opacity(opacity)
     }
 
@@ -211,7 +216,20 @@ private struct CardView: View {
     }
 }
 
-// MARK: - Conditional Zoom Modifier
+// MARK: - Conditional Zoom Modifiers
+
+extension View {
+    /// Applies the zoom navigation transition only when Cards style is active,
+    /// preventing strange animations in other display styles.
+    @ViewBuilder
+    func conditionalZoomTransition(isCards: Bool, sourceID: Int64, in namespace: Namespace.ID) -> some View {
+        if isCards {
+            self.navigationTransition(.zoom(sourceID: sourceID, in: namespace))
+        } else {
+            self
+        }
+    }
+}
 
 private extension View {
     @ViewBuilder
@@ -228,8 +246,11 @@ private extension View {
 
 /// Builds a progressive blur by stacking multiple blur layers, each masked
 /// to reveal only its vertical slice. The result fades from sharp at the top
-/// to heavily blurred at the bottom, with a dark tint for text contrast.
+/// to heavily blurred at the bottom, with a tint that adapts to the current
+/// color scheme for text contrast.
 private struct ProgressiveBlurView: UIViewRepresentable {
+
+    @Environment(\.colorScheme) private var colorScheme
 
     private static let steps = 6
 
@@ -237,11 +258,17 @@ private struct ProgressiveBlurView: UIViewRepresentable {
         let container = UIView()
         container.clipsToBounds = true
 
-        for i in 0..<Self.steps {
-            let blur = UIVisualEffectView(effect: UIBlurEffect(style: .dark))
+        for _ in 0..<Self.steps {
+            let blur = UIVisualEffectView(effect: UIBlurEffect(style: blurStyle))
             blur.autoresizingMask = [.flexibleWidth, .flexibleHeight]
             container.addSubview(blur)
         }
+
+        // Add a tint overlay for additional darkening/lightening
+        let tint = UIView()
+        tint.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        tint.tag = 999
+        container.addSubview(tint)
 
         return container
     }
@@ -251,6 +278,7 @@ private struct ProgressiveBlurView: UIViewRepresentable {
         guard blurViews.count == Self.steps else { return }
 
         for (i, blur) in blurViews.enumerated() {
+            blur.effect = UIBlurEffect(style: blurStyle)
             blur.frame = container.bounds
 
             let gradientMask = CAGradientLayer()
@@ -268,5 +296,25 @@ private struct ProgressiveBlurView: UIViewRepresentable {
             let fraction = CGFloat(i + 1) / CGFloat(Self.steps)
             blur.alpha = fraction
         }
+
+        // Update tint overlay
+        if let tint = container.viewWithTag(999) {
+            tint.frame = container.bounds
+            let tintColor: UIColor = colorScheme == .dark
+                ? UIColor.black.withAlphaComponent(0.3)
+                : UIColor.white.withAlphaComponent(0.3)
+            tint.backgroundColor = tintColor
+
+            let gradientMask = CAGradientLayer()
+            gradientMask.frame = container.bounds
+            gradientMask.colors = [UIColor.clear.cgColor, UIColor.black.cgColor]
+            gradientMask.startPoint = CGPoint(x: 0.5, y: 0)
+            gradientMask.endPoint = CGPoint(x: 0.5, y: 1)
+            tint.layer.mask = gradientMask
+        }
+    }
+
+    private var blurStyle: UIBlurEffect.Style {
+        colorScheme == .dark ? .dark : .light
     }
 }

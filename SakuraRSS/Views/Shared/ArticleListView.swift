@@ -1,6 +1,15 @@
 import SwiftUI
 import TipKit
 
+// MARK: - Preference key for active display style
+
+struct ActiveDisplayStyleKey: PreferenceKey {
+    static var defaultValue: FeedDisplayStyle = .inbox
+    static func reduce(value: inout FeedDisplayStyle, nextValue: () -> FeedDisplayStyle) {
+        value = nextValue()
+    }
+}
+
 struct ArticleListView: View {
 
     @Environment(FeedManager.self) var feedManager
@@ -68,6 +77,7 @@ struct ArticleListView: View {
         }
         .scrollContentBackground(.hidden)
         .sakuraBackground()
+        .preference(key: ActiveDisplayStyleKey.self, value: effectiveStyle)
         .navigationTitle(title)
         .toolbarTitleDisplayMode(.inline)
         .toolbar {
