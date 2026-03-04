@@ -99,7 +99,7 @@ private struct CardView: View {
     }
 
     private var swipeProgress: Double {
-        min(abs(offset.width) / 150.0, 1.0)
+        min(abs(offset.width) / 80.0, 1.0)
     }
 
     private var cardTextColor: Color {
@@ -210,7 +210,7 @@ private struct CardView: View {
     }
 
     private func handleSwipeEnd(translation: CGSize) {
-        let threshold: CGFloat = 150
+        let threshold: CGFloat = 80
         if abs(translation.width) > threshold {
             let direction: CGFloat = translation.width > 0 ? 500 : -500
             let callback = translation.width > 0 ? onSwipedRight : onSwipedLeft
