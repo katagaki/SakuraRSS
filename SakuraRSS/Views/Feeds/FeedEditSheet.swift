@@ -31,16 +31,16 @@ struct FeedEditSheet: View {
                 Section {
                     HStack {
                         Text("FeedEdit.Name")
-                        Spacer()
                         TextField(String(localized: "FeedEdit.Name"), text: $name)
                             .multilineTextAlignment(.trailing)
+                            .frame(maxWidth: .infinity)
                             .labelsHidden()
                     }
                     HStack {
                         Text("FeedEdit.URL")
-                        Spacer()
                         TextField(String(localized: "FeedEdit.URL"), text: $url)
                             .multilineTextAlignment(.trailing)
+                            .frame(maxWidth: .infinity)
                             .textContentType(.URL)
                             .autocorrectionDisabled()
                             .textInputAutocapitalization(.never)
@@ -51,9 +51,9 @@ struct FeedEditSheet: View {
                 Section {
                     HStack {
                         Text("FeedEdit.IconURL")
-                        Spacer()
                         TextField(String(localized: "FeedEdit.IconURLPlaceholder"), text: $iconURLInput)
                             .multilineTextAlignment(.trailing)
+                            .frame(maxWidth: .infinity)
                             .textContentType(.URL)
                             .autocorrectionDisabled()
                             .textInputAutocapitalization(.never)

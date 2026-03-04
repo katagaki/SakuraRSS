@@ -36,11 +36,13 @@ struct FeedRulesSheet: View {
                     HStack {
                         TextField(String(localized: "FeedRules.KeywordPlaceholder"),
                                   text: $keywordInput)
+                            .frame(maxWidth: .infinity)
                             .focused($isKeywordFieldFocused)
                             .onSubmit { addKeyword() }
                         Button(String(localized: "FeedRules.Add")) {
                             addKeyword()
                         }
+                        .fixedSize()
                         .disabled(keywordInput.trimmingCharacters(in: .whitespaces).isEmpty)
                     }
 
@@ -60,11 +62,13 @@ struct FeedRulesSheet: View {
                     HStack {
                         TextField(String(localized: "FeedRules.AuthorPlaceholder"),
                                   text: $authorInput)
+                            .frame(maxWidth: .infinity)
                             .focused($isAuthorFieldFocused)
                             .onSubmit { addAuthor() }
                         Button(String(localized: "FeedRules.Add")) {
                             addAuthor()
                         }
+                        .fixedSize()
                         .disabled(authorInput.trimmingCharacters(in: .whitespaces).isEmpty)
                     }
 
