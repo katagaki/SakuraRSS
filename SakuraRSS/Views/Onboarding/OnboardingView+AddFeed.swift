@@ -123,7 +123,7 @@ extension OnboardingView {
                     Button {
                         onComplete()
                     } label: {
-                        Text("Onboarding.AddLater")
+                        Text("Onboarding.SkipForNow")
                             .fontWeight(.semibold)
                             .padding(.vertical, 8)
                             .frame(maxWidth: .infinity)
