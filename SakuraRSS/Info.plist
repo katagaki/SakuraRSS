@@ -45,7 +45,7 @@
 			<key>UTTypeIdentifier</key>
 			<string>org.opml.opml</string>
 			<key>UTTypeDescription</key>
-			<string>OPML Document</string>
+			<string>OPML_DOCUMENT_TYPE</string>
 			<key>UTTypeConformsTo</key>
 			<array>
 				<string>public.xml</string>
