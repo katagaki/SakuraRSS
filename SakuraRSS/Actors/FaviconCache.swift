@@ -109,10 +109,9 @@ actor FaviconCache {
     ) async -> UIImage? {
         let isYouTube = domain.contains("youtube.com") || domain.contains("youtu.be")
 
-        if isYouTube, let siteURL = siteURL {
-            if let image = await fetchYouTubeAvatar(from: siteURL) {
-                return await trimAndCache(image, cacheKey: cacheKey, filePath: filePath)
-            }
+        if isYouTube, let siteURL = siteURL,
+           let image = await fetchYouTubeAvatar(from: siteURL) {
+            return await trimAndCache(image, cacheKey: cacheKey, filePath: filePath)
         }
 
         guard let url = URL(string: "https://\(domain)") else { return nil }
@@ -144,10 +143,9 @@ actor FaviconCache {
 
             // 1. Try web app manifest
             if let manifestHref = extractLinkHref(from: html, rel: "manifest"),
-               let manifestURL = URL(string: manifestHref, relativeTo: siteURL) {
-                if let icon = await fetchManifestIcon(from: manifestURL.absoluteURL) {
-                    return icon
-                }
+               let manifestURL = URL(string: manifestHref, relativeTo: siteURL),
+               let icon = await fetchManifestIcon(from: manifestURL.absoluteURL) {
+                return icon
             }
 
             // 2. Try apple-touch-icon (typically 180x180)

@@ -19,6 +19,19 @@ struct MagazineStyleView: View {
                         MagazineArticleCard(article: article)
                     }
                     .buttonStyle(.plain)
+                    .contextMenu {
+                        Button {
+                            feedManager.toggleRead(article)
+                        } label: {
+                            Label(
+                                article.isRead
+                                    ? String(localized: "Article.MarkUnread")
+                                    : String(localized: "Article.MarkRead"),
+                                systemImage: article.isRead
+                                    ? "envelope.badge" : "envelope.open"
+                            )
+                        }
+                    }
                 }
             }
             .padding(.horizontal, 16)

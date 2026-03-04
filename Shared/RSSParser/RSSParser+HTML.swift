@@ -45,16 +45,15 @@ nonisolated extension RSSParser {
         var index = string.startIndex
 
         while index < string.endIndex {
-            if string[index] == "&" {
-                if let semiIndex = string[index...].firstIndex(of: ";"),
-                   semiIndex > string.index(after: index) {
-                    let entity = String(string[string.index(after: index)..<semiIndex])
+            if string[index] == "&",
+               let semiIndex = string[index...].firstIndex(of: ";"),
+               semiIndex > string.index(after: index) {
+                let entity = String(string[string.index(after: index)..<semiIndex])
 
-                    if let decoded = decodeEntity(entity) {
-                        result.append(decoded)
-                        index = string.index(after: semiIndex)
-                        continue
-                    }
+                if let decoded = decodeEntity(entity) {
+                    result.append(decoded)
+                    index = string.index(after: semiIndex)
+                    continue
                 }
             }
 

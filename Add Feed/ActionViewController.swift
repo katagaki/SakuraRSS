@@ -135,21 +135,19 @@ struct ActionExtensionView: View {
         for item in extensionItems {
             guard let attachments = item.attachments else { continue }
             for provider in attachments {
-                if provider.hasItemConformingToTypeIdentifier(UTType.url.identifier) {
-                    if let item = try? await provider.loadItem(forTypeIdentifier: UTType.url.identifier),
-                       let url = item as? URL {
-                        await discoverFeeds(from: url)
-                        return
-                    }
+                if provider.hasItemConformingToTypeIdentifier(UTType.url.identifier),
+                   let item = try? await provider.loadItem(forTypeIdentifier: UTType.url.identifier),
+                   let url = item as? URL {
+                    await discoverFeeds(from: url)
+                    return
                 }
 
-                if provider.hasItemConformingToTypeIdentifier(UTType.plainText.identifier) {
-                    if let item = try? await provider.loadItem(forTypeIdentifier: UTType.plainText.identifier),
-                       let text = item as? String,
-                       let url = URL(string: text) {
-                        await discoverFeeds(from: url)
-                        return
-                    }
+                if provider.hasItemConformingToTypeIdentifier(UTType.plainText.identifier),
+                   let item = try? await provider.loadItem(forTypeIdentifier: UTType.plainText.identifier),
+                   let text = item as? String,
+                   let url = URL(string: text) {
+                    await discoverFeeds(from: url)
+                    return
                 }
             }
         }

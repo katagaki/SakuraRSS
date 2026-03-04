@@ -67,13 +67,15 @@ final class FeedManager {
                 feedID: feed.id,
                 title: article.title,
                 url: article.url,
-                author: article.author,
-                summary: article.summary,
-                content: article.content,
-                imageURL: article.imageURL,
-                publishedDate: article.publishedDate,
-                audioURL: article.audioURL,
-                duration: article.duration
+                data: ArticleInsertData(
+                    author: article.author,
+                    summary: article.summary,
+                    content: article.content,
+                    imageURL: article.imageURL,
+                    publishedDate: article.publishedDate,
+                    audioURL: article.audioURL,
+                    duration: article.duration
+                )
             )
         }
 

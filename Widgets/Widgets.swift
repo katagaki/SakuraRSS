@@ -21,7 +21,7 @@ struct WidgetArticle: Identifiable {
 
 struct ArticleProvider: TimelineProvider {
 
-    func placeholder(in context: Context) -> ArticleEntry {
+    func placeholder(in _: Context) -> ArticleEntry {
         ArticleEntry(
             date: Date(),
             articles: [
@@ -34,12 +34,12 @@ struct ArticleProvider: TimelineProvider {
         )
     }
 
-    func getSnapshot(in context: Context, completion: @escaping (ArticleEntry) -> Void) {
+    func getSnapshot(in _: Context, completion: @escaping (ArticleEntry) -> Void) {
         let entry = loadEntry()
         completion(entry)
     }
 
-    func getTimeline(in context: Context, completion: @escaping (Timeline<ArticleEntry>) -> Void) {
+    func getTimeline(in _: Context, completion: @escaping (Timeline<ArticleEntry>) -> Void) {
         let entry = loadEntry()
         let timeline = Timeline(entries: [entry], policy: .after(Date().addingTimeInterval(30 * 60)))
         completion(timeline)

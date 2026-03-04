@@ -14,7 +14,7 @@ struct SelectableText: UIViewRepresentable {
         self.textColor = textColor
     }
 
-    func makeUIView(context: Context) -> UITextView {
+    func makeUIView(context _: Context) -> UITextView {
         let textView = UITextView()
         textView.isEditable = false
         textView.isSelectable = true
@@ -26,13 +26,13 @@ struct SelectableText: UIViewRepresentable {
         return textView
     }
 
-    func updateUIView(_ textView: UITextView, context: Context) {
+    func updateUIView(_ textView: UITextView, context _: Context) {
         textView.text = text
         textView.font = font
         textView.textColor = textColor
     }
 
-    func sizeThatFits(_ proposal: ProposedViewSize, uiView: UITextView, context: Context) -> CGSize? {
+    func sizeThatFits(_ proposal: ProposedViewSize, uiView: UITextView, context _: Context) -> CGSize? {
         let fallbackWidth = uiView.window?.windowScene?.screen.bounds.width ?? 390
         let width = proposal.width ?? fallbackWidth
         let size = uiView.sizeThatFits(CGSize(width: width, height: CGFloat.greatestFiniteMagnitude))

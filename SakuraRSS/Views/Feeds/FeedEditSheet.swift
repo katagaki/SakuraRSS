@@ -56,7 +56,7 @@ struct FeedEditSheet: View {
                         HStack {
                             Spacer()
                             FaviconImage(icon, size: 64,
-                                         cornerRadius: feed.isPodcast ? 16 : (feed.isVideoFeed ? 0 : 8),
+                                         cornerRadius: iconCornerRadius(size: 64),
                                          circle: feed.isVideoFeed && !feed.isPodcast,
                                          skipInset: feed.isVideoFeed || feed.isPodcast
                                             || FullFaviconDomains.shouldUseFullImage(feedDomain: feed.domain))
@@ -199,6 +199,12 @@ struct FeedEditSheet: View {
         dismiss()
     }
 
+    private func iconCornerRadius(size: CGFloat) -> CGFloat {
+        if feed.isPodcast { return size / 4 }
+        if feed.isVideoFeed { return 0 }
+        return size / 8
+    }
+
     @discardableResult
     private func fetchIconFromURL() async -> Bool {
         let input = iconURLInput.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -215,7 +221,9 @@ struct FeedEditSheet: View {
                 selectedPhoto = nil
                 return true
             }
-        } catch { }
+        } catch {
+            // Icon fetch failed — show error below
+        }
         showIconFetchError = true
         return false
     }

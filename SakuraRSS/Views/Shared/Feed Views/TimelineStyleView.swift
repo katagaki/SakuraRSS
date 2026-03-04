@@ -90,6 +90,11 @@ struct TimelineStyleView: View {
         return formatter.string(from: date)
     }
 
+    private func titleWeight(isFeatured: Bool, isRead: Bool) -> Font.Weight {
+        if isFeatured { return .semibold }
+        return isRead ? .regular : .medium
+    }
+
     private func timelineRow(article: Article, isFirst: Bool, isLast: Bool,
                              isFeatured: Bool = false) -> some View {
         HStack(alignment: .top, spacing: 0) {
@@ -111,7 +116,7 @@ struct TimelineStyleView: View {
 
             Text(article.title)
                 .font(isFeatured ? .body : .subheadline)
-                .fontWeight(isFeatured ? .semibold : (article.isRead ? .regular : .medium))
+                .fontWeight(titleWeight(isFeatured: isFeatured, isRead: article.isRead))
                 .foregroundStyle(article.isRead ? .secondary : .primary)
                 .lineLimit(isFeatured ? 3 : 2)
                 .frame(maxWidth: .infinity, alignment: .leading)

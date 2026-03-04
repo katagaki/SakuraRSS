@@ -1,6 +1,15 @@
 import SwiftUI
 import TipKit
 
+// MARK: - Preference key for active display style
+
+struct ActiveDisplayStyleKey: PreferenceKey {
+    static var defaultValue: FeedDisplayStyle = .inbox
+    static func reduce(value: inout FeedDisplayStyle, nextValue: () -> FeedDisplayStyle) {
+        value = nextValue()
+    }
+}
+
 struct ArticleListView: View {
 
     @Environment(FeedManager.self) var feedManager
@@ -34,11 +43,18 @@ struct ArticleListView: View {
         self.onLoadMore = onLoadMore
         let raw = UserDefaults.standard.string(forKey: "displayStyle-\(feedKey)")
         let defaultRaw = UserDefaults.standard.string(forKey: "Display.DefaultStyle") ?? FeedDisplayStyle.inbox.rawValue
-        let fallback: FeedDisplayStyle = isPodcastFeed ? .podcast
-            : isVideoFeed ? .video
-            : isTimelineViewDomain ? .timeline
-            : isFeedViewDomain ? .feed
-            : (FeedDisplayStyle(rawValue: defaultRaw) ?? .inbox)
+        let fallback: FeedDisplayStyle
+        if isPodcastFeed {
+            fallback = .podcast
+        } else if isVideoFeed {
+            fallback = .video
+        } else if isTimelineViewDomain {
+            fallback = .timeline
+        } else if isFeedViewDomain {
+            fallback = .feed
+        } else {
+            fallback = FeedDisplayStyle(rawValue: defaultRaw) ?? .inbox
+        }
         self._displayStyle = State(initialValue: raw.flatMap(FeedDisplayStyle.init(rawValue:)) ?? fallback)
     }
 
@@ -68,6 +84,7 @@ struct ArticleListView: View {
         }
         .scrollContentBackground(.hidden)
         .sakuraBackground()
+        .preference(key: ActiveDisplayStyleKey.self, value: effectiveStyle)
         .navigationTitle(title)
         .toolbarTitleDisplayMode(.inline)
         .toolbar {
