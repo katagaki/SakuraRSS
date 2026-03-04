@@ -62,6 +62,8 @@ struct ArticleListView: View {
                 PodcastStyleView(articles: articles, onLoadMore: onLoadMore)
             case .timeline:
                 TimelineStyleView(articles: articles, onLoadMore: onLoadMore)
+            case .cards:
+                CardsStyleView(articles: articles)
             }
         }
         .scrollContentBackground(.hidden)
@@ -85,6 +87,10 @@ struct ArticleListView: View {
                         if hasImages {
                             Label(String(localized: "Articles.Style.Photos"), systemImage: "photo.stack")
                                 .tag(FeedDisplayStyle.photos)
+                        }
+                        if hasImages {
+                            Label(String(localized: "Articles.Style.Cards"), systemImage: "square.stack.3d.up")
+                                .tag(FeedDisplayStyle.cards)
                         }
                         if isVideoFeed {
                             Label(String(localized: "Articles.Style.Video"), systemImage: "play.rectangle")
@@ -123,7 +129,7 @@ struct ArticleListView: View {
     /// Falls back to inbox if the selected style requires images but none are available,
     /// or if podcast style is selected for a non-podcast feed.
     private var effectiveDisplayStyle: FeedDisplayStyle {
-        if !hasImages && (displayStyle == .magazine || displayStyle == .photos) {
+        if !hasImages && (displayStyle == .magazine || displayStyle == .photos || displayStyle == .cards) {
             return .inbox
         }
         if displayStyle == .podcast && !isPodcastFeed {

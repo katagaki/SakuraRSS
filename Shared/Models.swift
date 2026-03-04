@@ -77,4 +77,5 @@ nonisolated enum FeedDisplayStyle: String, CaseIterable, Sendable {
     case photos
     case podcast
     case timeline
+    case cards
 }
