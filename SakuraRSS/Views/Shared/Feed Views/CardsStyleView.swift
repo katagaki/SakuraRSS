@@ -182,7 +182,7 @@ private struct CardView: View {
         opacity: Double
     ) -> some View {
         RoundedRectangle(cornerRadius: 24)
-            .stroke(color, lineWidth: 4)
+            .stroke(color, lineWidth: 8)
             .overlay(
                 Label(String(localized: localizationKey), systemImage: systemImage)
                     .font(.title2)
