@@ -142,12 +142,11 @@ private struct CardView: View {
                         Text(summary)
                             .font(.subheadline)
                             .foregroundStyle(cardTextColor.secondary)
-                            .lineLimit(1)
+                            .lineLimit(2)
                     }
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(24)
-                .padding(.bottom, 8)
             }
             .clipShape(.rect(cornerRadius: 24))
             .shadow(color: .black.opacity(0.2), radius: 8, y: 4)
