@@ -63,6 +63,36 @@ actor FaviconCache {
         try? FileManager.default.createDirectory(at: cacheDirectory, withIntermediateDirectories: true)
     }
 
+    func setCustomFavicon(_ image: UIImage, feedID: Int64) {
+        let key = "custom-feed-\(feedID)"
+        memoryCache[key] = image
+        let filePath = cacheDirectory.appendingPathComponent(sanitizedFileName(key))
+        if let pngData = image.pngData() {
+            try? pngData.write(to: filePath)
+        }
+    }
+
+    func customFavicon(feedID: Int64) -> UIImage? {
+        let key = "custom-feed-\(feedID)"
+        if let cached = memoryCache[key] {
+            return cached
+        }
+        let filePath = cacheDirectory.appendingPathComponent(sanitizedFileName(key))
+        if let data = try? Data(contentsOf: filePath),
+           let image = UIImage(data: data) {
+            memoryCache[key] = image
+            return image
+        }
+        return nil
+    }
+
+    func removeCustomFavicon(feedID: Int64) {
+        let key = "custom-feed-\(feedID)"
+        memoryCache[key] = nil
+        let filePath = cacheDirectory.appendingPathComponent(sanitizedFileName(key))
+        try? FileManager.default.removeItem(at: filePath)
+    }
+
     private func trimAndCache(_ image: UIImage, cacheKey: String, filePath: URL) async -> UIImage {
         let trimmed = await image.trimmed()
         if let pngData = trimmed.pngData() {

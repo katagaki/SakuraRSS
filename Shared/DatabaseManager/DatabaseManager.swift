@@ -19,6 +19,8 @@ nonisolated final class DatabaseManager: @unchecked Sendable {
     let feedLastFetched = SQLite.Expression<Double?>("last_fetched")
     let feedCategory = SQLite.Expression<String?>("category")
     let feedIsPodcast = SQLite.Expression<Bool>("is_podcast")
+    let feedIsMuted = SQLite.Expression<Bool>("is_muted")
+    let feedCustomIconURL = SQLite.Expression<String?>("custom_icon_url")
 
     let imageCache = Table("image_cache")
     let imageCacheURL = SQLite.Expression<String>("url")
@@ -47,6 +49,12 @@ nonisolated final class DatabaseManager: @unchecked Sendable {
     let summaryCacheDate = SQLite.Expression<String>("date")
     let summaryCacheContent = SQLite.Expression<String>("content")
 
+    let feedRules = Table("feed_rules")
+    let ruleID = SQLite.Expression<Int64>("id")
+    let ruleFeedID = SQLite.Expression<Int64>("feed_id")
+    let ruleType = SQLite.Expression<String>("type")
+    let ruleValue = SQLite.Expression<String>("value")
+
     // MARK: - Init
 
     private init() {
@@ -73,6 +81,8 @@ nonisolated final class DatabaseManager: @unchecked Sendable {
             table.column(feedLastFetched)
             table.column(feedCategory)
             table.column(feedIsPodcast, defaultValue: false)
+            table.column(feedIsMuted, defaultValue: false)
+            table.column(feedCustomIconURL)
         })
 
         try database.run(articles.create(ifNotExists: true) { table in
@@ -107,6 +117,13 @@ nonisolated final class DatabaseManager: @unchecked Sendable {
             table.column(summaryCacheDate)
             table.column(summaryCacheContent)
             table.primaryKey(summaryCacheType, summaryCacheDate)
+        })
+
+        try database.run(feedRules.create(ifNotExists: true) { table in
+            table.column(ruleID, primaryKey: .autoincrement)
+            table.column(ruleFeedID, references: feeds, feedID)
+            table.column(ruleType)
+            table.column(ruleValue)
         })
     }
 }

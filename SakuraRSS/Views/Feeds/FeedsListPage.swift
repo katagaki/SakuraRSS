@@ -7,6 +7,9 @@ struct FeedsListPage: View {
     @State private var isShowingAddFeed = false
     @State private var searchText = ""
     @State private var lastAddedFeedURL: String?
+    @State private var feedToEdit: Feed?
+    @State private var feedToDelete: Feed?
+    @State private var feedForRules: Feed?
 
     var filteredFeeds: [Feed] {
         if searchText.isEmpty {
@@ -26,6 +29,38 @@ struct FeedsListPage: View {
                         FeedRowView(feed: feed)
                     }
                     .listRowBackground(Color.clear)
+                    .contextMenu {
+                        Button {
+                            feedManager.toggleMuted(feed)
+                        } label: {
+                            Label(
+                                feed.isMuted
+                                    ? String(localized: "FeedMenu.Unmute")
+                                    : String(localized: "FeedMenu.Mute"),
+                                systemImage: feed.isMuted
+                                    ? "bell" : "bell.slash"
+                            )
+                        }
+                        Button {
+                            feedForRules = feed
+                        } label: {
+                            Label(String(localized: "FeedMenu.Rules"),
+                                  systemImage: "list.bullet.rectangle")
+                        }
+                        Divider()
+                        Button {
+                            feedToEdit = feed
+                        } label: {
+                            Label(String(localized: "FeedMenu.Edit"),
+                                  systemImage: "pencil")
+                        }
+                        Button(role: .destructive) {
+                            feedToDelete = feed
+                        } label: {
+                            Label(String(localized: "FeedMenu.Delete"),
+                                  systemImage: "trash")
+                        }
+                    }
                 }
                 .onDelete { indexSet in
                     for index in indexSet {
@@ -85,6 +120,36 @@ struct FeedsListPage: View {
                 }
             }
         }
+        .sheet(item: $feedToEdit) { feed in
+            FeedEditSheet(feed: feed)
+                .environment(feedManager)
+        }
+        .sheet(item: $feedForRules) { feed in
+            FeedRulesSheet(feed: feed)
+                .environment(feedManager)
+        }
+        .confirmationDialog(
+            String(localized: "FeedMenu.Delete.Title"),
+            isPresented: Binding(
+                get: { feedToDelete != nil },
+                set: { if !$0 { feedToDelete = nil } }
+            ),
+            titleVisibility: .visible
+        ) {
+            Button(String(localized: "FeedMenu.Delete.Confirm"), role: .destructive) {
+                if let feed = feedToDelete {
+                    try? feedManager.deleteFeed(feed)
+                    feedToDelete = nil
+                }
+            }
+            Button(String(localized: "Shared.Cancel"), role: .cancel) {
+                feedToDelete = nil
+            }
+        } message: {
+            if let feed = feedToDelete {
+                Text("FeedMenu.Delete.Message.\(feed.title)")
+            }
+        }
     }
 }
 
@@ -116,6 +181,11 @@ struct FeedRowView: View {
                     Text(feed.title)
                         .font(.body)
                         .lineLimit(1)
+                    if feed.isMuted {
+                        Image(systemName: "bell.slash.fill")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
                     if feed.isPodcast {
                         Image(systemName: "headphones")
                             .font(.caption)
@@ -147,12 +217,31 @@ struct FeedRowView: View {
             }
         }
         .task {
-            favicon = await FaviconCache.shared.favicon(for: feed.domain, siteURL: feed.siteURL)
+            favicon = await loadFavicon()
         }
         .onChange(of: feedManager.faviconRevision) {
             Task {
-                favicon = await FaviconCache.shared.favicon(for: feed.domain, siteURL: feed.siteURL)
+                favicon = await loadFavicon()
             }
         }
+        .onChange(of: feedManager.dataRevision) {
+            Task {
+                favicon = await loadFavicon()
+            }
+        }
+    }
+
+    private func loadFavicon() async -> UIImage? {
+        if let customURL = feed.customIconURL {
+            if customURL == "photo" {
+                return await FaviconCache.shared.customFavicon(feedID: feed.id)
+            }
+            if let url = URL(string: customURL),
+               let (data, _) = try? await URLSession.shared.data(from: url),
+               let image = UIImage(data: data) {
+                return image
+            }
+        }
+        return await FaviconCache.shared.favicon(for: feed.domain, siteURL: feed.siteURL)
     }
 }

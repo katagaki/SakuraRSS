@@ -52,12 +52,28 @@ nonisolated extension DatabaseManager {
         ))
     }
 
+    func updateFeedMuted(id: Int64, isMuted: Bool) throws {
+        let target = feeds.filter(feedID == id)
+        try database.run(target.update(feedIsMuted <- isMuted))
+    }
+
+    func updateFeedDetails(id: Int64, title: String, url: String,
+                           customIconURL: String?) throws {
+        let target = feeds.filter(feedID == id)
+        try database.run(target.update(
+            feedTitle <- title,
+            feedURL <- url,
+            feedCustomIconURL <- customIconURL
+        ))
+    }
+
     func feedExists(url: String) -> Bool {
         (try? database.pluck(feeds.filter(feedURL == url))) != nil
     }
 
     func deleteFeed(id: Int64) throws {
         try database.run(articles.filter(articleFeedID == id).delete())
+        try database.run(feedRules.filter(ruleFeedID == id).delete())
         try database.run(feeds.filter(feedID == id).delete())
     }
 
@@ -73,7 +89,9 @@ nonisolated extension DatabaseManager {
             faviconURL: row[feedFaviconURL],
             lastFetched: row[feedLastFetched].map { Date(timeIntervalSince1970: $0) },
             category: row[feedCategory],
-            isPodcast: (try? row.get(feedIsPodcast)) ?? false
+            isPodcast: (try? row.get(feedIsPodcast)) ?? false,
+            isMuted: (try? row.get(feedIsMuted)) ?? false,
+            customIconURL: try? row.get(feedCustomIconURL)
         )
     }
 }
