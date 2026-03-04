@@ -57,7 +57,7 @@ struct InboxArticleRow: View {
                     .lineLimit(1)
                     .foregroundStyle(article.isRead ? .secondary : .primary)
 
-                if let summary = article.summary {
+                if article.hasMeaningfulSummary, let summary = article.summary {
                     Text(summary)
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
