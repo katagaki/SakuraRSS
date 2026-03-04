@@ -83,18 +83,18 @@ private struct CardView: View {
                     .clipped()
                 }
 
-                // Gradient overlay for text readability
-                LinearGradient(
-                    colors: [.clear, .clear, .black.opacity(0.7), .black.opacity(0.9)],
-                    startPoint: .top,
-                    endPoint: .bottom
-                )
+                // Progressive blur over the bottom portion of the card
+                ProgressiveBlurView()
+                    .frame(height: geometry.size.height * 0.5)
+                    .frame(maxHeight: .infinity, alignment: .bottom)
 
                 // Swipe indicator overlays
                 swipeIndicators
 
                 // Title and subtitle
                 VStack(alignment: .leading, spacing: 8) {
+                    Spacer()
+
                     Text(article.title)
                         .font(.system(.title, weight: .bold))
                         .fontWidth(.condensed)
@@ -109,6 +109,7 @@ private struct CardView: View {
                             .lineLimit(1)
                     }
                 }
+                .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(24)
                 .padding(.bottom, 8)
             }
@@ -188,6 +189,53 @@ private struct CardView: View {
             withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
                 offset = .zero
             }
+        }
+    }
+}
+
+// MARK: - Progressive Blur
+
+/// Builds a progressive blur by stacking multiple blur layers, each masked
+/// to reveal only its vertical slice. The result fades from sharp at the top
+/// to heavily blurred at the bottom, with a dark tint for text contrast.
+private struct ProgressiveBlurView: UIViewRepresentable {
+
+    private static let steps = 6
+
+    func makeUIView(context: Context) -> UIView {
+        let container = UIView()
+        container.clipsToBounds = true
+
+        for i in 0..<Self.steps {
+            let blur = UIVisualEffectView(effect: UIBlurEffect(style: .dark))
+            blur.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+            container.addSubview(blur)
+        }
+
+        return container
+    }
+
+    func updateUIView(_ container: UIView, context: Context) {
+        let blurViews = container.subviews.compactMap { $0 as? UIVisualEffectView }
+        guard blurViews.count == Self.steps else { return }
+
+        for (i, blur) in blurViews.enumerated() {
+            blur.frame = container.bounds
+
+            let gradientMask = CAGradientLayer()
+            gradientMask.frame = container.bounds
+            gradientMask.colors = [UIColor.clear.cgColor, UIColor.clear.cgColor,
+                                   UIColor.black.cgColor, UIColor.black.cgColor]
+
+            let start = CGFloat(i) / CGFloat(Self.steps)
+            let end = CGFloat(i + 1) / CGFloat(Self.steps)
+            gradientMask.locations = [0, NSNumber(value: start), NSNumber(value: end), 1]
+            gradientMask.startPoint = CGPoint(x: 0.5, y: 0)
+            gradientMask.endPoint = CGPoint(x: 0.5, y: 1)
+            blur.layer.mask = gradientMask
+
+            let fraction = CGFloat(i + 1) / CGFloat(Self.steps)
+            blur.alpha = fraction
         }
     }
 }
