@@ -64,4 +64,5 @@ nonisolated enum FeedDisplayStyle: String, CaseIterable, Sendable {
     case video
     case photos
     case podcast
+    case timeline
 }

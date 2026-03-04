@@ -34,7 +34,7 @@ struct ArticleListView: View {
         let defaultRaw = UserDefaults.standard.string(forKey: "Display.DefaultStyle") ?? FeedDisplayStyle.inbox.rawValue
         let fallback: FeedDisplayStyle = isPodcastFeed ? .podcast
             : isVideoFeed ? .video
-            : isFeedViewDomain ? .feed
+            : isFeedViewDomain ? .timeline
             : (FeedDisplayStyle(rawValue: defaultRaw) ?? .inbox)
         self._displayStyle = State(initialValue: raw.flatMap(FeedDisplayStyle.init(rawValue:)) ?? fallback)
     }
@@ -57,6 +57,8 @@ struct ArticleListView: View {
                 PhotosStyleView(articles: articles, onLoadMore: onLoadMore)
             case .podcast:
                 PodcastStyleView(articles: articles, onLoadMore: onLoadMore)
+            case .timeline:
+                TimelineStyleView(articles: articles, onLoadMore: onLoadMore)
             }
         }
         .scrollContentBackground(.hidden)
@@ -88,6 +90,10 @@ struct ArticleListView: View {
                             Label(String(localized: "Articles.Style.Podcast"), systemImage: "headphones")
                                 .tag(FeedDisplayStyle.podcast)
                         }
+                        if feedKey != "all" {
+                            Label(String(localized: "Articles.Style.Timeline"), systemImage: "clock")
+                                .tag(FeedDisplayStyle.timeline)
+                        }
                     }
                 } label: {
                     Image(systemName: "line.3.horizontal.decrease")
@@ -117,6 +123,9 @@ struct ArticleListView: View {
             return .inbox
         }
         if displayStyle == .podcast && !isPodcastFeed {
+            return .inbox
+        }
+        if displayStyle == .timeline && feedKey == "all" {
             return .inbox
         }
         return displayStyle
