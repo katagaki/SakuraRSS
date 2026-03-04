@@ -5,6 +5,7 @@ struct SearchView: View {
     @Environment(FeedManager.self) var feedManager
     @AppStorage("Search.DisplayStyle") private var searchDisplayStyle: FeedDisplayStyle = .inbox
     @State private var searchText = ""
+    @State private var showingOnboarding = false
 
     private var searchResults: [Article] {
         guard !searchText.isEmpty else { return [] }
@@ -73,6 +74,18 @@ struct SearchView: View {
                 }
             }
             .searchable(text: $searchText, prompt: String(localized: "Search.Prompt"))
+            .onChange(of: searchText) {
+                if searchText == "/reonboard" {
+                    searchText = ""
+                    showingOnboarding = true
+                }
+            }
+            .sheet(isPresented: $showingOnboarding) {
+                OnboardingView {
+                    showingOnboarding = false
+                }
+                .environment(feedManager)
+            }
         }
     }
 }

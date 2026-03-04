@@ -67,7 +67,7 @@ struct ArticleListView: View {
         .scrollContentBackground(.hidden)
         .sakuraBackground()
         .navigationTitle(title)
-        .toolbarTitleDisplayMode(.inlineLarge)
+        .toolbarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItemGroup(placement: .topBarTrailing) {
                 Menu {
