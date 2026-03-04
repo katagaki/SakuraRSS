@@ -3,6 +3,7 @@ import SwiftUI
 struct PhotosStyleView: View {
 
     @Environment(FeedManager.self) var feedManager
+    @Environment(\.zoomNamespace) private var zoomNamespace
     let articles: [Article]
     var onLoadMore: (() -> Void)?
 
@@ -12,6 +13,7 @@ struct PhotosStyleView: View {
                 ForEach(articles) { article in
                     ArticleLink(article: article) {
                         PhotosArticleCard(article: article)
+                            .zoomSource(id: article.id, namespace: zoomNamespace)
                     }
                     .buttonStyle(.plain)
                 }

@@ -2,21 +2,21 @@ import SwiftUI
 
 // MARK: - Environment key for zoom transition namespace
 
-private struct CardZoomNamespaceKey: EnvironmentKey {
+private struct ZoomNamespaceKey: EnvironmentKey {
     static let defaultValue: Namespace.ID? = nil
 }
 
 extension EnvironmentValues {
-    var cardZoomNamespace: Namespace.ID? {
-        get { self[CardZoomNamespaceKey.self] }
-        set { self[CardZoomNamespaceKey.self] = newValue }
+    var zoomNamespace: Namespace.ID? {
+        get { self[ZoomNamespaceKey.self] }
+        set { self[ZoomNamespaceKey.self] = newValue }
     }
 }
 
 struct CardsStyleView: View {
 
     @Environment(FeedManager.self) var feedManager
-    @Environment(\.cardZoomNamespace) private var zoomNamespace
+    @Environment(\.zoomNamespace) private var zoomNamespace
     let articles: [Article]
 
     /// Snapshot of article IDs that were unread when the deck was built.
@@ -62,7 +62,7 @@ struct CardsStyleView: View {
                                 dismissedIDs.insert(article.id)
                             }
                         )
-                        .cardZoomSource(id: article.id, namespace: zoomNamespace)
+                        .zoomSource(id: article.id, namespace: zoomNamespace)
                     }
                     .buttonStyle(.plain)
                     .scaleEffect(1.0 - CGFloat(index) * 0.04)
@@ -230,20 +230,19 @@ private struct CardView: View {
     }
 }
 
-// MARK: - Zoom Modifier
+// MARK: - Zoom Modifiers
 
 extension View {
-    /// Applies the zoom navigation transition for card-style navigation.
-    /// When no matching `matchedTransitionSource` exists (non-cards styles),
-    /// the system falls back to the default push transition automatically.
-    func cardZoomTransition(sourceID: Int64, in namespace: Namespace.ID) -> some View {
+    /// Applies the zoom navigation transition on the destination side.
+    /// When no matching `matchedTransitionSource` exists, the system
+    /// falls back to the default push transition automatically.
+    func zoomTransition(sourceID: Int64, in namespace: Namespace.ID) -> some View {
         self.navigationTransition(.zoom(sourceID: sourceID, in: namespace))
     }
-}
 
-private extension View {
+    /// Marks this view as the source for a zoom navigation transition.
     @ViewBuilder
-    func cardZoomSource(id: Int64, namespace: Namespace.ID?) -> some View {
+    func zoomSource(id: Int64, namespace: Namespace.ID?) -> some View {
         if let namespace {
             self.matchedTransitionSource(id: id, in: namespace)
         } else {

@@ -69,7 +69,7 @@ struct SearchView: View {
             }
             .scrollContentBackground(.hidden)
             .sakuraBackground()
-            .environment(\.cardZoomNamespace, cardZoom)
+            .environment(\.zoomNamespace, cardZoom)
             .navigationDestination(for: Article.self) { article in
                 Group {
                     if article.isPodcastEpisode {
@@ -78,7 +78,7 @@ struct SearchView: View {
                         ArticleDetailView(article: article)
                     }
                 }
-                .cardZoomTransition(sourceID: article.id, in: cardZoom)
+                .zoomTransition(sourceID: article.id, in: cardZoom)
             }
             .searchable(text: $searchText, prompt: String(localized: "Search.Prompt"))
             .onChange(of: searchText) {

@@ -3,6 +3,7 @@ import SwiftUI
 struct MagazineStyleView: View {
 
     @Environment(FeedManager.self) var feedManager
+    @Environment(\.zoomNamespace) private var zoomNamespace
     let articles: [Article]
     var onLoadMore: (() -> Void)?
 
@@ -17,6 +18,7 @@ struct MagazineStyleView: View {
                 ForEach(articles) { article in
                     ArticleLink(article: article) {
                         MagazineArticleCard(article: article)
+                            .zoomSource(id: article.id, namespace: zoomNamespace)
                     }
                     .buttonStyle(.plain)
                     .contextMenu {

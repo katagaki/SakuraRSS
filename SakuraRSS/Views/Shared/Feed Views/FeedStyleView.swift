@@ -3,6 +3,7 @@ import SwiftUI
 struct FeedStyleView: View {
 
     @Environment(FeedManager.self) var feedManager
+    @Environment(\.zoomNamespace) private var zoomNamespace
     let articles: [Article]
     var onLoadMore: (() -> Void)?
 
@@ -16,6 +17,7 @@ struct FeedStyleView: View {
                     .opacity(0)
 
                     FeedArticleRow(article: article)
+                        .zoomSource(id: article.id, namespace: zoomNamespace)
                 }
                 .padding(.horizontal, 12)
                 .listRowBackground(Color.clear)

@@ -3,6 +3,7 @@ import SwiftUI
 struct PodcastStyleView: View {
 
     @Environment(FeedManager.self) var feedManager
+    @Environment(\.zoomNamespace) private var zoomNamespace
     let articles: [Article]
     var onLoadMore: (() -> Void)?
 
@@ -16,6 +17,7 @@ struct PodcastStyleView: View {
                     .opacity(0)
 
                     PodcastEpisodeRow(article: article)
+                        .zoomSource(id: article.id, namespace: zoomNamespace)
                 }
                 .listRowBackground(Color.clear)
                 .listRowInsets(EdgeInsets(top: 8, leading: 12, bottom: 8, trailing: 16))

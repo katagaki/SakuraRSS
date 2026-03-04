@@ -16,7 +16,7 @@ struct FeedListView: View {
                 }
                 .navigationDestination(for: Feed.self) { feed in
                     FeedArticlesView(feed: feed)
-                        .environment(\.cardZoomNamespace, cardZoom)
+                        .environment(\.zoomNamespace, cardZoom)
                         .onAppear { savedFeedID = Int(feed.id) }
                         .onDisappear {
                             if path.count < 1 { savedFeedID = -1 }
@@ -30,7 +30,7 @@ struct FeedListView: View {
                             ArticleDetailView(article: article)
                         }
                     }
-                    .cardZoomTransition(sourceID: article.id, in: cardZoom)
+                    .zoomTransition(sourceID: article.id, in: cardZoom)
                     .onAppear { savedArticleID = Int(article.id) }
                     .onDisappear { savedArticleID = -1 }
                 }

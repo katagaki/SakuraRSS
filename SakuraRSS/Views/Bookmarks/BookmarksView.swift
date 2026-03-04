@@ -90,7 +90,7 @@ struct BookmarksView: View {
             .onChange(of: displayStyle) { _, newValue in
                 UserDefaults.standard.set(newValue.rawValue, forKey: "displayStyle-bookmarks")
             }
-            .environment(\.cardZoomNamespace, cardZoom)
+            .environment(\.zoomNamespace, cardZoom)
             .navigationDestination(for: Article.self) { article in
                 Group {
                     if article.isPodcastEpisode {
@@ -99,7 +99,7 @@ struct BookmarksView: View {
                         ArticleDetailView(article: article)
                     }
                 }
-                .cardZoomTransition(sourceID: article.id, in: cardZoom)
+                .zoomTransition(sourceID: article.id, in: cardZoom)
             }
             .onAppear {
                 bookmarkedArticles = (try? DatabaseManager.shared.bookmarkedArticles()) ?? []
