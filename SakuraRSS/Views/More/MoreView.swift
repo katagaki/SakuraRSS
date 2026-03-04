@@ -19,11 +19,6 @@ struct MoreView: View {
     @State private var importedFileData: Data?
     @State private var alertMessage: String?
     @State private var showAlert = false
-    #if DEBUG
-    @AppStorage("Debug.ForceWhileYouSlept") private var forceWhileYouSlept: Bool = false
-    @AppStorage("Debug.ForceTodaysSummary") private var forceTodaysSummary: Bool = false
-    @AppStorage("Onboarding.Completed") private var onboardingCompleted: Bool = false
-    #endif
 
     private var isAppleIntelligenceAvailable: Bool {
         SystemLanguageModel.default.availability == .available
@@ -38,8 +33,6 @@ struct MoreView: View {
                             .tag(FeedDisplayStyle.inbox)
                         Text("Articles.Style.Feed")
                             .tag(FeedDisplayStyle.feed)
-                        Text("Articles.Style.Magazine")
-                            .tag(FeedDisplayStyle.magazine)
                         Text("Articles.Style.Compact")
                             .tag(FeedDisplayStyle.compact)
                     }
@@ -48,8 +41,6 @@ struct MoreView: View {
                             .tag(FeedDisplayStyle.inbox)
                         Text("Articles.Style.Feed")
                             .tag(FeedDisplayStyle.feed)
-                        Text("Articles.Style.Magazine")
-                            .tag(FeedDisplayStyle.magazine)
                         Text("Articles.Style.Compact")
                             .tag(FeedDisplayStyle.compact)
                     }
@@ -116,23 +107,6 @@ struct MoreView: View {
                     Text("DataManagement.OPML.Footer")
                 }
 
-                #if DEBUG
-                Section {
-                    Toggle(isOn: $forceWhileYouSlept) {
-                        Text(verbatim: "Force While You Slept")
-                    }
-                    Toggle(isOn: $forceTodaysSummary) {
-                        Text(verbatim: "Force Today's Summary")
-                    }
-                    Button {
-                        onboardingCompleted = false
-                    } label: {
-                        Text(verbatim: "Show Onboarding on Next Launch")
-                    }
-                } header: {
-                    Text(verbatim: "Debug")
-                }
-                #endif
 
                 Section {
                     Link(destination: URL(string: "https://github.com/katagaki/SakuraRSS")!) {
@@ -196,10 +170,9 @@ struct MoreView: View {
                     showAlert = true
                 }
             }
-            .confirmationDialog(
+            .alert(
                 String(localized: "DataManagement.Import.ModeTitle"),
-                isPresented: $showImportModeChoice,
-                titleVisibility: .visible
+                isPresented: $showImportModeChoice
             ) {
                 Button(String(localized: "DataManagement.Import.Merge")) {
                     performImport(overwrite: false)

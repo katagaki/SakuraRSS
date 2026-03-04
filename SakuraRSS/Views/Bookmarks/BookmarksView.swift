@@ -12,7 +12,7 @@ struct BookmarksView: View {
     }
 
     init() {
-        let raw = UserDefaults.standard.string(forKey: "displayStyle-bookmarks")
+        let raw = UserDefaults.standard.string(forKey: "Display.DefaultBookmarksStyle")
         let defaultRaw = UserDefaults.standard.string(forKey: "Display.DefaultStyle") ?? FeedDisplayStyle.inbox.rawValue
         let fallback = FeedDisplayStyle(rawValue: defaultRaw) ?? .inbox
         self._displayStyle = State(initialValue: raw.flatMap(FeedDisplayStyle.init(rawValue:)) ?? fallback)
@@ -88,9 +88,9 @@ struct BookmarksView: View {
                 }
             }
             .onChange(of: displayStyle) { _, newValue in
-                UserDefaults.standard.set(newValue.rawValue, forKey: "displayStyle-bookmarks")
+                UserDefaults.standard.set(newValue.rawValue, forKey: "Display.DefaultBookmarksStyle")
             }
-            .environment(\.cardZoomNamespace, cardZoom)
+            .environment(\.zoomNamespace, cardZoom)
             .navigationDestination(for: Article.self) { article in
                 Group {
                     if article.isPodcastEpisode {
@@ -99,8 +99,7 @@ struct BookmarksView: View {
                         ArticleDetailView(article: article)
                     }
                 }
-                .conditionalZoomTransition(isCards: effectiveDisplayStyle == .cards,
-                                           sourceID: article.id, in: cardZoom)
+                .zoomTransition(sourceID: article.id, in: cardZoom)
             }
             .onAppear {
                 bookmarkedArticles = (try? DatabaseManager.shared.bookmarkedArticles()) ?? []

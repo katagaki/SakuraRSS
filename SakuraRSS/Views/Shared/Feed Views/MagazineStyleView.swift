@@ -3,6 +3,7 @@ import SwiftUI
 struct MagazineStyleView: View {
 
     @Environment(FeedManager.self) var feedManager
+    @Environment(\.zoomNamespace) private var zoomNamespace
     let articles: [Article]
     var onLoadMore: (() -> Void)?
 
@@ -17,6 +18,7 @@ struct MagazineStyleView: View {
                 ForEach(articles) { article in
                     ArticleLink(article: article) {
                         MagazineArticleCard(article: article)
+                            .zoomSource(id: article.id, namespace: zoomNamespace)
                     }
                     .buttonStyle(.plain)
                     .contextMenu {
@@ -28,7 +30,7 @@ struct MagazineStyleView: View {
                                     ? String(localized: "Article.MarkUnread")
                                     : String(localized: "Article.MarkRead"),
                                 systemImage: article.isRead
-                                    ? "envelope.badge" : "envelope.open"
+                                    ? "envelope" : "envelope.open"
                             )
                         }
                     }
@@ -51,6 +53,7 @@ struct MagazineArticleCard: View {
     let article: Article
     @State private var favicon: UIImage?
     @State private var feedName: String?
+    @State private var acronymIcon: UIImage?
     @State private var skipFaviconInset = false
     @State private var isVideoFeed = false
 
@@ -77,6 +80,11 @@ struct MagazineArticleCard: View {
                 if let favicon = favicon {
                     FaviconImage(favicon, size: 20, cornerRadius: 4,
                                  circle: isVideoFeed, skipInset: skipFaviconInset)
+                        .shadow(color: .black.opacity(0.3), radius: 2, y: 1)
+                        .padding(6)
+                } else if let acronymIcon {
+                    FaviconImage(acronymIcon, size: 20, cornerRadius: 4,
+                                 circle: isVideoFeed, skipInset: true)
                         .shadow(color: .black.opacity(0.3), radius: 2, y: 1)
                         .padding(6)
                 } else if let feedName {
@@ -108,10 +116,13 @@ struct MagazineArticleCard: View {
         .task {
             if let feed = feedManager.feed(forArticle: article) {
                 feedName = feed.title
-                favicon = await FaviconCache.shared.favicon(for: feed.domain, siteURL: feed.siteURL)
+                if let data = feed.acronymIcon {
+                    acronymIcon = UIImage(data: data)
+                }
                 isVideoFeed = feed.isVideoFeed
                 skipFaviconInset = feed.isVideoFeed
                     || FullFaviconDomains.shouldUseFullImage(feedDomain: feed.domain)
+                favicon = await FaviconCache.shared.favicon(for: feed.domain, siteURL: feed.siteURL)
             }
         }
     }

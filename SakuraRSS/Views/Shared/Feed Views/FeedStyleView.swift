@@ -3,6 +3,7 @@ import SwiftUI
 struct FeedStyleView: View {
 
     @Environment(FeedManager.self) var feedManager
+    @Environment(\.zoomNamespace) private var zoomNamespace
     let articles: [Article]
     var onLoadMore: (() -> Void)?
 
@@ -16,6 +17,7 @@ struct FeedStyleView: View {
                     .opacity(0)
 
                     FeedArticleRow(article: article)
+                        .zoomSource(id: article.id, namespace: zoomNamespace)
                 }
                 .padding(.horizontal, 12)
                 .listRowBackground(Color.clear)
@@ -46,6 +48,7 @@ struct FeedArticleRow: View {
     let article: Article
     @State private var favicon: UIImage?
     @State private var feedName: String?
+    @State private var acronymIcon: UIImage?
     @State private var skipFaviconInset = false
     @State private var preferTitle = false
 
@@ -53,6 +56,8 @@ struct FeedArticleRow: View {
         HStack(alignment: .top, spacing: 10) {
             if let favicon = favicon {
                 FaviconImage(favicon, size: 40, circle: true, skipInset: skipFaviconInset)
+            } else if let acronymIcon {
+                FaviconImage(acronymIcon, size: 40, circle: true, skipInset: true)
             } else if let feedName {
                 InitialsAvatarView(feedName, size: 40, circle: true)
             } else {
@@ -146,7 +151,7 @@ struct FeedArticleRow: View {
                     } label: {
                         Image(
                             systemName: article.isRead
-                                ? "envelope.badge" : "envelope.open"
+                                ? "envelope" : "envelope.open"
                         )
                     }
                     .buttonStyle(.plain)
@@ -175,11 +180,14 @@ struct FeedArticleRow: View {
         }
         .task {
             if let feed = feedManager.feed(forArticle: article) {
-                favicon = await FaviconCache.shared.favicon(for: feed.domain, siteURL: feed.siteURL)
                 feedName = feed.title
+                if let data = feed.acronymIcon {
+                    acronymIcon = UIImage(data: data)
+                }
                 skipFaviconInset = feed.isVideoFeed
                     || FullFaviconDomains.shouldUseFullImage(feedDomain: feed.domain)
                 preferTitle = TitleOnlyDomains.shouldPreferTitle(feedDomain: feed.domain)
+                favicon = await FaviconCache.shared.favicon(for: feed.domain, siteURL: feed.siteURL)
             }
         }
     }

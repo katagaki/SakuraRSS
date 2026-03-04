@@ -67,6 +67,11 @@ nonisolated extension DatabaseManager {
         ))
     }
 
+    func updateFeedAcronymIcon(id: Int64, data: Data?) throws {
+        let target = feeds.filter(feedID == id)
+        try database.run(target.update(feedAcronymIcon <- data))
+    }
+
     func feedExists(url: String) -> Bool {
         (try? database.pluck(feeds.filter(feedURL == url))) != nil
     }
@@ -91,7 +96,8 @@ nonisolated extension DatabaseManager {
             category: row[feedCategory],
             isPodcast: (try? row.get(feedIsPodcast)) ?? false,
             isMuted: (try? row.get(feedIsMuted)) ?? false,
-            customIconURL: try? row.get(feedCustomIconURL)
+            customIconURL: try? row.get(feedCustomIconURL),
+            acronymIcon: try? row.get(feedAcronymIcon)
         )
     }
 }

@@ -9,6 +9,7 @@ struct ArticleDetailView: View {
     let article: Article
     @State var favicon: UIImage?
     @State var feedName: String?
+    @State var acronymIcon: UIImage?
     @State var skipFaviconInset = false
     @State var isVideoFeed = false
     @State var extractedText: String?
@@ -50,6 +51,9 @@ struct ArticleDetailView: View {
                     if let favicon = favicon {
                         FaviconImage(favicon, size: 18, cornerRadius: 3,
                                      circle: isVideoFeed, skipInset: skipFaviconInset)
+                    } else if let acronymIcon {
+                        FaviconImage(acronymIcon, size: 18, cornerRadius: 3,
+                                     circle: isVideoFeed, skipInset: true)
                     } else if let feedName {
                         InitialsAvatarView(feedName, size: 18, circle: isVideoFeed, cornerRadius: 3)
                     }
@@ -244,10 +248,13 @@ struct ArticleDetailView: View {
             feedManager.markRead(article)
             if let feed = feedManager.feed(forArticle: article) {
                 feedName = feed.title
-                favicon = await FaviconCache.shared.favicon(for: feed.domain, siteURL: feed.siteURL)
+                if let data = feed.acronymIcon {
+                    acronymIcon = UIImage(data: data)
+                }
                 isVideoFeed = feed.isVideoFeed
                 skipFaviconInset = feed.isVideoFeed
                     || FullFaviconDomains.shouldUseFullImage(feedDomain: feed.domain)
+                favicon = await FaviconCache.shared.favicon(for: feed.domain, siteURL: feed.siteURL)
             }
             await extractArticleContent()
             if let cached = try? DatabaseManager.shared.cachedArticleSummary(for: article.id),

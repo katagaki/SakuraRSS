@@ -3,6 +3,7 @@ import SwiftUI
 struct PhotosStyleView: View {
 
     @Environment(FeedManager.self) var feedManager
+    @Environment(\.zoomNamespace) private var zoomNamespace
     let articles: [Article]
     var onLoadMore: (() -> Void)?
 
@@ -12,6 +13,7 @@ struct PhotosStyleView: View {
                 ForEach(articles) { article in
                     ArticleLink(article: article) {
                         PhotosArticleCard(article: article)
+                            .zoomSource(id: article.id, namespace: zoomNamespace)
                     }
                     .buttonStyle(.plain)
                 }
@@ -30,6 +32,7 @@ struct PhotosArticleCard: View {
     let article: Article
     @State private var favicon: UIImage?
     @State private var feedName: String?
+    @State private var acronymIcon: UIImage?
     @State private var skipFaviconInset = false
     @State private var photoImage: UIImage?
 
@@ -39,6 +42,8 @@ struct PhotosArticleCard: View {
             HStack(spacing: 10) {
                 if let favicon = favicon {
                     FaviconImage(favicon, size: 32, circle: true, skipInset: skipFaviconInset)
+                } else if let acronymIcon {
+                    FaviconImage(acronymIcon, size: 32, circle: true, skipInset: true)
                 } else if let feedName {
                     InitialsAvatarView(feedName, size: 32, circle: true)
                 } else {
@@ -66,7 +71,7 @@ struct PhotosArticleCard: View {
                                 ? String(localized: "Article.MarkUnread")
                                 : String(localized: "Article.MarkRead"),
                             systemImage: article.isRead
-                                ? "envelope.badge" : "envelope.open"
+                                ? "envelope" : "envelope.open"
                         )
                     }
                 } label: {
@@ -158,10 +163,13 @@ struct PhotosArticleCard: View {
         }
         .task {
             if let feed = feedManager.feed(forArticle: article) {
-                favicon = await FaviconCache.shared.favicon(for: feed.domain, siteURL: feed.siteURL)
                 feedName = feed.title
+                if let data = feed.acronymIcon {
+                    acronymIcon = UIImage(data: data)
+                }
                 skipFaviconInset = feed.isVideoFeed
                     || FullFaviconDomains.shouldUseFullImage(feedDomain: feed.domain)
+                favicon = await FaviconCache.shared.favicon(for: feed.domain, siteURL: feed.siteURL)
             }
         }
     }

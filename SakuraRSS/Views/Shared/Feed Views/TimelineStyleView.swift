@@ -3,6 +3,7 @@ import SwiftUI
 struct TimelineStyleView: View {
 
     @Environment(FeedManager.self) var feedManager
+    @Environment(\.zoomNamespace) private var zoomNamespace
     let articles: [Article]
     var onLoadMore: (() -> Void)?
 
@@ -25,6 +26,7 @@ struct TimelineStyleView: View {
                                 isLast: index == group.articles.count - 1,
                                 isFeatured: groupIndex == 0 && index == 0
                             )
+                            .zoomSource(id: article.id, namespace: zoomNamespace)
                         }
                         .listRowBackground(Color.clear)
                         .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16))

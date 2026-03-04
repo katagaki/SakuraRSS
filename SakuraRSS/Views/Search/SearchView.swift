@@ -6,7 +6,6 @@ struct SearchView: View {
     @AppStorage("Search.DisplayStyle") private var searchDisplayStyle: FeedDisplayStyle = .inbox
     @State private var searchText = ""
     @Namespace private var cardZoom
-    @State private var showingOnboarding = false
 
     private var searchResults: [Article] {
         guard !searchText.isEmpty else { return [] }
@@ -69,7 +68,7 @@ struct SearchView: View {
             }
             .scrollContentBackground(.hidden)
             .sakuraBackground()
-            .environment(\.cardZoomNamespace, cardZoom)
+            .environment(\.zoomNamespace, cardZoom)
             .navigationDestination(for: Article.self) { article in
                 Group {
                     if article.isPodcastEpisode {
@@ -78,22 +77,9 @@ struct SearchView: View {
                         ArticleDetailView(article: article)
                     }
                 }
-                .conditionalZoomTransition(isCards: effectiveStyle == .cards,
-                                           sourceID: article.id, in: cardZoom)
+                .zoomTransition(sourceID: article.id, in: cardZoom)
             }
             .searchable(text: $searchText, prompt: String(localized: "Search.Prompt"))
-            .onChange(of: searchText) {
-                if searchText == "/reonboard" {
-                    searchText = ""
-                    showingOnboarding = true
-                }
-            }
-            .sheet(isPresented: $showingOnboarding) {
-                OnboardingView {
-                    showingOnboarding = false
-                }
-                .environment(feedManager)
-            }
         }
     }
 }

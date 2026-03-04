@@ -2,26 +2,32 @@ import SwiftUI
 
 // MARK: - Environment key for zoom transition namespace
 
-private struct CardZoomNamespaceKey: EnvironmentKey {
+private struct ZoomNamespaceKey: EnvironmentKey {
     static let defaultValue: Namespace.ID? = nil
 }
 
 extension EnvironmentValues {
-    var cardZoomNamespace: Namespace.ID? {
-        get { self[CardZoomNamespaceKey.self] }
-        set { self[CardZoomNamespaceKey.self] = newValue }
+    var zoomNamespace: Namespace.ID? {
+        get { self[ZoomNamespaceKey.self] }
+        set { self[ZoomNamespaceKey.self] = newValue }
     }
 }
 
 struct CardsStyleView: View {
 
     @Environment(FeedManager.self) var feedManager
-    @Environment(\.cardZoomNamespace) private var zoomNamespace
+    @Environment(\.zoomNamespace) private var zoomNamespace
     let articles: [Article]
 
-    /// Articles with images only, filtered to unread for the current session deck.
+    /// Snapshot of article IDs that were unread when the deck was built.
+    /// Using a snapshot prevents cards from disappearing when markRead is
+    /// called during navigation, which would remove the matched transition
+    /// source and break the zoom animation.
+    @State private var deckArticleIDs: Set<Int64>?
+
     private var deckArticles: [Article] {
-        articles.filter { $0.imageURL != nil && !$0.isRead }
+        guard let ids = deckArticleIDs else { return [] }
+        return articles.filter { ids.contains($0.id) && $0.imageURL != nil }
     }
 
     /// Tracks article IDs that have been swiped away during this view's lifetime.
@@ -56,7 +62,7 @@ struct CardsStyleView: View {
                                 dismissedIDs.insert(article.id)
                             }
                         )
-                        .cardZoomSource(id: article.id, namespace: zoomNamespace)
+                        .zoomSource(id: article.id, namespace: zoomNamespace)
                     }
                     .buttonStyle(.plain)
                     .scaleEffect(1.0 - CGFloat(index) * 0.04)
@@ -67,6 +73,13 @@ struct CardsStyleView: View {
         }
         .padding()
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .onAppear {
+            if deckArticleIDs == nil {
+                deckArticleIDs = Set(
+                    articles.filter { $0.imageURL != nil && !$0.isRead }.map(\.id)
+                )
+            }
+        }
     }
 }
 
@@ -129,12 +142,11 @@ private struct CardView: View {
                         Text(summary)
                             .font(.subheadline)
                             .foregroundStyle(cardTextColor.secondary)
-                            .lineLimit(1)
+                            .lineLimit(2)
                     }
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(24)
-                .padding(.bottom, 8)
             }
             .clipShape(.rect(cornerRadius: 24))
             .shadow(color: .black.opacity(0.2), radius: 8, y: 4)
@@ -217,24 +229,19 @@ private struct CardView: View {
     }
 }
 
-// MARK: - Conditional Zoom Modifiers
+// MARK: - Zoom Modifiers
 
 extension View {
-    /// Applies the zoom navigation transition only when Cards style is active,
-    /// preventing strange animations in other display styles.
-    @ViewBuilder
-    func conditionalZoomTransition(isCards: Bool, sourceID: Int64, in namespace: Namespace.ID) -> some View {
-        if isCards {
-            self.navigationTransition(.zoom(sourceID: sourceID, in: namespace))
-        } else {
-            self
-        }
+    /// Applies the zoom navigation transition on the destination side.
+    /// When no matching `matchedTransitionSource` exists, the system
+    /// falls back to the default push transition automatically.
+    func zoomTransition(sourceID: Int64, in namespace: Namespace.ID) -> some View {
+        self.navigationTransition(.zoom(sourceID: sourceID, in: namespace))
     }
-}
 
-private extension View {
+    /// Marks this view as the source for a zoom navigation transition.
     @ViewBuilder
-    func cardZoomSource(id: Int64, namespace: Namespace.ID?) -> some View {
+    func zoomSource(id: Int64, namespace: Namespace.ID?) -> some View {
         if let namespace {
             self.matchedTransitionSource(id: id, in: namespace)
         } else {
@@ -308,7 +315,7 @@ private final class ProgressiveBlurUIView: UIView {
         let blurViews = subviews.compactMap { $0 as? UIVisualEffectView }
         guard blurViews.count == Self.steps else { return }
 
-        for (i, blur) in blurViews.enumerated() {
+        for (index, blur) in blurViews.enumerated() {
             blur.frame = bounds
 
             let mask = CAGradientLayer()
@@ -316,14 +323,14 @@ private final class ProgressiveBlurUIView: UIView {
             mask.colors = [UIColor.clear.cgColor, UIColor.clear.cgColor,
                            UIColor.black.cgColor, UIColor.black.cgColor]
 
-            let start = CGFloat(i) / CGFloat(Self.steps)
-            let end = CGFloat(i + 1) / CGFloat(Self.steps)
+            let start = CGFloat(index) / CGFloat(Self.steps)
+            let end = CGFloat(index + 1) / CGFloat(Self.steps)
             mask.locations = [0, NSNumber(value: start), NSNumber(value: end), 1]
             mask.startPoint = CGPoint(x: 0.5, y: 0)
             mask.endPoint = CGPoint(x: 0.5, y: 1)
             blur.layer.mask = mask
 
-            blur.alpha = CGFloat(i + 1) / CGFloat(Self.steps)
+            blur.alpha = CGFloat(index + 1) / CGFloat(Self.steps)
         }
 
         // Tint overlay

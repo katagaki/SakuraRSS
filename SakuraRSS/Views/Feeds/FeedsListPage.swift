@@ -178,6 +178,11 @@ struct FeedRowView: View {
                              circle: feed.isVideoFeed && !feed.isPodcast,
                              skipInset: feed.isVideoFeed || feed.isPodcast
                                 || FullFaviconDomains.shouldUseFullImage(feedDomain: feed.domain))
+            } else if let data = feed.acronymIcon, let acronym = UIImage(data: data) {
+                FaviconImage(acronym, size: 32,
+                             cornerRadius: iconCornerRadius,
+                             circle: feed.isVideoFeed && !feed.isPodcast,
+                             skipInset: true)
             } else {
                 InitialsAvatarView(
                     feed.title,

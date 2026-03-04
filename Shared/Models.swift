@@ -12,6 +12,7 @@ nonisolated struct Feed: Identifiable, Hashable, Sendable {
     var isPodcast: Bool
     var isMuted: Bool
     var customIconURL: String?
+    var acronymIcon: Data?
 
     var domain: String {
         URL(string: siteURL)?.host ?? URL(string: url)?.host ?? ""

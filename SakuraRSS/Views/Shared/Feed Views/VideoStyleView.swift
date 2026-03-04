@@ -35,6 +35,7 @@ struct VideoArticleCard: View {
     let article: Article
     @State private var favicon: UIImage?
     @State private var feedName: String?
+    @State private var acronymIcon: UIImage?
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -59,6 +60,8 @@ struct VideoArticleCard: View {
             HStack(alignment: .top, spacing: 12) {
                 if let favicon = favicon {
                     FaviconImage(favicon, size: 36, circle: true, skipInset: true)
+                } else if let acronymIcon {
+                    FaviconImage(acronymIcon, size: 36, circle: true, skipInset: true)
                 } else if let feedName {
                     InitialsAvatarView(feedName, size: 36, circle: true)
                 } else {
@@ -122,8 +125,11 @@ struct VideoArticleCard: View {
         }
         .task {
             if let feed = feedManager.feed(forArticle: article) {
-                favicon = await FaviconCache.shared.favicon(for: feed.domain, siteURL: feed.siteURL)
                 feedName = feed.title
+                if let data = feed.acronymIcon {
+                    acronymIcon = UIImage(data: data)
+                }
+                favicon = await FaviconCache.shared.favicon(for: feed.domain, siteURL: feed.siteURL)
             }
         }
     }

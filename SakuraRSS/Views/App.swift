@@ -9,6 +9,8 @@ struct SakuraRSSApp: App {
     @State private var pendingFeedURL: String?
     @State private var pendingArticleID: Int64?
     @State private var isInSafeMode: Bool
+    @AppStorage("ForceWhileYouSlept") private var forceWhileYouSlept: Bool = false
+    @AppStorage("ForceTodaysSummary") private var forceTodaysSummary: Bool = false
     private let backgroundTaskID = "com.tsubuzaki.SakuraRSS.RefreshFeeds"
 
     var body: some Scene {
@@ -37,10 +39,24 @@ struct SakuraRSSApp: App {
     }
 
     private func handleOpenURL(_ url: URL) {
-        if url.scheme == "sakura", url.host == "article",
-           let idString = url.pathComponents.last,
-           let articleID = Int64(idString) {
-            pendingArticleID = articleID
+        if url.scheme == "sakura" {
+            switch url.host {
+            case "article":
+                if let idString = url.pathComponents.last,
+                   let articleID = Int64(idString) {
+                    pendingArticleID = articleID
+                }
+            case "justwokeup":
+                forceWhileYouSlept = true
+                UserDefaults.standard.removeObject(forKey: "WhileYouSlept.DismissedDate")
+            case "justgothome":
+                forceTodaysSummary = true
+                UserDefaults.standard.removeObject(forKey: "TodaysSummary.DismissedDate")
+            case "reonboard":
+                UserDefaults.standard.set(false, forKey: "Onboarding.Completed")
+            default:
+                break
+            }
         } else {
             pendingFeedURL = convertFeedURL(url)
         }

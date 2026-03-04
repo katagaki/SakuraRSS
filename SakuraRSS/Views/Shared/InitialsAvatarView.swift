@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 struct InitialsAvatarView: View {
 
@@ -15,19 +16,11 @@ struct InitialsAvatarView: View {
     }
 
     private var initials: String {
-        let words = name.split(whereSeparator: { $0.isWhitespace || $0 == "-" || $0 == "_" })
-        let letters = words.prefix(2).compactMap(\.first).map(String.init)
-        let result = letters.joined().uppercased()
-        if result.isEmpty, let first = name.first {
-            return String(first).uppercased()
-        }
-        return result
+        Self.initials(for: name)
     }
 
     private var backgroundColor: Color {
-        let hash = name.utf8.reduce(0) { ($0 &* 31) &+ Int($1) }
-        let hue = Double(abs(hash) % 360) / 360.0
-        return Color(hue: hue, saturation: 0.45, brightness: 0.75)
+        Self.backgroundColor(for: name)
     }
 
     var body: some View {
@@ -37,5 +30,67 @@ struct InitialsAvatarView: View {
             .frame(width: size, height: size)
             .background(backgroundColor)
             .clipShape(isCircle ? AnyShape(Circle()) : AnyShape(RoundedRectangle(cornerRadius: cornerRadius)))
+    }
+
+    // MARK: - Shared Helpers
+
+    static func initials(for name: String) -> String {
+        let words = name.split(whereSeparator: { $0.isWhitespace || $0 == "-" || $0 == "_" })
+        let letters = words.prefix(2).compactMap(\.first).map(String.init)
+        let result = letters.joined().uppercased()
+        if result.isEmpty, let first = name.first {
+            return String(first).uppercased()
+        }
+        return result
+    }
+
+    static func backgroundColor(for name: String) -> Color {
+        let hash = name.utf8.reduce(0) { ($0 &* 31) &+ Int($1) }
+        let hue = Double(abs(hash) % 360) / 360.0
+        return Color(hue: hue, saturation: 0.45, brightness: 0.75)
+    }
+
+    // MARK: - UIImage Rendering
+
+    static func renderToImage(name: String, size: CGFloat = 128) -> UIImage? {
+        let initials = initials(for: name)
+        let hash = name.utf8.reduce(0) { ($0 &* 31) &+ Int($1) }
+        let hue = CGFloat(abs(hash) % 360) / 360.0
+        let bgColor = UIColor(hue: hue, saturation: 0.45, brightness: 0.75, alpha: 1.0)
+
+        let renderer = UIGraphicsImageRenderer(size: CGSize(width: size, height: size))
+        return renderer.image { context in
+            let rect = CGRect(origin: .zero, size: CGSize(width: size, height: size))
+
+            // Draw rounded rectangle background
+            let cornerRadius = size / 8
+            let path = UIBezierPath(roundedRect: rect, cornerRadius: cornerRadius)
+            bgColor.setFill()
+            path.fill()
+
+            // Draw initials text
+            let fontSize = size * 0.4
+            let font = UIFont.systemFont(ofSize: fontSize, weight: .semibold)
+                .rounded
+            let attributes: [NSAttributedString.Key: Any] = [
+                .font: font,
+                .foregroundColor: UIColor.white
+            ]
+            let textSize = (initials as NSString).size(withAttributes: attributes)
+            let textRect = CGRect(
+                x: (size - textSize.width) / 2,
+                y: (size - textSize.height) / 2,
+                width: textSize.width,
+                height: textSize.height
+            )
+            (initials as NSString).draw(in: textRect, withAttributes: attributes)
+        }
+    }
+}
+
+private extension UIFont {
+    var rounded: UIFont {
+        guard let descriptor = fontDescriptor.withDesign(.rounded) else { return self }
+        return UIFont(descriptor: descriptor, size: pointSize)
     }
 }

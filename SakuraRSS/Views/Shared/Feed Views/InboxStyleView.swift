@@ -3,6 +3,7 @@ import SwiftUI
 struct InboxStyleView: View {
 
     @Environment(FeedManager.self) var feedManager
+    @Environment(\.zoomNamespace) private var zoomNamespace
     let articles: [Article]
     var onLoadMore: (() -> Void)?
 
@@ -11,6 +12,7 @@ struct InboxStyleView: View {
             ForEach(articles) { article in
                 ArticleLink(article: article) {
                     InboxArticleRow(article: article)
+                        .zoomSource(id: article.id, namespace: zoomNamespace)
                 }
                 .listRowBackground(Color.clear)
                 .listRowSeparator(.hidden, edges: .top)
@@ -89,7 +91,7 @@ struct InboxArticleRow: View {
             Button {
                 feedManager.toggleRead(article)
             } label: {
-                Image(systemName: article.isRead ? "envelope.badge" : "envelope.open")
+                Image(systemName: article.isRead ? "envelope" : "envelope.open")
             }
             .tint(.blue)
         }

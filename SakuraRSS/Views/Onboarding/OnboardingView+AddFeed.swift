@@ -106,7 +106,7 @@ extension OnboardingView {
         }
         .safeAreaInset(edge: .bottom) {
             VStack(spacing: 8) {
-                if !addedURLs.isEmpty || !feedManager.feeds.isEmpty {
+                if !feedManager.feeds.isEmpty {
                     Button {
                         onComplete()
                     } label: {

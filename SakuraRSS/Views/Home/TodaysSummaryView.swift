@@ -7,9 +7,7 @@ struct TodaysSummaryView: View {
     @Environment(\.colorScheme) private var colorScheme
     @AppStorage("TodaysSummary.Enabled") private var isEnabled: Bool = true
     @AppStorage("TodaysSummary.DismissedDate") private var dismissedDate: String = ""
-    #if DEBUG
-    @AppStorage("Debug.ForceTodaysSummary") private var forceVisible: Bool = false
-    #endif
+    @AppStorage("ForceTodaysSummary") private var forceVisible: Bool = false
 
     @Binding var hasSummary: Bool
 
@@ -36,11 +34,9 @@ struct TodaysSummaryView: View {
     }
 
     private var shouldShow: Bool {
-        #if DEBUG
         if forceVisible {
             return !isHidden
         }
-        #endif
         return isEnabled && isSupported && isEveningWindow && !todayArticles.isEmpty && !isHidden
     }
 
@@ -89,6 +85,7 @@ struct TodaysSummaryView: View {
                     formatter.dateFormat = "yyyy-MM-dd"
                     withAnimation(.smooth.speed(2.0)) {
                         dismissedDate = formatter.string(from: Date())
+                        forceVisible = false
                     }
                 } label: {
                     Image(systemName: "xmark")

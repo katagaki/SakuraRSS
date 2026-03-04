@@ -1,15 +1,6 @@
 import SwiftUI
 import TipKit
 
-// MARK: - Preference key for active display style
-
-struct ActiveDisplayStyleKey: PreferenceKey {
-    static var defaultValue: FeedDisplayStyle = .inbox
-    static func reduce(value: inout FeedDisplayStyle, nextValue: () -> FeedDisplayStyle) {
-        value = nextValue()
-    }
-}
-
 struct ArticlesView: View {
 
     @Environment(FeedManager.self) var feedManager
@@ -41,7 +32,7 @@ struct ArticlesView: View {
         self.isFeedViewDomain = isFeedViewDomain
         self.isTimelineViewDomain = isTimelineViewDomain
         self.onLoadMore = onLoadMore
-        let raw = UserDefaults.standard.string(forKey: "displayStyle-\(feedKey)")
+        let raw = UserDefaults.standard.string(forKey: "Display.Style.\(feedKey)")
         let defaultRaw = UserDefaults.standard.string(forKey: "Display.DefaultStyle") ?? FeedDisplayStyle.inbox.rawValue
         let fallback: FeedDisplayStyle
         if isPodcastFeed {
@@ -84,7 +75,6 @@ struct ArticlesView: View {
         }
         .scrollContentBackground(.hidden)
         .sakuraBackground()
-        .preference(key: ActiveDisplayStyleKey.self, value: effectiveStyle)
         .navigationTitle(title)
         .toolbarTitleDisplayMode(.inline)
         .toolbar {
@@ -129,7 +119,7 @@ struct ArticlesView: View {
             }
         }
         .onChange(of: displayStyle) { _, newValue in
-            UserDefaults.standard.set(newValue.rawValue, forKey: "displayStyle-\(feedKey)")
+            UserDefaults.standard.set(newValue.rawValue, forKey: "Display.Style.\(feedKey)")
         }
         .overlay {
             if articles.isEmpty {

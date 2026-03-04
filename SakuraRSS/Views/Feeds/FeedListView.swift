@@ -7,7 +7,6 @@ struct FeedListView: View {
     @AppStorage("FeedsList.ArticleID") private var savedArticleID: Int = -1
     @State private var path = NavigationPath()
     @State private var hasRestored = false
-    @State private var activeStyle: FeedDisplayStyle = .inbox
     @Namespace private var cardZoom
 
     var body: some View {
@@ -17,7 +16,7 @@ struct FeedListView: View {
                 }
                 .navigationDestination(for: Feed.self) { feed in
                     FeedArticlesView(feed: feed)
-                        .environment(\.cardZoomNamespace, cardZoom)
+                        .environment(\.zoomNamespace, cardZoom)
                         .onAppear { savedFeedID = Int(feed.id) }
                         .onDisappear {
                             if path.count < 1 { savedFeedID = -1 }
@@ -31,14 +30,10 @@ struct FeedListView: View {
                             ArticleDetailView(article: article)
                         }
                     }
-                    .conditionalZoomTransition(isCards: activeStyle == .cards,
-                                               sourceID: article.id, in: cardZoom)
+                    .zoomTransition(sourceID: article.id, in: cardZoom)
                     .onAppear { savedArticleID = Int(article.id) }
                     .onDisappear { savedArticleID = -1 }
                 }
-        }
-        .onPreferenceChange(ActiveDisplayStyleKey.self) { style in
-            activeStyle = style
         }
         .onChange(of: path.count) {
             if path.isEmpty {
