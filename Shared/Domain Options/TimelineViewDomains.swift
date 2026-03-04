@@ -9,7 +9,7 @@ nonisolated enum TimelineViewDomains {
         "rssfeed.azure.status.microsoft",
         "status.cloud.google.com",
         "status.firebase.google.com",
-        "www.githubstatus.com",
+        "githubstatus.com",
         "status.gitlab.com",
         "status.claude.com",
         "www.cloudflarestatus.com",
