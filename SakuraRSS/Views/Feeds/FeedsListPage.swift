@@ -75,7 +75,7 @@ struct FeedsListPage: View {
         .toolbarTitleDisplayMode(.inlineLarge)
         .searchable(text: $searchText, prompt: Text("FeedList.SearchPrompt"))
         .refreshable {
-            await feedManager.refreshAllFeedsAndFavicons()
+            await feedManager.refreshAllFeeds()
         }
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
