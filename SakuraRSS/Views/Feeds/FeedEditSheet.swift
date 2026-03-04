@@ -124,7 +124,7 @@ struct FeedEditSheet: View {
                     if let selectedPhoto,
                        let data = try? await selectedPhoto.loadTransferable(type: Data.self),
                        let image = UIImage(data: data) {
-                        customIconImage = image
+                        customIconImage = await image.trimmed()
                         iconURLInput = ""
                     }
                 }
