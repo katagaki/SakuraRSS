@@ -248,13 +248,13 @@ struct ArticleDetailView: View {
             feedManager.markRead(article)
             if let feed = feedManager.feed(forArticle: article) {
                 feedName = feed.title
-                favicon = await FaviconCache.shared.favicon(for: feed.domain, siteURL: feed.siteURL)
                 if let data = feed.acronymIcon {
                     acronymIcon = UIImage(data: data)
                 }
                 isVideoFeed = feed.isVideoFeed
                 skipFaviconInset = feed.isVideoFeed
                     || FullFaviconDomains.shouldUseFullImage(feedDomain: feed.domain)
+                favicon = await FaviconCache.shared.favicon(for: feed.domain, siteURL: feed.siteURL)
             }
             await extractArticleContent()
             if let cached = try? DatabaseManager.shared.cachedArticleSummary(for: article.id),

@@ -146,10 +146,10 @@ struct PodcastEpisodeView: View {
             feedManager.markRead(article)
             if let feed = feedManager.feed(forArticle: article) {
                 feedName = feed.title
-                favicon = await FaviconCache.shared.favicon(for: feed.domain, siteURL: feed.siteURL)
                 if let data = feed.acronymIcon {
                     acronymIcon = UIImage(data: data)
                 }
+                favicon = await FaviconCache.shared.favicon(for: feed.domain, siteURL: feed.siteURL)
             }
         }
     }
