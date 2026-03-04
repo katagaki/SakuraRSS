@@ -123,10 +123,14 @@ struct FeedsListPage: View {
         .sheet(item: $feedToEdit) { feed in
             FeedEditSheet(feed: feed)
                 .environment(feedManager)
+                .presentationDetents([.medium, .large])
+                .interactiveDismissDisabled()
         }
         .sheet(item: $feedForRules) { feed in
             FeedRulesSheet(feed: feed)
                 .environment(feedManager)
+                .presentationDetents([.medium, .large])
+                .interactiveDismissDisabled()
         }
         .confirmationDialog(
             String(localized: "FeedMenu.Delete.Title"),
