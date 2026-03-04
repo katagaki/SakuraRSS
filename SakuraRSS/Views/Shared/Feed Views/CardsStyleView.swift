@@ -33,7 +33,6 @@ struct CardsStyleView: View {
                         id: \.element.id) { index, article in
                     CardView(
                         article: article,
-                        isTopCard: index == 0,
                         onSwipedLeft: {
                             dismissedIDs.insert(article.id)
                         },
@@ -58,12 +57,10 @@ struct CardsStyleView: View {
 private struct CardView: View {
 
     let article: Article
-    let isTopCard: Bool
     let onSwipedLeft: () -> Void
     let onSwipedRight: () -> Void
 
     @State private var offset: CGSize = .zero
-    @State private var isDragging = false
 
     private var rotation: Double {
         Double(offset.width) / 20.0
@@ -75,9 +72,6 @@ private struct CardView: View {
 
     var body: some View {
         GeometryReader { geometry in
-            let cardWidth = geometry.size.width
-            let cardHeight = geometry.size.height
-
             ZStack(alignment: .bottomLeading) {
                 // Background image
                 if let imageURL = article.imageURL, let url = URL(string: imageURL) {
@@ -85,7 +79,7 @@ private struct CardView: View {
                         Rectangle()
                             .fill(.secondary.opacity(0.2))
                     }
-                    .frame(width: cardWidth, height: cardHeight)
+                    .frame(width: geometry.size.width, height: geometry.size.height)
                     .clipped()
                 }
 
@@ -97,37 +91,7 @@ private struct CardView: View {
                 )
 
                 // Swipe indicator overlays
-                ZStack {
-                    // Right swipe: mark read indicator
-                    RoundedRectangle(cornerRadius: 24)
-                        .stroke(Color.green, lineWidth: 4)
-                        .overlay(
-                            Label(String(localized: "Cards.MarkRead"), systemImage: "checkmark.circle.fill")
-                                .font(.title2)
-                                .fontWeight(.bold)
-                                .foregroundStyle(.green)
-                                .padding(12)
-                                .background(.ultraThinMaterial, in: .capsule),
-                            alignment: .topLeading
-                        )
-                        .padding(8)
-                        .opacity(offset.width > 0 ? swipeProgress : 0)
-
-                    // Left swipe: skip indicator
-                    RoundedRectangle(cornerRadius: 24)
-                        .stroke(Color.red, lineWidth: 4)
-                        .overlay(
-                            Label(String(localized: "Cards.Skip"), systemImage: "xmark.circle.fill")
-                                .font(.title2)
-                                .fontWeight(.bold)
-                                .foregroundStyle(.red)
-                                .padding(12)
-                                .background(.ultraThinMaterial, in: .capsule),
-                            alignment: .topTrailing
-                        )
-                        .padding(8)
-                        .opacity(offset.width < 0 ? swipeProgress : 0)
-                }
+                swipeIndicators
 
                 // Title and subtitle
                 VStack(alignment: .leading, spacing: 8) {
@@ -156,35 +120,74 @@ private struct CardView: View {
                 DragGesture()
                     .onChanged { value in
                         offset = value.translation
-                        isDragging = true
                     }
                     .onEnded { value in
-                        let threshold: CGFloat = 150
-                        if value.translation.width > threshold {
-                            withAnimation(.easeOut(duration: 0.3)) {
-                                offset = CGSize(width: 500, height: value.translation.height)
-                            }
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                                onSwipedRight()
-                                offset = .zero
-                            }
-                        } else if value.translation.width < -threshold {
-                            withAnimation(.easeOut(duration: 0.3)) {
-                                offset = CGSize(width: -500, height: value.translation.height)
-                            }
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                                onSwipedLeft()
-                                offset = .zero
-                            }
-                        } else {
-                            withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
-                                offset = .zero
-                            }
-                        }
-                        isDragging = false
+                        handleSwipeEnd(translation: value.translation)
                     }
             )
-            .animation(.spring(response: 0.4, dampingFraction: 0.7), value: isDragging)
+        }
+    }
+
+    private var swipeIndicators: some View {
+        ZStack {
+            // Right swipe: mark read indicator
+            swipeIndicatorOverlay(
+                localizationKey: "Cards.MarkRead",
+                systemImage: "checkmark.circle.fill",
+                color: .green,
+                alignment: .topLeading,
+                opacity: offset.width > 0 ? swipeProgress : 0
+            )
+
+            // Left swipe: skip indicator
+            swipeIndicatorOverlay(
+                localizationKey: "Cards.Skip",
+                systemImage: "xmark.circle.fill",
+                color: .red,
+                alignment: .topTrailing,
+                opacity: offset.width < 0 ? swipeProgress : 0
+            )
+        }
+    }
+
+    private func swipeIndicatorOverlay(
+        localizationKey: String.LocalizationValue,
+        systemImage: String,
+        color: Color,
+        alignment: Alignment,
+        opacity: Double
+    ) -> some View {
+        RoundedRectangle(cornerRadius: 24)
+            .stroke(color, lineWidth: 4)
+            .overlay(
+                Label(String(localized: localizationKey), systemImage: systemImage)
+                    .font(.title2)
+                    .fontWeight(.bold)
+                    .foregroundStyle(color)
+                    .padding(12)
+                    .background(.ultraThinMaterial, in: .capsule),
+                alignment: alignment
+            )
+            .padding(8)
+            .opacity(opacity)
+    }
+
+    private func handleSwipeEnd(translation: CGSize) {
+        let threshold: CGFloat = 150
+        if abs(translation.width) > threshold {
+            let direction: CGFloat = translation.width > 0 ? 500 : -500
+            let callback = translation.width > 0 ? onSwipedRight : onSwipedLeft
+            withAnimation(.easeOut(duration: 0.3)) {
+                offset = CGSize(width: direction, height: translation.height)
+            }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                callback()
+                offset = .zero
+            }
+        } else {
+            withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
+                offset = .zero
+            }
         }
     }
 }
