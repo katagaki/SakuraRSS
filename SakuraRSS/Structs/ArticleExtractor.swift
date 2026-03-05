@@ -213,8 +213,12 @@ struct ArticleExtractor {
     }
 
     private static let brPlaceholder = "{{SAKURA_BR}}"
+    private static let linkOpenPlaceholder = "{{SAKURA_LINK_OPEN}}"
+    private static let linkMidPlaceholder = "{{SAKURA_LINK_MID}}"
+    private static let linkClosePlaceholder = "{{SAKURA_LINK_CLOSE}}"
 
-    /// Extracts text from a block element, preserving `<br>` tags as newlines.
+    /// Extracts text from a block element, preserving `<br>` tags as newlines
+    /// and `<a>` tags as Markdown links.
     private static func textContent(of element: Element) throws -> String {
         var html = try element.html()
         html = html.replacingOccurrences(
@@ -222,9 +226,19 @@ struct ArticleExtractor {
             with: brPlaceholder,
             options: .regularExpression
         )
+        // Replace <a href="url">text</a> with placeholder-wrapped Markdown
+        html = html.replacingOccurrences(
+            of: "<a\\s[^>]*href=[\"']([^\"']+)[\"'][^>]*>(.*?)</a>",
+            with: "\(linkOpenPlaceholder)\\2\(linkMidPlaceholder)\\1\(linkClosePlaceholder)",
+            options: .regularExpression
+        )
         let fragment = try SwiftSoup.parseBodyFragment(html)
         var text = try fragment.body()?.text() ?? ""
         text = text.replacingOccurrences(of: brPlaceholder, with: "\n")
+        // Convert link placeholders to Markdown [text](url)
+        text = text.replacingOccurrences(of: linkOpenPlaceholder, with: "[")
+        text = text.replacingOccurrences(of: linkMidPlaceholder, with: "](")
+        text = text.replacingOccurrences(of: linkClosePlaceholder, with: ")")
         text = stripRemainingHTMLTags(text)
         return text.trimmingCharacters(in: .whitespacesAndNewlines)
     }
