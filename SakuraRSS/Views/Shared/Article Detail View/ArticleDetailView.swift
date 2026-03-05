@@ -78,6 +78,7 @@ struct ArticleDetailView: View {
                         Text(feed.title)
                             .font(.caption)
                             .foregroundStyle(.secondary)
+                            .lineLimit(1)
                     }
 
                     if let author = article.author {
@@ -86,6 +87,7 @@ struct ArticleDetailView: View {
                         Text(author)
                             .font(.caption)
                             .foregroundStyle(.secondary)
+                            .lineLimit(1)
                     }
 
                     if let date = article.publishedDate {
@@ -96,6 +98,7 @@ struct ArticleDetailView: View {
                             .foregroundStyle(.secondary)
                     }
                 }
+                .lineLimit(1)
 
                 if let imageURL = article.imageURL, let url = URL(string: imageURL) {
                     CachedAsyncImage(url: url) {
