@@ -26,17 +26,47 @@ final class XProfileScraper: NSObject, WKNavigationDelegate {
 
     private static let targetTweetCount = 50
     private static let maxScrollAttempts = 15
+    /// Maximum consecutive scrolls that yield zero new tweets before giving up.
+    private static let maxStaleScrolls = 3
+    /// Polling interval when waiting for content to appear.
+    private static let pollInterval: Duration = .milliseconds(500)
+    /// Maximum time to wait for the initial tweet elements to appear.
+    private static let renderTimeout: Duration = .seconds(8)
+    /// Maximum time to wait for new tweets after a scroll.
+    private static let scrollSettleTimeout: Duration = .seconds(4)
 
     private var webView: WKWebView?
+
+    /// Serialises access so only one scrape runs at a time, avoiding multiple
+    /// concurrent WKWebViews on the main actor.
+    private static var activeScrape: Task<XProfileScrapeResult, Never>?
 
     // MARK: - Public
 
     /// Scrapes the most recent tweets (excluding retweets) from the given profile URL.
     /// Scrolls the page repeatedly to load at least 50 tweets.
     /// Also extracts the profile photo URL.
+    ///
+    /// Only one scrape runs at a time; concurrent calls are serialised.
     func scrapeProfile(profileURL: URL) async -> XProfileScrapeResult {
-        let webView = await createWebView()
+        // Wait for any in-flight scrape to finish before starting ours.
+        if let existing = Self.activeScrape {
+            _ = await existing.value
+        }
+
+        let task = Task { @MainActor in
+            await self.performScrape(profileURL: profileURL)
+        }
+        Self.activeScrape = task
+        let result = await task.value
+        Self.activeScrape = nil
+        return result
+    }
+
+    private func performScrape(profileURL: URL) async -> XProfileScrapeResult {
+        let webView = createWebView()
         self.webView = webView
+        await installContentBlocker(on: webView)
 
         let loaded = await loadPage(webView: webView, url: profileURL)
         guard loaded else {
@@ -44,27 +74,55 @@ final class XProfileScraper: NSObject, WKNavigationDelegate {
             return XProfileScrapeResult(tweets: [], profileImageURL: nil)
         }
 
-        // Wait for initial SPA render
-        try? await Task.sleep(for: .seconds(4))
+        // Poll for tweet elements instead of a fixed sleep.
+        let tweetsAppeared = await waitForSelector(
+            "article[data-testid=\"tweet\"]",
+            in: webView,
+            timeout: Self.renderTimeout
+        )
+        guard tweetsAppeared, !Task.isCancelled else {
+            cleanup()
+            return XProfileScrapeResult(tweets: [], profileImageURL: nil)
+        }
 
-        // Extract profile photo before scrolling (it's at the top of the page)
+        // Extract profile photo before scrolling (it's at the top of the page).
         let profileImageURL = await extractProfileImageURL(from: webView)
 
-        // Scroll and collect tweets until we have enough
+        // Scroll and collect tweets until we have enough.
         var allTweets: [ParsedTweet] = []
         var seenURLs = Set<String>()
+        var staleScrolls = 0
 
         for _ in 0..<Self.maxScrollAttempts {
+            guard !Task.isCancelled else { break }
+
             let batch = await extractCurrentTweets(from: webView)
+            var newCount = 0
             for tweet in batch where !seenURLs.contains(tweet.url) {
                 seenURLs.insert(tweet.url)
                 allTweets.append(tweet)
+                newCount += 1
             }
 
             if allTweets.count >= Self.targetTweetCount { break }
 
+            // Detect when scrolling no longer yields fresh content.
+            if newCount == 0 {
+                staleScrolls += 1
+                if staleScrolls >= Self.maxStaleScrolls { break }
+            } else {
+                staleScrolls = 0
+            }
+
+            let domCountBefore = await tweetDOMCount(in: webView)
             await scrollToBottom(webView: webView)
-            try? await Task.sleep(for: .seconds(2))
+
+            // Wait until new tweet elements appear in the DOM or timeout.
+            await waitForNewContent(
+                currentCount: domCountBefore,
+                in: webView,
+                timeout: Self.scrollSettleTimeout
+            )
         }
 
         cleanup()
@@ -85,6 +143,33 @@ final class XProfileScraper: NSObject, WKNavigationDelegate {
         return webView
     }
 
+    /// Installs content rules that block heavy media (video, streaming) to speed
+    /// up page loading. Called after createWebView so it can be async.
+    private func installContentBlocker(on webView: WKWebView) async {
+        // Block video/streaming but not images (needed for tweet/profile image extraction).
+        let blockRules = """
+        [
+            {"trigger":{"url-filter":".*","resource-type":["media","popup"]},
+             "action":{"type":"block"}},
+            {"trigger":{"url-filter":".*\\\\.mp4"},
+             "action":{"type":"block"}},
+            {"trigger":{"url-filter":".*\\\\.m3u8"},
+             "action":{"type":"block"}}
+        ]
+        """
+        do {
+            let ruleList = try await WKContentRuleListStore.default().compileContentRuleList(
+                forIdentifier: "XProfileScraper.blockMedia",
+                encodedContentRuleList: blockRules
+            )
+            if let ruleList {
+                webView.configuration.userContentController.add(ruleList)
+            }
+        } catch {
+            // Content blocking is best-effort; scraping works without it.
+        }
+    }
+
     private func loadPage(webView: WKWebView, url: URL) async -> Bool {
         await withCheckedContinuation { continuation in
             let delegate = NavigationHandler(continuation: continuation)
@@ -99,6 +184,46 @@ final class XProfileScraper: NSObject, WKNavigationDelegate {
         _ = try? await webView.evaluateJavaScript(
             "window.scrollTo(0, document.body.scrollHeight)"
         )
+    }
+
+    // MARK: - Smart Waiting
+
+    /// Polls until the given CSS selector matches at least one element.
+    private func waitForSelector(
+        _ selector: String,
+        in webView: WKWebView,
+        timeout: Duration
+    ) async -> Bool {
+        let js = "document.querySelector('\(selector)') !== null"
+        let deadline = ContinuousClock.now + timeout
+        while ContinuousClock.now < deadline {
+            if Task.isCancelled { return false }
+            if let found = try? await webView.evaluateJavaScript(js) as? Bool, found {
+                return true
+            }
+            try? await Task.sleep(for: Self.pollInterval)
+        }
+        return false
+    }
+
+    /// Returns the current number of tweet article elements in the DOM.
+    private func tweetDOMCount(in webView: WKWebView) async -> Int {
+        let js = "document.querySelectorAll('article[data-testid=\"tweet\"]').length"
+        return (try? await webView.evaluateJavaScript(js) as? Int) ?? 0
+    }
+
+    /// Polls until the number of visible tweet articles exceeds `currentCount`.
+    private func waitForNewContent(
+        currentCount: Int,
+        in webView: WKWebView,
+        timeout: Duration
+    ) async {
+        let deadline = ContinuousClock.now + timeout
+        while ContinuousClock.now < deadline {
+            if Task.isCancelled { return }
+            if await tweetDOMCount(in: webView) > currentCount { return }
+            try? await Task.sleep(for: Self.pollInterval)
+        }
     }
 
     // MARK: - Static Helpers
@@ -346,6 +471,7 @@ final class XProfileScraper: NSObject, WKNavigationDelegate {
     private func cleanup() {
         webView?.stopLoading()
         webView?.navigationDelegate = nil
+        webView?.configuration.userContentController.removeAllContentRuleLists()
         webView = nil
     }
 }
@@ -390,3 +516,4 @@ private final class NavigationHandler: NSObject, WKNavigationDelegate {
         continuation.resume(returning: value)
     }
 }
+
