@@ -20,6 +20,47 @@ enum ContentBlock: Identifiable {
         .trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
+    /// Strips Markdown formatting from text, returning plain text suitable for content previews.
+    /// Handles links (including escaped brackets), bold, italic, headings, and sup/sub markers.
+    static func stripMarkdown(_ text: String) -> String {
+        var result = text
+        // Strip image markers
+        result = result.replacingOccurrences(
+            of: #"\{\{IMG\}\}.+?\{\{/IMG\}\}"#, with: "", options: .regularExpression
+        )
+        // Strip sup/sub markers, keeping content
+        result = result.replacingOccurrences(
+            of: #"\{\{SUP\}\}(.+?)\{\{/SUP\}\}"#, with: "$1", options: .regularExpression
+        )
+        result = result.replacingOccurrences(
+            of: #"\{\{SUB\}\}(.+?)\{\{/SUB\}\}"#, with: "$1", options: .regularExpression
+        )
+        // Strip Markdown links [text](url) → text (handle escaped brackets)
+        result = result.replacingOccurrences(
+            of: #"\[((?:[^\]\\]|\\.)+)\]\([^)]+\)"#, with: "$1", options: .regularExpression
+        )
+        // Unescape brackets
+        result = result.replacingOccurrences(of: "\\[", with: "[")
+        result = result.replacingOccurrences(of: "\\]", with: "]")
+        // Strip bold **text** → text
+        result = result.replacingOccurrences(
+            of: #"\*\*(.+?)\*\*"#, with: "$1", options: .regularExpression
+        )
+        // Strip italic *text* → text
+        result = result.replacingOccurrences(
+            of: #"\*(.+?)\*"#, with: "$1", options: .regularExpression
+        )
+        // Strip heading prefixes
+        result = result.replacingOccurrences(
+            of: #"(?m)^#{1,6}\s+"#, with: "", options: .regularExpression
+        )
+        // Collapse whitespace
+        result = result.replacingOccurrences(
+            of: #"\n{3,}"#, with: "\n\n", options: .regularExpression
+        )
+        return result.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
     static func parse(_ text: String) -> [ContentBlock] {
         let pattern = #"\{\{IMG\}\}(.+?)\{\{/IMG\}\}"#
         guard let regex = try? NSRegularExpression(pattern: pattern) else {

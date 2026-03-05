@@ -96,7 +96,7 @@ struct FeedArticleRow: View {
 
                 Group {
                     if !preferTitle, article.hasMeaningfulSummary, let summary = article.summary {
-                        Text(summary)
+                        Text(ContentBlock.stripMarkdown(summary))
                     } else {
                         Text(article.title)
                     }

@@ -103,11 +103,25 @@ nonisolated extension RSSParser {
             of: #"<br\s*/?>"#, with: "\n", options: .regularExpression
         )
 
-        // Convert <a href="url">text</a> to Markdown links [text](url)
-        result = result.replacingOccurrences(
-            of: #"<a\s[^>]*href=["']([^"']+)["'][^>]*>(.*?)</a>"#,
-            with: "[$2]($1)", options: .regularExpression
-        )
+        // Convert <a href="url">text</a> to Markdown links [text](url),
+        // escaping any [ or ] in the link text so they don't break parsing.
+        if let linkRegex = try? NSRegularExpression(
+            pattern: #"<a\s[^>]*href=["']([^"']+)["'][^>]*>(.*?)</a>"#
+        ) {
+            let nsResult = result as NSString
+            let linkMatches = linkRegex.matches(
+                in: result, range: NSRange(location: 0, length: nsResult.length)
+            )
+            for match in linkMatches.reversed() {
+                let url = nsResult.substring(with: match.range(at: 1))
+                let text = nsResult.substring(with: match.range(at: 2))
+                let escaped = text
+                    .replacingOccurrences(of: "[", with: "\\[")
+                    .replacingOccurrences(of: "]", with: "\\]")
+                let replacement = "[\(escaped)](\(url))"
+                result = (result as NSString).replacingCharacters(in: match.range, with: replacement)
+            }
+        }
 
         // Convert headers to markdown format
         result = result.replacingOccurrences(

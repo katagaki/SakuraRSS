@@ -231,7 +231,7 @@ struct ArticleExtractor {
                     if headingTags.contains(tag),
                        let excludeTitle,
                        text.caseInsensitiveCompare(excludeTitle) == .orderedSame {
-                        // Skip headers that match the feed title
+                        // Skip headers that match the article title
                     } else {
                         switch tag {
                         case "h1": text = "# \(text)"
@@ -355,6 +355,10 @@ struct ArticleExtractor {
         let fragment = try SwiftSoup.parseBodyFragment(html)
         var text = try fragment.body()?.text() ?? ""
         text = text.replacingOccurrences(of: brPlaceholder, with: "\n")
+        // Escape [ and ] inside link text so they don't break Markdown link parsing
+        text = escapeBracketsInLinkText(text,
+                                        open: linkOpenPlaceholder,
+                                        mid: linkMidPlaceholder)
         // Convert link placeholders to Markdown [text](url)
         text = text.replacingOccurrences(of: linkOpenPlaceholder, with: "[")
         text = text.replacingOccurrences(of: linkMidPlaceholder, with: "](")
@@ -418,6 +422,33 @@ struct ArticleExtractor {
                 }
             }
         }
+        return result
+    }
+
+    /// Escapes `[` and `]` characters that appear inside link text
+    /// (between `open` and `mid` placeholders) so that the resulting
+    /// Markdown `[text](url)` syntax is unambiguous.
+    private static func escapeBracketsInLinkText(_ text: String,
+                                                  open: String,
+                                                  mid: String) -> String {
+        var result = ""
+        var remaining = text[text.startIndex...]
+        while let openRange = remaining.range(of: open) {
+            result += remaining[remaining.startIndex..<openRange.lowerBound]
+            result += open
+            let afterOpen = remaining[openRange.upperBound...]
+            if let midRange = afterOpen.range(of: mid) {
+                let linkText = afterOpen[afterOpen.startIndex..<midRange.lowerBound]
+                result += linkText
+                    .replacingOccurrences(of: "[", with: "\\[")
+                    .replacingOccurrences(of: "]", with: "\\]")
+                result += mid
+                remaining = afterOpen[midRange.upperBound...]
+            } else {
+                remaining = afterOpen
+            }
+        }
+        result += remaining
         return result
     }
 

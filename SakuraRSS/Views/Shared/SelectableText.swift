@@ -80,13 +80,14 @@ struct SelectableText: UIViewRepresentable {
             .foregroundColor: textColor
         ]
 
-        // Order matters: ** before * to avoid conflicts
+        // Order matters: ** before * to avoid conflicts.
+        // Link pattern allows escaped brackets (\[ and \]) inside link text.
         let pattern = [
-            #"\*\*(.+?)\*\*"#,                         // bold (group 1)
-            #"\*(.+?)\*"#,                              // italic (group 2)
-            #"\[([^\]]+)\]\(([^)]+)\)"#,                // link text (group 3) + url (group 4)
-            #"\{\{SUP\}\}(.+?)\{\{/SUP\}\}"#,           // superscript (group 5)
-            #"\{\{SUB\}\}(.+?)\{\{/SUB\}\}"#            // subscript (group 6)
+            #"\*\*(.+?)\*\*"#,                                  // bold (group 1)
+            #"\*(.+?)\*"#,                                       // italic (group 2)
+            #"\[((?:[^\]\\]|\\.)+)\]\(([^)]+)\)"#,               // link text (group 3) + url (group 4)
+            #"\{\{SUP\}\}(.+?)\{\{/SUP\}\}"#,                    // superscript (group 5)
+            #"\{\{SUB\}\}(.+?)\{\{/SUB\}\}"#                     // subscript (group 6)
         ].joined(separator: "|")
 
         guard let regex = try? NSRegularExpression(pattern: pattern) else {
@@ -127,8 +128,11 @@ struct SelectableText: UIViewRepresentable {
                 attrs[.font] = baseFont.italic()
                 attributed.append(NSAttributedString(string: content, attributes: attrs))
             } else if match.range(at: 3).location != NSNotFound {
-                // Link [text](url) — recursively parse link text for bold/italic
-                let linkText = nsText.substring(with: match.range(at: 3))
+                // Link [text](url) — unescape \[ and \], then recursively parse for bold/italic
+                let rawLinkText = nsText.substring(with: match.range(at: 3))
+                let linkText = rawLinkText
+                    .replacingOccurrences(of: "\\[", with: "[")
+                    .replacingOccurrences(of: "\\]", with: "]")
                 let linkURL = nsText.substring(with: match.range(at: 4))
                 let inner = parseInlineFormatting(linkText, baseFont: baseFont)
                 let mutableInner = NSMutableAttributedString(attributedString: inner)

@@ -18,14 +18,13 @@ extension ArticleDetailView {
             return
         }
 
-        let feed = feedManager.feed(forArticle: article)
-        let feedTitle = feed?.title
         let heroImageURL = article.imageURL
+        let articleTitle = article.title
 
         // For whitelisted domains, always fetch the full article via WKWebView
         if let url = URL(string: article.url), WebViewExtractor.requiresWebView(for: url) {
             let text = await ArticleExtractor.extractText(fromURL: url,
-                                                          excludeTitle: feedTitle,
+                                                          excludeTitle: articleTitle,
                                                           excludeImageURL: heroImageURL)
             extractedText = text
             if let text, !text.isEmpty {
@@ -36,7 +35,7 @@ extension ArticleDetailView {
 
         if let content = article.content, !content.isEmpty {
             let text = ArticleExtractor.extractText(fromHTML: content,
-                                                    excludeTitle: feedTitle,
+                                                    excludeTitle: articleTitle,
                                                     excludeImageURL: heroImageURL)
             if let text, !text.isEmpty {
                 extractedText = text
@@ -47,7 +46,7 @@ extension ArticleDetailView {
 
         if let url = URL(string: article.url) {
             let text = await ArticleExtractor.extractText(fromURL: url,
-                                                          excludeTitle: feedTitle,
+                                                          excludeTitle: articleTitle,
                                                           excludeImageURL: heroImageURL)
             extractedText = text
             if let text, !text.isEmpty {
