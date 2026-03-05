@@ -88,6 +88,50 @@ nonisolated extension RSSParser {
         return decoded.isEmpty ? nil : decoded
     }
 
+    /// Converts HTML to plain text, preserving paragraph/heading structure as newlines
+    /// and rendering `<a>` links as "text (url)".
+    func cleanHTMLPreservingStructure(_ html: String) -> String? {
+        guard html.contains("<") else {
+            let decoded = decodeHTMLEntities(html).trimmingCharacters(in: .whitespacesAndNewlines)
+            return decoded.isEmpty ? nil : decoded
+        }
+
+        var result = html
+
+        // Replace <br> variants with newlines
+        result = result.replacingOccurrences(
+            of: #"<br\s*/?>"#, with: "\n", options: .regularExpression
+        )
+
+        // Convert <a href="url">text</a> to "text (url)"
+        result = result.replacingOccurrences(
+            of: #"<a\s[^>]*href=["']([^"']+)["'][^>]*>(.*?)</a>"#,
+            with: "$2 ($1)", options: .regularExpression
+        )
+
+        // Add newlines after block-level closing tags
+        let blockTags = ["p", "h1", "h2", "h3", "h4", "h5", "h6", "div", "li"]
+        for tag in blockTags {
+            result = result.replacingOccurrences(
+                of: "</\(tag)>", with: "\n", options: .caseInsensitive
+            )
+        }
+
+        // Strip remaining HTML tags
+        result = result.replacingOccurrences(of: "<[^>]+>", with: "", options: .regularExpression)
+
+        // Decode HTML entities
+        result = decodeHTMLEntities(result)
+
+        // Collapse multiple consecutive newlines into two
+        result = result.replacingOccurrences(
+            of: #"\n{3,}"#, with: "\n\n", options: .regularExpression
+        )
+
+        result = result.trimmingCharacters(in: .whitespacesAndNewlines)
+        return result.isEmpty ? nil : result
+    }
+
     func extractImageFromHTML(_ html: String) -> String? {
         // Try double-quoted src first, then single-quoted
         let patterns = [

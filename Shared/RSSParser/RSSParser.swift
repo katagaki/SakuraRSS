@@ -31,7 +31,7 @@ nonisolated final class RSSParser: NSObject, XMLParserDelegate, @unchecked Senda
         return ParsedFeed(
             title: decodeHTMLEntities(feedTitle.trimmingCharacters(in: .whitespacesAndNewlines)),
             siteURL: feedLink.trimmingCharacters(in: .whitespacesAndNewlines),
-            description: decodeHTMLEntities(feedDescription.trimmingCharacters(in: .whitespacesAndNewlines)),
+            description: cleanHTMLPreservingStructure(feedDescription.trimmingCharacters(in: .whitespacesAndNewlines)) ?? "",
             articles: parsedArticles
         )
     }
