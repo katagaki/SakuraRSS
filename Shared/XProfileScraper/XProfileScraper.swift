@@ -49,7 +49,7 @@ final class XProfileScraper: NSObject, WKNavigationDelegate {
     // MARK: - Static Helpers
 
     /// Returns true if the URL points to an X/Twitter profile.
-    static func isXProfileURL(_ url: URL) -> Bool {
+    nonisolated static func isXProfileURL(_ url: URL) -> Bool {
         guard let host = url.host?.lowercased() else { return false }
         let isXDomain = host == "x.com" || host == "twitter.com"
             || host == "www.x.com" || host == "www.twitter.com"
@@ -72,7 +72,7 @@ final class XProfileScraper: NSObject, WKNavigationDelegate {
     }
 
     /// Extracts the username handle from an X profile URL.
-    static func extractHandle(from url: URL) -> String? {
+    nonisolated static func extractHandle(from url: URL) -> String? {
         let path = url.path
         guard path.count > 1 else { return nil }
         return path.dropFirst()
@@ -81,23 +81,23 @@ final class XProfileScraper: NSObject, WKNavigationDelegate {
     }
 
     /// Constructs a canonical X profile URL from a handle.
-    static func profileURL(for handle: String) -> URL? {
+    nonisolated static func profileURL(for handle: String) -> URL? {
         URL(string: "https://x.com/\(handle)")
     }
 
     /// The pseudo-feed URL stored in the database for an X profile.
     /// Uses a custom scheme prefix so we can distinguish X feeds from real RSS feeds.
-    static func feedURL(for handle: String) -> String {
+    nonisolated static func feedURL(for handle: String) -> String {
         "x-profile://\(handle.lowercased())"
     }
 
     /// Checks if a feed URL is an X pseudo-feed.
-    static func isXFeedURL(_ url: String) -> Bool {
+    nonisolated static func isXFeedURL(_ url: String) -> Bool {
         url.hasPrefix("x-profile://")
     }
 
     /// Extracts the handle from an X pseudo-feed URL.
-    static func handleFromFeedURL(_ url: String) -> String? {
+    nonisolated static func handleFromFeedURL(_ url: String) -> String? {
         guard isXFeedURL(url) else { return nil }
         return String(url.dropFirst("x-profile://".count))
     }
