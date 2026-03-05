@@ -204,6 +204,11 @@ struct WhileYouSleptView: View {
         await generateSummary(for: today)
     }
 
+    /// Maximum characters of article content per LLM batch (instructions sent separately).
+    private static let batchCharLimit = 3000
+    /// Maximum characters per article snippet before truncation.
+    private static let snippetCharLimit = 150
+
     private func generateSummary(for date: Date) async {
         let articles = overnightArticles
         guard !articles.isEmpty else { return }
@@ -222,55 +227,50 @@ struct WhileYouSleptView: View {
             hasGenerated = true
         }
 
-        // Group articles by feed, preparing prompt data for each
-        let limitedArticles = Array(articles.prefix(30))
-        var feedDescriptions: [String] = []
-        let groupedByFeed = Dictionary(grouping: limitedArticles, by: \.feedID)
-        for (_, feedArticles) in groupedByFeed {
-            let descriptions = feedArticles.map { article in
-                let feed = feedManager.feed(forArticle: article)
-                let source = feed?.title ?? ""
-                let title = article.title
-                let snippet = article.summary ?? ""
-                return "[\(source)] \(title)\n\(snippet)"
-            }.joined(separator: "\n\n")
-            feedDescriptions.append(descriptions)
+        // Format articles with truncated snippets
+        let descriptions = articles.prefix(30).map { article -> String in
+            let feed = feedManager.feed(forArticle: article)
+            let source = feed?.title ?? ""
+            let title = article.title
+            let snippet = String((article.summary ?? "").prefix(Self.snippetCharLimit))
+            return "[\(source)] \(title)\n\(snippet)"
         }
+
+        // Pack into batches that fit the character budget
+        let batches = Self.packBatches(descriptions)
 
         let instructions = String(localized: "TodaysSummary.PartialPrompt")
 
         do {
-            // Summarize each feed concurrently, at most 3 at a time
-            var feedSummaries: [String] = []
+            // Summarize batches concurrently, at most 3 at a time
+            var batchSummaries: [String] = []
 
             try await withThrowingTaskGroup(of: String.self) { group in
                 var index = 0
 
-                while index < feedDescriptions.count && index < 3 {
-                    let desc = feedDescriptions[index]
+                while index < batches.count && index < 3 {
+                    let batch = batches[index]
                     group.addTask {
-                        let prompt = "\(instructions)\n\n\(desc)"
                         #if DEBUG
-                        debugPrint("Per-feed prompt:\n\(prompt)")
+                        debugPrint("Batch prompt (\(batch.count) chars)")
                         #endif
-                        let session = LanguageModelSession()
-                        let response = try await session.respond(to: prompt)
+                        let session = LanguageModelSession(instructions: instructions)
+                        let response = try await session.respond(to: batch)
                         return response.content
                     }
                     index += 1
                 }
 
                 for try await result in group {
-                    feedSummaries.append(result)
-                    if index < feedDescriptions.count {
-                        let desc = feedDescriptions[index]
+                    batchSummaries.append(result)
+                    if index < batches.count {
+                        let batch = batches[index]
                         group.addTask {
-                            let prompt = "\(instructions)\n\n\(desc)"
                             #if DEBUG
-                            debugPrint("Per-feed prompt:\n\(prompt)")
+                            debugPrint("Batch prompt (\(batch.count) chars)")
                             #endif
-                            let session = LanguageModelSession()
-                            let response = try await session.respond(to: prompt)
+                            let session = LanguageModelSession(instructions: instructions)
+                            let response = try await session.respond(to: batch)
                             return response.content
                         }
                         index += 1
@@ -278,23 +278,22 @@ struct WhileYouSleptView: View {
                 }
             }
 
-            guard !feedSummaries.isEmpty else { return }
+            guard !batchSummaries.isEmpty else { return }
 
-            // Combine per-feed summaries into one overall summary
+            // Combine batch summaries into one overall summary
             let finalContent: String
-            if feedSummaries.count == 1 {
-                finalContent = feedSummaries[0]
+            if batchSummaries.count == 1 {
+                finalContent = batchSummaries[0]
             } else {
-                let combined = feedSummaries.joined(separator: "\n\n")
+                let combined = batchSummaries.joined(separator: "\n\n")
                 let combineInstructions = String(localized: "TodaysSummary.CombinePrompt")
-                let combinePrompt = "\(combineInstructions)\n\n\(combined)"
 
                 #if DEBUG
-                debugPrint("Combine prompt:\n\(combinePrompt)")
+                debugPrint("Combine prompt (\(combined.count) chars)")
                 #endif
 
-                let session = LanguageModelSession()
-                let response = try await session.respond(to: combinePrompt)
+                let session = LanguageModelSession(instructions: combineInstructions)
+                let response = try await session.respond(to: combined)
                 finalContent = response.content
             }
 
@@ -306,5 +305,27 @@ struct WhileYouSleptView: View {
         } catch {
             generationFailed = true
         }
+    }
+
+    /// Packs article description strings into batches that each fit within `batchCharLimit`.
+    private static func packBatches(_ descriptions: [String]) -> [String] {
+        var batches: [String] = []
+        var current: [String] = []
+        var currentLength = 0
+
+        for desc in descriptions {
+            let added = currentLength == 0 ? desc.count : desc.count + 2 // +2 for "\n\n"
+            if !current.isEmpty && currentLength + added > batchCharLimit {
+                batches.append(current.joined(separator: "\n\n"))
+                current = []
+                currentLength = 0
+            }
+            current.append(desc)
+            currentLength += added
+        }
+        if !current.isEmpty {
+            batches.append(current.joined(separator: "\n\n"))
+        }
+        return batches
     }
 }

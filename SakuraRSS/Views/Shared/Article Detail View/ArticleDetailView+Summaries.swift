@@ -16,15 +16,14 @@ extension ArticleDetailView {
         defer { isSummarizing = false }
 
         let instructions = String(localized: "Article.Summarize.Prompt")
-        let prompt = "\(instructions)\n\n\(source)"
 
         #if DEBUG
-        debugPrint(prompt)
+        debugPrint("Article summary prompt:\n\(instructions)\n\n\(source)")
         #endif
 
         do {
-            let session = LanguageModelSession()
-            let response = try await session.respond(to: prompt)
+            let session = LanguageModelSession(instructions: instructions)
+            let response = try await session.respond(to: source)
             summarizedText = response.content
             try? DatabaseManager.shared.cacheArticleSummary(response.content, for: article.id)
         } catch {
