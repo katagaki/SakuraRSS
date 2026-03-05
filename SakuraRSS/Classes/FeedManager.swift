@@ -59,7 +59,7 @@ final class FeedManager {
         loadFromDatabase()
     }
 
-    func refreshFeed(_ feed: Feed) async throws {
+    func refreshFeed(_ feed: Feed, updateTitle: Bool = true) async throws {
         guard let url = URL(string: feed.url) else { return }
 
         let (data, _) = try await URLSession.shared.data(from: url)
@@ -83,14 +83,22 @@ final class FeedManager {
             )
         }
 
-        if parsed.isPodcast != feed.isPodcast {
-            try database.updateFeedIsPodcast(id: feed.id, isPodcast: parsed.isPodcast)
+        if parsed.allArticlesHaveAudio && !feed.isPodcast {
+            try database.updateFeedIsPodcast(id: feed.id, isPodcast: true)
+        } else if !parsed.allArticlesHaveAudio && feed.isPodcast {
+            try database.updateFeedIsPodcast(id: feed.id, isPodcast: false)
         }
-        if !parsed.title.isEmpty && parsed.title != feed.title {
+        if updateTitle, !parsed.title.isEmpty, parsed.title != feed.title {
             try database.updateFeed(id: feed.id, title: parsed.title, category: feed.category)
         }
         try database.updateFeedLastFetched(id: feed.id, date: Date())
         loadFromDatabase()
+    }
+
+    func deleteAllArticlesAndRefresh() async {
+        try? database.deleteAllArticles()
+        loadFromDatabase()
+        await refreshAllFeeds()
     }
 
     func refreshAllFeeds() async {
@@ -116,7 +124,7 @@ final class FeedManager {
         async let feedRefresh: Void = withTaskGroup(of: Void.self) { group in
             for feed in currentFeeds {
                 group.addTask {
-                    try? await self.refreshFeed(feed)
+                    try? await self.refreshFeed(feed, updateTitle: false)
                 }
             }
         }
@@ -397,4 +405,5 @@ final class FeedManager {
         loadFromDatabase()
         return added
     }
+
 }

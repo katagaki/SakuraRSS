@@ -34,6 +34,7 @@ struct InboxArticleRow: View {
     @Environment(FeedManager.self) var feedManager
     let article: Article
     @State private var favicon: UIImage?
+    @State private var acronymIcon: UIImage?
     @State private var feedName: String?
 
     var body: some View {
@@ -50,6 +51,12 @@ struct InboxArticleRow: View {
                 }
                 .frame(width: 48, height: 48)
                 .clipShape(RoundedRectangle(cornerRadius: 8))
+            } else if let favicon {
+                FaviconImage(favicon, size: 48, cornerRadius: 8, skipInset: true)
+            } else if let acronymIcon {
+                FaviconImage(acronymIcon, size: 48, cornerRadius: 8, skipInset: true)
+            } else if let feedName {
+                InitialsAvatarView(feedName, size: 48, cornerRadius: 8)
             }
 
             VStack(alignment: .leading, spacing: 4) {
@@ -60,7 +67,7 @@ struct InboxArticleRow: View {
                     .foregroundStyle(article.isRead ? .secondary : .primary)
 
                 if article.hasMeaningfulSummary, let summary = article.summary {
-                    Text(summary)
+                    Text(ContentBlock.stripMarkdown(summary))
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                         .lineLimit(2)
@@ -84,6 +91,9 @@ struct InboxArticleRow: View {
         .task {
             if let feed = feedManager.feed(forArticle: article) {
                 feedName = feed.title
+                if let data = feed.acronymIcon {
+                    acronymIcon = UIImage(data: data)
+                }
                 favicon = await FaviconCache.shared.favicon(for: feed.domain, siteURL: feed.siteURL)
             }
         }

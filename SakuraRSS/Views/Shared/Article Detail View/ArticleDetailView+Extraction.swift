@@ -18,9 +18,14 @@ extension ArticleDetailView {
             return
         }
 
+        let heroImageURL = article.imageURL
+        let articleTitle = article.title
+
         // For whitelisted domains, always fetch the full article via WKWebView
         if let url = URL(string: article.url), WebViewExtractor.requiresWebView(for: url) {
-            let text = await ArticleExtractor.extractText(fromURL: url)
+            let text = await ArticleExtractor.extractText(fromURL: url,
+                                                          excludeTitle: articleTitle,
+                                                          excludeImageURL: heroImageURL)
             extractedText = text
             if let text, !text.isEmpty {
                 try? DatabaseManager.shared.cacheArticleContent(text, for: article.id)
@@ -29,7 +34,9 @@ extension ArticleDetailView {
         }
 
         if let content = article.content, !content.isEmpty {
-            let text = ArticleExtractor.extractText(fromHTML: content)
+            let text = ArticleExtractor.extractText(fromHTML: content,
+                                                    excludeTitle: articleTitle,
+                                                    excludeImageURL: heroImageURL)
             if let text, !text.isEmpty {
                 extractedText = text
                 try? DatabaseManager.shared.cacheArticleContent(text, for: article.id)
@@ -38,7 +45,9 @@ extension ArticleDetailView {
         }
 
         if let url = URL(string: article.url) {
-            let text = await ArticleExtractor.extractText(fromURL: url)
+            let text = await ArticleExtractor.extractText(fromURL: url,
+                                                          excludeTitle: articleTitle,
+                                                          excludeImageURL: heroImageURL)
             extractedText = text
             if let text, !text.isEmpty {
                 try? DatabaseManager.shared.cacheArticleContent(text, for: article.id)
@@ -49,8 +58,12 @@ extension ArticleDetailView {
     func refreshArticleContent() async {
         try? DatabaseManager.shared.clearCachedArticleContent(for: article.id)
         try? DatabaseManager.shared.clearCachedArticleSummary(for: article.id)
+        try? DatabaseManager.shared.clearCachedArticleTranslation(for: article.id)
         translatedText = nil
         translatedTitle = nil
+        translatedSummary = nil
+        showingTranslation = false
+        hasCachedTranslation = false
         summarizedText = nil
         hasCachedSummary = false
         showingSummary = false

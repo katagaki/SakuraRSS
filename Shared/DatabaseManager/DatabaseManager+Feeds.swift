@@ -82,6 +82,10 @@ nonisolated extension DatabaseManager {
         try database.run(feeds.filter(feedID == id).delete())
     }
 
+    func deleteAllArticles() throws {
+        try database.run(articles.delete())
+    }
+
     // MARK: - Row Mapping
 
     func rowToFeed(_ row: Row) -> Feed {

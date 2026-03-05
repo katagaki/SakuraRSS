@@ -22,8 +22,6 @@ nonisolated final class RSSParser: NSObject, XMLParserDelegate, @unchecked Senda
     private var isInsideImage = false
     private var isAtom = false
     private var currentAttributes: [String: String] = [:]
-    private var feedHasITunesNamespace = false
-    private var feedHasAudioEnclosures = false
 
     func parse(data: Data) -> ParsedFeed? {
         let parser = XMLParser(data: data)
@@ -33,9 +31,8 @@ nonisolated final class RSSParser: NSObject, XMLParserDelegate, @unchecked Senda
         return ParsedFeed(
             title: decodeHTMLEntities(feedTitle.trimmingCharacters(in: .whitespacesAndNewlines)),
             siteURL: feedLink.trimmingCharacters(in: .whitespacesAndNewlines),
-            description: decodeHTMLEntities(feedDescription.trimmingCharacters(in: .whitespacesAndNewlines)),
-            articles: parsedArticles,
-            isPodcast: feedHasITunesNamespace || feedHasAudioEnclosures
+            description: cleanHTMLPreservingStructure(feedDescription.trimmingCharacters(in: .whitespacesAndNewlines)) ?? "",
+            articles: parsedArticles
         )
     }
 
@@ -57,8 +54,6 @@ nonisolated final class RSSParser: NSObject, XMLParserDelegate, @unchecked Senda
         isInsideItem = false
         isInsideImage = false
         isAtom = false
-        feedHasITunesNamespace = false
-        feedHasAudioEnclosures = false
     }
 
     // MARK: - XMLParserDelegate
@@ -72,14 +67,9 @@ nonisolated final class RSSParser: NSObject, XMLParserDelegate, @unchecked Senda
 
         switch elementName {
         case "rss":
-            for (_, value) in attributeDict where value.contains("itunes") {
-                feedHasITunesNamespace = true
-            }
+            break
         case "feed":
             isAtom = true
-            for (_, value) in attributeDict where value.contains("itunes") {
-                feedHasITunesNamespace = true
-            }
         case "image":
             if !isInsideItem { isInsideImage = true }
         case "item", "entry":
@@ -131,7 +121,6 @@ nonisolated final class RSSParser: NSObject, XMLParserDelegate, @unchecked Senda
         if let type = attributes["type"] {
             if type.hasPrefix("audio/") {
                 currentAudioURL = url
-                feedHasAudioEnclosures = true
                 return
             }
             if type.hasPrefix("image/") {
@@ -190,7 +179,7 @@ nonisolated final class RSSParser: NSObject, XMLParserDelegate, @unchecked Senda
                 title: decodeHTMLEntities(currentTitle.trimmingCharacters(in: .whitespacesAndNewlines)),
                 url: currentLink.trimmingCharacters(in: .whitespacesAndNewlines),
                 author: trimmedAuthor.isEmpty ? nil : decodeHTMLEntities(trimmedAuthor),
-                summary: cleanHTML(currentDescription.trimmingCharacters(in: .whitespacesAndNewlines)),
+                summary: cleanHTMLPreservingStructure(currentDescription.trimmingCharacters(in: .whitespacesAndNewlines)),
                 content: trimmedContent.isEmpty ? nil : trimmedContent,
                 imageURL: resolveImageURL(),
                 publishedDate: parseDate(currentPubDate.trimmingCharacters(in: .whitespacesAndNewlines)),

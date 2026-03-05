@@ -88,6 +88,139 @@ nonisolated extension RSSParser {
         return decoded.isEmpty ? nil : decoded
     }
 
+    /// Converts HTML to plain text, preserving paragraph/heading structure as newlines
+    /// and rendering `<a>` links as Markdown `[text](url)` for tappable display.
+    func cleanHTMLPreservingStructure(_ html: String) -> String? {
+        guard html.contains("<") else {
+            let decoded = decodeHTMLEntities(html).trimmingCharacters(in: .whitespacesAndNewlines)
+            return decoded.isEmpty ? nil : decoded
+        }
+
+        var result = html
+
+        // Replace <br> variants with newlines
+        result = result.replacingOccurrences(
+            of: #"<br\s*/?>"#, with: "\n", options: .regularExpression
+        )
+
+        // Convert <a href="url">text</a> to Markdown links [text](url),
+        // escaping any [ or ] in the link text so they don't break parsing.
+        // Links with no text content are stripped entirely.
+        if let linkRegex = try? NSRegularExpression(
+            pattern: #"<a\s[^>]*href=["']([^"']+)["'][^>]*>(.*?)</a>"#
+        ) {
+            let nsResult = result as NSString
+            let linkMatches = linkRegex.matches(
+                in: result, range: NSRange(location: 0, length: nsResult.length)
+            )
+            for match in linkMatches.reversed() {
+                let url = nsResult.substring(with: match.range(at: 1))
+                let text = nsResult.substring(with: match.range(at: 2))
+                    .trimmingCharacters(in: .whitespacesAndNewlines)
+                if text.isEmpty {
+                    result = (result as NSString).replacingCharacters(in: match.range, with: "")
+                } else {
+                    let escaped = text
+                        .replacingOccurrences(of: "[", with: "\\[")
+                        .replacingOccurrences(of: "]", with: "\\]")
+                    let replacement = "[\(escaped)](\(url))"
+                    result = (result as NSString).replacingCharacters(in: match.range, with: replacement)
+                }
+            }
+        }
+
+        // Convert headers to markdown format
+        result = result.replacingOccurrences(
+            of: #"<h1(?:\s[^>]*)?>(.+?)</h1>"#, with: "\n# $1\n",
+            options: [.regularExpression, .caseInsensitive]
+        )
+        result = result.replacingOccurrences(
+            of: #"<h2(?:\s[^>]*)?>(.+?)</h2>"#, with: "\n## $1\n",
+            options: [.regularExpression, .caseInsensitive]
+        )
+        result = result.replacingOccurrences(
+            of: #"<h3(?:\s[^>]*)?>(.+?)</h3>"#, with: "\n### $1\n",
+            options: [.regularExpression, .caseInsensitive]
+        )
+        for tag in ["h4", "h5", "h6"] {
+            result = result.replacingOccurrences(
+                of: "<\(tag)(?:\\s[^>]*)?>(.+?)</\(tag)>", with: "\n**$1**\n",
+                options: [.regularExpression, .caseInsensitive]
+            )
+        }
+
+        // Convert bold and italic
+        for tag in ["strong", "b"] {
+            result = result.replacingOccurrences(
+                of: "<\(tag)(?:\\s[^>]*)?>(.+?)</\(tag)>", with: "**$1**",
+                options: [.regularExpression, .caseInsensitive]
+            )
+        }
+        for tag in ["em"] {
+            result = result.replacingOccurrences(
+                of: "<\(tag)(?:\\s[^>]*)?>(.+?)</\(tag)>", with: "*$1*",
+                options: [.regularExpression, .caseInsensitive]
+            )
+        }
+        result = result.replacingOccurrences(
+            of: #"<i(?:\s[^>]*)?>(.+?)</i>"#, with: "*$1*",
+            options: [.regularExpression, .caseInsensitive]
+        )
+
+        // Convert superscript and subscript
+        result = result.replacingOccurrences(
+            of: #"<sup(?:\s[^>]*)?>(.+?)</sup>"#, with: "{{SUP}}$1{{/SUP}}",
+            options: [.regularExpression, .caseInsensitive]
+        )
+        result = result.replacingOccurrences(
+            of: #"<sub(?:\s[^>]*)?>(.+?)</sub>"#, with: "{{SUB}}$1{{/SUB}}",
+            options: [.regularExpression, .caseInsensitive]
+        )
+
+        // Validate URLs inside superscript/subscript markers; drop if invalid
+        result = stripInvalidURLSupSub(result)
+
+        // Add newlines after block-level closing tags
+        let blockTags = ["p", "div", "li"]
+        for tag in blockTags {
+            result = result.replacingOccurrences(
+                of: "</\(tag)>", with: "\n", options: .caseInsensitive
+            )
+        }
+
+        // Convert <img> tags to image markers (filtering tracking pixels)
+        let imgPattern = #"<img\s[^>]*src=["']([^"']+)["'][^>]*>"#
+        if let imgRegex = try? NSRegularExpression(pattern: imgPattern, options: .caseInsensitive) {
+            let nsResult = result as NSString
+            let matches = imgRegex.matches(in: result, range: NSRange(location: 0, length: nsResult.length))
+            // Process in reverse to preserve range offsets
+            for match in matches.reversed() {
+                let urlRange = match.range(at: 1)
+                let imgURL = nsResult.substring(with: urlRange)
+                if isLikelyHeroImage(imgURL) {
+                    let replacement = "\n{{IMG}}\(imgURL){{/IMG}}\n"
+                    result = (result as NSString).replacingCharacters(in: match.range, with: replacement)
+                } else {
+                    result = (result as NSString).replacingCharacters(in: match.range, with: "")
+                }
+            }
+        }
+
+        // Strip remaining HTML tags
+        result = result.replacingOccurrences(of: "<[^>]+>", with: "", options: .regularExpression)
+
+        // Decode HTML entities
+        result = decodeHTMLEntities(result)
+
+        // Collapse multiple consecutive newlines into two
+        result = result.replacingOccurrences(
+            of: #"\n{3,}"#, with: "\n\n", options: .regularExpression
+        )
+
+        result = result.trimmingCharacters(in: .whitespacesAndNewlines)
+        return result.isEmpty ? nil : result
+    }
+
     func extractImageFromHTML(_ html: String) -> String? {
         // Try double-quoted src first, then single-quoted
         let patterns = [
@@ -119,6 +252,36 @@ nonisolated extension RSSParser {
             }
         }
         return nil
+    }
+
+    /// Removes `{{SUP}}…{{/SUP}}` and `{{SUB}}…{{/SUB}}` markers whose
+    /// content contains an invalid URL (either as a Markdown link or raw URL).
+    /// Markers with no URL (e.g. plain numbers) are kept as-is.
+    func stripInvalidURLSupSub(_ text: String) -> String {
+        let pattern = #"\{\{(SUP|SUB)\}\}(.+?)\{\{/(SUP|SUB)\}\}"#
+        guard let regex = try? NSRegularExpression(pattern: pattern) else { return text }
+        var result = text
+        let nsText = result as NSString
+        let matches = regex.matches(in: result, range: NSRange(location: 0, length: nsText.length))
+        for match in matches.reversed() {
+            let content = nsText.substring(with: match.range(at: 2))
+            let linkPattern = #"\[([^\]]+)\]\(([^)]+)\)"#
+            if let linkRegex = try? NSRegularExpression(pattern: linkPattern),
+               let linkMatch = linkRegex.firstMatch(
+                in: content, range: NSRange(location: 0, length: (content as NSString).length)
+               ) {
+                let urlString = (content as NSString).substring(with: linkMatch.range(at: 2))
+                if URL(string: urlString) == nil {
+                    result = (result as NSString).replacingCharacters(in: match.range, with: "")
+                }
+            } else if content.hasPrefix("http://") || content.hasPrefix("https://")
+                        || content.hasPrefix("//") {
+                if URL(string: content) == nil {
+                    result = (result as NSString).replacingCharacters(in: match.range, with: "")
+                }
+            }
+        }
+        return result
     }
 
     private func isLikelyHeroImage(_ url: String) -> Bool {

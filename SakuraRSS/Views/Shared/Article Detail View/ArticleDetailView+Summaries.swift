@@ -9,7 +9,7 @@ extension ArticleDetailView {
             return
         }
 
-        let source = extractedText ?? article.summary ?? ""
+        let source = ContentBlock.plainText(from: extractedText ?? article.summary ?? "")
         guard !source.isEmpty else { return }
 
         isSummarizing = true

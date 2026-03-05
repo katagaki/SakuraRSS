@@ -48,8 +48,8 @@ struct CardsStyleView: View {
                     Text("Cards.Empty.Description")
                 }
             } else {
-                // Show top 3 cards for depth effect, bottom cards drawn first
-                ForEach(Array(visibleCards.prefix(3).enumerated().reversed()),
+                // Show front card and one behind; new back cards fade in after swipe
+                ForEach(Array(visibleCards.prefix(2).enumerated().reversed()),
                         id: \.element.id) { index, article in
                     ArticleLink(article: article) {
                         CardView(
@@ -68,6 +68,7 @@ struct CardsStyleView: View {
                     .scaleEffect(1.0 - CGFloat(index) * 0.04)
                     .offset(y: CGFloat(index) * 8)
                     .allowsHitTesting(index == 0)
+                    .transition(.opacity)
                 }
             }
         }
@@ -99,7 +100,7 @@ private struct CardView: View {
     }
 
     private var swipeProgress: Double {
-        min(abs(offset.width) / 150.0, 1.0)
+        min(abs(offset.width) / 80.0, 1.0)
     }
 
     private var cardTextColor: Color {
@@ -139,7 +140,7 @@ private struct CardView: View {
                         .multilineTextAlignment(.leading)
 
                     if let summary = article.summary, !summary.isEmpty {
-                        Text(summary)
+                        Text(ContentBlock.stripMarkdown(summary))
                             .font(.subheadline)
                             .foregroundStyle(cardTextColor.secondary)
                             .lineLimit(2)
@@ -210,7 +211,7 @@ private struct CardView: View {
     }
 
     private func handleSwipeEnd(translation: CGSize) {
-        let threshold: CGFloat = 150
+        let threshold: CGFloat = 80
         if abs(translation.width) > threshold {
             let direction: CGFloat = translation.width > 0 ? 500 : -500
             let callback = translation.width > 0 ? onSwipedRight : onSwipedLeft
@@ -218,7 +219,9 @@ private struct CardView: View {
                 offset = CGSize(width: direction, height: translation.height)
             }
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                callback()
+                withAnimation(.smooth.speed(2.0)) {
+                    callback()
+                }
                 offset = .zero
             }
         } else {

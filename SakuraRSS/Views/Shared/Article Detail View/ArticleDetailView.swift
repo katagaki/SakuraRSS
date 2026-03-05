@@ -16,8 +16,11 @@ struct ArticleDetailView: View {
     @State var isExtracting = false
     @State var translatedText: String?
     @State var translatedTitle: String?
+    @State var translatedSummary: String?
     @State var isTranslating = false
     @State var translationConfig: TranslationSession.Configuration?
+    @State var showingTranslation = false
+    @State var hasCachedTranslation = false
     @State var summarizedText: String?
     @State var isSummarizing = false
     @State var hasCachedSummary = false
@@ -29,22 +32,35 @@ struct ArticleDetailView: View {
         SystemLanguageModel.default.availability == .available
     }
 
+    var hasTranslationForCurrentMode: Bool {
+        if showingSummary {
+            return translatedSummary != nil
+        }
+        return translatedText != nil || hasCachedTranslation
+    }
+
     var displayText: String? {
         if showingSummary, let summarizedText {
-            return translatedText ?? summarizedText
+            if showingTranslation, let translatedSummary {
+                return translatedSummary
+            }
+            return summarizedText
         }
-        return translatedText ?? extractedText ?? article.summary
+        if showingTranslation, let translatedText {
+            return translatedText
+        }
+        return extractedText ?? article.summary
     }
 
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
                 SelectableText(
-                    translatedTitle ?? article.title,
+                    (showingTranslation ? translatedTitle : nil) ?? article.title,
                     font: .preferredFont(forTextStyle: .title2).bold(),
                     textColor: .label
                 )
-                .id(translatedTitle)
+                .id(showingTranslation ? translatedTitle : nil)
                 .transition(.blurReplace)
 
                 HStack(spacing: 12) {
@@ -62,6 +78,7 @@ struct ArticleDetailView: View {
                         Text(feed.title)
                             .font(.caption)
                             .foregroundStyle(.secondary)
+                            .lineLimit(1)
                     }
 
                     if let author = article.author {
@@ -70,6 +87,7 @@ struct ArticleDetailView: View {
                         Text(author)
                             .font(.caption)
                             .foregroundStyle(.secondary)
+                            .lineLimit(1)
                     }
 
                     if let date = article.publishedDate {
@@ -80,6 +98,7 @@ struct ArticleDetailView: View {
                             .foregroundStyle(.secondary)
                     }
                 }
+                .lineLimit(1)
 
                 if let imageURL = article.imageURL, let url = URL(string: imageURL) {
                     CachedAsyncImage(url: url) {
@@ -99,30 +118,46 @@ struct ArticleDetailView: View {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 8) {
                     if !isExtracting && displayText != nil {
-                        Button {
-                            triggerTranslation()
-                        } label: {
-                            Label(
-                                String(localized: "Article.Translate"),
-                                systemImage: "translate"
-                            )
-                            .opacity(isTranslating ? 0 : 1)
-                            .overlay {
-                                if isTranslating {
-                                    ProgressView()
+                        if hasTranslationForCurrentMode && !isTranslating {
+                            Button {
+                                withAnimation(.smooth.speed(2.0)) {
+                                    showingTranslation.toggle()
                                 }
+                            } label: {
+                                Label(
+                                    String(localized: showingTranslation
+                                           ? "Article.ShowOriginal"
+                                           : "Article.ShowTranslation"),
+                                    systemImage: showingTranslation
+                                        ? "doc.plaintext" : "translate"
+                                )
+                                .padding(.horizontal, 2)
+                                .padding(.vertical, 2)
                             }
-                            .padding(.horizontal, 2)
-                            .padding(.vertical, 2)
+                        } else {
+                            Button {
+                                triggerTranslation()
+                            } label: {
+                                Label(
+                                    String(localized: "Article.Translate"),
+                                    systemImage: "translate"
+                                )
+                                .opacity(isTranslating ? 0 : 1)
+                                .overlay {
+                                    if isTranslating {
+                                        ProgressView()
+                                    }
+                                }
+                                .padding(.horizontal, 2)
+                                .padding(.vertical, 2)
+                            }
+                            .disabled(isTranslating)
+                            .animation(.smooth.speed(2.0), value: isTranslating)
                         }
-                        .disabled(isTranslating)
-                        .animation(.smooth.speed(2.0), value: isTranslating)
 
                         if isAppleIntelligenceAvailable {
                             if (summarizedText != nil || hasCachedSummary) && !isSummarizing {
                                 Button {
-                                    translatedText = nil
-                                    translatedTitle = nil
                                     if summarizedText == nil {
                                         Task {
                                             await summarizeArticle()
@@ -150,8 +185,6 @@ struct ArticleDetailView: View {
                                 }
                             } else {
                                 Button {
-                                    translatedText = nil
-                                    translatedTitle = nil
                                     Task {
                                         await summarizeArticle()
                                         if summarizedText != nil {
@@ -211,12 +244,27 @@ struct ArticleDetailView: View {
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
-                    SelectableText(text)
-                        .id("\(showingSummary)-\(translatedText ?? "")")
-                        .transition(.blurReplace)
+                    let blocks = ContentBlock.parse(text)
+                    ForEach(blocks) { block in
+                        switch block {
+                        case .text(let content):
+                            SelectableText(content)
+                        case .image(let url):
+                            CachedAsyncImage(url: url) {
+                                Rectangle()
+                                    .fill(.secondary.opacity(0.1))
+                                    .frame(height: 200)
+                            }
+                            .aspectRatio(contentMode: .fit)
+                            .clipShape(RoundedRectangle(cornerRadius: 12))
+                        }
+                    }
+                    .id("\(showingSummary)-\(showingTranslation)")
+                    .transition(.blurReplace)
                 }
             }
             .animation(.smooth.speed(2.0), value: showingSummary)
+            .animation(.smooth.speed(2.0), value: showingTranslation)
             .animation(.smooth.speed(2.0), value: translatedText)
             .padding()
         }
@@ -257,6 +305,13 @@ struct ArticleDetailView: View {
                 favicon = await FaviconCache.shared.favicon(for: feed.domain, siteURL: feed.siteURL)
             }
             await extractArticleContent()
+            if let cached = try? DatabaseManager.shared.cachedArticleTranslation(for: article.id) {
+                translatedTitle = cached.title
+                translatedText = cached.text
+                translatedSummary = cached.summary
+                hasCachedTranslation = cached.title != nil || cached.text != nil
+                showingTranslation = hasCachedTranslation
+            }
             if let cached = try? DatabaseManager.shared.cachedArticleSummary(for: article.id),
                !cached.isEmpty {
                 hasCachedSummary = true
@@ -275,33 +330,43 @@ struct ArticleDetailView: View {
             isTranslating = true
             defer { isTranslating = false }
 
-            let source: String
             if showingSummary, let summarizedText {
-                source = summarizedText
-            } else {
-                source = extractedText ?? article.summary ?? ""
-            }
-            guard !source.isEmpty else { return }
-
-            do {
-                var requests = [
-                    TranslationSession.Request(sourceText: source)
-                ]
-                if !showingSummary {
-                    requests.insert(
-                        TranslationSession.Request(sourceText: article.title),
-                        at: 0
+                // Translate the summary
+                guard !summarizedText.isEmpty else { return }
+                do {
+                    let response = try await session.translate(summarizedText)
+                    translatedSummary = response.targetText
+                    showingTranslation = true
+                    try? DatabaseManager.shared.cacheTranslatedSummary(
+                        response.targetText, for: article.id
                     )
+                } catch {
+                    // Translation failed; user can retry
                 }
-                let responses = try await session.translations(from: requests)
-                if showingSummary {
-                    translatedText = responses[0].targetText
-                } else if responses.count >= 2 {
-                    translatedTitle = responses[0].targetText
-                    translatedText = responses[1].targetText
+            } else {
+                // Translate the original article
+                let source = ContentBlock.plainText(from: extractedText ?? article.summary ?? "")
+                guard !source.isEmpty else { return }
+                do {
+                    let requests = [
+                        TranslationSession.Request(sourceText: article.title),
+                        TranslationSession.Request(sourceText: source)
+                    ]
+                    let responses = try await session.translations(from: requests)
+                    if responses.count >= 2 {
+                        translatedTitle = responses[0].targetText
+                        translatedText = responses[1].targetText
+                        hasCachedTranslation = true
+                        showingTranslation = true
+                        try? DatabaseManager.shared.cacheArticleTranslation(
+                            title: responses[0].targetText,
+                            text: responses[1].targetText,
+                            for: article.id
+                        )
+                    }
+                } catch {
+                    // Translation failed; user can retry
                 }
-            } catch {
-                // Translation failed; user can retry
             }
         }
     }

@@ -115,7 +115,7 @@ private struct StylePreviewView: View {
                             .lineLimit(1)
                             .foregroundStyle(article.isRead ? .secondary : .primary)
                         if let summary = article.summary {
-                            Text(summary)
+                            Text(ContentBlock.stripMarkdown(summary))
                                 .font(.subheadline)
                                 .foregroundStyle(.secondary)
                                 .lineLimit(2)
@@ -179,7 +179,7 @@ private struct StylePreviewView: View {
                             }
                         }
                         if let summary = article.summary {
-                            Text(summary)
+                            Text(ContentBlock.stripMarkdown(summary))
                                 .font(.subheadline)
                                 .lineLimit(3)
                         }
