@@ -158,8 +158,6 @@ struct FeedArticleRow: View {
 
                     Spacer()
 
-                    Spacer()
-
                     Button {
                         feedManager.toggleBookmark(article)
                     } label: {
