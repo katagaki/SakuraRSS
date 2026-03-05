@@ -3427,61 +3427,179 @@
         }
       }
     },
-    "Cards.Skip": {
+    "Cards.ListenLater": {
       "extractionState": "manual",
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Überspringen"
+            "value": "Später anhören"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Skip"
+            "value": "Listen Later"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Passer"
+            "value": "Écouter plus tard"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Salta"
+            "value": "Ascolta dopo"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "スキップ"
+            "value": "あとで聴く"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "건너뛰기"
+            "value": "나중에 듣기"
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bỏ qua"
+            "value": "Nghe sau"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "跳过"
+            "value": "稍后收听"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "略過"
+            "value": "稍後收聽"
+          }
+        }
+      }
+    },
+    "Cards.ReadLater": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Später lesen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Read Later"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lire plus tard"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Leggi dopo"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "あとで読む"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "나중에 읽기"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đọc sau"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "稍后阅读"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "稍後閱讀"
+          }
+        }
+      }
+    },
+    "Cards.WatchLater": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Später ansehen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Watch Later"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Regarder plus tard"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Guarda dopo"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "あとで見る"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "나중에 보기"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Xem sau"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "稍后观看"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "稍後觀看"
           }
         }
       }
