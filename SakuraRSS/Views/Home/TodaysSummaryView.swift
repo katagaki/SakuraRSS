@@ -231,55 +231,69 @@ struct TodaysSummaryView: View {
             hasGenerated = true
         }
 
-        let calendar = Calendar.current
-        let midnight = calendar.startOfDay(for: date)
-        let afternoon = calendar.date(bySettingHour: 13, minute: 0, second: 0, of: date)!
-        let evening = calendar.date(bySettingHour: 17, minute: 0, second: 0, of: date)!
+        // Group articles by feed, preparing prompt data for each
+        var feedDescriptions: [String] = []
+        let groupedByFeed = Dictionary(grouping: articles, by: \.feedID)
+        for (_, feedArticles) in groupedByFeed {
+            let descriptions = feedArticles.prefix(30).map { article in
+                let feed = feedManager.feed(forArticle: article)
+                let source = feed?.title ?? ""
+                let title = article.title
+                let snippet = article.summary ?? ""
+                return "[\(source)] \(title)\n\(snippet)"
+            }.joined(separator: "\n\n")
+            feedDescriptions.append(descriptions)
+        }
 
-        let timeWindows: [(start: Date, end: Date)] = [
-            (midnight, afternoon),
-            (afternoon, evening),
-            (evening, date)
-        ]
+        let instructions = String(localized: "TodaysSummary.PartialPrompt")
 
         do {
-            var partialSummaries: [String] = []
+            // Summarize each feed concurrently, at most 3 at a time
+            var feedSummaries: [String] = []
 
-            for window in timeWindows {
-                let windowArticles = articles.filter { article in
-                    guard let published = article.publishedDate else { return false }
-                    return published >= window.start && published < window.end
-                }.prefix(30)
+            try await withThrowingTaskGroup(of: String.self) { group in
+                var index = 0
 
-                guard !windowArticles.isEmpty else { continue }
+                while index < feedDescriptions.count && index < 3 {
+                    let desc = feedDescriptions[index]
+                    group.addTask {
+                        let prompt = "\(instructions)\n\n\(desc)"
+                        #if DEBUG
+                        debugPrint("Per-feed prompt:\n\(prompt)")
+                        #endif
+                        let session = LanguageModelSession()
+                        let response = try await session.respond(to: prompt)
+                        return response.content
+                    }
+                    index += 1
+                }
 
-                let descriptions = windowArticles.map { article in
-                    let feed = feedManager.feed(forArticle: article)
-                    let source = feed?.title ?? ""
-                    let title = article.title
-                    let snippet = article.summary ?? ""
-                    return "[\(source)] \(title)\n\(snippet)"
-                }.joined(separator: "\n\n")
-
-                let instructions = String(localized: "TodaysSummary.PartialPrompt")
-                let prompt = "\(instructions)\n\n\(descriptions)"
-
-                #if DEBUG
-                debugPrint("Partial prompt (\(window.start) - \(window.end)):\n\(prompt)")
-                #endif
-
-                let session = LanguageModelSession()
-                let response = try await session.respond(to: prompt)
-                partialSummaries.append(response.content)
+                for try await result in group {
+                    feedSummaries.append(result)
+                    if index < feedDescriptions.count {
+                        let desc = feedDescriptions[index]
+                        group.addTask {
+                            let prompt = "\(instructions)\n\n\(desc)"
+                            #if DEBUG
+                            debugPrint("Per-feed prompt:\n\(prompt)")
+                            #endif
+                            let session = LanguageModelSession()
+                            let response = try await session.respond(to: prompt)
+                            return response.content
+                        }
+                        index += 1
+                    }
+                }
             }
 
-            guard !partialSummaries.isEmpty else { return }
+            guard !feedSummaries.isEmpty else { return }
 
+            // Combine per-feed summaries into one overall summary
             let finalContent: String
-            if partialSummaries.count == 1 {
-                finalContent = partialSummaries[0]
+            if feedSummaries.count == 1 {
+                finalContent = feedSummaries[0]
             } else {
-                let combined = partialSummaries.joined(separator: "\n\n")
+                let combined = feedSummaries.joined(separator: "\n\n")
                 let combineInstructions = String(localized: "TodaysSummary.CombinePrompt")
                 let combinePrompt = "\(combineInstructions)\n\n\(combined)"
 

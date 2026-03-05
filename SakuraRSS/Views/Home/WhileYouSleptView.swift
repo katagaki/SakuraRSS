@@ -222,30 +222,87 @@ struct WhileYouSleptView: View {
             hasGenerated = true
         }
 
-        let articleDescriptions = articles.prefix(30).map { article in
-            let feed = feedManager.feed(forArticle: article)
-            let source = feed?.title ?? ""
-            let title = article.title
-            let snippet = article.summary ?? ""
-            return "[\(source)] \(title)\n\(snippet)"
-        }.joined(separator: "\n\n")
+        // Group articles by feed, preparing prompt data for each
+        let limitedArticles = Array(articles.prefix(30))
+        var feedDescriptions: [String] = []
+        let groupedByFeed = Dictionary(grouping: limitedArticles, by: \.feedID)
+        for (_, feedArticles) in groupedByFeed {
+            let descriptions = feedArticles.map { article in
+                let feed = feedManager.feed(forArticle: article)
+                let source = feed?.title ?? ""
+                let title = article.title
+                let snippet = article.summary ?? ""
+                return "[\(source)] \(title)\n\(snippet)"
+            }.joined(separator: "\n\n")
+            feedDescriptions.append(descriptions)
+        }
 
-        let instructions = String(localized: "WhileYouSlept.Prompt")
-        let prompt = "\(instructions)\n\n\(articleDescriptions)"
-
-        #if DEBUG
-        debugPrint(prompt)
-        #endif
+        let instructions = String(localized: "TodaysSummary.PartialPrompt")
 
         do {
-            let session = LanguageModelSession()
-            let response = try await session.respond(to: prompt)
-            let content = response.content
+            // Summarize each feed concurrently, at most 3 at a time
+            var feedSummaries: [String] = []
+
+            try await withThrowingTaskGroup(of: String.self) { group in
+                var index = 0
+
+                while index < feedDescriptions.count && index < 3 {
+                    let desc = feedDescriptions[index]
+                    group.addTask {
+                        let prompt = "\(instructions)\n\n\(desc)"
+                        #if DEBUG
+                        debugPrint("Per-feed prompt:\n\(prompt)")
+                        #endif
+                        let session = LanguageModelSession()
+                        let response = try await session.respond(to: prompt)
+                        return response.content
+                    }
+                    index += 1
+                }
+
+                for try await result in group {
+                    feedSummaries.append(result)
+                    if index < feedDescriptions.count {
+                        let desc = feedDescriptions[index]
+                        group.addTask {
+                            let prompt = "\(instructions)\n\n\(desc)"
+                            #if DEBUG
+                            debugPrint("Per-feed prompt:\n\(prompt)")
+                            #endif
+                            let session = LanguageModelSession()
+                            let response = try await session.respond(to: prompt)
+                            return response.content
+                        }
+                        index += 1
+                    }
+                }
+            }
+
+            guard !feedSummaries.isEmpty else { return }
+
+            // Combine per-feed summaries into one overall summary
+            let finalContent: String
+            if feedSummaries.count == 1 {
+                finalContent = feedSummaries[0]
+            } else {
+                let combined = feedSummaries.joined(separator: "\n\n")
+                let combineInstructions = String(localized: "TodaysSummary.CombinePrompt")
+                let combinePrompt = "\(combineInstructions)\n\n\(combined)"
+
+                #if DEBUG
+                debugPrint("Combine prompt:\n\(combinePrompt)")
+                #endif
+
+                let session = LanguageModelSession()
+                let response = try await session.respond(to: combinePrompt)
+                finalContent = response.content
+            }
+
             withAnimation(.smooth.speed(2.0)) {
-                summary = content
+                summary = finalContent
             }
             hasSummary = true
-            try? DatabaseManager.shared.cacheSummary(content, ofType: .whileYouSlept, for: date)
+            try? DatabaseManager.shared.cacheSummary(finalContent, ofType: .whileYouSlept, for: date)
         } catch {
             generationFailed = true
         }
