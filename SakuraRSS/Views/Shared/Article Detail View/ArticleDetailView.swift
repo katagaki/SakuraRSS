@@ -39,6 +39,10 @@ struct ArticleDetailView: View {
         return translatedText != nil || hasCachedTranslation
     }
 
+    var fullTextHasImages: Bool {
+        extractedText?.contains("{{IMG}}") == true
+    }
+
     var displayText: String? {
         if showingSummary, let summarizedText {
             if showingTranslation, let translatedSummary {
@@ -99,16 +103,6 @@ struct ArticleDetailView: View {
                     }
                 }
                 .lineLimit(1)
-
-                if let imageURL = article.imageURL, let url = URL(string: imageURL) {
-                    CachedAsyncImage(url: url) {
-                        Rectangle()
-                            .fill(.secondary.opacity(0.1))
-                            .frame(height: 200)
-                    }
-                    .aspectRatio(contentMode: .fit)
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
-                }
 
             }
             .animation(.smooth.speed(2.0), value: translatedTitle)
@@ -231,6 +225,18 @@ struct ArticleDetailView: View {
                 .padding(.horizontal)
             }
             .padding(.top)
+
+            if !fullTextHasImages,
+               let imageURL = article.imageURL, let url = URL(string: imageURL) {
+                CachedAsyncImage(url: url) {
+                    Rectangle()
+                        .fill(.secondary.opacity(0.1))
+                        .frame(height: 200)
+                }
+                .aspectRatio(contentMode: .fit)
+                .clipShape(RoundedRectangle(cornerRadius: 12))
+                .padding(.horizontal)
+            }
 
             VStack(alignment: .leading, spacing: 16) {
 

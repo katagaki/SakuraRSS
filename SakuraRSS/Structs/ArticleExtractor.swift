@@ -21,6 +21,7 @@ struct ArticleExtractor {
     ]
 
     private static let noiseSelectors = [
+        // Navigation & menus
         "nav",
         "header",
         "footer",
@@ -36,29 +37,124 @@ struct ArticleExtractor {
         ".dropdown-menu",
         ".breadcrumb",
         ".breadcrumbs",
+        ".site-header",
+        ".site-footer",
+        ".page-header",
+        ".page-footer",
+        ".top-bar",
+        ".bottom-bar",
+        ".header-nav",
+        ".footer-nav",
+        ".skip-link",
+        // Social & sharing
         ".social-share",
         ".share-buttons",
         ".sharing",
+        ".social-links",
+        ".social-icons",
+        ".share-bar",
+        ".share-links",
+        ".share-widget",
+        // Related content & suggestions
         ".related-posts",
         ".related-articles",
+        ".related-content",
+        ".related-stories",
+        ".recommended",
+        ".recommendations",
+        ".suggested",
+        ".suggested-posts",
+        ".suggested-articles",
+        ".more-stories",
+        ".more-articles",
+        ".more-from",
+        ".read-next",
+        ".read-more",
+        ".up-next",
+        ".also-read",
+        ".trending",
+        ".trending-posts",
+        ".popular-posts",
+        ".most-read",
+        ".most-popular",
+        ".top-stories",
+        ".you-may-like",
+        ".dont-miss",
+        ".latest-posts",
+        ".latest-articles",
+        ".latest-stories",
+        ".more-on",
+        ".further-reading",
+        // Comments
         ".comments",
         ".comment-section",
+        ".comment-form",
+        ".comment-list",
+        ".comments-area",
+        ".comments-section",
+        ".disqus_thread",
+        "#disqus_thread",
+        "#comments",
+        ".respond",
+        ".comment-respond",
+        ".discussion",
+        // Ads
         ".advertisement",
         ".ad-container",
         ".ad",
         ".ads",
+        ".ad-slot",
+        ".ad-wrapper",
+        ".ad-banner",
+        ".ad-unit",
+        ".adsbygoogle",
+        ".sponsored",
+        ".promoted",
+        ".promo",
+        ".promo-banner",
+        // Banners & popups
         ".cookie-banner",
         ".cookie-notice",
+        ".cookie-consent",
         ".popup",
         ".modal",
+        ".overlay",
+        ".alert-banner",
+        ".notification-bar",
+        ".announcement-bar",
+        ".paywall",
+        ".paywall-prompt",
+        ".gate",
+        ".login-prompt",
+        ".register-prompt",
+        // Newsletter & signup
         ".newsletter",
         ".subscribe",
         ".signup",
+        ".newsletter-signup",
+        ".email-signup",
+        ".subscribe-form",
+        ".cta",
+        ".call-to-action",
+        // UI elements
         ".toolbar",
         ".pagination",
         ".pager",
         ".tags",
         ".tag-list",
+        ".toc",
+        ".table-of-contents",
+        ".print-only",
+        ".screen-reader-text",
+        ".visually-hidden",
+        // Author & meta sections
+        ".author-bio",
+        ".author-box",
+        ".author-info",
+        ".byline-section",
+        ".bio",
+        ".about-author",
+        // ARIA roles
         "[role=navigation]",
         "[role=banner]",
         "[role=complementary]",
@@ -67,6 +163,15 @@ struct ArticleExtractor {
         "[aria-label*=Menu]",
         "[aria-label*=navigation]",
         "[aria-label*=Navigation]",
+        "[aria-label*=comment]",
+        "[aria-label*=Comment]",
+        "[aria-label*=related]",
+        "[aria-label*=Related]",
+        "[aria-label*=share]",
+        "[aria-label*=Share]",
+        "[aria-label*=advertisement]",
+        "[aria-label*=Advertisement]",
+        // Non-content elements
         "script",
         "style",
         "noscript",
@@ -76,7 +181,8 @@ struct ArticleExtractor {
         "select",
         "input",
         "svg",
-        "canvas"
+        "canvas",
+        "template"
     ]
 
     private static let blockElements = [
@@ -85,8 +191,7 @@ struct ArticleExtractor {
     ]
 
     static func extractText(fromHTML html: String,
-                             excludeTitle: String? = nil,
-                             excludeImageURL: String? = nil) -> String? {
+                             excludeTitle: String? = nil) -> String? {
         guard !html.isEmpty else { return nil }
         do {
             let doc = try SwiftSoup.parse(html)
@@ -95,8 +200,7 @@ struct ArticleExtractor {
             // Remove any remaining noise inside content area
             removeNoise(from: element)
             let paragraphs = try extractParagraphs(from: element,
-                                                   excludeTitle: excludeTitle,
-                                                   excludeImageURL: excludeImageURL)
+                                                   excludeTitle: excludeTitle)
             let result = paragraphs.joined(separator: "\n\n")
             let cleaned = stripRemainingHTMLTags(result)
             return cleaned.isEmpty ? nil : cleaned
@@ -106,8 +210,7 @@ struct ArticleExtractor {
     }
 
     static func extractText(fromURL url: URL,
-                             excludeTitle: String? = nil,
-                             excludeImageURL: String? = nil) async -> String? {
+                             excludeTitle: String? = nil) async -> String? {
         if WebViewExtractor.requiresWebView(for: url) {
             #if DEBUG
             debugPrint("Extracting text using WebView from \(url)")
@@ -123,14 +226,24 @@ struct ArticleExtractor {
             guard let html = String(data: data, encoding: .utf8) else {
                 return nil
             }
-            return extractText(fromHTML: html, excludeTitle: excludeTitle,
-                               excludeImageURL: excludeImageURL)
+            return extractText(fromHTML: html, excludeTitle: excludeTitle)
         } catch {
             return nil
         }
     }
 
     // MARK: - Private Helpers
+
+    /// Class/ID substrings that strongly indicate non-article content.
+    private static let noiseClassPatterns = [
+        "related", "recommend", "suggested", "popular",
+        "trending", "sidebar", "widget", "promo",
+        "newsletter", "subscribe", "comment", "disqus",
+        "social-share", "share-bar", "ad-slot", "ad-wrap",
+        "footer-links", "site-footer", "more-stories",
+        "outbrain", "taboola", "also-like", "dont-miss",
+        "read-next", "up-next", "most-read"
+    ]
 
     private static func removeNoise(from element: Element) {
         for selector in noiseSelectors {
@@ -142,7 +255,39 @@ struct ArticleExtractor {
             }
         }
 
+        // Remove elements whose class or id contains common noise patterns
+        removeNoiseByClassPatterns(from: element)
+
         // Remove elements that look like menus (lists of links with little text)
+        removeMenuLists(from: element)
+
+        // Remove sections that look like "related articles" or "suggestions"
+        // by checking heading text followed by a list of links
+        removeSuggestionSections(from: element)
+    }
+
+    /// Removes elements whose class or id attribute contains known noise substrings.
+    private static func removeNoiseByClassPatterns(from element: Element) {
+        do {
+            let allElements = try element.select("div, section, aside, ul, ol")
+            for el in allElements {
+                let className = (try? el.attr("class"))?.lowercased() ?? ""
+                let idName = (try? el.attr("id"))?.lowercased() ?? ""
+                let combined = className + " " + idName
+                for pattern in noiseClassPatterns {
+                    if combined.contains(pattern) {
+                        try el.remove()
+                        break
+                    }
+                }
+            }
+        } catch {
+            // Best-effort; failures are non-critical
+        }
+    }
+
+    /// Removes lists where most items are just links (likely navigation menus).
+    private static func removeMenuLists(from element: Element) {
         do {
             let lists = try element.select("ul, ol")
             for list in lists {
@@ -162,6 +307,57 @@ struct ArticleExtractor {
         }
     }
 
+    /// Detects and removes "suggestion" sections: a heading like
+    /// "Related Articles" or "You May Also Like" followed by a link-heavy block.
+    private static func removeSuggestionSections(from element: Element) {
+        let suggestionHeadingPatterns = [
+            "related", "recommended", "suggested", "you may also",
+            "you might also", "more from", "more stories",
+            "more articles", "don't miss", "also read",
+            "read next", "read more", "trending", "popular",
+            "most read", "top stories", "further reading",
+            "editors' picks", "editor's pick", "latest news",
+            "what to read next", "up next", "around the web"
+        ]
+
+        do {
+            let headings = try element.select("h2, h3, h4, h5, h6")
+            for heading in headings {
+                let text = (try? heading.text())?.lowercased() ?? ""
+                let isSuggestionHeading = suggestionHeadingPatterns.contains { text.contains($0) }
+                guard isSuggestionHeading else { continue }
+
+                // Remove the heading's parent container if it looks like a suggestion section,
+                // or remove the heading and following siblings
+                if let parent = heading.parent(),
+                   parent.tagName().lowercased() != "body",
+                   !["article", "main"].contains(parent.tagName().lowercased()) {
+                    // Check if the parent has mostly links (a suggestion block)
+                    let parentLinks = (try? parent.select("a"))?.size() ?? 0
+                    if parentLinks >= 2 {
+                        try parent.remove()
+                        continue
+                    }
+                }
+
+                // Fallback: remove the heading and following siblings until the next heading
+                var sibling = try heading.nextElementSibling()
+                try heading.remove()
+                while let current = sibling {
+                    let tag = current.tagName().lowercased()
+                    if ["h1", "h2", "h3", "h4", "h5", "h6"].contains(tag) {
+                        break
+                    }
+                    let next = try current.nextElementSibling()
+                    try current.remove()
+                    sibling = next
+                }
+            }
+        } catch {
+            // Best-effort; failures are non-critical
+        }
+    }
+
     private static func findMainContent(from doc: Document) throws -> Element {
         for selector in contentSelectors {
             let elements = try doc.select(selector)
@@ -176,11 +372,10 @@ struct ArticleExtractor {
     }
 
     private static func extractParagraphs(from element: Element,
-                                          excludeTitle: String? = nil,
-                                          excludeImageURL: String? = nil) throws -> [String] {
+                                          excludeTitle: String? = nil) throws -> [String] {
         var paragraphs: [String] = []
         try collectBlocks(from: element, into: &paragraphs,
-                          excludeTitle: excludeTitle, excludeImageURL: excludeImageURL)
+                          excludeTitle: excludeTitle)
 
         if paragraphs.isEmpty {
             let text = try textContent(of: element)
@@ -195,27 +390,23 @@ struct ArticleExtractor {
     /// nested blocks like `<div><p>…</p></div>` don't produce duplicates.
     /// Treats leaf divs (divs with no block-level children) as paragraphs.
     private static func collectBlocks(from element: Element, into paragraphs: inout [String],
-                                      excludeTitle: String? = nil,
-                                      excludeImageURL: String? = nil) throws {
+                                      excludeTitle: String? = nil) throws {
         for child in element.children() {
             let tag = child.tagName().lowercased()
             if tag == "img" {
-                if let src = try? child.attr("src"), !src.isEmpty, isLikelyContentImage(src),
-                   !imageURLsMatch(src, excludeImageURL) {
+                if let src = try? child.attr("src"), !src.isEmpty, isLikelyContentImage(src) {
                     paragraphs.append("{{IMG}}\(src){{/IMG}}")
                 }
             } else if tag == "picture" {
                 // Extract the <img> inside <picture>, ignoring <source> elements
                 if let img = try? child.select("img").first(),
-                   let src = try? img.attr("src"), !src.isEmpty, isLikelyContentImage(src),
-                   !imageURLsMatch(src, excludeImageURL) {
+                   let src = try? img.attr("src"), !src.isEmpty, isLikelyContentImage(src) {
                     paragraphs.append("{{IMG}}\(src){{/IMG}}")
                 }
             } else if tag == "figure" {
                 // Extract image from figure, then caption
                 if let img = try? child.select("img").first(),
-                   let src = try? img.attr("src"), !src.isEmpty, isLikelyContentImage(src),
-                   !imageURLsMatch(src, excludeImageURL) {
+                   let src = try? img.attr("src"), !src.isEmpty, isLikelyContentImage(src) {
                     paragraphs.append("{{IMG}}\(src){{/IMG}}")
                 }
                 if let caption = try? child.select("figcaption").first() {
@@ -245,7 +436,7 @@ struct ArticleExtractor {
                 }
             } else {
                 try collectBlocks(from: child, into: &paragraphs,
-                                  excludeTitle: excludeTitle, excludeImageURL: excludeImageURL)
+                                  excludeTitle: excludeTitle)
             }
         }
     }
@@ -384,21 +575,6 @@ struct ArticleExtractor {
         text = stripInvalidURLSupSub(text)
         text = stripRemainingHTMLTags(text)
         return text.trimmingCharacters(in: .whitespacesAndNewlines)
-    }
-
-    /// Compares two image URLs ignoring query parameters so that URLs
-    /// differing only in quality/size params are treated as the same image.
-    private static func imageURLsMatch(_ src: String, _ exclude: String?) -> Bool {
-        guard let exclude else { return false }
-        if src == exclude { return true }
-        return urlStrippingQuery(src) == urlStrippingQuery(exclude)
-    }
-
-    private static func urlStrippingQuery(_ urlString: String) -> String {
-        guard var components = URLComponents(string: urlString) else { return urlString }
-        components.query = nil
-        components.fragment = nil
-        return components.string ?? urlString
     }
 
     private static func isLikelyContentImage(_ url: String) -> Bool {

@@ -107,10 +107,9 @@ actor FaviconCache {
         for domain: String, siteURL: String? = nil,
         cacheKey: String, filePath: URL
     ) async -> UIImage? {
-        let isYouTube = domain.contains("youtube.com") || domain.contains("youtu.be")
-
-        if isYouTube, let siteURL = siteURL,
-           let image = await fetchYouTubeAvatar(from: siteURL) {
+        // For profile-based feeds, fetch the avatar from the profile page's og:image
+        if Self.isProfileBased(domain: domain, siteURL: siteURL), let siteURL = siteURL,
+           let image = await fetchProfileAvatar(from: siteURL) {
             return await trimAndCache(image, cacheKey: cacheKey, filePath: filePath)
         }
 
@@ -200,10 +199,32 @@ actor FaviconCache {
         return Int(parts.first ?? "") ?? 0
     }
 
-    // MARK: - YouTube
+    // MARK: - Profile Avatars (YouTube, Mastodon, Bluesky)
 
-    /// Fetches the YouTube channel avatar by scraping the channel page for the og:image meta tag.
-    private nonisolated func fetchYouTubeAvatar(from siteURL: String) async -> UIImage? {
+    /// Domains where each feed represents a unique profile and
+    /// the profile page's og:image should be used as the favicon.
+    private static func isProfileBasedDomain(_ domain: String) -> Bool {
+        let host = domain.lowercased()
+        if host.contains("youtube.com") || host.contains("youtu.be") { return true }
+        if host == "bsky.app" || host.hasSuffix(".bsky.app") { return true }
+        if FeedViewDomains.shouldPreferFeedView(feedDomain: host) { return true }
+        return false
+    }
+
+    /// Checks domain or siteURL pattern to detect profile-based feeds,
+    /// including Mastodon instances not in the allowlist.
+    private static func isProfileBased(domain: String, siteURL: String?) -> Bool {
+        if isProfileBasedDomain(domain) { return true }
+        // Detect unlisted Mastodon instances by /@username path pattern
+        if let siteURL, let url = URL(string: siteURL), url.path.hasPrefix("/@") {
+            return true
+        }
+        return false
+    }
+
+    /// Fetches a profile avatar by scraping the profile page for the og:image meta tag.
+    /// Works for YouTube channels, Mastodon profiles, and Bluesky profiles.
+    private nonisolated func fetchProfileAvatar(from siteURL: String) async -> UIImage? {
         guard let url = URL(string: siteURL) else { return nil }
         do {
             let (data, _) = try await URLSession.shared.data(from: url)
@@ -254,8 +275,8 @@ actor FaviconCache {
     }
 
     private nonisolated static func cacheKey(domain: String, siteURL: String?) -> String {
-        let isYouTube = domain.contains("youtube.com") || domain.contains("youtu.be")
-        guard isYouTube, let siteURL = siteURL, let url = URL(string: siteURL) else {
+        guard isProfileBased(domain: domain, siteURL: siteURL),
+              let siteURL = siteURL, let url = URL(string: siteURL) else {
             return domain
         }
         let host = url.host ?? domain

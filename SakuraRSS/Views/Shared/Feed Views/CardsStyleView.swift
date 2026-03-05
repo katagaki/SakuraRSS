@@ -68,7 +68,7 @@ struct CardsStyleView: View {
                     .scaleEffect(1.0 - CGFloat(index) * 0.04)
                     .offset(y: CGFloat(index) * 8)
                     .allowsHitTesting(index == 0)
-                    .transition(.opacity)
+                    .transition(.asymmetric(insertion: .opacity, removal: .identity))
                 }
             }
         }
@@ -105,6 +105,16 @@ private struct CardView: View {
 
     private var cardTextColor: Color {
         colorScheme == .dark ? .white : .black
+    }
+
+    private var skipLocalizationKey: String.LocalizationValue {
+        if article.isPodcastEpisode {
+            return "Cards.ListenLater"
+        }
+        if article.isYouTubeURL {
+            return "Cards.WatchLater"
+        }
+        return "Cards.ReadLater"
     }
 
     var body: some View {
@@ -176,10 +186,10 @@ private struct CardView: View {
                 opacity: offset.width > 0 ? swipeProgress : 0
             )
 
-            // Left swipe: skip indicator
+            // Left swipe: read/watch/listen later indicator
             swipeIndicatorOverlay(
-                localizationKey: "Cards.Skip",
-                systemImage: "xmark.circle.fill",
+                localizationKey: skipLocalizationKey,
+                systemImage: "eye.slash.fill",
                 color: .red,
                 alignment: .topTrailing,
                 opacity: offset.width < 0 ? swipeProgress : 0

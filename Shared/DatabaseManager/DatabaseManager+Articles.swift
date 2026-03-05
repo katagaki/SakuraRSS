@@ -123,6 +123,11 @@ nonisolated extension DatabaseManager {
         try database.run(articles.filter(articleID == id).update(articleIsBookmarked <- !current))
     }
 
+    func removeReadBookmarks() throws {
+        let target = articles.filter(articleIsBookmarked == true && articleIsRead == true)
+        try database.run(target.update(articleIsBookmarked <- false))
+    }
+
     func markAllRead(feedID fid: Int64) throws {
         let target = articles.filter(articleFeedID == fid && articleIsRead == false)
         try database.run(target.update(articleIsRead <- true))
