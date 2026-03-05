@@ -189,22 +189,7 @@ nonisolated extension RSSParser {
         }
 
         // Convert <img> tags to image markers (filtering tracking pixels)
-        let imgPattern = #"<img\s[^>]*src=["']([^"']+)["'][^>]*>"#
-        if let imgRegex = try? NSRegularExpression(pattern: imgPattern, options: .caseInsensitive) {
-            let nsResult = result as NSString
-            let matches = imgRegex.matches(in: result, range: NSRange(location: 0, length: nsResult.length))
-            // Process in reverse to preserve range offsets
-            for match in matches.reversed() {
-                let urlRange = match.range(at: 1)
-                let imgURL = nsResult.substring(with: urlRange)
-                if isLikelyHeroImage(imgURL) {
-                    let replacement = "\n{{IMG}}\(imgURL){{/IMG}}\n"
-                    result = (result as NSString).replacingCharacters(in: match.range, with: replacement)
-                } else {
-                    result = (result as NSString).replacingCharacters(in: match.range, with: "")
-                }
-            }
-        }
+        result = replaceImgTagsWithMarkers(result)
 
         // Strip remaining HTML tags
         result = result.replacingOccurrences(of: "<[^>]+>", with: "", options: .regularExpression)
@@ -279,6 +264,25 @@ nonisolated extension RSSParser {
                 if URL(string: content) == nil {
                     result = (result as NSString).replacingCharacters(in: match.range, with: "")
                 }
+            }
+        }
+        return result
+    }
+
+    private func replaceImgTagsWithMarkers(_ text: String) -> String {
+        let imgPattern = #"<img\s[^>]*src=["']([^"']+)["'][^>]*>"#
+        guard let imgRegex = try? NSRegularExpression(pattern: imgPattern, options: .caseInsensitive)
+        else { return text }
+        var result = text
+        let nsResult = result as NSString
+        let matches = imgRegex.matches(in: result, range: NSRange(location: 0, length: nsResult.length))
+        for match in matches.reversed() {
+            let imgURL = nsResult.substring(with: match.range(at: 1))
+            if isLikelyHeroImage(imgURL) {
+                let replacement = "\n{{IMG}}\(imgURL){{/IMG}}\n"
+                result = (result as NSString).replacingCharacters(in: match.range, with: replacement)
+            } else {
+                result = (result as NSString).replacingCharacters(in: match.range, with: "")
             }
         }
         return result

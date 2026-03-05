@@ -333,47 +333,7 @@ struct ArticleDetailView: View {
             }
         }
         .translationTask(translationConfig) { session in
-            isTranslating = true
-            defer { isTranslating = false }
-
-            if showingSummary, let summarizedText {
-                // Translate the summary
-                guard !summarizedText.isEmpty else { return }
-                do {
-                    let response = try await session.translate(summarizedText)
-                    translatedSummary = response.targetText
-                    showingTranslation = true
-                    try? DatabaseManager.shared.cacheTranslatedSummary(
-                        response.targetText, for: article.id
-                    )
-                } catch {
-                    // Translation failed; user can retry
-                }
-            } else {
-                // Translate the original article
-                let source = ContentBlock.plainText(from: extractedText ?? article.summary ?? "")
-                guard !source.isEmpty else { return }
-                do {
-                    let requests = [
-                        TranslationSession.Request(sourceText: article.title),
-                        TranslationSession.Request(sourceText: source)
-                    ]
-                    let responses = try await session.translations(from: requests)
-                    if responses.count >= 2 {
-                        translatedTitle = responses[0].targetText
-                        translatedText = responses[1].targetText
-                        hasCachedTranslation = true
-                        showingTranslation = true
-                        try? DatabaseManager.shared.cacheArticleTranslation(
-                            title: responses[0].targetText,
-                            text: responses[1].targetText,
-                            for: article.id
-                        )
-                    }
-                } catch {
-                    // Translation failed; user can retry
-                }
-            }
+            await handleTranslation(session: session)
         }
     }
 }
