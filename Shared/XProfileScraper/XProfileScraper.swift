@@ -12,38 +12,93 @@ struct ParsedTweet: Sendable {
     let publishedDate: Date?
 }
 
+/// Result of scraping an X profile: tweets and optional profile metadata.
+struct XProfileScrapeResult: Sendable {
+    let tweets: [ParsedTweet]
+    let profileImageURL: String?
+}
+
 /// Scrapes tweets from an X (Twitter) profile using a headless WKWebView.
 /// Retweets are excluded. Requires the user to be logged in via the default
 /// WKWebsiteDataStore so that session cookies are available.
 @MainActor
 final class XProfileScraper: NSObject, WKNavigationDelegate {
 
+    private static let targetTweetCount = 50
+    private static let maxScrollAttempts = 15
+
     private var webView: WKWebView?
-    private var continuation: CheckedContinuation<[ParsedTweet], Never>?
-    private var timeoutTask: Task<Void, Never>?
 
     // MARK: - Public
 
     /// Scrapes the most recent tweets (excluding retweets) from the given profile URL.
-    func scrapeTweets(profileURL: URL) async -> [ParsedTweet] {
-        await withCheckedContinuation { continuation in
-            self.continuation = continuation
+    /// Scrolls the page repeatedly to load at least 50 tweets.
+    /// Also extracts the profile photo URL.
+    func scrapeProfile(profileURL: URL) async -> XProfileScrapeResult {
+        let webView = await createWebView()
+        self.webView = webView
 
-            let config = WKWebViewConfiguration()
-            config.websiteDataStore = .default()
-            let webView = WKWebView(frame: CGRect(x: 0, y: 0, width: 430, height: 932), configuration: config)
-            webView.navigationDelegate = self
-            webView.customUserAgent = "Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1"
-            self.webView = webView
-
-            webView.load(URLRequest(url: profileURL))
-
-            self.timeoutTask = Task {
-                try? await Task.sleep(for: .seconds(15))
-                guard !Task.isCancelled else { return }
-                self.finishWithTimeout()
-            }
+        let loaded = await loadPage(webView: webView, url: profileURL)
+        guard loaded else {
+            cleanup()
+            return XProfileScrapeResult(tweets: [], profileImageURL: nil)
         }
+
+        // Wait for initial SPA render
+        try? await Task.sleep(for: .seconds(4))
+
+        // Extract profile photo before scrolling (it's at the top of the page)
+        let profileImageURL = await extractProfileImageURL(from: webView)
+
+        // Scroll and collect tweets until we have enough
+        var allTweets: [ParsedTweet] = []
+        var seenURLs = Set<String>()
+
+        for _ in 0..<Self.maxScrollAttempts {
+            let batch = await extractCurrentTweets(from: webView)
+            for tweet in batch where !seenURLs.contains(tweet.url) {
+                seenURLs.insert(tweet.url)
+                allTweets.append(tweet)
+            }
+
+            if allTweets.count >= Self.targetTweetCount { break }
+
+            await scrollToBottom(webView: webView)
+            try? await Task.sleep(for: .seconds(2))
+        }
+
+        cleanup()
+        return XProfileScrapeResult(tweets: allTweets, profileImageURL: profileImageURL)
+    }
+
+    // MARK: - Page Loading
+
+    private func createWebView() -> WKWebView {
+        let config = WKWebViewConfiguration()
+        config.websiteDataStore = .default()
+        let webView = WKWebView(
+            frame: CGRect(x: 0, y: 0, width: 430, height: 932),
+            configuration: config
+        )
+        webView.customUserAgent = "Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) "
+            + "AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1"
+        return webView
+    }
+
+    private func loadPage(webView: WKWebView, url: URL) async -> Bool {
+        await withCheckedContinuation { continuation in
+            let delegate = NavigationHandler(continuation: continuation)
+            webView.navigationDelegate = delegate
+            // Prevent delegate from being deallocated before callback fires
+            objc_setAssociatedObject(webView, "navDelegate", delegate, .OBJC_ASSOCIATION_RETAIN)
+            webView.load(URLRequest(url: url, timeoutInterval: 15))
+        }
+    }
+
+    private func scrollToBottom(webView: WKWebView) async {
+        _ = try? await webView.evaluateJavaScript(
+            "window.scrollTo(0, document.body.scrollHeight)"
+        )
     }
 
     // MARK: - Static Helpers
@@ -123,30 +178,6 @@ final class XProfileScraper: NSObject, WKNavigationDelegate {
         }
     }
 
-    // MARK: - WKNavigationDelegate
-
-    nonisolated func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
-        Task { @MainActor in
-            self.timeoutTask?.cancel()
-            self.timeoutTask = nil
-            // Wait for JS SPA to render tweets
-            try? await Task.sleep(for: .seconds(4))
-            self.extractTweets()
-        }
-    }
-
-    nonisolated func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
-        Task { @MainActor in
-            self.finishWithResult([])
-        }
-    }
-
-    nonisolated func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {
-        Task { @MainActor in
-            self.finishWithResult([])
-        }
-    }
-
     // MARK: - Extraction
 
     /// JavaScript that extracts tweets from the rendered X profile page.
@@ -182,11 +213,9 @@ final class XProfileScraper: NSObject, WKNavigationDelegate {
                         break;
                     }
                 }
-                // Display name is the first meaningful text
                 var nameLinks = userNameEl.querySelectorAll('a');
                 if (nameLinks.length > 0) {
-                    var firstLink = nameLinks[0];
-                    displayName = firstLink.textContent.trim();
+                    displayName = nameLinks[0].textContent.trim();
                 }
             }
 
@@ -225,82 +254,128 @@ final class XProfileScraper: NSObject, WKNavigationDelegate {
     })()
     """
 
-    private func extractTweets() {
-        guard let webView, let continuation else {
-            finishWithResult([])
-            return
+    private func extractCurrentTweets(from webView: WKWebView) async -> [ParsedTweet] {
+        guard let jsonString = try? await webView.evaluateJavaScript(Self.extractionScript) as? String,
+              let data = jsonString.data(using: .utf8),
+              let rawTweets = try? JSONSerialization.jsonObject(with: data) as? [[String: Any]] else {
+            return []
         }
-        self.continuation = nil
 
-        webView.evaluateJavaScript(Self.extractionScript) { [weak self] result, error in
-            guard let self else { return }
+        let dateFormatter = ISO8601DateFormatter()
+        var tweets: [ParsedTweet] = []
 
-            var tweets: [ParsedTweet] = []
+        for raw in rawTweets {
+            let text = raw["text"] as? String ?? ""
+            let author = raw["author"] as? String ?? ""
+            let handle = raw["handle"] as? String ?? ""
+            let url = raw["url"] as? String ?? ""
+            let imageURL = raw["imageURL"] as? String
+            let dateStr = raw["date"] as? String ?? ""
 
-            if let jsonString = result as? String,
-               let data = jsonString.data(using: .utf8),
-               let rawTweets = try? JSONSerialization.jsonObject(with: data) as? [[String: Any]] {
-                for raw in rawTweets {
-                    let text = raw["text"] as? String ?? ""
-                    let author = raw["author"] as? String ?? ""
-                    let handle = raw["handle"] as? String ?? ""
-                    let url = raw["url"] as? String ?? ""
-                    let imageURL = raw["imageURL"] as? String
-                    let dateStr = raw["date"] as? String ?? ""
+            guard !url.isEmpty else { continue }
 
-                    guard !url.isEmpty else { continue }
-
-                    // Parse ISO 8601 date
-                    var publishedDate: Date?
-                    if !dateStr.isEmpty {
-                        let formatter = ISO8601DateFormatter()
-                        formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
-                        publishedDate = formatter.date(from: dateStr)
-                        if publishedDate == nil {
-                            formatter.formatOptions = [.withInternetDateTime]
-                            publishedDate = formatter.date(from: dateStr)
-                        }
-                    }
-
-                    let cleanHandle = handle.hasPrefix("@") ? String(handle.dropFirst()) : handle
-
-                    // Generate a tweet ID from the URL
-                    let tweetID = url.split(separator: "/").last.map(String.init) ?? UUID().uuidString
-
-                    tweets.append(ParsedTweet(
-                        id: tweetID,
-                        text: text,
-                        author: author,
-                        authorHandle: cleanHandle,
-                        url: url,
-                        imageURL: imageURL?.isEmpty == true ? nil : imageURL,
-                        publishedDate: publishedDate
-                    ))
+            var publishedDate: Date?
+            if !dateStr.isEmpty {
+                dateFormatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+                publishedDate = dateFormatter.date(from: dateStr)
+                if publishedDate == nil {
+                    dateFormatter.formatOptions = [.withInternetDateTime]
+                    publishedDate = dateFormatter.date(from: dateStr)
                 }
             }
 
-            self.cleanup()
-            continuation.resume(returning: tweets)
+            let cleanHandle = handle.hasPrefix("@") ? String(handle.dropFirst()) : handle
+            let tweetID = url.split(separator: "/").last.map(String.init) ?? UUID().uuidString
+
+            tweets.append(ParsedTweet(
+                id: tweetID,
+                text: text,
+                author: author,
+                authorHandle: cleanHandle,
+                url: url,
+                imageURL: imageURL?.isEmpty == true ? nil : imageURL,
+                publishedDate: publishedDate
+            ))
         }
+
+        return tweets
     }
 
-    private func finishWithTimeout() {
-        // Try extraction even on timeout — some content may have loaded
-        extractTweets()
-    }
+    // MARK: - Profile Image
 
-    private func finishWithResult(_ tweets: [ParsedTweet]) {
-        guard let continuation else { return }
-        self.continuation = nil
-        timeoutTask?.cancel()
-        timeoutTask = nil
-        cleanup()
-        continuation.resume(returning: tweets)
+    /// JavaScript to extract the profile avatar image URL from the page header.
+    private static let profileImageScript = """
+    (function() {
+        // The profile photo uses a specific test ID
+        var avatar = document.querySelector('a[data-testid="UserAvatar"] img');
+        if (avatar && avatar.src) {
+            // Request the original size by stripping the size suffix
+            return avatar.src.replace(/_normal\\./, '_400x400.').replace(/_bigger\\./, '_400x400.');
+        }
+        // Fallback: look for the first large avatar-like image in the header area
+        var imgs = document.querySelectorAll('[data-testid="UserProfileHeader_Items"]');
+        if (imgs.length === 0) {
+            var headerImgs = document.querySelectorAll('img[src*="profile_images"]');
+            if (headerImgs.length > 0) {
+                return headerImgs[0].src.replace(/_normal\\./, '_400x400.').replace(/_bigger\\./, '_400x400.');
+            }
+        }
+        return '';
+    })()
+    """
+
+    private func extractProfileImageURL(from webView: WKWebView) async -> String? {
+        guard let result = try? await webView.evaluateJavaScript(Self.profileImageScript) as? String,
+              !result.isEmpty else {
+            return nil
+        }
+        return result
     }
 
     private func cleanup() {
         webView?.stopLoading()
         webView?.navigationDelegate = nil
         webView = nil
+    }
+}
+
+// MARK: - Navigation Handler
+
+/// Minimal WKNavigationDelegate that resolves a continuation on load completion.
+@MainActor
+private final class NavigationHandler: NSObject, WKNavigationDelegate {
+
+    private var continuation: CheckedContinuation<Bool, Never>?
+
+    init(continuation: CheckedContinuation<Bool, Never>) {
+        self.continuation = continuation
+    }
+
+    nonisolated func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+        Task { @MainActor [weak self] in
+            self?.resume(with: true)
+        }
+    }
+
+    nonisolated func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
+        Task { @MainActor [weak self] in
+            self?.resume(with: false)
+        }
+    }
+
+    nonisolated func webView(
+        _ webView: WKWebView,
+        didFailProvisionalNavigation navigation: WKNavigation!,
+        withError error: Error
+    ) {
+        Task { @MainActor [weak self] in
+            self?.resume(with: false)
+        }
+    }
+
+    private func resume(with value: Bool) {
+        guard let continuation else { return }
+        self.continuation = nil
+        continuation.resume(returning: value)
     }
 }

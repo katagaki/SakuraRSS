@@ -10,9 +10,9 @@ extension FeedManager {
               let profileURL = XProfileScraper.profileURL(for: handle) else { return }
 
         let scraper = XProfileScraper()
-        let tweets = await scraper.scrapeTweets(profileURL: profileURL)
+        let result = await scraper.scrapeProfile(profileURL: profileURL)
 
-        for tweet in tweets {
+        for tweet in result.tweets {
             let title = tweet.text.isEmpty
                 ? "Post by @\(tweet.authorHandle)"
                 : String(tweet.text.prefix(200))
@@ -27,6 +27,14 @@ extension FeedManager {
                     imageURL: tweet.imageURL,
                     publishedDate: tweet.publishedDate
                 )
+            )
+        }
+
+        // Set the profile photo as feed icon if we don't have one yet
+        if let imageURL = result.profileImageURL, feed.customIconURL == nil {
+            try? database.updateFeedDetails(
+                id: feed.id, title: feed.title, url: feed.url,
+                customIconURL: imageURL
             )
         }
 
