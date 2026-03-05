@@ -9,7 +9,9 @@ struct RelativeTimeText: View {
 
     private static let formatter: RelativeDateTimeFormatter = {
         let formatter = RelativeDateTimeFormatter()
-        formatter.unitsStyle = .full
+        let lang = Locale.current.language.languageCode?.identifier ?? ""
+        let useFull = ["ja", "ko", "zh"].contains(lang)
+        formatter.unitsStyle = useFull ? .full : .abbreviated
         return formatter
     }()
 
