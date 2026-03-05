@@ -317,8 +317,7 @@ struct ArticleDetailView: View {
                 // Translate the summary
                 guard !summarizedText.isEmpty else { return }
                 do {
-                    let request = TranslationSession.Request(sourceText: summarizedText)
-                    let response = try await session.translate(request)
+                    let response = try await session.translate(summarizedText)
                     translatedSummary = response.targetText
                     showingTranslation = true
                     try? DatabaseManager.shared.cacheTranslatedSummary(
