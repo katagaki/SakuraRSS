@@ -341,6 +341,8 @@ struct ArticleExtractor {
         text = text.replacingOccurrences(of: subClosePlaceholder, with: "{{/SUB}}")
         text = text.replacingOccurrences(of: imgOpenPlaceholder, with: "{{IMG}}")
         text = text.replacingOccurrences(of: imgClosePlaceholder, with: "{{/IMG}}")
+        // Validate URLs inside superscript/subscript markers; drop if invalid
+        text = stripInvalidURLSupSub(text)
         text = stripRemainingHTMLTags(text)
         return text.trimmingCharacters(in: .whitespacesAndNewlines)
     }
@@ -358,6 +360,36 @@ struct ArticleExtractor {
             if lowered.contains(pattern) { return false } // swiftlint:disable:this for_where
         }
         return true
+    }
+
+    /// Removes `{{SUP}}…{{/SUP}}` and `{{SUB}}…{{/SUB}}` markers whose
+    /// content contains an invalid URL (either as a Markdown link or raw URL).
+    /// Markers with no URL (e.g. plain numbers) are kept as-is.
+    private static func stripInvalidURLSupSub(_ text: String) -> String {
+        let pattern = #"\{\{(SUP|SUB)\}\}(.+?)\{\{/(SUP|SUB)\}\}"#
+        guard let regex = try? NSRegularExpression(pattern: pattern) else { return text }
+        var result = text
+        let nsText = result as NSString
+        let matches = regex.matches(in: result, range: NSRange(location: 0, length: nsText.length))
+        for match in matches.reversed() {
+            let content = nsText.substring(with: match.range(at: 2))
+            let linkPattern = #"\[([^\]]+)\]\(([^)]+)\)"#
+            if let linkRegex = try? NSRegularExpression(pattern: linkPattern),
+               let linkMatch = linkRegex.firstMatch(
+                in: content, range: NSRange(location: 0, length: (content as NSString).length)
+               ) {
+                let urlString = (content as NSString).substring(with: linkMatch.range(at: 2))
+                if URL(string: urlString) == nil {
+                    result = (result as NSString).replacingCharacters(in: match.range, with: "")
+                }
+            } else if content.hasPrefix("http://") || content.hasPrefix("https://")
+                        || content.hasPrefix("//") {
+                if URL(string: content) == nil {
+                    result = (result as NSString).replacingCharacters(in: match.range, with: "")
+                }
+            }
+        }
+        return result
     }
 
     /// Strips any remaining HTML tags that may have leaked through parsing.

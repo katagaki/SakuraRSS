@@ -157,6 +157,9 @@ nonisolated extension RSSParser {
             options: [.regularExpression, .caseInsensitive]
         )
 
+        // Validate URLs inside superscript/subscript markers; drop if invalid
+        result = stripInvalidURLSupSub(result)
+
         // Add newlines after block-level closing tags
         let blockTags = ["p", "div", "li"]
         for tag in blockTags {
@@ -229,6 +232,36 @@ nonisolated extension RSSParser {
             }
         }
         return nil
+    }
+
+    /// Removes `{{SUP}}…{{/SUP}}` and `{{SUB}}…{{/SUB}}` markers whose
+    /// content contains an invalid URL (either as a Markdown link or raw URL).
+    /// Markers with no URL (e.g. plain numbers) are kept as-is.
+    func stripInvalidURLSupSub(_ text: String) -> String {
+        let pattern = #"\{\{(SUP|SUB)\}\}(.+?)\{\{/(SUP|SUB)\}\}"#
+        guard let regex = try? NSRegularExpression(pattern: pattern) else { return text }
+        var result = text
+        let nsText = result as NSString
+        let matches = regex.matches(in: result, range: NSRange(location: 0, length: nsText.length))
+        for match in matches.reversed() {
+            let content = nsText.substring(with: match.range(at: 2))
+            let linkPattern = #"\[([^\]]+)\]\(([^)]+)\)"#
+            if let linkRegex = try? NSRegularExpression(pattern: linkPattern),
+               let linkMatch = linkRegex.firstMatch(
+                in: content, range: NSRange(location: 0, length: (content as NSString).length)
+               ) {
+                let urlString = (content as NSString).substring(with: linkMatch.range(at: 2))
+                if URL(string: urlString) == nil {
+                    result = (result as NSString).replacingCharacters(in: match.range, with: "")
+                }
+            } else if content.hasPrefix("http://") || content.hasPrefix("https://")
+                        || content.hasPrefix("//") {
+                if URL(string: content) == nil {
+                    result = (result as NSString).replacingCharacters(in: match.range, with: "")
+                }
+            }
+        }
+        return result
     }
 
     private func isLikelyHeroImage(_ url: String) -> Bool {
