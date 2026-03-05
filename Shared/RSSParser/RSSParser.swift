@@ -25,6 +25,10 @@ nonisolated final class RSSParser: NSObject, XMLParserDelegate, @unchecked Senda
     private var feedHasITunesNamespace = false
     private var feedHasAudioEnclosures = false
 
+    private var isSubstackFeed: Bool {
+        feedLink.contains("substack.com")
+    }
+
     func parse(data: Data) -> ParsedFeed? {
         let parser = XMLParser(data: data)
         parser.delegate = self
@@ -35,7 +39,7 @@ nonisolated final class RSSParser: NSObject, XMLParserDelegate, @unchecked Senda
             siteURL: feedLink.trimmingCharacters(in: .whitespacesAndNewlines),
             description: decodeHTMLEntities(feedDescription.trimmingCharacters(in: .whitespacesAndNewlines)),
             articles: parsedArticles,
-            isPodcast: feedHasITunesNamespace || feedHasAudioEnclosures
+            isPodcast: (feedHasITunesNamespace || feedHasAudioEnclosures) && !isSubstackFeed
         )
     }
 
