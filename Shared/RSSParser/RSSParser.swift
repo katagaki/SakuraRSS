@@ -22,7 +22,6 @@ nonisolated final class RSSParser: NSObject, XMLParserDelegate, @unchecked Senda
     private var isInsideImage = false
     private var isAtom = false
     private var currentAttributes: [String: String] = [:]
-    private var feedHasITunesNamespace = false
 
     func parse(data: Data) -> ParsedFeed? {
         let parser = XMLParser(data: data)
@@ -33,8 +32,7 @@ nonisolated final class RSSParser: NSObject, XMLParserDelegate, @unchecked Senda
             title: decodeHTMLEntities(feedTitle.trimmingCharacters(in: .whitespacesAndNewlines)),
             siteURL: feedLink.trimmingCharacters(in: .whitespacesAndNewlines),
             description: decodeHTMLEntities(feedDescription.trimmingCharacters(in: .whitespacesAndNewlines)),
-            articles: parsedArticles,
-            isPodcast: feedHasITunesNamespace
+            articles: parsedArticles
         )
     }
 
@@ -56,7 +54,6 @@ nonisolated final class RSSParser: NSObject, XMLParserDelegate, @unchecked Senda
         isInsideItem = false
         isInsideImage = false
         isAtom = false
-        feedHasITunesNamespace = false
     }
 
     // MARK: - XMLParserDelegate
@@ -70,14 +67,9 @@ nonisolated final class RSSParser: NSObject, XMLParserDelegate, @unchecked Senda
 
         switch elementName {
         case "rss":
-            for (_, value) in attributeDict where value.contains("itunes") {
-                feedHasITunesNamespace = true
-            }
+            break
         case "feed":
             isAtom = true
-            for (_, value) in attributeDict where value.contains("itunes") {
-                feedHasITunesNamespace = true
-            }
         case "image":
             if !isInsideItem { isInsideImage = true }
         case "item", "entry":

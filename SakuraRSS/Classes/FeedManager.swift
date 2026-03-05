@@ -1,5 +1,4 @@
 import Foundation
-import SwiftSoup
 import SwiftUI
 @preconcurrency import UserNotifications
 
@@ -84,12 +83,10 @@ final class FeedManager {
             )
         }
 
-        if parsed.isPodcast && !feed.isPodcast {
-            let siteURLString = parsed.siteURL.isEmpty ? feed.siteURL : parsed.siteURL
-            let isSubstack = await Self.isSubstackSite(siteURLString)
-            if !isSubstack {
-                try database.updateFeedIsPodcast(id: feed.id, isPodcast: true)
-            }
+        if parsed.allArticlesHaveAudio && !feed.isPodcast {
+            try database.updateFeedIsPodcast(id: feed.id, isPodcast: true)
+        } else if !parsed.allArticlesHaveAudio && feed.isPodcast {
+            try database.updateFeedIsPodcast(id: feed.id, isPodcast: false)
         }
         if updateTitle, !parsed.title.isEmpty, parsed.title != feed.title {
             try database.updateFeed(id: feed.id, title: parsed.title, category: feed.category)
@@ -403,18 +400,4 @@ final class FeedManager {
         return added
     }
 
-    // MARK: - Substack Detection
-
-    private static func isSubstackSite(_ siteURL: String) async -> Bool {
-        guard let url = URL(string: siteURL) else { return false }
-        do {
-            let (data, _) = try await URLSession.shared.data(from: url)
-            guard let html = String(data: data, encoding: .utf8) else { return false }
-            let doc = try SwiftSoup.parse(html)
-            guard let head = doc.head() else { return false }
-            return try head.html().contains("substackcdn.com")
-        } catch {
-            return false
-        }
-    }
 }

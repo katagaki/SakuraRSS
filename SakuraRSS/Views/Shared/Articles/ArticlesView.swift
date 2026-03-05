@@ -20,6 +20,10 @@ struct ArticlesView: View {
         articles.contains { $0.imageURL != nil }
     }
 
+    private var hasAudioArticles: Bool {
+        articles.contains { $0.audioURL != nil }
+    }
+
     init(articles: [Article], title: String, feedKey: String,
          isVideoFeed: Bool = false, isPodcastFeed: Bool = false,
          isFeedViewDomain: Bool = false, isTimelineViewDomain: Bool = false,
@@ -103,7 +107,7 @@ struct ArticlesView: View {
                             Label(String(localized: "Articles.Style.Video"), systemImage: "play.rectangle")
                                 .tag(FeedDisplayStyle.video)
                         }
-                        if isPodcastFeed {
+                        if isPodcastFeed || hasAudioArticles {
                             Label(String(localized: "Articles.Style.Podcast"), systemImage: "headphones")
                                 .tag(FeedDisplayStyle.podcast)
                         }
@@ -139,7 +143,7 @@ struct ArticlesView: View {
         if !hasImages && (displayStyle == .magazine || displayStyle == .photos || displayStyle == .cards) {
             return .inbox
         }
-        if displayStyle == .podcast && !isPodcastFeed {
+        if displayStyle == .podcast && !isPodcastFeed && !hasAudioArticles {
             return .inbox
         }
         if displayStyle == .timeline && feedKey == "all" {
