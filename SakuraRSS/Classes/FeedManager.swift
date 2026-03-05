@@ -95,6 +95,12 @@ final class FeedManager {
         loadFromDatabase()
     }
 
+    func deleteAllArticlesAndRefresh() async {
+        try? database.deleteAllArticles()
+        loadFromDatabase()
+        await refreshAllFeeds()
+    }
+
     func refreshAllFeeds() async {
         isLoading = true
         defer { isLoading = false }

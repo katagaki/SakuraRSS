@@ -56,6 +56,10 @@ struct SakuraRSSApp: App {
                 UserDefaults.standard.set(false, forKey: "Onboarding.Completed")
             case "fixup":
                 DatabaseManager.shared.fixup()
+            case "arisishere":
+                Task {
+                    await feedManager.deleteAllArticlesAndRefresh()
+                }
             case "forgetit":
                 let defaults = UserDefaults.standard
                 defaults.removeObject(forKey: "App.SelectedTab")
