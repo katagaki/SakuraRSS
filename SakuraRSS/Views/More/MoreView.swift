@@ -114,6 +114,7 @@ struct MoreView: View {
                 }
 
                 Section {
+                    Link(destination: URL(string: "https://github.com/katagaki/SakuraRSS")!) {
                         HStack {
                             Text("More.SourceCode")
                             Spacer()
