@@ -52,6 +52,8 @@ extension ArticleDetailView {
         try? DatabaseManager.shared.clearCachedArticleTranslation(for: article.id)
         translatedText = nil
         translatedTitle = nil
+        showingTranslation = false
+        hasCachedTranslation = false
         summarizedText = nil
         hasCachedSummary = false
         showingSummary = false
