@@ -107,9 +107,13 @@ struct MoreView: View {
                     Text("DataManagement.OPML.Footer")
                 }
 
+                Section {
+                    NavigationLink(String(localized: "More.Experiments")) {
+                        ExperimentsView()
+                    }
+                }
 
                 Section {
-                    Link(destination: URL(string: "https://github.com/katagaki/SakuraRSS")!) {
                         HStack {
                             Text("More.SourceCode")
                             Spacer()

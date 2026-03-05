@@ -204,6 +204,11 @@ struct AddFeedView: View {
     }
 
     private func addFeed(_ discovered: DiscoveredFeed) {
+        // X feeds require the experiment to be enabled
+        guard !XProfileScraper.isXFeedURL(discovered.url)
+                || UserDefaults.standard.bool(forKey: "Experiments.XProfileFeeds") else {
+            return
+        }
         // If this is an X feed and the user hasn't logged in yet, prompt login first
         if XProfileScraper.isXFeedURL(discovered.url) && !feedManager.hasXFeeds {
             pendingXFeed = discovered

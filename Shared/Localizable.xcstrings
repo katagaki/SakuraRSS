@@ -4622,6 +4622,61 @@
         }
       }
     },
+    "Experiments.Section.Features" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Features"
+          }
+        }
+      }
+    },
+    "Experiments.Title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Experiments"
+          }
+        }
+      }
+    },
+    "Experiments.Warning %@" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Experimental features may cause %@ to slow down or crash. If the app crashes on startup, all experiments will be turned off automatically."
+          }
+        }
+      }
+    },
+    "Experiments.XProfileFeeds" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "X Profile Feeds"
+          }
+        }
+      }
+    },
+    "Experiments.XProfileFeeds.Footer" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Follow X (Twitter) profiles as feeds by adding their profile URLs."
+          }
+        }
+      }
+    },
     "FeedEdit.Behavior" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -6753,6 +6808,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "致謝"
+          }
+        }
+      }
+    },
+    "More.Experiments" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Experiments"
           }
         }
       }

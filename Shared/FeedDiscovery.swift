@@ -251,7 +251,8 @@ actor FeedDiscovery {
 
     /// Detects Bluesky, Mastodon, and X/Twitter profile URLs and constructs their feed URLs.
     private func detectSocialMediaFeed(url: URL) async -> DiscoveredFeed? {
-        if let xFeed = detectXProfileFeed(url: url) {
+        if UserDefaults.standard.bool(forKey: "Experiments.XProfileFeeds"),
+           let xFeed = detectXProfileFeed(url: url) {
             return xFeed
         }
         if let blueskyFeed = await detectBlueskyFeed(url: url) {
