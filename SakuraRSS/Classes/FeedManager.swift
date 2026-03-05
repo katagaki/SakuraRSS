@@ -83,8 +83,8 @@ final class FeedManager {
             )
         }
 
-        if parsed.isPodcast != feed.isPodcast {
-            try database.updateFeedIsPodcast(id: feed.id, isPodcast: parsed.isPodcast)
+        if parsed.isPodcast && !feed.isPodcast {
+            try database.updateFeedIsPodcast(id: feed.id, isPodcast: true)
         }
         if updateTitle, !parsed.title.isEmpty, parsed.title != feed.title {
             try database.updateFeed(id: feed.id, title: parsed.title, category: feed.category)
