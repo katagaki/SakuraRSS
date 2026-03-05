@@ -48,8 +48,8 @@ struct CardsStyleView: View {
                     Text("Cards.Empty.Description")
                 }
             } else {
-                // Show top 3 cards for depth effect, bottom cards drawn first
-                ForEach(Array(visibleCards.prefix(3).enumerated().reversed()),
+                // Show front card and one behind; new back cards fade in after swipe
+                ForEach(Array(visibleCards.prefix(2).enumerated().reversed()),
                         id: \.element.id) { index, article in
                     ArticleLink(article: article) {
                         CardView(
@@ -68,6 +68,7 @@ struct CardsStyleView: View {
                     .scaleEffect(1.0 - CGFloat(index) * 0.04)
                     .offset(y: CGFloat(index) * 8)
                     .allowsHitTesting(index == 0)
+                    .transition(.opacity)
                 }
             }
         }
