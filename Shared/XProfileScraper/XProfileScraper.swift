@@ -306,20 +306,31 @@ final class XProfileScraper: NSObject, WKNavigationDelegate {
     /// JavaScript to extract the profile avatar image URL from the page header.
     private static let profileImageScript = """
     (function() {
-        // The profile photo uses a specific test ID
-        var avatar = document.querySelector('a[data-testid="UserAvatar"] img');
-        if (avatar && avatar.src) {
-            // Request the original size by stripping the size suffix
-            return avatar.src.replace(/_normal\\./, '_400x400.').replace(/_bigger\\./, '_400x400.');
+        function upgradeSize(url) {
+            return url.replace(/_normal\\./, '_400x400.')
+                      .replace(/_bigger\\./, '_400x400.')
+                      .replace(/_200x200\\./, '_400x400.')
+                      .replace(/_mini\\./, '_400x400.');
         }
-        // Fallback: look for the first large avatar-like image in the header area
-        var imgs = document.querySelectorAll('[data-testid="UserProfileHeader_Items"]');
-        if (imgs.length === 0) {
-            var headerImgs = document.querySelectorAll('img[src*="profile_images"]');
-            if (headerImgs.length > 0) {
-                return headerImgs[0].src.replace(/_normal\\./, '_400x400.').replace(/_bigger\\./, '_400x400.');
-            }
+
+        // Primary: data-testid="UserAvatar" (link or container) with an img
+        var avatar = document.querySelector('[data-testid="UserAvatar"] img');
+        if (avatar && avatar.src && avatar.src.includes('profile_images')) {
+            return upgradeSize(avatar.src);
         }
+
+        // Fallback 1: any link to the /photo path containing a profile image
+        var photoLink = document.querySelector('a[href$="/photo"] img[src*="profile_images"]');
+        if (photoLink && photoLink.src) {
+            return upgradeSize(photoLink.src);
+        }
+
+        // Fallback 2: any img with profile_images in src within the header area
+        var headerImgs = document.querySelectorAll('img[src*="profile_images"]');
+        if (headerImgs.length > 0) {
+            return upgradeSize(headerImgs[0].src);
+        }
+
         return '';
     })()
     """

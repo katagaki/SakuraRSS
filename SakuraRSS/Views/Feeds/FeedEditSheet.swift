@@ -198,9 +198,15 @@ struct FeedEditSheet: View {
             if customURL == "photo" {
                 return await FaviconCache.shared.customFavicon(feedID: feed.id)
             }
+            // Check if already cached for this feed
+            if let cached = await FaviconCache.shared.customFavicon(feedID: feed.id) {
+                return cached
+            }
+            // Download, cache locally, then return
             if let url = URL(string: customURL),
                let (data, _) = try? await URLSession.shared.data(from: url),
                let image = UIImage(data: data) {
+                await FaviconCache.shared.setCustomFavicon(image, feedID: feed.id)
                 return image
             }
         }

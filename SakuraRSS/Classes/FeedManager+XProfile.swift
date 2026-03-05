@@ -1,4 +1,5 @@
 import Foundation
+import UIKit
 
 extension FeedManager {
 
@@ -30,12 +31,18 @@ extension FeedManager {
             )
         }
 
-        // Set the profile photo as feed icon if we don't have one yet
-        if let imageURL = result.profileImageURL, feed.customIconURL == nil {
-            try? database.updateFeedDetails(
-                id: feed.id, title: feed.title, url: feed.url,
-                customIconURL: imageURL
-            )
+        // Download and cache the profile photo locally
+        if let imageURLString = result.profileImageURL,
+           let imageURL = URL(string: imageURLString),
+           let (imageData, _) = try? await URLSession.shared.data(from: imageURL),
+           let image = UIImage(data: imageData) {
+            await FaviconCache.shared.setCustomFavicon(image, feedID: feed.id)
+            if feed.customIconURL != "photo" {
+                try? database.updateFeedDetails(
+                    id: feed.id, title: feed.title, url: feed.url,
+                    customIconURL: "photo"
+                )
+            }
         }
 
         try database.updateFeedLastFetched(id: feed.id, date: Date())
