@@ -64,7 +64,6 @@ struct FeedEditSheet: View {
                             )
                             Spacer()
                         }
-                        .listRowBackground(Color.clear)
                     } else if let icon = customIconImage ?? currentFavicon {
                         HStack {
                             Spacer()
@@ -75,7 +74,6 @@ struct FeedEditSheet: View {
                                             || FullFaviconDomains.shouldUseFullImage(feedDomain: feed.domain))
                             Spacer()
                         }
-                        .listRowBackground(Color.clear)
                     }
 
                     HStack {
