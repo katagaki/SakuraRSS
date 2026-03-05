@@ -191,6 +191,12 @@ struct ArticleExtractor {
                 if let src = try? child.attr("src"), !src.isEmpty, isLikelyContentImage(src) {
                     paragraphs.append("{{IMG}}\(src){{/IMG}}")
                 }
+            } else if tag == "picture" {
+                // Extract the <img> inside <picture>, ignoring <source> elements
+                if let img = try? child.select("img").first(),
+                   let src = try? img.attr("src"), !src.isEmpty, isLikelyContentImage(src) {
+                    paragraphs.append("{{IMG}}\(src){{/IMG}}")
+                }
             } else if tag == "figure" {
                 // Extract image from figure, then caption
                 if let img = try? child.select("img").first(),

@@ -127,14 +127,18 @@ struct SelectableText: UIViewRepresentable {
                 attrs[.font] = baseFont.italic()
                 attributed.append(NSAttributedString(string: content, attributes: attrs))
             } else if match.range(at: 3).location != NSNotFound {
-                // Link [text](url)
+                // Link [text](url) — recursively parse link text for bold/italic
                 let linkText = nsText.substring(with: match.range(at: 3))
                 let linkURL = nsText.substring(with: match.range(at: 4))
-                var attrs = baseAttributes
+                let inner = parseInlineFormatting(linkText, baseFont: baseFont)
+                let mutableInner = NSMutableAttributedString(attributedString: inner)
                 if let url = URL(string: linkURL) {
-                    attrs[.link] = url
+                    mutableInner.addAttribute(
+                        .link, value: url,
+                        range: NSRange(location: 0, length: mutableInner.length)
+                    )
                 }
-                attributed.append(NSAttributedString(string: linkText, attributes: attrs))
+                attributed.append(mutableInner)
             } else if match.range(at: 5).location != NSNotFound {
                 // Superscript
                 let content = nsText.substring(with: match.range(at: 5))
