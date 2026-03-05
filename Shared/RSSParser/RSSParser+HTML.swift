@@ -89,7 +89,7 @@ nonisolated extension RSSParser {
     }
 
     /// Converts HTML to plain text, preserving paragraph/heading structure as newlines
-    /// and rendering `<a>` links as "text (url)".
+    /// and rendering `<a>` links as Markdown `[text](url)` for tappable display.
     func cleanHTMLPreservingStructure(_ html: String) -> String? {
         guard html.contains("<") else {
             let decoded = decodeHTMLEntities(html).trimmingCharacters(in: .whitespacesAndNewlines)
@@ -103,10 +103,10 @@ nonisolated extension RSSParser {
             of: #"<br\s*/?>"#, with: "\n", options: .regularExpression
         )
 
-        // Convert <a href="url">text</a> to "text (url)"
+        // Convert <a href="url">text</a> to Markdown links [text](url)
         result = result.replacingOccurrences(
             of: #"<a\s[^>]*href=["']([^"']+)["'][^>]*>(.*?)</a>"#,
-            with: "$2 ($1)", options: .regularExpression
+            with: "[$2]($1)", options: .regularExpression
         )
 
         // Add newlines after block-level closing tags
