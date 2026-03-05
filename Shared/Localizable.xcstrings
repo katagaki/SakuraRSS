@@ -4607,61 +4607,61 @@
         }
       }
     },
-    "FeedEdit.OpenFeedsIn": {
+    "FeedEdit.Behavior": {
       "extractionState": "manual",
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Wählen Sie, wie Artikel aus diesem Feed geöffnet werden."
+            "value": "Verhalten"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Choose how articles from this feed are opened."
+            "value": "Behavior"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Choisissez comment les articles de ce flux sont ouverts."
+            "value": "Comportement"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Scegli come aprire gli articoli di questo feed."
+            "value": "Comportamento"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "このフィードの記事を開く方法を選択します。"
+            "value": "挙動"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "이 피드의 기사를 여는 방법을 선택하세요."
+            "value": "동작"
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Chọn cách mở bài viết từ nguồn cấp này."
+            "value": "Hành vi"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "选择此订阅源文章的打开方式。"
+            "value": "行为"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "選擇此訂閱源文章的開啟方式。"
+            "value": "行為"
           }
         }
       }
@@ -5020,61 +5020,120 @@
         }
       }
     },
-    "FeedEdit.UseDefaultIcon": {
+    "FeedEdit.DeleteIcon": {
       "extractionState": "manual",
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Standardsymbol verwenden"
+            "value": "Symbol löschen"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Use Default Icon"
+            "value": "Delete Icon"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Utiliser l'icône par défaut"
+            "value": "Supprimer l'icône"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Usa icona predefinita"
+            "value": "Elimina icona"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "デフォルトアイコンを使用"
+            "value": "アイコンを削除"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "기본 아이콘 사용"
+            "value": "아이콘 삭제"
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sử dụng biểu tượng mặc định"
+            "value": "Xóa biểu tượng"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "使用默认图标"
+            "value": "删除图标"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "使用預設圖示"
+            "value": "刪除圖示"
+          }
+        }
+      }
+    },
+    "FeedEdit.FetchIconFromFeed": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Symbol vom Feed abrufen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fetch Icon from Feed"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Récupérer l'icône du flux"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scarica icona dal feed"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "フィードからアイコンを取得"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "피드에서 아이콘 가져오기"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lấy biểu tượng từ nguồn cấp"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "从订阅源获取图标"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "從訂閱源取得圖示"
           }
         }
       }

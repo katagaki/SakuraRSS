@@ -106,6 +106,21 @@ struct FeedEditSheet: View {
                         }
                     }
 
+                    Button {
+                        Task {
+                            await fetchIconFromFeed()
+                        }
+                    } label: {
+                        HStack {
+                            Text("FeedEdit.FetchIconFromFeed")
+                            Spacer()
+                            if isFetchingIcon {
+                                ProgressView()
+                            }
+                        }
+                    }
+                    .disabled(isFetchingIcon)
+
                     if !useDefaultIcon && (feed.customIconURL != nil || currentFavicon != nil) {
                         Button(role: .destructive) {
                             useDefaultIcon = true
@@ -113,7 +128,7 @@ struct FeedEditSheet: View {
                             selectedPhoto = nil
                             iconURLInput = ""
                         } label: {
-                            Text("FeedEdit.UseDefaultIcon")
+                            Text("FeedEdit.DeleteIcon")
                         }
                     }
                 } header: {
@@ -130,7 +145,7 @@ struct FeedEditSheet: View {
                             .tag(FeedOpenMode.browser)
                     }
                 } header: {
-                    Text("FeedEdit.OpenFeedsIn")
+                    Text("FeedEdit.Behavior")
                 }
             }
             .navigationTitle(String(localized: "FeedEdit.Title"))
@@ -228,6 +243,19 @@ struct FeedEditSheet: View {
         if feed.isPodcast { return size / 4 }
         if feed.isVideoFeed { return 0 }
         return size / 8
+    }
+
+    private func fetchIconFromFeed() async {
+        isFetchingIcon = true
+        defer { isFetchingIcon = false }
+        await FaviconCache.shared.refreshFavicons(for: [(domain: feed.domain, siteURL: feed.siteURL)])
+        if let image = await FaviconCache.shared.favicon(for: feed.domain, siteURL: feed.siteURL) {
+            customIconImage = nil
+            currentFavicon = image
+            selectedPhoto = nil
+            iconURLInput = ""
+            useDefaultIcon = false
+        }
     }
 
     @discardableResult
