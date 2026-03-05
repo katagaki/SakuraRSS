@@ -24,7 +24,10 @@ struct FeedArticlesView: View {
             isTimelineViewDomain: feed.isTimelineViewDomain,
             onLoadMore: hasMore ? {
                 displayLimit += Self.pageSize
-            } : nil
+            } : nil,
+            onRefresh: { [feed] in
+                try? await feedManager.refreshFeed(feed)
+            }
         )
         .refreshable {
             try? await feedManager.refreshFeed(feed)

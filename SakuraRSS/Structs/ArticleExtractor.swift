@@ -3,7 +3,7 @@ import SwiftSoup
 
 struct ArticleExtractor {
 
-    private static let contentSelectors = [
+    static let contentSelectors = [
         "article",
         "[role=main]",
         "main",
@@ -20,172 +20,7 @@ struct ArticleExtractor {
         ".entry"
     ]
 
-    private static let noiseSelectors = [
-        // Navigation & menus
-        "nav",
-        "header",
-        "footer",
-        "aside",
-        ".sidebar",
-        ".navigation",
-        ".nav",
-        ".navbar",
-        ".menu",
-        ".main-menu",
-        ".site-menu",
-        ".mobile-menu",
-        ".dropdown-menu",
-        ".breadcrumb",
-        ".breadcrumbs",
-        ".site-header",
-        ".site-footer",
-        ".page-header",
-        ".page-footer",
-        ".top-bar",
-        ".bottom-bar",
-        ".header-nav",
-        ".footer-nav",
-        ".skip-link",
-        // Social & sharing
-        ".social-share",
-        ".share-buttons",
-        ".sharing",
-        ".social-links",
-        ".social-icons",
-        ".share-bar",
-        ".share-links",
-        ".share-widget",
-        // Related content & suggestions
-        ".related-posts",
-        ".related-articles",
-        ".related-content",
-        ".related-stories",
-        ".recommended",
-        ".recommendations",
-        ".suggested",
-        ".suggested-posts",
-        ".suggested-articles",
-        ".more-stories",
-        ".more-articles",
-        ".more-from",
-        ".read-next",
-        ".read-more",
-        ".up-next",
-        ".also-read",
-        ".trending",
-        ".trending-posts",
-        ".popular-posts",
-        ".most-read",
-        ".most-popular",
-        ".top-stories",
-        ".you-may-like",
-        ".dont-miss",
-        ".latest-posts",
-        ".latest-articles",
-        ".latest-stories",
-        ".more-on",
-        ".further-reading",
-        // Comments
-        ".comments",
-        ".comment-section",
-        ".comment-form",
-        ".comment-list",
-        ".comments-area",
-        ".comments-section",
-        ".disqus_thread",
-        "#disqus_thread",
-        "#comments",
-        ".respond",
-        ".comment-respond",
-        ".discussion",
-        // Ads
-        ".advertisement",
-        ".ad-container",
-        ".ad",
-        ".ads",
-        ".ad-slot",
-        ".ad-wrapper",
-        ".ad-banner",
-        ".ad-unit",
-        ".adsbygoogle",
-        ".sponsored",
-        ".promoted",
-        ".promo",
-        ".promo-banner",
-        // Banners & popups
-        ".cookie-banner",
-        ".cookie-notice",
-        ".cookie-consent",
-        ".popup",
-        ".modal",
-        ".overlay",
-        ".alert-banner",
-        ".notification-bar",
-        ".announcement-bar",
-        ".paywall",
-        ".paywall-prompt",
-        ".gate",
-        ".login-prompt",
-        ".register-prompt",
-        // Newsletter & signup
-        ".newsletter",
-        ".subscribe",
-        ".signup",
-        ".newsletter-signup",
-        ".email-signup",
-        ".subscribe-form",
-        ".cta",
-        ".call-to-action",
-        // UI elements
-        ".toolbar",
-        ".pagination",
-        ".pager",
-        ".tags",
-        ".tag-list",
-        ".toc",
-        ".table-of-contents",
-        ".print-only",
-        ".screen-reader-text",
-        ".visually-hidden",
-        // Author & meta sections
-        ".author-bio",
-        ".author-box",
-        ".author-info",
-        ".byline-section",
-        ".bio",
-        ".about-author",
-        // ARIA roles
-        "[role=navigation]",
-        "[role=banner]",
-        "[role=complementary]",
-        "[role=contentinfo]",
-        "[aria-label*=menu]",
-        "[aria-label*=Menu]",
-        "[aria-label*=navigation]",
-        "[aria-label*=Navigation]",
-        "[aria-label*=comment]",
-        "[aria-label*=Comment]",
-        "[aria-label*=related]",
-        "[aria-label*=Related]",
-        "[aria-label*=share]",
-        "[aria-label*=Share]",
-        "[aria-label*=advertisement]",
-        "[aria-label*=Advertisement]",
-        // Non-content elements
-        "script",
-        "style",
-        "noscript",
-        "iframe",
-        "form",
-        "button",
-        "select",
-        "input",
-        "svg",
-        "canvas",
-        "template"
-    ]
-
-    private static let blockElements = [
+    static let blockElements = [
         "p", "h1", "h2", "h3", "h4", "h5", "h6",
         "blockquote", "li", "figcaption", "pre", "td", "th"
     ]
@@ -197,7 +32,6 @@ struct ArticleExtractor {
             let doc = try SwiftSoup.parse(html)
             removeNoise(from: doc)
             let element = try findMainContent(from: doc)
-            // Remove any remaining noise inside content area
             removeNoise(from: element)
             let paragraphs = try extractParagraphs(from: element,
                                                    excludeTitle: excludeTitle)
@@ -232,133 +66,9 @@ struct ArticleExtractor {
         }
     }
 
-    // MARK: - Private Helpers
+    // MARK: - Content Discovery
 
-    /// Class/ID substrings that strongly indicate non-article content.
-    private static let noiseClassPatterns = [
-        "related", "recommend", "suggested", "popular",
-        "trending", "sidebar", "widget", "promo",
-        "newsletter", "subscribe", "comment", "disqus",
-        "social-share", "share-bar", "ad-slot", "ad-wrap",
-        "footer-links", "site-footer", "more-stories",
-        "outbrain", "taboola", "also-like", "dont-miss",
-        "read-next", "up-next", "most-read"
-    ]
-
-    private static func removeNoise(from element: Element) {
-        for selector in noiseSelectors {
-            do {
-                let elements = try element.select(selector)
-                try elements.remove()
-            } catch {
-                continue
-            }
-        }
-
-        // Remove elements whose class or id contains common noise patterns
-        removeNoiseByClassPatterns(from: element)
-
-        // Remove elements that look like menus (lists of links with little text)
-        removeMenuLists(from: element)
-
-        // Remove sections that look like "related articles" or "suggestions"
-        // by checking heading text followed by a list of links
-        removeSuggestionSections(from: element)
-    }
-
-    /// Removes elements whose class or id attribute contains known noise substrings.
-    private static func removeNoiseByClassPatterns(from element: Element) {
-        do {
-            let allElements = try element.select("div, section, aside, ul, ol")
-            for el in allElements {
-                let className = (try? el.attr("class"))?.lowercased() ?? ""
-                let idName = (try? el.attr("id"))?.lowercased() ?? ""
-                let combined = className + " " + idName
-                for pattern in noiseClassPatterns {
-                    if combined.contains(pattern) {
-                        try el.remove()
-                        break
-                    }
-                }
-            }
-        } catch {
-            // Best-effort; failures are non-critical
-        }
-    }
-
-    /// Removes lists where most items are just links (likely navigation menus).
-    private static func removeMenuLists(from element: Element) {
-        do {
-            let lists = try element.select("ul, ol")
-            for list in lists {
-                let links = try list.select("a")
-                let items = try list.select("li")
-                // If most list items are just links, it's likely a menu
-                if items.size() > 2 && links.size() >= items.size() {
-                    let totalText = try list.text()
-                    let avgTextPerItem = totalText.count / max(items.size(), 1)
-                    if avgTextPerItem < 50 {
-                        try list.remove()
-                    }
-                }
-            }
-        } catch {
-            // Menu detection is best-effort; failures are non-critical
-        }
-    }
-
-    /// Detects and removes "suggestion" sections: a heading like
-    /// "Related Articles" or "You May Also Like" followed by a link-heavy block.
-    private static func removeSuggestionSections(from element: Element) {
-        let suggestionHeadingPatterns = [
-            "related", "recommended", "suggested", "you may also",
-            "you might also", "more from", "more stories",
-            "more articles", "don't miss", "also read",
-            "read next", "read more", "trending", "popular",
-            "most read", "top stories", "further reading",
-            "editors' picks", "editor's pick", "latest news",
-            "what to read next", "up next", "around the web"
-        ]
-
-        do {
-            let headings = try element.select("h2, h3, h4, h5, h6")
-            for heading in headings {
-                let text = (try? heading.text())?.lowercased() ?? ""
-                let isSuggestionHeading = suggestionHeadingPatterns.contains { text.contains($0) }
-                guard isSuggestionHeading else { continue }
-
-                // Remove the heading's parent container if it looks like a suggestion section,
-                // or remove the heading and following siblings
-                if let parent = heading.parent(),
-                   parent.tagName().lowercased() != "body",
-                   !["article", "main"].contains(parent.tagName().lowercased()) {
-                    // Check if the parent has mostly links (a suggestion block)
-                    let parentLinks = (try? parent.select("a"))?.size() ?? 0
-                    if parentLinks >= 2 {
-                        try parent.remove()
-                        continue
-                    }
-                }
-
-                // Fallback: remove the heading and following siblings until the next heading
-                var sibling = try heading.nextElementSibling()
-                try heading.remove()
-                while let current = sibling {
-                    let tag = current.tagName().lowercased()
-                    if ["h1", "h2", "h3", "h4", "h5", "h6"].contains(tag) {
-                        break
-                    }
-                    let next = try current.nextElementSibling()
-                    try current.remove()
-                    sibling = next
-                }
-            }
-        } catch {
-            // Best-effort; failures are non-critical
-        }
-    }
-
-    private static func findMainContent(from doc: Document) throws -> Element {
+    static func findMainContent(from doc: Document) throws -> Element {
         for selector in contentSelectors {
             let elements = try doc.select(selector)
             if let element = elements.first() {
@@ -371,8 +81,10 @@ struct ArticleExtractor {
         return doc.body() ?? doc
     }
 
-    private static func extractParagraphs(from element: Element,
-                                          excludeTitle: String? = nil) throws -> [String] {
+    // MARK: - Paragraph Extraction
+
+    static func extractParagraphs(from element: Element,
+                                   excludeTitle: String? = nil) throws -> [String] {
         var paragraphs: [String] = []
         try collectBlocks(from: element, into: &paragraphs,
                           excludeTitle: excludeTitle)
@@ -398,13 +110,11 @@ struct ArticleExtractor {
                     paragraphs.append("{{IMG}}\(src){{/IMG}}")
                 }
             } else if tag == "picture" {
-                // Extract the <img> inside <picture>, ignoring <source> elements
                 if let img = try? child.select("img").first(),
                    let src = try? img.attr("src"), !src.isEmpty, isLikelyContentImage(src) {
                     paragraphs.append("{{IMG}}\(src){{/IMG}}")
                 }
             } else if tag == "figure" {
-                // Extract image from figure, then caption
                 if let img = try? child.select("img").first(),
                    let src = try? img.attr("src"), !src.isEmpty, isLikelyContentImage(src) {
                     paragraphs.append("{{IMG}}\(src){{/IMG}}")
@@ -453,231 +163,5 @@ struct ArticleExtractor {
         }
         let text = (try? element.text()) ?? ""
         return !text.isEmpty
-    }
-
-    private static let imgOpenPlaceholder = "{{SAKURA_IMG_OPEN}}"
-    private static let imgClosePlaceholder = "{{SAKURA_IMG_CLOSE}}"
-    private static let brPlaceholder = "{{SAKURA_BR}}"
-    private static let linkOpenPlaceholder = "{{SAKURA_LINK_OPEN}}"
-    private static let linkMidPlaceholder = "{{SAKURA_LINK_MID}}"
-    private static let linkClosePlaceholder = "{{SAKURA_LINK_CLOSE}}"
-    private static let boldOpenPlaceholder = "{{SAKURA_BOLD_OPEN}}"
-    private static let boldClosePlaceholder = "{{SAKURA_BOLD_CLOSE}}"
-    private static let italicOpenPlaceholder = "{{SAKURA_ITALIC_OPEN}}"
-    private static let italicClosePlaceholder = "{{SAKURA_ITALIC_CLOSE}}"
-    private static let supOpenPlaceholder = "{{SAKURA_SUP_OPEN}}"
-    private static let supClosePlaceholder = "{{SAKURA_SUP_CLOSE}}"
-    private static let subOpenPlaceholder = "{{SAKURA_SUB_OPEN}}"
-    private static let subClosePlaceholder = "{{SAKURA_SUB_CLOSE}}"
-
-    /// Extracts text from a block element, preserving `<br>` tags as newlines
-    /// and `<a>` tags as Markdown links.
-    private static func textContent(of element: Element) throws -> String {
-        var html = try element.html()
-        html = html.replacingOccurrences(
-            of: "<br\\s*/?>",
-            with: brPlaceholder,
-            options: .regularExpression
-        )
-        // Replace <img> tags with image placeholders
-        if let imgRegex = try? NSRegularExpression(
-            pattern: "<img\\s[^>]*src=[\"']([^\"']+)[\"'][^>]*/?>",
-            options: .caseInsensitive
-        ) {
-            let nsHTML = html as NSString
-            let imgMatches = imgRegex.matches(in: html, range: NSRange(location: 0, length: nsHTML.length))
-            for match in imgMatches.reversed() {
-                let urlRange = match.range(at: 1)
-                let imgURL = nsHTML.substring(with: urlRange)
-                if isLikelyContentImage(imgURL) {
-                    let replacement = "\(imgOpenPlaceholder)\(imgURL)\(imgClosePlaceholder)"
-                    html = (html as NSString).replacingCharacters(in: match.range, with: replacement)
-                } else {
-                    html = (html as NSString).replacingCharacters(in: match.range, with: "")
-                }
-            }
-        }
-        // Replace <a href="url">text</a> with placeholder-wrapped Markdown (skip empty links)
-        html = html.replacingOccurrences(
-            of: "<a\\s[^>]*href=[\"']([^\"']+)[\"'][^>]*>(.+?)</a>",
-            with: "\(linkOpenPlaceholder)$2\(linkMidPlaceholder)$1\(linkClosePlaceholder)",
-            options: .regularExpression
-        )
-        // Strip remaining empty <a> tags (no text content)
-        html = html.replacingOccurrences(
-            of: "<a\\s[^>]*>\\s*</a>",
-            with: "",
-            options: .regularExpression
-        )
-        // Replace bold tags with placeholders
-        for tag in ["strong", "b"] {
-            html = html.replacingOccurrences(
-                of: "<\(tag)(?:\\s[^>]*)?>", with: boldOpenPlaceholder,
-                options: [.regularExpression, .caseInsensitive]
-            )
-            html = html.replacingOccurrences(
-                of: "</\(tag)>", with: boldClosePlaceholder, options: .caseInsensitive
-            )
-        }
-        // Replace italic tags with placeholders
-        html = html.replacingOccurrences(
-            of: "<em(?:\\s[^>]*)?>", with: italicOpenPlaceholder,
-            options: [.regularExpression, .caseInsensitive]
-        )
-        html = html.replacingOccurrences(
-            of: "</em>", with: italicClosePlaceholder, options: .caseInsensitive
-        )
-        html = html.replacingOccurrences(
-            of: #"<i(?:\s[^>]*)?>"#, with: italicOpenPlaceholder,
-            options: [.regularExpression, .caseInsensitive]
-        )
-        html = html.replacingOccurrences(
-            of: "</i>", with: italicClosePlaceholder, options: .caseInsensitive
-        )
-        // Replace superscript/subscript tags with placeholders
-        html = html.replacingOccurrences(
-            of: "<sup(?:\\s[^>]*)?>", with: supOpenPlaceholder,
-            options: [.regularExpression, .caseInsensitive]
-        )
-        html = html.replacingOccurrences(
-            of: "</sup>", with: supClosePlaceholder, options: .caseInsensitive
-        )
-        html = html.replacingOccurrences(
-            of: "<sub(?:\\s[^>]*)?>", with: subOpenPlaceholder,
-            options: [.regularExpression, .caseInsensitive]
-        )
-        html = html.replacingOccurrences(
-            of: "</sub>", with: subClosePlaceholder, options: .caseInsensitive
-        )
-        let fragment = try SwiftSoup.parseBodyFragment(html)
-        var text = try fragment.body()?.text() ?? ""
-        text = text.replacingOccurrences(of: brPlaceholder, with: "\n")
-        // Escape [ and ] inside link text so they don't break Markdown link parsing
-        text = escapeBracketsInLinkText(text,
-                                        open: linkOpenPlaceholder,
-                                        mid: linkMidPlaceholder)
-        // Convert link placeholders to Markdown [text](url)
-        text = text.replacingOccurrences(of: linkOpenPlaceholder, with: "[")
-        text = text.replacingOccurrences(of: linkMidPlaceholder, with: "](")
-        text = text.replacingOccurrences(of: linkClosePlaceholder, with: ")")
-        // Convert formatting placeholders to markdown markers
-        text = text.replacingOccurrences(of: boldOpenPlaceholder, with: "**")
-        text = text.replacingOccurrences(of: boldClosePlaceholder, with: "**")
-        text = text.replacingOccurrences(of: italicOpenPlaceholder, with: "*")
-        text = text.replacingOccurrences(of: italicClosePlaceholder, with: "*")
-        text = text.replacingOccurrences(of: supOpenPlaceholder, with: "{{SUP}}")
-        text = text.replacingOccurrences(of: supClosePlaceholder, with: "{{/SUP}}")
-        text = text.replacingOccurrences(of: subOpenPlaceholder, with: "{{SUB}}")
-        text = text.replacingOccurrences(of: subClosePlaceholder, with: "{{/SUB}}")
-        text = text.replacingOccurrences(of: imgOpenPlaceholder, with: "{{IMG}}")
-        text = text.replacingOccurrences(of: imgClosePlaceholder, with: "{{/IMG}}")
-        // Validate URLs inside superscript/subscript markers; drop if invalid
-        text = stripInvalidURLSupSub(text)
-        text = stripRemainingHTMLTags(text)
-        return text.trimmingCharacters(in: .whitespacesAndNewlines)
-    }
-
-    private static func isLikelyContentImage(_ url: String) -> Bool {
-        let lowered = url.lowercased()
-        let skipPatterns = [
-            "gravatar.com", "pixel", "spacer", "blank",
-            "1x1", "transparent", "tracking", "beacon",
-            ".gif", "feeds.feedburner.com", "badge",
-            "icon", "emoji", "smiley", "avatar",
-            "ad.", "ads.", "doubleclick", "googlesyndication"
-        ]
-        for pattern in skipPatterns {
-            if lowered.contains(pattern) { return false } // swiftlint:disable:this for_where
-        }
-        return true
-    }
-
-    /// Removes `{{SUP}}…{{/SUP}}` and `{{SUB}}…{{/SUB}}` markers whose
-    /// content contains an invalid URL (either as a Markdown link or raw URL).
-    /// Markers with no URL (e.g. plain numbers) are kept as-is.
-    private static func stripInvalidURLSupSub(_ text: String) -> String {
-        let pattern = #"\{\{(SUP|SUB)\}\}(.+?)\{\{/(SUP|SUB)\}\}"#
-        guard let regex = try? NSRegularExpression(pattern: pattern) else { return text }
-        var result = text
-        let nsText = result as NSString
-        let matches = regex.matches(in: result, range: NSRange(location: 0, length: nsText.length))
-        for match in matches.reversed() {
-            let content = nsText.substring(with: match.range(at: 2))
-            let linkPattern = #"\[([^\]]+)\]\(([^)]+)\)"#
-            if let linkRegex = try? NSRegularExpression(pattern: linkPattern),
-               let linkMatch = linkRegex.firstMatch(
-                in: content, range: NSRange(location: 0, length: (content as NSString).length)
-               ) {
-                let urlString = (content as NSString).substring(with: linkMatch.range(at: 2))
-                if URL(string: urlString) == nil {
-                    result = (result as NSString).replacingCharacters(in: match.range, with: "")
-                }
-            } else if content.hasPrefix("http://") || content.hasPrefix("https://")
-                        || content.hasPrefix("//") {
-                if URL(string: content) == nil {
-                    result = (result as NSString).replacingCharacters(in: match.range, with: "")
-                }
-            }
-        }
-        return result
-    }
-
-    /// Escapes `[` and `]` characters that appear inside link text
-    /// (between `open` and `mid` placeholders) so that the resulting
-    /// Markdown `[text](url)` syntax is unambiguous.
-    private static func escapeBracketsInLinkText(_ text: String,
-                                                  open: String,
-                                                  mid: String) -> String {
-        var result = ""
-        var remaining = text[text.startIndex...]
-        while let openRange = remaining.range(of: open) {
-            result += remaining[remaining.startIndex..<openRange.lowerBound]
-            result += open
-            let afterOpen = remaining[openRange.upperBound...]
-            if let midRange = afterOpen.range(of: mid) {
-                let linkText = afterOpen[afterOpen.startIndex..<midRange.lowerBound]
-                result += linkText
-                    .replacingOccurrences(of: "[", with: "\\[")
-                    .replacingOccurrences(of: "]", with: "\\]")
-                result += mid
-                remaining = afterOpen[midRange.upperBound...]
-            } else {
-                remaining = afterOpen
-            }
-        }
-        result += remaining
-        return result
-    }
-
-    /// Strips any remaining HTML tags that may have leaked through parsing.
-    private static func stripRemainingHTMLTags(_ text: String) -> String {
-        var result = text
-        // Remove any HTML tags
-        result = result.replacingOccurrences(
-            of: "<[^>]+>",
-            with: "",
-            options: .regularExpression
-        )
-        // Decode common HTML entities
-        result = result.replacingOccurrences(of: "&amp;", with: "&")
-        result = result.replacingOccurrences(of: "&lt;", with: "<")
-        result = result.replacingOccurrences(of: "&gt;", with: ">")
-        result = result.replacingOccurrences(of: "&quot;", with: "\"")
-        result = result.replacingOccurrences(of: "&#39;", with: "'")
-        result = result.replacingOccurrences(of: "&apos;", with: "'")
-        result = result.replacingOccurrences(of: "&nbsp;", with: " ")
-        // Collapse excessive whitespace
-        result = result.replacingOccurrences(
-            of: "[ \\t]+",
-            with: " ",
-            options: .regularExpression
-        )
-        // Collapse more than 2 consecutive newlines
-        result = result.replacingOccurrences(
-            of: "\\n{3,}",
-            with: "\n\n",
-            options: .regularExpression
-        )
-        return result.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 }

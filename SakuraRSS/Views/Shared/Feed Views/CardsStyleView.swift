@@ -18,6 +18,7 @@ struct CardsStyleView: View {
     @Environment(FeedManager.self) var feedManager
     @Environment(\.zoomNamespace) private var zoomNamespace
     let articles: [Article]
+    var onRefresh: (() async -> Void)?
 
     /// Snapshot of article IDs that were unread when the deck was built.
     /// Using a snapshot prevents cards from disappearing when markRead is
@@ -38,6 +39,12 @@ struct CardsStyleView: View {
         deckArticles.filter { !dismissedIDs.contains($0.id) }
     }
 
+    @State private var isRefreshing = false
+
+    private var hasUnreadCards: Bool {
+        articles.contains { !$0.isRead && $0.imageURL != nil }
+    }
+
     var body: some View {
         ZStack {
             if visibleCards.isEmpty {
@@ -46,6 +53,24 @@ struct CardsStyleView: View {
                           systemImage: "rectangle.stack")
                 } description: {
                     Text("Cards.Empty.Description")
+                } actions: {
+                    if hasUnreadCards {
+                        Button {
+                            Task {
+                                isRefreshing = true
+                                await onRefresh?()
+                                dismissedIDs.removeAll()
+                                deckArticleIDs = Set(
+                                    articles.filter { $0.imageURL != nil && !$0.isRead }.map(\.id)
+                                )
+                                isRefreshing = false
+                            }
+                        } label: {
+                            Label(String(localized: "Cards.StartOver"), systemImage: "arrow.counterclockwise")
+                        }
+                        .buttonStyle(.bordered)
+                        .disabled(isRefreshing)
+                    }
                 }
             } else {
                 // Show front card and one behind; new back cards fade in after swipe

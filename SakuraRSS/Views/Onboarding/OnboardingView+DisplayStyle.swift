@@ -24,10 +24,10 @@ extension OnboardingView {
                         )) {
                             Text("Articles.Style.Inbox")
                                 .tag(FeedDisplayStyle.inbox)
-                            Text("Articles.Style.Feed")
-                                .tag(FeedDisplayStyle.feed)
                             Text("Articles.Style.Compact")
                                 .tag(FeedDisplayStyle.compact)
+                            Text("Articles.Style.Feed")
+                                .tag(FeedDisplayStyle.feed)
                         }
                         .labelsHidden()
                     }

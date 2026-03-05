@@ -204,6 +204,11 @@ struct WhileYouSleptView: View {
         await generateSummary(for: today)
     }
 
+    /// Maximum characters of article content per LLM batch (instructions sent separately).
+    private static let batchCharLimit = 3000
+    /// Maximum characters per article snippet before truncation.
+    private static let snippetCharLimit = 150
+
     private func generateSummary(for date: Date) async {
         let articles = overnightArticles
         guard !articles.isEmpty else { return }
@@ -222,32 +227,105 @@ struct WhileYouSleptView: View {
             hasGenerated = true
         }
 
-        let articleDescriptions = articles.prefix(30).map { article in
+        // Format articles with truncated snippets
+        let descriptions = articles.prefix(30).map { article -> String in
             let feed = feedManager.feed(forArticle: article)
             let source = feed?.title ?? ""
             let title = article.title
-            let snippet = article.summary ?? ""
+            let snippet = String((article.summary ?? "").prefix(Self.snippetCharLimit))
             return "[\(source)] \(title)\n\(snippet)"
-        }.joined(separator: "\n\n")
+        }
 
-        let instructions = String(localized: "WhileYouSlept.Prompt")
-        let prompt = "\(instructions)\n\n\(articleDescriptions)"
+        // Pack into batches that fit the character budget
+        let batches = Self.packBatches(descriptions)
 
-        #if DEBUG
-        debugPrint(prompt)
-        #endif
+        let instructions = String(localized: "TodaysSummary.PartialPrompt")
 
         do {
-            let session = LanguageModelSession()
-            let response = try await session.respond(to: prompt)
-            let content = response.content
+            // Summarize batches concurrently, at most 3 at a time
+            var batchSummaries: [String] = []
+
+            try await withThrowingTaskGroup(of: String.self) { group in
+                var index = 0
+
+                while index < batches.count && index < 3 {
+                    let batch = batches[index]
+                    group.addTask {
+                        #if DEBUG
+                        debugPrint("Batch prompt (\(batch.count) chars)")
+                        #endif
+                        let session = LanguageModelSession(instructions: instructions)
+                        let response = try await session.respond(to: batch)
+                        return response.content
+                    }
+                    index += 1
+                }
+
+                for try await result in group {
+                    batchSummaries.append(result)
+                    if index < batches.count {
+                        let batch = batches[index]
+                        group.addTask {
+                            #if DEBUG
+                            debugPrint("Batch prompt (\(batch.count) chars)")
+                            #endif
+                            let session = LanguageModelSession(instructions: instructions)
+                            let response = try await session.respond(to: batch)
+                            return response.content
+                        }
+                        index += 1
+                    }
+                }
+            }
+
+            guard !batchSummaries.isEmpty else { return }
+
+            // Combine batch summaries into one overall summary
+            let finalContent: String
+            if batchSummaries.count == 1 {
+                finalContent = batchSummaries[0]
+            } else {
+                let combined = batchSummaries.joined(separator: "\n\n")
+                let combineInstructions = String(localized: "TodaysSummary.CombinePrompt")
+
+                #if DEBUG
+                debugPrint("Combine prompt (\(combined.count) chars)")
+                #endif
+
+                let session = LanguageModelSession(instructions: combineInstructions)
+                let response = try await session.respond(to: combined)
+                finalContent = response.content
+            }
+
             withAnimation(.smooth.speed(2.0)) {
-                summary = content
+                summary = finalContent
             }
             hasSummary = true
-            try? DatabaseManager.shared.cacheSummary(content, ofType: .whileYouSlept, for: date)
+            try? DatabaseManager.shared.cacheSummary(finalContent, ofType: .whileYouSlept, for: date)
         } catch {
             generationFailed = true
         }
+    }
+
+    /// Packs article description strings into batches that each fit within `batchCharLimit`.
+    private static func packBatches(_ descriptions: [String]) -> [String] {
+        var batches: [String] = []
+        var current: [String] = []
+        var currentLength = 0
+
+        for desc in descriptions {
+            let added = currentLength == 0 ? desc.count : desc.count + 2 // +2 for "\n\n"
+            if !current.isEmpty && currentLength + added > batchCharLimit {
+                batches.append(current.joined(separator: "\n\n"))
+                current = []
+                currentLength = 0
+            }
+            current.append(desc)
+            currentLength += added
+        }
+        if !current.isEmpty {
+            batches.append(current.joined(separator: "\n\n"))
+        }
+        return batches
     }
 }
