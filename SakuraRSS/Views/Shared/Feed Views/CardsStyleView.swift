@@ -189,7 +189,7 @@ private struct CardView: View {
             // Left swipe: read/watch/listen later indicator
             swipeIndicatorOverlay(
                 localizationKey: skipLocalizationKey,
-                systemImage: "clock.fill",
+                systemImage: "eye.slash.fill",
                 color: .red,
                 alignment: .topTrailing,
                 opacity: offset.width < 0 ? swipeProgress : 0
