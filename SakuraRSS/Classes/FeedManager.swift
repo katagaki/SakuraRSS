@@ -84,7 +84,11 @@ final class FeedManager {
         }
 
         if parsed.isPodcast && !feed.isPodcast {
-            try database.updateFeedIsPodcast(id: feed.id, isPodcast: true)
+            let siteURLString = parsed.siteURL.isEmpty ? feed.siteURL : parsed.siteURL
+            let isSubstack = await Self.isSubstackSite(siteURLString)
+            if !isSubstack {
+                try database.updateFeedIsPodcast(id: feed.id, isPodcast: true)
+            }
         }
         if updateTitle, !parsed.title.isEmpty, parsed.title != feed.title {
             try database.updateFeed(id: feed.id, title: parsed.title, category: feed.category)
@@ -396,5 +400,18 @@ final class FeedManager {
 
         loadFromDatabase()
         return added
+    }
+
+    // MARK: - Substack Detection
+
+    private static func isSubstackSite(_ siteURL: String) async -> Bool {
+        guard let url = URL(string: siteURL) else { return false }
+        do {
+            let (data, _) = try await URLSession.shared.data(from: url)
+            guard let html = String(data: data.prefix(4096), encoding: .utf8) else { return false }
+            return html.contains("substackcdn.com")
+        } catch {
+            return false
+        }
     }
 }
