@@ -81,17 +81,19 @@ struct PodcastEpisodeRow: View {
 
             Spacer(minLength: 0)
 
-            Button {
-                handlePlay()
-            } label: {
-                Image(systemName: isCurrentlyPlaying && audioPlayer.isPlaying
-                      ? "pause.circle.fill"
-                      : "play.circle.fill")
-                    .font(.title)
-                    .foregroundStyle(.accent)
-                    .symbolRenderingMode(.multicolor)
+            if article.isPodcastEpisode {
+                Button {
+                    handlePlay()
+                } label: {
+                    Image(systemName: isCurrentlyPlaying && audioPlayer.isPlaying
+                          ? "pause.circle.fill"
+                          : "play.circle.fill")
+                        .font(.title)
+                        .foregroundStyle(.accent)
+                        .symbolRenderingMode(.multicolor)
+                }
+                .buttonStyle(.plain)
             }
-            .buttonStyle(.plain)
         }
     }
 
