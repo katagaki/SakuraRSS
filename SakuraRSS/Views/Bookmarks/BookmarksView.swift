@@ -117,6 +117,9 @@ struct BookmarksView: View {
             .onAppear {
                 bookmarkedArticles = (try? DatabaseManager.shared.bookmarkedArticles()) ?? []
             }
+            .onChange(of: feedManager.dataRevision) {
+                bookmarkedArticles = (try? DatabaseManager.shared.bookmarkedArticles()) ?? []
+            }
         }
     }
 
