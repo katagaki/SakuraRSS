@@ -105,6 +105,7 @@ nonisolated extension RSSParser {
 
         // Convert <a href="url">text</a> to Markdown links [text](url),
         // escaping any [ or ] in the link text so they don't break parsing.
+        // Links with no text content are stripped entirely.
         if let linkRegex = try? NSRegularExpression(
             pattern: #"<a\s[^>]*href=["']([^"']+)["'][^>]*>(.*?)</a>"#
         ) {
@@ -115,11 +116,16 @@ nonisolated extension RSSParser {
             for match in linkMatches.reversed() {
                 let url = nsResult.substring(with: match.range(at: 1))
                 let text = nsResult.substring(with: match.range(at: 2))
-                let escaped = text
-                    .replacingOccurrences(of: "[", with: "\\[")
-                    .replacingOccurrences(of: "]", with: "\\]")
-                let replacement = "[\(escaped)](\(url))"
-                result = (result as NSString).replacingCharacters(in: match.range, with: replacement)
+                    .trimmingCharacters(in: .whitespacesAndNewlines)
+                if text.isEmpty {
+                    result = (result as NSString).replacingCharacters(in: match.range, with: "")
+                } else {
+                    let escaped = text
+                        .replacingOccurrences(of: "[", with: "\\[")
+                        .replacingOccurrences(of: "]", with: "\\]")
+                    let replacement = "[\(escaped)](\(url))"
+                    result = (result as NSString).replacingCharacters(in: match.range, with: replacement)
+                }
             }
         }
 

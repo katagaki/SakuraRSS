@@ -306,10 +306,16 @@ struct ArticleExtractor {
                 }
             }
         }
-        // Replace <a href="url">text</a> with placeholder-wrapped Markdown
+        // Replace <a href="url">text</a> with placeholder-wrapped Markdown (skip empty links)
         html = html.replacingOccurrences(
-            of: "<a\\s[^>]*href=[\"']([^\"']+)[\"'][^>]*>(.*?)</a>",
+            of: "<a\\s[^>]*href=[\"']([^\"']+)[\"'][^>]*>(.+?)</a>",
             with: "\(linkOpenPlaceholder)$2\(linkMidPlaceholder)$1\(linkClosePlaceholder)",
+            options: .regularExpression
+        )
+        // Strip remaining empty <a> tags (no text content)
+        html = html.replacingOccurrences(
+            of: "<a\\s[^>]*>\\s*</a>",
+            with: "",
             options: .regularExpression
         )
         // Replace bold tags with placeholders
