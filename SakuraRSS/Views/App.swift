@@ -1,10 +1,12 @@
 import SwiftUI
 import BackgroundTasks
+import StoreKit
 import TipKit
 
 @main
 struct SakuraRSSApp: App {
 
+    @Environment(\.requestReview) private var requestReview
     @State private var feedManager = FeedManager()
     @State private var pendingFeedURL: String?
     @State private var pendingArticleID: Int64?
@@ -25,6 +27,7 @@ struct SakuraRSSApp: App {
                     }
                     UserDefaults.standard.set(false, forKey: "App.StartupInProgress")
                     feedManager.updateBadgeCount()
+                    requestReviewIfNeeded()
                 }
                 .onReceive(
                     NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)
@@ -35,6 +38,13 @@ struct SakuraRSSApp: App {
                 .onOpenURL { url in
                     handleOpenURL(url)
                 }
+        }
+    }
+
+    private func requestReviewIfNeeded() {
+        let launchCount = UserDefaults.standard.integer(forKey: "App.LaunchCount")
+        if launchCount == 3 {
+            requestReview()
         }
     }
 
@@ -117,6 +127,7 @@ struct SakuraRSSApp: App {
         }
 
         defaults.set(true, forKey: "App.StartupInProgress")
+        defaults.set(defaults.integer(forKey: "App.LaunchCount") + 1, forKey: "App.LaunchCount")
         registerBackgroundTask()
         try? Tips.configure()
     }
