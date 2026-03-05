@@ -12,6 +12,7 @@ struct ArticlesView: View {
     let isFeedViewDomain: Bool
     let isTimelineViewDomain: Bool
     var onLoadMore: (() -> Void)?
+    var onRefresh: (() async -> Void)?
 
     @State private var displayStyle: FeedDisplayStyle
     @AppStorage("Articles.HideRead") private var hideRead = false
@@ -28,7 +29,8 @@ struct ArticlesView: View {
     init(articles: [Article], title: String, feedKey: String,
          isVideoFeed: Bool = false, isPodcastFeed: Bool = false,
          isFeedViewDomain: Bool = false, isTimelineViewDomain: Bool = false,
-         onLoadMore: (() -> Void)? = nil) {
+         onLoadMore: (() -> Void)? = nil,
+         onRefresh: (() async -> Void)? = nil) {
         self.articles = articles
         self.title = title
         self.feedKey = feedKey
@@ -37,6 +39,7 @@ struct ArticlesView: View {
         self.isFeedViewDomain = isFeedViewDomain
         self.isTimelineViewDomain = isTimelineViewDomain
         self.onLoadMore = onLoadMore
+        self.onRefresh = onRefresh
         let raw = UserDefaults.standard.string(forKey: "Display.Style.\(feedKey)")
         let defaultRaw = UserDefaults.standard.string(forKey: "Display.DefaultStyle") ?? FeedDisplayStyle.inbox.rawValue
         let fallback: FeedDisplayStyle
@@ -87,7 +90,7 @@ struct ArticlesView: View {
             case .timeline:
                 TimelineStyleView(articles: visibleArticles, onLoadMore: onLoadMore)
             case .cards:
-                CardsStyleView(articles: visibleArticles)
+                CardsStyleView(articles: visibleArticles, onRefresh: onRefresh)
             }
         }
         .scrollContentBackground(.hidden)

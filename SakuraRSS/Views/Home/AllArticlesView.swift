@@ -37,6 +37,9 @@ struct AllArticlesView: View {
             feedKey: "all",
             onLoadMore: showingOlderArticles ? nil : {
                 showingOlderArticles = true
+            },
+            onRefresh: {
+                await feedManager.refreshAllFeeds()
             }
         )
         .safeAreaInset(edge: .top, spacing: 0) {
