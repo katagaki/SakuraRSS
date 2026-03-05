@@ -11,17 +11,7 @@ struct AttributesView: View {
                         .monospaced()
                         .listRowBackground(Color.clear)
                 } header: {
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text(dependency.name)
-                            .font(.headline)
-                            .foregroundStyle(.primary)
-                            .textCase(nil)
-                        Text(dependency.license)
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                            .textCase(nil)
-                    }
-                    .padding(.bottom, 4)
+                    Text(dependency.name)
                 }
             }
         }
