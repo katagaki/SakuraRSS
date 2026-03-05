@@ -84,7 +84,9 @@ struct ArticleExtractor {
         "blockquote", "li", "figcaption", "pre", "td", "th"
     ]
 
-    static func extractText(fromHTML html: String) -> String? {
+    static func extractText(fromHTML html: String,
+                             excludeTitle: String? = nil,
+                             excludeImageURL: String? = nil) -> String? {
         guard !html.isEmpty else { return nil }
         do {
             let doc = try SwiftSoup.parse(html)
@@ -92,7 +94,9 @@ struct ArticleExtractor {
             let element = try findMainContent(from: doc)
             // Remove any remaining noise inside content area
             removeNoise(from: element)
-            let paragraphs = try extractParagraphs(from: element)
+            let paragraphs = try extractParagraphs(from: element,
+                                                   excludeTitle: excludeTitle,
+                                                   excludeImageURL: excludeImageURL)
             let result = paragraphs.joined(separator: "\n\n")
             let cleaned = stripRemainingHTMLTags(result)
             return cleaned.isEmpty ? nil : cleaned
@@ -101,7 +105,9 @@ struct ArticleExtractor {
         }
     }
 
-    static func extractText(fromURL url: URL) async -> String? {
+    static func extractText(fromURL url: URL,
+                             excludeTitle: String? = nil,
+                             excludeImageURL: String? = nil) async -> String? {
         if WebViewExtractor.requiresWebView(for: url) {
             #if DEBUG
             debugPrint("Extracting text using WebView from \(url)")
@@ -117,7 +123,8 @@ struct ArticleExtractor {
             guard let html = String(data: data, encoding: .utf8) else {
                 return nil
             }
-            return extractText(fromHTML: html)
+            return extractText(fromHTML: html, excludeTitle: excludeTitle,
+                               excludeImageURL: excludeImageURL)
         } catch {
             return nil
         }
@@ -168,9 +175,12 @@ struct ArticleExtractor {
         return doc.body() ?? doc
     }
 
-    private static func extractParagraphs(from element: Element) throws -> [String] {
+    private static func extractParagraphs(from element: Element,
+                                          excludeTitle: String? = nil,
+                                          excludeImageURL: String? = nil) throws -> [String] {
         var paragraphs: [String] = []
-        try collectBlocks(from: element, into: &paragraphs)
+        try collectBlocks(from: element, into: &paragraphs,
+                          excludeTitle: excludeTitle, excludeImageURL: excludeImageURL)
 
         if paragraphs.isEmpty {
             let text = try textContent(of: element)
@@ -184,23 +194,28 @@ struct ArticleExtractor {
     /// Recurses into non-block wrappers (div, section, etc.) so that
     /// nested blocks like `<div><p>…</p></div>` don't produce duplicates.
     /// Treats leaf divs (divs with no block-level children) as paragraphs.
-    private static func collectBlocks(from element: Element, into paragraphs: inout [String]) throws {
+    private static func collectBlocks(from element: Element, into paragraphs: inout [String],
+                                      excludeTitle: String? = nil,
+                                      excludeImageURL: String? = nil) throws {
         for child in element.children() {
             let tag = child.tagName().lowercased()
             if tag == "img" {
-                if let src = try? child.attr("src"), !src.isEmpty, isLikelyContentImage(src) {
+                if let src = try? child.attr("src"), !src.isEmpty, isLikelyContentImage(src),
+                   src != excludeImageURL {
                     paragraphs.append("{{IMG}}\(src){{/IMG}}")
                 }
             } else if tag == "picture" {
                 // Extract the <img> inside <picture>, ignoring <source> elements
                 if let img = try? child.select("img").first(),
-                   let src = try? img.attr("src"), !src.isEmpty, isLikelyContentImage(src) {
+                   let src = try? img.attr("src"), !src.isEmpty, isLikelyContentImage(src),
+                   src != excludeImageURL {
                     paragraphs.append("{{IMG}}\(src){{/IMG}}")
                 }
             } else if tag == "figure" {
                 // Extract image from figure, then caption
                 if let img = try? child.select("img").first(),
-                   let src = try? img.attr("src"), !src.isEmpty, isLikelyContentImage(src) {
+                   let src = try? img.attr("src"), !src.isEmpty, isLikelyContentImage(src),
+                   src != excludeImageURL {
                     paragraphs.append("{{IMG}}\(src){{/IMG}}")
                 }
                 if let caption = try? child.select("figcaption").first() {
@@ -212,17 +227,25 @@ struct ArticleExtractor {
             } else if blockElements.contains(tag) || isLeafBlock(child) {
                 var text = try textContent(of: child)
                 if !text.isEmpty {
-                    switch tag {
-                    case "h1": text = "# \(text)"
-                    case "h2": text = "## \(text)"
-                    case "h3": text = "### \(text)"
-                    case "h4", "h5", "h6": text = "**\(text)**"
-                    default: break
+                    let headingTags = ["h1", "h2", "h3", "h4", "h5", "h6"]
+                    if headingTags.contains(tag),
+                       let excludeTitle,
+                       text.caseInsensitiveCompare(excludeTitle) == .orderedSame {
+                        // Skip headers that match the feed title
+                    } else {
+                        switch tag {
+                        case "h1": text = "# \(text)"
+                        case "h2": text = "## \(text)"
+                        case "h3": text = "### \(text)"
+                        case "h4", "h5", "h6": text = "**\(text)**"
+                        default: break
+                        }
+                        paragraphs.append(text)
                     }
-                    paragraphs.append(text)
                 }
             } else {
-                try collectBlocks(from: child, into: &paragraphs)
+                try collectBlocks(from: child, into: &paragraphs,
+                                  excludeTitle: excludeTitle, excludeImageURL: excludeImageURL)
             }
         }
     }

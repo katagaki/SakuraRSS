@@ -18,9 +18,15 @@ extension ArticleDetailView {
             return
         }
 
+        let feed = feedManager.feed(forArticle: article)
+        let feedTitle = feed?.title
+        let heroImageURL = article.imageURL
+
         // For whitelisted domains, always fetch the full article via WKWebView
         if let url = URL(string: article.url), WebViewExtractor.requiresWebView(for: url) {
-            let text = await ArticleExtractor.extractText(fromURL: url)
+            let text = await ArticleExtractor.extractText(fromURL: url,
+                                                          excludeTitle: feedTitle,
+                                                          excludeImageURL: heroImageURL)
             extractedText = text
             if let text, !text.isEmpty {
                 try? DatabaseManager.shared.cacheArticleContent(text, for: article.id)
@@ -29,7 +35,9 @@ extension ArticleDetailView {
         }
 
         if let content = article.content, !content.isEmpty {
-            let text = ArticleExtractor.extractText(fromHTML: content)
+            let text = ArticleExtractor.extractText(fromHTML: content,
+                                                    excludeTitle: feedTitle,
+                                                    excludeImageURL: heroImageURL)
             if let text, !text.isEmpty {
                 extractedText = text
                 try? DatabaseManager.shared.cacheArticleContent(text, for: article.id)
@@ -38,7 +46,9 @@ extension ArticleDetailView {
         }
 
         if let url = URL(string: article.url) {
-            let text = await ArticleExtractor.extractText(fromURL: url)
+            let text = await ArticleExtractor.extractText(fromURL: url,
+                                                          excludeTitle: feedTitle,
+                                                          excludeImageURL: heroImageURL)
             extractedText = text
             if let text, !text.isEmpty {
                 try? DatabaseManager.shared.cacheArticleContent(text, for: article.id)
