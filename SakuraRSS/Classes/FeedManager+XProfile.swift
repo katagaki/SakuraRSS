@@ -12,7 +12,6 @@ extension FeedManager {
         let scraper = XProfileScraper()
         let tweets = await scraper.scrapeTweets(profileURL: profileURL)
 
-        let database = DatabaseManager.shared
         for tweet in tweets {
             let title = tweet.text.isEmpty
                 ? "Post by @\(tweet.authorHandle)"
