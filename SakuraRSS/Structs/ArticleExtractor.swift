@@ -201,21 +201,21 @@ struct ArticleExtractor {
             let tag = child.tagName().lowercased()
             if tag == "img" {
                 if let src = try? child.attr("src"), !src.isEmpty, isLikelyContentImage(src),
-                   src != excludeImageURL {
+                   !imageURLsMatch(src, excludeImageURL) {
                     paragraphs.append("{{IMG}}\(src){{/IMG}}")
                 }
             } else if tag == "picture" {
                 // Extract the <img> inside <picture>, ignoring <source> elements
                 if let img = try? child.select("img").first(),
                    let src = try? img.attr("src"), !src.isEmpty, isLikelyContentImage(src),
-                   src != excludeImageURL {
+                   !imageURLsMatch(src, excludeImageURL) {
                     paragraphs.append("{{IMG}}\(src){{/IMG}}")
                 }
             } else if tag == "figure" {
                 // Extract image from figure, then caption
                 if let img = try? child.select("img").first(),
                    let src = try? img.attr("src"), !src.isEmpty, isLikelyContentImage(src),
-                   src != excludeImageURL {
+                   !imageURLsMatch(src, excludeImageURL) {
                     paragraphs.append("{{IMG}}\(src){{/IMG}}")
                 }
                 if let caption = try? child.select("figcaption").first() {
@@ -384,6 +384,21 @@ struct ArticleExtractor {
         text = stripInvalidURLSupSub(text)
         text = stripRemainingHTMLTags(text)
         return text.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
+    /// Compares two image URLs ignoring query parameters so that URLs
+    /// differing only in quality/size params are treated as the same image.
+    private static func imageURLsMatch(_ src: String, _ exclude: String?) -> Bool {
+        guard let exclude else { return false }
+        if src == exclude { return true }
+        return urlStrippingQuery(src) == urlStrippingQuery(exclude)
+    }
+
+    private static func urlStrippingQuery(_ urlString: String) -> String {
+        guard var components = URLComponents(string: urlString) else { return urlString }
+        components.query = nil
+        components.fragment = nil
+        return components.string ?? urlString
     }
 
     private static func isLikelyContentImage(_ url: String) -> Bool {
