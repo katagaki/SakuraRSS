@@ -84,6 +84,19 @@ struct BookmarksView: View {
                         } label: {
                             Image(systemName: "line.3.horizontal.decrease")
                         }
+                        .menuActionDismissBehavior(.disabled)
+
+                        Menu {
+                            Button(role: .destructive) {
+                                try? DatabaseManager.shared.removeReadBookmarks()
+                                bookmarkedArticles = (try? DatabaseManager.shared.bookmarkedArticles()) ?? []
+                            } label: {
+                                Label(String(localized: "Bookmarks.DeleteAllRead"),
+                                      systemImage: "bookmark.slash")
+                            }
+                        } label: {
+                            Image(systemName: "ellipsis.circle")
+                        }
                     }
                 }
             }

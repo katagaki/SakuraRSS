@@ -14,6 +14,7 @@ struct ArticlesView: View {
     var onLoadMore: (() -> Void)?
 
     @State private var displayStyle: FeedDisplayStyle
+    @AppStorage("Articles.HideRead") private var hideRead = false
     private let viewStyleSwitcherTip = ViewStyleSwitcherTip()
 
     private var hasImages: Bool {
@@ -53,28 +54,40 @@ struct ArticlesView: View {
         self._displayStyle = State(initialValue: raw.flatMap(FeedDisplayStyle.init(rawValue:)) ?? fallback)
     }
 
+    private var hideReadSupported: Bool {
+        let style = effectiveDisplayStyle
+        return style == .inbox || style == .magazine || style == .compact
+    }
+
+    private var visibleArticles: [Article] {
+        if hideRead && hideReadSupported {
+            return articles.filter { !$0.isRead }
+        }
+        return articles
+    }
+
     var body: some View {
         let effectiveStyle = effectiveDisplayStyle
         Group {
             switch effectiveStyle {
             case .inbox:
-                InboxStyleView(articles: articles, onLoadMore: onLoadMore)
+                InboxStyleView(articles: visibleArticles, onLoadMore: onLoadMore)
             case .feed:
-                FeedStyleView(articles: articles, onLoadMore: onLoadMore)
+                FeedStyleView(articles: visibleArticles, onLoadMore: onLoadMore)
             case .magazine:
-                MagazineStyleView(articles: articles, onLoadMore: onLoadMore)
+                MagazineStyleView(articles: visibleArticles, onLoadMore: onLoadMore)
             case .compact:
-                CompactStyleView(articles: articles, onLoadMore: onLoadMore)
+                CompactStyleView(articles: visibleArticles, onLoadMore: onLoadMore)
             case .video:
-                VideoStyleView(articles: articles, onLoadMore: onLoadMore)
+                VideoStyleView(articles: visibleArticles, onLoadMore: onLoadMore)
             case .photos:
-                PhotosStyleView(articles: articles, onLoadMore: onLoadMore)
+                PhotosStyleView(articles: visibleArticles, onLoadMore: onLoadMore)
             case .podcast:
-                PodcastStyleView(articles: articles, onLoadMore: onLoadMore)
+                PodcastStyleView(articles: visibleArticles, onLoadMore: onLoadMore)
             case .timeline:
-                TimelineStyleView(articles: articles, onLoadMore: onLoadMore)
+                TimelineStyleView(articles: visibleArticles, onLoadMore: onLoadMore)
             case .cards:
-                CardsStyleView(articles: articles)
+                CardsStyleView(articles: visibleArticles)
             }
         }
         .scrollContentBackground(.hidden)
@@ -116,9 +129,15 @@ struct ArticlesView: View {
                                 .tag(FeedDisplayStyle.timeline)
                         }
                     }
+                    if hideReadSupported {
+                        Section {
+                            Toggle(String(localized: "Articles.HideRead"), isOn: $hideRead)
+                        }
+                    }
                 } label: {
                     Image(systemName: "line.3.horizontal.decrease")
                 }
+                .menuActionDismissBehavior(.disabled)
                 .popoverTip(viewStyleSwitcherTip)
             }
         }
@@ -132,6 +151,13 @@ struct ArticlesView: View {
                           systemImage: "doc.text")
                 } description: {
                     Text("Articles.Empty.Description")
+                }
+            } else if visibleArticles.isEmpty && hideRead {
+                ContentUnavailableView {
+                    Label(String(localized: "Articles.AllRead.Title"),
+                          systemImage: "checkmark.circle")
+                } description: {
+                    Text("Articles.AllRead.Description")
                 }
             }
         }

@@ -2380,6 +2380,39 @@
         }
       }
     },
+    "Articles.AllRead.Description": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Come back later for more!"
+          }
+        }
+      }
+    },
+    "Articles.AllRead.Title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "All Read"
+          }
+        }
+      }
+    },
+    "Articles.HideRead": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hide Read"
+          }
+        }
+      }
+    },
     "Articles.LoadPrevious": {
       "extractionState": "manual",
       "localizations": {
@@ -3084,6 +3117,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "影片"
+          }
+        }
+      }
+    },
+    "Bookmarks.DeleteAllRead": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete All Read"
           }
         }
       }
