@@ -1,4 +1,5 @@
 import Foundation
+import SwiftSoup
 import SwiftUI
 @preconcurrency import UserNotifications
 
@@ -408,8 +409,10 @@ final class FeedManager {
         guard let url = URL(string: siteURL) else { return false }
         do {
             let (data, _) = try await URLSession.shared.data(from: url)
-            guard let html = String(data: data.prefix(4096), encoding: .utf8) else { return false }
-            return html.contains("substackcdn.com")
+            guard let html = String(data: data, encoding: .utf8) else { return false }
+            let doc = try SwiftSoup.parse(html)
+            guard let head = doc.head() else { return false }
+            return try head.html().contains("substackcdn.com")
         } catch {
             return false
         }
