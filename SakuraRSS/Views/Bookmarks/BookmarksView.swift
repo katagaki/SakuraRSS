@@ -63,8 +63,8 @@ struct BookmarksView: View {
                             Picker(String(localized: "Articles.DisplayStyle"), selection: $displayStyle) {
                                 Label(String(localized: "Articles.Style.Inbox"), systemImage: "tray")
                                     .tag(FeedDisplayStyle.inbox)
-                                Label(String(localized: "Articles.Style.Feed"), systemImage: "newspaper")
-                                    .tag(FeedDisplayStyle.feed)
+                                Label(String(localized: "Articles.Style.Compact"), systemImage: "list.dash")
+                                    .tag(FeedDisplayStyle.compact)
                                 if hasImages {
                                     Label(
                                         String(localized: "Articles.Style.Magazine"),
@@ -72,8 +72,8 @@ struct BookmarksView: View {
                                     )
                                         .tag(FeedDisplayStyle.magazine)
                                 }
-                                Label(String(localized: "Articles.Style.Compact"), systemImage: "list.dash")
-                                    .tag(FeedDisplayStyle.compact)
+                                Label(String(localized: "Articles.Style.Feed"), systemImage: "newspaper")
+                                    .tag(FeedDisplayStyle.feed)
                                 if hasImages {
                                     Label(String(localized: "Articles.Style.Photos"), systemImage: "photo.stack")
                                         .tag(FeedDisplayStyle.photos)

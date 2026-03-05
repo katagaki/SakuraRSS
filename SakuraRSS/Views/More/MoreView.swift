@@ -31,18 +31,18 @@ struct MoreView: View {
                     Picker(String(localized: "Settings.DisplayStyle"), selection: $defaultDisplayStyle) {
                         Text("Articles.Style.Inbox")
                             .tag(FeedDisplayStyle.inbox)
-                        Text("Articles.Style.Feed")
-                            .tag(FeedDisplayStyle.feed)
                         Text("Articles.Style.Compact")
                             .tag(FeedDisplayStyle.compact)
+                        Text("Articles.Style.Feed")
+                            .tag(FeedDisplayStyle.feed)
                     }
                     Picker(String(localized: "Settings.SearchDisplayStyle"), selection: $searchDisplayStyle) {
                         Text("Articles.Style.Inbox")
                             .tag(FeedDisplayStyle.inbox)
-                        Text("Articles.Style.Feed")
-                            .tag(FeedDisplayStyle.feed)
                         Text("Articles.Style.Compact")
                             .tag(FeedDisplayStyle.compact)
+                        Text("Articles.Style.Feed")
+                            .tag(FeedDisplayStyle.feed)
                     }
                 } header: {
                     Text("Settings.Section.Display")
