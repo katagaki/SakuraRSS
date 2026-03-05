@@ -10,6 +10,7 @@ struct FeedsListPage: View {
     @State private var feedToEdit: Feed?
     @State private var feedToDelete: Feed?
     @State private var feedForRules: Feed?
+    @Namespace private var addFeedNamespace
 
     var filteredFeeds: [Feed] {
         if searchText.isEmpty {
@@ -85,6 +86,7 @@ struct FeedsListPage: View {
                     Image(systemName: "plus")
                 }
                 .buttonStyle(.glassProminent)
+                .matchedTransitionSource(id: "addFeed", in: addFeedNamespace)
             }
         }
         .scrollContentBackground(.hidden)
@@ -105,6 +107,7 @@ struct FeedsListPage: View {
                 lastAddedFeedURL = url
             }
             .presentationDetents([.medium, .large])
+            .navigationTransition(.zoom(sourceID: "addFeed", in: addFeedNamespace))
         }
         .overlay {
             if feedManager.feeds.isEmpty {
