@@ -309,7 +309,7 @@ struct ArticleExtractor {
         // Replace <a href="url">text</a> with placeholder-wrapped Markdown
         html = html.replacingOccurrences(
             of: "<a\\s[^>]*href=[\"']([^\"']+)[\"'][^>]*>(.*?)</a>",
-            with: "\(linkOpenPlaceholder)\\2\(linkMidPlaceholder)\\1\(linkClosePlaceholder)",
+            with: "\(linkOpenPlaceholder)$2\(linkMidPlaceholder)$1\(linkClosePlaceholder)",
             options: .regularExpression
         )
         // Replace bold tags with placeholders
