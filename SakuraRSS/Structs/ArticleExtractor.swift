@@ -191,8 +191,7 @@ struct ArticleExtractor {
     ]
 
     static func extractText(fromHTML html: String,
-                             excludeTitle: String? = nil,
-                             excludeImageURL: String? = nil) -> String? {
+                             excludeTitle: String? = nil) -> String? {
         guard !html.isEmpty else { return nil }
         do {
             let doc = try SwiftSoup.parse(html)
@@ -201,8 +200,7 @@ struct ArticleExtractor {
             // Remove any remaining noise inside content area
             removeNoise(from: element)
             let paragraphs = try extractParagraphs(from: element,
-                                                   excludeTitle: excludeTitle,
-                                                   excludeImageURL: excludeImageURL)
+                                                   excludeTitle: excludeTitle)
             let result = paragraphs.joined(separator: "\n\n")
             let cleaned = stripRemainingHTMLTags(result)
             return cleaned.isEmpty ? nil : cleaned
@@ -212,8 +210,7 @@ struct ArticleExtractor {
     }
 
     static func extractText(fromURL url: URL,
-                             excludeTitle: String? = nil,
-                             excludeImageURL: String? = nil) async -> String? {
+                             excludeTitle: String? = nil) async -> String? {
         if WebViewExtractor.requiresWebView(for: url) {
             #if DEBUG
             debugPrint("Extracting text using WebView from \(url)")
@@ -229,8 +226,7 @@ struct ArticleExtractor {
             guard let html = String(data: data, encoding: .utf8) else {
                 return nil
             }
-            return extractText(fromHTML: html, excludeTitle: excludeTitle,
-                               excludeImageURL: excludeImageURL)
+            return extractText(fromHTML: html, excludeTitle: excludeTitle)
         } catch {
             return nil
         }
@@ -376,11 +372,10 @@ struct ArticleExtractor {
     }
 
     private static func extractParagraphs(from element: Element,
-                                          excludeTitle: String? = nil,
-                                          excludeImageURL: String? = nil) throws -> [String] {
+                                          excludeTitle: String? = nil) throws -> [String] {
         var paragraphs: [String] = []
         try collectBlocks(from: element, into: &paragraphs,
-                          excludeTitle: excludeTitle, excludeImageURL: excludeImageURL)
+                          excludeTitle: excludeTitle)
 
         if paragraphs.isEmpty {
             let text = try textContent(of: element)
@@ -395,27 +390,23 @@ struct ArticleExtractor {
     /// nested blocks like `<div><p>…</p></div>` don't produce duplicates.
     /// Treats leaf divs (divs with no block-level children) as paragraphs.
     private static func collectBlocks(from element: Element, into paragraphs: inout [String],
-                                      excludeTitle: String? = nil,
-                                      excludeImageURL: String? = nil) throws {
+                                      excludeTitle: String? = nil) throws {
         for child in element.children() {
             let tag = child.tagName().lowercased()
             if tag == "img" {
-                if let src = try? child.attr("src"), !src.isEmpty, isLikelyContentImage(src),
-                   !imageURLsMatch(src, excludeImageURL) {
+                if let src = try? child.attr("src"), !src.isEmpty, isLikelyContentImage(src) {
                     paragraphs.append("{{IMG}}\(src){{/IMG}}")
                 }
             } else if tag == "picture" {
                 // Extract the <img> inside <picture>, ignoring <source> elements
                 if let img = try? child.select("img").first(),
-                   let src = try? img.attr("src"), !src.isEmpty, isLikelyContentImage(src),
-                   !imageURLsMatch(src, excludeImageURL) {
+                   let src = try? img.attr("src"), !src.isEmpty, isLikelyContentImage(src) {
                     paragraphs.append("{{IMG}}\(src){{/IMG}}")
                 }
             } else if tag == "figure" {
                 // Extract image from figure, then caption
                 if let img = try? child.select("img").first(),
-                   let src = try? img.attr("src"), !src.isEmpty, isLikelyContentImage(src),
-                   !imageURLsMatch(src, excludeImageURL) {
+                   let src = try? img.attr("src"), !src.isEmpty, isLikelyContentImage(src) {
                     paragraphs.append("{{IMG}}\(src){{/IMG}}")
                 }
                 if let caption = try? child.select("figcaption").first() {
@@ -445,7 +436,7 @@ struct ArticleExtractor {
                 }
             } else {
                 try collectBlocks(from: child, into: &paragraphs,
-                                  excludeTitle: excludeTitle, excludeImageURL: excludeImageURL)
+                                  excludeTitle: excludeTitle)
             }
         }
     }
@@ -584,21 +575,6 @@ struct ArticleExtractor {
         text = stripInvalidURLSupSub(text)
         text = stripRemainingHTMLTags(text)
         return text.trimmingCharacters(in: .whitespacesAndNewlines)
-    }
-
-    /// Compares two image URLs ignoring query parameters so that URLs
-    /// differing only in quality/size params are treated as the same image.
-    private static func imageURLsMatch(_ src: String, _ exclude: String?) -> Bool {
-        guard let exclude else { return false }
-        if src == exclude { return true }
-        return urlStrippingQuery(src) == urlStrippingQuery(exclude)
-    }
-
-    private static func urlStrippingQuery(_ urlString: String) -> String {
-        guard var components = URLComponents(string: urlString) else { return urlString }
-        components.query = nil
-        components.fragment = nil
-        return components.string ?? urlString
     }
 
     private static func isLikelyContentImage(_ url: String) -> Bool {
