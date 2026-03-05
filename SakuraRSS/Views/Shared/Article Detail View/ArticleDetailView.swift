@@ -16,6 +16,7 @@ struct ArticleDetailView: View {
     @State var isExtracting = false
     @State var translatedText: String?
     @State var translatedTitle: String?
+    @State var translatedSummary: String?
     @State var isTranslating = false
     @State var translationConfig: TranslationSession.Configuration?
     @State var showingTranslation = false
@@ -31,12 +32,22 @@ struct ArticleDetailView: View {
         SystemLanguageModel.default.availability == .available
     }
 
+    var hasTranslationForCurrentMode: Bool {
+        if showingSummary {
+            return translatedSummary != nil
+        }
+        return translatedText != nil || hasCachedTranslation
+    }
+
     var displayText: String? {
+        if showingSummary, let summarizedText {
+            if showingTranslation, let translatedSummary {
+                return translatedSummary
+            }
+            return summarizedText
+        }
         if showingTranslation, let translatedText {
             return translatedText
-        }
-        if showingSummary, let summarizedText {
-            return summarizedText
         }
         return extractedText ?? article.summary
     }
@@ -104,14 +115,10 @@ struct ArticleDetailView: View {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 8) {
                     if !isExtracting && displayText != nil {
-                        if (translatedText != nil || hasCachedTranslation) && !isTranslating {
+                        if hasTranslationForCurrentMode && !isTranslating {
                             Button {
-                                if translatedText == nil {
-                                    triggerTranslation()
-                                } else {
-                                    withAnimation(.smooth.speed(2.0)) {
-                                        showingTranslation.toggle()
-                                    }
+                                withAnimation(.smooth.speed(2.0)) {
+                                    showingTranslation.toggle()
                                 }
                             } label: {
                                 Label(
@@ -284,8 +291,9 @@ struct ArticleDetailView: View {
             if let cached = try? DatabaseManager.shared.cachedArticleTranslation(for: article.id) {
                 translatedTitle = cached.title
                 translatedText = cached.text
-                hasCachedTranslation = true
-                showingTranslation = true
+                translatedSummary = cached.summary
+                hasCachedTranslation = cached.title != nil || cached.text != nil
+                showingTranslation = hasCachedTranslation
             }
             if let cached = try? DatabaseManager.shared.cachedArticleSummary(for: article.id),
                !cached.isEmpty {
@@ -305,28 +313,44 @@ struct ArticleDetailView: View {
             isTranslating = true
             defer { isTranslating = false }
 
-            let source = extractedText ?? article.summary ?? ""
-            guard !source.isEmpty else { return }
-
-            do {
-                let requests = [
-                    TranslationSession.Request(sourceText: article.title),
-                    TranslationSession.Request(sourceText: source)
-                ]
-                let responses = try await session.translations(from: requests)
-                if responses.count >= 2 {
-                    translatedTitle = responses[0].targetText
-                    translatedText = responses[1].targetText
-                    hasCachedTranslation = true
+            if showingSummary, let summarizedText {
+                // Translate the summary
+                guard !summarizedText.isEmpty else { return }
+                do {
+                    let request = TranslationSession.Request(sourceText: summarizedText)
+                    let response = try await session.translate(request)
+                    translatedSummary = response.targetText
                     showingTranslation = true
-                    try? DatabaseManager.shared.cacheArticleTranslation(
-                        title: responses[0].targetText,
-                        text: responses[1].targetText,
-                        for: article.id
+                    try? DatabaseManager.shared.cacheTranslatedSummary(
+                        response.targetText, for: article.id
                     )
+                } catch {
+                    // Translation failed; user can retry
                 }
-            } catch {
-                // Translation failed; user can retry
+            } else {
+                // Translate the original article
+                let source = extractedText ?? article.summary ?? ""
+                guard !source.isEmpty else { return }
+                do {
+                    let requests = [
+                        TranslationSession.Request(sourceText: article.title),
+                        TranslationSession.Request(sourceText: source)
+                    ]
+                    let responses = try await session.translations(from: requests)
+                    if responses.count >= 2 {
+                        translatedTitle = responses[0].targetText
+                        translatedText = responses[1].targetText
+                        hasCachedTranslation = true
+                        showingTranslation = true
+                        try? DatabaseManager.shared.cacheArticleTranslation(
+                            title: responses[0].targetText,
+                            text: responses[1].targetText,
+                            for: article.id
+                        )
+                    }
+                } catch {
+                    // Translation failed; user can retry
+                }
             }
         }
     }

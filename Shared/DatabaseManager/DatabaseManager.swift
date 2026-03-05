@@ -46,6 +46,7 @@ nonisolated final class DatabaseManager: @unchecked Sendable {
     let articleAISummary = SQLite.Expression<String?>("ai_summary")
     let articleTranslatedTitle = SQLite.Expression<String?>("translated_title")
     let articleTranslatedText = SQLite.Expression<String?>("translated_text")
+    let articleTranslatedSummary = SQLite.Expression<String?>("translated_summary")
 
     let summaryCache = Table("summary_cache")
     let summaryCacheType = SQLite.Expression<String>("type")
@@ -106,6 +107,7 @@ nonisolated final class DatabaseManager: @unchecked Sendable {
         try? database.run(articles.addColumn(articleAISummary))
         try? database.run(articles.addColumn(articleTranslatedTitle))
         try? database.run(articles.addColumn(articleTranslatedText))
+        try? database.run(articles.addColumn(articleTranslatedSummary))
 
         // image_cache table
         try? database.run(imageCache.addColumn(imageCacheData, defaultValue: Data()))
@@ -160,6 +162,7 @@ nonisolated final class DatabaseManager: @unchecked Sendable {
             table.column(articleAISummary)
             table.column(articleTranslatedTitle)
             table.column(articleTranslatedText)
+            table.column(articleTranslatedSummary)
         })
 
         try database.run(articles.createIndex(articleFeedID, ifNotExists: true))
