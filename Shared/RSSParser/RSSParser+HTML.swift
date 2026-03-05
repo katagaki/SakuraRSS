@@ -109,8 +109,56 @@ nonisolated extension RSSParser {
             with: "[$2]($1)", options: .regularExpression
         )
 
+        // Convert headers to markdown format
+        result = result.replacingOccurrences(
+            of: #"<h1(?:\s[^>]*)?>(.+?)</h1>"#, with: "\n# $1\n",
+            options: [.regularExpression, .caseInsensitive]
+        )
+        result = result.replacingOccurrences(
+            of: #"<h2(?:\s[^>]*)?>(.+?)</h2>"#, with: "\n## $1\n",
+            options: [.regularExpression, .caseInsensitive]
+        )
+        result = result.replacingOccurrences(
+            of: #"<h3(?:\s[^>]*)?>(.+?)</h3>"#, with: "\n### $1\n",
+            options: [.regularExpression, .caseInsensitive]
+        )
+        for tag in ["h4", "h5", "h6"] {
+            result = result.replacingOccurrences(
+                of: "<\(tag)(?:\\s[^>]*)?>(.+?)</\(tag)>", with: "\n**$1**\n",
+                options: [.regularExpression, .caseInsensitive]
+            )
+        }
+
+        // Convert bold and italic
+        for tag in ["strong", "b"] {
+            result = result.replacingOccurrences(
+                of: "<\(tag)(?:\\s[^>]*)?>(.+?)</\(tag)>", with: "**$1**",
+                options: [.regularExpression, .caseInsensitive]
+            )
+        }
+        for tag in ["em"] {
+            result = result.replacingOccurrences(
+                of: "<\(tag)(?:\\s[^>]*)?>(.+?)</\(tag)>", with: "*$1*",
+                options: [.regularExpression, .caseInsensitive]
+            )
+        }
+        result = result.replacingOccurrences(
+            of: #"<i(?:\s[^>]*)?>(.+?)</i>"#, with: "*$1*",
+            options: [.regularExpression, .caseInsensitive]
+        )
+
+        // Convert superscript and subscript
+        result = result.replacingOccurrences(
+            of: #"<sup(?:\s[^>]*)?>(.+?)</sup>"#, with: "{{SUP}}$1{{/SUP}}",
+            options: [.regularExpression, .caseInsensitive]
+        )
+        result = result.replacingOccurrences(
+            of: #"<sub(?:\s[^>]*)?>(.+?)</sub>"#, with: "{{SUB}}$1{{/SUB}}",
+            options: [.regularExpression, .caseInsensitive]
+        )
+
         // Add newlines after block-level closing tags
-        let blockTags = ["p", "h1", "h2", "h3", "h4", "h5", "h6", "div", "li"]
+        let blockTags = ["p", "div", "li"]
         for tag in blockTags {
             result = result.replacingOccurrences(
                 of: "</\(tag)>", with: "\n", options: .caseInsensitive

@@ -188,8 +188,15 @@ struct ArticleExtractor {
         for child in element.children() {
             let tag = child.tagName().lowercased()
             if blockElements.contains(tag) || isLeafBlock(child) {
-                let text = try textContent(of: child)
+                var text = try textContent(of: child)
                 if !text.isEmpty {
+                    switch tag {
+                    case "h1": text = "# \(text)"
+                    case "h2": text = "## \(text)"
+                    case "h3": text = "### \(text)"
+                    case "h4", "h5", "h6": text = "**\(text)**"
+                    default: break
+                    }
                     paragraphs.append(text)
                 }
             } else {
@@ -216,6 +223,14 @@ struct ArticleExtractor {
     private static let linkOpenPlaceholder = "{{SAKURA_LINK_OPEN}}"
     private static let linkMidPlaceholder = "{{SAKURA_LINK_MID}}"
     private static let linkClosePlaceholder = "{{SAKURA_LINK_CLOSE}}"
+    private static let boldOpenPlaceholder = "{{SAKURA_BOLD_OPEN}}"
+    private static let boldClosePlaceholder = "{{SAKURA_BOLD_CLOSE}}"
+    private static let italicOpenPlaceholder = "{{SAKURA_ITALIC_OPEN}}"
+    private static let italicClosePlaceholder = "{{SAKURA_ITALIC_CLOSE}}"
+    private static let supOpenPlaceholder = "{{SAKURA_SUP_OPEN}}"
+    private static let supClosePlaceholder = "{{SAKURA_SUP_CLOSE}}"
+    private static let subOpenPlaceholder = "{{SAKURA_SUB_OPEN}}"
+    private static let subClosePlaceholder = "{{SAKURA_SUB_CLOSE}}"
 
     /// Extracts text from a block element, preserving `<br>` tags as newlines
     /// and `<a>` tags as Markdown links.
@@ -232,6 +247,46 @@ struct ArticleExtractor {
             with: "\(linkOpenPlaceholder)\\2\(linkMidPlaceholder)\\1\(linkClosePlaceholder)",
             options: .regularExpression
         )
+        // Replace bold tags with placeholders
+        for tag in ["strong", "b"] {
+            html = html.replacingOccurrences(
+                of: "<\(tag)(?:\\s[^>]*)?>", with: boldOpenPlaceholder,
+                options: [.regularExpression, .caseInsensitive]
+            )
+            html = html.replacingOccurrences(
+                of: "</\(tag)>", with: boldClosePlaceholder, options: .caseInsensitive
+            )
+        }
+        // Replace italic tags with placeholders
+        html = html.replacingOccurrences(
+            of: "<em(?:\\s[^>]*)?>", with: italicOpenPlaceholder,
+            options: [.regularExpression, .caseInsensitive]
+        )
+        html = html.replacingOccurrences(
+            of: "</em>", with: italicClosePlaceholder, options: .caseInsensitive
+        )
+        html = html.replacingOccurrences(
+            of: #"<i(?:\s[^>]*)?>"#, with: italicOpenPlaceholder,
+            options: [.regularExpression, .caseInsensitive]
+        )
+        html = html.replacingOccurrences(
+            of: "</i>", with: italicClosePlaceholder, options: .caseInsensitive
+        )
+        // Replace superscript/subscript tags with placeholders
+        html = html.replacingOccurrences(
+            of: "<sup(?:\\s[^>]*)?>", with: supOpenPlaceholder,
+            options: [.regularExpression, .caseInsensitive]
+        )
+        html = html.replacingOccurrences(
+            of: "</sup>", with: supClosePlaceholder, options: .caseInsensitive
+        )
+        html = html.replacingOccurrences(
+            of: "<sub(?:\\s[^>]*)?>", with: subOpenPlaceholder,
+            options: [.regularExpression, .caseInsensitive]
+        )
+        html = html.replacingOccurrences(
+            of: "</sub>", with: subClosePlaceholder, options: .caseInsensitive
+        )
         let fragment = try SwiftSoup.parseBodyFragment(html)
         var text = try fragment.body()?.text() ?? ""
         text = text.replacingOccurrences(of: brPlaceholder, with: "\n")
@@ -239,6 +294,15 @@ struct ArticleExtractor {
         text = text.replacingOccurrences(of: linkOpenPlaceholder, with: "[")
         text = text.replacingOccurrences(of: linkMidPlaceholder, with: "](")
         text = text.replacingOccurrences(of: linkClosePlaceholder, with: ")")
+        // Convert formatting placeholders to markdown markers
+        text = text.replacingOccurrences(of: boldOpenPlaceholder, with: "**")
+        text = text.replacingOccurrences(of: boldClosePlaceholder, with: "**")
+        text = text.replacingOccurrences(of: italicOpenPlaceholder, with: "*")
+        text = text.replacingOccurrences(of: italicClosePlaceholder, with: "*")
+        text = text.replacingOccurrences(of: supOpenPlaceholder, with: "{{SUP}}")
+        text = text.replacingOccurrences(of: supClosePlaceholder, with: "{{/SUP}}")
+        text = text.replacingOccurrences(of: subOpenPlaceholder, with: "{{SUB}}")
+        text = text.replacingOccurrences(of: subClosePlaceholder, with: "{{/SUB}}")
         text = stripRemainingHTMLTags(text)
         return text.trimmingCharacters(in: .whitespacesAndNewlines)
     }
