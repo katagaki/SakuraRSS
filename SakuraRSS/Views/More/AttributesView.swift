@@ -3,29 +3,29 @@ import SwiftUI
 struct AttributesView: View {
 
     var body: some View {
-        List(Dependency.all) { dependency in
-            NavigationLink {
-                ScrollView {
+        List {
+            ForEach(Dependency.all) { dependency in
+                Section {
                     Text(dependency.licenseText)
                         .font(.caption)
                         .monospaced()
-                        .padding()
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                }
-                .navigationTitle(dependency.name)
-                .navigationBarTitleDisplayMode(.inline)
-                .scrollContentBackground(.hidden)
-                .sakuraBackground()
-            } label: {
-                VStack(alignment: .leading) {
-                    Text(dependency.name)
-                    Text(dependency.license)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .listRowBackground(Color.clear)
+                } header: {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(dependency.name)
+                            .font(.headline)
+                            .foregroundStyle(.primary)
+                            .textCase(nil)
+                        Text(dependency.license)
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                            .textCase(nil)
+                    }
+                    .padding(.bottom, 4)
                 }
             }
         }
-        .listStyle(.plain)
+        .listStyle(.grouped)
         .navigationTitle(String(localized: "More.Attribution"))
         .navigationBarTitleDisplayMode(.inline)
         .scrollContentBackground(.hidden)
