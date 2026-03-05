@@ -11,6 +11,15 @@ enum ContentBlock: Identifiable {
         }
     }
 
+    /// Strips image markers from text, returning plain text suitable for translation/summarization.
+    static func plainText(from text: String) -> String {
+        text.replacingOccurrences(
+            of: #"\{\{IMG\}\}.+?\{\{/IMG\}\}"#, with: "", options: .regularExpression
+        )
+        .replacingOccurrences(of: #"\n{3,}"#, with: "\n\n", options: .regularExpression)
+        .trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
     static func parse(_ text: String) -> [ContentBlock] {
         let pattern = #"\{\{IMG\}\}(.+?)\{\{/IMG\}\}"#
         guard let regex = try? NSRegularExpression(pattern: pattern) else {

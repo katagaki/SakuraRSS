@@ -345,7 +345,7 @@ struct ArticleDetailView: View {
                 }
             } else {
                 // Translate the original article
-                let source = extractedText ?? article.summary ?? ""
+                let source = ContentBlock.plainText(from: extractedText ?? article.summary ?? "")
                 guard !source.isEmpty else { return }
                 do {
                     let requests = [
