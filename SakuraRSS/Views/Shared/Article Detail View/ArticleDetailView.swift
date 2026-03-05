@@ -32,14 +32,11 @@ struct ArticleDetailView: View {
     }
 
     var displayText: String? {
-        if showingSummary, let summarizedText {
-            if showingTranslation, let translatedText {
-                return translatedText
-            }
-            return summarizedText
-        }
         if showingTranslation, let translatedText {
             return translatedText
+        }
+        if showingSummary, let summarizedText {
+            return summarizedText
         }
         return extractedText ?? article.summary
     }
@@ -151,8 +148,6 @@ struct ArticleDetailView: View {
                         if isAppleIntelligenceAvailable {
                             if (summarizedText != nil || hasCachedSummary) && !isSummarizing {
                                 Button {
-                                    translatedText = nil
-                                    translatedTitle = nil
                                     if summarizedText == nil {
                                         Task {
                                             await summarizeArticle()
@@ -180,8 +175,6 @@ struct ArticleDetailView: View {
                                 }
                             } else {
                                 Button {
-                                    translatedText = nil
-                                    translatedTitle = nil
                                     Task {
                                         await summarizeArticle()
                                         if summarizedText != nil {
@@ -312,29 +305,16 @@ struct ArticleDetailView: View {
             isTranslating = true
             defer { isTranslating = false }
 
-            let source: String
-            if showingSummary, let summarizedText {
-                source = summarizedText
-            } else {
-                source = extractedText ?? article.summary ?? ""
-            }
+            let source = extractedText ?? article.summary ?? ""
             guard !source.isEmpty else { return }
 
             do {
-                var requests = [
+                let requests = [
+                    TranslationSession.Request(sourceText: article.title),
                     TranslationSession.Request(sourceText: source)
                 ]
-                if !showingSummary {
-                    requests.insert(
-                        TranslationSession.Request(sourceText: article.title),
-                        at: 0
-                    )
-                }
                 let responses = try await session.translations(from: requests)
-                if showingSummary {
-                    translatedText = responses[0].targetText
-                    showingTranslation = true
-                } else if responses.count >= 2 {
+                if responses.count >= 2 {
                     translatedTitle = responses[0].targetText
                     translatedText = responses[1].targetText
                     hasCachedTranslation = true
