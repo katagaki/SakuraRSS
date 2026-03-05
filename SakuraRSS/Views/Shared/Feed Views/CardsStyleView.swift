@@ -218,7 +218,9 @@ private struct CardView: View {
                 offset = CGSize(width: direction, height: translation.height)
             }
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                callback()
+                withAnimation(.smooth.speed(2.0)) {
+                    callback()
+                }
                 offset = .zero
             }
         } else {
