@@ -187,7 +187,23 @@ struct ArticleExtractor {
     private static func collectBlocks(from element: Element, into paragraphs: inout [String]) throws {
         for child in element.children() {
             let tag = child.tagName().lowercased()
-            if blockElements.contains(tag) || isLeafBlock(child) {
+            if tag == "img" {
+                if let src = try? child.attr("src"), !src.isEmpty, isLikelyContentImage(src) {
+                    paragraphs.append("{{IMG}}\(src){{/IMG}}")
+                }
+            } else if tag == "figure" {
+                // Extract image from figure, then caption
+                if let img = try? child.select("img").first(),
+                   let src = try? img.attr("src"), !src.isEmpty, isLikelyContentImage(src) {
+                    paragraphs.append("{{IMG}}\(src){{/IMG}}")
+                }
+                if let caption = try? child.select("figcaption").first() {
+                    let captionText = try textContent(of: caption)
+                    if !captionText.isEmpty {
+                        paragraphs.append("*\(captionText)*")
+                    }
+                }
+            } else if blockElements.contains(tag) || isLeafBlock(child) {
                 var text = try textContent(of: child)
                 if !text.isEmpty {
                     switch tag {
@@ -219,6 +235,8 @@ struct ArticleExtractor {
         return !text.isEmpty
     }
 
+    private static let imgOpenPlaceholder = "{{SAKURA_IMG_OPEN}}"
+    private static let imgClosePlaceholder = "{{SAKURA_IMG_CLOSE}}"
     private static let brPlaceholder = "{{SAKURA_BR}}"
     private static let linkOpenPlaceholder = "{{SAKURA_LINK_OPEN}}"
     private static let linkMidPlaceholder = "{{SAKURA_LINK_MID}}"
@@ -241,6 +259,24 @@ struct ArticleExtractor {
             with: brPlaceholder,
             options: .regularExpression
         )
+        // Replace <img> tags with image placeholders
+        if let imgRegex = try? NSRegularExpression(
+            pattern: "<img\\s[^>]*src=[\"']([^\"']+)[\"'][^>]*/?>",
+            options: .caseInsensitive
+        ) {
+            let nsHTML = html as NSString
+            let imgMatches = imgRegex.matches(in: html, range: NSRange(location: 0, length: nsHTML.length))
+            for match in imgMatches.reversed() {
+                let urlRange = match.range(at: 1)
+                let imgURL = nsHTML.substring(with: urlRange)
+                if isLikelyContentImage(imgURL) {
+                    let replacement = "\(imgOpenPlaceholder)\(imgURL)\(imgClosePlaceholder)"
+                    html = (html as NSString).replacingCharacters(in: match.range, with: replacement)
+                } else {
+                    html = (html as NSString).replacingCharacters(in: match.range, with: "")
+                }
+            }
+        }
         // Replace <a href="url">text</a> with placeholder-wrapped Markdown
         html = html.replacingOccurrences(
             of: "<a\\s[^>]*href=[\"']([^\"']+)[\"'][^>]*>(.*?)</a>",
@@ -303,8 +339,25 @@ struct ArticleExtractor {
         text = text.replacingOccurrences(of: supClosePlaceholder, with: "{{/SUP}}")
         text = text.replacingOccurrences(of: subOpenPlaceholder, with: "{{SUB}}")
         text = text.replacingOccurrences(of: subClosePlaceholder, with: "{{/SUB}}")
+        text = text.replacingOccurrences(of: imgOpenPlaceholder, with: "{{IMG}}")
+        text = text.replacingOccurrences(of: imgClosePlaceholder, with: "{{/IMG}}")
         text = stripRemainingHTMLTags(text)
         return text.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
+    private static func isLikelyContentImage(_ url: String) -> Bool {
+        let lowered = url.lowercased()
+        let skipPatterns = [
+            "gravatar.com", "pixel", "spacer", "blank",
+            "1x1", "transparent", "tracking", "beacon",
+            ".gif", "feeds.feedburner.com", "badge",
+            "icon", "emoji", "smiley", "avatar",
+            "ad.", "ads.", "doubleclick", "googlesyndication"
+        ]
+        for pattern in skipPatterns {
+            if lowered.contains(pattern) { return false } // swiftlint:disable:this for_where
+        }
+        return true
     }
 
     /// Strips any remaining HTML tags that may have leaked through parsing.

@@ -244,9 +244,23 @@ struct ArticleDetailView: View {
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
-                    SelectableText(text)
-                        .id("\(showingSummary)-\(showingTranslation)")
-                        .transition(.blurReplace)
+                    let blocks = ContentBlock.parse(text)
+                    ForEach(blocks) { block in
+                        switch block {
+                        case .text(let content):
+                            SelectableText(content)
+                        case .image(let url):
+                            CachedAsyncImage(url: url) {
+                                Rectangle()
+                                    .fill(.secondary.opacity(0.1))
+                                    .frame(height: 200)
+                            }
+                            .aspectRatio(contentMode: .fit)
+                            .clipShape(RoundedRectangle(cornerRadius: 12))
+                        }
+                    }
+                    .id("\(showingSummary)-\(showingTranslation)")
+                    .transition(.blurReplace)
                 }
             }
             .animation(.smooth.speed(2.0), value: showingSummary)
