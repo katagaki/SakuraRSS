@@ -40,15 +40,25 @@ struct FeedEditSheet: View {
                             .frame(maxWidth: .infinity)
                             .labelsHidden()
                     }
-                    HStack {
-                        Text("FeedEdit.URL")
-                        TextField(String(localized: "FeedEdit.URL"), text: $url)
-                            .multilineTextAlignment(.trailing)
-                            .frame(maxWidth: .infinity)
-                            .textContentType(.URL)
-                            .autocorrectionDisabled()
-                            .textInputAutocapitalization(.never)
-                            .labelsHidden()
+                    if feed.isXFeed {
+                        HStack {
+                            Text("FeedEdit.URL")
+                            Spacer()
+                            Text(feed.siteURL)
+                                .foregroundStyle(.secondary)
+                                .lineLimit(1)
+                        }
+                    } else {
+                        HStack {
+                            Text("FeedEdit.URL")
+                            TextField(String(localized: "FeedEdit.URL"), text: $url)
+                                .multilineTextAlignment(.trailing)
+                                .frame(maxWidth: .infinity)
+                                .textContentType(.URL)
+                                .autocorrectionDisabled()
+                                .textInputAutocapitalization(.never)
+                                .labelsHidden()
+                        }
                     }
                 }
 

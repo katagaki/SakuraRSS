@@ -4,6 +4,9 @@ import Foundation
 nonisolated enum FeedViewDomains {
 
     static let allowlistedDomains: Set<String> = [
+        // X (Twitter)
+        "x.com",
+        "twitter.com",
         // Bluesky
         "bsky.app",
         // Mastodon
