@@ -70,33 +70,28 @@ struct FeedArticleRow: View {
 
     var body: some View {
         HStack(alignment: .top, spacing: 10) {
-            if let feed {
-                NavigationLink(value: feed) {
-                    feedAvatarView
+            feedAvatarView
+                .overlay {
+                    if let feed {
+                        NavigationLink(value: feed) { EmptyView() }
+                            .opacity(0)
+                    }
                 }
-                .buttonStyle(.plain)
-                .fixedSize()
-            } else {
-                feedAvatarView
-            }
 
             VStack(alignment: .leading, spacing: 6) {
                 HStack(spacing: 4) {
-                    if let feed, let feedName {
-                        NavigationLink(value: feed) {
-                            Text(feedName)
-                                .font(.subheadline)
-                                .fontWeight(.bold)
-                                .foregroundStyle(.primary)
-                                .lineLimit(1)
-                        }
-                        .buttonStyle(.plain)
-                    } else if let feedName {
+                    if let feedName {
                         Text(feedName)
                             .font(.subheadline)
                             .fontWeight(.bold)
                             .foregroundStyle(.primary)
                             .lineLimit(1)
+                            .overlay {
+                                if let feed {
+                                    NavigationLink(value: feed) { EmptyView() }
+                                        .opacity(0)
+                                }
+                            }
                     }
 
                     if let date = article.publishedDate {
