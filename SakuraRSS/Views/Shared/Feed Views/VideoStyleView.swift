@@ -3,8 +3,11 @@ import SwiftUI
 struct VideoStyleView: View {
 
     @Environment(FeedManager.self) var feedManager
+    @AppStorage("Labs.YouTubePlayer") private var youTubePlayerEnabled: Bool = false
     let articles: [Article]
     var onLoadMore: (() -> Void)?
+
+    @State private var youTubePlayerArticle: Article?
 
     var body: some View {
         ScrollView(.vertical) {
@@ -12,7 +15,11 @@ struct VideoStyleView: View {
                 ForEach(articles) { article in
                     Button {
                         feedManager.markRead(article)
-                        YouTubeHelper.openInApp(url: article.url)
+                        if article.isYouTubeURL && youTubePlayerEnabled {
+                            youTubePlayerArticle = article
+                        } else {
+                            YouTubeHelper.openInApp(url: article.url)
+                        }
                     } label: {
                         VideoArticleCard(article: article)
                     }
@@ -25,6 +32,9 @@ struct VideoStyleView: View {
                     .padding(.horizontal, 16)
                     .padding(.bottom)
             }
+        }
+        .fullScreenCover(item: $youTubePlayerArticle) { article in
+            YouTubePlayerView(article: article)
         }
     }
 }
