@@ -108,15 +108,17 @@ struct MoreView: View {
                 }
 
                 Section {
-                    NavigationLink(String(localized: "More.Labs")) {
+                    NavigationLink {
                         LabsView()
+                    } label: {
+                        Label(String(localized: "More.Labs"), systemImage: "flask")
                     }
                 }
 
                 Section {
                     Link(destination: URL(string: "https://github.com/katagaki/SakuraRSS")!) {
                         HStack {
-                            Text("More.SourceCode")
+                            Label(String(localized: "More.SourceCode"), systemImage: "curlybraces")
                             Spacer()
                             Text("katagaki/SakuraRSS")
                                 .foregroundStyle(.secondary)
@@ -125,8 +127,10 @@ struct MoreView: View {
                         }
                     }
                     .tint(.primary)
-                    NavigationLink(String(localized: "More.Attribution")) {
+                    NavigationLink {
                         AttributesView()
+                    } label: {
+                        Label(String(localized: "More.Attribution"), systemImage: "heart")
                     }
                 }
             }
