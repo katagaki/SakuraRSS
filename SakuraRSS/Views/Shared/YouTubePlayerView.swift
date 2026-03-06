@@ -8,7 +8,7 @@ struct YouTubePlayerView: View {
     let article: Article
 
     @State private var isPlaying = false
-    @State private var isSignedIn = false
+    @State private var isPiPEligible = false
     @State private var webView: WKWebView?
 
     private var youtubeAppURL: URL? {
@@ -74,7 +74,7 @@ struct YouTubePlayerView: View {
                         Image(systemName: "pip.enter")
                             .font(.title2)
                     }
-                    .disabled(!isSignedIn)
+                    .disabled(!isPiPEligible)
 
                     Button {
                         rewind()
@@ -121,7 +121,9 @@ struct YouTubePlayerView: View {
             }
         }
         .task {
-            isSignedIn = await YouTubePlayerView.hasYouTubeSession()
+            let signedIn = await YouTubePlayerView.hasYouTubeSession()
+            let premium = signedIn ? await YouTubePlayerView.hasYouTubePremium() : false
+            isPiPEligible = signedIn && premium
         }
     }
 
@@ -198,6 +200,24 @@ struct YouTubePlayerView: View {
             let domain = cookie.domain.lowercased()
             return (domain.contains("youtube.com") || domain.contains("google.com"))
                 && (cookie.name == "SID" || cookie.name == "SSID" || cookie.name == "LOGIN_INFO")
+        }
+    }
+
+    /// Checks if the signed-in user has YouTube Premium by looking for
+    /// premium membership indicators in YouTube's initial page data.
+    static func hasYouTubePremium() async -> Bool {
+        let config = WKWebViewConfiguration()
+        config.websiteDataStore = .default()
+        let webView = WKWebView(frame: .zero, configuration: config)
+        webView.customUserAgent = "Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1"
+
+        return await withCheckedContinuation { continuation in
+            let delegate = PremiumCheckDelegate { isPremium in
+                continuation.resume(returning: isPremium)
+            }
+            webView.navigationDelegate = delegate
+            objc_setAssociatedObject(webView, "delegate", delegate, .OBJC_ASSOCIATION_RETAIN)
+            webView.load(URLRequest(url: URL(string: "https://m.youtube.com/")!))
         }
     }
 
@@ -375,5 +395,56 @@ private struct YouTubePlayerWebView: UIViewRepresentable {
                 }
             }
         }
+    }
+}
+
+private final class PremiumCheckDelegate: NSObject, WKNavigationDelegate {
+    private let completion: (Bool) -> Void
+    private var hasCompleted = false
+
+    init(completion: @escaping (Bool) -> Void) {
+        self.completion = completion
+        super.init()
+    }
+
+    func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+        guard !hasCompleted else { return }
+
+        // Check for YouTube Premium by looking for premium membership
+        // indicators in YouTube's page data
+        let script = """
+        (function() {
+            try {
+                var text = document.documentElement.innerHTML;
+                if (text.indexOf('"isPremium":true') !== -1) {
+                    return true;
+                }
+                if (text.indexOf('"hasPaidContent":true') !== -1) {
+                    return true;
+                }
+                if (document.querySelector('[is-premium-member]')) {
+                    return true;
+                }
+                return false;
+            } catch(e) {
+                return false;
+            }
+        })();
+        """
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) { [weak self] in
+            guard let self, !self.hasCompleted else { return }
+            webView.evaluateJavaScript(script) { [weak self] result, _ in
+                guard let self, !self.hasCompleted else { return }
+                self.hasCompleted = true
+                self.completion((result as? Bool) == true)
+            }
+        }
+    }
+
+    func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
+        guard !hasCompleted else { return }
+        hasCompleted = true
+        completion(false)
     }
 }
