@@ -74,14 +74,13 @@ struct VideoArticleCard: View {
 
             // Channel avatar + title + metadata
             HStack(alignment: .top, spacing: 12) {
-                if let feed {
-                    NavigationLink(value: feed) {
-                        feedAvatarView
+                feedAvatarView
+                    .overlay {
+                        if let feed {
+                            NavigationLink(value: feed) { EmptyView() }
+                                .opacity(0)
+                        }
                     }
-                    .buttonStyle(.plain)
-                } else {
-                    feedAvatarView
-                }
 
                 VStack(alignment: .leading, spacing: 4) {
                     Text(article.title)
@@ -92,13 +91,14 @@ struct VideoArticleCard: View {
                         .multilineTextAlignment(.leading)
 
                     HStack(spacing: 4) {
-                        if let feed, let feedName {
-                            NavigationLink(value: feed) {
-                                Text(feedName)
-                            }
-                            .buttonStyle(.plain)
-                        } else if let feedName {
+                        if let feedName {
                             Text(feedName)
+                                .overlay {
+                                    if let feed {
+                                        NavigationLink(value: feed) { EmptyView() }
+                                            .opacity(0)
+                                    }
+                                }
                         }
                         if let date = article.publishedDate {
                             Text("·")
