@@ -178,19 +178,19 @@ struct FeedRowView: View {
             if let favicon = favicon {
                 FaviconImage(favicon, size: 32,
                              cornerRadius: iconCornerRadius,
-                             circle: feed.isVideoFeed && !feed.isPodcast,
-                             skipInset: feed.isVideoFeed || feed.isPodcast
+                             circle: feed.isXFeed || (feed.isVideoFeed && !feed.isPodcast),
+                             skipInset: feed.isVideoFeed || feed.isPodcast || feed.isXFeed
                                 || FullFaviconDomains.shouldUseFullImage(feedDomain: feed.domain))
             } else if let data = feed.acronymIcon, let acronym = UIImage(data: data) {
                 FaviconImage(acronym, size: 32,
                              cornerRadius: iconCornerRadius,
-                             circle: feed.isVideoFeed && !feed.isPodcast,
+                             circle: feed.isXFeed || (feed.isVideoFeed && !feed.isPodcast),
                              skipInset: true)
             } else {
                 InitialsAvatarView(
                     feed.title,
                     size: 32,
-                    circle: feed.isVideoFeed && !feed.isPodcast,
+                    circle: feed.isXFeed || (feed.isVideoFeed && !feed.isPodcast),
                     cornerRadius: iconCornerRadius
                 )
             }

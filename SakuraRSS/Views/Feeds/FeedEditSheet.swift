@@ -69,7 +69,7 @@ struct FeedEditSheet: View {
                             InitialsAvatarView(
                                 name.isEmpty ? feed.title : name,
                                 size: 64,
-                                circle: feed.isVideoFeed && !feed.isPodcast,
+                                circle: feed.isXFeed || (feed.isVideoFeed && !feed.isPodcast),
                                 cornerRadius: iconCornerRadius(size: 64)
                             )
                             Spacer()
@@ -79,8 +79,8 @@ struct FeedEditSheet: View {
                             Spacer()
                             FaviconImage(icon, size: 64,
                                          cornerRadius: iconCornerRadius(size: 64),
-                                         circle: feed.isVideoFeed && !feed.isPodcast,
-                                         skipInset: feed.isVideoFeed || feed.isPodcast
+                                         circle: feed.isXFeed || (feed.isVideoFeed && !feed.isPodcast),
+                                         skipInset: feed.isVideoFeed || feed.isPodcast || feed.isXFeed
                                             || FullFaviconDomains.shouldUseFullImage(feedDomain: feed.domain))
                             Spacer()
                         }
