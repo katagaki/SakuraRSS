@@ -27,6 +27,7 @@ struct AddFeedView: View {
                 Section {
                     TextField(String(localized: "AddFeed.URLPlaceholder"), text: $urlInput)
                         .focused($isURLFieldFocused)
+                        .keyboardType(.URL)
                         .textContentType(.URL)
                         .autocorrectionDisabled()
                         .textInputAutocapitalization(.never)
