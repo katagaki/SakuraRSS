@@ -14,6 +14,7 @@ struct HomeView: View {
         NavigationStack(path: $path) {
             AllArticlesView()
                 .environment(\.zoomNamespace, cardZoom)
+                .environment(\.navigateToFeed, { feed in path.append(feed) })
                 .navigationDestination(for: Feed.self) { feed in
                     FeedArticlesView(feed: feed)
                         .environment(\.zoomNamespace, cardZoom)

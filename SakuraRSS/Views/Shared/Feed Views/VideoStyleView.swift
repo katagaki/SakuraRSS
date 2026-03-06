@@ -32,6 +32,7 @@ struct VideoStyleView: View {
 struct VideoArticleCard: View {
 
     @Environment(FeedManager.self) var feedManager
+    @Environment(\.navigateToFeed) var navigateToFeed
     let article: Article
     @State private var favicon: UIImage?
     @State private var feedName: String?
@@ -74,11 +75,9 @@ struct VideoArticleCard: View {
 
             // Channel avatar + title + metadata
             HStack(alignment: .top, spacing: 12) {
-                if let feed {
-                    NavigationLink(value: feed) {
-                        feedAvatarView
-                    }
-                    .buttonStyle(.plain)
+                if let feed, let navigateToFeed {
+                    Button { navigateToFeed(feed) } label: { feedAvatarView }
+                        .buttonStyle(.plain)
                 } else {
                     feedAvatarView
                 }
@@ -92,8 +91,8 @@ struct VideoArticleCard: View {
                         .multilineTextAlignment(.leading)
 
                     HStack(spacing: 4) {
-                        if let feed, let feedName {
-                            NavigationLink(value: feed) {
+                        if let feed, let feedName, let navigateToFeed {
+                            Button { navigateToFeed(feed) } label: {
                                 Text(feedName)
                             }
                             .buttonStyle(.plain)
