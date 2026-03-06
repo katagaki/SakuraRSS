@@ -87,7 +87,7 @@ final class XProfileScraper: NSObject, WKNavigationDelegate {
         }
 
         // Wait for the profile avatar to load, then extract before scrolling.
-        await waitForSelector(
+        _ = await waitForSelector(
             "img[src*=\"profile_images\"]",
             in: webView,
             timeout: Self.renderTimeout
@@ -95,7 +95,14 @@ final class XProfileScraper: NSObject, WKNavigationDelegate {
         let profileImageURL = await extractProfileImageURL(from: webView)
         let displayName = await extractDisplayName(from: webView)
 
-        // Scroll and collect tweets until we have enough.
+        let allTweets = await scrollAndCollectTweets(from: webView)
+
+        cleanup()
+        return XProfileScrapeResult(tweets: allTweets, profileImageURL: profileImageURL, displayName: displayName)
+    }
+
+    /// Scrolls the page and collects tweets until we have enough or no new content appears.
+    private func scrollAndCollectTweets(from webView: WKWebView) async -> [ParsedTweet] {
         var allTweets: [ParsedTweet] = []
         var seenURLs = Set<String>()
         var staleScrolls = 0
@@ -113,7 +120,6 @@ final class XProfileScraper: NSObject, WKNavigationDelegate {
 
             if allTweets.count >= Self.targetTweetCount { break }
 
-            // Detect when scrolling no longer yields fresh content.
             if newCount == 0 {
                 staleScrolls += 1
                 if staleScrolls >= Self.maxStaleScrolls { break }
@@ -124,7 +130,6 @@ final class XProfileScraper: NSObject, WKNavigationDelegate {
             let domCountBefore = await tweetDOMCount(in: webView)
             await scrollToBottom(webView: webView)
 
-            // Wait until new tweet elements appear in the DOM or timeout.
             await waitForNewContent(
                 currentCount: domCountBefore,
                 in: webView,
@@ -132,8 +137,7 @@ final class XProfileScraper: NSObject, WKNavigationDelegate {
             )
         }
 
-        cleanup()
-        return XProfileScrapeResult(tweets: allTweets, profileImageURL: profileImageURL, displayName: displayName)
+        return allTweets
     }
 
     // MARK: - Page Loading
@@ -179,7 +183,7 @@ final class XProfileScraper: NSObject, WKNavigationDelegate {
 
     private func loadPage(webView: WKWebView, url: URL) async -> Bool {
         await withCheckedContinuation { continuation in
-            let delegate = NavigationHandler(continuation: continuation)
+            let delegate = XProfileNavigationHandler(continuation: continuation)
             webView.navigationDelegate = delegate
             // Prevent delegate from being deallocated before callback fires
             objc_setAssociatedObject(webView, "navDelegate", delegate, .OBJC_ASSOCIATION_RETAIN)
@@ -201,11 +205,11 @@ final class XProfileScraper: NSObject, WKNavigationDelegate {
         in webView: WKWebView,
         timeout: Duration
     ) async -> Bool {
-        let js = "document.querySelector('\(selector)') !== null"
+        let script = "document.querySelector('\(selector)') !== null"
         let deadline = ContinuousClock.now + timeout
         while ContinuousClock.now < deadline {
             if Task.isCancelled { return false }
-            if let found = try? await webView.evaluateJavaScript(js) as? Bool, found {
+            if let found = try? await webView.evaluateJavaScript(script) as? Bool, found {
                 return true
             }
             try? await Task.sleep(for: Self.pollInterval)
@@ -215,8 +219,8 @@ final class XProfileScraper: NSObject, WKNavigationDelegate {
 
     /// Returns the current number of tweet article elements in the DOM.
     private func tweetDOMCount(in webView: WKWebView) async -> Int {
-        let js = "document.querySelectorAll('article[data-testid=\"tweet\"]').length"
-        return (try? await webView.evaluateJavaScript(js) as? Int) ?? 0
+        let script = "document.querySelectorAll('article[data-testid=\"tweet\"]').length"
+        return (try? await webView.evaluateJavaScript(script) as? Int) ?? 0
     }
 
     /// Polls until the number of visible tweet articles exceeds `currentCount`.
@@ -310,198 +314,6 @@ final class XProfileScraper: NSObject, WKNavigationDelegate {
         }
     }
 
-    // MARK: - Extraction
-
-    /// JavaScript that extracts tweets from the rendered X profile page.
-    /// Excludes retweets by checking for the "reposted" indicator.
-    private static let extractionScript = """
-    (function() {
-        var tweets = [];
-        var articles = document.querySelectorAll('article[data-testid="tweet"]');
-
-        for (var i = 0; i < articles.length; i++) {
-            var article = articles[i];
-
-            // Skip retweets: look for "reposted" social context
-            var socialContext = article.querySelector('[data-testid="socialContext"]');
-            if (socialContext && socialContext.textContent.toLowerCase().includes('repost')) {
-                continue;
-            }
-
-            // Get tweet text
-            var tweetTextEl = article.querySelector('[data-testid="tweetText"]');
-            var tweetText = tweetTextEl ? tweetTextEl.innerText : '';
-
-            // Get author info
-            var userNameEl = article.querySelector('[data-testid="User-Name"]');
-            var displayName = '';
-            var handle = '';
-            if (userNameEl) {
-                var spans = userNameEl.querySelectorAll('span');
-                for (var j = 0; j < spans.length; j++) {
-                    var text = spans[j].textContent.trim();
-                    if (text.startsWith('@')) {
-                        handle = text;
-                        break;
-                    }
-                }
-                var nameLinks = userNameEl.querySelectorAll('a');
-                if (nameLinks.length > 0) {
-                    displayName = nameLinks[0].textContent.trim();
-                }
-            }
-
-            // Get tweet URL from the time element's parent link
-            var timeEl = article.querySelector('time');
-            var tweetURL = '';
-            var dateStr = '';
-            if (timeEl) {
-                dateStr = timeEl.getAttribute('datetime') || '';
-                var linkEl = timeEl.closest('a');
-                if (linkEl) {
-                    tweetURL = linkEl.href;
-                }
-            }
-
-            // Get first image if present
-            var imageURL = '';
-            var imgEl = article.querySelector('[data-testid="tweetPhoto"] img');
-            if (imgEl) {
-                imageURL = imgEl.src;
-            }
-
-            if (tweetText || tweetURL) {
-                tweets.push({
-                    text: tweetText,
-                    author: displayName,
-                    handle: handle,
-                    url: tweetURL,
-                    imageURL: imageURL,
-                    date: dateStr
-                });
-            }
-        }
-
-        return JSON.stringify(tweets);
-    })()
-    """
-
-    private func extractCurrentTweets(from webView: WKWebView) async -> [ParsedTweet] {
-        guard let jsonString = try? await webView.evaluateJavaScript(Self.extractionScript) as? String,
-              let data = jsonString.data(using: .utf8),
-              let rawTweets = try? JSONSerialization.jsonObject(with: data) as? [[String: Any]] else {
-            return []
-        }
-
-        let dateFormatter = ISO8601DateFormatter()
-        var tweets: [ParsedTweet] = []
-
-        for raw in rawTweets {
-            let text = raw["text"] as? String ?? ""
-            let author = raw["author"] as? String ?? ""
-            let handle = raw["handle"] as? String ?? ""
-            let url = raw["url"] as? String ?? ""
-            let imageURL = raw["imageURL"] as? String
-            let dateStr = raw["date"] as? String ?? ""
-
-            guard !url.isEmpty else { continue }
-
-            var publishedDate: Date?
-            if !dateStr.isEmpty {
-                dateFormatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
-                publishedDate = dateFormatter.date(from: dateStr)
-                if publishedDate == nil {
-                    dateFormatter.formatOptions = [.withInternetDateTime]
-                    publishedDate = dateFormatter.date(from: dateStr)
-                }
-            }
-
-            let cleanHandle = handle.hasPrefix("@") ? String(handle.dropFirst()) : handle
-            let tweetID = url.split(separator: "/").last.map(String.init) ?? UUID().uuidString
-
-            tweets.append(ParsedTweet(
-                id: tweetID,
-                text: text,
-                author: author,
-                authorHandle: cleanHandle,
-                url: url,
-                imageURL: imageURL?.isEmpty == true ? nil : imageURL,
-                publishedDate: publishedDate
-            ))
-        }
-
-        return tweets
-    }
-
-    // MARK: - Profile Image
-
-    /// JavaScript to extract the profile avatar image URL from the page header.
-    private static let profileImageScript = """
-    (function() {
-        function upgradeSize(url) {
-            return url.replace(/_normal\\./, '_400x400.')
-                      .replace(/_bigger\\./, '_400x400.')
-                      .replace(/_200x200\\./, '_400x400.')
-                      .replace(/_mini\\./, '_400x400.');
-        }
-
-        // Primary: data-testid="UserAvatar" (link or container) with an img
-        var avatar = document.querySelector('[data-testid="UserAvatar"] img');
-        if (avatar && avatar.src && avatar.src.includes('profile_images')) {
-            return upgradeSize(avatar.src);
-        }
-
-        // Fallback 1: any link to the /photo path containing a profile image
-        var photoLink = document.querySelector('a[href$="/photo"] img[src*="profile_images"]');
-        if (photoLink && photoLink.src) {
-            return upgradeSize(photoLink.src);
-        }
-
-        // Fallback 2: any img with profile_images in src within the header area
-        var headerImgs = document.querySelectorAll('img[src*="profile_images"]');
-        if (headerImgs.length > 0) {
-            return upgradeSize(headerImgs[0].src);
-        }
-
-        return '';
-    })()
-    """
-
-    /// JavaScript to extract the display name from the profile header.
-    private static let displayNameScript = """
-    (function() {
-        // The profile header contains a data-testid="UserName" element
-        var userNameEl = document.querySelector('[data-testid="UserName"]');
-        if (userNameEl) {
-            // The first child span group contains the display name
-            var nameSpans = userNameEl.querySelectorAll('span');
-            for (var i = 0; i < nameSpans.length; i++) {
-                var text = nameSpans[i].textContent.trim();
-                if (text && !text.startsWith('@') && text.length > 0) {
-                    return text;
-                }
-            }
-        }
-        return '';
-    })()
-    """
-
-    private func extractDisplayName(from webView: WKWebView) async -> String? {
-        guard let result = try? await webView.evaluateJavaScript(Self.displayNameScript) as? String,
-              !result.isEmpty else {
-            return nil
-        }
-        return result
-    }
-
-    private func extractProfileImageURL(from webView: WKWebView) async -> String? {
-        guard let result = try? await webView.evaluateJavaScript(Self.profileImageScript) as? String,
-              !result.isEmpty else {
-            return nil
-        }
-        return result
-    }
-
     private func cleanup() {
         webView?.stopLoading()
         webView?.navigationDelegate = nil
@@ -509,45 +321,3 @@ final class XProfileScraper: NSObject, WKNavigationDelegate {
         webView = nil
     }
 }
-
-// MARK: - Navigation Handler
-
-/// Minimal WKNavigationDelegate that resolves a continuation on load completion.
-@MainActor
-private final class NavigationHandler: NSObject, WKNavigationDelegate {
-
-    private var continuation: CheckedContinuation<Bool, Never>?
-
-    init(continuation: CheckedContinuation<Bool, Never>) {
-        self.continuation = continuation
-    }
-
-    nonisolated func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
-        Task { @MainActor [weak self] in
-            self?.resume(with: true)
-        }
-    }
-
-    nonisolated func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
-        Task { @MainActor [weak self] in
-            self?.resume(with: false)
-        }
-    }
-
-    nonisolated func webView(
-        _ webView: WKWebView,
-        didFailProvisionalNavigation navigation: WKNavigation!,
-        withError error: Error
-    ) {
-        Task { @MainActor [weak self] in
-            self?.resume(with: false)
-        }
-    }
-
-    private func resume(with value: Bool) {
-        guard let continuation else { return }
-        self.continuation = nil
-        continuation.resume(returning: value)
-    }
-}
-

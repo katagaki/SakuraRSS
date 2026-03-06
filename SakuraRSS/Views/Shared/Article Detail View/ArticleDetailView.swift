@@ -111,122 +111,7 @@ struct ArticleDetailView: View {
             .padding(.horizontal)
             .padding(.top)
 
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 8) {
-                    if !isExtracting && displayText != nil {
-                        if hasTranslationForCurrentMode && !isTranslating {
-                            Button {
-                                withAnimation(.smooth.speed(2.0)) {
-                                    showingTranslation.toggle()
-                                }
-                            } label: {
-                                Label(
-                                    String(localized: showingTranslation
-                                           ? "Article.ShowOriginal"
-                                           : "Article.ShowTranslation"),
-                                    systemImage: showingTranslation
-                                        ? "doc.plaintext" : "translate"
-                                )
-                                .padding(.horizontal, 2)
-                                .padding(.vertical, 2)
-                            }
-                        } else {
-                            Button {
-                                triggerTranslation()
-                            } label: {
-                                Label(
-                                    String(localized: "Article.Translate"),
-                                    systemImage: "translate"
-                                )
-                                .opacity(isTranslating ? 0 : 1)
-                                .overlay {
-                                    if isTranslating {
-                                        ProgressView()
-                                    }
-                                }
-                                .padding(.horizontal, 2)
-                                .padding(.vertical, 2)
-                            }
-                            .disabled(isTranslating)
-                            .animation(.smooth.speed(2.0), value: isTranslating)
-                        }
-
-                        if isAppleIntelligenceAvailable {
-                            if (summarizedText != nil || hasCachedSummary) && !isSummarizing {
-                                Button {
-                                    if summarizedText == nil {
-                                        Task {
-                                            await summarizeArticle()
-                                            if summarizedText != nil {
-                                                withAnimation(.smooth.speed(2.0)) {
-                                                    showingSummary = true
-                                                }
-                                            }
-                                        }
-                                    } else {
-                                        withAnimation(.smooth.speed(2.0)) {
-                                            showingSummary.toggle()
-                                        }
-                                    }
-                                } label: {
-                                    Label(
-                                        String(localized: showingSummary
-                                               ? "Article.ShowOriginal"
-                                               : "Article.ShowSummary"),
-                                        systemImage: showingSummary
-                                            ? "doc.plaintext" : "apple.intelligence"
-                                    )
-                                    .padding(.horizontal, 2)
-                                    .padding(.vertical, 2)
-                                }
-                            } else {
-                                Button {
-                                    Task {
-                                        await summarizeArticle()
-                                        if summarizedText != nil {
-                                            withAnimation(.smooth.speed(2.0)) {
-                                                showingSummary = true
-                                            }
-                                        }
-                                    }
-                                } label: {
-                                    Label(
-                                        String(localized: "Article.Summarize"),
-                                        systemImage: "apple.intelligence"
-                                    )
-                                    .opacity(isSummarizing ? 0 : 1)
-                                    .overlay {
-                                        if isSummarizing {
-                                            ProgressView()
-                                        }
-                                    }
-                                    .padding(.horizontal, 2)
-                                    .padding(.vertical, 2)
-                                }
-                                .disabled(isSummarizing)
-                                .animation(.smooth.speed(2.0), value: isSummarizing)
-                            }
-                        }
-                    }
-
-                    Button {
-                        openArticleURL()
-                    } label: {
-                        Label(
-                            String(localized: "Article.OpenInBrowser"),
-                            systemImage: (
-                                article.isYouTubeURL && YouTubeHelper.isAppInstalled ? "play.rectangle" : "safari"
-                            )
-                        )
-                        .padding(.horizontal, 2)
-                        .padding(.vertical, 2)
-                    }
-                }
-                .buttonStyle(.bordered)
-                .tint(.primary)
-                .padding(.horizontal)
-            }
-            .padding(.top)
+            actionButtons
 
             if !fullTextHasImages,
                let imageURL = article.imageURL, let url = URL(string: imageURL) {
@@ -282,48 +167,10 @@ struct ArticleDetailView: View {
         .sakuraBackground()
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
-            ToolbarItemGroup(placement: .topBarTrailing) {
-                Button {
-                    isBookmarked.toggle()
-                    feedManager.toggleBookmark(article)
-                } label: {
-                    Image(systemName: isBookmarked ? "bookmark.fill" : "bookmark")
-                }
-            }
-            ToolbarSpacer(.fixed, placement: .topBarTrailing)
-            ToolbarItemGroup(placement: .topBarTrailing) {
-                if let shareURL = URL(string: article.url) {
-                    ShareLink(item: shareURL) {
-                        Label(String(localized: "Article.Share"), systemImage: "square.and.arrow.up")
-                    }
-                }
-            }
+            articleToolbar
         }
         .task {
-            isBookmarked = article.isBookmarked
-            feedManager.markRead(article)
-            if let feed = feedManager.feed(forArticle: article) {
-                feedName = feed.title
-                if let data = feed.acronymIcon {
-                    acronymIcon = UIImage(data: data)
-                }
-                isVideoFeed = feed.isVideoFeed || feed.isXFeed
-                skipFaviconInset = feed.isVideoFeed || feed.isXFeed
-                    || FullFaviconDomains.shouldUseFullImage(feedDomain: feed.domain)
-                favicon = await FaviconCache.shared.favicon(for: feed)
-            }
-            await extractArticleContent()
-            if let cached = try? DatabaseManager.shared.cachedArticleTranslation(for: article.id) {
-                translatedTitle = cached.title
-                translatedText = cached.text
-                translatedSummary = cached.summary
-                hasCachedTranslation = cached.title != nil || cached.text != nil
-                showingTranslation = hasCachedTranslation
-            }
-            if let cached = try? DatabaseManager.shared.cachedArticleSummary(for: article.id),
-               !cached.isEmpty {
-                hasCachedSummary = true
-            }
+            await loadArticleMetadata()
         }
         .alert(String(localized: "Article.Summarize.Error"), isPresented: Binding(
             get: { summarizationError != nil },

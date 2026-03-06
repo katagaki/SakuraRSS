@@ -25,8 +25,10 @@ struct ArticleExtractor {
         "blockquote", "li", "figcaption", "pre", "td", "th"
     ]
 
-    static func extractText(fromHTML html: String,
-                             excludeTitle: String? = nil) -> String? {
+    static func extractText(
+        fromHTML html: String,
+        excludeTitle: String? = nil
+    ) -> String? {
         guard !html.isEmpty else { return nil }
         do {
             let doc = try SwiftSoup.parse(html)
@@ -43,8 +45,10 @@ struct ArticleExtractor {
         }
     }
 
-    static func extractText(fromURL url: URL,
-                             excludeTitle: String? = nil) async -> String? {
+    static func extractText(
+        fromURL url: URL,
+        excludeTitle: String? = nil
+    ) async -> String? {
         if WebViewExtractor.requiresWebView(for: url) {
             #if DEBUG
             debugPrint("Extracting text using WebView from \(url)")
@@ -83,8 +87,10 @@ struct ArticleExtractor {
 
     // MARK: - Paragraph Extraction
 
-    static func extractParagraphs(from element: Element,
-                                   excludeTitle: String? = nil) throws -> [String] {
+    static func extractParagraphs(
+        from element: Element,
+        excludeTitle: String? = nil
+    ) throws -> [String] {
         var paragraphs: [String] = []
         try collectBlocks(from: element, into: &paragraphs,
                           excludeTitle: excludeTitle)
@@ -101,8 +107,11 @@ struct ArticleExtractor {
     /// Recurses into non-block wrappers (div, section, etc.) so that
     /// nested blocks like `<div><p>…</p></div>` don't produce duplicates.
     /// Treats leaf divs (divs with no block-level children) as paragraphs.
-    private static func collectBlocks(from element: Element, into paragraphs: inout [String],
-                                      excludeTitle: String? = nil) throws {
+    private static func collectBlocks(
+        from element: Element,
+        into paragraphs: inout [String],
+        excludeTitle: String? = nil
+    ) throws {
         for child in element.children() {
             let tag = child.tagName().lowercased()
             if tag == "img" {

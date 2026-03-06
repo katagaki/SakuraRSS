@@ -10,14 +10,14 @@ struct FeedEditSheet: View {
 
     @State private var name: String
     @State private var url: String
-    @State private var iconURLInput: String
+    @State var iconURLInput: String
     @State private var openMode: FeedOpenMode
-    @State private var selectedPhoto: PhotosPickerItem?
-    @State private var customIconImage: UIImage?
-    @State private var currentFavicon: UIImage?
-    @State private var isFetchingIcon = false
-    @State private var showIconFetchError = false
-    @State private var useDefaultIcon = false
+    @State var selectedPhoto: PhotosPickerItem?
+    @State var customIconImage: UIImage?
+    @State var currentFavicon: UIImage?
+    @State var isFetchingIcon = false
+    @State var showIconFetchError = false
+    @State var useDefaultIcon = false
 
     init(feed: Feed) {
         self.feed = feed
@@ -181,7 +181,7 @@ struct FeedEditSheet: View {
                     if let selectedPhoto,
                        let data = try? await selectedPhoto.loadTransferable(type: Data.self),
                        let image = UIImage(data: data) {
-                        customIconImage = await image.trimmed()
+                        customIconImage = image.trimmed()
                         iconURLInput = ""
                         useDefaultIcon = false
                     }
@@ -191,26 +191,6 @@ struct FeedEditSheet: View {
                 Button(String(localized: "Shared.OK"), role: .cancel) { }
             }
         }
-    }
-
-    private func loadCurrentFavicon() async -> UIImage? {
-        if let customURL = feed.customIconURL {
-            if customURL == "photo" {
-                return await FaviconCache.shared.customFavicon(feedID: feed.id)
-            }
-            // Check if already cached for this feed
-            if let cached = await FaviconCache.shared.customFavicon(feedID: feed.id) {
-                return cached
-            }
-            // Download, cache locally, then return
-            if let url = URL(string: customURL),
-               let (data, _) = try? await URLSession.shared.data(from: url),
-               let image = UIImage(data: data) {
-                await FaviconCache.shared.setCustomFavicon(image, feedID: feed.id)
-                return image
-            }
-        }
-        return await FaviconCache.shared.favicon(for: feed.domain, siteURL: feed.siteURL)
     }
 
     private func save() {
@@ -255,46 +235,4 @@ struct FeedEditSheet: View {
         dismiss()
     }
 
-    private func iconCornerRadius(size: CGFloat) -> CGFloat {
-        if feed.isPodcast { return size / 4 }
-        if feed.isVideoFeed { return 0 }
-        return size / 8
-    }
-
-    private func fetchIconFromFeed() async {
-        isFetchingIcon = true
-        defer { isFetchingIcon = false }
-        await FaviconCache.shared.refreshFavicons(for: [(domain: feed.domain, siteURL: feed.siteURL)])
-        if let image = await FaviconCache.shared.favicon(for: feed.domain, siteURL: feed.siteURL) {
-            customIconImage = nil
-            currentFavicon = image
-            selectedPhoto = nil
-            iconURLInput = ""
-            useDefaultIcon = false
-        }
-    }
-
-    @discardableResult
-    private func fetchIconFromURL() async -> Bool {
-        let input = iconURLInput.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard let url = URL(string: input), url.scheme != nil else {
-            showIconFetchError = true
-            return false
-        }
-        isFetchingIcon = true
-        defer { isFetchingIcon = false }
-        do {
-            let (data, _) = try await URLSession.shared.data(from: url)
-            if let image = UIImage(data: data) {
-                customIconImage = await image.trimmed()
-                selectedPhoto = nil
-                useDefaultIcon = false
-                return true
-            }
-        } catch {
-            // Icon fetch failed — show error below
-        }
-        showIconFetchError = true
-        return false
-    }
 }
