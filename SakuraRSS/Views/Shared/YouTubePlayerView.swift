@@ -3,9 +3,11 @@ import WebKit
 
 struct YouTubePlayerView: View {
 
+    @Environment(FeedManager.self) var feedManager
     @Environment(\.openURL) var openURL
     let article: Article
 
+    @State private var isBookmarked = false
     @State private var isPlaying = false
     @State private var isPiPEligible = false
     @State private var currentTime: TimeInterval = 0
@@ -32,6 +34,13 @@ struct YouTubePlayerView: View {
                 )
                 .aspectRatio(16 / 9, contentMode: .fit)
                 .clipped()
+
+                // Title
+                Text(article.title)
+                    .font(.title2.bold())
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal)
+                    .padding(.top, 12)
 
                 // Action toolbar
                 ScrollView(.horizontal, showsIndicators: false) {
@@ -61,6 +70,7 @@ struct YouTubePlayerView: View {
                             .padding(.horizontal, 2)
                             .padding(.vertical, 2)
                         }
+
                     }
                     .buttonStyle(.bordered)
                     .tint(.primary)
@@ -88,7 +98,6 @@ struct YouTubePlayerView: View {
                         Image(systemName: "pip.enter")
                             .font(.title2)
                     }
-                    .disabled(!isPiPEligible)
 
                     Button {
                         rewind()
@@ -125,7 +134,24 @@ struct YouTubePlayerView: View {
             }
         .sakuraBackground()
         .navigationBarTitleDisplayMode(.inline)
-        .navigationTitle(article.title)
+        .toolbar {
+            ToolbarItemGroup(placement: .topBarTrailing) {
+                Button {
+                    isBookmarked.toggle()
+                    feedManager.toggleBookmark(article)
+                } label: {
+                    Image(systemName: isBookmarked ? "bookmark.fill" : "bookmark")
+                }
+            }
+            ToolbarSpacer(.fixed, placement: .topBarTrailing)
+            ToolbarItemGroup(placement: .topBarTrailing) {
+                if let shareURL = URL(string: article.url) {
+                    ShareLink(item: shareURL) {
+                        Label(String(localized: "Article.Share"), systemImage: "square.and.arrow.up")
+                    }
+                }
+            }
+        }
         .onReceive(
             NotificationCenter.default.publisher(for: UIDevice.orientationDidChangeNotification)
         ) { _ in
@@ -135,6 +161,7 @@ struct YouTubePlayerView: View {
             }
         }
         .task {
+            isBookmarked = article.isBookmarked
             let signedIn = await YouTubePlayerView.hasYouTubeSession()
             let premium = signedIn ? await YouTubePlayerView.hasYouTubePremium() : false
             isPiPEligible = signedIn && premium

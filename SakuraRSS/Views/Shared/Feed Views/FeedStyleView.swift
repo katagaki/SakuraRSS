@@ -158,6 +158,16 @@ struct FeedArticleRow: View {
                         RoundedRectangle(cornerRadius: 12)
                             .stroke(.thickMaterial, lineWidth: 0.5)
                     }
+                    .overlay {
+                        if feed?.isVideoFeed == true || feed?.isPodcast == true {
+                            Image(systemName: "play.fill")
+                                .font(.title)
+                                .foregroundStyle(.primary)
+                                .padding(16)
+                                .background(.ultraThinMaterial, in: .circle)
+                                .glassEffect(.regular.interactive(), in: .circle)
+                        }
+                    }
                     .padding(.top, 4)
                 }
 
