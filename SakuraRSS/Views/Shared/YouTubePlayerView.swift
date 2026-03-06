@@ -8,6 +8,8 @@ struct YouTubePlayerView: View {
 
     @State private var isPlaying = false
     @State private var isPiPEligible = false
+    @State private var currentTime: TimeInterval = 0
+    @State private var duration: TimeInterval = 0
     @State private var webView: WKWebView?
 
     private var youtubeAppURL: URL? {
@@ -24,6 +26,8 @@ struct YouTubePlayerView: View {
                 YouTubePlayerWebView(
                     urlString: article.url,
                     isPlaying: $isPlaying,
+                    currentTime: $currentTime,
+                    duration: $duration,
                     webView: $webView
                 )
                 .aspectRatio(16 / 9, contentMode: .fit)
@@ -63,6 +67,18 @@ struct YouTubePlayerView: View {
                     .padding(.horizontal)
                 }
                 .padding(.top, 12)
+
+                // Seek bar
+                SeekBarView(
+                    currentTime: Binding(
+                        get: { currentTime },
+                        set: { currentTime = $0 }
+                    ),
+                    duration: duration,
+                    onSeek: { seek(to: $0) }
+                )
+                .padding(.horizontal)
+                .padding(.top, 16)
 
                 // Playback controls
                 HStack(spacing: 32) {
@@ -133,6 +149,16 @@ struct YouTubePlayerView: View {
                 isPlaying = playing
             }
         }
+    }
+
+    private func seek(to time: TimeInterval) {
+        let script = """
+        (function() {
+            var video = document.querySelector('video');
+            if (video) { video.currentTime = \(time); }
+        })();
+        """
+        webView?.evaluateJavaScript(script, completionHandler: nil)
     }
 
     private func rewind() {
@@ -226,10 +252,12 @@ private struct YouTubePlayerWebView: UIViewRepresentable {
 
     let urlString: String
     @Binding var isPlaying: Bool
+    @Binding var currentTime: TimeInterval
+    @Binding var duration: TimeInterval
     @Binding var webView: WKWebView?
 
     func makeCoordinator() -> Coordinator {
-        Coordinator(isPlaying: $isPlaying)
+        Coordinator(isPlaying: $isPlaying, currentTime: $currentTime, duration: $duration)
     }
 
     func makeUIView(context: Context) -> WKWebView {
@@ -246,6 +274,7 @@ private struct YouTubePlayerWebView: UIViewRepresentable {
         webView.backgroundColor = .black
         webView.scrollView.backgroundColor = .black
         webView.customUserAgent = "Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1"
+        webView.isUserInteractionEnabled = false
         if let url = URL(string: urlString) {
             webView.load(URLRequest(url: url))
         }
@@ -266,10 +295,14 @@ private struct YouTubePlayerWebView: UIViewRepresentable {
     @MainActor
     final class Coordinator: NSObject, WKNavigationDelegate {
         @Binding var isPlaying: Bool
+        @Binding var currentTime: TimeInterval
+        @Binding var duration: TimeInterval
         private var playbackObserver: Timer?
 
-        init(isPlaying: Binding<Bool>) {
+        init(isPlaying: Binding<Bool>, currentTime: Binding<TimeInterval>, duration: Binding<TimeInterval>) {
             _isPlaying = isPlaying
+            _currentTime = currentTime
+            _duration = duration
         }
 
         func invalidateObserver() {
@@ -346,6 +379,7 @@ private struct YouTubePlayerWebView: UIViewRepresentable {
             #masthead-container, #guide, ytd-masthead,
             ytd-mini-guide-renderer, #chat, .ytp-chrome-top,
             .ytp-pause-overlay, .ytp-endscreen-content,
+            .ytp-chrome-bottom, .ytp-gradient-bottom,
             .ytp-gradient-top, ytd-engagement-panel-section-list-renderer,
             tp-yt-app-drawer, #description, #actions,
             ytd-merch-shelf-renderer, ytd-info-panel-content-renderer,
@@ -390,17 +424,26 @@ private struct YouTubePlayerWebView: UIViewRepresentable {
 
         private func startPlaybackObserver(for webView: WKWebView) {
             playbackObserver?.invalidate()
-            playbackObserver = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
+            playbackObserver = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { [weak self] _ in
                 let script = """
                 (function() {
                     var video = document.querySelector('video');
-                    return video ? !video.paused : false;
+                    if (!video) return null;
+                    return { playing: !video.paused, currentTime: video.currentTime, duration: video.duration || 0 };
                 })();
                 """
                 webView.evaluateJavaScript(script) { result, _ in
-                    if let playing = result as? Bool {
+                    if let dict = result as? [String: Any] {
                         DispatchQueue.main.async {
-                            self?.isPlaying = playing
+                            if let playing = dict["playing"] as? Bool {
+                                self?.isPlaying = playing
+                            }
+                            if let time = dict["currentTime"] as? Double {
+                                self?.currentTime = time
+                            }
+                            if let dur = dict["duration"] as? Double, dur > 0 {
+                                self?.duration = dur
+                            }
                         }
                     }
                 }
