@@ -85,8 +85,12 @@ struct MoreView: View {
 
                 if isAppleIntelligenceAvailable {
                     Section {
-                        Toggle(String(localized: "Settings.WhileYouSlept"), isOn: $whileYouSleptEnabled)
-                        Toggle(String(localized: "Settings.TodaysSummary"), isOn: $todaysSummaryEnabled)
+                        Toggle(isOn: $whileYouSleptEnabled) {
+                            Label(String(localized: "Settings.WhileYouSlept"), systemImage: "moon.stars")
+                        }
+                        Toggle(isOn: $todaysSummaryEnabled) {
+                            Label(String(localized: "Settings.TodaysSummary"), systemImage: "newspaper")
+                        }
                     } header: {
                         Text("Settings.Section.AppleIntelligence")
                     } footer: {
