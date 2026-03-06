@@ -49,7 +49,9 @@ struct MoreView: View {
                 }
 
                 Section {
-                    Toggle(String(localized: "Settings.BackgroundRefresh"), isOn: $backgroundRefreshEnabled)
+                    Toggle(isOn: $backgroundRefreshEnabled) {
+                        Label(String(localized: "Settings.BackgroundRefresh"), systemImage: "arrow.clockwise")
+                    }
                     if backgroundRefreshEnabled {
                         Picker(String(localized: "Settings.RefreshInterval"), selection: $refreshInterval) {
                             Text("Settings.Refresh.15min").tag(15)
@@ -57,7 +59,9 @@ struct MoreView: View {
                             Text("Settings.Refresh.1hour").tag(60)
                             Text("Settings.Refresh.4hours").tag(240)
                         }
-                        Toggle(String(localized: "Settings.BadgeEnabled"), isOn: $badgeEnabled)
+                        Toggle(isOn: $badgeEnabled) {
+                            Label(String(localized: "Settings.BadgeEnabled"), systemImage: "app.badge")
+                        }
                             .onChange(of: badgeEnabled) { _, isEnabled in
                                 if isEnabled {
                                     Task {
