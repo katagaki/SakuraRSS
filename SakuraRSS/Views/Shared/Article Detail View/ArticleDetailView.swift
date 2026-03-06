@@ -334,7 +334,7 @@ struct ArticleDetailView: View {
                 Text(summarizationError)
             }
         }
-        .navigationDestination(isPresented: $showYouTubePlayer) {
+        .sheet(isPresented: $showYouTubePlayer) {
             YouTubePlayerView(article: article)
         }
         .translationTask(translationConfig) { session in

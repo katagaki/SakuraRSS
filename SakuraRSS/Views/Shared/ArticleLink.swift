@@ -47,7 +47,7 @@ struct ArticleLink<Label: View>: View {
             } label: {
                 label()
             }
-            .navigationDestination(isPresented: $showYouTubePlayer) {
+            .sheet(isPresented: $showYouTubePlayer) {
                 YouTubePlayerView(article: article)
             }
         } else if article.isYouTubeURL {
