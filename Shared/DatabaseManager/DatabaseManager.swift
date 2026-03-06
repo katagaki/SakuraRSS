@@ -77,6 +77,11 @@ nonisolated final class DatabaseManager: @unchecked Sendable {
     // MARK: - Tables
 
     private func createTables() throws {
+        try createCoreTables()
+        try createAuxiliaryTables()
+    }
+
+    private func createCoreTables() throws {
         try database.run(feeds.create(ifNotExists: true) { table in
             table.column(feedID, primaryKey: .autoincrement)
             table.column(feedTitle)
@@ -115,7 +120,9 @@ nonisolated final class DatabaseManager: @unchecked Sendable {
 
         try database.run(articles.createIndex(articleFeedID, ifNotExists: true))
         try database.run(articles.createIndex(articlePublishedDate, ifNotExists: true))
+    }
 
+    private func createAuxiliaryTables() throws {
         try database.run(imageCache.create(ifNotExists: true) { table in
             table.column(imageCacheURL, primaryKey: true)
             table.column(imageCacheData)

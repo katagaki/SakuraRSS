@@ -22,62 +22,44 @@ struct FeedsListPage: View {
         }
     }
 
+    private func feedsForSection(_ section: FeedSection) -> [Feed] {
+        filteredFeeds.filter { $0.feedSection == section }
+    }
+
+    @ViewBuilder
+    private func feedRows(for feeds: [Feed]) -> some View {
+        ForEach(feeds) { feed in
+            NavigationLink(value: feed) {
+                FeedRowView(feed: feed)
+            }
+            .contextMenu {
+                feedContextMenu(for: feed)
+            }
+        }
+        .onDelete { indexSet in
+            for index in indexSet {
+                let feed = feeds[index]
+                try? feedManager.deleteFeed(feed)
+            }
+        }
+    }
+
     var body: some View {
         List {
-            Section {
-                ForEach(filteredFeeds) { feed in
-                    NavigationLink(value: feed) {
-                        FeedRowView(feed: feed)
-                    }
-                    .listRowBackground(Color.clear)
-                    .contextMenu {
-                        Button {
-                            feedManager.toggleMuted(feed)
-                        } label: {
-                            Label(
-                                feed.isMuted
-                                    ? String(localized: "FeedMenu.Unmute")
-                                    : String(localized: "FeedMenu.Mute"),
-                                systemImage: feed.isMuted
-                                    ? "bell" : "bell.slash"
-                            )
-                        }
-                        Button {
-                            feedForRules = feed
-                        } label: {
-                            Label(String(localized: "FeedMenu.Rules"),
-                                  systemImage: "list.bullet.rectangle")
-                        }
-                        Divider()
-                        Button {
-                            feedToEdit = feed
-                        } label: {
-                            Label(String(localized: "FeedMenu.Edit"),
-                                  systemImage: "pencil")
-                        }
-                        Button(role: .destructive) {
-                            feedToDelete = feed
-                        } label: {
-                            Label(String(localized: "FeedMenu.Delete"),
-                                  systemImage: "trash")
-                        }
-                    }
-                }
-                .onDelete { indexSet in
-                    for index in indexSet {
-                        let feed = filteredFeeds[index]
-                        try? feedManager.deleteFeed(feed)
+            ForEach(FeedSection.allCases, id: \.self) { section in
+                let feeds = feedsForSection(section)
+                if !feeds.isEmpty {
+                    Section(section.localizedTitle) {
+                        feedRows(for: feeds)
                     }
                 }
             }
         }
-        .listStyle(.plain)
+        .listStyle(.insetGrouped)
+        .listSectionSpacing(.compact)
         .navigationTitle(String(localized: "Shared.Feeds"))
         .toolbarTitleDisplayMode(.inlineLarge)
         .searchable(text: $searchText, prompt: Text("FeedList.SearchPrompt"))
-        .refreshable {
-            await feedManager.refreshAllFeeds()
-        }
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Button {
@@ -159,6 +141,40 @@ struct FeedsListPage: View {
             }
         }
     }
+
+    @ViewBuilder
+    private func feedContextMenu(for feed: Feed) -> some View {
+        Button {
+            feedManager.toggleMuted(feed)
+        } label: {
+            Label(
+                feed.isMuted
+                    ? String(localized: "FeedMenu.Unmute")
+                    : String(localized: "FeedMenu.Mute"),
+                systemImage: feed.isMuted
+                    ? "bell" : "bell.slash"
+            )
+        }
+        Button {
+            feedForRules = feed
+        } label: {
+            Label(String(localized: "FeedMenu.Rules"),
+                  systemImage: "list.bullet.rectangle")
+        }
+        Divider()
+        Button {
+            feedToEdit = feed
+        } label: {
+            Label(String(localized: "FeedMenu.Edit"),
+                  systemImage: "pencil")
+        }
+        Button(role: .destructive) {
+            feedToDelete = feed
+        } label: {
+            Label(String(localized: "FeedMenu.Delete"),
+                  systemImage: "trash")
+        }
+    }
 }
 
 struct FeedRowView: View {
@@ -202,15 +218,6 @@ struct FeedRowView: View {
                         .lineLimit(1)
                     if feed.isMuted {
                         Image(systemName: "bell.slash.fill")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
-                    if feed.isPodcast {
-                        Image(systemName: "headphones")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    } else if feed.isVideoFeed {
-                        Image(systemName: "play.rectangle.fill")
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }

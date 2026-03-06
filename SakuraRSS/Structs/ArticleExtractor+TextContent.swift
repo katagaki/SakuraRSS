@@ -188,9 +188,11 @@ extension ArticleExtractor {
     }
 
     /// Escapes `[` and `]` characters that appear inside link text.
-    static func escapeBracketsInLinkText(_ text: String,
-                                          open: String,
-                                          mid: String) -> String {
+    static func escapeBracketsInLinkText(
+        _ text: String,
+        open: String,
+        mid: String
+    ) -> String {
         var result = ""
         var remaining = text[text.startIndex...]
         while let openRange = remaining.range(of: open) {

@@ -59,7 +59,7 @@ struct InitialsAvatarView: View {
         let bgColor = UIColor(hue: hue, saturation: 0.45, brightness: 0.75, alpha: 1.0)
 
         let renderer = UIGraphicsImageRenderer(size: CGSize(width: size, height: size))
-        return renderer.image { context in
+        return renderer.image { _ in
             let rect = CGRect(origin: .zero, size: CGSize(width: size, height: size))
 
             // Draw rounded rectangle background

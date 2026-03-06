@@ -1,0 +1,55 @@
+import SwiftUI
+
+extension WhileYouSleptView {
+
+    static let batchCharLimit = 3000
+    static let snippetCharLimit = 150
+
+    func generateSummary(for date: Date) async {
+        let articles = feedManager.overnightArticles()
+        guard !articles.isEmpty else { return }
+
+        if articles.count < 5 {
+            withAnimation(.smooth.speed(2.0)) {
+                summary = String(localized: "WhileYouSlept.TooFew")
+            }
+            hasSummary = true
+            return
+        }
+
+        isGenerating = true
+        defer {
+            isGenerating = false
+            hasGenerated = true
+        }
+
+        let descriptions = articles.prefix(30).map { article -> String in
+            let feed = feedManager.feed(forArticle: article)
+            let source = feed?.title ?? ""
+            let title = article.title
+            let snippet = String((article.summary ?? "").prefix(Self.snippetCharLimit))
+            return "[\(source)] \(title)\n\(snippet)"
+        }
+
+        let batches = BatchSummarizer.packBatches(descriptions, charLimit: Self.batchCharLimit)
+        let instructions = String(localized: "TodaysSummary.PartialPrompt")
+        let combineInstructions = String(localized: "TodaysSummary.CombinePrompt")
+
+        do {
+            let finalContent = try await BatchSummarizer.summarize(
+                batches: batches,
+                instructions: instructions,
+                combineInstructions: combineInstructions
+            )
+            guard !finalContent.isEmpty else { return }
+
+            withAnimation(.smooth.speed(2.0)) {
+                summary = finalContent
+            }
+            hasSummary = true
+            try? DatabaseManager.shared.cacheSummary(finalContent, ofType: .whileYouSlept, for: date)
+        } catch {
+            generationFailed = true
+        }
+    }
+}

@@ -61,20 +61,6 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		E44773A82F560122003813AB /* Exceptions for "SakuraRSS" folder in "Add Feed" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				Assets.xcassets,
-			);
-			target = E47D10332F54980E006081EF /* Add Feed */;
-		};
-		E44773A92F560122003813AB /* Exceptions for "SakuraRSS" folder in "WidgetsExtension" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				Assets.xcassets,
-			);
-			target = E47D104C2F549821006081EF /* WidgetsExtension */;
-		};
 		E47D10442F54980E006081EF /* Exceptions for "Add Feed" folder in "Add Feed" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
@@ -103,8 +89,6 @@
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
 				E47D13142F549D4D006081EF /* Exceptions for "SakuraRSS" folder in "Sakura" target */,
-				E44773A82F560122003813AB /* Exceptions for "SakuraRSS" folder in "Add Feed" target */,
-				E44773A92F560122003813AB /* Exceptions for "SakuraRSS" folder in "WidgetsExtension" target */,
 			);
 			path = SakuraRSS;
 			sourceTree = "<group>";

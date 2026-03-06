@@ -198,13 +198,13 @@ extension ArticleExtractor {
     private static func removeNoiseByClassPatterns(from element: Element) {
         do {
             let allElements = try element.select("div, section, aside, ul, ol")
-            for el in allElements {
-                let className = (try? el.attr("class"))?.lowercased() ?? ""
-                let idName = (try? el.attr("id"))?.lowercased() ?? ""
+            for element in allElements {
+                let className = (try? element.attr("class"))?.lowercased() ?? ""
+                let idName = (try? element.attr("id"))?.lowercased() ?? ""
                 let combined = className + " " + idName
                 for pattern in noiseClassPatterns {
                     if combined.contains(pattern) {
-                        try el.remove()
+                        try element.remove()
                         break
                     }
                 }

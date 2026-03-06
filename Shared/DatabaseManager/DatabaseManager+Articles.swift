@@ -17,8 +17,12 @@ nonisolated extension DatabaseManager {
     // MARK: - Article CRUD
 
     @discardableResult
-    func insertArticle(feedID fid: Int64, title: String, url: String,
-                       data: ArticleInsertData = ArticleInsertData()) throws -> Int64 {
+    func insertArticle(
+        feedID fid: Int64,
+        title: String,
+        url: String,
+        data: ArticleInsertData = ArticleInsertData()
+    ) throws -> Int64 {
         try database.run(articles.insert(or: .ignore,
             articleFeedID <- fid,
             articleTitle <- title,

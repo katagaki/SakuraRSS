@@ -97,39 +97,63 @@ nonisolated extension RSSParser {
         }
 
         var result = html
-
-        // Replace <br> variants with newlines
         result = result.replacingOccurrences(
             of: #"<br\s*/?>"#, with: "\n", options: .regularExpression
         )
+        result = convertLinksToMarkdown(result)
+        result = convertInlineMarkup(result)
+        result = stripInvalidURLSupSub(result)
 
-        // Convert <a href="url">text</a> to Markdown links [text](url),
-        // escaping any [ or ] in the link text so they don't break parsing.
-        // Links with no text content are stripped entirely.
-        if let linkRegex = try? NSRegularExpression(
-            pattern: #"<a\s[^>]*href=["']([^"']+)["'][^>]*>(.*?)</a>"#
-        ) {
-            let nsResult = result as NSString
-            let linkMatches = linkRegex.matches(
-                in: result, range: NSRange(location: 0, length: nsResult.length)
+        let blockTags = ["p", "div", "li"]
+        for tag in blockTags {
+            result = result.replacingOccurrences(
+                of: "</\(tag)>", with: "\n", options: .caseInsensitive
             )
-            for match in linkMatches.reversed() {
-                let url = nsResult.substring(with: match.range(at: 1))
-                let text = nsResult.substring(with: match.range(at: 2))
-                    .trimmingCharacters(in: .whitespacesAndNewlines)
-                if text.isEmpty {
-                    result = (result as NSString).replacingCharacters(in: match.range, with: "")
-                } else {
-                    let escaped = text
-                        .replacingOccurrences(of: "[", with: "\\[")
-                        .replacingOccurrences(of: "]", with: "\\]")
-                    let replacement = "[\(escaped)](\(url))"
-                    result = (result as NSString).replacingCharacters(in: match.range, with: replacement)
-                }
-            }
         }
 
-        // Convert headers to markdown format
+        result = replaceImgTagsWithMarkers(result)
+        result = result.replacingOccurrences(of: "<[^>]+>", with: "", options: .regularExpression)
+        result = decodeHTMLEntities(result)
+        result = result.replacingOccurrences(
+            of: #"\n{3,}"#, with: "\n\n", options: .regularExpression
+        )
+
+        result = result.trimmingCharacters(in: .whitespacesAndNewlines)
+        return result.isEmpty ? nil : result
+    }
+
+    /// Converts `<a>` tags to Markdown links, stripping empty-text links.
+    private func convertLinksToMarkdown(_ text: String) -> String {
+        guard let linkRegex = try? NSRegularExpression(
+            pattern: #"<a\s[^>]*href=["']([^"']+)["'][^>]*>(.*?)</a>"#
+        ) else { return text }
+
+        var result = text
+        let nsResult = result as NSString
+        let linkMatches = linkRegex.matches(
+            in: result, range: NSRange(location: 0, length: nsResult.length)
+        )
+        for match in linkMatches.reversed() {
+            let url = nsResult.substring(with: match.range(at: 1))
+            let linkText = nsResult.substring(with: match.range(at: 2))
+                .trimmingCharacters(in: .whitespacesAndNewlines)
+            if linkText.isEmpty {
+                result = (result as NSString).replacingCharacters(in: match.range, with: "")
+            } else {
+                let escaped = linkText
+                    .replacingOccurrences(of: "[", with: "\\[")
+                    .replacingOccurrences(of: "]", with: "\\]")
+                let replacement = "[\(escaped)](\(url))"
+                result = (result as NSString).replacingCharacters(in: match.range, with: replacement)
+            }
+        }
+        return result
+    }
+
+    /// Converts headers, bold, italic, superscript, and subscript HTML tags to Markdown.
+    private func convertInlineMarkup(_ text: String) -> String {
+        var result = text
+
         result = result.replacingOccurrences(
             of: #"<h1(?:\s[^>]*)?>(.+?)</h1>"#, with: "\n# $1\n",
             options: [.regularExpression, .caseInsensitive]
@@ -148,8 +172,6 @@ nonisolated extension RSSParser {
                 options: [.regularExpression, .caseInsensitive]
             )
         }
-
-        // Convert bold and italic
         for tag in ["strong", "b"] {
             result = result.replacingOccurrences(
                 of: "<\(tag)(?:\\s[^>]*)?>(.+?)</\(tag)>", with: "**$1**",
@@ -166,8 +188,6 @@ nonisolated extension RSSParser {
             of: #"<i(?:\s[^>]*)?>(.+?)</i>"#, with: "*$1*",
             options: [.regularExpression, .caseInsensitive]
         )
-
-        // Convert superscript and subscript
         result = result.replacingOccurrences(
             of: #"<sup(?:\s[^>]*)?>(.+?)</sup>"#, with: "{{SUP}}$1{{/SUP}}",
             options: [.regularExpression, .caseInsensitive]
@@ -176,34 +196,7 @@ nonisolated extension RSSParser {
             of: #"<sub(?:\s[^>]*)?>(.+?)</sub>"#, with: "{{SUB}}$1{{/SUB}}",
             options: [.regularExpression, .caseInsensitive]
         )
-
-        // Validate URLs inside superscript/subscript markers; drop if invalid
-        result = stripInvalidURLSupSub(result)
-
-        // Add newlines after block-level closing tags
-        let blockTags = ["p", "div", "li"]
-        for tag in blockTags {
-            result = result.replacingOccurrences(
-                of: "</\(tag)>", with: "\n", options: .caseInsensitive
-            )
-        }
-
-        // Convert <img> tags to image markers (filtering tracking pixels)
-        result = replaceImgTagsWithMarkers(result)
-
-        // Strip remaining HTML tags
-        result = result.replacingOccurrences(of: "<[^>]+>", with: "", options: .regularExpression)
-
-        // Decode HTML entities
-        result = decodeHTMLEntities(result)
-
-        // Collapse multiple consecutive newlines into two
-        result = result.replacingOccurrences(
-            of: #"\n{3,}"#, with: "\n\n", options: .regularExpression
-        )
-
-        result = result.trimmingCharacters(in: .whitespacesAndNewlines)
-        return result.isEmpty ? nil : result
+        return result
     }
 
     func extractImageFromHTML(_ html: String) -> String? {

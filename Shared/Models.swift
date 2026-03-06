@@ -34,11 +34,44 @@ nonisolated struct Feed: Identifiable, Hashable, Sendable {
         TimelineViewDomains.shouldPreferTimeline(feedDomain: domain)
     }
 
+    var isRedditFeed: Bool {
+        let host = domain.lowercased()
+        return host == "reddit.com" || host.hasSuffix(".reddit.com")
+    }
+
+    var isSocialFeed: Bool {
+        isXFeed || isRedditFeed || isFeedViewDomain
+    }
+
+    /// The feed category section for grouped display.
+    var feedSection: FeedSection {
+        if isPodcast { return .audio }
+        if isVideoFeed { return .video }
+        if isSocialFeed { return .social }
+        return .news
+    }
+
     /// Detects Mastodon feeds from unlisted instances by checking for the /@username.rss URL pattern.
     private var hasMastodonFeedURL: Bool {
         guard let urlObj = URL(string: url) else { return false }
         let path = urlObj.path
         return path.hasPrefix("/@") && path.hasSuffix(".rss")
+    }
+}
+
+nonisolated enum FeedSection: String, CaseIterable, Sendable {
+    case news
+    case social
+    case video
+    case audio
+
+    var localizedTitle: String {
+        switch self {
+        case .news: String(localized: "FeedSection.News")
+        case .social: String(localized: "FeedSection.Social")
+        case .video: String(localized: "FeedSection.Video")
+        case .audio: String(localized: "FeedSection.Audio")
+        }
     }
 }
 

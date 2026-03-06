@@ -17,7 +17,9 @@ struct SearchView: View {
     }
 
     private var effectiveStyle: FeedDisplayStyle {
-        if !hasImages && (searchDisplayStyle == .magazine || searchDisplayStyle == .photos || searchDisplayStyle == .cards) {
+        if !hasImages && (
+            searchDisplayStyle == .magazine || searchDisplayStyle == .photos || searchDisplayStyle == .cards
+        ) {
             return .inbox
         }
         if searchDisplayStyle == .podcast {

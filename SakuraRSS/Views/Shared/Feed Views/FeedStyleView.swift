@@ -19,6 +19,7 @@ struct FeedStyleView: View {
     @Environment(\.zoomNamespace) private var zoomNamespace
     let articles: [Article]
     var onLoadMore: (() -> Void)?
+    @State private var youTubeArticle: Article?
 
     var body: some View {
         List {
@@ -29,7 +30,9 @@ struct FeedStyleView: View {
                     }
                     .opacity(0)
 
-                    FeedArticleRow(article: article)
+                    FeedArticleRow(article: article, onShowYouTubePlayer: {
+                        youTubeArticle = article
+                    })
                         .zoomSource(id: article.id, namespace: zoomNamespace)
                 }
                 .padding(.horizontal, 12)
@@ -51,6 +54,9 @@ struct FeedStyleView: View {
             }
         }
         .listStyle(.plain)
+        .navigationDestination(item: $youTubeArticle) { article in
+            YouTubePlayerView(article: article)
+        }
     }
 }
 
@@ -60,6 +66,7 @@ struct FeedArticleRow: View {
     @Environment(\.openURL) var openURL
     @Environment(\.navigateToFeed) var navigateToFeed
     let article: Article
+    var onShowYouTubePlayer: (() -> Void)?
     @AppStorage("Labs.YouTubePlayer") private var youTubePlayerEnabled: Bool = false
     @State private var favicon: UIImage?
     @State private var feedName: String?
@@ -67,7 +74,6 @@ struct FeedArticleRow: View {
     @State private var skipFaviconInset = false
     @State private var preferTitle = false
     @State private var feed: Feed?
-    @State private var showYouTubePlayer = false
 
     @ViewBuilder
     private var feedAvatarView: some View {
@@ -158,7 +164,7 @@ struct FeedArticleRow: View {
                 HStack {
                     Button {
                         if article.isYouTubeURL && youTubePlayerEnabled {
-                            showYouTubePlayer = true
+                            onShowYouTubePlayer?()
                         } else if article.isYouTubeURL {
                             YouTubeHelper.openInApp(url: article.url)
                         } else if let url = URL(string: article.url) {
@@ -172,9 +178,6 @@ struct FeedArticleRow: View {
                         )
                     }
                     .buttonStyle(.plain)
-                    .navigationDestination(isPresented: $showYouTubePlayer) {
-                        YouTubePlayerView(article: article)
-                    }
 
                     Spacer()
 
