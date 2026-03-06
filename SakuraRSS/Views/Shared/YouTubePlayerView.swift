@@ -273,7 +273,7 @@ private struct YouTubePlayerWebView: UIViewRepresentable {
     @MainActor
     final class Coordinator: NSObject, WKNavigationDelegate {
         @Binding var isPlaying: Bool
-        private var playbackObserver: Timer?
+        private nonisolated(unsafe) var playbackObserver: Timer?
 
         init(isPlaying: Binding<Bool>) {
             _isPlaying = isPlaying
