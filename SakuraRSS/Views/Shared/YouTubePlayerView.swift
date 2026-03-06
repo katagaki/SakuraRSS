@@ -281,6 +281,7 @@ private struct YouTubePlayerWebView: UIViewRepresentable {
 
         func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
             injectStyles(into: webView)
+            unmuteVideo(in: webView)
             startPlaybackObserver(for: webView)
         }
 
@@ -300,6 +301,22 @@ private struct YouTubePlayerWebView: UIViewRepresentable {
 
             // Block external navigation
             return .cancel
+        }
+
+        private func unmuteVideo(in webView: WKWebView) {
+            let script = """
+            (function() {
+                function unmute() {
+                    var video = document.querySelector('video');
+                    if (video) { video.muted = false; }
+                }
+                unmute();
+                var observer = new MutationObserver(function() { unmute(); });
+                observer.observe(document.body, { childList: true, subtree: true });
+                setTimeout(function() { observer.disconnect(); }, 5000);
+            })();
+            """
+            webView.evaluateJavaScript(script, completionHandler: nil)
         }
 
         private func injectStyles(into webView: WKWebView) {
