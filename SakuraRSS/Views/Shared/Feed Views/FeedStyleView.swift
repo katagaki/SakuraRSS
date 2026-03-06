@@ -1,5 +1,18 @@
 import SwiftUI
 
+// MARK: - Feed Navigation Environment
+
+private struct FeedNavigationActionKey: EnvironmentKey {
+    static let defaultValue: ((Feed) -> Void)? = nil
+}
+
+extension EnvironmentValues {
+    var navigateToFeed: ((Feed) -> Void)? {
+        get { self[FeedNavigationActionKey.self] }
+        set { self[FeedNavigationActionKey.self] = newValue }
+    }
+}
+
 struct FeedStyleView: View {
 
     @Environment(FeedManager.self) var feedManager
@@ -45,6 +58,7 @@ struct FeedArticleRow: View {
 
     @Environment(FeedManager.self) var feedManager
     @Environment(\.openURL) var openURL
+    @Environment(\.navigateToFeed) var navigateToFeed
     let article: Article
     @State private var favicon: UIImage?
     @State private var feedName: String?
@@ -70,28 +84,30 @@ struct FeedArticleRow: View {
 
     var body: some View {
         HStack(alignment: .top, spacing: 10) {
-            feedAvatarView
-                .overlay {
-                    if let feed {
-                        NavigationLink(value: feed) { EmptyView() }
-                            .opacity(0)
-                    }
-                }
+            if let feed, let navigateToFeed {
+                Button { navigateToFeed(feed) } label: { feedAvatarView }
+                    .buttonStyle(.plain)
+            } else {
+                feedAvatarView
+            }
 
             VStack(alignment: .leading, spacing: 6) {
                 HStack(spacing: 4) {
-                    if let feedName {
+                    if let feed, let feedName, let navigateToFeed {
+                        Button { navigateToFeed(feed) } label: {
+                            Text(feedName)
+                                .font(.subheadline)
+                                .fontWeight(.bold)
+                                .foregroundStyle(.primary)
+                                .lineLimit(1)
+                        }
+                        .buttonStyle(.plain)
+                    } else if let feedName {
                         Text(feedName)
                             .font(.subheadline)
                             .fontWeight(.bold)
                             .foregroundStyle(.primary)
                             .lineLimit(1)
-                            .overlay {
-                                if let feed {
-                                    NavigationLink(value: feed) { EmptyView() }
-                                        .opacity(0)
-                                }
-                            }
                     }
 
                     if let date = article.publishedDate {
