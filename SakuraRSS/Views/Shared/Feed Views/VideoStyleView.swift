@@ -36,6 +36,22 @@ struct VideoArticleCard: View {
     @State private var favicon: UIImage?
     @State private var feedName: String?
     @State private var acronymIcon: UIImage?
+    @State private var feed: Feed?
+
+    @ViewBuilder
+    private var feedAvatarView: some View {
+        if let favicon = favicon {
+            FaviconImage(favicon, size: 36, circle: true, skipInset: true)
+        } else if let acronymIcon {
+            FaviconImage(acronymIcon, size: 36, circle: true, skipInset: true)
+        } else if let feedName {
+            InitialsAvatarView(feedName, size: 36, circle: true)
+        } else {
+            Circle()
+                .fill(.secondary.opacity(0.2))
+                .frame(width: 36, height: 36)
+        }
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -58,16 +74,13 @@ struct VideoArticleCard: View {
 
             // Channel avatar + title + metadata
             HStack(alignment: .top, spacing: 12) {
-                if let favicon = favicon {
-                    FaviconImage(favicon, size: 36, circle: true, skipInset: true)
-                } else if let acronymIcon {
-                    FaviconImage(acronymIcon, size: 36, circle: true, skipInset: true)
-                } else if let feedName {
-                    InitialsAvatarView(feedName, size: 36, circle: true)
+                if let feed {
+                    NavigationLink(value: feed) {
+                        feedAvatarView
+                    }
+                    .buttonStyle(.plain)
                 } else {
-                    Circle()
-                        .fill(.secondary.opacity(0.2))
-                        .frame(width: 36, height: 36)
+                    feedAvatarView
                 }
 
                 VStack(alignment: .leading, spacing: 4) {
@@ -79,7 +92,12 @@ struct VideoArticleCard: View {
                         .multilineTextAlignment(.leading)
 
                     HStack(spacing: 4) {
-                        if let feedName {
+                        if let feed, let feedName {
+                            NavigationLink(value: feed) {
+                                Text(feedName)
+                            }
+                            .buttonStyle(.plain)
+                        } else if let feedName {
                             Text(feedName)
                         }
                         if let date = article.publishedDate {
@@ -135,12 +153,13 @@ struct VideoArticleCard: View {
             .padding(.horizontal, 16)
         }
         .task {
-            if let feed = feedManager.feed(forArticle: article) {
-                feedName = feed.title
-                if let data = feed.acronymIcon {
+            if let loadedFeed = feedManager.feed(forArticle: article) {
+                feed = loadedFeed
+                feedName = loadedFeed.title
+                if let data = loadedFeed.acronymIcon {
                     acronymIcon = UIImage(data: data)
                 }
-                favicon = await FaviconCache.shared.favicon(for: feed.domain, siteURL: feed.siteURL)
+                favicon = await FaviconCache.shared.favicon(for: loadedFeed)
             }
         }
     }

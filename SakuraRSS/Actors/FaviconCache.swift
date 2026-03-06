@@ -35,6 +35,25 @@ actor FaviconCache {
         return await fetchAndCacheFavicon(for: domain, siteURL: siteURL, cacheKey: cacheKey, filePath: filePath)
     }
 
+    /// Resolves the favicon for a feed, checking custom icons first.
+    func favicon(for feed: Feed) async -> UIImage? {
+        if let customURL = feed.customIconURL {
+            if customURL == "photo" {
+                return await customFavicon(feedID: feed.id)
+            }
+            if let cached = await customFavicon(feedID: feed.id) {
+                return cached
+            }
+            if let url = URL(string: customURL),
+               let (data, _) = try? await URLSession.shared.data(from: url),
+               let image = UIImage(data: data) {
+                await setCustomFavicon(image, feedID: feed.id)
+                return image
+            }
+        }
+        return await favicon(for: feed.domain, siteURL: feed.siteURL)
+    }
+
     /// Clears caches for the given domains and re-fetches their favicons.
     func refreshFavicons(for entries: [(domain: String, siteURL: String?)]) async {
         for entry in entries {

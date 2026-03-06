@@ -13,6 +13,8 @@ struct AddFeedView: View {
     @State private var isSearching = false
     @State private var errorMessage: String?
     @State private var addedURLs: Set<String> = []
+    @State private var showXLogin = false
+    @State private var pendingXFeed: DiscoveredFeed?
     @FocusState private var isURLFieldFocused: Bool
 
     private var appName: String {
@@ -25,6 +27,7 @@ struct AddFeedView: View {
                 Section {
                     TextField(String(localized: "AddFeed.URLPlaceholder"), text: $urlInput)
                         .focused($isURLFieldFocused)
+                        .keyboardType(.URL)
                         .textContentType(.URL)
                         .autocorrectionDisabled()
                         .textInputAutocapitalization(.never)
@@ -77,7 +80,7 @@ struct AddFeedView: View {
                                 VStack(alignment: .leading, spacing: 2) {
                                     Text(feed.title)
                                         .lineLimit(1)
-                                    Text(feed.url)
+                                    Text(displayURL(for: feed))
                                         .font(.caption)
                                         .foregroundStyle(.secondary)
                                         .lineLimit(1)
@@ -116,6 +119,13 @@ struct AddFeedView: View {
                 }
             }
             .interactiveDismissDisabled()
+            .sheet(isPresented: $showXLogin) {
+                if let pending = pendingXFeed {
+                    addFeedAfterXLogin(pending)
+                }
+            } content: {
+                XLoginView()
+            }
             .onAppear {
                 if !initialURL.isEmpty {
                     urlInput = initialURL
@@ -195,6 +205,28 @@ struct AddFeedView: View {
     }
 
     private func addFeed(_ discovered: DiscoveredFeed) {
+        // X feeds require the experiment to be enabled
+        guard !XProfileScraper.isXFeedURL(discovered.url)
+                || UserDefaults.standard.bool(forKey: "Labs.XProfileFeeds") else {
+            return
+        }
+        // If this is an X feed and the user hasn't logged in yet, prompt login first
+        if XProfileScraper.isXFeedURL(discovered.url) && !feedManager.hasXFeeds {
+            pendingXFeed = discovered
+            Task {
+                let hasSession = await XProfileScraper.hasXSession()
+                if hasSession {
+                    addFeedDirectly(discovered)
+                } else {
+                    showXLogin = true
+                }
+            }
+            return
+        }
+        addFeedDirectly(discovered)
+    }
+
+    private func addFeedDirectly(_ discovered: DiscoveredFeed) {
         do {
             try feedManager.addFeed(
                 url: discovered.url,
@@ -205,6 +237,16 @@ struct AddFeedView: View {
             onFeedAdded?(discovered.url)
         } catch {
             errorMessage = error.localizedDescription
+        }
+    }
+
+    private func addFeedAfterXLogin(_ discovered: DiscoveredFeed) {
+        Task {
+            let hasSession = await XProfileScraper.hasXSession()
+            if hasSession {
+                addFeedDirectly(discovered)
+            }
+            pendingXFeed = nil
         }
     }
 
@@ -223,5 +265,13 @@ struct AddFeedView: View {
             cleaned = String(cleaned[cleaned.startIndex..<slashIndex])
         }
         return cleaned
+    }
+
+    /// Shows the site URL for X feeds instead of the internal x-profile:// scheme.
+    private func displayURL(for feed: DiscoveredFeed) -> String {
+        if XProfileScraper.isXFeedURL(feed.url) {
+            return feed.siteURL
+        }
+        return feed.url
     }
 }

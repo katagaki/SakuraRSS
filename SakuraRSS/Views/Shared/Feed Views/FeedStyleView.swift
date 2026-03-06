@@ -51,24 +51,46 @@ struct FeedArticleRow: View {
     @State private var acronymIcon: UIImage?
     @State private var skipFaviconInset = false
     @State private var preferTitle = false
+    @State private var feed: Feed?
+
+    @ViewBuilder
+    private var feedAvatarView: some View {
+        if let favicon = favicon {
+            FaviconImage(favicon, size: 40, circle: true, skipInset: skipFaviconInset)
+        } else if let acronymIcon {
+            FaviconImage(acronymIcon, size: 40, circle: true, skipInset: true)
+        } else if let feedName {
+            InitialsAvatarView(feedName, size: 40, circle: true)
+        } else {
+            Circle()
+                .fill(.secondary.opacity(0.2))
+                .frame(width: 40, height: 40)
+        }
+    }
 
     var body: some View {
         HStack(alignment: .top, spacing: 10) {
-            if let favicon = favicon {
-                FaviconImage(favicon, size: 40, circle: true, skipInset: skipFaviconInset)
-            } else if let acronymIcon {
-                FaviconImage(acronymIcon, size: 40, circle: true, skipInset: true)
-            } else if let feedName {
-                InitialsAvatarView(feedName, size: 40, circle: true)
+            if let feed {
+                NavigationLink(value: feed) {
+                    feedAvatarView
+                }
+                .buttonStyle(.plain)
             } else {
-                Circle()
-                    .fill(.secondary.opacity(0.2))
-                    .frame(width: 40, height: 40)
+                feedAvatarView
             }
 
             VStack(alignment: .leading, spacing: 6) {
                 HStack(spacing: 4) {
-                    if let feedName {
+                    if let feed, let feedName {
+                        NavigationLink(value: feed) {
+                            Text(feedName)
+                                .font(.subheadline)
+                                .fontWeight(.bold)
+                                .foregroundStyle(.primary)
+                                .lineLimit(1)
+                        }
+                        .buttonStyle(.plain)
+                    } else if let feedName {
                         Text(feedName)
                             .font(.subheadline)
                             .fontWeight(.bold)
@@ -179,15 +201,16 @@ struct FeedArticleRow: View {
             }
         }
         .task {
-            if let feed = feedManager.feed(forArticle: article) {
-                feedName = feed.title
-                if let data = feed.acronymIcon {
+            if let loadedFeed = feedManager.feed(forArticle: article) {
+                feed = loadedFeed
+                feedName = loadedFeed.title
+                if let data = loadedFeed.acronymIcon {
                     acronymIcon = UIImage(data: data)
                 }
-                skipFaviconInset = feed.isVideoFeed
-                    || FullFaviconDomains.shouldUseFullImage(feedDomain: feed.domain)
-                preferTitle = TitleOnlyDomains.shouldPreferTitle(feedDomain: feed.domain)
-                favicon = await FaviconCache.shared.favicon(for: feed.domain, siteURL: feed.siteURL)
+                skipFaviconInset = loadedFeed.isVideoFeed || loadedFeed.isXFeed
+                    || FullFaviconDomains.shouldUseFullImage(feedDomain: loadedFeed.domain)
+                preferTitle = TitleOnlyDomains.shouldPreferTitle(feedDomain: loadedFeed.domain)
+                favicon = await FaviconCache.shared.favicon(for: loadedFeed)
             }
         }
     }

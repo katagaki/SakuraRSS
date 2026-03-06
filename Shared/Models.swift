@@ -22,8 +22,12 @@ nonisolated struct Feed: Identifiable, Hashable, Sendable {
         VideoDomains.shouldPreferVideo(feedDomain: domain)
     }
 
+    var isXFeed: Bool {
+        XProfileScraper.isXFeedURL(url)
+    }
+
     var isFeedViewDomain: Bool {
-        FeedViewDomains.shouldPreferFeedView(feedDomain: domain) || hasMastodonFeedURL
+        isXFeed || FeedViewDomains.shouldPreferFeedView(feedDomain: domain) || hasMastodonFeedURL
     }
 
     var isTimelineViewDomain: Bool {

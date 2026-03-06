@@ -178,19 +178,19 @@ struct FeedRowView: View {
             if let favicon = favicon {
                 FaviconImage(favicon, size: 32,
                              cornerRadius: iconCornerRadius,
-                             circle: feed.isVideoFeed && !feed.isPodcast,
-                             skipInset: feed.isVideoFeed || feed.isPodcast
+                             circle: feed.isXFeed || (feed.isVideoFeed && !feed.isPodcast),
+                             skipInset: feed.isVideoFeed || feed.isPodcast || feed.isXFeed
                                 || FullFaviconDomains.shouldUseFullImage(feedDomain: feed.domain))
             } else if let data = feed.acronymIcon, let acronym = UIImage(data: data) {
                 FaviconImage(acronym, size: 32,
                              cornerRadius: iconCornerRadius,
-                             circle: feed.isVideoFeed && !feed.isPodcast,
+                             circle: feed.isXFeed || (feed.isVideoFeed && !feed.isPodcast),
                              skipInset: true)
             } else {
                 InitialsAvatarView(
                     feed.title,
                     size: 32,
-                    circle: feed.isVideoFeed && !feed.isPodcast,
+                    circle: feed.isXFeed || (feed.isVideoFeed && !feed.isPodcast),
                     cornerRadius: iconCornerRadius
                 )
             }
@@ -251,16 +251,6 @@ struct FeedRowView: View {
     }
 
     private func loadFavicon() async -> UIImage? {
-        if let customURL = feed.customIconURL {
-            if customURL == "photo" {
-                return await FaviconCache.shared.customFavicon(feedID: feed.id)
-            }
-            if let url = URL(string: customURL),
-               let (data, _) = try? await URLSession.shared.data(from: url),
-               let image = UIImage(data: data) {
-                return image
-            }
-        }
-        return await FaviconCache.shared.favicon(for: feed.domain, siteURL: feed.siteURL)
+        await FaviconCache.shared.favicon(for: feed)
     }
 }

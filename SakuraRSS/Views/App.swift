@@ -85,7 +85,8 @@ struct SakuraRSSApp: App {
                 defaults.removeObject(forKey: "ForceWhileYouSlept")
                 defaults.removeObject(forKey: "ForceTodaysSummary")
                 for key in defaults.dictionaryRepresentation().keys {
-                    if key.hasPrefix("Display.Style.") || key.hasPrefix("openMode-") {
+                    if key.hasPrefix("Display.Style.") || key.hasPrefix("openMode-")
+                        || key.hasPrefix("Labs.") {
                         defaults.removeObject(forKey: key)
                     }
                 }
@@ -122,6 +123,8 @@ struct SakuraRSSApp: App {
             defaults.removeObject(forKey: "Home.ArticleID")
             defaults.removeObject(forKey: "FeedsList.FeedID")
             defaults.removeObject(forKey: "FeedsList.ArticleID")
+            // Disable all labs features in safe mode
+            defaults.set(false, forKey: "Labs.XProfileFeeds")
         } else {
             _isInSafeMode = State(initialValue: false)
         }

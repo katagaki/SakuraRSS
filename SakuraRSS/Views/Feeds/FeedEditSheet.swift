@@ -40,15 +40,25 @@ struct FeedEditSheet: View {
                             .frame(maxWidth: .infinity)
                             .labelsHidden()
                     }
-                    HStack {
-                        Text("FeedEdit.URL")
-                        TextField(String(localized: "FeedEdit.URL"), text: $url)
-                            .multilineTextAlignment(.trailing)
-                            .frame(maxWidth: .infinity)
-                            .textContentType(.URL)
-                            .autocorrectionDisabled()
-                            .textInputAutocapitalization(.never)
-                            .labelsHidden()
+                    if feed.isXFeed {
+                        HStack {
+                            Text("FeedEdit.URL")
+                            Spacer()
+                            Text(feed.siteURL)
+                                .foregroundStyle(.secondary)
+                                .lineLimit(1)
+                        }
+                    } else {
+                        HStack {
+                            Text("FeedEdit.URL")
+                            TextField(String(localized: "FeedEdit.URL"), text: $url)
+                                .multilineTextAlignment(.trailing)
+                                .frame(maxWidth: .infinity)
+                                .textContentType(.URL)
+                                .autocorrectionDisabled()
+                                .textInputAutocapitalization(.never)
+                                .labelsHidden()
+                        }
                     }
                 }
 
@@ -59,7 +69,7 @@ struct FeedEditSheet: View {
                             InitialsAvatarView(
                                 name.isEmpty ? feed.title : name,
                                 size: 64,
-                                circle: feed.isVideoFeed && !feed.isPodcast,
+                                circle: feed.isXFeed || (feed.isVideoFeed && !feed.isPodcast),
                                 cornerRadius: iconCornerRadius(size: 64)
                             )
                             Spacer()
@@ -69,8 +79,8 @@ struct FeedEditSheet: View {
                             Spacer()
                             FaviconImage(icon, size: 64,
                                          cornerRadius: iconCornerRadius(size: 64),
-                                         circle: feed.isVideoFeed && !feed.isPodcast,
-                                         skipInset: feed.isVideoFeed || feed.isPodcast
+                                         circle: feed.isXFeed || (feed.isVideoFeed && !feed.isPodcast),
+                                         skipInset: feed.isVideoFeed || feed.isPodcast || feed.isXFeed
                                             || FullFaviconDomains.shouldUseFullImage(feedDomain: feed.domain))
                             Spacer()
                         }
@@ -188,9 +198,15 @@ struct FeedEditSheet: View {
             if customURL == "photo" {
                 return await FaviconCache.shared.customFavicon(feedID: feed.id)
             }
+            // Check if already cached for this feed
+            if let cached = await FaviconCache.shared.customFavicon(feedID: feed.id) {
+                return cached
+            }
+            // Download, cache locally, then return
             if let url = URL(string: customURL),
                let (data, _) = try? await URLSession.shared.data(from: url),
                let image = UIImage(data: data) {
+                await FaviconCache.shared.setCustomFavicon(image, feedID: feed.id)
                 return image
             }
         }

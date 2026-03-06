@@ -35,29 +35,50 @@ struct PhotosArticleCard: View {
     @State private var acronymIcon: UIImage?
     @State private var skipFaviconInset = false
     @State private var photoImage: UIImage?
+    @State private var feed: Feed?
+
+    @ViewBuilder
+    private var feedAvatarView: some View {
+        if let favicon = favicon {
+            FaviconImage(favicon, size: 32, circle: true, skipInset: skipFaviconInset)
+        } else if let acronymIcon {
+            FaviconImage(acronymIcon, size: 32, circle: true, skipInset: true)
+        } else if let feedName {
+            InitialsAvatarView(feedName, size: 32, circle: true)
+        } else {
+            Circle()
+                .fill(.secondary.opacity(0.2))
+                .frame(width: 32, height: 32)
+        }
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             // Profile photo and feed name header
             HStack(spacing: 10) {
-                if let favicon = favicon {
-                    FaviconImage(favicon, size: 32, circle: true, skipInset: skipFaviconInset)
-                } else if let acronymIcon {
-                    FaviconImage(acronymIcon, size: 32, circle: true, skipInset: true)
-                } else if let feedName {
-                    InitialsAvatarView(feedName, size: 32, circle: true)
+                if let feed {
+                    NavigationLink(value: feed) {
+                        HStack(spacing: 10) {
+                            feedAvatarView
+                            if let feedName {
+                                Text(feedName)
+                                    .font(.subheadline)
+                                    .fontWeight(.semibold)
+                                    .foregroundStyle(.primary)
+                                    .lineLimit(1)
+                            }
+                        }
+                    }
+                    .buttonStyle(.plain)
                 } else {
-                    Circle()
-                        .fill(.secondary.opacity(0.2))
-                        .frame(width: 32, height: 32)
-                }
-
-                if let feedName {
-                    Text(feedName)
-                        .font(.subheadline)
-                        .fontWeight(.semibold)
-                        .foregroundStyle(.primary)
-                        .lineLimit(1)
+                    feedAvatarView
+                    if let feedName {
+                        Text(feedName)
+                            .font(.subheadline)
+                            .fontWeight(.semibold)
+                            .foregroundStyle(.primary)
+                            .lineLimit(1)
+                    }
                 }
 
                 Spacer()
@@ -162,14 +183,15 @@ struct PhotosArticleCard: View {
                 .padding(.top, 4)
         }
         .task {
-            if let feed = feedManager.feed(forArticle: article) {
-                feedName = feed.title
-                if let data = feed.acronymIcon {
+            if let loadedFeed = feedManager.feed(forArticle: article) {
+                feed = loadedFeed
+                feedName = loadedFeed.title
+                if let data = loadedFeed.acronymIcon {
                     acronymIcon = UIImage(data: data)
                 }
-                skipFaviconInset = feed.isVideoFeed
-                    || FullFaviconDomains.shouldUseFullImage(feedDomain: feed.domain)
-                favicon = await FaviconCache.shared.favicon(for: feed.domain, siteURL: feed.siteURL)
+                skipFaviconInset = loadedFeed.isVideoFeed || loadedFeed.isXFeed
+                    || FullFaviconDomains.shouldUseFullImage(feedDomain: loadedFeed.domain)
+                favicon = await FaviconCache.shared.favicon(for: loadedFeed)
             }
         }
     }

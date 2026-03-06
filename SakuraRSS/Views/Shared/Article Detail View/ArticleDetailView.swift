@@ -305,10 +305,10 @@ struct ArticleDetailView: View {
                 if let data = feed.acronymIcon {
                     acronymIcon = UIImage(data: data)
                 }
-                isVideoFeed = feed.isVideoFeed
-                skipFaviconInset = feed.isVideoFeed
+                isVideoFeed = feed.isVideoFeed || feed.isXFeed
+                skipFaviconInset = feed.isVideoFeed || feed.isXFeed
                     || FullFaviconDomains.shouldUseFullImage(feedDomain: feed.domain)
-                favicon = await FaviconCache.shared.favicon(for: feed.domain, siteURL: feed.siteURL)
+                favicon = await FaviconCache.shared.favicon(for: feed)
             }
             await extractArticleContent()
             if let cached = try? DatabaseManager.shared.cachedArticleTranslation(for: article.id) {

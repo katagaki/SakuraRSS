@@ -20,9 +20,22 @@ struct ArticleLink<Label: View>: View {
         return mode
     }
 
+    private var isXFeedArticle: Bool {
+        feedManager.feed(forArticle: article)?.isXFeed == true
+    }
+
     var body: some View {
         if article.isPodcastEpisode {
             NavigationLink(value: article) {
+                label()
+            }
+        } else if isXFeedArticle {
+            Button {
+                feedManager.markRead(article)
+                if let url = URL(string: article.url) {
+                    openURL(url)
+                }
+            } label: {
                 label()
             }
         } else if article.isYouTubeURL {
