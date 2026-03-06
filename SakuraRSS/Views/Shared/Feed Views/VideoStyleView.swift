@@ -8,6 +8,7 @@ struct VideoStyleView: View {
     var onLoadMore: (() -> Void)?
 
     @State private var youTubePlayerArticle: Article?
+    @State private var showYouTubePlayer = false
 
     var body: some View {
         ScrollView(.vertical) {
@@ -17,6 +18,7 @@ struct VideoStyleView: View {
                         feedManager.markRead(article)
                         if article.isYouTubeURL && youTubePlayerEnabled {
                             youTubePlayerArticle = article
+                            showYouTubePlayer = true
                         } else {
                             YouTubeHelper.openInApp(url: article.url)
                         }
@@ -33,8 +35,10 @@ struct VideoStyleView: View {
                     .padding(.bottom)
             }
         }
-        .fullScreenCover(item: $youTubePlayerArticle) { article in
-            YouTubePlayerView(article: article)
+        .navigationDestination(isPresented: $showYouTubePlayer) {
+            if let article = youTubePlayerArticle {
+                YouTubePlayerView(article: article)
+            }
         }
     }
 }

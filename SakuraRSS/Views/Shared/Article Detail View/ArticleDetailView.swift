@@ -334,7 +334,7 @@ struct ArticleDetailView: View {
                 Text(summarizationError)
             }
         }
-        .fullScreenCover(isPresented: $showYouTubePlayer) {
+        .navigationDestination(isPresented: $showYouTubePlayer) {
             YouTubePlayerView(article: article)
         }
         .translationTask(translationConfig) { session in
