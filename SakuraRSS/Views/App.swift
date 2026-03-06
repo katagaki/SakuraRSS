@@ -125,6 +125,7 @@ struct SakuraRSSApp: App {
             defaults.removeObject(forKey: "FeedsList.ArticleID")
             // Disable all labs features in safe mode
             defaults.set(false, forKey: "Labs.XProfileFeeds")
+            defaults.set(false, forKey: "Labs.YouTubePlayer")
         } else {
             _isInSafeMode = State(initialValue: false)
         }
