@@ -68,7 +68,9 @@ extension ArticleDetailView {
     }
 
     func openArticleURL() {
-        if article.isYouTubeURL {
+        if article.isYouTubeURL && youTubePlayerEnabled {
+            showYouTubePlayer = true
+        } else if article.isYouTubeURL {
             YouTubeHelper.openInApp(url: article.url)
         } else if let url = URL(string: article.url) {
             openURL(url)

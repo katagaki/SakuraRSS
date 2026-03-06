@@ -49,7 +49,9 @@ struct MoreView: View {
                 }
 
                 Section {
-                    Toggle(String(localized: "Settings.BackgroundRefresh"), isOn: $backgroundRefreshEnabled)
+                    Toggle(isOn: $backgroundRefreshEnabled) {
+                        Label(String(localized: "Settings.BackgroundRefresh"), systemImage: "arrow.clockwise")
+                    }
                     if backgroundRefreshEnabled {
                         Picker(String(localized: "Settings.RefreshInterval"), selection: $refreshInterval) {
                             Text("Settings.Refresh.15min").tag(15)
@@ -57,7 +59,9 @@ struct MoreView: View {
                             Text("Settings.Refresh.1hour").tag(60)
                             Text("Settings.Refresh.4hours").tag(240)
                         }
-                        Toggle(String(localized: "Settings.BadgeEnabled"), isOn: $badgeEnabled)
+                        Toggle(isOn: $badgeEnabled) {
+                            Label(String(localized: "Settings.BadgeEnabled"), systemImage: "app.badge")
+                        }
                             .onChange(of: badgeEnabled) { _, isEnabled in
                                 if isEnabled {
                                     Task {
@@ -81,8 +85,12 @@ struct MoreView: View {
 
                 if isAppleIntelligenceAvailable {
                     Section {
-                        Toggle(String(localized: "Settings.WhileYouSlept"), isOn: $whileYouSleptEnabled)
-                        Toggle(String(localized: "Settings.TodaysSummary"), isOn: $todaysSummaryEnabled)
+                        Toggle(isOn: $whileYouSleptEnabled) {
+                            Label(String(localized: "Settings.WhileYouSlept"), systemImage: "moon.stars")
+                        }
+                        Toggle(isOn: $todaysSummaryEnabled) {
+                            Label(String(localized: "Settings.TodaysSummary"), systemImage: "newspaper")
+                        }
                     } header: {
                         Text("Settings.Section.AppleIntelligence")
                     } footer: {
@@ -108,15 +116,17 @@ struct MoreView: View {
                 }
 
                 Section {
-                    NavigationLink(String(localized: "More.Labs")) {
+                    NavigationLink {
                         LabsView()
+                    } label: {
+                        Label(String(localized: "More.Labs"), systemImage: "flask")
                     }
                 }
 
                 Section {
                     Link(destination: URL(string: "https://github.com/katagaki/SakuraRSS")!) {
                         HStack {
-                            Text("More.SourceCode")
+                            Label(String(localized: "More.SourceCode"), systemImage: "curlybraces")
                             Spacer()
                             Text("katagaki/SakuraRSS")
                                 .foregroundStyle(.secondary)
@@ -125,8 +135,10 @@ struct MoreView: View {
                         }
                     }
                     .tint(.primary)
-                    NavigationLink(String(localized: "More.Attribution")) {
+                    NavigationLink {
                         AttributesView()
+                    } label: {
+                        Label(String(localized: "More.Attribution"), systemImage: "heart")
                     }
                 }
             }

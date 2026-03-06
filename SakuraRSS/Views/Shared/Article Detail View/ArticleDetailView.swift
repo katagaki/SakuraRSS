@@ -27,6 +27,8 @@ struct ArticleDetailView: View {
     @State var showingSummary = false
     @State var isBookmarked = false
     @State var summarizationError: String?
+    @State var showYouTubePlayer = false
+    @AppStorage("Labs.YouTubePlayer") var youTubePlayerEnabled: Bool = false
 
     var isAppleIntelligenceAvailable: Bool {
         SystemLanguageModel.default.availability == .available
@@ -331,6 +333,9 @@ struct ArticleDetailView: View {
             if let summarizationError {
                 Text(summarizationError)
             }
+        }
+        .fullScreenCover(isPresented: $showYouTubePlayer) {
+            YouTubePlayerView(article: article)
         }
         .translationTask(translationConfig) { session in
             await handleTranslation(session: session)

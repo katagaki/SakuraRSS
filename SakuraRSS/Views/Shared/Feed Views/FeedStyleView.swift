@@ -60,12 +60,14 @@ struct FeedArticleRow: View {
     @Environment(\.openURL) var openURL
     @Environment(\.navigateToFeed) var navigateToFeed
     let article: Article
+    @AppStorage("Labs.YouTubePlayer") private var youTubePlayerEnabled: Bool = false
     @State private var favicon: UIImage?
     @State private var feedName: String?
     @State private var acronymIcon: UIImage?
     @State private var skipFaviconInset = false
     @State private var preferTitle = false
     @State private var feed: Feed?
+    @State private var showYouTubePlayer = false
 
     @ViewBuilder
     private var feedAvatarView: some View {
@@ -155,7 +157,9 @@ struct FeedArticleRow: View {
 
                 HStack {
                     Button {
-                        if article.isYouTubeURL {
+                        if article.isYouTubeURL && youTubePlayerEnabled {
+                            showYouTubePlayer = true
+                        } else if article.isYouTubeURL {
                             YouTubeHelper.openInApp(url: article.url)
                         } else if let url = URL(string: article.url) {
                             openURL(url)
@@ -168,6 +172,9 @@ struct FeedArticleRow: View {
                         )
                     }
                     .buttonStyle(.plain)
+                    .fullScreenCover(isPresented: $showYouTubePlayer) {
+                        YouTubePlayerView(article: article)
+                    }
 
                     Spacer()
 

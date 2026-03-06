@@ -1,20 +1,19 @@
 import SwiftUI
 import WebKit
 
-/// A web view that presents the X (Twitter) login page.
+/// A web view that presents the YouTube/Google login page.
 /// Session cookies persist in the default WKWebsiteDataStore so that
-/// XProfileScraper can use them for authenticated profile scraping.
-struct XLoginView: View {
+/// the YouTube player can use them for authenticated playback (e.g. PiP).
+struct YouTubeLoginView: View {
 
     @Environment(\.dismiss) var dismiss
-    @State private var isCheckingLogin = false
     @State private var isLoggedIn = false
 
     var body: some View {
         NavigationStack {
-            XLoginWebView(isLoggedIn: $isLoggedIn)
+            YouTubeLoginWebView(isLoggedIn: $isLoggedIn)
                 .ignoresSafeArea(edges: .bottom)
-                .navigationTitle(String(localized: "XLogin.Title"))
+                .navigationTitle(String(localized: "YouTubeLogin.Title"))
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
                     ToolbarItem(placement: .cancellationAction) {
@@ -39,8 +38,7 @@ struct XLoginView: View {
     }
 }
 
-/// UIViewRepresentable wrapper for a WKWebView that loads the X login page.
-private struct XLoginWebView: UIViewRepresentable {
+private struct YouTubeLoginWebView: UIViewRepresentable {
 
     @Binding var isLoggedIn: Bool
 
@@ -55,7 +53,7 @@ private struct XLoginWebView: UIViewRepresentable {
         webView.navigationDelegate = context.coordinator
         webView.customUserAgent = "Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1"
 
-        if let loginURL = URL(string: "https://x.com/i/flow/login") {
+        if let loginURL = URL(string: "https://accounts.google.com/ServiceLogin?service=youtube&continue=https://m.youtube.com/") {
             webView.load(URLRequest(url: loginURL))
         }
         return webView
@@ -78,7 +76,7 @@ private struct XLoginWebView: UIViewRepresentable {
                 try? await Task.sleep(for: .seconds(1))
                 guard !Task.isCancelled else { return }
 
-                let loggedIn = await XProfileScraper.hasXSession()
+                let loggedIn = await YouTubePlayerView.hasYouTubeSession()
                 if loggedIn {
                     self.isLoggedIn = true
                 }
