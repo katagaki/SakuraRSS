@@ -35,7 +35,7 @@ struct VideoStyleView: View {
                     .padding(.bottom)
             }
         }
-        .sheet(isPresented: $showYouTubePlayer) {
+        .navigationDestination(isPresented: $showYouTubePlayer) {
             if let article = youTubePlayerArticle {
                 YouTubePlayerView(article: article)
             }

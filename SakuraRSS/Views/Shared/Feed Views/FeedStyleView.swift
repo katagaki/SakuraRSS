@@ -172,7 +172,7 @@ struct FeedArticleRow: View {
                         )
                     }
                     .buttonStyle(.plain)
-                    .sheet(isPresented: $showYouTubePlayer) {
+                    .navigationDestination(isPresented: $showYouTubePlayer) {
                         YouTubePlayerView(article: article)
                     }
 
