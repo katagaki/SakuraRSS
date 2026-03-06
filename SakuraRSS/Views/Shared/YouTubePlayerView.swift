@@ -3,7 +3,6 @@ import WebKit
 
 struct YouTubePlayerView: View {
 
-    @Environment(\.dismiss) var dismiss
     @Environment(\.openURL) var openURL
     let article: Article
 
@@ -21,8 +20,7 @@ struct YouTubePlayerView: View {
     }
 
     var body: some View {
-        NavigationStack {
-            VStack(spacing: 0) {
+        VStack(spacing: 0) {
                 YouTubePlayerWebView(
                     urlString: article.url,
                     isPlaying: $isPlaying,
@@ -109,17 +107,9 @@ struct YouTubePlayerView: View {
 
                 Spacer()
             }
-            .sakuraBackground()
-            .navigationBarTitleDisplayMode(.inline)
-            .navigationTitle(article.title)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button(role: .cancel) {
-                        dismiss()
-                    }
-                }
-            }
-        }
+        .sakuraBackground()
+        .navigationBarTitleDisplayMode(.inline)
+        .navigationTitle(article.title)
         .task {
             let signedIn = await YouTubePlayerView.hasYouTubeSession()
             let premium = signedIn ? await YouTubePlayerView.hasYouTubePremium() : false
