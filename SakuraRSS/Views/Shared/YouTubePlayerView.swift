@@ -13,6 +13,10 @@ struct YouTubePlayerView: View {
     @State private var currentTime: TimeInterval = 0
     @State private var duration: TimeInterval = 0
     @State private var webView: WKWebView?
+    @State private var isAd = false
+    @State private var isSkippable = false
+    @State private var advertiserURL: URL?
+    @State private var hasStartedPlaying = false
 
     private var youtubeAppURL: URL? {
         guard let url = URL(string: article.url),
@@ -30,10 +34,22 @@ struct YouTubePlayerView: View {
                     isPlaying: $isPlaying,
                     currentTime: $currentTime,
                     duration: $duration,
-                    webView: $webView
+                    webView: $webView,
+                    isAd: $isAd,
+                    isSkippable: $isSkippable,
+                    advertiserURL: $advertiserURL
                 )
                 .aspectRatio(16 / 9, contentMode: .fit)
                 .clipped()
+                .overlay {
+                    if !hasStartedPlaying {
+                        Color.black
+                            .overlay {
+                                ProgressView()
+                                    .tint(.white)
+                            }
+                    }
+                }
 
                 // Title
                 Text(article.title)
@@ -85,6 +101,7 @@ struct YouTubePlayerView: View {
                         set: { currentTime = $0 }
                     ),
                     duration: duration,
+                    isDisabled: isAd,
                     onSeek: { seek(to: $0) }
                 )
                 .padding(.horizontal)
@@ -105,6 +122,7 @@ struct YouTubePlayerView: View {
                         Image(systemName: "gobackward.10")
                             .font(.title2)
                     }
+                    .disabled(isAd)
 
                     Button {
                         togglePlayPause()
@@ -112,6 +130,7 @@ struct YouTubePlayerView: View {
                         Image(systemName: isPlaying ? "pause.circle.fill" : "play.circle.fill")
                             .font(.system(size: 48))
                     }
+                    .disabled(isAd)
 
                     Button {
                         fastForward()
@@ -119,6 +138,7 @@ struct YouTubePlayerView: View {
                         Image(systemName: "goforward.10")
                             .font(.title2)
                     }
+                    .disabled(isAd)
 
                     Button {
                         enterFullscreen()
@@ -129,6 +149,19 @@ struct YouTubePlayerView: View {
                 }
                 .foregroundStyle(.primary)
                 .padding(.top, 16)
+
+                // Visit Advertiser button
+                if isAd, let advertiserURL {
+                    Button {
+                        openURL(advertiserURL)
+                    } label: {
+                        Text(String(localized: "YouTube.VisitAdvertiser"))
+                            .frame(maxWidth: .infinity)
+                    }
+                    .buttonStyle(.bordered)
+                    .padding(.horizontal)
+                    .padding(.top, 12)
+                }
 
                 Spacer()
             }
@@ -160,6 +193,16 @@ struct YouTubePlayerView: View {
                 enterFullscreen()
             }
         }
+        .onChange(of: isPlaying) { _, newValue in
+            if newValue && !hasStartedPlaying {
+                withAnimation {
+                    hasStartedPlaying = true
+                }
+            }
+        }
+        .onChange(of: isAd) { _, newValue in
+            webView?.isUserInteractionEnabled = newValue
+        }
         .task {
             isBookmarked = article.isBookmarked
             let signedIn = await YouTubePlayerView.hasYouTubeSession()
@@ -168,7 +211,13 @@ struct YouTubePlayerView: View {
         }
     }
 
-    private func togglePlayPause() {
+}
+
+// MARK: - Playback Controls
+
+extension YouTubePlayerView {
+
+    func togglePlayPause() {
         let script = """
         (function() {
             var video = document.querySelector('video');
@@ -186,7 +235,7 @@ struct YouTubePlayerView: View {
         }
     }
 
-    private func seek(to time: TimeInterval) {
+    func seek(to time: TimeInterval) {
         let script = """
         (function() {
             var video = document.querySelector('video');
@@ -196,7 +245,7 @@ struct YouTubePlayerView: View {
         webView?.evaluateJavaScript(script, completionHandler: nil)
     }
 
-    private func rewind() {
+    func rewind() {
         let script = """
         (function() {
             var video = document.querySelector('video');
@@ -206,7 +255,7 @@ struct YouTubePlayerView: View {
         webView?.evaluateJavaScript(script, completionHandler: nil)
     }
 
-    private func fastForward() {
+    func fastForward() {
         let script = """
         (function() {
             var video = document.querySelector('video');
@@ -216,7 +265,7 @@ struct YouTubePlayerView: View {
         webView?.evaluateJavaScript(script, completionHandler: nil)
     }
 
-    private func enterFullscreen() {
+    func enterFullscreen() {
         let script = """
         (function() {
             var video = document.querySelector('video');
@@ -228,7 +277,7 @@ struct YouTubePlayerView: View {
         webView?.evaluateJavaScript(script, completionHandler: nil)
     }
 
-    private func togglePiP() {
+    func togglePiP() {
         let script = """
         (function() {
             var video = document.querySelector('video');
@@ -243,6 +292,11 @@ struct YouTubePlayerView: View {
         """
         webView?.evaluateJavaScript(script, completionHandler: nil)
     }
+}
+
+// MARK: - Session
+
+extension YouTubePlayerView {
 
     static func hasYouTubeSession() async -> Bool {
         let store = WKWebsiteDataStore.default()
@@ -254,8 +308,6 @@ struct YouTubePlayerView: View {
         }
     }
 
-    /// Checks if the signed-in user has YouTube Premium by looking for
-    /// premium membership indicators in YouTube's initial page data.
     static func hasYouTubePremium() async -> Bool {
         let config = WKWebViewConfiguration()
         config.websiteDataStore = .default()

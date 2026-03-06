@@ -4,6 +4,7 @@ struct SeekBarView: View {
 
     @Binding var currentTime: TimeInterval
     let duration: TimeInterval
+    var isDisabled: Bool = false
     let onSeek: (TimeInterval) -> Void
 
     @State private var isDragging = false
@@ -45,6 +46,7 @@ struct SeekBarView: View {
                 .gesture(
                     DragGesture(minimumDistance: 0)
                         .onChanged { value in
+                            guard !isDisabled else { return }
                             if !isDragging {
                                 isDragging = true
                                 dragTime = currentTime
@@ -53,10 +55,12 @@ struct SeekBarView: View {
                             dragTime = TimeInterval(fraction) * duration
                         }
                         .onEnded { _ in
+                            guard !isDisabled else { return }
                             onSeek(dragTime)
                             isDragging = false
                         }
                 )
+                .opacity(isDisabled ? 0.4 : 1.0)
             }
             .frame(height: 16)
             .animation(.easeInOut(duration: 0.15), value: isDragging)

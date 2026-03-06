@@ -8,9 +8,19 @@ struct YouTubePlayerWebView: UIViewRepresentable {
     @Binding var currentTime: TimeInterval
     @Binding var duration: TimeInterval
     @Binding var webView: WKWebView?
+    @Binding var isAd: Bool
+    @Binding var isSkippable: Bool
+    @Binding var advertiserURL: URL?
 
     func makeCoordinator() -> Coordinator {
-        Coordinator(isPlaying: $isPlaying, currentTime: $currentTime, duration: $duration)
+        Coordinator(
+            isPlaying: $isPlaying,
+            currentTime: $currentTime,
+            duration: $duration,
+            isAd: $isAd,
+            isSkippable: $isSkippable,
+            advertiserURL: $advertiserURL
+        )
     }
 
     func makeUIView(context: Context) -> WKWebView {
@@ -55,12 +65,25 @@ struct YouTubePlayerWebView: UIViewRepresentable {
         @Binding var isPlaying: Bool
         @Binding var currentTime: TimeInterval
         @Binding var duration: TimeInterval
+        @Binding var isAd: Bool
+        @Binding var isSkippable: Bool
+        @Binding var advertiserURL: URL?
         private var playbackObserver: Timer?
 
-        init(isPlaying: Binding<Bool>, currentTime: Binding<TimeInterval>, duration: Binding<TimeInterval>) {
+        init(
+            isPlaying: Binding<Bool>,
+            currentTime: Binding<TimeInterval>,
+            duration: Binding<TimeInterval>,
+            isAd: Binding<Bool>,
+            isSkippable: Binding<Bool>,
+            advertiserURL: Binding<URL?>
+        ) {
             _isPlaying = isPlaying
             _currentTime = currentTime
             _duration = duration
+            _isAd = isAd
+            _isSkippable = isSkippable
+            _advertiserURL = advertiserURL
         }
 
         func invalidateObserver() {
@@ -121,7 +144,22 @@ struct YouTubePlayerWebView: UIViewRepresentable {
                 (function() {
                     var video = document.querySelector('video');
                     if (!video) return null;
-                    return { playing: !video.paused, currentTime: video.currentTime, duration: video.duration || 0 };
+                    var player = document.querySelector('.html5-video-player');
+                    var isAd = player ? player.classList.contains('ad-showing') : false;
+                    var skipBtn = document.querySelector('.ytp-skip-ad-button, .ytp-ad-skip-button, \
+                .ytp-ad-skip-button-modern, .ytp-ad-skip-button-container, button[class*="skip"]');
+                    var isSkippable = isAd && skipBtn != null;
+                    var advLink = document.querySelector('.ytp-ad-visit-advertiser-button, \
+                .ytp-ad-button, a[class*="visit-advertiser"], .ytp-ad-overlay-link');
+                    var advURL = advLink ? (advLink.href || advLink.getAttribute('href') || '') : '';
+                    return {
+                        playing: !video.paused,
+                        currentTime: video.currentTime,
+                        duration: video.duration || 0,
+                        isAd: isAd,
+                        isSkippable: isSkippable,
+                        advertiserURL: advURL
+                    };
                 })();
                 """
                 webView.evaluateJavaScript(script) { result, _ in
@@ -135,6 +173,17 @@ struct YouTubePlayerWebView: UIViewRepresentable {
                             }
                             if let dur = dict["duration"] as? Double, dur > 0 {
                                 self?.duration = dur
+                            }
+                            if let ad = dict["isAd"] as? Bool {
+                                self?.isAd = ad
+                            }
+                            if let skippable = dict["isSkippable"] as? Bool {
+                                self?.isSkippable = skippable
+                            }
+                            if let urlStr = dict["advertiserURL"] as? String, !urlStr.isEmpty {
+                                self?.advertiserURL = URL(string: urlStr)
+                            } else {
+                                self?.advertiserURL = nil
                             }
                         }
                     }
@@ -193,7 +242,11 @@ enum YouTubePlayerStyles {
     .ytp-paid-content-overlay, .iv-branding,
     .ytp-youtube-button, .ytp-watermark,
     tp-yt-paper-dialog, ytd-popup-container,
-    ytd-consent-bump-v2-lightbox {
+    ytd-consent-bump-v2-lightbox,
+    .ytp-ad-visit-advertiser-button, .ytp-ad-button,
+    .ytp-visit-advertiser-link, .ytp-ad-overlay-link,
+    [class*="visit-advertiser"], .ytp-ad-text,
+    .ytp-ad-progress, .ytp-ad-progress-list {
         display: none !important;
         visibility: hidden !important;
         height: 0 !important;
