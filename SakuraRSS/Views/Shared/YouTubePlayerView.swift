@@ -246,6 +246,7 @@ private struct YouTubePlayerWebView: UIViewRepresentable {
         webView.backgroundColor = .black
         webView.scrollView.backgroundColor = .black
         webView.customUserAgent = "Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1"
+        webView.isUserInteractionEnabled = false
 
         if let url = URL(string: urlString) {
             webView.load(URLRequest(url: url))
@@ -340,6 +341,7 @@ private struct YouTubePlayerWebView: UIViewRepresentable {
             ytd-compact-promoted-video-renderer,
             .ytp-ce-element, .ytp-cards-teaser,
             .ytp-paid-content-overlay, .iv-branding,
+            .ytp-youtube-button, .ytp-watermark,
             tp-yt-paper-dialog, ytd-popup-container,
             #movie_player .ytp-chrome-bottom,
             ytd-consent-bump-v2-lightbox {
