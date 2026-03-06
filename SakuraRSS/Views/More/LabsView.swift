@@ -1,8 +1,8 @@
 import SwiftUI
 
-struct ExperimentsView: View {
+struct LabsView: View {
 
-    @AppStorage("Experiments.XProfileFeeds") private var xProfileFeedsEnabled: Bool = false
+    @AppStorage("Labs.XProfileFeeds") private var xProfileFeedsEnabled: Bool = false
 
     private var appName: String {
         Bundle.main.object(forInfoDictionaryKey: "CFBundleName") as? String ?? "Sakura"
@@ -11,20 +11,20 @@ struct ExperimentsView: View {
     var body: some View {
         Form {
             Section {
-                Text("Experiments.Warning \(appName)")
+                Text("Labs.Warning \(appName)")
                     .font(.callout)
                     .foregroundStyle(.secondary)
             }
 
             Section {
-                Toggle(String(localized: "Experiments.XProfileFeeds"), isOn: $xProfileFeedsEnabled)
+                Toggle(String(localized: "Labs.XProfileFeeds"), isOn: $xProfileFeedsEnabled)
             } header: {
-                Text("Experiments.Section.Features")
+                Text("Labs.Section.Features")
             } footer: {
-                Text("Experiments.XProfileFeeds.Footer")
+                Text("Labs.XProfileFeeds.Footer")
             }
         }
-        .navigationTitle(String(localized: "Experiments.Title"))
+        .navigationTitle(String(localized: "Labs.Title"))
         .toolbarTitleDisplayMode(.inlineLarge)
         .scrollContentBackground(.hidden)
         .sakuraBackground()

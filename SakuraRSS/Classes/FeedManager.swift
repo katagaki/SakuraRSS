@@ -65,7 +65,7 @@ final class FeedManager {
 
     func refreshFeed(_ feed: Feed, updateTitle: Bool = true) async throws {
         if feed.isXFeed {
-            guard UserDefaults.standard.bool(forKey: "Experiments.XProfileFeeds") else { return }
+            guard UserDefaults.standard.bool(forKey: "Labs.XProfileFeeds") else { return }
             try await refreshXFeed(feed)
             return
         }

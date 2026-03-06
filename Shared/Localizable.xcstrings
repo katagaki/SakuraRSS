@@ -4622,7 +4622,7 @@
         }
       }
     },
-    "Experiments.Section.Features" : {
+    "Labs.Section.Features" : {
       "extractionState" : "manual",
       "localizations" : {
         "de" : {
@@ -4681,125 +4681,125 @@
         }
       }
     },
-    "Experiments.Title" : {
+    "Labs.Title" : {
       "extractionState" : "manual",
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Experimente"
+            "value" : "Labs"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Experiments"
+            "value" : "Labs"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Expériences"
+            "value" : "Labs"
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Esperimenti"
+            "value" : "Labs"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "実験"
+            "value" : "ラボ"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "실험"
+            "value" : "실험실"
           }
         },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Thử nghiệm"
+            "value" : "Phòng thí nghiệm"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "实验"
+            "value" : "实验室"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "實驗"
+            "value" : "實驗室"
           }
         }
       }
     },
-    "Experiments.Warning %@" : {
+    "Labs.Warning %@" : {
       "extractionState" : "manual",
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Experimentelle Funktionen können dazu führen, dass %@ langsamer wird oder abstürzt. Wenn die App beim Start abstürzt, werden alle Experimente automatisch deaktiviert."
+            "value" : "Labs-Funktionen können dazu führen, dass %@ langsamer wird oder abstürzt. Wenn die App beim Start abstürzt, werden alle Labs-Funktionen automatisch deaktiviert."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Experimental features may cause %@ to slow down or crash. If the app crashes on startup, all experiments will be turned off automatically."
+            "value" : "Labs features may cause %@ to slow down or crash. If the app crashes on startup, all labs features will be turned off automatically."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Les fonctionnalités expérimentales peuvent ralentir ou faire planter %@. Si l'application plante au démarrage, toutes les expériences seront automatiquement désactivées."
+            "value" : "Les fonctionnalités Labs peuvent ralentir ou faire planter %@. Si l'application plante au démarrage, toutes les fonctionnalités Labs seront automatiquement désactivées."
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Le funzionalità sperimentali possono causare rallentamenti o arresti anomali di %@. Se l'app si arresta all'avvio, tutti gli esperimenti verranno disattivati automaticamente."
+            "value" : "Le funzionalità Labs possono causare rallentamenti o arresti anomali di %@. Se l'app si arresta all'avvio, tutte le funzionalità Labs verranno disattivate automaticamente."
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "実験的な機能により、%@が遅くなったりクラッシュしたりする可能性があります。起動時にアプリがクラッシュした場合、すべての実験は自動的にオフになります。"
+            "value" : "ラボ機能により、%@が遅くなったりクラッシュしたりする可能性があります。起動時にアプリがクラッシュした場合、すべてのラボ機能は自動的にオフになります。"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "실험적 기능으로 인해 %@이(가) 느려지거나 충돌할 수 있습니다. 앱이 시작 시 충돌하면 모든 실험이 자동으로 꺼집니다."
+            "value" : "실험실 기능으로 인해 %@이(가) 느려지거나 충돌할 수 있습니다. 앱이 시작 시 충돌하면 모든 실험실 기능이 자동으로 꺼집니다."
           }
         },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Các tính năng thử nghiệm có thể khiến %@ chậm lại hoặc bị lỗi. Nếu ứng dụng bị lỗi khi khởi động, tất cả thử nghiệm sẽ tự động được tắt."
+            "value" : "Các tính năng Phòng thí nghiệm có thể khiến %@ chậm lại hoặc bị lỗi. Nếu ứng dụng bị lỗi khi khởi động, tất cả tính năng Phòng thí nghiệm sẽ tự động được tắt."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "实验性功能可能会导致%@变慢或崩溃。如果应用在启动时崩溃，所有实验将自动关闭。"
+            "value" : "实验室功能可能会导致%@变慢或崩溃。如果应用在启动时崩溃，所有实验室功能将自动关闭。"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "實驗性功能可能會導致%@變慢或當機。如果應用程式在啟動時當機，所有實驗將自動關閉。"
+            "value" : "實驗室功能可能會導致%@變慢或當機。如果應用程式在啟動時當機，所有實驗室功能將自動關閉。"
           }
         }
       }
     },
-    "Experiments.XProfileFeeds" : {
+    "Labs.XProfileFeeds" : {
       "extractionState" : "manual",
       "localizations" : {
         "de" : {
@@ -4858,7 +4858,7 @@
         }
       }
     },
-    "Experiments.XProfileFeeds.Footer" : {
+    "Labs.XProfileFeeds.Footer" : {
       "extractionState" : "manual",
       "localizations" : {
         "de" : {
@@ -7052,61 +7052,61 @@
         }
       }
     },
-    "More.Experiments" : {
+    "More.Labs" : {
       "extractionState" : "manual",
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Experimente"
+            "value" : "Labs"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Experiments"
+            "value" : "Labs"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Expériences"
+            "value" : "Labs"
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Esperimenti"
+            "value" : "Labs"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "実験"
+            "value" : "ラボ"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "실험"
+            "value" : "실험실"
           }
         },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Thử nghiệm"
+            "value" : "Phòng thí nghiệm"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "实验"
+            "value" : "实验室"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "實驗"
+            "value" : "實驗室"
           }
         }
       }

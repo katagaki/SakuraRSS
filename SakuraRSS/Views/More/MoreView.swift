@@ -108,8 +108,8 @@ struct MoreView: View {
                 }
 
                 Section {
-                    NavigationLink(String(localized: "More.Experiments")) {
-                        ExperimentsView()
+                    NavigationLink(String(localized: "More.Labs")) {
+                        LabsView()
                     }
                 }
 
