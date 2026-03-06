@@ -26,7 +26,7 @@ struct MoreView: View {
 
     var body: some View {
         NavigationStack {
-            Form {
+            List {
                 Section {
                     Picker(String(localized: "Settings.DisplayStyle"), selection: $defaultDisplayStyle) {
                         Text("Articles.Style.Inbox")
@@ -49,19 +49,17 @@ struct MoreView: View {
                 }
 
                 Section {
-                    Toggle(isOn: $backgroundRefreshEnabled) {
-                        Label(String(localized: "Settings.BackgroundRefresh"), systemImage: "arrow.clockwise")
-                    }
+                    Toggle(String(localized: "Settings.BackgroundRefresh"), isOn: $backgroundRefreshEnabled)
                     if backgroundRefreshEnabled {
-                        Picker(String(localized: "Settings.RefreshInterval"), selection: $refreshInterval) {
+                        Picker(selection: $refreshInterval) {
                             Text("Settings.Refresh.15min").tag(15)
                             Text("Settings.Refresh.30min").tag(30)
                             Text("Settings.Refresh.1hour").tag(60)
                             Text("Settings.Refresh.4hours").tag(240)
+                        } label: {
+                            Text(String(localized: "Settings.RefreshInterval"))
                         }
-                        Toggle(isOn: $badgeEnabled) {
-                            Label(String(localized: "Settings.BadgeEnabled"), systemImage: "app.badge")
-                        }
+                        Toggle(String(localized: "Settings.BadgeEnabled"), isOn: $badgeEnabled)
                             .onChange(of: badgeEnabled) { _, isEnabled in
                                 if isEnabled {
                                     Task {
@@ -85,30 +83,47 @@ struct MoreView: View {
 
                 if isAppleIntelligenceAvailable {
                     Section {
-                        Toggle(isOn: $whileYouSleptEnabled) {
-                            Label(String(localized: "Settings.WhileYouSlept"), systemImage: "moon.stars")
-                        }
-                        Toggle(isOn: $todaysSummaryEnabled) {
-                            Label(String(localized: "Settings.TodaysSummary"), systemImage: "newspaper")
-                        }
+                        Toggle(String(localized: "Settings.WhileYouSlept"), isOn: $whileYouSleptEnabled)
+                        Toggle(String(localized: "Settings.TodaysSummary"), isOn: $todaysSummaryEnabled)
                     } header: {
                         Text("Settings.Section.AppleIntelligence")
                     } footer: {
                         Text("Settings.AppleIntelligence.Footer")
                     }
+
                 }
 
                 Section {
-                    Button {
-                        isExporting = true
-                    } label: {
-                        Label(String(localized: "DataManagement.ExportOPML"), systemImage: "square.and.arrow.up")
+                    HStack(spacing: 0) {
+                        Button {
+                            isExporting = true
+                        } label: {
+                            VStack(spacing: 6) {
+                                Image(systemName: "square.and.arrow.up")
+                                    .font(.title2)
+                                Text(String(localized: "DataManagement.ExportOPML"))
+                                    .font(.body)
+                            }
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 12)
+                        }
+                        .buttonStyle(.plain)
+                        Divider()
+                        Button {
+                            isImporting = true
+                        } label: {
+                            VStack(spacing: 6) {
+                                Image(systemName: "square.and.arrow.down")
+                                    .font(.title2)
+                                Text(String(localized: "DataManagement.ImportOPML"))
+                                    .font(.body)
+                            }
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 12)
+                        }
+                        .buttonStyle(.plain)
                     }
-                    Button {
-                        isImporting = true
-                    } label: {
-                        Label(String(localized: "DataManagement.ImportOPML"), systemImage: "square.and.arrow.down")
-                    }
+                    .listRowInsets(EdgeInsets())
                 } header: {
                     Text("Settings.Section.DataManagement")
                 } footer: {
@@ -119,18 +134,16 @@ struct MoreView: View {
                     NavigationLink {
                         LabsView()
                     } label: {
-                        Label(String(localized: "More.Labs"), systemImage: "flask")
+                        Text(String(localized: "More.Labs"))
                     }
                 }
 
                 Section {
                     Link(destination: URL(string: "https://github.com/katagaki/SakuraRSS")!) {
                         HStack {
-                            Label(String(localized: "More.SourceCode"), systemImage: "curlybraces")
+                            Text(String(localized: "More.SourceCode"))
                             Spacer()
                             Text("katagaki/SakuraRSS")
-                                .foregroundStyle(.secondary)
-                            Image(systemName: "safari")
                                 .foregroundStyle(.secondary)
                         }
                     }
@@ -138,10 +151,13 @@ struct MoreView: View {
                     NavigationLink {
                         AttributesView()
                     } label: {
-                        Label(String(localized: "More.Attribution"), systemImage: "heart")
+                        Text(String(localized: "More.Attribution"))
                     }
                 }
+
             }
+            .listStyle(.insetGrouped)
+            .listSectionSpacing(.compact)
             .navigationTitle(String(localized: "Tabs.More"))
             .toolbarTitleDisplayMode(.inlineLarge)
             .scrollContentBackground(.hidden)
