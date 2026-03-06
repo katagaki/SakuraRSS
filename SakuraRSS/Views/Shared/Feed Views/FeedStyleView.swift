@@ -172,7 +172,7 @@ struct FeedArticleRow: View {
                         )
                     }
                     .buttonStyle(.plain)
-                    .fullScreenCover(isPresented: $showYouTubePlayer) {
+                    .navigationDestination(isPresented: $showYouTubePlayer) {
                         YouTubePlayerView(article: article)
                     }
 

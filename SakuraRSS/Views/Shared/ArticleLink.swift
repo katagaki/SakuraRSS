@@ -47,7 +47,7 @@ struct ArticleLink<Label: View>: View {
             } label: {
                 label()
             }
-            .fullScreenCover(isPresented: $showYouTubePlayer) {
+            .navigationDestination(isPresented: $showYouTubePlayer) {
                 YouTubePlayerView(article: article)
             }
         } else if article.isYouTubeURL {
