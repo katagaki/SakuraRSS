@@ -31,18 +31,26 @@ extension FeedManager {
             )
         }
 
+        // Update feed title with display name if available
+        let feedTitle = result.displayName ?? feed.title
+
         // Download and cache the profile photo locally
         if let imageURLString = result.profileImageURL,
            let imageURL = URL(string: imageURLString),
            let (imageData, _) = try? await URLSession.shared.data(from: imageURL),
            let image = UIImage(data: imageData) {
             await FaviconCache.shared.setCustomFavicon(image, feedID: feed.id)
-            if feed.customIconURL != "photo" {
+            if feed.customIconURL != "photo" || feed.title != feedTitle {
                 try? database.updateFeedDetails(
-                    id: feed.id, title: feed.title, url: feed.url,
+                    id: feed.id, title: feedTitle, url: feed.url,
                     customIconURL: "photo"
                 )
             }
+        } else if feed.title != feedTitle {
+            try? database.updateFeedDetails(
+                id: feed.id, title: feedTitle, url: feed.url,
+                customIconURL: feed.customIconURL
+            )
         }
 
         try database.updateFeedLastFetched(id: feed.id, date: Date())

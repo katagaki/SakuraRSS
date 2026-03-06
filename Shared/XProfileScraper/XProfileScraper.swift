@@ -16,6 +16,7 @@ struct ParsedTweet: Sendable {
 struct XProfileScrapeResult: Sendable {
     let tweets: [ParsedTweet]
     let profileImageURL: String?
+    let displayName: String?
 }
 
 /// Scrapes tweets from an X (Twitter) profile using a headless WKWebView.
@@ -71,7 +72,7 @@ final class XProfileScraper: NSObject, WKNavigationDelegate {
         let loaded = await loadPage(webView: webView, url: profileURL)
         guard loaded else {
             cleanup()
-            return XProfileScrapeResult(tweets: [], profileImageURL: nil)
+            return XProfileScrapeResult(tweets: [], profileImageURL: nil, displayName: nil)
         }
 
         // Poll for tweet elements instead of a fixed sleep.
@@ -82,7 +83,7 @@ final class XProfileScraper: NSObject, WKNavigationDelegate {
         )
         guard tweetsAppeared, !Task.isCancelled else {
             cleanup()
-            return XProfileScrapeResult(tweets: [], profileImageURL: nil)
+            return XProfileScrapeResult(tweets: [], profileImageURL: nil, displayName: nil)
         }
 
         // Wait for the profile avatar to load, then extract before scrolling.
@@ -92,6 +93,7 @@ final class XProfileScraper: NSObject, WKNavigationDelegate {
             timeout: Self.renderTimeout
         )
         let profileImageURL = await extractProfileImageURL(from: webView)
+        let displayName = await extractDisplayName(from: webView)
 
         // Scroll and collect tweets until we have enough.
         var allTweets: [ParsedTweet] = []
@@ -131,7 +133,7 @@ final class XProfileScraper: NSObject, WKNavigationDelegate {
         }
 
         cleanup()
-        return XProfileScrapeResult(tweets: allTweets, profileImageURL: profileImageURL)
+        return XProfileScrapeResult(tweets: allTweets, profileImageURL: profileImageURL, displayName: displayName)
     }
 
     // MARK: - Page Loading
@@ -464,6 +466,33 @@ final class XProfileScraper: NSObject, WKNavigationDelegate {
         return '';
     })()
     """
+
+    /// JavaScript to extract the display name from the profile header.
+    private static let displayNameScript = """
+    (function() {
+        // The profile header contains a data-testid="UserName" element
+        var userNameEl = document.querySelector('[data-testid="UserName"]');
+        if (userNameEl) {
+            // The first child span group contains the display name
+            var nameSpans = userNameEl.querySelectorAll('span');
+            for (var i = 0; i < nameSpans.length; i++) {
+                var text = nameSpans[i].textContent.trim();
+                if (text && !text.startsWith('@') && text.length > 0) {
+                    return text;
+                }
+            }
+        }
+        return '';
+    })()
+    """
+
+    private func extractDisplayName(from webView: WKWebView) async -> String? {
+        guard let result = try? await webView.evaluateJavaScript(Self.displayNameScript) as? String,
+              !result.isEmpty else {
+            return nil
+        }
+        return result
+    }
 
     private func extractProfileImageURL(from webView: WKWebView) async -> String? {
         guard let result = try? await webView.evaluateJavaScript(Self.profileImageScript) as? String,
