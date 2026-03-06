@@ -79,6 +79,7 @@ struct VideoArticleCard: View {
                         feedAvatarView
                     }
                     .buttonStyle(.plain)
+                    .fixedSize()
                 } else {
                     feedAvatarView
                 }
