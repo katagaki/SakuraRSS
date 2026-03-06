@@ -270,17 +270,22 @@ private struct YouTubePlayerWebView: UIViewRepresentable {
 
     func updateUIView(_ uiView: WKWebView, context: Context) {}
 
+    static func dismantleUIView(_ uiView: WKWebView, coordinator: Coordinator) {
+        coordinator.invalidateObserver()
+    }
+
     @MainActor
     final class Coordinator: NSObject, WKNavigationDelegate {
         @Binding var isPlaying: Bool
-        private nonisolated(unsafe) var playbackObserver: Timer?
+        private var playbackObserver: Timer?
 
         init(isPlaying: Binding<Bool>) {
             _isPlaying = isPlaying
         }
 
-        deinit {
+        func invalidateObserver() {
             playbackObserver?.invalidate()
+            playbackObserver = nil
         }
 
         func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
