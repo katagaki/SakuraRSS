@@ -85,7 +85,12 @@ final class XProfileScraper: NSObject, WKNavigationDelegate {
             return XProfileScrapeResult(tweets: [], profileImageURL: nil)
         }
 
-        // Extract profile photo before scrolling (it's at the top of the page).
+        // Wait for the profile avatar to load, then extract before scrolling.
+        await waitForSelector(
+            "img[src*=\"profile_images\"]",
+            in: webView,
+            timeout: Self.renderTimeout
+        )
         let profileImageURL = await extractProfileImageURL(from: webView)
 
         // Scroll and collect tweets until we have enough.

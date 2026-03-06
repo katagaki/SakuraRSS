@@ -31,6 +31,11 @@ struct XLoginView: View {
                         }
                     }
                 }
+                .onChange(of: isLoggedIn) { _, loggedIn in
+                    if loggedIn {
+                        dismiss()
+                    }
+                }
         }
     }
 }
@@ -68,8 +73,7 @@ private struct XLoginWebView: UIViewRepresentable {
         }
 
         func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
-            // After each navigation, check if the user has completed login
-            // by looking at the current URL and cookies
+            guard !isLoggedIn else { return }
             checkTask?.cancel()
             checkTask = Task { @MainActor in
                 try? await Task.sleep(for: .seconds(1))
