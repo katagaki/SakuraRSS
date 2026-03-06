@@ -13,6 +13,9 @@ struct FaviconImage: View {
     var needsWhiteBackground: Bool { !skipInset && image.isDark }
     var isNearBlack: Bool { image.isNearBlack }
 
+    /// In round-rect mode, a transparent favicon should be inset with a tinted background.
+    var showRoundRectInset: Bool { !skipInset && !isCircle && image.isSquare && image.hasTransparentPixels }
+
     var iconSize: CGFloat {
         if isNearBlack {
             return size * 0.7
@@ -21,7 +24,7 @@ struct FaviconImage: View {
         } else if isNonSquare {
             let padding: CGFloat = isCircle ? 3 : 2
              return size - padding * 2
-        } else if showInset || needsWhiteBackground {
+        } else if showInset || needsWhiteBackground || showRoundRectInset {
             return size * 0.7
         } else {
             return size
@@ -37,6 +40,8 @@ struct FaviconImage: View {
             return .white
         } else if showInset {
             return Color(.secondarySystemBackground)
+        } else if showRoundRectInset {
+            return image.nearWhiteAverageColor
         } else {
             return .clear
         }
@@ -133,6 +138,104 @@ extension UIImage {
 extension UIImage {
     var isDark: Bool {
         averageLuminance < 0.3
+    }
+
+    /// Returns `true` when the image contains any transparent pixels.
+    var hasTransparentPixels: Bool {
+        !isFilledSquare
+    }
+
+    /// Computes the average colour of all opaque pixels as a SwiftUI `Color`.
+    var averageColor: Color {
+        guard let cgImage = cgImage else { return .gray }
+
+        let sampleSize = 16
+        let colorSpace = CGColorSpaceCreateDeviceRGB()
+        var pixelData = [UInt8](repeating: 0, count: sampleSize * sampleSize * 4)
+
+        guard let context = CGContext(
+            data: &pixelData,
+            width: sampleSize,
+            height: sampleSize,
+            bitsPerComponent: 8,
+            bytesPerRow: sampleSize * 4,
+            space: colorSpace,
+            bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
+        ) else { return .gray }
+
+        context.draw(cgImage, in: CGRect(x: 0, y: 0, width: sampleSize, height: sampleSize))
+
+        var totalR: CGFloat = 0
+        var totalG: CGFloat = 0
+        var totalB: CGFloat = 0
+        var opaqueCount: CGFloat = 0
+
+        for index in 0..<(sampleSize * sampleSize) {
+            let offset = index * 4
+            let alpha = CGFloat(pixelData[offset + 3]) / 255.0
+            guard alpha > 0.1 else { continue }
+            totalR += CGFloat(pixelData[offset]) / 255.0
+            totalG += CGFloat(pixelData[offset + 1]) / 255.0
+            totalB += CGFloat(pixelData[offset + 2]) / 255.0
+            opaqueCount += 1
+        }
+
+        guard opaqueCount > 0 else { return .gray }
+        return Color(
+            red: totalR / opaqueCount,
+            green: totalG / opaqueCount,
+            blue: totalB / opaqueCount
+        )
+    }
+
+    /// A near-white tint derived from the average colour of the image,
+    /// suitable as a subtle background behind a transparent favicon.
+    var nearWhiteAverageColor: Color {
+        guard let cgImage = cgImage else { return Color(.secondarySystemBackground) }
+
+        let sampleSize = 16
+        let colorSpace = CGColorSpaceCreateDeviceRGB()
+        var pixelData = [UInt8](repeating: 0, count: sampleSize * sampleSize * 4)
+
+        guard let context = CGContext(
+            data: &pixelData,
+            width: sampleSize,
+            height: sampleSize,
+            bitsPerComponent: 8,
+            bytesPerRow: sampleSize * 4,
+            space: colorSpace,
+            bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
+        ) else { return Color(.secondarySystemBackground) }
+
+        context.draw(cgImage, in: CGRect(x: 0, y: 0, width: sampleSize, height: sampleSize))
+
+        var totalR: CGFloat = 0
+        var totalG: CGFloat = 0
+        var totalB: CGFloat = 0
+        var opaqueCount: CGFloat = 0
+
+        for index in 0..<(sampleSize * sampleSize) {
+            let offset = index * 4
+            let alpha = CGFloat(pixelData[offset + 3]) / 255.0
+            guard alpha > 0.1 else { continue }
+            totalR += CGFloat(pixelData[offset]) / 255.0
+            totalG += CGFloat(pixelData[offset + 1]) / 255.0
+            totalB += CGFloat(pixelData[offset + 2]) / 255.0
+            opaqueCount += 1
+        }
+
+        guard opaqueCount > 0 else { return Color(.secondarySystemBackground) }
+        let avgR = totalR / opaqueCount
+        let avgG = totalG / opaqueCount
+        let avgB = totalB / opaqueCount
+
+        // Mix 85% white with 15% of the average colour
+        let whiteBlend: CGFloat = 0.85
+        return Color(
+            red: whiteBlend + (1 - whiteBlend) * avgR,
+            green: whiteBlend + (1 - whiteBlend) * avgG,
+            blue: whiteBlend + (1 - whiteBlend) * avgB
+        )
     }
 
     /// Returns `true` when virtually all opaque pixels are near-black,
