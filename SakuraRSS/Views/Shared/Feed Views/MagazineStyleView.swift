@@ -122,7 +122,7 @@ struct MagazineArticleCard: View {
                 isVideoFeed = feed.isVideoFeed || feed.isXFeed
                 skipFaviconInset = feed.isVideoFeed || feed.isXFeed
                     || FullFaviconDomains.shouldUseFullImage(feedDomain: feed.domain)
-                favicon = await FaviconCache.shared.favicon(for: feed.domain, siteURL: feed.siteURL)
+                favicon = await FaviconCache.shared.favicon(for: feed)
             }
         }
     }

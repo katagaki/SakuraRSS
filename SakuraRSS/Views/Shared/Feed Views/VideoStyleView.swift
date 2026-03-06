@@ -140,7 +140,7 @@ struct VideoArticleCard: View {
                 if let data = feed.acronymIcon {
                     acronymIcon = UIImage(data: data)
                 }
-                favicon = await FaviconCache.shared.favicon(for: feed.domain, siteURL: feed.siteURL)
+                favicon = await FaviconCache.shared.favicon(for: feed)
             }
         }
     }
