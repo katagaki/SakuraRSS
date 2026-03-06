@@ -14,6 +14,7 @@ struct FeedListView: View {
             FeedsListPage { feed in
                     path.append(feed)
                 }
+                .environment(\.navigateToFeed, { feed in path.append(feed) })
                 .navigationDestination(for: Feed.self) { feed in
                     FeedArticlesView(feed: feed)
                         .environment(\.zoomNamespace, cardZoom)
