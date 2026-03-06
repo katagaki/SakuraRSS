@@ -9,7 +9,9 @@ struct ArticleLink<Label: View>: View {
     let article: Article
     @ViewBuilder let label: () -> Label
 
+    @AppStorage("Labs.YouTubePlayer") private var youTubePlayerEnabled: Bool = false
     @State private var showSafari = false
+    @State private var showYouTubePlayer = false
 
     private var feedOpenMode: FeedOpenMode {
         guard let feed = feedManager.feed(forArticle: article),
@@ -37,6 +39,16 @@ struct ArticleLink<Label: View>: View {
                 }
             } label: {
                 label()
+            }
+        } else if article.isYouTubeURL && youTubePlayerEnabled {
+            Button {
+                feedManager.markRead(article)
+                showYouTubePlayer = true
+            } label: {
+                label()
+            }
+            .fullScreenCover(isPresented: $showYouTubePlayer) {
+                YouTubePlayerView(article: article)
             }
         } else if article.isYouTubeURL {
             Button {
