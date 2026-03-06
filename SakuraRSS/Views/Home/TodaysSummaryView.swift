@@ -5,7 +5,7 @@ struct TodaysSummaryView: View {
 
     @Environment(FeedManager.self) var feedManager
     @Environment(\.colorScheme) private var colorScheme
-    @AppStorage("TodaysSummary.Enabled") private var isEnabled: Bool = true
+    @AppStorage("TodaysSummary.Enabled") private var isEnabled: Bool = false
     @AppStorage("TodaysSummary.DismissedDate") private var dismissedDate: String = ""
     @AppStorage("ForceTodaysSummary") private var forceVisible: Bool = false
 

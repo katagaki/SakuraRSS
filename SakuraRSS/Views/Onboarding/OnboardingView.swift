@@ -15,8 +15,8 @@ struct OnboardingView: View {
     @AppStorage("Display.DefaultStyle") var defaultDisplayStyle: FeedDisplayStyle = .inbox
     @AppStorage("Search.DisplayStyle") var searchDisplayStyle: FeedDisplayStyle = .inbox
     @AppStorage("BackgroundRefresh.Enabled") var backgroundRefreshEnabled: Bool = true
-    @AppStorage("TodaysSummary.Enabled") var todaysSummaryEnabled: Bool = true
-    @AppStorage("WhileYouSlept.Enabled") var whileYouSleptEnabled: Bool = true
+    @AppStorage("TodaysSummary.Enabled") var todaysSummaryEnabled: Bool = false
+    @AppStorage("WhileYouSlept.Enabled") var whileYouSleptEnabled: Bool = false
 
     @State var currentStep: OnboardingStep = .welcome
     @State var urlInput = ""

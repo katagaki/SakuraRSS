@@ -5,7 +5,7 @@ struct WhileYouSleptView: View {
 
     @Environment(FeedManager.self) var feedManager
     @Environment(\.colorScheme) private var colorScheme
-    @AppStorage("WhileYouSlept.Enabled") private var isEnabled: Bool = true
+    @AppStorage("WhileYouSlept.Enabled") private var isEnabled: Bool = false
     @AppStorage("WhileYouSlept.DismissedDate") private var dismissedDate: String = ""
     @AppStorage("ForceWhileYouSlept") private var forceVisible: Bool = false
 

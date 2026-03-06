@@ -11,8 +11,8 @@ struct MoreView: View {
     @AppStorage("BackgroundRefresh.BadgeEnabled") private var badgeEnabled: Bool = false
     @AppStorage("Display.DefaultStyle") private var defaultDisplayStyle: FeedDisplayStyle = .inbox
     @AppStorage("Search.DisplayStyle") private var searchDisplayStyle: FeedDisplayStyle = .inbox
-    @AppStorage("TodaysSummary.Enabled") private var todaysSummaryEnabled: Bool = true
-    @AppStorage("WhileYouSlept.Enabled") private var whileYouSleptEnabled: Bool = true
+    @AppStorage("TodaysSummary.Enabled") private var todaysSummaryEnabled: Bool = false
+    @AppStorage("WhileYouSlept.Enabled") private var whileYouSleptEnabled: Bool = false
     @State private var isExporting = false
     @State private var isImporting = false
     @State private var showImportModeChoice = false
