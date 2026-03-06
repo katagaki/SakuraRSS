@@ -270,6 +270,7 @@ private struct YouTubePlayerWebView: UIViewRepresentable {
 
     func updateUIView(_ uiView: WKWebView, context: Context) {}
 
+    @MainActor
     final class Coordinator: NSObject, WKNavigationDelegate {
         @Binding var isPlaying: Bool
         private var playbackObserver: Timer?
