@@ -33,7 +33,7 @@ extension OnboardingView {
                 Button {
                     todaysSummaryEnabled = false
                     whileYouSleptEnabled = false
-                    withAnimation {
+                    withAnimation(.smooth.speed(2.0)) {
                         currentStep = .addFeed
                     }
                 } label: {

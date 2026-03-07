@@ -192,7 +192,7 @@ struct YouTubePlayerView: View {
         }
         .onChange(of: isPlaying) { _, newValue in
             if newValue && !hasStartedPlaying {
-                withAnimation {
+                withAnimation(.smooth.speed(2.0)) {
                     hasStartedPlaying = true
                 }
             }

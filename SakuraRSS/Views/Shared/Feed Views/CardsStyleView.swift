@@ -59,10 +59,12 @@ struct CardsStyleView: View {
                             Task {
                                 isRefreshing = true
                                 await onRefresh?()
-                                dismissedIDs.removeAll()
-                                deckArticleIDs = Set(
-                                    articles.filter { $0.imageURL != nil && !$0.isRead }.map(\.id)
-                                )
+                                withAnimation(.smooth.speed(2.0)) {
+                                    dismissedIDs.removeAll()
+                                    deckArticleIDs = Set(
+                                        articles.filter { $0.imageURL != nil && !$0.isRead }.map(\.id)
+                                    )
+                                }
                                 isRefreshing = false
                             }
                         } label: {

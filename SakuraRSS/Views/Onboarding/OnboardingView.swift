@@ -80,7 +80,7 @@ struct OnboardingView: View {
     // MARK: - Navigation
 
     func goBackStep() {
-        withAnimation {
+        withAnimation(.smooth.speed(2.0)) {
             switch currentStep {
             case .welcome:
                 break
@@ -101,7 +101,7 @@ struct OnboardingView: View {
     }
 
     func advanceStep() {
-        withAnimation {
+        withAnimation(.smooth.speed(2.0)) {
             switch currentStep {
             case .welcome:
                 currentStep = .backgroundRefresh

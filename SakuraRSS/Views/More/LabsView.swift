@@ -65,6 +65,8 @@ struct LabsView: View {
                 Text("Labs.YouTubePlayer.Footer")
             }
         }
+        .animation(.smooth.speed(2.0), value: xProfileFeedsEnabled)
+        .animation(.smooth.speed(2.0), value: youTubePlayerEnabled)
         .navigationTitle(String(localized: "Labs.Title"))
         .toolbarTitleDisplayMode(.inlineLarge)
         .scrollContentBackground(.hidden)

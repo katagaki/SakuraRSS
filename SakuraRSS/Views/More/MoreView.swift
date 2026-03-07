@@ -156,6 +156,7 @@ struct MoreView: View {
                 }
 
             }
+            .animation(.smooth.speed(2.0), value: backgroundRefreshEnabled)
             .listStyle(.insetGrouped)
             .listSectionSpacing(.compact)
             .navigationTitle(String(localized: "Tabs.More"))
