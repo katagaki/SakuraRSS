@@ -14,7 +14,6 @@ struct YouTubePlayerView: View {
     @State private var duration: TimeInterval = 0
     @State private var webView: WKWebView?
     @State private var isAd = false
-    @State private var isSkippable = false
     @State private var advertiserURL: URL?
     @State private var hasStartedPlaying = false
 
@@ -36,7 +35,6 @@ struct YouTubePlayerView: View {
                     duration: $duration,
                     webView: $webView,
                     isAd: $isAd,
-                    isSkippable: $isSkippable,
                     advertiserURL: $advertiserURL
                 )
                 .aspectRatio(16 / 9, contentMode: .fit)

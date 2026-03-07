@@ -9,7 +9,6 @@ struct YouTubePlayerWebView: UIViewRepresentable {
     @Binding var duration: TimeInterval
     @Binding var webView: WKWebView?
     @Binding var isAd: Bool
-    @Binding var isSkippable: Bool
     @Binding var advertiserURL: URL?
 
     func makeCoordinator() -> Coordinator {
@@ -18,7 +17,6 @@ struct YouTubePlayerWebView: UIViewRepresentable {
             currentTime: $currentTime,
             duration: $duration,
             isAd: $isAd,
-            isSkippable: $isSkippable,
             advertiserURL: $advertiserURL
         )
     }
@@ -66,7 +64,6 @@ struct YouTubePlayerWebView: UIViewRepresentable {
         @Binding var currentTime: TimeInterval
         @Binding var duration: TimeInterval
         @Binding var isAd: Bool
-        @Binding var isSkippable: Bool
         @Binding var advertiserURL: URL?
         private var playbackObserver: Timer?
 
@@ -75,14 +72,12 @@ struct YouTubePlayerWebView: UIViewRepresentable {
             currentTime: Binding<TimeInterval>,
             duration: Binding<TimeInterval>,
             isAd: Binding<Bool>,
-            isSkippable: Binding<Bool>,
             advertiserURL: Binding<URL?>
         ) {
             _isPlaying = isPlaying
             _currentTime = currentTime
             _duration = duration
             _isAd = isAd
-            _isSkippable = isSkippable
             _advertiserURL = advertiserURL
         }
 
@@ -146,9 +141,6 @@ struct YouTubePlayerWebView: UIViewRepresentable {
                     if (!video) return null;
                     var player = document.querySelector('.html5-video-player');
                     var isAd = player ? player.classList.contains('ad-showing') : false;
-                    var skipBtn = document.querySelector('.ytp-skip-ad-button, .ytp-ad-skip-button, \
-                .ytp-ad-skip-button-modern, .ytp-ad-skip-button-container, button[class*="skip"]');
-                    var isSkippable = isAd && skipBtn != null;
                     var advLink = document.querySelector('.ytp-ad-visit-advertiser-button, \
                 .ytp-ad-button, a[class*="visit-advertiser"], .ytp-ad-overlay-link');
                     var advURL = advLink ? (advLink.href || advLink.getAttribute('href') || '') : '';
@@ -157,7 +149,6 @@ struct YouTubePlayerWebView: UIViewRepresentable {
                         currentTime: video.currentTime,
                         duration: video.duration || 0,
                         isAd: isAd,
-                        isSkippable: isSkippable,
                         advertiserURL: advURL
                     };
                 })();
@@ -176,9 +167,6 @@ struct YouTubePlayerWebView: UIViewRepresentable {
                             }
                             if let ad = dict["isAd"] as? Bool {
                                 self?.isAd = ad
-                            }
-                            if let skippable = dict["isSkippable"] as? Bool {
-                                self?.isSkippable = skippable
                             }
                             if let urlStr = dict["advertiserURL"] as? String, !urlStr.isEmpty {
                                 self?.advertiserURL = URL(string: urlStr)
@@ -243,7 +231,7 @@ enum YouTubePlayerStyles {
     .ytp-youtube-button, .ytp-watermark,
     tp-yt-paper-dialog, ytd-popup-container,
     ytd-consent-bump-v2-lightbox,
-    .ytp-ad-visit-advertiser-button, .ytp-ad-button,
+    .ytp-ad-visit-advertiser-button,
     .ytp-visit-advertiser-link, .ytp-ad-overlay-link,
     [class*="visit-advertiser"], .ytp-ad-text,
     .ytp-ad-progress, .ytp-ad-progress-list {
@@ -253,6 +241,18 @@ enum YouTubePlayerStyles {
         width: 0 !important;
         opacity: 0 !important;
         pointer-events: none !important;
+    }
+    .ytp-skip-ad-button, .ytp-ad-skip-button,
+    .ytp-ad-skip-button-modern, .ytp-ad-skip-button-container,
+    button[class*="skip"] {
+        display: block !important;
+        visibility: visible !important;
+        height: auto !important;
+        width: auto !important;
+        opacity: 1 !important;
+        pointer-events: auto !important;
+        z-index: 9999999 !important;
+        position: relative !important;
     }
     """
 
