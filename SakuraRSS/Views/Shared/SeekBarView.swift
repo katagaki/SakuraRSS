@@ -57,6 +57,7 @@ struct SeekBarView: View {
                         .onEnded { _ in
                             guard !isDisabled else { return }
                             onSeek(dragTime)
+                            currentTime = dragTime
                             isDragging = false
                         }
                 )
