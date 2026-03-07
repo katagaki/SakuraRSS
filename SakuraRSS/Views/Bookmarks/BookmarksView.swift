@@ -70,7 +70,7 @@ struct BookmarksView: View {
                                         String(localized: "Articles.Style.Magazine"),
                                         systemImage: "rectangle.grid.2x2"
                                     )
-                                        .tag(FeedDisplayStyle.magazine)
+                                    .tag(FeedDisplayStyle.magazine)
                                 }
                                 Label(String(localized: "Articles.Style.Feed"), systemImage: "newspaper")
                                     .tag(FeedDisplayStyle.feed)
@@ -85,7 +85,9 @@ struct BookmarksView: View {
                             Image(systemName: "line.3.horizontal.decrease")
                         }
                         .menuActionDismissBehavior(.disabled)
-
+                    }
+                    ToolbarSpacer(.fixed, placement: .topBarTrailing)
+                    ToolbarItemGroup(placement: .topBarTrailing) {
                         Menu {
                             Button(role: .destructive) {
                                 try? DatabaseManager.shared.removeReadBookmarks()
@@ -95,7 +97,7 @@ struct BookmarksView: View {
                                       systemImage: "bookmark.slash")
                             }
                         } label: {
-                            Image(systemName: "ellipsis.circle")
+                            Image(systemName: "ellipsis")
                         }
                     }
                 }
