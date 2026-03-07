@@ -113,7 +113,7 @@ struct FeedsListPage: View {
                 .interactiveDismissDisabled()
         }
         .sheet(item: $feedForRules) { feed in
-            FeedRulesSheet(feed: feed)
+            FeedRulesView(feed: feed)
                 .environment(feedManager)
                 .presentationDetents([.medium, .large])
                 .interactiveDismissDisabled()

@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct FeedRulesSheet: View {
+struct FeedRulesView: View {
 
     @Environment(FeedManager.self) var feedManager
     @Environment(\.dismiss) var dismiss
@@ -48,8 +48,6 @@ struct FeedRulesSheet: View {
 
                     ForEach(mutedKeywords, id: \.self) { keyword in
                         Text(keyword)
-                            .alignmentGuide(.listRowSeparatorLeading) { _ in 0 }
-                            .alignmentGuide(.listRowSeparatorTrailing) { d in d.width }
                     }
                     .onDelete { indexSet in
                         mutedKeywords.remove(atOffsets: indexSet)
@@ -92,12 +90,12 @@ struct FeedRulesSheet: View {
                             }
                             .padding(.vertical, 4)
                         }
+                        .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+                        .contentMargins(.horizontal, 20, for: .scrollContent)
                     }
 
                     ForEach(mutedAuthors, id: \.self) { author in
                         Text(author)
-                            .alignmentGuide(.listRowSeparatorLeading) { _ in 0 }
-                            .alignmentGuide(.listRowSeparatorTrailing) { d in d.width }
                     }
                     .onDelete { indexSet in
                         mutedAuthors.remove(atOffsets: indexSet)
