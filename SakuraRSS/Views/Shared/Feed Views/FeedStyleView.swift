@@ -190,6 +190,7 @@ struct FeedArticleRow: View {
                     Spacer()
 
                     Button {
+                        UIImpactFeedbackGenerator(style: .light).impactOccurred()
                         UIPasteboard.general.string = article.url
                     } label: {
                         Image(systemName: "square.on.square")
@@ -199,6 +200,7 @@ struct FeedArticleRow: View {
                     Spacer()
 
                     Button {
+                        UIImpactFeedbackGenerator(style: .light).impactOccurred()
                         feedManager.toggleRead(article)
                     } label: {
                         Image(
@@ -211,6 +213,7 @@ struct FeedArticleRow: View {
                     Spacer()
 
                     Button {
+                        UIImpactFeedbackGenerator(style: .light).impactOccurred()
                         feedManager.toggleBookmark(article)
                     } label: {
                         Image(systemName: article.isBookmarked ? "bookmark.fill" : "bookmark")

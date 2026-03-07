@@ -129,6 +129,7 @@ struct PhotosArticleCard: View {
             // Action buttons below photo
             HStack(spacing: 16) {
                 Button {
+                    UIImpactFeedbackGenerator(style: .light).impactOccurred()
                     if let photoImage {
                         UIPasteboard.general.image = photoImage
                     }
@@ -149,6 +150,7 @@ struct PhotosArticleCard: View {
                 Spacer()
 
                 Button {
+                    UIImpactFeedbackGenerator(style: .light).impactOccurred()
                     feedManager.toggleBookmark(article)
                 } label: {
                     Label(
