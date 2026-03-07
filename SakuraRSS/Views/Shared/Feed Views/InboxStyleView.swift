@@ -39,9 +39,7 @@ struct InboxArticleRow: View {
 
     var body: some View {
         HStack(alignment: .center, spacing: 8) {
-            Circle()
-                .fill(article.isRead ? .clear : .blue)
-                .frame(width: 8, height: 8)
+            UnreadDotView(isRead: article.isRead)
                 .padding(.leading, -4)
                 .padding(.top, 6)
 

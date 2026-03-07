@@ -84,9 +84,7 @@ struct PhotosArticleCard: View {
                 Spacer()
 
                 if !article.isRead {
-                    Circle()
-                        .fill(.blue)
-                        .frame(width: 8, height: 8)
+                    UnreadDotView(isRead: article.isRead)
                 }
 
                 Menu {
