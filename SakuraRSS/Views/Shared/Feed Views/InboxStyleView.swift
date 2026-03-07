@@ -97,7 +97,9 @@ struct InboxArticleRow: View {
         }
         .swipeActions(edge: .leading) {
             Button {
-                feedManager.toggleRead(article)
+                withAnimation(.smooth.speed(2.0)) {
+                    feedManager.toggleRead(article)
+                }
             } label: {
                 Image(systemName: article.isRead ? "envelope" : "envelope.open")
             }
