@@ -15,6 +15,7 @@ struct AddFeedView: View {
     @State private var addedURLs: Set<String> = []
     @State private var showXLogin = false
     @State private var pendingXFeed: DiscoveredFeed?
+    @State private var suggestedTopics: [SuggestedTopic] = []
     @FocusState private var isURLFieldFocused: Bool
 
     private var appName: String {
@@ -25,7 +26,7 @@ struct AddFeedView: View {
         NavigationStack {
             Form {
                 Section {
-                    TextField(String(localized: "AddFeed.URLPlaceholder"), text: $urlInput)
+                    TextField(String(localized: "AddFeed.DomainPlaceholder"), text: $urlInput)
                         .focused($isURLFieldFocused)
                         .keyboardType(.URL)
                         .textContentType(.URL)
@@ -63,6 +64,41 @@ struct AddFeedView: View {
                 }
 
                 if urlInput.isEmpty {
+                    ForEach(suggestedTopics, id: \.title) { topic in
+                        Section {
+                            ForEach(topic.sites, id: \.feedUrl) { site in
+                                HStack {
+                                    VStack(alignment: .leading, spacing: 2) {
+                                        Text(site.title)
+                                            .lineLimit(1)
+                                        Text(site.feedUrl)
+                                            .font(.caption)
+                                            .foregroundStyle(.secondary)
+                                            .lineLimit(1)
+                                    }
+
+                                    Spacer()
+
+                                    if addedURLs.contains(site.feedUrl) {
+                                        Image(systemName: "checkmark.circle.fill")
+                                            .font(.title2)
+                                            .foregroundStyle(.green)
+                                    } else {
+                                        Button {
+                                            addSuggestedFeed(site)
+                                        } label: {
+                                            Image(systemName: "plus.circle.fill")
+                                                .font(.title2)
+                                        }
+                                        .buttonStyle(.borderless)
+                                    }
+                                }
+                            }
+                        } header: {
+                            Text(localizedTopicTitle(topic.title))
+                        }
+                    }
+
                     RSSDiscoverySection()
                 }
 
@@ -127,6 +163,7 @@ struct AddFeedView: View {
                 XLoginView()
             }
             .onAppear {
+                suggestedTopics = SuggestedFeedsLoader.topicsForCurrentRegion()
                 if !initialURL.isEmpty {
                     urlInput = initialURL
                     searchFeeds()
@@ -273,5 +310,33 @@ struct AddFeedView: View {
             return feed.siteURL
         }
         return feed.url
+    }
+
+    private func addSuggestedFeed(_ site: SuggestedSite) {
+        do {
+            try feedManager.addFeed(
+                url: site.feedUrl,
+                title: site.title,
+                siteURL: ""
+            )
+            addedURLs.insert(site.feedUrl)
+            onFeedAdded?(site.feedUrl)
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+    }
+
+    private func localizedTopicTitle(_ title: String) -> String {
+        switch title {
+        case "Headlines": String(localized: "SuggestedFeeds.Topic.Headlines")
+        case "Technology": String(localized: "SuggestedFeeds.Topic.Technology")
+        case "Science": String(localized: "SuggestedFeeds.Topic.Science")
+        case "Economics": String(localized: "SuggestedFeeds.Topic.Economics")
+        case "Business": String(localized: "SuggestedFeeds.Topic.Business")
+        case "Sports": String(localized: "SuggestedFeeds.Topic.Sports")
+        case "Politics": String(localized: "SuggestedFeeds.Topic.Politics")
+        case "Weather": String(localized: "SuggestedFeeds.Topic.Weather")
+        default: title
+        }
     }
 }

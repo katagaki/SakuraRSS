@@ -1,0 +1,616 @@
+{
+    "feeds": [
+        {
+            "countryCode": "universal",
+            "region": "Universal",
+            "topics": [
+                {
+                    "title": "Headlines",
+                    "sites": [
+                        {
+                            "title": "Al Jazeera",
+                            "feedUrl": "https://www.aljazeera.com/xml/rss/all.xml"
+                        },
+                        {
+                            "title": "BBC News - Top Stories",
+                            "feedUrl": "https://feeds.bbci.co.uk/news/rss.xml"
+                        },
+                        {
+                            "title": "France 24",
+                            "feedUrl": "https://www.france24.com/en/rss"
+                        }
+                    ]
+                },
+                {
+                    "title": "Technology",
+                    "sites": [
+                        {
+                            "title": "9to5Google",
+                            "feedUrl": "https://9to5google.com/feed/"
+                        },
+                        {
+                            "title": "9to5Mac",
+                            "feedUrl": "https://9to5mac.com/feed/"
+                        },
+                        {
+                            "title": "Ars Technica",
+                            "feedUrl": "https://feeds.arstechnica.com/arstechnica/index"
+                        },
+                        {
+                            "title": "Engadget",
+                            "feedUrl": "https://www.engadget.com/rss.xml"
+                        },
+                        {
+                            "title": "Hacker News",
+                            "feedUrl": "https://hnrss.org/frontpage"
+                        },
+                        {
+                            "title": "MacRumors",
+                            "feedUrl": "https://feeds.macrumors.com/MacRumors-All"
+                        },
+                        {
+                            "title": "Slashdot",
+                            "feedUrl": "https://rss.slashdot.org/Slashdot/slashdotMain"
+                        },
+                        {
+                            "title": "TechCrunch",
+                            "feedUrl": "https://techcrunch.com/feed/"
+                        },
+                        {
+                            "title": "TechRadar",
+                            "feedUrl": "https://www.techradar.com/feeds.xml"
+                        },
+                        {
+                            "title": "The Verge",
+                            "feedUrl": "https://www.theverge.com/rss/index.xml"
+                        },
+                        {
+                            "title": "VentureBeat",
+                            "feedUrl": "https://feeds.feedburner.com/venturebeat/SZYF"
+                        },
+                        {
+                            "title": "Wired",
+                            "feedUrl": "https://www.wired.com/feed/rss"
+                        },
+                        {
+                            "title": "ZDNet",
+                            "feedUrl": "https://www.zdnet.com/news/rss.xml"
+                        }
+                    ]
+                },
+                {
+                    "title": "Science",
+                    "sites": [
+                        {
+                            "title": "Live Science",
+                            "feedUrl": "https://www.livescience.com/feeds.xml"
+                        },
+                        {
+                            "title": "NASA Breaking News",
+                            "feedUrl": "https://www.nasa.gov/feed/"
+                        },
+                        {
+                            "title": "Nature",
+                            "feedUrl": "https://feeds.nature.com/nature/rss/current"
+                        },
+                        {
+                            "title": "New Scientist",
+                            "feedUrl": "https://www.newscientist.com/feed/home/"
+                        },
+                        {
+                            "title": "Phys.org",
+                            "feedUrl": "https://phys.org/rss-feed/"
+                        },
+                        {
+                            "title": "Science (AAAS) - Latest News",
+                            "feedUrl": "https://www.science.org/rss/news_current.xml"
+                        },
+                        {
+                            "title": "Science News",
+                            "feedUrl": "https://www.sciencenews.org/feed"
+                        },
+                        {
+                            "title": "ScienceDaily",
+                            "feedUrl": "https://www.sciencedaily.com/rss/all.xml"
+                        },
+                        {
+                            "title": "Space.com",
+                            "feedUrl": "https://www.space.com/feeds.xml"
+                        }
+                    ]
+                },
+                {
+                    "title": "Economics",
+                    "sites": [
+                        {
+                            "title": "Financial Times",
+                            "feedUrl": "https://www.ft.com/rss/home"
+                        },
+                        {
+                            "title": "The Economist",
+                            "feedUrl": "https://www.economist.com/finance-and-economics/rss.xml"
+                        }
+                    ]
+                },
+                {
+                    "title": "Business",
+                    "sites": [
+                        {
+                            "title": "Forbes",
+                            "feedUrl": "https://www.forbes.com/innovation/feed2"
+                        }
+                    ]
+                },
+                {
+                    "title": "Sports",
+                    "sites": [
+                        {
+                            "title": "BBC Sport",
+                            "feedUrl": "https://feeds.bbci.co.uk/sport/rss.xml"
+                        },
+                        {
+                            "title": "Sky Sports",
+                            "feedUrl": "https://www.skysports.com/rss/12040"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "countryCode": "US",
+            "region": "United States",
+            "topics": [
+                {
+                    "title": "Headlines",
+                    "sites": [
+                        {
+                            "title": "ABC News - Top Stories",
+                            "feedUrl": "https://abcnews.go.com/abcnews/topstories"
+                        },
+                        {
+                            "title": "CBS News - Latest",
+                            "feedUrl": "https://www.cbsnews.com/latest/rss/main"
+                        },
+                        {
+                            "title": "CNN - Top Stories",
+                            "feedUrl": "http://rss.cnn.com/rss/edition.rss"
+                        },
+                        {
+                            "title": "NPR News",
+                            "feedUrl": "https://feeds.npr.org/1001/rss.xml"
+                        },
+                        {
+                            "title": "The New York Times - Homepage",
+                            "feedUrl": "https://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml"
+                        },
+                        {
+                            "title": "The Washington Post - World",
+                            "feedUrl": "https://feeds.washingtonpost.com/rss/world"
+                        }
+                    ]
+                },
+                {
+                    "title": "Politics",
+                    "sites": [
+                        {
+                            "title": "NPR - Politics",
+                            "feedUrl": "https://feeds.npr.org/1014/rss.xml"
+                        },
+                        {
+                            "title": "Politico",
+                            "feedUrl": "https://rss.politico.com/politics-news.xml"
+                        },
+                        {
+                            "title": "The Hill",
+                            "feedUrl": "https://thehill.com/feed/"
+                        },
+                        {
+                            "title": "The Intercept",
+                            "feedUrl": "https://theintercept.com/feed/?lang=en"
+                        },
+                        {
+                            "title": "The New York Times - Politics",
+                            "feedUrl": "https://rss.nytimes.com/services/xml/rss/nyt/Politics.xml"
+                        },
+                        {
+                            "title": "The Washington Post - Politics",
+                            "feedUrl": "https://feeds.washingtonpost.com/rss/politics"
+                        },
+                        {
+                            "title": "Vox - World Politics",
+                            "feedUrl": "https://www.vox.com/rss/world-politics/index.xml"
+                        }
+                    ]
+                },
+                {
+                    "title": "Economics",
+                    "sites": [
+                        {
+                            "title": "CNBC - Economy",
+                            "feedUrl": "https://search.cnbc.com/rs/search/combinedcms/view.xml?partnerId=wrss01&id=20910258"
+                        },
+                        {
+                            "title": "Naked Capitalism",
+                            "feedUrl": "https://www.nakedcapitalism.com/feed"
+                        },
+                        {
+                            "title": "NPR - Economy",
+                            "feedUrl": "https://feeds.npr.org/1017/rss.xml"
+                        },
+                        {
+                            "title": "Seeking Alpha",
+                            "feedUrl": "https://seekingalpha.com/market_currents.xml"
+                        },
+                        {
+                            "title": "Wall Street Journal - Economy",
+                            "feedUrl": "https://feeds.a.dj.com/rss/RSSWorldNews.xml"
+                        },
+                        {
+                            "title": "Yahoo Finance",
+                            "feedUrl": "https://finance.yahoo.com/news/rssindex"
+                        }
+                    ]
+                },
+                {
+                    "title": "Business",
+                    "sites": [
+                        {
+                            "title": "Business Insider",
+                            "feedUrl": "https://feeds.businessinsider.com/custom/all"
+                        },
+                        {
+                            "title": "CNBC - Business",
+                            "feedUrl": "https://search.cnbc.com/rs/search/combinedcms/view.xml?partnerId=wrss01&id=10001147"
+                        },
+                        {
+                            "title": "CNN Business",
+                            "feedUrl": "http://rss.cnn.com/rss/edition_business.rss"
+                        },
+                        {
+                            "title": "Fortune",
+                            "feedUrl": "https://fortune.com/feed/"
+                        },
+                        {
+                            "title": "Inc. Magazine",
+                            "feedUrl": "https://www.inc.com/rss/"
+                        }
+                    ]
+                },
+                {
+                    "title": "Weather",
+                    "sites": [
+                        {
+                            "title": "National Weather Service (NWS)",
+                            "feedUrl": "https://www.weather.gov/rss/"
+                        }
+                    ]
+                },
+                {
+                    "title": "Sports",
+                    "sites": [
+                        {
+                            "title": "CBS Sports - Headlines",
+                            "feedUrl": "https://www.cbssports.com/rss/headlines"
+                        },
+                        {
+                            "title": "ESPN - Top Headlines",
+                            "feedUrl": "https://www.espn.com/espn/rss/news"
+                        },
+                        {
+                            "title": "SB Nation",
+                            "feedUrl": "https://www.sbnation.com/rss/index.xml"
+                        },
+                        {
+                            "title": "The Athletic",
+                            "feedUrl": "https://theathletic.com/feed/"
+                        },
+                        {
+                            "title": "Yahoo Sports",
+                            "feedUrl": "https://sports.yahoo.com/rss/"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "countryCode": "JP",
+            "region": "Japan",
+            "topics": [
+                {
+                    "title": "Headlines",
+                    "sites": [
+                        {
+                            "title": "Japan Today",
+                            "feedUrl": "https://japantoday.com/feed/atom"
+                        },
+                        {
+                            "title": "News On Japan",
+                            "feedUrl": "https://newsonjapan.com/rss"
+                        },
+                        {
+                            "title": "nippon.com",
+                            "feedUrl": "https://www.nippon.com/en/feed"
+                        },
+                        {
+                            "title": "読売新聞（The Japan News）",
+                            "feedUrl": "https://japannews.yomiuri.co.jp/feed/"
+                        },
+                        {
+                            "title": "The Japan Times",
+                            "feedUrl": "https://www.japantimes.co.jp/feed/"
+                        },
+                        {
+                            "title": "Yahoo!ニュース - 主要",
+                            "feedUrl": "https://news.yahoo.co.jp/rss/topics/top-picks.xml"
+                        }
+                    ]
+                },
+                {
+                    "title": "Technology",
+                    "sites": [
+                        {
+                            "title": "Japan Industry News",
+                            "feedUrl": "https://www.japanindustrynews.com/feed/"
+                        },
+                        {
+                            "title": "日経アジア - テクノロジー",
+                            "feedUrl": "https://asia.nikkei.com/rss/feed/nar"
+                        },
+                        {
+                            "title": "The Bridge（東京スタートアップ）",
+                            "feedUrl": "https://thebridge.jp/en/feed"
+                        },
+                        {
+                            "title": "Yahoo!ニュース - IT",
+                            "feedUrl": "https://news.yahoo.co.jp/rss/topics/it.xml"
+                        }
+                    ]
+                },
+                {
+                    "title": "Science",
+                    "sites": [
+                        {
+                            "title": "The Japan Times - 科学・健康",
+                            "feedUrl": "https://www.japantimes.co.jp/news/japan/science-health/feed/"
+                        },
+                        {
+                            "title": "Yahoo!ニュース - 科学",
+                            "feedUrl": "https://news.yahoo.co.jp/rss/topics/science.xml"
+                        }
+                    ]
+                },
+                {
+                    "title": "Politics",
+                    "sites": [
+                        {
+                            "title": "日経アジア - 政治",
+                            "feedUrl": "https://asia.nikkei.com/rss/feed/nar"
+                        },
+                        {
+                            "title": "The Japan Times - 政治",
+                            "feedUrl": "https://www.japantimes.co.jp/news/japan/political-pulse/feed/"
+                        },
+                        {
+                            "title": "Yahoo!ニュース - 国内",
+                            "feedUrl": "https://news.yahoo.co.jp/rss/topics/domestic.xml"
+                        }
+                    ]
+                },
+                {
+                    "title": "Economics",
+                    "sites": [
+                        {
+                            "title": "日経アジア",
+                            "feedUrl": "https://asia.nikkei.com/rss/feed/nar"
+                        },
+                        {
+                            "title": "The Japan Times - ビジネス",
+                            "feedUrl": "https://www.japantimes.co.jp/business/feed/"
+                        },
+                        {
+                            "title": "Yahoo!ニュース - 経済",
+                            "feedUrl": "https://news.yahoo.co.jp/rss/topics/business.xml"
+                        }
+                    ]
+                },
+                {
+                    "title": "Business",
+                    "sites": [
+                        {
+                            "title": "Japan Industry News",
+                            "feedUrl": "https://www.japanindustrynews.com/feed/"
+                        },
+                        {
+                            "title": "日経アジア - ビジネス",
+                            "feedUrl": "https://asia.nikkei.com/rss/feed/nar"
+                        },
+                        {
+                            "title": "The Bridge（東京スタートアップ）",
+                            "feedUrl": "https://thebridge.jp/en/feed"
+                        },
+                        {
+                            "title": "Yahoo!ニュース - 経済",
+                            "feedUrl": "https://news.yahoo.co.jp/rss/topics/business.xml"
+                        }
+                    ]
+                },
+                {
+                    "title": "Weather",
+                    "sites": [
+                        {
+                            "title": "Yahoo!ニュース - 国内",
+                            "feedUrl": "https://news.yahoo.co.jp/rss/topics/domestic.xml"
+                        }
+                    ]
+                },
+                {
+                    "title": "Sports",
+                    "sites": [
+                        {
+                            "title": "Japan Running News",
+                            "feedUrl": "https://japanrunningnews.blogspot.com/feeds/posts/default?alt=rss"
+                        },
+                        {
+                            "title": "読売新聞 - スポーツ",
+                            "feedUrl": "https://japannews.yomiuri.co.jp/feed/"
+                        },
+                        {
+                            "title": "The Japan Times - スポーツ",
+                            "feedUrl": "https://www.japantimes.co.jp/sports/feed/"
+                        },
+                        {
+                            "title": "Yahoo!ニュース - スポーツ",
+                            "feedUrl": "https://news.yahoo.co.jp/rss/topics/sports.xml"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "countryCode": "SG",
+            "region": "Singapore",
+            "topics": [
+                {
+                    "title": "Headlines",
+                    "sites": [
+                        {
+                            "title": "CNA (Channel NewsAsia) - Latest",
+                            "feedUrl": "https://www.channelnewsasia.com/api/v1/rss-outbound-feed?_format=xml"
+                        },
+                        {
+                            "title": "CNA - Singapore",
+                            "feedUrl": "https://www.channelnewsasia.com/api/v1/rss-outbound-feed?_format=xml&category=10416"
+                        },
+                        {
+                            "title": "Mothership",
+                            "feedUrl": "https://mothership.sg/feed/"
+                        },
+                        {
+                            "title": "The Straits Times - Asia",
+                            "feedUrl": "https://www.straitstimes.com/news/asia/rss.xml"
+                        },
+                        {
+                            "title": "The Straits Times - Singapore",
+                            "feedUrl": "https://www.straitstimes.com/news/singapore/rss.xml"
+                        }
+                    ]
+                },
+                {
+                    "title": "Technology",
+                    "sites": [
+                        {
+                            "title": "HardwareZone Singapore",
+                            "feedUrl": "https://feeds.feedburner.com/hardwarezone/all"
+                        },
+                        {
+                            "title": "The Straits Times - Tech",
+                            "feedUrl": "https://www.straitstimes.com/tags/technology/rss.xml"
+                        },
+                        {
+                            "title": "Vulcan Post",
+                            "feedUrl": "https://vulcanpost.com/feed/"
+                        }
+                    ]
+                },
+                {
+                    "title": "Science",
+                    "sites": [
+                        {
+                            "title": "CNA - Sustainability",
+                            "feedUrl": "https://www.channelnewsasia.com/api/v1/rss-outbound-feed?_format=xml&category=6936"
+                        },
+                        {
+                            "title": "The Straits Times - World",
+                            "feedUrl": "https://www.straitstimes.com/news/world/rss.xml"
+                        }
+                    ]
+                },
+                {
+                    "title": "Politics",
+                    "sites": [
+                        {
+                            "title": "CNA - Singapore Politics",
+                            "feedUrl": "https://www.channelnewsasia.com/api/v1/rss-outbound-feed?_format=xml&category=10416"
+                        },
+                        {
+                            "title": "The Straits Times - Singapore",
+                            "feedUrl": "https://www.straitstimes.com/news/singapore/rss.xml"
+                        },
+                        {
+                            "title": "TR Emeritus",
+                            "feedUrl": "https://tremeritus.net/feed/"
+                        }
+                    ]
+                },
+                {
+                    "title": "Economics",
+                    "sites": [
+                        {
+                            "title": "CNA - Business",
+                            "feedUrl": "https://www.channelnewsasia.com/api/v1/rss-outbound-feed?_format=xml&category=6936"
+                        },
+                        {
+                            "title": "IBT Singapore",
+                            "feedUrl": "https://www.ibtimes.sg/rss"
+                        },
+                        {
+                            "title": "The Straits Times - Business",
+                            "feedUrl": "https://www.straitstimes.com/news/business/rss.xml"
+                        }
+                    ]
+                },
+                {
+                    "title": "Business",
+                    "sites": [
+                        {
+                            "title": "CNA - Business",
+                            "feedUrl": "https://www.channelnewsasia.com/api/v1/rss-outbound-feed?_format=xml&category=6936"
+                        },
+                        {
+                            "title": "The Straits Times - Business",
+                            "feedUrl": "https://www.straitstimes.com/news/business/rss.xml"
+                        }
+                    ]
+                },
+                {
+                    "title": "Weather",
+                    "sites": [
+                        {
+                            "title": "Meteorological Service Singapore - 2 Hour Forecast",
+                            "feedUrl": "https://www.weather.gov.sg/files/rss/rss2HrForecast.xml"
+                        },
+                        {
+                            "title": "Meteorological Service Singapore - 24 Hour Forecast",
+                            "feedUrl": "https://www.weather.gov.sg/files/rss/rss24HrForecast.xml"
+                        },
+                        {
+                            "title": "Meteorological Service Singapore - 4 Day Outlook",
+                            "feedUrl": "https://www.weather.gov.sg/files/rss/rss4day.xml"
+                        },
+                        {
+                            "title": "Meteorological Service Singapore - Heavy Rain Warning",
+                            "feedUrl": "https://www.weather.gov.sg/files/rss/rssHeavyRain_new.xml"
+                        }
+                    ]
+                },
+                {
+                    "title": "Sports",
+                    "sites": [
+                        {
+                            "title": "CNA - Sport",
+                            "feedUrl": "https://www.channelnewsasia.com/api/v1/rss-outbound-feed?_format=xml&category=10296"
+                        },
+                        {
+                            "title": "Football Association of Singapore",
+                            "feedUrl": "https://www.fas.org.sg/feed/"
+                        },
+                        {
+                            "title": "RUN Singapore",
+                            "feedUrl": "https://runmagazine.asia/feed/"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}
