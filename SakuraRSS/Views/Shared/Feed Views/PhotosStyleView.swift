@@ -83,6 +83,10 @@ struct PhotosArticleCard: View {
 
                 Spacer()
 
+                if !article.isRead {
+                    UnreadDotView(isRead: article.isRead)
+                }
+
                 Menu {
                     Button {
                         feedManager.toggleRead(article)
