@@ -266,6 +266,11 @@ enum YouTubePlayerStyles {
         padding: 0 !important;
         box-sizing: border-box !important;
     }
+    .ytp-skip-ad-button *, .ytp-ad-skip-button *,
+    .ytp-ad-skip-button-modern *, .ytp-ad-skip-button-container *,
+    button[class*="skip"] * {
+        border-radius: 0 !important;
+    }
     """
 
     static func injectionScript(css: String) -> String {
