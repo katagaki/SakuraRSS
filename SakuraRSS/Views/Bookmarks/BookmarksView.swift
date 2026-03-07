@@ -100,6 +100,8 @@ struct BookmarksView: View {
                     }
                 }
             }
+            .animation(.smooth.speed(2.0), value: displayStyle)
+            .animation(.smooth.speed(2.0), value: bookmarkedArticles)
             .onChange(of: displayStyle) { _, newValue in
                 UserDefaults.standard.set(newValue.rawValue, forKey: "Display.DefaultBookmarksStyle")
             }

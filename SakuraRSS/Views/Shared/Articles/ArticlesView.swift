@@ -144,6 +144,8 @@ struct ArticlesView: View {
                 .popoverTip(viewStyleSwitcherTip)
             }
         }
+        .animation(.smooth.speed(2.0), value: displayStyle)
+        .animation(.smooth.speed(2.0), value: hideRead)
         .onChange(of: displayStyle) { _, newValue in
             UserDefaults.standard.set(newValue.rawValue, forKey: "Display.Style.\(feedKey)")
         }
