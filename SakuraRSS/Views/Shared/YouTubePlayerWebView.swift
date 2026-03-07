@@ -245,14 +245,26 @@ enum YouTubePlayerStyles {
     .ytp-skip-ad-button, .ytp-ad-skip-button,
     .ytp-ad-skip-button-modern, .ytp-ad-skip-button-container,
     button[class*="skip"] {
-        display: block !important;
+        display: flex !important;
         visibility: visible !important;
-        height: auto !important;
-        width: auto !important;
+        align-items: center !important;
+        justify-content: center !important;
+        position: fixed !important;
+        bottom: 0 !important;
+        left: 0 !important;
+        width: 100vw !important;
+        height: 48px !important;
         opacity: 1 !important;
         pointer-events: auto !important;
         z-index: 9999999 !important;
-        position: relative !important;
+        background: rgba(0, 0, 0, 0.8) !important;
+        color: #fff !important;
+        font-size: 16px !important;
+        border: none !important;
+        border-radius: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        box-sizing: border-box !important;
     }
     """
 

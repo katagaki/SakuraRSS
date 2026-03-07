@@ -128,7 +128,6 @@ struct YouTubePlayerView: View {
                         Image(systemName: isPlaying ? "pause.circle.fill" : "play.circle.fill")
                             .font(.system(size: 48))
                     }
-                    .disabled(isAd)
 
                     Button {
                         fastForward()
