@@ -188,7 +188,11 @@ struct LoadPreviousArticlesButton: View {
     let action: () -> Void
 
     var body: some View {
-        Button(action: action) {
+        Button {
+            withAnimation(.smooth.speed(2.0)) {
+                action()
+            }
+        } label: {
             HStack {
                 Image(systemName: "clock.arrow.circlepath")
                 Text("Articles.LoadPrevious")

@@ -121,6 +121,7 @@ private struct CardView: View {
     let onSwipedRight: () -> Void
 
     @State private var offset: CGSize = .zero
+    @State private var hasPassedThreshold = false
 
     private var rotation: Double {
         Double(offset.width) / 20.0
@@ -194,8 +195,14 @@ private struct CardView: View {
                 DragGesture()
                     .onChanged { value in
                         offset = value.translation
+                        let pastThreshold = abs(value.translation.width) >= 80
+                        if pastThreshold != hasPassedThreshold {
+                            hasPassedThreshold = pastThreshold
+                            UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                        }
                     }
                     .onEnded { value in
+                        hasPassedThreshold = false
                         handleSwipeEnd(translation: value.translation)
                     }
             )

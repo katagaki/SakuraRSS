@@ -48,6 +48,8 @@ struct FeedRulesSheet: View {
 
                     ForEach(mutedKeywords, id: \.self) { keyword in
                         Text(keyword)
+                            .alignmentGuide(.listRowSeparatorLeading) { _ in 0 }
+                            .alignmentGuide(.listRowSeparatorTrailing) { d in d.width }
                     }
                     .onDelete { indexSet in
                         mutedKeywords.remove(atOffsets: indexSet)
@@ -94,6 +96,8 @@ struct FeedRulesSheet: View {
 
                     ForEach(mutedAuthors, id: \.self) { author in
                         Text(author)
+                            .alignmentGuide(.listRowSeparatorLeading) { _ in 0 }
+                            .alignmentGuide(.listRowSeparatorTrailing) { d in d.width }
                     }
                     .onDelete { indexSet in
                         mutedAuthors.remove(atOffsets: indexSet)
