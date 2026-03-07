@@ -4,6 +4,9 @@ extension FeedEditSheet {
 
     func loadCurrentFavicon() async -> UIImage? {
         if let customURL = feed.customIconURL {
+            if customURL == "none" {
+                return nil
+            }
             if customURL == "photo" {
                 return await FaviconCache.shared.customFavicon(feedID: feed.id)
             }

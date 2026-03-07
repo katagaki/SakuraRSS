@@ -24,7 +24,8 @@ struct FeedEditSheet: View {
         _name = State(initialValue: feed.title)
         _url = State(initialValue: feed.url)
         let existingIconURL = feed.customIconURL
-        _iconURLInput = State(initialValue: existingIconURL == "photo" ? "" : (existingIconURL ?? ""))
+        _iconURLInput = State(initialValue: (existingIconURL == "photo" || existingIconURL == "none") ? "" : (existingIconURL ?? ""))
+        _useDefaultIcon = State(initialValue: existingIconURL == "none")
         let raw = UserDefaults.standard.string(forKey: "openMode-\(feed.id)")
         _openMode = State(initialValue: raw.flatMap(FeedOpenMode.init(rawValue:)) ?? .inAppViewer)
     }
@@ -198,19 +199,21 @@ struct FeedEditSheet: View {
         if customIconImage == nil && iconURLChanged {
             Task {
                 if await fetchIconFromURL() {
-                    commitSave()
+                    await commitSave()
                 }
             }
         } else {
-            commitSave()
+            Task {
+                await commitSave()
+            }
         }
     }
 
-    private func commitSave() {
+    private func commitSave() async {
         let finalCustomIconURL: String?
 
         if useDefaultIcon {
-            finalCustomIconURL = nil
+            finalCustomIconURL = "none"
         } else if customIconImage != nil {
             finalCustomIconURL = "photo"
         } else if !iconURLInput.isEmpty {
@@ -220,13 +223,9 @@ struct FeedEditSheet: View {
         }
 
         if let customIconImage, !useDefaultIcon {
-            Task {
-                await FaviconCache.shared.setCustomFavicon(customIconImage, feedID: feed.id)
-            }
-        } else if finalCustomIconURL == nil && feed.customIconURL != nil {
-            Task {
-                await FaviconCache.shared.removeCustomFavicon(feedID: feed.id)
-            }
+            await FaviconCache.shared.setCustomFavicon(customIconImage, feedID: feed.id)
+        } else if useDefaultIcon && feed.customIconURL != nil && feed.customIconURL != "none" {
+            await FaviconCache.shared.removeCustomFavicon(feedID: feed.id)
         }
 
         feedManager.updateFeedDetails(feed, title: name, url: url,

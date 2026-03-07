@@ -38,6 +38,9 @@ actor FaviconCache {
     /// Resolves the favicon for a feed, checking custom icons first.
     func favicon(for feed: Feed) async -> UIImage? {
         if let customURL = feed.customIconURL {
+            if customURL == "none" {
+                return nil
+            }
             if customURL == "photo" {
                 return customFavicon(feedID: feed.id)
             }
