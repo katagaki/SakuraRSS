@@ -45,11 +45,18 @@ struct FeedRulesSheet: View {
                         .fixedSize()
                         .disabled(keywordInput.trimmingCharacters(in: .whitespaces).isEmpty)
                     }
+                    .alignmentGuide(.listRowSeparatorLeading) { _ in 0 }
+                    .alignmentGuide(.listRowSeparatorTrailing) { dimensions in
+                        dimensions.width
+                    }
 
                     ForEach(mutedKeywords, id: \.self) { keyword in
                         Text(keyword)
+                            .frame(maxWidth: .infinity, alignment: .leading)
                             .alignmentGuide(.listRowSeparatorLeading) { _ in 0 }
-                            .alignmentGuide(.listRowSeparatorTrailing) { d in d.width }
+                            .alignmentGuide(.listRowSeparatorTrailing) { dimensions in
+                                dimensions.width
+                            }
                     }
                     .onDelete { indexSet in
                         mutedKeywords.remove(atOffsets: indexSet)
@@ -73,6 +80,10 @@ struct FeedRulesSheet: View {
                         .fixedSize()
                         .disabled(authorInput.trimmingCharacters(in: .whitespaces).isEmpty)
                     }
+                    .alignmentGuide(.listRowSeparatorLeading) { _ in 0 }
+                    .alignmentGuide(.listRowSeparatorTrailing) { dimensions in
+                        dimensions.width
+                    }
 
                     if !suggestedAuthors.isEmpty {
                         ScrollView(.horizontal, showsIndicators: false) {
@@ -91,13 +102,18 @@ struct FeedRulesSheet: View {
                                 }
                             }
                             .padding(.vertical, 4)
+                            .padding(.horizontal, 18)
                         }
+                        .listRowInsets(.horizontal, 0)
                     }
 
                     ForEach(mutedAuthors, id: \.self) { author in
                         Text(author)
+                            .frame(maxWidth: .infinity, alignment: .leading)
                             .alignmentGuide(.listRowSeparatorLeading) { _ in 0 }
-                            .alignmentGuide(.listRowSeparatorTrailing) { d in d.width }
+                            .alignmentGuide(.listRowSeparatorTrailing) { dimensions in
+                                dimensions.width
+                            }
                     }
                     .onDelete { indexSet in
                         mutedAuthors.remove(atOffsets: indexSet)
