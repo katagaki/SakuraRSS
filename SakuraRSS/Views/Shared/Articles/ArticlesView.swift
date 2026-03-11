@@ -11,6 +11,7 @@ struct ArticlesView: View {
     let isPodcastFeed: Bool
     let isFeedViewDomain: Bool
     let isTimelineViewDomain: Bool
+    let titleDisplayMode: ToolbarTitleDisplayMode
     var onLoadMore: (() -> Void)?
     var onRefresh: (() async -> Void)?
 
@@ -29,6 +30,7 @@ struct ArticlesView: View {
     init(articles: [Article], title: String, feedKey: String,
          isVideoFeed: Bool = false, isPodcastFeed: Bool = false,
          isFeedViewDomain: Bool = false, isTimelineViewDomain: Bool = false,
+         titleDisplayMode: ToolbarTitleDisplayMode = .inline,
          onLoadMore: (() -> Void)? = nil,
          onRefresh: (() async -> Void)? = nil) {
         self.articles = articles
@@ -38,6 +40,7 @@ struct ArticlesView: View {
         self.isPodcastFeed = isPodcastFeed
         self.isFeedViewDomain = isFeedViewDomain
         self.isTimelineViewDomain = isTimelineViewDomain
+        self.titleDisplayMode = titleDisplayMode
         self.onLoadMore = onLoadMore
         self.onRefresh = onRefresh
         let raw = UserDefaults.standard.string(forKey: "Display.Style.\(feedKey)")
@@ -96,7 +99,7 @@ struct ArticlesView: View {
         .scrollContentBackground(.hidden)
         .sakuraBackground()
         .navigationTitle(title)
-        .toolbarTitleDisplayMode(.inline)
+        .toolbarTitleDisplayMode(titleDisplayMode)
         .toolbar {
             ToolbarItemGroup(placement: .topBarTrailing) {
                 Menu {

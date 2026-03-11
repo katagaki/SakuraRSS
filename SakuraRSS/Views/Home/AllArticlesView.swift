@@ -35,6 +35,7 @@ struct AllArticlesView: View {
             articles: displayedArticles,
             title: String(localized: "Shared.AllArticles"),
             feedKey: "all",
+            titleDisplayMode: .inlineLarge,
             onLoadMore: showingOlderArticles ? nil : {
                 showingOlderArticles = true
             },
