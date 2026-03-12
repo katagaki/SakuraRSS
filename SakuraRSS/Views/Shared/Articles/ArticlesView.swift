@@ -12,6 +12,8 @@ struct ArticlesView: View {
     let isFeedViewDomain: Bool
     let isTimelineViewDomain: Bool
     let titleDisplayMode: ToolbarTitleDisplayMode
+    var anySummaryHidden: Bool
+    var onRestoreSummaries: (() -> Void)?
     var onLoadMore: (() -> Void)?
     var onRefresh: (() async -> Void)?
 
@@ -31,6 +33,8 @@ struct ArticlesView: View {
          isVideoFeed: Bool = false, isPodcastFeed: Bool = false,
          isFeedViewDomain: Bool = false, isTimelineViewDomain: Bool = false,
          titleDisplayMode: ToolbarTitleDisplayMode = .inline,
+         anySummaryHidden: Bool = false,
+         onRestoreSummaries: (() -> Void)? = nil,
          onLoadMore: (() -> Void)? = nil,
          onRefresh: (() async -> Void)? = nil) {
         self.articles = articles
@@ -41,6 +45,8 @@ struct ArticlesView: View {
         self.isFeedViewDomain = isFeedViewDomain
         self.isTimelineViewDomain = isTimelineViewDomain
         self.titleDisplayMode = titleDisplayMode
+        self.anySummaryHidden = anySummaryHidden
+        self.onRestoreSummaries = onRestoreSummaries
         self.onLoadMore = onLoadMore
         self.onRefresh = onRefresh
         let raw = UserDefaults.standard.string(forKey: "Display.Style.\(feedKey)")
@@ -101,6 +107,16 @@ struct ArticlesView: View {
         .navigationTitle(title)
         .toolbarTitleDisplayMode(titleDisplayMode)
         .toolbar {
+            if anySummaryHidden {
+                ToolbarItemGroup(placement: .topBarTrailing) {
+                    Button {
+                        onRestoreSummaries?()
+                    } label: {
+                        Image(systemName: "apple.intelligence")
+                    }
+                }
+            }
+            ToolbarSpacer(.fixed, placement: .topBarTrailing)
             ToolbarItemGroup(placement: .topBarTrailing) {
                 Menu {
                     Picker(String(localized: "Articles.DisplayStyle"), selection: $displayStyle) {

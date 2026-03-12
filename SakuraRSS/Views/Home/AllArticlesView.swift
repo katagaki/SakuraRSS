@@ -36,6 +36,13 @@ struct AllArticlesView: View {
             title: String(localized: "Shared.AllArticles"),
             feedKey: "all",
             titleDisplayMode: .inlineLarge,
+            anySummaryHidden: anySummaryHidden,
+            onRestoreSummaries: {
+                withAnimation(.smooth.speed(2.0)) {
+                    whileYouSleptDismissedDate = ""
+                    todaysSummaryDismissedDate = ""
+                }
+            },
             onLoadMore: showingOlderArticles ? nil : {
                 showingOlderArticles = true
             },
@@ -55,20 +62,6 @@ struct AllArticlesView: View {
             .animation(.smooth.speed(2.0), value: whileYouSleptDismissedDate)
             .animation(.smooth.speed(2.0), value: todaysSummaryDismissedDate)
             .padding(.bottom, 8)
-        }
-        .toolbar {
-            if anySummaryHidden {
-                ToolbarItem(placement: .topBarLeading) {
-                    Button {
-                        withAnimation(.smooth.speed(2.0)) {
-                            whileYouSleptDismissedDate = ""
-                            todaysSummaryDismissedDate = ""
-                        }
-                    } label: {
-                        Image(systemName: "apple.intelligence")
-                    }
-                }
-            }
         }
         .refreshable {
             await feedManager.refreshAllFeeds()
