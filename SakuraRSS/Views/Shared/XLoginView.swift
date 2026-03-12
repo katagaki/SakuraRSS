@@ -17,16 +17,13 @@ struct XLoginView: View {
                 .navigationTitle(String(localized: "XLogin.Title"))
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
-                    ToolbarItem(placement: .cancellationAction) {
-                        Button(role: .cancel) {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button {
                             dismiss()
-                        }
-                    }
-                    ToolbarItem(placement: .confirmationAction) {
-                        if isLoggedIn {
-                            Button(role: .confirm) {
-                                dismiss()
-                            }
+                        } label: {
+                            Image(systemName: "xmark.circle.fill")
+                                .symbolRenderingMode(.hierarchical)
+                                .foregroundStyle(.secondary)
                         }
                     }
                 }
