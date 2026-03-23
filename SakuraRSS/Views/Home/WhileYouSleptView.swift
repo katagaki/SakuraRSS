@@ -27,6 +27,12 @@ struct WhileYouSleptView: View {
         return dismissedDate == formatter.string(from: Date())
     }
 
+    private var markdownAttributedString: AttributedString {
+        (try? AttributedString(markdown: summary, options: .init(
+            interpretedSyntax: .inlineOnlyPreservingWhitespace
+        ))) ?? AttributedString(summary)
+    }
+
     private var isMorningWindow: Bool {
         let hour = Calendar.current.component(.hour, from: Date())
         return hour >= 6 && hour < 12
@@ -111,7 +117,7 @@ struct WhileYouSleptView: View {
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
             } else if !summary.isEmpty {
-                Text(summary)
+                Text(markdownAttributedString)
                     .font(.subheadline)
                     .lineLimit(isExpanded ? nil : 4)
                     .contentTransition(.numericText())
