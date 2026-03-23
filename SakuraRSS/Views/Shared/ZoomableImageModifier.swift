@@ -19,7 +19,7 @@ struct ZoomableImageModifier: ViewModifier {
                         anchor = value.startAnchor
                     }
                     .onEnded { _ in
-                        withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                        withAnimation(.smooth.speed(2.0)) {
                             scale = 1.0
                         }
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
