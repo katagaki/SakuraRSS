@@ -17,6 +17,7 @@ struct MainTabView: View {
     @Binding var pendingFeedURL: String?
     @Binding var pendingArticleID: Int64?
     @Binding var isInSafeMode: Bool
+    @Binding var labsWereDisabled: Bool
     @State private var showingAddFeed = false
     @State private var showingOnboarding = false
     @State private var showingSafeModeAlert = false
@@ -74,13 +75,14 @@ struct MainTabView: View {
             if !onboardingCompleted {
                 showingOnboarding = true
             }
-            if isInSafeMode {
+            if isInSafeMode && labsWereDisabled {
                 showingSafeModeAlert = true
             }
         }
         .alert(String(localized: "SafeMode.Title"), isPresented: $showingSafeModeAlert) {
             Button(String(localized: "SafeMode.OK"), role: .cancel) {
                 isInSafeMode = false
+                labsWereDisabled = false
             }
         } message: {
             Text("SafeMode.Message")

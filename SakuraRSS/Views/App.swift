@@ -11,6 +11,7 @@ struct SakuraRSSApp: App {
     @State private var pendingFeedURL: String?
     @State private var pendingArticleID: Int64?
     @State private var isInSafeMode: Bool
+    @State private var labsWereDisabled: Bool
     @AppStorage("ForceWhileYouSlept") private var forceWhileYouSlept: Bool = false
     @AppStorage("ForceTodaysSummary") private var forceTodaysSummary: Bool = false
     private let backgroundTaskID = "com.tsubuzaki.SakuraRSS.RefreshFeeds"
@@ -18,7 +19,7 @@ struct SakuraRSSApp: App {
     var body: some Scene {
         WindowGroup {
             MainTabView(pendingFeedURL: $pendingFeedURL, pendingArticleID: $pendingArticleID,
-                        isInSafeMode: $isInSafeMode)
+                        isInSafeMode: $isInSafeMode, labsWereDisabled: $labsWereDisabled)
                 .environment(\.defaultMinListRowHeight, 10.0)
                 .environment(feedManager)
                 .task {
@@ -124,10 +125,14 @@ struct SakuraRSSApp: App {
             defaults.removeObject(forKey: "FeedsList.FeedID")
             defaults.removeObject(forKey: "FeedsList.ArticleID")
             // Disable all labs features in safe mode
+            let hadLabsEnabled = defaults.bool(forKey: "Labs.XProfileFeeds")
+                || defaults.bool(forKey: "Labs.YouTubePlayer")
             defaults.set(false, forKey: "Labs.XProfileFeeds")
             defaults.set(false, forKey: "Labs.YouTubePlayer")
+            _labsWereDisabled = State(initialValue: hadLabsEnabled)
         } else {
             _isInSafeMode = State(initialValue: false)
+            _labsWereDisabled = State(initialValue: false)
         }
 
         defaults.set(true, forKey: "App.StartupInProgress")
