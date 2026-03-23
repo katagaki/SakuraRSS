@@ -122,6 +122,7 @@ struct ArticleDetailView: View {
                 }
                 .aspectRatio(contentMode: .fit)
                 .clipShape(RoundedRectangle(cornerRadius: 12))
+                .zoomable()
                 .padding(.horizontal)
             }
 
@@ -150,6 +151,7 @@ struct ArticleDetailView: View {
                             }
                             .aspectRatio(contentMode: .fit)
                             .clipShape(RoundedRectangle(cornerRadius: 12))
+                            .zoomable()
                         }
                     }
                     .id("\(showingSummary)-\(showingTranslation)")
