@@ -122,6 +122,7 @@ private struct CardView: View {
 
     @State private var offset: CGSize = .zero
     @State private var hasPassedThreshold = false
+    @State private var isDismissing = false
 
     private var rotation: Double {
         Double(offset.width) / 20.0
@@ -191,6 +192,7 @@ private struct CardView: View {
             .shadow(color: .black.opacity(0.2), radius: 8, y: 4)
             .offset(x: offset.width, y: offset.height * 0.3)
             .rotationEffect(.degrees(rotation))
+            .opacity(isDismissing ? 0 : 1)
             .gesture(
                 DragGesture()
                     .onChanged { value in
@@ -261,12 +263,14 @@ private struct CardView: View {
             let callback = translation.width > 0 ? onSwipedRight : onSwipedLeft
             withAnimation(.easeOut(duration: 0.3)) {
                 offset = CGSize(width: direction, height: translation.height)
+                isDismissing = true
             }
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                 withAnimation(.smooth.speed(2.0)) {
                     callback()
                 }
                 offset = .zero
+                isDismissing = false
             }
         } else {
             withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {

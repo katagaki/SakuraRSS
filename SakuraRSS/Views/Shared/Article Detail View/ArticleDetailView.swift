@@ -28,6 +28,8 @@ struct ArticleDetailView: View {
     @State var isBookmarked = false
     @State var summarizationError: String?
     @State var showYouTubePlayer = false
+    @State var imageViewerURL: URL?
+    @Namespace private var imageViewerNamespace
     @AppStorage("Labs.YouTubePlayer") var youTubePlayerEnabled: Bool = false
 
     var isAppleIntelligenceAvailable: Bool {
@@ -122,6 +124,8 @@ struct ArticleDetailView: View {
                 }
                 .aspectRatio(contentMode: .fit)
                 .clipShape(RoundedRectangle(cornerRadius: 12))
+                .matchedTransitionSource(id: url, in: imageViewerNamespace)
+                .onTapGesture { imageViewerURL = url }
                 .padding(.horizontal)
             }
 
@@ -150,6 +154,8 @@ struct ArticleDetailView: View {
                             }
                             .aspectRatio(contentMode: .fit)
                             .clipShape(RoundedRectangle(cornerRadius: 12))
+                            .matchedTransitionSource(id: url, in: imageViewerNamespace)
+                            .onTapGesture { imageViewerURL = url }
                         }
                     }
                     .id("\(showingSummary)-\(showingTranslation)")
@@ -183,6 +189,10 @@ struct ArticleDetailView: View {
         }
         .navigationDestination(isPresented: $showYouTubePlayer) {
             YouTubePlayerView(article: article)
+        }
+        .navigationDestination(item: $imageViewerURL) { url in
+            ImageViewerView(url: url)
+                .navigationTransition(.zoom(sourceID: url, in: imageViewerNamespace))
         }
         .translationTask(translationConfig) { session in
             await handleTranslation(session: session)

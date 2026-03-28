@@ -1,8 +1,9 @@
 import SwiftUI
 
 /// A read-only text view that supports proper range selection with drag handles.
-/// Parses inline formatting: Markdown-style `[text](url)` links, `**bold**`,
-/// `*italic*`, heading prefixes (`# `, `## `, `### `), and `{{SUP}}`/`{{SUB}}` markers.
+/// Uses Apple's `AttributedString(markdown:)` parser for inline formatting (bold, italic,
+/// links, strikethrough, code), with additional support for heading prefixes
+/// (`# `, `## `, `### `) and custom `{{SUP}}`/`{{SUB}}` markers.
 struct SelectableText: UIViewRepresentable {
 
     let text: String
@@ -67,110 +68,117 @@ struct SelectableText: UIViewRepresentable {
                 lineFont = UIFont.preferredFont(forTextStyle: .title1)
             }
 
-            attributed.append(parseInlineFormatting(contentLine, baseFont: lineFont))
+            attributed.append(parseLine(contentLine, baseFont: lineFont))
         }
 
         return attributed
     }
 
-    // swiftlint:disable:next cyclomatic_complexity function_body_length
-    private func parseInlineFormatting(_ text: String, baseFont: UIFont) -> NSAttributedString {
-        let baseAttributes: [NSAttributedString.Key: Any] = [
-            .font: baseFont,
-            .foregroundColor: textColor
-        ]
-
-        // Order matters: ** before * to avoid conflicts.
-        // Link pattern allows escaped brackets (\[ and \]) inside link text.
-        let pattern = [
-            #"\*\*(.+?)\*\*"#,                                  // bold (group 1)
-            #"\*(.+?)\*"#,                                       // italic (group 2)
-            #"\[((?:[^\]\\]|\\.)+)\]\(([^)]+)\)"#,               // link text (group 3) + url (group 4)
-            #"\{\{SUP\}\}(.+?)\{\{/SUP\}\}"#,                    // superscript (group 5)
-            #"\{\{SUB\}\}(.+?)\{\{/SUB\}\}"#                     // subscript (group 6)
-        ].joined(separator: "|")
-
-        guard let regex = try? NSRegularExpression(pattern: pattern) else {
-            return NSAttributedString(string: text, attributes: baseAttributes)
+    /// Splits a line around `{{SUP}}…{{/SUP}}` and `{{SUB}}…{{/SUB}}` markers,
+    /// parsing the remaining segments as standard Markdown.
+    private func parseLine(_ text: String, baseFont: UIFont) -> NSAttributedString {
+        let supSubPattern = #"\{\{(SUP|SUB)\}\}(.+?)\{\{/(SUP|SUB)\}\}"#
+        guard let supSubRegex = try? NSRegularExpression(pattern: supSubPattern) else {
+            return parseMarkdown(text, baseFont: baseFont)
         }
 
         let nsText = text as NSString
-        let results = regex.matches(in: text, range: NSRange(location: 0, length: nsText.length))
+        let matches = supSubRegex.matches(in: text, range: NSRange(location: 0, length: nsText.length))
 
-        guard !results.isEmpty else {
-            return NSAttributedString(string: text, attributes: baseAttributes)
+        guard !matches.isEmpty else {
+            return parseMarkdown(text, baseFont: baseFont)
         }
 
-        let attributed = NSMutableAttributedString()
+        let result = NSMutableAttributedString()
         var lastEnd = 0
 
-        for match in results {
-            let matchRange = match.range
-
-            // Append plain text before this match
-            if matchRange.location > lastEnd {
+        for match in matches {
+            if match.range.location > lastEnd {
                 let before = nsText.substring(
-                    with: NSRange(location: lastEnd, length: matchRange.location - lastEnd)
+                    with: NSRange(location: lastEnd, length: match.range.location - lastEnd)
                 )
-                attributed.append(NSAttributedString(string: before, attributes: baseAttributes))
+                result.append(parseMarkdown(before, baseFont: baseFont))
             }
 
-            if match.range(at: 1).location != NSNotFound {
-                // Bold **text**
-                let content = nsText.substring(with: match.range(at: 1))
-                var attrs = baseAttributes
-                attrs[.font] = baseFont.bold()
-                attributed.append(NSAttributedString(string: content, attributes: attrs))
-            } else if match.range(at: 2).location != NSNotFound {
-                // Italic *text*
-                let content = nsText.substring(with: match.range(at: 2))
-                var attrs = baseAttributes
-                attrs[.font] = baseFont.italic()
-                attributed.append(NSAttributedString(string: content, attributes: attrs))
-            } else if match.range(at: 3).location != NSNotFound {
-                // Link [text](url) — unescape \[ and \], then recursively parse for bold/italic
-                let rawLinkText = nsText.substring(with: match.range(at: 3))
-                let linkText = rawLinkText
-                    .replacingOccurrences(of: "\\[", with: "[")
-                    .replacingOccurrences(of: "\\]", with: "]")
-                let linkURL = nsText.substring(with: match.range(at: 4))
-                let inner = parseInlineFormatting(linkText, baseFont: baseFont)
-                let mutableInner = NSMutableAttributedString(attributedString: inner)
-                if let url = URL(string: linkURL) {
-                    mutableInner.addAttribute(
-                        .link, value: url,
-                        range: NSRange(location: 0, length: mutableInner.length)
-                    )
-                }
-                attributed.append(mutableInner)
-            } else if match.range(at: 5).location != NSNotFound {
-                // Superscript
-                let content = nsText.substring(with: match.range(at: 5))
-                var attrs = baseAttributes
-                let smallFont = baseFont.withSize(baseFont.pointSize * 0.75)
-                attrs[.font] = smallFont
-                attrs[.baselineOffset] = baseFont.pointSize * 0.3
-                attributed.append(NSAttributedString(string: content, attributes: attrs))
-            } else if match.range(at: 6).location != NSNotFound {
-                // Subscript
-                let content = nsText.substring(with: match.range(at: 6))
-                var attrs = baseAttributes
-                let smallFont = baseFont.withSize(baseFont.pointSize * 0.75)
-                attrs[.font] = smallFont
-                attrs[.baselineOffset] = -baseFont.pointSize * 0.2
-                attributed.append(NSAttributedString(string: content, attributes: attrs))
-            }
+            let tag = nsText.substring(with: match.range(at: 1))
+            let content = nsText.substring(with: match.range(at: 2))
+            let smallFont = baseFont.withSize(baseFont.pointSize * 0.75)
+            var attrs: [NSAttributedString.Key: Any] = [
+                .font: smallFont,
+                .foregroundColor: textColor
+            ]
+            attrs[.baselineOffset] = tag == "SUP"
+                ? baseFont.pointSize * 0.3
+                : -baseFont.pointSize * 0.2
+            result.append(NSAttributedString(string: content, attributes: attrs))
 
-            lastEnd = matchRange.location + matchRange.length
+            lastEnd = match.range.location + match.range.length
         }
 
-        // Append any remaining text after the last match
         if lastEnd < nsText.length {
             let remaining = nsText.substring(from: lastEnd)
-            attributed.append(NSAttributedString(string: remaining, attributes: baseAttributes))
+            result.append(parseMarkdown(remaining, baseFont: baseFont))
         }
 
-        return attributed
+        return result
+    }
+
+    /// Parses standard Markdown using `AttributedString(markdown:)` and converts
+    /// Foundation attributes into UIKit attributes for the text view.
+    private func parseMarkdown(_ text: String, baseFont: UIFont) -> NSAttributedString {
+        guard !text.isEmpty else {
+            return NSAttributedString()
+        }
+
+        let options = AttributedString.MarkdownParsingOptions(
+            interpretedSyntax: .inlineOnlyPreservingWhitespace
+        )
+        guard let parsed = try? AttributedString(markdown: text, options: options) else {
+            return NSAttributedString(
+                string: text,
+                attributes: [.font: baseFont, .foregroundColor: textColor]
+            )
+        }
+
+        let result = NSMutableAttributedString()
+
+        for run in parsed.runs {
+            let runText = String(parsed[run.range].characters)
+            var attrs: [NSAttributedString.Key: Any] = [
+                .font: baseFont,
+                .foregroundColor: textColor
+            ]
+
+            if let intent = run.inlinePresentationIntent {
+                var traits: UIFontDescriptor.SymbolicTraits = []
+                if intent.contains(.stronglyEmphasized) {
+                    traits.insert(.traitBold)
+                }
+                if intent.contains(.emphasized) {
+                    traits.insert(.traitItalic)
+                }
+                if !traits.isEmpty,
+                   let descriptor = baseFont.fontDescriptor.withSymbolicTraits(traits) {
+                    attrs[.font] = UIFont(descriptor: descriptor, size: 0)
+                }
+                if intent.contains(.strikethrough) {
+                    attrs[.strikethroughStyle] = NSUnderlineStyle.single.rawValue
+                }
+                if intent.contains(.code) {
+                    attrs[.font] = UIFont.monospacedSystemFont(
+                        ofSize: baseFont.pointSize, weight: .regular
+                    )
+                }
+            }
+
+            if let link = run.link {
+                attrs[.link] = link
+            }
+
+            result.append(NSAttributedString(string: runText, attributes: attrs))
+        }
+
+        return result
     }
 }
 

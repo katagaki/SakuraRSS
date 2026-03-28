@@ -28,6 +28,12 @@ struct TodaysSummaryView: View {
         return dismissedDate == formatter.string(from: Date())
     }
 
+    private var markdownAttributedString: AttributedString {
+        (try? AttributedString(markdown: summary, options: .init(
+            interpretedSyntax: .inlineOnlyPreservingWhitespace
+        ))) ?? AttributedString(summary)
+    }
+
     private var isEveningWindow: Bool {
         let hour = Calendar.current.component(.hour, from: Date())
         return hour >= 21
@@ -119,7 +125,7 @@ struct TodaysSummaryView: View {
                     }
                 }
             } else if !summary.isEmpty {
-                Text(summary)
+                Text(markdownAttributedString)
                     .font(.subheadline)
                     .lineLimit(isExpanded ? nil : 4)
                     .contentTransition(.numericText())
