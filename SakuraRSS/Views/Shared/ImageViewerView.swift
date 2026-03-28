@@ -32,7 +32,8 @@ private class LayoutAwareScrollView: UIScrollView {
     override func layoutSubviews() {
         super.layoutSubviews()
         guard let imageView = viewWithTag(1) as? UIImageView,
-              bounds.size != .zero else { return }
+              bounds.size != .zero,
+              zoomScale == 1.0 else { return }
         if imageView.frame.size != bounds.size {
             imageView.frame = bounds
             contentSize = bounds.size
@@ -70,7 +71,7 @@ private struct ZoomableScrollView: UIViewRepresentable {
     func updateUIView(_ scrollView: UIScrollView, context: Context) {
         guard let imageView = scrollView.viewWithTag(1) as? UIImageView else { return }
         imageView.image = image
-        if scrollView.bounds.size != .zero {
+        if scrollView.zoomScale == 1.0 && scrollView.bounds.size != .zero {
             imageView.frame = scrollView.bounds
             scrollView.contentSize = scrollView.bounds.size
         }
