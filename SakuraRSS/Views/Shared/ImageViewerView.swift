@@ -28,6 +28,18 @@ struct ImageViewerView: View {
     }
 }
 
+private class LayoutAwareScrollView: UIScrollView {
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        guard let imageView = viewWithTag(1) as? UIImageView,
+              bounds.size != .zero else { return }
+        if imageView.frame.size != bounds.size {
+            imageView.frame = bounds
+            contentSize = bounds.size
+        }
+    }
+}
+
 private struct ZoomableScrollView: UIViewRepresentable {
 
     let image: UIImage
@@ -37,7 +49,7 @@ private struct ZoomableScrollView: UIViewRepresentable {
     }
 
     func makeUIView(context: Context) -> UIScrollView {
-        let scrollView = UIScrollView()
+        let scrollView = LayoutAwareScrollView()
         scrollView.delegate = context.coordinator
         scrollView.minimumZoomScale = 1.0
         scrollView.maximumZoomScale = 5.0
@@ -58,7 +70,10 @@ private struct ZoomableScrollView: UIViewRepresentable {
     func updateUIView(_ scrollView: UIScrollView, context: Context) {
         guard let imageView = scrollView.viewWithTag(1) as? UIImageView else { return }
         imageView.image = image
-        imageView.frame = scrollView.bounds
+        if scrollView.bounds.size != .zero {
+            imageView.frame = scrollView.bounds
+            scrollView.contentSize = scrollView.bounds.size
+        }
         context.coordinator.centerImageView(in: scrollView)
     }
 
