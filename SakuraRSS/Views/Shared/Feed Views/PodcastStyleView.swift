@@ -21,6 +21,49 @@ struct PodcastStyleView: View {
                 }
                 .listRowBackground(Color.clear)
                 .listRowInsets(EdgeInsets(top: 8, leading: 12, bottom: 8, trailing: 16))
+                .swipeActions(edge: .leading) {
+                    Button {
+                        withAnimation(.smooth.speed(2.0)) {
+                            feedManager.toggleRead(article)
+                        }
+                    } label: {
+                        Image(systemName: article.isRead ? "envelope" : "envelope.open")
+                    }
+                    .tint(.blue)
+                }
+                .contextMenu {
+                    Button {
+                        feedManager.toggleRead(article)
+                    } label: {
+                        Label(
+                            article.isRead
+                                ? String(localized: "Article.MarkUnread")
+                                : String(localized: "Article.MarkRead"),
+                            systemImage: article.isRead ? "envelope" : "envelope.open"
+                        )
+                    }
+                    Divider()
+                    Button {
+                        feedManager.toggleBookmark(article)
+                    } label: {
+                        Label(
+                            article.isBookmarked
+                                ? String(localized: "Article.RemoveBookmark")
+                                : String(localized: "Article.Bookmark"),
+                            systemImage: article.isBookmarked ? "bookmark.fill" : "bookmark"
+                        )
+                    }
+                    Button {
+                        UIPasteboard.general.string = article.url
+                    } label: {
+                        Label(String(localized: "Article.CopyLink"), systemImage: "link")
+                    }
+                    if let shareURL = URL(string: article.url) {
+                        ShareLink(item: shareURL) {
+                            Label(String(localized: "Article.Share"), systemImage: "square.and.arrow.up")
+                        }
+                    }
+                }
             }
             if let onLoadMore {
                 LoadPreviousArticlesButton(action: onLoadMore)

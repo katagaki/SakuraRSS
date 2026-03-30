@@ -15,6 +15,7 @@ struct ImageViewerView: View {
             }
         }
         .sakuraBackground()
+        .ignoresSafeArea()
         .toolbarBackground(.hidden, for: .navigationBar)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
