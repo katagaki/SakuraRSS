@@ -33,12 +33,21 @@ private class LayoutAwareScrollView: UIScrollView {
     override func layoutSubviews() {
         super.layoutSubviews()
         guard let imageView = viewWithTag(1) as? UIImageView,
+              let image = imageView.image,
               bounds.size != .zero,
               zoomScale == 1.0 else { return }
-        if imageView.frame.size != bounds.size {
-            imageView.frame = bounds
-            contentSize = bounds.size
+        let fitSize = Self.aspectFitSize(for: image.size, in: bounds.size)
+        if imageView.frame.size != fitSize {
+            imageView.frame = CGRect(origin: .zero, size: fitSize)
+            contentSize = fitSize
         }
+    }
+
+    static func aspectFitSize(for imageSize: CGSize, in boundsSize: CGSize) -> CGSize {
+        let widthRatio = boundsSize.width / imageSize.width
+        let heightRatio = boundsSize.height / imageSize.height
+        let scale = min(widthRatio, heightRatio)
+        return CGSize(width: imageSize.width * scale, height: imageSize.height * scale)
     }
 }
 
@@ -73,8 +82,9 @@ private struct ZoomableScrollView: UIViewRepresentable {
         guard let imageView = scrollView.viewWithTag(1) as? UIImageView else { return }
         imageView.image = image
         if scrollView.zoomScale == 1.0 && scrollView.bounds.size != .zero {
-            imageView.frame = scrollView.bounds
-            scrollView.contentSize = scrollView.bounds.size
+            let fitSize = LayoutAwareScrollView.aspectFitSize(for: image.size, in: scrollView.bounds.size)
+            imageView.frame = CGRect(origin: .zero, size: fitSize)
+            scrollView.contentSize = fitSize
         }
         context.coordinator.centerImageView(in: scrollView)
     }
