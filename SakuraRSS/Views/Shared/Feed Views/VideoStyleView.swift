@@ -32,9 +32,9 @@ struct VideoStyleView: View {
                         } label: {
                             Label(
                                 article.isRead
-                                    ? String(localized: "Article.MarkUnread")
-                                    : String(localized: "Article.MarkRead"),
-                                systemImage: article.isRead ? "envelope" : "envelope.open"
+                                    ? String(localized: "Article.MarkUnplayed")
+                                    : String(localized: "Article.MarkPlayed"),
+                                systemImage: article.isRead ? "arrow.uturn.backward" : "checkmark"
                             )
                         }
                         Divider()
@@ -164,9 +164,9 @@ struct VideoArticleCard: View {
                     } label: {
                         Label(
                             article.isRead
-                                ? String(localized: "Article.MarkUnread")
-                                : String(localized: "Article.MarkRead"),
-                            systemImage: article.isRead ? "envelope" : "envelope.open"
+                                ? String(localized: "Article.MarkUnplayed")
+                                : String(localized: "Article.MarkPlayed"),
+                            systemImage: article.isRead ? "arrow.uturn.backward" : "checkmark"
                         )
                     }
                     Divider()

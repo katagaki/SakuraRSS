@@ -37,8 +37,8 @@ struct PodcastStyleView: View {
                     } label: {
                         Label(
                             article.isRead
-                                ? String(localized: "Article.MarkUnread")
-                                : String(localized: "Article.MarkRead"),
+                                ? String(localized: "Article.MarkUnplayed")
+                                : String(localized: "Article.MarkPlayed"),
                             systemImage: article.isRead ? "arrow.uturn.backward" : "checkmark"
                         )
                     }
