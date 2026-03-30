@@ -32,16 +32,6 @@ struct TimelineStyleView: View {
                         .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16))
                         .listRowSeparator(.hidden)
                         .listRowSpacing(0)
-                        .swipeActions(edge: .leading) {
-                            Button {
-                                withAnimation(.smooth.speed(2.0)) {
-                                    feedManager.toggleRead(article)
-                                }
-                            } label: {
-                                Image(systemName: article.isRead ? "envelope" : "envelope.open")
-                            }
-                            .tint(.blue)
-                        }
                     }
                 } header: {
                     Text(group.key)
