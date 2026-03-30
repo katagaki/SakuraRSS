@@ -26,6 +26,39 @@ struct VideoStyleView: View {
                         VideoArticleCard(article: article)
                     }
                     .buttonStyle(.plain)
+                    .contextMenu {
+                        Button {
+                            feedManager.toggleRead(article)
+                        } label: {
+                            Label(
+                                article.isRead
+                                    ? String(localized: "Article.MarkUnplayed")
+                                    : String(localized: "Article.MarkPlayed"),
+                                systemImage: article.isRead ? "arrow.uturn.backward" : "checkmark"
+                            )
+                        }
+                        Divider()
+                        Button {
+                            feedManager.toggleBookmark(article)
+                        } label: {
+                            Label(
+                                article.isBookmarked
+                                    ? String(localized: "Article.RemoveBookmark")
+                                    : String(localized: "Article.Bookmark"),
+                                systemImage: article.isBookmarked ? "bookmark.fill" : "bookmark"
+                            )
+                        }
+                        Button {
+                            UIPasteboard.general.string = article.url
+                        } label: {
+                            Label(String(localized: "Article.CopyLink"), systemImage: "link")
+                        }
+                        if let shareURL = URL(string: article.url) {
+                            ShareLink(item: shareURL) {
+                                Label(String(localized: "Article.Share"), systemImage: "square.and.arrow.up")
+                            }
+                        }
+                    }
                 }
             }
             .padding(.bottom)
@@ -131,9 +164,9 @@ struct VideoArticleCard: View {
                     } label: {
                         Label(
                             article.isRead
-                                ? String(localized: "Article.MarkUnread")
-                                : String(localized: "Article.MarkRead"),
-                            systemImage: article.isRead ? "envelope" : "envelope.open"
+                                ? String(localized: "Article.MarkUnplayed")
+                                : String(localized: "Article.MarkPlayed"),
+                            systemImage: article.isRead ? "arrow.uturn.backward" : "checkmark"
                         )
                     }
                     Divider()

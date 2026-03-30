@@ -35,6 +35,18 @@ struct CompactStyleView: View {
                 .listRowBackground(Color.clear)
                 .listRowInsets(EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16))
                 .listRowSpacing(0.0)
+                .contextMenu {
+                    Button {
+                        feedManager.toggleRead(article)
+                    } label: {
+                        Label(
+                            article.isRead
+                                ? String(localized: "Article.MarkUnread")
+                                : String(localized: "Article.MarkRead"),
+                            systemImage: article.isRead ? "envelope" : "envelope.open"
+                        )
+                    }
+                }
             }
             if let onLoadMore {
                 LoadPreviousArticlesButton(action: onLoadMore)

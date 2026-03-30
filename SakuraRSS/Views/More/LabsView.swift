@@ -68,7 +68,7 @@ struct LabsView: View {
         .animation(.smooth.speed(2.0), value: xProfileFeedsEnabled)
         .animation(.smooth.speed(2.0), value: youTubePlayerEnabled)
         .navigationTitle(String(localized: "Labs.Title"))
-        .toolbarTitleDisplayMode(.inlineLarge)
+        .toolbarTitleDisplayMode(.inline)
         .scrollContentBackground(.hidden)
         .sakuraBackground()
         .sheet(isPresented: $showXLogin) {
