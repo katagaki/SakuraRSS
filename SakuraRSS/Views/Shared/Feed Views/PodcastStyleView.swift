@@ -27,7 +27,7 @@ struct PodcastStyleView: View {
                             feedManager.toggleRead(article)
                         }
                     } label: {
-                        Image(systemName: article.isRead ? "envelope" : "envelope.open")
+                        Image(systemName: article.isRead ? "arrow.uturn.backward" : "checkmark")
                     }
                     .tint(.blue)
                 }
@@ -39,7 +39,7 @@ struct PodcastStyleView: View {
                             article.isRead
                                 ? String(localized: "Article.MarkUnread")
                                 : String(localized: "Article.MarkRead"),
-                            systemImage: article.isRead ? "envelope" : "envelope.open"
+                            systemImage: article.isRead ? "arrow.uturn.backward" : "checkmark"
                         )
                     }
                     Divider()
