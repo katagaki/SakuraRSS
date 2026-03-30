@@ -35,6 +35,16 @@ struct CompactStyleView: View {
                 .listRowBackground(Color.clear)
                 .listRowInsets(EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16))
                 .listRowSpacing(0.0)
+                .swipeActions(edge: .leading) {
+                    Button {
+                        withAnimation(.smooth.speed(2.0)) {
+                            feedManager.toggleRead(article)
+                        }
+                    } label: {
+                        Image(systemName: article.isRead ? "envelope" : "envelope.open")
+                    }
+                    .tint(.blue)
+                }
             }
             if let onLoadMore {
                 LoadPreviousArticlesButton(action: onLoadMore)

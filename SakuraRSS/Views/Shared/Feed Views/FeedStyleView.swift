@@ -40,6 +40,16 @@ struct FeedStyleView: View {
                 .listRowInsets(EdgeInsets(top: 10, leading: 0, bottom: 10, trailing: 0))
                 .listRowSeparator(.hidden, edges: .top)
                 .listRowSeparator(.visible, edges: .bottom)
+                .swipeActions(edge: .leading) {
+                    Button {
+                        withAnimation(.smooth.speed(2.0)) {
+                            feedManager.toggleRead(article)
+                        }
+                    } label: {
+                        Image(systemName: article.isRead ? "envelope" : "envelope.open")
+                    }
+                    .tint(.blue)
+                }
                 .alignmentGuide(.listRowSeparatorLeading) { _ in
                     return 0
                 }
