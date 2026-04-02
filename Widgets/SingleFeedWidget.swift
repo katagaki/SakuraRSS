@@ -312,10 +312,13 @@ struct SingleFeedMediumThumbnailsView: View {
             emptyView(iconSize: 22, textSize: 12)
         } else {
             let items = Array(entry.articles.prefix(2))
-            HStack(spacing: 8) {
-                ForEach(items) { article in
-                    SingleFeedThumbnailCell(article: article, feedTitle: entry.feedTitle)
+            VStack(spacing: 8) {
+                HStack(spacing: 8) {
+                    ForEach(items) { article in
+                        SingleFeedThumbnailCell(article: article, feedTitle: entry.feedTitle)
+                    }
                 }
+                FeedTitleLabel(title: entry.feedTitle)
             }
         }
     }
@@ -349,6 +352,7 @@ struct SingleFeedLargeThumbnailsView: View {
                         }
                     }
                 }
+                FeedTitleLabel(title: entry.feedTitle)
             }
         }
     }
@@ -365,7 +369,7 @@ struct SingleFeedMediumTextView: View {
             emptyView(iconSize: 22, textSize: 12)
         } else {
             VStack(alignment: .leading, spacing: 4) {
-                ForEach(entry.articles.prefix(4)) { article in
+                ForEach(entry.articles.prefix(3)) { article in
                     Link(destination: URL(string: "sakura://article/\(article.id)")!) {
                         VStack(alignment: .leading, spacing: 1) {
                             Text(article.title)
@@ -381,10 +385,12 @@ struct SingleFeedMediumTextView: View {
                         .frame(maxWidth: .infinity, alignment: .leading)
                     }
 
-                    if article.id != entry.articles.prefix(4).last?.id {
+                    if article.id != entry.articles.prefix(3).last?.id {
                         Divider()
                     }
                 }
+                Spacer(minLength: 0)
+                FeedTitleLabel(title: entry.feedTitle)
             }
         }
     }
@@ -399,7 +405,7 @@ struct SingleFeedLargeTextView: View {
             emptyView(iconSize: 34, textSize: 15)
         } else {
             VStack(alignment: .leading, spacing: 4) {
-                ForEach(entry.articles.prefix(9)) { article in
+                ForEach(entry.articles.prefix(8)) { article in
                     Link(destination: URL(string: "sakura://article/\(article.id)")!) {
                         VStack(alignment: .leading, spacing: 2) {
                             Text(article.title)
@@ -414,12 +420,28 @@ struct SingleFeedLargeTextView: View {
                         .frame(maxWidth: .infinity, alignment: .leading)
                     }
 
-                    if article.id != entry.articles.prefix(9).last?.id {
+                    if article.id != entry.articles.prefix(8).last?.id {
                         Divider()
                     }
                 }
+                Spacer(minLength: 0)
+                FeedTitleLabel(title: entry.feedTitle)
             }
         }
+    }
+}
+
+// MARK: - Feed Title Label
+
+struct FeedTitleLabel: View {
+    let title: String
+
+    var body: some View {
+        Text(title)
+            .font(.system(size: 11, weight: .medium))
+            .foregroundStyle(.secondary)
+            .lineLimit(1)
+            .frame(maxWidth: .infinity, alignment: .leading)
     }
 }
 
