@@ -287,12 +287,20 @@ struct SingleFeedThumbnailCell: View {
                             }
                     }
 
-                    Text(article.title)
-                        .font(.system(size: 14, weight: .semibold, design: .default).width(.condensed))
-                        .foregroundStyle(.white)
-                        .lineLimit(2)
-                        .shadow(color: .black.opacity(0.6), radius: 4, x: 0, y: 2)
-                        .padding(10)
+                    VStack {
+                        Spacer()
+                        Text(article.title)
+                            .font(.system(size: 14, weight: .semibold, design: .default).width(.condensed))
+                            .foregroundStyle(.white)
+                            .lineLimit(2)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(8)
+                            .background(
+                                .ultraThinMaterial.opacity(0.8),
+                                in: RoundedRectangle(cornerRadius: 8)
+                            )
+                    }
+                    .padding(6)
                 }
             }
             .clipShape(RoundedRectangle(cornerRadius: 12))
