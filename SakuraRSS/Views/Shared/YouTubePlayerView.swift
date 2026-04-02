@@ -16,6 +16,7 @@ struct YouTubePlayerView: View {
     @State private var isAd = false
     @State private var advertiserURL: URL?
     @State private var hasStartedPlaying = false
+    @State private var isPiP = false
     @State private var videoAspectRatio: CGFloat = 16 / 9
     @State private var feed: Feed?
     @State private var favicon: UIImage?
@@ -55,12 +56,24 @@ struct YouTubePlayerView: View {
                 webView: $webView,
                 isAd: $isAd,
                 advertiserURL: $advertiserURL,
-                videoAspectRatio: $videoAspectRatio
+                videoAspectRatio: $videoAspectRatio,
+                isPiP: $isPiP
             )
             .aspectRatio(videoAspectRatio, contentMode: .fit)
             .clipped()
             .overlay {
-                if !hasStartedPlaying {
+                if isPiP {
+                    Color.black
+                        .overlay {
+                            VStack(spacing: 8) {
+                                Image(systemName: "pip.fill")
+                                    .font(.largeTitle)
+                                Text(String(localized: "YouTube.PiP.Active"))
+                                    .font(.subheadline)
+                            }
+                            .foregroundStyle(.secondary)
+                        }
+                } else if !hasStartedPlaying {
                     Color.black
                         .overlay {
                             ProgressView()

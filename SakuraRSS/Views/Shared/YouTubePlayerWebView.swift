@@ -11,6 +11,7 @@ struct YouTubePlayerWebView: UIViewRepresentable {
     @Binding var isAd: Bool
     @Binding var advertiserURL: URL?
     @Binding var videoAspectRatio: CGFloat
+    @Binding var isPiP: Bool
 
     func makeCoordinator() -> Coordinator {
         Coordinator(
@@ -19,7 +20,8 @@ struct YouTubePlayerWebView: UIViewRepresentable {
             duration: $duration,
             isAd: $isAd,
             advertiserURL: $advertiserURL,
-            videoAspectRatio: $videoAspectRatio
+            videoAspectRatio: $videoAspectRatio,
+            isPiP: $isPiP
         )
     }
 
@@ -68,6 +70,7 @@ struct YouTubePlayerWebView: UIViewRepresentable {
         @Binding var isAd: Bool
         @Binding var advertiserURL: URL?
         @Binding var videoAspectRatio: CGFloat
+        @Binding var isPiP: Bool
         private var playbackObserver: Timer?
 
         init(
@@ -76,7 +79,8 @@ struct YouTubePlayerWebView: UIViewRepresentable {
             duration: Binding<TimeInterval>,
             isAd: Binding<Bool>,
             advertiserURL: Binding<URL?>,
-            videoAspectRatio: Binding<CGFloat>
+            videoAspectRatio: Binding<CGFloat>,
+            isPiP: Binding<Bool>
         ) {
             _isPlaying = isPlaying
             _currentTime = currentTime
@@ -84,6 +88,7 @@ struct YouTubePlayerWebView: UIViewRepresentable {
             _isAd = isAd
             _advertiserURL = advertiserURL
             _videoAspectRatio = videoAspectRatio
+            _isPiP = isPiP
         }
 
         func invalidateObserver() {
@@ -151,6 +156,7 @@ struct YouTubePlayerWebView: UIViewRepresentable {
                     var advURL = advLink ? (advLink.href || advLink.getAttribute('href') || '') : '';
                     var vw = video.videoWidth || 0;
                     var vh = video.videoHeight || 0;
+                    var inPiP = document.pictureInPictureElement === video;
                     return {
                         playing: !video.paused,
                         currentTime: video.currentTime,
@@ -158,7 +164,8 @@ struct YouTubePlayerWebView: UIViewRepresentable {
                         isAd: isAd,
                         advertiserURL: advURL,
                         videoWidth: vw,
-                        videoHeight: vh
+                        videoHeight: vh,
+                        isPiP: inPiP
                     };
                 })();
                 """
@@ -191,6 +198,9 @@ struct YouTubePlayerWebView: UIViewRepresentable {
                                         self?.videoAspectRatio = ratio
                                     }
                                 }
+                            }
+                            if let pip = dict["isPiP"] as? Bool {
+                                self?.isPiP = pip
                             }
                         }
                     }
