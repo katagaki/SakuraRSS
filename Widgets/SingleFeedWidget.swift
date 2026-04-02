@@ -222,6 +222,14 @@ struct SingleFeedSmallView: View {
                         )
                     }
 
+                    LinearGradient(
+                        colors: [.clear, .black.opacity(0.75)],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                    .frame(height: geo.size.height * 0.5)
+                    .frame(maxHeight: .infinity, alignment: .bottom)
+
                     VStack(alignment: .leading, spacing: 2) {
                         Text(entry.feedTitle)
                             .font(.system(size: 11, weight: .medium, design: .default).width(.condensed))
@@ -232,7 +240,6 @@ struct SingleFeedSmallView: View {
                             .foregroundStyle(.white)
                             .lineLimit(2)
                     }
-                    .shadow(color: .black.opacity(0.6), radius: 4, x: 0, y: 2)
                     .padding(16)
                 }
             }
