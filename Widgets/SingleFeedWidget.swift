@@ -68,10 +68,10 @@ struct SingleFeedIntent: WidgetConfigurationIntent {
     static var description: IntentDescription = "SingleFeedWidget.IntentDescription"
 
     @Parameter(title: "Feed")
-    var feed: FeedEntity
+    var feed: FeedEntity?
 
     @Parameter(title: "Layout", default: .thumbnails)
-    var layout: SingleFeedWidgetLayout
+    var layout: SingleFeedWidgetLayout?
 }
 
 // MARK: - Timeline Entry
@@ -116,11 +116,21 @@ struct SingleFeedProvider: AppIntentTimelineProvider {
 
     private func loadEntry(for configuration: SingleFeedIntent) async -> SingleFeedEntry {
         let database = DatabaseManager.shared
-        let feedID = configuration.feed.feedID
-        let layout = configuration.layout
+        let layout = configuration.layout ?? .thumbnails
+
+        guard let feed = configuration.feed else {
+            return SingleFeedEntry(
+                date: Date(),
+                feedTitle: "",
+                articles: [],
+                layout: layout
+            )
+        }
+
+        let feedID = feed.feedID
 
         do {
-            let feedTitle = (try database.feed(byID: feedID))?.title ?? configuration.feed.title
+            let feedTitle = (try database.feed(byID: feedID))?.title ?? feed.title
             let articleLimit = layout == .text ? 9 : 4
             let dbArticles = try database.articles(forFeedID: feedID, limit: articleLimit)
 
@@ -154,7 +164,7 @@ struct SingleFeedProvider: AppIntentTimelineProvider {
         } catch {
             return SingleFeedEntry(
                 date: Date(),
-                feedTitle: configuration.feed.title,
+                feedTitle: feed.title,
                 articles: [],
                 layout: layout
             )
