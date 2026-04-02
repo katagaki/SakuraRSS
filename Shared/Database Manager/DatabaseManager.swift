@@ -120,6 +120,7 @@ nonisolated final class DatabaseManager: @unchecked Sendable {
 
         try database.run(articles.createIndex(articleFeedID, ifNotExists: true))
         try database.run(articles.createIndex(articlePublishedDate, ifNotExists: true))
+        try database.run(articles.createIndex(articleFeedID, articleIsRead, ifNotExists: true))
     }
 
     private func createAuxiliaryTables() throws {

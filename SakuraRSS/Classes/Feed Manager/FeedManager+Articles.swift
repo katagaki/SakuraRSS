@@ -86,18 +86,16 @@ extension FeedManager {
 
     func unreadCount(for feed: Feed) -> Int {
         _ = dataRevision
-        return (try? database.unreadCount(forFeedID: feed.id)) ?? 0
+        return unreadCounts[feed.id] ?? 0
     }
 
     func totalUnreadCount() -> Int {
         _ = dataRevision
-        let mutedFeedIDs = Set(feeds.filter(\.isMuted).map(\.id))
-        if mutedFeedIDs.isEmpty {
-            return (try? database.totalUnreadCount()) ?? 0
+        let muted = mutedFeedIDs
+        if muted.isEmpty {
+            return unreadCounts.values.reduce(0, +)
         }
-        return feeds.filter { !$0.isMuted }.reduce(0) { total, feed in
-            total + ((try? database.unreadCount(forFeedID: feed.id)) ?? 0)
-        }
+        return unreadCounts.filter { !muted.contains($0.key) }.values.reduce(0, +)
     }
 
     // MARK: - Filtering Helpers
