@@ -465,7 +465,7 @@ struct SingleFeedWidgetView: View {
         case .systemSmall:
             SingleFeedSmallView(entry: entry)
         case .systemMedium:
-            VStack(spacing: 0) {
+            ZStack(alignment: .bottom) {
                 Group {
                     if entry.layout == .thumbnails {
                         SingleFeedMediumThumbnailsView(entry: entry)
@@ -473,15 +473,13 @@ struct SingleFeedWidgetView: View {
                         SingleFeedMediumTextView(entry: entry)
                     }
                 }
-                .padding(.horizontal, 16)
-                .padding(.top, 16)
+                .padding(16)
                 FeedTitleLabel(title: entry.feedTitle)
                     .padding(.horizontal, 16)
-                    .padding(.top, 4)
-                    .padding(.bottom, 12)
+                    .padding(.bottom, 2)
             }
         case .systemLarge:
-            VStack(spacing: 0) {
+            ZStack(alignment: .bottom) {
                 Group {
                     if entry.layout == .thumbnails {
                         SingleFeedLargeThumbnailsView(entry: entry)
@@ -489,12 +487,10 @@ struct SingleFeedWidgetView: View {
                         SingleFeedLargeTextView(entry: entry)
                     }
                 }
-                .padding(.horizontal, 16)
-                .padding(.top, 16)
+                .padding(16)
                 FeedTitleLabel(title: entry.feedTitle)
                     .padding(.horizontal, 16)
-                    .padding(.top, 6)
-                    .padding(.bottom, 14)
+                    .padding(.bottom, 2)
             }
         default:
             SingleFeedSmallView(entry: entry)
