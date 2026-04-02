@@ -212,6 +212,7 @@ struct SingleFeedSmallView: View {
                             .aspectRatio(contentMode: .fill)
                             .frame(width: geo.size.width, height: geo.size.height)
                             .clipped()
+                            .overlay(Color.black.opacity(0.2))
                     } else {
                         LinearGradient(
                             colors: [Color("AccentColor").opacity(0.6), Color("AccentColor")],
@@ -273,6 +274,7 @@ struct SingleFeedThumbnailCell: View {
                             .aspectRatio(contentMode: .fill)
                             .frame(width: geo.size.width, height: geo.size.height)
                             .clipped()
+                            .overlay(Color.black.opacity(0.2))
                     } else {
                         Rectangle()
                             .fill(Color("AccentColor").opacity(0.3))
