@@ -213,7 +213,7 @@ struct SingleFeedSmallView: View {
                             .aspectRatio(contentMode: .fill)
                             .frame(width: geo.size.width, height: geo.size.height)
                             .clipped()
-                            .widgetAccentable()
+                            .widgetAccentedRenderingMode(.accented)
                     } else {
                         LinearGradient(
                             colors: [Color("AccentColor").opacity(0.6), Color("AccentColor")],
@@ -276,7 +276,7 @@ struct SingleFeedThumbnailCell: View {
                             .aspectRatio(contentMode: .fill)
                             .frame(width: geo.size.width, height: geo.size.height)
                             .clipped()
-                            .widgetAccentable()
+                            .widgetAccentedRenderingMode(.accented)
                     } else {
                         Rectangle()
                             .fill(Color("AccentColor").opacity(0.3))
