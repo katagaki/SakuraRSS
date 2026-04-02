@@ -148,7 +148,7 @@ nonisolated final class RSSParser: NSObject, XMLParserDelegate, @unchecked Senda
         switch currentElement {
         case "title": currentTitle += string
         case "link": if !isAtom { currentLink += string }
-        case "description", "summary", "subtitle": currentDescription += string
+        case "description", "summary", "subtitle", "media:description": currentDescription += string
         case "dc:creator", "author", "name": currentAuthor += string
         case "content:encoded", "content": currentContent += string
         case "pubDate", "published", "updated", "dc:date": currentPubDate += string
