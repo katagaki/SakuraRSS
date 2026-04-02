@@ -82,10 +82,8 @@ struct MoreView: View {
                 }
 
                 Section {
-                    NavigationLink {
+                    NavigationLink("Integrations.YouTube") {
                         YouTubeSettingsView()
-                    } label: {
-                        Label(String(localized: "Integrations.YouTube"), systemImage: "play.rectangle")
                     }
                 } header: {
                     Text("Settings.Section.Integrations")
