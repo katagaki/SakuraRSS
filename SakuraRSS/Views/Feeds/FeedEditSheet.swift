@@ -158,7 +158,7 @@ struct FeedEditSheet: View {
                         Text("FeedEdit.OpenIn.Browser")
                             .tag(FeedOpenMode.browser)
                     }
-                    if !feed.isVideoFeed {
+                    if !feed.isVideoFeed && !feed.isPodcast {
                         Picker(String(localized: "FeedEdit.ArticleSource"), selection: $articleSource) {
                             Text("FeedEdit.ArticleSource.Automatic")
                                 .tag(ArticleSource.automatic)
