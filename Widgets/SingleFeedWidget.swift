@@ -228,11 +228,17 @@ struct SingleFeedSmallView: View {
                     .frame(height: geo.size.height * 0.5)
                     .frame(maxHeight: .infinity, alignment: .bottom)
 
-                    Text(article.title)
-                        .font(.system(size: 14, weight: .semibold, design: .default).width(.condensed))
-                        .foregroundStyle(.white)
-                        .lineLimit(2)
-                        .padding(16)
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(entry.feedTitle)
+                            .font(.system(size: 11, weight: .medium, design: .default).width(.condensed))
+                            .foregroundStyle(.white.opacity(0.8))
+                            .lineLimit(1)
+                        Text(article.title)
+                            .font(.system(size: 14, weight: .semibold, design: .default).width(.condensed))
+                            .foregroundStyle(.white)
+                            .lineLimit(2)
+                    }
+                    .padding(16)
                 }
             }
             .clipShape(ContainerRelativeShape())
