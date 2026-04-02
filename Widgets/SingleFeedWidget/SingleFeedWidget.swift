@@ -23,9 +23,11 @@ struct SingleFeedWidgetView: View {
                     }
                 }
                 .padding(16)
-                FeedTitleLabel(title: entry.feedTitle)
-                    .padding(.horizontal, 16)
-                    .padding(.bottom, 2)
+                if entry.layout == .thumbnails {
+                    FeedTitleLabel(title: entry.feedTitle)
+                        .padding(.horizontal, 16)
+                        .padding(.bottom, 2)
+                }
             }
         case .systemLarge:
             ZStack(alignment: .bottom) {
@@ -37,9 +39,11 @@ struct SingleFeedWidgetView: View {
                     }
                 }
                 .padding(16)
-                FeedTitleLabel(title: entry.feedTitle)
-                    .padding(.horizontal, 16)
-                    .padding(.bottom, 2)
+                if entry.layout == .thumbnails {
+                    FeedTitleLabel(title: entry.feedTitle)
+                        .padding(.horizontal, 16)
+                        .padding(.bottom, 2)
+                }
             }
         default:
             SingleFeedSmallView(entry: entry)
