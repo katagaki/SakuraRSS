@@ -158,15 +158,17 @@ struct FeedEditSheet: View {
                         Text("FeedEdit.OpenIn.Browser")
                             .tag(FeedOpenMode.browser)
                     }
-                    Picker(String(localized: "FeedEdit.ArticleSource"), selection: $articleSource) {
-                        Text("FeedEdit.ArticleSource.Automatic")
-                            .tag(ArticleSource.automatic)
-                        Text("FeedEdit.ArticleSource.FetchText")
-                            .tag(ArticleSource.fetchText)
-                        Text("FeedEdit.ArticleSource.ExtractText")
-                            .tag(ArticleSource.extractText)
-                        Text("FeedEdit.ArticleSource.FeedText")
-                            .tag(ArticleSource.feedText)
+                    if !feed.isVideoFeed {
+                        Picker(String(localized: "FeedEdit.ArticleSource"), selection: $articleSource) {
+                            Text("FeedEdit.ArticleSource.Automatic")
+                                .tag(ArticleSource.automatic)
+                            Text("FeedEdit.ArticleSource.FetchText")
+                                .tag(ArticleSource.fetchText)
+                            Text("FeedEdit.ArticleSource.ExtractText")
+                                .tag(ArticleSource.extractText)
+                            Text("FeedEdit.ArticleSource.FeedText")
+                                .tag(ArticleSource.feedText)
+                        }
                     }
                 } header: {
                     Text("FeedEdit.Behavior")
