@@ -3,7 +3,8 @@ import SwiftUI
 struct VideoStyleView: View {
 
     @Environment(FeedManager.self) var feedManager
-    @AppStorage("Labs.YouTubePlayer") private var youTubePlayerEnabled: Bool = false
+    @Environment(\.openURL) var openURL
+    @AppStorage("YouTube.OpenMode") private var youTubeOpenMode: YouTubeOpenMode = .inAppPlayer
     let articles: [Article]
     var onLoadMore: (() -> Void)?
 
@@ -16,9 +17,13 @@ struct VideoStyleView: View {
                 ForEach(articles) { article in
                     Button {
                         feedManager.markRead(article)
-                        if article.isYouTubeURL && youTubePlayerEnabled {
+                        if article.isYouTubeURL && youTubeOpenMode == .inAppPlayer {
                             youTubePlayerArticle = article
                             showYouTubePlayer = true
+                        } else if article.isYouTubeURL && youTubeOpenMode == .browser {
+                            if let url = URL(string: article.url) {
+                                openURL(url)
+                            }
                         } else {
                             YouTubeHelper.openInApp(url: article.url)
                         }

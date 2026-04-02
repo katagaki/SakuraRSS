@@ -11,8 +11,11 @@ struct MoreView: View {
     @AppStorage("BackgroundRefresh.BadgeEnabled") private var badgeEnabled: Bool = false
     @AppStorage("Display.DefaultStyle") private var defaultDisplayStyle: FeedDisplayStyle = .inbox
     @AppStorage("Search.DisplayStyle") private var searchDisplayStyle: FeedDisplayStyle = .inbox
+    @AppStorage("YouTube.OpenMode") private var youTubeOpenMode: YouTubeOpenMode = .inAppPlayer
     @AppStorage("TodaysSummary.Enabled") private var todaysSummaryEnabled: Bool = false
     @AppStorage("WhileYouSlept.Enabled") private var whileYouSleptEnabled: Bool = false
+    @State private var isYouTubeSignedIn = false
+    @State private var showYouTubeLogin = false
     @State private var isExporting = false
     @State private var isImporting = false
     @State private var showImportModeChoice = false
@@ -79,6 +82,34 @@ struct MoreView: View {
                     }
                 } header: {
                     Text("Settings.Section.Refresh")
+                }
+
+                Section {
+                    Picker(String(localized: "Settings.YouTube.OpenMode"), selection: $youTubeOpenMode) {
+                        Text("Settings.YouTube.InAppPlayer")
+                            .tag(YouTubeOpenMode.inAppPlayer)
+                        Text("Settings.YouTube.YouTubeApp")
+                            .tag(YouTubeOpenMode.youTubeApp)
+                        Text("Settings.YouTube.Browser")
+                            .tag(YouTubeOpenMode.browser)
+                    }
+
+                    if youTubeOpenMode == .inAppPlayer {
+                        if isYouTubeSignedIn {
+                            Button(String(localized: "Labs.YouTubePlayer.SignOut")) {
+                                Task {
+                                    await YouTubePlayerView.clearYouTubeSession()
+                                    isYouTubeSignedIn = false
+                                }
+                            }
+                        } else {
+                            Button(String(localized: "Labs.YouTubePlayer.SignIn")) {
+                                showYouTubeLogin = true
+                            }
+                        }
+                    }
+                } header: {
+                    Text("Settings.Section.Integrations")
                 }
 
                 if isAppleIntelligenceAvailable {
@@ -156,6 +187,7 @@ struct MoreView: View {
                 }
 
             }
+            .animation(.smooth.speed(2.0), value: youTubeOpenMode)
             .animation(.smooth.speed(2.0), value: backgroundRefreshEnabled)
             .listStyle(.insetGrouped)
             .listSectionSpacing(.compact)
@@ -226,6 +258,16 @@ struct MoreView: View {
                 if let alertMessage {
                     Text(alertMessage)
                 }
+            }
+            .sheet(isPresented: $showYouTubeLogin) {
+                Task {
+                    isYouTubeSignedIn = await YouTubePlayerView.hasYouTubeSession()
+                }
+            } content: {
+                YouTubeLoginView()
+            }
+            .task {
+                isYouTubeSignedIn = await YouTubePlayerView.hasYouTubeSession()
             }
         }
     }

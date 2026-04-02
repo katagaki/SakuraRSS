@@ -3,12 +3,9 @@ import SwiftUI
 struct LabsView: View {
 
     @AppStorage("Labs.XProfileFeeds") private var xProfileFeedsEnabled: Bool = false
-    @AppStorage("Labs.YouTubePlayer") private var youTubePlayerEnabled: Bool = false
 
     @State private var isXSignedIn = false
     @State private var showXLogin = false
-    @State private var isYouTubeSignedIn = false
-    @State private var showYouTubeLogin = false
 
     private var appName: String {
         Bundle.main.object(forInfoDictionaryKey: "CFBundleName") as? String ?? "Sakura"
@@ -44,29 +41,8 @@ struct LabsView: View {
                 Text("Labs.XProfileFeeds.Footer")
             }
 
-            Section {
-                Toggle(String(localized: "Labs.YouTubePlayer"), isOn: $youTubePlayerEnabled)
-
-                if youTubePlayerEnabled {
-                    if isYouTubeSignedIn {
-                        Button(String(localized: "Labs.YouTubePlayer.SignOut")) {
-                            Task {
-                                await YouTubePlayerView.clearYouTubeSession()
-                                isYouTubeSignedIn = false
-                            }
-                        }
-                    } else {
-                        Button(String(localized: "Labs.YouTubePlayer.SignIn")) {
-                            showYouTubeLogin = true
-                        }
-                    }
-                }
-            } footer: {
-                Text("Labs.YouTubePlayer.Footer")
-            }
         }
         .animation(.smooth.speed(2.0), value: xProfileFeedsEnabled)
-        .animation(.smooth.speed(2.0), value: youTubePlayerEnabled)
         .navigationTitle(String(localized: "Labs.Title"))
         .toolbarTitleDisplayMode(.inline)
         .scrollContentBackground(.hidden)
@@ -78,16 +54,8 @@ struct LabsView: View {
         } content: {
             XLoginView()
         }
-        .sheet(isPresented: $showYouTubeLogin) {
-            Task {
-                isYouTubeSignedIn = await YouTubePlayerView.hasYouTubeSession()
-            }
-        } content: {
-            YouTubeLoginView()
-        }
         .task {
             isXSignedIn = await XProfileScraper.hasXSession()
-            isYouTubeSignedIn = await YouTubePlayerView.hasYouTubeSession()
         }
     }
 }

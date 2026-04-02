@@ -30,7 +30,7 @@ struct ArticleDetailView: View {
     @State var showYouTubePlayer = false
     @State var imageViewerURL: URL?
     @Namespace private var imageViewerNamespace
-    @AppStorage("Labs.YouTubePlayer") var youTubePlayerEnabled: Bool = false
+    @AppStorage("YouTube.OpenMode") var youTubeOpenMode: YouTubeOpenMode = .inAppPlayer
 
     var isAppleIntelligenceAvailable: Bool {
         SystemLanguageModel.default.availability == .available
