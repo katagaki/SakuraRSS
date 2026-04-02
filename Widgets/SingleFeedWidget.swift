@@ -208,6 +208,7 @@ struct SingleFeedSmallView: View {
                 ZStack(alignment: .bottomLeading) {
                     if let imageData = article.imageData, let uiImage = UIImage(data: imageData) {
                         Image(uiImage: uiImage)
+                            .renderingMode(.original)
                             .resizable()
                             .aspectRatio(contentMode: .fill)
                             .frame(width: geo.size.width, height: geo.size.height)
@@ -270,6 +271,7 @@ struct SingleFeedThumbnailCell: View {
                 ZStack(alignment: .bottomLeading) {
                     if let imageData = article.imageData, let uiImage = UIImage(data: imageData) {
                         Image(uiImage: uiImage)
+                            .renderingMode(.original)
                             .resizable()
                             .aspectRatio(contentMode: .fill)
                             .frame(width: geo.size.width, height: geo.size.height)
