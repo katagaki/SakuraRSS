@@ -138,13 +138,17 @@ struct SingleFeedProvider: AppIntentTimelineProvider {
             for article in dbArticles {
                 var imageData: Data?
                 if let imageURLString = article.imageURL, let imageURL = URL(string: imageURLString) {
+                    var rawData: Data?
                     if let cached = try? database.cachedImageData(for: imageURLString) {
-                        imageData = cached
+                        rawData = cached
                     } else {
                         if let (data, _) = try? await URLSession.shared.data(from: imageURL) {
                             try? database.cacheImageData(data, for: imageURLString)
-                            imageData = data
+                            rawData = data
                         }
+                    }
+                    if let rawData {
+                        imageData = Self.downsampleImageData(rawData, maxDimension: 400)
                     }
                 }
                 widgetArticles.append(SingleFeedArticle(
@@ -169,6 +173,26 @@ struct SingleFeedProvider: AppIntentTimelineProvider {
                 layout: layout
             )
         }
+    }
+
+    private static func downsampleImageData(_ data: Data, maxDimension: CGFloat) -> Data? {
+        guard let image = UIImage(data: data) else { return nil }
+        let size = image.size
+        guard size.width > maxDimension || size.height > maxDimension else { return data }
+
+        let scale: CGFloat
+        if size.width > size.height {
+            scale = maxDimension / size.width
+        } else {
+            scale = maxDimension / size.height
+        }
+        let newSize = CGSize(width: size.width * scale, height: size.height * scale)
+
+        let renderer = UIGraphicsImageRenderer(size: newSize)
+        let resized = renderer.jpegData(withCompressionQuality: 0.7) { context in
+            image.draw(in: CGRect(origin: .zero, size: newSize))
+        }
+        return resized
     }
 }
 
