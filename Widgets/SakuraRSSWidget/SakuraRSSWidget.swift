@@ -181,18 +181,3 @@ struct SakuraRSSWidget: Widget {
         .supportedFamilies([.systemMedium, .systemLarge])
     }
 }
-
-#Preview(as: .systemMedium) {
-    SakuraRSSWidget()
-} timeline: {
-    ArticleEntry(date: .now, articles: [
-        WidgetArticle(
-            id: 1, title: "Sample Article Title",
-            feedName: "Tech Blog", publishedDate: Date(), isRead: false
-        ),
-        WidgetArticle(
-            id: 2, title: "Another Article",
-            feedName: "News Site", publishedDate: Date(), isRead: false
-        )
-    ], feedTitle: nil)
-}
