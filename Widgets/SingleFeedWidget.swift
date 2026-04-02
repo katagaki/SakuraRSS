@@ -298,7 +298,7 @@ struct SingleFeedThumbnailCell: View {
                         .padding(10)
                 }
             }
-            .clipShape(RoundedRectangle(cornerRadius: 10))
+            .clipShape(RoundedRectangle(cornerRadius: 12))
         }
     }
 }
