@@ -305,7 +305,7 @@ struct SingleFeedMediumThumbnailsView: View {
             emptyView(iconSize: 22, textSize: 12)
         } else {
             let items = Array(entry.articles.prefix(2))
-            HStack(spacing: 6) {
+            HStack(spacing: 8) {
                 ForEach(items) { article in
                     SingleFeedThumbnailCell(article: article, feedTitle: entry.feedTitle)
                 }
@@ -326,14 +326,14 @@ struct SingleFeedLargeThumbnailsView: View {
             let topRow = Array(items.prefix(2))
             let bottomRow = Array(items.dropFirst(2))
 
-            VStack(spacing: 6) {
-                HStack(spacing: 6) {
+            VStack(spacing: 10) {
+                HStack(spacing: 10) {
                     ForEach(topRow) { article in
                         SingleFeedThumbnailCell(article: article, feedTitle: entry.feedTitle)
                     }
                 }
                 if !bottomRow.isEmpty {
-                    HStack(spacing: 6) {
+                    HStack(spacing: 10) {
                         ForEach(bottomRow) { article in
                             SingleFeedThumbnailCell(article: article, feedTitle: entry.feedTitle)
                         }
@@ -444,14 +444,18 @@ struct SingleFeedWidgetView: View {
         case .systemMedium:
             if entry.layout == .thumbnails {
                 SingleFeedMediumThumbnailsView(entry: entry)
+                    .padding(16)
             } else {
                 SingleFeedMediumTextView(entry: entry)
+                    .padding(16)
             }
         case .systemLarge:
             if entry.layout == .thumbnails {
                 SingleFeedLargeThumbnailsView(entry: entry)
+                    .padding(16)
             } else {
                 SingleFeedLargeTextView(entry: entry)
+                    .padding(16)
             }
         default:
             SingleFeedSmallView(entry: entry)
@@ -475,6 +479,7 @@ struct SingleFeedWidget: Widget {
                     Color("WidgetBackground")
                 }
         }
+        .contentMarginsDisabled()
         .configurationDisplayName(String(localized: "SingleFeedWidget.DisplayName"))
         .description(String(localized: "SingleFeedWidget.Description"))
         .supportedFamilies([.systemSmall, .systemMedium, .systemLarge])
