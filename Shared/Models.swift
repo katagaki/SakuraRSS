@@ -113,6 +113,13 @@ nonisolated struct Article: Identifiable, Hashable, Sendable {
     }
 }
 
+nonisolated enum ArticleSource: String, CaseIterable, Sendable {
+    case automatic
+    case fetchText
+    case extractText
+    case feedText
+}
+
 nonisolated enum FeedDisplayStyle: String, CaseIterable, Sendable {
     case inbox
     case feed

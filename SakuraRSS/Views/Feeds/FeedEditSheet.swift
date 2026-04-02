@@ -12,6 +12,7 @@ struct FeedEditSheet: View {
     @State private var url: String
     @State var iconURLInput: String
     @State private var openMode: FeedOpenMode
+    @State private var articleSource: ArticleSource
     @State var selectedPhoto: PhotosPickerItem?
     @State var customIconImage: UIImage?
     @State var currentFavicon: UIImage?
@@ -28,6 +29,8 @@ struct FeedEditSheet: View {
         _useDefaultIcon = State(initialValue: existingIconURL == "none")
         let raw = UserDefaults.standard.string(forKey: "openMode-\(feed.id)")
         _openMode = State(initialValue: raw.flatMap(FeedOpenMode.init(rawValue:)) ?? .inAppViewer)
+        let sourceRaw = UserDefaults.standard.string(forKey: "articleSource-\(feed.id)")
+        _articleSource = State(initialValue: sourceRaw.flatMap(ArticleSource.init(rawValue:)) ?? .automatic)
     }
 
     var body: some View {
@@ -155,6 +158,16 @@ struct FeedEditSheet: View {
                         Text("FeedEdit.OpenIn.Browser")
                             .tag(FeedOpenMode.browser)
                     }
+                    Picker(String(localized: "FeedEdit.ArticleSource"), selection: $articleSource) {
+                        Text("FeedEdit.ArticleSource.Automatic")
+                            .tag(ArticleSource.automatic)
+                        Text("FeedEdit.ArticleSource.FetchText")
+                            .tag(ArticleSource.fetchText)
+                        Text("FeedEdit.ArticleSource.ExtractText")
+                            .tag(ArticleSource.extractText)
+                        Text("FeedEdit.ArticleSource.FeedText")
+                            .tag(ArticleSource.feedText)
+                    }
                 } header: {
                     Text("FeedEdit.Behavior")
                 }
@@ -231,6 +244,11 @@ struct FeedEditSheet: View {
         feedManager.updateFeedDetails(feed, title: name, url: url,
                                       customIconURL: finalCustomIconURL)
         UserDefaults.standard.set(openMode.rawValue, forKey: "openMode-\(feed.id)")
+        if articleSource == .automatic {
+            UserDefaults.standard.removeObject(forKey: "articleSource-\(feed.id)")
+        } else {
+            UserDefaults.standard.set(articleSource.rawValue, forKey: "articleSource-\(feed.id)")
+        }
         dismiss()
     }
 
