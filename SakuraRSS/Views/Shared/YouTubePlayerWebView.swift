@@ -10,6 +10,7 @@ struct YouTubePlayerWebView: UIViewRepresentable {
     @Binding var webView: WKWebView?
     @Binding var isAd: Bool
     @Binding var advertiserURL: URL?
+    @Binding var videoAspectRatio: CGFloat
 
     func makeCoordinator() -> Coordinator {
         Coordinator(
@@ -17,7 +18,8 @@ struct YouTubePlayerWebView: UIViewRepresentable {
             currentTime: $currentTime,
             duration: $duration,
             isAd: $isAd,
-            advertiserURL: $advertiserURL
+            advertiserURL: $advertiserURL,
+            videoAspectRatio: $videoAspectRatio
         )
     }
 
@@ -65,6 +67,7 @@ struct YouTubePlayerWebView: UIViewRepresentable {
         @Binding var duration: TimeInterval
         @Binding var isAd: Bool
         @Binding var advertiserURL: URL?
+        @Binding var videoAspectRatio: CGFloat
         private var playbackObserver: Timer?
 
         init(
@@ -72,13 +75,15 @@ struct YouTubePlayerWebView: UIViewRepresentable {
             currentTime: Binding<TimeInterval>,
             duration: Binding<TimeInterval>,
             isAd: Binding<Bool>,
-            advertiserURL: Binding<URL?>
+            advertiserURL: Binding<URL?>,
+            videoAspectRatio: Binding<CGFloat>
         ) {
             _isPlaying = isPlaying
             _currentTime = currentTime
             _duration = duration
             _isAd = isAd
             _advertiserURL = advertiserURL
+            _videoAspectRatio = videoAspectRatio
         }
 
         func invalidateObserver() {
@@ -144,12 +149,16 @@ struct YouTubePlayerWebView: UIViewRepresentable {
                     var advLink = document.querySelector('.ytp-ad-visit-advertiser-button, \
                 .ytp-ad-button, a[class*="visit-advertiser"], .ytp-ad-overlay-link');
                     var advURL = advLink ? (advLink.href || advLink.getAttribute('href') || '') : '';
+                    var vw = video.videoWidth || 0;
+                    var vh = video.videoHeight || 0;
                     return {
                         playing: !video.paused,
                         currentTime: video.currentTime,
                         duration: video.duration || 0,
                         isAd: isAd,
-                        advertiserURL: advURL
+                        advertiserURL: advURL,
+                        videoWidth: vw,
+                        videoHeight: vh
                     };
                 })();
                 """
@@ -172,6 +181,16 @@ struct YouTubePlayerWebView: UIViewRepresentable {
                                 self?.advertiserURL = URL(string: urlStr)
                             } else {
                                 self?.advertiserURL = nil
+                            }
+                            if let vw = dict["videoWidth"] as? Double,
+                               let vh = dict["videoHeight"] as? Double,
+                               vw > 0, vh > 0 {
+                                let ratio = CGFloat(vw / vh)
+                                if abs(ratio - (self?.videoAspectRatio ?? 0)) > 0.01 {
+                                    withAnimation(.smooth(duration: 0.3)) {
+                                        self?.videoAspectRatio = ratio
+                                    }
+                                }
                             }
                         }
                     }
