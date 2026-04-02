@@ -165,9 +165,11 @@ struct YouTubePlayerWebView: UIViewRepresentable {
                             if let dur = dict["duration"] as? Double, dur > 0 {
                                 self?.duration = dur
                             }
+                            // swiftlint:disable identifier_name
                             if let ad = dict["isAd"] as? Bool {
                                 self?.isAd = ad
                             }
+                            // swiftlint:enable identifier_name
                             if let urlStr = dict["advertiserURL"] as? String, !urlStr.isEmpty {
                                 self?.advertiserURL = URL(string: urlStr)
                             } else {

@@ -1,0 +1,51 @@
+import WidgetKit
+
+struct ArticleProvider: TimelineProvider {
+
+    func placeholder(in _: Context) -> ArticleEntry {
+        ArticleEntry(
+            date: Date(),
+            articles: [
+                WidgetArticle(
+                    id: 0, title: String(localized: "Widget.Placeholder.Loading"),
+                    feedName: String(localized: "Widget.Placeholder.Feed"), publishedDate: Date(), isRead: false
+                )
+            ],
+            feedTitle: nil
+        )
+    }
+
+    func getSnapshot(in _: Context, completion: @escaping (ArticleEntry) -> Void) {
+        let entry = loadEntry()
+        completion(entry)
+    }
+
+    func getTimeline(in _: Context, completion: @escaping (Timeline<ArticleEntry>) -> Void) {
+        let entry = loadEntry()
+        let timeline = Timeline(entries: [entry], policy: .after(Date().addingTimeInterval(30 * 60)))
+        completion(timeline)
+    }
+
+    private func loadEntry() -> ArticleEntry {
+        let database = DatabaseManager.shared
+        do {
+            let articles = try database.unreadArticles(limit: 10)
+            let feeds = try database.allFeeds()
+
+            let widgetArticles = articles.map { article in
+                let feedName = feeds.first { $0.id == article.feedID }?.title ?? ""
+                return WidgetArticle(
+                    id: article.id,
+                    title: article.title,
+                    feedName: feedName,
+                    publishedDate: article.publishedDate,
+                    isRead: article.isRead
+                )
+            }
+
+            return ArticleEntry(date: Date(), articles: widgetArticles, feedTitle: nil)
+        } catch {
+            return ArticleEntry(date: Date(), articles: [], feedTitle: nil)
+        }
+    }
+}
