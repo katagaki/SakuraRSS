@@ -13,8 +13,10 @@ struct YouTubeSettingsView: View {
                 Picker(String(localized: "Settings.YouTube.OpenMode"), selection: $youTubeOpenMode) {
                     Text("Settings.YouTube.InAppPlayer")
                         .tag(YouTubeOpenMode.inAppPlayer)
-                    Text("Settings.YouTube.YouTubeApp")
-                        .tag(YouTubeOpenMode.youTubeApp)
+                    if YouTubeHelper.isAppInstalled {
+                        Text("Settings.YouTube.YouTubeApp")
+                            .tag(YouTubeOpenMode.youTubeApp)
+                    }
                     Text("Settings.YouTube.Browser")
                         .tag(YouTubeOpenMode.browser)
                 }
