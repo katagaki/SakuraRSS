@@ -127,7 +127,6 @@ struct SakuraRSSApp: App {
             // Disable all labs features in safe mode
             let hadLabsEnabled = defaults.bool(forKey: "Labs.XProfileFeeds")
             defaults.set(false, forKey: "Labs.XProfileFeeds")
-            defaults.removeObject(forKey: "YouTube.OpenMode")
             _labsWereDisabled = State(initialValue: hadLabsEnabled)
         } else {
             _isInSafeMode = State(initialValue: false)
