@@ -312,13 +312,10 @@ struct SingleFeedMediumThumbnailsView: View {
             emptyView(iconSize: 22, textSize: 12)
         } else {
             let items = Array(entry.articles.prefix(2))
-            VStack(spacing: 8) {
-                HStack(spacing: 8) {
-                    ForEach(items) { article in
-                        SingleFeedThumbnailCell(article: article, feedTitle: entry.feedTitle)
-                    }
+            HStack(spacing: 8) {
+                ForEach(items) { article in
+                    SingleFeedThumbnailCell(article: article, feedTitle: entry.feedTitle)
                 }
-                FeedTitleLabel(title: entry.feedTitle)
             }
         }
     }
@@ -352,7 +349,6 @@ struct SingleFeedLargeThumbnailsView: View {
                         }
                     }
                 }
-                FeedTitleLabel(title: entry.feedTitle)
             }
         }
     }
@@ -369,7 +365,7 @@ struct SingleFeedMediumTextView: View {
             emptyView(iconSize: 22, textSize: 12)
         } else {
             VStack(alignment: .leading, spacing: 4) {
-                ForEach(entry.articles.prefix(3)) { article in
+                ForEach(entry.articles.prefix(4)) { article in
                     Link(destination: URL(string: "sakura://article/\(article.id)")!) {
                         VStack(alignment: .leading, spacing: 1) {
                             Text(article.title)
@@ -385,12 +381,10 @@ struct SingleFeedMediumTextView: View {
                         .frame(maxWidth: .infinity, alignment: .leading)
                     }
 
-                    if article.id != entry.articles.prefix(3).last?.id {
+                    if article.id != entry.articles.prefix(4).last?.id {
                         Divider()
                     }
                 }
-                Spacer(minLength: 0)
-                FeedTitleLabel(title: entry.feedTitle)
             }
         }
     }
@@ -405,7 +399,7 @@ struct SingleFeedLargeTextView: View {
             emptyView(iconSize: 34, textSize: 15)
         } else {
             VStack(alignment: .leading, spacing: 4) {
-                ForEach(entry.articles.prefix(8)) { article in
+                ForEach(entry.articles.prefix(9)) { article in
                     Link(destination: URL(string: "sakura://article/\(article.id)")!) {
                         VStack(alignment: .leading, spacing: 2) {
                             Text(article.title)
@@ -420,12 +414,10 @@ struct SingleFeedLargeTextView: View {
                         .frame(maxWidth: .infinity, alignment: .leading)
                     }
 
-                    if article.id != entry.articles.prefix(8).last?.id {
+                    if article.id != entry.articles.prefix(9).last?.id {
                         Divider()
                     }
                 }
-                Spacer(minLength: 0)
-                FeedTitleLabel(title: entry.feedTitle)
             }
         }
     }
@@ -441,7 +433,7 @@ struct FeedTitleLabel: View {
             .font(.system(size: 11, weight: .medium))
             .foregroundStyle(.secondary)
             .lineLimit(1)
-            .frame(maxWidth: .infinity, alignment: .leading)
+            .frame(maxWidth: .infinity, alignment: .center)
     }
 }
 
@@ -471,20 +463,36 @@ struct SingleFeedWidgetView: View {
         case .systemSmall:
             SingleFeedSmallView(entry: entry)
         case .systemMedium:
-            if entry.layout == .thumbnails {
-                SingleFeedMediumThumbnailsView(entry: entry)
-                    .padding(16)
-            } else {
-                SingleFeedMediumTextView(entry: entry)
-                    .padding(16)
+            VStack(spacing: 0) {
+                FeedTitleLabel(title: entry.feedTitle)
+                    .padding(.horizontal, 16)
+                    .padding(.top, 12)
+                    .padding(.bottom, 4)
+                Group {
+                    if entry.layout == .thumbnails {
+                        SingleFeedMediumThumbnailsView(entry: entry)
+                    } else {
+                        SingleFeedMediumTextView(entry: entry)
+                    }
+                }
+                .padding(.horizontal, 16)
+                .padding(.bottom, 16)
             }
         case .systemLarge:
-            if entry.layout == .thumbnails {
-                SingleFeedLargeThumbnailsView(entry: entry)
-                    .padding(16)
-            } else {
-                SingleFeedLargeTextView(entry: entry)
-                    .padding(16)
+            VStack(spacing: 0) {
+                FeedTitleLabel(title: entry.feedTitle)
+                    .padding(.horizontal, 16)
+                    .padding(.top, 14)
+                    .padding(.bottom, 6)
+                Group {
+                    if entry.layout == .thumbnails {
+                        SingleFeedLargeThumbnailsView(entry: entry)
+                    } else {
+                        SingleFeedLargeTextView(entry: entry)
+                    }
+                }
+                .padding(.horizontal, 16)
+                .padding(.bottom, 16)
             }
         default:
             SingleFeedSmallView(entry: entry)
