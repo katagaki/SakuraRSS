@@ -119,6 +119,13 @@ nonisolated enum YouTubeOpenMode: String, CaseIterable, Sendable {
     case browser
 }
 
+nonisolated enum ArticleSource: String, CaseIterable, Sendable {
+    case automatic
+    case fetchText
+    case extractText
+    case feedText
+}
+
 nonisolated enum FeedDisplayStyle: String, CaseIterable, Sendable {
     case inbox
     case feed

@@ -5,13 +5,8 @@ final class WebViewExtractor: NSObject, WKNavigationDelegate {
 
     // MARK: - Domain Whitelist
 
-    static let allowlistedDomains: Set<String> = [
-        "apple.com"
-    ]
-
     static func requiresWebView(for url: URL) -> Bool {
-        guard let host = url.host?.lowercased() else { return false }
-        return allowlistedDomains.contains(where: { host == $0 || host.hasSuffix(".\($0)") })
+        ExtractTextDomains.shouldExtractText(for: url)
     }
 
     // MARK: - Extraction
