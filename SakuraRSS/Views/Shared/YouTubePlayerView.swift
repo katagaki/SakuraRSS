@@ -1,5 +1,7 @@
 import SwiftUI
 import WebKit
+import FoundationModels
+@preconcurrency import Translation
 
 struct YouTubePlayerView: View {
 
@@ -21,6 +23,52 @@ struct YouTubePlayerView: View {
     @State private var feed: Feed?
     @State private var favicon: UIImage?
     @State private var acronymIcon: UIImage?
+
+    // Translation & summarization
+    @State private var translatedText: String?
+    @State private var translatedSummary: String?
+    @State private var isTranslating = false
+    @State private var translationConfig: TranslationSession.Configuration?
+    @State private var showingTranslation = false
+    @State private var hasCachedTranslation = false
+    @State private var summarizedText: String?
+    @State private var isSummarizing = false
+    @State private var hasCachedSummary = false
+    @State private var showingSummary = false
+    @State private var summarizationError: String?
+
+    private var isAppleIntelligenceAvailable: Bool {
+        SystemLanguageModel.default.availability == .available
+    }
+
+    private var descriptionSource: String? {
+        article.summary ?? article.content
+    }
+
+    private var hasDescription: Bool {
+        guard let descriptionSource else { return false }
+        return !descriptionSource.isEmpty
+    }
+
+    private var hasTranslationForCurrentMode: Bool {
+        if showingSummary {
+            return translatedSummary != nil
+        }
+        return translatedText != nil || hasCachedTranslation
+    }
+
+    private var displayDescription: String? {
+        if showingSummary, let summarizedText {
+            if showingTranslation, let translatedSummary {
+                return translatedSummary
+            }
+            return summarizedText
+        }
+        if showingTranslation, let translatedText {
+            return translatedText
+        }
+        return descriptionSource
+    }
 
     private var youtubeAppURL: URL? {
         guard let url = URL(string: article.url),
@@ -215,15 +263,42 @@ struct YouTubePlayerView: View {
                         .padding(.top, 20)
                     }
 
+                    // Description action buttons
+                    if hasDescription {
+                        descriptionActionButtons
+                    }
+
                     // Description
-                    if let description = article.summary ?? article.content,
-                       !description.isEmpty {
-                        Text(description)
-                            .font(.subheadline)
-                            .foregroundStyle(.secondary)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .padding(.horizontal)
-                            .padding(.top, 12)
+                    if let text = displayDescription, !text.isEmpty {
+                        VStack(alignment: .leading, spacing: 12) {
+                            if showingSummary && summarizedText != nil {
+                                Text("AppleIntelligence.VerifyImportantInformation")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                            let blocks = ContentBlock.parse(text)
+                            ForEach(blocks) { block in
+                                switch block {
+                                case .text(let content):
+                                    SelectableText(content)
+                                case .image(let url):
+                                    CachedAsyncImage(url: url) {
+                                        Rectangle()
+                                            .fill(.secondary.opacity(0.1))
+                                            .frame(height: 200)
+                                    }
+                                    .aspectRatio(contentMode: .fit)
+                                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                                }
+                            }
+                            .id("\(showingSummary)-\(showingTranslation)")
+                            .transition(.blurReplace)
+                        }
+                        .animation(.smooth.speed(2.0), value: showingSummary)
+                        .animation(.smooth.speed(2.0), value: showingTranslation)
+                        .animation(.smooth.speed(2.0), value: translatedText)
+                        .padding(.horizontal)
+                        .padding(.top, 12)
                     }
 
                     Spacer()
@@ -282,9 +357,219 @@ struct YouTubePlayerView: View {
                 }
                 favicon = await FaviconCache.shared.favicon(for: loadedFeed)
             }
+
+            if let cached = try? DatabaseManager.shared.cachedArticleTranslation(for: article.id) {
+                if cached.text != nil { hasCachedTranslation = true }
+                translatedText = cached.text
+            }
+            if let cached = try? DatabaseManager.shared.cachedArticleSummary(for: article.id),
+               !cached.isEmpty {
+                hasCachedSummary = true
+            }
+        }
+        .alert(String(localized: "Article.Summarize.Error"), isPresented: Binding(
+            get: { summarizationError != nil },
+            set: { if !$0 { summarizationError = nil } }
+        )) {
+        } message: {
+            if let summarizationError {
+                Text(summarizationError)
+            }
+        }
+        .translationTask(translationConfig) { session in
+            await handleTranslation(session: session)
         }
     }
 
+}
+
+// MARK: - Description Actions
+
+extension YouTubePlayerView {
+
+    private var descriptionActionButtons: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 8) {
+                translationButton
+                if isAppleIntelligenceAvailable {
+                    summarizationButton
+                }
+            }
+            .buttonStyle(.bordered)
+            .tint(.primary)
+            .padding(.horizontal)
+        }
+        .padding(.top, 12)
+    }
+
+    @ViewBuilder
+    private var translationButton: some View {
+        if hasTranslationForCurrentMode && !isTranslating {
+            Button {
+                withAnimation(.smooth.speed(2.0)) {
+                    showingTranslation.toggle()
+                }
+            } label: {
+                Label(
+                    String(localized: showingTranslation
+                           ? "Article.ShowOriginal"
+                           : "Article.ShowTranslation"),
+                    systemImage: showingTranslation
+                        ? "doc.plaintext" : "translate"
+                )
+                .padding(.horizontal, 2)
+                .padding(.vertical, 2)
+            }
+        } else {
+            Button {
+                triggerTranslation()
+            } label: {
+                Label(
+                    String(localized: "Article.Translate"),
+                    systemImage: "translate"
+                )
+                .opacity(isTranslating ? 0 : 1)
+                .overlay {
+                    if isTranslating {
+                        ProgressView()
+                    }
+                }
+                .padding(.horizontal, 2)
+                .padding(.vertical, 2)
+            }
+            .disabled(isTranslating)
+            .animation(.smooth.speed(2.0), value: isTranslating)
+        }
+    }
+
+    @ViewBuilder
+    private var summarizationButton: some View {
+        if (summarizedText != nil || hasCachedSummary) && !isSummarizing {
+            Button {
+                if summarizedText == nil {
+                    Task {
+                        await summarizeDescription()
+                        if summarizedText != nil {
+                            withAnimation(.smooth.speed(2.0)) {
+                                showingSummary = true
+                            }
+                        }
+                    }
+                } else {
+                    withAnimation(.smooth.speed(2.0)) {
+                        showingSummary.toggle()
+                    }
+                }
+            } label: {
+                Label(
+                    String(localized: showingSummary
+                           ? "Article.ShowOriginal"
+                           : "Article.ShowSummary"),
+                    systemImage: showingSummary
+                        ? "doc.plaintext" : "apple.intelligence"
+                )
+                .padding(.horizontal, 2)
+                .padding(.vertical, 2)
+            }
+        } else {
+            Button {
+                Task {
+                    await summarizeDescription()
+                    if summarizedText != nil {
+                        withAnimation(.smooth.speed(2.0)) {
+                            showingSummary = true
+                        }
+                    }
+                }
+            } label: {
+                Label(
+                    String(localized: "Article.Summarize"),
+                    systemImage: "apple.intelligence"
+                )
+                .opacity(isSummarizing ? 0 : 1)
+                .overlay {
+                    if isSummarizing {
+                        ProgressView()
+                    }
+                }
+                .padding(.horizontal, 2)
+                .padding(.vertical, 2)
+            }
+            .disabled(isSummarizing)
+            .animation(.smooth.speed(2.0), value: isSummarizing)
+        }
+    }
+}
+
+// MARK: - Translation & Summarization
+
+extension YouTubePlayerView {
+
+    func triggerTranslation() {
+        if translationConfig == nil {
+            translationConfig = .init()
+        } else {
+            translationConfig?.invalidate()
+        }
+    }
+
+    func handleTranslation(session: TranslationSession) async {
+        isTranslating = true
+        defer { isTranslating = false }
+
+        if showingSummary, let summarizedText {
+            guard !summarizedText.isEmpty else { return }
+            do {
+                let response = try await session.translate(summarizedText)
+                translatedSummary = response.targetText
+                showingTranslation = true
+                try? DatabaseManager.shared.cacheTranslatedSummary(
+                    response.targetText, for: article.id
+                )
+            } catch {
+                // Translation failed; user can retry
+            }
+        } else {
+            let source = ContentBlock.plainText(from: descriptionSource ?? "")
+            guard !source.isEmpty else { return }
+            do {
+                let response = try await session.translate(source)
+                translatedText = response.targetText
+                hasCachedTranslation = true
+                showingTranslation = true
+                try? DatabaseManager.shared.cacheArticleTranslation(
+                    title: nil, text: response.targetText, for: article.id
+                )
+            } catch {
+                // Translation failed; user can retry
+            }
+        }
+    }
+
+    func summarizeDescription() async {
+        if let cached = try? DatabaseManager.shared.cachedArticleSummary(for: article.id),
+           !cached.isEmpty {
+            summarizedText = cached
+            return
+        }
+
+        let source = ContentBlock.plainText(from: descriptionSource ?? "")
+        guard !source.isEmpty else { return }
+
+        isSummarizing = true
+        defer { isSummarizing = false }
+
+        let instructions = String(localized: "Article.Summarize.Prompt")
+
+        do {
+            let session = LanguageModelSession(instructions: instructions)
+            let response = try await session.respond(to: source)
+            summarizedText = response.content
+            try? DatabaseManager.shared.cacheArticleSummary(response.content, for: article.id)
+        } catch {
+            summarizationError = error.localizedDescription
+        }
+    }
 }
 
 // MARK: - Playback Controls
