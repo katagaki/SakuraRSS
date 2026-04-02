@@ -110,6 +110,8 @@ struct MagazineArticleCard: View {
                     .font(.caption2)
                     .foregroundStyle(.tertiary)
             }
+
+            Spacer(minLength: 0)
         }
         .contentShape(.rect)
         .shadow(color: .black.opacity(0.05), radius: 2, y: 1)
