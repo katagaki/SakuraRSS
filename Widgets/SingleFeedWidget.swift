@@ -208,12 +208,12 @@ struct SingleFeedSmallView: View {
                 ZStack(alignment: .bottomLeading) {
                     if let imageData = article.imageData, let uiImage = UIImage(data: imageData) {
                         Image(uiImage: uiImage)
+                            .widgetAccentedRenderingMode(.accented)
                             .renderingMode(.original)
                             .resizable()
                             .aspectRatio(contentMode: .fill)
                             .frame(width: geo.size.width, height: geo.size.height)
                             .clipped()
-                            .widgetAccentedRenderingMode(.accented)
                     } else {
                         LinearGradient(
                             colors: [Color("AccentColor").opacity(0.6), Color("AccentColor")],
@@ -271,12 +271,12 @@ struct SingleFeedThumbnailCell: View {
                 ZStack(alignment: .bottomLeading) {
                     if let imageData = article.imageData, let uiImage = UIImage(data: imageData) {
                         Image(uiImage: uiImage)
+                            .widgetAccentedRenderingMode(.accented)
                             .renderingMode(.original)
                             .resizable()
                             .aspectRatio(contentMode: .fill)
                             .frame(width: geo.size.width, height: geo.size.height)
                             .clipped()
-                            .widgetAccentedRenderingMode(.accented)
                     } else {
                         Rectangle()
                             .fill(Color("AccentColor").opacity(0.3))
