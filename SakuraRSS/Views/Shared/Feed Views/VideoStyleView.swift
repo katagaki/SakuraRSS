@@ -10,6 +10,8 @@ struct VideoStyleView: View {
 
     @State private var youTubePlayerArticle: Article?
     @State private var showYouTubePlayer = false
+    @State private var showSafari = false
+    @State private var safariURL: URL?
 
     var body: some View {
         ScrollView(.vertical) {
@@ -21,9 +23,8 @@ struct VideoStyleView: View {
                             youTubePlayerArticle = article
                             showYouTubePlayer = true
                         } else if article.isYouTubeURL && youTubeOpenMode == .browser {
-                            if let url = URL(string: article.url) {
-                                openURL(url)
-                            }
+                            safariURL = URL(string: article.url)
+                            showSafari = true
                         } else {
                             YouTubeHelper.openInApp(url: article.url)
                         }
@@ -76,6 +77,12 @@ struct VideoStyleView: View {
         .navigationDestination(isPresented: $showYouTubePlayer) {
             if let article = youTubePlayerArticle {
                 YouTubePlayerView(article: article)
+            }
+        }
+        .sheet(isPresented: $showSafari) {
+            if let safariURL {
+                SafariView(url: safariURL)
+                    .ignoresSafeArea()
             }
         }
     }

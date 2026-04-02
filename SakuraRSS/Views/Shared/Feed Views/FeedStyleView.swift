@@ -74,6 +74,7 @@ struct FeedArticleRow: View {
     @State private var skipFaviconInset = false
     @State private var preferTitle = false
     @State private var feed: Feed?
+    @State private var showSafari = false
 
     @ViewBuilder
     private var feedAvatarView: some View {
@@ -175,6 +176,8 @@ struct FeedArticleRow: View {
                             onShowYouTubePlayer?()
                         } else if article.isYouTubeURL && youTubeOpenMode == .youTubeApp {
                             YouTubeHelper.openInApp(url: article.url)
+                        } else if article.isYouTubeURL && youTubeOpenMode == .browser {
+                            showSafari = true
                         } else if let url = URL(string: article.url) {
                             openURL(url)
                         }
@@ -244,6 +247,12 @@ struct FeedArticleRow: View {
                     || FullFaviconDomains.shouldUseFullImage(feedDomain: loadedFeed.domain)
                 preferTitle = TitleOnlyDomains.shouldPreferTitle(feedDomain: loadedFeed.domain)
                 favicon = await FaviconCache.shared.favicon(for: loadedFeed)
+            }
+        }
+        .sheet(isPresented: $showSafari) {
+            if let url = URL(string: article.url) {
+                SafariView(url: url)
+                    .ignoresSafeArea()
             }
         }
     }

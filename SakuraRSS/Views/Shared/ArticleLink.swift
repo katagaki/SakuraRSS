@@ -60,11 +60,15 @@ struct ArticleLink<Label: View>: View {
         } else if article.isYouTubeURL && youTubeOpenMode == .browser {
             Button {
                 feedManager.markRead(article)
-                if let url = URL(string: article.url) {
-                    openURL(url)
-                }
+                showSafari = true
             } label: {
                 label()
+            }
+            .sheet(isPresented: $showSafari) {
+                if let url = URL(string: article.url) {
+                    SafariView(url: url)
+                        .ignoresSafeArea()
+                }
             }
         } else if feedOpenMode == .browser {
             Button {
