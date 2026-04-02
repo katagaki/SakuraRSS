@@ -113,6 +113,12 @@ nonisolated struct Article: Identifiable, Hashable, Sendable {
     }
 }
 
+nonisolated enum YouTubeOpenMode: String, CaseIterable, Sendable {
+    case inAppPlayer
+    case youTubeApp
+    case browser
+}
+
 nonisolated enum ArticleSource: String, CaseIterable, Sendable {
     case automatic
     case fetchText

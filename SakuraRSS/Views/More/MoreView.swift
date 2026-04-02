@@ -81,6 +81,16 @@ struct MoreView: View {
                     Text("Settings.Section.Refresh")
                 }
 
+                Section {
+                    NavigationLink {
+                        YouTubeSettingsView()
+                    } label: {
+                        Label(String(localized: "Integrations.YouTube"), systemImage: "play.rectangle")
+                    }
+                } header: {
+                    Text("Settings.Section.Integrations")
+                }
+
                 if isAppleIntelligenceAvailable {
                     Section {
                         Toggle(String(localized: "Settings.WhileYouSlept"), isOn: $whileYouSleptEnabled)

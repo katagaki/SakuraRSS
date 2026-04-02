@@ -67,13 +67,14 @@ struct FeedArticleRow: View {
     @Environment(\.navigateToFeed) var navigateToFeed
     let article: Article
     var onShowYouTubePlayer: (() -> Void)?
-    @AppStorage("Labs.YouTubePlayer") private var youTubePlayerEnabled: Bool = false
+    @AppStorage("YouTube.OpenMode") private var youTubeOpenMode: YouTubeOpenMode = .inAppPlayer
     @State private var favicon: UIImage?
     @State private var feedName: String?
     @State private var acronymIcon: UIImage?
     @State private var skipFaviconInset = false
     @State private var preferTitle = false
     @State private var feed: Feed?
+    @State private var showSafari = false
 
     @ViewBuilder
     private var feedAvatarView: some View {
@@ -171,10 +172,12 @@ struct FeedArticleRow: View {
 
                 HStack {
                     Button {
-                        if article.isYouTubeURL && youTubePlayerEnabled {
+                        if article.isYouTubeURL && youTubeOpenMode == .inAppPlayer {
                             onShowYouTubePlayer?()
-                        } else if article.isYouTubeURL {
+                        } else if article.isYouTubeURL && youTubeOpenMode == .youTubeApp {
                             YouTubeHelper.openInApp(url: article.url)
+                        } else if article.isYouTubeURL && youTubeOpenMode == .browser {
+                            showSafari = true
                         } else if let url = URL(string: article.url) {
                             openURL(url)
                         }
@@ -244,6 +247,12 @@ struct FeedArticleRow: View {
                     || FullFaviconDomains.shouldUseFullImage(feedDomain: loadedFeed.domain)
                 preferTitle = TitleOnlyDomains.shouldPreferTitle(feedDomain: loadedFeed.domain)
                 favicon = await FaviconCache.shared.favicon(for: loadedFeed)
+            }
+        }
+        .sheet(isPresented: $showSafari) {
+            if let url = URL(string: article.url) {
+                SafariView(url: url)
+                    .ignoresSafeArea()
             }
         }
     }

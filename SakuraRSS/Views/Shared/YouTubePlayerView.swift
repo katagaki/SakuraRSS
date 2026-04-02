@@ -1,5 +1,7 @@
 import SwiftUI
 import WebKit
+import FoundationModels
+@preconcurrency import Translation
 
 struct YouTubePlayerView: View {
 
@@ -16,6 +18,57 @@ struct YouTubePlayerView: View {
     @State private var isAd = false
     @State private var advertiserURL: URL?
     @State private var hasStartedPlaying = false
+    @State private var isPiP = false
+    @State private var videoAspectRatio: CGFloat = 16 / 9
+    @State private var feed: Feed?
+    @State private var favicon: UIImage?
+    @State private var acronymIcon: UIImage?
+
+    // Translation & summarization
+    @State private var translatedText: String?
+    @State private var translatedSummary: String?
+    @State private var isTranslating = false
+    @State private var translationConfig: TranslationSession.Configuration?
+    @State private var showingTranslation = false
+    @State private var hasCachedTranslation = false
+    @State private var summarizedText: String?
+    @State private var isSummarizing = false
+    @State private var hasCachedSummary = false
+    @State private var showingSummary = false
+    @State private var summarizationError: String?
+
+    private var isAppleIntelligenceAvailable: Bool {
+        SystemLanguageModel.default.availability == .available
+    }
+
+    private var descriptionSource: String? {
+        article.summary ?? article.content
+    }
+
+    private var hasDescription: Bool {
+        guard let descriptionSource else { return false }
+        return !descriptionSource.isEmpty
+    }
+
+    private var hasTranslationForCurrentMode: Bool {
+        if showingSummary {
+            return translatedSummary != nil
+        }
+        return translatedText != nil || hasCachedTranslation
+    }
+
+    private var displayDescription: String? {
+        if showingSummary, let summarizedText {
+            if showingTranslation, let translatedSummary {
+                return translatedSummary
+            }
+            return summarizedText
+        }
+        if showingTranslation, let translatedText {
+            return translatedText
+        }
+        return descriptionSource
+    }
 
     private var youtubeAppURL: URL? {
         guard let url = URL(string: article.url),
@@ -26,142 +79,233 @@ struct YouTubePlayerView: View {
         return components.url
     }
 
+    @ViewBuilder
+    private var feedAvatarView: some View {
+        if let favicon {
+            FaviconImage(favicon, size: 36, circle: true, skipInset: true)
+        } else if let acronymIcon {
+            FaviconImage(acronymIcon, size: 36, circle: true, skipInset: true)
+        } else if let feed {
+            InitialsAvatarView(feed.title, size: 36, circle: true)
+        } else {
+            Circle()
+                .fill(.secondary.opacity(0.2))
+                .frame(width: 36, height: 36)
+        }
+    }
+
     var body: some View {
         VStack(spacing: 0) {
-                YouTubePlayerWebView(
-                    urlString: article.url,
-                    isPlaying: $isPlaying,
-                    currentTime: $currentTime,
-                    duration: $duration,
-                    webView: $webView,
-                    isAd: $isAd,
-                    advertiserURL: $advertiserURL
-                )
-                .aspectRatio(16 / 9, contentMode: .fit)
-                .clipped()
-                .overlay {
-                    if !hasStartedPlaying {
-                        Color.black
-                            .overlay {
-                                ProgressView()
-                                    .tint(.white)
+            YouTubePlayerWebView(
+                urlString: article.url,
+                isPlaying: $isPlaying,
+                currentTime: $currentTime,
+                duration: $duration,
+                webView: $webView,
+                isAd: $isAd,
+                advertiserURL: $advertiserURL,
+                videoAspectRatio: $videoAspectRatio,
+                isPiP: $isPiP
+            )
+            .aspectRatio(videoAspectRatio, contentMode: .fit)
+            .clipped()
+            .overlay {
+                if isPiP {
+                    Color.black
+                        .overlay {
+                            VStack(spacing: 8) {
+                                Image(systemName: "pip.fill")
+                                    .font(.largeTitle)
+                                Text(String(localized: "YouTube.PiP.Active"))
+                                    .font(.subheadline)
                             }
-                    }
+                            .foregroundStyle(.secondary)
+                        }
+                } else if !hasStartedPlaying {
+                    Color.black
+                        .overlay {
+                            ProgressView()
+                                .tint(.white)
+                        }
                 }
+            }
 
-                // Title
-                Text(article.title)
-                    .font(.title2.bold())
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.horizontal)
-                    .padding(.top, 12)
+            ScrollView(.vertical) {
+                VStack(spacing: 0) {
+                    // Title
+                    Text(article.title)
+                        .font(.title2.bold())
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.horizontal)
+                        .padding(.top, 12)
 
-                // Action toolbar
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 8) {
-                        if let youtubeAppURL, UIApplication.shared.canOpenURL(youtubeAppURL) {
+                    // Action toolbar
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 8) {
+                            if let youtubeAppURL, UIApplication.shared.canOpenURL(youtubeAppURL) {
+                                Button {
+                                    UIApplication.shared.open(youtubeAppURL)
+                                } label: {
+                                    Label(
+                                        String(localized: "YouTube.OpenInApp"),
+                                        systemImage: "play.rectangle"
+                                    )
+                                    .padding(.horizontal, 2)
+                                    .padding(.vertical, 2)
+                                }
+                            }
+
                             Button {
-                                UIApplication.shared.open(youtubeAppURL)
+                                if let url = URL(string: article.url) {
+                                    openURL(url)
+                                }
                             } label: {
                                 Label(
-                                    String(localized: "YouTube.OpenInApp"),
-                                    systemImage: "play.rectangle"
+                                    String(localized: "YouTube.OpenInBrowser"),
+                                    systemImage: "safari"
                                 )
                                 .padding(.horizontal, 2)
                                 .padding(.vertical, 2)
                             }
                         }
+                        .buttonStyle(.bordered)
+                        .tint(.primary)
+                        .padding(.horizontal)
+                    }
+                    .padding(.top, 12)
 
+                    // Seek bar
+                    SeekBarView(
+                        currentTime: Binding(
+                            get: { currentTime },
+                            set: { currentTime = $0 }
+                        ),
+                        duration: duration,
+                        isDisabled: isAd,
+                        onSeek: { seek(to: $0) }
+                    )
+                    .padding(.horizontal)
+                    .padding(.top, 16)
+
+                    // Playback controls
+                    HStack(spacing: 32) {
                         Button {
-                            if let url = URL(string: article.url) {
-                                openURL(url)
-                            }
+                            togglePiP()
                         } label: {
-                            Label(
-                                String(localized: "YouTube.OpenInBrowser"),
-                                systemImage: "safari"
-                            )
-                            .padding(.horizontal, 2)
-                            .padding(.vertical, 2)
+                            Image(systemName: "pip.enter")
+                                .font(.title2)
                         }
 
+                        Button {
+                            rewind()
+                        } label: {
+                            Image(systemName: "gobackward.10")
+                                .font(.title2)
+                        }
+                        .disabled(isAd)
+
+                        Button {
+                            togglePlayPause()
+                        } label: {
+                            Image(systemName: isPlaying ? "pause.circle.fill" : "play.circle.fill")
+                                .font(.system(size: 48))
+                        }
+
+                        Button {
+                            fastForward()
+                        } label: {
+                            Image(systemName: "goforward.10")
+                                .font(.title2)
+                        }
+                        .disabled(isAd)
+
+                        Button {
+                            enterFullscreen()
+                        } label: {
+                            Image(systemName: "arrow.up.left.and.arrow.down.right")
+                                .font(.title2)
+                        }
                     }
-                    .buttonStyle(.bordered)
-                    .tint(.primary)
-                    .padding(.horizontal)
+                    .foregroundStyle(.primary)
+                    .padding(.top, 16)
+
+                    // Visit Advertiser button
+                    if isAd, let advertiserURL {
+                        Button {
+                            openURL(advertiserURL)
+                        } label: {
+                            Text(String(localized: "YouTube.VisitAdvertiser"))
+                                .frame(maxWidth: .infinity)
+                        }
+                        .buttonStyle(.bordered)
+                        .padding(.horizontal)
+                        .padding(.top, 12)
+                    }
+
+                    // Channel info
+                    if let feed {
+                        HStack(alignment: .top, spacing: 12) {
+                            feedAvatarView
+
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(feed.title)
+                                    .font(.subheadline.bold())
+                                if let date = article.publishedDate {
+                                    RelativeTimeText(date: date)
+                                        .font(.caption)
+                                        .foregroundStyle(.secondary)
+                                }
+                            }
+
+                            Spacer(minLength: 0)
+                        }
+                        .padding(.horizontal)
+                        .padding(.top, 20)
+                    }
+
+                    // Description action buttons
+                    if hasDescription {
+                        descriptionActionButtons
+                    }
+
+                    // Description
+                    if let text = displayDescription, !text.isEmpty {
+                        VStack(alignment: .leading, spacing: 12) {
+                            if showingSummary && summarizedText != nil {
+                                Text("AppleIntelligence.VerifyImportantInformation")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                            let blocks = ContentBlock.parse(text)
+                            ForEach(blocks) { block in
+                                switch block {
+                                case .text(let content):
+                                    SelectableText(content)
+                                case .image(let url):
+                                    CachedAsyncImage(url: url) {
+                                        Rectangle()
+                                            .fill(.secondary.opacity(0.1))
+                                            .frame(height: 200)
+                                    }
+                                    .aspectRatio(contentMode: .fit)
+                                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                                }
+                            }
+                            .id("\(showingSummary)-\(showingTranslation)")
+                            .transition(.blurReplace)
+                        }
+                        .animation(.smooth.speed(2.0), value: showingSummary)
+                        .animation(.smooth.speed(2.0), value: showingTranslation)
+                        .animation(.smooth.speed(2.0), value: translatedText)
+                        .padding(.horizontal)
+                        .padding(.top, 12)
+                    }
+
+                    Spacer()
+                        .frame(height: 32)
                 }
-                .padding(.top, 12)
-
-                // Seek bar
-                SeekBarView(
-                    currentTime: Binding(
-                        get: { currentTime },
-                        set: { currentTime = $0 }
-                    ),
-                    duration: duration,
-                    isDisabled: isAd,
-                    onSeek: { seek(to: $0) }
-                )
-                .padding(.horizontal)
-                .padding(.top, 16)
-
-                // Playback controls
-                HStack(spacing: 32) {
-                    Button {
-                        togglePiP()
-                    } label: {
-                        Image(systemName: "pip.enter")
-                            .font(.title2)
-                    }
-
-                    Button {
-                        rewind()
-                    } label: {
-                        Image(systemName: "gobackward.10")
-                            .font(.title2)
-                    }
-                    .disabled(isAd)
-
-                    Button {
-                        togglePlayPause()
-                    } label: {
-                        Image(systemName: isPlaying ? "pause.circle.fill" : "play.circle.fill")
-                            .font(.system(size: 48))
-                    }
-
-                    Button {
-                        fastForward()
-                    } label: {
-                        Image(systemName: "goforward.10")
-                            .font(.title2)
-                    }
-                    .disabled(isAd)
-
-                    Button {
-                        enterFullscreen()
-                    } label: {
-                        Image(systemName: "arrow.up.left.and.arrow.down.right")
-                            .font(.title2)
-                    }
-                }
-                .foregroundStyle(.primary)
-                .padding(.top, 16)
-
-                // Visit Advertiser button
-                if isAd, let advertiserURL {
-                    Button {
-                        openURL(advertiserURL)
-                    } label: {
-                        Text(String(localized: "YouTube.VisitAdvertiser"))
-                            .frame(maxWidth: .infinity)
-                    }
-                    .buttonStyle(.bordered)
-                    .padding(.horizontal)
-                    .padding(.top, 12)
-                }
-
-                Spacer()
             }
+        }
         .sakuraBackground()
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
@@ -205,9 +349,227 @@ struct YouTubePlayerView: View {
             let signedIn = await YouTubePlayerView.hasYouTubeSession()
             let premium = signedIn ? await YouTubePlayerView.hasYouTubePremium() : false
             isPiPEligible = signedIn && premium
+
+            if let loadedFeed = feedManager.feed(forArticle: article) {
+                feed = loadedFeed
+                if let data = loadedFeed.acronymIcon {
+                    acronymIcon = UIImage(data: data)
+                }
+                favicon = await FaviconCache.shared.favicon(for: loadedFeed)
+            }
+
+            if let cached = try? DatabaseManager.shared.cachedArticleTranslation(for: article.id) {
+                if cached.text != nil { hasCachedTranslation = true }
+                translatedText = cached.text
+            }
+            if let cached = try? DatabaseManager.shared.cachedArticleSummary(for: article.id),
+               !cached.isEmpty {
+                hasCachedSummary = true
+            }
+        }
+        .alert(String(localized: "Article.Summarize.Error"), isPresented: Binding(
+            get: { summarizationError != nil },
+            set: { if !$0 { summarizationError = nil } }
+        )) {
+        } message: {
+            if let summarizationError {
+                Text(summarizationError)
+            }
+        }
+        .translationTask(translationConfig) { session in
+            await handleTranslation(session: session)
         }
     }
 
+}
+
+// MARK: - Description Actions
+
+extension YouTubePlayerView {
+
+    private var descriptionActionButtons: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 8) {
+                translationButton
+                if isAppleIntelligenceAvailable {
+                    summarizationButton
+                }
+            }
+            .buttonStyle(.bordered)
+            .tint(.primary)
+            .padding(.horizontal)
+        }
+        .padding(.top, 12)
+    }
+
+    @ViewBuilder
+    private var translationButton: some View {
+        if hasTranslationForCurrentMode && !isTranslating {
+            Button {
+                withAnimation(.smooth.speed(2.0)) {
+                    showingTranslation.toggle()
+                }
+            } label: {
+                Label(
+                    String(localized: showingTranslation
+                           ? "Article.ShowOriginal"
+                           : "Article.ShowTranslation"),
+                    systemImage: showingTranslation
+                        ? "doc.plaintext" : "translate"
+                )
+                .padding(.horizontal, 2)
+                .padding(.vertical, 2)
+            }
+        } else {
+            Button {
+                triggerTranslation()
+            } label: {
+                Label(
+                    String(localized: "Article.Translate"),
+                    systemImage: "translate"
+                )
+                .opacity(isTranslating ? 0 : 1)
+                .overlay {
+                    if isTranslating {
+                        ProgressView()
+                    }
+                }
+                .padding(.horizontal, 2)
+                .padding(.vertical, 2)
+            }
+            .disabled(isTranslating)
+            .animation(.smooth.speed(2.0), value: isTranslating)
+        }
+    }
+
+    @ViewBuilder
+    private var summarizationButton: some View {
+        if (summarizedText != nil || hasCachedSummary) && !isSummarizing {
+            Button {
+                if summarizedText == nil {
+                    Task {
+                        await summarizeDescription()
+                        if summarizedText != nil {
+                            withAnimation(.smooth.speed(2.0)) {
+                                showingSummary = true
+                            }
+                        }
+                    }
+                } else {
+                    withAnimation(.smooth.speed(2.0)) {
+                        showingSummary.toggle()
+                    }
+                }
+            } label: {
+                Label(
+                    String(localized: showingSummary
+                           ? "Article.ShowOriginal"
+                           : "Article.ShowSummary"),
+                    systemImage: showingSummary
+                        ? "doc.plaintext" : "apple.intelligence"
+                )
+                .padding(.horizontal, 2)
+                .padding(.vertical, 2)
+            }
+        } else {
+            Button {
+                Task {
+                    await summarizeDescription()
+                    if summarizedText != nil {
+                        withAnimation(.smooth.speed(2.0)) {
+                            showingSummary = true
+                        }
+                    }
+                }
+            } label: {
+                Label(
+                    String(localized: "Article.Summarize"),
+                    systemImage: "apple.intelligence"
+                )
+                .opacity(isSummarizing ? 0 : 1)
+                .overlay {
+                    if isSummarizing {
+                        ProgressView()
+                    }
+                }
+                .padding(.horizontal, 2)
+                .padding(.vertical, 2)
+            }
+            .disabled(isSummarizing)
+            .animation(.smooth.speed(2.0), value: isSummarizing)
+        }
+    }
+}
+
+// MARK: - Translation & Summarization
+
+extension YouTubePlayerView {
+
+    func triggerTranslation() {
+        if translationConfig == nil {
+            translationConfig = .init()
+        } else {
+            translationConfig?.invalidate()
+        }
+    }
+
+    func handleTranslation(session: TranslationSession) async {
+        isTranslating = true
+        defer { isTranslating = false }
+
+        if showingSummary, let summarizedText {
+            guard !summarizedText.isEmpty else { return }
+            do {
+                let response = try await session.translate(summarizedText)
+                translatedSummary = response.targetText
+                showingTranslation = true
+                try? DatabaseManager.shared.cacheTranslatedSummary(
+                    response.targetText, for: article.id
+                )
+            } catch {
+                // Translation failed; user can retry
+            }
+        } else {
+            let source = ContentBlock.plainText(from: descriptionSource ?? "")
+            guard !source.isEmpty else { return }
+            do {
+                let response = try await session.translate(source)
+                translatedText = response.targetText
+                hasCachedTranslation = true
+                showingTranslation = true
+                try? DatabaseManager.shared.cacheArticleTranslation(
+                    title: nil, text: response.targetText, for: article.id
+                )
+            } catch {
+                // Translation failed; user can retry
+            }
+        }
+    }
+
+    func summarizeDescription() async {
+        if let cached = try? DatabaseManager.shared.cachedArticleSummary(for: article.id),
+           !cached.isEmpty {
+            summarizedText = cached
+            return
+        }
+
+        let source = ContentBlock.plainText(from: descriptionSource ?? "")
+        guard !source.isEmpty else { return }
+
+        isSummarizing = true
+        defer { isSummarizing = false }
+
+        let instructions = String(localized: "Article.Summarize.Prompt")
+
+        do {
+            let session = LanguageModelSession(instructions: instructions)
+            let response = try await session.respond(to: source)
+            summarizedText = response.content
+            try? DatabaseManager.shared.cacheArticleSummary(response.content, for: article.id)
+        } catch {
+            summarizationError = error.localizedDescription
+        }
+    }
 }
 
 // MARK: - Playback Controls

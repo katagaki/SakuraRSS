@@ -28,9 +28,10 @@ struct ArticleDetailView: View {
     @State var isBookmarked = false
     @State var summarizationError: String?
     @State var showYouTubePlayer = false
+    @State var showYouTubeSafari = false
     @State var imageViewerURL: URL?
     @Namespace private var imageViewerNamespace
-    @AppStorage("Labs.YouTubePlayer") var youTubePlayerEnabled: Bool = false
+    @AppStorage("YouTube.OpenMode") var youTubeOpenMode: YouTubeOpenMode = .inAppPlayer
 
     var isAppleIntelligenceAvailable: Bool {
         SystemLanguageModel.default.availability == .available
@@ -189,6 +190,12 @@ struct ArticleDetailView: View {
         }
         .navigationDestination(isPresented: $showYouTubePlayer) {
             YouTubePlayerView(article: article)
+        }
+        .sheet(isPresented: $showYouTubeSafari) {
+            if let url = URL(string: article.url) {
+                SafariView(url: url)
+                    .ignoresSafeArea()
+            }
         }
         .navigationDestination(item: $imageViewerURL) { url in
             ImageViewerView(url: url)

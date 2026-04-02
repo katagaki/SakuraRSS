@@ -9,7 +9,7 @@ struct ArticleLink<Label: View>: View {
     let article: Article
     @ViewBuilder let label: () -> Label
 
-    @AppStorage("Labs.YouTubePlayer") private var youTubePlayerEnabled: Bool = false
+    @AppStorage("YouTube.OpenMode") private var youTubeOpenMode: YouTubeOpenMode = .inAppPlayer
     @State private var showSafari = false
     @State private var showYouTubePlayer = false
 
@@ -40,7 +40,7 @@ struct ArticleLink<Label: View>: View {
             } label: {
                 label()
             }
-        } else if article.isYouTubeURL && youTubePlayerEnabled {
+        } else if article.isYouTubeURL && youTubeOpenMode == .inAppPlayer {
             Button {
                 feedManager.markRead(article)
                 showYouTubePlayer = true
@@ -50,12 +50,25 @@ struct ArticleLink<Label: View>: View {
             .navigationDestination(isPresented: $showYouTubePlayer) {
                 YouTubePlayerView(article: article)
             }
-        } else if article.isYouTubeURL {
+        } else if article.isYouTubeURL && youTubeOpenMode == .youTubeApp {
             Button {
                 feedManager.markRead(article)
                 YouTubeHelper.openInApp(url: article.url)
             } label: {
                 label()
+            }
+        } else if article.isYouTubeURL && youTubeOpenMode == .browser {
+            Button {
+                feedManager.markRead(article)
+                showSafari = true
+            } label: {
+                label()
+            }
+            .sheet(isPresented: $showSafari) {
+                if let url = URL(string: article.url) {
+                    SafariView(url: url)
+                        .ignoresSafeArea()
+                }
             }
         } else if feedOpenMode == .browser {
             Button {

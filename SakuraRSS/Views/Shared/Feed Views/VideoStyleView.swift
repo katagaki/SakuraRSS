@@ -3,12 +3,15 @@ import SwiftUI
 struct VideoStyleView: View {
 
     @Environment(FeedManager.self) var feedManager
-    @AppStorage("Labs.YouTubePlayer") private var youTubePlayerEnabled: Bool = false
+    @Environment(\.openURL) var openURL
+    @AppStorage("YouTube.OpenMode") private var youTubeOpenMode: YouTubeOpenMode = .inAppPlayer
     let articles: [Article]
     var onLoadMore: (() -> Void)?
 
     @State private var youTubePlayerArticle: Article?
     @State private var showYouTubePlayer = false
+    @State private var showSafari = false
+    @State private var safariURL: URL?
 
     var body: some View {
         ScrollView(.vertical) {
@@ -16,9 +19,12 @@ struct VideoStyleView: View {
                 ForEach(articles) { article in
                     Button {
                         feedManager.markRead(article)
-                        if article.isYouTubeURL && youTubePlayerEnabled {
+                        if article.isYouTubeURL && youTubeOpenMode == .inAppPlayer {
                             youTubePlayerArticle = article
                             showYouTubePlayer = true
+                        } else if article.isYouTubeURL && youTubeOpenMode == .browser {
+                            safariURL = URL(string: article.url)
+                            showSafari = true
                         } else {
                             YouTubeHelper.openInApp(url: article.url)
                         }
@@ -71,6 +77,12 @@ struct VideoStyleView: View {
         .navigationDestination(isPresented: $showYouTubePlayer) {
             if let article = youTubePlayerArticle {
                 YouTubePlayerView(article: article)
+            }
+        }
+        .sheet(isPresented: $showSafari) {
+            if let safariURL {
+                SafariView(url: safariURL)
+                    .ignoresSafeArea()
             }
         }
     }
