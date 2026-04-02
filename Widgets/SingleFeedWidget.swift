@@ -267,8 +267,8 @@ struct SingleFeedThumbnailCell: View {
 
     var body: some View {
         Link(destination: URL(string: "sakura://article/\(article.id)")!) {
-            GeometryReader { geo in
-                ZStack(alignment: .bottomLeading) {
+            VStack(spacing: 0) {
+                GeometryReader { geo in
                     if let imageData = article.imageData, let uiImage = UIImage(data: imageData) {
                         Image(uiImage: uiImage)
                             .renderingMode(.original)
@@ -286,24 +286,17 @@ struct SingleFeedThumbnailCell: View {
                                     .foregroundStyle(.secondary)
                             }
                     }
-
-                    VStack {
-                        Spacer()
-                        Text(article.title)
-                            .font(.system(size: 14, weight: .semibold, design: .default).width(.condensed))
-                            .foregroundStyle(.white)
-                            .lineLimit(2)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .padding(8)
-                            .background(
-                                .ultraThinMaterial.opacity(0.8),
-                                in: RoundedRectangle(cornerRadius: 8)
-                            )
-                    }
-                    .padding(6)
                 }
+                .clipShape(RoundedRectangle(cornerRadius: 10))
+
+                Text(article.title)
+                    .font(.system(size: 12, weight: .semibold, design: .default).width(.condensed))
+                    .foregroundStyle(.primary)
+                    .lineLimit(2)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.top, 6)
+                    .padding(.horizontal, 2)
             }
-            .clipShape(RoundedRectangle(cornerRadius: 12))
         }
     }
 }
