@@ -288,8 +288,8 @@ struct SingleFeedThumbnailCell: View {
                 Text(article.title)
                     .font(.system(size: 12, weight: .semibold, design: .default).width(.condensed))
                     .foregroundStyle(.primary)
-                    .lineLimit(2)
-                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .lineLimit(2, reservesSpace: true)
+                    .frame(maxWidth: .infinity, alignment: .topLeading)
                     .padding(.top, 6)
                     .padding(.horizontal, 2)
             }
