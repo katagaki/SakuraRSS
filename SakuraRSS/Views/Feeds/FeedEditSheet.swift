@@ -25,7 +25,11 @@ struct FeedEditSheet: View {
         _name = State(initialValue: feed.title)
         _url = State(initialValue: feed.url)
         let existingIconURL = feed.customIconURL
-        _iconURLInput = State(initialValue: (existingIconURL == "photo" || existingIconURL == "none") ? "" : (existingIconURL ?? ""))
+        _iconURLInput = State(
+            initialValue: (
+                existingIconURL == "photo" || existingIconURL == "none"
+            ) ? "" : (existingIconURL ?? "")
+        )
         _useDefaultIcon = State(initialValue: existingIconURL == "none")
         let raw = UserDefaults.standard.string(forKey: "openMode-\(feed.id)")
         _openMode = State(initialValue: raw.flatMap(FeedOpenMode.init(rawValue:)) ?? .inAppViewer)

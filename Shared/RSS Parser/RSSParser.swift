@@ -179,7 +179,11 @@ nonisolated final class RSSParser: NSObject, XMLParserDelegate, @unchecked Senda
                 title: decodeHTMLEntities(currentTitle.trimmingCharacters(in: .whitespacesAndNewlines)),
                 url: currentLink.trimmingCharacters(in: .whitespacesAndNewlines),
                 author: trimmedAuthor.isEmpty ? nil : decodeHTMLEntities(trimmedAuthor),
-                summary: cleanHTMLPreservingStructure(currentDescription.trimmingCharacters(in: .whitespacesAndNewlines)),
+                summary: cleanHTMLPreservingStructure(
+                    currentDescription.trimmingCharacters(
+                        in: .whitespacesAndNewlines
+                    )
+                ),
                 content: trimmedContent.isEmpty ? nil : trimmedContent,
                 imageURL: resolveImageURL(),
                 publishedDate: parseDate(currentPubDate.trimmingCharacters(in: .whitespacesAndNewlines)),
