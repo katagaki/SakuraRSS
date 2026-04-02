@@ -204,8 +204,8 @@ struct SingleFeedSmallView: View {
 
     var body: some View {
         if let article = entry.articles.first {
-            GeometryReader { geo in
-                ZStack(alignment: .bottomLeading) {
+            VStack(spacing: 0) {
+                GeometryReader { geo in
                     if let imageData = article.imageData, let uiImage = UIImage(data: imageData) {
                         Image(uiImage: uiImage)
                             .renderingMode(.original)
@@ -215,35 +215,31 @@ struct SingleFeedSmallView: View {
                             .frame(width: geo.size.width, height: geo.size.height)
                             .clipped()
                     } else {
-                        LinearGradient(
-                            colors: [Color("AccentColor").opacity(0.6), Color("AccentColor")],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
+                        Rectangle()
+                            .fill(Color("AccentColor").opacity(0.3))
+                            .overlay {
+                                Image(systemName: "newspaper")
+                                    .font(.system(size: 28))
+                                    .foregroundStyle(.secondary)
+                            }
                     }
-
-                    LinearGradient(
-                        colors: [.clear, .black.opacity(0.75)],
-                        startPoint: .top,
-                        endPoint: .bottom
-                    )
-                    .frame(height: geo.size.height * 0.5)
-                    .frame(maxHeight: .infinity, alignment: .bottom)
-
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text(entry.feedTitle)
-                            .font(.system(size: 11, weight: .medium, design: .default).width(.condensed))
-                            .foregroundStyle(.white.opacity(0.8))
-                            .lineLimit(1)
-                        Text(article.title)
-                            .font(.system(size: 14, weight: .semibold, design: .default).width(.condensed))
-                            .foregroundStyle(.white)
-                            .lineLimit(2)
-                    }
-                    .padding(16)
                 }
+                .clipShape(RoundedRectangle(cornerRadius: 10))
+
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(article.title)
+                        .font(.system(size: 12, weight: .semibold, design: .default).width(.condensed))
+                        .foregroundStyle(.primary)
+                        .lineLimit(2)
+                    Text(entry.feedTitle)
+                        .font(.system(size: 10, weight: .medium, design: .default).width(.condensed))
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.top, 6)
+                .padding(.horizontal, 2)
             }
-            .clipShape(ContainerRelativeShape())
             .widgetURL(URL(string: "sakura://article/\(article.id)")!)
         } else {
             VStack(spacing: 4) {
@@ -460,6 +456,7 @@ struct SingleFeedWidgetView: View {
         switch family {
         case .systemSmall:
             SingleFeedSmallView(entry: entry)
+                .padding(16)
         case .systemMedium:
             ZStack(alignment: .bottom) {
                 Group {
