@@ -1,6 +1,12 @@
 import SwiftUI
 
 extension ArticleDetailView {
+
+    private var articleSource: ArticleSource {
+        let raw = UserDefaults.standard.string(forKey: "articleSource-\(article.feedID)")
+        return raw.flatMap(ArticleSource.init(rawValue:)) ?? .automatic
+    }
+
     func extractArticleContent() async {
         isExtracting = true
         defer { isExtracting = false }
@@ -19,11 +25,49 @@ extension ArticleDetailView {
         }
 
         let articleTitle = article.title
+        let source = articleSource
 
-        // For whitelisted domains, always fetch the full article via WKWebView
-        if let url = URL(string: article.url), WebViewExtractor.requiresWebView(for: url) {
-            let text = await ArticleExtractor.extractText(fromURL: url,
-                                                          excludeTitle: articleTitle)
+        switch source {
+        case .feedText:
+            if let content = article.content, !content.isEmpty {
+                let text = ArticleExtractor.extractText(fromHTML: content,
+                                                        excludeTitle: articleTitle)
+                extractedText = text
+                if let text, !text.isEmpty {
+                    try? DatabaseManager.shared.cacheArticleContent(text, for: article.id)
+                }
+            }
+            return
+
+        case .fetchText:
+            if let url = URL(string: article.url) {
+                let text = await fetchText(from: url, excludeTitle: articleTitle)
+                extractedText = text
+                if let text, !text.isEmpty {
+                    try? DatabaseManager.shared.cacheArticleContent(text, for: article.id)
+                }
+            }
+            return
+
+        case .extractText:
+            if let url = URL(string: article.url) {
+                let text = await extractViaWebView(from: url, excludeTitle: articleTitle)
+                extractedText = text
+                if let text, !text.isEmpty {
+                    try? DatabaseManager.shared.cacheArticleContent(text, for: article.id)
+                }
+            }
+            return
+
+        case .automatic:
+            break
+        }
+
+        // Automatic: use domain lists to determine the best extraction method
+
+        // For ExtractText domains (e.g. apple.com), use WebView-based extraction
+        if let url = URL(string: article.url), ExtractTextDomains.shouldExtractText(for: url) {
+            let text = await extractViaWebView(from: url, excludeTitle: articleTitle)
             extractedText = text
             if let text, !text.isEmpty {
                 try? DatabaseManager.shared.cacheArticleContent(text, for: article.id)
@@ -49,6 +93,23 @@ extension ArticleDetailView {
                 try? DatabaseManager.shared.cacheArticleContent(text, for: article.id)
             }
         }
+    }
+
+    /// Simple GET + HTML parse (no JavaScript rendering).
+    private func fetchText(from url: URL, excludeTitle: String?) async -> String? {
+        do {
+            let (data, _) = try await URLSession.shared.data(from: url)
+            guard let html = String(data: data, encoding: .utf8) else { return nil }
+            return ArticleExtractor.extractText(fromHTML: html, excludeTitle: excludeTitle)
+        } catch {
+            return nil
+        }
+    }
+
+    /// WebView-based extraction (loads page with JavaScript like Apple Newsroom).
+    private func extractViaWebView(from url: URL, excludeTitle: String?) async -> String? {
+        let extractor = WebViewExtractor()
+        return await extractor.extractText(from: url)
     }
 
     func refreshArticleContent() async {
