@@ -234,34 +234,40 @@ struct SingleFeedThumbnailCell: View {
 
     var body: some View {
         Link(destination: URL(string: "sakura://article/\(article.id)")!) {
-            ZStack(alignment: .bottomLeading) {
-                if let imageData = article.imageData, let uiImage = UIImage(data: imageData) {
-                    Image(uiImage: uiImage)
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                } else {
-                    Rectangle()
-                        .fill(Color("AccentColor").opacity(0.3))
-                        .overlay {
-                            Image(systemName: "newspaper")
-                                .font(.system(size: 20))
-                                .foregroundStyle(.secondary)
-                        }
+            GeometryReader { geo in
+                ZStack(alignment: .bottomLeading) {
+                    if let imageData = article.imageData, let uiImage = UIImage(data: imageData) {
+                        Image(uiImage: uiImage)
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                            .frame(width: geo.size.width, height: geo.size.height)
+                            .clipped()
+                    } else {
+                        Rectangle()
+                            .fill(Color("AccentColor").opacity(0.3))
+                            .overlay {
+                                Image(systemName: "newspaper")
+                                    .font(.system(size: 24))
+                                    .foregroundStyle(.secondary)
+                            }
+                    }
+
+                    LinearGradient(
+                        colors: [.clear, .black.opacity(0.75)],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                    .frame(height: geo.size.height * 0.5)
+                    .frame(maxHeight: .infinity, alignment: .bottom)
+
+                    Text(article.title)
+                        .font(.system(size: 14, weight: .semibold, design: .default).width(.condensed))
+                        .foregroundStyle(.white)
+                        .lineLimit(2)
+                        .padding(10)
                 }
-
-                LinearGradient(
-                    colors: [.clear, .black.opacity(0.7)],
-                    startPoint: .center,
-                    endPoint: .bottom
-                )
-
-                Text(article.title)
-                    .font(.system(size: 11, weight: .medium, design: .default).width(.condensed))
-                    .foregroundStyle(.white)
-                    .lineLimit(2)
-                    .padding(8)
             }
-            .clipShape(RoundedRectangle(cornerRadius: 8))
+            .clipShape(RoundedRectangle(cornerRadius: 10))
         }
     }
 }
