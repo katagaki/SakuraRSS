@@ -4,8 +4,8 @@ struct AllArticlesView: View {
 
     @Environment(FeedManager.self) var feedManager
 
-    @State private var isShowingMarkAllReadConfirmation = false
     @State private var showingOlderArticles = false
+    @AppStorage("Display.MarkAllReadPosition") private var markAllReadPosition: MarkAllReadPosition = .bottom
     @AppStorage("WhileYouSlept.DismissedDate") private var whileYouSleptDismissedDate: String = ""
     @AppStorage("TodaysSummary.DismissedDate") private var todaysSummaryDismissedDate: String = ""
     @State private var whileYouSleptAvailable = false
@@ -48,6 +48,9 @@ struct AllArticlesView: View {
             },
             onRefresh: {
                 await feedManager.refreshAllFeeds()
+            },
+            onMarkAllRead: {
+                feedManager.markAllRead()
             }
         )
         .safeAreaInset(edge: .top, spacing: 0) {
@@ -67,8 +70,10 @@ struct AllArticlesView: View {
             await feedManager.refreshAllFeeds()
         }
         .safeAreaInset(edge: .bottom, alignment: .leading, spacing: 0) {
-            ArticlesToolbar {
-                feedManager.markAllRead()
+            if markAllReadPosition == .bottom {
+                ArticlesToolbar {
+                    feedManager.markAllRead()
+                }
             }
         }
     }

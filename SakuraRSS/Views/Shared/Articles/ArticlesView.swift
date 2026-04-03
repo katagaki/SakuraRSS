@@ -16,9 +16,12 @@ struct ArticlesView: View {
     var onRestoreSummaries: (() -> Void)?
     var onLoadMore: (() -> Void)?
     var onRefresh: (() async -> Void)?
+    var onMarkAllRead: (() -> Void)?
 
     @State private var displayStyle: FeedDisplayStyle
+    @State private var isShowingMarkAllReadConfirmation = false
     @AppStorage("Articles.HideRead") private var hideRead = false
+    @AppStorage("Display.MarkAllReadPosition") private var markAllReadPosition: MarkAllReadPosition = .bottom
     private let viewStyleSwitcherTip = ViewStyleSwitcherTip()
 
     private var hasImages: Bool {
@@ -36,7 +39,8 @@ struct ArticlesView: View {
          anySummaryHidden: Bool = false,
          onRestoreSummaries: (() -> Void)? = nil,
          onLoadMore: (() -> Void)? = nil,
-         onRefresh: (() async -> Void)? = nil) {
+         onRefresh: (() async -> Void)? = nil,
+         onMarkAllRead: (() -> Void)? = nil) {
         self.articles = articles
         self.title = title
         self.feedKey = feedKey
@@ -49,6 +53,7 @@ struct ArticlesView: View {
         self.onRestoreSummaries = onRestoreSummaries
         self.onLoadMore = onLoadMore
         self.onRefresh = onRefresh
+        self.onMarkAllRead = onMarkAllRead
         let raw = UserDefaults.standard.string(forKey: "Display.Style.\(feedKey)")
         let defaultRaw = UserDefaults.standard.string(forKey: "Display.DefaultStyle") ?? FeedDisplayStyle.inbox.rawValue
         let fallback: FeedDisplayStyle
@@ -118,6 +123,31 @@ struct ArticlesView: View {
             }
             ToolbarSpacer(.fixed, placement: .topBarTrailing)
             ToolbarItemGroup(placement: .topBarTrailing) {
+                if markAllReadPosition == .top, let onMarkAllRead {
+                    Button {
+                        isShowingMarkAllReadConfirmation = true
+                    } label: {
+                        Image(systemName: "envelope.open")
+                            .font(.system(size: 14.0))
+                    }
+                    .popover(isPresented: $isShowingMarkAllReadConfirmation) {
+                        VStack(spacing: 12) {
+                            Text("Articles.MarkAllRead.Confirm")
+                                .font(.body)
+                            Button {
+                                onMarkAllRead()
+                                isShowingMarkAllReadConfirmation = false
+                            } label: {
+                                Text("Articles.MarkAllRead")
+                                    .frame(maxWidth: .infinity)
+                                    .padding(.vertical, 6)
+                            }
+                            .buttonStyle(.bordered)
+                        }
+                        .padding(20)
+                        .presentationCompactAdaptation(.popover)
+                    }
+                }
                 Menu {
                     Picker(String(localized: "Articles.DisplayStyle"), selection: $displayStyle) {
                         Label(String(localized: "Articles.Style.Inbox"), systemImage: "tray")

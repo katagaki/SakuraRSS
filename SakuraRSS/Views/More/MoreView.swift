@@ -11,6 +11,7 @@ struct MoreView: View {
     @AppStorage("BackgroundRefresh.BadgeEnabled") private var badgeEnabled: Bool = false
     @AppStorage("Display.DefaultStyle") private var defaultDisplayStyle: FeedDisplayStyle = .inbox
     @AppStorage("Search.DisplayStyle") private var searchDisplayStyle: FeedDisplayStyle = .inbox
+    @AppStorage("Display.MarkAllReadPosition") private var markAllReadPosition: MarkAllReadPosition = .bottom
     @AppStorage("TodaysSummary.Enabled") private var todaysSummaryEnabled: Bool = false
     @AppStorage("WhileYouSlept.Enabled") private var whileYouSleptEnabled: Bool = false
     @State private var isExporting = false
@@ -43,6 +44,14 @@ struct MoreView: View {
                             .tag(FeedDisplayStyle.compact)
                         Text("Articles.Style.Feed")
                             .tag(FeedDisplayStyle.feed)
+                    }
+                    Picker(String(localized: "Settings.MarkAllReadPosition"), selection: $markAllReadPosition) {
+                        Text("Settings.MarkAllReadPosition.Bottom")
+                            .tag(MarkAllReadPosition.bottom)
+                        Text("Settings.MarkAllReadPosition.Top")
+                            .tag(MarkAllReadPosition.top)
+                        Text("Settings.MarkAllReadPosition.None")
+                            .tag(MarkAllReadPosition.none)
                     }
                 } header: {
                     Text("Settings.Section.Display")

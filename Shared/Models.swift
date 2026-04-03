@@ -126,6 +126,12 @@ nonisolated enum ArticleSource: String, CaseIterable, Sendable {
     case feedText
 }
 
+nonisolated enum MarkAllReadPosition: String, CaseIterable, Sendable {
+    case bottom
+    case top
+    case none
+}
+
 nonisolated enum FeedDisplayStyle: String, CaseIterable, Sendable {
     case inbox
     case feed

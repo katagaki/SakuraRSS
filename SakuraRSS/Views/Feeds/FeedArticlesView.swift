@@ -8,6 +8,7 @@ struct FeedArticlesView: View {
     private static let pageSize = 50
 
     @State private var displayLimit: Int = FeedArticlesView.pageSize
+    @AppStorage("Display.MarkAllReadPosition") private var markAllReadPosition: MarkAllReadPosition = .bottom
 
     private var hasMore: Bool {
         feedManager.articleCount(for: feed) > displayLimit
@@ -27,14 +28,19 @@ struct FeedArticlesView: View {
             } : nil,
             onRefresh: { [feed] in
                 try? await feedManager.refreshFeed(feed)
+            },
+            onMarkAllRead: {
+                feedManager.markAllRead(feed: feed)
             }
         )
         .refreshable {
             try? await feedManager.refreshFeed(feed)
         }
         .safeAreaInset(edge: .bottom, alignment: .leading, spacing: 0) {
-            ArticlesToolbar {
-                feedManager.markAllRead(feed: feed)
+            if markAllReadPosition == .bottom {
+                ArticlesToolbar {
+                    feedManager.markAllRead(feed: feed)
+                }
             }
         }
     }
