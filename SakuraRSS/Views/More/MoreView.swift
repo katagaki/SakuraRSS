@@ -12,8 +12,6 @@ struct MoreView: View {
     @AppStorage("Search.DisplayStyle") private var searchDisplayStyle: FeedDisplayStyle = .inbox
     @AppStorage("Display.MarkAllReadPosition") private var markAllReadPosition: MarkAllReadPosition = .bottom
     @AppStorage("Display.UnreadBadgeMode") private var unreadBadgeMode: UnreadBadgeMode = .homeTabOnly
-    @AppStorage("TodaysSummary.Enabled") private var todaysSummaryEnabled: Bool = false
-    @AppStorage("WhileYouSlept.Enabled") private var whileYouSleptEnabled: Bool = false
     @State private var isExporting = false
     @State private var isImporting = false
     @State private var showImportModeChoice = false
@@ -103,23 +101,16 @@ struct MoreView: View {
                 }
 
                 Section {
+                    if isAppleIntelligenceAvailable {
+                        NavigationLink("Settings.Section.AppleIntelligence") {
+                            AppleIntelligenceSettingsView()
+                        }
+                    }
                     NavigationLink("Integrations.YouTube") {
                         YouTubeSettingsView()
                     }
                 } header: {
                     Text("Settings.Section.Integrations")
-                }
-
-                if isAppleIntelligenceAvailable {
-                    Section {
-                        Toggle(String(localized: "Settings.WhileYouSlept"), isOn: $whileYouSleptEnabled)
-                        Toggle(String(localized: "Settings.TodaysSummary"), isOn: $todaysSummaryEnabled)
-                    } header: {
-                        Text("Settings.Section.AppleIntelligence")
-                    } footer: {
-                        Text("Settings.AppleIntelligence.Footer")
-                    }
-
                 }
 
                 Section {

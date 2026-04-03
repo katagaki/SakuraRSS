@@ -95,7 +95,7 @@ final class FeedManager {
             return
         }
 
-        let db = database
+        let database = database
         try await Task.detached {
             guard let url = URL(string: feed.url) else { return }
 
@@ -119,17 +119,17 @@ final class FeedManager {
                 )
             }
 
-            try db.insertArticles(feedID: feed.id, articles: articleTuples)
+            try database.insertArticles(feedID: feed.id, articles: articleTuples)
 
             if parsed.allArticlesHaveAudio && !feed.isPodcast {
-                try db.updateFeedIsPodcast(id: feed.id, isPodcast: true)
+                try database.updateFeedIsPodcast(id: feed.id, isPodcast: true)
             } else if !parsed.allArticlesHaveAudio && feed.isPodcast {
-                try db.updateFeedIsPodcast(id: feed.id, isPodcast: false)
+                try database.updateFeedIsPodcast(id: feed.id, isPodcast: false)
             }
             if updateTitle, !parsed.title.isEmpty, parsed.title != feed.title {
-                try db.updateFeed(id: feed.id, title: parsed.title, category: feed.category)
+                try database.updateFeed(id: feed.id, title: parsed.title, category: feed.category)
             }
-            try db.updateFeedLastFetched(id: feed.id, date: Date())
+            try database.updateFeedLastFetched(id: feed.id, date: Date())
         }.value
         if reloadData {
             await loadFromDatabaseInBackground()
@@ -137,8 +137,8 @@ final class FeedManager {
     }
 
     func deleteAllArticlesAndRefresh() async {
-        let db = database
-        _ = try? await Task.detached { try db.deleteAllArticles() }.value
+        let database = database
+        _ = try? await Task.detached { try database.deleteAllArticles() }.value
         await loadFromDatabaseInBackground()
         await refreshAllFeeds()
     }

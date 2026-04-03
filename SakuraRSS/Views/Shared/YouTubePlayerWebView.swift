@@ -191,10 +191,10 @@ struct YouTubePlayerWebView: UIViewRepresentable {
                             } else {
                                 self?.advertiserURL = nil
                             }
-                            if let vw = dict["videoWidth"] as? Double,
-                               let vh = dict["videoHeight"] as? Double,
-                               vw > 0, vh > 0 {
-                                let ratio = CGFloat(vw / vh)
+                            if let width = dict["videoWidth"] as? Double,
+                               let height = dict["videoHeight"] as? Double,
+                               width > 0, height > 0 {
+                                let ratio = CGFloat(width / height)
                                 if abs(ratio - (self?.videoAspectRatio ?? 0)) > 0.01 {
                                     withAnimation(.smooth(duration: 0.3)) {
                                         self?.videoAspectRatio = ratio

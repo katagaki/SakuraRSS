@@ -29,9 +29,21 @@ struct TodaysSummaryView: View {
     }
 
     private var markdownAttributedString: AttributedString {
-        (try? AttributedString(markdown: summary, options: .init(
-            interpretedSyntax: .inlineOnlyPreservingWhitespace
-        ))) ?? AttributedString(summary)
+        let lines = summary.split(separator: "\n", omittingEmptySubsequences: false)
+        var result = AttributedString()
+        for (index, line) in lines.enumerated() {
+            if index > 0 {
+                result.append(AttributedString("\n"))
+            }
+            if let parsed = try? AttributedString(markdown: String(line), options: .init(
+                interpretedSyntax: .inlineOnlyPreservingWhitespace
+            )) {
+                result.append(parsed)
+            } else {
+                result.append(AttributedString(String(line)))
+            }
+        }
+        return result
     }
 
     private var isEveningWindow: Bool {

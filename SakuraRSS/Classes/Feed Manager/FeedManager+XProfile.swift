@@ -40,10 +40,10 @@ extension FeedManager {
         }
 
         // Run all DB writes off the main thread
-        let db = database
+        let database = database
         try await Task.detached {
-            try db.insertArticles(feedID: feed.id, articles: tweetTuples)
-            try db.updateFeedLastFetched(id: feed.id, date: Date())
+            try database.insertArticles(feedID: feed.id, articles: tweetTuples)
+            try database.updateFeedLastFetched(id: feed.id, date: Date())
         }.value
 
         // Cache favicon and update feed details
@@ -51,7 +51,7 @@ extension FeedManager {
             await FaviconCache.shared.setCustomFavicon(image, feedID: feed.id)
             if feed.customIconURL != "photo" || feed.title != feedTitle {
                 try? await Task.detached {
-                    try db.updateFeedDetails(
+                    try database.updateFeedDetails(
                         id: feed.id, title: feedTitle, url: feed.url,
                         customIconURL: "photo"
                     )
@@ -59,7 +59,7 @@ extension FeedManager {
             }
         } else if feed.title != feedTitle {
             try? await Task.detached {
-                try db.updateFeedDetails(
+                try database.updateFeedDetails(
                     id: feed.id, title: feedTitle, url: feed.url,
                     customIconURL: feed.customIconURL
                 )
