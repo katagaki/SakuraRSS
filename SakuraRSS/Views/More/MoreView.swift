@@ -8,10 +8,10 @@ struct MoreView: View {
     @Environment(FeedManager.self) var feedManager
     @AppStorage("BackgroundRefresh.Enabled") private var backgroundRefreshEnabled: Bool = true
     @AppStorage("BackgroundRefresh.Interval") private var refreshInterval: Int = 60
-    @AppStorage("BackgroundRefresh.BadgeEnabled") private var badgeEnabled: Bool = false
     @AppStorage("Display.DefaultStyle") private var defaultDisplayStyle: FeedDisplayStyle = .inbox
     @AppStorage("Search.DisplayStyle") private var searchDisplayStyle: FeedDisplayStyle = .inbox
     @AppStorage("Display.MarkAllReadPosition") private var markAllReadPosition: MarkAllReadPosition = .bottom
+    @AppStorage("Display.UnreadBadgeMode") private var unreadBadgeMode: UnreadBadgeMode = .homeTabOnly
     @AppStorage("TodaysSummary.Enabled") private var todaysSummaryEnabled: Bool = false
     @AppStorage("WhileYouSlept.Enabled") private var whileYouSleptEnabled: Bool = false
     @State private var isExporting = false
@@ -29,7 +29,7 @@ struct MoreView: View {
         NavigationStack {
             List {
                 Section {
-                    Picker(String(localized: "Settings.DisplayStyle"), selection: $defaultDisplayStyle) {
+                    Picker(String(localized: "Settings.DefaultDisplayStyle"), selection: $defaultDisplayStyle) {
                         Text("Articles.Style.Inbox")
                             .tag(FeedDisplayStyle.inbox)
                         Text("Articles.Style.Compact")
@@ -53,6 +53,35 @@ struct MoreView: View {
                         Text("Settings.MarkAllReadPosition.None")
                             .tag(MarkAllReadPosition.none)
                     }
+                    Picker(String(localized: "Settings.UnreadBadgeMode"), selection: $unreadBadgeMode) {
+                        Text("Settings.UnreadBadgeMode.HomeScreenAndHomeTab")
+                            .tag(UnreadBadgeMode.homeScreenAndHomeTab)
+                        Text("Settings.UnreadBadgeMode.HomeScreenOnly")
+                            .tag(UnreadBadgeMode.homeScreenOnly)
+                        Text("Settings.UnreadBadgeMode.HomeTabOnly")
+                            .tag(UnreadBadgeMode.homeTabOnly)
+                        Text("Settings.UnreadBadgeMode.Off")
+                            .tag(UnreadBadgeMode.none)
+                    }
+                    .onChange(of: unreadBadgeMode) { _, newValue in
+                        switch newValue {
+                        case .homeScreenAndHomeTab, .homeScreenOnly:
+                            Task {
+                                let granted = try? await UNUserNotificationCenter.current()
+                                    .requestAuthorization(options: [.badge])
+                                if granted == true {
+                                    feedManager.updateBadgeCount()
+                                } else {
+                                    unreadBadgeMode = newValue == .homeScreenAndHomeTab
+                                        ? .homeTabOnly : .none
+                                }
+                            }
+                        case .homeTabOnly, .none:
+                            Task {
+                                try? await UNUserNotificationCenter.current().setBadgeCount(0)
+                            }
+                        }
+                    }
                 } header: {
                     Text("Settings.Section.Display")
                 }
@@ -68,23 +97,6 @@ struct MoreView: View {
                         } label: {
                             Text(String(localized: "Settings.RefreshInterval"))
                         }
-                        Toggle(String(localized: "Settings.BadgeEnabled"), isOn: $badgeEnabled)
-                            .onChange(of: badgeEnabled) { _, isEnabled in
-                                if isEnabled {
-                                    Task {
-                                        let granted = try? await UNUserNotificationCenter.current()
-                                            .requestAuthorization(options: [.badge])
-                                        if granted == true {
-                                            let count = feedManager.totalUnreadCount()
-                                            try? await UNUserNotificationCenter.current().setBadgeCount(count)
-                                        } else {
-                                            badgeEnabled = false
-                                        }
-                                    }
-                                } else {
-                                    UNUserNotificationCenter.current().setBadgeCount(0)
-                                }
-                            }
                     }
                 } header: {
                     Text("Settings.Section.Refresh")

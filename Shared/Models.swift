@@ -132,6 +132,13 @@ nonisolated enum MarkAllReadPosition: String, CaseIterable, Sendable {
     case none
 }
 
+nonisolated enum UnreadBadgeMode: String, CaseIterable, Sendable {
+    case homeScreenAndHomeTab
+    case homeScreenOnly
+    case homeTabOnly
+    case none
+}
+
 nonisolated enum FeedDisplayStyle: String, CaseIterable, Sendable {
     case inbox
     case feed

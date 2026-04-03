@@ -14,6 +14,7 @@ struct MainTabView: View {
     @Environment(FeedManager.self) var feedManager
     @AppStorage("App.SelectedTab") private var selectedTab: AppTab = .home
     @AppStorage("Onboarding.Completed") private var onboardingCompleted: Bool = false
+    @AppStorage("Display.UnreadBadgeMode") private var unreadBadgeMode: UnreadBadgeMode = .homeTabOnly
     @Binding var pendingFeedURL: String?
     @Binding var pendingArticleID: Int64?
     @Binding var isInSafeMode: Bool
@@ -27,7 +28,8 @@ struct MainTabView: View {
             Tab(String(localized: "Tabs.Home"), systemImage: "text.rectangle.page", value: .home) {
                 HomeView(pendingArticleID: $pendingArticleID)
             }
-            .badge(feedManager.totalUnreadCount())
+            .badge(unreadBadgeMode == .homeScreenAndHomeTab || unreadBadgeMode == .homeTabOnly
+                ? feedManager.totalUnreadCount() : 0)
 
             Tab(String(localized: "Tabs.Feeds"), systemImage: "dot.radiowaves.up.forward", value: .feeds) {
                 FeedListView()
