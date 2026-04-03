@@ -21,6 +21,7 @@ nonisolated final class RSSParser: NSObject, XMLParserDelegate, @unchecked Senda
     private var isInsideItem = false
     private var isInsideImage = false
     private var isAtom = false
+    private var hasITunesNamespace = false
     private var currentAttributes: [String: String] = [:]
 
     func parse(data: Data) -> ParsedFeed? {
@@ -32,7 +33,8 @@ nonisolated final class RSSParser: NSObject, XMLParserDelegate, @unchecked Senda
             title: decodeHTMLEntities(feedTitle.trimmingCharacters(in: .whitespacesAndNewlines)),
             siteURL: feedLink.trimmingCharacters(in: .whitespacesAndNewlines),
             description: cleanHTMLPreservingStructure(feedDescription.trimmingCharacters(in: .whitespacesAndNewlines)) ?? "",
-            articles: parsedArticles
+            articles: parsedArticles,
+            hasITunesNamespace: hasITunesNamespace
         )
     }
 
@@ -54,6 +56,7 @@ nonisolated final class RSSParser: NSObject, XMLParserDelegate, @unchecked Senda
         isInsideItem = false
         isInsideImage = false
         isAtom = false
+        hasITunesNamespace = false
     }
 
     // MARK: - XMLParserDelegate
@@ -83,6 +86,8 @@ nonisolated final class RSSParser: NSObject, XMLParserDelegate, @unchecked Senda
             if let url = attributeDict["url"] {
                 currentImageURL = url
             }
+        case "itunes:type", "itunes:author", "itunes:owner" where !isInsideItem:
+            hasITunesNamespace = true
         case "itunes:image" where isInsideItem:
             if let url = attributeDict["href"], currentImageURL.isEmpty {
                 currentImageURL = url
@@ -175,9 +180,11 @@ nonisolated final class RSSParser: NSObject, XMLParserDelegate, @unchecked Senda
             let trimmedAuthor = currentAuthor.trimmingCharacters(in: .whitespacesAndNewlines)
             let trimmedContent = currentContent.trimmingCharacters(in: .whitespacesAndNewlines)
             let trimmedAudioURL = currentAudioURL.trimmingCharacters(in: .whitespacesAndNewlines)
+            let trimmedLink = currentLink.trimmingCharacters(in: .whitespacesAndNewlines)
+            let articleURL = trimmedLink.isEmpty ? trimmedAudioURL : trimmedLink
             let article = ParsedArticle(
                 title: decodeHTMLEntities(currentTitle.trimmingCharacters(in: .whitespacesAndNewlines)),
-                url: currentLink.trimmingCharacters(in: .whitespacesAndNewlines),
+                url: articleURL,
                 author: trimmedAuthor.isEmpty ? nil : decodeHTMLEntities(trimmedAuthor),
                 summary: cleanHTMLPreservingStructure(
                     currentDescription.trimmingCharacters(

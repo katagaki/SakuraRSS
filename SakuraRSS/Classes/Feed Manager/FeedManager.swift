@@ -121,9 +121,9 @@ final class FeedManager {
 
             try database.insertArticles(feedID: feed.id, articles: articleTuples)
 
-            if parsed.allArticlesHaveAudio && !feed.isPodcast {
+            if parsed.isPodcast && !feed.isPodcast {
                 try database.updateFeedIsPodcast(id: feed.id, isPodcast: true)
-            } else if !parsed.allArticlesHaveAudio && feed.isPodcast {
+            } else if !parsed.isPodcast && feed.isPodcast {
                 try database.updateFeedIsPodcast(id: feed.id, isPodcast: false)
             }
             if updateTitle, !parsed.title.isEmpty, parsed.title != feed.title {
