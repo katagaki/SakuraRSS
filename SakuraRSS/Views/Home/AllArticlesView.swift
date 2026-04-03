@@ -3,6 +3,7 @@ import SwiftUI
 enum HomeSection: String, CaseIterable, Identifiable {
     case feed
     case news
+    case social
     case videos
     case audio
 
@@ -12,6 +13,7 @@ enum HomeSection: String, CaseIterable, Identifiable {
         switch self {
         case .feed: String(localized: "Shared.AllArticles")
         case .news: String(localized: "HomeSection.News")
+        case .social: String(localized: "HomeSection.Social")
         case .videos: String(localized: "HomeSection.Videos")
         case .audio: String(localized: "HomeSection.Audio")
         }
@@ -21,6 +23,7 @@ enum HomeSection: String, CaseIterable, Identifiable {
         switch self {
         case .feed: "square.stack"
         case .news: "newspaper"
+        case .social: "person.2"
         case .videos: "play.rectangle"
         case .audio: "headphones"
         }
@@ -30,6 +33,7 @@ enum HomeSection: String, CaseIterable, Identifiable {
         switch self {
         case .feed: nil
         case .news: .news
+        case .social: .social
         case .videos: .video
         case .audio: .audio
         }
@@ -74,6 +78,8 @@ struct AllArticlesView: View {
                 feedTabContent
             case .news:
                 HomeSectionView(section: .news)
+            case .social:
+                HomeSectionView(section: .social)
             case .videos:
                 HomeSectionView(section: .video)
             case .audio:

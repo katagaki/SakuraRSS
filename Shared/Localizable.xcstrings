@@ -2507,55 +2507,55 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Wischen Sie zum Aktualisieren, um neue Artikel zu laden."
+            "value" : "Wischen Sie zum Aktualisieren, um neuen Inhalt zu laden."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Swipe to refresh to load new articles."
+            "value" : "Swipe to refresh to load new content."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Balayez pour actualiser et charger de nouveaux articles."
+            "value" : "Balayez pour actualiser et charger du nouveau contenu."
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Scorri per aggiornare e caricare nuovi articoli."
+            "value" : "Scorri per aggiornare e caricare nuovi contenuti."
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "下にスワイプして新しい記事を読み込みましょう。"
+            "value" : "下にスワイプして新しいコンテンツを読み込みましょう。"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "아래로 당겨서 새 기사를 불러오세요."
+            "value" : "아래로 당겨서 새 콘텐츠를 불러오세요."
           }
         },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Vuốt để làm mới và tải bài viết mới."
+            "value" : "Vuốt để làm mới và tải nội dung mới."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "下拉刷新以加载新文章。"
+            "value" : "下拉刷新以加载新内容。"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "下滑重新整理以載入新文章。"
+            "value" : "下滑重新整理以載入新內容。"
           }
         }
       }
@@ -2566,55 +2566,55 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Keine Artikel"
+            "value" : "Nichts hier"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "No Articles"
+            "value" : "Nothing Here"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Aucun article"
+            "value" : "Rien ici"
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Nessun articolo"
+            "value" : "Niente qui"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "記事がありません"
+            "value" : "何もありません"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "기사 없음"
+            "value" : "아무것도 없음"
           }
         },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Không có bài viết"
+            "value" : "Không có gì ở đây"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "暂无文章"
+            "value" : "这里什么都没有"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "沒有文章"
+            "value" : "這裡什麼都沒有"
           }
         }
       }
@@ -7512,6 +7512,65 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "新聞"
+          }
+        }
+      }
+    },
+    "HomeSection.Social" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Soziale Medien"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Social"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Réseaux sociaux"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Social"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ソーシャル"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "소셜"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mạng xã hội"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "社交"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "社群"
           }
         }
       }

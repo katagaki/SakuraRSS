@@ -24,6 +24,7 @@ struct HomeSectionView: View {
             feedKey: "home.\(section.rawValue)",
             isVideoFeed: section == .video,
             isPodcastFeed: section == .audio,
+            isFeedViewDomain: section == .social,
             onLoadMore: showingOlderArticles ? nil : {
                 showingOlderArticles = true
             },

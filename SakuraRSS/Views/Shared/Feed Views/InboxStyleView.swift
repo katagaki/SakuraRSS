@@ -47,6 +47,7 @@ struct InboxArticleRow: View {
     @State private var favicon: UIImage?
     @State private var acronymIcon: UIImage?
     @State private var feedName: String?
+    @State private var isSocialFeed = false
 
     var body: some View {
         HStack(alignment: .center, spacing: 8) {
@@ -69,21 +70,34 @@ struct InboxArticleRow: View {
             }
 
             VStack(alignment: .leading, spacing: 4) {
-                Text(article.title)
-                    .font(.body)
-                    .fontWeight(article.isRead ? .regular : .semibold)
-                    .lineLimit(1)
-                    .foregroundStyle(article.isRead ? .secondary : .primary)
+                if isSocialFeed, let feedName {
+                    Text(feedName)
+                        .font(.body)
+                        .fontWeight(article.isRead ? .regular : .semibold)
+                        .lineLimit(1)
+                        .foregroundStyle(article.isRead ? .secondary : .primary)
 
-                if article.hasMeaningfulSummary, let summary = article.summary {
-                    Text(ContentBlock.stripMarkdown(summary))
+                    Text(article.title)
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                         .lineLimit(2)
+                } else {
+                    Text(article.title)
+                        .font(.body)
+                        .fontWeight(article.isRead ? .regular : .semibold)
+                        .lineLimit(1)
+                        .foregroundStyle(article.isRead ? .secondary : .primary)
+
+                    if article.hasMeaningfulSummary, let summary = article.summary {
+                        Text(ContentBlock.stripMarkdown(summary))
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                            .lineLimit(2)
+                    }
                 }
 
                 HStack(spacing: 8) {
-                    if let author = article.author {
+                    if !isSocialFeed, let author = article.author {
                         Text(author)
                             .font(.caption2)
                             .foregroundStyle(.tertiary)
@@ -100,6 +114,7 @@ struct InboxArticleRow: View {
         .task {
             if let feed = feedManager.feed(forArticle: article) {
                 feedName = feed.title
+                isSocialFeed = feed.isSocialFeed
                 if let data = feed.acronymIcon {
                     acronymIcon = UIImage(data: data)
                 }

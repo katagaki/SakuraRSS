@@ -153,29 +153,31 @@ struct FeedEditSheet: View {
                     Text("FeedEdit.Icon")
                 }
 
-                Section {
-                    Picker(String(localized: "FeedEdit.OpenIn"), selection: $openMode) {
-                        Text("FeedEdit.OpenIn.InAppViewer")
-                            .tag(FeedOpenMode.inAppViewer)
-                        Text("FeedEdit.OpenIn.InAppBrowser")
-                            .tag(FeedOpenMode.inAppBrowser)
-                        Text("FeedEdit.OpenIn.Browser")
-                            .tag(FeedOpenMode.browser)
-                    }
-                    if !feed.isVideoFeed && !feed.isPodcast {
-                        Picker(String(localized: "FeedEdit.ArticleSource"), selection: $articleSource) {
-                            Text("FeedEdit.ArticleSource.Automatic")
-                                .tag(ArticleSource.automatic)
-                            Text("FeedEdit.ArticleSource.FetchText")
-                                .tag(ArticleSource.fetchText)
-                            Text("FeedEdit.ArticleSource.ExtractText")
-                                .tag(ArticleSource.extractText)
-                            Text("FeedEdit.ArticleSource.FeedText")
-                                .tag(ArticleSource.feedText)
+                if !feed.isXFeed {
+                    Section {
+                        Picker(String(localized: "FeedEdit.OpenIn"), selection: $openMode) {
+                            Text("FeedEdit.OpenIn.InAppViewer")
+                                .tag(FeedOpenMode.inAppViewer)
+                            Text("FeedEdit.OpenIn.InAppBrowser")
+                                .tag(FeedOpenMode.inAppBrowser)
+                            Text("FeedEdit.OpenIn.Browser")
+                                .tag(FeedOpenMode.browser)
                         }
+                        if !feed.isVideoFeed && !feed.isPodcast {
+                            Picker(String(localized: "FeedEdit.ArticleSource"), selection: $articleSource) {
+                                Text("FeedEdit.ArticleSource.Automatic")
+                                    .tag(ArticleSource.automatic)
+                                Text("FeedEdit.ArticleSource.FetchText")
+                                    .tag(ArticleSource.fetchText)
+                                Text("FeedEdit.ArticleSource.ExtractText")
+                                    .tag(ArticleSource.extractText)
+                                Text("FeedEdit.ArticleSource.FeedText")
+                                    .tag(ArticleSource.feedText)
+                            }
+                        }
+                    } header: {
+                        Text("FeedEdit.Behavior")
                     }
-                } header: {
-                    Text("FeedEdit.Behavior")
                 }
             }
             .navigationTitle(String(localized: "FeedEdit.Title"))

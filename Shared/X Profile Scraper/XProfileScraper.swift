@@ -26,7 +26,7 @@ struct XProfileScrapeResult: Sendable {
 final class XProfileScraper: NSObject, WKNavigationDelegate {
 
     private static let targetTweetCount = 50
-    private static let maxScrollAttempts = 15
+    private static let maxScrollAttempts = 3
     /// Maximum consecutive scrolls that yield zero new tweets before giving up.
     private static let maxStaleScrolls = 3
     /// Polling interval when waiting for content to appear.
@@ -127,11 +127,10 @@ final class XProfileScraper: NSObject, WKNavigationDelegate {
                 staleScrolls = 0
             }
 
-            let domCountBefore = await tweetDOMCount(in: webView)
-            await scrollToBottom(webView: webView)
+            await scrollByPage(webView: webView)
 
-            await waitForNewContent(
-                currentCount: domCountBefore,
+            await waitForNewTweets(
+                seenURLs: seenURLs,
                 in: webView,
                 timeout: Self.scrollSettleTimeout
             )
@@ -191,9 +190,9 @@ final class XProfileScraper: NSObject, WKNavigationDelegate {
         }
     }
 
-    private func scrollToBottom(webView: WKWebView) async {
+    private func scrollByPage(webView: WKWebView) async {
         _ = try? await webView.evaluateJavaScript(
-            "window.scrollTo(0, document.body.scrollHeight)"
+            "window.scrollBy({ top: window.innerHeight, behavior: 'smooth' })"
         )
     }
 
@@ -217,22 +216,38 @@ final class XProfileScraper: NSObject, WKNavigationDelegate {
         return false
     }
 
-    /// Returns the current number of tweet article elements in the DOM.
-    private func tweetDOMCount(in webView: WKWebView) async -> Int {
-        let script = "document.querySelectorAll('article[data-testid=\"tweet\"]').length"
-        return (try? await webView.evaluateJavaScript(script) as? Int) ?? 0
-    }
+    /// JavaScript that returns an array of tweet permalink URLs currently in the DOM.
+    private static let tweetURLsScript = """
+    (function() {
+        var urls = [];
+        var articles = document.querySelectorAll('article[data-testid="tweet"]');
+        for (var i = 0; i < articles.length; i++) {
+            var timeEl = articles[i].querySelector('time');
+            if (timeEl) {
+                var linkEl = timeEl.closest('a');
+                if (linkEl) urls.push(linkEl.href);
+            }
+        }
+        return JSON.stringify(urls);
+    })()
+    """
 
-    /// Polls until the number of visible tweet articles exceeds `currentCount`.
-    private func waitForNewContent(
-        currentCount: Int,
+    /// Polls until at least one tweet URL appears in the DOM that is not in `seenURLs`.
+    /// This works reliably with X's virtualized timeline where old DOM nodes are
+    /// recycled and the total element count does not grow monotonically.
+    private func waitForNewTweets(
+        seenURLs: Set<String>,
         in webView: WKWebView,
         timeout: Duration
     ) async {
         let deadline = ContinuousClock.now + timeout
         while ContinuousClock.now < deadline {
             if Task.isCancelled { return }
-            if await tweetDOMCount(in: webView) > currentCount { return }
+            if let jsonString = try? await webView.evaluateJavaScript(Self.tweetURLsScript) as? String,
+               let data = jsonString.data(using: .utf8),
+               let urls = try? JSONSerialization.jsonObject(with: data) as? [String] {
+                if urls.contains(where: { !seenURLs.contains($0) }) { return }
+            }
             try? await Task.sleep(for: Self.pollInterval)
         }
     }
