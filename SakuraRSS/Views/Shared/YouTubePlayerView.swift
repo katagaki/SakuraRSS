@@ -133,46 +133,10 @@ struct YouTubePlayerView: View {
             ScrollView(.vertical) {
                 VStack(spacing: 0) {
                     // Title
-                    Text(article.title)
-                        .font(.title2.bold())
+                    WordWrappingText(article.title, font: .preferredFont(forTextStyle: .title2, weight: .bold))
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(.horizontal)
                         .padding(.top, 12)
-
-                    // Action toolbar
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: 8) {
-                            if let youtubeAppURL, UIApplication.shared.canOpenURL(youtubeAppURL) {
-                                Button {
-                                    UIApplication.shared.open(youtubeAppURL)
-                                } label: {
-                                    Label(
-                                        String(localized: "YouTube.OpenInApp"),
-                                        systemImage: "play.rectangle"
-                                    )
-                                    .padding(.horizontal, 2)
-                                    .padding(.vertical, 2)
-                                }
-                            }
-
-                            Button {
-                                if let url = URL(string: article.url) {
-                                    openURL(url)
-                                }
-                            } label: {
-                                Label(
-                                    String(localized: "YouTube.OpenInBrowser"),
-                                    systemImage: "safari"
-                                )
-                                .padding(.horizontal, 2)
-                                .padding(.vertical, 2)
-                            }
-                        }
-                        .buttonStyle(.bordered)
-                        .tint(.primary)
-                        .padding(.horizontal)
-                    }
-                    .padding(.top, 12)
 
                     // Seek bar
                     SeekBarView(
@@ -263,10 +227,8 @@ struct YouTubePlayerView: View {
                         .padding(.top, 20)
                     }
 
-                    // Description action buttons
-                    if hasDescription {
-                        descriptionActionButtons
-                    }
+                    // Action buttons
+                    descriptionActionButtons
 
                     // Description
                     if let text = displayDescription, !text.isEmpty {
@@ -390,9 +352,35 @@ extension YouTubePlayerView {
     private var descriptionActionButtons: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 8) {
-                translationButton
-                if isAppleIntelligenceAvailable {
-                    summarizationButton
+                if hasDescription {
+                    translationButton
+                    if isAppleIntelligenceAvailable {
+                        summarizationButton
+                    }
+                }
+                if let youtubeAppURL, UIApplication.shared.canOpenURL(youtubeAppURL) {
+                    Button {
+                        UIApplication.shared.open(youtubeAppURL)
+                    } label: {
+                        Label(
+                            String(localized: "YouTube.OpenInApp"),
+                            systemImage: "play.rectangle"
+                        )
+                        .padding(.horizontal, 2)
+                        .padding(.vertical, 2)
+                    }
+                }
+                Button {
+                    if let url = URL(string: article.url) {
+                        openURL(url)
+                    }
+                } label: {
+                    Label(
+                        String(localized: "YouTube.OpenInBrowser"),
+                        systemImage: "safari"
+                    )
+                    .padding(.horizontal, 2)
+                    .padding(.vertical, 2)
                 }
             }
             .buttonStyle(.bordered)

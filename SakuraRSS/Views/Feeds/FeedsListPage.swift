@@ -250,11 +250,6 @@ struct FeedRowView: View {
                 favicon = await loadFavicon()
             }
         }
-        .onChange(of: feedManager.dataRevision) {
-            Task {
-                favicon = await loadFavicon()
-            }
-        }
     }
 
     private func loadFavicon() async -> UIImage? {

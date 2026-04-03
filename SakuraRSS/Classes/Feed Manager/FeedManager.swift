@@ -10,6 +10,8 @@ final class FeedManager {
     var isLoading = false
     private(set) var dataRevision: Int = 0
     private(set) var faviconRevision: Int = 0
+    private(set) var unreadCounts: [Int64: Int] = [:]
+    private(set) var feedsByID: [Int64: Feed] = [:]
 
     let database = DatabaseManager.shared
 
@@ -20,7 +22,9 @@ final class FeedManager {
     func loadFromDatabase() {
         do {
             feeds = try database.allFeeds()
+            feedsByID = Dictionary(uniqueKeysWithValues: feeds.map { ($0.id, $0) })
             articles = try database.allArticles(limit: 200)
+            unreadCounts = (try? database.allUnreadCounts()) ?? [:]
             dataRevision += 1
         } catch {
             print("Failed to load from database: \(error)")
@@ -63,10 +67,10 @@ final class FeedManager {
 
     // MARK: - Feed Refresh
 
-    func refreshFeed(_ feed: Feed, updateTitle: Bool = true) async throws {
+    func refreshFeed(_ feed: Feed, updateTitle: Bool = true, reloadData: Bool = true) async throws {
         if feed.isXFeed {
             guard UserDefaults.standard.bool(forKey: "Labs.XProfileFeeds") else { return }
-            try await refreshXFeed(feed)
+            try await refreshXFeed(feed, reloadData: reloadData)
             return
         }
 
@@ -102,7 +106,9 @@ final class FeedManager {
             try database.updateFeed(id: feed.id, title: parsed.title, category: feed.category)
         }
         try database.updateFeedLastFetched(id: feed.id, date: Date())
-        loadFromDatabase()
+        if reloadData {
+            loadFromDatabase()
+        }
     }
 
     func deleteAllArticlesAndRefresh() async {
@@ -119,7 +125,7 @@ final class FeedManager {
         await withTaskGroup(of: Void.self) { group in
             for feed in currentFeeds {
                 group.addTask {
-                    try? await self.refreshFeed(feed)
+                    try? await self.refreshFeed(feed, reloadData: false)
                 }
             }
         }
@@ -134,7 +140,7 @@ final class FeedManager {
         async let feedRefresh: Void = withTaskGroup(of: Void.self) { group in
             for feed in currentFeeds {
                 group.addTask {
-                    try? await self.refreshFeed(feed, updateTitle: false)
+                    try? await self.refreshFeed(feed, updateTitle: false, reloadData: false)
                 }
             }
         }
@@ -144,7 +150,6 @@ final class FeedManager {
         _ = await (feedRefresh, faviconRefresh)
         loadFromDatabase()
         regenerateAllAcronymIcons()
-        loadFromDatabase()
         faviconRevision += 1
     }
 
@@ -172,7 +177,7 @@ final class FeedManager {
     }
 
     func feed(forArticle article: Article) -> Feed? {
-        feeds.first { $0.id == article.feedID }
+        feedsByID[article.feedID]
     }
 
     func article(byID id: Int64) -> Article? {

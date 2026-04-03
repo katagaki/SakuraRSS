@@ -6,7 +6,7 @@ extension FeedManager {
     // MARK: - X Profile Feeds
 
     @MainActor
-    func refreshXFeed(_ feed: Feed) async throws {
+    func refreshXFeed(_ feed: Feed, reloadData: Bool = true) async throws {
         guard let handle = XProfileScraper.handleFromFeedURL(feed.url),
               let profileURL = XProfileScraper.profileURL(for: handle) else { return }
 
@@ -54,7 +54,9 @@ extension FeedManager {
         }
 
         try database.updateFeedLastFetched(id: feed.id, date: Date())
-        loadFromDatabase()
+        if reloadData {
+            loadFromDatabase()
+        }
     }
 
     /// Whether the user has any X profile feeds.
