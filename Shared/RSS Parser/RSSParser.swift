@@ -199,8 +199,24 @@ nonisolated final class RSSParser: NSObject, XMLParserDelegate, @unchecked Senda
                 audioURL: trimmedAudioURL.isEmpty ? nil : trimmedAudioURL,
                 duration: parseDuration(currentDuration.trimmingCharacters(in: .whitespacesAndNewlines))
             )
-            if !article.title.isEmpty && !article.url.isEmpty {
-                parsedArticles.append(article)
+            if !article.url.isEmpty {
+                if article.title.isEmpty, let plainText = cleanHTML(currentDescription) {
+                    let titleFromDescription = String(plainText.prefix(100))
+                    let updatedArticle = ParsedArticle(
+                        title: titleFromDescription,
+                        url: article.url,
+                        author: article.author,
+                        summary: article.summary,
+                        content: article.content,
+                        imageURL: article.imageURL,
+                        publishedDate: article.publishedDate,
+                        audioURL: article.audioURL,
+                        duration: article.duration
+                    )
+                    parsedArticles.append(updatedArticle)
+                } else if !article.title.isEmpty {
+                    parsedArticles.append(article)
+                }
             }
             isInsideItem = false
         }
