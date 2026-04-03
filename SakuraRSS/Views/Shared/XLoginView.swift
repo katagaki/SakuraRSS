@@ -18,12 +18,8 @@ struct XLoginView: View {
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
                     ToolbarItem(placement: .topBarTrailing) {
-                        Button {
+                        Button(role: .close) {
                             dismiss()
-                        } label: {
-                            Image(systemName: "xmark.circle.fill")
-                                .symbolRenderingMode(.hierarchical)
-                                .foregroundStyle(.secondary)
                         }
                     }
                 }

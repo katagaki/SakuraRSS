@@ -31,6 +31,27 @@ final class FeedManager {
         }
     }
 
+    func loadFromDatabaseInBackground() async {
+        let db = database
+        do {
+            let (loadedFeeds, loadedArticles, loadedUnreadCounts) = try await Task.detached {
+                let feeds = try db.allFeeds()
+                let articles = try db.allArticles(limit: 200)
+                let unreadCounts = (try? db.allUnreadCounts()) ?? [:]
+                return (feeds, articles, unreadCounts)
+            }.value
+            await MainActor.run {
+                self.feeds = loadedFeeds
+                self.feedsByID = Dictionary(uniqueKeysWithValues: loadedFeeds.map { ($0.id, $0) })
+                self.articles = loadedArticles
+                self.unreadCounts = loadedUnreadCounts
+                self.dataRevision += 1
+            }
+        } catch {
+            print("Failed to load from database: \(error)")
+        }
+    }
+
     // MARK: - Feed CRUD
 
     func addFeed(url: String, title: String, siteURL: String,
@@ -74,52 +95,57 @@ final class FeedManager {
             return
         }
 
-        guard let url = URL(string: feed.url) else { return }
+        let db = database
+        try await Task.detached {
+            guard let url = URL(string: feed.url) else { return }
 
-        let (data, _) = try await URLSession.shared.data(from: url)
-        let parser = RSSParser()
-        guard let parsed = parser.parse(data: data) else { return }
+            let (data, _) = try await URLSession.shared.data(from: url)
+            let parser = RSSParser()
+            guard let parsed = parser.parse(data: data) else { return }
 
-        for article in parsed.articles {
-            try database.insertArticle(
-                feedID: feed.id,
-                title: article.title,
-                url: article.url,
-                data: ArticleInsertData(
-                    author: article.author,
-                    summary: article.summary,
-                    content: article.content,
-                    imageURL: article.imageURL,
-                    publishedDate: article.publishedDate,
-                    audioURL: article.audioURL,
-                    duration: article.duration
+            let articleTuples = parsed.articles.map { article in
+                (
+                    title: article.title,
+                    url: article.url,
+                    data: ArticleInsertData(
+                        author: article.author,
+                        summary: article.summary,
+                        content: article.content,
+                        imageURL: article.imageURL,
+                        publishedDate: article.publishedDate,
+                        audioURL: article.audioURL,
+                        duration: article.duration
+                    )
                 )
-            )
-        }
+            }
 
-        if parsed.allArticlesHaveAudio && !feed.isPodcast {
-            try database.updateFeedIsPodcast(id: feed.id, isPodcast: true)
-        } else if !parsed.allArticlesHaveAudio && feed.isPodcast {
-            try database.updateFeedIsPodcast(id: feed.id, isPodcast: false)
-        }
-        if updateTitle, !parsed.title.isEmpty, parsed.title != feed.title {
-            try database.updateFeed(id: feed.id, title: parsed.title, category: feed.category)
-        }
-        try database.updateFeedLastFetched(id: feed.id, date: Date())
+            try db.insertArticles(feedID: feed.id, articles: articleTuples)
+
+            if parsed.allArticlesHaveAudio && !feed.isPodcast {
+                try db.updateFeedIsPodcast(id: feed.id, isPodcast: true)
+            } else if !parsed.allArticlesHaveAudio && feed.isPodcast {
+                try db.updateFeedIsPodcast(id: feed.id, isPodcast: false)
+            }
+            if updateTitle, !parsed.title.isEmpty, parsed.title != feed.title {
+                try db.updateFeed(id: feed.id, title: parsed.title, category: feed.category)
+            }
+            try db.updateFeedLastFetched(id: feed.id, date: Date())
+        }.value
         if reloadData {
-            loadFromDatabase()
+            await loadFromDatabaseInBackground()
         }
     }
 
     func deleteAllArticlesAndRefresh() async {
-        try? database.deleteAllArticles()
-        loadFromDatabase()
+        let db = database
+        _ = try? await Task.detached { try db.deleteAllArticles() }.value
+        await loadFromDatabaseInBackground()
         await refreshAllFeeds()
     }
 
     func refreshAllFeeds() async {
-        isLoading = true
-        defer { isLoading = false }
+        await MainActor.run { isLoading = true }
+        defer { Task { @MainActor in self.isLoading = false } }
 
         let currentFeeds = feeds
         await withTaskGroup(of: Void.self) { group in
@@ -129,12 +155,12 @@ final class FeedManager {
                 }
             }
         }
-        loadFromDatabase()
+        await loadFromDatabaseInBackground()
     }
 
     func refreshAllFeedsAndFavicons() async {
-        isLoading = true
-        defer { isLoading = false }
+        await MainActor.run { isLoading = true }
+        defer { Task { @MainActor in self.isLoading = false } }
 
         let currentFeeds = feeds
         async let feedRefresh: Void = withTaskGroup(of: Void.self) { group in
@@ -148,7 +174,7 @@ final class FeedManager {
             for: currentFeeds.map { ($0.domain, $0.siteURL as String?) }
         )
         _ = await (feedRefresh, faviconRefresh)
-        loadFromDatabase()
+        await loadFromDatabaseInBackground()
         regenerateAllAcronymIcons()
         faviconRevision += 1
     }

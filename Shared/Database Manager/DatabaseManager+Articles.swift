@@ -39,6 +39,28 @@ nonisolated extension DatabaseManager {
         ))
     }
 
+    func insertArticles(feedID fid: Int64, articles items: [(title: String, url: String, data: ArticleInsertData)]) throws {
+        guard !items.isEmpty else { return }
+        try database.transaction {
+            for item in items {
+                try database.run(articles.insert(or: .ignore,
+                    articleFeedID <- fid,
+                    articleTitle <- item.title,
+                    articleURL <- item.url,
+                    articleAuthor <- item.data.author,
+                    articleSummary <- item.data.summary,
+                    articleContent <- item.data.content,
+                    articleImageURL <- item.data.imageURL,
+                    articlePublishedDate <- item.data.publishedDate?.timeIntervalSince1970,
+                    articleIsRead <- false,
+                    articleIsBookmarked <- false,
+                    articleAudioURL <- item.data.audioURL,
+                    articleDuration <- item.data.duration
+                ))
+            }
+        }
+    }
+
     func article(byID id: Int64) throws -> Article? {
         let query = articles.filter(articleID == id).limit(1)
         return try database.prepare(query).map(rowToArticle).first
