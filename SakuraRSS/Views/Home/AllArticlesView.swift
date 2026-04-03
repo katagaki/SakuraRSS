@@ -1,9 +1,46 @@
 import SwiftUI
 
+enum HomeSection: String, CaseIterable, Identifiable {
+    case feed
+    case news
+    case videos
+    case audio
+
+    var id: String { rawValue }
+
+    var localizedTitle: String {
+        switch self {
+        case .feed: String(localized: "Shared.AllArticles")
+        case .news: String(localized: "HomeSection.News")
+        case .videos: String(localized: "HomeSection.Videos")
+        case .audio: String(localized: "HomeSection.Audio")
+        }
+    }
+
+    var systemImage: String {
+        switch self {
+        case .feed: "square.stack"
+        case .news: "newspaper"
+        case .videos: "play.rectangle"
+        case .audio: "headphones"
+        }
+    }
+
+    var feedSection: FeedSection? {
+        switch self {
+        case .feed: nil
+        case .news: .news
+        case .videos: .video
+        case .audio: .audio
+        }
+    }
+}
+
 struct AllArticlesView: View {
 
     @Environment(FeedManager.self) var feedManager
 
+    @State private var selectedSection: HomeSection = .feed
     @State private var showingOlderArticles = false
     @AppStorage("Display.MarkAllReadPosition") private var markAllReadPosition: MarkAllReadPosition = .bottom
     @AppStorage("WhileYouSlept.DismissedDate") private var whileYouSleptDismissedDate: String = ""
@@ -31,11 +68,50 @@ struct AllArticlesView: View {
     }
 
     var body: some View {
+        Group {
+            switch selectedSection {
+            case .feed:
+                feedTabContent
+            case .news:
+                HomeSectionView(section: .news)
+            case .videos:
+                HomeSectionView(section: .video)
+            case .audio:
+                HomeSectionView(section: .audio)
+            }
+        }
+        .navigationTitle(selectedSection.localizedTitle)
+        .toolbarTitleDisplayMode(.inlineLarge)
+        .toolbarTitleMenu {
+            ForEach(availableSections) { section in
+                Button {
+                    withAnimation(.smooth.speed(2.0)) {
+                        selectedSection = section
+                    }
+                } label: {
+                    Label(section.localizedTitle, systemImage: section.systemImage)
+                }
+            }
+        }
+        .onChange(of: availableSections) {
+            if !availableSections.contains(selectedSection) {
+                selectedSection = .feed
+            }
+        }
+    }
+
+    private var availableSections: [HomeSection] {
+        HomeSection.allCases.filter { section in
+            guard let feedSection = section.feedSection else { return true }
+            return feedManager.hasFeeds(for: feedSection)
+        }
+    }
+
+    private var feedTabContent: some View {
         ArticlesView(
             articles: displayedArticles,
-            title: String(localized: "Shared.AllArticles"),
+            title: HomeSection.feed.localizedTitle,
             feedKey: "all",
-            titleDisplayMode: .inlineLarge,
             anySummaryHidden: anySummaryHidden,
             onRestoreSummaries: {
                 withAnimation(.smooth.speed(2.0)) {

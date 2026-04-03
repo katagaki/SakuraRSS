@@ -14,10 +14,20 @@ struct InboxStyleView: View {
                     InboxArticleRow(article: article)
                         .zoomSource(id: article.id, namespace: zoomNamespace)
                 }
+                .swipeActions(edge: .leading) {
+                    Button {
+                        withAnimation(.smooth.speed(2.0)) {
+                            feedManager.toggleRead(article)
+                        }
+                    } label: {
+                        Image(systemName: article.isRead ? "envelope" : "envelope.open")
+                    }
+                    .tint(.blue)
+                }
                 .listRowBackground(Color.clear)
                 .listRowSeparator(.hidden, edges: .top)
                 .listRowSeparator(.visible, edges: .bottom)
-                .listRowInsets(EdgeInsets(top: 8, leading: 12, bottom: 8, trailing: 22))
+                .listRowInsets(EdgeInsets(top: 8, leading: 12, bottom: 8, trailing: 12))
             }
             if let onLoadMore {
                 LoadPreviousArticlesButton(action: onLoadMore)
@@ -26,6 +36,7 @@ struct InboxStyleView: View {
             }
         }
         .listStyle(.plain)
+        .navigationLinkIndicatorVisibility(.hidden)
     }
 }
 
@@ -50,9 +61,9 @@ struct InboxArticleRow: View {
                 .frame(width: 48, height: 48)
                 .clipShape(RoundedRectangle(cornerRadius: 8))
             } else if let favicon {
-                FaviconImage(favicon, size: 48, cornerRadius: 8, skipInset: true)
+                FaviconImage(favicon, size: 48, cornerRadius: 8)
             } else if let acronymIcon {
-                FaviconImage(acronymIcon, size: 48, cornerRadius: 8, skipInset: true)
+                FaviconImage(acronymIcon, size: 48, cornerRadius: 8)
             } else if let feedName {
                 InitialsAvatarView(feedName, size: 48, cornerRadius: 8)
             }
@@ -94,16 +105,6 @@ struct InboxArticleRow: View {
                 }
                 favicon = await FaviconCache.shared.favicon(for: feed)
             }
-        }
-        .swipeActions(edge: .leading) {
-            Button {
-                withAnimation(.smooth.speed(2.0)) {
-                    feedManager.toggleRead(article)
-                }
-            } label: {
-                Image(systemName: article.isRead ? "envelope" : "envelope.open")
-            }
-            .tint(.blue)
         }
     }
 }

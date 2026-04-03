@@ -98,6 +98,38 @@ extension FeedManager {
         return unreadCounts.filter { !muted.contains($0.key) }.values.reduce(0, +)
     }
 
+    // MARK: - Section Queries
+
+    func todayArticles(for section: FeedSection) -> [Article] {
+        let sectionFeedIDs = Set(feeds.filter { $0.feedSection == section }.map(\.id))
+        return todayArticles().filter { sectionFeedIDs.contains($0.feedID) }
+    }
+
+    func olderArticles(for section: FeedSection, limit: Int = 200) -> [Article] {
+        let sectionFeedIDs = Set(feeds.filter { $0.feedSection == section }.map(\.id))
+        return olderArticles(limit: limit).filter { sectionFeedIDs.contains($0.feedID) }
+    }
+
+    func markAllRead(for section: FeedSection) {
+        let sectionFeeds = feeds.filter { $0.feedSection == section }
+        for feed in sectionFeeds {
+            try? database.markAllRead(feedID: feed.id)
+        }
+        loadFromDatabase()
+        updateBadgeCount()
+    }
+
+    func unreadCount(for section: FeedSection) -> Int {
+        _ = dataRevision
+        let sectionFeedIDs = Set(feeds.filter { $0.feedSection == section && !$0.isMuted }.map(\.id))
+        return unreadCounts.filter { sectionFeedIDs.contains($0.key) }.values.reduce(0, +)
+    }
+
+    func hasFeeds(for section: FeedSection) -> Bool {
+        _ = dataRevision
+        return feeds.contains { $0.feedSection == section }
+    }
+
     // MARK: - Filtering Helpers
 
     private func filterExcludingPodcastsAndVideos(_ articles: [Article]) -> [Article] {
