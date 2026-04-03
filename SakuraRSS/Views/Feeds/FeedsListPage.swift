@@ -77,11 +77,9 @@ struct FeedsListPage: View {
             if let url = lastAddedFeedURL,
                let feed = feedManager.feeds.first(where: { $0.url == url }) {
                 lastAddedFeedURL = nil
+                onNavigateToFeed?(feed)
                 Task {
                     try? await feedManager.refreshFeed(feed)
-                    if let refreshed = feedManager.feeds.first(where: { $0.url == url }) {
-                        onNavigateToFeed?(refreshed)
-                    }
                 }
             }
         } content: {

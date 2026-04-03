@@ -10,6 +10,10 @@ struct FeedArticlesView: View {
     @State private var displayLimit: Int = FeedArticlesView.pageSize
     @AppStorage("Display.MarkAllReadPosition") private var markAllReadPosition: MarkAllReadPosition = .bottom
 
+    private var currentFeed: Feed {
+        feedManager.feeds.first(where: { $0.id == feed.id }) ?? feed
+    }
+
     private var hasMore: Bool {
         feedManager.articleCount(for: feed) > displayLimit
     }
@@ -17,7 +21,7 @@ struct FeedArticlesView: View {
     var body: some View {
         ArticlesView(
             articles: feedManager.articles(for: feed, limit: displayLimit),
-            title: feed.title,
+            title: currentFeed.title,
             feedKey: String(feed.id),
             isVideoFeed: feed.isVideoFeed,
             isPodcastFeed: feed.isPodcast,
