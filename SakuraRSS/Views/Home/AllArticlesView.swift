@@ -40,7 +40,7 @@ struct AllArticlesView: View {
 
     @Environment(FeedManager.self) var feedManager
 
-    @State private var selectedSection: HomeSection = .feed
+    @AppStorage("Home.SelectedSection") private var selectedSection: HomeSection = .feed
     @State private var showingOlderArticles = false
     @AppStorage("Display.MarkAllReadPosition") private var markAllReadPosition: MarkAllReadPosition = .bottom
     @AppStorage("WhileYouSlept.DismissedDate") private var whileYouSleptDismissedDate: String = ""
