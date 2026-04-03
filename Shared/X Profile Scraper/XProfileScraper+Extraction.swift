@@ -1,195 +1,195 @@
 import Foundation
-import WebKit
 
-// MARK: - Extraction
+// MARK: - API Configuration & Response Parsing
 
 extension XProfileScraper {
 
-    /// JavaScript that extracts tweets from the rendered X profile page.
-    /// Excludes retweets by checking for the "reposted" indicator.
-    static let extractionScript = """
-    (function() {
-        var tweets = [];
-        var articles = document.querySelectorAll('article[data-testid="tweet"]');
+    // swiftlint:disable line_length
+    static let userTweetsFeatures: [String: Bool] = [
+        "rweb_video_screen_enabled": false,
+        "profile_label_improvements_pcf_label_in_post_enabled": true,
+        "responsive_web_profile_redirect_enabled": false,
+        "rweb_tipjar_consumption_enabled": false,
+        "verified_phone_label_enabled": false,
+        "creator_subscriptions_tweet_preview_api_enabled": true,
+        "responsive_web_graphql_timeline_navigation_enabled": true,
+        "responsive_web_graphql_skip_user_profile_image_extensions_enabled": false,
+        "premium_content_api_read_enabled": false,
+        "communities_web_enable_tweet_community_results_fetch": true,
+        "c9s_tweet_anatomy_moderator_badge_enabled": true,
+        "responsive_web_grok_analyze_button_fetch_trends_enabled": false,
+        "responsive_web_grok_analyze_post_followups_enabled": true,
+        "responsive_web_jetfuel_frame": true,
+        "responsive_web_grok_share_attachment_enabled": true,
+        "responsive_web_grok_annotations_enabled": true,
+        "articles_preview_enabled": true,
+        "responsive_web_edit_tweet_api_enabled": true,
+        "graphql_is_translatable_rweb_tweet_is_translatable_enabled": true,
+        "view_counts_everywhere_api_enabled": true,
+        "longform_notetweets_consumption_enabled": true,
+        "responsive_web_twitter_article_tweet_consumption_enabled": true,
+        "content_disclosure_indicator_enabled": true,
+        "content_disclosure_ai_generated_indicator_enabled": true,
+        "responsive_web_grok_show_grok_translated_post": true,
+        "responsive_web_grok_analysis_button_from_backend": true,
+        "post_ctas_fetch_enabled": false,
+        "freedom_of_speech_not_reach_fetch_enabled": true,
+        "standardized_nudges_misinfo": true,
+        "tweet_with_visibility_results_prefer_gql_limited_actions_policy_enabled": true,
+        "longform_notetweets_rich_text_read_enabled": true,
+        "longform_notetweets_inline_media_enabled": false,
+        "responsive_web_grok_image_annotation_enabled": true,
+        "responsive_web_grok_imagine_annotation_enabled": true,
+        "responsive_web_grok_community_note_auto_translation_is_enabled": false,
+        "responsive_web_enhance_cards_enabled": false
+    ]
+    // swiftlint:enable line_length
 
-        for (var i = 0; i < articles.length; i++) {
-            var article = articles[i];
+    struct TweetsPage {
+        let tweets: [ParsedTweet]
+        let bottomCursor: String?
+    }
 
-            // Skip retweets: look for "reposted" social context
-            var socialContext = article.querySelector('[data-testid="socialContext"]');
-            if (socialContext && socialContext.textContent.toLowerCase().includes('repost')) {
-                continue;
-            }
-
-            // Get tweet text
-            var tweetTextEl = article.querySelector('[data-testid="tweetText"]');
-            var tweetText = tweetTextEl ? tweetTextEl.innerText : '';
-
-            // Get author info
-            var userNameEl = article.querySelector('[data-testid="User-Name"]');
-            var displayName = '';
-            var handle = '';
-            if (userNameEl) {
-                var spans = userNameEl.querySelectorAll('span');
-                for (var j = 0; j < spans.length; j++) {
-                    var text = spans[j].textContent.trim();
-                    if (text.startsWith('@')) {
-                        handle = text;
-                        break;
-                    }
-                }
-                var nameLinks = userNameEl.querySelectorAll('a');
-                if (nameLinks.length > 0) {
-                    displayName = nameLinks[0].textContent.trim();
-                }
-            }
-
-            // Get tweet URL from the time element's parent link
-            var timeEl = article.querySelector('time');
-            var tweetURL = '';
-            var dateStr = '';
-            if (timeEl) {
-                dateStr = timeEl.getAttribute('datetime') || '';
-                var linkEl = timeEl.closest('a');
-                if (linkEl) {
-                    tweetURL = linkEl.href;
-                }
-            }
-
-            // Get first image if present
-            var imageURL = '';
-            var imgEl = article.querySelector('[data-testid="tweetPhoto"] img');
-            if (imgEl) {
-                imageURL = imgEl.src;
-            }
-
-            if (tweetText || tweetURL) {
-                tweets.push({
-                    text: tweetText,
-                    author: displayName,
-                    handle: handle,
-                    url: tweetURL,
-                    imageURL: imageURL,
-                    date: dateStr
-                });
-            }
+    static func parseTweetsResponse(data: Data) -> TweetsPage? {
+        guard let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+              let dataObj = json["data"] as? [String: Any],
+              let user = dataObj["user"] as? [String: Any],
+              let result = user["result"] as? [String: Any],
+              let timeline = result["timeline"] as? [String: Any],
+              let innerTimeline = timeline["timeline"] as? [String: Any],
+              let instructions = innerTimeline["instructions"] as? [[String: Any]] else {
+            return nil
         }
 
-        return JSON.stringify(tweets);
-    })()
-    """
-
-    func extractCurrentTweets(from webView: WKWebView) async -> [ParsedTweet] {
-        guard let jsonString = try? await webView.evaluateJavaScript(Self.extractionScript) as? String,
-              let data = jsonString.data(using: .utf8),
-              let rawTweets = try? JSONSerialization.jsonObject(with: data) as? [[String: Any]] else {
-            return []
+        guard let addEntries = instructions.first(
+            where: { ($0["type"] as? String) == "TimelineAddEntries" }
+        ), let entries = addEntries["entries"] as? [[String: Any]] else {
+            return nil
         }
 
-        let dateFormatter = ISO8601DateFormatter()
+        let dateFormatter = DateFormatter()
+        dateFormatter.locale = Locale(identifier: "en_US_POSIX")
+        dateFormatter.dateFormat = "EEE MMM dd HH:mm:ss Z yyyy"
+
         var tweets: [ParsedTweet] = []
+        var bottomCursor: String?
 
-        for raw in rawTweets {
-            let text = raw["text"] as? String ?? ""
-            let author = raw["author"] as? String ?? ""
-            let handle = raw["handle"] as? String ?? ""
-            let url = raw["url"] as? String ?? ""
-            let imageURL = raw["imageURL"] as? String
-            let dateStr = raw["date"] as? String ?? ""
+        for entry in entries {
+            guard let content = entry["content"] as? [String: Any] else { continue }
+            let entryType = content["entryType"] as? String
 
-            guard !url.isEmpty else { continue }
-
-            var publishedDate: Date?
-            if !dateStr.isEmpty {
-                dateFormatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
-                publishedDate = dateFormatter.date(from: dateStr)
-                if publishedDate == nil {
-                    dateFormatter.formatOptions = [.withInternetDateTime]
-                    publishedDate = dateFormatter.date(from: dateStr)
+            if entryType == "TimelineTimelineCursor" {
+                if (content["cursorType"] as? String) == "Bottom" {
+                    bottomCursor = content["value"] as? String
                 }
+                continue
             }
 
-            let cleanHandle = handle.hasPrefix("@") ? String(handle.dropFirst()) : handle
-            let tweetID = url.split(separator: "/").last.map(String.init) ?? UUID().uuidString
+            guard entryType == "TimelineTimelineItem" else { continue }
 
-            tweets.append(ParsedTweet(
-                id: tweetID,
-                text: text,
-                author: author,
-                authorHandle: cleanHandle,
-                url: url,
-                imageURL: imageURL?.isEmpty == true ? nil : imageURL,
-                publishedDate: publishedDate
-            ))
-        }
-
-        return tweets
-    }
-
-    /// JavaScript to extract the profile avatar image URL from the page header.
-    static let profileImageScript = """
-    (function() {
-        function upgradeSize(url) {
-            return url.replace(/_normal\\./, '_400x400.')
-                      .replace(/_bigger\\./, '_400x400.')
-                      .replace(/_200x200\\./, '_400x400.')
-                      .replace(/_mini\\./, '_400x400.');
-        }
-
-        // Primary: data-testid="UserAvatar" (link or container) with an img
-        var avatar = document.querySelector('[data-testid="UserAvatar"] img');
-        if (avatar && avatar.src && avatar.src.includes('profile_images')) {
-            return upgradeSize(avatar.src);
-        }
-
-        // Fallback 1: any link to the /photo path containing a profile image
-        var photoLink = document.querySelector('a[href$="/photo"] img[src*="profile_images"]');
-        if (photoLink && photoLink.src) {
-            return upgradeSize(photoLink.src);
-        }
-
-        // Fallback 2: any img with profile_images in src within the header area
-        var headerImgs = document.querySelectorAll('img[src*="profile_images"]');
-        if (headerImgs.length > 0) {
-            return upgradeSize(headerImgs[0].src);
-        }
-
-        return '';
-    })()
-    """
-
-    /// JavaScript to extract the display name from the profile header.
-    static let displayNameScript = """
-    (function() {
-        // The profile header contains a data-testid="UserName" element
-        var userNameEl = document.querySelector('[data-testid="UserName"]');
-        if (userNameEl) {
-            // The first child span group contains the display name
-            var nameSpans = userNameEl.querySelectorAll('span');
-            for (var i = 0; i < nameSpans.length; i++) {
-                var text = nameSpans[i].textContent.trim();
-                if (text && !text.startsWith('@') && text.length > 0) {
-                    return text;
-                }
+            if let tweet = parseTweetEntry(content: content, dateFormatter: dateFormatter) {
+                tweets.append(tweet)
             }
         }
-        return '';
-    })()
-    """
 
-    func extractDisplayName(from webView: WKWebView) async -> String? {
-        guard let result = try? await webView.evaluateJavaScript(Self.displayNameScript) as? String,
-              !result.isEmpty else {
-            return nil
-        }
-        return result
+        return TweetsPage(tweets: tweets, bottomCursor: bottomCursor)
     }
 
-    func extractProfileImageURL(from webView: WKWebView) async -> String? {
-        guard let result = try? await webView.evaluateJavaScript(Self.profileImageScript) as? String,
-              !result.isEmpty else {
+    private static func parseTweetEntry(
+        content: [String: Any], dateFormatter: DateFormatter
+    ) -> ParsedTweet? {
+        guard let itemContent = content["itemContent"] as? [String: Any],
+              let tweetResults = itemContent["tweet_results"] as? [String: Any],
+              let tweetResult = tweetResults["result"] as? [String: Any] else {
             return nil
         }
-        return result
+
+        // Handle TweetWithVisibilityResults wrapper
+        let actualResult: [String: Any]
+        if (tweetResult["__typename"] as? String) == "TweetWithVisibilityResults",
+           let tweet = tweetResult["tweet"] as? [String: Any] {
+            actualResult = tweet
+        } else {
+            actualResult = tweetResult
+        }
+
+        guard let legacy = actualResult["legacy"] as? [String: Any] else { return nil }
+
+        // Skip retweets
+        if legacy["retweeted_status_result"] != nil { return nil }
+
+        let fullText = legacy["full_text"] as? String ?? ""
+        let idStr = legacy["id_str"] as? String ?? ""
+        let createdAt = legacy["created_at"] as? String ?? ""
+
+        guard !idStr.isEmpty else { return nil }
+
+        // Author info from core.user_results.result
+        let core = actualResult["core"] as? [String: Any]
+        let userResults = core?["user_results"] as? [String: Any]
+        let userResult = userResults?["result"] as? [String: Any]
+        let userCore = userResult?["core"] as? [String: Any]
+        let authorName = userCore?["name"] as? String ?? ""
+        let authorHandle = userCore?["screen_name"] as? String ?? ""
+
+        // First media image
+        let extendedEntities = legacy["extended_entities"] as? [String: Any]
+        let media = extendedEntities?["media"] as? [[String: Any]]
+        let firstImage = media?.first(where: { ($0["type"] as? String) == "photo" })
+        let imageURL = firstImage?["media_url_https"] as? String
+
+        let publishedDate = dateFormatter.date(from: createdAt)
+        let tweetURL = "https://x.com/\(authorHandle)/status/\(idStr)"
+
+        // Clean full_text: remove trailing t.co URLs
+        let cleanText = fullText.replacingOccurrences(
+            of: "\\s*https://t\\.co/\\S+$",
+            with: "",
+            options: .regularExpression
+        )
+
+        return ParsedTweet(
+            id: idStr,
+            text: cleanText,
+            author: authorName,
+            authorHandle: authorHandle,
+            url: tweetURL,
+            imageURL: imageURL,
+            publishedDate: publishedDate
+        )
+    }
+
+    // MARK: - URL Building
+
+    static func buildGraphQLURL(
+        queryID: String,
+        operationName: String,
+        variables: [String: Any],
+        features: [String: Bool],
+        fieldToggles: [String: Any]? = nil
+    ) -> URL? {
+        guard let variablesJSON = try? JSONSerialization.data(withJSONObject: variables),
+              let variablesString = String(data: variablesJSON, encoding: .utf8),
+              let featuresJSON = try? JSONSerialization.data(withJSONObject: features),
+              let featuresString = String(data: featuresJSON, encoding: .utf8) else {
+            return nil
+        }
+
+        var components = URLComponents(
+            string: "https://x.com/i/api/graphql/\(queryID)/\(operationName)"
+        )
+        var queryItems = [
+            URLQueryItem(name: "variables", value: variablesString),
+            URLQueryItem(name: "features", value: featuresString)
+        ]
+
+        if let fieldToggles,
+           let togglesJSON = try? JSONSerialization.data(withJSONObject: fieldToggles),
+           let togglesString = String(data: togglesJSON, encoding: .utf8) {
+            queryItems.append(URLQueryItem(name: "fieldToggles", value: togglesString))
+        }
+
+        components?.queryItems = queryItems
+        return components?.url
     }
 }

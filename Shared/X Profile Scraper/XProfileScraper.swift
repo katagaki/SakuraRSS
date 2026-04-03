@@ -19,44 +19,53 @@ struct XProfileScrapeResult: Sendable {
     let displayName: String?
 }
 
-/// Scrapes tweets from an X (Twitter) profile using a headless WKWebView.
+/// Fetches tweets from an X (Twitter) profile using GraphQL API calls.
 /// Retweets are excluded. Requires the user to be logged in via the default
 /// WKWebsiteDataStore so that session cookies are available.
-@MainActor
-final class XProfileScraper: NSObject, WKNavigationDelegate {
+final class XProfileScraper {
+
+    // swiftlint:disable line_length
+    private static let bearerToken = "AAAAAAAAAAAAAAAAAAAAANRILgAAAAAAnNwIzUejRCOuH5E6I8xnZz4puTs%3D1Zv7ttfk8LF81IUq16cHjhLTvJu4FA33AGWWjCpTnA"
+
+    private static let userByScreenNameQueryID = "IGgvgiOx4QZndDHuD3x9TQ"
+    private static let userTweetsQueryID = "78bXcjBXrR1q_uIdj22zhQ"
+
+    private static let userByScreenNameFeatures: [String: Bool] = [
+        "hidden_profile_subscriptions_enabled": true,
+        "profile_label_improvements_pcf_label_in_post_enabled": true,
+        "responsive_web_profile_redirect_enabled": false,
+        "rweb_tipjar_consumption_enabled": false,
+        "verified_phone_label_enabled": false,
+        "subscriptions_verification_info_is_identity_verified_enabled": true,
+        "subscriptions_verification_info_verified_since_enabled": true,
+        "highlights_tweets_tab_ui_enabled": true,
+        "responsive_web_twitter_article_notes_tab_enabled": true,
+        "subscriptions_feature_can_gift_premium": true,
+        "creator_subscriptions_tweet_preview_api_enabled": true,
+        "responsive_web_graphql_skip_user_profile_image_extensions_enabled": false,
+        "responsive_web_graphql_timeline_navigation_enabled": true
+    ]
+
+    // swiftlint:enable line_length
 
     private static let targetTweetCount = 50
-    private static let maxScrollAttempts = 3
-    /// Maximum consecutive scrolls that yield zero new tweets before giving up.
-    private static let maxStaleScrolls = 3
-    /// Polling interval when waiting for content to appear.
-    private static let pollInterval: Duration = .milliseconds(500)
-    /// Maximum time to wait for the initial tweet elements to appear.
-    private static let renderTimeout: Duration = .seconds(8)
-    /// Maximum time to wait for new tweets after a scroll.
-    private static let scrollSettleTimeout: Duration = .seconds(4)
 
-    private var webView: WKWebView?
-
-    /// Serialises access so only one scrape runs at a time, avoiding multiple
-    /// concurrent WKWebViews on the main actor.
+    /// Serialises access so only one fetch runs at a time.
     private static var activeScrape: Task<XProfileScrapeResult, Never>?
 
     // MARK: - Public
 
-    /// Scrapes the most recent tweets (excluding retweets) from the given profile URL.
-    /// Scrolls the page repeatedly to load at least 50 tweets.
-    /// Also extracts the profile photo URL.
+    /// Fetches the most recent tweets (excluding retweets) from the given profile URL.
+    /// Also extracts the profile photo URL and display name.
     ///
-    /// Only one scrape runs at a time; concurrent calls are serialised.
+    /// Only one fetch runs at a time; concurrent calls are serialised.
     func scrapeProfile(profileURL: URL) async -> XProfileScrapeResult {
-        // Wait for any in-flight scrape to finish before starting ours.
         if let existing = Self.activeScrape {
             _ = await existing.value
         }
 
-        let task = Task { @MainActor in
-            await self.performScrape(profileURL: profileURL)
+        let task = Task {
+            await self.performFetch(profileURL: profileURL)
         }
         Self.activeScrape = task
         let result = await task.value
@@ -64,192 +73,314 @@ final class XProfileScraper: NSObject, WKNavigationDelegate {
         return result
     }
 
-    private func performScrape(profileURL: URL) async -> XProfileScrapeResult {
-        let webView = createWebView()
-        self.webView = webView
-        await installContentBlocker(on: webView)
-
-        let loaded = await loadPage(webView: webView, url: profileURL)
-        guard loaded else {
-            cleanup()
+    private func performFetch(profileURL: URL) async -> XProfileScrapeResult {
+        guard let handle = Self.extractHandle(from: profileURL) else {
+            #if DEBUG
+            print("[XProfileScraper] Failed to extract handle from URL: \(profileURL)")
+            #endif
             return XProfileScrapeResult(tweets: [], profileImageURL: nil, displayName: nil)
         }
 
-        // Poll for tweet elements instead of a fixed sleep.
-        let tweetsAppeared = await waitForSelector(
-            "article[data-testid=\"tweet\"]",
-            in: webView,
-            timeout: Self.renderTimeout
-        )
-        guard tweetsAppeared, !Task.isCancelled else {
-            cleanup()
+        #if DEBUG
+        print("[XProfileScraper] Fetching profile for handle: \(handle)")
+        #endif
+
+        guard let cookies = await Self.getXCookies() else {
+            #if DEBUG
+            print("[XProfileScraper] No X session cookies found")
+            #endif
             return XProfileScrapeResult(tweets: [], profileImageURL: nil, displayName: nil)
         }
 
-        // Wait for the profile avatar to load, then extract before scrolling.
-        _ = await waitForSelector(
-            "img[src*=\"profile_images\"]",
-            in: webView,
-            timeout: Self.renderTimeout
+        #if DEBUG
+        print("[XProfileScraper] Got cookies — csrf: \(cookies.csrfToken.prefix(20))…")
+        #endif
+
+        // Step 1: Look up user ID, display name, and avatar via UserByScreenName
+        guard let userInfo = await fetchUserInfo(
+            screenName: handle, cookies: cookies
+        ) else {
+            #if DEBUG
+            print("[XProfileScraper] Failed to fetch user info for \(handle)")
+            #endif
+            return XProfileScrapeResult(tweets: [], profileImageURL: nil, displayName: nil)
+        }
+
+        #if DEBUG
+        print("[XProfileScraper] User info — id: \(userInfo.id), "
+              + "name: \(userInfo.displayName ?? "nil"), "
+              + "avatar: \(userInfo.profileImageURL?.prefix(60) ?? "nil")")
+        #endif
+
+        // Step 2: Fetch tweets via UserTweets
+        let tweets = await fetchTweets(
+            userId: userInfo.id, cookies: cookies
         )
-        let profileImageURL = await extractProfileImageURL(from: webView)
-        let displayName = await extractDisplayName(from: webView)
 
-        let allTweets = await scrollAndCollectTweets(from: webView)
+        #if DEBUG
+        print("[XProfileScraper] Fetched \(tweets.count) tweets total")
+        #endif
 
-        cleanup()
-        return XProfileScrapeResult(tweets: allTweets, profileImageURL: profileImageURL, displayName: displayName)
+        return XProfileScrapeResult(
+            tweets: tweets,
+            profileImageURL: userInfo.profileImageURL,
+            displayName: userInfo.displayName
+        )
     }
 
-    /// Scrolls the page and collects tweets until we have enough or no new content appears.
-    private func scrollAndCollectTweets(from webView: WKWebView) async -> [ParsedTweet] {
-        var allTweets: [ParsedTweet] = []
-        var seenURLs = Set<String>()
-        var staleScrolls = 0
+    // MARK: - API Calls
 
-        for _ in 0..<Self.maxScrollAttempts {
+    private struct UserInfo {
+        let id: String
+        let displayName: String?
+        let profileImageURL: String?
+    }
+
+    private struct XCookies {
+        let csrfToken: String
+        let authToken: String
+    }
+
+    /// Ensures the WKWebsiteDataStore cookie store is hydrated.
+    /// Cookies live on disk but aren't visible via `allCookies()` until a
+    /// WKWebView has loaded a page from the relevant domain in this process.
+    @MainActor
+    private static var cookieStoreWarmed = false
+
+    @MainActor
+    private static func warmCookieStoreIfNeeded() async {
+        guard !cookieStoreWarmed else { return }
+        cookieStoreWarmed = true
+
+        let config = WKWebViewConfiguration()
+        config.websiteDataStore = .default()
+        let webView = WKWebView(frame: .zero, configuration: config)
+
+        guard let url = URL(string: "https://x.com/settings") else { return }
+        webView.load(URLRequest(url: url, timeoutInterval: 10))
+
+        // Wait briefly for the cookie store to sync from disk
+        try? await Task.sleep(for: .seconds(2))
+    }
+
+    @MainActor
+    private static func getXCookies() async -> XCookies? {
+        await warmCookieStoreIfNeeded()
+
+        let store = WKWebsiteDataStore.default()
+        let cookies = await store.httpCookieStore.allCookies()
+
+        var csrfToken: String?
+        var authToken: String?
+
+        for cookie in cookies {
+            let domain = cookie.domain.lowercased()
+            guard domain.contains("x.com") || domain.contains("twitter.com") else { continue }
+            if cookie.name == "ct0" { csrfToken = cookie.value }
+            if cookie.name == "auth_token" { authToken = cookie.value }
+        }
+
+        guard let csrf = csrfToken, let auth = authToken else { return nil }
+        return XCookies(csrfToken: csrf, authToken: auth)
+    }
+
+    private func buildRequest(
+        url: URL, cookies: XCookies
+    ) -> URLRequest {
+        var request = URLRequest(url: url, timeoutInterval: 15)
+        let bearer = Self.bearerToken.removingPercentEncoding ?? Self.bearerToken
+        request.setValue("Bearer \(bearer)", forHTTPHeaderField: "authorization")
+        request.setValue(cookies.csrfToken, forHTTPHeaderField: "x-csrf-token")
+        request.setValue("OAuth2Session", forHTTPHeaderField: "x-twitter-auth-type")
+        request.setValue("yes", forHTTPHeaderField: "x-twitter-active-user")
+        request.setValue("auth_token=\(cookies.authToken); ct0=\(cookies.csrfToken)",
+                         forHTTPHeaderField: "cookie")
+        return request
+    }
+
+    private func fetchUserInfo(
+        screenName: String, cookies: XCookies
+    ) async -> UserInfo? {
+        let variables: [String: Any] = [
+            "screen_name": screenName,
+            "withGrokTranslatedBio": true
+        ]
+        let fieldToggles: [String: Any] = [
+            "withPayments": false,
+            "withAuxiliaryUserLabels": true
+        ]
+
+        guard let url = Self.buildGraphQLURL(
+            queryID: Self.userByScreenNameQueryID,
+            operationName: "UserByScreenName",
+            variables: variables,
+            features: Self.userByScreenNameFeatures,
+            fieldToggles: fieldToggles
+        ) else {
+            #if DEBUG
+            print("[XProfileScraper] Failed to build UserByScreenName URL")
+            #endif
+            return nil
+        }
+
+        let request = buildRequest(url: url, cookies: cookies)
+
+        #if DEBUG
+        print("[XProfileScraper] UserByScreenName request URL: \(url)")
+        print("[XProfileScraper] Request headers: \(request.allHTTPHeaderFields ?? [:])")
+        #endif
+
+        let data: Data
+        let response: URLResponse
+        do {
+            (data, response) = try await URLSession.shared.data(for: request)
+        } catch {
+            #if DEBUG
+            print("[XProfileScraper] UserByScreenName network error: \(error)")
+            #endif
+            return nil
+        }
+
+        guard let httpResponse = response as? HTTPURLResponse else { return nil }
+
+        #if DEBUG
+        print("[XProfileScraper] UserByScreenName status: \(httpResponse.statusCode)")
+        if let body = String(data: data, encoding: .utf8) {
+            print("[XProfileScraper] UserByScreenName response: \(body.prefix(1000))")
+        }
+        #endif
+
+        guard httpResponse.statusCode == 200 else { return nil }
+
+        guard let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+              let dataObj = json["data"] as? [String: Any],
+              let user = dataObj["user"] as? [String: Any],
+              let result = user["result"] as? [String: Any] else {
+            #if DEBUG
+            print("[XProfileScraper] Failed to parse UserByScreenName JSON structure")
+            #endif
+            return nil
+        }
+
+        let restId = result["rest_id"] as? String ?? ""
+        guard !restId.isEmpty else { return nil }
+
+        // Display name and screen name are in result.core
+        let core = result["core"] as? [String: Any]
+        let displayName = core?["name"] as? String
+
+        // Profile image is in result.avatar
+        let avatar = result["avatar"] as? [String: Any]
+        var profileImageURL = avatar?["image_url"] as? String
+
+        // Upgrade to high-res version
+        if let url = profileImageURL {
+            profileImageURL = url
+                .replacingOccurrences(of: "_normal.", with: "_400x400.")
+                .replacingOccurrences(of: "_bigger.", with: "_400x400.")
+                .replacingOccurrences(of: "_mini.", with: "_400x400.")
+                .replacingOccurrences(of: "_200x200.", with: "_400x400.")
+        }
+
+        return UserInfo(
+            id: restId,
+            displayName: displayName,
+            profileImageURL: profileImageURL
+        )
+    }
+
+    private func fetchTweets(
+        userId: String, cookies: XCookies
+    ) async -> [ParsedTweet] {
+        var allTweets: [ParsedTweet] = []
+        var seenIDs = Set<String>()
+        var cursor: String?
+
+        // Fetch up to 2 pages to reach targetTweetCount
+        for page in 0..<2 {
             guard !Task.isCancelled else { break }
 
-            let batch = await extractCurrentTweets(from: webView)
+            var variables: [String: Any] = [
+                "userId": userId,
+                "count": 40,
+                "includePromotedContent": false,
+                "withQuickPromoteEligibilityTweetFields": true,
+                "withVoice": true
+            ]
+            if let cursor {
+                variables["cursor"] = cursor
+            }
+
+            let fieldToggles: [String: Any] = ["withArticlePlainText": false]
+
+            guard let url = Self.buildGraphQLURL(
+                queryID: Self.userTweetsQueryID,
+                operationName: "UserTweets",
+                variables: variables,
+                features: Self.userTweetsFeatures,
+                fieldToggles: fieldToggles
+            ) else {
+                #if DEBUG
+                print("[XProfileScraper] Failed to build UserTweets URL (page \(page))")
+                #endif
+                break
+            }
+
+            let request = buildRequest(url: url, cookies: cookies)
+
+            #if DEBUG
+            print("[XProfileScraper] UserTweets request (page \(page)): \(url)")
+            #endif
+
+            let data: Data
+            let response: URLResponse
+            do {
+                (data, response) = try await URLSession.shared.data(for: request)
+            } catch {
+                #if DEBUG
+                print("[XProfileScraper] UserTweets network error (page \(page)): \(error)")
+                #endif
+                break
+            }
+
+            guard let httpResponse = response as? HTTPURLResponse else { break }
+
+            #if DEBUG
+            print("[XProfileScraper] UserTweets status (page \(page)): "
+                  + "\(httpResponse.statusCode)")
+            if let body = String(data: data, encoding: .utf8) {
+                print("[XProfileScraper] UserTweets response (page \(page)): "
+                      + "\(body.prefix(2000))")
+            }
+            #endif
+
+            guard httpResponse.statusCode == 200 else { break }
+
+            guard let parsed = Self.parseTweetsResponse(data: data) else {
+                #if DEBUG
+                print("[XProfileScraper] Failed to parse UserTweets response (page \(page))")
+                #endif
+                break
+            }
+
+            #if DEBUG
+            print("[XProfileScraper] Parsed \(parsed.tweets.count) tweets from page \(page), "
+                  + "cursor: \(parsed.bottomCursor?.prefix(30) ?? "nil")")
+            #endif
+
             var newCount = 0
-            for tweet in batch where !seenURLs.contains(tweet.url) {
-                seenURLs.insert(tweet.url)
+            for tweet in parsed.tweets where !seenIDs.contains(tweet.id) {
+                seenIDs.insert(tweet.id)
                 allTweets.append(tweet)
                 newCount += 1
             }
 
-            if allTweets.count >= Self.targetTweetCount { break }
-
-            if newCount == 0 {
-                staleScrolls += 1
-                if staleScrolls >= Self.maxStaleScrolls { break }
-            } else {
-                staleScrolls = 0
-            }
-
-            await scrollByPage(webView: webView)
-
-            await waitForNewTweets(
-                seenURLs: seenURLs,
-                in: webView,
-                timeout: Self.scrollSettleTimeout
-            )
+            if newCount == 0 || allTweets.count >= Self.targetTweetCount { break }
+            cursor = parsed.bottomCursor
+            if cursor == nil { break }
         }
 
         return allTweets
-    }
-
-    // MARK: - Page Loading
-
-    private func createWebView() -> WKWebView {
-        let config = WKWebViewConfiguration()
-        config.websiteDataStore = .default()
-        let webView = WKWebView(
-            frame: CGRect(x: 0, y: 0, width: 430, height: 932),
-            configuration: config
-        )
-        webView.customUserAgent = "Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) "
-            + "AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1"
-        return webView
-    }
-
-    /// Installs content rules that block heavy media (video, streaming) to speed
-    /// up page loading. Called after createWebView so it can be async.
-    private func installContentBlocker(on webView: WKWebView) async {
-        // Block video/streaming but not images (needed for tweet/profile image extraction).
-        let blockRules = """
-        [
-            {"trigger":{"url-filter":".*","resource-type":["media","popup"]},
-             "action":{"type":"block"}},
-            {"trigger":{"url-filter":".*\\\\.mp4"},
-             "action":{"type":"block"}},
-            {"trigger":{"url-filter":".*\\\\.m3u8"},
-             "action":{"type":"block"}}
-        ]
-        """
-        do {
-            let ruleList = try await WKContentRuleListStore.default().compileContentRuleList(
-                forIdentifier: "XProfileScraper.blockMedia",
-                encodedContentRuleList: blockRules
-            )
-            if let ruleList {
-                webView.configuration.userContentController.add(ruleList)
-            }
-        } catch {
-            // Content blocking is best-effort; scraping works without it.
-        }
-    }
-
-    private func loadPage(webView: WKWebView, url: URL) async -> Bool {
-        await withCheckedContinuation { continuation in
-            let delegate = XProfileNavigationHandler(continuation: continuation)
-            webView.navigationDelegate = delegate
-            // Prevent delegate from being deallocated before callback fires
-            objc_setAssociatedObject(webView, "navDelegate", delegate, .OBJC_ASSOCIATION_RETAIN)
-            webView.load(URLRequest(url: url, timeoutInterval: 15))
-        }
-    }
-
-    private func scrollByPage(webView: WKWebView) async {
-        _ = try? await webView.evaluateJavaScript(
-            "window.scrollBy({ top: window.innerHeight, behavior: 'smooth' })"
-        )
-    }
-
-    // MARK: - Smart Waiting
-
-    /// Polls until the given CSS selector matches at least one element.
-    private func waitForSelector(
-        _ selector: String,
-        in webView: WKWebView,
-        timeout: Duration
-    ) async -> Bool {
-        let script = "document.querySelector('\(selector)') !== null"
-        let deadline = ContinuousClock.now + timeout
-        while ContinuousClock.now < deadline {
-            if Task.isCancelled { return false }
-            if let found = try? await webView.evaluateJavaScript(script) as? Bool, found {
-                return true
-            }
-            try? await Task.sleep(for: Self.pollInterval)
-        }
-        return false
-    }
-
-    /// JavaScript that returns an array of tweet permalink URLs currently in the DOM.
-    private static let tweetURLsScript = """
-    (function() {
-        var urls = [];
-        var articles = document.querySelectorAll('article[data-testid="tweet"]');
-        for (var i = 0; i < articles.length; i++) {
-            var timeEl = articles[i].querySelector('time');
-            if (timeEl) {
-                var linkEl = timeEl.closest('a');
-                if (linkEl) urls.push(linkEl.href);
-            }
-        }
-        return JSON.stringify(urls);
-    })()
-    """
-
-    /// Polls until at least one tweet URL appears in the DOM that is not in `seenURLs`.
-    /// This works reliably with X's virtualized timeline where old DOM nodes are
-    /// recycled and the total element count does not grow monotonically.
-    private func waitForNewTweets(
-        seenURLs: Set<String>,
-        in webView: WKWebView,
-        timeout: Duration
-    ) async {
-        let deadline = ContinuousClock.now + timeout
-        while ContinuousClock.now < deadline {
-            if Task.isCancelled { return }
-            if let jsonString = try? await webView.evaluateJavaScript(Self.tweetURLsScript) as? String,
-               let data = jsonString.data(using: .utf8),
-               let urls = try? JSONSerialization.jsonObject(with: data) as? [String] {
-                if urls.contains(where: { !seenURLs.contains($0) }) { return }
-            }
-            try? await Task.sleep(for: Self.pollInterval)
-        }
     }
 
     // MARK: - Static Helpers
@@ -292,7 +423,6 @@ final class XProfileScraper: NSObject, WKNavigationDelegate {
     }
 
     /// The pseudo-feed URL stored in the database for an X profile.
-    /// Uses a custom scheme prefix so we can distinguish X feeds from real RSS feeds.
     nonisolated static func feedURL(for handle: String) -> String {
         "x-profile://\(handle.lowercased())"
     }
@@ -309,6 +439,7 @@ final class XProfileScraper: NSObject, WKNavigationDelegate {
     }
 
     /// Checks if the user has X cookies (i.e. is logged in).
+    @MainActor
     static func hasXSession() async -> Bool {
         let store = WKWebsiteDataStore.default()
         let cookies = await store.httpCookieStore.allCookies()
@@ -320,6 +451,7 @@ final class XProfileScraper: NSObject, WKNavigationDelegate {
     }
 
     /// Clears X session cookies.
+    @MainActor
     static func clearXSession() async {
         let store = WKWebsiteDataStore.default()
         let cookies = await store.httpCookieStore.allCookies()
@@ -327,12 +459,5 @@ final class XProfileScraper: NSObject, WKNavigationDelegate {
             || cookie.domain.lowercased().contains("twitter.com") {
             await store.httpCookieStore.deleteCookie(cookie)
         }
-    }
-
-    private func cleanup() {
-        webView?.stopLoading()
-        webView?.navigationDelegate = nil
-        webView?.configuration.userContentController.removeAllContentRuleLists()
-        webView = nil
     }
 }
