@@ -133,8 +133,7 @@ struct YouTubePlayerView: View {
             ScrollView(.vertical) {
                 VStack(spacing: 0) {
                     // Title
-                    Text(article.title)
-                        .font(.title2.bold())
+                    WordWrappingText(article.title, font: .preferredFont(forTextStyle: .title2, weight: .bold))
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(.horizontal)
                         .padding(.top, 12)
