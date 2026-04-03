@@ -17,10 +17,10 @@ struct FaviconImage: View {
     var showRoundRectInset: Bool { !skipInset && !isCircle && image.isSquare && image.hasTransparentPixels }
 
     var iconSize: CGFloat {
-        if isNearBlack {
-            return size * 0.7
-        } else if skipInset {
+        if skipInset {
             return size
+        } else if isNearBlack {
+            return size * 0.7
         } else if isNonSquare {
             let padding: CGFloat = isCircle ? 3 : 2
              return size - padding * 2
@@ -32,10 +32,10 @@ struct FaviconImage: View {
     }
 
     var bgColor: Color {
-        if isNearBlack {
-            return .white
-        } else if skipInset {
+        if skipInset {
             return .clear
+        } else if isNearBlack {
+            return .white
         } else if isNonSquare || needsWhiteBackground {
             return .white
         } else if showInset {
