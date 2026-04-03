@@ -4773,13 +4773,13 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "テキストソース"
+            "value" : "テキストの取得方法"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "텍스트 소스"
+            "value" : "텍스트 불러오기 방식"
           }
         },
         "vi" : {
@@ -4791,13 +4791,13 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "文本来源"
+            "value" : "获取文本的方法"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "文本來源"
+            "value" : "取得文字的方法"
           }
         }
       }
