@@ -5,7 +5,21 @@ extension FeedManager {
 
     // MARK: - X Profile Feeds
 
+    /// Minimum interval between X API calls per feed (30 minutes).
+    private static let xRefreshInterval: TimeInterval = 30 * 60
+
     func refreshXFeed(_ feed: Feed, reloadData: Bool = true) async throws {
+        // Skip if this feed was fetched less than 30 minutes ago to avoid rate limits
+        if let lastFetched = feed.lastFetched,
+           Date().timeIntervalSince(lastFetched) < Self.xRefreshInterval {
+            #if DEBUG
+            let remaining = Self.xRefreshInterval - Date().timeIntervalSince(lastFetched)
+            print("[XProfile] Skipping refresh for @\(feed.title) — "
+                  + "\(Int(remaining))s until next allowed fetch")
+            #endif
+            return
+        }
+
         guard let handle = XProfileScraper.handleFromFeedURL(feed.url),
               let profileURL = XProfileScraper.profileURL(for: handle) else { return }
 
