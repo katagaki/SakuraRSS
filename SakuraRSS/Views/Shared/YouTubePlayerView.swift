@@ -172,7 +172,7 @@ struct YouTubePlayerView: View {
                             togglePlayPause()
                         } label: {
                             Image(systemName: isPlaying ? "pause.circle.fill" : "play.circle.fill")
-                                .font(.system(size: 48))
+                                .font(.system(size: 56))
                         }
 
                         Button {

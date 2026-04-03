@@ -112,87 +112,88 @@ struct ArticlesView: View {
         .navigationTitle(title)
         .toolbarTitleDisplayMode(titleDisplayMode)
         .toolbar {
-                if anySummaryHidden {
-                    ToolbarItemGroup(placement: .topBarTrailing) {
-                        Button {
-                            onRestoreSummaries?()
-                        } label: {
-                            Image(systemName: "apple.intelligence")
-                        }
-                    }
-                }
-                if markAllReadPosition == .top, let onMarkAllRead {
-                    ToolbarItemGroup(placement: .topBarLeading) {
-                        Button {
-                            isShowingMarkAllReadConfirmation = true
-                        } label: {
-                            Image(systemName: "envelope.open")
-                                .font(.system(size: 14.0))
-                        }
-                        .popover(isPresented: $isShowingMarkAllReadConfirmation) {
-                            VStack(spacing: 12) {
-                                Text("Articles.MarkAllRead.Confirm")
-                                    .font(.body)
-                                Button {
-                                    onMarkAllRead()
-                                    isShowingMarkAllReadConfirmation = false
-                                } label: {
-                                    Text("Articles.MarkAllRead")
-                                        .frame(maxWidth: .infinity)
-                                        .padding(.vertical, 6)
-                                }
-                                .buttonStyle(.bordered)
-                            }
-                            .padding(20)
-                            .presentationCompactAdaptation(.popover)
-                        }
-                    }
-                }
+            if anySummaryHidden {
                 ToolbarItemGroup(placement: .topBarTrailing) {
-                    Menu {
-                        Picker(String(localized: "Articles.DisplayStyle"), selection: $displayStyle) {
-                            Label(String(localized: "Articles.Style.Inbox"), systemImage: "tray")
-                                .tag(FeedDisplayStyle.inbox)
-                            Label(String(localized: "Articles.Style.Compact"), systemImage: "list.dash")
-                                .tag(FeedDisplayStyle.compact)
-                            if hasImages {
-                                Label(String(localized: "Articles.Style.Magazine"), systemImage: "rectangle.grid.2x2")
-                                    .tag(FeedDisplayStyle.magazine)
-                            }
-                            Label(String(localized: "Articles.Style.Feed"), systemImage: "newspaper")
-                                .tag(FeedDisplayStyle.feed)
-                            if hasImages {
-                                Label(String(localized: "Articles.Style.Photos"), systemImage: "photo.stack")
-                                    .tag(FeedDisplayStyle.photos)
-                            }
-                            if hasImages {
-                                Label(String(localized: "Articles.Style.Cards"), systemImage: "square.stack.3d.up")
-                                    .tag(FeedDisplayStyle.cards)
-                            }
-                            if isVideoFeed {
-                                Label(String(localized: "Articles.Style.Video"), systemImage: "play.rectangle")
-                                    .tag(FeedDisplayStyle.video)
-                            }
-                            if isPodcastFeed || hasAudioArticles {
-                                Label(String(localized: "Articles.Style.Podcast"), systemImage: "headphones")
-                                    .tag(FeedDisplayStyle.podcast)
-                            }
-                            if feedKey != "all" {
-                                Label(String(localized: "Articles.Style.Timeline"), systemImage: "clock")
-                                    .tag(FeedDisplayStyle.timeline)
-                            }
-                        }
-                        if hideReadSupported {
-                            Section {
-                                Toggle(String(localized: "Articles.HideRead"), isOn: $hideRead)
-                            }
-                        }
+                    Button {
+                        onRestoreSummaries?()
                     } label: {
-                        Image(systemName: "line.3.horizontal.decrease")
+                        Image(systemName: "apple.intelligence")
+                    }
+                }
+            }
+            if markAllReadPosition == .top, let onMarkAllRead {
+                ToolbarItemGroup(placement: .topBarLeading) {
+                    Button {
+                        isShowingMarkAllReadConfirmation = true
+                    } label: {
+                        Image(systemName: "envelope.open")
+                            .font(.system(size: 14.0))
+                    }
+                    .popover(isPresented: $isShowingMarkAllReadConfirmation) {
+                        VStack(spacing: 12) {
+                            Text("Articles.MarkAllRead.Confirm")
+                                .font(.body)
+                            Button {
+                                onMarkAllRead()
+                                isShowingMarkAllReadConfirmation = false
+                            } label: {
+                                Text("Articles.MarkAllRead")
+                                    .frame(maxWidth: .infinity)
+                                    .padding(.vertical, 6)
+                            }
+                            .buttonStyle(.bordered)
+                        }
+                        .padding(20)
+                        .presentationCompactAdaptation(.popover)
+                    }
+                }
+            }
+            ToolbarItemGroup(placement: .topBarTrailing) {
+                Menu {
+                    Picker(String(localized: "Articles.DisplayStyle"), selection: $displayStyle) {
+                        Label(String(localized: "Articles.Style.Inbox"), systemImage: "tray")
+                            .tag(FeedDisplayStyle.inbox)
+                        Label(String(localized: "Articles.Style.Compact"), systemImage: "list.dash")
+                            .tag(FeedDisplayStyle.compact)
+                        if hasImages {
+                            Label(String(localized: "Articles.Style.Magazine"), systemImage: "rectangle.grid.2x2")
+                                .tag(FeedDisplayStyle.magazine)
+                        }
+                        Label(String(localized: "Articles.Style.Feed"), systemImage: "newspaper")
+                            .tag(FeedDisplayStyle.feed)
+                        if hasImages {
+                            Label(String(localized: "Articles.Style.Photos"), systemImage: "photo.stack")
+                                .tag(FeedDisplayStyle.photos)
+                        }
+                        if hasImages {
+                            Label(String(localized: "Articles.Style.Cards"), systemImage: "square.stack.3d.up")
+                                .tag(FeedDisplayStyle.cards)
+                        }
+                        if isVideoFeed {
+                            Label(String(localized: "Articles.Style.Video"), systemImage: "play.rectangle")
+                                .tag(FeedDisplayStyle.video)
+                        }
+                        if isPodcastFeed || hasAudioArticles {
+                            Label(String(localized: "Articles.Style.Podcast"), systemImage: "headphones")
+                                .tag(FeedDisplayStyle.podcast)
+                        }
+                        if feedKey != "all" {
+                            Label(String(localized: "Articles.Style.Timeline"), systemImage: "clock")
+                                .tag(FeedDisplayStyle.timeline)
+                        }
                     }
                     .menuActionDismissBehavior(.disabled)
-                    .popoverTip(viewStyleSwitcherTip)
+                    if hideReadSupported {
+                        Section {
+                            Toggle(String(localized: "Articles.HideRead"), isOn: $hideRead)
+                        }
+                    }
+                } label: {
+                    Image(systemName: "line.3.horizontal.decrease")
                 }
+                .menuActionDismissBehavior(.disabled)
+                .popoverTip(viewStyleSwitcherTip)
+            }
         }
         .animation(.smooth.speed(2.0), value: displayStyle)
         .animation(.smooth.speed(2.0), value: hideRead)

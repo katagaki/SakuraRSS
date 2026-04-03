@@ -12,8 +12,8 @@ struct WordWrappingText: UIViewRepresentable {
         self.font = font
     }
 
-    func makeUIView(context: Context) -> UILabel {
-        let label = UILabel()
+    func makeUIView(context: Context) -> WrappingLabel {
+        let label = WrappingLabel()
         label.numberOfLines = 0
         label.lineBreakMode = .byWordWrapping
         label.lineBreakStrategy = []
@@ -22,10 +22,22 @@ struct WordWrappingText: UIViewRepresentable {
         return label
     }
 
-    func updateUIView(_ label: UILabel, context: Context) {
+    func updateUIView(_ label: WrappingLabel, context: Context) {
         label.text = text
         label.font = font
         label.textColor = .label
+    }
+}
+
+/// A UILabel subclass that sets preferredMaxLayoutWidth on layout,
+/// ensuring multiline text wraps correctly inside SwiftUI.
+class WrappingLabel: UILabel {
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        if preferredMaxLayoutWidth != bounds.width {
+            preferredMaxLayoutWidth = bounds.width
+            invalidateIntrinsicContentSize()
+        }
     }
 }
 

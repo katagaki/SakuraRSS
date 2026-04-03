@@ -86,7 +86,9 @@ nonisolated final class RSSParser: NSObject, XMLParserDelegate, @unchecked Senda
             if let url = attributeDict["url"] {
                 currentImageURL = url
             }
-        case "itunes:type", "itunes:author", "itunes:owner" where !isInsideItem:
+        case "itunes:type" where !isInsideItem,
+             "itunes:author" where !isInsideItem,
+             "itunes:owner" where !isInsideItem:
             hasITunesNamespace = true
         case "itunes:image" where isInsideItem:
             if let url = attributeDict["href"], currentImageURL.isEmpty {

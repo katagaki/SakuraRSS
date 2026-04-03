@@ -64,7 +64,7 @@ struct InboxArticleRow: View {
             } else if let favicon {
                 FaviconImage(favicon, size: 48, cornerRadius: 8)
             } else if let acronymIcon {
-                FaviconImage(acronymIcon, size: 48, cornerRadius: 8)
+                FaviconImage(acronymIcon, size: 48, cornerRadius: 8, skipInset: true)
             } else if let feedName {
                 InitialsAvatarView(feedName, size: 48, cornerRadius: 8)
             }

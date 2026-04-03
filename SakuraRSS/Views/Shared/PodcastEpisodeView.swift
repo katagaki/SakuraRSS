@@ -1,4 +1,6 @@
 import SwiftUI
+import FoundationModels
+@preconcurrency import Translation
 
 struct PodcastEpisodeView: View {
 
@@ -9,6 +11,45 @@ struct PodcastEpisodeView: View {
     @State private var favicon: UIImage?
     @State private var feedName: String?
     @State private var acronymIcon: UIImage?
+
+    // Translation state
+    @State var translatedText: String?
+    @State var translatedSummary: String?
+    @State var isTranslating = false
+    @State var translationConfig: TranslationSession.Configuration?
+    @State var showingTranslation = false
+
+    // Summarization state
+    @State var summarizedText: String?
+    @State var isSummarizing = false
+    @State var hasCachedSummary = false
+    @State var showingSummary = false
+    @State var summarizationError: String?
+
+    var isAppleIntelligenceAvailable: Bool {
+        SystemLanguageModel.default.availability == .available
+    }
+
+    var hasTranslationForCurrentMode: Bool {
+        if showingSummary {
+            return translatedSummary != nil
+        }
+        return translatedText != nil
+    }
+
+    var displayText: String? {
+        guard let summary = article.summary, !summary.isEmpty else { return nil }
+        if showingSummary, let summarizedText {
+            if showingTranslation, let translatedSummary {
+                return translatedSummary
+            }
+            return summarizedText
+        }
+        if showingTranslation, let translatedText {
+            return translatedText
+        }
+        return summary
+    }
 
     private var isThisEpisode: Bool {
         audioPlayer.currentArticleID == article.id
@@ -115,11 +156,28 @@ struct PodcastEpisodeView: View {
                     }
                 }
 
-                // Episode description
-                if let summary = article.summary, !summary.isEmpty {
-                    SelectableText(summary)
-                        .padding(.horizontal)
+                // Action buttons
+                if article.summary != nil {
+                    actionButtons
                 }
+
+                // Episode description
+                VStack(alignment: .leading, spacing: 8) {
+                    if showingSummary && summarizedText != nil {
+                        Text("AppleIntelligence.VerifyImportantInformation")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                    if let text = displayText {
+                        SelectableText(text)
+                            .id("\(showingSummary)-\(showingTranslation)")
+                            .transition(.blurReplace)
+                    }
+                }
+                .animation(.smooth.speed(2.0), value: showingSummary)
+                .animation(.smooth.speed(2.0), value: showingTranslation)
+                .animation(.smooth.speed(2.0), value: translatedText)
+                .padding(.horizontal)
             }
             .padding(.vertical)
         }
@@ -151,10 +209,31 @@ struct PodcastEpisodeView: View {
                 }
                 favicon = await FaviconCache.shared.favicon(for: feed.domain, siteURL: feed.siteURL)
             }
+            // Load cached summary/translation
+            if let cached = try? DatabaseManager.shared.cachedArticleSummary(for: article.id),
+               !cached.isEmpty {
+                hasCachedSummary = true
+            }
+            if let cached = try? DatabaseManager.shared.cachedArticleTranslation(for: article.id),
+               let text = cached.text, !text.isEmpty {
+                translatedText = text
+            }
+        }
+        .alert(String(localized: "Article.Summarize.Error"), isPresented: Binding(
+            get: { summarizationError != nil },
+            set: { if !$0 { summarizationError = nil } }
+        )) {
+        } message: {
+            if let summarizationError {
+                Text(summarizationError)
+            }
+        }
+        .translationTask(translationConfig) { session in
+            await handleTranslation(session: session)
         }
     }
 
-    private func startPlayback() {
+    func startPlayback() {
         guard let audioURLString = article.audioURL,
               let audioURL = URL(string: audioURLString) else { return }
         let feed = feedManager.feed(forArticle: article)
