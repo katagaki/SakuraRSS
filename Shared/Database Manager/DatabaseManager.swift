@@ -69,8 +69,18 @@ nonisolated final class DatabaseManager: @unchecked Sendable {
         do {
             database = try Connection(dbPath)
             try createTables()
+            fixupIfVersionChanged()
         } catch {
             fatalError("Database initialization failed: \(error)")
+        }
+    }
+
+    private func fixupIfVersionChanged() {
+        let currentVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String
+        let storedVersion = UserDefaults.standard.string(forKey: "App.DatabaseVersion")
+        if currentVersion != storedVersion {
+            fixup()
+            UserDefaults.standard.set(currentVersion, forKey: "App.DatabaseVersion")
         }
     }
 
