@@ -26,7 +26,7 @@ struct SingleFeedWidgetView: View {
                 if entry.layout == .thumbnails {
                     FeedTitleLabel(title: entry.feedTitle)
                         .padding(.horizontal, 16)
-                        .padding(.bottom, 2)
+                        .padding(.bottom, 8)
                 }
             }
         case .systemLarge:
@@ -42,7 +42,7 @@ struct SingleFeedWidgetView: View {
                 if entry.layout == .thumbnails {
                     FeedTitleLabel(title: entry.feedTitle)
                         .padding(.horizontal, 16)
-                        .padding(.bottom, 2)
+                        .padding(.bottom, 8)
                 }
             }
         default:

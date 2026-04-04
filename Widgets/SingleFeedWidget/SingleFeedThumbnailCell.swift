@@ -16,7 +16,7 @@ struct SingleFeedThumbnailCell: View {
                             .resizable()
                             .widgetAccentedRenderingMode(.fullColor)
                             .aspectRatio(contentMode: .fill)
-                            .frame(width: geo.size.width, height: geo.size.height)
+                            .frame(width: geo.size.width, height: geo.size.height, alignment: .top)
                             .clipped()
                     } else {
                         Rectangle()
