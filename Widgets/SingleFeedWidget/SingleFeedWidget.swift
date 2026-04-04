@@ -18,14 +18,12 @@ struct SingleFeedWidgetView: View {
                 SingleFeedMediumThumbnailsView(entry: entry)
             } else {
                 SingleFeedMediumTextView(entry: entry)
-                    .padding(16)
             }
         case .systemLarge:
             if entry.layout == .thumbnails {
                 SingleFeedLargeThumbnailsView(entry: entry)
             } else {
                 SingleFeedLargeTextView(entry: entry)
-                    .padding(16)
             }
         default:
             SingleFeedSmallView(entry: entry)

@@ -15,7 +15,7 @@ struct SingleFeedMediumThumbnailsView: View {
                         SingleFeedThumbnailCell(article: article, feedTitle: entry.feedTitle)
                     }
                 }
-                FeedTitleLabel(title: entry.feedTitle)
+                FeedTitleBar(title: entry.feedTitle, feedID: entry.feedID, currentPage: entry.currentPage, totalPages: entry.totalPages)
             }
             .padding(16)
         }
@@ -52,7 +52,7 @@ struct SingleFeedLargeThumbnailsView: View {
                         }
                     }
                 }
-                FeedTitleLabel(title: entry.feedTitle)
+                FeedTitleBar(title: entry.feedTitle, feedID: entry.feedID, currentPage: entry.currentPage, totalPages: entry.totalPages)
             }
             .padding(16)
         }
