@@ -98,8 +98,9 @@ final class FeedManager {
         let database = database
         try await Task.detached {
             guard let url = URL(string: feed.url) else { return }
+            let fetchURL = RedirectDomains.redirectedURL(url)
 
-            let (data, _) = try await URLSession.shared.data(from: url)
+            let (data, _) = try await URLSession.shared.data(from: fetchURL)
             let parser = RSSParser()
             guard let parsed = parser.parse(data: data) else { return }
 

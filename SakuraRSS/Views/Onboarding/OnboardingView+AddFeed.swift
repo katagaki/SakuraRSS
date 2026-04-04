@@ -186,9 +186,10 @@ extension OnboardingView {
     private func tryDirectFeedURL(_ input: String) async -> DiscoveredFeed? {
         let urlString = normalizeURL(input)
         guard let url = URL(string: urlString) else { return nil }
+        let fetchURL = RedirectDomains.redirectedURL(url)
 
         do {
-            let (data, response) = try await URLSession.shared.data(from: url)
+            let (data, response) = try await URLSession.shared.data(from: fetchURL)
             guard let httpResponse = response as? HTTPURLResponse,
                   httpResponse.statusCode == 200 else { return nil }
 
