@@ -9,11 +9,15 @@ struct SingleFeedMediumThumbnailsView: View {
             emptyView(iconSize: 22, textSize: 12)
         } else {
             let items = Array(entry.articles.prefix(2))
-            HStack(spacing: 8) {
-                ForEach(items) { article in
-                    SingleFeedThumbnailCell(article: article, feedTitle: entry.feedTitle)
+            VStack(spacing: 4) {
+                HStack(spacing: 8) {
+                    ForEach(items) { article in
+                        SingleFeedThumbnailCell(article: article, feedTitle: entry.feedTitle)
+                    }
                 }
+                FeedTitleLabel(title: entry.feedTitle)
             }
+            .padding(16)
         }
     }
 }
@@ -30,23 +34,27 @@ struct SingleFeedLargeThumbnailsView: View {
             let topRow = Array(items.prefix(2))
             let bottomRow = Array(items.dropFirst(2))
 
-            VStack(spacing: 10) {
-                HStack(spacing: 10) {
-                    ForEach(topRow) { article in
-                        SingleFeedThumbnailCell(article: article, feedTitle: entry.feedTitle)
-                    }
-                }
-                if !bottomRow.isEmpty {
+            VStack(spacing: 4) {
+                VStack(spacing: 10) {
                     HStack(spacing: 10) {
-                        ForEach(bottomRow) { article in
+                        ForEach(topRow) { article in
                             SingleFeedThumbnailCell(article: article, feedTitle: entry.feedTitle)
                         }
-                        if bottomRow.count < 2 {
-                            Color.clear
+                    }
+                    if !bottomRow.isEmpty {
+                        HStack(spacing: 10) {
+                            ForEach(bottomRow) { article in
+                                SingleFeedThumbnailCell(article: article, feedTitle: entry.feedTitle)
+                            }
+                            if bottomRow.count < 2 {
+                                Color.clear
+                            }
                         }
                     }
                 }
+                FeedTitleLabel(title: entry.feedTitle)
             }
+            .padding(16)
         }
     }
 }
