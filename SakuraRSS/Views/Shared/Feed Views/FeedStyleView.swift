@@ -137,9 +137,11 @@ struct FeedArticleRow: View {
 
                 Group {
                     if !preferTitle, article.hasMeaningfulSummary, let summary = article.summary {
-                        Text(ContentBlock.stripMarkdown(summary))
+                        Text(ContentBlock.stripMarkdown(summary)
+                            .trimmingCharacters(in: .whitespacesAndNewlines))
                     } else {
-                        Text(article.title)
+                        Text(article.title
+                            .trimmingCharacters(in: .whitespacesAndNewlines))
                     }
                 }
                 .font(.subheadline)
@@ -147,7 +149,7 @@ struct FeedArticleRow: View {
                 .lineLimit(3)
 
                 if let imageURL = article.imageURL, let url = URL(string: imageURL) {
-                    CachedAsyncImage(url: url) {
+                    CachedAsyncImage(url: url, alignment: .top) {
                         Color.secondary.opacity(0.1)
                             .frame(height: 180)
                     }

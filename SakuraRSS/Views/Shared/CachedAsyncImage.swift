@@ -3,21 +3,26 @@ import SwiftUI
 struct CachedAsyncImage<Placeholder: View>: View {
 
     let url: URL?
+    let alignment: Alignment
     let placeholder: () -> Placeholder
     @State private var image: UIImage?
     @State private var isLoading = true
 
-    init(url: URL?, @ViewBuilder placeholder: @escaping () -> Placeholder) {
+    init(url: URL?, alignment: Alignment = .center, @ViewBuilder placeholder: @escaping () -> Placeholder) {
         self.url = url
+        self.alignment = alignment
         self.placeholder = placeholder
     }
 
     var body: some View {
         Group {
             if let image {
-                Image(uiImage: image)
-                    .resizable()
-                    .aspectRatio(contentMode: .fill)
+                GeometryReader { geo in
+                    Image(uiImage: image)
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                        .frame(width: geo.size.width, alignment: alignment)
+                }
             } else {
                 placeholder()
             }

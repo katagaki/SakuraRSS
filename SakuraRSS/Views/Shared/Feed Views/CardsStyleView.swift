@@ -151,7 +151,7 @@ private struct CardView: View {
             ZStack(alignment: .bottomLeading) {
                 // Background image
                 if let imageURL = article.imageURL, let url = URL(string: imageURL) {
-                    CachedAsyncImage(url: url) {
+                    CachedAsyncImage(url: url, alignment: .top) {
                         Rectangle()
                             .fill(.secondary.opacity(0.2))
                     }
