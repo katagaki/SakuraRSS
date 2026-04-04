@@ -8,6 +8,7 @@ actor FaviconCache {
 
     private let cacheDirectory: URL
     private var memoryCache: [String: UIImage] = [:]
+    private var failedLookups: Set<String> = []
 
     private init() {
         let containerURL = FileManager.default.containerURL(
@@ -19,6 +20,10 @@ actor FaviconCache {
 
     func favicon(for domain: String, siteURL: String? = nil) async -> UIImage? {
         let cacheKey = Self.cacheKey(domain: domain, siteURL: siteURL)
+
+        if failedLookups.contains(cacheKey) {
+            return nil
+        }
 
         if let cached = memoryCache[cacheKey] {
             return cached
@@ -62,6 +67,7 @@ actor FaviconCache {
         for entry in entries {
             let cacheKey = Self.cacheKey(domain: entry.domain, siteURL: entry.siteURL)
             memoryCache[cacheKey] = nil
+            failedLookups.remove(cacheKey)
             let filePath = cacheDirectory.appendingPathComponent(sanitizedFileName(cacheKey))
             try? FileManager.default.removeItem(at: filePath)
         }
@@ -81,6 +87,7 @@ actor FaviconCache {
 
     func clearCache() {
         memoryCache.removeAll()
+        failedLookups.removeAll()
         try? FileManager.default.removeItem(at: cacheDirectory)
         try? FileManager.default.createDirectory(at: cacheDirectory, withIntermediateDirectories: true)
     }
@@ -135,7 +142,10 @@ actor FaviconCache {
             return await trimAndCache(image, cacheKey: cacheKey, filePath: filePath)
         }
 
-        guard let url = URL(string: "https://\(domain)") else { return nil }
+        guard let url = URL(string: "https://\(domain)") else {
+            failedLookups.insert(cacheKey)
+            return nil
+        }
 
         // Try PWA / apple-touch-icon first for higher quality
         if let image = await fetchPWAIcon(from: url) {
@@ -145,11 +155,18 @@ actor FaviconCache {
         // Fall back to FaviconFinder
         do {
             let faviconURLs = try await FaviconFinder(url: url).fetchFaviconURLs()
-            guard let bestFaviconURL = faviconURLs.first else { return nil }
+            guard let bestFaviconURL = faviconURLs.first else {
+                failedLookups.insert(cacheKey)
+                return nil
+            }
             let favicon = try await bestFaviconURL.download()
-            guard let faviconImage = favicon.image else { return nil }
+            guard let faviconImage = favicon.image else {
+                failedLookups.insert(cacheKey)
+                return nil
+            }
             return await trimAndCache(faviconImage.image, cacheKey: cacheKey, filePath: filePath)
         } catch {
+            failedLookups.insert(cacheKey)
             return nil
         }
     }
