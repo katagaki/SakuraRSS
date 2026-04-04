@@ -35,14 +35,14 @@ struct SingleFeedLargeThumbnailsView: View {
             let bottomRow = Array(items.dropFirst(2))
 
             VStack(spacing: 4) {
-                VStack(spacing: 10) {
-                    HStack(spacing: 10) {
+                VStack(spacing: 8) {
+                    HStack(spacing: 8) {
                         ForEach(topRow) { article in
                             SingleFeedThumbnailCell(article: article, feedTitle: entry.feedTitle)
                         }
                     }
                     if !bottomRow.isEmpty {
-                        HStack(spacing: 10) {
+                        HStack(spacing: 8) {
                             ForEach(bottomRow) { article in
                                 SingleFeedThumbnailCell(article: article, feedTitle: entry.feedTitle)
                             }
