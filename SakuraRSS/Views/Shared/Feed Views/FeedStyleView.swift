@@ -155,6 +155,7 @@ struct FeedArticleRow: View {
                 .font(.subheadline)
                 .foregroundStyle(.primary)
                 .lineLimit(3)
+                .truncationMode(.tail)
 
                 if let imageURL = article.imageURL, let url = URL(string: imageURL) {
                     CachedAsyncImage(url: url, alignment: .top, onImageLoaded: { image in
@@ -168,7 +169,7 @@ struct FeedArticleRow: View {
                     .clipShape(.rect(cornerRadius: 12))
                     .overlay {
                         RoundedRectangle(cornerRadius: 12)
-                            .stroke(.thickMaterial, lineWidth: 0.5)
+                            .stroke(.quaternary, lineWidth: 0.5)
                     }
                     .overlay {
                         if feed?.isVideoFeed == true || feed?.isPodcast == true {
