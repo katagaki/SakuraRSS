@@ -29,6 +29,7 @@ struct CachedAsyncImage<Placeholder: View>: View {
                         .resizable()
                         .aspectRatio(contentMode: .fill)
                         .frame(width: geo.size.width, height: geo.size.height, alignment: alignment)
+                        .clipped()
                 }
             } else {
                 placeholder()
