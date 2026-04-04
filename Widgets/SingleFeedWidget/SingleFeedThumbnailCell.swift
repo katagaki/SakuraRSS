@@ -28,7 +28,7 @@ struct SingleFeedThumbnailCell: View {
                             }
                     }
                 }
-                .clipShape(RoundedRectangle(cornerRadius: 10))
+                .clipShape(RoundedRectangle(cornerRadius: 12))
 
                 Text(article.title)
                     .font(.system(size: 12, weight: .semibold, design: .default).width(.condensed))
