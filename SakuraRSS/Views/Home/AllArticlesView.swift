@@ -46,6 +46,7 @@ struct AllArticlesView: View {
 
     @AppStorage("Home.SelectedSection") private var selectedSection: HomeSection = .feed
     @State private var showingOlderArticles = false
+    @State private var searchText = ""
     @AppStorage("Display.MarkAllReadPosition") private var markAllReadPosition: MarkAllReadPosition = .bottom
     @AppStorage("WhileYouSlept.DismissedDate") private var whileYouSleptDismissedDate: String = ""
     @AppStorage("TodaysSummary.DismissedDate") private var todaysSummaryDismissedDate: String = ""
@@ -63,6 +64,15 @@ struct AllArticlesView: View {
         || (todaysSummaryDismissedDate == todayDateKey && todaysSummaryAvailable)
     }
 
+    private var isIPad: Bool {
+        UIDevice.current.userInterfaceIdiom == .pad
+    }
+
+    private var searchResults: [Article] {
+        guard !searchText.isEmpty else { return [] }
+        return (try? DatabaseManager.shared.searchArticles(query: searchText)) ?? []
+    }
+
     private var displayedArticles: [Article] {
         if showingOlderArticles {
             return feedManager.todayArticles() + feedManager.olderArticles()
@@ -73,19 +83,24 @@ struct AllArticlesView: View {
 
     var body: some View {
         Group {
-            switch selectedSection {
-            case .feed:
-                feedTabContent
-            case .news:
-                HomeSectionView(section: .news)
-            case .social:
-                HomeSectionView(section: .social)
-            case .videos:
-                HomeSectionView(section: .video)
-            case .audio:
-                HomeSectionView(section: .audio)
+            if isIPad && !searchText.isEmpty {
+                iPadSearchResults
+            } else {
+                switch selectedSection {
+                case .feed:
+                    feedTabContent
+                case .news:
+                    HomeSectionView(section: .news)
+                case .social:
+                    HomeSectionView(section: .social)
+                case .videos:
+                    HomeSectionView(section: .video)
+                case .audio:
+                    HomeSectionView(section: .audio)
+                }
             }
         }
+        .modifier(iPadSearchableModifier(searchText: $searchText, isIPad: isIPad))
         .navigationTitle(selectedSection.localizedTitle)
         .toolbarTitleDisplayMode(.inlineLarge)
         .toolbarTitleMenu {
@@ -103,6 +118,22 @@ struct AllArticlesView: View {
             if !availableSections.contains(selectedSection) {
                 selectedSection = .feed
             }
+        }
+    }
+
+    @ViewBuilder
+    private var iPadSearchResults: some View {
+        if searchResults.isEmpty {
+            ContentUnavailableView {
+                Label(String(localized: "Search.NoResults.Title"),
+                      systemImage: "magnifyingglass")
+            } description: {
+                Text("Search.NoResults.Description")
+            }
+        } else {
+            InboxStyleView(articles: searchResults)
+                .scrollContentBackground(.hidden)
+                .sakuraBackground()
         }
     }
 
@@ -157,6 +188,19 @@ struct AllArticlesView: View {
                     feedManager.markAllRead()
                 }
             }
+        }
+    }
+}
+
+private struct iPadSearchableModifier: ViewModifier {
+    @Binding var searchText: String
+    let isIPad: Bool
+
+    func body(content: Content) -> some View {
+        if isIPad {
+            content.searchable(text: $searchText, prompt: Text("Search.Prompt"))
+        } else {
+            content
         }
     }
 }

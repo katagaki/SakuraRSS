@@ -2,10 +2,13 @@ import SwiftUI
 
 /// A navigation component that routes article taps to either the in-app detail view,
 /// a Safari view controller (for allowlisted domains), or the YouTube app.
+/// On iPad with a split view, articles that would normally push onto a NavigationStack
+/// are instead shown in the detail column via the `iPadArticleSelection` environment binding.
 struct ArticleLink<Label: View>: View {
 
     @Environment(FeedManager.self) var feedManager
     @Environment(\.openURL) var openURL
+    @Environment(\.iPadArticleSelection) private var iPadArticleSelection
     let article: Article
     var onShowYouTubePlayer: ((Article) -> Void)?
     @ViewBuilder let label: () -> Label
@@ -26,11 +29,24 @@ struct ArticleLink<Label: View>: View {
         feedManager.feed(forArticle: article)?.isXFeed == true
     }
 
+    /// Whether this article should navigate to the iPad detail column
+    /// instead of pushing onto the NavigationStack.
+    private var usesIPadDetailColumn: Bool {
+        iPadArticleSelection != nil
+    }
+
+    private func selectForIPadDetail() {
+        feedManager.markRead(article)
+        iPadArticleSelection?.wrappedValue = article
+    }
+
     var body: some View {
         Group {
             if article.isPodcastEpisode {
-                NavigationLink(value: article) {
-                    label()
+                if usesIPadDetailColumn {
+                    Button { selectForIPadDetail() } label: { label() }
+                } else {
+                    NavigationLink(value: article) { label() }
                 }
             } else if isXFeedArticle {
                 Button {
@@ -42,11 +58,15 @@ struct ArticleLink<Label: View>: View {
                     label()
                 }
             } else if article.isYouTubeURL && youTubeOpenMode == .inAppPlayer {
-                Button {
-                    feedManager.markRead(article)
-                    onShowYouTubePlayer?(article)
-                } label: {
-                    label()
+                if usesIPadDetailColumn {
+                    Button { selectForIPadDetail() } label: { label() }
+                } else {
+                    Button {
+                        feedManager.markRead(article)
+                        onShowYouTubePlayer?(article)
+                    } label: {
+                        label()
+                    }
                 }
             } else if article.isYouTubeURL && youTubeOpenMode == .youTubeApp {
                 Button {
@@ -86,8 +106,10 @@ struct ArticleLink<Label: View>: View {
                     label()
                 }
             } else {
-                NavigationLink(value: article) {
-                    label()
+                if usesIPadDetailColumn {
+                    Button { selectForIPadDetail() } label: { label() }
+                } else {
+                    NavigationLink(value: article) { label() }
                 }
             }
         }
