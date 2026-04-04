@@ -1,7 +1,7 @@
 import SwiftUI
 import WidgetKit
 
-struct SakuraRSSWidget: Widget {
+struct AllArticlesWidget: Widget {
     let kind = "SakuraRSSWidget"
 
     var body: some WidgetConfiguration {

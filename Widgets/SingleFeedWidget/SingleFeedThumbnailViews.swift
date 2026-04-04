@@ -8,14 +8,23 @@ struct SingleFeedMediumThumbnailsView: View {
         if entry.articles.isEmpty {
             emptyView(iconSize: 22, textSize: 12)
         } else {
-            let items = Array(entry.articles.prefix(2))
-            VStack(spacing: 4) {
+            let cols = entry.columns
+            let items = Array(entry.articles.prefix(cols))
+            VStack(spacing: 8) {
                 HStack(spacing: 8) {
                     ForEach(items) { article in
                         SingleFeedThumbnailCell(article: article, feedTitle: entry.feedTitle)
                     }
+                    ForEach(0..<(cols - items.count), id: \.self) { _ in
+                        Color.clear
+                    }
                 }
-                FeedTitleBar(title: entry.feedTitle, feedID: entry.feedID, currentPage: entry.currentPage, totalPages: entry.totalPages)
+                FeedTitleBar(
+                    title: entry.feedTitle,
+                    feedID: entry.feedID,
+                    currentPage: entry.currentPage,
+                    totalPages: entry.totalPages
+                )
             }
             .padding(16)
         }
@@ -30,29 +39,31 @@ struct SingleFeedLargeThumbnailsView: View {
         if entry.articles.isEmpty {
             emptyView(iconSize: 34, textSize: 15)
         } else {
-            let items = Array(entry.articles.prefix(4))
-            let topRow = Array(items.prefix(2))
-            let bottomRow = Array(items.dropFirst(2))
+            let cols = entry.columns
+            let items = Array(entry.articles.prefix(cols * cols))
+            let rows = stride(from: 0, to: items.count, by: cols).map {
+                Array(items[$0..<min($0 + cols, items.count)])
+            }
 
-            VStack(spacing: 4) {
+            VStack(spacing: 8) {
                 VStack(spacing: 8) {
-                    HStack(spacing: 8) {
-                        ForEach(topRow) { article in
-                            SingleFeedThumbnailCell(article: article, feedTitle: entry.feedTitle)
-                        }
-                    }
-                    if !bottomRow.isEmpty {
+                    ForEach(rows, id: \.first?.id) { row in
                         HStack(spacing: 8) {
-                            ForEach(bottomRow) { article in
+                            ForEach(row) { article in
                                 SingleFeedThumbnailCell(article: article, feedTitle: entry.feedTitle)
                             }
-                            if bottomRow.count < 2 {
+                            ForEach(0..<(cols - row.count), id: \.self) { _ in
                                 Color.clear
                             }
                         }
                     }
                 }
-                FeedTitleBar(title: entry.feedTitle, feedID: entry.feedID, currentPage: entry.currentPage, totalPages: entry.totalPages)
+                FeedTitleBar(
+                    title: entry.feedTitle,
+                    feedID: entry.feedID,
+                    currentPage: entry.currentPage,
+                    totalPages: entry.totalPages
+                )
             }
             .padding(16)
         }

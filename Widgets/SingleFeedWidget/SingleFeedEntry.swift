@@ -14,6 +14,7 @@ struct SingleFeedEntry: TimelineEntry {
     let feedTitle: String
     let articles: [SingleFeedArticle]
     let layout: SingleFeedWidgetLayout
+    let columns: Int
     let currentPage: Int
     let totalPages: Int
 }

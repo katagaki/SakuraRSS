@@ -2,6 +2,7 @@ import SwiftUI
 import BackgroundTasks
 import StoreKit
 import TipKit
+import WidgetKit
 
 @main
 struct SakuraRSSApp: App {
@@ -35,6 +36,7 @@ struct SakuraRSSApp: App {
                 ) { _ in
                     feedManager.loadFromDatabase()
                     feedManager.updateBadgeCount()
+                    WidgetCenter.shared.reloadAllTimelines()
                 }
                 .onOpenURL { url in
                     handleOpenURL(url)

@@ -4,14 +4,21 @@ import WidgetKit
 struct SingleFeedProvider: AppIntentTimelineProvider {
 
     func placeholder(in _: Context) -> SingleFeedEntry {
-        SingleFeedEntry(
+        let placeholderArticles = (0..<9).map { index in
+            SingleFeedArticle(
+                id: Int64(index),
+                title: String(localized: "Widget.Placeholder.Loading"),
+                imageData: nil,
+                publishedDate: Date()
+            )
+        }
+        return SingleFeedEntry(
             date: Date(),
             feedID: 0,
             feedTitle: String(localized: "Widget.Placeholder.Feed"),
-            articles: [
-                SingleFeedArticle(id: 0, title: String(localized: "Widget.Placeholder.Loading"), imageData: nil, publishedDate: Date())
-            ],
+            articles: placeholderArticles,
             layout: .thumbnails,
+            columns: 3,
             currentPage: 0,
             totalPages: 1
         )
@@ -29,6 +36,7 @@ struct SingleFeedProvider: AppIntentTimelineProvider {
     private func loadEntry(for configuration: SingleFeedIntent) async -> SingleFeedEntry {
         let database = DatabaseManager.shared
         let layout = configuration.layout ?? .thumbnails
+        let columns = (configuration.columns ?? .three).rawValue
 
         guard let feed = configuration.feed else {
             return SingleFeedEntry(
@@ -37,6 +45,7 @@ struct SingleFeedProvider: AppIntentTimelineProvider {
                 feedTitle: "",
                 articles: [],
                 layout: layout,
+                columns: columns,
                 currentPage: 0,
                 totalPages: 1
             )
@@ -48,7 +57,7 @@ struct SingleFeedProvider: AppIntentTimelineProvider {
 
         do {
             let feedTitle = (try database.feed(byID: feedID))?.title ?? feed.title
-            let perPage = layout == .text ? 9 : 4
+            let perPage = layout == .text ? 9 : columns * columns
             let maxPages = 3
             let totalLimit = perPage * maxPages
             let dbArticles = try database.articles(forFeedID: feedID, limit: totalLimit)
@@ -72,7 +81,7 @@ struct SingleFeedProvider: AppIntentTimelineProvider {
                         }
                     }
                     if let rawData {
-                        imageData = Self.downsampleImageData(rawData, maxDimension: 400)
+                        imageData = await Self.downsampleImageData(rawData, maxDimension: 200)
                     }
                 }
                 widgetArticles.append(SingleFeedArticle(
@@ -89,6 +98,7 @@ struct SingleFeedProvider: AppIntentTimelineProvider {
                 feedTitle: feedTitle,
                 articles: widgetArticles,
                 layout: layout,
+                columns: columns,
                 currentPage: currentPage,
                 totalPages: totalPages
             )
@@ -99,29 +109,26 @@ struct SingleFeedProvider: AppIntentTimelineProvider {
                 feedTitle: feed.title,
                 articles: [],
                 layout: layout,
+                columns: columns,
                 currentPage: 0,
                 totalPages: 1
             )
         }
     }
 
-    private static func downsampleImageData(_ data: Data, maxDimension: CGFloat) -> Data? {
+    private static func downsampleImageData(_ data: Data, maxDimension: CGFloat) async -> Data? {
         guard let image = UIImage(data: data) else { return nil }
         let size = image.size
-        guard size.width > maxDimension || size.height > maxDimension else { return data }
 
-        let scale: CGFloat
-        if size.width > size.height {
-            scale = maxDimension / size.width
-        } else {
-            scale = maxDimension / size.height
-        }
-        let newSize = CGSize(width: size.width * scale, height: size.height * scale)
+        let scale: CGFloat = size.width > size.height
+            ? maxDimension / size.width
+            : maxDimension / size.height
+        let targetSize = CGSize(
+            width: round(size.width * min(scale, 1.0)),
+            height: round(size.height * min(scale, 1.0))
+        )
 
-        let renderer = UIGraphicsImageRenderer(size: newSize)
-        let resized = renderer.jpegData(withCompressionQuality: 0.7) { _ in
-            image.draw(in: CGRect(origin: .zero, size: newSize))
-        }
-        return resized
+        guard let thumbnail = await image.byPreparingThumbnail(ofSize: targetSize) else { return nil }
+        return thumbnail.jpegData(compressionQuality: 0.7)
     }
 }

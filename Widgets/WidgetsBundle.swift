@@ -4,7 +4,7 @@ import SwiftUI
 @main
 struct SakuraRSSWidgetBundle: WidgetBundle {
     var body: some Widget {
-        SakuraRSSWidget()
+        AllArticlesWidget()
         SingleFeedWidget()
     }
 }

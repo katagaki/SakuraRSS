@@ -8,9 +8,9 @@ struct SingleFeedMediumTextView: View {
         if entry.articles.isEmpty {
             emptyView(iconSize: 22, textSize: 12)
         } else {
-            VStack(spacing: 4) {
+            VStack(spacing: 8) {
                 VStack(alignment: .leading, spacing: 4) {
-                    ForEach(entry.articles.prefix(4)) { article in
+                    ForEach(entry.articles.prefix(3)) { article in
                         Link(destination: URL(string: "sakura://article/\(article.id)")!) {
                             VStack(alignment: .leading, spacing: 1) {
                                 Text(article.title)
@@ -31,8 +31,12 @@ struct SingleFeedMediumTextView: View {
                         }
                     }
                 }
-                Spacer(minLength: 0)
-                FeedTitleBar(title: entry.feedTitle, feedID: entry.feedID, currentPage: entry.currentPage, totalPages: entry.totalPages)
+                FeedTitleBar(
+                    title: entry.feedTitle,
+                    feedID: entry.feedID,
+                    currentPage: entry.currentPage,
+                    totalPages: entry.totalPages
+                )
             }
             .padding(16)
         }
@@ -47,9 +51,9 @@ struct SingleFeedLargeTextView: View {
         if entry.articles.isEmpty {
             emptyView(iconSize: 34, textSize: 15)
         } else {
-            VStack(spacing: 4) {
+            VStack(spacing: 8) {
                 VStack(alignment: .leading, spacing: 4) {
-                    ForEach(entry.articles.prefix(9)) { article in
+                    ForEach(entry.articles.prefix(8)) { article in
                         Link(destination: URL(string: "sakura://article/\(article.id)")!) {
                             VStack(alignment: .leading, spacing: 2) {
                                 Text(article.title)
@@ -69,8 +73,12 @@ struct SingleFeedLargeTextView: View {
                         }
                     }
                 }
-                Spacer(minLength: 0)
-                FeedTitleBar(title: entry.feedTitle, feedID: entry.feedID, currentPage: entry.currentPage, totalPages: entry.totalPages)
+                FeedTitleBar(
+                    title: entry.feedTitle,
+                    feedID: entry.feedID,
+                    currentPage: entry.currentPage,
+                    totalPages: entry.totalPages
+                )
             }
             .padding(16)
         }

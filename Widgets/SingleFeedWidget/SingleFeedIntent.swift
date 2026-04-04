@@ -10,4 +10,7 @@ struct SingleFeedIntent: WidgetConfigurationIntent {
 
     @Parameter(title: "SingleFeedWidget.Parameter.Layout", default: .thumbnails)
     var layout: SingleFeedWidgetLayout?
+
+    @Parameter(title: "SingleFeedWidget.Parameter.Columns", default: .three)
+    var columns: SingleFeedWidgetColumns?
 }
