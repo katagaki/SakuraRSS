@@ -200,6 +200,23 @@ struct ArticlesView: View {
         .onChange(of: displayStyle) { _, newValue in
             UserDefaults.standard.set(newValue.rawValue, forKey: "Display.Style.\(feedKey)")
         }
+        .onChange(of: feedKey) { _, newFeedKey in
+            let raw = UserDefaults.standard.string(forKey: "Display.Style.\(newFeedKey)")
+            let defaultRaw = UserDefaults.standard.string(forKey: "Display.DefaultStyle") ?? FeedDisplayStyle.inbox.rawValue
+            let fallback: FeedDisplayStyle
+            if isPodcastFeed {
+                fallback = .podcast
+            } else if isVideoFeed {
+                fallback = .video
+            } else if isTimelineViewDomain {
+                fallback = .timeline
+            } else if isFeedViewDomain {
+                fallback = .feed
+            } else {
+                fallback = FeedDisplayStyle(rawValue: defaultRaw) ?? .inbox
+            }
+            displayStyle = raw.flatMap(FeedDisplayStyle.init(rawValue:)) ?? fallback
+        }
         .overlay {
             if articles.isEmpty {
                 ContentUnavailableView {

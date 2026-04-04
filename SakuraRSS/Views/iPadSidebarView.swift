@@ -8,7 +8,7 @@ enum SidebarDestination: Hashable {
     case more
 }
 
-struct iPadSidebarView: View {
+struct IPadSidebarView: View {
 
     @Environment(FeedManager.self) var feedManager
     @Environment(\.openURL) private var openURL
@@ -22,13 +22,21 @@ struct iPadSidebarView: View {
     @State private var selectedArticle: Article?
     @State private var columnVisibility: NavigationSplitViewVisibility = .all
     @State private var showingAddFeed = false
+    @State private var showingMore = false
+    @State private var lastAddedFeedURL: String?
     @State private var showingOnboarding = false
     @State private var showingSafeModeAlert = false
     @State private var showYouTubeSafari = false
     @State private var pendingYouTubeSafariURL: URL?
+    @State private var searchText = ""
     @AppStorage("Onboarding.Completed") private var onboardingCompleted: Bool = false
 
     @Namespace private var cardZoom
+
+    private var searchResults: [Article] {
+        guard !searchText.isEmpty else { return [] }
+        return (try? DatabaseManager.shared.searchArticles(query: searchText)) ?? []
+    }
 
     // Feed management state (mirrored from FeedsListPage)
     @State private var feedToEdit: Feed?
@@ -38,25 +46,27 @@ struct iPadSidebarView: View {
     var body: some View {
         NavigationSplitView(columnVisibility: $columnVisibility) {
             sidebarContent
-                .navigationTitle(String(localized: "Tabs.Home"))
-                .toolbarTitleDisplayMode(.inlineLarge)
         } content: {
             Group {
-                switch selectedDestination {
-                case .allArticles:
-                    iPadAllArticlesContent()
-                case .section(let section):
-                    iPadSectionContent(section: section)
-                case .bookmarks:
-                    iPadBookmarksContent()
-                case .feed(let feed):
-                    iPadFeedContent(feed: feed)
-                case .more:
-                    MoreView()
-                case .none:
-                    ContentUnavailableView {
-                        Label(String(localized: "Sidebar.SelectSection"),
-                              systemImage: "sidebar.left")
+                if !searchText.isEmpty {
+                    iPadArticleListWrapper {
+                        IPadSearchResultsView(searchResults: searchResults)
+                    }
+                } else {
+                    switch selectedDestination {
+                    case .allArticles:
+                        iPadAllArticlesContent()
+                    case .section(let section):
+                        iPadSectionContent(section: section)
+                    case .bookmarks:
+                        iPadBookmarksContent()
+                    case .feed(let feed):
+                        iPadFeedContent(feed: feed)
+                    case .more, .none:
+                        ContentUnavailableView {
+                            Label(String(localized: "Sidebar.SelectSection"),
+                                  systemImage: "sidebar.left")
+                        }
                     }
                 }
             }
@@ -65,11 +75,20 @@ struct iPadSidebarView: View {
             detailContent
         }
         .sheet(isPresented: $showingAddFeed) {
-            AddFeedView(initialURL: pendingFeedURL ?? "")
-                .environment(feedManager)
-                .onDisappear {
-                    pendingFeedURL = nil
+            if let url = lastAddedFeedURL,
+               let feed = feedManager.feeds.first(where: { $0.url == url }) {
+                lastAddedFeedURL = nil
+                selectedDestination = .feed(feed)
+                Task {
+                    try? await feedManager.refreshFeed(feed)
                 }
+            }
+            pendingFeedURL = nil
+        } content: {
+            AddFeedView(initialURL: pendingFeedURL ?? "", onFeedAdded: { url in
+                lastAddedFeedURL = url
+            })
+                .environment(feedManager)
         }
         .sheet(isPresented: $showingOnboarding) {
             OnboardingView {
@@ -155,9 +174,22 @@ struct iPadSidebarView: View {
                 Label(String(localized: "Shared.AllArticles"), systemImage: "square.stack")
                     .tag(SidebarDestination.allArticles)
                 ForEach(availableSections, id: \.self) { section in
-                    Label(section.localizedTitle, systemImage: sectionIcon(section))
-                        .badge(feedManager.unreadCount(for: section))
-                        .tag(SidebarDestination.section(section))
+                    HStack {
+                        Label(section.localizedTitle, systemImage: sectionIcon(section))
+                        Spacer()
+                        let count = feedManager.unreadCount(for: section)
+                        if count > 0 {
+                            Text("\(count)")
+                                .font(.caption)
+                                .fontWeight(.semibold)
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 2)
+                                .background(.tertiary)
+                                .foregroundStyle(.secondary)
+                                .clipShape(Capsule())
+                        }
+                    }
+                    .tag(SidebarDestination.section(section))
                 }
             }
 
@@ -183,6 +215,7 @@ struct iPadSidebarView: View {
             }
         }
         .listStyle(.sidebar)
+        .searchable(text: $searchText, placement: .sidebar, prompt: Text("Search.Prompt"))
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Button {
@@ -192,8 +225,16 @@ struct iPadSidebarView: View {
                 }
             }
         }
-        .onChange(of: selectedDestination) {
-            selectedArticle = nil
+        .onChange(of: selectedDestination) { oldValue, newValue in
+            if newValue == .more {
+                showingMore = true
+                selectedDestination = oldValue
+            } else {
+                selectedArticle = nil
+            }
+        }
+        .sheet(isPresented: $showingMore) {
+            MoreView()
         }
     }
 
@@ -211,6 +252,7 @@ struct iPadSidebarView: View {
                     ArticleDetailView(article: article)
                 }
             }
+            .id(article.id)
         } else {
             ContentUnavailableView {
                 Label(String(localized: "Sidebar.SelectArticle"),
@@ -235,14 +277,14 @@ struct iPadSidebarView: View {
         iPadArticleListWrapper {
             HomeSectionView(section: section)
                 .navigationTitle(section.localizedTitle)
-                .toolbarTitleDisplayMode(.inlineLarge)
+                .toolbarTitleDisplayMode(.inline)
         }
     }
 
     @ViewBuilder
     private func iPadBookmarksContent() -> some View {
         iPadArticleListWrapper {
-            iPadBookmarksListView()
+            IPadBookmarksListView()
         }
     }
 
@@ -318,8 +360,13 @@ struct iPadSidebarView: View {
     private var availableSections: [FeedSection] {
         FeedSection.allCases.filter { feedManager.hasFeeds(for: $0) }
     }
+}
 
-    private func sectionIcon(_ section: FeedSection) -> String {
+// MARK: - IPadSidebarView Helpers
+
+extension IPadSidebarView {
+
+    func sectionIcon(_ section: FeedSection) -> String {
         switch section {
         case .news: "newspaper"
         case .social: "person.2"
@@ -329,7 +376,7 @@ struct iPadSidebarView: View {
     }
 
     @ViewBuilder
-    private func feedContextMenu(for feed: Feed) -> some View {
+    func feedContextMenu(for feed: Feed) -> some View {
         Button {
             feedManager.toggleMuted(feed)
         } label: {
@@ -364,7 +411,7 @@ struct iPadSidebarView: View {
 
 // MARK: - iPad Bookmarks List (without its own NavigationStack)
 
-private struct iPadBookmarksListView: View {
+private struct IPadBookmarksListView: View {
 
     @Environment(FeedManager.self) var feedManager
     @State private var bookmarkedArticles: [Article] = []
@@ -415,7 +462,7 @@ private struct iPadBookmarksListView: View {
             }
         }
         .navigationTitle(String(localized: "Tabs.Bookmarks"))
-        .toolbarTitleDisplayMode(.inlineLarge)
+        .toolbarTitleDisplayMode(.inline)
         .scrollContentBackground(.hidden)
         .sakuraBackground()
         .toolbar {
@@ -485,15 +532,40 @@ private struct iPadBookmarksListView: View {
     }
 }
 
+// MARK: - iPad Search Results
+
+private struct IPadSearchResultsView: View {
+    let searchResults: [Article]
+
+    var body: some View {
+        Group {
+            if searchResults.isEmpty {
+                ContentUnavailableView {
+                    Label(String(localized: "Search.NoResults.Title"),
+                          systemImage: "magnifyingglass")
+                } description: {
+                    Text("Search.NoResults.Description")
+                }
+            } else {
+                InboxStyleView(articles: searchResults)
+                    .scrollContentBackground(.hidden)
+                    .sakuraBackground()
+            }
+        }
+        .navigationTitle(String(localized: "Tabs.Search"))
+        .toolbarTitleDisplayMode(.inline)
+    }
+}
+
 // MARK: - Environment Key for iPad Article Selection
 
-struct iPadArticleSelectionKey: EnvironmentKey {
+struct IPadArticleSelectionKey: EnvironmentKey {
     static let defaultValue: Binding<Article?>? = nil
 }
 
 extension EnvironmentValues {
     var iPadArticleSelection: Binding<Article?>? {
-        get { self[iPadArticleSelectionKey.self] }
-        set { self[iPadArticleSelectionKey.self] = newValue }
+        get { self[IPadArticleSelectionKey.self] }
+        set { self[IPadArticleSelectionKey.self] = newValue }
     }
 }

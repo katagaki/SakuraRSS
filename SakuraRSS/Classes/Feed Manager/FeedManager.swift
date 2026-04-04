@@ -183,7 +183,7 @@ final class FeedManager {
     // MARK: - Badge
 
     func updateBadgeCount() {
-        let mode = UserDefaults.standard.string(forKey: "Display.UnreadBadgeMode") ?? "homeScreenAndHomeTab"
+        let mode = UserDefaults.standard.string(forKey: "Display.UnreadBadgeMode") ?? "none"
         let center = UNUserNotificationCenter.current()
         guard mode == "homeScreenAndHomeTab" || mode == "homeScreenOnly" else {
             Task { try? await center.setBadgeCount(0) }

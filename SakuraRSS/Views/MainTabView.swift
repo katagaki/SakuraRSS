@@ -15,7 +15,7 @@ struct MainTabView: View {
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @AppStorage("App.SelectedTab") private var selectedTab: AppTab = .home
     @AppStorage("Onboarding.Completed") private var onboardingCompleted: Bool = false
-    @AppStorage("Display.UnreadBadgeMode") private var unreadBadgeMode: UnreadBadgeMode = .homeTabOnly
+    @AppStorage("Display.UnreadBadgeMode") private var unreadBadgeMode: UnreadBadgeMode = .none
     @Binding var pendingFeedURL: String?
     @Binding var pendingArticleID: Int64?
     @Binding var isInSafeMode: Bool
@@ -26,7 +26,7 @@ struct MainTabView: View {
 
     var body: some View {
         if UIDevice.current.userInterfaceIdiom == .pad {
-            iPadSidebarView(
+            IPadSidebarView(
                 pendingFeedURL: $pendingFeedURL,
                 pendingArticleID: $pendingArticleID,
                 isInSafeMode: $isInSafeMode,

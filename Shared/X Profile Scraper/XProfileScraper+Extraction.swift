@@ -4,7 +4,6 @@ import Foundation
 
 extension XProfileScraper {
 
-    // swiftlint:disable line_length
     static let userTweetsFeatures: [String: Bool] = [
         "rweb_video_screen_enabled": false,
         "profile_label_improvements_pcf_label_in_post_enabled": true,
@@ -43,7 +42,6 @@ extension XProfileScraper {
         "responsive_web_grok_community_note_auto_translation_is_enabled": false,
         "responsive_web_enhance_cards_enabled": false
     ]
-    // swiftlint:enable line_length
 
     struct TweetsPage {
         let tweets: [ParsedTweet]

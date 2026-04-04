@@ -125,8 +125,9 @@ struct PhotosArticleCard: View {
                         .fill(.secondary.opacity(0.1))
                         .aspectRatio(1, contentMode: .fit)
                 }
+                .aspectRatio(4/3, contentMode: .fit)
                 .frame(maxWidth: .infinity)
-                .aspectRatio(contentMode: .fit)
+                .clipped()
                 .task {
                     photoImage = await CachedAsyncImage<EmptyView>.loadImage(from: url)
                 }
