@@ -10,7 +10,7 @@ struct FeedTitleBar: View {
     var body: some View {
         HStack {
             Text(title)
-                .font(.system(size: 11, weight: .medium))
+                .font(.system(size: 10, weight: .medium))
                 .foregroundStyle(.secondary)
                 .lineLimit(1)
 
@@ -20,7 +20,7 @@ struct FeedTitleBar: View {
                 HStack(spacing: 12) {
                     Button(intent: SingleFeedPageIntent(feedID: feedID, page: currentPage - 1)) {
                         Image(systemName: "chevron.left")
-                            .font(.system(size: 10, weight: .semibold))
+                            .font(.system(size: 10, weight: .medium))
                             .foregroundStyle(currentPage > 0 ? .primary : .quaternary)
                     }
                     .disabled(currentPage <= 0)
@@ -31,7 +31,7 @@ struct FeedTitleBar: View {
 
                     Button(intent: SingleFeedPageIntent(feedID: feedID, page: currentPage + 1)) {
                         Image(systemName: "chevron.right")
-                            .font(.system(size: 10, weight: .semibold))
+                            .font(.system(size: 10, weight: .medium))
                             .foregroundStyle(currentPage < totalPages - 1 ? .primary : .quaternary)
                     }
                     .disabled(currentPage >= totalPages - 1)
