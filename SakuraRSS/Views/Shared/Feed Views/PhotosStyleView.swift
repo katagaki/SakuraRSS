@@ -120,17 +120,20 @@ struct PhotosArticleCard: View {
 
             // Edge-to-edge photo
             if let imageURL = article.imageURL, let url = URL(string: imageURL) {
-                CachedAsyncImage(url: url) {
-                    Rectangle()
-                        .fill(.secondary.opacity(0.1))
-                        .aspectRatio(1, contentMode: .fit)
-                }
-                .frame(maxWidth: .infinity)
-                .aspectRatio(contentMode: .fit)
-                .task {
-                    photoImage = await CachedAsyncImage<EmptyView>.loadImage(from: url)
-                }
-                .padding(.bottom, 10)
+                Color.clear
+                    .aspectRatio(4.0 / 5.0, contentMode: .fit)
+                    .frame(maxWidth: .infinity)
+                    .overlay {
+                        CachedAsyncImage(url: url) {
+                            Rectangle()
+                                .fill(.secondary.opacity(0.1))
+                        }
+                    }
+                    .clipped()
+                    .task {
+                        photoImage = await CachedAsyncImage<EmptyView>.loadImage(from: url)
+                    }
+                    .padding(.bottom, 10)
             }
 
             // Action buttons below photo
