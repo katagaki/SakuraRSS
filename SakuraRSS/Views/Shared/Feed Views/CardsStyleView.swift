@@ -106,6 +106,7 @@ struct CardsStyleView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .navigationDestination(item: $youTubeArticle) { article in
             YouTubePlayerView(article: article)
+                .zoomTransition(sourceID: article.id, in: zoomNamespace)
         }
         .onAppear {
             if deckArticleIDs == nil {
@@ -294,6 +295,17 @@ extension View {
     /// falls back to the default push transition automatically.
     func zoomTransition(sourceID: Int64, in namespace: Namespace.ID) -> some View {
         self.navigationTransition(.zoom(sourceID: sourceID, in: namespace))
+    }
+
+    /// Applies the zoom navigation transition on the destination side,
+    /// accepting an optional namespace.
+    @ViewBuilder
+    func zoomTransition(sourceID: Int64, in namespace: Namespace.ID?) -> some View {
+        if let namespace {
+            self.navigationTransition(.zoom(sourceID: sourceID, in: namespace))
+        } else {
+            self
+        }
     }
 
     /// Marks this view as the source for a zoom navigation transition.
