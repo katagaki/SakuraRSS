@@ -27,6 +27,8 @@ struct HomeView: View {
                     Group {
                         if article.isPodcastEpisode {
                             PodcastEpisodeView(article: article)
+                        } else if article.isYouTubeURL {
+                            YouTubePlayerView(article: article)
                         } else {
                             ArticleDetailView(article: article)
                         }

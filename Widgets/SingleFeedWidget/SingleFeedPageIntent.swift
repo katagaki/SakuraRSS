@@ -4,6 +4,7 @@ import WidgetKit
 struct SingleFeedPageIntent: AppIntent {
 
     static var title: LocalizedStringResource = "SingleFeedWidget.ChangePage"
+    static var isDiscoverable: Bool = false
 
     @Parameter(title: "Feed ID")
     var feedID: Int
