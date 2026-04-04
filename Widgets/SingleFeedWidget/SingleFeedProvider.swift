@@ -81,7 +81,7 @@ struct SingleFeedProvider: AppIntentTimelineProvider {
                         }
                     }
                     if let rawData {
-                        imageData = await Self.downsampleImageData(rawData, maxDimension: 200)
+                        imageData = await Self.downsampleImageData(rawData, maxDimension: 300)
                     }
                 }
                 widgetArticles.append(SingleFeedArticle(
