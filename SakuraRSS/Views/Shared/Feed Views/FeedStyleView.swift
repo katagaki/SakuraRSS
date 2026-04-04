@@ -75,6 +75,14 @@ struct FeedArticleRow: View {
     @State private var preferTitle = false
     @State private var feed: Feed?
     @State private var showSafari = false
+    @State private var imageAspectRatio: CGFloat?
+
+    private var imageHeight: CGFloat {
+        guard let imageAspectRatio else { return 180 }
+        let estimatedWidth = UIScreen.main.bounds.width - 86
+        let naturalHeight = estimatedWidth * imageAspectRatio
+        return min(max(naturalHeight, 180), 420)
+    }
 
     @ViewBuilder
     private var feedAvatarView: some View {
@@ -149,12 +157,14 @@ struct FeedArticleRow: View {
                 .lineLimit(3)
 
                 if let imageURL = article.imageURL, let url = URL(string: imageURL) {
-                    CachedAsyncImage(url: url, alignment: .top) {
+                    CachedAsyncImage(url: url, alignment: .top, onImageLoaded: { image in
+                        imageAspectRatio = image.size.height / image.size.width
+                    }) {
                         Color.secondary.opacity(0.1)
-                            .frame(height: 180)
+                            .frame(height: imageHeight)
                     }
                     .frame(maxWidth: .infinity)
-                    .frame(height: 180)
+                    .frame(height: imageHeight)
                     .clipShape(.rect(cornerRadius: 12))
                     .overlay {
                         RoundedRectangle(cornerRadius: 12)

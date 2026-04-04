@@ -4,13 +4,20 @@ struct CachedAsyncImage<Placeholder: View>: View {
 
     let url: URL?
     let alignment: Alignment
+    let onImageLoaded: ((UIImage) -> Void)?
     let placeholder: () -> Placeholder
     @State private var image: UIImage?
     @State private var isLoading = true
 
-    init(url: URL?, alignment: Alignment = .center, @ViewBuilder placeholder: @escaping () -> Placeholder) {
+    init(
+        url: URL?,
+        alignment: Alignment = .center,
+        onImageLoaded: ((UIImage) -> Void)? = nil,
+        @ViewBuilder placeholder: @escaping () -> Placeholder
+    ) {
         self.url = url
         self.alignment = alignment
+        self.onImageLoaded = onImageLoaded
         self.placeholder = placeholder
     }
 
@@ -32,7 +39,11 @@ struct CachedAsyncImage<Placeholder: View>: View {
                 isLoading = false
                 return
             }
-            image = await Self.loadImage(from: url)
+            let loadedImage = await Self.loadImage(from: url)
+            image = loadedImage
+            if let loadedImage {
+                onImageLoaded?(loadedImage)
+            }
             isLoading = false
         }
     }
