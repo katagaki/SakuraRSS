@@ -3,11 +3,15 @@ import SwiftUI
 struct HomeView: View {
 
     @Environment(FeedManager.self) var feedManager
+    @Environment(\.openURL) private var openURL
     @AppStorage("Home.FeedID") private var savedFeedID: Int = -1
     @AppStorage("Home.ArticleID") private var savedArticleID: Int = -1
+    @AppStorage("YouTube.OpenMode") private var youTubeOpenMode: YouTubeOpenMode = .inAppPlayer
     @Binding var pendingArticleID: Int64?
     @State private var path = NavigationPath()
     @State private var hasRestored = false
+    @State private var showYouTubeSafari = false
+    @State private var pendingYouTubeSafariURL: URL?
     @Namespace private var cardZoom
 
     var body: some View {
@@ -27,6 +31,8 @@ struct HomeView: View {
                     Group {
                         if article.isPodcastEpisode {
                             PodcastEpisodeView(article: article)
+                        } else if article.isYouTubeURL {
+                            YouTubePlayerView(article: article)
                         } else {
                             ArticleDetailView(article: article)
                         }
@@ -58,10 +64,34 @@ struct HomeView: View {
                 Task {
                     try? await Task.sleep(for: .milliseconds(300))
                     if let article = feedManager.article(byID: articleID) {
-                        path.append(article)
+                        if feedManager.feed(forArticle: article)?.isXFeed == true {
+                            if let url = URL(string: article.url) {
+                                feedManager.markRead(article)
+                                openURL(url)
+                            }
+                        } else if article.isYouTubeURL {
+                            feedManager.markRead(article)
+                            switch youTubeOpenMode {
+                            case .inAppPlayer:
+                                path.append(article)
+                            case .youTubeApp:
+                                YouTubeHelper.openInApp(url: article.url)
+                            case .browser:
+                                pendingYouTubeSafariURL = URL(string: article.url)
+                                showYouTubeSafari = true
+                            }
+                        } else {
+                            path.append(article)
+                        }
                     }
                     pendingArticleID = nil
                 }
+            }
+        }
+        .sheet(isPresented: $showYouTubeSafari) {
+            if let url = pendingYouTubeSafariURL {
+                SafariView(url: url)
+                    .ignoresSafeArea()
             }
         }
     }

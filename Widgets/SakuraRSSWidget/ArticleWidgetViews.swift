@@ -52,7 +52,9 @@ struct MediumWidgetView: View {
                         Divider()
                     }
                 }
+                Spacer(minLength: 0)
             }
+            .frame(maxHeight: .infinity, alignment: .top)
         }
     }
 }
@@ -91,7 +93,9 @@ struct LargeWidgetView: View {
                         Divider()
                     }
                 }
+                Spacer(minLength: 0)
             }
+            .frame(maxHeight: .infinity, alignment: .top)
         }
     }
 }

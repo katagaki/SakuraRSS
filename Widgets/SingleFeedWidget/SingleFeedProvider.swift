@@ -6,11 +6,14 @@ struct SingleFeedProvider: AppIntentTimelineProvider {
     func placeholder(in _: Context) -> SingleFeedEntry {
         SingleFeedEntry(
             date: Date(),
+            feedID: 0,
             feedTitle: String(localized: "Widget.Placeholder.Feed"),
             articles: [
                 SingleFeedArticle(id: 0, title: String(localized: "Widget.Placeholder.Loading"), imageData: nil, publishedDate: Date())
             ],
-            layout: .thumbnails
+            layout: .thumbnails,
+            currentPage: 0,
+            totalPages: 1
         )
     }
 
@@ -30,21 +33,33 @@ struct SingleFeedProvider: AppIntentTimelineProvider {
         guard let feed = configuration.feed else {
             return SingleFeedEntry(
                 date: Date(),
+                feedID: 0,
                 feedTitle: "",
                 articles: [],
-                layout: layout
+                layout: layout,
+                currentPage: 0,
+                totalPages: 1
             )
         }
 
         let feedID = feed.feedID
+        let defaults = UserDefaults(suiteName: "group.com.tsubuzaki.SakuraRSS")
+        let storedPage = defaults?.integer(forKey: "singleFeedPage_\(feedID)") ?? 0
 
         do {
             let feedTitle = (try database.feed(byID: feedID))?.title ?? feed.title
-            let articleLimit = layout == .text ? 9 : 4
-            let dbArticles = try database.articles(forFeedID: feedID, limit: articleLimit)
+            let perPage = layout == .text ? 9 : 4
+            let maxPages = 3
+            let totalLimit = perPage * maxPages
+            let dbArticles = try database.articles(forFeedID: feedID, limit: totalLimit)
+
+            let totalPages = max(1, Int(ceil(Double(dbArticles.count) / Double(perPage))))
+            let currentPage = min(storedPage, totalPages - 1)
+            let pageStart = currentPage * perPage
+            let pageArticles = Array(dbArticles.dropFirst(pageStart).prefix(perPage))
 
             var widgetArticles: [SingleFeedArticle] = []
-            for article in dbArticles {
+            for article in pageArticles {
                 var imageData: Data?
                 if let imageURLString = article.imageURL, let imageURL = URL(string: imageURLString) {
                     var rawData: Data?
@@ -70,16 +85,22 @@ struct SingleFeedProvider: AppIntentTimelineProvider {
 
             return SingleFeedEntry(
                 date: Date(),
+                feedID: feedID,
                 feedTitle: feedTitle,
                 articles: widgetArticles,
-                layout: layout
+                layout: layout,
+                currentPage: currentPage,
+                totalPages: totalPages
             )
         } catch {
             return SingleFeedEntry(
                 date: Date(),
+                feedID: feedID,
                 feedTitle: feed.title,
                 articles: [],
-                layout: layout
+                layout: layout,
+                currentPage: 0,
+                totalPages: 1
             )
         }
     }

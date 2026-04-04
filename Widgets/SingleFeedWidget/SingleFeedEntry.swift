@@ -10,7 +10,10 @@ struct SingleFeedArticle: Identifiable {
 
 struct SingleFeedEntry: TimelineEntry {
     let date: Date
+    let feedID: Int64
     let feedTitle: String
     let articles: [SingleFeedArticle]
     let layout: SingleFeedWidgetLayout
+    let currentPage: Int
+    let totalPages: Int
 }
