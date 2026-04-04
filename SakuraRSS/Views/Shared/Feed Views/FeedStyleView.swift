@@ -153,7 +153,8 @@ struct FeedArticleRow: View {
                         Color.secondary.opacity(0.1)
                             .frame(height: 180)
                     }
-                    .frame(maxWidth: .infinity, maxHeight: 180)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 180)
                     .clipShape(.rect(cornerRadius: 12))
                     .overlay {
                         RoundedRectangle(cornerRadius: 12)

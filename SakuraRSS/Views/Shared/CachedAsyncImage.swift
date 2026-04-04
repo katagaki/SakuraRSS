@@ -21,7 +21,7 @@ struct CachedAsyncImage<Placeholder: View>: View {
                     Image(uiImage: image)
                         .resizable()
                         .aspectRatio(contentMode: .fill)
-                        .frame(width: geo.size.width, alignment: alignment)
+                        .frame(width: geo.size.width, height: geo.size.height, alignment: alignment)
                 }
             } else {
                 placeholder()
