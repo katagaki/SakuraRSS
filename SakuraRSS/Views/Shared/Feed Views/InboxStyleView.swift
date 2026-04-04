@@ -6,11 +6,14 @@ struct InboxStyleView: View {
     @Environment(\.zoomNamespace) private var zoomNamespace
     let articles: [Article]
     var onLoadMore: (() -> Void)?
+    @State private var youTubeArticle: Article?
 
     var body: some View {
         List {
             ForEach(articles) { article in
-                ArticleLink(article: article) {
+                ArticleLink(article: article, onShowYouTubePlayer: {
+                    youTubeArticle = $0
+                }) {
                     InboxArticleRow(article: article)
                         .zoomSource(id: article.id, namespace: zoomNamespace)
                 }
@@ -37,6 +40,9 @@ struct InboxStyleView: View {
         }
         .listStyle(.plain)
         .navigationLinkIndicatorVisibility(.hidden)
+        .navigationDestination(item: $youTubeArticle) { article in
+            YouTubePlayerView(article: article)
+        }
     }
 }
 

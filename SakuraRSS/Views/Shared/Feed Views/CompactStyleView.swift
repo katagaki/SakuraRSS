@@ -6,6 +6,7 @@ struct CompactStyleView: View {
     @Environment(\.zoomNamespace) private var zoomNamespace
     let articles: [Article]
     var onLoadMore: (() -> Void)?
+    @State private var youTubeArticle: Article?
 
     private func articleLabel(for article: Article) -> some View {
         HStack {
@@ -28,7 +29,9 @@ struct CompactStyleView: View {
     var body: some View {
         List {
             ForEach(articles) { article in
-                ArticleLink(article: article) {
+                ArticleLink(article: article, onShowYouTubePlayer: {
+                    youTubeArticle = $0
+                }) {
                     articleLabel(for: article)
                         .zoomSource(id: article.id, namespace: zoomNamespace)
                 }
@@ -55,5 +58,8 @@ struct CompactStyleView: View {
             }
         }
         .listStyle(.plain)
+        .navigationDestination(item: $youTubeArticle) { article in
+            YouTubePlayerView(article: article)
+        }
     }
 }

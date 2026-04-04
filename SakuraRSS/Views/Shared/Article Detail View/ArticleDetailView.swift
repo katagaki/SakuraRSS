@@ -30,6 +30,7 @@ struct ArticleDetailView: View {
     @State var showYouTubePlayer = false
     @State var showYouTubeSafari = false
     @State var imageViewerURL: URL?
+    @State var heroImageAspectRatio: CGFloat?
     @Namespace private var imageViewerNamespace
     @AppStorage("YouTube.OpenMode") var youTubeOpenMode: YouTubeOpenMode = .inAppPlayer
 
@@ -118,12 +119,15 @@ struct ArticleDetailView: View {
 
             if !fullTextHasImages,
                let imageURL = article.imageURL, let url = URL(string: imageURL) {
-                CachedAsyncImage(url: url) {
+                CachedAsyncImage(url: url, onImageLoaded: { image in
+                    heroImageAspectRatio = image.size.width / image.size.height
+                }) {
                     Rectangle()
                         .fill(.secondary.opacity(0.1))
                         .frame(height: 200)
                 }
-                .aspectRatio(contentMode: .fit)
+                .aspectRatio(heroImageAspectRatio, contentMode: .fill)
+                .clipped()
                 .clipShape(RoundedRectangle(cornerRadius: 12))
                 .matchedTransitionSource(id: url, in: imageViewerNamespace)
                 .onTapGesture { imageViewerURL = url }
@@ -148,15 +152,9 @@ struct ArticleDetailView: View {
                         case .text(let content):
                             SelectableText(content)
                         case .image(let url):
-                            CachedAsyncImage(url: url) {
-                                Rectangle()
-                                    .fill(.secondary.opacity(0.1))
-                                    .frame(height: 200)
+                            FitWidthImage(url: url, namespace: imageViewerNamespace) {
+                                imageViewerURL = url
                             }
-                            .aspectRatio(contentMode: .fit)
-                            .clipShape(RoundedRectangle(cornerRadius: 12))
-                            .matchedTransitionSource(id: url, in: imageViewerNamespace)
-                            .onTapGesture { imageViewerURL = url }
                         }
                     }
                     .id("\(showingSummary)-\(showingTranslation)")
@@ -204,5 +202,28 @@ struct ArticleDetailView: View {
         .translationTask(translationConfig) { session in
             await handleTranslation(session: session)
         }
+    }
+}
+
+struct FitWidthImage: View {
+
+    let url: URL
+    let namespace: Namespace.ID
+    var onTap: (() -> Void)?
+    @State private var aspectRatio: CGFloat?
+
+    var body: some View {
+        CachedAsyncImage(url: url, onImageLoaded: { image in
+            aspectRatio = image.size.width / image.size.height
+        }) {
+            Rectangle()
+                .fill(.secondary.opacity(0.1))
+                .frame(height: 200)
+        }
+        .aspectRatio(aspectRatio, contentMode: .fill)
+        .clipped()
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .matchedTransitionSource(id: url, in: namespace)
+        .onTapGesture { onTap?() }
     }
 }

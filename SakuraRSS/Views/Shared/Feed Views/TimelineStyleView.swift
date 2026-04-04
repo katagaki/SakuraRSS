@@ -6,6 +6,7 @@ struct TimelineStyleView: View {
     @Environment(\.zoomNamespace) private var zoomNamespace
     let articles: [Article]
     var onLoadMore: (() -> Void)?
+    @State private var youTubeArticle: Article?
 
     var body: some View {
         List {
@@ -15,7 +16,9 @@ struct TimelineStyleView: View {
                 Section {
                     ForEach(Array(group.articles.enumerated()), id: \.element.id) { index, article in
                         ZStack {
-                            ArticleLink(article: article) {
+                            ArticleLink(article: article, onShowYouTubePlayer: {
+                                youTubeArticle = $0
+                            }) {
                                 EmptyView()
                             }
                             .opacity(0)
@@ -49,6 +52,9 @@ struct TimelineStyleView: View {
             }
         }
         .listStyle(.plain)
+        .navigationDestination(item: $youTubeArticle) { article in
+            YouTubePlayerView(article: article)
+        }
     }
 
     private func groupedArticles(from articles: [Article]) -> [(key: String, articles: [Article])] {

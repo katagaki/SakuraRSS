@@ -6,12 +6,15 @@ struct PhotosStyleView: View {
     @Environment(\.zoomNamespace) private var zoomNamespace
     let articles: [Article]
     var onLoadMore: (() -> Void)?
+    @State private var youTubeArticle: Article?
 
     var body: some View {
         ScrollView(.vertical) {
             LazyVStack(spacing: 0) {
                 ForEach(articles) { article in
-                    ArticleLink(article: article) {
+                    ArticleLink(article: article, onShowYouTubePlayer: {
+                        youTubeArticle = $0
+                    }) {
                         PhotosArticleCard(article: article)
                             .zoomSource(id: article.id, namespace: zoomNamespace)
                     }
@@ -22,6 +25,9 @@ struct PhotosStyleView: View {
                         .padding(.vertical, 20)
                 }
             }
+        }
+        .navigationDestination(item: $youTubeArticle) { article in
+            YouTubePlayerView(article: article)
         }
     }
 }

@@ -25,7 +25,9 @@ struct FeedStyleView: View {
         List {
             ForEach(articles) { article in
                 ZStack {
-                    ArticleLink(article: article) {
+                    ArticleLink(article: article, onShowYouTubePlayer: {
+                        youTubeArticle = $0
+                    }) {
                         EmptyView()
                     }
                     .opacity(0)

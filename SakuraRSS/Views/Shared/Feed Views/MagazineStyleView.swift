@@ -6,6 +6,7 @@ struct MagazineStyleView: View {
     @Environment(\.zoomNamespace) private var zoomNamespace
     let articles: [Article]
     var onLoadMore: (() -> Void)?
+    @State private var youTubeArticle: Article?
 
     private let columns = [
         GridItem(.flexible(), spacing: 12),
@@ -16,7 +17,9 @@ struct MagazineStyleView: View {
         ScrollView(.vertical) {
             LazyVGrid(columns: columns, spacing: 12) {
                 ForEach(articles) { article in
-                    ArticleLink(article: article) {
+                    ArticleLink(article: article, onShowYouTubePlayer: {
+                        youTubeArticle = $0
+                    }) {
                         MagazineArticleCard(article: article)
                             .zoomSource(id: article.id, namespace: zoomNamespace)
                     }
@@ -43,6 +46,9 @@ struct MagazineStyleView: View {
                     .padding(.horizontal, 16)
                     .padding(.bottom)
             }
+        }
+        .navigationDestination(item: $youTubeArticle) { article in
+            YouTubePlayerView(article: article)
         }
     }
 }

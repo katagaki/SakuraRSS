@@ -25,6 +25,7 @@ struct CardsStyleView: View {
     /// called during navigation, which would remove the matched transition
     /// source and break the zoom animation.
     @State private var deckArticleIDs: Set<Int64>?
+    @State private var youTubeArticle: Article?
 
     private var deckArticles: [Article] {
         guard let ids = deckArticleIDs else { return [] }
@@ -78,7 +79,9 @@ struct CardsStyleView: View {
                 // Show front card and one behind; new back cards fade in after swipe
                 ForEach(Array(visibleCards.prefix(2).enumerated().reversed()),
                         id: \.element.id) { index, article in
-                    ArticleLink(article: article) {
+                    ArticleLink(article: article, onShowYouTubePlayer: {
+                        youTubeArticle = $0
+                    }) {
                         CardView(
                             article: article,
                             onSwipedLeft: {
@@ -101,6 +104,9 @@ struct CardsStyleView: View {
         }
         .padding()
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .navigationDestination(item: $youTubeArticle) { article in
+            YouTubePlayerView(article: article)
+        }
         .onAppear {
             if deckArticleIDs == nil {
                 deckArticleIDs = Set(
