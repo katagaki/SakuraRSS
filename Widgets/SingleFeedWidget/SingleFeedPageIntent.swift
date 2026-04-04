@@ -6,7 +6,7 @@ struct SingleFeedPageIntent: AppIntent {
     static var title: LocalizedStringResource = "SingleFeedWidget.ChangePage"
 
     @Parameter(title: "Feed ID")
-    var feedID: Int64
+    var feedID: Int
 
     @Parameter(title: "Page")
     var page: Int
@@ -17,7 +17,7 @@ struct SingleFeedPageIntent: AppIntent {
     }
 
     init(feedID: Int64, page: Int) {
-        self.feedID = feedID
+        self.feedID = Int(feedID)
         self.page = page
     }
 
