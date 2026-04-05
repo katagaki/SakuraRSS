@@ -81,6 +81,9 @@ struct FeedArticleRow: View {
     @State private var imageAspectRatio: CGFloat?
 
     private var imageHeight: CGFloat {
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            return 200
+        }
         guard let imageAspectRatio else { return 180 }
         let estimatedWidth = UIScreen.main.bounds.width - 86
         let naturalHeight = estimatedWidth * imageAspectRatio

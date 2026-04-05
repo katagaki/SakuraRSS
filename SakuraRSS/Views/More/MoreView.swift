@@ -6,12 +6,13 @@ import UserNotifications
 struct MoreView: View {
 
     @Environment(FeedManager.self) var feedManager
+    @Environment(\.dismiss) private var dismiss
     @AppStorage("BackgroundRefresh.Enabled") private var backgroundRefreshEnabled: Bool = true
     @AppStorage("BackgroundRefresh.Interval") private var refreshInterval: Int = 60
     @AppStorage("Display.DefaultStyle") private var defaultDisplayStyle: FeedDisplayStyle = .inbox
     @AppStorage("Search.DisplayStyle") private var searchDisplayStyle: FeedDisplayStyle = .inbox
     @AppStorage("Display.MarkAllReadPosition") private var markAllReadPosition: MarkAllReadPosition = .bottom
-    @AppStorage("Display.UnreadBadgeMode") private var unreadBadgeMode: UnreadBadgeMode = .homeTabOnly
+    @AppStorage("Display.UnreadBadgeMode") private var unreadBadgeMode: UnreadBadgeMode = .none
     @State private var isExporting = false
     @State private var isImporting = false
     @State private var showImportModeChoice = false
@@ -52,12 +53,17 @@ struct MoreView: View {
                             .tag(MarkAllReadPosition.none)
                     }
                     Picker(String(localized: "Settings.UnreadBadgeMode"), selection: $unreadBadgeMode) {
-                        Text("Settings.UnreadBadgeMode.HomeScreenAndHomeTab")
-                            .tag(UnreadBadgeMode.homeScreenAndHomeTab)
-                        Text("Settings.UnreadBadgeMode.HomeScreenOnly")
-                            .tag(UnreadBadgeMode.homeScreenOnly)
-                        Text("Settings.UnreadBadgeMode.HomeTabOnly")
-                            .tag(UnreadBadgeMode.homeTabOnly)
+                        if UIDevice.current.userInterfaceIdiom == .pad {
+                            Text("Settings.UnreadBadgeMode.HomeScreenOnly")
+                                .tag(UnreadBadgeMode.homeScreenOnly)
+                        } else {
+                            Text("Settings.UnreadBadgeMode.HomeScreenAndHomeTab")
+                                .tag(UnreadBadgeMode.homeScreenAndHomeTab)
+                            Text("Settings.UnreadBadgeMode.HomeScreenOnly")
+                                .tag(UnreadBadgeMode.homeScreenOnly)
+                            Text("Settings.UnreadBadgeMode.HomeTabOnly")
+                                .tag(UnreadBadgeMode.homeTabOnly)
+                        }
                         Text("Settings.UnreadBadgeMode.Off")
                             .tag(UnreadBadgeMode.none)
                     }
@@ -181,6 +187,15 @@ struct MoreView: View {
             .listSectionSpacing(.compact)
             .navigationTitle(String(localized: "Tabs.More"))
             .toolbarTitleDisplayMode(.inlineLarge)
+            .toolbar {
+                if UIDevice.current.userInterfaceIdiom == .pad {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button(role: .close) {
+                            dismiss()
+                        }
+                    }
+                }
+            }
             .scrollContentBackground(.hidden)
             .sakuraBackground()
             .fileExporter(

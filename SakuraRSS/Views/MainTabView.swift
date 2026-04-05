@@ -12,9 +12,10 @@ enum AppTab: String, CaseIterable {
 struct MainTabView: View {
 
     @Environment(FeedManager.self) var feedManager
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @AppStorage("App.SelectedTab") private var selectedTab: AppTab = .home
     @AppStorage("Onboarding.Completed") private var onboardingCompleted: Bool = false
-    @AppStorage("Display.UnreadBadgeMode") private var unreadBadgeMode: UnreadBadgeMode = .homeTabOnly
+    @AppStorage("Display.UnreadBadgeMode") private var unreadBadgeMode: UnreadBadgeMode = .none
     @Binding var pendingFeedURL: String?
     @Binding var pendingArticleID: Int64?
     @Binding var isInSafeMode: Bool
@@ -24,6 +25,19 @@ struct MainTabView: View {
     @State private var showingSafeModeAlert = false
 
     var body: some View {
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            IPadSidebarView(
+                pendingFeedURL: $pendingFeedURL,
+                pendingArticleID: $pendingArticleID,
+                isInSafeMode: $isInSafeMode,
+                labsWereDisabled: $labsWereDisabled
+            )
+        } else {
+            iPhoneTabView
+        }
+    }
+
+    private var iPhoneTabView: some View {
         TabView(selection: $selectedTab) {
             Tab(String(localized: "Tabs.Home"), systemImage: "text.rectangle.page", value: .home) {
                 HomeView(pendingArticleID: $pendingArticleID)

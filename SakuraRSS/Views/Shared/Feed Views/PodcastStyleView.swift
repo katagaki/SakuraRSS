@@ -4,6 +4,7 @@ struct PodcastStyleView: View {
 
     @Environment(FeedManager.self) var feedManager
     @Environment(\.zoomNamespace) private var zoomNamespace
+    @Environment(\.iPadArticleSelection) private var iPadArticleSelection
     let articles: [Article]
     var onLoadMore: (() -> Void)?
 
@@ -11,10 +12,20 @@ struct PodcastStyleView: View {
         List {
             ForEach(articles) { article in
                 ZStack {
-                    NavigationLink(value: article) {
-                        EmptyView()
+                    if let iPadArticleSelection {
+                        Button {
+                            feedManager.markRead(article)
+                            iPadArticleSelection.wrappedValue = article
+                        } label: {
+                            EmptyView()
+                        }
+                        .opacity(0)
+                    } else {
+                        NavigationLink(value: article) {
+                            EmptyView()
+                        }
+                        .opacity(0)
                     }
-                    .opacity(0)
 
                     PodcastEpisodeRow(article: article)
                         .zoomSource(id: article.id, namespace: zoomNamespace)

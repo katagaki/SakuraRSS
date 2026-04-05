@@ -4,6 +4,7 @@ struct VideoStyleView: View {
 
     @Environment(FeedManager.self) var feedManager
     @Environment(\.openURL) var openURL
+    @Environment(\.iPadArticleSelection) private var iPadArticleSelection
     @AppStorage("YouTube.OpenMode") private var youTubeOpenMode: YouTubeOpenMode = .inAppPlayer
     let articles: [Article]
     var onLoadMore: (() -> Void)?
@@ -19,7 +20,9 @@ struct VideoStyleView: View {
                 ForEach(articles) { article in
                     Button {
                         feedManager.markRead(article)
-                        if article.isYouTubeURL && youTubeOpenMode == .inAppPlayer {
+                        if iPadArticleSelection != nil {
+                            iPadArticleSelection?.wrappedValue = article
+                        } else if article.isYouTubeURL && youTubeOpenMode == .inAppPlayer {
                             youTubePlayerArticle = article
                             showYouTubePlayer = true
                         } else if article.isYouTubeURL && youTubeOpenMode == .browser {

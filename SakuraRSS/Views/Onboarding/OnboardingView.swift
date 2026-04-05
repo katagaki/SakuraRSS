@@ -25,6 +25,7 @@ struct OnboardingView: View {
     @State var feedErrorMessage: String?
     @State var addedURLs: Set<String> = []
     @FocusState var isURLFieldFocused: Bool
+    var isIPad: Bool { UIDevice.current.userInterfaceIdiom == .pad }
     var onComplete: () -> Void
 
     var appName: String {
