@@ -293,6 +293,7 @@ struct IPadSidebarView: View {
         iPadArticleListWrapper {
             FeedArticlesView(feed: feed)
         }
+        .id(feed.id)
     }
 
     /// Wraps content views with navigation destinations and the iPad article selection

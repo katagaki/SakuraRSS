@@ -22,6 +22,10 @@ struct MediumWidgetView: View {
 
     let entry: ArticleEntry
 
+    private var articleCount: Int {
+        UIDevice.current.userInterfaceIdiom == .pad ? 3 : 4
+    }
+
     var body: some View {
         if entry.articles.isEmpty {
             VStack(spacing: 4) {
@@ -34,7 +38,7 @@ struct MediumWidgetView: View {
             }
         } else {
             VStack(alignment: .leading, spacing: 4) {
-                ForEach(entry.articles.prefix(4)) { article in
+                ForEach(entry.articles.prefix(articleCount)) { article in
                     Link(destination: URL(string: "sakura://article/\(article.id)")!) {
                         VStack(alignment: .leading, spacing: 1) {
                             Text(article.title)
@@ -48,7 +52,7 @@ struct MediumWidgetView: View {
                         .frame(maxWidth: .infinity, alignment: .leading)
                     }
 
-                    if article.id != entry.articles.prefix(4).last?.id {
+                    if article.id != entry.articles.prefix(articleCount).last?.id {
                         Divider()
                     }
                 }
@@ -63,6 +67,10 @@ struct LargeWidgetView: View {
 
     let entry: ArticleEntry
 
+    private var articleCount: Int {
+        UIDevice.current.userInterfaceIdiom == .pad ? 8 : 9
+    }
+
     var body: some View {
         if entry.articles.isEmpty {
             VStack(spacing: 8) {
@@ -75,7 +83,7 @@ struct LargeWidgetView: View {
             }
         } else {
             VStack(alignment: .leading, spacing: 4) {
-                ForEach(entry.articles.prefix(9)) { article in
+                ForEach(entry.articles.prefix(articleCount)) { article in
                     Link(destination: URL(string: "sakura://article/\(article.id)")!) {
                         VStack(alignment: .leading, spacing: 2) {
                             Text(article.title)
@@ -89,7 +97,7 @@ struct LargeWidgetView: View {
                         .frame(maxWidth: .infinity, alignment: .leading)
                     }
 
-                    if article.id != entry.articles.prefix(9).last?.id {
+                    if article.id != entry.articles.prefix(articleCount).last?.id {
                         Divider()
                     }
                 }

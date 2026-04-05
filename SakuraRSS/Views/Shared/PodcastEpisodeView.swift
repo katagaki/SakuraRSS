@@ -66,6 +66,7 @@ struct PodcastEpisodeView: View {
                             .aspectRatio(1, contentMode: .fit)
                     }
                     .aspectRatio(contentMode: .fit)
+                    .frame(maxWidth: 300, maxHeight: 300)
                     .clipShape(RoundedRectangle(cornerRadius: 16))
                     .shadow(radius: 8, y: 4)
                     .padding(.horizontal, 40)
