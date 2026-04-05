@@ -15,6 +15,8 @@ struct SakuraRSSApp: App {
     @State private var labsWereDisabled: Bool
     @AppStorage("ForceWhileYouSlept") private var forceWhileYouSlept: Bool = false
     @AppStorage("ForceTodaysSummary") private var forceTodaysSummary: Bool = false
+    @AppStorage("BackgroundRefresh.Enabled") private var backgroundRefreshEnabled: Bool = true
+    @AppStorage("BackgroundRefresh.Interval") private var refreshInterval: Int = 60
     private let backgroundTaskID = "com.tsubuzaki.SakuraRSS.RefreshFeeds"
 
     var body: some Scene {
@@ -37,6 +39,12 @@ struct SakuraRSSApp: App {
                     feedManager.loadFromDatabase()
                     feedManager.updateBadgeCount()
                     WidgetCenter.shared.reloadAllTimelines()
+                }
+                .onChange(of: backgroundRefreshEnabled) {
+                    scheduleAppRefresh()
+                }
+                .onChange(of: refreshInterval) {
+                    scheduleAppRefresh()
                 }
                 .onOpenURL { url in
                     handleOpenURL(url)

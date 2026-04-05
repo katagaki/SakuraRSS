@@ -98,6 +98,9 @@ struct MoreView: View {
                             Text("Settings.Refresh.30min").tag(30)
                             Text("Settings.Refresh.1hour").tag(60)
                             Text("Settings.Refresh.4hours").tag(240)
+                            Text("Settings.Refresh.8hours").tag(480)
+                            Text("Settings.Refresh.12hours").tag(720)
+                            Text("Settings.Refresh.24hours").tag(1440)
                         } label: {
                             Text(String(localized: "Settings.RefreshInterval"))
                         }
