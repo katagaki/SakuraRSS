@@ -139,8 +139,20 @@ extension XProfileScraper {
         let publishedDate = dateFormatter.date(from: createdAt)
         let tweetURL = "https://x.com/\(authorHandle)/status/\(idStr)"
 
-        // Clean full_text: remove trailing t.co URLs
-        let cleanText = fullText.replacingOccurrences(
+        // Replace t.co URLs with their expanded URLs from entities
+        var cleanText = fullText
+        let entities = legacy["entities"] as? [String: Any]
+        if let urlEntities = entities?["urls"] as? [[String: Any]] {
+            for urlEntity in urlEntities {
+                guard let shortURL = urlEntity["url"] as? String,
+                      let expandedURL = urlEntity["expanded_url"] as? String
+                else { continue }
+                cleanText = cleanText.replacingOccurrences(of: shortURL, with: expandedURL)
+            }
+        }
+
+        // Remove trailing t.co URLs (media links that have no expanded form)
+        cleanText = cleanText.replacingOccurrences(
             of: "\\s*https://t\\.co/\\S+$",
             with: "",
             options: .regularExpression

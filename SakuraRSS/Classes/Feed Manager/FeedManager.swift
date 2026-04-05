@@ -32,12 +32,12 @@ final class FeedManager {
     }
 
     func loadFromDatabaseInBackground() async {
-        let db = database
+        let dbm = database
         do {
             let (loadedFeeds, loadedArticles, loadedUnreadCounts) = try await Task.detached {
-                let feeds = try db.allFeeds()
-                let articles = try db.allArticles(limit: 200)
-                let unreadCounts = (try? db.allUnreadCounts()) ?? [:]
+                let feeds = try dbm.allFeeds()
+                let articles = try dbm.allArticles(limit: 200)
+                let unreadCounts = (try? dbm.allUnreadCounts()) ?? [:]
                 return (feeds, articles, unreadCounts)
             }.value
             await MainActor.run {
@@ -105,7 +105,7 @@ final class FeedManager {
             guard let parsed = parser.parse(data: data) else { return }
 
             let articleTuples = parsed.articles.map { article in
-                (
+                ArticleInsertItem(
                     title: article.title,
                     url: article.url,
                     data: ArticleInsertData(

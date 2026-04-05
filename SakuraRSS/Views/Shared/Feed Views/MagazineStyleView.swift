@@ -19,10 +19,10 @@ struct MagazineStyleView: View {
                 ForEach(articles) { article in
                     ArticleLink(article: article, onShowYouTubePlayer: {
                         youTubeArticle = $0
-                    }) {
+                    }, label: {
                         MagazineArticleCard(article: article)
                             .zoomSource(id: article.id, namespace: zoomNamespace)
-                    }
+                    })
                     .buttonStyle(.plain)
                     .contextMenu {
                         Button {

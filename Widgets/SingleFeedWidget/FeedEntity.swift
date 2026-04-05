@@ -25,7 +25,8 @@ struct FeedQuery: EntityQuery {
 }
 
 struct FeedEntity: AppEntity {
-    static var typeDisplayRepresentation: TypeDisplayRepresentation = TypeDisplayRepresentation(name: "SingleFeedWidget.Feed")
+    static var typeDisplayRepresentation: TypeDisplayRepresentation =
+        TypeDisplayRepresentation(name: "SingleFeedWidget.Feed")
     static var defaultQuery = FeedQuery()
 
     var id: String

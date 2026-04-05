@@ -27,9 +27,9 @@ struct FeedStyleView: View {
                 ZStack {
                     ArticleLink(article: article, onShowYouTubePlayer: {
                         youTubeArticle = $0
-                    }) {
+                    }, label: {
                         EmptyView()
-                    }
+                    })
                     .opacity(0)
 
                     FeedArticleRow(article: article, onShowYouTubePlayer: {
@@ -85,7 +85,9 @@ struct FeedArticleRow: View {
             return 200
         }
         guard let imageAspectRatio else { return 180 }
-        let estimatedWidth = UIScreen.main.bounds.width - 86
+        let estimatedWidth = (UIApplication.shared.connectedScenes
+            .compactMap { $0 as? UIWindowScene }
+            .first?.screen.bounds.width ?? 375) - 86
         let naturalHeight = estimatedWidth * imageAspectRatio
         return min(max(naturalHeight, 180), 420)
     }
@@ -160,16 +162,16 @@ struct FeedArticleRow: View {
                 }
                 .font(.subheadline)
                 .foregroundStyle(.primary)
-                .lineLimit(3)
+                .lineLimit(feed?.isXFeed == true ? nil : 3)
                 .truncationMode(.tail)
 
                 if let imageURL = article.imageURL, let url = URL(string: imageURL) {
                     CachedAsyncImage(url: url, alignment: .top, onImageLoaded: { image in
                         imageAspectRatio = image.size.height / image.size.width
-                    }) {
+                    }, placeholder: {
                         Color.secondary.opacity(0.1)
                             .frame(height: imageHeight)
-                    }
+                    })
                     .frame(maxWidth: .infinity)
                     .frame(height: imageHeight)
                     .clipShape(.rect(cornerRadius: 12))

@@ -81,7 +81,7 @@ struct CardsStyleView: View {
                         id: \.element.id) { index, article in
                     ArticleLink(article: article, onShowYouTubePlayer: {
                         youTubeArticle = $0
-                    }) {
+                    }, label: {
                         CardView(
                             article: article,
                             onSwipedLeft: {
@@ -93,7 +93,7 @@ struct CardsStyleView: View {
                             }
                         )
                         .zoomSource(id: article.id, namespace: zoomNamespace)
-                    }
+                    })
                     .buttonStyle(.plain)
                     .scaleEffect(1.0 - CGFloat(index) * 0.04)
                     .offset(y: CGFloat(index) * 8)

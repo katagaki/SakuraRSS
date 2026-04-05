@@ -2,7 +2,7 @@ import Foundation
 @preconcurrency import SQLite
 
 /// Groups optional article fields to keep the insert call under the parameter limit.
-struct ArticleInsertData {
+struct ArticleInsertData: Sendable {
     var author: String?
     var summary: String?
     var content: String?
@@ -10,6 +10,13 @@ struct ArticleInsertData {
     var publishedDate: Date?
     var audioURL: String?
     var duration: Int?
+}
+
+/// A single article to be batch-inserted, pairing its required and optional fields.
+struct ArticleInsertItem {
+    var title: String
+    var url: String
+    var data: ArticleInsertData
 }
 
 nonisolated extension DatabaseManager {
@@ -39,7 +46,7 @@ nonisolated extension DatabaseManager {
         ))
     }
 
-    func insertArticles(feedID fid: Int64, articles items: [(title: String, url: String, data: ArticleInsertData)]) throws {
+    func insertArticles(feedID fid: Int64, articles items: [ArticleInsertItem]) throws {
         guard !items.isEmpty else { return }
         try database.transaction {
             for item in items {

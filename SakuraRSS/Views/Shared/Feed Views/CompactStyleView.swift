@@ -31,10 +31,10 @@ struct CompactStyleView: View {
             ForEach(articles) { article in
                 ArticleLink(article: article, onShowYouTubePlayer: {
                     youTubeArticle = $0
-                }) {
+                }, label: {
                     articleLabel(for: article)
                         .zoomSource(id: article.id, namespace: zoomNamespace)
-                }
+                })
                 .listRowBackground(Color.clear)
                 .listRowInsets(EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16))
                 .listRowSpacing(0.0)

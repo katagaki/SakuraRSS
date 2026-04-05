@@ -13,10 +13,10 @@ struct InboxStyleView: View {
             ForEach(articles) { article in
                 ArticleLink(article: article, onShowYouTubePlayer: {
                     youTubeArticle = $0
-                }) {
+                }, label: {
                     InboxArticleRow(article: article)
                         .zoomSource(id: article.id, namespace: zoomNamespace)
-                }
+                })
                 .swipeActions(edge: .leading) {
                     Button {
                         withAnimation(.smooth.speed(2.0)) {

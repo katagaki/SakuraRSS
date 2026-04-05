@@ -31,7 +31,7 @@ extension FeedManager {
             let title = tweet.text.isEmpty
                 ? "Post by @\(tweet.authorHandle)"
                 : String(tweet.text.prefix(200))
-            return (
+            return ArticleInsertItem(
                 title: title,
                 url: tweet.url,
                 data: ArticleInsertData(

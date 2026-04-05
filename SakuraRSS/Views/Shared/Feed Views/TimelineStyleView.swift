@@ -18,9 +18,9 @@ struct TimelineStyleView: View {
                         ZStack {
                             ArticleLink(article: article, onShowYouTubePlayer: {
                                 youTubeArticle = $0
-                            }) {
+                            }, label: {
                                 EmptyView()
-                            }
+                            })
                             .opacity(0)
 
                             timelineRow(

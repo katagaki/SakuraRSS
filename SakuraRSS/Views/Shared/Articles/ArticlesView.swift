@@ -202,7 +202,9 @@ struct ArticlesView: View {
         }
         .onChange(of: feedKey) { _, newFeedKey in
             let raw = UserDefaults.standard.string(forKey: "Display.Style.\(newFeedKey)")
-            let defaultRaw = UserDefaults.standard.string(forKey: "Display.DefaultStyle") ?? FeedDisplayStyle.inbox.rawValue
+            let defaultRaw = UserDefaults.standard.string(
+                forKey: "Display.DefaultStyle"
+            ) ?? FeedDisplayStyle.inbox.rawValue
             let fallback: FeedDisplayStyle
             if isPodcastFeed {
                 fallback = .podcast

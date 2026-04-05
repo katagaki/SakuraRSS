@@ -121,11 +121,11 @@ struct ArticleDetailView: View {
                let imageURL = article.imageURL, let url = URL(string: imageURL) {
                 CachedAsyncImage(url: url, onImageLoaded: { image in
                     heroImageAspectRatio = image.size.width / image.size.height
-                }) {
+                }, placeholder: {
                     Rectangle()
                         .fill(.secondary.opacity(0.1))
                         .frame(height: 200)
-                }
+                })
                 .aspectRatio(heroImageAspectRatio, contentMode: .fill)
                 .clipped()
                 .clipShape(RoundedRectangle(cornerRadius: 12))
@@ -215,11 +215,11 @@ struct FitWidthImage: View {
     var body: some View {
         CachedAsyncImage(url: url, onImageLoaded: { image in
             aspectRatio = image.size.width / image.size.height
-        }) {
+        }, placeholder: {
             Rectangle()
                 .fill(.secondary.opacity(0.1))
                 .frame(height: 200)
-        }
+        })
         .aspectRatio(aspectRatio, contentMode: .fill)
         .clipped()
         .clipShape(RoundedRectangle(cornerRadius: 12))

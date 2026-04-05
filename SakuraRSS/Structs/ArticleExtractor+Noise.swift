@@ -202,11 +202,9 @@ extension ArticleExtractor {
                 let className = (try? element.attr("class"))?.lowercased() ?? ""
                 let idName = (try? element.attr("id"))?.lowercased() ?? ""
                 let combined = className + " " + idName
-                for pattern in noiseClassPatterns {
-                    if combined.contains(pattern) {
-                        try element.remove()
-                        break
-                    }
+                for pattern in noiseClassPatterns where combined.contains(pattern) {
+                    try element.remove()
+                    break
                 }
             }
         } catch {

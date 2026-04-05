@@ -14,10 +14,10 @@ struct PhotosStyleView: View {
                 ForEach(articles) { article in
                     ArticleLink(article: article, onShowYouTubePlayer: {
                         youTubeArticle = $0
-                    }) {
+                    }, label: {
                         PhotosArticleCard(article: article)
                             .zoomSource(id: article.id, namespace: zoomNamespace)
-                    }
+                    })
                     .buttonStyle(.plain)
                 }
                 if let onLoadMore {

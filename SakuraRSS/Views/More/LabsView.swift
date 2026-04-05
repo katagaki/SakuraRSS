@@ -25,6 +25,14 @@ struct LabsView: View {
 
                 if xProfileFeedsEnabled {
                     if isXSignedIn {
+                        Button(String(localized: "Labs.XProfileFeeds.RefreshAuth")) {
+                            Task {
+                                await MainActor.run {
+                                    XProfileScraper.queryIDsFetched = false
+                                }
+                                await XProfileScraper.fetchQueryIDsIfNeeded()
+                            }
+                        }
                         Button(String(localized: "Labs.XProfileFeeds.SignOut")) {
                             Task {
                                 await XProfileScraper.clearXSession()
