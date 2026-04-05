@@ -18,7 +18,7 @@ final class WebViewExtractor: NSObject, WKNavigationDelegate {
     func extractText(from url: URL) async -> String? {
         let html = await loadAndExtractHTML(from: url)
         guard let html, !html.isEmpty else { return nil }
-        return ArticleExtractor.extractText(fromHTML: html)
+        return ArticleExtractor.extractText(fromHTML: html, baseURL: url)
     }
 
     private func loadAndExtractHTML(from url: URL) async -> String? {

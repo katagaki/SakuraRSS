@@ -30,7 +30,9 @@ extension ArticleDetailView {
         switch source {
         case .feedText:
             if let content = article.content, !content.isEmpty {
+                let baseURL = URL(string: article.url)
                 let text = ArticleExtractor.extractText(fromHTML: content,
+                                                        baseURL: baseURL,
                                                         excludeTitle: articleTitle)
                 extractedText = text
                 if let text, !text.isEmpty {
@@ -76,7 +78,9 @@ extension ArticleDetailView {
         }
 
         if let content = article.content, !content.isEmpty {
+            let baseURL = URL(string: article.url)
             let text = ArticleExtractor.extractText(fromHTML: content,
+                                                    baseURL: baseURL,
                                                     excludeTitle: articleTitle)
             if let text, !text.isEmpty {
                 extractedText = text
@@ -100,7 +104,7 @@ extension ArticleDetailView {
         do {
             let (data, _) = try await URLSession.shared.data(from: url)
             guard let html = String(data: data, encoding: .utf8) else { return nil }
-            return ArticleExtractor.extractText(fromHTML: html, excludeTitle: excludeTitle)
+            return ArticleExtractor.extractText(fromHTML: html, baseURL: url, excludeTitle: excludeTitle)
         } catch {
             return nil
         }
@@ -113,6 +117,22 @@ extension ArticleDetailView {
     }
 
     func refreshArticleContent() async {
+        // Clear cached images for this article
+        if let imageURL = article.imageURL {
+            try? DatabaseManager.shared.clearCachedImageData(for: imageURL)
+        }
+        if let text = extractedText {
+            let pattern = #"\{\{IMG\}\}(.+?)\{\{/IMG\}\}"#
+            if let regex = try? NSRegularExpression(pattern: pattern) {
+                let nsText = text as NSString
+                let matches = regex.matches(in: text, range: NSRange(location: 0, length: nsText.length))
+                for match in matches {
+                    let url = nsText.substring(with: match.range(at: 1))
+                    try? DatabaseManager.shared.clearCachedImageData(for: url)
+                }
+            }
+        }
+
         try? DatabaseManager.shared.clearCachedArticleContent(for: article.id)
         try? DatabaseManager.shared.clearCachedArticleSummary(for: article.id)
         try? DatabaseManager.shared.clearCachedArticleTranslation(for: article.id)

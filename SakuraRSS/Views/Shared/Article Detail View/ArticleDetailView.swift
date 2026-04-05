@@ -211,19 +211,31 @@ struct FitWidthImage: View {
     let namespace: Namespace.ID
     var onTap: (() -> Void)?
     @State private var aspectRatio: CGFloat?
+    @State private var imageSize: CGSize?
 
     var body: some View {
-        CachedAsyncImage(url: url, onImageLoaded: { image in
-            aspectRatio = image.size.width / image.size.height
-        }, placeholder: {
-            Rectangle()
-                .fill(.secondary.opacity(0.1))
-                .frame(height: 200)
-        })
-        .aspectRatio(aspectRatio, contentMode: .fill)
-        .clipped()
-        .clipShape(RoundedRectangle(cornerRadius: 12))
-        .matchedTransitionSource(id: url, in: namespace)
-        .onTapGesture { onTap?() }
+        GeometryReader { geo in
+            let maxWidth = geo.size.width
+            let naturalWidth = imageSize?.width ?? maxWidth
+            let displayWidth = min(naturalWidth, maxWidth)
+
+            CachedAsyncImage(url: url, onImageLoaded: { image in
+                aspectRatio = image.size.width / image.size.height
+                imageSize = image.size
+            }, placeholder: {
+                Rectangle()
+                    .fill(.secondary.opacity(0.1))
+                    .frame(height: 200)
+            })
+            .aspectRatio(aspectRatio, contentMode: .fill)
+            .frame(width: displayWidth)
+            .clipped()
+            .clipShape(RoundedRectangle(cornerRadius: 12))
+            .matchedTransitionSource(id: url, in: namespace)
+            .onTapGesture { onTap?() }
+            .frame(maxWidth: .infinity, alignment: .center)
+        }
+        .aspectRatio(aspectRatio, contentMode: .fit)
+        .frame(maxWidth: imageSize?.width)
     }
 }

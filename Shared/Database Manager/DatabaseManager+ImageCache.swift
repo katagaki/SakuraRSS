@@ -18,6 +18,10 @@ nonisolated extension DatabaseManager {
         ))
     }
 
+    func clearCachedImageData(for url: String) throws {
+        try database.run(imageCache.filter(imageCacheURL == url).delete())
+    }
+
     func clearImageCache() throws {
         try database.run(imageCache.delete())
     }

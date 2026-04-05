@@ -20,14 +20,14 @@ extension ArticleExtractor {
 
     /// Extracts text from a block element, preserving `<br>` tags as newlines
     /// and `<a>` tags as Markdown links.
-    static func textContent(of element: Element) throws -> String {
+    static func textContent(of element: Element, baseURL: URL? = nil) throws -> String {
         var html = try element.html()
         html = html.replacingOccurrences(
             of: "<br\\s*/?>",
             with: brPlaceholder,
             options: .regularExpression
         )
-        html = replaceImgTags(in: html)
+        html = replaceImgTags(in: html, baseURL: baseURL)
         html = replaceLinkTags(in: html)
         html = replaceFormattingTags(in: html)
         let fragment = try SwiftSoup.parseBodyFragment(html)
@@ -44,7 +44,7 @@ extension ArticleExtractor {
 
     // MARK: - HTML Tag Replacement
 
-    private static func replaceImgTags(in html: String) -> String {
+    private static func replaceImgTags(in html: String, baseURL: URL? = nil) -> String {
         guard let imgRegex = try? NSRegularExpression(
             pattern: "<img\\s[^>]*src=[\"']([^\"']+)[\"'][^>]*/?>",
             options: .caseInsensitive
@@ -54,8 +54,8 @@ extension ArticleExtractor {
         let imgMatches = imgRegex.matches(in: result, range: NSRange(location: 0, length: nsHTML.length))
         for match in imgMatches.reversed() {
             let imgURL = nsHTML.substring(with: match.range(at: 1))
-            if isLikelyContentImage(imgURL) {
-                let replacement = "\(imgOpenPlaceholder)\(imgURL)\(imgClosePlaceholder)"
+            if isLikelyContentImage(imgURL), let resolved = resolveURL(imgURL, against: baseURL) {
+                let replacement = "\(imgOpenPlaceholder)\(resolved)\(imgClosePlaceholder)"
                 result = (result as NSString).replacingCharacters(in: match.range, with: replacement)
             } else {
                 result = (result as NSString).replacingCharacters(in: match.range, with: "")
