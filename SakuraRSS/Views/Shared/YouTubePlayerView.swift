@@ -243,6 +243,8 @@ struct YouTubePlayerView: View {
                                 switch block {
                                 case .text(let content):
                                     SelectableText(content)
+                                case .code(let content):
+                                    CodeBlockView(code: content)
                                 case .image(let url, _):
                                     CachedAsyncImage(url: url) {
                                         Rectangle()

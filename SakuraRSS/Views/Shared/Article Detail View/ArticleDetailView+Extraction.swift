@@ -20,10 +20,14 @@ extension ArticleDetailView {
            !cached.isEmpty {
             extractedText = cached
             #if DEBUG
-            debugPrint("Using cached content: \(article.url)")
+            debugPrint("[Extract] Cache hit (\(cached.count) chars): \(article.url)")
             #endif
             return
         }
+
+        #if DEBUG
+        debugPrint("[Extract] Cache miss: \(article.url)")
+        #endif
 
         let articleTitle = article.title
         let source = articleSource
@@ -71,6 +75,31 @@ extension ArticleDetailView {
         }
 
         // Automatic: use domain lists to determine the best extraction method
+
+        // For X post URLs (from non-X feeds), use the X API to fetch the tweet directly
+        let isFromXFeed = feedManager.feed(forArticle: article)?.isXFeed == true
+        if article.isXPostURL, !isFromXFeed,
+           UserDefaults.standard.bool(forKey: "Labs.XProfileFeeds"),
+           let url = URL(string: article.url),
+           let tweetID = XProfileScraper.extractTweetID(from: url),
+           await XProfileScraper.hasXSession() {
+            let scraper = XProfileScraper()
+            if let tweet = await scraper.fetchSingleTweet(tweetID: tweetID) {
+                var text = tweet.text
+                if let imageURL = tweet.imageURL {
+                    text += "\n\n{{IMG}}\(imageURL){{/IMG}}"
+                }
+                extractedText = text
+                if !text.isEmpty {
+                    try? DatabaseManager.shared.cacheArticleContent(text, for: article.id)
+                }
+                return
+            }
+            // If X API fetch failed, fall through to normal extraction
+            #if DEBUG
+            debugPrint("[Extract] X post fetch failed, falling through: \(article.url)")
+            #endif
+        }
 
         // For ExtractText domains (e.g. apple.com), use WebView-based extraction
         if let url = URL(string: article.url), ExtractTextDomains.shouldExtractText(for: url) {

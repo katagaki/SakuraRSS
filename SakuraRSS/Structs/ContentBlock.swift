@@ -3,15 +3,17 @@ import Foundation
 enum ContentBlock: Identifiable {
     case text(String)
     case image(URL, link: URL? = nil)
+    case code(String)
 
     var id: String {
         switch self {
         case .text(let text): return "text-\(text.hashValue)"
         case .image(let url, _): return "image-\(url.absoluteString)"
+        case .code(let text): return "code-\(text.hashValue)"
         }
     }
 
-    /// Strips image markers from text, returning plain text suitable for translation/summarization.
+    /// Strips image and code markers from text, returning plain text suitable for translation/summarization.
     static func plainText(from text: String) -> String {
         text.replacingOccurrences(
             of: #"\{\{IMG\}\}.+?\{\{/IMG\}\}"#, with: "", options: .regularExpression
@@ -19,6 +21,8 @@ enum ContentBlock: Identifiable {
         .replacingOccurrences(
             of: #"\{\{IMGLINK\}\}.+?\{\{/IMGLINK\}\}"#, with: "", options: .regularExpression
         )
+        .replacingOccurrences(of: "{{CODE}}", with: "")
+        .replacingOccurrences(of: "{{/CODE}}", with: "")
         .replacingOccurrences(of: #"\n{3,}"#, with: "\n\n", options: .regularExpression)
         .trimmingCharacters(in: .whitespacesAndNewlines)
     }
@@ -34,6 +38,9 @@ enum ContentBlock: Identifiable {
         result = result.replacingOccurrences(
             of: #"\{\{IMGLINK\}\}.+?\{\{/IMGLINK\}\}"#, with: "", options: .regularExpression
         )
+        // Strip code markers, keeping content
+        result = result.replacingOccurrences(of: "{{CODE}}", with: "")
+        result = result.replacingOccurrences(of: "{{/CODE}}", with: "")
         // Strip sup/sub markers, keeping content
         result = result.replacingOccurrences(
             of: #"\{\{SUP\}\}(.+?)\{\{/SUP\}\}"#, with: "$1", options: .regularExpression
@@ -68,8 +75,10 @@ enum ContentBlock: Identifiable {
     }
 
     static func parse(_ text: String) -> [ContentBlock] {
-        let pattern = #"\{\{IMG\}\}(.+?)\{\{/IMG\}\}"#
-        guard let regex = try? NSRegularExpression(pattern: pattern) else {
+        // Match both {{IMG}}…{{/IMG}} and {{CODE}}…{{/CODE}} markers
+        let pattern = #"\{\{(IMG|CODE)\}\}(.*?)\{\{/(IMG|CODE)\}\}"#
+        guard let regex = try? NSRegularExpression(pattern: pattern, options: .dotMatchesLineSeparators)
+        else {
             return [.text(text)]
         }
 
@@ -87,7 +96,7 @@ enum ContentBlock: Identifiable {
         var lastEnd = 0
 
         for match in matches {
-            // Text before the image
+            // Text before the marker
             if match.range.location > lastEnd {
                 let before = nsText.substring(
                     with: NSRange(location: lastEnd, length: match.range.location - lastEnd)
@@ -97,26 +106,34 @@ enum ContentBlock: Identifiable {
                 }
             }
 
-            // The image (possibly with a link)
-            let content = nsText.substring(with: match.range(at: 1))
-            let nsContent = content as NSString
-            if let linkRegex,
-               let linkMatch = linkRegex.firstMatch(
-                in: content, range: NSRange(location: 0, length: nsContent.length)
-               ) {
-                let imgURLString = nsContent.substring(with: linkMatch.range(at: 1))
-                let linkURLString = nsContent.substring(with: linkMatch.range(at: 2))
-                if let imgURL = URL(string: imgURLString) {
-                    blocks.append(.image(imgURL, link: URL(string: linkURLString)))
+            let tag = nsText.substring(with: match.range(at: 1))
+            let content = nsText.substring(with: match.range(at: 2))
+
+            if tag == "CODE" {
+                if !content.isEmpty {
+                    blocks.append(.code(content))
                 }
-            } else if let url = URL(string: content) {
-                blocks.append(.image(url))
+            } else {
+                // IMG — possibly with a link
+                let nsContent = content as NSString
+                if let linkRegex,
+                   let linkMatch = linkRegex.firstMatch(
+                    in: content, range: NSRange(location: 0, length: nsContent.length)
+                   ) {
+                    let imgURLString = nsContent.substring(with: linkMatch.range(at: 1))
+                    let linkURLString = nsContent.substring(with: linkMatch.range(at: 2))
+                    if let imgURL = URL(string: imgURLString) {
+                        blocks.append(.image(imgURL, link: URL(string: linkURLString)))
+                    }
+                } else if let url = URL(string: content) {
+                    blocks.append(.image(url))
+                }
             }
 
             lastEnd = match.range.location + match.range.length
         }
 
-        // Text after the last image
+        // Text after the last marker
         if lastEnd < nsText.length {
             let after = nsText.substring(from: lastEnd)
                 .trimmingCharacters(in: .whitespacesAndNewlines)

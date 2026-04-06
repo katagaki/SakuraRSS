@@ -169,6 +169,66 @@ extension XProfileScraper {
         )
     }
 
+    // MARK: - TweetDetail Response Parsing
+
+    static func parseTweetDetailResponse(data: Data, tweetID: String) -> ParsedTweet? {
+        guard let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+              let dataObj = json["data"] as? [String: Any],
+              let threadedConvo = dataObj["threaded_conversation_with_injections_v2"]
+                  as? [String: Any],
+              let instructions = threadedConvo["instructions"] as? [[String: Any]] else {
+            #if DEBUG
+            print("[XProfileScraper] Failed to parse TweetDetail JSON structure")
+            #endif
+            return nil
+        }
+
+        guard let addEntries = instructions.first(
+            where: { ($0["type"] as? String) == "TimelineAddEntries" }
+        ), let entries = addEntries["entries"] as? [[String: Any]] else {
+            #if DEBUG
+            print("[XProfileScraper] No TimelineAddEntries in TweetDetail")
+            #endif
+            return nil
+        }
+
+        let dateFormatter = DateFormatter()
+        dateFormatter.locale = Locale(identifier: "en_US_POSIX")
+        dateFormatter.dateFormat = "EEE MMM dd HH:mm:ss Z yyyy"
+
+        // TweetDetail entries have a different structure: the focal tweet is inside
+        // content.itemContent (for single-item entries) or content.items[] (for
+        // conversation thread entries).
+        for entry in entries {
+            guard let content = entry["content"] as? [String: Any] else { continue }
+            let entryType = content["entryType"] as? String
+
+            if entryType == "TimelineTimelineItem" {
+                if let tweet = parseTweetEntry(content: content,
+                                               dateFormatter: dateFormatter),
+                   tweet.id == tweetID {
+                    return tweet
+                }
+            } else if entryType == "TimelineTimelineModule" {
+                // Thread modules contain an items array
+                guard let items = content["items"] as? [[String: Any]] else { continue }
+                for item in items {
+                    guard let itemObj = item["item"] as? [String: Any] else { continue }
+                    if let tweet = parseTweetEntry(content: itemObj,
+                                                   dateFormatter: dateFormatter),
+                       tweet.id == tweetID {
+                        return tweet
+                    }
+                }
+            }
+        }
+
+        #if DEBUG
+        print("[XProfileScraper] TweetDetail: focal tweet \(tweetID) not found in entries")
+        #endif
+        return nil
+    }
+
     // MARK: - URL Building
 
     static func buildGraphQLURL(

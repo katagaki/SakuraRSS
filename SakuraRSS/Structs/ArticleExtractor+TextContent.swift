@@ -19,6 +19,8 @@ extension ArticleExtractor {
     static let supClosePlaceholder = "{{SAKURA_SUP_CLOSE}}"
     static let subOpenPlaceholder = "{{SAKURA_SUB_OPEN}}"
     static let subClosePlaceholder = "{{SAKURA_SUB_CLOSE}}"
+    static let codeOpenPlaceholder = "{{SAKURA_CODE_OPEN}}"
+    static let codeClosePlaceholder = "{{SAKURA_CODE_CLOSE}}"
 
     /// Extracts text from a block element, preserving `<br>` tags as newlines
     /// and `<a>` tags as Markdown links.
@@ -185,6 +187,13 @@ extension ArticleExtractor {
         result = result.replacingOccurrences(
             of: "</sub>", with: subClosePlaceholder, options: .caseInsensitive
         )
+        result = result.replacingOccurrences(
+            of: "<code(?:\\s[^>]*)?>", with: codeOpenPlaceholder,
+            options: [.regularExpression, .caseInsensitive]
+        )
+        result = result.replacingOccurrences(
+            of: "</code>", with: codeClosePlaceholder, options: .caseInsensitive
+        )
         return result
     }
 
@@ -207,6 +216,8 @@ extension ArticleExtractor {
         result = result.replacingOccurrences(of: imgClosePlaceholder, with: "{{/IMG}}")
         result = result.replacingOccurrences(of: imgLinkOpenPlaceholder, with: "{{IMGLINK}}")
         result = result.replacingOccurrences(of: imgLinkClosePlaceholder, with: "{{/IMGLINK}}")
+        result = result.replacingOccurrences(of: codeOpenPlaceholder, with: "`")
+        result = result.replacingOccurrences(of: codeClosePlaceholder, with: "`")
         return result
     }
 

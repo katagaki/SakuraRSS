@@ -35,6 +35,7 @@ nonisolated extension DatabaseManager {
         _ = try? database.run(articles.addColumn(articleTranslatedTitle))
         _ = try? database.run(articles.addColumn(articleTranslatedText))
         _ = try? database.run(articles.addColumn(articleTranslatedSummary))
+        _ = try? database.run(articles.addColumn(articleParserVersion, defaultValue: 0))
 
         // image_cache table
         _ = try? database.run(imageCache.addColumn(imageCacheData, defaultValue: Data()))

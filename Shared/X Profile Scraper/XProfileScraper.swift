@@ -29,6 +29,7 @@ final class XProfileScraper {
 
     static var userByScreenNameQueryID: String?
     static var userTweetsQueryID: String?
+    static var tweetDetailQueryID: String?
 
     static let userByScreenNameFeatures: [String: Bool] = [
         "hidden_profile_subscriptions_enabled": true,
@@ -77,6 +78,25 @@ final class XProfileScraper {
     static var queryIDsFetched = false
 
     // MARK: - Static Helpers
+
+    /// Returns true if the URL points to a specific X/Twitter post (status).
+    nonisolated static func isXPostURL(_ url: URL) -> Bool {
+        guard let host = url.host?.lowercased() else { return false }
+        let isXDomain = host == "x.com" || host == "twitter.com"
+            || host == "www.x.com" || host == "www.twitter.com"
+            || host == "mobile.x.com" || host == "mobile.twitter.com"
+        guard isXDomain else { return false }
+        // Path like /username/status/1234567890
+        let components = url.pathComponents
+        return components.count >= 4 && components[2] == "status"
+    }
+
+    /// Extracts the tweet ID from an X/Twitter status URL.
+    nonisolated static func extractTweetID(from url: URL) -> String? {
+        let components = url.pathComponents
+        guard components.count >= 4, components[2] == "status" else { return nil }
+        return components[3]
+    }
 
     /// Returns true if the URL points to an X/Twitter profile.
     nonisolated static func isXProfileURL(_ url: URL) -> Bool {
@@ -197,6 +217,7 @@ final class XProfileScraper {
         }
         userByScreenNameQueryID = nil
         userTweetsQueryID = nil
+        tweetDetailQueryID = nil
         queryIDsFetched = false
         UserDefaults.standard.set(false, forKey: xSessionCacheKey)
     }

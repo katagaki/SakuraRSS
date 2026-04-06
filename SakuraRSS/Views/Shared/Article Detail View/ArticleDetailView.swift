@@ -152,6 +152,8 @@ struct ArticleDetailView: View {
                         switch block {
                         case .text(let content):
                             SelectableText(content)
+                        case .code(let content):
+                            CodeBlockView(code: content)
                         case .image(let url, let link):
                             FitWidthImage(url: url, link: link, namespace: imageViewerNamespace) {
                                 imageViewerURL = url
