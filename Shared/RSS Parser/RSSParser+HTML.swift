@@ -136,6 +136,7 @@ nonisolated extension RSSParser {
         for match in linkMatches.reversed() {
             let url = nsResult.substring(with: match.range(at: 1))
             let linkText = nsResult.substring(with: match.range(at: 2))
+                .replacingOccurrences(of: "\\s+", with: " ", options: .regularExpression)
                 .trimmingCharacters(in: .whitespacesAndNewlines)
             if linkText.isEmpty {
                 result = (result as NSString).replacingCharacters(in: match.range, with: "")

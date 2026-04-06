@@ -112,16 +112,37 @@ extension ArticleExtractor {
 
     private static func replaceLinkTags(in html: String) -> String {
         var result = html
-        result = result.replacingOccurrences(
-            of: "<a\\s[^>]*href=[\"']([^\"']+)[\"'][^>]*>(.+?)</a>",
-            with: "\(linkOpenPlaceholder)$2\(linkMidPlaceholder)$1\(linkClosePlaceholder)",
-            options: .regularExpression
-        )
+
+        // Remove empty links first.
         result = result.replacingOccurrences(
             of: "<a\\s[^>]*>\\s*</a>",
             with: "",
             options: .regularExpression
         )
+
+        // Replace links using NSRegularExpression so we can collapse newline
+        // placeholders inside the captured link text.  A simple
+        // `replacingOccurrences(of:with:options:.regularExpression)` substitution
+        // would preserve the placeholders verbatim, producing broken Markdown
+        // like `[\nDJIA\n46504.67\n](\url)`.
+        guard let regex = try? NSRegularExpression(
+            pattern: "<a\\s[^>]*href=[\"']([^\"']+)[\"'][^>]*>(.+?)</a>",
+            options: .caseInsensitive
+        ) else { return result }
+
+        let nsResult = result as NSString
+        let matches = regex.matches(in: result,
+                                    range: NSRange(location: 0, length: nsResult.length))
+        for match in matches.reversed() {
+            let href = nsResult.substring(with: match.range(at: 1))
+            var linkText = nsResult.substring(with: match.range(at: 2))
+            // Collapse newline placeholders inside link text to a single space.
+            linkText = linkText
+                .replacingOccurrences(of: doubleLFPlaceholder, with: " ")
+                .replacingOccurrences(of: singleLFPlaceholder, with: " ")
+            let replacement = "\(linkOpenPlaceholder)\(linkText)\(linkMidPlaceholder)\(href)\(linkClosePlaceholder)"
+            result = (result as NSString).replacingCharacters(in: match.range, with: replacement)
+        }
         return result
     }
 
