@@ -5,6 +5,7 @@ import Foundation
 nonisolated enum FullFaviconDomains {
 
     static let allowlistedDomains: Set<String> = [
+        "appleinsider.com",
         "nikkei.com"
     ]
 

@@ -62,7 +62,7 @@ extension FeedManager {
 
         // Cache favicon and update feed details
         if let image = profileImage {
-            await FaviconCache.shared.setCustomFavicon(image, feedID: feed.id)
+            await FaviconCache.shared.setCustomFavicon(image, feedID: feed.id, skipTrimming: true)
             if feed.customIconURL != "photo" || feed.title != feedTitle {
                 try? await Task.detached {
                     try database.updateFeedDetails(

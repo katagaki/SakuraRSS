@@ -32,9 +32,10 @@ actor FaviconCache {
         let filePath = cacheDirectory.appendingPathComponent(sanitizedFileName(cacheKey))
         if let data = try? Data(contentsOf: filePath),
            let image = UIImage(data: data) {
-            let trimmed = await image.trimmed()
-            memoryCache[cacheKey] = trimmed
-            return trimmed
+            let skipTrim = SkipTrimDomains.shouldSkipTrimming(feedDomain: domain)
+            let result = skipTrim ? image : await image.trimmed()
+            memoryCache[cacheKey] = result
+            return result
         }
 
         return await fetchAndCacheFavicon(for: domain, siteURL: siteURL, cacheKey: cacheKey, filePath: filePath)
@@ -59,6 +60,15 @@ actor FaviconCache {
                 return image
             }
         }
+
+        // For X feeds without a cached photo, fetch the profile avatar via XProfileScraper
+        if feed.isXFeed,
+           let handle = XProfileScraper.handleFromFeedURL(feed.url),
+           let image = await fetchXProfileAvatar(handle: handle) {
+            await setCustomFavicon(image, feedID: feed.id, skipTrimming: true)
+            return image
+        }
+
         return await favicon(for: feed.domain, siteURL: feed.siteURL)
     }
 
@@ -92,12 +102,12 @@ actor FaviconCache {
         try? FileManager.default.createDirectory(at: cacheDirectory, withIntermediateDirectories: true)
     }
 
-    func setCustomFavicon(_ image: UIImage, feedID: Int64) async {
-        let trimmed = await image.trimmed()
+    func setCustomFavicon(_ image: UIImage, feedID: Int64, skipTrimming: Bool = false) async {
+        let finalImage = skipTrimming ? image : await image.trimmed()
         let key = "custom-feed-\(feedID)"
-        memoryCache[key] = trimmed
+        memoryCache[key] = finalImage
         let filePath = cacheDirectory.appendingPathComponent(sanitizedFileName(key))
-        if let pngData = trimmed.pngData() {
+        if let pngData = finalImage.pngData() {
             try? pngData.write(to: filePath)
         }
     }
@@ -123,13 +133,14 @@ actor FaviconCache {
         try? FileManager.default.removeItem(at: filePath)
     }
 
-    private func trimAndCache(_ image: UIImage, cacheKey: String, filePath: URL) async -> UIImage {
-        let trimmed = await image.trimmed()
-        if let pngData = trimmed.pngData() {
+    private func trimAndCache(_ image: UIImage, cacheKey: String, filePath: URL, domain: String? = nil) async -> UIImage {
+        let skipTrim = domain.map { SkipTrimDomains.shouldSkipTrimming(feedDomain: $0) } ?? false
+        let result = skipTrim ? image : await image.trimmed()
+        if let pngData = result.pngData() {
             try? pngData.write(to: filePath)
         }
-        memoryCache[cacheKey] = trimmed
-        return trimmed
+        memoryCache[cacheKey] = result
+        return result
     }
 
     private func fetchAndCacheFavicon(
@@ -146,10 +157,18 @@ actor FaviconCache {
             #if DEBUG
             debugPrint("[Favicon] Found profile avatar for \(domain)")
             #endif
-            return await trimAndCache(image, cacheKey: cacheKey, filePath: filePath)
+            return await trimAndCache(image, cacheKey: cacheKey, filePath: filePath, domain: domain)
         }
 
-        guard let url = URL(string: "https://\(domain)") else {
+        // Map feed domains to their favicon domain (e.g. feeds.bbci.co.uk → bbc.co.uk)
+        let faviconDomain = FaviconAlternateDomains.faviconDomain(for: domain)
+        #if DEBUG
+        if faviconDomain != domain {
+            debugPrint("[Favicon] Mapped domain \(domain) → \(faviconDomain)")
+        }
+        #endif
+
+        guard let url = URL(string: "https://\(faviconDomain)") else {
             #if DEBUG
             debugPrint("[Favicon] Invalid domain URL: \(domain)")
             #endif
@@ -162,7 +181,7 @@ actor FaviconCache {
             #if DEBUG
             debugPrint("[Favicon] Found PWA/touch icon for \(domain)")
             #endif
-            return await trimAndCache(image, cacheKey: cacheKey, filePath: filePath)
+            return await trimAndCache(image, cacheKey: cacheKey, filePath: filePath, domain: domain)
         }
 
         // Fall back to FaviconFinder
@@ -186,7 +205,7 @@ actor FaviconCache {
                 failedLookups.insert(cacheKey)
                 return nil
             }
-            return await trimAndCache(faviconImage.image, cacheKey: cacheKey, filePath: filePath)
+            return await trimAndCache(faviconImage.image, cacheKey: cacheKey, filePath: filePath, domain: domain)
         } catch {
             #if DEBUG
             debugPrint("[Favicon] FaviconFinder failed for \(domain): \(error.localizedDescription)")
@@ -304,6 +323,19 @@ actor FaviconCache {
             return true
         }
         return false
+    }
+
+    /// Fetches an X (Twitter) profile avatar using the XProfileScraper API.
+    private nonisolated func fetchXProfileAvatar(handle: String) async -> UIImage? {
+        let scraper = XProfileScraper()
+        guard let cookies = await XProfileScraper.getXCookies(),
+              let userInfo = await scraper.fetchUserInfo(screenName: handle, cookies: cookies),
+              let imageURLString = userInfo.profileImageURL,
+              let imageURL = URL(string: imageURLString),
+              let (data, _) = try? await URLSession.shared.data(from: imageURL) else {
+            return nil
+        }
+        return UIImage(data: data)
     }
 
     /// Fetches a profile avatar by scraping the profile page for the og:image meta tag.
