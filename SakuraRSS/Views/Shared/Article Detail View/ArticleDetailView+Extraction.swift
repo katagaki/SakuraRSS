@@ -87,16 +87,22 @@ extension ArticleDetailView {
                                                     baseURL: baseURL,
                                                     excludeTitle: articleTitle)
             if let text, !text.isEmpty {
-                #if DEBUG
                 let paragraphCount = text.components(separatedBy: "\n\n").count
-                debugPrint("[Extract] Using feed content (\(paragraphCount) paragraphs, \(text.count) chars): \(article.url)")
+                // If a long text has very few paragraphs, the feed content likely
+                // lacks proper HTML structure. Fall through to URL fetch for a
+                // better extraction with the original page's <p> tags.
+                let looksWellStructured = paragraphCount > 1 || text.count < 500
+                #if DEBUG
+                debugPrint("[Extract] Feed content: \(paragraphCount) paragraphs, \(text.count) chars, wellStructured=\(looksWellStructured): \(article.url)")
                 #endif
-                extractedText = text
-                try? DatabaseManager.shared.cacheArticleContent(text, for: article.id)
-                return
+                if looksWellStructured {
+                    extractedText = text
+                    try? DatabaseManager.shared.cacheArticleContent(text, for: article.id)
+                    return
+                }
             }
             #if DEBUG
-            debugPrint("[Extract] Feed content extraction returned empty, falling through to URL fetch: \(article.url)")
+            debugPrint("[Extract] Feed content unsuitable, falling through to URL fetch: \(article.url)")
             #endif
         }
 
