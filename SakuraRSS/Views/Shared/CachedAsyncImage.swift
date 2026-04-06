@@ -55,15 +55,34 @@ struct CachedAsyncImage<Placeholder: View>: View {
 
         if let cachedData = try? database.cachedImageData(for: urlString),
            let cachedImage = UIImage(data: cachedData) {
+            #if DEBUG
+            debugPrint("[Image] Cache hit for \(urlString) (\(cachedData.count) bytes)")
+            #endif
             return cachedImage
         }
 
+        #if DEBUG
+        debugPrint("[Image] Cache miss, downloading \(urlString)")
+        #endif
+
         do {
-            let (data, _) = try await URLSession.shared.data(from: url)
-            guard let downloadedImage = UIImage(data: data) else { return nil }
+            let (data, response) = try await URLSession.shared.data(from: url)
+            let statusCode = (response as? HTTPURLResponse)?.statusCode
+            #if DEBUG
+            debugPrint("[Image] Downloaded \(urlString): \(data.count) bytes, HTTP \(statusCode ?? 0)")
+            #endif
+            guard let downloadedImage = UIImage(data: data) else {
+                #if DEBUG
+                debugPrint("[Image] Failed to decode image data from \(urlString) (\(data.count) bytes)")
+                #endif
+                return nil
+            }
             try? database.cacheImageData(data, for: urlString)
             return downloadedImage
         } catch {
+            #if DEBUG
+            debugPrint("[Image] Download failed for \(urlString): \(error.localizedDescription)")
+            #endif
             return nil
         }
     }

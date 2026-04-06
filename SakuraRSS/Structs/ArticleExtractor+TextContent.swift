@@ -55,9 +55,15 @@ extension ArticleExtractor {
         for match in imgMatches.reversed() {
             let imgURL = nsHTML.substring(with: match.range(at: 1))
             if isLikelyContentImage(imgURL), let resolved = resolveURL(imgURL, against: baseURL) {
+                #if DEBUG
+                debugPrint("[Image] Inline <img> extracted: \(resolved)")
+                #endif
                 let replacement = "\(imgOpenPlaceholder)\(resolved)\(imgClosePlaceholder)"
                 result = (result as NSString).replacingCharacters(in: match.range, with: replacement)
             } else {
+                #if DEBUG
+                debugPrint("[Image] Inline <img> skipped: \(imgURL)")
+                #endif
                 result = (result as NSString).replacingCharacters(in: match.range, with: "")
             }
         }

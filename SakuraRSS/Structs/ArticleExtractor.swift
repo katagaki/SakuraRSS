@@ -119,21 +119,45 @@ struct ArticleExtractor {
         for child in element.children() {
             let tag = child.tagName().lowercased()
             if tag == "img" {
-                if let src = try? child.attr("src"), !src.isEmpty, isLikelyContentImage(src),
-                   let resolved = resolveURL(src, against: baseURL) {
-                    paragraphs.append("{{IMG}}\(resolved){{/IMG}}")
+                if let src = try? child.attr("src"), !src.isEmpty {
+                    if !isLikelyContentImage(src) {
+                        #if DEBUG
+                        debugPrint("[Image] Skipped non-content <img>: \(src)")
+                        #endif
+                    } else if let resolved = resolveURL(src, against: baseURL) {
+                        #if DEBUG
+                        debugPrint("[Image] Extracted <img>: \(resolved)")
+                        #endif
+                        paragraphs.append("{{IMG}}\(resolved){{/IMG}}")
+                    }
                 }
             } else if tag == "picture" {
                 if let img = try? child.select("img").first(),
-                   let src = try? img.attr("src"), !src.isEmpty, isLikelyContentImage(src),
-                   let resolved = resolveURL(src, against: baseURL) {
-                    paragraphs.append("{{IMG}}\(resolved){{/IMG}}")
+                   let src = try? img.attr("src"), !src.isEmpty {
+                    if !isLikelyContentImage(src) {
+                        #if DEBUG
+                        debugPrint("[Image] Skipped non-content <picture>: \(src)")
+                        #endif
+                    } else if let resolved = resolveURL(src, against: baseURL) {
+                        #if DEBUG
+                        debugPrint("[Image] Extracted <picture>: \(resolved)")
+                        #endif
+                        paragraphs.append("{{IMG}}\(resolved){{/IMG}}")
+                    }
                 }
             } else if tag == "figure" {
                 if let img = try? child.select("img").first(),
-                   let src = try? img.attr("src"), !src.isEmpty, isLikelyContentImage(src),
-                   let resolved = resolveURL(src, against: baseURL) {
-                    paragraphs.append("{{IMG}}\(resolved){{/IMG}}")
+                   let src = try? img.attr("src"), !src.isEmpty {
+                    if !isLikelyContentImage(src) {
+                        #if DEBUG
+                        debugPrint("[Image] Skipped non-content <figure>: \(src)")
+                        #endif
+                    } else if let resolved = resolveURL(src, against: baseURL) {
+                        #if DEBUG
+                        debugPrint("[Image] Extracted <figure>: \(resolved)")
+                        #endif
+                        paragraphs.append("{{IMG}}\(resolved){{/IMG}}")
+                    }
                 }
                 if let caption = try? child.select("figcaption").first() {
                     let captionText = try textContent(of: caption, baseURL: baseURL)
@@ -176,12 +200,21 @@ struct ArticleExtractor {
         }
         // Protocol-relative
         if src.hasPrefix("//"), let url = URL(string: "https:\(src)") {
+            #if DEBUG
+            debugPrint("[Image] Resolved protocol-relative URL: \(src) -> \(url.absoluteString)")
+            #endif
             return url.absoluteString
         }
         // Relative — needs base URL
         if let baseURL, let resolved = URL(string: src, relativeTo: baseURL) {
+            #if DEBUG
+            debugPrint("[Image] Resolved relative URL: \(src) -> \(resolved.absoluteString) (base: \(baseURL.absoluteString))")
+            #endif
             return resolved.absoluteString
         }
+        #if DEBUG
+        debugPrint("[Image] Failed to resolve URL: \(src) (base: \(baseURL?.absoluteString ?? "nil"))")
+        #endif
         return nil
     }
 

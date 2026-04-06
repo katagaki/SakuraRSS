@@ -136,19 +136,32 @@ actor FaviconCache {
         for domain: String, siteURL: String? = nil,
         cacheKey: String, filePath: URL
     ) async -> UIImage? {
+        #if DEBUG
+        debugPrint("[Favicon] Fetching favicon for domain: \(domain), cacheKey: \(cacheKey)")
+        #endif
+
         // For profile-based feeds, fetch the avatar from the profile page's og:image
         if Self.isProfileBased(domain: domain, siteURL: siteURL), let siteURL = siteURL,
            let image = await fetchProfileAvatar(from: siteURL) {
+            #if DEBUG
+            debugPrint("[Favicon] Found profile avatar for \(domain)")
+            #endif
             return await trimAndCache(image, cacheKey: cacheKey, filePath: filePath)
         }
 
         guard let url = URL(string: "https://\(domain)") else {
+            #if DEBUG
+            debugPrint("[Favicon] Invalid domain URL: \(domain)")
+            #endif
             failedLookups.insert(cacheKey)
             return nil
         }
 
         // Try PWA / apple-touch-icon first for higher quality
         if let image = await fetchPWAIcon(from: url) {
+            #if DEBUG
+            debugPrint("[Favicon] Found PWA/touch icon for \(domain)")
+            #endif
             return await trimAndCache(image, cacheKey: cacheKey, filePath: filePath)
         }
 
@@ -156,16 +169,28 @@ actor FaviconCache {
         do {
             let faviconURLs = try await FaviconFinder(url: url).fetchFaviconURLs()
             guard let bestFaviconURL = faviconURLs.first else {
+                #if DEBUG
+                debugPrint("[Favicon] No favicon URLs found for \(domain)")
+                #endif
                 failedLookups.insert(cacheKey)
                 return nil
             }
+            #if DEBUG
+            debugPrint("[Favicon] Downloading favicon from \(bestFaviconURL) for \(domain)")
+            #endif
             let favicon = try await bestFaviconURL.download()
             guard let faviconImage = favicon.image else {
+                #if DEBUG
+                debugPrint("[Favicon] Failed to decode favicon image for \(domain)")
+                #endif
                 failedLookups.insert(cacheKey)
                 return nil
             }
             return await trimAndCache(faviconImage.image, cacheKey: cacheKey, filePath: filePath)
         } catch {
+            #if DEBUG
+            debugPrint("[Favicon] FaviconFinder failed for \(domain): \(error.localizedDescription)")
+            #endif
             failedLookups.insert(cacheKey)
             return nil
         }
@@ -177,12 +202,20 @@ actor FaviconCache {
     private nonisolated func fetchPWAIcon(from siteURL: URL) async -> UIImage? {
         do {
             let (data, _) = try await URLSession.shared.data(from: siteURL)
-            guard let html = String(data: data, encoding: .utf8) else { return nil }
+            guard let html = String(data: data, encoding: .utf8) else {
+                #if DEBUG
+                debugPrint("[Favicon] PWA: failed to decode HTML from \(siteURL)")
+                #endif
+                return nil
+            }
 
             // 1. Try web app manifest
             if let manifestHref = extractLinkHref(from: html, rel: "manifest"),
                let manifestURL = URL(string: manifestHref, relativeTo: siteURL),
                let icon = await fetchManifestIcon(from: manifestURL.absoluteURL) {
+                #if DEBUG
+                debugPrint("[Favicon] PWA: found manifest icon from \(manifestURL.absoluteURL)")
+                #endif
                 return icon
             }
 
@@ -191,12 +224,24 @@ actor FaviconCache {
                let iconURL = URL(string: touchIconHref, relativeTo: siteURL) {
                 let (iconData, _) = try await URLSession.shared.data(from: iconURL.absoluteURL)
                 if let image = UIImage(data: iconData), image.size.width >= 64 {
+                    #if DEBUG
+                    debugPrint("[Favicon] PWA: found apple-touch-icon from \(iconURL.absoluteURL) (\(image.size.width)x\(image.size.height))")
+                    #endif
                     return image
                 }
+                #if DEBUG
+                debugPrint("[Favicon] PWA: apple-touch-icon too small or invalid from \(iconURL.absoluteURL)")
+                #endif
             }
 
+            #if DEBUG
+            debugPrint("[Favicon] PWA: no suitable icon found for \(siteURL)")
+            #endif
             return nil
         } catch {
+            #if DEBUG
+            debugPrint("[Favicon] PWA: fetch failed for \(siteURL): \(error.localizedDescription)")
+            #endif
             return nil
         }
     }

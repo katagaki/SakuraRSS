@@ -73,15 +73,30 @@ struct SingleFeedProvider: AppIntentTimelineProvider {
                 if let imageURLString = article.imageURL, let imageURL = URL(string: imageURLString) {
                     var rawData: Data?
                     if let cached = try? database.cachedImageData(for: imageURLString) {
+                        #if DEBUG
+                        debugPrint("[Widget] Image cache hit for \(imageURLString) (\(cached.count) bytes)")
+                        #endif
                         rawData = cached
                     } else {
                         if let (data, _) = try? await URLSession.shared.data(from: imageURL) {
+                            #if DEBUG
+                            debugPrint("[Widget] Downloaded image \(imageURLString) (\(data.count) bytes)")
+                            #endif
                             try? database.cacheImageData(data, for: imageURLString)
                             rawData = data
+                        } else {
+                            #if DEBUG
+                            debugPrint("[Widget] Failed to download image \(imageURLString)")
+                            #endif
                         }
                     }
                     if let rawData {
                         imageData = await Self.downsampleImageData(rawData, maxDimension: 300)
+                        #if DEBUG
+                        if imageData == nil {
+                            debugPrint("[Widget] Failed to downsample image \(imageURLString)")
+                        }
+                        #endif
                     }
                 }
                 widgetArticles.append(SingleFeedArticle(
