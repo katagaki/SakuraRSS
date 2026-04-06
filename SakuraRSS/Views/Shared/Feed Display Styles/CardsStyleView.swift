@@ -25,6 +25,7 @@ struct CardsStyleView: View {
     /// called during navigation, which would remove the matched transition
     /// source and break the zoom animation.
     @State private var deckArticleIDs: Set<Int64>?
+    @State private var selectedArticle: Article?
     @State private var youTubeArticle: Article?
 
     private var deckArticles: [Article] {
@@ -81,6 +82,8 @@ struct CardsStyleView: View {
                         id: \.element.id) { index, article in
                     ArticleLink(article: article, onShowYouTubePlayer: {
                         youTubeArticle = $0
+                    }, onNavigate: {
+                        selectedArticle = $0
                     }, label: {
                         CardView(
                             article: article,
@@ -104,6 +107,16 @@ struct CardsStyleView: View {
         }
         .padding()
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .navigationDestination(item: $selectedArticle) { article in
+            Group {
+                if article.isPodcastEpisode {
+                    PodcastEpisodeView(article: article)
+                } else {
+                    ArticleDetailView(article: article)
+                }
+            }
+            .zoomTransition(sourceID: article.id, in: zoomNamespace)
+        }
         .navigationDestination(item: $youTubeArticle) { article in
             YouTubePlayerView(article: article)
                 .zoomTransition(sourceID: article.id, in: zoomNamespace)

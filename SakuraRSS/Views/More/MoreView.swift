@@ -118,6 +118,9 @@ struct MoreView: View {
                     NavigationLink("Integrations.YouTube") {
                         YouTubeSettingsView()
                     }
+                    NavigationLink("Integrations.X") {
+                        XSettingsView()
+                    }
                 } header: {
                     Text("Settings.Section.Integrations")
                 }
@@ -157,14 +160,6 @@ struct MoreView: View {
                     Text("Settings.Section.DataManagement")
                 } footer: {
                     Text("DataManagement.OPML.Footer")
-                }
-
-                Section {
-                    NavigationLink {
-                        LabsView()
-                    } label: {
-                        Text(String(localized: "More.Labs"))
-                    }
                 }
 
                 Section {

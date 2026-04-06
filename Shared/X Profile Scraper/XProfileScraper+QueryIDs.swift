@@ -48,6 +48,7 @@ extension XProfileScraper {
         let config = WKWebViewConfiguration()
         config.websiteDataStore = .default()
         let webView = WKWebView(frame: .zero, configuration: config)
+        webView.customUserAgent = userAgent
 
         guard let url = URL(string: "https://x.com/settings") else { return }
         webView.load(URLRequest(url: url, timeoutInterval: 10))
@@ -71,6 +72,7 @@ extension XProfileScraper {
         guard let pageURL = URL(string: "https://x.com") else { return }
 
         var request = URLRequest(url: pageURL)
+        request.setValue(userAgent, forHTTPHeaderField: "User-Agent")
         let cookieHeader = HTTPCookie.requestHeaderFields(with: cookies)
         for (key, value) in cookieHeader {
             request.setValue(value, forHTTPHeaderField: key)
