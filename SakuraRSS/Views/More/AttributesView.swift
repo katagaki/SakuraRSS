@@ -31,6 +31,15 @@ private struct Dependency: Identifiable {
 
     static let all: [Dependency] = [
         Dependency(
+            id: "sponsorblock",
+            name: "SponsorBlock",
+            license: "CC BY-NC-SA 4.0",
+            licenseText: """
+            Uses SponsorBlock data licensed under CC BY-NC-SA 4.0 \
+            from https://sponsor.ajay.app/.
+            """
+        ),
+        Dependency(
             id: "faviconfinder",
             name: "FaviconFinder",
             license: "MIT License",

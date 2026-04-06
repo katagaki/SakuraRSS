@@ -5,6 +5,7 @@ struct SeekBarView: View {
     @Binding var currentTime: TimeInterval
     let duration: TimeInterval
     var isDisabled: Bool = false
+    var segments: [(start: Double, end: Double)] = []
     let onSeek: (TimeInterval) -> Void
 
     @State private var isDragging = false
@@ -35,6 +36,22 @@ struct SeekBarView: View {
                     Capsule()
                         .fill(.tertiary)
                         .frame(height: isDragging ? 8 : 6)
+
+                    // Sponsor segment markers
+                    if duration > 0 {
+                        ForEach(Array(segments.enumerated()), id: \.offset) { _, segment in
+                            let startFraction = CGFloat(segment.start / duration)
+                            let endFraction = CGFloat(segment.end / duration)
+                            let segmentWidth = max((endFraction - startFraction) * trackWidth, 2)
+                            Capsule()
+                                .fill(Color.green.opacity(0.5))
+                                .frame(
+                                    width: segmentWidth,
+                                    height: isDragging ? 8 : 6
+                                )
+                                .offset(x: startFraction * trackWidth)
+                        }
+                    }
 
                     // Filled track
                     Capsule()

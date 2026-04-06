@@ -24,6 +24,13 @@ struct YouTubePlayerView: View {
     @State private var favicon: UIImage?
     @State private var acronymIcon: UIImage?
 
+    // SponsorBlock
+    @AppStorage("YouTube.SponsorBlock.Enabled") private var sponsorBlockEnabled = false
+    @AppStorage("YouTube.SponsorBlock.Categories") private var sponsorBlockCategories = "sponsor,selfpromo,interaction"
+    @State private var sponsorSegments: [SponsorSegment] = []
+    @State private var skippedSegmentIDs: Set<String> = []
+    @State private var skippedSegmentMessage: String?
+
     // Translation & summarization
     @State private var translatedText: String?
     @State private var translatedSummary: String?
@@ -109,6 +116,18 @@ struct YouTubePlayerView: View {
             )
             .aspectRatio(videoAspectRatio, contentMode: .fit)
             .clipped()
+            .overlay(alignment: .top) {
+                if let skippedSegmentMessage {
+                    Text(skippedSegmentMessage)
+                        .font(.caption.bold())
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 6)
+                        .background(.ultraThinMaterial, in: Capsule())
+                        .padding(.top, 8)
+                        .transition(.move(edge: .top).combined(with: .opacity))
+                }
+            }
+            .animation(.smooth.speed(2.0), value: skippedSegmentMessage)
             .overlay {
                 if isPiP {
                     Color.black
@@ -146,6 +165,7 @@ struct YouTubePlayerView: View {
                         ),
                         duration: duration,
                         isDisabled: isAd,
+                        segments: sponsorSegments.map { (start: $0.startTime, end: $0.endTime) },
                         onSeek: { seek(to: $0) }
                     )
                     .padding(.horizontal)
@@ -308,6 +328,9 @@ struct YouTubePlayerView: View {
         .onChange(of: isAd) { _, newValue in
             webView?.isUserInteractionEnabled = newValue
         }
+        .onChange(of: currentTime) { _, newTime in
+            checkSponsorSegments(at: newTime)
+        }
         .task {
             isBookmarked = article.isBookmarked
             let signedIn = await YouTubePlayerView.hasYouTubeSession()
@@ -320,6 +343,16 @@ struct YouTubePlayerView: View {
                     acronymIcon = UIImage(data: data)
                 }
                 favicon = await FaviconCache.shared.favicon(for: loadedFeed)
+            }
+
+            if sponsorBlockEnabled,
+               let videoID = SponsorBlockClient.extractVideoID(from: article.url) {
+                let categories = sponsorBlockCategories
+                    .split(separator: ",")
+                    .map(String.init)
+                sponsorSegments = await SponsorBlockClient.fetchSegments(
+                    for: videoID, categories: categories
+                )
             }
 
             if let cached = try? DatabaseManager.shared.cachedArticleTranslation(for: article.id) {
@@ -558,6 +591,34 @@ extension YouTubePlayerView {
             try? DatabaseManager.shared.cacheArticleSummary(response.content, for: article.id)
         } catch {
             summarizationError = error.localizedDescription
+        }
+    }
+}
+
+// MARK: - SponsorBlock
+
+extension YouTubePlayerView {
+
+    func checkSponsorSegments(at time: TimeInterval) {
+        guard sponsorBlockEnabled, !isAd, !sponsorSegments.isEmpty else { return }
+        for segment in sponsorSegments {
+            if time >= segment.startTime && time < segment.endTime
+                && !skippedSegmentIDs.contains(segment.id) {
+                skippedSegmentIDs.insert(segment.id)
+                seek(to: segment.endTime + 0.1)
+                let categoryName = SponsorBlockCategory(rawValue: segment.category)?
+                    .displayName ?? segment.category
+                skippedSegmentMessage = String(
+                    localized: "YouTube.SponsorBlock.Skipped \(categoryName)"
+                )
+                Task {
+                    try? await Task.sleep(for: .seconds(2))
+                    withAnimation {
+                        skippedSegmentMessage = nil
+                    }
+                }
+                return
+            }
         }
     }
 }
