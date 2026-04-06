@@ -32,6 +32,7 @@ struct SelectableText: UIViewRepresentable {
 
     func updateUIView(_ textView: UITextView, context _: Context) {
         textView.attributedText = buildAttributedString()
+        textView.invalidateIntrinsicContentSize()
     }
 
     func sizeThatFits(_ proposal: ProposedViewSize, uiView: UITextView, context _: Context) -> CGSize? {

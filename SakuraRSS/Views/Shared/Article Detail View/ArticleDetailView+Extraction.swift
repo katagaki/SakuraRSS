@@ -117,6 +117,10 @@ extension ArticleDetailView {
     }
 
     func refreshArticleContent() async {
+        // Show spinner immediately to avoid flashing article.summary
+        // while extraction is pending
+        isExtracting = true
+
         // Clear cached images for this article
         if let imageURL = article.imageURL {
             try? DatabaseManager.shared.clearCachedImageData(for: imageURL)
