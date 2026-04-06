@@ -238,7 +238,7 @@ struct FitWidthImage: View {
             .clipped()
             .clipShape(RoundedRectangle(cornerRadius: 12))
             .overlay(alignment: .bottomTrailing) {
-                if let link {
+                if let link, displayWidth >= 120 {
                     Button {
                         openURL(link)
                     } label: {
