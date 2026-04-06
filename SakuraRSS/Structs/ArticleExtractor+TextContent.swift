@@ -5,6 +5,8 @@ extension ArticleExtractor {
 
     static let imgOpenPlaceholder = "{{SAKURA_IMG_OPEN}}"
     static let imgClosePlaceholder = "{{SAKURA_IMG_CLOSE}}"
+    static let imgLinkOpenPlaceholder = "{{SAKURA_IMGLINK_OPEN}}"
+    static let imgLinkClosePlaceholder = "{{SAKURA_IMGLINK_CLOSE}}"
     static let brPlaceholder = "{{SAKURA_BR}}"
     static let linkOpenPlaceholder = "{{SAKURA_LINK_OPEN}}"
     static let linkMidPlaceholder = "{{SAKURA_LINK_MID}}"
@@ -20,19 +22,34 @@ extension ArticleExtractor {
 
     /// Extracts text from a block element, preserving `<br>` tags as newlines
     /// and `<a>` tags as Markdown links.
+    static let doubleLFPlaceholder = "{{SAKURA_DOUBLE_LF}}"
+    static let singleLFPlaceholder = "{{SAKURA_SINGLE_LF}}"
+
     static func textContent(of element: Element, baseURL: URL? = nil) throws -> String {
         var html = try element.html()
+        // Consecutive <br> tags indicate a paragraph break in poorly-structured HTML.
         html = html.replacingOccurrences(
-            of: "<br\\s*/?>",
-            with: brPlaceholder,
+            of: "<br\\s*/?>(\\s*<br\\s*/?>)+",
+            with: doubleLFPlaceholder,
             options: .regularExpression
         )
+        html = html.replacingOccurrences(
+            of: "<br\\s*/?>",
+            with: singleLFPlaceholder,
+            options: .regularExpression
+        )
+        // Preserve literal newlines in the HTML source (e.g. Markdown content
+        // that has no <br> or <p> tags) before SwiftSoup's .text() strips them.
+        html = html.replacingOccurrences(of: "\n\n", with: doubleLFPlaceholder)
+        html = html.replacingOccurrences(of: "\n", with: singleLFPlaceholder)
+        html = replaceLinkedImgTags(in: html, baseURL: baseURL)
         html = replaceImgTags(in: html, baseURL: baseURL)
         html = replaceLinkTags(in: html)
         html = replaceFormattingTags(in: html)
         let fragment = try SwiftSoup.parseBodyFragment(html)
         var text = try fragment.body()?.text() ?? ""
-        text = text.replacingOccurrences(of: brPlaceholder, with: "\n")
+        text = text.replacingOccurrences(of: doubleLFPlaceholder, with: "\n\n")
+        text = text.replacingOccurrences(of: singleLFPlaceholder, with: "\n")
         text = escapeBracketsInLinkText(text,
                                         open: linkOpenPlaceholder,
                                         mid: linkMidPlaceholder)
@@ -43,6 +60,29 @@ extension ArticleExtractor {
     }
 
     // MARK: - HTML Tag Replacement
+
+    /// Handles `<a href="..."><img src="..."></a>` patterns, converting them to
+    /// image placeholders with link info before the separate img/link replacements run.
+    private static func replaceLinkedImgTags(in html: String, baseURL: URL? = nil) -> String {
+        guard let regex = try? NSRegularExpression(
+            pattern: "<a\\s[^>]*href=[\"']([^\"']+)[\"'][^>]*>\\s*<img\\s[^>]*src=[\"']([^\"']+)[\"'][^>]*/?>\\s*</a>",
+            options: .caseInsensitive
+        ) else { return html }
+        var result = html
+        let nsHTML = result as NSString
+        let matches = regex.matches(in: result, range: NSRange(location: 0, length: nsHTML.length))
+        for match in matches.reversed() {
+            let linkURL = nsHTML.substring(with: match.range(at: 1))
+            let imgURL = nsHTML.substring(with: match.range(at: 2))
+            if isLikelyContentImage(imgURL),
+               let resolvedImg = resolveURL(imgURL, against: baseURL) {
+                let resolvedLink = resolveURL(linkURL, against: baseURL) ?? linkURL
+                let replacement = "\(imgOpenPlaceholder)\(resolvedImg)\(imgLinkOpenPlaceholder)\(resolvedLink)\(imgLinkClosePlaceholder)\(imgClosePlaceholder)"
+                result = (result as NSString).replacingCharacters(in: match.range, with: replacement)
+            }
+        }
+        return result
+    }
 
     private static func replaceImgTags(in html: String, baseURL: URL? = nil) -> String {
         guard let imgRegex = try? NSRegularExpression(
@@ -144,6 +184,8 @@ extension ArticleExtractor {
         result = result.replacingOccurrences(of: subClosePlaceholder, with: "{{/SUB}}")
         result = result.replacingOccurrences(of: imgOpenPlaceholder, with: "{{IMG}}")
         result = result.replacingOccurrences(of: imgClosePlaceholder, with: "{{/IMG}}")
+        result = result.replacingOccurrences(of: imgLinkOpenPlaceholder, with: "{{IMGLINK}}")
+        result = result.replacingOccurrences(of: imgLinkClosePlaceholder, with: "{{/IMGLINK}}")
         return result
     }
 

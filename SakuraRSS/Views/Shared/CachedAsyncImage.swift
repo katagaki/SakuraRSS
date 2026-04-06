@@ -31,7 +31,7 @@ struct CachedAsyncImage<Placeholder: View>: View {
                         .frame(width: geo.size.width, height: geo.size.height, alignment: alignment)
                         .clipped()
                 }
-            } else {
+            } else if isLoading {
                 placeholder()
             }
         }
@@ -51,6 +51,13 @@ struct CachedAsyncImage<Placeholder: View>: View {
 
     nonisolated static func loadImage(from url: URL) async -> UIImage? {
         let urlString = url.absoluteString
+
+        // Skip data: URIs — they are typically inline SVG placeholders
+        // (e.g. Next.js blur-up shims) that contain no useful image content.
+        if urlString.hasPrefix("data:") {
+            return nil
+        }
+
         let database = DatabaseManager.shared
 
         if let cachedData = try? database.cachedImageData(for: urlString),

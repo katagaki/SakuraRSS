@@ -31,6 +31,29 @@ struct ArticleExtractor {
         excludeTitle: String? = nil
     ) -> String? {
         guard !html.isEmpty else { return nil }
+
+        // If the content has no HTML tags, it's likely already plain text
+        // or Markdown — return it directly instead of parsing as HTML.
+        if !html.contains("<") {
+            let trimmed = html.trimmingCharacters(in: .whitespacesAndNewlines)
+            return trimmed.isEmpty ? nil : trimmed
+        }
+
+        // If the HTML is just a thin wrapper (e.g. <div>) around plain text
+        // or Markdown, strip the wrapper and return the inner text directly.
+        // This avoids SwiftSoup collapsing all newlines.
+        let stripped = html.replacingOccurrences(
+            of: "<[^>]+>", with: "", options: .regularExpression
+        ).trimmingCharacters(in: .whitespacesAndNewlines)
+        let tagCount = html.components(separatedBy: "<").count - 1
+        let hasMultipleNewlines = html.contains("\n\n")
+        if hasMultipleNewlines && tagCount <= 4 && !stripped.isEmpty {
+            #if DEBUG
+            debugPrint("[Extract] Content looks like wrapped plain text/Markdown (\(tagCount) tags), using directly")
+            #endif
+            return stripRemainingHTMLTags(html)
+        }
+
         do {
             let doc = try SwiftSoup.parse(html)
             removeNoise(from: doc)
@@ -62,7 +85,12 @@ struct ArticleExtractor {
         }
 
         do {
-            let (data, _) = try await URLSession.shared.data(from: url)
+            var request = URLRequest(url: url)
+            request.setValue(
+                "Mozilla/5.0 (compatible; SakuraRSS/1.0)",
+                forHTTPHeaderField: "User-Agent"
+            )
+            let (data, _) = try await URLSession.shared.data(for: request)
             guard let html = String(data: data, encoding: .utf8) else {
                 return nil
             }
@@ -100,7 +128,13 @@ struct ArticleExtractor {
 
         if paragraphs.isEmpty {
             let text = try textContent(of: element, baseURL: baseURL)
-            return text.isEmpty ? [] : [text]
+            if text.isEmpty { return [] }
+            // If the text contains paragraph breaks (e.g. Markdown content
+            // or text with <br><br>), split into separate paragraphs.
+            let split = text.components(separatedBy: "\n\n")
+                .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+                .filter { !$0.isEmpty }
+            return split.isEmpty ? [text] : split
         }
 
         return paragraphs
@@ -154,7 +188,10 @@ struct ArticleExtractor {
                 }
             } else if tag == "figure" {
                 if let resolved = extractImageSrc(from: child, tag: tag, baseURL: baseURL) {
-                    paragraphs.append("{{IMG}}\(resolved){{/IMG}}")
+                    // Check if the image inside the figure is wrapped in a link
+                    let linkHref = try? child.select("a[href]").first()?.attr("href")
+                    let linkSuffix = linkSuffix(for: linkHref, baseURL: baseURL)
+                    paragraphs.append("{{IMG}}\(resolved)\(linkSuffix){{/IMG}}")
                 }
                 if let caption = try? child.select("figcaption").first() {
                     let captionText = try textContent(of: caption, baseURL: baseURL)
@@ -162,6 +199,16 @@ struct ArticleExtractor {
                         paragraphs.append("*\(captionText)*")
                     }
                 }
+            } else if tag == "a",
+                      let imgChild = try? child.select("img, picture").first(),
+                      let resolved = extractImageSrc(
+                        from: imgChild,
+                        tag: imgChild.tagName().lowercased(),
+                        baseURL: baseURL
+                      ) {
+                let linkHref = try? child.attr("href")
+                let linkSuffix = linkSuffix(for: linkHref, baseURL: baseURL)
+                paragraphs.append("{{IMG}}\(resolved)\(linkSuffix){{/IMG}}")
             } else if blockElements.contains(tag) || isLeafBlock(child) {
                 var text = try textContent(of: child, baseURL: baseURL)
                 if !text.isEmpty {
@@ -213,6 +260,16 @@ struct ArticleExtractor {
         debugPrint("[Image] Failed to resolve URL: \(src) (base: \(baseURL?.absoluteString ?? "nil"))")
         #endif
         return nil
+    }
+
+    /// Builds the `{{IMGLINK}}…{{/IMGLINK}}` suffix for an image block when
+    /// the image is wrapped in a link.
+    private static func linkSuffix(for href: String?, baseURL: URL?) -> String {
+        guard let href, !href.isEmpty,
+              let resolved = resolveURL(href, against: baseURL) else {
+            return ""
+        }
+        return "{{IMGLINK}}\(resolved){{/IMGLINK}}"
     }
 
     /// A wrapper element (div, section, span, etc.) that contains no nested

@@ -152,8 +152,8 @@ struct ArticleDetailView: View {
                         switch block {
                         case .text(let content):
                             SelectableText(content)
-                        case .image(let url):
-                            FitWidthImage(url: url, namespace: imageViewerNamespace) {
+                        case .image(let url, let link):
+                            FitWidthImage(url: url, link: link, namespace: imageViewerNamespace) {
                                 imageViewerURL = url
                             }
                         }
@@ -210,10 +210,12 @@ struct ArticleDetailView: View {
 struct FitWidthImage: View {
 
     let url: URL
+    var link: URL?
     let namespace: Namespace.ID
     var onTap: (() -> Void)?
     @State private var aspectRatio: CGFloat?
     @State private var imageSize: CGSize?
+    @Environment(\.openURL) private var openURL
 
     var body: some View {
         GeometryReader { geo in
@@ -233,6 +235,22 @@ struct FitWidthImage: View {
             .frame(width: displayWidth)
             .clipped()
             .clipShape(RoundedRectangle(cornerRadius: 12))
+            .overlay(alignment: .bottomTrailing) {
+                if let link {
+                    Button {
+                        openURL(link)
+                    } label: {
+                        Label("Shared.Link", systemImage: "link")
+                            .font(.caption)
+                            .fontWeight(.medium)
+                            .padding(.horizontal, 10)
+                            .padding(.vertical, 6)
+                            .background(.ultraThinMaterial, in: Capsule())
+                    }
+                    .buttonStyle(.plain)
+                    .padding(8)
+                }
+            }
             .matchedTransitionSource(id: url, in: namespace)
             .onTapGesture { onTap?() }
             .frame(maxWidth: .infinity, alignment: .center)

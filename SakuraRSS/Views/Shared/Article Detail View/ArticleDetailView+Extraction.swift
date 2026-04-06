@@ -7,6 +7,7 @@ extension ArticleDetailView {
         return raw.flatMap(ArticleSource.init(rawValue:)) ?? .automatic
     }
 
+    // swiftlint:disable:next function_body_length cyclomatic_complexity
     func extractArticleContent() async {
         isExtracting = true
         defer { isExtracting = false }
@@ -107,16 +108,30 @@ extension ArticleDetailView {
         }
 
         if let url = URL(string: article.url) {
-            let text = await ArticleExtractor.extractText(fromURL: url,
+            var text = await ArticleExtractor.extractText(fromURL: url,
                                                           excludeTitle: articleTitle)
             #if DEBUG
             if let text {
                 let paragraphCount = text.components(separatedBy: "\n\n").count
                 debugPrint("[Extract] Using URL fetch (\(paragraphCount) paragraphs, \(text.count) chars): \(article.url)")
             } else {
-                debugPrint("[Extract] URL fetch returned nil: \(article.url)")
+                debugPrint("[Extract] URL fetch returned nil, trying WebView: \(article.url)")
             }
             #endif
+
+            // If plain HTTP fetch failed (e.g. JS-rendered site), try WebView extraction.
+            if text == nil {
+                text = await extractViaWebView(from: url, excludeTitle: articleTitle)
+                #if DEBUG
+                if let text {
+                    let paragraphCount = text.components(separatedBy: "\n\n").count
+                    debugPrint("[Extract] WebView fallback produced (\(paragraphCount) paragraphs, \(text.count) chars): \(url)")
+                } else {
+                    debugPrint("[Extract] WebView fallback also returned nil: \(url)")
+                }
+                #endif
+            }
+
             extractedText = text
             if let text, !text.isEmpty {
                 try? DatabaseManager.shared.cacheArticleContent(text, for: article.id)
@@ -127,7 +142,12 @@ extension ArticleDetailView {
     /// Simple GET + HTML parse (no JavaScript rendering).
     private func fetchText(from url: URL, excludeTitle: String?) async -> String? {
         do {
-            let (data, _) = try await URLSession.shared.data(from: url)
+            var request = URLRequest(url: url)
+            request.setValue(
+                "Mozilla/5.0 (compatible; SakuraRSS/1.0)",
+                forHTTPHeaderField: "User-Agent"
+            )
+            let (data, _) = try await URLSession.shared.data(for: request)
             guard let html = String(data: data, encoding: .utf8) else { return nil }
             return ArticleExtractor.extractText(fromHTML: html, baseURL: url, excludeTitle: excludeTitle)
         } catch {
@@ -180,10 +200,15 @@ extension ArticleDetailView {
         await extractArticleContent()
 
         // If re-extraction produced nothing, restore the previous content
-        // and re-cache it so subsequent loads still work
+        // and re-cache it so subsequent loads still work.
+        // Only restore if the previous content was well-structured;
+        // don't re-cache a wall of text with no paragraph breaks.
         if extractedText == nil, let previousText {
-            extractedText = previousText
-            try? DatabaseManager.shared.cacheArticleContent(previousText, for: article.id)
+            let prevParagraphs = previousText.components(separatedBy: "\n\n").count
+            if prevParagraphs > 1 || previousText.count < 500 {
+                extractedText = previousText
+                try? DatabaseManager.shared.cacheArticleContent(previousText, for: article.id)
+            }
         }
     }
 
