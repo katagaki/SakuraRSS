@@ -150,6 +150,10 @@ extension ArticleExtractor {
     // MARK: - Utility
 
     static func isLikelyContentImage(_ url: String) -> Bool {
+        // Skip data URIs (inline SVG placeholders, base64 spacers, etc.)
+        if url.hasPrefix("data:") {
+            return false
+        }
         let lowered = url.lowercased()
         let skipPatterns = [
             "gravatar.com", "pixel", "spacer", "blank",
