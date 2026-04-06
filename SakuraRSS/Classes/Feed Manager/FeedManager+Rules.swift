@@ -46,10 +46,10 @@ extension FeedManager {
         let allowedKeywords = (try? database.rules(forFeedID: feedID, type: "allowed_keyword")) ?? []
         let keywords = (try? database.rules(forFeedID: feedID, type: "muted_keyword")) ?? []
         let authors = Set((try? database.rules(forFeedID: feedID, type: "muted_author")) ?? [])
-        guard !keywords.isEmpty || !authors.isEmpty else { return articles }
+        guard !allowedKeywords.isEmpty || !keywords.isEmpty || !authors.isEmpty else { return articles }
         return articles.filter { article in
-            if !allowedKeywords.isEmpty && articleMatchesKeywords(article, keywords: allowedKeywords) {
-                return true
+            if !allowedKeywords.isEmpty {
+                return articleMatchesKeywords(article, keywords: allowedKeywords)
             }
             if let author = article.author, authors.contains(author) {
                 return false
@@ -78,12 +78,14 @@ extension FeedManager {
                 rulesByFeed[article.feedID] = (allowedKeywords, keywords, authors)
             }
             let rules = rulesByFeed[article.feedID]!
-            guard !rules.keywords.isEmpty || !rules.authors.isEmpty else {
+            guard !rules.allowedKeywords.isEmpty || !rules.keywords.isEmpty || !rules.authors.isEmpty else {
                 result.append(article)
                 continue
             }
-            if !rules.allowedKeywords.isEmpty && articleMatchesKeywords(article, keywords: rules.allowedKeywords) {
-                result.append(article)
+            if !rules.allowedKeywords.isEmpty {
+                if articleMatchesKeywords(article, keywords: rules.allowedKeywords) {
+                    result.append(article)
+                }
                 continue
             }
             if let author = article.author, rules.authors.contains(author) {

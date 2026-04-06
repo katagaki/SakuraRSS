@@ -6825,55 +6825,55 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Artikel mit diesen Stichwörtern werden immer angezeigt, auch wenn sie stummgeschaltete Stichwörter enthalten."
+            "value" : "Wenn erlaubte Stichwörter festgelegt sind, werden nur Artikel angezeigt, die diese Stichwörter enthalten. Alle anderen werden ausgeblendet."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Articles containing these keywords will always be shown, even if they match muted keywords."
+            "value" : "When allowed keywords are set, only articles containing these keywords will be shown. All other articles will be hidden."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Les articles contenant ces mots-clés seront toujours affichés, même s'ils correspondent à des mots-clés masqués."
+            "value" : "Lorsque des mots-clés autorisés sont définis, seuls les articles contenant ces mots-clés seront affichés. Tous les autres articles seront cachés."
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Gli articoli che contengono queste parole chiave verranno sempre mostrati, anche se corrispondono a parole chiave silenziate."
+            "value" : "Quando sono impostate parole chiave consentite, verranno mostrati solo gli articoli che le contengono. Tutti gli altri articoli verranno nascosti."
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "これらのキーワードを含む記事は、ミュートキーワードに一致しても常に表示されます。"
+            "value" : "許可キーワードが設定されている場合、これらのキーワードを含む記事のみが表示されます。他の記事はすべて非表示になります。"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "이 키워드가 포함된 기사는 음소거된 키워드와 일치하더라도 항상 표시됩니다."
+            "value" : "허용 키워드가 설정되면 해당 키워드가 포함된 기사만 표시됩니다. 다른 모든 기사는 숨겨집니다."
           }
         },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Bài viết chứa các từ khóa này sẽ luôn được hiển thị, ngay cả khi chúng khớp với từ khóa đã tắt tiếng."
+            "value" : "Khi từ khóa được phép được đặt, chỉ các bài viết chứa các từ khóa này mới được hiển thị. Tất cả các bài viết khác sẽ bị ẩn."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "包含这些关键词的文章将始终显示，即使它们匹配已静音的关键词。"
+            "value" : "设置允许的关键词后，只有包含这些关键词的文章才会显示。所有其他文章将被隐藏。"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "包含這些關鍵字的文章將始終顯示，即使它們匹配已靜音的關鍵字。"
+            "value" : "設置允許的關鍵字後，只有包含這些關鍵字的文章才會顯示。所有其他文章將被隱藏。"
           }
         }
       }
