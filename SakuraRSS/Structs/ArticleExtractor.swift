@@ -110,6 +110,36 @@ struct ArticleExtractor {
     /// Recurses into non-block wrappers (div, section, etc.) so that
     /// nested blocks like `<div><p>…</p></div>` don't produce duplicates.
     /// Treats leaf divs (divs with no block-level children) as paragraphs.
+    /// Attempts to extract and resolve an image URL from an element's `src` attribute.
+    /// Returns the resolved URL string, or nil if the image should be skipped.
+    private static func extractImageSrc( // swiftlint:disable:this cyclomatic_complexity
+        from element: Element, tag: String, baseURL: URL?
+    ) -> String? {
+        let imgElement: Element?
+        if tag == "img" {
+            imgElement = element
+        } else {
+            imgElement = try? element.select("img").first()
+        }
+        guard let imgElement,
+              let src = try? imgElement.attr("src"), !src.isEmpty else {
+            return nil
+        }
+        guard isLikelyContentImage(src) else {
+            #if DEBUG
+            debugPrint("[Image] Skipped non-content <\(tag)>: \(src)")
+            #endif
+            return nil
+        }
+        guard let resolved = resolveURL(src, against: baseURL) else {
+            return nil
+        }
+        #if DEBUG
+        debugPrint("[Image] Extracted <\(tag)>: \(resolved)")
+        #endif
+        return resolved
+    }
+
     private static func collectBlocks(
         from element: Element,
         into paragraphs: inout [String],
@@ -118,46 +148,13 @@ struct ArticleExtractor {
     ) throws {
         for child in element.children() {
             let tag = child.tagName().lowercased()
-            if tag == "img" {
-                if let src = try? child.attr("src"), !src.isEmpty {
-                    if !isLikelyContentImage(src) {
-                        #if DEBUG
-                        debugPrint("[Image] Skipped non-content <img>: \(src)")
-                        #endif
-                    } else if let resolved = resolveURL(src, against: baseURL) {
-                        #if DEBUG
-                        debugPrint("[Image] Extracted <img>: \(resolved)")
-                        #endif
-                        paragraphs.append("{{IMG}}\(resolved){{/IMG}}")
-                    }
-                }
-            } else if tag == "picture" {
-                if let img = try? child.select("img").first(),
-                   let src = try? img.attr("src"), !src.isEmpty {
-                    if !isLikelyContentImage(src) {
-                        #if DEBUG
-                        debugPrint("[Image] Skipped non-content <picture>: \(src)")
-                        #endif
-                    } else if let resolved = resolveURL(src, against: baseURL) {
-                        #if DEBUG
-                        debugPrint("[Image] Extracted <picture>: \(resolved)")
-                        #endif
-                        paragraphs.append("{{IMG}}\(resolved){{/IMG}}")
-                    }
+            if tag == "img" || tag == "picture" {
+                if let resolved = extractImageSrc(from: child, tag: tag, baseURL: baseURL) {
+                    paragraphs.append("{{IMG}}\(resolved){{/IMG}}")
                 }
             } else if tag == "figure" {
-                if let img = try? child.select("img").first(),
-                   let src = try? img.attr("src"), !src.isEmpty {
-                    if !isLikelyContentImage(src) {
-                        #if DEBUG
-                        debugPrint("[Image] Skipped non-content <figure>: \(src)")
-                        #endif
-                    } else if let resolved = resolveURL(src, against: baseURL) {
-                        #if DEBUG
-                        debugPrint("[Image] Extracted <figure>: \(resolved)")
-                        #endif
-                        paragraphs.append("{{IMG}}\(resolved){{/IMG}}")
-                    }
+                if let resolved = extractImageSrc(from: child, tag: tag, baseURL: baseURL) {
+                    paragraphs.append("{{IMG}}\(resolved){{/IMG}}")
                 }
                 if let caption = try? child.select("figcaption").first() {
                     let captionText = try textContent(of: caption, baseURL: baseURL)
