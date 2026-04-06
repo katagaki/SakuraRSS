@@ -7,16 +7,20 @@ struct FeedRulesSheet: View {
 
     let feed: Feed
 
+    @State private var allowedKeywords: [String]
     @State private var mutedKeywords: [String]
     @State private var mutedAuthors: [String]
+    @State private var allowedKeywordInput: String = ""
     @State private var keywordInput: String = ""
     @State private var authorInput: String = ""
     @State private var availableAuthors: [String] = []
+    @FocusState private var isAllowedKeywordFieldFocused: Bool
     @FocusState private var isKeywordFieldFocused: Bool
     @FocusState private var isAuthorFieldFocused: Bool
 
     init(feed: Feed) {
         self.feed = feed
+        _allowedKeywords = State(initialValue: [])
         _mutedKeywords = State(initialValue: [])
         _mutedAuthors = State(initialValue: [])
     }
@@ -32,6 +36,41 @@ struct FeedRulesSheet: View {
     var body: some View {
         NavigationStack {
             Form {
+                Section {
+                    HStack {
+                        TextField(String(localized: "FeedRules.AllowedKeywordPlaceholder"),
+                                  text: $allowedKeywordInput)
+                            .frame(maxWidth: .infinity)
+                            .focused($isAllowedKeywordFieldFocused)
+                            .onSubmit { addAllowedKeyword() }
+                        Button(String(localized: "FeedRules.Add")) {
+                            addAllowedKeyword()
+                        }
+                        .fixedSize()
+                        .disabled(allowedKeywordInput.trimmingCharacters(in: .whitespaces).isEmpty)
+                    }
+                    .alignmentGuide(.listRowSeparatorLeading) { _ in 0 }
+                    .alignmentGuide(.listRowSeparatorTrailing) { dimensions in
+                        dimensions.width
+                    }
+
+                    ForEach(allowedKeywords, id: \.self) { keyword in
+                        Text(keyword)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .alignmentGuide(.listRowSeparatorLeading) { _ in 0 }
+                            .alignmentGuide(.listRowSeparatorTrailing) { dimensions in
+                                dimensions.width
+                            }
+                    }
+                    .onDelete { indexSet in
+                        allowedKeywords.remove(atOffsets: indexSet)
+                    }
+                } header: {
+                    Text("FeedRules.AllowedKeywords")
+                } footer: {
+                    Text("FeedRules.AllowedKeywords.Footer")
+                }
+
                 Section {
                     HStack {
                         TextField(String(localized: "FeedRules.KeywordPlaceholder"),
@@ -139,11 +178,20 @@ struct FeedRulesSheet: View {
                 }
             }
             .onAppear {
+                allowedKeywords = feedManager.allowedKeywords(for: feed)
                 mutedKeywords = feedManager.mutedKeywords(for: feed)
                 mutedAuthors = feedManager.mutedAuthors(for: feed)
                 availableAuthors = feedManager.uniqueAuthors(for: feed)
             }
         }
+    }
+
+    private func addAllowedKeyword() {
+        let trimmed = allowedKeywordInput.trimmingCharacters(in: .whitespaces)
+        guard !trimmed.isEmpty, !allowedKeywords.contains(trimmed) else { return }
+        allowedKeywords.append(trimmed)
+        allowedKeywordInput = ""
+        isAllowedKeywordFieldFocused = true
     }
 
     private func addKeyword() {
@@ -163,6 +211,7 @@ struct FeedRulesSheet: View {
     }
 
     private func save() {
+        feedManager.saveAllowedKeywords(allowedKeywords, for: feed)
         feedManager.saveMutedKeywords(mutedKeywords, for: feed)
         feedManager.saveMutedAuthors(mutedAuthors, for: feed)
         dismiss()

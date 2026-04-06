@@ -6701,6 +6701,183 @@
         }
       }
     },
+    "FeedRules.AllowedKeywordPlaceholder" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Erlaubtes Stichwort eingeben"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enter allowed keyword"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Saisir un mot-clé autorisé"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Inserisci parola chiave consentita"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "許可キーワードを入力"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "허용 키워드 입력"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nhập từ khóa được phép"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "输入允许的关键词"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "輸入允許的關鍵字"
+          }
+        }
+      }
+    },
+    "FeedRules.AllowedKeywords" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Erlaubte Stichwörter"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Allowed Keywords"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mots-clés autorisés"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Parole chiave consentite"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "許可キーワード"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "허용 키워드"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Từ khóa được phép"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "允许的关键词"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "允許的關鍵字"
+          }
+        }
+      }
+    },
+    "FeedRules.AllowedKeywords.Footer" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wenn erlaubte Stichwörter festgelegt sind, werden nur Artikel angezeigt, die diese Stichwörter enthalten. Alle anderen werden ausgeblendet."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "When allowed keywords are set, only articles containing these keywords will be shown. All other articles will be hidden."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lorsque des mots-clés autorisés sont définis, seuls les articles contenant ces mots-clés seront affichés. Tous les autres articles seront cachés."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quando sono impostate parole chiave consentite, verranno mostrati solo gli articoli che le contengono. Tutti gli altri articoli verranno nascosti."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "許可キーワードが設定されている場合、これらのキーワードを含む記事のみが表示されます。他の記事はすべて非表示になります。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "허용 키워드가 설정되면 해당 키워드가 포함된 기사만 표시됩니다. 다른 모든 기사는 숨겨집니다."
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Khi từ khóa được phép được đặt, chỉ các bài viết chứa các từ khóa này mới được hiển thị. Tất cả các bài viết khác sẽ bị ẩn."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "设置允许的关键词后，只有包含这些关键词的文章才会显示。所有其他文章将被隐藏。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "設置允許的關鍵字後，只有包含這些關鍵字的文章才會顯示。所有其他文章將被隱藏。"
+          }
+        }
+      }
+    },
     "FeedRules.AuthorPlaceholder" : {
       "extractionState" : "manual",
       "localizations" : {
