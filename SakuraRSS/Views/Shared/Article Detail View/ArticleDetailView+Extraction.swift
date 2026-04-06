@@ -173,8 +173,18 @@ extension ArticleDetailView {
         summarizedText = nil
         hasCachedSummary = false
         showingSummary = false
+
+        // Keep the previous text so we can fall back if re-extraction fails
+        let previousText = extractedText
         extractedText = nil
         await extractArticleContent()
+
+        // If re-extraction produced nothing, restore the previous content
+        // and re-cache it so subsequent loads still work
+        if extractedText == nil, let previousText {
+            extractedText = previousText
+            try? DatabaseManager.shared.cacheArticleContent(previousText, for: article.id)
+        }
     }
 
     func openArticleURL() {
