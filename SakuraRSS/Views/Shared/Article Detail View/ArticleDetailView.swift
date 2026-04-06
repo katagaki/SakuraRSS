@@ -140,6 +140,7 @@ struct ArticleDetailView: View {
                     ProgressView()
                         .frame(maxWidth: .infinity, alignment: .center)
                         .padding(.vertical, 8)
+                        .transition(.blurReplace)
                 } else if let text = displayText {
                     if showingSummary && summarizedText != nil {
                         Text("AppleIntelligence.VerifyImportantInformation")
@@ -161,6 +162,7 @@ struct ArticleDetailView: View {
                     .transition(.blurReplace)
                 }
             }
+            .animation(.smooth.speed(2.0), value: isExtracting)
             .animation(.smooth.speed(2.0), value: showingSummary)
             .animation(.smooth.speed(2.0), value: showingTranslation)
             .animation(.smooth.speed(2.0), value: translatedText)
