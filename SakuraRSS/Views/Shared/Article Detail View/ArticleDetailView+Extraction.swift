@@ -27,6 +27,10 @@ extension ArticleDetailView {
         let articleTitle = article.title
         let source = articleSource
 
+        #if DEBUG
+        debugPrint("[Extract] Source: \(source.rawValue), content length: \(article.content?.count ?? 0): \(article.url)")
+        #endif
+
         switch source {
         case .feedText:
             if let content = article.content, !content.isEmpty {
@@ -83,15 +87,30 @@ extension ArticleDetailView {
                                                     baseURL: baseURL,
                                                     excludeTitle: articleTitle)
             if let text, !text.isEmpty {
+                #if DEBUG
+                let paragraphCount = text.components(separatedBy: "\n\n").count
+                debugPrint("[Extract] Using feed content (\(paragraphCount) paragraphs, \(text.count) chars): \(article.url)")
+                #endif
                 extractedText = text
                 try? DatabaseManager.shared.cacheArticleContent(text, for: article.id)
                 return
             }
+            #if DEBUG
+            debugPrint("[Extract] Feed content extraction returned empty, falling through to URL fetch: \(article.url)")
+            #endif
         }
 
         if let url = URL(string: article.url) {
             let text = await ArticleExtractor.extractText(fromURL: url,
                                                           excludeTitle: articleTitle)
+            #if DEBUG
+            if let text {
+                let paragraphCount = text.components(separatedBy: "\n\n").count
+                debugPrint("[Extract] Using URL fetch (\(paragraphCount) paragraphs, \(text.count) chars): \(article.url)")
+            } else {
+                debugPrint("[Extract] URL fetch returned nil: \(article.url)")
+            }
+            #endif
             extractedText = text
             if let text, !text.isEmpty {
                 try? DatabaseManager.shared.cacheArticleContent(text, for: article.id)
