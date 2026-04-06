@@ -708,7 +708,49 @@ extension YouTubePlayerView {
 
 extension YouTubePlayerView {
 
+    private static let youtubeSessionCacheKey = "YouTubePlayerView.hasSession"
+
+    /// Checks whether the user is logged in to YouTube.
+    ///
+    /// On a cold app launch the WebKit cookie store may not have
+    /// finished restoring cookies from disk yet, which causes this
+    /// method to incorrectly return `false`.  To work around this,
+    /// we cache the result in UserDefaults and, when the cookie store
+    /// returns an empty result while the cache says we were previously
+    /// logged in, we retry once after a short delay to give WebKit
+    /// time to load.
+    @MainActor
     static func hasYouTubeSession() async -> Bool {
+        let store = WKWebsiteDataStore.default()
+        let cookies = await store.httpCookieStore.allCookies()
+        let found = cookies.contains { cookie in
+            let domain = cookie.domain.lowercased()
+            return (domain.contains("youtube.com") || domain.contains("google.com"))
+                && (cookie.name == "SID" || cookie.name == "SSID" || cookie.name == "LOGIN_INFO")
+        }
+
+        if found {
+            UserDefaults.standard.set(true, forKey: youtubeSessionCacheKey)
+            return true
+        }
+
+        // Cookie store returned nothing — if we were previously logged
+        // in, retry once after a brief delay so WebKit can finish
+        // loading cookies from disk.
+        if UserDefaults.standard.bool(forKey: youtubeSessionCacheKey) {
+            try? await Task.sleep(for: .milliseconds(500))
+            let retryResult = await retryHasYouTubeSession()
+            UserDefaults.standard.set(retryResult, forKey: youtubeSessionCacheKey)
+            return retryResult
+        }
+
+        UserDefaults.standard.set(false, forKey: youtubeSessionCacheKey)
+        return false
+    }
+
+    /// One retry of the cookie check (no further retries to avoid loops).
+    @MainActor
+    private static func retryHasYouTubeSession() async -> Bool {
         let store = WKWebsiteDataStore.default()
         let cookies = await store.httpCookieStore.allCookies()
         return cookies.contains { cookie in
@@ -736,6 +778,7 @@ extension YouTubePlayerView {
         }
     }
 
+    @MainActor
     static func clearYouTubeSession() async {
         let store = WKWebsiteDataStore.default()
         let cookies = await store.httpCookieStore.allCookies()
@@ -744,5 +787,6 @@ extension YouTubePlayerView {
             || cookie.domain.lowercased().contains("accounts.google.com") {
             await store.httpCookieStore.deleteCookie(cookie)
         }
+        UserDefaults.standard.set(false, forKey: youtubeSessionCacheKey)
     }
 }
