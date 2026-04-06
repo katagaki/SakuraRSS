@@ -5,6 +5,8 @@ extension ArticleExtractor {
 
     static let imgOpenPlaceholder = "{{SAKURA_IMG_OPEN}}"
     static let imgClosePlaceholder = "{{SAKURA_IMG_CLOSE}}"
+    static let imgLinkOpenPlaceholder = "{{SAKURA_IMGLINK_OPEN}}"
+    static let imgLinkClosePlaceholder = "{{SAKURA_IMGLINK_CLOSE}}"
     static let brPlaceholder = "{{SAKURA_BR}}"
     static let linkOpenPlaceholder = "{{SAKURA_LINK_OPEN}}"
     static let linkMidPlaceholder = "{{SAKURA_LINK_MID}}"
@@ -17,22 +19,39 @@ extension ArticleExtractor {
     static let supClosePlaceholder = "{{SAKURA_SUP_CLOSE}}"
     static let subOpenPlaceholder = "{{SAKURA_SUB_OPEN}}"
     static let subClosePlaceholder = "{{SAKURA_SUB_CLOSE}}"
+    static let codeOpenPlaceholder = "{{SAKURA_CODE_OPEN}}"
+    static let codeClosePlaceholder = "{{SAKURA_CODE_CLOSE}}"
 
     /// Extracts text from a block element, preserving `<br>` tags as newlines
     /// and `<a>` tags as Markdown links.
-    static func textContent(of element: Element) throws -> String {
+    static let doubleLFPlaceholder = "{{SAKURA_DOUBLE_LF}}"
+    static let singleLFPlaceholder = "{{SAKURA_SINGLE_LF}}"
+
+    static func textContent(of element: Element, baseURL: URL? = nil) throws -> String {
         var html = try element.html()
+        // Consecutive <br> tags indicate a paragraph break in poorly-structured HTML.
         html = html.replacingOccurrences(
-            of: "<br\\s*/?>",
-            with: brPlaceholder,
+            of: "<br\\s*/?>(\\s*<br\\s*/?>)+",
+            with: doubleLFPlaceholder,
             options: .regularExpression
         )
-        html = replaceImgTags(in: html)
+        html = html.replacingOccurrences(
+            of: "<br\\s*/?>",
+            with: singleLFPlaceholder,
+            options: .regularExpression
+        )
+        // Preserve literal newlines in the HTML source (e.g. Markdown content
+        // that has no <br> or <p> tags) before SwiftSoup's .text() strips them.
+        html = html.replacingOccurrences(of: "\n\n", with: doubleLFPlaceholder)
+        html = html.replacingOccurrences(of: "\n", with: singleLFPlaceholder)
+        html = replaceLinkedImgTags(in: html, baseURL: baseURL)
+        html = replaceImgTags(in: html, baseURL: baseURL)
         html = replaceLinkTags(in: html)
         html = replaceFormattingTags(in: html)
         let fragment = try SwiftSoup.parseBodyFragment(html)
         var text = try fragment.body()?.text() ?? ""
-        text = text.replacingOccurrences(of: brPlaceholder, with: "\n")
+        text = text.replacingOccurrences(of: doubleLFPlaceholder, with: "\n\n")
+        text = text.replacingOccurrences(of: singleLFPlaceholder, with: "\n")
         text = escapeBracketsInLinkText(text,
                                         open: linkOpenPlaceholder,
                                         mid: linkMidPlaceholder)
@@ -44,7 +63,30 @@ extension ArticleExtractor {
 
     // MARK: - HTML Tag Replacement
 
-    private static func replaceImgTags(in html: String) -> String {
+    /// Handles `<a href="..."><img src="..."></a>` patterns, converting them to
+    /// image placeholders with link info before the separate img/link replacements run.
+    private static func replaceLinkedImgTags(in html: String, baseURL: URL? = nil) -> String {
+        guard let regex = try? NSRegularExpression(
+            pattern: "<a\\s[^>]*href=[\"']([^\"']+)[\"'][^>]*>\\s*<img\\s[^>]*src=[\"']([^\"']+)[\"'][^>]*/?>\\s*</a>",
+            options: .caseInsensitive
+        ) else { return html }
+        var result = html
+        let nsHTML = result as NSString
+        let matches = regex.matches(in: result, range: NSRange(location: 0, length: nsHTML.length))
+        for match in matches.reversed() {
+            let linkURL = nsHTML.substring(with: match.range(at: 1))
+            let imgURL = nsHTML.substring(with: match.range(at: 2))
+            if isLikelyContentImage(imgURL),
+               let resolvedImg = resolveURL(imgURL, against: baseURL) {
+                let resolvedLink = resolveURL(linkURL, against: baseURL) ?? linkURL
+                let replacement = "\(imgOpenPlaceholder)\(resolvedImg)\(imgLinkOpenPlaceholder)\(resolvedLink)\(imgLinkClosePlaceholder)\(imgClosePlaceholder)"
+                result = (result as NSString).replacingCharacters(in: match.range, with: replacement)
+            }
+        }
+        return result
+    }
+
+    private static func replaceImgTags(in html: String, baseURL: URL? = nil) -> String {
         guard let imgRegex = try? NSRegularExpression(
             pattern: "<img\\s[^>]*src=[\"']([^\"']+)[\"'][^>]*/?>",
             options: .caseInsensitive
@@ -54,10 +96,16 @@ extension ArticleExtractor {
         let imgMatches = imgRegex.matches(in: result, range: NSRange(location: 0, length: nsHTML.length))
         for match in imgMatches.reversed() {
             let imgURL = nsHTML.substring(with: match.range(at: 1))
-            if isLikelyContentImage(imgURL) {
-                let replacement = "\(imgOpenPlaceholder)\(imgURL)\(imgClosePlaceholder)"
+            if isLikelyContentImage(imgURL), let resolved = resolveURL(imgURL, against: baseURL) {
+                #if DEBUG
+                debugPrint("[Image] Inline <img> extracted: \(resolved)")
+                #endif
+                let replacement = "\(imgOpenPlaceholder)\(resolved)\(imgClosePlaceholder)"
                 result = (result as NSString).replacingCharacters(in: match.range, with: replacement)
             } else {
+                #if DEBUG
+                debugPrint("[Image] Inline <img> skipped: \(imgURL)")
+                #endif
                 result = (result as NSString).replacingCharacters(in: match.range, with: "")
             }
         }
@@ -66,16 +114,37 @@ extension ArticleExtractor {
 
     private static func replaceLinkTags(in html: String) -> String {
         var result = html
-        result = result.replacingOccurrences(
-            of: "<a\\s[^>]*href=[\"']([^\"']+)[\"'][^>]*>(.+?)</a>",
-            with: "\(linkOpenPlaceholder)$2\(linkMidPlaceholder)$1\(linkClosePlaceholder)",
-            options: .regularExpression
-        )
+
+        // Remove empty links first.
         result = result.replacingOccurrences(
             of: "<a\\s[^>]*>\\s*</a>",
             with: "",
             options: .regularExpression
         )
+
+        // Replace links using NSRegularExpression so we can collapse newline
+        // placeholders inside the captured link text.  A simple
+        // `replacingOccurrences(of:with:options:.regularExpression)` substitution
+        // would preserve the placeholders verbatim, producing broken Markdown
+        // like `[\nDJIA\n46504.67\n](\url)`.
+        guard let regex = try? NSRegularExpression(
+            pattern: "<a\\s[^>]*href=[\"']([^\"']+)[\"'][^>]*>(.+?)</a>",
+            options: .caseInsensitive
+        ) else { return result }
+
+        let nsResult = result as NSString
+        let matches = regex.matches(in: result,
+                                    range: NSRange(location: 0, length: nsResult.length))
+        for match in matches.reversed() {
+            let href = nsResult.substring(with: match.range(at: 1))
+            var linkText = nsResult.substring(with: match.range(at: 2))
+            // Collapse newline placeholders inside link text to a single space.
+            linkText = linkText
+                .replacingOccurrences(of: doubleLFPlaceholder, with: " ")
+                .replacingOccurrences(of: singleLFPlaceholder, with: " ")
+            let replacement = "\(linkOpenPlaceholder)\(linkText)\(linkMidPlaceholder)\(href)\(linkClosePlaceholder)"
+            result = (result as NSString).replacingCharacters(in: match.range, with: replacement)
+        }
         return result
     }
 
@@ -118,6 +187,13 @@ extension ArticleExtractor {
         result = result.replacingOccurrences(
             of: "</sub>", with: subClosePlaceholder, options: .caseInsensitive
         )
+        result = result.replacingOccurrences(
+            of: "<code(?:\\s[^>]*)?>", with: codeOpenPlaceholder,
+            options: [.regularExpression, .caseInsensitive]
+        )
+        result = result.replacingOccurrences(
+            of: "</code>", with: codeClosePlaceholder, options: .caseInsensitive
+        )
         return result
     }
 
@@ -138,12 +214,20 @@ extension ArticleExtractor {
         result = result.replacingOccurrences(of: subClosePlaceholder, with: "{{/SUB}}")
         result = result.replacingOccurrences(of: imgOpenPlaceholder, with: "{{IMG}}")
         result = result.replacingOccurrences(of: imgClosePlaceholder, with: "{{/IMG}}")
+        result = result.replacingOccurrences(of: imgLinkOpenPlaceholder, with: "{{IMGLINK}}")
+        result = result.replacingOccurrences(of: imgLinkClosePlaceholder, with: "{{/IMGLINK}}")
+        result = result.replacingOccurrences(of: codeOpenPlaceholder, with: "`")
+        result = result.replacingOccurrences(of: codeClosePlaceholder, with: "`")
         return result
     }
 
     // MARK: - Utility
 
     static func isLikelyContentImage(_ url: String) -> Bool {
+        // Skip data URIs (inline SVG placeholders, base64 spacers, etc.)
+        if url.hasPrefix("data:") {
+            return false
+        }
         let lowered = url.lowercased()
         let skipPatterns = [
             "gravatar.com", "pixel", "spacer", "blank",

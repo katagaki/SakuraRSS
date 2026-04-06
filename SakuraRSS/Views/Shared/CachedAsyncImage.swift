@@ -31,7 +31,7 @@ struct CachedAsyncImage<Placeholder: View>: View {
                         .frame(width: geo.size.width, height: geo.size.height, alignment: alignment)
                         .clipped()
                 }
-            } else {
+            } else if isLoading {
                 placeholder()
             }
         }
@@ -51,19 +51,45 @@ struct CachedAsyncImage<Placeholder: View>: View {
 
     nonisolated static func loadImage(from url: URL) async -> UIImage? {
         let urlString = url.absoluteString
+
+        // Skip data: URIs — they are typically inline SVG placeholders
+        // (e.g. Next.js blur-up shims) that contain no useful image content.
+        if urlString.hasPrefix("data:") {
+            return nil
+        }
+
         let database = DatabaseManager.shared
 
         if let cachedData = try? database.cachedImageData(for: urlString),
            let cachedImage = UIImage(data: cachedData) {
+            #if DEBUG
+            debugPrint("[Image] Cache hit for \(urlString) (\(cachedData.count) bytes)")
+            #endif
             return cachedImage
         }
 
+        #if DEBUG
+        debugPrint("[Image] Cache miss, downloading \(urlString)")
+        #endif
+
         do {
-            let (data, _) = try await URLSession.shared.data(from: url)
-            guard let downloadedImage = UIImage(data: data) else { return nil }
+            let (data, response) = try await URLSession.shared.data(from: url)
+            let statusCode = (response as? HTTPURLResponse)?.statusCode
+            #if DEBUG
+            debugPrint("[Image] Downloaded \(urlString): \(data.count) bytes, HTTP \(statusCode ?? 0)")
+            #endif
+            guard let downloadedImage = UIImage(data: data) else {
+                #if DEBUG
+                debugPrint("[Image] Failed to decode image data from \(urlString) (\(data.count) bytes)")
+                #endif
+                return nil
+            }
             try? database.cacheImageData(data, for: urlString)
             return downloadedImage
         } catch {
+            #if DEBUG
+            debugPrint("[Image] Download failed for \(urlString): \(error.localizedDescription)")
+            #endif
             return nil
         }
     }

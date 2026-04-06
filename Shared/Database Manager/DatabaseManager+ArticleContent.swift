@@ -6,7 +6,11 @@ nonisolated extension DatabaseManager {
     // MARK: - Full Article Text Cache
 
     func cachedArticleContent(for articleId: Int64) throws -> String? {
-        let query = articles.filter(articleID == articleId && articleHasFullText == true)
+        let query = articles.filter(
+            articleID == articleId
+                && articleHasFullText == true
+                && articleParserVersion == ParserVersion.articleExtractor
+        )
         guard let row = try database.pluck(query) else { return nil }
         return row[articleContent]
     }
@@ -15,13 +19,22 @@ nonisolated extension DatabaseManager {
         let target = articles.filter(articleID == articleId)
         try database.run(target.update(
             articleContent <- content,
-            articleHasFullText <- true
+            articleHasFullText <- true,
+            articleParserVersion <- ParserVersion.articleExtractor
         ))
     }
 
     func clearCachedArticleContent(for articleId: Int64) throws {
         let target = articles.filter(articleID == articleId)
-        try database.run(target.update(articleHasFullText <- false))
+        try database.run(target.update(
+            articleContent <- nil,
+            articleHasFullText <- false
+        ))
+    }
+
+    func invalidateAllCachedArticleContent() throws {
+        let stale = articles.filter(articleHasFullText == true)
+        try database.run(stale.update(articleHasFullText <- false))
     }
 
     // MARK: - AI Summary Cache

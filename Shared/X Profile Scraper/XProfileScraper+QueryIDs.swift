@@ -24,10 +24,12 @@ extension XProfileScraper {
         // Fetch query IDs from X's JS bundle
         await fetchQueryIDsFromBundle(cookies: cookies)
 
-        if userByScreenNameQueryID == nil || userTweetsQueryID == nil {
+        if userByScreenNameQueryID == nil || userTweetsQueryID == nil
+            || tweetDetailQueryID == nil {
             print("[XProfileScraper:QueryIDs] WARNING: Not all query IDs extracted. "
                   + "UserByScreenName=\(userByScreenNameQueryID ?? "nil"), "
-                  + "UserTweets=\(userTweetsQueryID ?? "nil")")
+                  + "UserTweets=\(userTweetsQueryID ?? "nil"), "
+                  + "TweetDetail=\(tweetDetailQueryID ?? "nil")")
         } else {
             print("[XProfileScraper:QueryIDs] All query IDs extracted successfully")
         }
@@ -131,7 +133,7 @@ extension XProfileScraper {
     }
 
     private static func extractQueryIDs(from bundleText: String) {
-        let pattern = #"queryId:"([^"]+)",operationName:"(UserByScreenName|UserTweets)""#
+        let pattern = #"queryId:"([^"]+)",operationName:"(UserByScreenName|UserTweets|TweetDetail)""#
         guard let regex = try? NSRegularExpression(pattern: pattern) else { return }
 
         let matches = regex.matches(
@@ -153,6 +155,9 @@ extension XProfileScraper {
             case "UserTweets" where userTweetsQueryID == nil:
                 userTweetsQueryID = queryID
                 print("[XProfileScraper:QueryIDs] ✓ UserTweets: \(queryID)")
+            case "TweetDetail" where tweetDetailQueryID == nil:
+                tweetDetailQueryID = queryID
+                print("[XProfileScraper:QueryIDs] ✓ TweetDetail: \(queryID)")
             default:
                 break
             }

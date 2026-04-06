@@ -33,7 +33,8 @@ nonisolated final class RSSParser: NSObject, XMLParserDelegate, @unchecked Senda
             title: decodeHTMLEntities(feedTitle.trimmingCharacters(in: .whitespacesAndNewlines)),
             siteURL: feedLink.trimmingCharacters(in: .whitespacesAndNewlines),
             description: cleanHTMLPreservingStructure(
-                feedDescription.trimmingCharacters(in: .whitespacesAndNewlines)
+                feedDescription.trimmingCharacters(in: .whitespacesAndNewlines),
+                baseURL: URL(string: feedLink.trimmingCharacters(in: .whitespacesAndNewlines))
             ) ?? "",
             articles: parsedArticles,
             hasITunesNamespace: hasITunesNamespace
@@ -193,7 +194,8 @@ nonisolated final class RSSParser: NSObject, XMLParserDelegate, @unchecked Senda
                 summary: cleanHTMLPreservingStructure(
                     currentDescription.trimmingCharacters(
                         in: .whitespacesAndNewlines
-                    )
+                    ),
+                    baseURL: URL(string: articleURL)
                 ),
                 content: trimmedContent.isEmpty ? nil : trimmedContent,
                 imageURL: resolveImageURL(),

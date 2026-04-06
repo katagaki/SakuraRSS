@@ -101,6 +101,12 @@ nonisolated struct Article: Identifiable, Hashable, Sendable {
         return lowered.contains("youtube.com") || lowered.contains("youtu.be")
     }
 
+    /// Whether the article URL points to a specific X/Twitter post (status).
+    var isXPostURL: Bool {
+        guard let parsed = URL(string: url) else { return false }
+        return XProfileScraper.isXPostURL(parsed)
+    }
+
     var isPodcastEpisode: Bool {
         audioURL != nil
     }

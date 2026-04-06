@@ -140,6 +140,7 @@ struct ArticleDetailView: View {
                     ProgressView()
                         .frame(maxWidth: .infinity, alignment: .center)
                         .padding(.vertical, 8)
+                        .transition(.blurReplace)
                 } else if let text = displayText {
                     if showingSummary && summarizedText != nil {
                         Text("AppleIntelligence.VerifyImportantInformation")
@@ -151,8 +152,10 @@ struct ArticleDetailView: View {
                         switch block {
                         case .text(let content):
                             SelectableText(content)
-                        case .image(let url):
-                            FitWidthImage(url: url, namespace: imageViewerNamespace) {
+                        case .code(let content):
+                            CodeBlockView(code: content)
+                        case .image(let url, let link):
+                            FitWidthImage(url: url, link: link, namespace: imageViewerNamespace) {
                                 imageViewerURL = url
                             }
                         }
@@ -161,6 +164,7 @@ struct ArticleDetailView: View {
                     .transition(.blurReplace)
                 }
             }
+            .animation(.smooth.speed(2.0), value: isExtracting)
             .animation(.smooth.speed(2.0), value: showingSummary)
             .animation(.smooth.speed(2.0), value: showingTranslation)
             .animation(.smooth.speed(2.0), value: translatedText)
@@ -208,22 +212,52 @@ struct ArticleDetailView: View {
 struct FitWidthImage: View {
 
     let url: URL
+    var link: URL?
     let namespace: Namespace.ID
     var onTap: (() -> Void)?
     @State private var aspectRatio: CGFloat?
+    @State private var imageSize: CGSize?
+    @Environment(\.openURL) private var openURL
 
     var body: some View {
-        CachedAsyncImage(url: url, onImageLoaded: { image in
-            aspectRatio = image.size.width / image.size.height
-        }, placeholder: {
-            Rectangle()
-                .fill(.secondary.opacity(0.1))
-                .frame(height: 200)
-        })
-        .aspectRatio(aspectRatio, contentMode: .fill)
-        .clipped()
-        .clipShape(RoundedRectangle(cornerRadius: 12))
-        .matchedTransitionSource(id: url, in: namespace)
-        .onTapGesture { onTap?() }
+        GeometryReader { geo in
+            let maxWidth = geo.size.width
+            let naturalWidth = imageSize?.width ?? maxWidth
+            let displayWidth = min(naturalWidth, maxWidth)
+
+            CachedAsyncImage(url: url, onImageLoaded: { image in
+                aspectRatio = image.size.width / image.size.height
+                imageSize = image.size
+            }, placeholder: {
+                Rectangle()
+                    .fill(.secondary.opacity(0.1))
+                    .frame(height: 200)
+            })
+            .aspectRatio(aspectRatio, contentMode: .fill)
+            .frame(width: displayWidth)
+            .clipped()
+            .clipShape(RoundedRectangle(cornerRadius: 12))
+            .overlay(alignment: .bottomTrailing) {
+                if let link {
+                    Button {
+                        openURL(link)
+                    } label: {
+                        Label("Shared.Link", systemImage: "link")
+                            .font(.caption)
+                            .fontWeight(.medium)
+                            .padding(.horizontal, 10)
+                            .padding(.vertical, 6)
+                            .background(.ultraThinMaterial, in: Capsule())
+                    }
+                    .buttonStyle(.plain)
+                    .padding(8)
+                }
+            }
+            .matchedTransitionSource(id: url, in: namespace)
+            .onTapGesture { onTap?() }
+            .frame(maxWidth: .infinity, alignment: .center)
+        }
+        .aspectRatio(aspectRatio, contentMode: .fit)
+        .frame(maxWidth: imageSize?.width)
     }
 }

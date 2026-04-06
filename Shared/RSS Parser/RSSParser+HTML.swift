@@ -90,7 +90,7 @@ nonisolated extension RSSParser {
 
     /// Converts HTML to plain text, preserving paragraph/heading structure as newlines
     /// and rendering `<a>` links as Markdown `[text](url)` for tappable display.
-    func cleanHTMLPreservingStructure(_ html: String) -> String? {
+    func cleanHTMLPreservingStructure(_ html: String, baseURL: URL? = nil) -> String? {
         guard html.contains("<") else {
             let decoded = decodeHTMLEntities(html).trimmingCharacters(in: .whitespacesAndNewlines)
             return decoded.isEmpty ? nil : decoded
@@ -100,7 +100,7 @@ nonisolated extension RSSParser {
         result = result.replacingOccurrences(
             of: #"<br\s*/?>"#, with: "\n", options: .regularExpression
         )
-        result = convertLinksToMarkdown(result)
+        result = convertLinksToMarkdown(result, baseURL: baseURL)
         result = convertInlineMarkup(result)
         result = stripInvalidURLSupSub(result)
 
@@ -111,6 +111,7 @@ nonisolated extension RSSParser {
             )
         }
 
+        result = replacePreTagsWithMarkers(result)
         result = replaceImgTagsWithMarkers(result)
         result = result.replacingOccurrences(of: "<[^>]+>", with: "", options: .regularExpression)
         result = decodeHTMLEntities(result)
@@ -123,7 +124,8 @@ nonisolated extension RSSParser {
     }
 
     /// Converts `<a>` tags to Markdown links, stripping empty-text links.
-    private func convertLinksToMarkdown(_ text: String) -> String {
+    /// Resolves relative URLs against `baseURL` when provided.
+    private func convertLinksToMarkdown(_ text: String, baseURL: URL? = nil) -> String {
         guard let linkRegex = try? NSRegularExpression(
             pattern: #"<a\s[^>]*href=["']([^"']+)["'][^>]*>(.*?)</a>"#
         ) else { return text }
@@ -134,12 +136,23 @@ nonisolated extension RSSParser {
             in: result, range: NSRange(location: 0, length: nsResult.length)
         )
         for match in linkMatches.reversed() {
-            let url = nsResult.substring(with: match.range(at: 1))
+            var url = nsResult.substring(with: match.range(at: 1))
             let linkText = nsResult.substring(with: match.range(at: 2))
+                .replacingOccurrences(of: "\\s+", with: " ", options: .regularExpression)
                 .trimmingCharacters(in: .whitespacesAndNewlines)
             if linkText.isEmpty {
                 result = (result as NSString).replacingCharacters(in: match.range, with: "")
             } else {
+                // Percent-encode spaces in the URL for valid Markdown links
+                url = url.replacingOccurrences(of: " ", with: "%20")
+                // Resolve relative URLs against the base URL
+                if !url.hasPrefix("http://") && !url.hasPrefix("https://") {
+                    if url.hasPrefix("//"), let abs = URL(string: "https:\(url)") {
+                        url = abs.absoluteString
+                    } else if let baseURL, let resolved = URL(string: url, relativeTo: baseURL) {
+                        url = resolved.absoluteString
+                    }
+                }
                 let escaped = linkText
                     .replacingOccurrences(of: "[", with: "\\[")
                     .replacingOccurrences(of: "]", with: "\\]")
@@ -194,6 +207,10 @@ nonisolated extension RSSParser {
         )
         result = result.replacingOccurrences(
             of: #"<sub(?:\s[^>]*)?>(.+?)</sub>"#, with: "{{SUB}}$1{{/SUB}}",
+            options: [.regularExpression, .caseInsensitive]
+        )
+        result = result.replacingOccurrences(
+            of: #"<code(?:\s[^>]*)?>(.+?)</code>"#, with: "`$1`",
             options: [.regularExpression, .caseInsensitive]
         )
         return result
@@ -257,6 +274,28 @@ nonisolated extension RSSParser {
                 if URL(string: content) == nil {
                     result = (result as NSString).replacingCharacters(in: match.range, with: "")
                 }
+            }
+        }
+        return result
+    }
+
+    /// Converts `<pre>` blocks (optionally containing `<code>`) to `{{CODE}}…{{/CODE}}` markers.
+    private func replacePreTagsWithMarkers(_ text: String) -> String {
+        guard let regex = try? NSRegularExpression(
+            pattern: #"<pre(?:\s[^>]*)?>(?:\s*<code(?:\s[^>]*)?>)?(.*?)(?:</code>\s*)?</pre>"#,
+            options: [.caseInsensitive, .dotMatchesLineSeparators]
+        ) else { return text }
+        var result = text
+        let nsResult = result as NSString
+        let matches = regex.matches(in: result, range: NSRange(location: 0, length: nsResult.length))
+        for match in matches.reversed() {
+            var content = nsResult.substring(with: match.range(at: 1))
+            // Strip any remaining inner HTML tags
+            content = content.replacingOccurrences(of: "<[^>]+>", with: "", options: .regularExpression)
+            content = content.trimmingCharacters(in: CharacterSet(charactersIn: "\n"))
+            if !content.isEmpty {
+                let replacement = "\n{{CODE}}\(content){{/CODE}}\n"
+                result = (result as NSString).replacingCharacters(in: match.range, with: replacement)
             }
         }
         return result

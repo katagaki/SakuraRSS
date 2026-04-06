@@ -34,6 +34,27 @@ extension FeedEditSheet {
     func fetchIconFromFeed() async {
         isFetchingIcon = true
         defer { isFetchingIcon = false }
+
+        // For X feeds, fetch the profile avatar using XProfileScraper
+        if feed.isXFeed,
+           let handle = XProfileScraper.handleFromFeedURL(feed.url),
+           let cookies = await XProfileScraper.getXCookies() {
+            let scraper = XProfileScraper()
+            if let userInfo = await scraper.fetchUserInfo(screenName: handle, cookies: cookies),
+               let imageURLString = userInfo.profileImageURL,
+               let imageURL = URL(string: imageURLString),
+               let (data, _) = try? await URLSession.shared.data(from: imageURL),
+               let image = UIImage(data: data) {
+                await FaviconCache.shared.setCustomFavicon(image, feedID: feed.id, skipTrimming: true)
+                customIconImage = nil
+                currentFavicon = image
+                selectedPhoto = nil
+                iconURLInput = ""
+                useDefaultIcon = false
+                return
+            }
+        }
+
         await FaviconCache.shared.refreshFavicons(for: [(domain: feed.domain, siteURL: feed.siteURL)])
         if let image = await FaviconCache.shared.favicon(for: feed.domain, siteURL: feed.siteURL) {
             customIconImage = nil

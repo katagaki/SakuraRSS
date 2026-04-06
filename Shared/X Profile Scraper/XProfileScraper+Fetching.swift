@@ -204,6 +204,68 @@ extension XProfileScraper {
         )
     }
 
+    // MARK: - Single Tweet
+
+    /// Fetches a single tweet by its ID using the TweetDetail GraphQL endpoint.
+    /// Returns the parsed tweet, or nil if the fetch fails.
+    func fetchSingleTweet(tweetID: String) async -> ParsedTweet? {
+        guard let cookies = await Self.getXCookies() else {
+            #if DEBUG
+            print("[XProfileScraper] No X session cookies for single tweet fetch")
+            #endif
+            return nil
+        }
+
+        let variables: [String: Any] = [
+            "focalTweetId": tweetID,
+            "with_rux_injections": false,
+            "rankingMode": "Relevance",
+            "includePromotedContent": false,
+            "withCommunity": true,
+            "withQuickPromoteEligibilityTweetFields": true,
+            "withBirdwatchNotes": true,
+            "withVoice": true
+        ]
+
+        guard let queryID = Self.tweetDetailQueryID,
+              let url = Self.buildGraphQLURL(
+                queryID: queryID,
+                operationName: "TweetDetail",
+                variables: variables,
+                features: Self.userTweetsFeatures,
+                fieldToggles: ["withArticlePlainText": false]
+              ) else {
+            #if DEBUG
+            print("[XProfileScraper] Failed to build TweetDetail URL")
+            #endif
+            return nil
+        }
+
+        let request = buildRequest(url: url, cookies: cookies)
+
+        let data: Data
+        let response: URLResponse
+        do {
+            (data, response) = try await URLSession.shared.data(for: request)
+        } catch {
+            #if DEBUG
+            print("[XProfileScraper] TweetDetail network error: \(error)")
+            #endif
+            return nil
+        }
+
+        guard let httpResponse = response as? HTTPURLResponse,
+              httpResponse.statusCode == 200 else {
+            #if DEBUG
+            print("[XProfileScraper] TweetDetail bad status: "
+                  + "\((response as? HTTPURLResponse)?.statusCode ?? -1)")
+            #endif
+            return nil
+        }
+
+        return Self.parseTweetDetailResponse(data: data, tweetID: tweetID)
+    }
+
     // MARK: - Tweets
 
     func fetchTweets(

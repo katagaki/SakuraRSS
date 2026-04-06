@@ -47,6 +47,7 @@ nonisolated final class DatabaseManager: @unchecked Sendable {
     let articleTranslatedTitle = SQLite.Expression<String?>("translated_title")
     let articleTranslatedText = SQLite.Expression<String?>("translated_text")
     let articleTranslatedSummary = SQLite.Expression<String?>("translated_summary")
+    let articleParserVersion = SQLite.Expression<Int>("parser_version")
 
     let summaryCache = Table("summary_cache")
     let summaryCacheType = SQLite.Expression<String>("type")
@@ -70,8 +71,18 @@ nonisolated final class DatabaseManager: @unchecked Sendable {
             database = try Connection(dbPath)
             try createTables()
             fixupIfVersionChanged()
+            invalidateStaleParserCache()
         } catch {
             fatalError("Database initialization failed: \(error)")
+        }
+    }
+
+    private func invalidateStaleParserCache() {
+        let key = "App.ParserVersion.ArticleExtractor"
+        let stored = UserDefaults.standard.integer(forKey: key)
+        if stored < ParserVersion.articleExtractor {
+            try? invalidateAllCachedArticleContent()
+            UserDefaults.standard.set(ParserVersion.articleExtractor, forKey: key)
         }
     }
 
@@ -126,6 +137,7 @@ nonisolated final class DatabaseManager: @unchecked Sendable {
             table.column(articleTranslatedTitle)
             table.column(articleTranslatedText)
             table.column(articleTranslatedSummary)
+            table.column(articleParserVersion, defaultValue: 0)
         })
 
         try database.run(articles.createIndex(articleFeedID, ifNotExists: true))

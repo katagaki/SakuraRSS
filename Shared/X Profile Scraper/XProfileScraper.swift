@@ -29,6 +29,7 @@ final class XProfileScraper {
 
     static var userByScreenNameQueryID: String?
     static var userTweetsQueryID: String?
+    static var tweetDetailQueryID: String?
 
     static let userByScreenNameFeatures: [String: Bool] = [
         "hidden_profile_subscriptions_enabled": true,
@@ -77,6 +78,25 @@ final class XProfileScraper {
     static var queryIDsFetched = false
 
     // MARK: - Static Helpers
+
+    /// Returns true if the URL points to a specific X/Twitter post (status).
+    nonisolated static func isXPostURL(_ url: URL) -> Bool {
+        guard let host = url.host?.lowercased() else { return false }
+        let isXDomain = host == "x.com" || host == "twitter.com"
+            || host == "www.x.com" || host == "www.twitter.com"
+            || host == "mobile.x.com" || host == "mobile.twitter.com"
+        guard isXDomain else { return false }
+        // Path like /username/status/1234567890
+        let components = url.pathComponents
+        return components.count >= 4 && components[2] == "status"
+    }
+
+    /// Extracts the tweet ID from an X/Twitter status URL.
+    nonisolated static func extractTweetID(from url: URL) -> String? {
+        let components = url.pathComponents
+        guard components.count >= 4, components[2] == "status" else { return nil }
+        return components[3]
+    }
 
     /// Returns true if the URL points to an X/Twitter profile.
     nonisolated static func isXProfileURL(_ url: URL) -> Bool {
@@ -131,9 +151,52 @@ final class XProfileScraper {
         return String(url.dropFirst("x-profile://".count))
     }
 
+    /// UserDefaults key used to cache the X session state so that
+    /// it is available immediately on cold launch (before the WebKit
+    /// cookie store has finished loading from disk).
+    private static let xSessionCacheKey = "XProfileScraper.hasSession"
+
     /// Checks if the user has X cookies (i.e. is logged in).
+    ///
+    /// On a cold app launch the WebKit cookie store may not have
+    /// finished restoring cookies from disk yet, which causes this
+    /// method to incorrectly return `false`.  To work around this,
+    /// we cache the result in UserDefaults and, when the cookie store
+    /// returns an empty result while the cache says we were previously
+    /// logged in, we retry once after a short delay to give WebKit
+    /// time to load.
     @MainActor
     static func hasXSession() async -> Bool {
+        let store = WKWebsiteDataStore.default()
+        let cookies = await store.httpCookieStore.allCookies()
+        let found = cookies.contains { cookie in
+            let domain = cookie.domain.lowercased()
+            return (domain.contains("x.com") || domain.contains("twitter.com"))
+                && (cookie.name == "auth_token" || cookie.name == "ct0")
+        }
+
+        if found {
+            UserDefaults.standard.set(true, forKey: xSessionCacheKey)
+            return true
+        }
+
+        // Cookie store returned nothing — if we were previously logged
+        // in, retry once after a brief delay so WebKit can finish
+        // loading cookies from disk.
+        if UserDefaults.standard.bool(forKey: xSessionCacheKey) {
+            try? await Task.sleep(for: .milliseconds(500))
+            let retryResult = await retryHasXSession()
+            UserDefaults.standard.set(retryResult, forKey: xSessionCacheKey)
+            return retryResult
+        }
+
+        UserDefaults.standard.set(false, forKey: xSessionCacheKey)
+        return false
+    }
+
+    /// One retry of the cookie check (no further retries to avoid loops).
+    @MainActor
+    private static func retryHasXSession() async -> Bool {
         let store = WKWebsiteDataStore.default()
         let cookies = await store.httpCookieStore.allCookies()
         return cookies.contains { cookie in
@@ -154,6 +217,8 @@ final class XProfileScraper {
         }
         userByScreenNameQueryID = nil
         userTweetsQueryID = nil
+        tweetDetailQueryID = nil
         queryIDsFetched = false
+        UserDefaults.standard.set(false, forKey: xSessionCacheKey)
     }
 }
