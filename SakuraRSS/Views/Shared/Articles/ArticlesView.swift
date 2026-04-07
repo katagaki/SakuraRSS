@@ -91,28 +91,12 @@ struct ArticlesView: View {
     var body: some View {
         let effectiveStyle = effectiveDisplayStyle
         Group {
-            switch effectiveStyle {
-            case .inbox:
-                InboxStyleView(articles: visibleArticles, onLoadMore: onLoadMore)
-            case .feed:
-                FeedStyleView(articles: visibleArticles, onLoadMore: onLoadMore)
-            case .magazine:
-                MagazineStyleView(articles: visibleArticles, onLoadMore: onLoadMore)
-            case .compact:
-                CompactStyleView(articles: visibleArticles, onLoadMore: onLoadMore)
-            case .video:
-                VideoStyleView(articles: visibleArticles, onLoadMore: onLoadMore)
-            case .photos:
-                PhotosStyleView(articles: visibleArticles, onLoadMore: onLoadMore)
-            case .podcast:
-                PodcastStyleView(articles: visibleArticles, onLoadMore: onLoadMore)
-            case .timeline:
-                TimelineStyleView(articles: visibleArticles, onLoadMore: onLoadMore)
-            case .cards:
-                CardsStyleView(articles: visibleArticles, onRefresh: onRefresh)
-            case .grid:
-                GridStyleView(articles: visibleArticles, onLoadMore: onLoadMore)
-            }
+            DisplayStyleContentView(
+                style: effectiveStyle,
+                articles: visibleArticles,
+                onLoadMore: onLoadMore,
+                onRefresh: onRefresh
+            )
         }
         .scrollContentBackground(.hidden)
         .sakuraBackground()

@@ -30,28 +30,10 @@ struct BookmarksView: View {
                         Text("Bookmarks.Empty.Description")
                     }
                 } else {
-                    switch effectiveStyle {
-                    case .inbox:
-                        InboxStyleView(articles: bookmarkedArticles)
-                    case .feed:
-                        FeedStyleView(articles: bookmarkedArticles)
-                    case .magazine:
-                        MagazineStyleView(articles: bookmarkedArticles)
-                    case .compact:
-                        CompactStyleView(articles: bookmarkedArticles)
-                    case .video:
-                        VideoStyleView(articles: bookmarkedArticles)
-                    case .photos:
-                        PhotosStyleView(articles: bookmarkedArticles)
-                    case .podcast:
-                        PodcastStyleView(articles: bookmarkedArticles)
-                    case .timeline:
-                        TimelineStyleView(articles: bookmarkedArticles)
-                    case .cards:
-                        CardsStyleView(articles: bookmarkedArticles)
-                    case .grid:
-                        GridStyleView(articles: bookmarkedArticles)
-                    }
+                    DisplayStyleContentView(
+                        style: effectiveStyle,
+                        articles: bookmarkedArticles
+                    )
                 }
             }
             .navigationTitle(String(localized: "Tabs.Bookmarks"))
