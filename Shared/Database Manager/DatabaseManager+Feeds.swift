@@ -83,7 +83,7 @@ nonisolated extension DatabaseManager {
     }
 
     func deleteAllArticles() throws {
-        try database.run(articles.delete())
+        try database.run(articles.filter(articleIsBookmarked == false).delete())
     }
 
     // MARK: - Row Mapping
