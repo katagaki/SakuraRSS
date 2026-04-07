@@ -1,11 +1,11 @@
 import SwiftUI
 
-extension ArticleDetailView {
+extension YouTubePlayerView {
 
-    var actionButtons: some View {
+    var descriptionActionButtons: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 8) {
-                if !isExtracting && displayText != nil {
+                if hasDescription {
                     TranslateButton(
                         hasTranslation: hasTranslationForCurrentMode,
                         isTranslating: isTranslating,
@@ -19,24 +19,33 @@ extension ArticleDetailView {
                             isSummarizing: isSummarizing,
                             showingSummary: $showingSummary,
                             onSummarize: {
-                                await summarizeArticle()
+                                await summarizeDescription()
                                 return summarizedText != nil
                             }
                         )
                     }
                 }
-
+                if let youtubeAppURL, UIApplication.shared.canOpenURL(youtubeAppURL) {
+                    OpenLinkButton(
+                        title: "YouTube.OpenInApp",
+                        systemImage: "play.rectangle",
+                        action: { UIApplication.shared.open(youtubeAppURL) }
+                    )
+                }
                 OpenLinkButton(
-                    title: "Article.OpenInBrowser",
-                    systemImage: article.isYouTubeURL && YouTubeHelper.isAppInstalled
-                        ? "play.rectangle" : "safari",
-                    action: { openArticleURL() }
+                    title: "YouTube.OpenInBrowser",
+                    systemImage: "safari",
+                    action: {
+                        if let url = URL(string: article.url) {
+                            openURL(url)
+                        }
+                    }
                 )
             }
             .buttonStyle(.bordered)
             .tint(.primary)
             .padding(.horizontal)
         }
-        .padding(.top)
+        .padding(.top, 12)
     }
 }
