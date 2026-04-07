@@ -306,8 +306,10 @@ struct MoreView: View {
             ) {
                 Button(String(localized: "DataManagement.Cleanup.Confirm"), role: .destructive) {
                     isCleaningUp = true
+                    UIApplication.shared.isIdleTimerDisabled = true
                     Task {
                         await feedManager.deleteArticlesAndVacuum(olderThan: selectedCleanupCutoff)
+                        UIApplication.shared.isIdleTimerDisabled = false
                         isCleaningUp = false
                         alertMessage = String(localized: "DataManagement.Cleanup.Success")
                         showAlert = true
