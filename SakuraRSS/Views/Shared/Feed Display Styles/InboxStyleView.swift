@@ -27,6 +27,16 @@ struct InboxStyleView: View {
                     }
                     .tint(.blue)
                 }
+                .swipeActions(edge: .trailing) {
+                    Button {
+                        withAnimation(.smooth.speed(2.0)) {
+                            feedManager.toggleBookmark(article)
+                        }
+                    } label: {
+                        Image(systemName: article.isBookmarked ? "bookmark.slash" : "bookmark")
+                    }
+                    .tint(.orange)
+                }
                 .listRowBackground(Color.clear)
                 .listRowSeparator(.hidden, edges: .top)
                 .listRowSeparator(.visible, edges: .bottom)
