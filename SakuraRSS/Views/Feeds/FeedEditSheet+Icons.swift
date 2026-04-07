@@ -55,6 +55,26 @@ extension FeedEditSheet {
             }
         }
 
+        // For Instagram feeds, fetch the profile avatar using InstagramProfileScraper
+        if feed.isInstagramFeed,
+           let handle = InstagramProfileScraper.handleFromFeedURL(feed.url),
+           let profileURL = InstagramProfileScraper.profileURL(for: handle) {
+            let scraper = InstagramProfileScraper()
+            let result = await scraper.scrapeProfile(profileURL: profileURL)
+            if let imageURLString = result.profileImageURL,
+               let imageURL = URL(string: imageURLString),
+               let (data, _) = try? await URLSession.shared.data(from: imageURL),
+               let image = UIImage(data: data) {
+                await FaviconCache.shared.setCustomFavicon(image, feedID: feed.id, skipTrimming: true)
+                customIconImage = nil
+                currentFavicon = image
+                selectedPhoto = nil
+                iconURLInput = ""
+                useDefaultIcon = false
+                return
+            }
+        }
+
         await FaviconCache.shared.refreshFavicons(for: [(domain: feed.domain, siteURL: feed.siteURL)])
         if let image = await FaviconCache.shared.favicon(for: feed.domain, siteURL: feed.siteURL) {
             customIconImage = nil

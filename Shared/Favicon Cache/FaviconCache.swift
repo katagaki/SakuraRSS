@@ -69,6 +69,14 @@ actor FaviconCache {
             return image
         }
 
+        // For Instagram feeds without a cached photo, fetch the profile avatar
+        if feed.isInstagramFeed,
+           let handle = InstagramProfileScraper.handleFromFeedURL(feed.url),
+           let image = await fetchInstagramProfileAvatar(handle: handle) {
+            await setCustomFavicon(image, feedID: feed.id, skipTrimming: true)
+            return image
+        }
+
         return await favicon(for: feed.domain, siteURL: feed.siteURL)
     }
 
@@ -331,6 +339,19 @@ actor FaviconCache {
         guard let cookies = await XProfileScraper.getXCookies(),
               let userInfo = await scraper.fetchUserInfo(screenName: handle, cookies: cookies),
               let imageURLString = userInfo.profileImageURL,
+              let imageURL = URL(string: imageURLString),
+              let (data, _) = try? await URLSession.shared.data(from: imageURL) else {
+            return nil
+        }
+        return UIImage(data: data)
+    }
+
+    /// Fetches an Instagram profile avatar using the InstagramProfileScraper API.
+    private nonisolated func fetchInstagramProfileAvatar(handle: String) async -> UIImage? {
+        guard let profileURL = InstagramProfileScraper.profileURL(for: handle) else { return nil }
+        let scraper = InstagramProfileScraper()
+        let result = await scraper.scrapeProfile(profileURL: profileURL)
+        guard let imageURLString = result.profileImageURL,
               let imageURL = URL(string: imageURLString),
               let (data, _) = try? await URLSession.shared.data(from: imageURL) else {
             return nil

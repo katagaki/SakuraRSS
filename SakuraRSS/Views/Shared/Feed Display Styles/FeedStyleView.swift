@@ -162,7 +162,7 @@ struct FeedArticleRow: View {
                 }
                 .font(.subheadline)
                 .foregroundStyle(.primary)
-                .lineLimit(feed?.isXFeed == true ? nil : 3)
+                .lineLimit(feed?.isXFeed == true || feed?.isInstagramFeed == true ? nil : 3)
                 .truncationMode(.tail)
 
                 if let imageURL = article.imageURL, let url = URL(string: imageURL) {
@@ -265,7 +265,7 @@ struct FeedArticleRow: View {
                 if let data = loadedFeed.acronymIcon {
                     acronymIcon = UIImage(data: data)
                 }
-                skipFaviconInset = loadedFeed.isVideoFeed || loadedFeed.isXFeed
+                skipFaviconInset = loadedFeed.isVideoFeed || loadedFeed.isXFeed || loadedFeed.isInstagramFeed
                     || FullFaviconDomains.shouldUseFullImage(feedDomain: loadedFeed.domain)
                 preferTitle = TitleOnlyDomains.shouldPreferTitle(feedDomain: loadedFeed.domain)
                 favicon = await FaviconCache.shared.favicon(for: loadedFeed)

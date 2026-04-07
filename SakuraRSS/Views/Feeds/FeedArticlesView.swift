@@ -25,6 +25,7 @@ struct FeedArticlesView: View {
             feedKey: String(feed.id),
             isVideoFeed: feed.isVideoFeed,
             isPodcastFeed: feed.isPodcast,
+            isInstagramFeed: feed.isInstagramFeed,
             isFeedViewDomain: feed.isFeedViewDomain,
             isTimelineViewDomain: feed.isTimelineViewDomain,
             onLoadMore: hasMore ? {

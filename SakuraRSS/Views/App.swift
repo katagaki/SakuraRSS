@@ -136,7 +136,9 @@ struct SakuraRSSApp: App {
             defaults.removeObject(forKey: "FeedsList.ArticleID")
             // Disable all labs features in safe mode
             let hadLabsEnabled = defaults.bool(forKey: "Labs.XProfileFeeds")
+                || defaults.bool(forKey: "Labs.InstagramProfileFeeds")
             defaults.set(false, forKey: "Labs.XProfileFeeds")
+            defaults.set(false, forKey: "Labs.InstagramProfileFeeds")
             _labsWereDisabled = State(initialValue: hadLabsEnabled)
         } else {
             _isInSafeMode = State(initialValue: false)

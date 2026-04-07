@@ -203,7 +203,7 @@ struct PhotosArticleCard: View {
                 if let data = loadedFeed.acronymIcon {
                     acronymIcon = UIImage(data: data)
                 }
-                skipFaviconInset = loadedFeed.isVideoFeed || loadedFeed.isXFeed
+                skipFaviconInset = loadedFeed.isVideoFeed || loadedFeed.isXFeed || loadedFeed.isInstagramFeed
                     || FullFaviconDomains.shouldUseFullImage(feedDomain: loadedFeed.domain)
                 favicon = await FaviconCache.shared.favicon(for: loadedFeed)
             }

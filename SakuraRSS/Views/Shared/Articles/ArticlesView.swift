@@ -9,6 +9,7 @@ struct ArticlesView: View {
     let feedKey: String
     let isVideoFeed: Bool
     let isPodcastFeed: Bool
+    let isInstagramFeed: Bool
     let isFeedViewDomain: Bool
     let isTimelineViewDomain: Bool
     let titleDisplayMode: ToolbarTitleDisplayMode
@@ -34,6 +35,7 @@ struct ArticlesView: View {
 
     init(articles: [Article], title: String, feedKey: String,
          isVideoFeed: Bool = false, isPodcastFeed: Bool = false,
+         isInstagramFeed: Bool = false,
          isFeedViewDomain: Bool = false, isTimelineViewDomain: Bool = false,
          titleDisplayMode: ToolbarTitleDisplayMode = .inline,
          anySummaryHidden: Bool = false,
@@ -46,6 +48,7 @@ struct ArticlesView: View {
         self.feedKey = feedKey
         self.isVideoFeed = isVideoFeed
         self.isPodcastFeed = isPodcastFeed
+        self.isInstagramFeed = isInstagramFeed
         self.isFeedViewDomain = isFeedViewDomain
         self.isTimelineViewDomain = isTimelineViewDomain
         self.titleDisplayMode = titleDisplayMode
@@ -61,6 +64,8 @@ struct ArticlesView: View {
             fallback = .podcast
         } else if isVideoFeed {
             fallback = .video
+        } else if isInstagramFeed {
+            fallback = .photos
         } else if isTimelineViewDomain {
             fallback = .timeline
         } else if isFeedViewDomain {
@@ -210,6 +215,8 @@ struct ArticlesView: View {
                 fallback = .podcast
             } else if isVideoFeed {
                 fallback = .video
+            } else if isInstagramFeed {
+                fallback = .photos
             } else if isTimelineViewDomain {
                 fallback = .timeline
             } else if isFeedViewDomain {

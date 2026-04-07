@@ -26,8 +26,13 @@ nonisolated struct Feed: Identifiable, Hashable, Sendable {
         XProfileScraper.isXFeedURL(url)
     }
 
+    var isInstagramFeed: Bool {
+        InstagramProfileScraper.isInstagramFeedURL(url)
+    }
+
     var isFeedViewDomain: Bool {
-        isXFeed || FeedViewDomains.shouldPreferFeedView(feedDomain: domain) || hasMastodonFeedURL
+        isXFeed || isInstagramFeed
+            || FeedViewDomains.shouldPreferFeedView(feedDomain: domain) || hasMastodonFeedURL
     }
 
     var isTimelineViewDomain: Bool {
@@ -40,7 +45,7 @@ nonisolated struct Feed: Identifiable, Hashable, Sendable {
     }
 
     var isSocialFeed: Bool {
-        isXFeed || isRedditFeed || isFeedViewDomain
+        isXFeed || isInstagramFeed || isRedditFeed || isFeedViewDomain
     }
 
     /// The feed category section for grouped display.
@@ -105,6 +110,12 @@ nonisolated struct Article: Identifiable, Hashable, Sendable {
     var isXPostURL: Bool {
         guard let parsed = URL(string: url) else { return false }
         return XProfileScraper.isXPostURL(parsed)
+    }
+
+    /// Whether the article URL points to a specific Instagram post.
+    var isInstagramPostURL: Bool {
+        guard let parsed = URL(string: url) else { return false }
+        return InstagramProfileScraper.isInstagramPostURL(parsed)
     }
 
     var isPodcastEpisode: Bool {

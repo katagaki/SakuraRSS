@@ -15,6 +15,8 @@ struct AddFeedView: View {
     @State private var addedURLs: Set<String> = []
     @State private var showXLogin = false
     @State private var pendingXFeed: DiscoveredFeed?
+    @State private var showInstagramLogin = false
+    @State private var pendingInstagramFeed: DiscoveredFeed?
     @State private var suggestedTopics: [SuggestedTopic] = []
     @FocusState private var isURLFieldFocused: Bool
 
@@ -162,6 +164,13 @@ struct AddFeedView: View {
             } content: {
                 XLoginView()
             }
+            .sheet(isPresented: $showInstagramLogin) {
+                if let pending = pendingInstagramFeed {
+                    addFeedAfterInstagramLogin(pending)
+                }
+            } content: {
+                InstagramLoginView()
+            }
             .onAppear {
                 suggestedTopics = SuggestedFeedsLoader.topicsForCurrentRegion()
                 if !initialURL.isEmpty {
@@ -248,6 +257,11 @@ struct AddFeedView: View {
                 || UserDefaults.standard.bool(forKey: "Labs.XProfileFeeds") else {
             return
         }
+        // Instagram feeds require the experiment to be enabled
+        guard !InstagramProfileScraper.isInstagramFeedURL(discovered.url)
+                || UserDefaults.standard.bool(forKey: "Labs.InstagramProfileFeeds") else {
+            return
+        }
         // If this is an X feed and the user hasn't logged in yet, prompt login first
         if XProfileScraper.isXFeedURL(discovered.url) && !feedManager.hasXFeeds {
             pendingXFeed = discovered
@@ -257,6 +271,20 @@ struct AddFeedView: View {
                     addFeedDirectly(discovered)
                 } else {
                     showXLogin = true
+                }
+            }
+            return
+        }
+        // If this is an Instagram feed and the user hasn't logged in yet, prompt login first
+        if InstagramProfileScraper.isInstagramFeedURL(discovered.url)
+            && !feedManager.hasInstagramFeeds {
+            pendingInstagramFeed = discovered
+            Task {
+                let hasSession = await InstagramProfileScraper.hasInstagramSession()
+                if hasSession {
+                    addFeedDirectly(discovered)
+                } else {
+                    showInstagramLogin = true
                 }
             }
             return
@@ -288,6 +316,16 @@ struct AddFeedView: View {
         }
     }
 
+    private func addFeedAfterInstagramLogin(_ discovered: DiscoveredFeed) {
+        Task {
+            let hasSession = await InstagramProfileScraper.hasInstagramSession()
+            if hasSession {
+                addFeedDirectly(discovered)
+            }
+            pendingInstagramFeed = nil
+        }
+    }
+
     private func normalizeURL(_ input: String) -> String {
         if input.hasPrefix("http://") || input.hasPrefix("https://") {
             return input
@@ -305,9 +343,10 @@ struct AddFeedView: View {
         return cleaned
     }
 
-    /// Shows the site URL for X feeds instead of the internal x-profile:// scheme.
+    /// Shows the site URL for X/Instagram feeds instead of the internal scheme.
     private func displayURL(for feed: DiscoveredFeed) -> String {
-        if XProfileScraper.isXFeedURL(feed.url) {
+        if XProfileScraper.isXFeedURL(feed.url)
+            || InstagramProfileScraper.isInstagramFeedURL(feed.url) {
             return feed.siteURL
         }
         return feed.url

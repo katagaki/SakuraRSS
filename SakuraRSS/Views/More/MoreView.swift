@@ -121,6 +121,9 @@ struct MoreView: View {
                     NavigationLink("Integrations.X") {
                         XSettingsView()
                     }
+                    NavigationLink("Integrations.Instagram") {
+                        InstagramSettingsView()
+                    }
                 } header: {
                     Text("Settings.Section.Integrations")
                 }
