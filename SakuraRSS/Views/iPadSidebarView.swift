@@ -461,6 +461,8 @@ private struct IPadBookmarksListView: View {
                     TimelineStyleView(articles: bookmarkedArticles)
                 case .cards:
                     CardsStyleView(articles: bookmarkedArticles)
+                case .grid:
+                    GridStyleView(articles: bookmarkedArticles)
                 }
             }
         }
@@ -483,6 +485,10 @@ private struct IPadBookmarksListView: View {
                             }
                             Label(String(localized: "Articles.Style.Feed"), systemImage: "newspaper")
                                 .tag(FeedDisplayStyle.feed)
+                            if hasImages {
+                                Label(String(localized: "Articles.Style.Grid"), systemImage: "square.grid.3x3")
+                                    .tag(FeedDisplayStyle.grid)
+                            }
                             if hasImages {
                                 Label(String(localized: "Articles.Style.Photos"), systemImage: "photo.stack")
                                     .tag(FeedDisplayStyle.photos)
@@ -525,7 +531,7 @@ private struct IPadBookmarksListView: View {
     }
 
     private var effectiveDisplayStyle: FeedDisplayStyle {
-        if !hasImages && (displayStyle == .magazine || displayStyle == .photos || displayStyle == .cards) {
+        if !hasImages && (displayStyle == .magazine || displayStyle == .photos || displayStyle == .cards || displayStyle == .grid) {
             return .inbox
         }
         if displayStyle == .podcast {

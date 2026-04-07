@@ -18,7 +18,7 @@ struct SearchView: View {
 
     private var effectiveStyle: FeedDisplayStyle {
         if !hasImages && (
-            searchDisplayStyle == .magazine || searchDisplayStyle == .photos || searchDisplayStyle == .cards
+            searchDisplayStyle == .magazine || searchDisplayStyle == .photos || searchDisplayStyle == .cards || searchDisplayStyle == .grid
         ) {
             return .inbox
         }
@@ -65,6 +65,8 @@ struct SearchView: View {
                         TimelineStyleView(articles: searchResults)
                     case .cards:
                         CardsStyleView(articles: searchResults)
+                    case .grid:
+                        GridStyleView(articles: searchResults)
                     }
                 }
             }

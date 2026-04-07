@@ -110,6 +110,8 @@ struct ArticlesView: View {
                 TimelineStyleView(articles: visibleArticles, onLoadMore: onLoadMore)
             case .cards:
                 CardsStyleView(articles: visibleArticles, onRefresh: onRefresh)
+            case .grid:
+                GridStyleView(articles: visibleArticles, onLoadMore: onLoadMore)
             }
         }
         .scrollContentBackground(.hidden)
@@ -169,6 +171,10 @@ struct ArticlesView: View {
                         if hasImages {
                             Label(String(localized: "Articles.Style.Photos"), systemImage: "photo.stack")
                                 .tag(FeedDisplayStyle.photos)
+                        }
+                        if hasImages {
+                            Label(String(localized: "Articles.Style.Grid"), systemImage: "square.grid.3x3")
+                                .tag(FeedDisplayStyle.grid)
                         }
                         if hasImages {
                             Label(String(localized: "Articles.Style.Cards"), systemImage: "square.stack.3d.up")
@@ -248,7 +254,7 @@ struct ArticlesView: View {
     /// Falls back to inbox if the selected style requires images but none are available,
     /// or if podcast style is selected for a non-podcast feed.
     private var effectiveDisplayStyle: FeedDisplayStyle {
-        if !hasImages && (displayStyle == .magazine || displayStyle == .photos || displayStyle == .cards) {
+        if !hasImages && (displayStyle == .magazine || displayStyle == .photos || displayStyle == .cards || displayStyle == .grid) {
             return .inbox
         }
         if displayStyle == .podcast && !isPodcastFeed && !hasAudioArticles {
