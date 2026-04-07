@@ -190,6 +190,23 @@ nonisolated extension DatabaseManager {
         return counts
     }
 
+    // MARK: - Cleanup
+
+    func deleteArticles(olderThan date: Date) throws {
+        let target = articles.filter(
+            articlePublishedDate < date.timeIntervalSince1970 || articlePublishedDate == nil
+        )
+        try database.run(target.delete())
+    }
+
+    func deleteAllArticlesOnly() throws {
+        try database.run(articles.delete())
+    }
+
+    func vacuum() throws {
+        try database.run("VACUUM")
+    }
+
     // MARK: - Row Mapping
 
     func rowToArticle(_ row: Row) -> Article {
