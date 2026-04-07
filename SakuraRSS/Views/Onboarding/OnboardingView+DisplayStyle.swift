@@ -87,7 +87,7 @@ private struct StylePreviewView: View {
     var body: some View {
         Group {
             switch style {
-            case .inbox, .video, .podcast, .timeline, .cards:
+            case .inbox:
                 inboxPreview
             case .feed:
                 feedPreview
@@ -95,6 +95,8 @@ private struct StylePreviewView: View {
                 magazinePreview
             case .compact:
                 compactPreview
+            default:
+                EmptyView()
             }
         }
     }
