@@ -30,7 +30,7 @@ struct CardsStyleView: View {
 
     private var deckArticles: [Article] {
         guard let ids = deckArticleIDs else { return [] }
-        return articles.filter { ids.contains($0.id) && $0.imageURL != nil }
+        return articles.filter { ids.contains($0.id) }
     }
 
     /// Tracks article IDs that have been swiped away during this view's lifetime.
@@ -44,7 +44,7 @@ struct CardsStyleView: View {
     @State private var isRefreshing = false
 
     private var hasUnreadCards: Bool {
-        articles.contains { !$0.isRead && $0.imageURL != nil }
+        articles.contains { !$0.isRead }
     }
 
     var body: some View {
@@ -64,7 +64,7 @@ struct CardsStyleView: View {
                                 withAnimation(.smooth.speed(2.0)) {
                                     dismissedIDs.removeAll()
                                     deckArticleIDs = Set(
-                                        articles.filter { $0.imageURL != nil && !$0.isRead }.map(\.id)
+                                        articles.filter { !$0.isRead }.map(\.id)
                                     )
                                 }
                                 isRefreshing = false
@@ -124,7 +124,7 @@ struct CardsStyleView: View {
         .onAppear {
             if deckArticleIDs == nil {
                 deckArticleIDs = Set(
-                    articles.filter { $0.imageURL != nil && !$0.isRead }.map(\.id)
+                    articles.filter { !$0.isRead }.map(\.id)
                 )
             }
         }
@@ -135,6 +135,7 @@ struct CardsStyleView: View {
 
 private struct CardView: View {
 
+    @Environment(FeedManager.self) var feedManager
     @Environment(\.colorScheme) private var colorScheme
     let article: Article
     let onSwipedLeft: () -> Void
@@ -143,6 +144,7 @@ private struct CardView: View {
     @State private var offset: CGSize = .zero
     @State private var hasPassedThreshold = false
     @State private var isDismissing = false
+    @State private var favicon: UIImage?
 
     private var rotation: Double {
         Double(offset.width) / 20.0
@@ -166,23 +168,32 @@ private struct CardView: View {
         return "Cards.ReadLater"
     }
 
+    private var hasArticleImage: Bool {
+        article.imageURL != nil
+    }
+
     var body: some View {
         GeometryReader { geometry in
             ZStack(alignment: .bottomLeading) {
-                // Background image
-                if let imageURL = article.imageURL, let url = URL(string: imageURL) {
-                    CachedAsyncImage(url: url, alignment: .top) {
-                        Rectangle()
-                            .fill(.secondary.opacity(0.2))
+                if hasArticleImage {
+                    // Background image
+                    if let imageURL = article.imageURL, let url = URL(string: imageURL) {
+                        CachedAsyncImage(url: url, alignment: .top) {
+                            Rectangle()
+                                .fill(.secondary.opacity(0.2))
+                        }
+                        .frame(width: geometry.size.width, height: geometry.size.height)
+                        .clipped()
                     }
-                    .frame(width: geometry.size.width, height: geometry.size.height)
-                    .clipped()
-                }
 
-                // Progressive blur over the bottom portion of the card
-                ProgressiveBlurView()
-                    .frame(height: geometry.size.height * 0.5)
-                    .frame(maxHeight: .infinity, alignment: .bottom)
+                    // Progressive blur over the bottom portion of the card
+                    ProgressiveBlurView()
+                        .frame(height: geometry.size.height * 0.5)
+                        .frame(maxHeight: .infinity, alignment: .bottom)
+                } else {
+                    // Favicon-based card background
+                    faviconCardBackground(geometry: geometry)
+                }
 
                 // Swipe indicator overlays
                 swipeIndicators
@@ -229,6 +240,46 @@ private struct CardView: View {
                     }
             )
         }
+        .task {
+            if !hasArticleImage {
+                if let feed = feedManager.feed(forArticle: article) {
+                    favicon = await FaviconCache.shared.favicon(for: feed)
+                }
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func faviconCardBackground(geometry: GeometryProxy) -> some View {
+        let isDark = colorScheme == .dark
+        let bgColor = favicon?.cardBackgroundColor(isDarkMode: isDark)
+            ?? (isDark ? Color(white: 0.15) : Color(white: 0.9))
+
+        ZStack {
+            // Solid tinted background
+            Rectangle()
+                .fill(bgColor)
+
+            // Favicon displayed large and slightly rotated
+            if let favicon {
+                Image(uiImage: favicon)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width: geometry.size.width * 0.4,
+                           height: geometry.size.width * 0.4)
+                    .opacity(isDark ? 0.6 : 0.4)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .offset(y: -geometry.size.height * 0.1)
+            }
+
+            // Bottom gradient for text readability
+            LinearGradient(
+                colors: [bgColor.opacity(0), bgColor],
+                startPoint: .init(x: 0.5, y: 0.5),
+                endPoint: .bottom
+            )
+        }
+        .frame(width: geometry.size.width, height: geometry.size.height)
     }
 
     private var swipeIndicators: some View {

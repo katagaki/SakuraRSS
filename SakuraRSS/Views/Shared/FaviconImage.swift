@@ -188,6 +188,71 @@ extension UIImage {
         )
     }
 
+    /// Returns an RGB tuple of the average colour of all opaque pixels.
+    var averageColorComponents: (red: CGFloat, green: CGFloat, blue: CGFloat)? {
+        guard let cgImage = cgImage else { return nil }
+
+        let sampleSize = 16
+        let colorSpace = CGColorSpaceCreateDeviceRGB()
+        var pixelData = [UInt8](repeating: 0, count: sampleSize * sampleSize * 4)
+
+        guard let context = CGContext(
+            data: &pixelData,
+            width: sampleSize,
+            height: sampleSize,
+            bitsPerComponent: 8,
+            bytesPerRow: sampleSize * 4,
+            space: colorSpace,
+            bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
+        ) else { return nil }
+
+        context.draw(cgImage, in: CGRect(x: 0, y: 0, width: sampleSize, height: sampleSize))
+
+        var totalR: CGFloat = 0
+        var totalG: CGFloat = 0
+        var totalB: CGFloat = 0
+        var opaqueCount: CGFloat = 0
+
+        for index in 0..<(sampleSize * sampleSize) {
+            let offset = index * 4
+            let alpha = CGFloat(pixelData[offset + 3]) / 255.0
+            guard alpha > 0.1 else { continue }
+            totalR += CGFloat(pixelData[offset]) / 255.0
+            totalG += CGFloat(pixelData[offset + 1]) / 255.0
+            totalB += CGFloat(pixelData[offset + 2]) / 255.0
+            opaqueCount += 1
+        }
+
+        guard opaqueCount > 0 else { return nil }
+        return (totalR / opaqueCount, totalG / opaqueCount, totalB / opaqueCount)
+    }
+
+    /// Returns a background colour derived from the favicon's average colour,
+    /// lightened in light mode or darkened in dark mode, suitable for card backgrounds.
+    func cardBackgroundColor(isDarkMode: Bool) -> Color {
+        guard let avg = averageColorComponents else {
+            return isDarkMode ? Color(white: 0.15) : Color(white: 0.9)
+        }
+
+        if isDarkMode {
+            // Mix 65% black with 35% of the average colour for a dark tinted background
+            let blend: CGFloat = 0.35
+            return Color(
+                red: blend * avg.red,
+                green: blend * avg.green,
+                blue: blend * avg.blue
+            )
+        } else {
+            // Mix 65% white with 35% of the average colour for a light tinted background
+            let whiteBlend: CGFloat = 0.65
+            return Color(
+                red: whiteBlend + (1 - whiteBlend) * avg.red,
+                green: whiteBlend + (1 - whiteBlend) * avg.green,
+                blue: whiteBlend + (1 - whiteBlend) * avg.blue
+            )
+        }
+    }
+
     /// A near-white tint derived from the average colour of the image,
     /// suitable as a subtle background behind a transparent favicon.
     var nearWhiteAverageColor: Color {
