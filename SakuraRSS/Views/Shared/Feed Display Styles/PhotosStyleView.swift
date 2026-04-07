@@ -3,6 +3,7 @@ import SwiftUI
 struct PhotosStyleView: View {
 
     @Environment(FeedManager.self) var feedManager
+    @Environment(\.openURL) private var openURL
     @Environment(\.zoomNamespace) private var zoomNamespace
     let articles: [Article]
     var onLoadMore: (() -> Void)?
@@ -12,13 +13,25 @@ struct PhotosStyleView: View {
         ScrollView(.vertical) {
             LazyVStack(spacing: 0) {
                 ForEach(articles) { article in
-                    ArticleLink(article: article, onShowYouTubePlayer: {
-                        youTubeArticle = $0
-                    }, label: {
-                        PhotosArticleCard(article: article)
-                            .zoomSource(id: article.id, namespace: zoomNamespace)
-                    })
-                    .buttonStyle(.plain)
+                    let articleFeed = feedManager.feed(forArticle: article)
+                    if articleFeed?.isInstagramFeed == true || articleFeed?.isXFeed == true {
+                        PhotosArticleCard(article: article, onPhotoTap: {
+                            feedManager.markRead(article)
+                            if let url = URL(string: article.url) {
+                                openURL(url)
+                            }
+                        })
+                        .buttonStyle(.plain)
+                        .zoomSource(id: article.id, namespace: zoomNamespace)
+                    } else {
+                        ArticleLink(article: article, onShowYouTubePlayer: {
+                            youTubeArticle = $0
+                        }, label: {
+                            PhotosArticleCard(article: article)
+                                .zoomSource(id: article.id, namespace: zoomNamespace)
+                        })
+                        .buttonStyle(.plain)
+                    }
                 }
                 if let onLoadMore {
                     LoadPreviousArticlesButton(action: onLoadMore)
@@ -37,6 +50,7 @@ struct PhotosArticleCard: View {
 
     @Environment(FeedManager.self) var feedManager
     let article: Article
+    var onPhotoTap: (() -> Void)?
     @State private var favicon: UIImage?
     @State private var feedName: String?
     @State private var acronymIcon: UIImage?
@@ -128,6 +142,13 @@ struct PhotosArticleCard: View {
                 .aspectRatio(4/3, contentMode: .fit)
                 .frame(maxWidth: .infinity)
                 .clipped()
+                .overlay {
+                    if let onPhotoTap {
+                        Color.clear
+                            .contentShape(Rectangle())
+                            .onTapGesture { onPhotoTap() }
+                    }
+                }
                 .task {
                     photoImage = await CachedAsyncImage<EmptyView>.loadImage(from: url)
                 }
