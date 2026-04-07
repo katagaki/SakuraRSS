@@ -32,8 +32,8 @@ extension ArticleDetailView {
             if let data = feed.acronymIcon {
                 acronymIcon = UIImage(data: data)
             }
-            isVideoFeed = feed.isVideoFeed || feed.isXFeed
-            skipFaviconInset = feed.isVideoFeed || feed.isXFeed
+            isVideoFeed = feed.isVideoFeed || feed.isXFeed || feed.isInstagramFeed
+            skipFaviconInset = feed.isVideoFeed || feed.isXFeed || feed.isInstagramFeed
                 || FullFaviconDomains.shouldUseFullImage(feedDomain: feed.domain)
             favicon = await FaviconCache.shared.favicon(for: feed)
         }

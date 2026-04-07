@@ -30,6 +30,10 @@ struct ArticleLink<Label: View>: View {
         feedManager.feed(forArticle: article)?.isXFeed == true
     }
 
+    private var isInstagramFeedArticle: Bool {
+        feedManager.feed(forArticle: article)?.isInstagramFeed == true
+    }
+
     /// Whether this article should navigate to the iPad detail column
     /// instead of pushing onto the NavigationStack.
     private var usesIPadDetailColumn: Bool {
@@ -51,7 +55,7 @@ struct ArticleLink<Label: View>: View {
                 } else {
                     NavigationLink(value: article) { label() }
                 }
-            } else if isXFeedArticle {
+            } else if isXFeedArticle || isInstagramFeedArticle {
                 Button {
                     feedManager.markRead(article)
                     if let url = URL(string: article.url) {

@@ -249,11 +249,16 @@ actor FeedDiscovery {
 
     // MARK: - Social Media Feed Detection
 
-    /// Detects Bluesky, Mastodon, and X/Twitter profile URLs and constructs their feed URLs.
+    /// Detects Bluesky, Mastodon, X/Twitter, and Instagram profile URLs
+    /// and constructs their feed URLs.
     private func detectSocialMediaFeed(url: URL) async -> DiscoveredFeed? {
         if UserDefaults.standard.bool(forKey: "Labs.XProfileFeeds"),
            let xFeed = detectXProfileFeed(url: url) {
             return xFeed
+        }
+        if UserDefaults.standard.bool(forKey: "Labs.InstagramProfileFeeds"),
+           let instagramFeed = detectInstagramProfileFeed(url: url) {
+            return instagramFeed
         }
         if let blueskyFeed = await detectBlueskyFeed(url: url) {
             return blueskyFeed
@@ -277,6 +282,22 @@ actor FeedDiscovery {
             title: "@\(handle)",
             url: XProfileScraper.feedURL(for: handle),
             siteURL: "https://x.com/\(handle)"
+        )
+    }
+
+    /// Detects Instagram profile URLs and returns a pseudo-feed entry.
+    /// The feed URL uses the `instagram-profile://` scheme so the app routes
+    /// refresh through InstagramProfileScraper instead of RSSParser.
+    private func detectInstagramProfileFeed(url: URL) -> DiscoveredFeed? {
+        guard InstagramProfileScraper.isInstagramProfileURL(url),
+              let handle = InstagramProfileScraper.extractHandle(from: url) else {
+            return nil
+        }
+
+        return DiscoveredFeed(
+            title: "@\(handle)",
+            url: InstagramProfileScraper.feedURL(for: handle),
+            siteURL: "https://www.instagram.com/\(handle)/"
         )
     }
 

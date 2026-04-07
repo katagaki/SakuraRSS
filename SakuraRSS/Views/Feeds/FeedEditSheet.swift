@@ -48,7 +48,7 @@ struct FeedEditSheet: View {
                             .frame(maxWidth: .infinity)
                             .labelsHidden()
                     }
-                    if feed.isXFeed {
+                    if feed.isXFeed || feed.isInstagramFeed {
                         HStack {
                             Text("FeedEdit.URL")
                             Spacer()
@@ -77,7 +77,7 @@ struct FeedEditSheet: View {
                             InitialsAvatarView(
                                 name.isEmpty ? feed.title : name,
                                 size: 64,
-                                circle: feed.isXFeed || (feed.isVideoFeed && !feed.isPodcast),
+                                circle: feed.isXFeed || feed.isInstagramFeed || (feed.isVideoFeed && !feed.isPodcast),
                                 cornerRadius: iconCornerRadius(size: 64)
                             )
                             Spacer()
@@ -87,8 +87,8 @@ struct FeedEditSheet: View {
                             Spacer()
                             FaviconImage(icon, size: 64,
                                          cornerRadius: iconCornerRadius(size: 64),
-                                         circle: feed.isXFeed || (feed.isVideoFeed && !feed.isPodcast),
-                                         skipInset: feed.isVideoFeed || feed.isPodcast || feed.isXFeed
+                                         circle: feed.isXFeed || feed.isInstagramFeed || (feed.isVideoFeed && !feed.isPodcast),
+                                         skipInset: feed.isVideoFeed || feed.isPodcast || feed.isXFeed || feed.isInstagramFeed
                                             || FullFaviconDomains.shouldUseFullImage(feedDomain: feed.domain))
                             Spacer()
                         }
@@ -153,7 +153,7 @@ struct FeedEditSheet: View {
                     Text("FeedEdit.Icon")
                 }
 
-                if !feed.isXFeed {
+                if !feed.isXFeed && !feed.isInstagramFeed {
                     Section {
                         Picker(String(localized: "FeedEdit.OpenIn"), selection: $openMode) {
                             Text("FeedEdit.OpenIn.InAppViewer")

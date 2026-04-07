@@ -95,6 +95,12 @@ final class FeedManager {
             return
         }
 
+        if feed.isInstagramFeed {
+            guard UserDefaults.standard.bool(forKey: "Labs.InstagramProfileFeeds") else { return }
+            try await refreshInstagramFeed(feed, reloadData: reloadData)
+            return
+        }
+
         let database = database
         try await Task.detached {
             guard let url = URL(string: feed.url) else { return }
