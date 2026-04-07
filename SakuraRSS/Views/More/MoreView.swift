@@ -163,6 +163,13 @@ struct MoreView: View {
                         .buttonStyle(.plain)
                     }
                     .listRowInsets(EdgeInsets())
+                } header: {
+                    Text("Settings.Section.DataManagement")
+                } footer: {
+                    Text("DataManagement.OPML.Footer")
+                }
+
+                Section {
                     Menu {
                         Button(String(localized: "DataManagement.Cleanup.Last24Hours")) {
                             selectedCleanupCutoff = Calendar.current.date(byAdding: .day, value: -1, to: Date())
@@ -195,10 +202,6 @@ struct MoreView: View {
                         }
                     }
                     .disabled(isCleaningUp)
-                } header: {
-                    Text("Settings.Section.DataManagement")
-                } footer: {
-                    Text("DataManagement.OPML.Footer")
                 }
 
                 Section {
