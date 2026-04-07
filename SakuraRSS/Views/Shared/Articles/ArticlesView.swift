@@ -91,26 +91,12 @@ struct ArticlesView: View {
     var body: some View {
         let effectiveStyle = effectiveDisplayStyle
         Group {
-            switch effectiveStyle {
-            case .inbox:
-                InboxStyleView(articles: visibleArticles, onLoadMore: onLoadMore)
-            case .feed:
-                FeedStyleView(articles: visibleArticles, onLoadMore: onLoadMore)
-            case .magazine:
-                MagazineStyleView(articles: visibleArticles, onLoadMore: onLoadMore)
-            case .compact:
-                CompactStyleView(articles: visibleArticles, onLoadMore: onLoadMore)
-            case .video:
-                VideoStyleView(articles: visibleArticles, onLoadMore: onLoadMore)
-            case .photos:
-                PhotosStyleView(articles: visibleArticles, onLoadMore: onLoadMore)
-            case .podcast:
-                PodcastStyleView(articles: visibleArticles, onLoadMore: onLoadMore)
-            case .timeline:
-                TimelineStyleView(articles: visibleArticles, onLoadMore: onLoadMore)
-            case .cards:
-                CardsStyleView(articles: visibleArticles, onRefresh: onRefresh)
-            }
+            DisplayStyleContentView(
+                style: effectiveStyle,
+                articles: visibleArticles,
+                onLoadMore: onLoadMore,
+                onRefresh: onRefresh
+            )
         }
         .scrollContentBackground(.hidden)
         .sakuraBackground()
@@ -155,39 +141,13 @@ struct ArticlesView: View {
             }
             ToolbarItemGroup(placement: .topBarTrailing) {
                 Menu {
-                    Picker(String(localized: "Articles.DisplayStyle"), selection: $displayStyle) {
-                        Label(String(localized: "Articles.Style.Inbox"), systemImage: "tray")
-                            .tag(FeedDisplayStyle.inbox)
-                        Label(String(localized: "Articles.Style.Compact"), systemImage: "list.dash")
-                            .tag(FeedDisplayStyle.compact)
-                        if hasImages {
-                            Label(String(localized: "Articles.Style.Magazine"), systemImage: "rectangle.grid.2x2")
-                                .tag(FeedDisplayStyle.magazine)
-                        }
-                        Label(String(localized: "Articles.Style.Feed"), systemImage: "newspaper")
-                            .tag(FeedDisplayStyle.feed)
-                        if hasImages {
-                            Label(String(localized: "Articles.Style.Photos"), systemImage: "photo.stack")
-                                .tag(FeedDisplayStyle.photos)
-                        }
-                        if hasImages {
-                            Label(String(localized: "Articles.Style.Cards"), systemImage: "square.stack.3d.up")
-                                .tag(FeedDisplayStyle.cards)
-                        }
-                        if isVideoFeed {
-                            Label(String(localized: "Articles.Style.Video"), systemImage: "play.rectangle")
-                                .tag(FeedDisplayStyle.video)
-                        }
-                        if isPodcastFeed || hasAudioArticles {
-                            Label(String(localized: "Articles.Style.Podcast"), systemImage: "headphones")
-                                .tag(FeedDisplayStyle.podcast)
-                        }
-                        if feedKey != "all" {
-                            Label(String(localized: "Articles.Style.Timeline"), systemImage: "clock")
-                                .tag(FeedDisplayStyle.timeline)
-                        }
-                    }
-                    .menuActionDismissBehavior(.disabled)
+                    DisplayStylePicker(
+                        displayStyle: $displayStyle,
+                        hasImages: hasImages,
+                        showTimeline: feedKey != "all",
+                        showVideo: isVideoFeed,
+                        showPodcast: isPodcastFeed || hasAudioArticles
+                    )
                     if hideReadSupported {
                         Section {
                             Toggle(String(localized: "Articles.HideRead"), isOn: $hideRead)
@@ -248,7 +208,7 @@ struct ArticlesView: View {
     /// Falls back to inbox if the selected style requires images but none are available,
     /// or if podcast style is selected for a non-podcast feed.
     private var effectiveDisplayStyle: FeedDisplayStyle {
-        if !hasImages && (displayStyle == .magazine || displayStyle == .photos || displayStyle == .cards) {
+        if !hasImages && displayStyle.requiresImages {
             return .inbox
         }
         if displayStyle == .podcast && !isPodcastFeed && !hasAudioArticles {

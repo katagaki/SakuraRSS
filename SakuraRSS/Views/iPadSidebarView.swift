@@ -442,26 +442,10 @@ private struct IPadBookmarksListView: View {
                     Text("Bookmarks.Empty.Description")
                 }
             } else {
-                switch effectiveStyle {
-                case .inbox:
-                    InboxStyleView(articles: bookmarkedArticles)
-                case .feed:
-                    FeedStyleView(articles: bookmarkedArticles)
-                case .magazine:
-                    MagazineStyleView(articles: bookmarkedArticles)
-                case .compact:
-                    CompactStyleView(articles: bookmarkedArticles)
-                case .video:
-                    VideoStyleView(articles: bookmarkedArticles)
-                case .photos:
-                    PhotosStyleView(articles: bookmarkedArticles)
-                case .podcast:
-                    PodcastStyleView(articles: bookmarkedArticles)
-                case .timeline:
-                    TimelineStyleView(articles: bookmarkedArticles)
-                case .cards:
-                    CardsStyleView(articles: bookmarkedArticles)
-                }
+                DisplayStyleContentView(
+                    style: effectiveStyle,
+                    articles: bookmarkedArticles
+                )
             }
         }
         .navigationTitle(String(localized: "Tabs.Bookmarks"))
@@ -472,24 +456,11 @@ private struct IPadBookmarksListView: View {
             if !bookmarkedArticles.isEmpty {
                 ToolbarItemGroup(placement: .topBarTrailing) {
                     Menu {
-                        Picker(String(localized: "Articles.DisplayStyle"), selection: $displayStyle) {
-                            Label(String(localized: "Articles.Style.Inbox"), systemImage: "tray")
-                                .tag(FeedDisplayStyle.inbox)
-                            Label(String(localized: "Articles.Style.Compact"), systemImage: "list.dash")
-                                .tag(FeedDisplayStyle.compact)
-                            if hasImages {
-                                Label(String(localized: "Articles.Style.Magazine"), systemImage: "rectangle.grid.2x2")
-                                    .tag(FeedDisplayStyle.magazine)
-                            }
-                            Label(String(localized: "Articles.Style.Feed"), systemImage: "newspaper")
-                                .tag(FeedDisplayStyle.feed)
-                            if hasImages {
-                                Label(String(localized: "Articles.Style.Photos"), systemImage: "photo.stack")
-                                    .tag(FeedDisplayStyle.photos)
-                            }
-                            Label(String(localized: "Articles.Style.Timeline"), systemImage: "clock")
-                                .tag(FeedDisplayStyle.timeline)
-                        }
+                        DisplayStylePicker(
+                            displayStyle: $displayStyle,
+                            hasImages: hasImages,
+                            showCards: false
+                        )
                     } label: {
                         Image(systemName: "line.3.horizontal.decrease")
                     }
@@ -525,7 +496,7 @@ private struct IPadBookmarksListView: View {
     }
 
     private var effectiveDisplayStyle: FeedDisplayStyle {
-        if !hasImages && (displayStyle == .magazine || displayStyle == .photos || displayStyle == .cards) {
+        if !hasImages && displayStyle.requiresImages {
             return .inbox
         }
         if displayStyle == .podcast {

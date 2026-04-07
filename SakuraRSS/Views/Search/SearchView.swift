@@ -17,9 +17,7 @@ struct SearchView: View {
     }
 
     private var effectiveStyle: FeedDisplayStyle {
-        if !hasImages && (
-            searchDisplayStyle == .magazine || searchDisplayStyle == .photos || searchDisplayStyle == .cards
-        ) {
+        if !hasImages && searchDisplayStyle.requiresImages {
             return .inbox
         }
         if searchDisplayStyle == .podcast {
@@ -46,26 +44,10 @@ struct SearchView: View {
                         Text("Search.NoResults.Description")
                     }
                 } else {
-                    switch effectiveStyle {
-                    case .inbox:
-                        InboxStyleView(articles: searchResults)
-                    case .feed:
-                        FeedStyleView(articles: searchResults)
-                    case .magazine:
-                        MagazineStyleView(articles: searchResults)
-                    case .compact:
-                        CompactStyleView(articles: searchResults)
-                    case .video:
-                        VideoStyleView(articles: searchResults)
-                    case .photos:
-                        PhotosStyleView(articles: searchResults)
-                    case .podcast:
-                        PodcastStyleView(articles: searchResults)
-                    case .timeline:
-                        TimelineStyleView(articles: searchResults)
-                    case .cards:
-                        CardsStyleView(articles: searchResults)
-                    }
+                    DisplayStyleContentView(
+                        style: effectiveStyle,
+                        articles: searchResults
+                    )
                 }
             }
             .scrollContentBackground(.hidden)

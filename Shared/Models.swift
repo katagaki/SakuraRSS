@@ -166,4 +166,12 @@ nonisolated enum FeedDisplayStyle: String, CaseIterable, Sendable {
     case podcast
     case timeline
     case cards
+    case grid
+
+    var requiresImages: Bool {
+        switch self {
+        case .magazine, .photos, .cards, .grid: true
+        default: false
+        }
+    }
 }
