@@ -20,26 +20,50 @@ extension InstagramProfileScraper {
         let profileImageURL = user["profile_pic_url_hd"] as? String
             ?? user["profile_pic_url"] as? String
 
-        // Parse timeline media
-        guard let edgeMedia = user["edge_owner_to_timeline_media"] as? [String: Any],
-              let edges = edgeMedia["edges"] as? [[String: Any]] else {
-            #if DEBUG
-            print("[InstagramProfileScraper] No timeline media found")
-            #endif
-            return InstagramProfileScrapeResult(
-                posts: [],
-                profileImageURL: profileImageURL,
-                displayName: displayName
-            )
+        #if DEBUG
+        let mediaKeys = user.keys.filter {
+            $0.contains("media") || $0.contains("edge") || $0.contains("timeline")
         }
+        print("[InstagramProfileScraper] User keys containing media/edge/timeline: \(mediaKeys)")
+        #endif
 
         var posts: [ParsedInstagramPost] = []
 
-        for edge in edges {
-            guard let node = edge["node"] as? [String: Any] else { continue }
-            if let post = parsePostNode(node: node, username: username,
-                                        displayName: displayName) {
-                posts.append(post)
+        // Format 1: GraphQL edge format (edge_owner_to_timeline_media.edges[].node)
+        if let edgeMedia = user["edge_owner_to_timeline_media"] as? [String: Any],
+           let edges = edgeMedia["edges"] as? [[String: Any]] {
+            for edge in edges {
+                guard let node = edge["node"] as? [String: Any] else { continue }
+                if let post = parseEdgeNode(node: node, username: username,
+                                            displayName: displayName) {
+                    posts.append(post)
+                }
+            }
+        }
+
+        // Format 2: v1 API format (edge_owner_to_timeline_media.edges is empty,
+        // but items may be in a different location)
+        if posts.isEmpty, let edgeMedia = user["edge_owner_to_timeline_media"] as? [String: Any] {
+            // Some responses nest count but no edges; check for items array
+            if let items = edgeMedia["items"] as? [[String: Any]] {
+                for item in items {
+                    if let post = parseV1Item(item: item, username: username,
+                                              displayName: displayName) {
+                        posts.append(post)
+                    }
+                }
+            }
+        }
+
+        // Format 3: Media object at top level of user
+        if posts.isEmpty, let media = user["media"] as? [String: Any] {
+            if let items = media["items"] as? [[String: Any]] {
+                for item in items {
+                    if let post = parseV1Item(item: item, username: username,
+                                              displayName: displayName) {
+                        posts.append(post)
+                    }
+                }
             }
         }
 
@@ -54,7 +78,9 @@ extension InstagramProfileScraper {
         )
     }
 
-    private static func parsePostNode(
+    // MARK: - GraphQL Edge Format
+
+    private static func parseEdgeNode(
         node: [String: Any], username: String, displayName: String?
     ) -> ParsedInstagramPost? {
         let id = node["id"] as? String ?? ""
@@ -94,5 +120,82 @@ extension InstagramProfileScraper {
             imageURL: imageURL,
             publishedDate: publishedDate
         )
+    }
+
+    // MARK: - v1 API Item Format
+
+    private static func parseV1Item(
+        item: [String: Any], username: String, displayName: String?
+    ) -> ParsedInstagramPost? {
+        // ID can be "id", "pk", or "media_id"
+        let id: String
+        if let idStr = item["id"] as? String {
+            id = idStr
+        } else if let pk = item["pk"] as? Int64 {
+            id = String(pk)
+        } else if let pk = item["pk"] as? String {
+            id = pk
+        } else {
+            return nil
+        }
+        guard !id.isEmpty else { return nil }
+
+        let code = item["code"] as? String ?? ""
+
+        // Caption
+        var captionText = ""
+        if let caption = item["caption"] as? [String: Any],
+           let text = caption["text"] as? String {
+            captionText = text
+        }
+
+        // Image URL — carousel or single
+        var imageURL: String?
+        if let carouselMedia = item["carousel_media"] as? [[String: Any]],
+           let firstMedia = carouselMedia.first {
+            imageURL = bestImageURL(from: firstMedia)
+        }
+        if imageURL == nil {
+            imageURL = bestImageURL(from: item)
+        }
+
+        // Publish date
+        var publishedDate: Date?
+        if let timestamp = item["taken_at"] as? TimeInterval {
+            publishedDate = Date(timeIntervalSince1970: timestamp)
+        }
+
+        let postURL = code.isEmpty
+            ? "https://www.instagram.com/p/\(id)/"
+            : "https://www.instagram.com/p/\(code)/"
+        let authorName = displayName ?? username
+
+        return ParsedInstagramPost(
+            id: id,
+            text: captionText,
+            author: authorName,
+            authorHandle: username,
+            url: postURL,
+            imageURL: imageURL,
+            publishedDate: publishedDate
+        )
+    }
+
+    /// Extracts the best available image URL from a media item.
+    private static func bestImageURL(from item: [String: Any]) -> String? {
+        // image_versions2.candidates[] sorted by width
+        if let imageVersions = item["image_versions2"] as? [String: Any],
+           let candidates = imageVersions["candidates"] as? [[String: Any]] {
+            let sorted = candidates.sorted {
+                ($0["width"] as? Int ?? 0) > ($1["width"] as? Int ?? 0)
+            }
+            if let best = sorted.first, let url = best["url"] as? String {
+                return url
+            }
+        }
+        // Fallback keys
+        return item["display_url"] as? String
+            ?? item["thumbnail_src"] as? String
+            ?? item["image_url"] as? String
     }
 }
