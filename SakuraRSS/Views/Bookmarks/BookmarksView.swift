@@ -62,30 +62,46 @@ struct BookmarksView: View {
                 if !bookmarkedArticles.isEmpty {
                     ToolbarItemGroup(placement: .topBarTrailing) {
                         Menu {
-                            Picker(String(localized: "Articles.DisplayStyle"), selection: $displayStyle) {
-                                Label(String(localized: "Articles.Style.Inbox"), systemImage: "tray")
-                                    .tag(FeedDisplayStyle.inbox)
-                                Label(String(localized: "Articles.Style.Compact"), systemImage: "list.dash")
-                                    .tag(FeedDisplayStyle.compact)
-                                if hasImages {
-                                    Label(
-                                        String(localized: "Articles.Style.Magazine"),
-                                        systemImage: "rectangle.grid.2x2"
-                                    )
-                                    .tag(FeedDisplayStyle.magazine)
+                            Section(String(localized: "Articles.StyleSection.Classic")) {
+                                Picker(selection: $displayStyle) {
+                                    Label(String(localized: "Articles.Style.Inbox"), systemImage: "tray")
+                                        .tag(FeedDisplayStyle.inbox)
+                                    if hasImages {
+                                        Label(String(localized: "Articles.Style.Magazine"), systemImage: "rectangle.grid.2x2")
+                                            .tag(FeedDisplayStyle.magazine)
+                                    }
+                                    Label(String(localized: "Articles.Style.Compact"), systemImage: "list.dash")
+                                        .tag(FeedDisplayStyle.compact)
+                                } label: {
+                                    EmptyView()
                                 }
-                                Label(String(localized: "Articles.Style.Feed"), systemImage: "newspaper")
-                                    .tag(FeedDisplayStyle.feed)
-                                if hasImages {
-                                    Label(String(localized: "Articles.Style.Grid"), systemImage: "square.grid.3x3")
-                                        .tag(FeedDisplayStyle.grid)
+                                .menuActionDismissBehavior(.disabled)
+                            }
+                            Section(String(localized: "Articles.StyleSection.Visual")) {
+                                Picker(selection: $displayStyle) {
+                                    Label(String(localized: "Articles.Style.Feed"), systemImage: "newspaper")
+                                        .tag(FeedDisplayStyle.feed)
+                                    if hasImages {
+                                        Label(String(localized: "Articles.Style.Photos"), systemImage: "photo.stack")
+                                            .tag(FeedDisplayStyle.photos)
+                                    }
+                                    if hasImages {
+                                        Label(String(localized: "Articles.Style.Grid"), systemImage: "square.grid.3x3")
+                                            .tag(FeedDisplayStyle.grid)
+                                    }
+                                } label: {
+                                    EmptyView()
                                 }
-                                if hasImages {
-                                    Label(String(localized: "Articles.Style.Photos"), systemImage: "photo.stack")
-                                        .tag(FeedDisplayStyle.photos)
+                                .menuActionDismissBehavior(.disabled)
+                            }
+                            Section(String(localized: "Articles.StyleSection.Specialized")) {
+                                Picker(selection: $displayStyle) {
+                                    Label(String(localized: "Articles.Style.Timeline"), systemImage: "clock")
+                                        .tag(FeedDisplayStyle.timeline)
+                                } label: {
+                                    EmptyView()
                                 }
-                                Label(String(localized: "Articles.Style.Timeline"), systemImage: "clock")
-                                    .tag(FeedDisplayStyle.timeline)
+                                .menuActionDismissBehavior(.disabled)
                             }
                         } label: {
                             Image(systemName: "line.3.horizontal.decrease")

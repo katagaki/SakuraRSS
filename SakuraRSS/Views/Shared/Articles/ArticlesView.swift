@@ -157,43 +157,61 @@ struct ArticlesView: View {
             }
             ToolbarItemGroup(placement: .topBarTrailing) {
                 Menu {
-                    Picker(String(localized: "Articles.DisplayStyle"), selection: $displayStyle) {
-                        Label(String(localized: "Articles.Style.Inbox"), systemImage: "tray")
-                            .tag(FeedDisplayStyle.inbox)
-                        Label(String(localized: "Articles.Style.Compact"), systemImage: "list.dash")
-                            .tag(FeedDisplayStyle.compact)
-                        if hasImages {
-                            Label(String(localized: "Articles.Style.Magazine"), systemImage: "rectangle.grid.2x2")
-                                .tag(FeedDisplayStyle.magazine)
+                    Section(String(localized: "Articles.StyleSection.Classic")) {
+                        Picker(selection: $displayStyle) {
+                            Label(String(localized: "Articles.Style.Inbox"), systemImage: "tray")
+                                .tag(FeedDisplayStyle.inbox)
+                            if hasImages {
+                                Label(String(localized: "Articles.Style.Magazine"), systemImage: "rectangle.grid.2x2")
+                                    .tag(FeedDisplayStyle.magazine)
+                            }
+                            Label(String(localized: "Articles.Style.Compact"), systemImage: "list.dash")
+                                .tag(FeedDisplayStyle.compact)
+                        } label: {
+                            EmptyView()
                         }
-                        Label(String(localized: "Articles.Style.Feed"), systemImage: "newspaper")
-                            .tag(FeedDisplayStyle.feed)
-                        if hasImages {
-                            Label(String(localized: "Articles.Style.Photos"), systemImage: "photo.stack")
-                                .tag(FeedDisplayStyle.photos)
-                        }
-                        if hasImages {
-                            Label(String(localized: "Articles.Style.Grid"), systemImage: "square.grid.3x3")
-                                .tag(FeedDisplayStyle.grid)
-                        }
-                        if hasImages {
-                            Label(String(localized: "Articles.Style.Cards"), systemImage: "square.stack.3d.up")
-                                .tag(FeedDisplayStyle.cards)
-                        }
-                        if isVideoFeed {
-                            Label(String(localized: "Articles.Style.Video"), systemImage: "play.rectangle")
-                                .tag(FeedDisplayStyle.video)
-                        }
-                        if isPodcastFeed || hasAudioArticles {
-                            Label(String(localized: "Articles.Style.Podcast"), systemImage: "headphones")
-                                .tag(FeedDisplayStyle.podcast)
-                        }
-                        if feedKey != "all" {
-                            Label(String(localized: "Articles.Style.Timeline"), systemImage: "clock")
-                                .tag(FeedDisplayStyle.timeline)
-                        }
+                        .menuActionDismissBehavior(.disabled)
                     }
-                    .menuActionDismissBehavior(.disabled)
+                    Section(String(localized: "Articles.StyleSection.Visual")) {
+                        Picker(selection: $displayStyle) {
+                            Label(String(localized: "Articles.Style.Feed"), systemImage: "newspaper")
+                                .tag(FeedDisplayStyle.feed)
+                            if hasImages {
+                                Label(String(localized: "Articles.Style.Photos"), systemImage: "photo.stack")
+                                    .tag(FeedDisplayStyle.photos)
+                            }
+                            if hasImages {
+                                Label(String(localized: "Articles.Style.Grid"), systemImage: "square.grid.3x3")
+                                    .tag(FeedDisplayStyle.grid)
+                            }
+                        } label: {
+                            EmptyView()
+                        }
+                        .menuActionDismissBehavior(.disabled)
+                    }
+                    Section(String(localized: "Articles.StyleSection.Specialized")) {
+                        Picker(selection: $displayStyle) {
+                            if hasImages {
+                                Label(String(localized: "Articles.Style.Cards"), systemImage: "square.stack.3d.up")
+                                    .tag(FeedDisplayStyle.cards)
+                            }
+                            if feedKey != "all" {
+                                Label(String(localized: "Articles.Style.Timeline"), systemImage: "clock")
+                                    .tag(FeedDisplayStyle.timeline)
+                            }
+                            if isVideoFeed {
+                                Label(String(localized: "Articles.Style.Video"), systemImage: "play.rectangle")
+                                    .tag(FeedDisplayStyle.video)
+                            }
+                            if isPodcastFeed || hasAudioArticles {
+                                Label(String(localized: "Articles.Style.Podcast"), systemImage: "headphones")
+                                    .tag(FeedDisplayStyle.podcast)
+                            }
+                        } label: {
+                            EmptyView()
+                        }
+                        .menuActionDismissBehavior(.disabled)
+                    }
                     if hideReadSupported {
                         Section {
                             Toggle(String(localized: "Articles.HideRead"), isOn: $hideRead)
