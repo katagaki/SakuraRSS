@@ -21,6 +21,7 @@ struct PhotosStyleView: View {
                                 openURL(url)
                             }
                         })
+                        .buttonStyle(.plain)
                         .zoomSource(id: article.id, namespace: zoomNamespace)
                     } else {
                         ArticleLink(article: article, onShowYouTubePlayer: {
