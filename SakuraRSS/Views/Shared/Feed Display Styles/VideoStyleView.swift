@@ -5,12 +5,12 @@ struct VideoStyleView: View {
     @Environment(FeedManager.self) var feedManager
     @Environment(\.openURL) var openURL
     @Environment(\.iPadArticleSelection) private var iPadArticleSelection
+    @Environment(\.zoomNamespace) private var zoomNamespace
     @AppStorage("YouTube.OpenMode") private var youTubeOpenMode: YouTubeOpenMode = .inAppPlayer
     let articles: [Article]
     var onLoadMore: (() -> Void)?
 
     @State private var youTubePlayerArticle: Article?
-    @State private var showYouTubePlayer = false
     @State private var showSafari = false
     @State private var safariURL: URL?
 
@@ -24,7 +24,6 @@ struct VideoStyleView: View {
                             iPadArticleSelection?.wrappedValue = article
                         } else if article.isYouTubeURL && youTubeOpenMode == .inAppPlayer {
                             youTubePlayerArticle = article
-                            showYouTubePlayer = true
                         } else if article.isYouTubeURL && youTubeOpenMode == .browser {
                             safariURL = URL(string: article.url)
                             showSafari = true
@@ -33,6 +32,7 @@ struct VideoStyleView: View {
                         }
                     } label: {
                         VideoArticleCard(article: article)
+                            .zoomSource(id: article.id, namespace: zoomNamespace)
                     }
                     .buttonStyle(.plain)
                     .contextMenu {
@@ -77,10 +77,9 @@ struct VideoStyleView: View {
                     .padding(.bottom)
             }
         }
-        .navigationDestination(isPresented: $showYouTubePlayer) {
-            if let article = youTubePlayerArticle {
-                YouTubePlayerView(article: article)
-            }
+        .navigationDestination(item: $youTubePlayerArticle) { article in
+            YouTubePlayerView(article: article)
+                .zoomTransition(sourceID: article.id, in: zoomNamespace)
         }
         .sheet(isPresented: $showSafari) {
             if let safariURL {
