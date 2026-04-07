@@ -33,7 +33,7 @@ nonisolated extension DatabaseManager {
     }
 
     func invalidateAllCachedArticleContent() throws {
-        let stale = articles.filter(articleHasFullText == true)
+        let stale = articles.filter(articleHasFullText == true && articleIsBookmarked == false)
         try database.run(stale.update(articleHasFullText <- false))
     }
 
