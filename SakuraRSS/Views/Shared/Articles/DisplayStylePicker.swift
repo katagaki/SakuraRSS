@@ -10,7 +10,7 @@ struct DisplayStylePicker: View {
     var showCards: Bool = true
 
     var body: some View {
-        Section(String(localized: "Articles.StyleSection.Classic")) {
+        Section("Articles.StyleSection.Classic") {
             Picker(selection: $displayStyle) {
                 Label(String(localized: "Articles.Style.Inbox"), systemImage: "tray")
                     .tag(FeedDisplayStyle.inbox)
@@ -25,7 +25,7 @@ struct DisplayStylePicker: View {
             }
             .menuActionDismissBehavior(.disabled)
         }
-        Section(String(localized: "Articles.StyleSection.Visual")) {
+        Section("Articles.StyleSection.Visual") {
             Picker(selection: $displayStyle) {
                 Label(String(localized: "Articles.Style.Feed"), systemImage: "newspaper")
                     .tag(FeedDisplayStyle.feed)
@@ -42,7 +42,7 @@ struct DisplayStylePicker: View {
             }
             .menuActionDismissBehavior(.disabled)
         }
-        Section(String(localized: "Articles.StyleSection.Specialized")) {
+        Section("Articles.StyleSection.Specialized") {
             Picker(selection: $displayStyle) {
                 if hasImages && showCards {
                     Label(String(localized: "Articles.Style.Cards"), systemImage: "square.stack.3d.up")
