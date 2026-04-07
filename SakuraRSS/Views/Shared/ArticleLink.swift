@@ -56,14 +56,14 @@ struct ArticleLink<Label: View>: View {
                     NavigationLink(value: article) { label() }
                 }
             } else if isXFeedArticle || isInstagramFeedArticle {
-                Button {
-                    feedManager.markRead(article)
-                    if let url = URL(string: article.url) {
-                        openURL(url)
+                label()
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        feedManager.markRead(article)
+                        if let url = URL(string: article.url) {
+                            openURL(url)
+                        }
                     }
-                } label: {
-                    label()
-                }
             } else if article.isYouTubeURL && youTubeOpenMode == .inAppPlayer {
                 if usesIPadDetailColumn {
                     Button { selectForIPadDetail() } label: { label() }
