@@ -267,7 +267,6 @@ private struct CardView: View {
                     .aspectRatio(contentMode: .fit)
                     .frame(width: geometry.size.width * 0.4,
                            height: geometry.size.width * 0.4)
-                    .rotationEffect(.degrees(-8))
                     .opacity(isDark ? 0.6 : 0.4)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .offset(y: -geometry.size.height * 0.1)
