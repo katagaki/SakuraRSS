@@ -54,10 +54,35 @@ extension InstagramProfileScraper {
         return profileData
     }
 
+    // MARK: - Cookie Warming
+
+    @MainActor
+    private static var cookieStoreWarmed = false
+
+    /// Loads a WKWebView with instagram.com to force WKWebsiteDataStore
+    /// to restore persisted cookies from disk. Without this, cookies may
+    /// not be available on cold app launch.
+    @MainActor
+    private static func warmCookieStore() async {
+        guard !cookieStoreWarmed else { return }
+        cookieStoreWarmed = true
+
+        let config = WKWebViewConfiguration()
+        config.websiteDataStore = .default()
+        let webView = WKWebView(frame: .zero, configuration: config)
+        webView.customUserAgent = userAgent
+
+        guard let url = URL(string: "https://www.instagram.com/") else { return }
+        webView.load(URLRequest(url: url, timeoutInterval: 10))
+        try? await Task.sleep(for: .seconds(2))
+    }
+
     // MARK: - Cookies
 
     @MainActor
     static func getInstagramCookies() async -> InstagramCookies? {
+        await warmCookieStore()
+
         let store = WKWebsiteDataStore.default()
         let allWebKitCookies = await store.httpCookieStore.allCookies()
 
