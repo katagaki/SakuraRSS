@@ -88,13 +88,13 @@ extension InstagramProfileScraper {
         let config = URLSessionConfiguration.ephemeral
         config.httpShouldSetCookies = true
         config.httpCookieAcceptPolicy = .always
-        let storage = HTTPCookieStorage.sharedCookieStorage(
-            forGroupContainerIdentifier: nil
-        )
-        for cookie in cookies.allCookies {
-            storage.setCookie(cookie)
+        // Ephemeral config creates its own empty cookie storage;
+        // inject all WKWebView cookies so redirects carry auth.
+        if let storage = config.httpCookieStorage {
+            for cookie in cookies.allCookies {
+                storage.setCookie(cookie)
+            }
         }
-        config.httpCookieStorage = storage
         return URLSession(configuration: config)
     }
 
