@@ -132,8 +132,8 @@ extension InstagramProfileScraper {
             return nil
         }
 
-        let request = buildRequest(url: url, cookies: cookies)
         let session = makeSession(cookies: cookies)
+        let request = buildRequest(url: url, cookies: cookies)
 
         #if DEBUG
         print("[InstagramProfileScraper] Profile info request: \(url)")
@@ -161,6 +161,84 @@ extension InstagramProfileScraper {
 
         guard httpResponse.statusCode == 200 else { return nil }
 
-        return Self.parseProfileResponse(data: data, username: username)
+        guard var result = Self.parseProfileResponse(
+            data: data, username: username
+        ) else {
+            return nil
+        }
+
+        // The web_profile_info endpoint often returns edges: [] even when
+        // posts exist. Fall back to the feed endpoint using the user ID.
+        if result.posts.isEmpty, let userId = Self.extractUserID(from: data) {
+            #if DEBUG
+            print("[InstagramProfileScraper] Profile had 0 posts, "
+                  + "fetching feed for user ID: \(userId)")
+            #endif
+            let feedPosts = await fetchUserFeed(
+                userId: userId, username: username,
+                displayName: result.displayName,
+                cookies: cookies, session: session
+            )
+            if !feedPosts.isEmpty {
+                result = InstagramProfileScrapeResult(
+                    posts: feedPosts,
+                    profileImageURL: result.profileImageURL,
+                    displayName: result.displayName
+                )
+            }
+        }
+
+        return result
+    }
+
+    // MARK: - User Feed Endpoint
+
+    /// Fetches posts from the `/api/v1/feed/user/{id}/` endpoint, which
+    /// reliably returns post data when `web_profile_info` edges are empty.
+    private func fetchUserFeed(
+        userId: String, username: String, displayName: String?,
+        cookies: InstagramCookies, session: URLSession
+    ) async -> [ParsedInstagramPost] {
+        guard let url = URL(
+            string: "https://www.instagram.com/api/v1/feed/user/\(userId)/"
+        ) else {
+            return []
+        }
+
+        let request = buildRequest(url: url, cookies: cookies)
+
+        #if DEBUG
+        print("[InstagramProfileScraper] Feed request: \(url)")
+        #endif
+
+        let data: Data
+        let response: URLResponse
+        do {
+            (data, response) = try await session.data(for: request)
+        } catch {
+            #if DEBUG
+            print("[InstagramProfileScraper] Feed network error: \(error)")
+            #endif
+            return []
+        }
+
+        guard let httpResponse = response as? HTTPURLResponse,
+              httpResponse.statusCode == 200 else {
+            #if DEBUG
+            print("[InstagramProfileScraper] Feed request failed: "
+                  + "\((response as? HTTPURLResponse)?.statusCode ?? -1)")
+            #endif
+            return []
+        }
+
+        #if DEBUG
+        if let body = String(data: data, encoding: .utf8) {
+            print("[InstagramProfileScraper] Feed response: \(body.prefix(500))")
+        }
+        #endif
+
+        return Self.parseFeedResponse(
+            data: data, username: username, displayName: displayName
+        )
     }
 }

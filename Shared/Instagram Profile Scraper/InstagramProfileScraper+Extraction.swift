@@ -181,6 +181,54 @@ extension InstagramProfileScraper {
         )
     }
 
+    // MARK: - User ID Extraction
+
+    /// Extracts the user ID from the web_profile_info response data.
+    static func extractUserID(from data: Data) -> String? {
+        guard let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+              let dataObj = json["data"] as? [String: Any],
+              let user = dataObj["user"] as? [String: Any] else {
+            return nil
+        }
+        if let idStr = user["id"] as? String {
+            return idStr
+        } else if let pk = user["pk"] as? Int64 {
+            return String(pk)
+        } else if let pk = user["pk"] as? String {
+            return pk
+        }
+        return nil
+    }
+
+    // MARK: - Feed Endpoint Parsing
+
+    /// Parses the response from `/api/v1/feed/user/{id}/`.
+    static func parseFeedResponse(
+        data: Data, username: String, displayName: String?
+    ) -> [ParsedInstagramPost] {
+        guard let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+              let items = json["items"] as? [[String: Any]] else {
+            #if DEBUG
+            print("[InstagramProfileScraper] Failed to parse feed JSON structure")
+            #endif
+            return []
+        }
+
+        var posts: [ParsedInstagramPost] = []
+        for item in items {
+            if let post = parseV1Item(item: item, username: username,
+                                       displayName: displayName) {
+                posts.append(post)
+            }
+        }
+
+        #if DEBUG
+        print("[InstagramProfileScraper] Parsed \(posts.count) posts from feed response")
+        #endif
+
+        return posts
+    }
+
     /// Extracts the best available image URL from a media item.
     private static func bestImageURL(from item: [String: Any]) -> String? {
         // image_versions2.candidates[] sorted by width
