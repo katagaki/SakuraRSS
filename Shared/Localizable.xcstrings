@@ -4386,7 +4386,7 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "所有早于"%@"的文章将被永久删除。此操作无法撤消。"
+            "value" : "所有早于「%@」的文章将被永久删除。此操作无法撤消。"
           }
         },
         "zh-Hant" : {
