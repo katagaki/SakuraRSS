@@ -150,6 +150,19 @@ final class FeedManager {
         await refreshAllFeeds()
     }
 
+    func deleteArticlesAndVacuum(olderThan date: Date?) async {
+        let database = database
+        _ = try? await Task.detached {
+            if let date {
+                try database.deleteArticles(olderThan: date)
+            } else {
+                try database.deleteAllArticlesOnly()
+            }
+            try database.vacuum()
+        }.value
+        await loadFromDatabaseInBackground()
+    }
+
     func refreshAllFeeds() async {
         await MainActor.run { isLoading = true }
         defer { Task { @MainActor in self.isLoading = false } }

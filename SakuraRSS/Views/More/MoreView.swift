@@ -19,6 +19,10 @@ struct MoreView: View {
     @State private var importedFileData: Data?
     @State private var alertMessage: String?
     @State private var showAlert = false
+    @State private var showCleanupConfirmation = false
+    @State private var selectedCleanupCutoff: Date?
+    @State private var selectedCleanupLabel: String = ""
+    @State private var isCleaningUp = false
 
     private var isAppleIntelligenceAvailable: Bool {
         SystemLanguageModel.default.availability == .available
@@ -159,6 +163,38 @@ struct MoreView: View {
                         .buttonStyle(.plain)
                     }
                     .listRowInsets(EdgeInsets())
+                    Menu {
+                        Button(String(localized: "DataManagement.Cleanup.Last24Hours")) {
+                            selectedCleanupCutoff = Calendar.current.date(byAdding: .day, value: -1, to: Date())
+                            selectedCleanupLabel = String(localized: "DataManagement.Cleanup.Last24Hours")
+                            showCleanupConfirmation = true
+                        }
+                        Button(String(localized: "DataManagement.Cleanup.Last7Days")) {
+                            selectedCleanupCutoff = Calendar.current.date(byAdding: .day, value: -7, to: Date())
+                            selectedCleanupLabel = String(localized: "DataManagement.Cleanup.Last7Days")
+                            showCleanupConfirmation = true
+                        }
+                        Button(String(localized: "DataManagement.Cleanup.Last4Weeks")) {
+                            selectedCleanupCutoff = Calendar.current.date(byAdding: .weekOfYear, value: -4, to: Date())
+                            selectedCleanupLabel = String(localized: "DataManagement.Cleanup.Last4Weeks")
+                            showCleanupConfirmation = true
+                        }
+                        Button(String(localized: "DataManagement.Cleanup.AllTime")) {
+                            selectedCleanupCutoff = nil
+                            selectedCleanupLabel = String(localized: "DataManagement.Cleanup.AllTime")
+                            showCleanupConfirmation = true
+                        }
+                    } label: {
+                        HStack {
+                            Text(String(localized: "DataManagement.Cleanup.Title"))
+                                .foregroundStyle(.red)
+                            Spacer()
+                            if isCleaningUp {
+                                ProgressView()
+                            }
+                        }
+                    }
+                    .disabled(isCleaningUp)
                 } header: {
                     Text("Settings.Section.DataManagement")
                 } footer: {
@@ -262,6 +298,24 @@ struct MoreView: View {
                 if let alertMessage {
                     Text(alertMessage)
                 }
+            }
+            .confirmationDialog(
+                String(localized: "DataManagement.Cleanup.ConfirmTitle"),
+                isPresented: $showCleanupConfirmation,
+                titleVisibility: .visible
+            ) {
+                Button(String(localized: "DataManagement.Cleanup.Confirm"), role: .destructive) {
+                    isCleaningUp = true
+                    Task {
+                        await feedManager.deleteArticlesAndVacuum(olderThan: selectedCleanupCutoff)
+                        isCleaningUp = false
+                        alertMessage = String(localized: "DataManagement.Cleanup.Success")
+                        showAlert = true
+                    }
+                }
+                Button(String(localized: "Shared.Cancel"), role: .cancel) {}
+            } message: {
+                Text("DataManagement.Cleanup.ConfirmMessage \(selectedCleanupLabel)")
             }
         }
     }
