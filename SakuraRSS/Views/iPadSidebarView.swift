@@ -514,7 +514,7 @@ private struct IPadBookmarksListView: View {
     }
 
     private var effectiveDisplayStyle: FeedDisplayStyle {
-        if !hasImages && (displayStyle == .magazine || displayStyle == .photos || displayStyle == .cards || displayStyle == .grid) {
+        if !hasImages && displayStyle.requiresImages {
             return .inbox
         }
         if displayStyle == .podcast {

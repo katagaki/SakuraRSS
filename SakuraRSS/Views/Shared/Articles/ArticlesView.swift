@@ -224,7 +224,7 @@ struct ArticlesView: View {
     /// Falls back to inbox if the selected style requires images but none are available,
     /// or if podcast style is selected for a non-podcast feed.
     private var effectiveDisplayStyle: FeedDisplayStyle {
-        if !hasImages && (displayStyle == .magazine || displayStyle == .photos || displayStyle == .cards || displayStyle == .grid) {
+        if !hasImages && displayStyle.requiresImages {
             return .inbox
         }
         if displayStyle == .podcast && !isPodcastFeed && !hasAudioArticles {
