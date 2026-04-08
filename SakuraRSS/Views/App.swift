@@ -77,6 +77,7 @@ struct SakuraRSSApp: App {
                 UserDefaults.standard.set(false, forKey: "Onboarding.Completed")
             case "fixup":
                 DatabaseManager.shared.fixup()
+                UserDefaults.standard.removeObject(forKey: "App.DatabaseVersion")
             case "arisishere":
                 Task {
                     await feedManager.deleteAllArticlesAndRefresh()
