@@ -50,7 +50,7 @@ struct ListsPage: View {
             if feedManager.lists.isEmpty {
                 ContentUnavailableView {
                     Label(String(localized: "Lists.Empty.Title"),
-                          systemImage: "list.bullet.circle.fill")
+                          systemImage: "square.fill.text.grid.1x2")
                 } description: {
                     Text("Lists.Empty.Description")
                 } actions: {
