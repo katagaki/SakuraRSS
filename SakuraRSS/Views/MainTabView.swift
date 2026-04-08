@@ -44,7 +44,7 @@ struct MainTabView: View {
                 FeedListView()
             }
 
-            Tab(String(localized: "Tabs.Lists"), systemImage: "list.bullet.rectangle.portrait", value: .lists) {
+            Tab(String(localized: "Tabs.Lists"), systemImage: "list.bullet.circle.fill", value: .lists) {
                 ListsView()
             }
 
