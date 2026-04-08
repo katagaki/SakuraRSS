@@ -88,12 +88,11 @@ nonisolated final class DatabaseManager: @unchecked Sendable {
     }
 
     private func fixupIfVersionChanged() {
+        // Always run fixup to ensure new columns exist — each addColumn
+        // call uses try? so it is safe to run repeatedly.
+        fixup()
         let currentVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String
-        let storedVersion = UserDefaults.standard.string(forKey: "App.DatabaseVersion")
-        if currentVersion != storedVersion {
-            fixup()
-            UserDefaults.standard.set(currentVersion, forKey: "App.DatabaseVersion")
-        }
+        UserDefaults.standard.set(currentVersion, forKey: "App.DatabaseVersion")
     }
 
     // MARK: - Tables
@@ -128,6 +127,7 @@ nonisolated final class DatabaseManager: @unchecked Sendable {
             table.column(articleSummary)
             table.column(articleContent)
             table.column(articleImageURL)
+            table.column(articleCarouselURLs)
             table.column(articlePublishedDate)
             table.column(articleIsRead, defaultValue: false)
             table.column(articleIsBookmarked, defaultValue: false)
