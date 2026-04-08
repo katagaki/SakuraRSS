@@ -1,5 +1,4 @@
 import SwiftUI
-import FoundationModels
 import UniformTypeIdentifiers
 import UserNotifications
 
@@ -23,13 +22,15 @@ struct MoreView: View {
     @State private var selectedCleanupLabel: String = ""
     @State private var isCleaningUp = false
 
-    private var isAppleIntelligenceAvailable: Bool {
-        SystemLanguageModel.default.availability == .available
-    }
-
     var body: some View {
         NavigationStack {
             List {
+                Section {
+                    ReadingAnalyticsView()
+                } header: {
+                    Text("Settings.Section.ReadingAnalytics")
+                }
+
                 Section {
                     Picker("Settings.DefaultDisplayStyle", selection: $defaultDisplayStyle) {
                         Text("Articles.Style.Inbox")
@@ -105,10 +106,8 @@ struct MoreView: View {
                 }
 
                 Section {
-                    if isAppleIntelligenceAvailable {
-                        NavigationLink("Settings.Section.AppleIntelligence") {
-                            AppleIntelligenceSettingsView()
-                        }
+                    NavigationLink("Settings.Section.OnDeviceIntelligence") {
+                        OnDeviceIntelligenceSettingsView()
                     }
                     NavigationLink("Integrations.YouTube") {
                         YouTubeSettingsView()

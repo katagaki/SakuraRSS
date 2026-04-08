@@ -16446,6 +16446,226 @@
         }
       }
     },
+    "Settings.Section.OnDeviceIntelligence": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "On-Device Intelligence"
+          }
+        }
+      }
+    },
+    "Settings.SimilarContent": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Similar Content"
+          }
+        }
+      }
+    },
+    "Settings.SimilarContent.Footer": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show semantically similar articles from other feeds when reading an article."
+          }
+        }
+      }
+    },
+    "Settings.TopicsPeople": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Topics & People"
+          }
+        }
+      }
+    },
+    "Settings.TopicsPeople.Footer": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Extract topics, organizations, and people from articles. Browse them in the Search tab."
+          }
+        }
+      }
+    },
+    "Settings.Section.ReadingAnalytics": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reading Analytics"
+          }
+        }
+      }
+    },
+    "ReadingAnalytics.ArticlesRead": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "articles read"
+          }
+        }
+      }
+    },
+    "ReadingAnalytics.Streak": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "day streak"
+          }
+        }
+      }
+    },
+    "ReadingAnalytics.MostRead": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "most read"
+          }
+        }
+      }
+    },
+    "ReadingAnalytics.FeedCount": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "feeds"
+          }
+        }
+      }
+    },
+    "SimilarContent.Title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Similar Content"
+          }
+        }
+      }
+    },
+    "Search.Tab.Search": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search"
+          }
+        }
+      }
+    },
+    "Search.Tab.Topics": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Topics"
+          }
+        }
+      }
+    },
+    "Search.Tab.People": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "People"
+          }
+        }
+      }
+    },
+    "Topics.Title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Topics"
+          }
+        }
+      }
+    },
+    "Topics.Empty": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No Topics Yet"
+          }
+        }
+      }
+    },
+    "Topics.Empty.Description": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Topics will appear after articles are processed. Enable Topics & People in On-Device Intelligence settings."
+          }
+        }
+      }
+    },
+    "People.Title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "People"
+          }
+        }
+      }
+    },
+    "People.Empty": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No People Yet"
+          }
+        }
+      }
+    },
+    "People.Empty.Description": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "People mentioned in articles will appear here after processing. Enable Topics & People in On-Device Intelligence settings."
+          }
+        }
+      }
+    },
     "Settings.Section.Integrations": {
       "extractionState": "manual",
       "localizations": {

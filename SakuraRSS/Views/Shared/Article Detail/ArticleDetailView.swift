@@ -33,6 +33,8 @@ struct ArticleDetailView: View {
     @State var heroImageAspectRatio: CGFloat?
     @Namespace private var imageViewerNamespace
     @AppStorage("YouTube.OpenMode") var youTubeOpenMode: YouTubeOpenMode = .inAppPlayer
+    @AppStorage("Intelligence.SimilarContent.Enabled") var similarContentEnabled: Bool = false
+    @State var similarArticles: [SimilarArticleItem] = []
 
     var isAppleIntelligenceAvailable: Bool {
         SystemLanguageModel.default.availability == .available
@@ -169,6 +171,10 @@ struct ArticleDetailView: View {
             .animation(.smooth.speed(2.0), value: showingTranslation)
             .animation(.smooth.speed(2.0), value: translatedText)
             .padding()
+
+            if similarContentEnabled && !similarArticles.isEmpty {
+                similarContentSection
+            }
         }
         .refreshable {
             await refreshArticleContent()

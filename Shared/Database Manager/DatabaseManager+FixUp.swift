@@ -69,5 +69,19 @@ nonisolated extension DatabaseManager {
         _ = try? database.run(listRules.addColumn(listRuleListID, defaultValue: 0))
         _ = try? database.run(listRules.addColumn(listRuleType, defaultValue: ""))
         _ = try? database.run(listRules.addColumn(listRuleValue, defaultValue: ""))
+
+        // NLP columns on articles
+        _ = try? database.run(articles.addColumn(articleSentimentScore))
+        _ = try? database.run(articles.addColumn(articleNLPProcessed, defaultValue: false))
+
+        // nlp_entities table
+        _ = try? database.run(nlpEntities.create(ifNotExists: true) { table in
+            table.column(nlpEntityID, primaryKey: .autoincrement)
+            table.column(nlpEntityArticleID, defaultValue: 0)
+            table.column(nlpEntityName, defaultValue: "")
+            table.column(nlpEntityType, defaultValue: "")
+        })
+        _ = try? database.run(nlpEntities.createIndex(nlpEntityArticleID, ifNotExists: true))
+        _ = try? database.run(nlpEntities.createIndex(nlpEntityType, nlpEntityName, ifNotExists: true))
     }
 }

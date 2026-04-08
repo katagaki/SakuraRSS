@@ -49,6 +49,9 @@ extension ArticleDetailView {
            !cached.isEmpty {
             hasCachedSummary = true
         }
+        if similarContentEnabled {
+            similarArticles = await loadSimilarArticles()
+        }
     }
 
 }

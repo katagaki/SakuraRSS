@@ -4,6 +4,8 @@ enum SidebarDestination: Hashable {
     case allArticles
     case section(FeedSection)
     case bookmarks
+    case topics
+    case people
     case list(FeedList)
     case feed(Feed)
     case more
@@ -29,6 +31,7 @@ struct IPadSidebarView: View {
     @State private var pendingYouTubeSafariURL: URL?
     @State private var searchText = ""
     @AppStorage("Onboarding.Completed") private var onboardingCompleted: Bool = false
+    @AppStorage("Intelligence.TopicsPeople.Enabled") private var topicsPeopleEnabled: Bool = false
 
     @Namespace private var cardZoom
 
@@ -64,6 +67,14 @@ struct IPadSidebarView: View {
                         iPadSectionContent(section: section)
                     case .bookmarks:
                         iPadBookmarksContent()
+                    case .topics:
+                        iPadArticleListWrapper {
+                            TopicsView()
+                        }
+                    case .people:
+                        iPadArticleListWrapper {
+                            PeopleView()
+                        }
                     case .list(let list):
                         iPadListContent(list: list)
                     case .feed(let feed):
@@ -223,6 +234,15 @@ struct IPadSidebarView: View {
             Section {
                 Label("Tabs.Bookmarks", systemImage: "bookmark")
                     .tag(SidebarDestination.bookmarks)
+            }
+
+            if topicsPeopleEnabled {
+                Section {
+                    Label("Topics.Title", systemImage: "number")
+                        .tag(SidebarDestination.topics)
+                    Label("People.Title", systemImage: "person.2")
+                        .tag(SidebarDestination.people)
+                }
             }
 
             if !feedManager.lists.isEmpty {
@@ -435,6 +455,11 @@ extension IPadSidebarView {
                 .environment(\.zoomNamespace, cardZoom)
                 .navigationDestination(for: Feed.self) { feed in
                     FeedArticlesView(feed: feed)
+                        .environment(\.iPadArticleSelection, $selectedArticle)
+                        .environment(\.zoomNamespace, cardZoom)
+                }
+                .navigationDestination(for: EntityDestination.self) { destination in
+                    EntityArticlesView(destination: destination)
                         .environment(\.iPadArticleSelection, $selectedArticle)
                         .environment(\.zoomNamespace, cardZoom)
                 }

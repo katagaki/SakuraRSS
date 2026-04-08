@@ -24,6 +24,7 @@ struct SakuraRSSApp: App {
                 .environment(feedManager)
                 .task {
                     await feedManager.refreshAllFeeds()
+                    await NLPProcessingCoordinator.processNewArticlesIfEnabled()
                     UserDefaults.standard.set(false, forKey: "App.StartupInProgress")
                     feedManager.updateBadgeCount()
                     requestReviewIfNeeded()
@@ -156,6 +157,7 @@ struct SakuraRSSApp: App {
         let refreshTask = Task {
             let manager = FeedManager()
             await manager.refreshAllFeeds()
+            await NLPProcessingCoordinator.processNewArticlesIfEnabled()
             manager.updateBadgeCount()
         }
 

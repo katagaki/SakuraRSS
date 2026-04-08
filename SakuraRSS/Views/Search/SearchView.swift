@@ -2,10 +2,16 @@ import SwiftUI
 
 struct SearchView: View {
 
+    enum SearchTab: String, CaseIterable {
+        case search, topics, people
+    }
+
     @Environment(FeedManager.self) var feedManager
     @AppStorage("Search.DisplayStyle") private var searchDisplayStyle: FeedDisplayStyle = .inbox
+    @AppStorage("Intelligence.TopicsPeople.Enabled") private var topicsPeopleEnabled: Bool = false
     @State private var searchText = ""
     @State private var searchResults: [Article] = []
+    @State private var selectedTab: SearchTab = .search
     @State private var path = NavigationPath()
     @Namespace private var cardZoom
 
@@ -25,26 +31,29 @@ struct SearchView: View {
 
     var body: some View {
         NavigationStack(path: $path) {
-            DisplayStyleContentView(
-                style: effectiveStyle,
-                articles: searchResults
-            )
-            .overlay {
-                if searchText.isEmpty {
-                    ContentUnavailableView {
-                        Label("Search.Empty.Title",
-                              systemImage: "magnifyingglass")
-                    } description: {
-                        Text("Search.Empty.Description")
+            VStack(spacing: 0) {
+                if topicsPeopleEnabled {
+                    Picker("", selection: $selectedTab) {
+                        Text("Search.Tab.Search").tag(SearchTab.search)
+                        Text("Search.Tab.Topics").tag(SearchTab.topics)
+                        Text("Search.Tab.People").tag(SearchTab.people)
                     }
-                } else if searchResults.isEmpty {
-                    ContentUnavailableView {
-                        Label("Search.NoResults.Title",
-                              systemImage: "magnifyingglass")
-                    } description: {
-                        Text("Search.NoResults.Description")
+                    .pickerStyle(.segmented)
+                    .padding(.horizontal)
+                    .padding(.vertical, 8)
+                }
+
+                Group {
+                    switch selectedTab {
+                    case .search:
+                        searchContent
+                    case .topics:
+                        TopicsView()
+                    case .people:
+                        PeopleView()
                     }
                 }
+                .frame(maxHeight: .infinity)
             }
             .scrollContentBackground(.hidden)
             .sakuraBackground()
@@ -59,23 +68,29 @@ struct SearchView: View {
                 }
                 .zoomTransition(sourceID: article.id, in: cardZoom)
             }
+            .navigationDestination(for: EntityDestination.self) { destination in
+                EntityArticlesView(destination: destination)
+            }
             .toolbar {
-                ToolbarItemGroup(placement: .topBarTrailing) {
-                    Menu {
-                        DisplayStylePicker(
-                            displayStyle: $searchDisplayStyle,
-                            hasImages: hasImages,
-                            showTimeline: false,
-                            showVideo: false,
-                            showPodcast: false
-                        )
-                    } label: {
-                        Image(systemName: "line.3.horizontal.decrease")
+                if selectedTab == .search {
+                    ToolbarItemGroup(placement: .topBarTrailing) {
+                        Menu {
+                            DisplayStylePicker(
+                                displayStyle: $searchDisplayStyle,
+                                hasImages: hasImages,
+                                showTimeline: false,
+                                showVideo: false,
+                                showPodcast: false
+                            )
+                        } label: {
+                            Image(systemName: "line.3.horizontal.decrease")
+                        }
+                        .menuActionDismissBehavior(.disabled)
                     }
-                    .menuActionDismissBehavior(.disabled)
                 }
             }
             .animation(.smooth.speed(2.0), value: searchDisplayStyle)
+            .animation(.smooth.speed(2.0), value: selectedTab)
             .searchable(text: $searchText, prompt: "Search.Prompt")
             .task(id: searchText) {
                 let query = searchText
@@ -90,6 +105,36 @@ struct SearchView: View {
                 let results = (try? DatabaseManager.shared.searchArticles(query: query)) ?? []
                 withAnimation(.smooth.speed(2.0)) {
                     searchResults = results
+                }
+            }
+            .onChange(of: selectedTab) {
+                if selectedTab != .search {
+                    searchText = ""
+                }
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var searchContent: some View {
+        DisplayStyleContentView(
+            style: effectiveStyle,
+            articles: searchResults
+        )
+        .overlay {
+            if searchText.isEmpty {
+                ContentUnavailableView {
+                    Label("Search.Empty.Title",
+                          systemImage: "magnifyingglass")
+                } description: {
+                    Text("Search.Empty.Description")
+                }
+            } else if searchResults.isEmpty {
+                ContentUnavailableView {
+                    Label("Search.NoResults.Title",
+                          systemImage: "magnifyingglass")
+                } description: {
+                    Text("Search.NoResults.Description")
                 }
             }
         }
