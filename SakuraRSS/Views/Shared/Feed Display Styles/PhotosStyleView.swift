@@ -12,16 +12,8 @@ struct PhotosStyleView: View {
         ScrollView(.vertical) {
             LazyVStack(spacing: 0) {
                 ForEach(articles) { article in
-                    PhotosArticleCard(article: article)
+                    PhotosArticleCard(article: article, youTubeArticle: $youTubeArticle)
                         .zoomSource(id: article.id, namespace: zoomNamespace)
-                        .background {
-                            ArticleLink(article: article, onShowYouTubePlayer: {
-                                youTubeArticle = $0
-                            }, label: {
-                                Color.clear
-                            })
-                        }
-                        .buttonStyle(.plain)
                 }
                 if let onLoadMore {
                     LoadPreviousArticlesButton(action: onLoadMore)
@@ -40,6 +32,7 @@ struct PhotosArticleCard: View {
 
     @Environment(FeedManager.self) var feedManager
     let article: Article
+    @Binding var youTubeArticle: Article?
     @State private var favicon: UIImage?
     @State private var feedName: String?
     @State private var acronymIcon: UIImage?
@@ -115,6 +108,7 @@ struct PhotosArticleCard: View {
                     }
                 } label: {
                     Image(systemName: "ellipsis")
+                        .tint(.primary)
                         .font(.subheadline)
                         .fontWeight(.semibold)
                         .foregroundStyle(.secondary)
@@ -135,6 +129,7 @@ struct PhotosArticleCard: View {
                                 Rectangle()
                                     .fill(.secondary.opacity(0.1))
                             }
+                            .allowsHitTesting(false)
                             .frame(maxWidth: .infinity, maxHeight: .infinity)
                             .clipped()
                             .tag(index)
@@ -157,15 +152,38 @@ struct PhotosArticleCard: View {
                 CachedAsyncImage(url: url) {
                     Rectangle()
                         .fill(.secondary.opacity(0.1))
-                        .aspectRatio(1, contentMode: .fit)
+                        .aspectRatio(4/3, contentMode: .fit)
                 }
                 .aspectRatio(4/3, contentMode: .fit)
                 .frame(maxWidth: .infinity)
                 .clipped()
+                .allowsHitTesting(false)
                 .task {
                     photoImage = await CachedAsyncImage<EmptyView>.loadImage(from: url)
                 }
                 .padding(.bottom, 10)
+            }
+
+            // Article title (tapping opens the article)
+            ArticleLink(article: article, onShowYouTubePlayer: {
+                youTubeArticle = $0
+            }, label: {
+                Text(article.title)
+                    .font(.subheadline)
+                    .foregroundStyle(.primary)
+                    .lineLimit(3)
+                    .multilineTextAlignment(.leading)
+                    .padding(.horizontal, 12)
+                    .padding(.bottom, 10)
+            })
+            .buttonStyle(.plain)
+
+            if let date = article.publishedDate {
+                RelativeTimeText(date: date)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .padding(.horizontal, 12)
+                    .padding(.bottom, 10)
             }
 
             // Action buttons below photo
@@ -188,6 +206,7 @@ struct PhotosArticleCard: View {
                           systemImage: "square.and.arrow.up")
                 }
                 .padding(.bottom, 1)
+                .disabled(URL(string: article.url) == nil)
 
                 Spacer()
 
@@ -212,23 +231,6 @@ struct PhotosArticleCard: View {
             .foregroundStyle(.primary)
             .padding(.horizontal, 12)
             .padding(.bottom, 10)
-
-            // Article title below photo
-            Text(article.title)
-                .font(.subheadline)
-                .foregroundStyle(.primary)
-                .lineLimit(3)
-                .multilineTextAlignment(.leading)
-                .padding(.horizontal, 12)
-                .padding(.bottom, 10)
-
-            if let date = article.publishedDate {
-                RelativeTimeText(date: date)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .padding(.horizontal, 12)
-                    .padding(.bottom, 10)
-            }
 
             Divider()
                 .padding(.top, 4)
