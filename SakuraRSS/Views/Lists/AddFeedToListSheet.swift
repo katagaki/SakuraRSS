@@ -41,6 +41,7 @@ struct AddFeedToListSheet: View {
                                             .foregroundStyle(.accent)
                                     }
                                 }
+                                .contentShape(Rectangle())
                             }
                             .buttonStyle(.plain)
                         }
