@@ -19736,24 +19736,25 @@
         }
       }
     },
-    "Lists.FeedCount.One" : {
+    "Lists.FeedCount %lld" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "1 feed"
-          }
-        }
-      }
-    },
-    "Lists.FeedCount.%lld" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld feeds"
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld feed"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld feeds"
+                }
+              }
+            }
           }
         }
       }

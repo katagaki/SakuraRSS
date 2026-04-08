@@ -75,15 +75,14 @@ struct ListEditSheet: View {
                     Picker(String(localized: "ListEdit.DisplayStyle"),
                            selection: $selectedDisplayStyle) {
                         Text("ListEdit.DisplayStyle.Default")
-                            .tag(String?.none)
+                            .tag(nil as String?)
                         ForEach(FeedDisplayStyle.allCases.filter {
                             $0 != .video && $0 != .podcast
                         }, id: \.self) { style in
                             Text(style.rawValue.capitalized)
-                                .tag(Optional(style.rawValue))
+                                .tag(style.rawValue as String?)
                         }
                     }
-                    .labelsHidden()
                 }
 
                 Section(String(localized: "ListEdit.Feeds")) {
@@ -107,6 +106,7 @@ struct ListEditSheet: View {
                                             .foregroundStyle(.accent)
                                     }
                                 }
+                                .contentShape(Rectangle())
                             }
                             .buttonStyle(.plain)
                         }

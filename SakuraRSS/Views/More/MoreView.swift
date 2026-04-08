@@ -228,16 +228,12 @@ struct MoreView: View {
             .navigationTitle(String(localized: "Tabs.More"))
             .toolbarTitleDisplayMode(.inlineLarge)
             .toolbar {
-                if UIDevice.current.userInterfaceIdiom == .pad {
-                    ToolbarItem(placement: .topBarTrailing) {
-                        Button(role: .close) {
-                            dismiss()
-                        }
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button(role: .close) {
+                        dismiss()
                     }
                 }
             }
-            .scrollContentBackground(.hidden)
-            .sakuraBackground()
             .fileExporter(
                 isPresented: $isExporting,
                 document: OPMLDocument(content: feedManager.exportOPML()),

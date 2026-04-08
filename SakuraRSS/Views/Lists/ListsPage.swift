@@ -141,9 +141,7 @@ struct ListRowView: View {
                     .font(.body)
                     .lineLimit(1)
                 let count = feedManager.feedCount(for: list)
-                Text(count == 1
-                     ? String(localized: "Lists.FeedCount.One")
-                     : String(localized: "Lists.FeedCount.\(count)"))
+                Text("Lists.FeedCount \(count)")
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
             }
