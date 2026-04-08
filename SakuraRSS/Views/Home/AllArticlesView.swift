@@ -44,7 +44,7 @@ enum HomeSelection: Hashable, RawRepresentable {
 
     var rawValue: String {
         switch self {
-        case .section(let s): "section.\(s.rawValue)"
+        case .section(let section): "section.\(section.rawValue)"
         case .list(let id): "list.\(id)"
         }
     }
@@ -73,14 +73,14 @@ enum HomeSelection: Hashable, RawRepresentable {
 
     var localizedTitle: String {
         switch self {
-        case .section(let s): s.localizedTitle
+        case .section(let section): section.localizedTitle
         case .list: ""
         }
     }
 
     var systemImage: String {
         switch self {
-        case .section(let s): s.systemImage
+        case .section(let section): section.systemImage
         case .list: ""
         }
     }
@@ -125,8 +125,8 @@ struct AllArticlesView: View {
 
     private var currentTitle: String {
         switch selectedSelection {
-        case .section(let s):
-            return s.localizedTitle
+        case .section(let section):
+            return section.localizedTitle
         case .list(let id):
             return feedManager.lists.first { $0.id == id }?.name
                 ?? String(localized: "Shared.AllArticles")

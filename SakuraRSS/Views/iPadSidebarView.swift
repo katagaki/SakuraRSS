@@ -292,10 +292,62 @@ struct IPadSidebarView: View {
         }
     }
 
-    // MARK: - Detail Content
+    // MARK: - External Opening
+
+    func shouldOpenExternally(_ article: Article) -> Bool {
+        if feedManager.feed(forArticle: article)?.isXFeed == true
+            || feedManager.feed(forArticle: article)?.isInstagramFeed == true {
+            return true
+        }
+        if article.isYouTubeURL && youTubeOpenMode == .youTubeApp {
+            return true
+        }
+        return false
+    }
+
+    func openArticleExternally(_ article: Article) {
+        feedManager.markRead(article)
+        if feedManager.feed(forArticle: article)?.isXFeed == true
+            || feedManager.feed(forArticle: article)?.isInstagramFeed == true {
+            if let url = URL(string: article.url) {
+                openURL(url)
+            }
+        } else if article.isYouTubeURL && youTubeOpenMode == .youTubeApp {
+            YouTubeHelper.openInApp(url: article.url)
+        } else if article.isYouTubeURL && youTubeOpenMode == .browser {
+            pendingYouTubeSafariURL = URL(string: article.url)
+            showYouTubeSafari = true
+        }
+    }
+
+    func handlePendingArticle(_ articleID: Int64) {
+        Task {
+            try? await Task.sleep(for: .milliseconds(300))
+            if let article = feedManager.article(byID: articleID) {
+                if shouldOpenExternally(article) {
+                    openArticleExternally(article)
+                } else {
+                    selectedArticle = article
+                    feedManager.markRead(article)
+                }
+            }
+            pendingArticleID = nil
+        }
+    }
+
+    // MARK: - Helpers
+
+    private var availableSections: [FeedSection] {
+        FeedSection.allCases.filter { feedManager.hasFeeds(for: $0) }
+    }
+}
+
+// MARK: - IPadSidebarView Content Views
+
+extension IPadSidebarView {
 
     @ViewBuilder
-    private var detailContent: some View {
+    var detailContent: some View {
         if let article = selectedArticle {
             Group {
                 if article.isPodcastEpisode {
@@ -317,17 +369,15 @@ struct IPadSidebarView: View {
         }
     }
 
-    // MARK: - Content Views
-
     @ViewBuilder
-    private func iPadAllArticlesContent() -> some View {
+    func iPadAllArticlesContent() -> some View {
         iPadArticleListWrapper {
             AllArticlesView()
         }
     }
 
     @ViewBuilder
-    private func iPadSectionContent(section: FeedSection) -> some View {
+    func iPadSectionContent(section: FeedSection) -> some View {
         iPadArticleListWrapper {
             HomeSectionView(section: section)
                 .navigationTitle(section.localizedTitle)
@@ -336,14 +386,14 @@ struct IPadSidebarView: View {
     }
 
     @ViewBuilder
-    private func iPadBookmarksContent() -> some View {
+    func iPadBookmarksContent() -> some View {
         iPadArticleListWrapper {
             IPadBookmarksListView()
         }
     }
 
     @ViewBuilder
-    private func iPadFeedContent(feed: Feed) -> some View {
+    func iPadFeedContent(feed: Feed) -> some View {
         iPadArticleListWrapper {
             FeedArticlesView(feed: feed)
         }
@@ -351,7 +401,7 @@ struct IPadSidebarView: View {
     }
 
     @ViewBuilder
-    private func iPadListContent(list: FeedList) -> some View {
+    func iPadListContent(list: FeedList) -> some View {
         iPadArticleListWrapper {
             ListSectionView(list: list)
                 .navigationTitle(list.name)
@@ -360,10 +410,8 @@ struct IPadSidebarView: View {
         .id(list.id)
     }
 
-    /// Wraps content views with navigation destinations and the iPad article selection
-    /// environment, so article taps show in the detail column instead of pushing.
     @ViewBuilder
-    private func iPadArticleListWrapper<Content: View>(@ViewBuilder content: () -> Content) -> some View {
+    func iPadArticleListWrapper<Content: View>(@ViewBuilder content: () -> Content) -> some View {
         NavigationStack {
             content()
                 .environment(\.navigateToFeed, { feed in
@@ -377,55 +425,6 @@ struct IPadSidebarView: View {
                 }
                 .environment(\.iPadArticleSelection, $selectedArticle)
         }
-    }
-
-    // MARK: - External Opening
-
-    private func shouldOpenExternally(_ article: Article) -> Bool {
-        if feedManager.feed(forArticle: article)?.isXFeed == true
-            || feedManager.feed(forArticle: article)?.isInstagramFeed == true {
-            return true
-        }
-        if article.isYouTubeURL && youTubeOpenMode == .youTubeApp {
-            return true
-        }
-        return false
-    }
-
-    private func openArticleExternally(_ article: Article) {
-        feedManager.markRead(article)
-        if feedManager.feed(forArticle: article)?.isXFeed == true
-            || feedManager.feed(forArticle: article)?.isInstagramFeed == true {
-            if let url = URL(string: article.url) {
-                openURL(url)
-            }
-        } else if article.isYouTubeURL && youTubeOpenMode == .youTubeApp {
-            YouTubeHelper.openInApp(url: article.url)
-        } else if article.isYouTubeURL && youTubeOpenMode == .browser {
-            pendingYouTubeSafariURL = URL(string: article.url)
-            showYouTubeSafari = true
-        }
-    }
-
-    private func handlePendingArticle(_ articleID: Int64) {
-        Task {
-            try? await Task.sleep(for: .milliseconds(300))
-            if let article = feedManager.article(byID: articleID) {
-                if shouldOpenExternally(article) {
-                    openArticleExternally(article)
-                } else {
-                    selectedArticle = article
-                    feedManager.markRead(article)
-                }
-            }
-            pendingArticleID = nil
-        }
-    }
-
-    // MARK: - Helpers
-
-    private var availableSections: [FeedSection] {
-        FeedSection.allCases.filter { feedManager.hasFeeds(for: $0) }
     }
 }
 
