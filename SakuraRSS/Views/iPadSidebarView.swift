@@ -162,13 +162,11 @@ struct IPadSidebarView: View {
         .sheet(item: $listToEdit) { list in
             ListEditSheet(list: list)
                 .environment(feedManager)
-                .presentationDetents([.medium, .large])
                 .interactiveDismissDisabled()
         }
         .sheet(item: $listForRules) { list in
             ListRulesSheet(list: list)
                 .environment(feedManager)
-                .presentationDetents([.medium, .large])
                 .interactiveDismissDisabled()
         }
         .confirmationDialog(
@@ -305,7 +303,6 @@ struct IPadSidebarView: View {
         .sheet(isPresented: $showingNewList) {
             ListEditSheet(list: nil)
                 .environment(feedManager)
-                .presentationDetents([.medium, .large])
                 .interactiveDismissDisabled()
         }
     }
