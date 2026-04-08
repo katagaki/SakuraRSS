@@ -110,6 +110,9 @@ struct HomeView: View {
         .sheet(isPresented: $showingMore) {
             MoreView()
                 .navigationTransition(.zoom(sourceID: "more", in: moreNamespace))
+                .presentationDetents([.medium, .large])
+                .presentationContentInteraction(.scrolls)
+                .interactiveDismissDisabled()
         }
     }
 
