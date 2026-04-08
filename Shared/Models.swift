@@ -44,6 +44,10 @@ nonisolated struct Feed: Identifiable, Hashable, Sendable {
         return host == "reddit.com" || host.hasSuffix(".reddit.com")
     }
 
+    var isCircleIcon: Bool {
+        CircleIconDomains.shouldUseCircleIcon(feedDomain: domain)
+    }
+
     var isPhotoViewDomain: Bool {
         PhotoViewDomains.shouldPreferPhotoView(feedDomain: domain)
     }
@@ -206,6 +210,21 @@ nonisolated enum FeedDisplayStyle: String, CaseIterable, Sendable {
     case timeline
     case cards
     case grid
+
+    var localizedName: String {
+        switch self {
+        case .inbox: String(localized: "Articles.Style.Inbox")
+        case .feed: String(localized: "Articles.Style.Feed")
+        case .magazine: String(localized: "Articles.Style.Magazine")
+        case .compact: String(localized: "Articles.Style.Compact")
+        case .video: String(localized: "Articles.Style.Video")
+        case .photos: String(localized: "Articles.Style.Photos")
+        case .podcast: String(localized: "Articles.Style.Podcast")
+        case .timeline: String(localized: "Articles.Style.Timeline")
+        case .cards: String(localized: "Articles.Style.Cards")
+        case .grid: String(localized: "Articles.Style.Grid")
+        }
+    }
 
     var requiresImages: Bool {
         switch self {

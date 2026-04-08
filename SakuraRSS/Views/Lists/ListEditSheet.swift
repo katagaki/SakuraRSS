@@ -79,7 +79,7 @@ struct ListEditSheet: View {
                         ForEach(FeedDisplayStyle.allCases.filter {
                             $0 != .video && $0 != .podcast
                         }, id: \.self) { style in
-                            Text(style.rawValue.capitalized)
+                            Text(style.localizedName)
                                 .tag(style.rawValue as String?)
                         }
                     }
@@ -192,7 +192,7 @@ struct FeedIconView: View {
     }
 
     private var isCircle: Bool {
-        feed.isXFeed || feed.isInstagramFeed || (feed.isVideoFeed && !feed.isPodcast)
+        feed.isCircleIcon
     }
 
     var body: some View {

@@ -77,7 +77,7 @@ struct FeedEditSheet: View {
                             InitialsAvatarView(
                                 name.isEmpty ? feed.title : name,
                                 size: 64,
-                                circle: feed.isXFeed || feed.isInstagramFeed || (feed.isVideoFeed && !feed.isPodcast),
+                                circle: feed.isCircleIcon,
                                 cornerRadius: iconCornerRadius(size: 64)
                             )
                             Spacer()
@@ -87,7 +87,7 @@ struct FeedEditSheet: View {
                             Spacer()
                             FaviconImage(icon, size: 64,
                                          cornerRadius: iconCornerRadius(size: 64),
-                                         circle: feed.isXFeed || feed.isInstagramFeed || (feed.isVideoFeed && !feed.isPodcast),
+                                         circle: feed.isCircleIcon,
                                          skipInset: feed.isVideoFeed || feed.isPodcast || feed.isXFeed || feed.isInstagramFeed
                                             || FullFaviconDomains.shouldUseFullImage(feedDomain: feed.domain))
                             Spacer()

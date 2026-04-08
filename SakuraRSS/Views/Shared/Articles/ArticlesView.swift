@@ -1,6 +1,17 @@
 import SwiftUI
 import TipKit
 
+private struct HidesMarkAllReadToolbarKey: EnvironmentKey {
+    static let defaultValue: Bool = false
+}
+
+extension EnvironmentValues {
+    var hidesMarkAllReadToolbar: Bool {
+        get { self[HidesMarkAllReadToolbarKey.self] }
+        set { self[HidesMarkAllReadToolbarKey.self] = newValue }
+    }
+}
+
 struct ArticlesView: View {
 
     @Environment(FeedManager.self) var feedManager
@@ -20,6 +31,7 @@ struct ArticlesView: View {
     var onRefresh: (() async -> Void)?
     var onMarkAllRead: (() -> Void)?
 
+    @Environment(\.hidesMarkAllReadToolbar) private var hidesMarkAllReadToolbar
     @State private var displayStyle: FeedDisplayStyle
     @State private var isShowingMarkAllReadConfirmation = false
     @AppStorage("Articles.HideRead") private var hideRead = false
@@ -115,7 +127,7 @@ struct ArticlesView: View {
                     }
                 }
             }
-            if markAllReadPosition == .top, let onMarkAllRead {
+            if !hidesMarkAllReadToolbar, markAllReadPosition == .top, let onMarkAllRead {
                 ToolbarItemGroup(placement: .topBarLeading) {
                     Button {
                         isShowingMarkAllReadConfirmation = true

@@ -33,6 +33,7 @@ actor FaviconCache {
         if let data = try? Data(contentsOf: filePath),
            let image = UIImage(data: data) {
             let skipTrim = SkipTrimDomains.shouldSkipTrimming(feedDomain: domain)
+                || CircleIconDomains.shouldUseCircleIcon(feedDomain: domain)
             let result = skipTrim ? image : await image.trimmed()
             memoryCache[cacheKey] = result
             return result
@@ -142,7 +143,10 @@ actor FaviconCache {
     }
 
     private func trimAndCache(_ image: UIImage, cacheKey: String, filePath: URL, domain: String? = nil) async -> UIImage {
-        let skipTrim = domain.map { SkipTrimDomains.shouldSkipTrimming(feedDomain: $0) } ?? false
+        let skipTrim = domain.map {
+            SkipTrimDomains.shouldSkipTrimming(feedDomain: $0)
+                || CircleIconDomains.shouldUseCircleIcon(feedDomain: $0)
+        } ?? false
         let result = skipTrim ? image : await image.trimmed()
         if let pngData = result.pngData() {
             try? pngData.write(to: filePath)
