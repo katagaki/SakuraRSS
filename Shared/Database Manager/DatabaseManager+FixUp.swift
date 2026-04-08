@@ -40,7 +40,7 @@ nonisolated extension DatabaseManager {
 
         // image_cache table
         _ = try? database.run(imageCache.addColumn(imageCacheData, defaultValue: Data()))
-        _ = try? database.run(imageCache.addColumn(imageCachedAt, defaultValue: 0.0))
+        _ = try? database.run(imageCache.addColumn(imageCachedAt, defaultValue: Date(timeIntervalSince1970: 0)))
 
         // summary_cache table
         _ = try? database.run(summaryCache.addColumn(summaryCacheContent, defaultValue: ""))

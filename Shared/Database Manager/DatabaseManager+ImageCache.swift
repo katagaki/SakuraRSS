@@ -14,7 +14,7 @@ nonisolated extension DatabaseManager {
         try database.run(imageCache.insert(or: .replace,
             imageCacheURL <- url,
             imageCacheData <- data,
-            imageCachedAt <- Date().timeIntervalSince1970
+            imageCachedAt <- Date()
         ))
     }
 
@@ -27,7 +27,7 @@ nonisolated extension DatabaseManager {
     }
 
     func clearImageCache(olderThan date: Date) throws {
-        let target = imageCache.filter(imageCachedAt < date.timeIntervalSince1970)
+        let target = imageCache.filter(imageCachedAt < date)
         try database.run(target.delete())
     }
 }
