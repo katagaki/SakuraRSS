@@ -111,6 +111,18 @@ extension InstagramProfileScraper {
             imageURL = sorted.first?["src"] as? String
         }
 
+        // Carousel images (edge_sidecar_to_children contains all slides)
+        var carouselImageURLs: [String] = []
+        if let sidecar = node["edge_sidecar_to_children"] as? [String: Any],
+           let edges = sidecar["edges"] as? [[String: Any]] {
+            for edge in edges {
+                guard let childNode = edge["node"] as? [String: Any] else { continue }
+                if let childURL = childNode["display_url"] as? String {
+                    carouselImageURLs.append(childURL)
+                }
+            }
+        }
+
         // Publish date
         var publishedDate: Date?
         if let timestamp = node["taken_at_timestamp"] as? TimeInterval {
@@ -126,7 +138,8 @@ extension InstagramProfileScraper {
             author: authorName,
             authorHandle: username,
             url: postURL,
-            imageURL: imageURL,
+            imageURL: carouselImageURLs.first ?? imageURL,
+            carouselImageURLs: carouselImageURLs,
             publishedDate: publishedDate
         )
     }
@@ -160,9 +173,14 @@ extension InstagramProfileScraper {
 
         // Image URL — carousel or single
         var imageURL: String?
-        if let carouselMedia = item["carousel_media"] as? [[String: Any]],
-           let firstMedia = carouselMedia.first {
-            imageURL = bestImageURL(from: firstMedia)
+        var carouselImageURLs: [String] = []
+        if let carouselMedia = item["carousel_media"] as? [[String: Any]] {
+            for media in carouselMedia {
+                if let url = bestImageURL(from: media) {
+                    carouselImageURLs.append(url)
+                }
+            }
+            imageURL = carouselImageURLs.first
         }
         if imageURL == nil {
             imageURL = bestImageURL(from: item)
@@ -186,6 +204,7 @@ extension InstagramProfileScraper {
             authorHandle: username,
             url: postURL,
             imageURL: imageURL,
+            carouselImageURLs: carouselImageURLs,
             publishedDate: publishedDate
         )
     }

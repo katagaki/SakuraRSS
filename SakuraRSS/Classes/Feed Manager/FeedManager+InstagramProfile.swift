@@ -38,6 +38,7 @@ extension FeedManager {
                     author: post.author.isEmpty ? "@\(post.authorHandle)" : post.author,
                     summary: post.text.isEmpty ? nil : post.text,
                     imageURL: post.imageURL,
+                    carouselImageURLs: post.carouselImageURLs,
                     publishedDate: post.publishedDate
                 )
             )

@@ -37,6 +37,7 @@ nonisolated final class DatabaseManager: @unchecked Sendable {
     let articleSummary = SQLite.Expression<String?>("summary")
     let articleContent = SQLite.Expression<String?>("content")
     let articleImageURL = SQLite.Expression<String?>("image_url")
+    let articleCarouselURLs = SQLite.Expression<String?>("carousel_urls")
     let articlePublishedDate = SQLite.Expression<Double?>("published_date")
     let articleIsRead = SQLite.Expression<Bool>("is_read")
     let articleIsBookmarked = SQLite.Expression<Bool>("is_bookmarked")

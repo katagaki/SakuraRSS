@@ -43,6 +43,7 @@ struct PhotosArticleCard: View {
     @State private var skipFaviconInset = false
     @State private var photoImage: UIImage?
     @State private var feed: Feed?
+    @State private var currentPage: Int = 0
 
     @ViewBuilder
     private var feedAvatarView: some View {
@@ -118,8 +119,35 @@ struct PhotosArticleCard: View {
             .padding(.horizontal, 12)
             .padding(.vertical, 10)
 
-            // Edge-to-edge photo
-            if let imageURL = article.imageURL, let url = URL(string: imageURL) {
+            // Edge-to-edge photo or carousel
+            if article.carouselImageURLs.count > 1 {
+                let urls = article.carouselImageURLs.compactMap { URL(string: $0) }
+                if !urls.isEmpty {
+                    TabView(selection: $currentPage) {
+                        ForEach(Array(urls.enumerated()), id: \.offset) { index, url in
+                            CachedAsyncImage(url: url) {
+                                Rectangle()
+                                    .fill(.secondary.opacity(0.1))
+                            }
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                            .clipped()
+                            .tag(index)
+                        }
+                    }
+                    .tabViewStyle(.page(indexDisplayMode: .never))
+                    .aspectRatio(4/3, contentMode: .fit)
+                    .frame(maxWidth: .infinity)
+                    .clipped()
+                    .overlay(alignment: .bottom) {
+                        PageDotsView(count: urls.count, current: currentPage)
+                            .padding(.bottom, 8)
+                    }
+                    .task {
+                        photoImage = await CachedAsyncImage<EmptyView>.loadImage(from: urls[0])
+                    }
+                    .padding(.bottom, 10)
+                }
+            } else if let imageURL = article.imageURL, let url = URL(string: imageURL) {
                 CachedAsyncImage(url: url) {
                     Rectangle()
                         .fill(.secondary.opacity(0.1))
@@ -208,5 +236,27 @@ struct PhotosArticleCard: View {
                 favicon = await FaviconCache.shared.favicon(for: loadedFeed)
             }
         }
+    }
+}
+
+// MARK: - Page Dots
+
+private struct PageDotsView: View {
+
+    let count: Int
+    let current: Int
+
+    var body: some View {
+        HStack(spacing: 6) {
+            ForEach(0..<count, id: \.self) { index in
+                Circle()
+                    .fill(index == current ? Color.white : Color.white.opacity(0.5))
+                    .frame(width: 6, height: 6)
+            }
+        }
+        .padding(.horizontal, 8)
+        .padding(.vertical, 4)
+        .background(.black.opacity(0.3), in: .capsule)
+        .animation(.easeInOut(duration: 0.2), value: current)
     }
 }

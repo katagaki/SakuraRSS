@@ -7,6 +7,7 @@ struct ArticleInsertData: Sendable {
     var summary: String?
     var content: String?
     var imageURL: String?
+    var carouselImageURLs: [String] = []
     var publishedDate: Date?
     var audioURL: String?
     var duration: Int?
@@ -30,6 +31,8 @@ nonisolated extension DatabaseManager {
         url: String,
         data: ArticleInsertData = ArticleInsertData()
     ) throws -> Int64 {
+        let carouselValue = data.carouselImageURLs.isEmpty
+            ? nil : data.carouselImageURLs.joined(separator: "\n")
         try database.run(articles.insert(or: .ignore,
             articleFeedID <- fid,
             articleTitle <- title,
@@ -38,6 +41,7 @@ nonisolated extension DatabaseManager {
             articleSummary <- data.summary,
             articleContent <- data.content,
             articleImageURL <- data.imageURL,
+            articleCarouselURLs <- carouselValue,
             articlePublishedDate <- data.publishedDate?.timeIntervalSince1970,
             articleIsRead <- false,
             articleIsBookmarked <- false,
@@ -50,6 +54,8 @@ nonisolated extension DatabaseManager {
         guard !items.isEmpty else { return }
         try database.transaction {
             for item in items {
+                let carouselValue = item.data.carouselImageURLs.isEmpty
+                    ? nil : item.data.carouselImageURLs.joined(separator: "\n")
                 try database.run(articles.insert(or: .ignore,
                     articleFeedID <- fid,
                     articleTitle <- item.title,
@@ -58,6 +64,7 @@ nonisolated extension DatabaseManager {
                     articleSummary <- item.data.summary,
                     articleContent <- item.data.content,
                     articleImageURL <- item.data.imageURL,
+                    articleCarouselURLs <- carouselValue,
                     articlePublishedDate <- item.data.publishedDate?.timeIntervalSince1970,
                     articleIsRead <- false,
                     articleIsBookmarked <- false,
@@ -211,7 +218,11 @@ nonisolated extension DatabaseManager {
     // MARK: - Row Mapping
 
     func rowToArticle(_ row: Row) -> Article {
-        Article(
+        let carouselRaw = row[articleCarouselURLs]
+        let carouselURLs = carouselRaw?
+            .split(separator: "\n")
+            .map(String.init) ?? []
+        return Article(
             id: row[articleID],
             feedID: row[articleFeedID],
             title: row[articleTitle],
@@ -220,6 +231,7 @@ nonisolated extension DatabaseManager {
             summary: row[articleSummary],
             content: row[articleContent],
             imageURL: row[articleImageURL],
+            carouselImageURLs: carouselURLs,
             publishedDate: row[articlePublishedDate].map { Date(timeIntervalSince1970: $0) },
             isRead: row[articleIsRead],
             isBookmarked: row[articleIsBookmarked],

@@ -9,6 +9,9 @@ struct ParsedInstagramPost: Sendable {
     let authorHandle: String
     let url: String
     let imageURL: String?
+    /// All image URLs for carousel posts (includes the primary imageURL).
+    /// Empty for single-image posts.
+    let carouselImageURLs: [String]
     let publishedDate: Date?
 }
 
