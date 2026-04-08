@@ -31,6 +31,7 @@ struct FeedArticlesView: View {
         ArticlesView(
             articles: filteredArticles,
             title: currentFeed.title,
+            subtitle: currentFeed.domain,
             feedKey: String(feed.id),
             isVideoFeed: feed.isVideoFeed,
             isPodcastFeed: feed.isPodcast,
