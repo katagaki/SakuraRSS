@@ -18,19 +18,14 @@ struct MainTabView: View {
     @AppStorage("Display.UnreadBadgeMode") private var unreadBadgeMode: UnreadBadgeMode = .none
     @Binding var pendingFeedURL: String?
     @Binding var pendingArticleID: Int64?
-    @Binding var isInSafeMode: Bool
-    @Binding var labsWereDisabled: Bool
     @State private var showingAddFeed = false
     @State private var showingOnboarding = false
-    @State private var showingSafeModeAlert = false
 
     var body: some View {
         if UIDevice.current.userInterfaceIdiom == .pad {
             IPadSidebarView(
                 pendingFeedURL: $pendingFeedURL,
-                pendingArticleID: $pendingArticleID,
-                isInSafeMode: $isInSafeMode,
-                labsWereDisabled: $labsWereDisabled
+                pendingArticleID: $pendingArticleID
             )
         } else {
             iPhoneTabView
@@ -91,17 +86,6 @@ struct MainTabView: View {
             if !onboardingCompleted {
                 showingOnboarding = true
             }
-            if isInSafeMode && labsWereDisabled {
-                showingSafeModeAlert = true
-            }
-        }
-        .alert(String(localized: "SafeMode.Title"), isPresented: $showingSafeModeAlert) {
-            Button(String(localized: "SafeMode.OK"), role: .cancel) {
-                isInSafeMode = false
-                labsWereDisabled = false
-            }
-        } message: {
-            Text("SafeMode.Message")
         }
     }
 }
