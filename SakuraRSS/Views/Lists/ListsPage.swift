@@ -79,13 +79,12 @@ struct ListsPage: View {
                 .presentationDetents([.medium, .large])
                 .interactiveDismissDisabled()
         }
-        .confirmationDialog(
+        .alert(
             String(localized: "ListMenu.Delete.Title"),
             isPresented: Binding(
                 get: { listToDelete != nil },
                 set: { if !$0 { listToDelete = nil } }
-            ),
-            titleVisibility: .visible
+            )
         ) {
             Button(String(localized: "ListMenu.Delete.Confirm"), role: .destructive) {
                 if let list = listToDelete {

@@ -981,16 +981,16 @@
     "AddFeed.Section.AddToList": {
       "extractionState": "manual",
       "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Add to List"
-          }
-        },
         "de": {
           "stringUnit": {
             "state": "translated",
             "value": "Zu Liste hinzufügen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add to List"
           }
         },
         "fr": {
@@ -1335,16 +1335,16 @@
     "AddToList.NewList": {
       "extractionState": "manual",
       "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "New List"
-          }
-        },
         "de": {
           "stringUnit": {
             "state": "translated",
             "value": "Neue Liste"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "New List"
           }
         },
         "fr": {
@@ -1394,16 +1394,16 @@
     "AddToList.NoLists": {
       "extractionState": "manual",
       "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "No lists yet. Create one to get started."
-          }
-        },
         "de": {
           "stringUnit": {
             "state": "translated",
             "value": "Noch keine Listen. Erstelle eine, um loszulegen."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No lists yet. Create one to get started."
           }
         },
         "fr": {
@@ -1453,16 +1453,16 @@
     "AddToList.Title": {
       "extractionState": "manual",
       "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Add to List"
-          }
-        },
         "de": {
           "stringUnit": {
             "state": "translated",
             "value": "Zu Liste hinzufügen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add to List"
           }
         },
         "fr": {
@@ -3924,6 +3924,124 @@
           "stringUnit": {
             "state": "translated",
             "value": "刪除所有已讀"
+          }
+        }
+      }
+    },
+    "Bookmarks.DeleteAllRead.Confirm": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Löschen"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Supprimer"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Elimina"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "削除"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "삭제"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Xóa"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "删除"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "刪除"
+          }
+        }
+      }
+    },
+    "Bookmarks.DeleteAllRead.Message": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Are you sure you want to delete all read bookmarks?"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Möchtest du alle gelesenen Lesezeichen löschen?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Voulez-vous vraiment supprimer tous les favoris lus ?"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vuoi davvero eliminare tutti i segnalibri letti?"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "既読のブックマークをすべて削除しますか？"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "읽은 북마크를 모두 삭제하시겠습니까?"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bạn có chắc muốn xóa tất cả đánh dấu đã đọc?"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "确定要删除所有已读收藏吗？"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "確定要刪除所有已讀書籤嗎？"
           }
         }
       }
@@ -7238,16 +7356,16 @@
     "FeedMenu.AddToList": {
       "extractionState": "manual",
       "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Add to..."
-          }
-        },
         "de": {
           "stringUnit": {
             "state": "translated",
             "value": "Hinzufügen zu …"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add to..."
           }
         },
         "fr": {
@@ -8949,22 +9067,16 @@
     "Instagram.HideReels": {
       "extractionState": "manual",
       "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Hide Reels"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "リールを非表示"
-          }
-        },
         "de": {
           "stringUnit": {
             "state": "translated",
             "value": "Reels ausblenden"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hide Reels"
           }
         },
         "fr": {
@@ -8977,6 +9089,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Nascondi i Reel"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "リールを非表示"
           }
         },
         "ko": {
@@ -9008,22 +9126,16 @@
     "Instagram.HideReels.Footer": {
       "extractionState": "manual",
       "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "When enabled, reels will be hidden from Instagram feeds."
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "有効にすると、Instagramフィードからリールが非表示になります。"
-          }
-        },
         "de": {
           "stringUnit": {
             "state": "translated",
             "value": "Wenn aktiviert, werden Reels aus Instagram-Feeds ausgeblendet."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "When enabled, reels will be hidden from Instagram feeds."
           }
         },
         "fr": {
@@ -9036,6 +9148,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Quando attivato, i Reel verranno nascosti dai feed di Instagram."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "有効にすると、Instagramフィードからリールが非表示になります。"
           }
         },
         "ko": {
@@ -10261,16 +10379,16 @@
     "ListDetail.Empty.Description": {
       "extractionState": "manual",
       "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Edit this list to add feeds."
-          }
-        },
         "de": {
           "stringUnit": {
             "state": "translated",
             "value": "Bearbeite diese Liste, um Feeds hinzuzufügen."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Edit this list to add feeds."
           }
         },
         "fr": {
@@ -10320,16 +10438,16 @@
     "ListDetail.Empty.Title": {
       "extractionState": "manual",
       "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "No Feeds"
-          }
-        },
         "de": {
           "stringUnit": {
             "state": "translated",
             "value": "Keine Feeds"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No Feeds"
           }
         },
         "fr": {
@@ -10379,16 +10497,16 @@
     "ListDetail.RemoveFeed": {
       "extractionState": "manual",
       "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Remove"
-          }
-        },
         "de": {
           "stringUnit": {
             "state": "translated",
             "value": "Entfernen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remove"
           }
         },
         "fr": {
@@ -10438,16 +10556,16 @@
     "ListEdit.DisplayStyle": {
       "extractionState": "manual",
       "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Display Style"
-          }
-        },
         "de": {
           "stringUnit": {
             "state": "translated",
             "value": "Anzeigestil"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Display Style"
           }
         },
         "fr": {
@@ -10497,16 +10615,16 @@
     "ListEdit.DisplayStyle.Default": {
       "extractionState": "manual",
       "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Default"
-          }
-        },
         "de": {
           "stringUnit": {
             "state": "translated",
             "value": "Standard"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Default"
           }
         },
         "fr": {
@@ -10556,13 +10674,13 @@
     "ListEdit.Feeds": {
       "extractionState": "manual",
       "localizations": {
-        "en": {
+        "de": {
           "stringUnit": {
             "state": "translated",
             "value": "Feeds"
           }
         },
-        "de": {
+        "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Feeds"
@@ -10615,16 +10733,16 @@
     "ListEdit.Feeds.Empty": {
       "extractionState": "manual",
       "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "No feeds to add. Follow some feeds first."
-          }
-        },
         "de": {
           "stringUnit": {
             "state": "translated",
             "value": "Keine Feeds zum Hinzufügen. Folge zuerst einigen Feeds."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No feeds to add. Follow some feeds first."
           }
         },
         "fr": {
@@ -10674,16 +10792,16 @@
     "ListEdit.Icon": {
       "extractionState": "manual",
       "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Icon"
-          }
-        },
         "de": {
           "stringUnit": {
             "state": "translated",
             "value": "Symbol"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Icon"
           }
         },
         "fr": {
@@ -10733,16 +10851,16 @@
     "ListEdit.NameExists": {
       "extractionState": "manual",
       "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "A list with this name already exists."
-          }
-        },
         "de": {
           "stringUnit": {
             "state": "translated",
             "value": "Eine Liste mit diesem Namen existiert bereits."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A list with this name already exists."
           }
         },
         "fr": {
@@ -10792,16 +10910,16 @@
     "ListEdit.NamePlaceholder": {
       "extractionState": "manual",
       "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "List Name"
-          }
-        },
         "de": {
           "stringUnit": {
             "state": "translated",
             "value": "Listenname"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "List Name"
           }
         },
         "fr": {
@@ -10851,16 +10969,16 @@
     "ListEdit.Title.Edit": {
       "extractionState": "manual",
       "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Edit List"
-          }
-        },
         "de": {
           "stringUnit": {
             "state": "translated",
             "value": "Liste bearbeiten"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Edit List"
           }
         },
         "fr": {
@@ -10910,16 +11028,16 @@
     "ListEdit.Title.New": {
       "extractionState": "manual",
       "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "New List"
-          }
-        },
         "de": {
           "stringUnit": {
             "state": "translated",
             "value": "Neue Liste"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "New List"
           }
         },
         "fr": {
@@ -10969,16 +11087,16 @@
     "ListMenu.Delete": {
       "extractionState": "manual",
       "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Delete"
-          }
-        },
         "de": {
           "stringUnit": {
             "state": "translated",
             "value": "Löschen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete"
           }
         },
         "fr": {
@@ -11028,16 +11146,16 @@
     "ListMenu.Delete.Confirm": {
       "extractionState": "manual",
       "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Delete"
-          }
-        },
         "de": {
           "stringUnit": {
             "state": "translated",
             "value": "Löschen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete"
           }
         },
         "fr": {
@@ -11087,16 +11205,16 @@
     "ListMenu.Delete.Message.%@": {
       "extractionState": "manual",
       "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Are you sure you want to delete \"%@\"? Feeds in this list will not be deleted."
-          }
-        },
         "de": {
           "stringUnit": {
             "state": "translated",
             "value": "Möchtest du \"%@\" wirklich löschen? Die Feeds in dieser Liste werden nicht gelöscht."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Are you sure you want to delete \"%@\"? Feeds in this list will not be deleted."
           }
         },
         "fr": {
@@ -11146,16 +11264,16 @@
     "ListMenu.Delete.Title": {
       "extractionState": "manual",
       "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Delete List?"
-          }
-        },
         "de": {
           "stringUnit": {
             "state": "translated",
             "value": "Liste löschen?"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete List?"
           }
         },
         "fr": {
@@ -11205,16 +11323,16 @@
     "ListMenu.Edit": {
       "extractionState": "manual",
       "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Edit"
-          }
-        },
         "de": {
           "stringUnit": {
             "state": "translated",
             "value": "Bearbeiten"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Edit"
           }
         },
         "fr": {
@@ -11264,16 +11382,16 @@
     "ListMenu.Rules": {
       "extractionState": "manual",
       "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Rules"
-          }
-        },
         "de": {
           "stringUnit": {
             "state": "translated",
             "value": "Regeln"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rules"
           }
         },
         "fr": {
@@ -11323,16 +11441,16 @@
     "ListRules.AllowedKeywords.Footer": {
       "extractionState": "manual",
       "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Only articles matching these keywords will appear in this list. Applied after per-feed rules."
-          }
-        },
         "de": {
           "stringUnit": {
             "state": "translated",
             "value": "Nur Artikel mit diesen Schlüsselwörtern werden in dieser Liste angezeigt. Wird nach den Feed-Regeln angewendet."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Only articles matching these keywords will appear in this list. Applied after per-feed rules."
           }
         },
         "fr": {
@@ -11382,16 +11500,16 @@
     "ListRules.MutedAuthors.Footer": {
       "extractionState": "manual",
       "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Articles by these authors will be hidden in this list. Applied after per-feed rules."
-          }
-        },
         "de": {
           "stringUnit": {
             "state": "translated",
             "value": "Artikel dieser Autoren werden in dieser Liste ausgeblendet. Wird nach den Feed-Regeln angewendet."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Articles by these authors will be hidden in this list. Applied after per-feed rules."
           }
         },
         "fr": {
@@ -11441,16 +11559,16 @@
     "ListRules.MutedKeywords.Footer": {
       "extractionState": "manual",
       "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Articles matching these keywords will be hidden in this list. Applied after per-feed rules."
-          }
-        },
         "de": {
           "stringUnit": {
             "state": "translated",
             "value": "Artikel mit diesen Schlüsselwörtern werden in dieser Liste ausgeblendet. Wird nach den Feed-Regeln angewendet."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Articles matching these keywords will be hidden in this list. Applied after per-feed rules."
           }
         },
         "fr": {
@@ -11500,16 +11618,16 @@
     "ListRules.Title": {
       "extractionState": "manual",
       "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "List Rules"
-          }
-        },
         "de": {
           "stringUnit": {
             "state": "translated",
             "value": "Listenregeln"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "List Rules"
           }
         },
         "fr": {
@@ -11559,16 +11677,16 @@
     "Lists.Empty.CreateList": {
       "extractionState": "manual",
       "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Create List"
-          }
-        },
         "de": {
           "stringUnit": {
             "state": "translated",
             "value": "Liste erstellen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Create List"
           }
         },
         "fr": {
@@ -11618,16 +11736,16 @@
     "Lists.Empty.Description": {
       "extractionState": "manual",
       "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Create a list to group your feeds together."
-          }
-        },
         "de": {
           "stringUnit": {
             "state": "translated",
             "value": "Erstelle eine Liste, um deine Feeds zu gruppieren."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Create a list to group your feeds together."
           }
         },
         "fr": {
@@ -11677,16 +11795,16 @@
     "Lists.Empty.Title": {
       "extractionState": "manual",
       "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "No Lists"
-          }
-        },
         "de": {
           "stringUnit": {
             "state": "translated",
             "value": "Keine Listen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No Lists"
           }
         },
         "fr": {
@@ -11736,24 +11854,6 @@
     "Lists.FeedCount %lld": {
       "extractionState": "manual",
       "localizations": {
-        "en": {
-          "variations": {
-            "plural": {
-              "one": {
-                "stringUnit": {
-                  "state": "translated",
-                  "value": "%lld feed"
-                }
-              },
-              "other": {
-                "stringUnit": {
-                  "state": "translated",
-                  "value": "%lld feeds"
-                }
-              }
-            }
-          }
-        },
         "de": {
           "variations": {
             "plural": {
@@ -11767,6 +11867,24 @@
                 "stringUnit": {
                   "state": "translated",
                   "value": "%lld Feeds"
+                }
+              }
+            }
+          }
+        },
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld feed"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld feeds"
                 }
               }
             }
@@ -11903,16 +12021,16 @@
     "Lists.Title": {
       "extractionState": "manual",
       "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Lists"
-          }
-        },
         "de": {
           "stringUnit": {
             "state": "translated",
             "value": "Listen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lists"
           }
         },
         "fr": {
@@ -11962,16 +12080,16 @@
     "ListWidget.ChangePage": {
       "extractionState": "manual",
       "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Change Page"
-          }
-        },
         "de": {
           "stringUnit": {
             "state": "translated",
             "value": "Seite wechseln"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Change Page"
           }
         },
         "fr": {
@@ -12021,16 +12139,16 @@
     "ListWidget.Description": {
       "extractionState": "manual",
       "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Shows articles from a list."
-          }
-        },
         "de": {
           "stringUnit": {
             "state": "translated",
             "value": "Zeigt Artikel aus einer Liste."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Shows articles from a list."
           }
         },
         "fr": {
@@ -12080,16 +12198,16 @@
     "ListWidget.DisplayName": {
       "extractionState": "manual",
       "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "List"
-          }
-        },
         "de": {
           "stringUnit": {
             "state": "translated",
             "value": "Liste"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "List"
           }
         },
         "fr": {
@@ -12139,16 +12257,16 @@
     "ListWidget.IntentDescription": {
       "extractionState": "manual",
       "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Shows articles from a selected list."
-          }
-        },
         "de": {
           "stringUnit": {
             "state": "translated",
             "value": "Zeigt Artikel aus einer ausgewählten Liste."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Shows articles from a selected list."
           }
         },
         "fr": {
@@ -12198,16 +12316,16 @@
     "ListWidget.IntentTitle": {
       "extractionState": "manual",
       "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "List Feed"
-          }
-        },
         "de": {
           "stringUnit": {
             "state": "translated",
             "value": "Listenfeed"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "List Feed"
           }
         },
         "fr": {
@@ -12257,16 +12375,16 @@
     "ListWidget.List": {
       "extractionState": "manual",
       "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "List"
-          }
-        },
         "de": {
           "stringUnit": {
             "state": "translated",
             "value": "Liste"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "List"
           }
         },
         "fr": {
@@ -12316,16 +12434,16 @@
     "ListWidget.Parameter.List": {
       "extractionState": "manual",
       "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "List"
-          }
-        },
         "de": {
           "stringUnit": {
             "state": "translated",
             "value": "Liste"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "List"
           }
         },
         "fr": {
@@ -17806,22 +17924,16 @@
     "Sidebar.Following": {
       "extractionState": "manual",
       "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Following"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "フォロー中"
-          }
-        },
         "de": {
           "stringUnit": {
             "state": "translated",
             "value": "Abonniert"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Following"
           }
         },
         "fr": {
@@ -17834,6 +17946,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Seguiti"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "フォロー中"
           }
         },
         "ko": {
@@ -17865,22 +17983,16 @@
     "Sidebar.SelectArticle": {
       "extractionState": "manual",
       "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "No Article Selected"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "記事が選択されていません"
-          }
-        },
         "de": {
           "stringUnit": {
             "state": "translated",
             "value": "Kein Artikel ausgewählt"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No Article Selected"
           }
         },
         "fr": {
@@ -17893,6 +18005,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Nessun articolo selezionato"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "記事が選択されていません"
           }
         },
         "ko": {
@@ -17924,22 +18042,16 @@
     "Sidebar.SelectArticle.Description": {
       "extractionState": "manual",
       "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Select an article to read it here."
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "記事を選択して、ここで読みましょう。"
-          }
-        },
         "de": {
           "stringUnit": {
             "state": "translated",
             "value": "Wähle einen Artikel aus, um ihn hier zu lesen."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Select an article to read it here."
           }
         },
         "fr": {
@@ -17952,6 +18064,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Seleziona un articolo per leggerlo qui."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "記事を選択して、ここで読みましょう。"
           }
         },
         "ko": {
@@ -17983,22 +18101,16 @@
     "Sidebar.SelectSection": {
       "extractionState": "manual",
       "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Select a Section"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "セクションを選択"
-          }
-        },
         "de": {
           "stringUnit": {
             "state": "translated",
             "value": "Bereich auswählen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Select a Section"
           }
         },
         "fr": {
@@ -18011,6 +18123,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Seleziona una sezione"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "セクションを選択"
           }
         },
         "ko": {
@@ -20047,16 +20165,16 @@
     "Tabs.Lists": {
       "extractionState": "manual",
       "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Lists"
-          }
-        },
         "de": {
           "stringUnit": {
             "state": "translated",
             "value": "Listen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lists"
           }
         },
         "fr": {

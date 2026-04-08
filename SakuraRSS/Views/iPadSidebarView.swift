@@ -503,6 +503,7 @@ private struct IPadBookmarksListView: View {
     @Environment(FeedManager.self) var feedManager
     @State private var bookmarkedArticles: [Article] = []
     @State private var displayStyle: FeedDisplayStyle
+    @State private var showingDeleteReadAlert = false
 
     private var hasImages: Bool {
         bookmarkedArticles.contains { $0.imageURL != nil }
@@ -539,6 +540,14 @@ private struct IPadBookmarksListView: View {
         .toolbar {
             if !bookmarkedArticles.isEmpty {
                 ToolbarItemGroup(placement: .topBarTrailing) {
+                    Button {
+                        showingDeleteReadAlert = true
+                    } label: {
+                        Image(systemName: "bookmark.slash")
+                    }
+                }
+                ToolbarSpacer(.fixed, placement: .topBarTrailing)
+                ToolbarItemGroup(placement: .topBarTrailing) {
                     Menu {
                         DisplayStylePicker(
                             displayStyle: $displayStyle,
@@ -550,26 +559,25 @@ private struct IPadBookmarksListView: View {
                     }
                     .menuActionDismissBehavior(.disabled)
                 }
-                ToolbarSpacer(.fixed, placement: .topBarTrailing)
-                ToolbarItemGroup(placement: .topBarTrailing) {
-                    Menu {
-                        Button(role: .destructive) {
-                            try? DatabaseManager.shared.removeReadBookmarks()
-                            bookmarkedArticles = (try? DatabaseManager.shared.bookmarkedArticles()) ?? []
-                        } label: {
-                            Label(String(localized: "Bookmarks.DeleteAllRead"),
-                                  systemImage: "bookmark.slash")
-                        }
-                    } label: {
-                        Image(systemName: "ellipsis")
-                    }
-                }
             }
         }
         .animation(.smooth.speed(2.0), value: displayStyle)
         .animation(.smooth.speed(2.0), value: bookmarkedArticles)
         .onChange(of: displayStyle) { _, newValue in
             UserDefaults.standard.set(newValue.rawValue, forKey: "Display.DefaultBookmarksStyle")
+        }
+        .confirmationDialog(
+            String(localized: "Bookmarks.DeleteAllRead"),
+            isPresented: $showingDeleteReadAlert,
+            titleVisibility: .visible
+        ) {
+            Button(String(localized: "Bookmarks.DeleteAllRead.Confirm"), role: .destructive) {
+                try? DatabaseManager.shared.removeReadBookmarks()
+                bookmarkedArticles = (try? DatabaseManager.shared.bookmarkedArticles()) ?? []
+            }
+            Button(String(localized: "Shared.Cancel"), role: .cancel) { }
+        } message: {
+            Text("Bookmarks.DeleteAllRead.Message")
         }
         .onAppear {
             bookmarkedArticles = (try? DatabaseManager.shared.bookmarkedArticles()) ?? []
