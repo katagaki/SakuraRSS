@@ -26,7 +26,7 @@ nonisolated final class DatabaseManager: @unchecked Sendable {
     let imageCache = Table("image_cache")
     let imageCacheURL = SQLite.Expression<String>("url")
     let imageCacheData = SQLite.Expression<Data>("data")
-    let imageCachedAt = SQLite.Expression<Date>("cached_at")
+    let imageCachedAt = SQLite.Expression<Double>("cached_at")
 
     let articles = Table("articles")
     let articleID = SQLite.Expression<Int64>("id")
