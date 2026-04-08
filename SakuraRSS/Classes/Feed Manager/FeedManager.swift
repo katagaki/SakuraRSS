@@ -155,8 +155,10 @@ final class FeedManager {
         _ = try? await Task.detached {
             if let date {
                 try database.deleteArticles(olderThan: date)
+                try database.clearImageCache(olderThan: date)
             } else {
                 try database.deleteAllArticlesOnly()
+                try database.clearImageCache()
             }
             try database.vacuum()
         }.value
