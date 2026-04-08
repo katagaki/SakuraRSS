@@ -129,7 +129,9 @@ extension InstagramProfileScraper {
             publishedDate = Date(timeIntervalSince1970: timestamp)
         }
 
-        let postURL = "https://www.instagram.com/p/\(shortcode)/"
+        let isVideo = node["is_video"] as? Bool ?? false
+        let pathSegment = isVideo ? "reel" : "p"
+        let postURL = "https://www.instagram.com/\(pathSegment)/\(shortcode)/"
         let authorName = displayName ?? username
 
         return ParsedInstagramPost(
@@ -192,9 +194,12 @@ extension InstagramProfileScraper {
             publishedDate = Date(timeIntervalSince1970: timestamp)
         }
 
+        let isReel = (item["media_type"] as? Int) == 2
+            || (item["product_type"] as? String) == "clips"
+        let pathSegment = isReel ? "reel" : "p"
         let postURL = code.isEmpty
-            ? "https://www.instagram.com/p/\(id)/"
-            : "https://www.instagram.com/p/\(code)/"
+            ? "https://www.instagram.com/\(pathSegment)/\(id)/"
+            : "https://www.instagram.com/\(pathSegment)/\(code)/"
         let authorName = displayName ?? username
 
         return ParsedInstagramPost(

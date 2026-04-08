@@ -38,6 +38,7 @@ struct PhotosArticleCard: View {
     @State private var acronymIcon: UIImage?
     @State private var skipFaviconInset = false
     @State private var photoImage: UIImage?
+    @State private var imageAspectRatio: CGFloat?
     @State private var feed: Feed?
     @State private var currentPage: Int = 0
 
@@ -123,6 +124,7 @@ struct PhotosArticleCard: View {
             if article.carouselImageURLs.count > 1 {
                 let urls = article.carouselImageURLs.compactMap { URL(string: $0) }
                 if !urls.isEmpty {
+                    let effectiveRatio = max(imageAspectRatio ?? 4.0/5.0, 4.0/5.0)
                     TabView(selection: $currentPage) {
                         ForEach(Array(urls.enumerated()), id: \.offset) { index, url in
                             CachedAsyncImage(url: url) {
@@ -136,7 +138,7 @@ struct PhotosArticleCard: View {
                         }
                     }
                     .tabViewStyle(.page(indexDisplayMode: .never))
-                    .aspectRatio(4/3, contentMode: .fit)
+                    .aspectRatio(effectiveRatio, contentMode: .fit)
                     .frame(maxWidth: .infinity)
                     .clipped()
                     .overlay(alignment: .bottom) {
@@ -144,34 +146,60 @@ struct PhotosArticleCard: View {
                             .padding(.bottom, 8)
                     }
                     .task {
-                        photoImage = await CachedAsyncImage<EmptyView>.loadImage(from: urls[0])
+                        let loaded = await CachedAsyncImage<EmptyView>.loadImage(from: urls[0])
+                        photoImage = loaded
+                        if let loaded, loaded.size.height > 0 {
+                            imageAspectRatio = loaded.size.width / loaded.size.height
+                        }
                     }
                     .padding(.bottom, 10)
                 }
             } else if let imageURL = article.imageURL, let url = URL(string: imageURL) {
+                let effectiveRatio = max(imageAspectRatio ?? 4.0/5.0, 4.0/5.0)
                 CachedAsyncImage(url: url) {
                     Rectangle()
                         .fill(.secondary.opacity(0.1))
-                        .aspectRatio(4/3, contentMode: .fit)
+                        .aspectRatio(4.0/5.0, contentMode: .fit)
                 }
-                .aspectRatio(4/3, contentMode: .fit)
+                .aspectRatio(effectiveRatio, contentMode: .fit)
                 .frame(maxWidth: .infinity)
                 .clipped()
                 .allowsHitTesting(false)
+                .overlay {
+                    if article.url.contains("/reel/") {
+                        ArticleLink(article: article, onShowYouTubePlayer: {
+                            youTubeArticle = $0
+                        }, label: {
+                            Image(systemName: "play.fill")
+                                .font(.title)
+                                .foregroundStyle(.primary)
+                                .padding(16)
+                                .background(.ultraThinMaterial, in: .circle)
+                                .glassEffect(.regular.interactive(), in: .circle)
+                        })
+                        .buttonStyle(.plain)
+                    }
+                }
                 .task {
-                    photoImage = await CachedAsyncImage<EmptyView>.loadImage(from: url)
+                    let loaded = await CachedAsyncImage<EmptyView>.loadImage(from: url)
+                    photoImage = loaded
+                    if let loaded, loaded.size.height > 0 {
+                        imageAspectRatio = loaded.size.width / loaded.size.height
+                    }
                 }
                 .padding(.bottom, 10)
             }
 
-            // Article title (tapping opens the article)
+            // Article caption / title (tapping opens the article)
             ArticleLink(article: article, onShowYouTubePlayer: {
                 youTubeArticle = $0
             }, label: {
-                Text(article.title)
+                let isPhotoFeed = feed?.isInstagramFeed == true || feed?.isPhotoViewDomain == true
+                let captionText = isPhotoFeed ? (article.summary ?? article.title) : article.title
+                Text(captionText)
                     .font(.subheadline)
                     .foregroundStyle(.primary)
-                    .lineLimit(3)
+                    .lineLimit(isPhotoFeed ? nil : 3)
                     .multilineTextAlignment(.leading)
                     .padding(.horizontal, 12)
                     .padding(.bottom, 10)

@@ -49,6 +49,7 @@ struct AllArticlesView: View {
     @AppStorage("Display.MarkAllReadPosition") private var markAllReadPosition: MarkAllReadPosition = .bottom
     @AppStorage("WhileYouSlept.DismissedDate") private var whileYouSleptDismissedDate: String = ""
     @AppStorage("TodaysSummary.DismissedDate") private var todaysSummaryDismissedDate: String = ""
+    @AppStorage("Instagram.HideReels") private var hideInstagramReels: Bool = false
     @State private var whileYouSleptAvailable = false
     @State private var todaysSummaryAvailable = false
 
@@ -64,11 +65,16 @@ struct AllArticlesView: View {
     }
 
     private var displayedArticles: [Article] {
+        var articles: [Article]
         if showingOlderArticles {
-            return feedManager.todayArticles() + feedManager.olderArticles()
+            articles = feedManager.todayArticles() + feedManager.olderArticles()
         } else {
-            return feedManager.todayArticles()
+            articles = feedManager.todayArticles()
         }
+        if hideInstagramReels {
+            articles = articles.filter { !$0.url.contains("/reel/") }
+        }
+        return articles
     }
 
     var body: some View {

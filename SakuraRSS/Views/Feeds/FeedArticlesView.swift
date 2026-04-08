@@ -9,6 +9,7 @@ struct FeedArticlesView: View {
 
     @State private var displayLimit: Int = FeedArticlesView.pageSize
     @AppStorage("Display.MarkAllReadPosition") private var markAllReadPosition: MarkAllReadPosition = .bottom
+    @AppStorage("Instagram.HideReels") private var hideReels: Bool = false
 
     private var currentFeed: Feed {
         feedManager.feeds.first(where: { $0.id == feed.id }) ?? feed
@@ -18,9 +19,17 @@ struct FeedArticlesView: View {
         feedManager.articleCount(for: feed) > displayLimit
     }
 
+    private var filteredArticles: [Article] {
+        var articles = feedManager.articles(for: feed, limit: displayLimit)
+        if hideReels && feed.isInstagramFeed {
+            articles = articles.filter { !$0.url.contains("/reel/") }
+        }
+        return articles
+    }
+
     var body: some View {
         ArticlesView(
-            articles: feedManager.articles(for: feed, limit: displayLimit),
+            articles: filteredArticles,
             title: currentFeed.title,
             feedKey: String(feed.id),
             isVideoFeed: feed.isVideoFeed,

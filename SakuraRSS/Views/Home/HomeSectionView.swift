@@ -8,13 +8,19 @@ struct HomeSectionView: View {
 
     @State private var showingOlderArticles = false
     @AppStorage("Display.MarkAllReadPosition") private var markAllReadPosition: MarkAllReadPosition = .bottom
+    @AppStorage("Instagram.HideReels") private var hideInstagramReels: Bool = false
 
     private var displayedArticles: [Article] {
+        var articles: [Article]
         if showingOlderArticles {
-            return feedManager.todayArticles(for: section) + feedManager.olderArticles(for: section)
+            articles = feedManager.todayArticles(for: section) + feedManager.olderArticles(for: section)
         } else {
-            return feedManager.todayArticles(for: section)
+            articles = feedManager.todayArticles(for: section)
         }
+        if hideInstagramReels {
+            articles = articles.filter { !$0.url.contains("/reel/") }
+        }
+        return articles
     }
 
     var body: some View {

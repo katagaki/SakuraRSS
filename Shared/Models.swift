@@ -44,8 +44,12 @@ nonisolated struct Feed: Identifiable, Hashable, Sendable {
         return host == "reddit.com" || host.hasSuffix(".reddit.com")
     }
 
+    var isPhotoViewDomain: Bool {
+        PhotoViewDomains.shouldPreferPhotoView(feedDomain: domain)
+    }
+
     var isSocialFeed: Bool {
-        isXFeed || isInstagramFeed || isRedditFeed || isFeedViewDomain
+        isXFeed || isInstagramFeed || isRedditFeed || isFeedViewDomain || isPhotoViewDomain
     }
 
     /// The feed category section for grouped display.

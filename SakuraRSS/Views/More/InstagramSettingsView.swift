@@ -3,6 +3,7 @@ import SwiftUI
 struct InstagramSettingsView: View {
 
     @AppStorage("Labs.InstagramProfileFeeds") private var instagramProfileFeedsEnabled: Bool = false
+    @AppStorage("Instagram.HideReels") private var hideReels: Bool = false
 
     @State private var isInstagramSignedIn = false
     @State private var showInstagramLogin = false
@@ -29,6 +30,14 @@ struct InstagramSettingsView: View {
                 }
             } footer: {
                 Text("Labs.InstagramProfileFeeds.Footer")
+            }
+
+            if instagramProfileFeedsEnabled {
+                Section {
+                    Toggle(String(localized: "Instagram.HideReels"), isOn: $hideReels)
+                } footer: {
+                    Text("Instagram.HideReels.Footer")
+                }
             }
         }
         .animation(.smooth.speed(2.0), value: instagramProfileFeedsEnabled)

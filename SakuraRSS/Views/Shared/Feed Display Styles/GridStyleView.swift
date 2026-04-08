@@ -81,5 +81,20 @@ struct GridArticleCell: View {
         }
         .aspectRatio(1, contentMode: .fit)
         .contentShape(.rect)
+        .overlay(alignment: .topTrailing) {
+            if article.carouselImageURLs.count > 1 {
+                Image(systemName: "square.on.square.fill")
+                    .font(.caption)
+                    .foregroundStyle(.white)
+                    .shadow(radius: 2)
+                    .padding(6)
+            } else if article.url.contains("/reel/") {
+                Image(systemName: "play.fill")
+                    .font(.caption)
+                    .foregroundStyle(.white)
+                    .shadow(radius: 2)
+                    .padding(6)
+            }
+        }
     }
 }

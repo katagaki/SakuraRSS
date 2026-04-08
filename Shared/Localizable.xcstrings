@@ -8707,6 +8707,40 @@
         }
       }
     },
+    "Instagram.HideReels" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hide Reels"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "リールを非表示"
+          }
+        }
+      }
+    },
+    "Instagram.HideReels.Footer" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "When enabled, reels will be hidden from Instagram feeds."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "有効にすると、Instagramフィードからリールが非表示になります。"
+          }
+        }
+      }
+    },
     "Integrations.X" : {
       "extractionState" : "manual",
       "localizations" : {
