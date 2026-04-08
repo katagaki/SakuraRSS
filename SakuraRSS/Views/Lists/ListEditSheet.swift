@@ -192,7 +192,7 @@ struct FeedIconView: View {
     }
 
     private var isCircle: Bool {
-        feed.isXFeed || feed.isInstagramFeed || (feed.isVideoFeed && !feed.isPodcast)
+        feed.isCircleIcon
     }
 
     var body: some View {

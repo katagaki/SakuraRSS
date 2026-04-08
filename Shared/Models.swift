@@ -44,6 +44,10 @@ nonisolated struct Feed: Identifiable, Hashable, Sendable {
         return host == "reddit.com" || host.hasSuffix(".reddit.com")
     }
 
+    var isCircleIcon: Bool {
+        CircleIconDomains.shouldUseCircleIcon(feedDomain: domain)
+    }
+
     var isPhotoViewDomain: Bool {
         PhotoViewDomains.shouldPreferPhotoView(feedDomain: domain)
     }
