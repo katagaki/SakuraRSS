@@ -79,7 +79,7 @@ struct ListEditSheet: View {
                         ForEach(FeedDisplayStyle.allCases.filter {
                             $0 != .video && $0 != .podcast
                         }, id: \.self) { style in
-                            Text(style.rawValue.capitalized)
+                            Text(style.localizedName)
                                 .tag(style.rawValue as String?)
                         }
                     }
