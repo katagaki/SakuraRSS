@@ -11,7 +11,10 @@ struct HomeView: View {
     @State private var path = NavigationPath()
     @State private var hasRestored = false
     @State private var showYouTubeSafari = false
+    @AppStorage("Display.MarkAllReadPosition") private var markAllReadPosition: MarkAllReadPosition = .bottom
+    @AppStorage("Home.SelectedSection") private var selectedSelection: HomeSelection = .section(.feed)
     @State private var showingMore = false
+    @State private var isShowingMarkAllReadConfirmation = false
     @State private var pendingYouTubeSafariURL: URL?
     @Namespace private var cardZoom
     @Namespace private var moreNamespace
@@ -21,6 +24,7 @@ struct HomeView: View {
             AllArticlesView()
                 .environment(\.zoomNamespace, cardZoom)
                 .environment(\.navigateToFeed, { feed in path.append(feed) })
+                .environment(\.hidesMarkAllReadToolbar, true)
                 .toolbar {
                     ToolbarItemGroup(placement: .topBarLeading) {
                         Button {
@@ -29,6 +33,33 @@ struct HomeView: View {
                             Image(systemName: "ellipsis")
                         }
                         .matchedTransitionSource(id: "more", in: moreNamespace)
+                    }
+                    if markAllReadPosition == .top {
+                        ToolbarItemGroup(placement: .topBarLeading) {
+                            Button {
+                                isShowingMarkAllReadConfirmation = true
+                            } label: {
+                                Image(systemName: "envelope.open")
+                                    .font(.system(size: 14.0))
+                            }
+                            .popover(isPresented: $isShowingMarkAllReadConfirmation) {
+                                VStack(spacing: 12) {
+                                    Text("Articles.MarkAllRead.Confirm")
+                                        .font(.body)
+                                    Button {
+                                        performMarkAllRead()
+                                        isShowingMarkAllReadConfirmation = false
+                                    } label: {
+                                        Text("Articles.MarkAllRead")
+                                            .frame(maxWidth: .infinity)
+                                            .padding(.vertical, 6)
+                                    }
+                                    .buttonStyle(.bordered)
+                                }
+                                .padding(20)
+                                .presentationCompactAdaptation(.popover)
+                            }
+                        }
                     }
                 }
                 .navigationDestination(for: Feed.self) { feed in
@@ -113,6 +144,21 @@ struct HomeView: View {
                 .presentationDetents([.medium, .large])
                 .presentationContentInteraction(.scrolls)
                 .interactiveDismissDisabled()
+        }
+    }
+
+    private func performMarkAllRead() {
+        switch selectedSelection {
+        case .section(let section):
+            if let feedSection = section.feedSection {
+                feedManager.markAllRead(for: feedSection)
+            } else {
+                feedManager.markAllRead()
+            }
+        case .list(let id):
+            if let list = feedManager.lists.first(where: { $0.id == id }) {
+                feedManager.markAllRead(for: list)
+            }
         }
     }
 
