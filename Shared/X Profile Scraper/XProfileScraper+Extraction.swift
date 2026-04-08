@@ -130,11 +130,13 @@ extension XProfileScraper {
         let authorName = userCore?["name"] as? String ?? ""
         let authorHandle = userCore?["screen_name"] as? String ?? ""
 
-        // First media image
+        // Media images — extract all photos for carousel support
         let extendedEntities = legacy["extended_entities"] as? [String: Any]
         let media = extendedEntities?["media"] as? [[String: Any]]
-        let firstImage = media?.first(where: { ($0["type"] as? String) == "photo" })
-        let imageURL = firstImage?["media_url_https"] as? String
+        let photoURLs = media?
+            .filter { ($0["type"] as? String) == "photo" }
+            .compactMap { $0["media_url_https"] as? String } ?? []
+        let imageURL = photoURLs.first
 
         let publishedDate = dateFormatter.date(from: createdAt)
         let tweetURL = "https://x.com/\(authorHandle)/status/\(idStr)"
@@ -165,6 +167,7 @@ extension XProfileScraper {
             authorHandle: authorHandle,
             url: tweetURL,
             imageURL: imageURL,
+            carouselImageURLs: photoURLs.count > 1 ? photoURLs : [],
             publishedDate: publishedDate
         )
     }

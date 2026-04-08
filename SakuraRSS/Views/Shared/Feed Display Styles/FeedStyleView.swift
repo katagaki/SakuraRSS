@@ -165,14 +165,38 @@ struct FeedArticleRow: View {
                 .lineLimit(feed?.isXFeed == true || feed?.isInstagramFeed == true ? nil : 3)
                 .truncationMode(.tail)
 
-                if let imageURL = article.imageURL, let url = URL(string: imageURL) {
-                    CachedAsyncImage(url: url, alignment: .top, onImageLoaded: { image in
+                if article.carouselImageURLs.count > 1 {
+                    // Multiple images — horizontal scroll at fixed height
+                    let urls = article.carouselImageURLs.compactMap { URL(string: $0) }
+                    if !urls.isEmpty {
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(spacing: 8) {
+                                ForEach(Array(urls.enumerated()), id: \.offset) { _, url in
+                                    CachedAsyncImage(url: url) {
+                                        Color.secondary.opacity(0.1)
+                                            .frame(width: 240)
+                                    }
+                                    .frame(height: 300)
+                                    .clipShape(.rect(cornerRadius: 12))
+                                    .overlay {
+                                        RoundedRectangle(cornerRadius: 12)
+                                            .stroke(.quaternary, lineWidth: 0.5)
+                                    }
+                                }
+                            }
+                        }
+                        .contentMargins(.horizontal, 0)
+                        .padding(.top, 4)
+                    }
+                } else if let imageURL = article.imageURL, let url = URL(string: imageURL) {
+                    CachedAsyncImage(url: url, alignment: imageAspectRatio ?? 0 > 1 ? .leading : .top,
+                                     onImageLoaded: { image in
                         imageAspectRatio = image.size.height / image.size.width
                     }, placeholder: {
                         Color.secondary.opacity(0.1)
                             .frame(height: imageHeight)
                     })
-                    .frame(maxWidth: .infinity)
+                    .frame(maxWidth: imageAspectRatio ?? 0 > 1 ? nil : .infinity)
                     .frame(height: imageHeight)
                     .clipShape(.rect(cornerRadius: 12))
                     .overlay {
