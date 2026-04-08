@@ -13,6 +13,7 @@ struct AddFeedView: View {
     @State private var isSearching = false
     @State private var errorMessage: String?
     @State private var addedURLs: Set<String> = []
+    @State private var listMembership: [Int64: Set<Int64>] = [:]
     @State private var showXLogin = false
     @State private var pendingXFeed: DiscoveredFeed?
     @State private var showInstagramLogin = false
@@ -143,6 +144,35 @@ struct AddFeedView: View {
                         }
                     } header: {
                         Text("AddFeed.Section.Discovered")
+                    }
+                }
+
+                if !addedURLs.isEmpty && !feedManager.lists.isEmpty {
+                    Section {
+                        ForEach(feedManager.lists) { list in
+                            let addedFeedIDs = addedFeedIDsSet
+                            Button {
+                                toggleListForAddedFeeds(list: list)
+                            } label: {
+                                HStack(spacing: 12) {
+                                    Image(systemName: list.icon)
+                                        .foregroundStyle(.accent)
+                                        .frame(width: 24)
+                                    Text(list.name)
+                                        .foregroundStyle(.primary)
+                                    Spacer()
+                                    if addedFeedIDs.allSatisfy({
+                                        listMembership[list.id]?.contains($0) == true
+                                    }) {
+                                        Image(systemName: "checkmark")
+                                            .foregroundStyle(.accent)
+                                    }
+                                }
+                            }
+                            .buttonStyle(.plain)
+                        }
+                    } header: {
+                        Text("AddFeed.Section.AddToList")
                     }
                 }
             }
@@ -326,14 +356,20 @@ struct AddFeedView: View {
         }
     }
 
-    private func normalizeURL(_ input: String) -> String {
+}
+
+// MARK: - Helpers
+
+extension AddFeedView {
+
+    func normalizeURL(_ input: String) -> String {
         if input.hasPrefix("http://") || input.hasPrefix("https://") {
             return input
         }
         return "https://" + input
     }
 
-    private func extractDomain(from input: String) -> String {
+    func extractDomain(from input: String) -> String {
         var cleaned = input
             .replacingOccurrences(of: "https://", with: "")
             .replacingOccurrences(of: "http://", with: "")
@@ -343,8 +379,7 @@ struct AddFeedView: View {
         return cleaned
     }
 
-    /// Shows the site URL for X/Instagram feeds instead of the internal scheme.
-    private func displayURL(for feed: DiscoveredFeed) -> String {
+    func displayURL(for feed: DiscoveredFeed) -> String {
         if XProfileScraper.isXFeedURL(feed.url)
             || InstagramProfileScraper.isInstagramFeedURL(feed.url) {
             return feed.siteURL
@@ -352,7 +387,7 @@ struct AddFeedView: View {
         return feed.url
     }
 
-    private func addSuggestedFeed(_ site: SuggestedSite) {
+    func addSuggestedFeed(_ site: SuggestedSite) {
         do {
             try feedManager.addFeed(
                 url: site.feedUrl,
@@ -366,7 +401,7 @@ struct AddFeedView: View {
         }
     }
 
-    private func localizedTopicTitle(_ title: String) -> String {
+    func localizedTopicTitle(_ title: String) -> String {
         switch title {
         case "Headlines": String(localized: "SuggestedFeeds.Topic.Headlines")
         case "Technology": String(localized: "SuggestedFeeds.Topic.Technology")
@@ -377,6 +412,32 @@ struct AddFeedView: View {
         case "Politics": String(localized: "SuggestedFeeds.Topic.Politics")
         case "Weather": String(localized: "SuggestedFeeds.Topic.Weather")
         default: title
+        }
+    }
+
+    var addedFeedIDsSet: Set<Int64> {
+        Set(addedURLs.compactMap { url in
+            feedManager.feeds.first(where: { $0.url == url })?.id
+        })
+    }
+
+    func toggleListForAddedFeeds(list: FeedList) {
+        let feedIDs = addedFeedIDsSet
+        let current = listMembership[list.id] ?? []
+        if feedIDs.allSatisfy({ current.contains($0) }) {
+            for fid in feedIDs {
+                if let feed = feedManager.feedsByID[fid] {
+                    feedManager.removeFeedFromList(list, feed: feed)
+                }
+            }
+            listMembership[list.id] = current.subtracting(feedIDs)
+        } else {
+            for fid in feedIDs {
+                if let feed = feedManager.feedsByID[fid] {
+                    feedManager.addFeedToList(list, feed: feed)
+                }
+            }
+            listMembership[list.id] = current.union(feedIDs)
         }
     }
 }

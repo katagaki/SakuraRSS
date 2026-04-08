@@ -4,6 +4,7 @@ enum SidebarDestination: Hashable {
     case allArticles
     case section(FeedSection)
     case bookmarks
+    case list(FeedList)
     case feed(Feed)
     case more
 }
@@ -20,6 +21,7 @@ struct IPadSidebarView: View {
     @State private var selectedArticle: Article?
     @State private var columnVisibility: NavigationSplitViewVisibility = .all
     @State private var showingAddFeed = false
+    @State private var showingNewList = false
     @State private var showingMore = false
     @State private var lastAddedFeedURL: String?
     @State private var showingOnboarding = false
@@ -40,6 +42,11 @@ struct IPadSidebarView: View {
     @State private var feedToDelete: Feed?
     @State private var feedForRules: Feed?
 
+    // List management state
+    @State private var listToEdit: FeedList?
+    @State private var listForRules: FeedList?
+    @State private var listToDelete: FeedList?
+
     var body: some View {
         NavigationSplitView(columnVisibility: $columnVisibility) {
             sidebarContent
@@ -57,6 +64,8 @@ struct IPadSidebarView: View {
                         iPadSectionContent(section: section)
                     case .bookmarks:
                         iPadBookmarksContent()
+                    case .list(let list):
+                        iPadListContent(list: list)
                     case .feed(let feed):
                         iPadFeedContent(feed: feed)
                     case .more, .none:
@@ -150,6 +159,38 @@ struct IPadSidebarView: View {
                 Text("FeedMenu.Delete.Message.\(feed.title)")
             }
         }
+        .sheet(item: $listToEdit) { list in
+            ListEditSheet(list: list)
+                .environment(feedManager)
+                .interactiveDismissDisabled()
+        }
+        .sheet(item: $listForRules) { list in
+            ListRulesSheet(list: list)
+                .environment(feedManager)
+                .interactiveDismissDisabled()
+        }
+        .confirmationDialog(
+            String(localized: "ListMenu.Delete.Title"),
+            isPresented: Binding(
+                get: { listToDelete != nil },
+                set: { if !$0 { listToDelete = nil } }
+            ),
+            titleVisibility: .visible
+        ) {
+            Button(String(localized: "ListMenu.Delete.Confirm"), role: .destructive) {
+                if let list = listToDelete {
+                    feedManager.deleteList(list)
+                    listToDelete = nil
+                }
+            }
+            Button(String(localized: "Shared.Cancel"), role: .cancel) {
+                listToDelete = nil
+            }
+        } message: {
+            if let list = listToDelete {
+                Text("ListMenu.Delete.Message.\(list.name)")
+            }
+        }
     }
 
     // MARK: - Sidebar Content
@@ -184,6 +225,32 @@ struct IPadSidebarView: View {
                     .tag(SidebarDestination.bookmarks)
             }
 
+            if !feedManager.lists.isEmpty {
+                Section(String(localized: "Tabs.Lists")) {
+                    ForEach(feedManager.lists) { list in
+                        HStack {
+                            Label(list.name, systemImage: list.icon)
+                            Spacer()
+                            let count = feedManager.unreadCount(for: list)
+                            if count > 0 {
+                                Text("\(count)")
+                                    .font(.caption)
+                                    .fontWeight(.semibold)
+                                    .padding(.horizontal, 8)
+                                    .padding(.vertical, 2)
+                                    .background(.tertiary)
+                                    .foregroundStyle(.secondary)
+                                    .clipShape(Capsule())
+                            }
+                        }
+                        .tag(SidebarDestination.list(list))
+                        .contextMenu {
+                            listContextMenu(for: list)
+                        }
+                    }
+                }
+            }
+
             Section(String(localized: "Sidebar.Following")) {
                 ForEach(feedManager.feeds) { feed in
                     NavigationLink(value: SidebarDestination.feed(feed)) {
@@ -204,8 +271,19 @@ struct IPadSidebarView: View {
         .searchable(text: $searchText, placement: .sidebar, prompt: Text("Search.Prompt"))
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
-                Button {
-                    showingAddFeed = true
+                Menu {
+                    Button {
+                        showingAddFeed = true
+                    } label: {
+                        Label(String(localized: "Sidebar.AddFeed"),
+                              systemImage: "dot.radiowaves.up.forward")
+                    }
+                    Button {
+                        showingNewList = true
+                    } label: {
+                        Label(String(localized: "Sidebar.CreateList"),
+                              systemImage: "square.fill.text.grid.1x2")
+                    }
                 } label: {
                     Image(systemName: "plus")
                 }
@@ -222,12 +300,69 @@ struct IPadSidebarView: View {
         .sheet(isPresented: $showingMore) {
             MoreView()
         }
+        .sheet(isPresented: $showingNewList) {
+            ListEditSheet(list: nil)
+                .environment(feedManager)
+                .interactiveDismissDisabled()
+        }
     }
 
-    // MARK: - Detail Content
+    // MARK: - External Opening
+
+    func shouldOpenExternally(_ article: Article) -> Bool {
+        if feedManager.feed(forArticle: article)?.isXFeed == true
+            || feedManager.feed(forArticle: article)?.isInstagramFeed == true {
+            return true
+        }
+        if article.isYouTubeURL && youTubeOpenMode == .youTubeApp {
+            return true
+        }
+        return false
+    }
+
+    func openArticleExternally(_ article: Article) {
+        feedManager.markRead(article)
+        if feedManager.feed(forArticle: article)?.isXFeed == true
+            || feedManager.feed(forArticle: article)?.isInstagramFeed == true {
+            if let url = URL(string: article.url) {
+                openURL(url)
+            }
+        } else if article.isYouTubeURL && youTubeOpenMode == .youTubeApp {
+            YouTubeHelper.openInApp(url: article.url)
+        } else if article.isYouTubeURL && youTubeOpenMode == .browser {
+            pendingYouTubeSafariURL = URL(string: article.url)
+            showYouTubeSafari = true
+        }
+    }
+
+    func handlePendingArticle(_ articleID: Int64) {
+        Task {
+            try? await Task.sleep(for: .milliseconds(300))
+            if let article = feedManager.article(byID: articleID) {
+                if shouldOpenExternally(article) {
+                    openArticleExternally(article)
+                } else {
+                    selectedArticle = article
+                    feedManager.markRead(article)
+                }
+            }
+            pendingArticleID = nil
+        }
+    }
+
+    // MARK: - Helpers
+
+    private var availableSections: [FeedSection] {
+        FeedSection.allCases.filter { $0 != .news && feedManager.hasFeeds(for: $0) }
+    }
+}
+
+// MARK: - IPadSidebarView Content Views
+
+extension IPadSidebarView {
 
     @ViewBuilder
-    private var detailContent: some View {
+    var detailContent: some View {
         if let article = selectedArticle {
             Group {
                 if article.isPodcastEpisode {
@@ -249,17 +384,15 @@ struct IPadSidebarView: View {
         }
     }
 
-    // MARK: - Content Views
-
     @ViewBuilder
-    private func iPadAllArticlesContent() -> some View {
+    func iPadAllArticlesContent() -> some View {
         iPadArticleListWrapper {
             AllArticlesView()
         }
     }
 
     @ViewBuilder
-    private func iPadSectionContent(section: FeedSection) -> some View {
+    func iPadSectionContent(section: FeedSection) -> some View {
         iPadArticleListWrapper {
             HomeSectionView(section: section)
                 .navigationTitle(section.localizedTitle)
@@ -268,24 +401,32 @@ struct IPadSidebarView: View {
     }
 
     @ViewBuilder
-    private func iPadBookmarksContent() -> some View {
+    func iPadBookmarksContent() -> some View {
         iPadArticleListWrapper {
             IPadBookmarksListView()
         }
     }
 
     @ViewBuilder
-    private func iPadFeedContent(feed: Feed) -> some View {
+    func iPadFeedContent(feed: Feed) -> some View {
         iPadArticleListWrapper {
             FeedArticlesView(feed: feed)
         }
         .id(feed.id)
     }
 
-    /// Wraps content views with navigation destinations and the iPad article selection
-    /// environment, so article taps show in the detail column instead of pushing.
     @ViewBuilder
-    private func iPadArticleListWrapper<Content: View>(@ViewBuilder content: () -> Content) -> some View {
+    func iPadListContent(list: FeedList) -> some View {
+        iPadArticleListWrapper {
+            ListSectionView(list: list)
+                .navigationTitle(list.name)
+                .toolbarTitleDisplayMode(.inline)
+        }
+        .id(list.id)
+    }
+
+    @ViewBuilder
+    func iPadArticleListWrapper<Content: View>(@ViewBuilder content: () -> Content) -> some View {
         NavigationStack {
             content()
                 .environment(\.navigateToFeed, { feed in
@@ -300,55 +441,6 @@ struct IPadSidebarView: View {
                 .environment(\.iPadArticleSelection, $selectedArticle)
         }
     }
-
-    // MARK: - External Opening
-
-    private func shouldOpenExternally(_ article: Article) -> Bool {
-        if feedManager.feed(forArticle: article)?.isXFeed == true
-            || feedManager.feed(forArticle: article)?.isInstagramFeed == true {
-            return true
-        }
-        if article.isYouTubeURL && youTubeOpenMode == .youTubeApp {
-            return true
-        }
-        return false
-    }
-
-    private func openArticleExternally(_ article: Article) {
-        feedManager.markRead(article)
-        if feedManager.feed(forArticle: article)?.isXFeed == true
-            || feedManager.feed(forArticle: article)?.isInstagramFeed == true {
-            if let url = URL(string: article.url) {
-                openURL(url)
-            }
-        } else if article.isYouTubeURL && youTubeOpenMode == .youTubeApp {
-            YouTubeHelper.openInApp(url: article.url)
-        } else if article.isYouTubeURL && youTubeOpenMode == .browser {
-            pendingYouTubeSafariURL = URL(string: article.url)
-            showYouTubeSafari = true
-        }
-    }
-
-    private func handlePendingArticle(_ articleID: Int64) {
-        Task {
-            try? await Task.sleep(for: .milliseconds(300))
-            if let article = feedManager.article(byID: articleID) {
-                if shouldOpenExternally(article) {
-                    openArticleExternally(article)
-                } else {
-                    selectedArticle = article
-                    feedManager.markRead(article)
-                }
-            }
-            pendingArticleID = nil
-        }
-    }
-
-    // MARK: - Helpers
-
-    private var availableSections: [FeedSection] {
-        FeedSection.allCases.filter { feedManager.hasFeeds(for: $0) }
-    }
 }
 
 // MARK: - IPadSidebarView Helpers
@@ -361,6 +453,27 @@ extension IPadSidebarView {
         case .social: "person.2"
         case .video: "play.rectangle"
         case .audio: "headphones"
+        }
+    }
+
+    @ViewBuilder
+    func listContextMenu(for list: FeedList) -> some View {
+        Button {
+            listToEdit = list
+        } label: {
+            Label(String(localized: "ListMenu.Edit"), systemImage: "pencil")
+        }
+        Button {
+            listForRules = list
+        } label: {
+            Label(String(localized: "ListMenu.Rules"),
+                  systemImage: "list.bullet.rectangle")
+        }
+        Divider()
+        Button(role: .destructive) {
+            listToDelete = list
+        } label: {
+            Label(String(localized: "ListMenu.Delete"), systemImage: "trash")
         }
     }
 
@@ -405,6 +518,7 @@ private struct IPadBookmarksListView: View {
     @Environment(FeedManager.self) var feedManager
     @State private var bookmarkedArticles: [Article] = []
     @State private var displayStyle: FeedDisplayStyle
+    @State private var showingDeleteReadAlert = false
 
     private var hasImages: Bool {
         bookmarkedArticles.contains { $0.imageURL != nil }
@@ -441,6 +555,14 @@ private struct IPadBookmarksListView: View {
         .toolbar {
             if !bookmarkedArticles.isEmpty {
                 ToolbarItemGroup(placement: .topBarTrailing) {
+                    Button {
+                        showingDeleteReadAlert = true
+                    } label: {
+                        Image(systemName: "bookmark.slash")
+                    }
+                }
+                ToolbarSpacer(.fixed, placement: .topBarTrailing)
+                ToolbarItemGroup(placement: .topBarTrailing) {
                     Menu {
                         DisplayStylePicker(
                             displayStyle: $displayStyle,
@@ -452,26 +574,25 @@ private struct IPadBookmarksListView: View {
                     }
                     .menuActionDismissBehavior(.disabled)
                 }
-                ToolbarSpacer(.fixed, placement: .topBarTrailing)
-                ToolbarItemGroup(placement: .topBarTrailing) {
-                    Menu {
-                        Button(role: .destructive) {
-                            try? DatabaseManager.shared.removeReadBookmarks()
-                            bookmarkedArticles = (try? DatabaseManager.shared.bookmarkedArticles()) ?? []
-                        } label: {
-                            Label(String(localized: "Bookmarks.DeleteAllRead"),
-                                  systemImage: "bookmark.slash")
-                        }
-                    } label: {
-                        Image(systemName: "ellipsis")
-                    }
-                }
             }
         }
         .animation(.smooth.speed(2.0), value: displayStyle)
         .animation(.smooth.speed(2.0), value: bookmarkedArticles)
         .onChange(of: displayStyle) { _, newValue in
             UserDefaults.standard.set(newValue.rawValue, forKey: "Display.DefaultBookmarksStyle")
+        }
+        .confirmationDialog(
+            String(localized: "Bookmarks.DeleteAllRead"),
+            isPresented: $showingDeleteReadAlert,
+            titleVisibility: .visible
+        ) {
+            Button(String(localized: "Bookmarks.DeleteAllRead.Confirm"), role: .destructive) {
+                try? DatabaseManager.shared.removeReadBookmarks()
+                bookmarkedArticles = (try? DatabaseManager.shared.bookmarkedArticles()) ?? []
+            }
+            Button(String(localized: "Shared.Cancel"), role: .cancel) { }
+        } message: {
+            Text("Bookmarks.DeleteAllRead.Message")
         }
         .onAppear {
             bookmarkedArticles = (try? DatabaseManager.shared.bookmarkedArticles()) ?? []

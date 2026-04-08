@@ -162,6 +162,39 @@ nonisolated enum UnreadBadgeMode: String, CaseIterable, Sendable {
     case none
 }
 
+nonisolated struct FeedList: Identifiable, Hashable, Sendable {
+    let id: Int64
+    var name: String
+    var icon: String
+    var displayStyle: String?
+    var sortOrder: Int
+}
+
+nonisolated enum ListIcon: String, CaseIterable, Identifiable, Sendable {
+    case newspaper
+    case bookClosed = "book.closed"
+    case laptopcomputer
+    case globe
+    case sportscourt
+    case gamecontroller
+    case film
+    case musicNote = "music.note"
+    case forkKnife = "fork.knife"
+    case cart
+    case briefcase
+    case graduationcap
+    case heart
+    case star
+    case leaf
+    case airplane
+    case house
+    case paintbrush
+    case wrench
+    case dollarsignCircle = "dollarsign.circle"
+
+    var id: String { rawValue }
+}
+
 nonisolated enum FeedDisplayStyle: String, CaseIterable, Sendable {
     case inbox
     case feed

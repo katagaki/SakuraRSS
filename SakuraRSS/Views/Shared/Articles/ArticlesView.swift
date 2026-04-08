@@ -6,6 +6,7 @@ struct ArticlesView: View {
     @Environment(FeedManager.self) var feedManager
     let articles: [Article]
     let title: String
+    let subtitle: String?
     let feedKey: String
     let isVideoFeed: Bool
     let isPodcastFeed: Bool
@@ -33,7 +34,7 @@ struct ArticlesView: View {
         articles.contains { $0.audioURL != nil }
     }
 
-    init(articles: [Article], title: String, feedKey: String,
+    init(articles: [Article], title: String, subtitle: String? = nil, feedKey: String,
          isVideoFeed: Bool = false, isPodcastFeed: Bool = false,
          isInstagramFeed: Bool = false,
          isFeedViewDomain: Bool = false, isTimelineViewDomain: Bool = false,
@@ -45,6 +46,7 @@ struct ArticlesView: View {
          onMarkAllRead: (() -> Void)? = nil) {
         self.articles = articles
         self.title = title
+        self.subtitle = subtitle
         self.feedKey = feedKey
         self.isVideoFeed = isVideoFeed
         self.isPodcastFeed = isPodcastFeed
@@ -101,6 +103,7 @@ struct ArticlesView: View {
         .scrollContentBackground(.hidden)
         .sakuraBackground()
         .navigationTitle(title)
+        .navigationSubtitle(subtitle ?? "")
         .toolbarTitleDisplayMode(titleDisplayMode)
         .toolbar {
             if anySummaryHidden {

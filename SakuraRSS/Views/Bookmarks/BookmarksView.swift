@@ -5,6 +5,7 @@ struct BookmarksView: View {
     @Environment(FeedManager.self) var feedManager
     @State private var bookmarkedArticles: [Article] = []
     @State private var displayStyle: FeedDisplayStyle
+    @State private var showingDeleteReadAlert = false
     @Namespace private var cardZoom
 
     private var hasImages: Bool {
@@ -43,6 +44,14 @@ struct BookmarksView: View {
             .toolbar {
                 if !bookmarkedArticles.isEmpty {
                     ToolbarItemGroup(placement: .topBarTrailing) {
+                        Button {
+                            showingDeleteReadAlert = true
+                        } label: {
+                            Image(systemName: "bookmark.slash")
+                        }
+                    }
+                    ToolbarSpacer(.fixed, placement: .topBarTrailing)
+                    ToolbarItemGroup(placement: .topBarTrailing) {
                         Menu {
                             DisplayStylePicker(
                                 displayStyle: $displayStyle,
@@ -54,24 +63,19 @@ struct BookmarksView: View {
                         }
                         .menuActionDismissBehavior(.disabled)
                     }
-                    ToolbarSpacer(.fixed, placement: .topBarTrailing)
-                    ToolbarItemGroup(placement: .topBarTrailing) {
-                        Menu {
-                            Button(role: .destructive) {
-                                try? DatabaseManager.shared.removeReadBookmarks()
-                                bookmarkedArticles = (try? DatabaseManager.shared.bookmarkedArticles()) ?? []
-                            } label: {
-                                Label(String(localized: "Bookmarks.DeleteAllRead"),
-                                      systemImage: "bookmark.slash")
-                            }
-                        } label: {
-                            Image(systemName: "ellipsis")
-                        }
-                    }
                 }
             }
             .animation(.smooth.speed(2.0), value: displayStyle)
             .animation(.smooth.speed(2.0), value: bookmarkedArticles)
+            .alert(String(localized: "Bookmarks.DeleteAllRead"), isPresented: $showingDeleteReadAlert) {
+                Button(String(localized: "Bookmarks.DeleteAllRead.Confirm"), role: .destructive) {
+                    try? DatabaseManager.shared.removeReadBookmarks()
+                    bookmarkedArticles = (try? DatabaseManager.shared.bookmarkedArticles()) ?? []
+                }
+                Button(String(localized: "Shared.Cancel"), role: .cancel) { }
+            } message: {
+                Text("Bookmarks.DeleteAllRead.Message")
+            }
             .onChange(of: displayStyle) { _, newValue in
                 UserDefaults.standard.set(newValue.rawValue, forKey: "Display.DefaultBookmarksStyle")
             }

@@ -11,14 +11,26 @@ struct HomeView: View {
     @State private var path = NavigationPath()
     @State private var hasRestored = false
     @State private var showYouTubeSafari = false
+    @State private var showingMore = false
     @State private var pendingYouTubeSafariURL: URL?
     @Namespace private var cardZoom
+    @Namespace private var moreNamespace
 
     var body: some View {
         NavigationStack(path: $path) {
             AllArticlesView()
                 .environment(\.zoomNamespace, cardZoom)
                 .environment(\.navigateToFeed, { feed in path.append(feed) })
+                .toolbar {
+                    ToolbarItemGroup(placement: .topBarLeading) {
+                        Button {
+                            showingMore = true
+                        } label: {
+                            Image(systemName: "ellipsis")
+                        }
+                        .matchedTransitionSource(id: "more", in: moreNamespace)
+                    }
+                }
                 .navigationDestination(for: Feed.self) { feed in
                     FeedArticlesView(feed: feed)
                         .environment(\.zoomNamespace, cardZoom)
@@ -94,6 +106,13 @@ struct HomeView: View {
                 SafariView(url: url)
                     .ignoresSafeArea()
             }
+        }
+        .sheet(isPresented: $showingMore) {
+            MoreView()
+                .navigationTransition(.zoom(sourceID: "more", in: moreNamespace))
+                .presentationDetents([.medium, .large])
+                .presentationContentInteraction(.scrolls)
+                .interactiveDismissDisabled()
         }
     }
 

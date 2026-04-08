@@ -21,7 +21,5 @@ struct AppleIntelligenceSettingsView: View {
         }
         .navigationTitle(String(localized: "Settings.Section.AppleIntelligence"))
         .toolbarTitleDisplayMode(.inline)
-        .scrollContentBackground(.hidden)
-        .sakuraBackground()
     }
 }

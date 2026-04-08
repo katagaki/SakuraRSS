@@ -6,5 +6,6 @@ struct SakuraRSSWidgetBundle: WidgetBundle {
     var body: some Widget {
         AllArticlesWidget()
         SingleFeedWidget()
+        ListWidget()
     }
 }

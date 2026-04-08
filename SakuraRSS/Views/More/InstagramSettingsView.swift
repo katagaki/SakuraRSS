@@ -43,8 +43,6 @@ struct InstagramSettingsView: View {
         .animation(.smooth.speed(2.0), value: instagramProfileFeedsEnabled)
         .navigationTitle(String(localized: "Integrations.Instagram"))
         .toolbarTitleDisplayMode(.inline)
-        .scrollContentBackground(.hidden)
-        .sakuraBackground()
         .sheet(isPresented: $showInstagramLogin) {
             Task {
                 isInstagramSignedIn = await InstagramProfileScraper.hasInstagramSession()

@@ -226,18 +226,14 @@ struct MoreView: View {
             .listStyle(.insetGrouped)
             .listSectionSpacing(.compact)
             .navigationTitle(String(localized: "Tabs.More"))
-            .toolbarTitleDisplayMode(.inlineLarge)
+            .toolbarTitleDisplayMode(.inline)
             .toolbar {
-                if UIDevice.current.userInterfaceIdiom == .pad {
-                    ToolbarItem(placement: .topBarTrailing) {
-                        Button(role: .close) {
-                            dismiss()
-                        }
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button(role: .close) {
+                        dismiss()
                     }
                 }
             }
-            .scrollContentBackground(.hidden)
-            .sakuraBackground()
             .fileExporter(
                 isPresented: $isExporting,
                 document: OPMLDocument(content: feedManager.exportOPML()),
