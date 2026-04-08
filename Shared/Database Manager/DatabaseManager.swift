@@ -88,11 +88,13 @@ nonisolated final class DatabaseManager: @unchecked Sendable {
     }
 
     private func fixupIfVersionChanged() {
-        let currentVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String
-        let storedVersion = UserDefaults.standard.string(forKey: "App.DatabaseVersion")
-        if currentVersion != storedVersion {
+        let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? ""
+        let build = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? ""
+        let current = "\(version).\(build)"
+        let stored = UserDefaults.standard.string(forKey: "App.DatabaseVersion")
+        if current != stored {
             fixup()
-            UserDefaults.standard.set(currentVersion, forKey: "App.DatabaseVersion")
+            UserDefaults.standard.set(current, forKey: "App.DatabaseVersion")
         }
     }
 
