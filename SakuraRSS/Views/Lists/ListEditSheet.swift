@@ -99,6 +99,7 @@ struct ListEditSheet: View {
                                 }
                             } label: {
                                 HStack(spacing: 12) {
+                                    FeedIconView(feed: feed, size: 28)
                                     Text(feed.title)
                                         .font(.body)
                                         .lineLimit(1)
@@ -175,5 +176,50 @@ struct ListEditSheet: View {
             }
         }
         dismiss()
+    }
+}
+
+struct FeedIconView: View {
+
+    let feed: Feed
+    var size: CGFloat = 28
+    @State private var favicon: UIImage?
+
+    private var cornerRadius: CGFloat {
+        if feed.isPodcast { return 8 }
+        if feed.isVideoFeed { return 0 }
+        return 4
+    }
+
+    private var isCircle: Bool {
+        feed.isXFeed || feed.isInstagramFeed || (feed.isVideoFeed && !feed.isPodcast)
+    }
+
+    var body: some View {
+        Group {
+            if let favicon {
+                FaviconImage(favicon, size: size,
+                             cornerRadius: cornerRadius,
+                             circle: isCircle,
+                             skipInset: feed.isVideoFeed || feed.isPodcast || feed.isXFeed
+                                || feed.isInstagramFeed
+                                || FullFaviconDomains.shouldUseFullImage(feedDomain: feed.domain))
+            } else if let data = feed.acronymIcon, let acronym = UIImage(data: data) {
+                FaviconImage(acronym, size: size,
+                             cornerRadius: cornerRadius,
+                             circle: isCircle,
+                             skipInset: true)
+            } else {
+                InitialsAvatarView(
+                    feed.title,
+                    size: size,
+                    circle: isCircle,
+                    cornerRadius: cornerRadius
+                )
+            }
+        }
+        .task {
+            favicon = await FaviconCache.shared.favicon(for: feed)
+        }
     }
 }

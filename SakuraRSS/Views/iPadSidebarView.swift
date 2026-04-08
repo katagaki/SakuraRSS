@@ -353,7 +353,7 @@ struct IPadSidebarView: View {
     // MARK: - Helpers
 
     private var availableSections: [FeedSection] {
-        FeedSection.allCases.filter { feedManager.hasFeeds(for: $0) }
+        FeedSection.allCases.filter { $0 != .news && feedManager.hasFeeds(for: $0) }
     }
 }
 
