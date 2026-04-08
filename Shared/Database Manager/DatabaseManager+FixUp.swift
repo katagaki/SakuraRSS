@@ -53,5 +53,6 @@ nonisolated extension DatabaseManager {
         // Recreate indexes
         _ = try? database.run(articles.createIndex(articleFeedID, ifNotExists: true))
         _ = try? database.run(articles.createIndex(articlePublishedDate, ifNotExists: true))
+        _ = try? database.run(articles.createIndex(articleFeedID, articleIsRead, ifNotExists: true))
     }
 }
