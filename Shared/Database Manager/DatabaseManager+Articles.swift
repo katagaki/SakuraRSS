@@ -33,7 +33,7 @@ nonisolated extension DatabaseManager {
     ) throws -> Int64 {
         let carouselValue = data.carouselImageURLs.isEmpty
             ? nil : data.carouselImageURLs.joined(separator: "\n")
-        try database.run(articles.insert(or: .ignore,
+        return try database.run(articles.insert(or: .ignore,
             articleFeedID <- fid,
             articleTitle <- title,
             articleURL <- url,
