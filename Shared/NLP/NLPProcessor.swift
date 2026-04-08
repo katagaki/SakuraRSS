@@ -1,7 +1,7 @@
 import Foundation
 import NaturalLanguage
 
-enum NLPProcessor {
+nonisolated enum NLPProcessor {
 
     struct EntityResult {
         let name: String

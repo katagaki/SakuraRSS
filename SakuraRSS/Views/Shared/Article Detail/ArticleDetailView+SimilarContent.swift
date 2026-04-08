@@ -58,7 +58,7 @@ extension ArticleDetailView {
 
     func loadSimilarArticles() async -> [SimilarArticleItem] {
         let db = DatabaseManager.shared
-        let manager = feedManager
+        let feedsLookup = feedManager.feedsByID
         let currentArticle = article
 
         return await Task.detached(priority: .utility) {
@@ -76,7 +76,7 @@ extension ArticleDetailView {
             var items: [SimilarArticleItem] = []
             for match in similar {
                 guard let matchArticle = try? db.article(byID: match.articleID) else { continue }
-                let feedName = manager.feedsByID[matchArticle.feedID]?.title ?? ""
+                let feedName = feedsLookup[matchArticle.feedID]?.title ?? ""
                 let sentiment = try? db.sentimentScore(for: match.articleID)
                 items.append(SimilarArticleItem(
                     id: match.articleID,
