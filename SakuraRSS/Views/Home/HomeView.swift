@@ -34,6 +34,7 @@ struct HomeView: View {
                         }
                         .matchedTransitionSource(id: "more", in: moreNamespace)
                     }
+                    ToolbarSpacer(.fixed, placement: .topBarLeading)
                     if markAllReadPosition == .top {
                         ToolbarItemGroup(placement: .topBarLeading) {
                             Button {

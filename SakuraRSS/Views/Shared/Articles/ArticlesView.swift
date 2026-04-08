@@ -118,15 +118,6 @@ struct ArticlesView: View {
         .navigationSubtitle(subtitle ?? "")
         .toolbarTitleDisplayMode(titleDisplayMode)
         .toolbar {
-            if anySummaryHidden {
-                ToolbarItemGroup(placement: .topBarTrailing) {
-                    Button {
-                        onRestoreSummaries?()
-                    } label: {
-                        Image(systemName: "apple.intelligence")
-                    }
-                }
-            }
             if !hidesMarkAllReadToolbar, markAllReadPosition == .top, let onMarkAllRead {
                 ToolbarItemGroup(placement: .topBarLeading) {
                     Button {
@@ -151,6 +142,15 @@ struct ArticlesView: View {
                         }
                         .padding(20)
                         .presentationCompactAdaptation(.popover)
+                    }
+                }
+            }
+            if anySummaryHidden {
+                ToolbarItemGroup(placement: .topBarTrailing) {
+                    Button {
+                        onRestoreSummaries?()
+                    } label: {
+                        Image(systemName: "apple.intelligence")
                     }
                 }
             }
