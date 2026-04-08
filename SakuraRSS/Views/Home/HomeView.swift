@@ -14,6 +14,7 @@ struct HomeView: View {
     @State private var showingMore = false
     @State private var pendingYouTubeSafariURL: URL?
     @Namespace private var cardZoom
+    @Namespace private var moreNamespace
 
     var body: some View {
         NavigationStack(path: $path) {
@@ -27,6 +28,7 @@ struct HomeView: View {
                         } label: {
                             Image(systemName: "ellipsis")
                         }
+                        .matchedTransitionSource(id: "more", in: moreNamespace)
                     }
                 }
                 .navigationDestination(for: Feed.self) { feed in
@@ -107,6 +109,7 @@ struct HomeView: View {
         }
         .sheet(isPresented: $showingMore) {
             MoreView()
+                .navigationTransition(.zoom(sourceID: "more", in: moreNamespace))
         }
     }
 
