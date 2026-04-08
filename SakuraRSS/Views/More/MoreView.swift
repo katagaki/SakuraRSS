@@ -10,7 +10,6 @@ struct MoreView: View {
     @AppStorage("BackgroundRefresh.Enabled") private var backgroundRefreshEnabled: Bool = true
     @AppStorage("BackgroundRefresh.Interval") private var refreshInterval: Int = 60
     @AppStorage("Display.DefaultStyle") private var defaultDisplayStyle: FeedDisplayStyle = .inbox
-    @AppStorage("Search.DisplayStyle") private var searchDisplayStyle: FeedDisplayStyle = .inbox
     @AppStorage("Display.MarkAllReadPosition") private var markAllReadPosition: MarkAllReadPosition = .bottom
     @AppStorage("Display.UnreadBadgeMode") private var unreadBadgeMode: UnreadBadgeMode = .none
     @State private var isExporting = false
@@ -33,14 +32,6 @@ struct MoreView: View {
             List {
                 Section {
                     Picker("Settings.DefaultDisplayStyle", selection: $defaultDisplayStyle) {
-                        Text("Articles.Style.Inbox")
-                            .tag(FeedDisplayStyle.inbox)
-                        Text("Articles.Style.Compact")
-                            .tag(FeedDisplayStyle.compact)
-                        Text("Articles.Style.Feed")
-                            .tag(FeedDisplayStyle.feed)
-                    }
-                    Picker("Settings.SearchDisplayStyle", selection: $searchDisplayStyle) {
                         Text("Articles.Style.Inbox")
                             .tag(FeedDisplayStyle.inbox)
                         Text("Articles.Style.Compact")

@@ -6,6 +6,7 @@ struct SearchView: View {
     @AppStorage("Search.DisplayStyle") private var searchDisplayStyle: FeedDisplayStyle = .inbox
     @State private var searchText = ""
     @State private var searchResults: [Article] = []
+    @State private var path = NavigationPath()
     @Namespace private var cardZoom
 
     private var hasImages: Bool {
@@ -23,8 +24,12 @@ struct SearchView: View {
     }
 
     var body: some View {
-        NavigationStack {
-            Group {
+        NavigationStack(path: $path) {
+            DisplayStyleContentView(
+                style: effectiveStyle,
+                articles: searchResults
+            )
+            .overlay {
                 if searchText.isEmpty {
                     ContentUnavailableView {
                         Label("Search.Empty.Title",
@@ -39,11 +44,6 @@ struct SearchView: View {
                     } description: {
                         Text("Search.NoResults.Description")
                     }
-                } else {
-                    DisplayStyleContentView(
-                        style: effectiveStyle,
-                        articles: searchResults
-                    )
                 }
             }
             .scrollContentBackground(.hidden)
@@ -59,6 +59,23 @@ struct SearchView: View {
                 }
                 .zoomTransition(sourceID: article.id, in: cardZoom)
             }
+            .toolbar {
+                ToolbarItemGroup(placement: .topBarTrailing) {
+                    Menu {
+                        DisplayStylePicker(
+                            displayStyle: $searchDisplayStyle,
+                            hasImages: hasImages,
+                            showTimeline: false,
+                            showVideo: false,
+                            showPodcast: false
+                        )
+                    } label: {
+                        Image(systemName: "line.3.horizontal.decrease")
+                    }
+                    .menuActionDismissBehavior(.disabled)
+                }
+            }
+            .animation(.smooth.speed(2.0), value: searchDisplayStyle)
             .searchable(text: $searchText, prompt: "Search.Prompt")
             .task(id: searchText) {
                 let query = searchText
