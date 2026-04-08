@@ -43,7 +43,7 @@ struct FeedEditSheet: View {
                 Section {
                     HStack {
                         Text("FeedEdit.Name")
-                        TextField(String(localized: "FeedEdit.Name"), text: $name)
+                        TextField("FeedEdit.Name", text: $name)
                             .multilineTextAlignment(.trailing)
                             .frame(maxWidth: .infinity)
                             .labelsHidden()
@@ -59,7 +59,7 @@ struct FeedEditSheet: View {
                     } else {
                         HStack {
                             Text("FeedEdit.URL")
-                            TextField(String(localized: "FeedEdit.URL"), text: $url)
+                            TextField("FeedEdit.URL", text: $url)
                                 .multilineTextAlignment(.trailing)
                                 .frame(maxWidth: .infinity)
                                 .textContentType(.URL)
@@ -96,7 +96,7 @@ struct FeedEditSheet: View {
 
                     HStack {
                         Text("FeedEdit.IconURL")
-                        TextField(String(localized: "FeedEdit.IconURLPlaceholder"), text: $iconURLInput)
+                        TextField("FeedEdit.IconURLPlaceholder", text: $iconURLInput)
                             .multilineTextAlignment(.trailing)
                             .frame(maxWidth: .infinity)
                             .textContentType(.URL)
@@ -155,7 +155,7 @@ struct FeedEditSheet: View {
 
                 if !feed.isXFeed && !feed.isInstagramFeed {
                     Section {
-                        Picker(String(localized: "FeedEdit.OpenIn"), selection: $openMode) {
+                        Picker("FeedEdit.OpenIn", selection: $openMode) {
                             Text("FeedEdit.OpenIn.InAppViewer")
                                 .tag(FeedOpenMode.inAppViewer)
                             Text("FeedEdit.OpenIn.InAppBrowser")
@@ -164,7 +164,7 @@ struct FeedEditSheet: View {
                                 .tag(FeedOpenMode.browser)
                         }
                         if !feed.isVideoFeed && !feed.isPodcast {
-                            Picker(String(localized: "FeedEdit.ArticleSource"), selection: $articleSource) {
+                            Picker("FeedEdit.ArticleSource", selection: $articleSource) {
                                 Text("FeedEdit.ArticleSource.Automatic")
                                     .tag(ArticleSource.automatic)
                                 Text("FeedEdit.ArticleSource.FetchText")
@@ -180,7 +180,7 @@ struct FeedEditSheet: View {
                     }
                 }
             }
-            .navigationTitle(String(localized: "FeedEdit.Title"))
+            .navigationTitle("FeedEdit.Title")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
@@ -209,8 +209,8 @@ struct FeedEditSheet: View {
                     }
                 }
             }
-            .alert(String(localized: "FeedEdit.IconFetchError"), isPresented: $showIconFetchError) {
-                Button(String(localized: "Shared.OK"), role: .cancel) { }
+            .alert("FeedEdit.IconFetchError", isPresented: $showIconFetchError) {
+                Button("Shared.OK", role: .cancel) { }
             }
         }
     }

@@ -181,7 +181,7 @@ struct ArticleDetailView: View {
         .task {
             await loadArticleMetadata()
         }
-        .alert(String(localized: "Article.Summarize.Error"), isPresented: Binding(
+        .alert("Article.Summarize.Error", isPresented: Binding(
             get: { summarizationError != nil },
             set: { if !$0 { summarizationError = nil } }
         )) {

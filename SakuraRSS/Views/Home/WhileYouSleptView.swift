@@ -92,7 +92,7 @@ struct WhileYouSleptView: View {
                         .fontWeight(.semibold)
                         .foregroundStyle(.secondary)
                         .frame(width: 36, height: 36)
-                        .contentShape(Rectangle())
+                        .contentShape(.rect)
                 }
                 .buttonStyle(.plain)
                 .opacity(isGenerating ? 0 : 1)
@@ -110,7 +110,7 @@ struct WhileYouSleptView: View {
                         .fontWeight(.semibold)
                         .foregroundStyle(.secondary)
                         .frame(width: 36, height: 36)
-                        .contentShape(Rectangle())
+                        .contentShape(.rect)
                 }
                 .buttonStyle(.plain)
                 .padding(.trailing, -8)

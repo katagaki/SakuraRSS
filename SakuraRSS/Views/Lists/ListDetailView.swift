@@ -22,7 +22,7 @@ struct ListDetailView: View {
                     Button(role: .destructive) {
                         feedManager.removeFeedFromList(list, feed: feed)
                     } label: {
-                        Label(String(localized: "ListDetail.RemoveFeed"),
+                        Label("ListDetail.RemoveFeed",
                               systemImage: "minus.circle")
                     }
                 }
@@ -39,12 +39,12 @@ struct ListDetailView: View {
                     Button {
                         listToEdit = list
                     } label: {
-                        Label(String(localized: "ListMenu.Edit"), systemImage: "pencil")
+                        Label("ListMenu.Edit", systemImage: "pencil")
                     }
                     Button {
                         listForRules = list
                     } label: {
-                        Label(String(localized: "ListMenu.Rules"),
+                        Label("ListMenu.Rules",
                               systemImage: "list.bullet.rectangle")
                     }
                 } label: {
@@ -55,7 +55,7 @@ struct ListDetailView: View {
         .overlay {
             if feedsInList.isEmpty {
                 ContentUnavailableView {
-                    Label(String(localized: "ListDetail.Empty.Title"),
+                    Label("ListDetail.Empty.Title",
                           systemImage: "tray")
                 } description: {
                     Text("ListDetail.Empty.Description")

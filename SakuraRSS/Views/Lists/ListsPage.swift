@@ -21,7 +21,7 @@ struct ListsPage: View {
                     Button(role: .destructive) {
                         listToDelete = list
                     } label: {
-                        Label(String(localized: "ListMenu.Delete"), systemImage: "trash")
+                        Label("ListMenu.Delete", systemImage: "trash")
                     }
                 }
             }
@@ -32,7 +32,7 @@ struct ListsPage: View {
             }
         }
         .listStyle(.insetGrouped)
-        .navigationTitle(String(localized: "Lists.Title"))
+        .navigationTitle("Lists.Title")
         .toolbarTitleDisplayMode(.inlineLarge)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
@@ -49,12 +49,12 @@ struct ListsPage: View {
         .overlay {
             if feedManager.lists.isEmpty {
                 ContentUnavailableView {
-                    Label(String(localized: "Lists.Empty.Title"),
+                    Label("Lists.Empty.Title",
                           systemImage: "square.fill.text.grid.1x2")
                 } description: {
                     Text("Lists.Empty.Description")
                 } actions: {
-                    Button(String(localized: "Lists.Empty.CreateList")) {
+                    Button("Lists.Empty.CreateList") {
                         isShowingNewList = true
                     }
                     .buttonStyle(.borderedProminent)
@@ -80,19 +80,19 @@ struct ListsPage: View {
                 .interactiveDismissDisabled()
         }
         .alert(
-            String(localized: "ListMenu.Delete.Title"),
+            "ListMenu.Delete.Title",
             isPresented: Binding(
                 get: { listToDelete != nil },
                 set: { if !$0 { listToDelete = nil } }
             )
         ) {
-            Button(String(localized: "ListMenu.Delete.Confirm"), role: .destructive) {
+            Button("ListMenu.Delete.Confirm", role: .destructive) {
                 if let list = listToDelete {
                     feedManager.deleteList(list)
                     listToDelete = nil
                 }
             }
-            Button(String(localized: "Shared.Cancel"), role: .cancel) {
+            Button("Shared.Cancel", role: .cancel) {
                 listToDelete = nil
             }
         } message: {
@@ -107,18 +107,18 @@ struct ListsPage: View {
         Button {
             listToEdit = list
         } label: {
-            Label(String(localized: "ListMenu.Edit"), systemImage: "pencil")
+            Label("ListMenu.Edit", systemImage: "pencil")
         }
         Button {
             listForRules = list
         } label: {
-            Label(String(localized: "ListMenu.Rules"), systemImage: "list.bullet.rectangle")
+            Label("ListMenu.Rules", systemImage: "list.bullet.rectangle")
         }
         Divider()
         Button(role: .destructive) {
             listToDelete = list
         } label: {
-            Label(String(localized: "ListMenu.Delete"), systemImage: "trash")
+            Label("ListMenu.Delete", systemImage: "trash")
         }
     }
 }

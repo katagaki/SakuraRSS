@@ -39,7 +39,7 @@ struct ListEditSheet: View {
         NavigationStack {
             Form {
                 Section {
-                    TextField(String(localized: "ListEdit.NamePlaceholder"), text: $name)
+                    TextField("ListEdit.NamePlaceholder", text: $name)
                     if nameAlreadyExists {
                         Text("ListEdit.NameExists")
                             .font(.caption)
@@ -47,7 +47,7 @@ struct ListEditSheet: View {
                     }
                 }
 
-                Section(String(localized: "ListEdit.Icon")) {
+                Section("ListEdit.Icon") {
                     LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 5),
                               spacing: 16) {
                         ForEach(ListIcon.allCases) { icon in
@@ -71,8 +71,8 @@ struct ListEditSheet: View {
                     .padding(.vertical, 4)
                 }
 
-                Section(String(localized: "ListEdit.DisplayStyle")) {
-                    Picker(String(localized: "ListEdit.DisplayStyle"),
+                Section("ListEdit.DisplayStyle") {
+                    Picker("ListEdit.DisplayStyle",
                            selection: $selectedDisplayStyle) {
                         Text("ListEdit.DisplayStyle.Default")
                             .tag(nil as String?)
@@ -85,7 +85,7 @@ struct ListEditSheet: View {
                     }
                 }
 
-                Section(String(localized: "ListEdit.Feeds")) {
+                Section("ListEdit.Feeds") {
                     if feedManager.feeds.isEmpty {
                         Text("ListEdit.Feeds.Empty")
                             .foregroundStyle(.secondary)
@@ -110,7 +110,7 @@ struct ListEditSheet: View {
                                             .foregroundStyle(.accent)
                                     }
                                 }
-                                .contentShape(Rectangle())
+                                .contentShape(.rect)
                             }
                             .buttonStyle(.plain)
                         }

@@ -70,7 +70,7 @@ struct IPadSidebarView: View {
                         iPadFeedContent(feed: feed)
                     case .more, .none:
                         ContentUnavailableView {
-                            Label(String(localized: "Sidebar.SelectSection"),
+                            Label("Sidebar.SelectSection",
                                   systemImage: "sidebar.left")
                         }
                     }
@@ -138,20 +138,20 @@ struct IPadSidebarView: View {
                 .interactiveDismissDisabled()
         }
         .confirmationDialog(
-            String(localized: "FeedMenu.Delete.Title"),
+            "FeedMenu.Delete.Title",
             isPresented: Binding(
                 get: { feedToDelete != nil },
                 set: { if !$0 { feedToDelete = nil } }
             ),
             titleVisibility: .visible
         ) {
-            Button(String(localized: "FeedMenu.Delete.Confirm"), role: .destructive) {
+            Button("FeedMenu.Delete.Confirm", role: .destructive) {
                 if let feed = feedToDelete {
                     try? feedManager.deleteFeed(feed)
                     feedToDelete = nil
                 }
             }
-            Button(String(localized: "Shared.Cancel"), role: .cancel) {
+            Button("Shared.Cancel", role: .cancel) {
                 feedToDelete = nil
             }
         } message: {
@@ -170,20 +170,20 @@ struct IPadSidebarView: View {
                 .interactiveDismissDisabled()
         }
         .confirmationDialog(
-            String(localized: "ListMenu.Delete.Title"),
+            "ListMenu.Delete.Title",
             isPresented: Binding(
                 get: { listToDelete != nil },
                 set: { if !$0 { listToDelete = nil } }
             ),
             titleVisibility: .visible
         ) {
-            Button(String(localized: "ListMenu.Delete.Confirm"), role: .destructive) {
+            Button("ListMenu.Delete.Confirm", role: .destructive) {
                 if let list = listToDelete {
                     feedManager.deleteList(list)
                     listToDelete = nil
                 }
             }
-            Button(String(localized: "Shared.Cancel"), role: .cancel) {
+            Button("Shared.Cancel", role: .cancel) {
                 listToDelete = nil
             }
         } message: {
@@ -198,7 +198,7 @@ struct IPadSidebarView: View {
     private var sidebarContent: some View {
         List(selection: $selectedDestination) {
             Section {
-                Label(String(localized: "Shared.AllArticles"), systemImage: "square.stack")
+                Label("Shared.AllArticles", systemImage: "square.stack")
                     .tag(SidebarDestination.allArticles)
                 ForEach(availableSections, id: \.self) { section in
                     HStack {
@@ -221,12 +221,12 @@ struct IPadSidebarView: View {
             }
 
             Section {
-                Label(String(localized: "Tabs.Bookmarks"), systemImage: "bookmark")
+                Label("Tabs.Bookmarks", systemImage: "bookmark")
                     .tag(SidebarDestination.bookmarks)
             }
 
             if !feedManager.lists.isEmpty {
-                Section(String(localized: "Tabs.Lists")) {
+                Section("Tabs.Lists") {
                     ForEach(feedManager.lists) { list in
                         HStack {
                             Label(list.name, systemImage: list.icon)
@@ -251,7 +251,7 @@ struct IPadSidebarView: View {
                 }
             }
 
-            Section(String(localized: "Sidebar.Following")) {
+            Section("Sidebar.Following") {
                 ForEach(feedManager.feeds) { feed in
                     NavigationLink(value: SidebarDestination.feed(feed)) {
                         FeedRowView(feed: feed)
@@ -263,7 +263,7 @@ struct IPadSidebarView: View {
             }
 
             Section {
-                Label(String(localized: "Tabs.More"), systemImage: "ellipsis")
+                Label("Tabs.More", systemImage: "ellipsis")
                     .tag(SidebarDestination.more)
             }
         }
@@ -275,13 +275,13 @@ struct IPadSidebarView: View {
                     Button {
                         showingAddFeed = true
                     } label: {
-                        Label(String(localized: "Sidebar.AddFeed"),
+                        Label("Sidebar.AddFeed",
                               systemImage: "dot.radiowaves.up.forward")
                     }
                     Button {
                         showingNewList = true
                     } label: {
-                        Label(String(localized: "Sidebar.CreateList"),
+                        Label("Sidebar.CreateList",
                               systemImage: "square.fill.text.grid.1x2")
                     }
                 } label: {
@@ -376,7 +376,7 @@ extension IPadSidebarView {
             .id(article.id)
         } else {
             ContentUnavailableView {
-                Label(String(localized: "Sidebar.SelectArticle"),
+                Label("Sidebar.SelectArticle",
                       systemImage: "doc.text")
             } description: {
                 Text("Sidebar.SelectArticle.Description")
@@ -461,19 +461,19 @@ extension IPadSidebarView {
         Button {
             listToEdit = list
         } label: {
-            Label(String(localized: "ListMenu.Edit"), systemImage: "pencil")
+            Label("ListMenu.Edit", systemImage: "pencil")
         }
         Button {
             listForRules = list
         } label: {
-            Label(String(localized: "ListMenu.Rules"),
+            Label("ListMenu.Rules",
                   systemImage: "list.bullet.rectangle")
         }
         Divider()
         Button(role: .destructive) {
             listToDelete = list
         } label: {
-            Label(String(localized: "ListMenu.Delete"), systemImage: "trash")
+            Label("ListMenu.Delete", systemImage: "trash")
         }
     }
 
@@ -492,20 +492,20 @@ extension IPadSidebarView {
         Button {
             feedForRules = feed
         } label: {
-            Label(String(localized: "FeedMenu.Rules"),
+            Label("FeedMenu.Rules",
                   systemImage: "list.bullet.rectangle")
         }
         Divider()
         Button {
             feedToEdit = feed
         } label: {
-            Label(String(localized: "FeedMenu.Edit"),
+            Label("FeedMenu.Edit",
                   systemImage: "pencil")
         }
         Button(role: .destructive) {
             feedToDelete = feed
         } label: {
-            Label(String(localized: "FeedMenu.Delete"),
+            Label("FeedMenu.Delete",
                   systemImage: "trash")
         }
     }
@@ -536,7 +536,7 @@ private struct IPadBookmarksListView: View {
         Group {
             if bookmarkedArticles.isEmpty {
                 ContentUnavailableView {
-                    Label(String(localized: "Bookmarks.Empty.Title"),
+                    Label("Bookmarks.Empty.Title",
                           systemImage: "bookmark")
                 } description: {
                     Text("Bookmarks.Empty.Description")
@@ -548,7 +548,7 @@ private struct IPadBookmarksListView: View {
                 )
             }
         }
-        .navigationTitle(String(localized: "Tabs.Bookmarks"))
+        .navigationTitle("Tabs.Bookmarks")
         .toolbarTitleDisplayMode(.inline)
         .scrollContentBackground(.hidden)
         .sakuraBackground()
@@ -582,15 +582,15 @@ private struct IPadBookmarksListView: View {
             UserDefaults.standard.set(newValue.rawValue, forKey: "Display.DefaultBookmarksStyle")
         }
         .confirmationDialog(
-            String(localized: "Bookmarks.DeleteAllRead"),
+            "Bookmarks.DeleteAllRead",
             isPresented: $showingDeleteReadAlert,
             titleVisibility: .visible
         ) {
-            Button(String(localized: "Bookmarks.DeleteAllRead.Confirm"), role: .destructive) {
+            Button("Bookmarks.DeleteAllRead.Confirm", role: .destructive) {
                 try? DatabaseManager.shared.removeReadBookmarks()
                 bookmarkedArticles = (try? DatabaseManager.shared.bookmarkedArticles()) ?? []
             }
-            Button(String(localized: "Shared.Cancel"), role: .cancel) { }
+            Button("Shared.Cancel", role: .cancel) { }
         } message: {
             Text("Bookmarks.DeleteAllRead.Message")
         }
@@ -622,7 +622,7 @@ private struct IPadSearchResultsView: View {
         Group {
             if searchResults.isEmpty {
                 ContentUnavailableView {
-                    Label(String(localized: "Search.NoResults.Title"),
+                    Label("Search.NoResults.Title",
                           systemImage: "magnifyingglass")
                 } description: {
                     Text("Search.NoResults.Description")
@@ -633,7 +633,7 @@ private struct IPadSearchResultsView: View {
                     .sakuraBackground()
             }
         }
-        .navigationTitle(String(localized: "Tabs.Search"))
+        .navigationTitle("Tabs.Search")
         .toolbarTitleDisplayMode(.inline)
     }
 }

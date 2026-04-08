@@ -34,25 +34,25 @@ struct MainTabView: View {
 
     private var iPhoneTabView: some View {
         TabView(selection: $selectedTab) {
-            Tab(String(localized: "Tabs.Home"), systemImage: "text.rectangle.page", value: .home) {
+            Tab("Tabs.Home", systemImage: "text.rectangle.page", value: .home) {
                 HomeView(pendingArticleID: $pendingArticleID)
             }
             .badge(unreadBadgeMode == .homeScreenAndHomeTab || unreadBadgeMode == .homeTabOnly
                 ? feedManager.totalUnreadCount() : 0)
 
-            Tab(String(localized: "Tabs.Feeds"), systemImage: "dot.radiowaves.up.forward", value: .feeds) {
+            Tab("Tabs.Feeds", systemImage: "dot.radiowaves.up.forward", value: .feeds) {
                 FeedListView()
             }
 
-            Tab(String(localized: "Tabs.Lists"), systemImage: "square.fill.text.grid.1x2", value: .lists) {
+            Tab("Tabs.Lists", systemImage: "square.fill.text.grid.1x2", value: .lists) {
                 ListsView()
             }
 
-            Tab(String(localized: "Tabs.Bookmarks"), systemImage: "bookmark", value: .bookmarks) {
+            Tab("Tabs.Bookmarks", systemImage: "bookmark", value: .bookmarks) {
                 BookmarksView()
             }
 
-            Tab(String(localized: "Tabs.Search"), systemImage: "magnifyingglass", value: .search, role: .search) {
+            Tab("Tabs.Search", systemImage: "magnifyingglass", value: .search, role: .search) {
                 SearchView()
             }
         }

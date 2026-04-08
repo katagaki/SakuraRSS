@@ -41,7 +41,7 @@ struct AddFeedToListSheet: View {
                                             .foregroundStyle(.accent)
                                     }
                                 }
-                                .contentShape(Rectangle())
+                                .contentShape(.rect)
                             }
                             .buttonStyle(.plain)
                         }
@@ -52,13 +52,13 @@ struct AddFeedToListSheet: View {
                     Button {
                         isShowingNewList = true
                     } label: {
-                        Label(String(localized: "AddToList.NewList"),
+                        Label("AddToList.NewList",
                               systemImage: "plus")
                     }
                 }
             }
             .listStyle(.insetGrouped)
-            .navigationTitle(String(localized: "AddToList.Title"))
+            .navigationTitle("AddToList.Title")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {

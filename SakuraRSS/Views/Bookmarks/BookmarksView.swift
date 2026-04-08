@@ -25,7 +25,7 @@ struct BookmarksView: View {
             Group {
                 if bookmarkedArticles.isEmpty {
                     ContentUnavailableView {
-                        Label(String(localized: "Bookmarks.Empty.Title"),
+                        Label("Bookmarks.Empty.Title",
                               systemImage: "bookmark")
                     } description: {
                         Text("Bookmarks.Empty.Description")
@@ -37,7 +37,7 @@ struct BookmarksView: View {
                     )
                 }
             }
-            .navigationTitle(String(localized: "Tabs.Bookmarks"))
+            .navigationTitle("Tabs.Bookmarks")
             .toolbarTitleDisplayMode(.inlineLarge)
             .scrollContentBackground(.hidden)
             .sakuraBackground()
@@ -67,12 +67,12 @@ struct BookmarksView: View {
             }
             .animation(.smooth.speed(2.0), value: displayStyle)
             .animation(.smooth.speed(2.0), value: bookmarkedArticles)
-            .alert(String(localized: "Bookmarks.DeleteAllRead"), isPresented: $showingDeleteReadAlert) {
-                Button(String(localized: "Bookmarks.DeleteAllRead.Confirm"), role: .destructive) {
+            .alert("Bookmarks.DeleteAllRead", isPresented: $showingDeleteReadAlert) {
+                Button("Bookmarks.DeleteAllRead.Confirm", role: .destructive) {
                     try? DatabaseManager.shared.removeReadBookmarks()
                     bookmarkedArticles = (try? DatabaseManager.shared.bookmarkedArticles()) ?? []
                 }
-                Button(String(localized: "Shared.Cancel"), role: .cancel) { }
+                Button("Shared.Cancel", role: .cancel) { }
             } message: {
                 Text("Bookmarks.DeleteAllRead.Message")
             }

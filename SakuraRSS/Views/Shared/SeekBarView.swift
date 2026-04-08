@@ -59,7 +59,7 @@ struct SeekBarView: View {
                         .frame(width: max(thumbX, 0), height: isDragging ? 8 : 6)
                 }
                 .frame(height: 16)
-                .contentShape(Rectangle())
+                .contentShape(.rect)
                 .gesture(
                     DragGesture(minimumDistance: 0)
                         .onChanged { value in

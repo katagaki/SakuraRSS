@@ -41,7 +41,7 @@ struct ActionExtensionView: View {
     var body: some View {
         NavigationStack {
             content
-                .navigationTitle(String(localized: "AddFeed.Title"))
+                .navigationTitle("AddFeed.Title")
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
                     ToolbarItem(placement: .confirmationAction) {

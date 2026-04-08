@@ -9,8 +9,8 @@ struct AllArticlesWidget: Widget {
             ArticleWidgetView(entry: entry)
                 .containerBackground(.fill.tertiary, for: .widget)
         }
-        .configurationDisplayName(String(localized: "Widget.DisplayName"))
-        .description(String(localized: "Widget.Description"))
+        .configurationDisplayName("Widget.DisplayName")
+        .description("Widget.Description")
         .supportedFamilies([.systemMedium, .systemLarge])
     }
 }

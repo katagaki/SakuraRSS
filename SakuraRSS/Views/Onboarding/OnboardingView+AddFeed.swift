@@ -12,7 +12,7 @@ extension OnboardingView {
                 )
 
                 VStack(spacing: 0) {
-                    TextField(String(localized: "AddFeed.URLPlaceholder"), text: $urlInput)
+                    TextField("AddFeed.URLPlaceholder", text: $urlInput)
                         .focused($isURLFieldFocused)
                         .textContentType(.URL)
                         .autocorrectionDisabled()

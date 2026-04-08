@@ -12,7 +12,7 @@ struct ListsView: View {
                 .navigationDestination(for: FeedList.self) { list in
                     ListSectionView(list: list)
                         .environment(\.zoomNamespace, cardZoom)
-                        .environment(\.navigateToFeed, { feed in })
+                        .environment(\.navigateToFeed, { _ in })
                 }
                 .navigationDestination(for: Feed.self) { feed in
                     FeedArticlesView(feed: feed)

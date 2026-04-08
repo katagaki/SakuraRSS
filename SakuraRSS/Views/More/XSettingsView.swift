@@ -10,11 +10,11 @@ struct XSettingsView: View {
     var body: some View {
         List {
             Section {
-                Toggle(String(localized: "Labs.XProfileFeeds"), isOn: $xProfileFeedsEnabled)
+                Toggle("Labs.XProfileFeeds", isOn: $xProfileFeedsEnabled)
 
                 if xProfileFeedsEnabled {
                     if isXSignedIn {
-                        Button(String(localized: "Labs.XProfileFeeds.RefreshAuth")) {
+                        Button("Labs.XProfileFeeds.RefreshAuth") {
                             Task {
                                 await MainActor.run {
                                     XProfileScraper.queryIDsFetched = false
@@ -22,14 +22,14 @@ struct XSettingsView: View {
                                 await XProfileScraper.fetchQueryIDsIfNeeded()
                             }
                         }
-                        Button(String(localized: "Labs.XProfileFeeds.SignOut")) {
+                        Button("Labs.XProfileFeeds.SignOut") {
                             Task {
                                 await XProfileScraper.clearXSession()
                                 isXSignedIn = false
                             }
                         }
                     } else {
-                        Button(String(localized: "Labs.XProfileFeeds.SignIn")) {
+                        Button("Labs.XProfileFeeds.SignIn") {
                             showXLogin = true
                         }
                     }
@@ -39,7 +39,7 @@ struct XSettingsView: View {
             }
         }
         .animation(.smooth.speed(2.0), value: xProfileFeedsEnabled)
-        .navigationTitle(String(localized: "Integrations.X"))
+        .navigationTitle("Integrations.X")
         .toolbarTitleDisplayMode(.inline)
         .sheet(isPresented: $showXLogin) {
             Task {

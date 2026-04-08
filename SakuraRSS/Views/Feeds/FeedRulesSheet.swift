@@ -38,12 +38,12 @@ struct FeedRulesSheet: View {
             Form {
                 Section {
                     HStack {
-                        TextField(String(localized: "FeedRules.AllowedKeywordPlaceholder"),
+                        TextField("FeedRules.AllowedKeywordPlaceholder",
                                   text: $allowedKeywordInput)
                             .frame(maxWidth: .infinity)
                             .focused($isAllowedKeywordFieldFocused)
                             .onSubmit { addAllowedKeyword() }
-                        Button(String(localized: "FeedRules.Add")) {
+                        Button("FeedRules.Add") {
                             addAllowedKeyword()
                         }
                         .fixedSize()
@@ -73,12 +73,12 @@ struct FeedRulesSheet: View {
 
                 Section {
                     HStack {
-                        TextField(String(localized: "FeedRules.KeywordPlaceholder"),
+                        TextField("FeedRules.KeywordPlaceholder",
                                   text: $keywordInput)
                             .frame(maxWidth: .infinity)
                             .focused($isKeywordFieldFocused)
                             .onSubmit { addKeyword() }
-                        Button(String(localized: "FeedRules.Add")) {
+                        Button("FeedRules.Add") {
                             addKeyword()
                         }
                         .fixedSize()
@@ -108,12 +108,12 @@ struct FeedRulesSheet: View {
 
                 Section {
                     HStack {
-                        TextField(String(localized: "FeedRules.AuthorPlaceholder"),
+                        TextField("FeedRules.AuthorPlaceholder",
                                   text: $authorInput)
                             .frame(maxWidth: .infinity)
                             .focused($isAuthorFieldFocused)
                             .onSubmit { addAuthor() }
-                        Button(String(localized: "FeedRules.Add")) {
+                        Button("FeedRules.Add") {
                             addAuthor()
                         }
                         .fixedSize()
@@ -163,7 +163,7 @@ struct FeedRulesSheet: View {
                     Text("FeedRules.MutedAuthors.Footer")
                 }
             }
-            .navigationTitle(String(localized: "FeedRules.Title"))
+            .navigationTitle("FeedRules.Title")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {

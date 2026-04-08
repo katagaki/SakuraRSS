@@ -51,7 +51,7 @@ struct CardsStyleView: View {
         ZStack {
             if visibleCards.isEmpty {
                 ContentUnavailableView {
-                    Label(String(localized: "Cards.Empty.Title"),
+                    Label("Cards.Empty.Title",
                           systemImage: "rectangle.stack")
                 } description: {
                     Text("Cards.Empty.Description")
@@ -70,7 +70,7 @@ struct CardsStyleView: View {
                                 isRefreshing = false
                             }
                         } label: {
-                            Label(String(localized: "Cards.StartOver"), systemImage: "arrow.counterclockwise")
+                            Label("Cards.StartOver", systemImage: "arrow.counterclockwise")
                         }
                         .buttonStyle(.bordered)
                         .disabled(isRefreshing)

@@ -145,7 +145,7 @@ struct PodcastEpisodeView: View {
                     Button {
                         startPlayback()
                     } label: {
-                        Label(String(localized: "Podcast.Play"), systemImage: "play.fill")
+                        Label("Podcast.Play", systemImage: "play.fill")
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 8)
                     }
@@ -196,7 +196,7 @@ struct PodcastEpisodeView: View {
             ToolbarItemGroup(placement: .topBarTrailing) {
                 if let shareURL = URL(string: article.url) {
                     ShareLink(item: shareURL) {
-                        Label(String(localized: "Article.Share"), systemImage: "square.and.arrow.up")
+                        Label("Article.Share", systemImage: "square.and.arrow.up")
                     }
                 }
             }
@@ -220,7 +220,7 @@ struct PodcastEpisodeView: View {
                 translatedText = text
             }
         }
-        .alert(String(localized: "Article.Summarize.Error"), isPresented: Binding(
+        .alert("Article.Summarize.Error", isPresented: Binding(
             get: { summarizationError != nil },
             set: { if !$0 { summarizationError = nil } }
         )) {

@@ -31,14 +31,14 @@ struct SearchView: View {
             Group {
                 if searchText.isEmpty {
                     ContentUnavailableView {
-                        Label(String(localized: "Search.Empty.Title"),
+                        Label("Search.Empty.Title",
                               systemImage: "magnifyingglass")
                     } description: {
                         Text("Search.Empty.Description")
                     }
                 } else if searchResults.isEmpty {
                     ContentUnavailableView {
-                        Label(String(localized: "Search.NoResults.Title"),
+                        Label("Search.NoResults.Title",
                               systemImage: "magnifyingglass")
                     } description: {
                         Text("Search.NoResults.Description")
@@ -63,7 +63,7 @@ struct SearchView: View {
                 }
                 .zoomTransition(sourceID: article.id, in: cardZoom)
             }
-            .searchable(text: $searchText, prompt: String(localized: "Search.Prompt"))
+            .searchable(text: $searchText, prompt: "Search.Prompt")
         }
     }
 }
