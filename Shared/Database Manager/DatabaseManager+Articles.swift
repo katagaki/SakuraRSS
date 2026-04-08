@@ -52,8 +52,15 @@ nonisolated extension DatabaseManager {
 
     func insertArticles(feedID fid: Int64, articles items: [ArticleInsertItem]) throws {
         guard !items.isEmpty else { return }
+        let cutoffTimestamp = UserDefaults.standard.double(forKey: "Content.CutoffDate")
+        let cutoffDate: Date? = cutoffTimestamp > 0
+            ? Date(timeIntervalSince1970: cutoffTimestamp) : nil
         try database.transaction {
             for item in items {
+                if let cutoff = cutoffDate, let published = item.data.publishedDate,
+                   published < cutoff {
+                    continue
+                }
                 let carouselValue = item.data.carouselImageURLs.isEmpty
                     ? nil : item.data.carouselImageURLs.joined(separator: "\n")
                 try database.run(articles.insert(or: .ignore,
