@@ -12,13 +12,16 @@ struct PhotosStyleView: View {
         ScrollView(.vertical) {
             LazyVStack(spacing: 0) {
                 ForEach(articles) { article in
-                    ArticleLink(article: article, onShowYouTubePlayer: {
-                        youTubeArticle = $0
-                    }, label: {
-                        PhotosArticleCard(article: article)
-                            .zoomSource(id: article.id, namespace: zoomNamespace)
-                    })
-                    .buttonStyle(.plain)
+                    PhotosArticleCard(article: article)
+                        .zoomSource(id: article.id, namespace: zoomNamespace)
+                        .background {
+                            ArticleLink(article: article, onShowYouTubePlayer: {
+                                youTubeArticle = $0
+                            }, label: {
+                                Color.clear
+                            })
+                        }
+                        .buttonStyle(.plain)
                 }
                 if let onLoadMore {
                     LoadPreviousArticlesButton(action: onLoadMore)
@@ -97,6 +100,9 @@ struct PhotosArticleCard: View {
 
                 Menu {
                     Button {
+                        #if DEBUG
+                        print("[PhotosCard] Menu: toggle read for article \(article.id)")
+                        #endif
                         feedManager.toggleRead(article)
                     } label: {
                         Label(
@@ -165,6 +171,9 @@ struct PhotosArticleCard: View {
             // Action buttons below photo
             HStack(spacing: 16) {
                 Button {
+                    #if DEBUG
+                    print("[PhotosCard] Copy tapped for article \(article.id), photoImage=\(photoImage != nil)")
+                    #endif
                     UIImpactFeedbackGenerator(style: .light).impactOccurred()
                     if let photoImage {
                         UIPasteboard.general.image = photoImage
@@ -173,19 +182,19 @@ struct PhotosArticleCard: View {
                     Label(String(localized: "Article.CopyPhoto"),
                           systemImage: "square.on.square")
                 }
-                .disabled(photoImage == nil)
 
-                if let shareURL = URL(string: article.url) {
-                    ShareLink(item: shareURL) {
-                        Label(String(localized: "Article.Share"),
-                              systemImage: "square.and.arrow.up")
-                    }
-                    .padding(.bottom, 1)
+                ShareLink(item: URL(string: article.url) ?? URL(string: "https://")!) {
+                    Label(String(localized: "Article.Share"),
+                          systemImage: "square.and.arrow.up")
                 }
+                .padding(.bottom, 1)
 
                 Spacer()
 
                 Button {
+                    #if DEBUG
+                    print("[PhotosCard] Bookmark tapped for article \(article.id)")
+                    #endif
                     UIImpactFeedbackGenerator(style: .light).impactOccurred()
                     feedManager.toggleBookmark(article)
                 } label: {
