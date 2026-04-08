@@ -79,8 +79,6 @@ struct LabsView: View {
         .animation(.smooth.speed(2.0), value: instagramProfileFeedsEnabled)
         .navigationTitle(String(localized: "Labs.Title"))
         .toolbarTitleDisplayMode(.inline)
-        .scrollContentBackground(.hidden)
-        .sakuraBackground()
         .sheet(isPresented: $showXLogin) {
             Task {
                 isXSignedIn = await XProfileScraper.hasXSession()
