@@ -98,9 +98,18 @@ extension InstagramProfileScraper {
             captionText = text
         }
 
-        // Image URL
-        let imageURL = node["display_url"] as? String
+        // Image URL — for video/reel posts, display_url is the poster frame.
+        // Fall back to thumbnail_resources (sorted by size) if the primary
+        // keys are absent.
+        var imageURL = node["display_url"] as? String
             ?? node["thumbnail_src"] as? String
+        if imageURL == nil,
+           let resources = node["thumbnail_resources"] as? [[String: Any]] {
+            let sorted = resources.sorted {
+                ($0["config_width"] as? Int ?? 0) > ($1["config_width"] as? Int ?? 0)
+            }
+            imageURL = sorted.first?["src"] as? String
+        }
 
         // Publish date
         var publishedDate: Date?
@@ -241,9 +250,11 @@ extension InstagramProfileScraper {
                 return url
             }
         }
-        // Fallback keys
+        // Fallback keys — thumbnail_url is used by some video/reel responses
+        // in place of image_versions2
         return item["display_url"] as? String
             ?? item["thumbnail_src"] as? String
+            ?? item["thumbnail_url"] as? String
             ?? item["image_url"] as? String
     }
 }
