@@ -158,6 +158,8 @@ final class FeedManager {
     }
 
     func deleteArticlesAndVacuum(olderThan date: Date?) async {
+        let cutoff = date ?? Date()
+        UserDefaults.standard.set(cutoff.timeIntervalSince1970, forKey: "Content.CutoffDate")
         let database = database
         _ = try? await Task.detached {
             if let date {
