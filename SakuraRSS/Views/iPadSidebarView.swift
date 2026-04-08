@@ -21,6 +21,7 @@ struct IPadSidebarView: View {
     @State private var selectedArticle: Article?
     @State private var columnVisibility: NavigationSplitViewVisibility = .all
     @State private var showingAddFeed = false
+    @State private var showingNewList = false
     @State private var showingMore = false
     @State private var lastAddedFeedURL: String?
     @State private var showingOnboarding = false
@@ -272,8 +273,19 @@ struct IPadSidebarView: View {
         .searchable(text: $searchText, placement: .sidebar, prompt: Text("Search.Prompt"))
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
-                Button {
-                    showingAddFeed = true
+                Menu {
+                    Button {
+                        showingAddFeed = true
+                    } label: {
+                        Label(String(localized: "Sidebar.AddFeed"),
+                              systemImage: "dot.radiowaves.up.forward")
+                    }
+                    Button {
+                        showingNewList = true
+                    } label: {
+                        Label(String(localized: "Sidebar.CreateList"),
+                              systemImage: "square.fill.text.grid.1x2")
+                    }
                 } label: {
                     Image(systemName: "plus")
                 }
@@ -289,6 +301,12 @@ struct IPadSidebarView: View {
         }
         .sheet(isPresented: $showingMore) {
             MoreView()
+        }
+        .sheet(isPresented: $showingNewList) {
+            ListEditSheet(list: nil)
+                .environment(feedManager)
+                .presentationDetents([.medium, .large])
+                .interactiveDismissDisabled()
         }
     }
 
