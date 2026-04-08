@@ -250,11 +250,9 @@ extension InstagramProfileScraper {
                 return url
             }
         }
-        // Fallback keys — thumbnail_url is used by some video/reel responses
-        // in place of image_versions2
+        // Fallback keys
         return item["display_url"] as? String
             ?? item["thumbnail_src"] as? String
-            ?? item["thumbnail_url"] as? String
             ?? item["image_url"] as? String
     }
 }
