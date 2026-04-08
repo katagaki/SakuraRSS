@@ -5,12 +5,8 @@ struct SearchView: View {
     @Environment(FeedManager.self) var feedManager
     @AppStorage("Search.DisplayStyle") private var searchDisplayStyle: FeedDisplayStyle = .inbox
     @State private var searchText = ""
+    @State private var searchResults: [Article] = []
     @Namespace private var cardZoom
-
-    private var searchResults: [Article] {
-        guard !searchText.isEmpty else { return [] }
-        return (try? DatabaseManager.shared.searchArticles(query: searchText)) ?? []
-    }
 
     private var hasImages: Bool {
         searchResults.contains { $0.imageURL != nil }
@@ -64,6 +60,21 @@ struct SearchView: View {
                 .zoomTransition(sourceID: article.id, in: cardZoom)
             }
             .searchable(text: $searchText, prompt: "Search.Prompt")
+            .task(id: searchText) {
+                let query = searchText
+                guard !query.isEmpty else {
+                    withAnimation(.smooth.speed(2.0)) {
+                        searchResults = []
+                    }
+                    return
+                }
+                try? await Task.sleep(for: .milliseconds(300))
+                guard !Task.isCancelled, searchText == query else { return }
+                let results = (try? DatabaseManager.shared.searchArticles(query: query)) ?? []
+                withAnimation(.smooth.speed(2.0)) {
+                    searchResults = results
+                }
+            }
         }
     }
 }
