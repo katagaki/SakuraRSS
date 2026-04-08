@@ -9,6 +9,8 @@ struct ParsedTweet: Sendable {
     let authorHandle: String
     let url: String
     let imageURL: String?
+    /// All photo URLs when a tweet has multiple images. Empty for single-image tweets.
+    let carouselImageURLs: [String]
     let publishedDate: Date?
 }
 

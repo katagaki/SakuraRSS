@@ -25,6 +25,7 @@ nonisolated extension DatabaseManager {
         _ = try? database.run(articles.addColumn(articleSummary))
         _ = try? database.run(articles.addColumn(articleContent))
         _ = try? database.run(articles.addColumn(articleImageURL))
+        _ = try? database.run(articles.addColumn(articleCarouselURLs))
         _ = try? database.run(articles.addColumn(articlePublishedDate))
         _ = try? database.run(articles.addColumn(articleIsRead, defaultValue: false))
         _ = try? database.run(articles.addColumn(articleIsBookmarked, defaultValue: false))
@@ -52,5 +53,6 @@ nonisolated extension DatabaseManager {
         // Recreate indexes
         _ = try? database.run(articles.createIndex(articleFeedID, ifNotExists: true))
         _ = try? database.run(articles.createIndex(articlePublishedDate, ifNotExists: true))
+        _ = try? database.run(articles.createIndex(articleFeedID, articleIsRead, ifNotExists: true))
     }
 }

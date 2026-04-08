@@ -3,7 +3,6 @@ import SwiftUI
 struct PhotosStyleView: View {
 
     @Environment(FeedManager.self) var feedManager
-    @Environment(\.openURL) private var openURL
     @Environment(\.zoomNamespace) private var zoomNamespace
     let articles: [Article]
     var onLoadMore: (() -> Void)?
@@ -13,25 +12,8 @@ struct PhotosStyleView: View {
         ScrollView(.vertical) {
             LazyVStack(spacing: 0) {
                 ForEach(articles) { article in
-                    let articleFeed = feedManager.feed(forArticle: article)
-                    if articleFeed?.isInstagramFeed == true || articleFeed?.isXFeed == true {
-                        PhotosArticleCard(article: article, onPhotoTap: {
-                            feedManager.markRead(article)
-                            if let url = URL(string: article.url) {
-                                openURL(url)
-                            }
-                        })
-                        .buttonStyle(.plain)
+                    PhotosArticleCard(article: article, youTubeArticle: $youTubeArticle)
                         .zoomSource(id: article.id, namespace: zoomNamespace)
-                    } else {
-                        ArticleLink(article: article, onShowYouTubePlayer: {
-                            youTubeArticle = $0
-                        }, label: {
-                            PhotosArticleCard(article: article)
-                                .zoomSource(id: article.id, namespace: zoomNamespace)
-                        })
-                        .buttonStyle(.plain)
-                    }
                 }
                 if let onLoadMore {
                     LoadPreviousArticlesButton(action: onLoadMore)
@@ -50,13 +32,14 @@ struct PhotosArticleCard: View {
 
     @Environment(FeedManager.self) var feedManager
     let article: Article
-    var onPhotoTap: (() -> Void)?
+    @Binding var youTubeArticle: Article?
     @State private var favicon: UIImage?
     @State private var feedName: String?
     @State private var acronymIcon: UIImage?
     @State private var skipFaviconInset = false
     @State private var photoImage: UIImage?
     @State private var feed: Feed?
+    @State private var currentPage: Int = 0
 
     @ViewBuilder
     private var feedAvatarView: some View {
@@ -110,6 +93,9 @@ struct PhotosArticleCard: View {
 
                 Menu {
                     Button {
+                        #if DEBUG
+                        print("[PhotosCard] Menu: toggle read for article \(article.id)")
+                        #endif
                         feedManager.toggleRead(article)
                     } label: {
                         Label(
@@ -122,6 +108,7 @@ struct PhotosArticleCard: View {
                     }
                 } label: {
                     Image(systemName: "ellipsis")
+                        .tint(.primary)
                         .font(.subheadline)
                         .fontWeight(.semibold)
                         .foregroundStyle(.secondary)
@@ -132,33 +119,79 @@ struct PhotosArticleCard: View {
             .padding(.horizontal, 12)
             .padding(.vertical, 10)
 
-            // Edge-to-edge photo
-            if let imageURL = article.imageURL, let url = URL(string: imageURL) {
+            // Edge-to-edge photo or carousel
+            if article.carouselImageURLs.count > 1 {
+                let urls = article.carouselImageURLs.compactMap { URL(string: $0) }
+                if !urls.isEmpty {
+                    TabView(selection: $currentPage) {
+                        ForEach(Array(urls.enumerated()), id: \.offset) { index, url in
+                            CachedAsyncImage(url: url) {
+                                Rectangle()
+                                    .fill(.secondary.opacity(0.1))
+                            }
+                            .allowsHitTesting(false)
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                            .clipped()
+                            .tag(index)
+                        }
+                    }
+                    .tabViewStyle(.page(indexDisplayMode: .never))
+                    .aspectRatio(4/3, contentMode: .fit)
+                    .frame(maxWidth: .infinity)
+                    .clipped()
+                    .overlay(alignment: .bottom) {
+                        PageDotsView(count: urls.count, current: currentPage)
+                            .padding(.bottom, 8)
+                    }
+                    .task {
+                        photoImage = await CachedAsyncImage<EmptyView>.loadImage(from: urls[0])
+                    }
+                    .padding(.bottom, 10)
+                }
+            } else if let imageURL = article.imageURL, let url = URL(string: imageURL) {
                 CachedAsyncImage(url: url) {
                     Rectangle()
                         .fill(.secondary.opacity(0.1))
-                        .aspectRatio(1, contentMode: .fit)
+                        .aspectRatio(4/3, contentMode: .fit)
                 }
                 .aspectRatio(4/3, contentMode: .fit)
                 .frame(maxWidth: .infinity)
                 .clipped()
-                .overlay {
-                    if let onPhotoTap {
-                        Button(action: onPhotoTap) {
-                            Color.clear.contentShape(Rectangle())
-                        }
-                        .buttonStyle(.plain)
-                    }
-                }
+                .allowsHitTesting(false)
                 .task {
                     photoImage = await CachedAsyncImage<EmptyView>.loadImage(from: url)
                 }
                 .padding(.bottom, 10)
             }
 
+            // Article title (tapping opens the article)
+            ArticleLink(article: article, onShowYouTubePlayer: {
+                youTubeArticle = $0
+            }, label: {
+                Text(article.title)
+                    .font(.subheadline)
+                    .foregroundStyle(.primary)
+                    .lineLimit(3)
+                    .multilineTextAlignment(.leading)
+                    .padding(.horizontal, 12)
+                    .padding(.bottom, 10)
+            })
+            .buttonStyle(.plain)
+
+            if let date = article.publishedDate {
+                RelativeTimeText(date: date)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .padding(.horizontal, 12)
+                    .padding(.bottom, 10)
+            }
+
             // Action buttons below photo
             HStack(spacing: 16) {
                 Button {
+                    #if DEBUG
+                    print("[PhotosCard] Copy tapped for article \(article.id), photoImage=\(photoImage != nil)")
+                    #endif
                     UIImpactFeedbackGenerator(style: .light).impactOccurred()
                     if let photoImage {
                         UIPasteboard.general.image = photoImage
@@ -167,19 +200,20 @@ struct PhotosArticleCard: View {
                     Label(String(localized: "Article.CopyPhoto"),
                           systemImage: "square.on.square")
                 }
-                .disabled(photoImage == nil)
 
-                if let shareURL = URL(string: article.url) {
-                    ShareLink(item: shareURL) {
-                        Label(String(localized: "Article.Share"),
-                              systemImage: "square.and.arrow.up")
-                    }
-                    .padding(.bottom, 1)
+                ShareLink(item: URL(string: article.url) ?? URL(string: "https://")!) {
+                    Label(String(localized: "Article.Share"),
+                          systemImage: "square.and.arrow.up")
                 }
+                .padding(.bottom, 1)
+                .disabled(URL(string: article.url) == nil)
 
                 Spacer()
 
                 Button {
+                    #if DEBUG
+                    print("[PhotosCard] Bookmark tapped for article \(article.id)")
+                    #endif
                     UIImpactFeedbackGenerator(style: .light).impactOccurred()
                     feedManager.toggleBookmark(article)
                 } label: {
@@ -198,23 +232,6 @@ struct PhotosArticleCard: View {
             .padding(.horizontal, 12)
             .padding(.bottom, 10)
 
-            // Article title below photo
-            Text(article.title)
-                .font(.subheadline)
-                .foregroundStyle(.primary)
-                .lineLimit(3)
-                .multilineTextAlignment(.leading)
-                .padding(.horizontal, 12)
-                .padding(.bottom, 10)
-
-            if let date = article.publishedDate {
-                RelativeTimeText(date: date)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .padding(.horizontal, 12)
-                    .padding(.bottom, 10)
-            }
-
             Divider()
                 .padding(.top, 4)
         }
@@ -230,5 +247,27 @@ struct PhotosArticleCard: View {
                 favicon = await FaviconCache.shared.favicon(for: loadedFeed)
             }
         }
+    }
+}
+
+// MARK: - Page Dots
+
+private struct PageDotsView: View {
+
+    let count: Int
+    let current: Int
+
+    var body: some View {
+        HStack(spacing: 6) {
+            ForEach(0..<count, id: \.self) { index in
+                Circle()
+                    .fill(index == current ? Color.white : Color.white.opacity(0.5))
+                    .frame(width: 6, height: 6)
+            }
+        }
+        .padding(.horizontal, 8)
+        .padding(.vertical, 4)
+        .background(.black.opacity(0.3), in: .capsule)
+        .animation(.easeInOut(duration: 0.2), value: current)
     }
 }

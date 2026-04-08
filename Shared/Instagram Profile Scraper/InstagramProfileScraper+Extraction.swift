@@ -98,9 +98,30 @@ extension InstagramProfileScraper {
             captionText = text
         }
 
-        // Image URL
-        let imageURL = node["display_url"] as? String
+        // Image URL — for video/reel posts, display_url is the poster frame.
+        // Fall back to thumbnail_resources (sorted by size) if the primary
+        // keys are absent.
+        var imageURL = node["display_url"] as? String
             ?? node["thumbnail_src"] as? String
+        if imageURL == nil,
+           let resources = node["thumbnail_resources"] as? [[String: Any]] {
+            let sorted = resources.sorted {
+                ($0["config_width"] as? Int ?? 0) > ($1["config_width"] as? Int ?? 0)
+            }
+            imageURL = sorted.first?["src"] as? String
+        }
+
+        // Carousel images (edge_sidecar_to_children contains all slides)
+        var carouselImageURLs: [String] = []
+        if let sidecar = node["edge_sidecar_to_children"] as? [String: Any],
+           let edges = sidecar["edges"] as? [[String: Any]] {
+            for edge in edges {
+                guard let childNode = edge["node"] as? [String: Any] else { continue }
+                if let childURL = childNode["display_url"] as? String {
+                    carouselImageURLs.append(childURL)
+                }
+            }
+        }
 
         // Publish date
         var publishedDate: Date?
@@ -117,7 +138,8 @@ extension InstagramProfileScraper {
             author: authorName,
             authorHandle: username,
             url: postURL,
-            imageURL: imageURL,
+            imageURL: carouselImageURLs.first ?? imageURL,
+            carouselImageURLs: carouselImageURLs,
             publishedDate: publishedDate
         )
     }
@@ -151,9 +173,14 @@ extension InstagramProfileScraper {
 
         // Image URL — carousel or single
         var imageURL: String?
-        if let carouselMedia = item["carousel_media"] as? [[String: Any]],
-           let firstMedia = carouselMedia.first {
-            imageURL = bestImageURL(from: firstMedia)
+        var carouselImageURLs: [String] = []
+        if let carouselMedia = item["carousel_media"] as? [[String: Any]] {
+            for media in carouselMedia {
+                if let url = bestImageURL(from: media) {
+                    carouselImageURLs.append(url)
+                }
+            }
+            imageURL = carouselImageURLs.first
         }
         if imageURL == nil {
             imageURL = bestImageURL(from: item)
@@ -177,6 +204,7 @@ extension InstagramProfileScraper {
             authorHandle: username,
             url: postURL,
             imageURL: imageURL,
+            carouselImageURLs: carouselImageURLs,
             publishedDate: publishedDate
         )
     }

@@ -11,8 +11,6 @@ struct SakuraRSSApp: App {
     @State private var feedManager = FeedManager()
     @State private var pendingFeedURL: String?
     @State private var pendingArticleID: Int64?
-    @State private var isInSafeMode: Bool
-    @State private var labsWereDisabled: Bool
     @AppStorage("ForceWhileYouSlept") private var forceWhileYouSlept: Bool = false
     @AppStorage("ForceTodaysSummary") private var forceTodaysSummary: Bool = false
     @AppStorage("BackgroundRefresh.Enabled") private var backgroundRefreshEnabled: Bool = true
@@ -21,14 +19,11 @@ struct SakuraRSSApp: App {
 
     var body: some Scene {
         WindowGroup {
-            MainTabView(pendingFeedURL: $pendingFeedURL, pendingArticleID: $pendingArticleID,
-                        isInSafeMode: $isInSafeMode, labsWereDisabled: $labsWereDisabled)
+            MainTabView(pendingFeedURL: $pendingFeedURL, pendingArticleID: $pendingArticleID)
                 .environment(\.defaultMinListRowHeight, 10.0)
                 .environment(feedManager)
                 .task {
-                    if !isInSafeMode {
-                        await feedManager.refreshAllFeeds()
-                    }
+                    await feedManager.refreshAllFeeds()
                     UserDefaults.standard.set(false, forKey: "App.StartupInProgress")
                     feedManager.updateBadgeCount()
                     requestReviewIfNeeded()
@@ -77,6 +72,7 @@ struct SakuraRSSApp: App {
                 UserDefaults.standard.set(false, forKey: "Onboarding.Completed")
             case "fixup":
                 DatabaseManager.shared.fixup()
+                UserDefaults.standard.removeObject(forKey: "App.DatabaseVersion")
             case "arisishere":
                 Task {
                     await feedManager.deleteAllArticlesAndRefresh()
@@ -125,27 +121,6 @@ struct SakuraRSSApp: App {
 
     init() {
         let defaults = UserDefaults.standard
-        let wasStartupInProgress = defaults.bool(forKey: "App.StartupInProgress")
-
-        if wasStartupInProgress {
-            _isInSafeMode = State(initialValue: true)
-            defaults.removeObject(forKey: "App.SelectedTab")
-            defaults.removeObject(forKey: "Home.FeedID")
-            defaults.removeObject(forKey: "Home.ArticleID")
-            defaults.removeObject(forKey: "FeedsList.FeedID")
-            defaults.removeObject(forKey: "FeedsList.ArticleID")
-            // Disable all labs features in safe mode
-            let hadLabsEnabled = defaults.bool(forKey: "Labs.XProfileFeeds")
-                || defaults.bool(forKey: "Labs.InstagramProfileFeeds")
-            defaults.set(false, forKey: "Labs.XProfileFeeds")
-            defaults.set(false, forKey: "Labs.InstagramProfileFeeds")
-            _labsWereDisabled = State(initialValue: hadLabsEnabled)
-        } else {
-            _isInSafeMode = State(initialValue: false)
-            _labsWereDisabled = State(initialValue: false)
-        }
-
-        defaults.set(true, forKey: "App.StartupInProgress")
         defaults.set(defaults.integer(forKey: "App.LaunchCount") + 1, forKey: "App.LaunchCount")
         registerBackgroundTask()
         try? Tips.configure()

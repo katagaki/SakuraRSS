@@ -37,6 +37,7 @@ nonisolated final class DatabaseManager: @unchecked Sendable {
     let articleSummary = SQLite.Expression<String?>("summary")
     let articleContent = SQLite.Expression<String?>("content")
     let articleImageURL = SQLite.Expression<String?>("image_url")
+    let articleCarouselURLs = SQLite.Expression<String?>("carousel_urls")
     let articlePublishedDate = SQLite.Expression<Double?>("published_date")
     let articleIsRead = SQLite.Expression<Bool>("is_read")
     let articleIsBookmarked = SQLite.Expression<Bool>("is_bookmarked")
@@ -87,11 +88,13 @@ nonisolated final class DatabaseManager: @unchecked Sendable {
     }
 
     private func fixupIfVersionChanged() {
-        let currentVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String
-        let storedVersion = UserDefaults.standard.string(forKey: "App.DatabaseVersion")
-        if currentVersion != storedVersion {
+        let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? ""
+        let build = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? ""
+        let current = "\(version).\(build)"
+        let stored = UserDefaults.standard.string(forKey: "App.DatabaseVersion")
+        if current != stored {
             fixup()
-            UserDefaults.standard.set(currentVersion, forKey: "App.DatabaseVersion")
+            UserDefaults.standard.set(current, forKey: "App.DatabaseVersion")
         }
     }
 
@@ -127,6 +130,7 @@ nonisolated final class DatabaseManager: @unchecked Sendable {
             table.column(articleSummary)
             table.column(articleContent)
             table.column(articleImageURL)
+            table.column(articleCarouselURLs)
             table.column(articlePublishedDate)
             table.column(articleIsRead, defaultValue: false)
             table.column(articleIsBookmarked, defaultValue: false)

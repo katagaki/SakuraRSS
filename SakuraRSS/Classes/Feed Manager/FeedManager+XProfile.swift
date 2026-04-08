@@ -38,6 +38,7 @@ extension FeedManager {
                     author: tweet.author.isEmpty ? "@\(tweet.authorHandle)" : tweet.author,
                     summary: tweet.text.isEmpty ? nil : tweet.text,
                     imageURL: tweet.imageURL,
+                    carouselImageURLs: tweet.carouselImageURLs,
                     publishedDate: tweet.publishedDate
                 )
             )

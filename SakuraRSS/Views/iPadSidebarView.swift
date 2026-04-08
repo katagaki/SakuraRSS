@@ -15,8 +15,6 @@ struct IPadSidebarView: View {
     @AppStorage("YouTube.OpenMode") private var youTubeOpenMode: YouTubeOpenMode = .inAppPlayer
     @Binding var pendingFeedURL: String?
     @Binding var pendingArticleID: Int64?
-    @Binding var isInSafeMode: Bool
-    @Binding var labsWereDisabled: Bool
 
     @State private var selectedDestination: SidebarDestination? = .allArticles
     @State private var selectedArticle: Article?
@@ -25,7 +23,6 @@ struct IPadSidebarView: View {
     @State private var showingMore = false
     @State private var lastAddedFeedURL: String?
     @State private var showingOnboarding = false
-    @State private var showingSafeModeAlert = false
     @State private var showYouTubeSafari = false
     @State private var pendingYouTubeSafariURL: URL?
     @State private var searchText = ""
@@ -112,17 +109,6 @@ struct IPadSidebarView: View {
             if !onboardingCompleted {
                 showingOnboarding = true
             }
-            if isInSafeMode && labsWereDisabled {
-                showingSafeModeAlert = true
-            }
-        }
-        .alert(String(localized: "SafeMode.Title"), isPresented: $showingSafeModeAlert) {
-            Button(String(localized: "SafeMode.OK"), role: .cancel) {
-                isInSafeMode = false
-                labsWereDisabled = false
-            }
-        } message: {
-            Text("SafeMode.Message")
         }
         .sheet(isPresented: $showYouTubeSafari) {
             if let url = pendingYouTubeSafariURL {

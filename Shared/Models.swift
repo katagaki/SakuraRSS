@@ -95,6 +95,8 @@ nonisolated struct Article: Identifiable, Hashable, Sendable {
     var summary: String?
     var content: String?
     var imageURL: String?
+    /// All image URLs for Instagram carousel posts. Empty for single-image posts.
+    var carouselImageURLs: [String] = []
     var publishedDate: Date?
     var isRead: Bool
     var isBookmarked: Bool
