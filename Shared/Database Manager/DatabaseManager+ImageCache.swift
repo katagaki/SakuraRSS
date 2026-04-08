@@ -25,4 +25,9 @@ nonisolated extension DatabaseManager {
     func clearImageCache() throws {
         try database.run(imageCache.delete())
     }
+
+    func clearImageCache(olderThan date: Date) throws {
+        let target = imageCache.filter(imageCachedAt < date.timeIntervalSince1970)
+        try database.run(target.delete())
+    }
 }
