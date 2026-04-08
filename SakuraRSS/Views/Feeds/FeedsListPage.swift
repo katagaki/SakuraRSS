@@ -116,13 +116,12 @@ struct FeedsListPage: View {
                 .presentationDetents([.medium, .large])
                 .interactiveDismissDisabled()
         }
-        .confirmationDialog(
+        .alert(
             String(localized: "FeedMenu.Delete.Title"),
             isPresented: Binding(
                 get: { feedToDelete != nil },
                 set: { if !$0 { feedToDelete = nil } }
-            ),
-            titleVisibility: .visible
+            )
         ) {
             Button(String(localized: "FeedMenu.Delete.Confirm"), role: .destructive) {
                 if let feed = feedToDelete {

@@ -302,10 +302,9 @@ struct MoreView: View {
                     Text(alertMessage)
                 }
             }
-            .confirmationDialog(
+            .alert(
                 String(localized: "DataManagement.Cleanup.ConfirmTitle"),
-                isPresented: $showCleanupConfirmation,
-                titleVisibility: .visible
+                isPresented: $showCleanupConfirmation
             ) {
                 Button(String(localized: "DataManagement.Cleanup.Confirm"), role: .destructive) {
                     isCleaningUp = true
