@@ -12,7 +12,7 @@ struct YouTubeSettingsView: View {
     var body: some View {
         List {
             Section {
-                Picker(String(localized: "Settings.YouTube.OpenMode"), selection: $youTubeOpenMode) {
+                Picker("Settings.YouTube.OpenMode", selection: $youTubeOpenMode) {
                     Text("Settings.YouTube.InAppPlayer")
                         .tag(YouTubeOpenMode.inAppPlayer)
                     if YouTubeHelper.isAppInstalled {
@@ -27,14 +27,14 @@ struct YouTubeSettingsView: View {
             if youTubeOpenMode == .inAppPlayer {
                 Section {
                     if isYouTubeSignedIn {
-                        Button(String(localized: "Labs.YouTubePlayer.SignOut")) {
+                        Button("Labs.YouTubePlayer.SignOut") {
                             Task {
                                 await YouTubePlayerView.clearYouTubeSession()
                                 isYouTubeSignedIn = false
                             }
                         }
                     } else {
-                        Button(String(localized: "Labs.YouTubePlayer.SignIn")) {
+                        Button("Labs.YouTubePlayer.SignIn") {
                             showYouTubeLogin = true
                         }
                     }
@@ -44,7 +44,7 @@ struct YouTubeSettingsView: View {
 
                 Section {
                     Toggle(
-                        String(localized: "Settings.YouTube.SponsorBlock"),
+                        "Settings.YouTube.SponsorBlock",
                         isOn: $sponsorBlockEnabled
                     )
                 } footer: {
@@ -84,7 +84,7 @@ struct YouTubeSettingsView: View {
             }
         }
         .animation(.smooth.speed(2.0), value: youTubeOpenMode)
-        .navigationTitle(String(localized: "Integrations.YouTube"))
+        .navigationTitle("Integrations.YouTube")
         .toolbarTitleDisplayMode(.inline)
         .sheet(isPresented: $showYouTubeLogin) {
             Task {

@@ -24,11 +24,11 @@ struct LabsView: View {
             }
 
             Section {
-                Toggle(String(localized: "Labs.XProfileFeeds"), isOn: $xProfileFeedsEnabled)
+                Toggle("Labs.XProfileFeeds", isOn: $xProfileFeedsEnabled)
 
                 if xProfileFeedsEnabled {
                     if isXSignedIn {
-                        Button(String(localized: "Labs.XProfileFeeds.RefreshAuth")) {
+                        Button("Labs.XProfileFeeds.RefreshAuth") {
                             Task {
                                 await MainActor.run {
                                     XProfileScraper.queryIDsFetched = false
@@ -36,14 +36,14 @@ struct LabsView: View {
                                 await XProfileScraper.fetchQueryIDsIfNeeded()
                             }
                         }
-                        Button(String(localized: "Labs.XProfileFeeds.SignOut")) {
+                        Button("Labs.XProfileFeeds.SignOut") {
                             Task {
                                 await XProfileScraper.clearXSession()
                                 isXSignedIn = false
                             }
                         }
                     } else {
-                        Button(String(localized: "Labs.XProfileFeeds.SignIn")) {
+                        Button("Labs.XProfileFeeds.SignIn") {
                             showXLogin = true
                         }
                     }
@@ -53,19 +53,19 @@ struct LabsView: View {
             }
 
             Section {
-                Toggle(String(localized: "Labs.InstagramProfileFeeds"),
+                Toggle("Labs.InstagramProfileFeeds",
                        isOn: $instagramProfileFeedsEnabled)
 
                 if instagramProfileFeedsEnabled {
                     if isInstagramSignedIn {
-                        Button(String(localized: "Labs.InstagramProfileFeeds.SignOut")) {
+                        Button("Labs.InstagramProfileFeeds.SignOut") {
                             Task {
                                 await InstagramProfileScraper.clearInstagramSession()
                                 isInstagramSignedIn = false
                             }
                         }
                     } else {
-                        Button(String(localized: "Labs.InstagramProfileFeeds.SignIn")) {
+                        Button("Labs.InstagramProfileFeeds.SignIn") {
                             showInstagramLogin = true
                         }
                     }
@@ -77,7 +77,7 @@ struct LabsView: View {
         }
         .animation(.smooth.speed(2.0), value: xProfileFeedsEnabled)
         .animation(.smooth.speed(2.0), value: instagramProfileFeedsEnabled)
-        .navigationTitle(String(localized: "Labs.Title"))
+        .navigationTitle("Labs.Title")
         .toolbarTitleDisplayMode(.inline)
         .sheet(isPresented: $showXLogin) {
             Task {

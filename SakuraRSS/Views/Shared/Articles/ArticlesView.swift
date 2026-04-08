@@ -165,7 +165,7 @@ struct ArticlesView: View {
                     )
                     if hideReadSupported {
                         Section {
-                            Toggle(String(localized: "Articles.HideRead"), isOn: $hideRead)
+                            Toggle("Articles.HideRead", isOn: $hideRead)
                         }
                     }
                 } label: {
@@ -204,14 +204,14 @@ struct ArticlesView: View {
         .overlay {
             if articles.isEmpty {
                 ContentUnavailableView {
-                    Label(String(localized: "Articles.Empty.Title"),
+                    Label("Articles.Empty.Title",
                           systemImage: "doc.text")
                 } description: {
                     Text("Articles.Empty.Description")
                 }
             } else if visibleArticles.isEmpty && hideRead {
                 ContentUnavailableView {
-                    Label(String(localized: "Articles.AllRead.Title"),
+                    Label("Articles.AllRead.Title",
                           systemImage: "checkmark.circle")
                 } description: {
                     Text("Articles.AllRead.Description")

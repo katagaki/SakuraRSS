@@ -60,11 +60,11 @@ struct VideoStyleView: View {
                         Button {
                             UIPasteboard.general.string = article.url
                         } label: {
-                            Label(String(localized: "Article.CopyLink"), systemImage: "link")
+                            Label("Article.CopyLink", systemImage: "link")
                         }
                         if let shareURL = URL(string: article.url) {
                             ShareLink(item: shareURL) {
-                                Label(String(localized: "Article.Share"), systemImage: "square.and.arrow.up")
+                                Label("Article.Share", systemImage: "square.and.arrow.up")
                             }
                         }
                     }
@@ -197,11 +197,11 @@ struct VideoArticleCard: View {
                     Button {
                         UIPasteboard.general.string = article.url
                     } label: {
-                        Label(String(localized: "Article.CopyLink"), systemImage: "link")
+                        Label("Article.CopyLink", systemImage: "link")
                     }
                     if let shareURL = URL(string: article.url) {
                         ShareLink(item: shareURL) {
-                            Label(String(localized: "Article.Share"), systemImage: "square.and.arrow.up")
+                            Label("Article.Share", systemImage: "square.and.arrow.up")
                         }
                     }
                 } label: {

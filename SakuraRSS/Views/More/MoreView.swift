@@ -32,7 +32,7 @@ struct MoreView: View {
         NavigationStack {
             List {
                 Section {
-                    Picker(String(localized: "Settings.DefaultDisplayStyle"), selection: $defaultDisplayStyle) {
+                    Picker("Settings.DefaultDisplayStyle", selection: $defaultDisplayStyle) {
                         Text("Articles.Style.Inbox")
                             .tag(FeedDisplayStyle.inbox)
                         Text("Articles.Style.Compact")
@@ -40,7 +40,7 @@ struct MoreView: View {
                         Text("Articles.Style.Feed")
                             .tag(FeedDisplayStyle.feed)
                     }
-                    Picker(String(localized: "Settings.SearchDisplayStyle"), selection: $searchDisplayStyle) {
+                    Picker("Settings.SearchDisplayStyle", selection: $searchDisplayStyle) {
                         Text("Articles.Style.Inbox")
                             .tag(FeedDisplayStyle.inbox)
                         Text("Articles.Style.Compact")
@@ -48,7 +48,7 @@ struct MoreView: View {
                         Text("Articles.Style.Feed")
                             .tag(FeedDisplayStyle.feed)
                     }
-                    Picker(String(localized: "Settings.MarkAllReadPosition"), selection: $markAllReadPosition) {
+                    Picker("Settings.MarkAllReadPosition", selection: $markAllReadPosition) {
                         Text("Settings.MarkAllReadPosition.Bottom")
                             .tag(MarkAllReadPosition.bottom)
                         Text("Settings.MarkAllReadPosition.Top")
@@ -56,7 +56,7 @@ struct MoreView: View {
                         Text("Settings.MarkAllReadPosition.None")
                             .tag(MarkAllReadPosition.none)
                     }
-                    Picker(String(localized: "Settings.UnreadBadgeMode"), selection: $unreadBadgeMode) {
+                    Picker("Settings.UnreadBadgeMode", selection: $unreadBadgeMode) {
                         if UIDevice.current.userInterfaceIdiom == .pad {
                             Text("Settings.UnreadBadgeMode.HomeScreenOnly")
                                 .tag(UnreadBadgeMode.homeScreenOnly)
@@ -95,7 +95,7 @@ struct MoreView: View {
                 }
 
                 Section {
-                    Toggle(String(localized: "Settings.BackgroundRefresh"), isOn: $backgroundRefreshEnabled)
+                    Toggle("Settings.BackgroundRefresh", isOn: $backgroundRefreshEnabled)
                     if backgroundRefreshEnabled {
                         Picker(selection: $refreshInterval) {
                             Text("Settings.Refresh.15min").tag(15)
@@ -106,7 +106,7 @@ struct MoreView: View {
                             Text("Settings.Refresh.12hours").tag(720)
                             Text("Settings.Refresh.24hours").tag(1440)
                         } label: {
-                            Text(String(localized: "Settings.RefreshInterval"))
+                            Text("Settings.RefreshInterval")
                         }
                     }
                 } header: {
@@ -140,7 +140,7 @@ struct MoreView: View {
                             VStack(spacing: 6) {
                                 Image(systemName: "square.and.arrow.up")
                                     .font(.title2)
-                                Text(String(localized: "DataManagement.ExportOPML"))
+                                Text("DataManagement.ExportOPML")
                                     .font(.body)
                             }
                             .frame(maxWidth: .infinity)
@@ -154,7 +154,7 @@ struct MoreView: View {
                             VStack(spacing: 6) {
                                 Image(systemName: "square.and.arrow.down")
                                     .font(.title2)
-                                Text(String(localized: "DataManagement.ImportOPML"))
+                                Text("DataManagement.ImportOPML")
                                     .font(.body)
                             }
                             .frame(maxWidth: .infinity)
@@ -171,29 +171,29 @@ struct MoreView: View {
 
                 Section {
                     Menu {
-                        Button(String(localized: "DataManagement.Cleanup.Last24Hours")) {
+                        Button("DataManagement.Cleanup.Last24Hours") {
                             selectedCleanupCutoff = Calendar.current.date(byAdding: .day, value: -1, to: Date())
                             selectedCleanupLabel = String(localized: "DataManagement.Cleanup.Last24Hours")
                             showCleanupConfirmation = true
                         }
-                        Button(String(localized: "DataManagement.Cleanup.Last7Days")) {
+                        Button("DataManagement.Cleanup.Last7Days") {
                             selectedCleanupCutoff = Calendar.current.date(byAdding: .day, value: -7, to: Date())
                             selectedCleanupLabel = String(localized: "DataManagement.Cleanup.Last7Days")
                             showCleanupConfirmation = true
                         }
-                        Button(String(localized: "DataManagement.Cleanup.Last4Weeks")) {
+                        Button("DataManagement.Cleanup.Last4Weeks") {
                             selectedCleanupCutoff = Calendar.current.date(byAdding: .weekOfYear, value: -4, to: Date())
                             selectedCleanupLabel = String(localized: "DataManagement.Cleanup.Last4Weeks")
                             showCleanupConfirmation = true
                         }
-                        Button(String(localized: "DataManagement.Cleanup.AllTime")) {
+                        Button("DataManagement.Cleanup.AllTime") {
                             selectedCleanupCutoff = nil
                             selectedCleanupLabel = String(localized: "DataManagement.Cleanup.AllTime")
                             showCleanupConfirmation = true
                         }
                     } label: {
                         HStack {
-                            Text(String(localized: "DataManagement.Cleanup.Title"))
+                            Text("DataManagement.Cleanup.Title")
                                 .foregroundStyle(.red)
                             Spacer()
                             if isCleaningUp {
@@ -207,7 +207,7 @@ struct MoreView: View {
                 Section {
                     Link(destination: URL(string: "https://github.com/katagaki/SakuraRSS")!) {
                         HStack {
-                            Text(String(localized: "More.SourceCode"))
+                            Text("More.SourceCode")
                             Spacer()
                             Text("katagaki/SakuraRSS")
                                 .foregroundStyle(.secondary)
@@ -217,7 +217,7 @@ struct MoreView: View {
                     NavigationLink {
                         AttributesView()
                     } label: {
-                        Text(String(localized: "More.Attribution"))
+                        Text("More.Attribution")
                     }
                 }
 
@@ -225,7 +225,7 @@ struct MoreView: View {
             .animation(.smooth.speed(2.0), value: backgroundRefreshEnabled)
             .listStyle(.insetGrouped)
             .listSectionSpacing(.compact)
-            .navigationTitle(String(localized: "Tabs.More"))
+            .navigationTitle("Tabs.More")
             .toolbarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
@@ -276,33 +276,33 @@ struct MoreView: View {
                 }
             }
             .alert(
-                String(localized: "DataManagement.Import.ModeTitle"),
+                "DataManagement.Import.ModeTitle",
                 isPresented: $showImportModeChoice
             ) {
-                Button(String(localized: "DataManagement.Import.Merge")) {
+                Button("DataManagement.Import.Merge") {
                     performImport(overwrite: false)
                 }
-                Button(String(localized: "DataManagement.Import.Overwrite"), role: .destructive) {
+                Button("DataManagement.Import.Overwrite", role: .destructive) {
                     performImport(overwrite: true)
                 }
-                Button(String(localized: "Shared.Cancel"), role: .cancel) {
+                Button("Shared.Cancel", role: .cancel) {
                     importedFileData = nil
                 }
             } message: {
                 Text("DataManagement.Import.ModeMessage")
             }
-            .alert(String(localized: "DataManagement.Title"), isPresented: $showAlert) {
-                Button(String(localized: "Shared.OK")) {}
+            .alert("DataManagement.Title", isPresented: $showAlert) {
+                Button("Shared.OK") {}
             } message: {
                 if let alertMessage {
                     Text(alertMessage)
                 }
             }
             .alert(
-                String(localized: "DataManagement.Cleanup.ConfirmTitle"),
+                "DataManagement.Cleanup.ConfirmTitle",
                 isPresented: $showCleanupConfirmation
             ) {
-                Button(String(localized: "DataManagement.Cleanup.Confirm"), role: .destructive) {
+                Button("DataManagement.Cleanup.Confirm", role: .destructive) {
                     isCleaningUp = true
                     UIApplication.shared.isIdleTimerDisabled = true
                     Task {
@@ -313,7 +313,7 @@ struct MoreView: View {
                         showAlert = true
                     }
                 }
-                Button(String(localized: "Shared.Cancel"), role: .cancel) {}
+                Button("Shared.Cancel", role: .cancel) {}
             } message: {
                 Text("DataManagement.Cleanup.ConfirmMessage \(selectedCleanupLabel)")
             }

@@ -44,7 +44,7 @@ struct GridStyleView: View {
                         Divider()
                         if let shareURL = URL(string: article.url) {
                             ShareLink(item: shareURL) {
-                                Label(String(localized: "Article.Share"),
+                                Label("Article.Share",
                                       systemImage: "square.and.arrow.up")
                             }
                         }

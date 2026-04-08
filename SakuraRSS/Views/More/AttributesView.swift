@@ -16,7 +16,7 @@ struct AttributesView: View {
             }
         }
         .listStyle(.grouped)
-        .navigationTitle(String(localized: "More.Attribution"))
+        .navigationTitle("More.Attribution")
         .navigationBarTitleDisplayMode(.inline)
     }
 }

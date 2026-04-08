@@ -29,7 +29,7 @@ struct AddFeedView: View {
         NavigationStack {
             Form {
                 Section {
-                    TextField(String(localized: "AddFeed.DomainPlaceholder"), text: $urlInput)
+                    TextField("AddFeed.DomainPlaceholder", text: $urlInput)
                         .focused($isURLFieldFocused)
                         .keyboardType(.URL)
                         .textContentType(.URL)
@@ -177,7 +177,7 @@ struct AddFeedView: View {
                 }
             }
             .animation(.smooth.speed(2.0), value: urlInput.isEmpty)
-            .navigationTitle(String(localized: "AddFeed.Title"))
+            .navigationTitle("AddFeed.Title")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {

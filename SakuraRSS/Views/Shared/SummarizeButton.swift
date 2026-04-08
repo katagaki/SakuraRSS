@@ -52,7 +52,7 @@ struct SummarizeButton: View {
                 }
             } label: {
                 Label(
-                    String(localized: "Article.Summarize"),
+                    "Article.Summarize",
                     systemImage: "apple.intelligence"
                 )
                 .opacity(isSummarizing ? 0 : 1)

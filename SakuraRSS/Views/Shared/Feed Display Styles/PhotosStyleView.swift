@@ -225,12 +225,12 @@ struct PhotosArticleCard: View {
                         UIPasteboard.general.image = photoImage
                     }
                 } label: {
-                    Label(String(localized: "Article.CopyPhoto"),
+                    Label("Article.CopyPhoto",
                           systemImage: "square.on.square")
                 }
 
                 ShareLink(item: URL(string: article.url) ?? URL(string: "https://")!) {
-                    Label(String(localized: "Article.Share"),
+                    Label("Article.Share",
                           systemImage: "square.and.arrow.up")
                 }
                 .padding(.bottom, 1)

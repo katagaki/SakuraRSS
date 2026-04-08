@@ -11,19 +11,19 @@ struct InstagramSettingsView: View {
     var body: some View {
         List {
             Section {
-                Toggle(String(localized: "Labs.InstagramProfileFeeds"),
+                Toggle("Labs.InstagramProfileFeeds",
                        isOn: $instagramProfileFeedsEnabled)
 
                 if instagramProfileFeedsEnabled {
                     if isInstagramSignedIn {
-                        Button(String(localized: "Labs.InstagramProfileFeeds.SignOut")) {
+                        Button("Labs.InstagramProfileFeeds.SignOut") {
                             Task {
                                 await InstagramProfileScraper.clearInstagramSession()
                                 isInstagramSignedIn = false
                             }
                         }
                     } else {
-                        Button(String(localized: "Labs.InstagramProfileFeeds.SignIn")) {
+                        Button("Labs.InstagramProfileFeeds.SignIn") {
                             showInstagramLogin = true
                         }
                     }
@@ -34,14 +34,14 @@ struct InstagramSettingsView: View {
 
             if instagramProfileFeedsEnabled {
                 Section {
-                    Toggle(String(localized: "Instagram.HideReels"), isOn: $hideReels)
+                    Toggle("Instagram.HideReels", isOn: $hideReels)
                 } footer: {
                     Text("Instagram.HideReels.Footer")
                 }
             }
         }
         .animation(.smooth.speed(2.0), value: instagramProfileFeedsEnabled)
-        .navigationTitle(String(localized: "Integrations.Instagram"))
+        .navigationTitle("Integrations.Instagram")
         .toolbarTitleDisplayMode(.inline)
         .sheet(isPresented: $showInstagramLogin) {
             Task {

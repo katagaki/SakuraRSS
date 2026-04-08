@@ -17,7 +17,7 @@ extension ArticleDetailView {
             ToolbarItemGroup(placement: .topBarTrailing) {
                 if let shareURL = URL(string: article.url) {
                     ShareLink(item: shareURL) {
-                        Label(String(localized: "Article.Share"), systemImage: "square.and.arrow.up")
+                        Label("Article.Share", systemImage: "square.and.arrow.up")
                     }
                 }
             }

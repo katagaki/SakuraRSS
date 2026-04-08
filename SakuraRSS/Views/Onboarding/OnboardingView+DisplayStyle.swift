@@ -15,7 +15,7 @@ extension OnboardingView {
                     HStack {
                         Text("Onboarding.Setting.DefaultStyle")
                         Spacer()
-                        Picker(String(localized: "Onboarding.Setting.DefaultStyle"), selection: Binding(
+                        Picker("Onboarding.Setting.DefaultStyle", selection: Binding(
                             get: { defaultDisplayStyle },
                             set: { newValue in
                                 defaultDisplayStyle = newValue

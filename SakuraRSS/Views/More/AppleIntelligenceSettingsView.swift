@@ -8,18 +8,18 @@ struct AppleIntelligenceSettingsView: View {
     var body: some View {
         List {
             Section {
-                Toggle(String(localized: "Settings.WhileYouSlept"), isOn: $whileYouSleptEnabled)
+                Toggle("Settings.WhileYouSlept", isOn: $whileYouSleptEnabled)
             } footer: {
                 Text("Settings.WhileYouSlept.Footer")
             }
 
             Section {
-                Toggle(String(localized: "Settings.TodaysSummary"), isOn: $todaysSummaryEnabled)
+                Toggle("Settings.TodaysSummary", isOn: $todaysSummaryEnabled)
             } footer: {
                 Text("Settings.TodaysSummary.Footer")
             }
         }
-        .navigationTitle(String(localized: "Settings.Section.AppleIntelligence"))
+        .navigationTitle("Settings.Section.AppleIntelligence")
         .toolbarTitleDisplayMode(.inline)
     }
 }

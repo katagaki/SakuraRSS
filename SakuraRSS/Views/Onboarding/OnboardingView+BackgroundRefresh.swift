@@ -12,7 +12,7 @@ extension OnboardingView {
                 )
 
                 VStack(spacing: 0) {
-                    Toggle(String(localized: "Settings.BackgroundRefresh"), isOn: $backgroundRefreshEnabled)
+                    Toggle("Settings.BackgroundRefresh", isOn: $backgroundRefreshEnabled)
                         .padding(.horizontal)
                         .padding(.vertical, 12)
                 }

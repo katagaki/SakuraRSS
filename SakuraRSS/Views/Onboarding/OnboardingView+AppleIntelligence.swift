@@ -12,7 +12,7 @@ extension OnboardingView {
                 )
 
                 VStack(spacing: 0) {
-                    Toggle(String(localized: "Onboarding.Setting.AISummaries"), isOn: Binding(
+                    Toggle("Onboarding.Setting.AISummaries", isOn: Binding(
                         get: { todaysSummaryEnabled && whileYouSleptEnabled },
                         set: { newValue in
                             todaysSummaryEnabled = newValue

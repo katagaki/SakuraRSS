@@ -135,7 +135,7 @@ struct YouTubePlayerView: View {
                             VStack(spacing: 8) {
                                 Image(systemName: "pip.fill")
                                     .font(.largeTitle)
-                                Text(String(localized: "YouTube.PiP.Active"))
+                                Text("YouTube.PiP.Active")
                                     .font(.subheadline)
                             }
                             .foregroundStyle(.secondary)
@@ -218,7 +218,7 @@ struct YouTubePlayerView: View {
                         Button {
                             openURL(advertiserURL)
                         } label: {
-                            Text(String(localized: "YouTube.VisitAdvertiser"))
+                            Text("YouTube.VisitAdvertiser")
                                 .frame(maxWidth: .infinity)
                         }
                         .buttonStyle(.bordered)
@@ -305,7 +305,7 @@ struct YouTubePlayerView: View {
             ToolbarItemGroup(placement: .topBarTrailing) {
                 if let shareURL = URL(string: article.url) {
                     ShareLink(item: shareURL) {
-                        Label(String(localized: "Article.Share"), systemImage: "square.and.arrow.up")
+                        Label("Article.Share", systemImage: "square.and.arrow.up")
                     }
                 }
             }
@@ -364,7 +364,7 @@ struct YouTubePlayerView: View {
                 hasCachedSummary = true
             }
         }
-        .alert(String(localized: "Article.Summarize.Error"), isPresented: Binding(
+        .alert("Article.Summarize.Error", isPresented: Binding(
             get: { summarizationError != nil },
             set: { if !$0 { summarizationError = nil } }
         )) {

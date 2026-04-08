@@ -29,7 +29,7 @@ struct TranslateButton: View {
                 onTranslate()
             } label: {
                 Label(
-                    String(localized: "Article.Translate"),
+                    "Article.Translate",
                     systemImage: "translate"
                 )
                 .opacity(isTranslating ? 0 : 1)

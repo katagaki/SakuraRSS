@@ -12,13 +12,13 @@ struct DisplayStylePicker: View {
     var body: some View {
         Section("Articles.StyleSection.Classic") {
             Picker(selection: $displayStyle) {
-                Label(String(localized: "Articles.Style.Inbox"), systemImage: "tray")
+                Label("Articles.Style.Inbox"), systemImage: "tray")
                     .tag(FeedDisplayStyle.inbox)
                 if hasImages {
-                    Label(String(localized: "Articles.Style.Magazine"), systemImage: "rectangle.grid.2x2")
+                    Label("Articles.Style.Magazine"), systemImage: "rectangle.grid.2x2")
                         .tag(FeedDisplayStyle.magazine)
                 }
-                Label(String(localized: "Articles.Style.Compact"), systemImage: "list.dash")
+                Label("Articles.Style.Compact"), systemImage: "list.dash")
                     .tag(FeedDisplayStyle.compact)
             } label: {
                 EmptyView()
@@ -27,14 +27,14 @@ struct DisplayStylePicker: View {
         }
         Section("Articles.StyleSection.Visual") {
             Picker(selection: $displayStyle) {
-                Label(String(localized: "Articles.Style.Feed"), systemImage: "newspaper")
+                Label("Articles.Style.Feed"), systemImage: "newspaper")
                     .tag(FeedDisplayStyle.feed)
                 if hasImages {
-                    Label(String(localized: "Articles.Style.Photos"), systemImage: "photo.stack")
+                    Label("Articles.Style.Photos"), systemImage: "photo.stack")
                         .tag(FeedDisplayStyle.photos)
                 }
                 if hasImages {
-                    Label(String(localized: "Articles.Style.Grid"), systemImage: "square.grid.3x3")
+                    Label("Articles.Style.Grid"), systemImage: "square.grid.3x3")
                         .tag(FeedDisplayStyle.grid)
                 }
             } label: {
@@ -45,19 +45,19 @@ struct DisplayStylePicker: View {
         Section("Articles.StyleSection.Specialized") {
             Picker(selection: $displayStyle) {
                 if hasImages && showCards {
-                    Label(String(localized: "Articles.Style.Cards"), systemImage: "square.stack.3d.up")
+                    Label("Articles.Style.Cards"), systemImage: "square.stack.3d.up")
                         .tag(FeedDisplayStyle.cards)
                 }
                 if showTimeline {
-                    Label(String(localized: "Articles.Style.Timeline"), systemImage: "clock")
+                    Label("Articles.Style.Timeline"), systemImage: "clock")
                         .tag(FeedDisplayStyle.timeline)
                 }
                 if showVideo {
-                    Label(String(localized: "Articles.Style.Video"), systemImage: "play.rectangle")
+                    Label("Articles.Style.Video"), systemImage: "play.rectangle")
                         .tag(FeedDisplayStyle.video)
                 }
                 if showPodcast {
-                    Label(String(localized: "Articles.Style.Podcast"), systemImage: "headphones")
+                    Label("Articles.Style.Podcast"), systemImage: "headphones")
                         .tag(FeedDisplayStyle.podcast)
                 }
             } label: {

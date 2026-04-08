@@ -110,7 +110,7 @@ struct ListEditSheet: View {
                                             .foregroundStyle(.accent)
                                     }
                                 }
-                                .contentShape(Rectangle())
+                                .contentShape(.rect)
                             }
                             .buttonStyle(.plain)
                         }
