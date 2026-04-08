@@ -172,16 +172,18 @@ struct FeedArticleRow: View {
                         ScrollView(.horizontal, showsIndicators: false) {
                             HStack(spacing: 8) {
                                 ForEach(Array(urls.enumerated()), id: \.offset) { _, url in
-                                    CachedAsyncImage(url: url) {
-                                        Color.secondary.opacity(0.1)
-                                            .frame(width: 240)
-                                    }
-                                    .frame(height: 300)
-                                    .clipShape(.rect(cornerRadius: 12))
-                                    .overlay {
-                                        RoundedRectangle(cornerRadius: 12)
-                                            .stroke(.quaternary, lineWidth: 0.5)
-                                    }
+                                    Color.clear
+                                        .frame(width: 240, height: 300)
+                                        .overlay {
+                                            CachedAsyncImage(url: url) {
+                                                Color.secondary.opacity(0.1)
+                                            }
+                                        }
+                                        .clipShape(.rect(cornerRadius: 12))
+                                        .overlay {
+                                            RoundedRectangle(cornerRadius: 12)
+                                                .stroke(.quaternary, lineWidth: 0.5)
+                                        }
                                 }
                             }
                         }
