@@ -10,8 +10,9 @@ struct ListsView: View {
             ListsPage()
                 .environment(\.zoomNamespace, cardZoom)
                 .navigationDestination(for: FeedList.self) { list in
-                    ListDetailView(list: list)
+                    ListSectionView(list: list)
                         .environment(\.zoomNamespace, cardZoom)
+                        .environment(\.navigateToFeed, { feed in })
                 }
                 .navigationDestination(for: Feed.self) { feed in
                     FeedArticlesView(feed: feed)

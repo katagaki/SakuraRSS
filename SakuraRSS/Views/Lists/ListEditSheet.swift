@@ -98,8 +98,11 @@ struct ListEditSheet: View {
                                     selectedFeedIDs.insert(feed.id)
                                 }
                             } label: {
-                                HStack {
-                                    FeedRowView(feed: feed)
+                                HStack(spacing: 12) {
+                                    Text(feed.title)
+                                        .font(.body)
+                                        .lineLimit(1)
+                                        .foregroundStyle(.primary)
                                     Spacer()
                                     if selectedFeedIDs.contains(feed.id) {
                                         Image(systemName: "checkmark")
