@@ -57,6 +57,9 @@ final class FeedManager {
     func addFeed(url: String, title: String, siteURL: String,
                  description: String = "", faviconURL: String? = nil,
                  category: String? = nil, isPodcast: Bool = false) throws {
+        guard !database.feedExists(url: url) else {
+            throw FeedError.alreadyExists
+        }
         let feedID = try database.insertFeed(
             title: title, url: url, siteURL: siteURL,
             description: description, faviconURL: faviconURL,
@@ -246,4 +249,15 @@ final class FeedManager {
         }
     }
 
+}
+
+enum FeedError: LocalizedError {
+    case alreadyExists
+
+    var errorDescription: String? {
+        switch self {
+        case .alreadyExists:
+            String(localized: "FeedError.AlreadyExists")
+        }
+    }
 }
