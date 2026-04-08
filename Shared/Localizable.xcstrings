@@ -9066,7 +9066,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "X（Twitter）のプロフィールURLを追加して、プロフィールをフィードとしてフォローします。"
+            "value" : "X（Twitter）のプロフィールURLを追加して、プロフィールをフィードとしてフォローできるようになります。"
           }
         },
         "ko" : {
@@ -9361,7 +9361,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "InstagramのプロフィールURLを追加して、プロフィールをフィードとしてフォローします。"
+            "value" : "InstagramのプロフィールURLを追加して、プロフィールをフィードとしてフォローできるようになります。"
           }
         },
         "ko" : {
