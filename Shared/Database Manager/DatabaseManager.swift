@@ -61,6 +61,23 @@ nonisolated final class DatabaseManager: @unchecked Sendable {
     let ruleType = SQLite.Expression<String>("type")
     let ruleValue = SQLite.Expression<String>("value")
 
+    let lists = Table("lists")
+    let listID = SQLite.Expression<Int64>("id")
+    let listName = SQLite.Expression<String>("name")
+    let listIcon = SQLite.Expression<String>("icon")
+    let listDisplayStyle = SQLite.Expression<String?>("display_style")
+    let listSortOrder = SQLite.Expression<Int>("sort_order")
+
+    let listFeeds = Table("list_feeds")
+    let listFeedListID = SQLite.Expression<Int64>("list_id")
+    let listFeedFeedID = SQLite.Expression<Int64>("feed_id")
+
+    let listRules = Table("list_rules")
+    let listRuleID = SQLite.Expression<Int64>("id")
+    let listRuleListID = SQLite.Expression<Int64>("list_id")
+    let listRuleType = SQLite.Expression<String>("type")
+    let listRuleValue = SQLite.Expression<String>("value")
+
     // MARK: - Init
 
     private init() {
@@ -168,6 +185,27 @@ nonisolated final class DatabaseManager: @unchecked Sendable {
             table.column(ruleFeedID, references: feeds, feedID)
             table.column(ruleType)
             table.column(ruleValue)
+        })
+
+        try database.run(lists.create(ifNotExists: true) { table in
+            table.column(listID, primaryKey: .autoincrement)
+            table.column(listName)
+            table.column(listIcon, defaultValue: "newspaper")
+            table.column(listDisplayStyle)
+            table.column(listSortOrder, defaultValue: 0)
+        })
+
+        try database.run(listFeeds.create(ifNotExists: true) { table in
+            table.column(listFeedListID)
+            table.column(listFeedFeedID)
+            table.primaryKey(listFeedListID, listFeedFeedID)
+        })
+
+        try database.run(listRules.create(ifNotExists: true) { table in
+            table.column(listRuleID, primaryKey: .autoincrement)
+            table.column(listRuleListID)
+            table.column(listRuleType)
+            table.column(listRuleValue)
         })
     }
 }

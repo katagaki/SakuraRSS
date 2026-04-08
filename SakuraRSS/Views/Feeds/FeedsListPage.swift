@@ -10,6 +10,7 @@ struct FeedsListPage: View {
     @State private var feedToEdit: Feed?
     @State private var feedToDelete: Feed?
     @State private var feedForRules: Feed?
+    @State private var feedForListAssignment: Feed?
     @Namespace private var addFeedNamespace
 
     var filteredFeeds: [Feed] {
@@ -34,6 +35,19 @@ struct FeedsListPage: View {
             }
             .contextMenu {
                 feedContextMenu(for: feed)
+            }
+            .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                Button(role: .destructive) {
+                    feedToDelete = feed
+                } label: {
+                    Label(String(localized: "FeedMenu.Delete"), systemImage: "trash")
+                }
+                Button {
+                    feedForListAssignment = feed
+                } label: {
+                    Label(String(localized: "FeedMenu.AddToList"), systemImage: "text.badge.plus")
+                }
+                .tint(.purple)
             }
         }
         .onDelete { indexSet in
@@ -137,6 +151,11 @@ struct FeedsListPage: View {
                 Text("FeedMenu.Delete.Message.\(feed.title)")
             }
         }
+        .sheet(item: $feedForListAssignment) { feed in
+            AddFeedToListSheet(feed: feed)
+                .environment(feedManager)
+                .presentationDetents([.medium, .large])
+        }
     }
 
     @ViewBuilder
@@ -157,6 +176,12 @@ struct FeedsListPage: View {
         } label: {
             Label(String(localized: "FeedMenu.Rules"),
                   systemImage: "list.bullet.rectangle")
+        }
+        Button {
+            feedForListAssignment = feed
+        } label: {
+            Label(String(localized: "FeedMenu.AddToList"),
+                  systemImage: "text.badge.plus")
         }
         Divider()
         Button {

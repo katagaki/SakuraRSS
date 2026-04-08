@@ -7,6 +7,7 @@ final class FeedManager {
 
     var feeds: [Feed] = []
     var articles: [Article] = []
+    var lists: [FeedList] = []
     var isLoading = false
     private(set) var dataRevision: Int = 0
     private(set) var faviconRevision: Int = 0
@@ -25,6 +26,7 @@ final class FeedManager {
             feedsByID = Dictionary(uniqueKeysWithValues: feeds.map { ($0.id, $0) })
             articles = try database.allArticles(limit: 200)
             unreadCounts = (try? database.allUnreadCounts()) ?? [:]
+            lists = (try? database.allLists()) ?? []
             dataRevision += 1
         } catch {
             print("Failed to load from database: \(error)")
@@ -34,17 +36,19 @@ final class FeedManager {
     func loadFromDatabaseInBackground() async {
         let dbm = database
         do {
-            let (loadedFeeds, loadedArticles, loadedUnreadCounts) = try await Task.detached {
+            let (loadedFeeds, loadedArticles, loadedUnreadCounts, loadedLists) = try await Task.detached {
                 let feeds = try dbm.allFeeds()
                 let articles = try dbm.allArticles(limit: 200)
                 let unreadCounts = (try? dbm.allUnreadCounts()) ?? [:]
-                return (feeds, articles, unreadCounts)
+                let lists = (try? dbm.allLists()) ?? []
+                return (feeds, articles, unreadCounts, lists)
             }.value
             await MainActor.run {
                 self.feeds = loadedFeeds
                 self.feedsByID = Dictionary(uniqueKeysWithValues: loadedFeeds.map { ($0.id, $0) })
                 self.articles = loadedArticles
                 self.unreadCounts = loadedUnreadCounts
+                self.lists = loadedLists
                 self.dataRevision += 1
             }
         } catch {

@@ -4,9 +4,9 @@ import TipKit
 enum AppTab: String, CaseIterable {
     case home
     case feeds
+    case lists
     case bookmarks
     case search
-    case more
 }
 
 struct MainTabView: View {
@@ -44,16 +44,16 @@ struct MainTabView: View {
                 FeedListView()
             }
 
+            Tab(String(localized: "Tabs.Lists"), systemImage: "list.bullet.rectangle.portrait", value: .lists) {
+                ListsView()
+            }
+
             Tab(String(localized: "Tabs.Bookmarks"), systemImage: "bookmark", value: .bookmarks) {
                 BookmarksView()
             }
 
             Tab(String(localized: "Tabs.Search"), systemImage: "magnifyingglass", value: .search, role: .search) {
                 SearchView()
-            }
-
-            Tab(String(localized: "Tabs.More"), systemImage: "ellipsis", value: .more) {
-                MoreView()
             }
         }
         .tabBarMinimizeBehavior(.onScrollDown)

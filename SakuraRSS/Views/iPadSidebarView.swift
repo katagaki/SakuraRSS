@@ -4,6 +4,7 @@ enum SidebarDestination: Hashable {
     case allArticles
     case section(FeedSection)
     case bookmarks
+    case list(FeedList)
     case feed(Feed)
     case more
 }
@@ -40,6 +41,11 @@ struct IPadSidebarView: View {
     @State private var feedToDelete: Feed?
     @State private var feedForRules: Feed?
 
+    // List management state
+    @State private var listToEdit: FeedList?
+    @State private var listForRules: FeedList?
+    @State private var listToDelete: FeedList?
+
     var body: some View {
         NavigationSplitView(columnVisibility: $columnVisibility) {
             sidebarContent
@@ -57,6 +63,8 @@ struct IPadSidebarView: View {
                         iPadSectionContent(section: section)
                     case .bookmarks:
                         iPadBookmarksContent()
+                    case .list(let list):
+                        iPadListContent(list: list)
                     case .feed(let feed):
                         iPadFeedContent(feed: feed)
                     case .more, .none:
@@ -150,6 +158,40 @@ struct IPadSidebarView: View {
                 Text("FeedMenu.Delete.Message.\(feed.title)")
             }
         }
+        .sheet(item: $listToEdit) { list in
+            ListEditSheet(list: list)
+                .environment(feedManager)
+                .presentationDetents([.medium, .large])
+                .interactiveDismissDisabled()
+        }
+        .sheet(item: $listForRules) { list in
+            ListRulesSheet(list: list)
+                .environment(feedManager)
+                .presentationDetents([.medium, .large])
+                .interactiveDismissDisabled()
+        }
+        .confirmationDialog(
+            String(localized: "ListMenu.Delete.Title"),
+            isPresented: Binding(
+                get: { listToDelete != nil },
+                set: { if !$0 { listToDelete = nil } }
+            ),
+            titleVisibility: .visible
+        ) {
+            Button(String(localized: "ListMenu.Delete.Confirm"), role: .destructive) {
+                if let list = listToDelete {
+                    feedManager.deleteList(list)
+                    listToDelete = nil
+                }
+            }
+            Button(String(localized: "Shared.Cancel"), role: .cancel) {
+                listToDelete = nil
+            }
+        } message: {
+            if let list = listToDelete {
+                Text("ListMenu.Delete.Message.\(list.name)")
+            }
+        }
     }
 
     // MARK: - Sidebar Content
@@ -182,6 +224,32 @@ struct IPadSidebarView: View {
             Section {
                 Label(String(localized: "Tabs.Bookmarks"), systemImage: "bookmark")
                     .tag(SidebarDestination.bookmarks)
+            }
+
+            if !feedManager.lists.isEmpty {
+                Section(String(localized: "Tabs.Lists")) {
+                    ForEach(feedManager.lists) { list in
+                        HStack {
+                            Label(list.name, systemImage: list.icon)
+                            Spacer()
+                            let count = feedManager.unreadCount(for: list)
+                            if count > 0 {
+                                Text("\(count)")
+                                    .font(.caption)
+                                    .fontWeight(.semibold)
+                                    .padding(.horizontal, 8)
+                                    .padding(.vertical, 2)
+                                    .background(.tertiary)
+                                    .foregroundStyle(.secondary)
+                                    .clipShape(Capsule())
+                            }
+                        }
+                        .tag(SidebarDestination.list(list))
+                        .contextMenu {
+                            listContextMenu(for: list)
+                        }
+                    }
+                }
             }
 
             Section(String(localized: "Sidebar.Following")) {
@@ -282,6 +350,16 @@ struct IPadSidebarView: View {
         .id(feed.id)
     }
 
+    @ViewBuilder
+    private func iPadListContent(list: FeedList) -> some View {
+        iPadArticleListWrapper {
+            ListSectionView(list: list)
+                .navigationTitle(list.name)
+                .toolbarTitleDisplayMode(.inline)
+        }
+        .id(list.id)
+    }
+
     /// Wraps content views with navigation destinations and the iPad article selection
     /// environment, so article taps show in the detail column instead of pushing.
     @ViewBuilder
@@ -361,6 +439,27 @@ extension IPadSidebarView {
         case .social: "person.2"
         case .video: "play.rectangle"
         case .audio: "headphones"
+        }
+    }
+
+    @ViewBuilder
+    func listContextMenu(for list: FeedList) -> some View {
+        Button {
+            listToEdit = list
+        } label: {
+            Label(String(localized: "ListMenu.Edit"), systemImage: "pencil")
+        }
+        Button {
+            listForRules = list
+        } label: {
+            Label(String(localized: "ListMenu.Rules"),
+                  systemImage: "list.bullet.rectangle")
+        }
+        Divider()
+        Button(role: .destructive) {
+            listToDelete = list
+        } label: {
+            Label(String(localized: "ListMenu.Delete"), systemImage: "trash")
         }
     }
 

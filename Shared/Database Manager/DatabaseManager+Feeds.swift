@@ -79,6 +79,7 @@ nonisolated extension DatabaseManager {
     func deleteFeed(id: Int64) throws {
         try database.run(articles.filter(articleFeedID == id).delete())
         try database.run(feedRules.filter(ruleFeedID == id).delete())
+        try removeDeletedFeedFromLists(feedID: id)
         try database.run(feeds.filter(feedID == id).delete())
     }
 

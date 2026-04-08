@@ -2,7 +2,6 @@ import SwiftUI
 
 enum HomeSection: String, CaseIterable, Identifiable {
     case feed
-    case news
     case social
     case videos
     case audio
@@ -12,7 +11,6 @@ enum HomeSection: String, CaseIterable, Identifiable {
     var localizedTitle: String {
         switch self {
         case .feed: String(localized: "Shared.AllArticles")
-        case .news: String(localized: "HomeSection.News")
         case .social: String(localized: "HomeSection.Social")
         case .videos: String(localized: "HomeSection.Videos")
         case .audio: String(localized: "HomeSection.Audio")
@@ -22,7 +20,6 @@ enum HomeSection: String, CaseIterable, Identifiable {
     var systemImage: String {
         switch self {
         case .feed: "square.stack"
-        case .news: "newspaper"
         case .social: "person.2"
         case .videos: "play.rectangle"
         case .audio: "headphones"
@@ -32,10 +29,59 @@ enum HomeSection: String, CaseIterable, Identifiable {
     var feedSection: FeedSection? {
         switch self {
         case .feed: nil
-        case .news: .news
         case .social: .social
         case .videos: .video
         case .audio: .audio
+        }
+    }
+}
+
+/// Represents the selected view in the Home tab title menu.
+/// Can be a static section or a user-created list.
+enum HomeSelection: Hashable, RawRepresentable {
+    case section(HomeSection)
+    case list(Int64)
+
+    var rawValue: String {
+        switch self {
+        case .section(let s): "section.\(s.rawValue)"
+        case .list(let id): "list.\(id)"
+        }
+    }
+
+    init?(rawValue: String) {
+        if rawValue.hasPrefix("section.") {
+            let sectionRaw = String(rawValue.dropFirst("section.".count))
+            if let section = HomeSection(rawValue: sectionRaw) {
+                self = .section(section)
+                return
+            }
+        } else if rawValue.hasPrefix("list.") {
+            let idStr = String(rawValue.dropFirst("list.".count))
+            if let id = Int64(idStr) {
+                self = .list(id)
+                return
+            }
+        }
+        // Legacy migration: bare section names from before the HomeSelection wrapper
+        if let section = HomeSection(rawValue: rawValue) {
+            self = .section(section)
+            return
+        }
+        return nil
+    }
+
+    var localizedTitle: String {
+        switch self {
+        case .section(let s): s.localizedTitle
+        case .list: ""
+        }
+    }
+
+    var systemImage: String {
+        switch self {
+        case .section(let s): s.systemImage
+        case .list: ""
         }
     }
 }
@@ -44,7 +90,7 @@ struct AllArticlesView: View {
 
     @Environment(FeedManager.self) var feedManager
 
-    @AppStorage("Home.SelectedSection") private var selectedSection: HomeSection = .feed
+    @AppStorage("Home.SelectedSection") private var selectedSelection: HomeSelection = .section(.feed)
     @State private var showingOlderArticles = false
     @AppStorage("Display.MarkAllReadPosition") private var markAllReadPosition: MarkAllReadPosition = .bottom
     @AppStorage("WhileYouSlept.DismissedDate") private var whileYouSleptDismissedDate: String = ""
@@ -77,37 +123,81 @@ struct AllArticlesView: View {
         return articles
     }
 
+    private var currentTitle: String {
+        switch selectedSelection {
+        case .section(let s):
+            return s.localizedTitle
+        case .list(let id):
+            return feedManager.lists.first { $0.id == id }?.name
+                ?? String(localized: "Shared.AllArticles")
+        }
+    }
+
     var body: some View {
         Group {
-            switch selectedSection {
-            case .feed:
-                feedTabContent
-            case .news:
-                HomeSectionView(section: .news)
-            case .social:
-                HomeSectionView(section: .social)
-            case .videos:
-                HomeSectionView(section: .video)
-            case .audio:
-                HomeSectionView(section: .audio)
+            switch selectedSelection {
+            case .section(let section):
+                switch section {
+                case .feed:
+                    feedTabContent
+                case .social:
+                    HomeSectionView(section: .social)
+                case .videos:
+                    HomeSectionView(section: .video)
+                case .audio:
+                    HomeSectionView(section: .audio)
+                }
+            case .list(let id):
+                if let list = feedManager.lists.first(where: { $0.id == id }) {
+                    ListSectionView(list: list)
+                } else {
+                    feedTabContent
+                }
             }
         }
-        .navigationTitle(selectedSection.localizedTitle)
+        .navigationTitle(currentTitle)
         .toolbarTitleDisplayMode(.inlineLarge)
         .toolbarTitleMenu {
             ForEach(availableSections) { section in
                 Button {
                     withAnimation(.smooth.speed(2.0)) {
-                        selectedSection = section
+                        selectedSelection = .section(section)
                     }
                 } label: {
                     Label(section.localizedTitle, systemImage: section.systemImage)
                 }
             }
+
+            if !feedManager.lists.isEmpty {
+                Divider()
+                ForEach(feedManager.lists) { list in
+                    Button {
+                        withAnimation(.smooth.speed(2.0)) {
+                            selectedSelection = .list(list.id)
+                        }
+                    } label: {
+                        Label(list.name, systemImage: list.icon)
+                    }
+                }
+            }
         }
         .onChange(of: availableSections) {
-            if !availableSections.contains(selectedSection) {
-                selectedSection = .feed
+            validateSelection()
+        }
+        .onChange(of: feedManager.lists) {
+            validateSelection()
+        }
+    }
+
+    private func validateSelection() {
+        switch selectedSelection {
+        case .section(let section):
+            if !availableSections.contains(section) {
+                selectedSelection = .section(.feed)
+            }
+        case .list(let id):
+            if !feedManager.lists.contains(where: { $0.id == id }) {
+                selectedSelection = .section(.feed)
             }
         }
     }
