@@ -12,11 +12,14 @@ struct PhotosStyleView: View {
         ScrollView(.vertical) {
             LazyVStack(spacing: 0) {
                 ForEach(articles) { article in
+                    let opensExternally = feedManager.feed(forArticle: article)?.isInstagramFeed == true
+                        || feedManager.feed(forArticle: article)?.isXFeed == true
                     ArticleLink(article: article, onShowYouTubePlayer: {
                         youTubeArticle = $0
                     }, label: {
                         PhotosArticleCard(article: article)
-                            .zoomSource(id: article.id, namespace: zoomNamespace)
+                            .zoomSource(id: article.id,
+                                        namespace: opensExternally ? nil : zoomNamespace)
                     })
                     .buttonStyle(.plain)
                 }
