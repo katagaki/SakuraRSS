@@ -2931,55 +2931,55 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Vorherige Artikel laden"
+            "value": "Ältere Inhalte laden"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Load Previous Articles"
+            "value": "Show Older Content"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Charger les articles précédents"
+            "value": "Afficher le contenu plus ancien"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Carica articoli precedenti"
+            "value": "Mostra contenuti precedenti"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "過去の記事を読み込む"
+            "value": "過去のコンテンツを表示"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "이전 기사 불러오기"
+            "value": "이전 콘텐츠 보기"
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tải bài viết trước đó"
+            "value": "Hiển thị nội dung cũ hơn"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "加载更早的文章"
+            "value": "显示更早的内容"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "載入先前的文章"
+            "value": "顯示較舊的內容"
           }
         }
       }
@@ -3049,55 +3049,55 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Alle Artikel als gelesen markieren?"
+            "value": "Alle Inhalte als gelesen markieren?"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Mark all articles as read?"
+            "value": "Mark all content as read?"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Marquer tous les articles comme lus ?"
+            "value": "Marquer tout le contenu comme lu ?"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Segnare tutti gli articoli come letti?"
+            "value": "Segnare tutti i contenuti come letti?"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "すべての記事を既読にしますか？"
+            "value": "すべてのコンテンツを既読にしますか？"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "모든 기사를 읽음으로 표시할까요?"
+            "value": "모든 콘텐츠를 읽음으로 표시할까요?"
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Đánh dấu tất cả bài viết là đã đọc?"
+            "value": "Đánh dấu tất cả nội dung là đã đọc?"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "将所有文章标为已读？"
+            "value": "将所有内容标为已读？"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "要將所有文章標為已讀嗎？"
+            "value": "要將所有內容標為已讀嗎？"
           }
         }
       }
@@ -4052,55 +4052,55 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Setzen Sie Lesezeichen für Artikel, um sie für später zu speichern."
+            "value": "Setzen Sie Lesezeichen für Inhalte, um sie für später zu speichern."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bookmark articles to save them for later."
+            "value": "Bookmark content to save it for later."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ajoutez des articles aux favoris pour les consulter plus tard."
+            "value": "Ajoutez du contenu aux favoris pour le consulter plus tard."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Aggiungi articoli ai segnalibri per salvarli per dopo."
+            "value": "Aggiungi contenuti ai segnalibri per salvarli per dopo."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "記事をブックマークして後で読めるようにしましょう。"
+            "value": "コンテンツをブックマークして後で読めるようにしましょう。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "기사를 북마크하여 나중에 볼 수 있습니다."
+            "value": "콘텐츠를 북마크하여 나중에 볼 수 있습니다."
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Đánh dấu bài viết để lưu lại đọc sau."
+            "value": "Đánh dấu nội dung để lưu lại xem sau."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "收藏文章以便稍后阅读。"
+            "value": "收藏内容以便稍后查看。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "將文章加入書籤以便稍後閱讀。"
+            "value": "將內容加入書籤以便稍後查看。"
           }
         }
       }
@@ -4170,55 +4170,55 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sie haben alle Karten durchgesehen."
+            "value": "Sie haben alle Inhalte durchgesehen."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "You've gone through all the cards."
+            "value": "You've gone through all the content."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Vous avez parcouru toutes les cartes."
+            "value": "Vous avez parcouru tout le contenu."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Hai sfogliato tutte le schede."
+            "value": "Hai sfogliato tutti i contenuti."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "すべてのカードを確認しました。"
+            "value": "すべてのコンテンツを確認しました。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "모든 카드를 확인했습니다."
+            "value": "모든 콘텐츠를 확인했습니다."
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bạn đã xem hết tất cả thẻ."
+            "value": "Bạn đã xem hết tất cả nội dung."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "您已浏览完所有卡片。"
+            "value": "您已浏览完所有内容。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "您已瀏覽完所有卡片。"
+            "value": "您已瀏覽完所有內容。"
           }
         }
       }
@@ -4229,55 +4229,55 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Keine Karten mehr"
+            "value": "Keine weiteren Inhalte"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "No More Cards"
+            "value": "No More Content"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Plus de cartes"
+            "value": "Plus de contenu"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nessuna altra scheda"
+            "value": "Nessun altro contenuto"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "カードがありません"
+            "value": "コンテンツがありません"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "카드 없음"
+            "value": "콘텐츠 없음"
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Không còn thẻ nào"
+            "value": "Không còn nội dung nào"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "没有更多卡片"
+            "value": "没有更多内容"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "沒有更多卡片"
+            "value": "沒有更多內容"
           }
         }
       }
@@ -4701,55 +4701,55 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Alle Artikel älter als \"%@\" werden dauerhaft gelöscht. Dies kann nicht rückgängig gemacht werden."
+            "value": "Alle Inhalte älter als \"%@\" werden dauerhaft gelöscht. Dies kann nicht rückgängig gemacht werden."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "All articles older than \"%@\" will be permanently deleted. This cannot be undone."
+            "value": "All content older than \"%@\" will be permanently deleted. This cannot be undone."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tous les articles datant de plus de « %@ » seront supprimés définitivement. Cette action est irréversible."
+            "value": "Tout le contenu datant de plus de « %@ » sera supprimé définitivement. Cette action est irréversible."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tutti gli articoli più vecchi di \"%@\" verranno eliminati definitivamente. Questa azione non può essere annullata."
+            "value": "Tutti i contenuti più vecchi di \"%@\" verranno eliminati definitivamente. Questa azione non può essere annullata."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "「%@」より前の記事がすべて完全に削除されます。この操作は取り消せません。"
+            "value": "「%@」より前のコンテンツがすべて完全に削除されます。この操作は取り消せません。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "\"%@\"보다 오래된 모든 기사가 영구적으로 삭제됩니다. 이 작업은 되돌릴 수 없습니다."
+            "value": "\"%@\"보다 오래된 모든 콘텐츠가 영구적으로 삭제됩니다. 이 작업은 되돌릴 수 없습니다."
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tất cả bài viết cũ hơn \"%@\" sẽ bị xóa vĩnh viễn. Hành động này không thể hoàn tác."
+            "value": "Tất cả nội dung cũ hơn \"%@\" sẽ bị xóa vĩnh viễn. Hành động này không thể hoàn tác."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "所有早于「%@」的文章将被永久删除。此操作无法撤消。"
+            "value": "所有早于「%@」的内容将被永久删除。此操作无法撤消。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "所有早於「%@」的文章將被永久刪除。此操作無法復原。"
+            "value": "所有早於「%@」的內容將被永久刪除。此操作無法復原。"
           }
         }
       }
@@ -4760,55 +4760,55 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Artikel löschen?"
+            "value": "Inhalte löschen?"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Delete Articles?"
+            "value": "Delete Content?"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Supprimer les articles ?"
+            "value": "Supprimer le contenu ?"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Eliminare gli articoli?"
+            "value": "Eliminare i contenuti?"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "記事を削除しますか？"
+            "value": "コンテンツを削除しますか？"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "기사를 삭제하시겠습니까?"
+            "value": "콘텐츠를 삭제하시겠습니까?"
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Xóa bài viết?"
+            "value": "Xóa nội dung?"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "删除文章？"
+            "value": "删除内容？"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "刪除文章？"
+            "value": "刪除內容？"
           }
         }
       }
@@ -4996,55 +4996,55 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Artikel wurden gelöscht."
+            "value": "Inhalte wurden gelöscht."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Articles have been deleted."
+            "value": "Content has been deleted."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Les articles ont été supprimés."
+            "value": "Le contenu a été supprimé."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Gli articoli sono stati eliminati."
+            "value": "I contenuti sono stati eliminati."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "記事が削除されました。"
+            "value": "コンテンツが削除されました。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "기사가 삭제되었습니다."
+            "value": "콘텐츠가 삭제되었습니다."
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Các bài viết đã được xóa."
+            "value": "Nội dung đã được xóa."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "文章已删除。"
+            "value": "内容已删除。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "文章已刪除。"
+            "value": "內容已刪除。"
           }
         }
       }
@@ -5055,55 +5055,55 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Alte Artikel löschen"
+            "value": "Alte Inhalte löschen"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Delete Old Articles"
+            "value": "Delete Old Content"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Supprimer les anciens articles"
+            "value": "Supprimer les anciens contenus"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Elimina vecchi articoli"
+            "value": "Elimina vecchi contenuti"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "古い記事を削除"
+            "value": "古いコンテンツを削除"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "오래된 기사 삭제"
+            "value": "오래된 콘텐츠 삭제"
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Xóa bài viết cũ"
+            "value": "Xóa nội dung cũ"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "清除旧文章"
+            "value": "清除旧内容"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "清除舊文章"
+            "value": "清除舊內容"
           }
         }
       }
@@ -7536,55 +7536,55 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Alle Artikel von \"%@\" werden ebenfalls gelöscht."
+            "value": "Alle Inhalte von \"%@\" werden ebenfalls gelöscht."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "All articles from \"%@\" will also be deleted."
+            "value": "All content from \"%@\" will also be deleted."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tous les articles de « %@ » seront également supprimés."
+            "value": "Tout le contenu de « %@ » sera également supprimé."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tutti gli articoli di \"%@\" verranno eliminati."
+            "value": "Tutti i contenuti di \"%@\" verranno eliminati."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "「%@」のすべての記事も削除されます。"
+            "value": "「%@」のすべてのコンテンツも削除されます。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "\"%@\"의 모든 기사도 삭제됩니다."
+            "value": "\"%@\"의 모든 콘텐츠도 삭제됩니다."
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tất cả bài viết từ \"%@\" cũng sẽ bị xóa."
+            "value": "Tất cả nội dung từ \"%@\" cũng sẽ bị xóa."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "来自“%@”的所有文章也将被删除。"
+            "value": "来自\"%@\"的所有内容也将被删除。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "來自「%@」的所有文章也將被刪除。"
+            "value": "來自「%@」的所有內容也將被刪除。"
           }
         }
       }
@@ -8067,55 +8067,55 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Wenn erlaubte Stichwörter festgelegt sind, werden nur Artikel angezeigt, die diese Stichwörter enthalten. Alle anderen werden ausgeblendet."
+            "value": "Wenn erlaubte Stichwörter festgelegt sind, werden nur Inhalte angezeigt, die diese Stichwörter enthalten. Alle anderen werden ausgeblendet."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "When allowed keywords are set, only articles containing these keywords will be shown. All other articles will be hidden."
+            "value": "When allowed keywords are set, only content containing these keywords will be shown. All other content will be hidden."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Lorsque des mots-clés autorisés sont définis, seuls les articles contenant ces mots-clés seront affichés. Tous les autres articles seront cachés."
+            "value": "Lorsque des mots-clés autorisés sont définis, seuls les contenus contenant ces mots-clés seront affichés. Tous les autres contenus seront cachés."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Quando sono impostate parole chiave consentite, verranno mostrati solo gli articoli che le contengono. Tutti gli altri articoli verranno nascosti."
+            "value": "Quando sono impostate parole chiave consentite, verranno mostrati solo i contenuti che le contengono. Tutti gli altri contenuti verranno nascosti."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "許可するキーワードが設定されている場合、これらのキーワードを含む記事のみが表示されます。他の記事はすべて非表示になります。"
+            "value": "許可するキーワードが設定されている場合、これらのキーワードを含むコンテンツのみが表示されます。他のコンテンツはすべて非表示になります。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "허용 키워드가 설정되면 해당 키워드가 포함된 기사만 표시됩니다. 다른 모든 기사는 숨겨집니다."
+            "value": "허용 키워드가 설정되면 해당 키워드가 포함된 콘텐츠만 표시됩니다. 다른 모든 콘텐츠는 숨겨집니다."
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Khi từ khóa được phép được đặt, chỉ các bài viết chứa các từ khóa này mới được hiển thị. Tất cả các bài viết khác sẽ bị ẩn."
+            "value": "Khi từ khóa được phép được đặt, chỉ các nội dung chứa các từ khóa này mới được hiển thị. Tất cả các nội dung khác sẽ bị ẩn."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "设置允许的关键词后，只有包含这些关键词的文章才会显示。所有其他文章将被隐藏。"
+            "value": "设置允许的关键词后，只有包含这些关键词的内容才会显示。所有其他内容将被隐藏。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "設置允許的關鍵字後，只有包含這些關鍵字的文章才會顯示。所有其他文章將被隱藏。"
+            "value": "設置允許的關鍵字後，只有包含這些關鍵字的內容才會顯示。所有其他內容將被隱藏。"
           }
         }
       }
@@ -8303,55 +8303,55 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Artikel von stummgeschalteten Autoren werden ausgeblendet."
+            "value": "Inhalte von stummgeschalteten Autoren werden ausgeblendet."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Articles from muted authors will be hidden."
+            "value": "Content from muted authors will be hidden."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Les articles des auteurs masqués seront cachés."
+            "value": "Le contenu des auteurs masqués sera caché."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Gli articoli degli autori silenziati verranno nascosti."
+            "value": "I contenuti degli autori silenziati verranno nascosti."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "ミュートした著者の記事は非表示になります。"
+            "value": "ミュートした著者のコンテンツは非表示になります。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "음소거된 저자의 기사는 숨겨집니다."
+            "value": "음소거된 저자의 콘텐츠는 숨겨집니다."
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bài viết từ tác giả đã tắt tiếng sẽ bị ẩn."
+            "value": "Nội dung từ tác giả đã tắt tiếng sẽ bị ẩn."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "来自已静音作者的文章将被隐藏。"
+            "value": "来自已静音作者的内容将被隐藏。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "來自已靜音作者的文章將被隱藏。"
+            "value": "來自已靜音作者的內容將被隱藏。"
           }
         }
       }
@@ -8421,55 +8421,55 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Artikel mit diesen Stichwörtern im Titel oder in der Zusammenfassung werden ausgeblendet."
+            "value": "Inhalte mit diesen Stichwörtern im Titel oder in der Zusammenfassung werden ausgeblendet."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Articles containing these keywords in the title or summary will be hidden."
+            "value": "Content containing these keywords in the title or summary will be hidden."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Les articles contenant ces mots-clés dans le titre ou le résumé seront cachés."
+            "value": "Le contenu contenant ces mots-clés dans le titre ou le résumé sera caché."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Gli articoli che contengono queste parole chiave nel titolo o nel sommario verranno nascosti."
+            "value": "I contenuti che contengono queste parole chiave nel titolo o nel sommario verranno nascosti."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "タイトルまたは概要にこれらのキーワードを含む記事は非表示になります。"
+            "value": "タイトルまたは概要にこれらのキーワードを含むコンテンツは非表示になります。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "제목이나 요약에 이 키워드가 포함된 기사는 숨겨집니다."
+            "value": "제목이나 요약에 이 키워드가 포함된 콘텐츠는 숨겨집니다."
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bài viết chứa các từ khóa này trong tiêu đề hoặc tóm tắt sẽ bị ẩn."
+            "value": "Nội dung chứa các từ khóa này trong tiêu đề hoặc tóm tắt sẽ bị ẩn."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "标题或摘要中包含这些关键词的文章将被隐藏。"
+            "value": "标题或摘要中包含这些关键词的内容将被隐藏。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "標題或摘要中包含這些關鍵字的文章將被隱藏。"
+            "value": "標題或摘要中包含這些關鍵字的內容將被隱藏。"
           }
         }
       }
@@ -11444,55 +11444,55 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nur Artikel mit diesen Schlüsselwörtern werden in dieser Liste angezeigt. Wird nach den Feed-Regeln angewendet."
+            "value": "Nur Inhalte mit diesen Schlüsselwörtern werden in dieser Liste angezeigt. Wird nach den Feed-Regeln angewendet."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Only articles matching these keywords will appear in this list. Applied after per-feed rules."
+            "value": "Only content matching these keywords will appear in this list. Applied after per-feed rules."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Seuls les articles correspondant à ces mots-clés apparaîtront dans cette liste. Appliqué après les règles de flux."
+            "value": "Seuls les contenus correspondant à ces mots-clés apparaîtront dans cette liste. Appliqué après les règles de flux."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Solo gli articoli corrispondenti a queste parole chiave appariranno in questa lista. Applicato dopo le regole del feed."
+            "value": "Solo i contenuti corrispondenti a queste parole chiave appariranno in questa lista. Applicato dopo le regole del feed."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "これらのキーワードに一致する記事のみがこのリストに表示されます。フィードルールの後に適用されます。"
+            "value": "これらのキーワードに一致するコンテンツのみがこのリストに表示されます。フィードルールの後に適用されます。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "이 키워드와 일치하는 기사만 이 리스트에 표시됩니다. 피드 규칙 이후에 적용됩니다."
+            "value": "이 키워드와 일치하는 콘텐츠만 이 리스트에 표시됩니다. 피드 규칙 이후에 적용됩니다."
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Chỉ các bài viết khớp với từ khóa này mới xuất hiện trong danh sách. Áp dụng sau quy tắc nguồn cấp."
+            "value": "Chỉ các nội dung khớp với từ khóa này mới xuất hiện trong danh sách. Áp dụng sau quy tắc nguồn cấp."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "只有匹配这些关键词的文章才会出现在此列表中。在订阅源规则之后应用。"
+            "value": "只有匹配这些关键词的内容才会出现在此列表中。在订阅源规则之后应用。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "只有符合這些關鍵字的文章才會出現在此列表中。在訂閱源規則之後套用。"
+            "value": "只有符合這些關鍵字的內容才會出現在此列表中。在訂閱源規則之後套用。"
           }
         }
       }
@@ -11503,55 +11503,55 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Artikel dieser Autoren werden in dieser Liste ausgeblendet. Wird nach den Feed-Regeln angewendet."
+            "value": "Inhalte dieser Autoren werden in dieser Liste ausgeblendet. Wird nach den Feed-Regeln angewendet."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Articles by these authors will be hidden in this list. Applied after per-feed rules."
+            "value": "Content by these authors will be hidden in this list. Applied after per-feed rules."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Les articles de ces auteurs seront masqués dans cette liste. Appliqué après les règles de flux."
+            "value": "Le contenu de ces auteurs sera masqué dans cette liste. Appliqué après les règles de flux."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Gli articoli di questi autori saranno nascosti in questa lista. Applicato dopo le regole del feed."
+            "value": "I contenuti di questi autori saranno nascosti in questa lista. Applicato dopo le regole del feed."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "これらの著者による記事はこのリストで非表示になります。フィードルールの後に適用されます。"
+            "value": "これらの著者によるコンテンツはこのリストで非表示になります。フィードルールの後に適用されます。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "이 저자의 기사는 이 리스트에서 숨겨집니다. 피드 규칙 이후에 적용됩니다."
+            "value": "이 저자의 콘텐츠는 이 리스트에서 숨겨집니다. 피드 규칙 이후에 적용됩니다."
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Các bài viết của tác giả này sẽ bị ẩn trong danh sách. Áp dụng sau quy tắc nguồn cấp."
+            "value": "Nội dung của tác giả này sẽ bị ẩn trong danh sách. Áp dụng sau quy tắc nguồn cấp."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "这些作者的文章将在此列表中隐藏。在订阅源规则之后应用。"
+            "value": "这些作者的内容将在此列表中隐藏。在订阅源规则之后应用。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "這些作者的文章將在此列表中隱藏。在訂閱源規則之後套用。"
+            "value": "這些作者的內容將在此列表中隱藏。在訂閱源規則之後套用。"
           }
         }
       }
@@ -11562,55 +11562,55 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Artikel mit diesen Schlüsselwörtern werden in dieser Liste ausgeblendet. Wird nach den Feed-Regeln angewendet."
+            "value": "Inhalte mit diesen Schlüsselwörtern werden in dieser Liste ausgeblendet. Wird nach den Feed-Regeln angewendet."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Articles matching these keywords will be hidden in this list. Applied after per-feed rules."
+            "value": "Content matching these keywords will be hidden in this list. Applied after per-feed rules."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Les articles correspondant à ces mots-clés seront masqués dans cette liste. Appliqué après les règles de flux."
+            "value": "Le contenu correspondant à ces mots-clés sera masqué dans cette liste. Appliqué après les règles de flux."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Gli articoli corrispondenti a queste parole chiave saranno nascosti in questa lista. Applicato dopo le regole del feed."
+            "value": "I contenuti corrispondenti a queste parole chiave saranno nascosti in questa lista. Applicato dopo le regole del feed."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "これらのキーワードに一致する記事はこのリストで非表示になります。フィードルールの後に適用されます。"
+            "value": "これらのキーワードに一致するコンテンツはこのリストで非表示になります。フィードルールの後に適用されます。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "이 키워드와 일치하는 기사는 이 리스트에서 숨겨집니다. 피드 규칙 이후에 적용됩니다."
+            "value": "이 키워드와 일치하는 콘텐츠는 이 리스트에서 숨겨집니다. 피드 규칙 이후에 적용됩니다."
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Các bài viết khớp với từ khóa này sẽ bị ẩn trong danh sách. Áp dụng sau quy tắc nguồn cấp."
+            "value": "Nội dung khớp với từ khóa này sẽ bị ẩn trong danh sách. Áp dụng sau quy tắc nguồn cấp."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "匹配这些关键词的文章将在此列表中隐藏。在订阅源规则之后应用。"
+            "value": "匹配这些关键词的内容将在此列表中隐藏。在订阅源规则之后应用。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "符合這些關鍵字的文章將在此列表中隱藏。在訂閱源規則之後套用。"
+            "value": "符合這些關鍵字的內容將在此列表中隱藏。在訂閱源規則之後套用。"
           }
         }
       }
@@ -12142,55 +12142,55 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Zeigt Artikel aus einer Liste."
+            "value": "Zeigt Inhalte aus einer Liste."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Shows articles from a list."
+            "value": "Shows content from a list."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Affiche les articles d’une liste."
+            "value": "Affiche le contenu d'une liste."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Mostra gli articoli di una lista."
+            "value": "Mostra i contenuti di una lista."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "リストの記事を表示します。"
+            "value": "リストのコンテンツを表示します。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "리스트의 기사를 표시합니다."
+            "value": "리스트의 콘텐츠를 표시합니다."
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Hiển thị bài viết từ danh sách."
+            "value": "Hiển thị nội dung từ danh sách."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "显示列表中的文章。"
+            "value": "显示列表中的内容。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "顯示列表中的文章。"
+            "value": "顯示列表中的內容。"
           }
         }
       }
@@ -12260,55 +12260,55 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Zeigt Artikel aus einer ausgewählten Liste."
+            "value": "Zeigt Inhalte aus einer ausgewählten Liste."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Shows articles from a selected list."
+            "value": "Shows content from a selected list."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Affiche les articles d’une liste sélectionnée."
+            "value": "Affiche le contenu d'une liste sélectionnée."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Mostra gli articoli di una lista selezionata."
+            "value": "Mostra i contenuti di una lista selezionata."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "選択したリストの記事を表示します。"
+            "value": "選択したリストのコンテンツを表示します。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "선택한 리스트의 기사를 표시합니다."
+            "value": "선택한 리스트의 콘텐츠를 표시합니다."
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Hiển thị bài viết từ danh sách đã chọn."
+            "value": "Hiển thị nội dung từ danh sách đã chọn."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "显示所选列表中的文章。"
+            "value": "显示所选列表中的内容。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "顯示所選列表中的文章。"
+            "value": "顯示所選列表中的內容。"
           }
         }
       }
@@ -13263,55 +13263,55 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Artikel in Posteingang-, Feed-, Magazin- und weiteren Layouts durchstöbern"
+            "value": "Inhalte in Posteingang-, Feed-, Magazin- und weiteren Layouts durchstöbern"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Browse articles in inbox, feed, magazine, and more layouts"
+            "value": "Browse content in inbox, feed, magazine, and more layouts"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Parcourez les articles dans des mises en page boîte de réception, flux, magazine et plus"
+            "value": "Parcourez le contenu dans des mises en page boîte de réception, flux, magazine et plus"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sfoglia gli articoli in layout posta, feed, rivista e altro"
+            "value": "Sfoglia i contenuti in layout posta, feed, rivista e altro"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "受信箱、フィード、マガジンなどのレイアウトで記事を閲覧"
+            "value": "受信箱、フィード、マガジンなどのレイアウトでコンテンツを閲覧"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "받은편지함, 피드, 매거진 등 다양한 레이아웃으로 기사를 탐색하세요"
+            "value": "받은편지함, 피드, 매거진 등 다양한 레이아웃으로 콘텐츠를 탐색하세요"
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Xem bài viết với bố cục hộp thư, nguồn cấp, tạp chí và nhiều hơn nữa"
+            "value": "Xem nội dung với bố cục hộp thư, nguồn cấp, tạp chí và nhiều hơn nữa"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "以收件箱、信息流、杂志等布局浏览文章"
+            "value": "以收件箱、信息流、杂志等布局浏览内容"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "以收件匣、資訊流、雜誌等佈局瀏覽文章"
+            "value": "以收件匣、資訊流、雜誌等佈局瀏覽內容"
           }
         }
       }
@@ -14384,55 +14384,55 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Wähle, wie du deine Artikel durchstöbern möchtest."
+            "value": "Wähle, wie du deine Inhalte durchstöbern möchtest."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pick how you'd like to browse your articles."
+            "value": "Pick how you'd like to browse your content."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Choisissez comment parcourir vos articles."
+            "value": "Choisissez comment parcourir votre contenu."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Scegli come vuoi sfogliare i tuoi articoli."
+            "value": "Scegli come vuoi sfogliare i tuoi contenuti."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "記事の表示スタイルを選んでください。"
+            "value": "コンテンツの表示スタイルを選んでください。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "기사를 탐색할 방식을 선택하세요."
+            "value": "콘텐츠를 탐색할 방식을 선택하세요."
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Chọn cách bạn muốn duyệt các bài viết."
+            "value": "Chọn cách bạn muốn duyệt nội dung."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "选择你喜欢的文章浏览方式。"
+            "value": "选择你喜欢的内容浏览方式。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "選擇你喜歡的文章瀏覽方式。"
+            "value": "選擇你喜歡的內容瀏覽方式。"
           }
         }
       }
@@ -15036,55 +15036,55 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Artikel durchsuchen"
+            "value": "Inhalte durchsuchen"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Search Articles"
+            "value": "Search Content"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Rechercher des articles"
+            "value": "Rechercher du contenu"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Cerca articoli"
+            "value": "Cerca contenuti"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "記事を検索"
+            "value": "コンテンツを検索"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "기사 검색"
+            "value": "콘텐츠 검색"
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tìm bài viết"
+            "value": "Tìm nội dung"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "搜索文章"
+            "value": "搜索内容"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "搜尋文章"
+            "value": "搜尋內容"
           }
         }
       }
@@ -15213,55 +15213,55 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Artikel"
+            "value": "Inhalte"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Articles"
+            "value": "Content"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Articles"
+            "value": "Contenu"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Articoli"
+            "value": "Contenuti"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "記事"
+            "value": "コンテンツ"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "기사"
+            "value": "콘텐츠"
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bài viết"
+            "value": "Nội dung"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "文章"
+            "value": "内容"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "文章"
+            "value": "內容"
           }
         }
       }
@@ -15331,55 +15331,55 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Artikel regelmäßig abrufen"
+            "value": "Inhalte regelmäßig abrufen"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Fetch Articles Periodically"
+            "value": "Fetch Content Periodically"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Récupérer les articles périodiquement"
+            "value": "Récupérer le contenu périodiquement"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Recupera articoli periodicamente"
+            "value": "Recupera contenuti periodicamente"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "定期的に記事を更新"
+            "value": "定期的にコンテンツを更新"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "주기적으로 기사 가져오기"
+            "value": "주기적으로 콘텐츠 가져오기"
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tự động tải bài viết"
+            "value": "Tự động tải nội dung"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "定期获取文章"
+            "value": "定期获取内容"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "定期擷取文章"
+            "value": "定期擷取內容"
           }
         }
       }
@@ -16629,55 +16629,55 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Erhalten Sie eine Zusammenfassung der Artikel des Tages, die jeden Abend nach 21 Uhr angezeigt wird."
+            "value": "Erhalten Sie eine Zusammenfassung der Inhalte des Tages, die jeden Abend nach 21 Uhr angezeigt wird."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Get a summary of the day's articles, shown each evening after 9 PM."
+            "value": "Get a summary of the day's content, shown each evening after 9 PM."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Obtenez un résumé des articles de la journée, affiché chaque soir après 21 h."
+            "value": "Obtenez un résumé du contenu de la journée, affiché chaque soir après 21 h."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ottieni un riepilogo degli articoli della giornata, mostrato ogni sera dopo le 21."
+            "value": "Ottieni un riepilogo dei contenuti della giornata, mostrato ogni sera dopo le 21."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "その日の記事のまとめを、毎晩21時以降に表示します。"
+            "value": "その日のコンテンツのまとめを、毎晩21時以降に表示します。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "하루의 기사 요약을 매일 저녁 9시 이후에 표시합니다."
+            "value": "하루의 콘텐츠 요약을 매일 저녁 9시 이후에 표시합니다."
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nhận bản tóm tắt bài viết trong ngày, hiển thị mỗi tối sau 9 giờ."
+            "value": "Nhận bản tóm tắt nội dung trong ngày, hiển thị mỗi tối sau 9 giờ."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "获取当天的文章摘要，每晚 9 点后显示。"
+            "value": "获取当天的内容摘要，每晚 9 点后显示。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "取得當天的文章摘要，每晚 9 點後顯示。"
+            "value": "取得當天的內容摘要，每晚 9 點後顯示。"
           }
         }
       }
@@ -17042,55 +17042,55 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Erhalten Sie eine Zusammenfassung der über Nacht veröffentlichten Artikel, die jeden Morgen zwischen 6 und 12 Uhr angezeigt wird."
+            "value": "Erhalten Sie eine Zusammenfassung der über Nacht veröffentlichten Inhalte, die jeden Morgen zwischen 6 und 12 Uhr angezeigt wird."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Get a summary of articles published overnight, shown each morning between 6 AM and noon."
+            "value": "Get a summary of content published overnight, shown each morning between 6 AM and noon."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Obtenez un résumé des articles publiés pendant la nuit, affiché chaque matin entre 6 h et midi."
+            "value": "Obtenez un résumé du contenu publié pendant la nuit, affiché chaque matin entre 6 h et midi."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ottieni un riepilogo degli articoli pubblicati durante la notte, mostrato ogni mattina tra le 6 e mezzogiorno."
+            "value": "Ottieni un riepilogo dei contenuti pubblicati durante la notte, mostrato ogni mattina tra le 6 e mezzogiorno."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "夜間に公開された記事のまとめを、毎朝6時から正午の間に表示します。"
+            "value": "夜間に公開されたコンテンツのまとめを、毎朝6時から正午の間に表示します。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "밤사이 게시된 기사 요약을 매일 오전 6시부터 정오 사이에 표시합니다."
+            "value": "밤사이 게시된 콘텐츠 요약을 매일 오전 6시부터 정오 사이에 표시합니다."
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nhận bản tóm tắt bài viết được đăng qua đêm, hiển thị mỗi sáng từ 6 giờ đến trưa."
+            "value": "Nhận bản tóm tắt nội dung được đăng qua đêm, hiển thị mỗi sáng từ 6 giờ đến trưa."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "获取夜间发布的文章摘要，每天早上 6 点到中午之间显示。"
+            "value": "获取夜间发布的内容摘要，每天早上 6 点到中午之间显示。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "取得夜間發佈的文章摘要，每天早上 6 點到中午之間顯示。"
+            "value": "取得夜間發佈的內容摘要，每天早上 6 點到中午之間顯示。"
           }
         }
       }
@@ -17514,55 +17514,55 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Alle Artikel"
+            "value": "Abonniert"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "All Articles"
+            "value": "Following"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tous les articles"
+            "value": "Abonnements"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tutti gli articoli"
+            "value": "Seguiti"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "すべての記事"
+            "value": "フォロー中"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "모든 기사"
+            "value": "팔로잉"
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tất cả bài viết"
+            "value": "Đang theo dõi"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "全部文章"
+            "value": "关注中"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "所有文章"
+            "value": "追蹤中"
           }
         }
       }
@@ -18104,55 +18104,55 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Kein Artikel ausgewählt"
+            "value": "Nichts ausgewählt"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "No Article Selected"
+            "value": "Nothing Selected"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Aucun article sélectionné"
+            "value": "Aucune sélection"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nessun articolo selezionato"
+            "value": "Nessuna selezione"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "記事が選択されていません"
+            "value": "未選択"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "선택된 기사 없음"
+            "value": "선택된 항목 없음"
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Chưa chọn bài viết"
+            "value": "Chưa chọn mục nào"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "未选择文章"
+            "value": "未选择内容"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "未選擇文章"
+            "value": "未選擇內容"
           }
         }
       }
@@ -18163,55 +18163,55 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Wähle einen Artikel aus, um ihn hier zu lesen."
+            "value": "Wähle etwas aus, um es hier zu lesen."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Select an article to read it here."
+            "value": "Select something to read it here."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sélectionnez un article pour le lire ici."
+            "value": "Sélectionnez un élément pour le lire ici."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Seleziona un articolo per leggerlo qui."
+            "value": "Seleziona qualcosa per leggerlo qui."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "記事を選択して、ここで読みましょう。"
+            "value": "コンテンツを選択して、ここで読みましょう。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "기사를 선택하면 여기에서 읽을 수 있습니다."
+            "value": "항목을 선택하면 여기에서 읽을 수 있습니다."
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Chọn một bài viết để đọc tại đây."
+            "value": "Chọn một mục để xem tại đây."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "选择一篇文章以在此阅读。"
+            "value": "选择内容以在此阅读。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "選擇一篇文章以在此閱讀。"
+            "value": "選擇內容以在此閱讀。"
           }
         }
       }
@@ -18517,55 +18517,55 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Artikel aus einem bestimmten Feed anzeigen."
+            "value": "Inhalte aus einem bestimmten Feed anzeigen."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "View articles from a single feed."
+            "value": "View content from a single feed."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Afficher les articles d'un flux spécifique."
+            "value": "Afficher le contenu d'un flux spécifique."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Visualizza gli articoli di un singolo feed."
+            "value": "Visualizza i contenuti di un singolo feed."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "特定のフィードの記事を表示します。"
+            "value": "特定のフィードのコンテンツを表示します。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "특정 피드의 기사를 확인하세요."
+            "value": "특정 피드의 콘텐츠를 확인하세요."
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Xem bài viết từ một nguồn cụ thể."
+            "value": "Xem nội dung từ một nguồn cụ thể."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "查看单个订阅源的文章。"
+            "value": "查看单个订阅源的内容。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "查看單一訂閱源的文章。"
+            "value": "查看單一訂閱源的內容。"
           }
         }
       }
@@ -18694,55 +18694,55 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Zeigt Artikel aus einem einzelnen Feed an."
+            "value": "Zeigt Inhalte aus einem einzelnen Feed an."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Shows articles from a single feed."
+            "value": "Shows content from a single feed."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Affiche les articles d'un seul flux."
+            "value": "Affiche le contenu d'un seul flux."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Mostra gli articoli da un singolo feed."
+            "value": "Mostra i contenuti da un singolo feed."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "単一のフィードの記事を表示します。"
+            "value": "単一のフィードのコンテンツを表示します。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "단일 피드의 기사를 표시합니다."
+            "value": "단일 피드의 콘텐츠를 표시합니다."
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Hiển thị các bài viết từ một nguồn cấp dữ liệu."
+            "value": "Hiển thị nội dung từ một nguồn cấp dữ liệu."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "显示单个订阅源的文章。"
+            "value": "显示单个订阅源的内容。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "顯示單一訂閱源的文章。"
+            "value": "顯示單一訂閱源的內容。"
           }
         }
       }
@@ -20699,55 +20699,55 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tippe auf diese Taste, um die Anzeige deiner Artikel zu ändern."
+            "value": "Tippe auf diese Taste, um die Anzeige deiner Inhalte zu ändern."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tap this button to change how your articles are displayed."
+            "value": "Tap this button to change how your content is displayed."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Touchez ce bouton pour changer l'affichage de vos articles."
+            "value": "Touchez ce bouton pour changer l'affichage de votre contenu."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tocca questo pulsante per cambiare la visualizzazione degli articoli."
+            "value": "Tocca questo pulsante per cambiare la visualizzazione dei contenuti."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "このボタンをタップして記事の表示スタイルを変更できます。"
+            "value": "このボタンをタップしてコンテンツの表示スタイルを変更できます。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "이 버튼을 탭하여 기사 표시 방식을 변경하세요."
+            "value": "이 버튼을 탭하여 콘텐츠 표시 방식을 변경하세요."
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nhấn nút này để thay đổi cách hiển thị bài viết."
+            "value": "Nhấn nút này để thay đổi cách hiển thị nội dung."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "轻点此按钮可更改文章的显示方式。"
+            "value": "轻点此按钮可更改内容的显示方式。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "輕點此按鈕可更改文章的顯示方式。"
+            "value": "輕點此按鈕可更改內容的顯示方式。"
           }
         }
       }
@@ -20935,55 +20935,55 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Heutige Artikel werden zusammengefasst …"
+            "value": "Heutige Inhalte werden zusammengefasst …"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Summarizing today's articles…"
+            "value": "Summarizing today's content…"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Résumé des articles du jour en cours…"
+            "value": "Résumé du contenu du jour en cours…"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Riepilogo degli articoli di oggi in corso…"
+            "value": "Riepilogo dei contenuti di oggi in corso…"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "今日の記事を要約中…"
+            "value": "今日のコンテンツを要約中…"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "오늘의 기사를 요약하는 중…"
+            "value": "오늘의 콘텐츠를 요약하는 중…"
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Đang tóm tắt bài viết hôm nay…"
+            "value": "Đang tóm tắt nội dung hôm nay…"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "正在总结今日文章…"
+            "value": "正在总结今日内容…"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "正在摘要今日文章⋯"
+            "value": "正在摘要今日內容⋯"
           }
         }
       }
@@ -21407,55 +21407,55 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nächtliche Artikel werden zusammengefasst …"
+            "value": "Nächtliche Inhalte werden zusammengefasst …"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Summarizing overnight articles…"
+            "value": "Summarizing overnight content…"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Résumé des articles de la nuit en cours…"
+            "value": "Résumé du contenu de la nuit en cours…"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Riepilogo degli articoli notturni in corso…"
+            "value": "Riepilogo dei contenuti notturni in corso…"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "夜間の記事を要約中…"
+            "value": "夜間のコンテンツを要約中…"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "밤사이 기사를 요약하는 중…"
+            "value": "밤사이 콘텐츠를 요약하는 중…"
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Đang tóm tắt bài viết qua đêm…"
+            "value": "Đang tóm tắt nội dung qua đêm…"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "正在总结夜间文章…"
+            "value": "正在总结夜间内容…"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "正在摘要夜間文章⋯"
+            "value": "正在摘要夜間內容⋯"
           }
         }
       }
@@ -21761,55 +21761,55 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sehen Sie Ihre neuesten ungelesenen RSS-Artikel."
+            "value": "Sehen Sie Ihre neuesten ungelesenen RSS-Inhalte."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "View your latest unread RSS articles."
+            "value": "View your latest unread RSS content."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Consultez vos derniers articles RSS non lus."
+            "value": "Consultez vos derniers contenus RSS non lus."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Visualizza i tuoi ultimi articoli RSS non letti."
+            "value": "Visualizza i tuoi ultimi contenuti RSS non letti."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "最新の未読RSS記事を表示します。"
+            "value": "最新の未読RSSコンテンツを表示します。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "최신 미읽은 RSS 기사를 확인하세요."
+            "value": "최신 미읽은 RSS 콘텐츠를 확인하세요."
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Xem các bài viết RSS chưa đọc mới nhất."
+            "value": "Xem nội dung RSS chưa đọc mới nhất."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "查看最新的未读 RSS 文章。"
+            "value": "查看最新的未读 RSS 内容。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "查看最新的未讀 RSS 文章。"
+            "value": "查看最新的未讀 RSS 內容。"
           }
         }
       }
@@ -21820,55 +21820,55 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Neueste Artikel"
+            "value": "Neueste Inhalte"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Latest Articles"
+            "value": "Latest Content"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Derniers articles"
+            "value": "Derniers contenus"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ultimi articoli"
+            "value": "Ultimi contenuti"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "最新記事"
+            "value": "最新コンテンツ"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "최신 기사"
+            "value": "최신 콘텐츠"
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bài viết mới nhất"
+            "value": "Nội dung mới nhất"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "最新文章"
+            "value": "最新内容"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "最新文章"
+            "value": "最新內容"
           }
         }
       }
@@ -21879,55 +21879,55 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Keine ungelesenen Artikel"
+            "value": "Keine ungelesenen Inhalte"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "No unread articles"
+            "value": "No unread content"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Aucun article non lu"
+            "value": "Aucun contenu non lu"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nessun articolo non letto"
+            "value": "Nessun contenuto non letto"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "未読記事はありません"
+            "value": "未読コンテンツはありません"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "미읽은 기사 없음"
+            "value": "미읽은 콘텐츠 없음"
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Không có bài viết chưa đọc"
+            "value": "Không có nội dung chưa đọc"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "没有未读文章"
+            "value": "没有未读内容"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "沒有未讀文章"
+            "value": "沒有未讀內容"
           }
         }
       }
