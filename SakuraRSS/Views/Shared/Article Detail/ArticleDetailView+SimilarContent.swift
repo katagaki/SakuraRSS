@@ -66,12 +66,6 @@ extension ArticleDetailView {
                 around: currentArticle, hours: 48, limit: 200
             ) else { return [SimilarArticleItem]() }
 
-            // Process unprocessed candidates lazily
-            for candidate in candidates where !(try? db.sentimentScore(for: candidate.id) != nil) ?? true {
-                let isProcessed = (try? db.article(byID: candidate.id)) != nil
-                // We rely on NLPProcessed flag, but for quick check just process if needed
-            }
-
             let similar = NLPProcessor.findSimilarArticles(
                 to: currentArticle,
                 candidates: candidates,

@@ -40,7 +40,7 @@ enum NLPProcessingCoordinator {
         }.value
     }
 
-    private static func processArticleSync(
+    private nonisolated static func processArticleSync(
         _ article: Article,
         similarContent: Bool,
         topicsPeople: Bool
