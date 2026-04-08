@@ -144,9 +144,10 @@ struct PhotosArticleCard: View {
                 .clipped()
                 .overlay {
                     if let onPhotoTap {
-                        Color.clear
-                            .contentShape(Rectangle())
-                            .onTapGesture { onPhotoTap() }
+                        Button(action: onPhotoTap) {
+                            Color.clear.contentShape(Rectangle())
+                        }
+                        .buttonStyle(.plain)
                     }
                 }
                 .task {

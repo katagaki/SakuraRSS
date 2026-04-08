@@ -29,6 +29,26 @@ struct GridStyleView: View {
                             .zoomSource(id: article.id, namespace: zoomNamespace)
                     })
                     .buttonStyle(.plain)
+                    .contextMenu {
+                        Button {
+                            feedManager.toggleRead(article)
+                        } label: {
+                            Label(
+                                article.isRead
+                                    ? String(localized: "Article.MarkUnread")
+                                    : String(localized: "Article.MarkRead"),
+                                systemImage: article.isRead
+                                    ? "envelope" : "envelope.open"
+                            )
+                        }
+                        Divider()
+                        if let shareURL = URL(string: article.url) {
+                            ShareLink(item: shareURL) {
+                                Label(String(localized: "Article.Share"),
+                                      systemImage: "square.and.arrow.up")
+                            }
+                        }
+                    }
                 }
             }
             if let onLoadMore {
