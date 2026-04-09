@@ -30,8 +30,10 @@ struct TopicsView: View {
                                 .clipShape(Capsule())
                         }
                     }
+                    .listRowBackground(Color.clear)
                 }
                 .listStyle(.plain)
+                .scrollContentBackground(.hidden)
             }
         }
         .navigationTitle("Topics.Title")

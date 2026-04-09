@@ -29,8 +29,10 @@ struct PeopleView: View {
                                 .clipShape(Capsule())
                         }
                     }
+                    .listRowBackground(Color.clear)
                 }
                 .listStyle(.plain)
+                .scrollContentBackground(.hidden)
             }
         }
         .navigationTitle("People.Title")
