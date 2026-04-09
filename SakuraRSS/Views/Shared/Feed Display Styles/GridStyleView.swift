@@ -69,17 +69,16 @@ struct GridArticleCell: View {
     let article: Article
 
     var body: some View {
-        GeometryReader { geometry in
+        Group {
             if let imageURL = article.imageURL, let url = URL(string: imageURL) {
                 CachedAsyncImage(url: url) {
                     Rectangle()
                         .fill(.secondary.opacity(0.15))
                 }
-                .frame(width: geometry.size.width, height: geometry.size.height)
-                .clipped()
             }
         }
         .aspectRatio(1, contentMode: .fit)
+        .clipped()
         .contentShape(.rect)
         .overlay(alignment: .topTrailing) {
             if article.carouselImageURLs.count > 1 {
