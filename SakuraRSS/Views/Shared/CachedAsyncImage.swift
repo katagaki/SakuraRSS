@@ -5,7 +5,7 @@ import SwiftUI
 /// Shared memory cache for decoded UIImages, avoiding repeated SQLite
 /// lookups and Data → UIImage decoding during scroll recycling.
 /// NSCache automatically evicts entries under memory pressure.
-private final class ImageMemoryCache: @unchecked Sendable {
+private actor ImageMemoryCache {
 
     static let shared = ImageMemoryCache()
     private let cache = NSCache<NSString, UIImage>()
@@ -86,7 +86,7 @@ struct CachedAsyncImage<Placeholder: View>: View {
 
         // 1. In-memory cache (instant, no decoding)
         let memoryCache = ImageMemoryCache.shared
-        if let cached = memoryCache.image(forKey: urlString) {
+        if let cached = await memoryCache.image(forKey: urlString) {
             return cached
         }
 
@@ -95,7 +95,7 @@ struct CachedAsyncImage<Placeholder: View>: View {
         // 2. Database cache (requires Data → UIImage decode)
         if let cachedData = try? database.cachedImageData(for: urlString),
            let cachedImage = UIImage(data: cachedData) {
-            memoryCache.setImage(cachedImage, forKey: urlString)
+            await memoryCache.setImage(cachedImage, forKey: urlString)
             #if DEBUG
             debugPrint("[Image] Cache hit for \(urlString) (\(cachedData.count) bytes)")
             #endif
@@ -120,7 +120,7 @@ struct CachedAsyncImage<Placeholder: View>: View {
                 return nil
             }
             try? database.cacheImageData(data, for: urlString)
-            memoryCache.setImage(downloadedImage, forKey: urlString)
+            await memoryCache.setImage(downloadedImage, forKey: urlString)
             return downloadedImage
         } catch {
             #if DEBUG
