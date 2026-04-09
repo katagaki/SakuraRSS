@@ -20,6 +20,7 @@ struct MainTabView: View {
     @Binding var pendingArticleID: Int64?
     @State private var showingAddFeed = false
     @State private var showingOnboarding = false
+    @State private var miniPlayerPresentedArticle: Article?
 
     var body: some View {
         if UIDevice.current.userInterfaceIdiom == .pad {
@@ -57,6 +58,17 @@ struct MainTabView: View {
             }
         }
         .tabBarMinimizeBehavior(.onScrollDown)
+        .tabViewBottomAccessory {
+            MiniPlayerView { article in
+                miniPlayerPresentedArticle = article
+            }
+        }
+        .sheet(item: $miniPlayerPresentedArticle) { article in
+            NavigationStack {
+                PodcastEpisodeView(article: article)
+                    .environment(feedManager)
+            }
+        }
         .sheet(isPresented: $showingAddFeed) {
             AddFeedView(initialURL: pendingFeedURL ?? "")
                 .environment(feedManager)

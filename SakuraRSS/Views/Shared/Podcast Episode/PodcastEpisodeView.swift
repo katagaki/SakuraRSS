@@ -12,6 +12,36 @@ struct PodcastEpisodeView: View {
     @State private var feedName: String?
     @State private var acronymIcon: UIImage?
 
+    @AppStorage("Podcast.PlaybackSpeed") private var playbackSpeed: Double = 1.0
+
+    private let playbackSpeedPresets: [Double] = [0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0, 2.5, 3.0]
+
+    // Downloads
+    private let downloadManager = PodcastDownloadManager.shared
+    private let networkMonitor = NetworkMonitor.shared
+    @State var isDownloaded: Bool = false
+    @State var showingDeleteDownloadAlert: Bool = false
+
+    // Transcript
+    @State var transcript: [TranscriptSegment]?
+    @State var showingTranscript: Bool = false
+
+    var isOffline: Bool {
+        !networkMonitor.isOnline
+    }
+
+    var downloadProgress: DownloadProgress? {
+        downloadManager.activeDownloads[article.id]
+    }
+
+    var canPlay: Bool {
+        isDownloaded || !isOffline
+    }
+
+    var canDownload: Bool {
+        !isDownloaded && !isOffline && downloadProgress == nil
+    }
+
     // Translation state
     @State var translatedText: String?
     @State var translatedSummary: String?
@@ -138,6 +168,29 @@ struct PodcastEpisodeView: View {
                             }
                         }
                         .foregroundStyle(.primary)
+
+                        // Playback speed menu
+                        Menu {
+                            Picker("Podcast.PlaybackSpeed", selection: $playbackSpeed) {
+                                ForEach(playbackSpeedPresets, id: \.self) { preset in
+                                    Text(formatSpeed(preset))
+                                        .tag(preset)
+                                }
+                            }
+                        } label: {
+                            Text(formatSpeed(playbackSpeed))
+                                .font(.subheadline)
+                                .fontWeight(.semibold)
+                                .padding(.horizontal, 12)
+                                .padding(.vertical, 6)
+                                .background(
+                                    Capsule()
+                                        .fill(.secondary.opacity(0.15))
+                                )
+                        }
+                        .onChange(of: playbackSpeed) { _, newValue in
+                            audioPlayer.setPlaybackRate(Float(newValue))
+                        }
                     }
                     .padding(.horizontal)
                 } else {
@@ -145,11 +198,15 @@ struct PodcastEpisodeView: View {
                     Button {
                         startPlayback()
                     } label: {
-                        Label("Podcast.Play", systemImage: "play.fill")
+                        Label(
+                            isOffline && !isDownloaded ? "Podcast.Offline" : "Podcast.Play",
+                            systemImage: "play.fill"
+                        )
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 8)
                     }
                     .buttonStyle(.borderedProminent)
+                    .disabled(!canPlay)
                     .padding(.horizontal)
 
                     if audioPlayer.isLoading && audioPlayer.currentArticleID == article.id {
@@ -158,25 +215,37 @@ struct PodcastEpisodeView: View {
                 }
 
                 // Action buttons
-                if article.summary != nil {
-                    actionButtons
-                }
+                actionButtons
 
-                // Episode description
-                VStack(alignment: .leading, spacing: 8) {
-                    if showingSummary && summarizedText != nil {
-                        Text("AppleIntelligence.VerifyImportantInformation")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
-                    if let text = displayText {
-                        SelectableText(text)
-                            .id("\(showingSummary)-\(showingTranslation)")
-                            .transition(.blurReplace)
+                // Transcript / Episode description
+                Group {
+                    if showingTranscript, let transcript, !transcript.isEmpty {
+                        TranscriptView(
+                            segments: transcript,
+                            currentTime: audioPlayer.currentTime,
+                            isPlaying: audioPlayer.isPlaying,
+                            onSeek: { audioPlayer.seek(to: $0) }
+                        )
+                        .frame(minHeight: 320)
+                        .transition(.blurReplace)
+                    } else {
+                        VStack(alignment: .leading, spacing: 8) {
+                            if showingSummary && summarizedText != nil {
+                                Text("AppleIntelligence.VerifyImportantInformation")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                            if let text = displayText {
+                                SelectableText(text)
+                                    .id("\(showingSummary)-\(showingTranslation)")
+                                    .transition(.blurReplace)
+                            }
+                        }
                     }
                 }
                 .animation(.smooth.speed(2.0), value: showingSummary)
                 .animation(.smooth.speed(2.0), value: showingTranslation)
+                .animation(.smooth.speed(2.0), value: showingTranscript)
                 .animation(.smooth.speed(2.0), value: translatedText)
                 .padding(.horizontal)
             }
@@ -219,6 +288,21 @@ struct PodcastEpisodeView: View {
                let text = cached.text, !text.isEmpty {
                 translatedText = text
             }
+            // Load download/transcript state
+            isDownloaded = downloadManager.isDownloaded(articleID: article.id)
+            if let cached = try? DatabaseManager.shared.cachedTranscript(for: article.id),
+               !cached.isEmpty {
+                transcript = cached
+            }
+        }
+        .onChange(of: downloadProgress?.state) { _, newState in
+            if newState == .completed || newState == nil {
+                isDownloaded = downloadManager.isDownloaded(articleID: article.id)
+                if let cached = try? DatabaseManager.shared.cachedTranscript(for: article.id),
+                   !cached.isEmpty {
+                    transcript = cached
+                }
+            }
         }
         .alert("Article.Summarize.Error", isPresented: Binding(
             get: { summarizationError != nil },
@@ -234,12 +318,27 @@ struct PodcastEpisodeView: View {
         }
     }
 
+    private func formatSpeed(_ speed: Double) -> String {
+        if speed == floor(speed) {
+            return "\(Int(speed))×"
+        }
+        let formatted = String(format: "%g", speed)
+        return "\(formatted)×"
+    }
+
     func startPlayback() {
-        guard let audioURLString = article.audioURL,
-              let audioURL = URL(string: audioURLString) else { return }
+        let playbackURL: URL
+        if let localURL = downloadManager.localFileURL(for: article.id) {
+            playbackURL = localURL
+        } else if let audioURLString = article.audioURL,
+                  let audioURL = URL(string: audioURLString) {
+            playbackURL = audioURL
+        } else {
+            return
+        }
         let feed = feedManager.feed(forArticle: article)
         audioPlayer.play(
-            url: audioURL,
+            url: playbackURL,
             articleID: article.id,
             feedID: article.feedID,
             episodeTitle: article.title,
