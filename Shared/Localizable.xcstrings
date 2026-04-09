@@ -16579,8 +16579,8 @@
         "ja": { "stringUnit": { "state": "translated", "value": "インサイト" } },
         "ko": { "stringUnit": { "state": "translated", "value": "인사이트" } },
         "vi": { "stringUnit": { "state": "translated", "value": "Thông tin chi tiết" } },
-        "zh-Hans": { "stringUnit": { "state": "translated", "value": "洞察" } },
-        "zh-Hant": { "stringUnit": { "state": "translated", "value": "洞察" } }
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "洞见" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "洞見" } }
       }
     },
     "SimilarContent.Title": {
