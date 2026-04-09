@@ -122,9 +122,31 @@ struct SakuraRSSApp: App {
 
     init() {
         let defaults = UserDefaults.standard
+
+        // Flag stayed set from last launch → previous startup crashed.
+        if defaults.bool(forKey: "App.StartupInProgress") {
+            Self.resetSavedNavigationState(defaults: defaults)
+        }
+        defaults.set(true, forKey: "App.StartupInProgress")
+
         defaults.set(defaults.integer(forKey: "App.LaunchCount") + 1, forKey: "App.LaunchCount")
         registerBackgroundTask()
         try? Tips.configure()
+    }
+
+    private static let navigationStateKeys: [String] = [
+        "App.SelectedTab",
+        "Home.SelectedSection",
+        "Home.FeedID",
+        "Home.ArticleID",
+        "FeedsList.FeedID",
+        "FeedsList.ArticleID"
+    ]
+
+    private static func resetSavedNavigationState(defaults: UserDefaults) {
+        for key in navigationStateKeys {
+            defaults.removeObject(forKey: key)
+        }
     }
 
     private func registerBackgroundTask() {
