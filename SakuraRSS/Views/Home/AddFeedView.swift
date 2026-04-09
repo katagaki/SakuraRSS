@@ -19,6 +19,7 @@ struct AddFeedView: View {
     @State private var showInstagramLogin = false
     @State private var pendingInstagramFeed: DiscoveredFeed?
     @State private var suggestedTopics: [SuggestedTopic] = []
+    @State private var hasInitialized = false
     @FocusState private var isURLFieldFocused: Bool
 
     private var appName: String {
@@ -202,6 +203,8 @@ struct AddFeedView: View {
                 InstagramLoginView()
             }
             .onAppear {
+                guard !hasInitialized else { return }
+                hasInitialized = true
                 suggestedTopics = SuggestedFeedsLoader.topicsForCurrentRegion()
                 if !initialURL.isEmpty {
                     urlInput = initialURL
