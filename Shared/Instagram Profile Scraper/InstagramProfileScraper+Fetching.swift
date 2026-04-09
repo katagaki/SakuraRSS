@@ -63,7 +63,7 @@ extension InstagramProfileScraper {
     /// to restore persisted cookies from disk. Without this, cookies may
     /// not be available on cold app launch.
     @MainActor
-    private static func warmCookieStore() async {
+    static func warmCookieStore() async {
         guard !cookieStoreWarmed else { return }
         cookieStoreWarmed = true
 

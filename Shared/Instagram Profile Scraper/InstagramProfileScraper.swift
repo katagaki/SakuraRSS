@@ -129,6 +129,12 @@ final class InstagramProfileScraper {
     /// Checks if the user has Instagram cookies (i.e. is logged in).
     @MainActor
     static func hasInstagramSession() async -> Bool {
+        // Ensure the WKWebsiteDataStore has restored persisted cookies from
+        // disk before we inspect them. On cold launch, allCookies() returns
+        // an empty array until a WKWebView has loaded a page from the
+        // domain, which makes the user look logged-out even when they aren't.
+        await warmCookieStore()
+
         let store = WKWebsiteDataStore.default()
         let cookies = await store.httpCookieStore.allCookies()
         let found = cookies.contains { cookie in
@@ -142,13 +148,18 @@ final class InstagramProfileScraper {
             return true
         }
 
-        // Cookie store may not have finished loading — retry if we were
+        // Cookie store may still not have finished loading — retry if we were
         // previously logged in.
         if UserDefaults.standard.bool(forKey: sessionCacheKey) {
             try? await Task.sleep(for: .milliseconds(500))
             let retryResult = await retryHasInstagramSession()
-            UserDefaults.standard.set(retryResult, forKey: sessionCacheKey)
-            return retryResult
+            if retryResult {
+                return true
+            }
+            // Don't clear the cache here — a transient cookie-store miss
+            // shouldn't silently sign the user out. clearInstagramSession()
+            // is the only path that should flip this to false.
+            return false
         }
 
         UserDefaults.standard.set(false, forKey: sessionCacheKey)
