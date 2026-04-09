@@ -11,6 +11,7 @@ struct ListEditSheet: View {
     @State private var selectedIcon: String
     @State private var selectedDisplayStyle: String?
     @State private var selectedFeedIDs: Set<Int64>
+    @State private var hasInitialized = false
 
     private var isEditing: Bool { list != nil }
 
@@ -135,6 +136,8 @@ struct ListEditSheet: View {
                 }
             }
             .onAppear {
+                guard !hasInitialized else { return }
+                hasInitialized = true
                 if let list {
                     selectedFeedIDs = feedManager.feedIDs(for: list)
                 }

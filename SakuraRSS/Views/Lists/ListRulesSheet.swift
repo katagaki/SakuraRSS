@@ -14,6 +14,7 @@ struct ListRulesSheet: View {
     @State private var keywordInput: String = ""
     @State private var authorInput: String = ""
     @State private var availableAuthors: [String] = []
+    @State private var hasInitialized = false
     @FocusState private var isAllowedKeywordFieldFocused: Bool
     @FocusState private var isKeywordFieldFocused: Bool
     @FocusState private var isAuthorFieldFocused: Bool
@@ -171,6 +172,8 @@ struct ListRulesSheet: View {
                 }
             }
             .onAppear {
+                guard !hasInitialized else { return }
+                hasInitialized = true
                 allowedKeywords = feedManager.allowedKeywords(for: list)
                 mutedKeywords = feedManager.mutedKeywords(for: list)
                 mutedAuthors = feedManager.mutedAuthors(for: list)
