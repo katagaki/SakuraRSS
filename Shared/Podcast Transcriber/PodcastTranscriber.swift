@@ -2,13 +2,6 @@ import AVFoundation
 import Foundation
 import Speech
 
-struct TranscriptSegment: Codable, Identifiable, Sendable, Hashable {
-    let id: Int
-    let start: TimeInterval
-    let end: TimeInterval
-    let text: String
-}
-
 enum PodcastTranscriberError: Error {
     case notAvailable
     case audioFileUnreadable
