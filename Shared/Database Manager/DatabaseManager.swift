@@ -52,12 +52,19 @@ nonisolated final class DatabaseManager: @unchecked Sendable {
     let articleSentimentScore = SQLite.Expression<Double?>("sentiment_score")
     let articleSentimentProcessed = SQLite.Expression<Bool>("sentiment_processed")
     let articleEntitiesProcessed = SQLite.Expression<Bool>("entities_processed")
+    let articleSimilarComputed = SQLite.Expression<Bool>("similar_computed")
 
     let nlpEntities = Table("nlp_entities")
     let nlpEntityID = SQLite.Expression<Int64>("id")
     let nlpEntityArticleID = SQLite.Expression<Int64>("article_id")
     let nlpEntityName = SQLite.Expression<String>("name")
     let nlpEntityType = SQLite.Expression<String>("type")
+
+    let similarArticles = Table("similar_articles")
+    let similarSourceID = SQLite.Expression<Int64>("source_id")
+    let similarTargetID = SQLite.Expression<Int64>("similar_id")
+    let similarDistance = SQLite.Expression<Double>("distance")
+    let similarRank = SQLite.Expression<Int>("rank")
 
     let summaryCache = Table("summary_cache")
     let summaryCacheType = SQLite.Expression<String>("type")
@@ -172,6 +179,7 @@ nonisolated final class DatabaseManager: @unchecked Sendable {
             table.column(articleSentimentScore)
             table.column(articleSentimentProcessed, defaultValue: false)
             table.column(articleEntitiesProcessed, defaultValue: false)
+            table.column(articleSimilarComputed, defaultValue: false)
         })
 
         try database.run(articles.createIndex(articleFeedID, ifNotExists: true))
@@ -231,5 +239,14 @@ nonisolated final class DatabaseManager: @unchecked Sendable {
         })
         try database.run(nlpEntities.createIndex(nlpEntityArticleID, ifNotExists: true))
         try database.run(nlpEntities.createIndex(nlpEntityType, nlpEntityName, ifNotExists: true))
+
+        try database.run(similarArticles.create(ifNotExists: true) { table in
+            table.column(similarSourceID, references: articles, articleID)
+            table.column(similarTargetID, references: articles, articleID)
+            table.column(similarDistance)
+            table.column(similarRank)
+            table.primaryKey(similarSourceID, similarTargetID)
+        })
+        try database.run(similarArticles.createIndex(similarSourceID, ifNotExists: true))
     }
 }

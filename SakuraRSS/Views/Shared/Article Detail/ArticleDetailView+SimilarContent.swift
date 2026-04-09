@@ -60,54 +60,105 @@ extension ArticleDetailView {
         let feedsLookup = feedManager.feedsByID
         let currentArticle = article
 
-        let rawMatches: [SimilarMatchData] = await Task.detached(priority: .utility) {
-            guard let candidates = try? db.articlesInWindow(
-                around: currentArticle, hours: 48, limit: 200
-            ) else {
-                return []
-            }
+        let rawMatches = await computeRawMatches(
+            db: db, feedsLookup: feedsLookup, currentArticle: currentArticle
+        )
 
-            let similar = NLPProcessor.findSimilarArticles(
-                to: currentArticle,
-                candidates: candidates,
-                maxResults: 8,
-                maximumDistance: 1.5
-            )
-
-            var results: [SimilarMatchData] = []
-            for match in similar {
-                guard let matchArticle = try? db.article(byID: match.articleID) else { continue }
-                let feed = feedsLookup[matchArticle.feedID]
-                let sentiment = try? db.sentimentScore(for: match.articleID)
-                results.append(SimilarMatchData(
-                    article: matchArticle,
-                    feedName: feed?.title ?? "",
-                    feed: feed,
-                    sentiment: sentiment
-                ))
+        // Favicons are fetched in parallel — FaviconCache.favicon(for:) is
+        // already async and safe to call concurrently.
+        return await withTaskGroup(of: (Int, SimilarArticleItem).self) { group in
+            for (index, match) in rawMatches.enumerated() {
+                group.addTask {
+                    let favicon: UIImage?
+                    if let feed = match.feed {
+                        favicon = await FaviconCache.shared.favicon(for: feed)
+                    } else {
+                        favicon = nil
+                    }
+                    return (index, SimilarArticleItem(
+                        id: match.article.id,
+                        article: match.article,
+                        feedName: match.feedName,
+                        sentiment: match.sentiment,
+                        favicon: favicon
+                    ))
+                }
             }
-            return results
-        }.value
-
-        // Favicons must be fetched on the main actor path (FaviconCache uses
-        // main-actor state), so resolve them after the detached similarity work.
-        var items: [SimilarArticleItem] = []
-        for match in rawMatches {
-            let favicon: UIImage?
-            if let feed = match.feed {
-                favicon = await FaviconCache.shared.favicon(for: feed)
-            } else {
-                favicon = nil
+            var results = Array<SimilarArticleItem?>(repeating: nil, count: rawMatches.count)
+            for await (index, item) in group {
+                results[index] = item
             }
-            items.append(SimilarArticleItem(
-                id: match.article.id,
-                article: match.article,
-                feedName: match.feedName,
-                sentiment: match.sentiment,
-                favicon: favicon
+            return results.compactMap { $0 }
+        }
+    }
+
+    /// Returns match metadata ordered by similarity rank. Uses the SQLite
+    /// cache when available; otherwise runs NLP, persists the result, and
+    /// marks the source article as computed.
+    private func computeRawMatches(
+        db: DatabaseManager,
+        feedsLookup: [Int64: Feed],
+        currentArticle: Article
+    ) async -> [SimilarMatchData] {
+        // 1. Cache hit path — instant return, no NLP, no 48h window scan.
+        if (try? db.isSimilarComputed(articleId: currentArticle.id)) == true {
+            if let cached = try? db.cachedSimilarArticleIDs(forSourceID: currentArticle.id),
+               !cached.isEmpty {
+                var results: [SimilarMatchData] = []
+                results.reserveCapacity(cached.count)
+                for entry in cached {
+                    guard let matchArticle = try? db.article(byID: entry.id) else { continue }
+                    let feed = feedsLookup[matchArticle.feedID]
+                    let sentiment = try? db.sentimentScore(for: entry.id)
+                    results.append(SimilarMatchData(
+                        article: matchArticle,
+                        feedName: feed?.title ?? "",
+                        feed: feed,
+                        sentiment: sentiment
+                    ))
+                }
+                return results
+            }
+            // Empty cache → computed earlier, no matches, skip recompute.
+            return []
+        }
+
+        // 2. Cache miss — run NLP and persist. The embedding comparison is
+        // parallelized inside NLPProcessor.findSimilarArticles.
+        guard let candidates = try? db.articlesInWindow(
+            around: currentArticle, hours: 48, limit: 60
+        ) else {
+            try? db.cacheSimilarArticles([], forSourceID: currentArticle.id)
+            return []
+        }
+
+        let similar = await NLPProcessor.findSimilarArticles(
+            to: currentArticle,
+            candidates: candidates,
+            maxResults: 8,
+            maximumDistance: 1.5
+        )
+
+        // Persist even if empty so we don't recompute on the next open.
+        try? db.cacheSimilarArticles(
+            similar.map { (id: $0.articleID, distance: $0.distance) },
+            forSourceID: currentArticle.id
+        )
+
+        var results: [SimilarMatchData] = []
+        results.reserveCapacity(similar.count)
+        for match in similar {
+            guard let matchArticle = try? db.article(byID: match.articleID) else { continue }
+            let feed = feedsLookup[matchArticle.feedID]
+            let sentiment = try? db.sentimentScore(for: match.articleID)
+            results.append(SimilarMatchData(
+                article: matchArticle,
+                feedName: feed?.title ?? "",
+                feed: feed,
+                sentiment: sentiment
             ))
         }
-        return items
+        return results
     }
 }
 

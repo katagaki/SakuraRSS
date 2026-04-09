@@ -93,7 +93,7 @@ nonisolated enum NLPProcessor {
         candidates: [Article],
         maxResults: Int = 10,
         maximumDistance: Double = 1.0
-    ) -> [(articleID: Int64, distance: Double)] {
+    ) async -> [(articleID: Int64, distance: Double)] {
         let sourceText = articleText(article)
         guard !sourceText.isEmpty else { return [] }
 
@@ -113,19 +113,45 @@ nonisolated enum NLPProcessor {
         logger.debug("findSimilarArticles: comparing article \(article.id) against \(candidates.count) candidates (lang=\(language.rawValue))")
         #endif
 
-        var scored: [(articleID: Int64, distance: Double)] = []
-
-        for candidate in candidates {
-            let candidateText = articleText(candidate)
-            guard !candidateText.isEmpty else { continue }
-            let distance = embedding.distance(between: sourceText, and: candidateText)
-            if distance <= maximumDistance {
-                scored.append((articleID: candidate.id, distance: distance))
-            }
+        // Shard candidates across parallel tasks so distance computation
+        // runs concurrently across multiple cores. NLEmbedding.distance is
+        // thread-safe per Apple docs, but NLEmbedding itself isn't Sendable
+        // — wrap it so it can cross task boundaries.
+        let sendableEmbedding = UncheckedSendable(embedding)
+        let shardCount = max(1, min(ProcessInfo.processInfo.activeProcessorCount, 8))
+        let shardSize = max(1, (candidates.count + shardCount - 1) / shardCount)
+        let shards = stride(from: 0, to: candidates.count, by: shardSize).map { start -> [Article] in
+            Array(candidates[start..<min(start + shardSize, candidates.count)])
         }
 
-        scored.sort { $0.distance < $1.distance }
-        let results = Array(scored.prefix(maxResults))
+        let scored: [(articleID: Int64, distance: Double)] = await withTaskGroup(
+            of: [(articleID: Int64, distance: Double)].self
+        ) { group in
+            for shard in shards {
+                group.addTask {
+                    let embedding = sendableEmbedding.value
+                    var local: [(articleID: Int64, distance: Double)] = []
+                    local.reserveCapacity(shard.count)
+                    for candidate in shard {
+                        let candidateText = articleText(candidate)
+                        guard !candidateText.isEmpty else { continue }
+                        let distance = embedding.distance(between: sourceText, and: candidateText)
+                        if distance <= maximumDistance {
+                            local.append((articleID: candidate.id, distance: distance))
+                        }
+                    }
+                    return local
+                }
+            }
+            var combined: [(articleID: Int64, distance: Double)] = []
+            for await result in group {
+                combined.append(contentsOf: result)
+            }
+            return combined
+        }
+
+        let sorted = scored.sorted { $0.distance < $1.distance }
+        let results = Array(sorted.prefix(maxResults))
         #if DEBUG
         logger.debug("findSimilarArticles: returning \(results.count) matches (best distance: \(String(format: "%.3f", results.first?.distance ?? -1)))")
         #endif
@@ -140,4 +166,11 @@ nonisolated enum NLPProcessor {
         }
         return title + " " + summary
     }
+}
+
+/// Bridges a non-Sendable Apple framework type across task boundaries.
+/// Safe for types that are documented as thread-safe but not annotated Sendable.
+nonisolated private struct UncheckedSendable<Value>: @unchecked Sendable {
+    nonisolated(unsafe) let value: Value
+    init(_ value: Value) { self.value = value }
 }

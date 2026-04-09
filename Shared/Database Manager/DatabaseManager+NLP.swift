@@ -171,6 +171,66 @@ nonisolated extension DatabaseManager {
         return try database.pluck(query)?[articleSentimentScore]
     }
 
+    // MARK: - Similar Content Cache
+
+    func isSimilarComputed(articleId: Int64) throws -> Bool {
+        let query = articles
+            .select(articleSimilarComputed)
+            .filter(articleID == articleId)
+            .limit(1)
+        return try database.pluck(query)?[articleSimilarComputed] ?? false
+    }
+
+    func cachedSimilarArticleIDs(forSourceID sourceID: Int64) throws -> [(id: Int64, distance: Double)] {
+        let query = similarArticles
+            .filter(similarSourceID == sourceID)
+            .order(similarRank.asc)
+        return try database.prepare(query).map {
+            (id: $0[similarTargetID], distance: $0[similarDistance])
+        }
+    }
+
+    func cacheSimilarArticles(
+        _ matches: [(id: Int64, distance: Double)],
+        forSourceID sourceID: Int64
+    ) throws {
+        try database.transaction {
+            // Clear any existing cache for this source
+            try database.run(
+                similarArticles.filter(similarSourceID == sourceID).delete()
+            )
+            // Insert new entries
+            for (index, match) in matches.enumerated() {
+                try database.run(similarArticles.insert(
+                    similarSourceID <- sourceID,
+                    similarTargetID <- match.id,
+                    similarDistance <- match.distance,
+                    similarRank <- index
+                ))
+            }
+            // Mark source as computed (even if matches is empty)
+            try database.run(
+                articles.filter(articleID == sourceID)
+                    .update(articleSimilarComputed <- true)
+            )
+        }
+    }
+
+    func deleteSimilarCacheForArticles(olderThan date: Date) throws {
+        let sql = """
+            DELETE FROM similar_articles
+            WHERE source_id IN (
+                SELECT id FROM articles
+                WHERE published_date < ? OR published_date IS NULL
+            )
+            OR similar_id IN (
+                SELECT id FROM articles
+                WHERE published_date < ? OR published_date IS NULL
+            )
+            """
+        try database.run(sql, date.timeIntervalSince1970, date.timeIntervalSince1970)
+    }
+
     // MARK: - Reading Analytics
 
     func totalArticlesRead() throws -> Int {
