@@ -24,10 +24,15 @@ struct SakuraRSSApp: App {
                 .environment(feedManager)
                 .task {
                     await feedManager.refreshAllFeeds()
-                    await NLPProcessingCoordinator.processNewArticlesIfEnabled()
                     UserDefaults.standard.set(false, forKey: "App.StartupInProgress")
                     feedManager.updateBadgeCount()
                     requestReviewIfNeeded()
+                    // Kick off NLP insight processing after startup
+                    // completes so it never holds up badge refresh or
+                    // any other MainActor-visible work.
+                    Task.detached(priority: .utility) {
+                        await NLPProcessingCoordinator.processNewArticlesIfEnabled()
+                    }
                 }
                 .onReceive(
                     NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)

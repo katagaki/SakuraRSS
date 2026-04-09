@@ -111,32 +111,57 @@ extension ArticleDetailView {
         }
     }
 
-    /// Kicks off insight loading (similar articles, topics, people) as
-    /// a background task so it never blocks article body layout. Heavy
-    /// work is dispatched to detached utility tasks inside each loader;
-    /// this wrapper just awaits and writes results back to @State.
+    /// Kicks off insight loading (similar articles, topics, people) in
+    /// the background so it never blocks the UI thread. The SQLite
+    /// reads and NLP passes live inside `nonisolated static` helpers
+    /// that run on the generic executor (off MainActor); only the
+    /// final @State writes land back on MainActor after the awaits.
     func loadInsightsInBackground() {
         guard similarContentEnabled || topicsPeopleEnabled else { return }
         let loadSimilar = similarContentEnabled
         let loadEntities = topicsPeopleEnabled
+        let currentArticle = article
+        let feedsLookup = feedManager.feedsByID
+
         Task {
+            let loadedSimilar: [SimilarArticleItem]
             if loadSimilar {
-                similarArticles = await loadSimilarArticles()
+                loadedSimilar = await Self.computeSimilarArticles(
+                    currentArticle: currentArticle, feedsLookup: feedsLookup
+                )
+            } else {
+                loadedSimilar = []
+            }
+
+            let loadedEntities: (topics: [String], people: [String])
+            if loadEntities {
+                loadedEntities = await Self.computeArticleEntities(
+                    articleID: currentArticle.id,
+                    articleTitle: currentArticle.title,
+                    articleSummary: currentArticle.summary ?? ""
+                )
+            } else {
+                loadedEntities = (topics: [], people: [])
+            }
+
+            if loadSimilar {
+                similarArticles = loadedSimilar
             }
             if loadEntities {
-                let (topics, people) = await loadArticleEntities()
-                articleTopics = topics
-                articlePeople = people
+                articleTopics = loadedEntities.topics
+                articlePeople = loadedEntities.people
             }
         }
     }
 
-    func loadArticleEntities() async -> (topics: [String], people: [String]) {
+    /// Runs entity extraction entirely off the main actor. Callable from
+    /// a detached task because it takes only Sendable inputs.
+    fileprivate nonisolated static func computeArticleEntities(
+        articleID: Int64,
+        articleTitle: String,
+        articleSummary: String
+    ) async -> (topics: [String], people: [String]) {
         let db = DatabaseManager.shared
-        let articleID = article.id
-        let articleTitle = article.title
-        let articleSummary = article.summary ?? ""
-
         return await Task.detached(priority: .utility) {
             // Ensure entity extraction has been run for this article.
             if (try? db.isEntitiesProcessed(articleId: articleID)) != true {
@@ -175,14 +200,18 @@ extension ArticleDetailView {
         }.value
     }
 
-    func loadSimilarArticles() async -> [SimilarArticleItem] {
-        let db = DatabaseManager.shared
-        let feedsLookup = feedManager.feedsByID
-        let currentArticle = article
-
-        let rawMatches = await computeRawMatches(
-            db: db, feedsLookup: feedsLookup, currentArticle: currentArticle
-        )
+    /// Runs similar-article discovery entirely off the main actor. The
+    /// NLP embedding pass, SQLite reads, and cache writes all happen on
+    /// a detached utility task; favicons are fetched concurrently after.
+    fileprivate nonisolated static func computeSimilarArticles(
+        currentArticle: Article,
+        feedsLookup: [Int64: Feed]
+    ) async -> [SimilarArticleItem] {
+        let rawMatches = await Task.detached(priority: .utility) {
+            await computeRawMatches(
+                currentArticle: currentArticle, feedsLookup: feedsLookup
+            )
+        }.value
 
         // Favicons are fetched in parallel — FaviconCache.favicon(for:) is
         // already async and safe to call concurrently.
@@ -214,12 +243,15 @@ extension ArticleDetailView {
 
     /// Returns match metadata ordered by similarity rank. Uses the SQLite
     /// cache when available; otherwise runs NLP, persists the result, and
-    /// marks the source article as computed.
-    private func computeRawMatches(
-        db: DatabaseManager,
-        feedsLookup: [Int64: Feed],
-        currentArticle: Article
+    /// marks the source article as computed. Must be called from a
+    /// detached task — it is synchronous aside from the NLP await, so
+    /// its DB work would otherwise block whichever actor invokes it.
+    fileprivate nonisolated static func computeRawMatches(
+        currentArticle: Article,
+        feedsLookup: [Int64: Feed]
     ) async -> [SimilarMatchData] {
+        let db = DatabaseManager.shared
+
         // 1. Cache hit path — instant return, no NLP, no 48h window scan.
         if (try? db.isSimilarComputed(articleId: currentArticle.id)) == true {
             if let cached = try? db.cachedSimilarArticleIDs(forSourceID: currentArticle.id),
