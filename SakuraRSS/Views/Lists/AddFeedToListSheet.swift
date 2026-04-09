@@ -9,6 +9,7 @@ struct AddFeedToListSheet: View {
 
     @State private var selectedListIDs: Set<Int64> = []
     @State private var isShowingNewList = false
+    @State private var hasInitialized = false
 
     var body: some View {
         NavigationStack {
@@ -73,6 +74,8 @@ struct AddFeedToListSheet: View {
                 }
             }
             .onAppear {
+                guard !hasInitialized else { return }
+                hasInitialized = true
                 selectedListIDs = feedManager.listIDsForFeed(feed)
             }
             .sheet(isPresented: $isShowingNewList) {
