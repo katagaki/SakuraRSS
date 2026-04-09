@@ -17,16 +17,11 @@ struct OnDeviceIntelligenceSettingsView: View {
             if isAppleIntelligenceAvailable {
                 Section {
                     Toggle("Settings.WhileYouSlept", isOn: $whileYouSleptEnabled)
+                    Toggle("Settings.TodaysSummary", isOn: $todaysSummaryEnabled)
                 } header: {
                     Text("Settings.Section.AppleIntelligence")
                 } footer: {
-                    Text("Settings.WhileYouSlept.Footer")
-                }
-
-                Section {
-                    Toggle("Settings.TodaysSummary", isOn: $todaysSummaryEnabled)
-                } footer: {
-                    Text("Settings.TodaysSummary.Footer")
+                    Text("Settings.AppleIntelligence.Footer")
                 }
             }
 
@@ -42,7 +37,7 @@ struct OnDeviceIntelligenceSettingsView: View {
                 Text("Settings.TopicsPeople.Footer")
             }
         }
-        .navigationTitle("Settings.Section.OnDeviceIntelligence")
+        .navigationTitle("Settings.Section.InsightsAndIntelligence")
         .toolbarTitleDisplayMode(.inline)
     }
 }

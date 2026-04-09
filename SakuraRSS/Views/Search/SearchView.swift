@@ -48,9 +48,9 @@ struct SearchView: View {
                     case .search:
                         searchContent
                     case .topics:
-                        TopicsView()
+                        TopicsView(filterText: searchText)
                     case .people:
-                        PeopleView()
+                        PeopleView(filterText: searchText)
                     }
                 }
                 .frame(maxHeight: .infinity)
@@ -91,7 +91,7 @@ struct SearchView: View {
             }
             .animation(.smooth.speed(2.0), value: searchDisplayStyle)
             .animation(.smooth.speed(2.0), value: selectedTab)
-            .searchable(text: $searchText, prompt: "Search.Prompt")
+            .searchable(text: $searchText, prompt: searchPrompt)
             .task(id: searchText) {
                 let query = searchText
                 guard !query.isEmpty else {
@@ -107,16 +107,19 @@ struct SearchView: View {
                     searchResults = results
                 }
             }
-            .onChange(of: selectedTab) {
-                if selectedTab != .search {
-                    searchText = ""
-                }
-            }
             .onChange(of: topicsPeopleEnabled) { _, newValue in
                 if !newValue && selectedTab != .search {
                     selectedTab = .search
                 }
             }
+        }
+    }
+
+    private var searchPrompt: LocalizedStringKey {
+        switch selectedTab {
+        case .search: "Search.Prompt"
+        case .topics: "Search.Prompt.Topics"
+        case .people: "Search.Prompt.People"
         }
     }
 

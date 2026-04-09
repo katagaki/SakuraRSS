@@ -14,6 +14,9 @@ extension ArticleDetailView {
     var insightsSection: some View {
         if hasAnyInsights {
             VStack(alignment: .leading, spacing: 20) {
+                Divider()
+                    .padding(.horizontal)
+
                 Label("Insights.Title", systemImage: "sparkles")
                     .font(.title3)
                     .fontWeight(.bold)
@@ -22,6 +25,24 @@ extension ArticleDetailView {
                 if similarContentEnabled && !similarArticles.isEmpty {
                     similarContentSubsection
                 }
+
+                if topicsPeopleEnabled && !articleTopics.isEmpty {
+                    entityChipsSubsection(
+                        titleKey: "SimilarContent.Topics",
+                        systemImage: "number",
+                        types: ["organization", "place"],
+                        names: articleTopics
+                    )
+                }
+
+                if topicsPeopleEnabled && !articlePeople.isEmpty {
+                    entityChipsSubsection(
+                        titleKey: "SimilarContent.People",
+                        systemImage: "person.2",
+                        types: ["person"],
+                        names: articlePeople
+                    )
+                }
             }
             .padding(.top, 16)
             .padding(.bottom, 24)
@@ -29,7 +50,8 @@ extension ArticleDetailView {
     }
 
     private var hasAnyInsights: Bool {
-        similarContentEnabled && !similarArticles.isEmpty
+        (similarContentEnabled && !similarArticles.isEmpty)
+            || (topicsPeopleEnabled && (!articleTopics.isEmpty || !articlePeople.isEmpty))
     }
 
     @ViewBuilder
@@ -53,6 +75,104 @@ extension ArticleDetailView {
                 .padding(.horizontal)
             }
         }
+    }
+
+    @ViewBuilder
+    private func entityChipsSubsection(
+        titleKey: LocalizedStringKey,
+        systemImage: String,
+        types: [String],
+        names: [String]
+    ) -> some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Label(titleKey, systemImage: systemImage)
+                .font(.subheadline)
+                .fontWeight(.semibold)
+                .foregroundStyle(.secondary)
+                .padding(.horizontal)
+
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 8) {
+                    ForEach(names, id: \.self) { name in
+                        NavigationLink(value: EntityDestination(name: name, types: types)) {
+                            Text(name)
+                                .font(.subheadline)
+                                .fontWeight(.medium)
+                                .padding(.horizontal, 12)
+                                .padding(.vertical, 8)
+                                .background(.regularMaterial, in: Capsule())
+                                .foregroundStyle(.primary)
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+                .padding(.horizontal)
+            }
+        }
+    }
+
+    /// Kicks off insight loading (similar articles, topics, people) as
+    /// a background task so it never blocks article body layout. Heavy
+    /// work is dispatched to detached utility tasks inside each loader;
+    /// this wrapper just awaits and writes results back to @State.
+    func loadInsightsInBackground() {
+        guard similarContentEnabled || topicsPeopleEnabled else { return }
+        let loadSimilar = similarContentEnabled
+        let loadEntities = topicsPeopleEnabled
+        Task {
+            if loadSimilar {
+                similarArticles = await loadSimilarArticles()
+            }
+            if loadEntities {
+                let (topics, people) = await loadArticleEntities()
+                articleTopics = topics
+                articlePeople = people
+            }
+        }
+    }
+
+    func loadArticleEntities() async -> (topics: [String], people: [String]) {
+        let db = DatabaseManager.shared
+        let articleID = article.id
+        let articleTitle = article.title
+        let articleSummary = article.summary ?? ""
+
+        return await Task.detached(priority: .utility) {
+            // Ensure entity extraction has been run for this article.
+            if (try? db.isEntitiesProcessed(articleId: articleID)) != true {
+                let text = [articleTitle, articleSummary]
+                    .filter { !$0.isEmpty }
+                    .joined(separator: " ")
+                let entities = NLPProcessor.extractEntities(from: text)
+                if !entities.isEmpty {
+                    try? db.insertEntities(
+                        entities.map { (name: $0.name, type: $0.type) },
+                        for: articleID
+                    )
+                }
+                try? db.markEntitiesProcessed(articleId: articleID)
+            }
+
+            guard let rows = try? db.entities(forArticleID: articleID) else {
+                return (topics: [String](), people: [String]())
+            }
+            var topics: [String] = []
+            var people: [String] = []
+            var seenTopics = Set<String>()
+            var seenPeople = Set<String>()
+            for row in rows {
+                let key = row.name.lowercased()
+                switch row.type {
+                case "person":
+                    if seenPeople.insert(key).inserted { people.append(row.name) }
+                case "organization", "place":
+                    if seenTopics.insert(key).inserted { topics.append(row.name) }
+                default:
+                    break
+                }
+            }
+            return (topics: topics, people: people)
+        }.value
     }
 
     func loadSimilarArticles() async -> [SimilarArticleItem] {

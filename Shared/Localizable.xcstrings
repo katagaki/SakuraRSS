@@ -15266,63 +15266,46 @@
         }
       }
     },
+    "Search.Prompt.Topics": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": { "stringUnit": { "state": "translated", "value": "Themen" } },
+        "en": { "stringUnit": { "state": "translated", "value": "Topics" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Sujets" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Argomenti" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "トピック" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "주제" } },
+        "vi": { "stringUnit": { "state": "translated", "value": "Chủ đề" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "话题" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "話題" } }
+      }
+    },
+    "Search.Prompt.People": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": { "stringUnit": { "state": "translated", "value": "Personen" } },
+        "en": { "stringUnit": { "state": "translated", "value": "People" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Personnes" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Persone" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "人物" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "인물" } },
+        "vi": { "stringUnit": { "state": "translated", "value": "Nhân vật" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "人物" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "人物" } }
+      }
+    },
     "Settings.AppleIntelligence.Footer": {
       "extractionState": "manual",
       "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Verwenden Sie Apple Intelligence, um Ihre Feed-Überschriften zusammenzufassen."
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Use Apple Intelligence to summarize your feed headlines."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Utilisez Apple Intelligence pour résumer les titres de vos flux."
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Usa Apple Intelligence per riassumere i titoli dei tuoi feed."
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Apple Intelligenceを使用して、フィードの見出しを要約します。"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Apple Intelligence를 사용하여 피드 헤드라인을 요약합니다."
-          }
-        },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Sử dụng Apple Intelligence để tóm tắt tiêu đề nguồn cấp của bạn."
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "使用 Apple Intelligence 为你的订阅源标题生成摘要。"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "使用 Apple Intelligence 來摘要你的訂閱源標題。"
-          }
-        }
+        "de": { "stringUnit": { "state": "translated", "value": "Apple Intelligence fasst Ihre Feed-Schlagzeilen in einer morgendlichen und abendlichen Zusammenfassung zusammen." } },
+        "en": { "stringUnit": { "state": "translated", "value": "Apple Intelligence summarizes your feed headlines into a morning and evening digest." } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Apple Intelligence résume les titres de vos flux en un récapitulatif matinal et vespéral." } },
+        "it": { "stringUnit": { "state": "translated", "value": "Apple Intelligence riassume i titoli dei tuoi feed in un digest mattutino e serale." } },
+        "ja": { "stringUnit": { "state": "translated", "value": "Apple Intelligenceがフィードの見出しを朝と夜のダイジェストにまとめます。" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "Apple Intelligence가 피드 헤드라인을 아침 및 저녁 요약으로 정리합니다." } },
+        "vi": { "stringUnit": { "state": "translated", "value": "Apple Intelligence tóm tắt tiêu đề nguồn cấp của bạn thành bản tóm lược buổi sáng và buổi tối." } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "Apple Intelligence 将你的订阅源标题汇总为早间和晚间摘要。" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "Apple Intelligence 將你的訂閱源標題彙整為早間和晚間摘要。" } }
       }
     },
     "Settings.BackgroundRefresh": {
@@ -16446,18 +16429,18 @@
         }
       }
     },
-    "Settings.Section.OnDeviceIntelligence": {
+    "Settings.Section.InsightsAndIntelligence": {
       "extractionState": "manual",
       "localizations": {
-        "de": { "stringUnit": { "state": "translated", "value": "Geräteintelligenz" } },
-        "en": { "stringUnit": { "state": "translated", "value": "On-Device Intelligence" } },
-        "fr": { "stringUnit": { "state": "translated", "value": "Intelligence sur l’appareil" } },
-        "it": { "stringUnit": { "state": "translated", "value": "Intelligenza sul dispositivo" } },
-        "ja": { "stringUnit": { "state": "translated", "value": "オンデバイスインテリジェンス" } },
-        "ko": { "stringUnit": { "state": "translated", "value": "온디바이스 인텔리전스" } },
-        "vi": { "stringUnit": { "state": "translated", "value": "Trí tuệ trên thiết bị" } },
-        "zh-Hans": { "stringUnit": { "state": "translated", "value": "设备端智能" } },
-        "zh-Hant": { "stringUnit": { "state": "translated", "value": "裝置端智慧" } }
+        "de": { "stringUnit": { "state": "translated", "value": "Erkenntnisse & Intelligenz" } },
+        "en": { "stringUnit": { "state": "translated", "value": "Insights & Intelligence" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Aperçus et intelligence" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Approfondimenti e intelligenza" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "インサイトとインテリジェンス" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "인사이트 및 인텔리전스" } },
+        "vi": { "stringUnit": { "state": "translated", "value": "Thông tin chi tiết và Trí tuệ" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "洞察与智能" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "洞察與智慧" } }
       }
     },
     "Settings.SimilarContent": {
@@ -16612,6 +16595,34 @@
         "vi": { "stringUnit": { "state": "translated", "value": "Nội dung tương tự" } },
         "zh-Hans": { "stringUnit": { "state": "translated", "value": "相似内容" } },
         "zh-Hant": { "stringUnit": { "state": "translated", "value": "相似內容" } }
+      }
+    },
+    "SimilarContent.Topics": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": { "stringUnit": { "state": "translated", "value": "Themen" } },
+        "en": { "stringUnit": { "state": "translated", "value": "Topics" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Sujets" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Argomenti" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "トピック" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "주제" } },
+        "vi": { "stringUnit": { "state": "translated", "value": "Chủ đề" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "话题" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "話題" } }
+      }
+    },
+    "SimilarContent.People": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": { "stringUnit": { "state": "translated", "value": "Personen" } },
+        "en": { "stringUnit": { "state": "translated", "value": "People" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Personnes" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Persone" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "人物" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "인물" } },
+        "vi": { "stringUnit": { "state": "translated", "value": "Nhân vật" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "人物" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "人物" } }
       }
     },
     "Search.Tab.Search": {

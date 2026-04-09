@@ -49,9 +49,9 @@ extension ArticleDetailView {
            !cached.isEmpty {
             hasCachedSummary = true
         }
-        if similarContentEnabled {
-            similarArticles = await loadSimilarArticles()
-        }
+        // Insights (similar content, topics, people) load in the background
+        // so they never block the article body from rendering.
+        loadInsightsInBackground()
     }
 
 }

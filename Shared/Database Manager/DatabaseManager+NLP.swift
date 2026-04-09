@@ -57,6 +57,15 @@ nonisolated extension DatabaseManager {
         }
     }
 
+    func entities(forArticleID articleId: Int64) throws -> [(name: String, type: String)] {
+        let query = nlpEntities
+            .filter(nlpEntityArticleID == articleId)
+            .order(nlpEntityID.asc)
+        return try database.prepare(query).map {
+            (name: $0[nlpEntityName], type: $0[nlpEntityType])
+        }
+    }
+
     // MARK: - Entity Queries (Topics & People)
 
     func topEntities(type: String, since date: Date, limit: Int) throws -> [(name: String, count: Int)] {
@@ -179,6 +188,14 @@ nonisolated extension DatabaseManager {
             .filter(articleID == articleId)
             .limit(1)
         return try database.pluck(query)?[articleSimilarComputed] ?? false
+    }
+
+    func isEntitiesProcessed(articleId: Int64) throws -> Bool {
+        let query = articles
+            .select(articleEntitiesProcessed)
+            .filter(articleID == articleId)
+            .limit(1)
+        return try database.pluck(query)?[articleEntitiesProcessed] ?? false
     }
 
     func cachedSimilarArticleIDs(forSourceID sourceID: Int64) throws -> [(id: Int64, distance: Double)] {

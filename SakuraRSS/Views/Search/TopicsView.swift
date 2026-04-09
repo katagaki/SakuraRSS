@@ -3,19 +3,26 @@ import SwiftUI
 struct TopicsView: View {
 
     @Environment(FeedManager.self) var feedManager
+    var filterText: String = ""
     @State private var topics: [(name: String, count: Int)] = []
     @Namespace private var cardZoom
 
+    private var filteredTopics: [(name: String, count: Int)] {
+        guard !filterText.isEmpty else { return topics }
+        let needle = filterText.lowercased()
+        return topics.filter { $0.name.lowercased().contains(needle) }
+    }
+
     var body: some View {
         Group {
-            if topics.isEmpty {
+            if filteredTopics.isEmpty {
                 ContentUnavailableView {
                     Label("Topics.Empty", systemImage: "tag")
                 } description: {
                     Text("Topics.Empty.Description")
                 }
             } else {
-                List(topics, id: \.name) { topic in
+                List(filteredTopics, id: \.name) { topic in
                     NavigationLink(value: EntityDestination(name: topic.name, types: ["organization", "place"])) {
                         HStack {
                             Label(topic.name, systemImage: "number")

@@ -3,18 +3,25 @@ import SwiftUI
 struct PeopleView: View {
 
     @Environment(FeedManager.self) var feedManager
+    var filterText: String = ""
     @State private var people: [(name: String, count: Int)] = []
+
+    private var filteredPeople: [(name: String, count: Int)] {
+        guard !filterText.isEmpty else { return people }
+        let needle = filterText.lowercased()
+        return people.filter { $0.name.lowercased().contains(needle) }
+    }
 
     var body: some View {
         Group {
-            if people.isEmpty {
+            if filteredPeople.isEmpty {
                 ContentUnavailableView {
                     Label("People.Empty", systemImage: "person.2")
                 } description: {
                     Text("People.Empty.Description")
                 }
             } else {
-                List(people, id: \.name) { person in
+                List(filteredPeople, id: \.name) { person in
                     NavigationLink(value: EntityDestination(name: person.name, types: ["person"])) {
                         HStack {
                             Label(person.name, systemImage: "person")

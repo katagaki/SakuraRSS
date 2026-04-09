@@ -34,7 +34,10 @@ struct ArticleDetailView: View {
     @Namespace private var imageViewerNamespace
     @AppStorage("YouTube.OpenMode") var youTubeOpenMode: YouTubeOpenMode = .inAppPlayer
     @AppStorage("Intelligence.SimilarContent.Enabled") var similarContentEnabled: Bool = false
+    @AppStorage("Intelligence.TopicsPeople.Enabled") var topicsPeopleEnabled: Bool = false
     @State var similarArticles: [SimilarArticleItem] = []
+    @State var articleTopics: [String] = []
+    @State var articlePeople: [String] = []
 
     var isAppleIntelligenceAvailable: Bool {
         SystemLanguageModel.default.availability == .available
@@ -173,6 +176,9 @@ struct ArticleDetailView: View {
             .padding()
 
             insightsSection
+                .animation(.smooth.speed(2.0), value: similarArticles.count)
+                .animation(.smooth.speed(2.0), value: articleTopics.count)
+                .animation(.smooth.speed(2.0), value: articlePeople.count)
         }
         .refreshable {
             await refreshArticleContent()
