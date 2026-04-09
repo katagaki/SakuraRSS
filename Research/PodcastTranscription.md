@@ -207,14 +207,47 @@ However, a transcription feature would complement the existing summarization pip
 
 ---
 
+## Audio File Requirement
+
+**Both SpeechAnalyzer and WhisperKit require local audio files.** They accept a local file URL, not a remote HTTP URL. Since SakuraRSS currently streams podcast audio directly from remote URLs via `AVPlayer`, the audio must be downloaded before transcription.
+
+### Approach 1: Temporary Download (Transcribe & Discard)
+Download the episode to a temporary directory, transcribe it, cache the transcript in the database, then delete the audio file. This avoids persistent storage costs.
+
+```swift
+// Download episode audio to a temp file
+let (tempURL, _) = try await URLSession.shared.download(from: remoteAudioURL)
+let localURL = FileManager.default.temporaryDirectory
+    .appendingPathComponent(UUID().uuidString + ".mp3")
+try FileManager.default.moveItem(at: tempURL, to: localURL)
+
+// Transcribe from local file
+let transcript = try await transcribe(from: localURL)
+
+// Cache transcript, delete temp file
+try DatabaseManager.shared.cacheArticleTranscription(transcript, for: articleID)
+try FileManager.default.removeItem(at: localURL)
+```
+
+### Approach 2: Pair with Offline Listening (Issue #55)
+Issue #55 already requests offline podcast downloads. If implemented, transcription becomes trivial — the local file already exists. The "Transcribe" button would only appear for downloaded episodes.
+
+### Audio Format Compatibility
+Podcast feeds use `<enclosure>` tags with `type="audio/*"` — typically MP3 or M4A. Both APIs handle these natively:
+- **SpeechAnalyzer** `analyzeSequence(from:)` — supports any format AVFoundation can decode (MP3, M4A, WAV, AAC, etc.)
+- **WhisperKit** `transcribe(audioPath:)` — explicitly supports `.wav`, `.mp3`, `.m4a`, `.flac`
+
+---
+
 ## Recommended Implementation Plan
 
 ### Phase 1: SpeechAnalyzer/SpeechTranscriber (Primary)
 1. **Add transcription to Article model:** New `transcription: String?` field in the database
-2. **Create `PodcastTranscriber` service:** Async service using `SpeechTranscriber` with `.conversation` preset
-3. **Add UI:** "Transcribe" button in `PodcastEpisodeView+Actions.swift`, following the existing summarize/translate pattern
-4. **Cache results:** Store transcripts in `DatabaseManager` using the existing caching pattern
-5. **Test duration limits:** Verify how the new API handles long-form audio; if limited, implement audio chunking
+2. **Implement audio download:** Temporary download via `URLSession.shared.download(from:)` for transcription purposes
+3. **Create `PodcastTranscriber` service:** Async service using `SpeechTranscriber` with `.offlineTranscription` preset
+4. **Add UI:** "Transcribe" button in `PodcastEpisodeView+Actions.swift`, following the existing summarize/translate pattern
+5. **Cache results:** Store transcripts in `DatabaseManager` using the existing caching pattern
+6. **Clean up:** Delete temporary audio file after transcription completes
 
 ### Phase 2: WhisperKit Fallback (If Needed)
 1. **Add WhisperKit SPM dependency** only if SpeechAnalyzer proves insufficient
