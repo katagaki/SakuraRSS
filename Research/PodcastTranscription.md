@@ -20,26 +20,33 @@ This document investigates the feasibility of adding on-device podcast transcrip
 Apple introduced `SpeechAnalyzer` and `SpeechTranscriber` in iOS 26 as successors to `SFSpeechRecognizer`. These provide modern, Swift-native APIs for on-device speech recognition and transcription.
 
 ### Key Details
-- **Framework:** `Speech` (new API surface in iOS 26)
-- **On-device:** Fully on-device processing, no network required
-- **Presets:** `.dictation` and `.conversation` — the `.conversation` preset is ideal for podcasts as it handles multi-speaker dialogue
-- **API style:** Modern async/await with `AsyncSequence` for streaming results
-- **Language support:** All languages supported by on-device Siri dictation
+- **Framework:** `Speech` (new API surface in iOS 26, introduced at WWDC 2025)
+- **On-device:** Fully on-device processing, no network required. Model runs out-of-process (in a system daemon), so it does **not** count against the app's memory budget
+- **Presets:** `.offlineTranscription`, `.dictation`, and `.conversation` — `.offlineTranscription` or `.conversation` are ideal for podcasts
+- **API style:** Modern async/await with `AsyncSequence` for streaming results via `analyzeSequence(from: fileURL)`
+- **Language support:** 40+ locales (English, German, French, Spanish, Japanese, Korean, Chinese, Portuguese, Russian, and many more). Full list via `SpeechTranscriber.supportedLocales`
 - **Authorization:** Still requires `NSSpeechRecognitionUsageDescription` in Info.plist and user permission
+- **Hardware requirement:** `SpeechTranscriber` requires Apple Intelligence-capable hardware (A17 Pro / iPhone 15 Pro or later). For older devices, Apple provides `DictationTranscriber` as a fallback (same capabilities as old `SFSpeechRecognizer`)
+
+### Benchmarks
+- **Speed:** Benchmarked at 2.2x faster than Whisper Large V3 Turbo on a 7 GB video file. A 7:31 audio clip took ~9 seconds (vs ~40 seconds for Whisper). Estimated ~5-10 minutes for a 1-hour podcast on modern hardware.
+- **Accuracy:** Word Error Rate (WER) of ~8%, Character Error Rate (CER) of ~3%. Lower than Whisper large-v3-turbo (~2.2% WER) but adequate for search, indexing, and general reading.
 
 ### Advantages
 - **Zero app size impact** — uses system models already on device
 - **No dependencies** — first-party Apple framework
+- **No memory pressure** — model runs out-of-process in a system daemon
+- **No duration limits** — unlike `SFSpeechRecognizer`, designed for long-form content (lectures, meetings, podcasts)
 - **Perfect platform fit** — the app already targets iOS 26.0+
 - **Consistent with existing patterns** — uses async/await like the rest of the codebase
 - **Privacy** — fully on-device, no data leaves the device
 - **Free** — no API costs or licensing concerns
 
 ### Concerns
-- **Duration limits:** `SFSpeechRecognizer` historically had a ~1 minute limit per request. The new `SpeechTranscriber` API may lift or relax this, but it needs to be verified. Workaround: segment audio into chunks and transcribe sequentially.
-- **Accuracy:** Good for clear speech; may struggle with heavy accents, overlapping speakers, or background music
-- **iOS 26 only:** Not available on older OS versions (but SakuraRSS already targets iOS 26.0+)
-- **Processing speed:** Unclear how fast it processes pre-recorded audio files vs. real-time
+- **Accuracy trade-off:** ~8% WER is noticeably lower than Whisper's ~2.2% WER. For podcasts with technical jargon or heavy accents, this gap may be significant
+- **Hardware requirement:** Full `SpeechTranscriber` requires A17 Pro (iPhone 15 Pro+). Older devices fall back to `DictationTranscriber` which has the legacy 1-minute limit
+- **No custom vocabulary:** Cannot add domain-specific terms (unlike legacy `SFSpeechRecognizer`)
+- **No speaker diarization:** Does not identify or label individual speakers
 
 ### Integration Sketch
 ```swift
@@ -47,16 +54,24 @@ import Speech
 
 func transcribeEpisode(audioURL: URL) async throws -> String {
     let analyzer = SpeechAnalyzer()
-    let transcriber = SpeechTranscriber(preset: .conversation)
+    let transcriber = SpeechTranscriber(preset: .offlineTranscription)
     
-    // Process audio file
-    let result = try await transcriber.transcribe(audioFrom: audioURL)
-    return result.transcription.formattedString
+    var fullText = ""
+    for try await result in analyzer.analyzeSequence(from: audioURL) {
+        let transcription = transcriber.process(result)
+        fullText += transcription.formattedString
+    }
+    return fullText
 }
 ```
 
 ### Verdict
-**Best first choice.** Zero cost, zero dependencies, aligns with the app's existing Apple-framework-first approach. Should be the primary implementation target, with WhisperKit as a fallback if accuracy or duration limits are insufficient.
+**Best first choice.** Zero cost, zero dependencies, no memory pressure (out-of-process), and faster than Whisper. Aligns with the app's existing Apple-framework-first approach. The ~8% WER is acceptable for most podcast content. Should be the primary implementation target, with WhisperKit as a fallback for users who need higher accuracy.
+
+### References
+- [Bring advanced speech-to-text to your app with SpeechAnalyzer — WWDC25](https://developer.apple.com/videos/play/wwdc2025/277/)
+- [Apple's New Transcription APIs Blow Past Whisper in Speed Tests — MacRumors](https://www.macrumors.com/2025/06/18/apple-transcription-api-faster-than-whisper/)
+- [How accurate is Apple's new transcription AI? — 9to5Mac](https://9to5mac.com/2025/07/03/how-accurate-is-apples-new-transcription-ai-we-tested-it-against-whisper-and-parakeet/)
 
 ---
 
@@ -68,36 +83,41 @@ WhisperKit is a Swift package that runs OpenAI's Whisper speech recognition mode
 ### Key Details
 - **Repository:** https://github.com/argmaxinc/WhisperKit
 - **License:** MIT
-- **Integration:** Swift Package Manager
-- **Models:** Compiled to CoreML format, runs on Neural Engine (ANE)
-- **Accuracy:** State-of-the-art; Whisper large-v3-turbo offers excellent accuracy across many languages
+- **Integration:** Swift Package Manager (`https://github.com/argmaxinc/WhisperKit.git`, from version `0.9.0`)
+- **Products:** `WhisperKit` (STT), `TTSKit` (TTS), `SpeakerKit` (speaker diarization)
+- **Platform:** macOS 14.0+, iOS 18.0+. Requires Xcode 16.0+
+- **Device requirement:** iPhone 15 or newer (plans to lower to iPhone 13)
+- **Models:** Compiled to CoreML format, runs on Neural Engine (ANE). Downloaded from HuggingFace on first use and cached locally.
 
 ### Model Sizes and Performance
 
-| Model | Size (approx.) | Speed | Accuracy | Recommended For |
-|-------|----------------|-------|----------|-----------------|
-| tiny | ~75 MB | Fastest | Lower | Quick previews, low-end devices |
-| base | ~140 MB | Fast | Moderate | Balanced use |
-| small | ~460 MB | Moderate | Good | General transcription |
-| large-v3-turbo | ~1.5 GB | Slower | Excellent | High-quality transcription |
+| Model | Parameters | Size (CoreML) | Accuracy | Recommended For |
+|-------|-----------|---------------|----------|-----------------|
+| tiny.en | 39M | ~30-75 MB | Lower | Quick previews, English only |
+| base.en | 74M | ~140 MB | Moderate | Balanced, English only |
+| small.en | 244M | ~460 MB | Good | General transcription |
+| large-v3-turbo | 809M | ~954 MB | Excellent (~2.2% WER) | High-quality transcription |
+| large-v3 | 1.55B | ~1.5 GB | Best | Highest accuracy, multilingual |
 
-- On modern iPhones (A17+), the `small` model can transcribe roughly **10-20x real-time** (a 1-hour podcast in ~3-6 minutes)
-- The `large-v3-turbo` model is slower but still practical for background processing
+- **Speed factor:** Up to 60x real-time (1 minute of audio in 1 second on Apple Silicon)
+- **Estimated 1-hour podcast:** ~1-5 minutes depending on model size
+- **Streaming latency:** ~0.45 seconds per word
 
 ### Advantages
 - **No duration limits** — can transcribe arbitrarily long audio
-- **Excellent accuracy** — state-of-the-art Whisper models, especially for English
+- **Excellent accuracy** — ~2.2% WER with large-v3-turbo, significantly better than SpeechAnalyzer's ~8%
 - **Multi-language support** — 99+ languages
 - **Streaming support** — can provide progressive results
 - **Timestamps** — word-level and segment-level timestamps available
-- **Active development** — well-maintained, backed by Argmax (Apple ecosystem-focused company)
+- **Speaker diarization** — available via `SpeakerKit` companion module
+- **Active development** — well-maintained, backed by Argmax, ICML 2025 paper published
 
 ### Concerns
-- **App size:** Models must be bundled or downloaded on first use. Even the `tiny` model adds ~75 MB. Recommendation: download models on-demand rather than bundling.
-- **Memory usage:** Larger models require significant RAM (small ~1 GB, large-v3-turbo ~3+ GB). Could be problematic on older devices.
-- **Battery:** Intensive Neural Engine usage; transcribing a long podcast will consume noticeable battery
+- **App size:** Models downloaded on first use (75 MB to 1.5 GB). App binary stays small but storage is consumed on-device.
+- **Memory usage:** Models run **in-process** (unlike SpeechAnalyzer), so larger models consume the app's memory budget. Could be problematic on older devices.
+- **Battery:** Intensive Neural Engine usage; transcribing a long podcast will consume noticeable battery (though ANE is relatively power-efficient)
 - **Dependency:** Adds a third-party dependency to the project
-- **Model hosting:** If downloading on-demand, need to host models or use Argmax's default hosting
+- **Model hosting:** Uses Argmax's HuggingFace hosting by default; could also self-host
 
 ### Integration Sketch
 ```swift
@@ -111,7 +131,12 @@ func transcribeEpisode(audioURL: URL) async throws -> String {
 ```
 
 ### Verdict
-**Best choice if Apple's SpeechAnalyzer proves insufficient.** Offers superior accuracy and no duration limits, at the cost of app size and a third-party dependency. Model downloading on-demand would mitigate the size concern.
+**Best choice if higher accuracy is needed.** Offers significantly better WER (~2.2% vs ~8%) and speaker diarization, at the cost of in-process memory usage and a third-party dependency. Model downloading on-demand keeps the initial app binary small.
+
+### References
+- [WhisperKit GitHub](https://github.com/argmaxinc/WhisperKit)
+- [WhisperKit ICML 2025 Paper](https://arxiv.org/abs/2507.10860)
+- [Apple SpeechAnalyzer and Argmax WhisperKit Comparison](https://www.argmaxinc.com/blog/apple-and-argmax)
 
 ---
 
@@ -121,25 +146,37 @@ func transcribeEpisode(audioURL: URL) async throws -> String {
 whisper.cpp is a C/C++ port of OpenAI's Whisper by Georgi Gerganov. SwiftWhisper provides a Swift wrapper around it.
 
 ### Key Details
-- **Repository:** https://github.com/ggerganov/whisper.cpp
-- **Swift wrapper:** SwiftWhisper (https://github.com/exPHAT/SwiftWhisper)
-- **License:** MIT
-- **CoreML support:** Yes, can use CoreML-optimized encoder models
-- **Performance:** Comparable to WhisperKit when using CoreML acceleration
+- **Repository:** https://github.com/ggml-org/whisper.cpp
+- **Swift wrapper:** SwiftWhisper (https://github.com/exPHAT/SwiftWhisper) — SPM package
+- **License:** MIT (both whisper.cpp and SwiftWhisper)
+- **CoreML support:** Yes, encoder runs on ANE via CoreML, decoder runs on CPU via GGML
+- **Quantization:** Supports GGML quantized models (Q5_1) which reduce model size by ~60% with minimal accuracy loss
+- **Audio format:** Requires 16kHz PCM audio frames
+
+### Quantized Model Sizes (GGML Q5_1)
+
+| Model | Unquantized | Quantized (Q5_1) |
+|-------|------------|-------------------|
+| tiny.en | 75 MB | ~31 MB |
+| base.en | 142 MB | ~57 MB |
+| small.en | 466 MB | ~190 MB |
+| large-v3 | 2.9 GB | ~1.1 GB |
 
 ### Advantages
 - Uses the same Whisper models, so accuracy is equivalent
+- Quantized models are significantly smaller than CoreML equivalents
 - Slightly more control over inference parameters
-- Lower-level access if needed
+- Broader device support (does not require ANE for the full pipeline)
 
 ### Concerns
 - **Integration complexity:** C++ interop is more fragile than pure Swift
 - **Less Swift-idiomatic:** SwiftWhisper wrapper abstracts some complexity but is less polished than WhisperKit
-- **Maintenance:** WhisperKit is more actively maintained for Apple platforms specifically
-- **Build complexity:** Requires C++ compilation, which can cause build issues
+- **Performance:** Generally slower than WhisperKit on Apple Silicon, as WhisperKit is optimized end-to-end for CoreML/ANE
+- **Build complexity:** Requires C++ compilation; debug builds are dramatically slower (must use Release builds)
+- **Memory:** The large model requires ~4.7 GB of memory
 
 ### Verdict
-**Not recommended over WhisperKit.** WhisperKit provides the same underlying model quality with a much better Swift developer experience.
+**Not recommended over WhisperKit.** WhisperKit provides the same underlying model quality with a much better Swift developer experience. The one advantage of whisper.cpp is quantized model support for smaller downloads, but WhisperKit's CoreML models already offer good size/performance trade-offs.
 
 ---
 
@@ -230,6 +267,23 @@ The transcription feature fits naturally into the existing architecture:
 - `Shared/Database Manager/DatabaseManager+ArticleContent.swift` — Add cache/retrieve methods
 - `SakuraRSS/Views/Shared/Podcast Episode/PodcastEpisodeView.swift` — Add transcription state
 - `SakuraRSS/Views/Shared/Podcast Episode/PodcastEpisodeView+Actions.swift` — Add transcribe button
+
+---
+
+## Comparison Table
+
+| Criterion | SpeechAnalyzer (iOS 26) | WhisperKit | whisper.cpp | SFSpeechRecognizer |
+|-----------|------------------------|------------|-------------|-------------------|
+| **Ease of integration** | Excellent (few lines) | Good (SPM) | Moderate (C interop) | Good (built-in) |
+| **App size impact** | None (system-managed) | 75 MB – 1.5 GB models | 31 MB – 1.1 GB (quantized) | None |
+| **1-hour podcast** | ~5-10 min | ~1-5 min | ~3-10 min | Not viable |
+| **Accuracy (WER)** | ~8% | ~2.2% (large-v3-turbo) | ~2.2% (same models) | Lower than Whisper |
+| **Memory model** | Out-of-process (zero) | In-process | In-process | Minimal |
+| **Offline** | Yes | Yes (after download) | Yes (after download) | Yes |
+| **Min hardware** | A17 Pro (iPhone 15 Pro) | iPhone 15 | Broad | Very broad |
+| **Long-form audio** | Yes | Yes | Yes | No (1-min limit) |
+| **Speaker diarization** | No | Yes (SpeakerKit) | No | No |
+| **License** | Apple (free) | MIT | MIT | Apple (free) |
 
 ---
 
