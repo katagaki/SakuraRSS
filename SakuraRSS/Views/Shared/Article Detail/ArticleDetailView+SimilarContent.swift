@@ -11,9 +11,31 @@ struct SimilarArticleItem: Identifiable {
 extension ArticleDetailView {
 
     @ViewBuilder
-    var similarContentSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Label("SimilarContent.Title", systemImage: "brain.head.profile")
+    var insightsSection: some View {
+        if hasAnyInsights {
+            VStack(alignment: .leading, spacing: 20) {
+                Label("Insights.Title", systemImage: "sparkles")
+                    .font(.title3)
+                    .fontWeight(.bold)
+                    .padding(.horizontal)
+
+                if similarContentEnabled && !similarArticles.isEmpty {
+                    similarContentSubsection
+                }
+            }
+            .padding(.top, 16)
+            .padding(.bottom, 24)
+        }
+    }
+
+    private var hasAnyInsights: Bool {
+        similarContentEnabled && !similarArticles.isEmpty
+    }
+
+    @ViewBuilder
+    private var similarContentSubsection: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Label("SimilarContent.Title", systemImage: "square.stack.3d.up")
                 .font(.subheadline)
                 .fontWeight(.semibold)
                 .foregroundStyle(.secondary)
@@ -31,8 +53,6 @@ extension ArticleDetailView {
                 .padding(.horizontal)
             }
         }
-        .padding(.top, 8)
-        .padding(.bottom, 16)
     }
 
     func loadSimilarArticles() async -> [SimilarArticleItem] {
@@ -105,21 +125,23 @@ private struct SimilarMatchData: Sendable {
 private struct SimilarArticleCard: View {
 
     @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.zoomNamespace) private var zoomNamespace
     let item: SimilarArticleItem
 
-    private let cardWidth: CGFloat = 160
-    private let cardHeight: CGFloat = 160
+    private let cardWidth: CGFloat = 240
+    private let imageHeight: CGFloat = 135  // 16:9 widescreen
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             cardVisual
-                .frame(width: cardWidth, height: cardHeight)
-                .clipShape(RoundedRectangle(cornerRadius: 16))
+                .frame(width: cardWidth, height: imageHeight)
+                .clipShape(RoundedRectangle(cornerRadius: 14))
                 .overlay(
-                    RoundedRectangle(cornerRadius: 16)
+                    RoundedRectangle(cornerRadius: 14)
                         .stroke(.quaternary, lineWidth: 0.5)
                 )
                 .shadow(color: .black.opacity(0.08), radius: 4, y: 2)
+                .zoomSource(id: item.article.id, namespace: zoomNamespace)
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(item.article.title)
@@ -129,13 +151,10 @@ private struct SimilarArticleCard: View {
                     .lineLimit(3)
                     .multilineTextAlignment(.leading)
 
-                HStack(spacing: 4) {
-                    sentimentDot
-                    Text(item.feedName)
-                        .font(.caption2)
-                        .foregroundStyle(.secondary)
-                        .lineLimit(1)
-                }
+                Text(item.feedName)
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
             }
             .frame(width: cardWidth, alignment: .leading)
         }
@@ -144,7 +163,7 @@ private struct SimilarArticleCard: View {
     @ViewBuilder
     private var cardVisual: some View {
         if let imageURL = item.article.imageURL, let url = URL(string: imageURL) {
-            CachedAsyncImage(url: url) {
+            CachedAsyncImage(url: url, alignment: .top) {
                 thumbnailBackground
             }
         } else {
@@ -166,26 +185,12 @@ private struct SimilarArticleCard: View {
                 Image(uiImage: favicon)
                     .resizable()
                     .aspectRatio(contentMode: .fit)
-                    .frame(width: cardWidth * 0.45, height: cardWidth * 0.45)
+                    .frame(width: imageHeight * 0.5, height: imageHeight * 0.5)
             } else {
                 Image(systemName: "doc.text")
-                    .font(.system(size: cardWidth * 0.3, weight: .light))
+                    .font(.system(size: imageHeight * 0.35, weight: .light))
                     .foregroundStyle(.tertiary)
             }
         }
-    }
-
-    @ViewBuilder
-    private var sentimentDot: some View {
-        Circle()
-            .fill(sentimentColor)
-            .frame(width: 6, height: 6)
-    }
-
-    private var sentimentColor: Color {
-        guard let sentiment = item.sentiment else { return .gray }
-        if sentiment > 0.2 { return .green }
-        if sentiment < -0.2 { return .red }
-        return .gray
     }
 }

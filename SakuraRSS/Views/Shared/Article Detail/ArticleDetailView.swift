@@ -172,9 +172,7 @@ struct ArticleDetailView: View {
             .animation(.smooth.speed(2.0), value: translatedText)
             .padding()
 
-            if similarContentEnabled && !similarArticles.isEmpty {
-                similarContentSection
-            }
+            insightsSection
         }
         .refreshable {
             await refreshArticleContent()

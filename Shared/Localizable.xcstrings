@@ -16586,6 +16586,20 @@
         "zh-Hant": { "stringUnit": { "state": "translated", "value": "訂閱源" } }
       }
     },
+    "Insights.Title": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": { "stringUnit": { "state": "translated", "value": "Erkenntnisse" } },
+        "en": { "stringUnit": { "state": "translated", "value": "Insights" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Aperçus" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Approfondimenti" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "インサイト" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "인사이트" } },
+        "vi": { "stringUnit": { "state": "translated", "value": "Thông tin chi tiết" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "洞察" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "洞察" } }
+      }
+    },
     "SimilarContent.Title": {
       "extractionState": "manual",
       "localizations": {
