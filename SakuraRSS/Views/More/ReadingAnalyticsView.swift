@@ -82,29 +82,29 @@ private struct StatCell: View {
     var isText: Bool = false
 
     var body: some View {
-        VStack(spacing: 4) {
-            HStack(spacing: 4) {
-                Image(systemName: icon)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                if isText {
-                    Text(value)
-                        .font(.subheadline)
-                        .fontWeight(.semibold)
-                        .lineLimit(1)
-                } else {
-                    Text(value)
-                        .font(.title3)
-                        .fontWeight(.bold)
-                        .monospacedDigit()
-                }
-            }
-            Text(label)
+        VStack(alignment: .leading, spacing: 4) {
+            Label(label, systemImage: icon)
                 .font(.caption2)
+                .fontWeight(.medium)
                 .foregroundStyle(.secondary)
                 .lineLimit(1)
+            if isText {
+                Text(value)
+                    .font(.subheadline)
+                    .fontWeight(.bold)
+                    .foregroundStyle(.primary)
+                    .lineLimit(1)
+            } else {
+                Text(value)
+                    .font(.title2)
+                    .fontWeight(.bold)
+                    .foregroundStyle(.primary)
+                    .monospacedDigit()
+                    .lineLimit(1)
+            }
         }
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, 8)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.horizontal, 12)
+        .padding(.vertical, 10)
     }
 }
