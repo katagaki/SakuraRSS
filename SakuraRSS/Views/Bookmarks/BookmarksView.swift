@@ -88,7 +88,12 @@ struct BookmarksView: View {
                         ArticleDetailView(article: article)
                     }
                 }
+                .environment(\.zoomNamespace, cardZoom)
                 .zoomTransition(sourceID: article.id, in: cardZoom)
+            }
+            .navigationDestination(for: EntityDestination.self) { destination in
+                EntityArticlesView(destination: destination)
+                    .environment(\.zoomNamespace, cardZoom)
             }
             .onAppear {
                 bookmarkedArticles = (try? DatabaseManager.shared.bookmarkedArticles()) ?? []

@@ -81,9 +81,14 @@ struct HomeView: View {
                             ArticleDetailView(article: article)
                         }
                     }
+                    .environment(\.zoomNamespace, cardZoom)
                     .zoomTransition(sourceID: article.id, in: cardZoom)
                     .onAppear { savedArticleID = Int(article.id) }
                     .onDisappear { savedArticleID = -1 }
+                }
+                .navigationDestination(for: EntityDestination.self) { destination in
+                    EntityArticlesView(destination: destination)
+                        .environment(\.zoomNamespace, cardZoom)
                 }
         }
         .onChange(of: path.count) {

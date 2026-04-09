@@ -66,10 +66,12 @@ struct SearchView: View {
                         ArticleDetailView(article: article)
                     }
                 }
+                .environment(\.zoomNamespace, cardZoom)
                 .zoomTransition(sourceID: article.id, in: cardZoom)
             }
             .navigationDestination(for: EntityDestination.self) { destination in
                 EntityArticlesView(destination: destination)
+                    .environment(\.zoomNamespace, cardZoom)
             }
             .toolbar {
                 if selectedTab == .search {
