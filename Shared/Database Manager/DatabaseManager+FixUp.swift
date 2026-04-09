@@ -72,7 +72,8 @@ nonisolated extension DatabaseManager {
 
         // NLP columns on articles
         _ = try? database.run(articles.addColumn(articleSentimentScore))
-        _ = try? database.run(articles.addColumn(articleNLPProcessed, defaultValue: false))
+        _ = try? database.run(articles.addColumn(articleSentimentProcessed, defaultValue: false))
+        _ = try? database.run(articles.addColumn(articleEntitiesProcessed, defaultValue: false))
 
         // nlp_entities table
         _ = try? database.run(nlpEntities.create(ifNotExists: true) { table in

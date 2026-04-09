@@ -50,7 +50,8 @@ nonisolated final class DatabaseManager: @unchecked Sendable {
     let articleTranslatedSummary = SQLite.Expression<String?>("translated_summary")
     let articleParserVersion = SQLite.Expression<Int>("parser_version")
     let articleSentimentScore = SQLite.Expression<Double?>("sentiment_score")
-    let articleNLPProcessed = SQLite.Expression<Bool>("nlp_processed")
+    let articleSentimentProcessed = SQLite.Expression<Bool>("sentiment_processed")
+    let articleEntitiesProcessed = SQLite.Expression<Bool>("entities_processed")
 
     let nlpEntities = Table("nlp_entities")
     let nlpEntityID = SQLite.Expression<Int64>("id")
@@ -169,7 +170,8 @@ nonisolated final class DatabaseManager: @unchecked Sendable {
             table.column(articleTranslatedSummary)
             table.column(articleParserVersion, defaultValue: 0)
             table.column(articleSentimentScore)
-            table.column(articleNLPProcessed, defaultValue: false)
+            table.column(articleSentimentProcessed, defaultValue: false)
+            table.column(articleEntitiesProcessed, defaultValue: false)
         })
 
         try database.run(articles.createIndex(articleFeedID, ifNotExists: true))

@@ -1,6 +1,11 @@
 import Foundation
+import os
 
 enum NLPProcessingCoordinator {
+
+    #if DEBUG
+    static let logger = Logger(subsystem: "com.tsubuzaki.SakuraRSS", category: "NLPCoordinator")
+    #endif
 
     /// Processes unprocessed articles if any NLP feature is enabled.
     /// Called after feed refresh completes.
@@ -8,15 +13,40 @@ enum NLPProcessingCoordinator {
         let defaults = UserDefaults.standard
         let similarContentEnabled = defaults.bool(forKey: "Intelligence.SimilarContent.Enabled")
         let topicsPeopleEnabled = defaults.bool(forKey: "Intelligence.TopicsPeople.Enabled")
-        guard similarContentEnabled || topicsPeopleEnabled else { return }
+        guard similarContentEnabled || topicsPeopleEnabled else {
+            #if DEBUG
+            logger.debug("processNewArticlesIfEnabled: both features disabled, skipping")
+            #endif
+            return
+        }
 
         let db = DatabaseManager.shared
         let sevenDaysAgo = Date().addingTimeInterval(-7 * 24 * 3600)
 
-        await Task.detached(priority: .utility) {
-            guard let ids = try? db.unprocessedArticleIDs(since: sevenDaysAgo, limit: 200) else { return }
+        #if DEBUG
+        let startTime = Date()
+        logger.debug("processNewArticlesIfEnabled: starting (similar=\(similarContentEnabled), topics=\(topicsPeopleEnabled))")
+        #endif
 
-            for (index, id) in ids.enumerated() {
+        await Task.detached(priority: .utility) {
+            var idsToProcess = Set<Int64>()
+            if similarContentEnabled {
+                if let ids = try? db.unprocessedSentimentArticleIDs(since: sevenDaysAgo, limit: 200) {
+                    idsToProcess.formUnion(ids)
+                }
+            }
+            if topicsPeopleEnabled {
+                if let ids = try? db.unprocessedEntitiesArticleIDs(since: sevenDaysAgo, limit: 200) {
+                    idsToProcess.formUnion(ids)
+                }
+            }
+
+            #if DEBUG
+            logger.debug("processNewArticlesIfEnabled: \(idsToProcess.count) articles to process")
+            #endif
+
+            let orderedIDs = Array(idsToProcess)
+            for (index, id) in orderedIDs.enumerated() {
                 guard let article = try? db.article(byID: id) else { continue }
                 processArticleSync(article, similarContent: similarContentEnabled,
                                    topicsPeople: topicsPeopleEnabled)
@@ -25,6 +55,11 @@ enum NLPProcessingCoordinator {
                     await Task.yield()
                 }
             }
+
+            #if DEBUG
+            let elapsed = Date().timeIntervalSince(startTime)
+            logger.debug("processNewArticlesIfEnabled: finished \(orderedIDs.count) articles in \(String(format: "%.2f", elapsed))s")
+            #endif
         }.value
     }
 
@@ -50,10 +85,15 @@ enum NLPProcessingCoordinator {
             .filter { !$0.isEmpty }
             .joined(separator: " ")
 
+        #if DEBUG
+        logger.debug("processArticleSync: article=\(article.id) title=\"\(article.title.prefix(60))\"")
+        #endif
+
         if similarContent {
             if let score = NLPProcessor.sentimentScore(for: text) {
                 try? db.updateSentimentScore(score, for: article.id)
             }
+            try? db.markSentimentProcessed(articleId: article.id)
         }
 
         if topicsPeople {
@@ -64,8 +104,7 @@ enum NLPProcessingCoordinator {
                     for: article.id
                 )
             }
+            try? db.markEntitiesProcessed(articleId: article.id)
         }
-
-        try? db.markNLPProcessed(articleId: article.id)
     }
 }

@@ -16449,221 +16449,281 @@
     "Settings.Section.OnDeviceIntelligence": {
       "extractionState": "manual",
       "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "On-Device Intelligence"
-          }
-        }
+        "de": { "stringUnit": { "state": "translated", "value": "Geräteintelligenz" } },
+        "en": { "stringUnit": { "state": "translated", "value": "On-Device Intelligence" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Intelligence sur l’appareil" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Intelligenza sul dispositivo" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "オンデバイスインテリジェンス" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "온디바이스 인텔리전스" } },
+        "vi": { "stringUnit": { "state": "translated", "value": "Trí tuệ trên thiết bị" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "设备端智能" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "裝置端智慧" } }
       }
     },
     "Settings.SimilarContent": {
       "extractionState": "manual",
       "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Similar Content"
-          }
-        }
+        "de": { "stringUnit": { "state": "translated", "value": "Ähnliche Inhalte" } },
+        "en": { "stringUnit": { "state": "translated", "value": "Similar Content" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Contenu similaire" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Contenuti simili" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "類似コンテンツ" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "유사한 콘텐츠" } },
+        "vi": { "stringUnit": { "state": "translated", "value": "Nội dung tương tự" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "相似内容" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "相似內容" } }
       }
     },
     "Settings.SimilarContent.Footer": {
       "extractionState": "manual",
       "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Show semantically similar articles from other feeds when reading an article."
-          }
-        }
+        "de": { "stringUnit": { "state": "translated", "value": "Zeigt semantisch ähnliche Artikel aus anderen Feeds beim Lesen eines Artikels an." } },
+        "en": { "stringUnit": { "state": "translated", "value": "Show semantically similar articles from other feeds when reading an article." } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Afficher des articles similaires d’autres flux lors de la lecture d’un article." } },
+        "it": { "stringUnit": { "state": "translated", "value": "Mostra articoli semanticamente simili da altri feed durante la lettura di un articolo." } },
+        "ja": { "stringUnit": { "state": "translated", "value": "記事を読んでいるときに、他のフィードから意味的に類似した記事を表示します。" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "기사를 읽을 때 다른 피드에서 의미적으로 유사한 기사를 표시합니다." } },
+        "vi": { "stringUnit": { "state": "translated", "value": "Hiển thị các bài viết tương tự về mặt ngữ nghĩa từ các nguồn cấp khác khi đọc bài." } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "阅读文章时，显示来自其他订阅源的语义相似文章。" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "閱讀文章時，顯示來自其他訂閱源的語意相似文章。" } }
       }
     },
     "Settings.TopicsPeople": {
       "extractionState": "manual",
       "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Topics & People"
-          }
-        }
+        "de": { "stringUnit": { "state": "translated", "value": "Themen & Personen" } },
+        "en": { "stringUnit": { "state": "translated", "value": "Topics & People" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Sujets et personnes" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Argomenti e persone" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "トピックと人物" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "주제 및 인물" } },
+        "vi": { "stringUnit": { "state": "translated", "value": "Chủ đề và Nhân vật" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "话题与人物" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "話題與人物" } }
       }
     },
     "Settings.TopicsPeople.Footer": {
       "extractionState": "manual",
       "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Extract topics, organizations, and people from articles. Browse them in the Search tab."
-          }
-        }
+        "de": { "stringUnit": { "state": "translated", "value": "Themen, Organisationen und Personen aus Artikeln extrahieren. Im Suchtab durchsuchen." } },
+        "en": { "stringUnit": { "state": "translated", "value": "Extract topics, organizations, and people from articles. Browse them in the Search tab." } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Extraire des sujets, organisations et personnes des articles. Parcourez-les dans l’onglet Recherche." } },
+        "it": { "stringUnit": { "state": "translated", "value": "Estrai argomenti, organizzazioni e persone dagli articoli. Esplorali nella scheda Cerca." } },
+        "ja": { "stringUnit": { "state": "translated", "value": "記事からトピック、組織、人物を抽出します。検索タブで閲覧できます。" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "기사에서 주제, 조직, 인물을 추출합니다. 검색 탭에서 찾아보세요." } },
+        "vi": { "stringUnit": { "state": "translated", "value": "Trích xuất chủ đề, tổ chức và nhân vật từ bài viết. Duyệt chúng trong tab Tìm kiếm." } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "从文章中提取话题、组织和人物。在搜索标签页中浏览。" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "從文章中擷取話題、組織和人物。在搜尋標籤中瀏覽。" } }
       }
     },
     "Settings.Section.ReadingAnalytics": {
       "extractionState": "manual",
       "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Reading Analytics"
-          }
-        }
+        "de": { "stringUnit": { "state": "translated", "value": "Lesestatistiken" } },
+        "en": { "stringUnit": { "state": "translated", "value": "Reading Analytics" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Statistiques de lecture" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Statistiche di lettura" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "読書分析" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "독서 분석" } },
+        "vi": { "stringUnit": { "state": "translated", "value": "Thống kê đọc" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "阅读统计" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "閱讀統計" } }
       }
     },
     "ReadingAnalytics.ArticlesRead": {
       "extractionState": "manual",
       "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "articles read"
-          }
-        }
+        "de": { "stringUnit": { "state": "translated", "value": "Artikel gelesen" } },
+        "en": { "stringUnit": { "state": "translated", "value": "articles read" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "articles lus" } },
+        "it": { "stringUnit": { "state": "translated", "value": "articoli letti" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "記事を読了" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "읽은 기사" } },
+        "vi": { "stringUnit": { "state": "translated", "value": "bài đã đọc" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "已读文章" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "已讀文章" } }
       }
     },
     "ReadingAnalytics.Streak": {
       "extractionState": "manual",
       "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "day streak"
-          }
-        }
+        "de": { "stringUnit": { "state": "translated", "value": "Tage in Folge" } },
+        "en": { "stringUnit": { "state": "translated", "value": "day streak" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "jours de suite" } },
+        "it": { "stringUnit": { "state": "translated", "value": "giorni di fila" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "日連続" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "일 연속" } },
+        "vi": { "stringUnit": { "state": "translated", "value": "ngày liên tiếp" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "天连读" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "天連讀" } }
       }
     },
     "ReadingAnalytics.MostRead": {
       "extractionState": "manual",
       "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "most read"
-          }
-        }
+        "de": { "stringUnit": { "state": "translated", "value": "Am meisten gelesen" } },
+        "en": { "stringUnit": { "state": "translated", "value": "most read" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "le plus lu" } },
+        "it": { "stringUnit": { "state": "translated", "value": "più letto" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "最もよく読む" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "가장 많이 읽음" } },
+        "vi": { "stringUnit": { "state": "translated", "value": "đọc nhiều nhất" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "最常阅读" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "最常閱讀" } }
       }
     },
     "ReadingAnalytics.FeedCount": {
       "extractionState": "manual",
       "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "feeds"
-          }
-        }
+        "de": { "stringUnit": { "state": "translated", "value": "Feeds" } },
+        "en": { "stringUnit": { "state": "translated", "value": "feeds" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "flux" } },
+        "it": { "stringUnit": { "state": "translated", "value": "feed" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "フィード" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "피드" } },
+        "vi": { "stringUnit": { "state": "translated", "value": "nguồn cấp" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "订阅源" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "訂閱源" } }
       }
     },
     "SimilarContent.Title": {
       "extractionState": "manual",
       "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Similar Content"
-          }
-        }
+        "de": { "stringUnit": { "state": "translated", "value": "Ähnliche Inhalte" } },
+        "en": { "stringUnit": { "state": "translated", "value": "Similar Content" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Contenu similaire" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Contenuti simili" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "類似コンテンツ" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "유사한 콘텐츠" } },
+        "vi": { "stringUnit": { "state": "translated", "value": "Nội dung tương tự" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "相似内容" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "相似內容" } }
       }
     },
     "Search.Tab.Search": {
       "extractionState": "manual",
       "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Search"
-          }
-        }
+        "de": { "stringUnit": { "state": "translated", "value": "Suche" } },
+        "en": { "stringUnit": { "state": "translated", "value": "Search" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Rechercher" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Cerca" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "検索" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "검색" } },
+        "vi": { "stringUnit": { "state": "translated", "value": "Tìm kiếm" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "搜索" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "搜尋" } }
       }
     },
     "Search.Tab.Topics": {
       "extractionState": "manual",
       "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Topics"
-          }
-        }
+        "de": { "stringUnit": { "state": "translated", "value": "Themen" } },
+        "en": { "stringUnit": { "state": "translated", "value": "Topics" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Sujets" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Argomenti" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "トピック" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "주제" } },
+        "vi": { "stringUnit": { "state": "translated", "value": "Chủ đề" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "话题" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "話題" } }
       }
     },
     "Search.Tab.People": {
       "extractionState": "manual",
       "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "People"
-          }
-        }
+        "de": { "stringUnit": { "state": "translated", "value": "Personen" } },
+        "en": { "stringUnit": { "state": "translated", "value": "People" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Personnes" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Persone" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "人物" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "인물" } },
+        "vi": { "stringUnit": { "state": "translated", "value": "Nhân vật" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "人物" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "人物" } }
       }
     },
     "Topics.Title": {
       "extractionState": "manual",
       "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Topics"
-          }
-        }
+        "de": { "stringUnit": { "state": "translated", "value": "Themen" } },
+        "en": { "stringUnit": { "state": "translated", "value": "Topics" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Sujets" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Argomenti" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "トピック" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "주제" } },
+        "vi": { "stringUnit": { "state": "translated", "value": "Chủ đề" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "话题" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "話題" } }
       }
     },
     "Topics.Empty": {
       "extractionState": "manual",
       "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "No Topics Yet"
-          }
-        }
+        "de": { "stringUnit": { "state": "translated", "value": "Noch keine Themen" } },
+        "en": { "stringUnit": { "state": "translated", "value": "No Topics Yet" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Aucun sujet pour le moment" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Nessun argomento ancora" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "まだトピックがありません" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "아직 주제가 없습니다" } },
+        "vi": { "stringUnit": { "state": "translated", "value": "Chưa có chủ đề" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "暂无话题" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "暫無話題" } }
       }
     },
     "Topics.Empty.Description": {
       "extractionState": "manual",
       "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Topics will appear after articles are processed. Enable Topics & People in On-Device Intelligence settings."
-          }
-        }
+        "de": { "stringUnit": { "state": "translated", "value": "Themen erscheinen, nachdem Artikel verarbeitet wurden. Aktivieren Sie „Themen & Personen“ in den Einstellungen für Geräteintelligenz." } },
+        "en": { "stringUnit": { "state": "translated", "value": "Topics will appear after articles are processed. Enable Topics & People in On-Device Intelligence settings." } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Les sujets apparaîtront après le traitement des articles. Activez Sujets et personnes dans les réglages Intelligence sur l’appareil." } },
+        "it": { "stringUnit": { "state": "translated", "value": "Gli argomenti appariranno dopo l’elaborazione degli articoli. Abilita Argomenti e persone nelle impostazioni Intelligenza sul dispositivo." } },
+        "ja": { "stringUnit": { "state": "translated", "value": "記事が処理された後にトピックが表示されます。オンデバイスインテリジェンス設定で「トピックと人物」を有効にしてください。" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "기사가 처리된 후 주제가 표시됩니다. 온디바이스 인텔리전스 설정에서 주제 및 인물을 활성화하세요." } },
+        "vi": { "stringUnit": { "state": "translated", "value": "Chủ đề sẽ xuất hiện sau khi bài viết được xử lý. Bật Chủ đề và Nhân vật trong cài đặt Trí tuệ trên thiết bị." } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "文章处理后将显示话题。请在设备端智能设置中启用话题与人物。" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "文章處理後將顯示話題。請在裝置端智慧設定中啟用話題與人物。" } }
       }
     },
     "People.Title": {
       "extractionState": "manual",
       "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "People"
-          }
-        }
+        "de": { "stringUnit": { "state": "translated", "value": "Personen" } },
+        "en": { "stringUnit": { "state": "translated", "value": "People" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Personnes" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Persone" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "人物" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "인물" } },
+        "vi": { "stringUnit": { "state": "translated", "value": "Nhân vật" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "人物" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "人物" } }
       }
     },
     "People.Empty": {
       "extractionState": "manual",
       "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "No People Yet"
-          }
-        }
+        "de": { "stringUnit": { "state": "translated", "value": "Noch keine Personen" } },
+        "en": { "stringUnit": { "state": "translated", "value": "No People Yet" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Aucune personne pour le moment" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Nessuna persona ancora" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "まだ人物がいません" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "아직 인물이 없습니다" } },
+        "vi": { "stringUnit": { "state": "translated", "value": "Chưa có nhân vật" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "暂无人物" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "暫無人物" } }
       }
     },
     "People.Empty.Description": {
       "extractionState": "manual",
       "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "People mentioned in articles will appear here after processing. Enable Topics & People in On-Device Intelligence settings."
-          }
-        }
+        "de": { "stringUnit": { "state": "translated", "value": "In Artikeln erwähnte Personen werden hier nach der Verarbeitung angezeigt. Aktivieren Sie „Themen & Personen“ in den Einstellungen für Geräteintelligenz." } },
+        "en": { "stringUnit": { "state": "translated", "value": "People mentioned in articles will appear here after processing. Enable Topics & People in On-Device Intelligence settings." } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Les personnes mentionnées dans les articles apparaîtront ici après traitement. Activez Sujets et personnes dans les réglages Intelligence sur l’appareil." } },
+        "it": { "stringUnit": { "state": "translated", "value": "Le persone menzionate negli articoli appariranno qui dopo l’elaborazione. Abilita Argomenti e persone nelle impostazioni Intelligenza sul dispositivo." } },
+        "ja": { "stringUnit": { "state": "translated", "value": "記事で言及された人物が処理後にここに表示されます。オンデバイスインテリジェンス設定で「トピックと人物」を有効にしてください。" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "기사에서 언급된 인물이 처리 후 여기에 표시됩니다. 온디바이스 인텔리전스 설정에서 주제 및 인물을 활성화하세요." } },
+        "vi": { "stringUnit": { "state": "translated", "value": "Những người được nhắc đến trong bài viết sẽ xuất hiện ở đây sau khi xử lý. Bật Chủ đề và Nhân vật trong cài đặt Trí tuệ trên thiết bị." } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "文章中提到的人物将在处理后显示在此。请在设备端智能设置中启用话题与人物。" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "文章中提到的人物將在處理後顯示於此。請在裝置端智慧設定中啟用話題與人物。" } }
       }
     },
     "Settings.Section.Integrations": {

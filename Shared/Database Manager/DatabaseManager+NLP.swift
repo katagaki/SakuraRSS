@@ -10,17 +10,32 @@ nonisolated extension DatabaseManager {
         try database.run(target.update(articleSentimentScore <- score))
     }
 
-    // MARK: - NLP Processing Flag
+    // MARK: - NLP Processing Flags
 
-    func markNLPProcessed(articleId: Int64) throws {
+    func markSentimentProcessed(articleId: Int64) throws {
         let target = articles.filter(articleID == articleId)
-        try database.run(target.update(articleNLPProcessed <- true))
+        try database.run(target.update(articleSentimentProcessed <- true))
     }
 
-    func unprocessedArticleIDs(since date: Date, limit: Int) throws -> [Int64] {
+    func markEntitiesProcessed(articleId: Int64) throws {
+        let target = articles.filter(articleID == articleId)
+        try database.run(target.update(articleEntitiesProcessed <- true))
+    }
+
+    func unprocessedSentimentArticleIDs(since date: Date, limit: Int) throws -> [Int64] {
         let query = articles
             .select(articleID)
-            .filter(articleNLPProcessed == false
+            .filter(articleSentimentProcessed == false
+                    && articlePublishedDate >= date.timeIntervalSince1970)
+            .order(articlePublishedDate.desc)
+            .limit(limit)
+        return try database.prepare(query).map { $0[articleID] }
+    }
+
+    func unprocessedEntitiesArticleIDs(since date: Date, limit: Int) throws -> [Int64] {
+        let query = articles
+            .select(articleID)
+            .filter(articleEntitiesProcessed == false
                     && articlePublishedDate >= date.timeIntervalSince1970)
             .order(articlePublishedDate.desc)
             .limit(limit)
@@ -183,7 +198,8 @@ nonisolated extension DatabaseManager {
             let readDay = calendar.startOfDay(for: readDate)
             if readDay == expectedDate {
                 streak += 1
-                expectedDate = calendar.date(byAdding: .day, value: -1, to: expectedDate)!
+                guard let nextDate = calendar.date(byAdding: .day, value: -1, to: expectedDate) else { break }
+                expectedDate = nextDate
             } else if readDay < expectedDate {
                 break
             }

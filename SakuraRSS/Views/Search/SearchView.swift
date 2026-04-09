@@ -112,6 +112,11 @@ struct SearchView: View {
                     searchText = ""
                 }
             }
+            .onChange(of: topicsPeopleEnabled) { _, newValue in
+                if !newValue && selectedTab != .search {
+                    selectedTab = .search
+                }
+            }
         }
     }
 

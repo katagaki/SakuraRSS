@@ -1,7 +1,12 @@
 import Foundation
 import NaturalLanguage
+import os
 
 nonisolated enum NLPProcessor {
+
+    #if DEBUG
+    static let logger = Logger(subsystem: "com.tsubuzaki.SakuraRSS", category: "NLP")
+    #endif
 
     struct EntityResult {
         let name: String
@@ -43,6 +48,9 @@ nonisolated enum NLPProcessor {
             }
             return true
         }
+        #if DEBUG
+        logger.debug("Extracted \(results.count) entities from text (\(text.count) chars)")
+        #endif
         return results
     }
 
@@ -65,8 +73,17 @@ nonisolated enum NLPProcessor {
             }
             return true
         }
-        guard !scores.isEmpty else { return nil }
-        return scores.reduce(0, +) / Double(scores.count)
+        guard !scores.isEmpty else {
+            #if DEBUG
+            logger.debug("Sentiment: no scores extracted from \(text.count)-char text")
+            #endif
+            return nil
+        }
+        let average = scores.reduce(0, +) / Double(scores.count)
+        #if DEBUG
+        logger.debug("Sentiment: \(String(format: "%.3f", average)) (from \(scores.count) paragraphs)")
+        #endif
+        return average
     }
 
     // MARK: - Similarity via NLEmbedding
@@ -77,12 +94,24 @@ nonisolated enum NLPProcessor {
         maxResults: Int = 10,
         maximumDistance: Double = 1.0
     ) -> [(articleID: Int64, distance: Double)] {
-        guard let embedding = NLEmbedding.sentenceEmbedding(for: .english) else {
+        let sourceText = articleText(article)
+        guard !sourceText.isEmpty else { return [] }
+
+        let recognizer = NLLanguageRecognizer()
+        recognizer.processString(sourceText)
+        let language = recognizer.dominantLanguage ?? .english
+        let embedding = NLEmbedding.sentenceEmbedding(for: language)
+            ?? NLEmbedding.sentenceEmbedding(for: .english)
+        guard let embedding else {
+            #if DEBUG
+            logger.debug("findSimilarArticles: no embedding available for language \(language.rawValue)")
+            #endif
             return []
         }
 
-        let sourceText = articleText(article)
-        guard !sourceText.isEmpty else { return [] }
+        #if DEBUG
+        logger.debug("findSimilarArticles: comparing article \(article.id) against \(candidates.count) candidates (lang=\(language.rawValue))")
+        #endif
 
         var scored: [(articleID: Int64, distance: Double)] = []
 
@@ -96,7 +125,11 @@ nonisolated enum NLPProcessor {
         }
 
         scored.sort { $0.distance < $1.distance }
-        return Array(scored.prefix(maxResults))
+        let results = Array(scored.prefix(maxResults))
+        #if DEBUG
+        logger.debug("findSimilarArticles: returning \(results.count) matches (best distance: \(String(format: "%.3f", results.first?.distance ?? -1)))")
+        #endif
+        return results
     }
 
     private static func articleText(_ article: Article) -> String {
