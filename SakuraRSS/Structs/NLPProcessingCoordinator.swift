@@ -4,7 +4,7 @@ import os
 enum NLPProcessingCoordinator {
 
     #if DEBUG
-    static let logger = Logger(subsystem: "com.tsubuzaki.SakuraRSS", category: "NLPCoordinator")
+    nonisolated static let logger = Logger(subsystem: "com.tsubuzaki.SakuraRSS", category: "NLPCoordinator")
     #endif
 
     /// Processes unprocessed articles if any NLP feature is enabled.
