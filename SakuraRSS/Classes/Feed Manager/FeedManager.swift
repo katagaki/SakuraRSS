@@ -75,7 +75,7 @@ final class FeedManager {
 
     func deleteFeed(_ feed: Feed) throws {
         try database.deleteFeed(id: feed.id)
-        PodcastDownloadManager.shared.cleanupOrphanedDownloads()
+        PodcastDownloadManager.cleanupOrphanedDownloads()
         loadFromDatabase()
     }
 
@@ -171,7 +171,7 @@ final class FeedManager {
                 try database.clearImageCache()
             }
             try database.vacuum()
-            PodcastDownloadManager.shared.cleanupOrphanedDownloads()
+            PodcastDownloadManager.cleanupOrphanedDownloads()
         }.value
         await loadFromDatabaseInBackground()
     }

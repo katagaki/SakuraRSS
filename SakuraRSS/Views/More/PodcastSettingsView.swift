@@ -56,7 +56,7 @@ struct PodcastSettingsView: View {
         .navigationTitle("Integrations.Podcast")
         .toolbarTitleDisplayMode(.inline)
         .task {
-            downloadsSize = PodcastDownloadManager.shared.totalDownloadedSize()
+            downloadsSize = PodcastDownloadManager.totalDownloadedSize()
         }
         .alert(
             "Podcast.Downloads.DeleteAll.ConfirmTitle",
@@ -64,7 +64,7 @@ struct PodcastSettingsView: View {
         ) {
             Button("Podcast.Downloads.DeleteAll.Confirm", role: .destructive) {
                 try? PodcastDownloadManager.shared.deleteAllDownloads()
-                downloadsSize = PodcastDownloadManager.shared.totalDownloadedSize()
+                downloadsSize = PodcastDownloadManager.totalDownloadedSize()
             }
             Button("Shared.Cancel", role: .cancel) { }
         } message: {

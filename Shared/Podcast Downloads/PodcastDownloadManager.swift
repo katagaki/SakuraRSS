@@ -69,10 +69,11 @@ final class PodcastDownloadManager {
     }
 
     func localFileURL(for articleID: Int64) -> URL? {
-        guard let path = try? DatabaseManager.shared.downloadPath(for: articleID) else {
+        // `try?` on a throwing method returning `String?` already flattens to `String?`.
+        guard let path = try? DatabaseManager.shared.downloadPath(for: articleID),
+              let downloadsDirectory else {
             return nil
         }
-        guard let path, let downloadsDirectory else { return nil }
         let url = downloadsDirectory.appendingPathComponent(path)
         return fileManager.fileExists(atPath: url.path) ? url : nil
     }
@@ -217,7 +218,9 @@ final class PodcastDownloadManager {
     // MARK: - Cleanup
 
     /// Removes download files whose article no longer exists in the database.
-    nonisolated func cleanupOrphanedDownloads() {
+    /// Static + nonisolated so callers on background queues don't need to hop
+    /// to the main actor just to clean up orphaned files.
+    nonisolated static func cleanupOrphanedDownloads() {
         let fm = FileManager.default
         guard let container = fm.containerURL(
             forSecurityApplicationGroupIdentifier: "group.com.tsubuzaki.SakuraRSS"
@@ -239,7 +242,7 @@ final class PodcastDownloadManager {
 
     // MARK: - Size
 
-    nonisolated func totalDownloadedSize() -> Int64 {
+    nonisolated static func totalDownloadedSize() -> Int64 {
         let fm = FileManager.default
         guard let container = fm.containerURL(
             forSecurityApplicationGroupIdentifier: "group.com.tsubuzaki.SakuraRSS"
