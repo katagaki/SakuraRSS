@@ -32,7 +32,7 @@ final class PodcastDownloadManager {
     var activeDownloads: [Int64: DownloadProgress] = [:]
 
     private let urlSession: URLSession
-    private var downloadTasks: [Int64: Task<Void, Error>] = [:]
+    private var downloadTasks: [Int64: Task<Void, Never>] = [:]
     private let fileManager = FileManager.default
 
     private init() {

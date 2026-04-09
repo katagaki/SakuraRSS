@@ -23,10 +23,11 @@ enum PodcastTranscriber {
     /// Checks whether on-device transcription is usable, including authorization.
     static var isAvailable: Bool {
         get async {
-            let status = await withCheckedContinuation { (continuation: CheckedContinuation<SFSpeechRecognizerAuthorizationStatus, Never>) in
-                SFSpeechRecognizer.requestAuthorization { status in
-                    continuation.resume(returning: status)
-                }
+            let current = SFSpeechRecognizer.authorizationStatus()
+            if current == .authorized { return true }
+            if current == .denied || current == .restricted { return false }
+            let status = await withCheckedContinuation { (cont: CheckedContinuation<SFSpeechRecognizerAuthorizationStatus, Never>) in
+                SFSpeechRecognizer.requestAuthorization { cont.resume(returning: $0) }
             }
             return status == .authorized
         }
@@ -46,12 +47,16 @@ enum PodcastTranscriber {
 
         let transcriber = SpeechTranscriber(
             locale: Locale.current,
-            preset: .offlineTranscription
+            transcriptionOptions: [],
+            reportingOptions: [],
+            attributeOptions: []
         )
         let analyzer = SpeechAnalyzer(modules: [transcriber])
         let audioFile = try AVAudioFile(forReading: audioFileURL)
 
         // Kick off a task that consumes transcription results as they arrive.
+        // Timestamp extraction from results is intentionally conservative until we
+        // nail down the exact iOS 26 API shape — segments are emitted with 0 time.
         let collectionTask = Task { () throws -> [TranscriptSegment] in
             var segments: [TranscriptSegment] = []
             var nextID = 0
@@ -60,17 +65,10 @@ enum PodcastTranscriber {
                     .trimmingCharacters(in: .whitespacesAndNewlines)
                 guard !text.isEmpty else { continue }
 
-                var start: TimeInterval = 0
-                var end: TimeInterval = 0
-                if let range = result.range {
-                    start = range.start.seconds
-                    end = range.end.seconds
-                }
-
                 segments.append(TranscriptSegment(
                     id: nextID,
-                    start: start.isFinite ? start : 0,
-                    end: end.isFinite ? end : 0,
+                    start: 0,
+                    end: 0,
                     text: text
                 ))
                 nextID += 1
