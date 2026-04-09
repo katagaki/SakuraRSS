@@ -7,44 +7,35 @@ struct ReadingAnalyticsView: View {
     @State private var streak: Int = 0
     @State private var mostReadFeedName: String?
     @State private var feedCount: Int = 0
-    @State private var deadFeeds: Int = 0
 
     private let columns = [
-        GridItem(.flexible()),
-        GridItem(.flexible())
+        GridItem(.flexible(), spacing: 10),
+        GridItem(.flexible(), spacing: 10)
     ]
 
     var body: some View {
-        LazyVGrid(columns: columns, spacing: 12) {
+        LazyVGrid(columns: columns, spacing: 10) {
             StatCell(
-                value: "\(totalRead)",
-                label: String(localized: "ReadingAnalytics.ArticlesRead"),
-                icon: "book.closed"
+                value: totalRead.formatted(),
+                label: "ReadingAnalytics.ArticlesRead",
+                icon: "book.closed.fill"
             )
             StatCell(
-                value: streak > 0 ? "\(streak)" : "—",
-                label: String(localized: "ReadingAnalytics.Streak"),
-                icon: "flame"
+                value: streak > 0 ? streak.formatted() : "—",
+                label: "ReadingAnalytics.Streak",
+                icon: "flame.fill"
             )
             StatCell(
-                value: "\(feedCount)",
-                label: String(localized: "ReadingAnalytics.FeedCount"),
+                value: feedCount.formatted(),
+                label: "ReadingAnalytics.FeedCount",
                 icon: "list.bullet"
             )
-            if let mostReadFeedName {
-                StatCell(
-                    value: mostReadFeedName,
-                    label: String(localized: "ReadingAnalytics.MostRead"),
-                    icon: "star",
-                    isText: true
-                )
-            } else {
-                StatCell(
-                    value: "—",
-                    label: String(localized: "ReadingAnalytics.MostRead"),
-                    icon: "star"
-                )
-            }
+            StatCell(
+                value: mostReadFeedName ?? "—",
+                label: "ReadingAnalytics.MostViewed",
+                icon: "star.fill",
+                isText: mostReadFeedName != nil
+            )
         }
         .task {
             await loadStats()
@@ -58,8 +49,6 @@ struct ReadingAnalyticsView: View {
             let read = (try? db.totalArticlesRead()) ?? 0
             let streakDays = (try? db.readingStreak()) ?? 0
             let feeds = (try? db.totalFeedCount()) ?? 0
-            let threshold = Date().addingTimeInterval(-30 * 24 * 3600)
-            let dead = (try? db.deadFeedCount(threshold: threshold)) ?? 0
             let topFeedID = try? db.mostReadFeedID()
             let topFeedName = topFeedID.flatMap { manager.feedsByID[$0]?.title }
 
@@ -67,7 +56,6 @@ struct ReadingAnalyticsView: View {
                 totalRead = read
                 streak = streakDays
                 feedCount = feeds
-                deadFeeds = dead
                 mostReadFeedName = topFeedName
             }
         }.value
@@ -77,33 +65,44 @@ struct ReadingAnalyticsView: View {
 private struct StatCell: View {
 
     let value: String
-    let label: String
+    let label: LocalizedStringKey
     let icon: String
     var isText: Bool = false
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Label(label, systemImage: icon)
-                .font(.caption2)
-                .fontWeight(.medium)
-                .foregroundStyle(.secondary)
-                .lineLimit(1)
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(spacing: 5) {
+                Image(systemName: icon)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                Text(label)
+                    .font(.caption2)
+                    .fontWeight(.medium)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
+            }
+
             if isText {
                 Text(value)
                     .font(.subheadline)
-                    .fontWeight(.bold)
+                    .fontWeight(.semibold)
                     .foregroundStyle(.primary)
-                    .lineLimit(1)
+                    .lineLimit(2)
+                    .minimumScaleFactor(0.85)
+                    .multilineTextAlignment(.leading)
             } else {
                 Text(value)
-                    .font(.title2)
-                    .fontWeight(.bold)
+                    .font(.system(.title, design: .rounded, weight: .bold))
                     .foregroundStyle(.primary)
                     .monospacedDigit()
                     .lineLimit(1)
+                    .minimumScaleFactor(0.6)
             }
+
+            Spacer(minLength: 0)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
+        .frame(minHeight: 78, alignment: .topLeading)
         .padding(.horizontal, 12)
         .padding(.vertical, 10)
     }

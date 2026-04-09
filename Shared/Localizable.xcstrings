@@ -16541,18 +16541,18 @@
         "zh-Hant": { "stringUnit": { "state": "translated", "value": "天連讀" } }
       }
     },
-    "ReadingAnalytics.MostRead": {
+    "ReadingAnalytics.MostViewed": {
       "extractionState": "manual",
       "localizations": {
-        "de": { "stringUnit": { "state": "translated", "value": "Am meisten gelesen" } },
-        "en": { "stringUnit": { "state": "translated", "value": "most read" } },
-        "fr": { "stringUnit": { "state": "translated", "value": "le plus lu" } },
-        "it": { "stringUnit": { "state": "translated", "value": "più letto" } },
-        "ja": { "stringUnit": { "state": "translated", "value": "最もよく読む" } },
-        "ko": { "stringUnit": { "state": "translated", "value": "가장 많이 읽음" } },
-        "vi": { "stringUnit": { "state": "translated", "value": "đọc nhiều nhất" } },
-        "zh-Hans": { "stringUnit": { "state": "translated", "value": "最常阅读" } },
-        "zh-Hant": { "stringUnit": { "state": "translated", "value": "最常閱讀" } }
+        "de": { "stringUnit": { "state": "translated", "value": "Am meisten angesehen" } },
+        "en": { "stringUnit": { "state": "translated", "value": "most viewed" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "le plus vu" } },
+        "it": { "stringUnit": { "state": "translated", "value": "più visto" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "最もよく表示" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "가장 많이 본" } },
+        "vi": { "stringUnit": { "state": "translated", "value": "xem nhiều nhất" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "最常查看" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "最常檢視" } }
       }
     },
     "ReadingAnalytics.FeedCount": {
