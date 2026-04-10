@@ -16517,12 +16517,12 @@
       "extractionState": "manual",
       "localizations": {
         "de": { "stringUnit": { "state": "translated", "value": "Artikel gelesen" } },
-        "en": { "stringUnit": { "state": "translated", "value": "articles read" } },
-        "fr": { "stringUnit": { "state": "translated", "value": "articles lus" } },
-        "it": { "stringUnit": { "state": "translated", "value": "articoli letti" } },
+        "en": { "stringUnit": { "state": "translated", "value": "Articles Read" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Articles Lus" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Articoli Letti" } },
         "ja": { "stringUnit": { "state": "translated", "value": "既読記事" } },
         "ko": { "stringUnit": { "state": "translated", "value": "읽은 기사" } },
-        "vi": { "stringUnit": { "state": "translated", "value": "bài đã đọc" } },
+        "vi": { "stringUnit": { "state": "translated", "value": "Bài Đã Đọc" } },
         "zh-Hans": { "stringUnit": { "state": "translated", "value": "已读文章" } },
         "zh-Hant": { "stringUnit": { "state": "translated", "value": "已讀文章" } }
       }
@@ -16531,12 +16531,12 @@
       "extractionState": "manual",
       "localizations": {
         "de": { "stringUnit": { "state": "translated", "value": "Tage in Folge" } },
-        "en": { "stringUnit": { "state": "translated", "value": "day streak" } },
-        "fr": { "stringUnit": { "state": "translated", "value": "jours de suite" } },
-        "it": { "stringUnit": { "state": "translated", "value": "giorni di fila" } },
+        "en": { "stringUnit": { "state": "translated", "value": "Day Streak" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Jours de Suite" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Giorni di Fila" } },
         "ja": { "stringUnit": { "state": "translated", "value": "連続日数" } },
         "ko": { "stringUnit": { "state": "translated", "value": "연속 일수" } },
-        "vi": { "stringUnit": { "state": "translated", "value": "ngày liên tiếp" } },
+        "vi": { "stringUnit": { "state": "translated", "value": "Ngày Liên Tiếp" } },
         "zh-Hans": { "stringUnit": { "state": "translated", "value": "连读天数" } },
         "zh-Hant": { "stringUnit": { "state": "translated", "value": "連讀天數" } }
       }
@@ -16545,12 +16545,12 @@
       "extractionState": "manual",
       "localizations": {
         "de": { "stringUnit": { "state": "translated", "value": "Top-Feed" } },
-        "en": { "stringUnit": { "state": "translated", "value": "top feed" } },
-        "fr": { "stringUnit": { "state": "translated", "value": "flux favori" } },
-        "it": { "stringUnit": { "state": "translated", "value": "feed preferito" } },
+        "en": { "stringUnit": { "state": "translated", "value": "Top Feed" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Flux Favori" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Feed Preferito" } },
         "ja": { "stringUnit": { "state": "translated", "value": "トップフィード" } },
         "ko": { "stringUnit": { "state": "translated", "value": "최애 피드" } },
-        "vi": { "stringUnit": { "state": "translated", "value": "nguồn yêu thích" } },
+        "vi": { "stringUnit": { "state": "translated", "value": "Nguồn Yêu Thích" } },
         "zh-Hans": { "stringUnit": { "state": "translated", "value": "最爱订阅源" } },
         "zh-Hant": { "stringUnit": { "state": "translated", "value": "最愛訂閱源" } }
       }
@@ -16559,12 +16559,12 @@
       "extractionState": "manual",
       "localizations": {
         "de": { "stringUnit": { "state": "translated", "value": "Feeds" } },
-        "en": { "stringUnit": { "state": "translated", "value": "feeds" } },
-        "fr": { "stringUnit": { "state": "translated", "value": "flux" } },
-        "it": { "stringUnit": { "state": "translated", "value": "feed" } },
+        "en": { "stringUnit": { "state": "translated", "value": "Feeds" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Flux" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Feed" } },
         "ja": { "stringUnit": { "state": "translated", "value": "フィード" } },
         "ko": { "stringUnit": { "state": "translated", "value": "피드" } },
-        "vi": { "stringUnit": { "state": "translated", "value": "nguồn cấp" } },
+        "vi": { "stringUnit": { "state": "translated", "value": "Nguồn Cấp" } },
         "zh-Hans": { "stringUnit": { "state": "translated", "value": "订阅源" } },
         "zh-Hant": { "stringUnit": { "state": "translated", "value": "訂閱源" } }
       }
