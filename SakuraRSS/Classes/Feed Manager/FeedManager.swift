@@ -1,3 +1,4 @@
+import CoreSpotlight
 import Foundation
 import SwiftUI
 @preconcurrency import UserNotifications
@@ -56,6 +57,11 @@ final class FeedManager {
         }
     }
 
+    /// Notify the UI that favicons may have changed so views re-fetch them.
+    func notifyFaviconChange() {
+        faviconRevision += 1
+    }
+
     // MARK: - Feed CRUD
 
     func addFeed(url: String, title: String, siteURL: String,
@@ -74,8 +80,10 @@ final class FeedManager {
     }
 
     func deleteFeed(_ feed: Feed) throws {
+        let articleIDs = (try? database.articles(forFeedID: feed.id)).map { $0.map(\.id) } ?? []
         try database.deleteFeed(id: feed.id)
         PodcastDownloadManager.cleanupOrphanedDownloads()
+        SpotlightIndexer.removeArticles(feedID: feed.id, articleIDs: articleIDs)
         loadFromDatabase()
     }
 
@@ -136,6 +144,10 @@ final class FeedManager {
 
             try database.insertArticles(feedID: feed.id, articles: articleTuples)
 
+            let feedTitleForIndex = parsed.title.isEmpty ? feed.title : parsed.title
+            let articlesToIndex = try database.articles(forFeedID: feed.id, limit: articleTuples.count)
+            SpotlightIndexer.indexArticles(articlesToIndex, feedTitle: feedTitleForIndex)
+
             if parsed.isPodcast && !feed.isPodcast {
                 try database.updateFeedIsPodcast(id: feed.id, isPodcast: true)
             } else if !parsed.isPodcast && feed.isPodcast {
@@ -154,6 +166,7 @@ final class FeedManager {
     func deleteAllArticlesAndRefresh() async {
         let database = database
         _ = try? await Task.detached { try database.deleteAllArticles() }.value
+        SpotlightIndexer.removeAllArticles()
         await loadFromDatabaseInBackground()
         await refreshAllFeeds()
     }
@@ -173,6 +186,7 @@ final class FeedManager {
             try database.vacuum()
             PodcastDownloadManager.cleanupOrphanedDownloads()
         }.value
+        SpotlightIndexer.removeAllArticles()
         await loadFromDatabaseInBackground()
     }
 
@@ -189,6 +203,35 @@ final class FeedManager {
             }
         }
         await loadFromDatabaseInBackground()
+    }
+
+    /// Refreshes feeds that have never been fetched (e.g. added by the share
+    /// extension while the main app was in the background).  Also generates
+    /// acronym icons and fetches favicons for those feeds.
+    func refreshUnfetchedFeeds() async {
+        let unfetched = feeds.filter { $0.lastFetched == nil }
+        guard !unfetched.isEmpty else { return }
+
+        // Generate acronym icons the share extension doesn't create.
+        for feed in unfetched {
+            generateAcronymIcon(feedID: feed.id, title: feed.title)
+        }
+
+        // Fetch articles for the new feeds.
+        await withTaskGroup(of: Void.self) { group in
+            for feed in unfetched {
+                group.addTask {
+                    try? await self.refreshFeed(feed, reloadData: false)
+                }
+            }
+        }
+        await loadFromDatabaseInBackground()
+
+        // Clear any stale favicon failures and notify the UI so
+        // FeedRowViews re-fetch their icons.
+        let entries = unfetched.map { ($0.domain, $0.siteURL as String?) }
+        await FaviconCache.shared.clearFailedLookups(for: entries)
+        faviconRevision += 1
     }
 
     func refreshAllFeedsAndFavicons() async {

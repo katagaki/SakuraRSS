@@ -16796,64 +16796,36 @@
         "ja": { "stringUnit": { "state": "translated", "value": "インサイトとインテリジェンス" } },
         "ko": { "stringUnit": { "state": "translated", "value": "인사이트 및 인텔리전스" } },
         "vi": { "stringUnit": { "state": "translated", "value": "Thông tin chi tiết và Trí tuệ" } },
-        "zh-Hans": { "stringUnit": { "state": "translated", "value": "洞察与智能" } },
-        "zh-Hant": { "stringUnit": { "state": "translated", "value": "洞察與智慧" } }
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "洞见与智能" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "洞見與智慧" } }
       }
     },
-    "Settings.SimilarContent": {
+    "Settings.ContentInsights": {
       "extractionState": "manual",
       "localizations": {
-        "de": { "stringUnit": { "state": "translated", "value": "Ähnliche Inhalte" } },
-        "en": { "stringUnit": { "state": "translated", "value": "Similar Content" } },
-        "fr": { "stringUnit": { "state": "translated", "value": "Contenu similaire" } },
-        "it": { "stringUnit": { "state": "translated", "value": "Contenuti simili" } },
-        "ja": { "stringUnit": { "state": "translated", "value": "類似コンテンツ" } },
-        "ko": { "stringUnit": { "state": "translated", "value": "유사한 콘텐츠" } },
-        "vi": { "stringUnit": { "state": "translated", "value": "Nội dung tương tự" } },
-        "zh-Hans": { "stringUnit": { "state": "translated", "value": "相似内容" } },
-        "zh-Hant": { "stringUnit": { "state": "translated", "value": "相似內容" } }
+        "de": { "stringUnit": { "state": "translated", "value": "Inhalts-Insights" } },
+        "en": { "stringUnit": { "state": "translated", "value": "Content Insights" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Analyse de contenu" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Approfondimenti contenuto" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "コンテンツインサイト" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "콘텐츠 인사이트" } },
+        "vi": { "stringUnit": { "state": "translated", "value": "Phân tích nội dung" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "内容洞察" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "內容洞察" } }
       }
     },
-    "Settings.SimilarContent.Footer": {
+    "Settings.ContentInsights.Footer": {
       "extractionState": "manual",
       "localizations": {
-        "de": { "stringUnit": { "state": "translated", "value": "Zeigt semantisch ähnliche Artikel aus anderen Feeds beim Lesen eines Artikels an." } },
-        "en": { "stringUnit": { "state": "translated", "value": "Show semantically similar articles from other feeds when reading an article." } },
-        "fr": { "stringUnit": { "state": "translated", "value": "Afficher des articles similaires d’autres flux lors de la lecture d’un article." } },
-        "it": { "stringUnit": { "state": "translated", "value": "Mostra articoli semanticamente simili da altri feed durante la lettura di un articolo." } },
-        "ja": { "stringUnit": { "state": "translated", "value": "記事を読んでいるときに、他のフィードから意味的に類似した記事を表示します。" } },
-        "ko": { "stringUnit": { "state": "translated", "value": "기사를 읽을 때 다른 피드에서 의미적으로 유사한 기사를 표시합니다." } },
-        "vi": { "stringUnit": { "state": "translated", "value": "Hiển thị các bài viết tương tự về mặt ngữ nghĩa từ các nguồn cấp khác khi đọc bài." } },
-        "zh-Hans": { "stringUnit": { "state": "translated", "value": "阅读文章时，显示来自其他订阅源的语义相似文章。" } },
-        "zh-Hant": { "stringUnit": { "state": "translated", "value": "閱讀文章時，顯示來自其他訂閱源的語意相似文章。" } }
-      }
-    },
-    "Settings.TopicsPeople": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": { "stringUnit": { "state": "translated", "value": "Themen & Personen" } },
-        "en": { "stringUnit": { "state": "translated", "value": "Topics & People" } },
-        "fr": { "stringUnit": { "state": "translated", "value": "Sujets et personnes" } },
-        "it": { "stringUnit": { "state": "translated", "value": "Argomenti e persone" } },
-        "ja": { "stringUnit": { "state": "translated", "value": "トピックと人物" } },
-        "ko": { "stringUnit": { "state": "translated", "value": "주제 및 인물" } },
-        "vi": { "stringUnit": { "state": "translated", "value": "Chủ đề và Nhân vật" } },
-        "zh-Hans": { "stringUnit": { "state": "translated", "value": "话题与人物" } },
-        "zh-Hant": { "stringUnit": { "state": "translated", "value": "話題與人物" } }
-      }
-    },
-    "Settings.TopicsPeople.Footer": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": { "stringUnit": { "state": "translated", "value": "Themen, Organisationen und Personen aus Artikeln extrahieren. Im Suchtab durchsuchen." } },
-        "en": { "stringUnit": { "state": "translated", "value": "Extract topics, organizations, and people from articles. Browse them in the Search tab." } },
-        "fr": { "stringUnit": { "state": "translated", "value": "Extraire des sujets, organisations et personnes des articles. Parcourez-les dans l’onglet Recherche." } },
-        "it": { "stringUnit": { "state": "translated", "value": "Estrai argomenti, organizzazioni e persone dagli articoli. Esplorali nella scheda Cerca." } },
-        "ja": { "stringUnit": { "state": "translated", "value": "記事からトピック、組織、人物を抽出します。検索タブで閲覧できます。" } },
-        "ko": { "stringUnit": { "state": "translated", "value": "기사에서 주제, 조직, 인물을 추출합니다. 검색 탭에서 찾아보세요." } },
-        "vi": { "stringUnit": { "state": "translated", "value": "Trích xuất chủ đề, tổ chức và nhân vật từ bài viết. Duyệt chúng trong tab Tìm kiếm." } },
-        "zh-Hans": { "stringUnit": { "state": "translated", "value": "从文章中提取话题、组织和人物。在搜索标签页中浏览。" } },
-        "zh-Hant": { "stringUnit": { "state": "translated", "value": "從文章中擷取話題、組織和人物。在搜尋標籤中瀏覽。" } }
+        "de": { "stringUnit": { "state": "translated", "value": "Ähnliche Artikel anzeigen, Themen, Organisationen und Personen aus Artikeln extrahieren. Im Suchtab durchsuchen." } },
+        "en": { "stringUnit": { "state": "translated", "value": "Show similar articles, extract topics, organizations, and people from articles. Browse them in the Search tab." } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Afficher des articles similaires, extraire des sujets, organisations et personnes des articles. Parcourez-les dans l’onglet Recherche." } },
+        "it": { "stringUnit": { "state": "translated", "value": "Mostra articoli simili, estrai argomenti, organizzazioni e persone dagli articoli. Esplorali nella scheda Cerca." } },
+        "ja": { "stringUnit": { "state": "translated", "value": "類似記事を表示し、記事からトピック、組織、人物を抽出します。検索タブで閲覧できます。" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "유사한 기사를 표시하고, 기사에서 주제, 조직, 인물을 추출합니다. 검색 탭에서 찾아보세요." } },
+        "vi": { "stringUnit": { "state": "translated", "value": "Hiển thị bài viết tương tự, trích xuất chủ đề, tổ chức và nhân vật từ bài viết. Duyệt chúng trong tab Tìm kiếm." } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "显示相似文章，从文章中提取话题、组织和人物。在搜索标签页中浏览。" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "顯示相似文章，從文章中擷取話題、組織和人物。在搜尋標籤中瀏覽。" } }
       }
     },
     "Settings.Section.ReadingAnalytics": {
@@ -16874,12 +16846,12 @@
       "extractionState": "manual",
       "localizations": {
         "de": { "stringUnit": { "state": "translated", "value": "Artikel gelesen" } },
-        "en": { "stringUnit": { "state": "translated", "value": "articles read" } },
-        "fr": { "stringUnit": { "state": "translated", "value": "articles lus" } },
-        "it": { "stringUnit": { "state": "translated", "value": "articoli letti" } },
-        "ja": { "stringUnit": { "state": "translated", "value": "記事を読了" } },
+        "en": { "stringUnit": { "state": "translated", "value": "Articles Read" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Articles Lus" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Articoli Letti" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "既読記事" } },
         "ko": { "stringUnit": { "state": "translated", "value": "읽은 기사" } },
-        "vi": { "stringUnit": { "state": "translated", "value": "bài đã đọc" } },
+        "vi": { "stringUnit": { "state": "translated", "value": "Bài Đã Đọc" } },
         "zh-Hans": { "stringUnit": { "state": "translated", "value": "已读文章" } },
         "zh-Hant": { "stringUnit": { "state": "translated", "value": "已讀文章" } }
       }
@@ -16888,40 +16860,40 @@
       "extractionState": "manual",
       "localizations": {
         "de": { "stringUnit": { "state": "translated", "value": "Tage in Folge" } },
-        "en": { "stringUnit": { "state": "translated", "value": "day streak" } },
-        "fr": { "stringUnit": { "state": "translated", "value": "jours de suite" } },
-        "it": { "stringUnit": { "state": "translated", "value": "giorni di fila" } },
-        "ja": { "stringUnit": { "state": "translated", "value": "日連続" } },
-        "ko": { "stringUnit": { "state": "translated", "value": "일 연속" } },
-        "vi": { "stringUnit": { "state": "translated", "value": "ngày liên tiếp" } },
-        "zh-Hans": { "stringUnit": { "state": "translated", "value": "天连读" } },
-        "zh-Hant": { "stringUnit": { "state": "translated", "value": "天連讀" } }
+        "en": { "stringUnit": { "state": "translated", "value": "Day Streak" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Jours de Suite" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Giorni di Fila" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "連続日数" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "연속 일수" } },
+        "vi": { "stringUnit": { "state": "translated", "value": "Ngày Liên Tiếp" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "连读天数" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "連讀天數" } }
       }
     },
     "ReadingAnalytics.MostViewed": {
       "extractionState": "manual",
       "localizations": {
-        "de": { "stringUnit": { "state": "translated", "value": "Am meisten angesehen" } },
-        "en": { "stringUnit": { "state": "translated", "value": "most viewed" } },
-        "fr": { "stringUnit": { "state": "translated", "value": "le plus vu" } },
-        "it": { "stringUnit": { "state": "translated", "value": "più visto" } },
-        "ja": { "stringUnit": { "state": "translated", "value": "最もよく表示" } },
-        "ko": { "stringUnit": { "state": "translated", "value": "가장 많이 본" } },
-        "vi": { "stringUnit": { "state": "translated", "value": "xem nhiều nhất" } },
-        "zh-Hans": { "stringUnit": { "state": "translated", "value": "最常查看" } },
-        "zh-Hant": { "stringUnit": { "state": "translated", "value": "最常檢視" } }
+        "de": { "stringUnit": { "state": "translated", "value": "Top-Feed" } },
+        "en": { "stringUnit": { "state": "translated", "value": "Top Feed" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Flux Favori" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Feed Preferito" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "トップフィード" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "최애 피드" } },
+        "vi": { "stringUnit": { "state": "translated", "value": "Nguồn Yêu Thích" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "最爱订阅源" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "最愛訂閱源" } }
       }
     },
     "ReadingAnalytics.FeedCount": {
       "extractionState": "manual",
       "localizations": {
         "de": { "stringUnit": { "state": "translated", "value": "Feeds" } },
-        "en": { "stringUnit": { "state": "translated", "value": "feeds" } },
-        "fr": { "stringUnit": { "state": "translated", "value": "flux" } },
-        "it": { "stringUnit": { "state": "translated", "value": "feed" } },
+        "en": { "stringUnit": { "state": "translated", "value": "Feeds" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Flux" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Feed" } },
         "ja": { "stringUnit": { "state": "translated", "value": "フィード" } },
         "ko": { "stringUnit": { "state": "translated", "value": "피드" } },
-        "vi": { "stringUnit": { "state": "translated", "value": "nguồn cấp" } },
+        "vi": { "stringUnit": { "state": "translated", "value": "Nguồn Cấp" } },
         "zh-Hans": { "stringUnit": { "state": "translated", "value": "订阅源" } },
         "zh-Hant": { "stringUnit": { "state": "translated", "value": "訂閱源" } }
       }
@@ -16936,8 +16908,8 @@
         "ja": { "stringUnit": { "state": "translated", "value": "インサイト" } },
         "ko": { "stringUnit": { "state": "translated", "value": "인사이트" } },
         "vi": { "stringUnit": { "state": "translated", "value": "Thông tin chi tiết" } },
-        "zh-Hans": { "stringUnit": { "state": "translated", "value": "洞察" } },
-        "zh-Hant": { "stringUnit": { "state": "translated", "value": "洞察" } }
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "洞见" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "洞見" } }
       }
     },
     "SimilarContent.Title": {

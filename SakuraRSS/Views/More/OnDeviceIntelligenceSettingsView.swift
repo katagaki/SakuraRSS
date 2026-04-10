@@ -5,8 +5,7 @@ struct OnDeviceIntelligenceSettingsView: View {
 
     @AppStorage("TodaysSummary.Enabled") private var todaysSummaryEnabled: Bool = false
     @AppStorage("WhileYouSlept.Enabled") private var whileYouSleptEnabled: Bool = false
-    @AppStorage("Intelligence.SimilarContent.Enabled") private var similarContentEnabled: Bool = false
-    @AppStorage("Intelligence.TopicsPeople.Enabled") private var topicsPeopleEnabled: Bool = false
+    @AppStorage("Intelligence.ContentInsights.Enabled") private var contentInsightsEnabled: Bool = false
 
     private var isAppleIntelligenceAvailable: Bool {
         SystemLanguageModel.default.availability == .available
@@ -26,15 +25,9 @@ struct OnDeviceIntelligenceSettingsView: View {
             }
 
             Section {
-                Toggle("Settings.SimilarContent", isOn: $similarContentEnabled)
+                Toggle("Settings.ContentInsights", isOn: $contentInsightsEnabled)
             } footer: {
-                Text("Settings.SimilarContent.Footer")
-            }
-
-            Section {
-                Toggle("Settings.TopicsPeople", isOn: $topicsPeopleEnabled)
-            } footer: {
-                Text("Settings.TopicsPeople.Footer")
+                Text("Settings.ContentInsights.Footer")
             }
         }
         .navigationTitle("Settings.Section.InsightsAndIntelligence")

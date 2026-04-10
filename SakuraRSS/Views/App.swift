@@ -1,3 +1,4 @@
+import CoreSpotlight
 import SwiftUI
 import BackgroundTasks
 import StoreKit
@@ -24,10 +25,15 @@ struct SakuraRSSApp: App {
                 .environment(feedManager)
                 .task {
                     await feedManager.refreshAllFeeds()
-                    await NLPProcessingCoordinator.processNewArticlesIfEnabled()
                     UserDefaults.standard.set(false, forKey: "App.StartupInProgress")
                     feedManager.updateBadgeCount()
                     requestReviewIfNeeded()
+                    // Kick off NLP insight processing after startup
+                    // completes so it never holds up badge refresh or
+                    // any other MainActor-visible work.
+                    Task.detached(priority: .utility) {
+                        await NLPProcessingCoordinator.processNewArticlesIfEnabled()
+                    }
                 }
                 .onReceive(
                     NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)
@@ -35,6 +41,9 @@ struct SakuraRSSApp: App {
                     feedManager.loadFromDatabase()
                     feedManager.updateBadgeCount()
                     WidgetCenter.shared.reloadAllTimelines()
+                    Task {
+                        await feedManager.refreshUnfetchedFeeds()
+                    }
                 }
                 .onChange(of: backgroundRefreshEnabled) {
                     scheduleAppRefresh()
@@ -44,6 +53,11 @@ struct SakuraRSSApp: App {
                 }
                 .onOpenURL { url in
                     handleOpenURL(url)
+                }
+                .onContinueUserActivity(CSSearchableItemActionType) { activity in
+                    if let articleID = SpotlightIndexer.articleID(from: activity) {
+                        pendingArticleID = articleID
+                    }
                 }
         }
     }

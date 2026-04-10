@@ -71,6 +71,15 @@ actor FaviconCache {
         try? FileManager.default.createDirectory(at: cacheDirectory, withIntermediateDirectories: true)
     }
 
+    /// Removes specific entries from the failed-lookups set so they will be
+    /// retried on the next request.
+    func clearFailedLookups(for entries: [(domain: String, siteURL: String?)]) {
+        for entry in entries {
+            let cacheKey = Self.cacheKey(domain: entry.domain, siteURL: entry.siteURL)
+            failedLookups.remove(cacheKey)
+        }
+    }
+
     nonisolated static func cacheKey(domain: String, siteURL: String?) -> String {
         guard isProfileBased(domain: domain, siteURL: siteURL),
               let siteURL = siteURL, let url = URL(string: siteURL) else {

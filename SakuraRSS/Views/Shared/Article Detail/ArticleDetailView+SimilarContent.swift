@@ -12,7 +12,7 @@ extension ArticleDetailView {
 
     @ViewBuilder
     var insightsSection: some View {
-        if hasAnyInsights {
+        if shouldShowInsightsSection {
             VStack(alignment: .leading, spacing: 20) {
                 Divider()
                     .padding(.horizontal)
@@ -22,26 +22,33 @@ extension ArticleDetailView {
                     .fontWeight(.bold)
                     .padding(.horizontal)
 
-                if similarContentEnabled && !similarArticles.isEmpty {
-                    similarContentSubsection
-                }
+                if isLoadingInsights {
+                    ProgressView()
+                        .frame(maxWidth: .infinity, alignment: .center)
+                        .padding(.vertical, 8)
+                        .transition(.blurReplace)
+                } else {
+                    if !similarArticles.isEmpty {
+                        similarContentSubsection
+                    }
 
-                if topicsPeopleEnabled && !articleTopics.isEmpty {
-                    entityChipsSubsection(
-                        titleKey: "SimilarContent.Topics",
-                        systemImage: "number",
-                        types: ["organization", "place"],
-                        names: articleTopics
-                    )
-                }
+                    if !articleTopics.isEmpty {
+                        entityChipsSubsection(
+                            titleKey: "SimilarContent.Topics",
+                            systemImage: "number",
+                            types: ["organization", "place"],
+                            names: articleTopics
+                        )
+                    }
 
-                if topicsPeopleEnabled && !articlePeople.isEmpty {
-                    entityChipsSubsection(
-                        titleKey: "SimilarContent.People",
-                        systemImage: "person.2",
-                        types: ["person"],
-                        names: articlePeople
-                    )
+                    if !articlePeople.isEmpty {
+                        entityChipsSubsection(
+                            titleKey: "SimilarContent.People",
+                            systemImage: "person.2",
+                            types: ["person"],
+                            names: articlePeople
+                        )
+                    }
                 }
             }
             .padding(.top, 16)
@@ -49,9 +56,13 @@ extension ArticleDetailView {
         }
     }
 
+    private var shouldShowInsightsSection: Bool {
+        guard contentInsightsEnabled else { return false }
+        return isLoadingInsights || hasAnyInsights
+    }
+
     private var hasAnyInsights: Bool {
-        (similarContentEnabled && !similarArticles.isEmpty)
-            || (topicsPeopleEnabled && (!articleTopics.isEmpty || !articlePeople.isEmpty))
+        !similarArticles.isEmpty || !articleTopics.isEmpty || !articlePeople.isEmpty
     }
 
     @ViewBuilder
@@ -111,33 +122,45 @@ extension ArticleDetailView {
         }
     }
 
-    /// Kicks off insight loading (similar articles, topics, people) as
-    /// a background task so it never blocks article body layout. Heavy
-    /// work is dispatched to detached utility tasks inside each loader;
-    /// this wrapper just awaits and writes results back to @State.
+    /// Kicks off insight loading (similar articles, topics, people) in
+    /// the background so it never blocks the UI thread. The SQLite
+    /// reads and NLP passes live inside `nonisolated static` helpers
+    /// that run on the generic executor (off MainActor); only the
+    /// final @State writes land back on MainActor after the awaits.
     func loadInsightsInBackground() {
-        guard similarContentEnabled || topicsPeopleEnabled else { return }
-        let loadSimilar = similarContentEnabled
-        let loadEntities = topicsPeopleEnabled
+        guard contentInsightsEnabled else { return }
+        let currentArticle = article
+        let feedsLookup = feedManager.feedsByID
+
+        isLoadingInsights = true
         Task {
-            if loadSimilar {
-                similarArticles = await loadSimilarArticles()
-            }
-            if loadEntities {
-                let (topics, people) = await loadArticleEntities()
-                articleTopics = topics
-                articlePeople = people
-            }
+            async let similarTask = Self.computeSimilarArticles(
+                currentArticle: currentArticle, feedsLookup: feedsLookup
+            )
+            async let entitiesTask = Self.computeArticleEntities(
+                articleID: currentArticle.id,
+                articleTitle: currentArticle.title,
+                articleSummary: currentArticle.summary ?? ""
+            )
+            let loadedSimilar = await similarTask
+            let loadedEntities = await entitiesTask
+
+            similarArticles = loadedSimilar
+            articleTopics = loadedEntities.topics
+            articlePeople = loadedEntities.people
+            isLoadingInsights = false
         }
     }
 
-    func loadArticleEntities() async -> (topics: [String], people: [String]) {
+    /// Runs entity extraction entirely off the main actor. Callable from
+    /// a detached task because it takes only Sendable inputs.
+    fileprivate nonisolated static func computeArticleEntities(
+        articleID: Int64,
+        articleTitle: String,
+        articleSummary: String
+    ) async -> (topics: [String], people: [String]) {
         let db = DatabaseManager.shared
-        let articleID = article.id
-        let articleTitle = article.title
-        let articleSummary = article.summary ?? ""
-
-        return await Task.detached(priority: .utility) {
+        return await Task.detached(priority: .userInitiated) {
             // Ensure entity extraction has been run for this article.
             if (try? db.isEntitiesProcessed(articleId: articleID)) != true {
                 let text = [articleTitle, articleSummary]
@@ -175,14 +198,18 @@ extension ArticleDetailView {
         }.value
     }
 
-    func loadSimilarArticles() async -> [SimilarArticleItem] {
-        let db = DatabaseManager.shared
-        let feedsLookup = feedManager.feedsByID
-        let currentArticle = article
-
-        let rawMatches = await computeRawMatches(
-            db: db, feedsLookup: feedsLookup, currentArticle: currentArticle
-        )
+    /// Runs similar-article discovery entirely off the main actor. The
+    /// NLP embedding pass, SQLite reads, and cache writes all happen on
+    /// a detached utility task; favicons are fetched concurrently after.
+    fileprivate nonisolated static func computeSimilarArticles(
+        currentArticle: Article,
+        feedsLookup: [Int64: Feed]
+    ) async -> [SimilarArticleItem] {
+        let rawMatches = await Task.detached(priority: .userInitiated) {
+            await computeRawMatches(
+                currentArticle: currentArticle, feedsLookup: feedsLookup
+            )
+        }.value
 
         // Favicons are fetched in parallel — FaviconCache.favicon(for:) is
         // already async and safe to call concurrently.
@@ -212,15 +239,17 @@ extension ArticleDetailView {
         }
     }
 
-    /// Returns match metadata ordered by similarity rank. Uses the SQLite
-    /// cache when available; otherwise runs NLP, persists the result, and
-    /// marks the source article as computed.
-    private func computeRawMatches(
-        db: DatabaseManager,
-        feedsLookup: [Int64: Feed],
-        currentArticle: Article
+    /// Returns match metadata ordered by hybrid similarity score. Uses the
+    /// SQLite cache when available; otherwise runs the retrieve-then-rerank
+    /// pipeline, persists the result, and marks the source article as
+    /// computed. Must be called from a detached task.
+    fileprivate nonisolated static func computeRawMatches(
+        currentArticle: Article,
+        feedsLookup: [Int64: Feed]
     ) async -> [SimilarMatchData] {
-        // 1. Cache hit path — instant return, no NLP, no 48h window scan.
+        let db = DatabaseManager.shared
+
+        // 1. Cache hit path — instant return, no NLP, no window scan.
         if (try? db.isSimilarComputed(articleId: currentArticle.id)) == true {
             if let cached = try? db.cachedSimilarArticleIDs(forSourceID: currentArticle.id),
                !cached.isEmpty {
@@ -243,25 +272,57 @@ extension ArticleDetailView {
             return []
         }
 
-        // 2. Cache miss — run NLP and persist. The embedding comparison is
-        // parallelized inside NLPProcessor.findSimilarArticles.
+        // 2. Cache miss — run the hybrid ranker.
+        //
+        // Retrieval: widen the candidate window to ±7 days / up to 300
+        // articles so the reranker gets real recall instead of a narrow
+        // 48h slice.
         guard let candidates = try? db.articlesInWindow(
-            around: currentArticle, hours: 48, limit: 60
-        ) else {
+            around: currentArticle, hours: 168, limit: 300
+        ), !candidates.isEmpty else {
             try? db.cacheSimilarArticles([], forSourceID: currentArticle.id)
             return []
         }
 
-        let similar = await NLPProcessor.findSimilarArticles(
+        // Ensure the source article has entities extracted. The background
+        // coordinator normally handles this during feed refresh, but a
+        // freshly opened brand-new article may not have been processed yet.
+        // Same pattern as `computeArticleEntities` above.
+        if (try? db.isEntitiesProcessed(articleId: currentArticle.id)) != true {
+            let sourceText = [currentArticle.title, currentArticle.summary ?? ""]
+                .filter { !$0.isEmpty }
+                .joined(separator: " ")
+            let extracted = NLPProcessor.extractEntities(from: sourceText)
+            if !extracted.isEmpty {
+                try? db.insertEntities(
+                    extracted.map { (name: $0.name, type: $0.type) },
+                    for: currentArticle.id
+                )
+            }
+            try? db.markEntitiesProcessed(articleId: currentArticle.id)
+        }
+
+        // Batch-load source + candidate entities in a single query.
+        let sourceEntities: Set<String> = (try? db.entities(forArticleID: currentArticle.id))
+            .map { Set($0.map { $0.name.lowercased() }) } ?? []
+        let candidateIDs = candidates.map { $0.id }
+        let entityMap = (try? db.entities(forArticleIDs: candidateIDs)) ?? [:]
+        let pairs: [(article: Article, entities: Set<String>)] = candidates.map { candidate in
+            (article: candidate, entities: entityMap[candidate.id] ?? [])
+        }
+
+        let similar = await NLPProcessor.findSimilarArticlesHybrid(
             to: currentArticle,
-            candidates: candidates,
+            sourceEntities: sourceEntities,
+            candidates: pairs,
             maxResults: 8,
-            maximumDistance: 1.5
+            minimumScore: 0.35
         )
 
-        // Persist even if empty so we don't recompute on the next open.
+        // Persist `1 - score` as the distance column so lower-is-better and
+        // rank-ordering stay consistent with the existing cache reader.
         try? db.cacheSimilarArticles(
-            similar.map { (id: $0.articleID, distance: $0.distance) },
+            similar.map { (id: $0.articleID, distance: 1.0 - $0.score) },
             forSourceID: currentArticle.id
         )
 

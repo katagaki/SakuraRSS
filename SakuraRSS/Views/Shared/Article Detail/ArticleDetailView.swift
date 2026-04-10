@@ -33,11 +33,11 @@ struct ArticleDetailView: View {
     @State var heroImageAspectRatio: CGFloat?
     @Namespace private var imageViewerNamespace
     @AppStorage("YouTube.OpenMode") var youTubeOpenMode: YouTubeOpenMode = .inAppPlayer
-    @AppStorage("Intelligence.SimilarContent.Enabled") var similarContentEnabled: Bool = false
-    @AppStorage("Intelligence.TopicsPeople.Enabled") var topicsPeopleEnabled: Bool = false
+    @AppStorage("Intelligence.ContentInsights.Enabled") var contentInsightsEnabled: Bool = false
     @State var similarArticles: [SimilarArticleItem] = []
     @State var articleTopics: [String] = []
     @State var articlePeople: [String] = []
+    @State var isLoadingInsights: Bool = false
 
     var isAppleIntelligenceAvailable: Bool {
         SystemLanguageModel.default.availability == .available
@@ -179,6 +179,7 @@ struct ArticleDetailView: View {
                 .animation(.smooth.speed(2.0), value: similarArticles.count)
                 .animation(.smooth.speed(2.0), value: articleTopics.count)
                 .animation(.smooth.speed(2.0), value: articlePeople.count)
+                .animation(.smooth.speed(2.0), value: isLoadingInsights)
         }
         .refreshable {
             await refreshArticleContent()
