@@ -8,7 +8,7 @@ struct SearchView: View {
 
     @Environment(FeedManager.self) var feedManager
     @AppStorage("Search.DisplayStyle") private var searchDisplayStyle: FeedDisplayStyle = .inbox
-    @AppStorage("Intelligence.TopicsPeople.Enabled") private var topicsPeopleEnabled: Bool = false
+    @AppStorage("Intelligence.ContentInsights.Enabled") private var contentInsightsEnabled: Bool = false
     @State private var searchText = ""
     @State private var searchResults: [Article] = []
     @State private var selectedTab: SearchTab = .search
@@ -32,7 +32,7 @@ struct SearchView: View {
     var body: some View {
         NavigationStack(path: $path) {
             VStack(spacing: 0) {
-                if topicsPeopleEnabled {
+                if contentInsightsEnabled {
                     Picker("", selection: $selectedTab) {
                         Text("Search.Tab.Search").tag(SearchTab.search)
                         Text("Search.Tab.Topics").tag(SearchTab.topics)
@@ -109,7 +109,7 @@ struct SearchView: View {
                     searchResults = results
                 }
             }
-            .onChange(of: topicsPeopleEnabled) { _, newValue in
+            .onChange(of: contentInsightsEnabled) { _, newValue in
                 if !newValue && selectedTab != .search {
                     selectedTab = .search
                 }

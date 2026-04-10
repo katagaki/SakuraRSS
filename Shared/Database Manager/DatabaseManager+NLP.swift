@@ -66,6 +66,28 @@ nonisolated extension DatabaseManager {
         }
     }
 
+    /// Batch-fetches entities for many article IDs in a single query, returning
+    /// a map of article ID → lowercased entity-name set. Used by the hybrid
+    /// similarity ranker so we don't fire N single-row queries.
+    func entities(forArticleIDs ids: [Int64]) throws -> [Int64: Set<String>] {
+        guard !ids.isEmpty else { return [:] }
+        let placeholders = ids.map { _ in "?" }.joined(separator: ", ")
+        let sql = """
+            SELECT article_id, LOWER(name)
+            FROM nlp_entities
+            WHERE article_id IN (\(placeholders))
+            """
+        let bindings: [Binding?] = ids.map { $0 as Binding? }
+        var result: [Int64: Set<String>] = [:]
+        for row in try database.prepare(sql, bindings) {
+            guard let articleId = row[0] as? Int64,
+                  let name = row[1] as? String,
+                  !name.isEmpty else { continue }
+            result[articleId, default: []].insert(name)
+        }
+        return result
+    }
+
     // MARK: - Entity Queries (Topics & People)
 
     func topEntities(type: String, since date: Date, limit: Int) throws -> [(name: String, count: Int)] {
@@ -230,6 +252,16 @@ nonisolated extension DatabaseManager {
                 articles.filter(articleID == sourceID)
                     .update(articleSimilarComputed <- true)
             )
+        }
+    }
+
+    /// Wipes every cached similar-article match and resets the per-article
+    /// `similar_computed` flag. Used on algorithm-version bumps so the next
+    /// article open recomputes under the new scoring.
+    func invalidateSimilarContentCache() throws {
+        try database.transaction {
+            try database.run(similarArticles.delete())
+            try database.run(articles.update(articleSimilarComputed <- false))
         }
     }
 
