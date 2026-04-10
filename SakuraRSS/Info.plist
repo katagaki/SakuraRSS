@@ -5,7 +5,7 @@
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 	<key>NSSpeechRecognitionUsageDescription</key>
-	<string>SakuraRSS uses on-device speech recognition to transcribe podcast episodes you download. Audio is processed locally and never leaves your device.</string>
+	<string>Sakura Reader uses on-device speech recognition to transcribe podcast episodes you download. Audio is processed locally and never leaves your device.</string>
 	<key>BGTaskSchedulerPermittedIdentifiers</key>
 	<array>
 		<string>com.tsubuzaki.SakuraRSS.RefreshFeeds</string>
