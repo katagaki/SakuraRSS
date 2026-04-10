@@ -38,6 +38,7 @@ struct ArticleDetailView: View {
     @State var similarArticles: [SimilarArticleItem] = []
     @State var articleTopics: [String] = []
     @State var articlePeople: [String] = []
+    @State var isLoadingInsights: Bool = false
 
     var isAppleIntelligenceAvailable: Bool {
         SystemLanguageModel.default.availability == .available
@@ -179,6 +180,7 @@ struct ArticleDetailView: View {
                 .animation(.smooth.speed(2.0), value: similarArticles.count)
                 .animation(.smooth.speed(2.0), value: articleTopics.count)
                 .animation(.smooth.speed(2.0), value: articlePeople.count)
+                .animation(.smooth.speed(2.0), value: isLoadingInsights)
         }
         .refreshable {
             await refreshArticleContent()

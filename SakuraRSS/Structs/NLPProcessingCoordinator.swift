@@ -28,7 +28,7 @@ enum NLPProcessingCoordinator {
         logger.debug("processNewArticlesIfEnabled: starting (similar=\(similarContentEnabled), topics=\(topicsPeopleEnabled))")
         #endif
 
-        await Task.detached(priority: .utility) {
+        await Task.detached(priority: .userInitiated) {
             var idsToProcess = Set<Int64>()
             if similarContentEnabled {
                 if let ids = try? db.unprocessedSentimentArticleIDs(since: sevenDaysAgo, limit: 200) {
@@ -69,7 +69,7 @@ enum NLPProcessingCoordinator {
         let similarContentEnabled = defaults.bool(forKey: "Intelligence.SimilarContent.Enabled")
         let topicsPeopleEnabled = defaults.bool(forKey: "Intelligence.TopicsPeople.Enabled")
 
-        await Task.detached(priority: .utility) {
+        await Task.detached(priority: .userInitiated) {
             processArticleSync(article, similarContent: similarContentEnabled,
                                topicsPeople: topicsPeopleEnabled)
         }.value
