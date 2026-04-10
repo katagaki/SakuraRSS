@@ -14,7 +14,8 @@ nonisolated enum SpotlightIndexer {
             IndexEntry(
                 identifier: uniqueIdentifier(for: article.id),
                 title: article.title,
-                contentDescription: article.summary ?? article.content.flatMap { stripHTML($0) },
+                contentDescription: article.summary.flatMap { stripMarkup($0) }
+                    ?? article.content.flatMap { stripHTML($0) },
                 author: article.author,
                 publishedDate: article.publishedDate,
                 url: URL(string: article.url),
@@ -91,6 +92,54 @@ nonisolated enum SpotlightIndexer {
     private static func parseArticleID(from identifier: String) -> Int64? {
         guard identifier.hasPrefix("article.") else { return nil }
         return Int64(identifier.dropFirst("article.".count))
+    }
+
+    private static func stripMarkup(_ text: String) -> String? {
+        var result = text
+        // Remove image placeholders like {{IMG}}https://...{{/IMG}}
+        result = result.replacingOccurrences(
+            of: "\\{\\{IMG\\}\\}.*?\\{\\{/IMG\\}\\}",
+            with: "",
+            options: .regularExpression
+        )
+        // Remove markdown images ![alt](url)
+        result = result.replacingOccurrences(
+            of: "!\\[[^\\]]*\\]\\([^)]*\\)",
+            with: "",
+            options: .regularExpression
+        )
+        // Convert markdown links [text](url) to just text
+        result = result.replacingOccurrences(
+            of: "\\[([^\\]]+)\\]\\([^)]*\\)",
+            with: "$1",
+            options: .regularExpression
+        )
+        // Remove bare URLs
+        result = result.replacingOccurrences(
+            of: "https?://\\S+",
+            with: "",
+            options: .regularExpression
+        )
+        // Strip any remaining HTML tags
+        result = result.replacingOccurrences(
+            of: "<[^>]+>",
+            with: " ",
+            options: .regularExpression
+        )
+        // Decode HTML entities
+        result = result.replacingOccurrences(of: "&amp;", with: "&")
+        result = result.replacingOccurrences(of: "&lt;", with: "<")
+        result = result.replacingOccurrences(of: "&gt;", with: ">")
+        result = result.replacingOccurrences(of: "&quot;", with: "\"")
+        result = result.replacingOccurrences(of: "&#39;", with: "'")
+        result = result.replacingOccurrences(of: "&nbsp;", with: " ")
+        // Collapse whitespace
+        result = result.replacingOccurrences(
+            of: "\\s+",
+            with: " ",
+            options: .regularExpression
+        ).trimmingCharacters(in: .whitespacesAndNewlines)
+        return result.isEmpty ? nil : String(result.prefix(300))
     }
 
     private static func stripHTML(_ html: String) -> String? {

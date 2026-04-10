@@ -171,6 +171,18 @@ final class FeedManager {
         await refreshAllFeeds()
     }
 
+    func reindexAllArticlesInSpotlight() {
+        let database = database
+        let allFeeds = feeds
+        Task.detached(priority: .utility) {
+            for feed in allFeeds {
+                if let articles = try? database.articles(forFeedID: feed.id) {
+                    SpotlightIndexer.indexArticles(articles, feedTitle: feed.title)
+                }
+            }
+        }
+    }
+
     func deleteArticlesAndVacuum(olderThan date: Date?) async {
         let cutoff = date ?? Date()
         UserDefaults.standard.set(cutoff.timeIntervalSince1970, forKey: "Content.CutoffDate")

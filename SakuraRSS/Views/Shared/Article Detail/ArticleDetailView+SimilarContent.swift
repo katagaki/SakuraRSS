@@ -274,11 +274,11 @@ extension ArticleDetailView {
 
         // 2. Cache miss — run the hybrid ranker.
         //
-        // Retrieval: widen the candidate window to ±7 days / up to 300
+        // Retrieval: widen the candidate window to ±7 days / up to 82
         // articles so the reranker gets real recall instead of a narrow
         // 48h slice.
         guard let candidates = try? db.articlesInWindow(
-            around: currentArticle, hours: 168, limit: 300
+            around: currentArticle, hours: 168, limit: 82
         ), !candidates.isEmpty else {
             try? db.cacheSimilarArticles([], forSourceID: currentArticle.id)
             return []

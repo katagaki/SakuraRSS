@@ -21,6 +21,7 @@ struct MainTabView: View {
     @State private var showingAddFeed = false
     @State private var showingOnboarding = false
     @State private var miniPlayerPresentedArticle: Article?
+    @Namespace private var miniPlayerTransition
 
     var body: some View {
         if UIDevice.current.userInterfaceIdiom == .pad {
@@ -62,12 +63,14 @@ struct MainTabView: View {
             MiniPlayerView { article in
                 miniPlayerPresentedArticle = article
             }
+            .matchedTransitionSource(id: "miniPlayer", in: miniPlayerTransition)
         }
         .sheet(item: $miniPlayerPresentedArticle) { article in
             NavigationStack {
                 PodcastEpisodeView(article: article)
                     .environment(feedManager)
             }
+            .navigationTransition(.zoom(sourceID: "miniPlayer", in: miniPlayerTransition))
         }
         .sheet(isPresented: $showingAddFeed) {
             AddFeedView(initialURL: pendingFeedURL ?? "")

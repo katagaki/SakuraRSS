@@ -92,6 +92,11 @@ struct SakuraRSSApp: App {
                 Task {
                     await feedManager.deleteAllArticlesAndRefresh()
                 }
+            case "howmanybulbs":
+                Task {
+                    SpotlightIndexer.removeAllArticles()
+                    feedManager.reindexAllArticlesInSpotlight()
+                }
             case "forgetit":
                 let defaults = UserDefaults.standard
                 defaults.removeObject(forKey: "App.SelectedTab")
