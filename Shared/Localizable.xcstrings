@@ -16548,7 +16548,7 @@
         "en": { "stringUnit": { "state": "translated", "value": "top feed" } },
         "fr": { "stringUnit": { "state": "translated", "value": "flux favori" } },
         "it": { "stringUnit": { "state": "translated", "value": "feed preferito" } },
-        "ja": { "stringUnit": { "state": "translated", "value": "お気に入りフィード" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "トップフィード" } },
         "ko": { "stringUnit": { "state": "translated", "value": "최애 피드" } },
         "vi": { "stringUnit": { "state": "translated", "value": "nguồn yêu thích" } },
         "zh-Hans": { "stringUnit": { "state": "translated", "value": "最爱订阅源" } },
