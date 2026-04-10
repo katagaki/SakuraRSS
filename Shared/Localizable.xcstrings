@@ -16439,8 +16439,8 @@
         "ja": { "stringUnit": { "state": "translated", "value": "インサイトとインテリジェンス" } },
         "ko": { "stringUnit": { "state": "translated", "value": "인사이트 및 인텔리전스" } },
         "vi": { "stringUnit": { "state": "translated", "value": "Thông tin chi tiết và Trí tuệ" } },
-        "zh-Hans": { "stringUnit": { "state": "translated", "value": "洞察与智能" } },
-        "zh-Hant": { "stringUnit": { "state": "translated", "value": "洞察與智慧" } }
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "洞见与智能" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "洞見與智慧" } }
       }
     },
     "Settings.SimilarContent": {
@@ -16534,25 +16534,25 @@
         "en": { "stringUnit": { "state": "translated", "value": "day streak" } },
         "fr": { "stringUnit": { "state": "translated", "value": "jours de suite" } },
         "it": { "stringUnit": { "state": "translated", "value": "giorni di fila" } },
-        "ja": { "stringUnit": { "state": "translated", "value": "日連続" } },
-        "ko": { "stringUnit": { "state": "translated", "value": "일 연속" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "連続日数" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "연속 일수" } },
         "vi": { "stringUnit": { "state": "translated", "value": "ngày liên tiếp" } },
-        "zh-Hans": { "stringUnit": { "state": "translated", "value": "天连读" } },
-        "zh-Hant": { "stringUnit": { "state": "translated", "value": "天連讀" } }
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "连读天数" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "連讀天數" } }
       }
     },
     "ReadingAnalytics.MostViewed": {
       "extractionState": "manual",
       "localizations": {
-        "de": { "stringUnit": { "state": "translated", "value": "Am meisten angesehen" } },
-        "en": { "stringUnit": { "state": "translated", "value": "most viewed" } },
-        "fr": { "stringUnit": { "state": "translated", "value": "le plus vu" } },
-        "it": { "stringUnit": { "state": "translated", "value": "più visto" } },
-        "ja": { "stringUnit": { "state": "translated", "value": "最もよく表示" } },
-        "ko": { "stringUnit": { "state": "translated", "value": "가장 많이 본" } },
-        "vi": { "stringUnit": { "state": "translated", "value": "xem nhiều nhất" } },
-        "zh-Hans": { "stringUnit": { "state": "translated", "value": "最常查看" } },
-        "zh-Hant": { "stringUnit": { "state": "translated", "value": "最常檢視" } }
+        "de": { "stringUnit": { "state": "translated", "value": "Top-Feed" } },
+        "en": { "stringUnit": { "state": "translated", "value": "top feed" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "flux favori" } },
+        "it": { "stringUnit": { "state": "translated", "value": "feed preferito" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "お気に入りフィード" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "최애 피드" } },
+        "vi": { "stringUnit": { "state": "translated", "value": "nguồn yêu thích" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "最爱订阅源" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "最愛訂閱源" } }
       }
     },
     "ReadingAnalytics.FeedCount": {
