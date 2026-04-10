@@ -10,33 +10,43 @@ enum SpotlightIndexer {
     static func indexArticles(_ articles: [Article], feedTitle: String?) {
         guard !articles.isEmpty else { return }
 
-        let items = articles.compactMap { article -> CSSearchableItem? in
-            let attributes = CSSearchableItemAttributeSet(contentType: .text)
-            attributes.title = article.title
-            attributes.contentDescription = article.summary ?? article.content.flatMap { stripHTML($0) }
-            if let author = article.author {
-                attributes.authorNames = [author]
-            }
-            if let date = article.publishedDate {
-                attributes.contentCreationDate = date
-            }
-            if let urlString = URL(string: article.url) {
-                attributes.url = urlString
-            }
-            if let imageURLString = article.imageURL, let imageURL = URL(string: imageURLString) {
-                attributes.thumbnailURL = imageURL
-            }
-            if let feedTitle {
-                attributes.containerTitle = feedTitle
-            }
-            return CSSearchableItem(
-                uniqueIdentifier: uniqueIdentifier(for: article.id),
-                domainIdentifier: domainIdentifier,
-                attributeSet: attributes
+        let entries = articles.map { article in
+            IndexEntry(
+                identifier: uniqueIdentifier(for: article.id),
+                title: article.title,
+                contentDescription: article.summary ?? article.content.flatMap { stripHTML($0) },
+                author: article.author,
+                publishedDate: article.publishedDate,
+                url: URL(string: article.url),
+                thumbnailURL: article.imageURL.flatMap { URL(string: $0) },
+                feedTitle: feedTitle
             )
         }
 
-        CSSearchableIndex.default().indexSearchableItems(items)
+        Task { @MainActor in
+            let items = entries.map { entry -> CSSearchableItem in
+                let attributes = CSSearchableItemAttributeSet(contentType: .text)
+                attributes.title = entry.title
+                attributes.contentDescription = entry.contentDescription
+                if let author = entry.author {
+                    attributes.authorNames = [author]
+                }
+                if let date = entry.publishedDate {
+                    attributes.contentCreationDate = date
+                }
+                attributes.url = entry.url
+                attributes.thumbnailURL = entry.thumbnailURL
+                if let feedTitle = entry.feedTitle {
+                    attributes.containerTitle = feedTitle
+                }
+                return CSSearchableItem(
+                    uniqueIdentifier: entry.identifier,
+                    domainIdentifier: domainIdentifier,
+                    attributeSet: attributes
+                )
+            }
+            CSSearchableIndex.default().indexSearchableItems(items)
+        }
     }
 
     // MARK: - Removal
@@ -97,4 +107,15 @@ enum SpotlightIndexer {
         ).trimmingCharacters(in: .whitespacesAndNewlines)
         return text.isEmpty ? nil : String(text.prefix(300))
     }
+}
+
+private struct IndexEntry: Sendable {
+    let identifier: String
+    let title: String
+    let contentDescription: String?
+    let author: String?
+    let publishedDate: Date?
+    let url: URL?
+    let thumbnailURL: URL?
+    let feedTitle: String?
 }
