@@ -31,7 +31,7 @@ struct IPadSidebarView: View {
     @State private var pendingYouTubeSafariURL: URL?
     @State private var searchText = ""
     @AppStorage("Onboarding.Completed") private var onboardingCompleted: Bool = false
-    @AppStorage("Intelligence.TopicsPeople.Enabled") private var topicsPeopleEnabled: Bool = false
+    @AppStorage("Intelligence.ContentInsights.Enabled") private var contentInsightsEnabled: Bool = false
 
     @Namespace private var cardZoom
 
@@ -236,7 +236,7 @@ struct IPadSidebarView: View {
                     .tag(SidebarDestination.bookmarks)
             }
 
-            if topicsPeopleEnabled {
+            if contentInsightsEnabled {
                 Section {
                     Label("Topics.Title", systemImage: "number")
                         .tag(SidebarDestination.topics)

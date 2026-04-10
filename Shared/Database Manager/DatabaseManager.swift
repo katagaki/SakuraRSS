@@ -106,6 +106,8 @@ nonisolated final class DatabaseManager: @unchecked Sendable {
             try createTables()
             fixupIfVersionChanged()
             invalidateStaleParserCache()
+            migrateContentInsightsToggle()
+            invalidateStaleSimilarContentCache()
         } catch {
             fatalError("Database initialization failed: \(error)")
         }
@@ -117,6 +119,37 @@ nonisolated final class DatabaseManager: @unchecked Sendable {
         if stored < ParserVersion.articleExtractor {
             try? invalidateAllCachedArticleContent()
             UserDefaults.standard.set(ParserVersion.articleExtractor, forKey: key)
+        }
+    }
+
+    /// Collapses the legacy `Intelligence.SimilarContent.Enabled` /
+    /// `Intelligence.TopicsPeople.Enabled` toggles into a single
+    /// `Intelligence.ContentInsights.Enabled` key. Runs exactly once per
+    /// install, tracked by `Intelligence.ContentInsights.Migrated`.
+    private func migrateContentInsightsToggle() {
+        let defaults = UserDefaults.standard
+        let migratedKey = "Intelligence.ContentInsights.Migrated"
+        guard !defaults.bool(forKey: migratedKey) else { return }
+        let legacySimilar = defaults.bool(forKey: "Intelligence.SimilarContent.Enabled")
+        let legacyTopics = defaults.bool(forKey: "Intelligence.TopicsPeople.Enabled")
+        if legacySimilar || legacyTopics {
+            defaults.set(true, forKey: "Intelligence.ContentInsights.Enabled")
+        }
+        defaults.removeObject(forKey: "Intelligence.SimilarContent.Enabled")
+        defaults.removeObject(forKey: "Intelligence.TopicsPeople.Enabled")
+        defaults.set(true, forKey: migratedKey)
+    }
+
+    /// Bumps the similar-content algorithm version and wipes the cache the
+    /// first time the app launches under a newer ranker. Mirrors the
+    /// `invalidateStaleParserCache()` pattern above.
+    private func invalidateStaleSimilarContentCache() {
+        let key = "Intelligence.SimilarContent.AlgorithmVersion"
+        let current = 2   // v1: embedding-only; v2: hybrid embedding + entity Jaccard
+        let stored = UserDefaults.standard.integer(forKey: key)
+        if stored < current {
+            try? invalidateSimilarContentCache()
+            UserDefaults.standard.set(current, forKey: key)
         }
     }
 
