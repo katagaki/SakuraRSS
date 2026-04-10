@@ -18694,55 +18694,55 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Erkenntnisse & Intelligenz"
+            "value" : "Intelligenz"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Insights & Intelligence"
+            "value" : "Intelligence"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Aperçus et intelligence"
+            "value" : "Intelligence"
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Approfondimenti e intelligenza"
+            "value" : "Intelligenza"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "インサイトとインテリジェンス"
+            "value" : "インテリジェンス"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "인사이트 및 인텔리전스"
+            "value" : "인텔리전스"
           }
         },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Thông tin chi tiết và Trí tuệ"
+            "value" : "Trí tuệ"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "洞见与智能"
+            "value" : "智能"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "洞見與智慧"
+            "value" : "智慧"
           }
         }
       }
