@@ -22,6 +22,8 @@ final class AudioPlayer {
     var currentArtworkURL: String?
     var cachedArtwork: MPMediaItemArtwork?
 
+    var playbackRate: Float = 1.0
+
     // MARK: - Internal
 
     var player: AVPlayer?
@@ -29,6 +31,8 @@ final class AudioPlayer {
     var cancellables: Set<AnyCancellable> = []
 
     private init() {
+        let storedRate = UserDefaults.standard.float(forKey: "Podcast.PlaybackSpeed")
+        playbackRate = storedRate > 0 ? storedRate : 1.0
         configureRemoteCommands()
     }
 
@@ -77,6 +81,7 @@ final class AudioPlayer {
                 let itemDuration = playerItem.duration.seconds
                 self.duration = itemDuration.isFinite ? itemDuration : Double(episodeDuration ?? 0)
                 self.player?.play()
+                self.player?.rate = self.playbackRate
                 self.isPlaying = true
                 self.postNowPlayingUpdate()
             }
@@ -102,8 +107,18 @@ final class AudioPlayer {
             player?.pause()
         } else {
             player?.play()
+            player?.rate = playbackRate
         }
         isPlaying.toggle()
+        postNowPlayingUpdate()
+    }
+
+    func setPlaybackRate(_ rate: Float) {
+        playbackRate = rate
+        UserDefaults.standard.set(rate, forKey: "Podcast.PlaybackSpeed")
+        if isPlaying {
+            player?.rate = rate
+        }
         postNowPlayingUpdate()
     }
 

@@ -109,6 +109,9 @@ struct MoreView: View {
                     NavigationLink("Settings.Section.InsightsAndIntelligence") {
                         OnDeviceIntelligenceSettingsView()
                     }
+                    NavigationLink("Integrations.Podcast") {
+                        PodcastSettingsView()
+                    }
                     NavigationLink("Integrations.YouTube") {
                         YouTubeSettingsView()
                     }

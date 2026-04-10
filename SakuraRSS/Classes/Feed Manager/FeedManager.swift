@@ -82,6 +82,7 @@ final class FeedManager {
     func deleteFeed(_ feed: Feed) throws {
         let articleIDs = (try? database.articles(forFeedID: feed.id)).map { $0.map(\.id) } ?? []
         try database.deleteFeed(id: feed.id)
+        PodcastDownloadManager.cleanupOrphanedDownloads()
         SpotlightIndexer.removeArticles(feedID: feed.id, articleIDs: articleIDs)
         loadFromDatabase()
     }
@@ -183,6 +184,7 @@ final class FeedManager {
                 try database.clearImageCache()
             }
             try database.vacuum()
+            PodcastDownloadManager.cleanupOrphanedDownloads()
         }.value
         SpotlightIndexer.removeAllArticles()
         await loadFromDatabaseInBackground()

@@ -53,6 +53,8 @@ nonisolated final class DatabaseManager: @unchecked Sendable {
     let articleSentimentProcessed = SQLite.Expression<Bool>("sentiment_processed")
     let articleEntitiesProcessed = SQLite.Expression<Bool>("entities_processed")
     let articleSimilarComputed = SQLite.Expression<Bool>("similar_computed")
+    let articleDownloadPath = SQLite.Expression<String?>("download_path")
+    let articleTranscriptJSON = SQLite.Expression<String?>("transcript_json")
 
     let nlpEntities = Table("nlp_entities")
     let nlpEntityID = SQLite.Expression<Int64>("id")
@@ -213,6 +215,8 @@ nonisolated final class DatabaseManager: @unchecked Sendable {
             table.column(articleSentimentProcessed, defaultValue: false)
             table.column(articleEntitiesProcessed, defaultValue: false)
             table.column(articleSimilarComputed, defaultValue: false)
+            table.column(articleDownloadPath)
+            table.column(articleTranscriptJSON)
         })
 
         try database.run(articles.createIndex(articleFeedID, ifNotExists: true))

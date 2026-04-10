@@ -63,6 +63,20 @@ extension AudioPlayer {
             }
             return .success
         }
+
+        commandCenter.changePlaybackRateCommand.supportedPlaybackRates = [
+            0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0, 2.5, 3.0
+        ]
+        commandCenter.changePlaybackRateCommand.addTarget { [weak self] event in
+            guard let event = event as? MPChangePlaybackRateCommandEvent else {
+                return .commandFailed
+            }
+            let rate = event.playbackRate
+            Task { @MainActor in
+                self?.setPlaybackRate(rate)
+            }
+            return .success
+        }
     }
 }
 // swiftlint:enable function_body_length
