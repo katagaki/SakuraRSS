@@ -1,3 +1,4 @@
+import CoreSpotlight
 import Foundation
 import SwiftUI
 @preconcurrency import UserNotifications
@@ -74,7 +75,9 @@ final class FeedManager {
     }
 
     func deleteFeed(_ feed: Feed) throws {
+        let articleIDs = (try? database.articles(forFeedID: feed.id)).map { $0.map(\.id) } ?? []
         try database.deleteFeed(id: feed.id)
+        SpotlightIndexer.removeArticles(feedID: feed.id, articleIDs: articleIDs)
         loadFromDatabase()
     }
 
@@ -135,6 +138,10 @@ final class FeedManager {
 
             try database.insertArticles(feedID: feed.id, articles: articleTuples)
 
+            let feedTitleForIndex = parsed.title.isEmpty ? feed.title : parsed.title
+            let articlesToIndex = try database.articles(forFeedID: feed.id, limit: articleTuples.count)
+            SpotlightIndexer.indexArticles(articlesToIndex, feedTitle: feedTitleForIndex)
+
             if parsed.isPodcast && !feed.isPodcast {
                 try database.updateFeedIsPodcast(id: feed.id, isPodcast: true)
             } else if !parsed.isPodcast && feed.isPodcast {
@@ -153,6 +160,7 @@ final class FeedManager {
     func deleteAllArticlesAndRefresh() async {
         let database = database
         _ = try? await Task.detached { try database.deleteAllArticles() }.value
+        SpotlightIndexer.removeAllArticles()
         await loadFromDatabaseInBackground()
         await refreshAllFeeds()
     }
@@ -171,6 +179,7 @@ final class FeedManager {
             }
             try database.vacuum()
         }.value
+        SpotlightIndexer.removeAllArticles()
         await loadFromDatabaseInBackground()
     }
 
