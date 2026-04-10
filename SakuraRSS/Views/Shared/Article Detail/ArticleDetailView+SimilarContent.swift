@@ -12,7 +12,7 @@ extension ArticleDetailView {
 
     @ViewBuilder
     var insightsSection: some View {
-        if hasAnyInsights {
+        if shouldShowInsightsSection {
             VStack(alignment: .leading, spacing: 20) {
                 Divider()
                     .padding(.horizontal)
@@ -22,31 +22,43 @@ extension ArticleDetailView {
                     .fontWeight(.bold)
                     .padding(.horizontal)
 
-                if similarContentEnabled && !similarArticles.isEmpty {
-                    similarContentSubsection
-                }
+                if isLoadingInsights {
+                    ProgressView()
+                        .frame(maxWidth: .infinity, alignment: .center)
+                        .padding(.vertical, 8)
+                        .transition(.blurReplace)
+                } else {
+                    if similarContentEnabled && !similarArticles.isEmpty {
+                        similarContentSubsection
+                    }
 
-                if topicsPeopleEnabled && !articleTopics.isEmpty {
-                    entityChipsSubsection(
-                        titleKey: "SimilarContent.Topics",
-                        systemImage: "number",
-                        types: ["organization", "place"],
-                        names: articleTopics
-                    )
-                }
+                    if topicsPeopleEnabled && !articleTopics.isEmpty {
+                        entityChipsSubsection(
+                            titleKey: "SimilarContent.Topics",
+                            systemImage: "number",
+                            types: ["organization", "place"],
+                            names: articleTopics
+                        )
+                    }
 
-                if topicsPeopleEnabled && !articlePeople.isEmpty {
-                    entityChipsSubsection(
-                        titleKey: "SimilarContent.People",
-                        systemImage: "person.2",
-                        types: ["person"],
-                        names: articlePeople
-                    )
+                    if topicsPeopleEnabled && !articlePeople.isEmpty {
+                        entityChipsSubsection(
+                            titleKey: "SimilarContent.People",
+                            systemImage: "person.2",
+                            types: ["person"],
+                            names: articlePeople
+                        )
+                    }
                 }
             }
             .padding(.top, 16)
             .padding(.bottom, 24)
         }
+    }
+
+    private var shouldShowInsightsSection: Bool {
+        guard similarContentEnabled || topicsPeopleEnabled else { return false }
+        return isLoadingInsights || hasAnyInsights
     }
 
     private var hasAnyInsights: Bool {
@@ -123,6 +135,7 @@ extension ArticleDetailView {
         let currentArticle = article
         let feedsLookup = feedManager.feedsByID
 
+        isLoadingInsights = true
         Task {
             let loadedSimilar: [SimilarArticleItem]
             if loadSimilar {
@@ -151,6 +164,7 @@ extension ArticleDetailView {
                 articleTopics = loadedEntities.topics
                 articlePeople = loadedEntities.people
             }
+            isLoadingInsights = false
         }
     }
 
@@ -162,7 +176,7 @@ extension ArticleDetailView {
         articleSummary: String
     ) async -> (topics: [String], people: [String]) {
         let db = DatabaseManager.shared
-        return await Task.detached(priority: .utility) {
+        return await Task.detached(priority: .userInitiated) {
             // Ensure entity extraction has been run for this article.
             if (try? db.isEntitiesProcessed(articleId: articleID)) != true {
                 let text = [articleTitle, articleSummary]
@@ -207,7 +221,7 @@ extension ArticleDetailView {
         currentArticle: Article,
         feedsLookup: [Int64: Feed]
     ) async -> [SimilarArticleItem] {
-        let rawMatches = await Task.detached(priority: .utility) {
+        let rawMatches = await Task.detached(priority: .userInitiated) {
             await computeRawMatches(
                 currentArticle: currentArticle, feedsLookup: feedsLookup
             )
