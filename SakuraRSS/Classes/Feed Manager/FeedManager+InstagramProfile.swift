@@ -59,6 +59,8 @@ extension FeedManager {
         try await Task.detached {
             try database.insertArticles(feedID: feed.id, articles: postTuples)
             try database.updateFeedLastFetched(id: feed.id, date: Date())
+            let articlesToIndex = try database.articles(forFeedID: feed.id, limit: postTuples.count)
+            SpotlightIndexer.indexArticles(articlesToIndex, feedTitle: feedTitle)
         }.value
 
         // Cache favicon and update feed details

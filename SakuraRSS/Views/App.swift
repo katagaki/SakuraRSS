@@ -1,3 +1,4 @@
+import CoreSpotlight
 import SwiftUI
 import BackgroundTasks
 import StoreKit
@@ -49,6 +50,11 @@ struct SakuraRSSApp: App {
                 }
                 .onOpenURL { url in
                     handleOpenURL(url)
+                }
+                .onContinueUserActivity(CSSearchableItemActionType) { activity in
+                    if let articleID = SpotlightIndexer.articleID(from: activity) {
+                        pendingArticleID = articleID
+                    }
                 }
         }
     }
