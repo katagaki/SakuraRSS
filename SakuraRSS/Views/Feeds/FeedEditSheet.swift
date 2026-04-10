@@ -8,34 +8,18 @@ struct FeedEditSheet: View {
 
     let feed: Feed
 
-    @State private var name: String
-    @State private var url: String
-    @State var iconURLInput: String
-    @State private var openMode: FeedOpenMode
-    @State private var articleSource: ArticleSource
+    @State private var name: String = ""
+    @State private var url: String = ""
+    @State var iconURLInput: String = ""
+    @State private var openMode: FeedOpenMode = .inAppViewer
+    @State private var articleSource: ArticleSource = .automatic
     @State var selectedPhoto: PhotosPickerItem?
     @State var customIconImage: UIImage?
     @State var currentFavicon: UIImage?
     @State var isFetchingIcon = false
     @State var showIconFetchError = false
     @State var useDefaultIcon = false
-
-    init(feed: Feed) {
-        self.feed = feed
-        _name = State(initialValue: feed.title)
-        _url = State(initialValue: feed.url)
-        let existingIconURL = feed.customIconURL
-        _iconURLInput = State(
-            initialValue: (
-                existingIconURL == "photo" || existingIconURL == "none"
-            ) ? "" : (existingIconURL ?? "")
-        )
-        _useDefaultIcon = State(initialValue: existingIconURL == "none")
-        let raw = UserDefaults.standard.string(forKey: "openMode-\(feed.id)")
-        _openMode = State(initialValue: raw.flatMap(FeedOpenMode.init(rawValue:)) ?? .inAppViewer)
-        let sourceRaw = UserDefaults.standard.string(forKey: "articleSource-\(feed.id)")
-        _articleSource = State(initialValue: sourceRaw.flatMap(ArticleSource.init(rawValue:)) ?? .automatic)
-    }
+    @State private var hasInitialized = false
 
     var body: some View {
         NavigationStack {
@@ -194,6 +178,21 @@ struct FeedEditSheet: View {
                     }
                     .disabled(name.isEmpty || url.isEmpty)
                 }
+            }
+            .onAppear {
+                guard !hasInitialized else { return }
+                hasInitialized = true
+                name = feed.title
+                url = feed.url
+                let existingIconURL = feed.customIconURL
+                iconURLInput = (
+                    existingIconURL == "photo" || existingIconURL == "none"
+                ) ? "" : (existingIconURL ?? "")
+                useDefaultIcon = existingIconURL == "none"
+                let raw = UserDefaults.standard.string(forKey: "openMode-\(feed.id)")
+                openMode = raw.flatMap(FeedOpenMode.init(rawValue:)) ?? .inAppViewer
+                let sourceRaw = UserDefaults.standard.string(forKey: "articleSource-\(feed.id)")
+                articleSource = sourceRaw.flatMap(ArticleSource.init(rawValue:)) ?? .automatic
             }
             .task {
                 currentFavicon = await loadCurrentFavicon()
