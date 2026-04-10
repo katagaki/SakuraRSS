@@ -20,8 +20,6 @@ struct PodcastEpisodeView: View {
     private let downloadManager = PodcastDownloadManager.shared
     private let networkMonitor = NetworkMonitor.shared
     @State var isDownloaded: Bool = false
-    @State var showingDeleteDownloadAlert: Bool = false
-
     // Transcript
     @State var transcript: [TranscriptSegment]?
     @State var showingTranscript: Bool = false
@@ -159,7 +157,7 @@ struct PodcastEpisodeView: View {
                                 Image(systemName: audioPlayer.isPlaying
                                       ? "pause.circle.fill"
                                       : "play.circle.fill")
-                                    .font(.system(size: 56))
+                                    .font(.system(size: 72))
                             }
 
                             Button { audioPlayer.skipForward() } label: {
@@ -194,19 +192,23 @@ struct PodcastEpisodeView: View {
                     }
                     .padding(.horizontal)
                 } else {
-                    // Not currently playing - show play button
-                    Button {
-                        startPlayback()
-                    } label: {
-                        Label(
-                            isOffline && !isDownloaded ? "Podcast.Offline" : "Podcast.Play",
-                            systemImage: "play.fill"
-                        )
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 8)
+                    // Not currently playing - show play button with download
+                    HStack(spacing: 12) {
+                        Button {
+                            startPlayback()
+                        } label: {
+                            Label(
+                                isOffline && !isDownloaded ? "Podcast.Offline" : "Podcast.Play",
+                                systemImage: "play.fill"
+                            )
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 8)
+                        }
+                        .buttonStyle(.borderedProminent)
+                        .disabled(!canPlay)
+
+                        PodcastDownloadButton(article: article, size: 50, lineWidth: 3.5)
                     }
-                    .buttonStyle(.borderedProminent)
-                    .disabled(!canPlay)
                     .padding(.horizontal)
 
                     if audioPlayer.isLoading && audioPlayer.currentArticleID == article.id {

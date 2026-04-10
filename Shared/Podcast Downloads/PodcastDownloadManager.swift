@@ -25,22 +25,34 @@ enum PodcastDownloadError: Error {
 
 @Observable
 @MainActor
-final class PodcastDownloadManager {
+final class PodcastDownloadManager: NSObject, URLSessionDownloadDelegate {
 
     static let shared = PodcastDownloadManager()
 
     var activeDownloads: [Int64: DownloadProgress] = [:]
 
-    private let urlSession: URLSession
-    private var downloadTasks: [Int64: Task<Void, Never>] = [:]
+    private var urlSession: URLSession!
+    private var downloadTasks: [Int64: URLSessionDownloadTask] = [:]
+    /// Maps URLSessionTask identifiers back to article IDs for delegate callbacks.
+    private var taskArticleIDs: [Int: Int64] = [:]
+    /// Continuations waiting for download completion, keyed by article ID.
+    private var downloadContinuations: [Int64: CheckedContinuation<URL, any Error>] = [:]
     private let fileManager = FileManager.default
 
-    private init() {
+    /// Tracks pending transcription work so cancellation can reach it.
+    private var transcriptionTasks: [Int64: Task<Void, Never>] = [:]
+
+    private override init() {
+        super.init()
         let config = URLSessionConfiguration.default
         config.waitsForConnectivity = true
         config.timeoutIntervalForRequest = 60
         config.timeoutIntervalForResource = 3600
-        self.urlSession = URLSession(configuration: config)
+        self.urlSession = URLSession(
+            configuration: config,
+            delegate: self,
+            delegateQueue: nil
+        )
     }
 
     // MARK: - Storage
@@ -69,7 +81,6 @@ final class PodcastDownloadManager {
     }
 
     func localFileURL(for articleID: Int64) -> URL? {
-        // `try?` on a throwing method returning `String?` already flattens to `String?`.
         guard let path = try? DatabaseManager.shared.downloadPath(for: articleID),
               let downloadsDirectory else {
             return nil
@@ -98,14 +109,18 @@ final class PodcastDownloadManager {
 
         activeDownloads[article.id] = DownloadProgress(state: .downloading, progress: 0)
 
-        let task = Task { [weak self] in
+        let task = Task { @MainActor [weak self] in
             do {
                 try await self?.performDownload(article: article, audioURL: audioURL)
+            } catch is CancellationError {
+                // Cancelled by the user — cancelDownload() already cleaned up state.
+            } catch let urlError as URLError where urlError.code == .cancelled {
+                // URLSession task was cancelled — same as above.
             } catch {
-                await self?.markFailed(articleID: article.id, error: error.localizedDescription)
+                self?.markFailed(articleID: article.id, error: error.localizedDescription)
             }
         }
-        downloadTasks[article.id] = task
+        transcriptionTasks[article.id] = task
     }
 
     private func performDownload(article: Article, audioURL: URL) async throws {
@@ -115,30 +130,114 @@ final class PodcastDownloadManager {
         let name = filename(from: audioURL)
         let destination = episodeDir.appendingPathComponent(name)
         let articleID = article.id
-        let session = urlSession
 
-        // Do the actual network download + file move off the main actor.
-        try await Task.detached(priority: .userInitiated) {
-            let fm = FileManager.default
-            if !fm.fileExists(atPath: episodeDir.path) {
-                try fm.createDirectory(at: episodeDir, withIntermediateDirectories: true)
+        // Prepare the directory on a background thread.
+        let dir = episodeDir
+        let dest = destination
+        try await Task.detached(priority: .utility) {
+            let fileManager = FileManager.default
+            if !fileManager.fileExists(atPath: dir.path) {
+                try fileManager.createDirectory(at: dir, withIntermediateDirectories: true)
             }
-            if fm.fileExists(atPath: destination.path) {
-                try? fm.removeItem(at: destination)
+            if fileManager.fileExists(atPath: dest.path) {
+                try? fileManager.removeItem(at: dest)
             }
-            let (tempURL, _) = try await session.download(from: audioURL)
-            try fm.moveItem(at: tempURL, to: destination)
+        }.value
+
+        // Start a delegate-based download so we get per-byte progress.
+        let tempURL: URL = try await withCheckedThrowingContinuation { continuation in
+            let sessionTask = urlSession.downloadTask(with: audioURL)
+            downloadTasks[articleID] = sessionTask
+            taskArticleIDs[sessionTask.taskIdentifier] = articleID
+            downloadContinuations[articleID] = continuation
+            sessionTask.resume()
+        }
+
+        // Clean up tracking state.
+        downloadTasks[articleID] = nil
+
+        // Move the downloaded file to its final location.
+        try await Task.detached(priority: .utility) {
+            try FileManager.default.moveItem(at: tempURL, to: dest)
         }.value
 
         // Store relative path so it survives container path changes.
         let relativePath = "\(articleID)/\(name)"
         try DatabaseManager.shared.setDownloadPath(relativePath, for: articleID)
 
-        updateProgress(articleID: articleID, state: .transcribing, progress: 0.8)
+        activeDownloads[articleID] = DownloadProgress(state: .transcribing, progress: 0.8)
 
         // Trigger transcription if available; completion handled there.
         await attemptTranscription(articleID: articleID, fileURL: destination)
     }
+
+    // MARK: - URLSessionDownloadDelegate
+
+    nonisolated func urlSession(
+        _ session: URLSession,
+        downloadTask: URLSessionDownloadTask,
+        didWriteData bytesWritten: Int64,
+        totalBytesWritten: Int64,
+        totalBytesExpectedToWrite: Int64
+    ) {
+        let taskID = downloadTask.taskIdentifier
+        Task { @MainActor [weak self] in
+            guard let self,
+                  let articleID = taskArticleIDs[taskID] else { return }
+            let fraction: Double
+            if totalBytesExpectedToWrite > 0 {
+                fraction = Double(totalBytesWritten) / Double(totalBytesExpectedToWrite)
+            } else {
+                fraction = 0
+            }
+            // Map download progress to 0.0–0.8 range.
+            activeDownloads[articleID] = DownloadProgress(
+                state: .downloading,
+                progress: fraction * 0.8
+            )
+        }
+    }
+
+    nonisolated func urlSession(
+        _ session: URLSession,
+        downloadTask: URLSessionDownloadTask,
+        didFinishDownloadingTo location: URL
+    ) {
+        // Copy to a stable temp location before the system deletes it.
+        let tempCopy = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString)
+        try? FileManager.default.moveItem(at: location, to: tempCopy)
+
+        let taskID = downloadTask.taskIdentifier
+        Task { @MainActor [weak self] in
+            guard let self,
+                  let articleID = taskArticleIDs[taskID],
+                  let continuation = downloadContinuations.removeValue(forKey: articleID) else {
+                return
+            }
+            taskArticleIDs[taskID] = nil
+            continuation.resume(returning: tempCopy)
+        }
+    }
+
+    nonisolated func urlSession(
+        _ session: URLSession,
+        task: URLSessionTask,
+        didCompleteWithError error: (any Error)?
+    ) {
+        guard let error else { return }
+        let taskID = task.taskIdentifier
+        Task { @MainActor [weak self] in
+            guard let self,
+                  let articleID = taskArticleIDs.removeValue(forKey: taskID),
+                  let continuation = downloadContinuations.removeValue(forKey: articleID) else {
+                return
+            }
+            continuation.resume(throwing: error)
+        }
+    }
+
+    // MARK: - Transcription
 
     private func attemptTranscription(articleID: Int64, fileURL: URL) async {
         guard await PodcastTranscriber.isAvailable else {
@@ -155,15 +254,12 @@ final class PodcastDownloadManager {
         markCompleted(articleID: articleID)
     }
 
-    private func updateProgress(articleID: Int64, state: DownloadState, progress: Double) {
-        activeDownloads[articleID] = DownloadProgress(state: state, progress: progress)
-    }
-
     private func markCompleted(articleID: Int64) {
         activeDownloads[articleID] = DownloadProgress(state: .completed, progress: 1.0)
         downloadTasks[articleID] = nil
+        transcriptionTasks[articleID] = nil
         // Fade out completed entry so views reflect the new "downloaded" state.
-        Task { [weak self] in
+        Task { @MainActor [weak self] in
             try? await Task.sleep(for: .seconds(1))
             self?.activeDownloads[articleID] = nil
         }
@@ -176,6 +272,7 @@ final class PodcastDownloadManager {
             error: error
         )
         downloadTasks[articleID] = nil
+        transcriptionTasks[articleID] = nil
     }
 
     // MARK: - Cancel / Delete
@@ -183,6 +280,13 @@ final class PodcastDownloadManager {
     func cancelDownload(articleID: Int64) {
         downloadTasks[articleID]?.cancel()
         downloadTasks[articleID] = nil
+        transcriptionTasks[articleID]?.cancel()
+        transcriptionTasks[articleID] = nil
+        // If a continuation is still waiting, resume it with a cancellation error
+        // so the async chain unwinds cleanly.
+        if let continuation = downloadContinuations.removeValue(forKey: articleID) {
+            continuation.resume(throwing: CancellationError())
+        }
         activeDownloads[articleID] = nil
         // Clean partial file
         if let dir = episodeDirectory(for: articleID),
@@ -208,9 +312,9 @@ final class PodcastDownloadManager {
             try fileManager.createDirectory(at: dir, withIntermediateDirectories: true)
         }
         let ids = (try? DatabaseManager.shared.downloadedArticleIDs()) ?? []
-        for id in ids {
-            try? DatabaseManager.shared.setDownloadPath(nil, for: id)
-            try? DatabaseManager.shared.clearCachedTranscript(for: id)
+        for identifier in ids {
+            try? DatabaseManager.shared.setDownloadPath(nil, for: identifier)
+            try? DatabaseManager.shared.clearCachedTranscript(for: identifier)
         }
         activeDownloads.removeAll()
     }
@@ -221,21 +325,20 @@ final class PodcastDownloadManager {
     /// Static + nonisolated so callers on background queues don't need to hop
     /// to the main actor just to clean up orphaned files.
     nonisolated static func cleanupOrphanedDownloads() {
-        let fm = FileManager.default
-        guard let container = fm.containerURL(
+        let fileManager = FileManager.default
+        guard let container = fileManager.containerURL(
             forSecurityApplicationGroupIdentifier: "group.com.tsubuzaki.SakuraRSS"
         ) else { return }
         let root = container.appendingPathComponent("PodcastDownloads", isDirectory: true)
-        guard fm.fileExists(atPath: root.path) else { return }
-        let contents = (try? fm.contentsOfDirectory(atPath: root.path)) ?? []
+        guard fileManager.fileExists(atPath: root.path) else { return }
+        let contents = (try? fileManager.contentsOfDirectory(atPath: root.path)) ?? []
         let validIDs = Set((try? DatabaseManager.shared.downloadedArticleIDs()) ?? [])
         for name in contents {
-            guard let id = Int64(name) else {
-                // Not a directory we created — leave it alone.
+            guard let identifier = Int64(name) else {
                 continue
             }
-            if !validIDs.contains(id) {
-                try? fm.removeItem(at: root.appendingPathComponent(name))
+            if !validIDs.contains(identifier) {
+                try? fileManager.removeItem(at: root.appendingPathComponent(name))
             }
         }
     }
@@ -243,12 +346,12 @@ final class PodcastDownloadManager {
     // MARK: - Size
 
     nonisolated static func totalDownloadedSize() -> Int64 {
-        let fm = FileManager.default
-        guard let container = fm.containerURL(
+        let fileManager = FileManager.default
+        guard let container = fileManager.containerURL(
             forSecurityApplicationGroupIdentifier: "group.com.tsubuzaki.SakuraRSS"
         ) else { return 0 }
         let dir = container.appendingPathComponent("PodcastDownloads", isDirectory: true)
-        guard let enumerator = fm.enumerator(
+        guard let enumerator = fileManager.enumerator(
             at: dir,
             includingPropertiesForKeys: [.fileSizeKey, .isRegularFileKey]
         ) else {

@@ -38,6 +38,33 @@ enum PodcastTranscriber {
             throw PodcastTranscriberError.audioFileUnreadable
         }
 
+        // SpeechAnalyzer requires linear PCM audio. If the source file is
+        // compressed (MP3, AAC, Opus, etc.) we convert it to a temporary
+        // 16 kHz mono WAV first.
+        let fileToTranscribe: URL
+        let needsCleanup: Bool
+
+        let sourceFile = try AVAudioFile(forReading: audioFileURL)
+        let sourceFormat = sourceFile.processingFormat
+
+        if sourceFormat.commonFormat == .pcmFormatFloat32
+            || sourceFormat.commonFormat == .pcmFormatFloat64
+            || sourceFormat.commonFormat == .pcmFormatInt16
+            || sourceFormat.commonFormat == .pcmFormatInt32 {
+            // Already PCM — use directly.
+            fileToTranscribe = audioFileURL
+            needsCleanup = false
+        } else {
+            fileToTranscribe = try await convertToPCM(sourceFile: sourceFile)
+            needsCleanup = true
+        }
+
+        defer {
+            if needsCleanup {
+                try? FileManager.default.removeItem(at: fileToTranscribe)
+            }
+        }
+
         let transcriber = SpeechTranscriber(
             locale: Locale.current,
             transcriptionOptions: [],
@@ -45,11 +72,8 @@ enum PodcastTranscriber {
             attributeOptions: []
         )
         let analyzer = SpeechAnalyzer(modules: [transcriber])
-        let audioFile = try AVAudioFile(forReading: audioFileURL)
+        let audioFile = try AVAudioFile(forReading: fileToTranscribe)
 
-        // Kick off a task that consumes transcription results as they arrive.
-        // Timestamp extraction from results is intentionally conservative until we
-        // nail down the exact iOS 26 API shape — segments are emitted with 0 time.
         let collectionTask = Task { () throws -> [TranscriptSegment] in
             var segments: [TranscriptSegment] = []
             var nextID = 0
@@ -73,5 +97,71 @@ enum PodcastTranscriber {
         try await analyzer.analyzeSequence(from: audioFile)
         // Wait for any remaining results to drain.
         return try await collectionTask.value
+    }
+
+    // MARK: - Format Conversion
+
+    /// Converts a compressed audio file to 16 kHz mono PCM WAV for Speech framework compatibility.
+    private static func convertToPCM(sourceFile: AVAudioFile) async throws -> URL {
+        try await Task.detached(priority: .utility) {
+            guard let outputFormat = AVAudioFormat(
+                commonFormat: .pcmFormatInt16,
+                sampleRate: 16000,
+                channels: 1,
+                interleaved: true
+            ) else {
+                throw PodcastTranscriberError.audioFileUnreadable
+            }
+
+            guard let converter = AVAudioConverter(from: sourceFile.processingFormat, to: outputFormat) else {
+                throw PodcastTranscriberError.transcriptionFailed(
+                    "Cannot convert audio from \(sourceFile.processingFormat) to PCM"
+                )
+            }
+
+            let tempURL = FileManager.default.temporaryDirectory
+                .appendingPathComponent(UUID().uuidString + ".wav")
+            let outputFile = try AVAudioFile(forWriting: tempURL, settings: outputFormat.settings)
+
+            let bufferCapacity: AVAudioFrameCount = 4096
+            guard let convertBuffer = AVAudioPCMBuffer(
+                pcmFormat: outputFormat,
+                frameCapacity: bufferCapacity
+            ) else {
+                throw PodcastTranscriberError.audioFileUnreadable
+            }
+
+            while true {
+                let status = try converter.convert(to: convertBuffer, error: nil) { inNumberOfPackets, outStatus in
+                    guard let readBuffer = AVAudioPCMBuffer(
+                        pcmFormat: sourceFile.processingFormat,
+                        frameCapacity: inNumberOfPackets
+                    ) else {
+                        outStatus.pointee = .noDataNow
+                        return nil
+                    }
+                    do {
+                        try sourceFile.read(into: readBuffer)
+                        if readBuffer.frameLength == 0 {
+                            outStatus.pointee = .endOfStream
+                            return nil
+                        }
+                        outStatus.pointee = .haveData
+                        return readBuffer
+                    } catch {
+                        outStatus.pointee = .endOfStream
+                        return nil
+                    }
+                }
+
+                if convertBuffer.frameLength == 0 || status == .endOfStream {
+                    break
+                }
+
+                try outputFile.write(from: convertBuffer)
+            }
+
+            return tempURL
+        }.value
     }
 }

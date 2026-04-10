@@ -102,20 +102,12 @@ struct PodcastEpisodeRow: View {
         downloadManager.isDownloaded(articleID: article.id)
     }
 
-    private var downloadProgress: DownloadProgress? {
-        downloadManager.activeDownloads[article.id]
-    }
-
     private var isOffline: Bool {
         !networkMonitor.isOnline
     }
 
     private var canPlay: Bool {
         isDownloaded || !isOffline
-    }
-
-    private var canDownload: Bool {
-        !isDownloaded && !isOffline && downloadProgress == nil
     }
 
     var body: some View {
@@ -158,7 +150,7 @@ struct PodcastEpisodeRow: View {
             Spacer(minLength: 0)
 
             if article.isPodcastEpisode {
-                downloadControl
+                PodcastDownloadButton(article: article, size: 28, lineWidth: 2.5)
                 Button {
                     handlePlay()
                 } label: {
@@ -172,29 +164,6 @@ struct PodcastEpisodeRow: View {
                 .buttonStyle(.plain)
                 .disabled(!canPlay && !isCurrentlyPlaying)
             }
-        }
-    }
-
-    @ViewBuilder
-    private var downloadControl: some View {
-        if let progress = downloadProgress {
-            ProgressView(value: progress.progress)
-                .progressViewStyle(.circular)
-                .controlSize(.small)
-        } else if isDownloaded {
-            Image(systemName: "checkmark.circle.fill")
-                .font(.title3)
-                .foregroundStyle(.secondary)
-        } else {
-            Button {
-                downloadManager.downloadEpisode(article: article)
-            } label: {
-                Image(systemName: "arrow.down.circle")
-                    .font(.title3)
-                    .foregroundStyle(canDownload ? .accent : .secondary)
-            }
-            .buttonStyle(.plain)
-            .disabled(!canDownload)
         }
     }
 

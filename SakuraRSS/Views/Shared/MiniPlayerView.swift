@@ -14,8 +14,9 @@ struct MiniPlayerView: View {
             } label: {
                 HStack(spacing: 12) {
                     artwork(for: article)
-                        .frame(width: 36, height: 36)
+                        .frame(width: 32, height: 32)
                         .clipShape(RoundedRectangle(cornerRadius: 6))
+                        .padding(.leading, 4)
 
                     VStack(alignment: .leading, spacing: 2) {
                         Text(audioPlayer.currentEpisodeTitle ?? article.title)
@@ -49,6 +50,14 @@ struct MiniPlayerView: View {
                 .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
+        } else {
+            HStack {
+                Text("Podcast.NotPlaying")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                Spacer()
+            }
+            .padding(.horizontal, 16)
         }
     }
 

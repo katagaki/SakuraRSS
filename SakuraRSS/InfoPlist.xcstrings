@@ -61,6 +61,18 @@
         }
       }
     },
+    "NSSpeechRecognitionUsageDescription" : {
+      "comment" : "Privacy - Speech Recognition Usage Description",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "SakuraRSS uses on-device speech recognition to transcribe podcast episodes you download. Audio is processed locally and never leaves your device."
+          }
+        }
+      }
+    },
     "OPML_DOCUMENT_TYPE" : {
       "comment" : "UTType description for OPML files",
       "localizations" : {
