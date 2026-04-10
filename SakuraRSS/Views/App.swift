@@ -41,6 +41,9 @@ struct SakuraRSSApp: App {
                     feedManager.loadFromDatabase()
                     feedManager.updateBadgeCount()
                     WidgetCenter.shared.reloadAllTimelines()
+                    Task {
+                        await feedManager.refreshUnfetchedFeeds()
+                    }
                 }
                 .onChange(of: backgroundRefreshEnabled) {
                     scheduleAppRefresh()
