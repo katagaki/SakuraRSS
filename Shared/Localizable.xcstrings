@@ -16520,7 +16520,7 @@
         "en": { "stringUnit": { "state": "translated", "value": "articles read" } },
         "fr": { "stringUnit": { "state": "translated", "value": "articles lus" } },
         "it": { "stringUnit": { "state": "translated", "value": "articoli letti" } },
-        "ja": { "stringUnit": { "state": "translated", "value": "記事を読了" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "既読記事" } },
         "ko": { "stringUnit": { "state": "translated", "value": "읽은 기사" } },
         "vi": { "stringUnit": { "state": "translated", "value": "bài đã đọc" } },
         "zh-Hans": { "stringUnit": { "state": "translated", "value": "已读文章" } },
