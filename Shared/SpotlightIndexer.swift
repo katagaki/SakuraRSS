@@ -1,7 +1,7 @@
 import CoreSpotlight
 import Foundation
 
-enum SpotlightIndexer {
+nonisolated enum SpotlightIndexer {
 
     static let domainIdentifier = "com.tsubuzaki.SakuraRSS.article"
 
@@ -52,21 +52,26 @@ enum SpotlightIndexer {
     // MARK: - Removal
 
     static func removeArticle(id: Int64) {
-        CSSearchableIndex.default().deleteSearchableItems(
-            withIdentifiers: [uniqueIdentifier(for: id)]
-        )
+        let identifiers = [uniqueIdentifier(for: id)]
+        Task { @MainActor in
+            CSSearchableIndex.default().deleteSearchableItems(withIdentifiers: identifiers)
+        }
     }
 
     static func removeArticles(feedID: Int64, articleIDs: [Int64]) {
         guard !articleIDs.isEmpty else { return }
         let identifiers = articleIDs.map { uniqueIdentifier(for: $0) }
-        CSSearchableIndex.default().deleteSearchableItems(withIdentifiers: identifiers)
+        Task { @MainActor in
+            CSSearchableIndex.default().deleteSearchableItems(withIdentifiers: identifiers)
+        }
     }
 
     static func removeAllArticles() {
-        CSSearchableIndex.default().deleteSearchableItems(
-            withDomainIdentifiers: [domainIdentifier]
-        )
+        Task { @MainActor in
+            CSSearchableIndex.default().deleteSearchableItems(
+                withDomainIdentifiers: [domainIdentifier]
+            )
+        }
     }
 
     // MARK: - Deep Link Parsing
