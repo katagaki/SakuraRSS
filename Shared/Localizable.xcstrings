@@ -10008,6 +10008,160 @@
         }
       }
     },
+    "iCloudBackup.AutoBackup": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Automatic Backups"
+          }
+        }
+      }
+    },
+    "iCloudBackup.BackupError": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Failed to create backup."
+          }
+        }
+      }
+    },
+    "iCloudBackup.BackupNow": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Back Up Now"
+          }
+        }
+      }
+    },
+    "iCloudBackup.BackupSuccess": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Backup completed successfully."
+          }
+        }
+      }
+    },
+    "iCloudBackup.Footer": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Backups include your feeds, articles, read states, bookmarks, and feed rules."
+          }
+        }
+      }
+    },
+    "iCloudBackup.Interval.Every12Hours": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Every 12 Hours"
+          }
+        }
+      }
+    },
+    "iCloudBackup.Interval.Every6Hours": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Every 6 Hours"
+          }
+        }
+      }
+    },
+    "iCloudBackup.Interval.EveryNight": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Every Night"
+          }
+        }
+      }
+    },
+    "iCloudBackup.Interval.Off": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Off"
+          }
+        }
+      }
+    },
+    "iCloudBackup.LastBackupLabel": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Last Backup"
+          }
+        }
+      }
+    },
+    "iCloudBackup.Never": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Never"
+          }
+        }
+      }
+    },
+    "iCloudBackup.RestoreError": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Failed to restore from backup."
+          }
+        }
+      }
+    },
+    "iCloudBackup.Title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "iCloud Backup"
+          }
+        }
+      }
+    },
+    "iCloudBackup.Unavailable": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sign in to iCloud in Settings to enable backups."
+          }
+        }
+      }
+    },
     "katagaki/SakuraRSS": {
       "localizations": {
         "en": {
@@ -13961,6 +14115,50 @@
           "stringUnit": {
             "state": "translated",
             "value": "開始使用"
+          }
+        }
+      }
+    },
+    "Onboarding.Restore.Button": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restore Backup"
+          }
+        }
+      }
+    },
+    "Onboarding.Restore.Description %@ %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A backup from %1$@ on %2$@ was found."
+          }
+        }
+      }
+    },
+    "Onboarding.Restore.Restoring": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restoring..."
+          }
+        }
+      }
+    },
+    "Onboarding.Restore.Title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restore from iCloud"
           }
         }
       }
