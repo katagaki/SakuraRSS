@@ -22,19 +22,19 @@ struct FluidTranscriberEngine: TranscriptionEngine {
         #endif
 
         let models = try await AsrModels.downloadAndLoad(version: .v3)
-        let manager = AsrManager()
-        try await manager.initialize(models: models)
+        let manager = AsrManager(models: models)
 
         #if DEBUG
         debugPrint("[FluidEngine] Transcribing \(audioFileURL.lastPathComponent)")
         #endif
 
-        let result = try await manager.transcribe(audioFileURL, source: .system)
+        var decoderState = TdtDecoderState.make()
+        let result = try await manager.transcribe(audioFileURL, decoderState: &decoderState)
 
         // FluidAudio returns full text without segment-level timestamps.
         // Split into sentences and distribute timestamps proportionally
         // across the audio duration for a usable transcript.
-        let duration = Self.audioDuration(of: audioFileURL)
+        let duration = try await Self.audioDuration(of: audioFileURL)
         return Self.distributeTimestamps(
             text: result.text,
             totalDuration: duration
@@ -44,9 +44,10 @@ struct FluidTranscriberEngine: TranscriptionEngine {
     // MARK: - Helpers
 
     /// Returns the duration of an audio file in seconds.
-    private static func audioDuration(of url: URL) -> TimeInterval {
+    private static func audioDuration(of url: URL) async throws -> TimeInterval {
         let asset = AVURLAsset(url: url)
-        return CMTimeGetSeconds(asset.duration)
+        let duration = try await asset.load(.duration)
+        return CMTimeGetSeconds(duration)
     }
 
     /// Splits text into sentences and assigns evenly distributed timestamps.
@@ -57,8 +58,8 @@ struct FluidTranscriberEngine: TranscriptionEngine {
         // Split on sentence boundaries.
         var sentences: [String] = []
         trimmed.enumerateSubstrings(in: trimmed.startIndex..., options: [.bySentences, .localized]) { sub, _, _, _ in
-            if let s = sub?.trimmingCharacters(in: .whitespacesAndNewlines), !s.isEmpty {
-                sentences.append(s)
+            if let sentence = sub?.trimmingCharacters(in: .whitespacesAndNewlines), !sentence.isEmpty {
+                sentences.append(sentence)
             }
         }
         if sentences.isEmpty {
@@ -66,11 +67,11 @@ struct FluidTranscriberEngine: TranscriptionEngine {
         }
 
         let segmentDuration = totalDuration / Double(sentences.count)
-        return sentences.enumerated().map { (i, sentence) in
+        return sentences.enumerated().map { (index, sentence) in
             TranscriptSegment(
-                id: i,
-                start: Double(i) * segmentDuration,
-                end: Double(i + 1) * segmentDuration,
+                id: index,
+                start: Double(index) * segmentDuration,
+                end: Double(index + 1) * segmentDuration,
                 text: sentence
             )
         }
