@@ -4,6 +4,7 @@ struct XSettingsView: View {
 
     @AppStorage("Labs.XProfileFeeds") private var xProfileFeedsEnabled: Bool = false
 
+    @State private var isCheckingLogin = true
     @State private var isXSignedIn = false
     @State private var showXLogin = false
 
@@ -13,7 +14,9 @@ struct XSettingsView: View {
                 Toggle("Labs.XProfileFeeds", isOn: $xProfileFeedsEnabled)
 
                 if xProfileFeedsEnabled {
-                    if isXSignedIn {
+                    if isCheckingLogin {
+                        ProgressView()
+                    } else if isXSignedIn {
                         Button("Labs.XProfileFeeds.RefreshAuth") {
                             Task {
                                 await MainActor.run {
@@ -43,13 +46,16 @@ struct XSettingsView: View {
         .toolbarTitleDisplayMode(.inline)
         .sheet(isPresented: $showXLogin) {
             Task {
+                isCheckingLogin = true
                 isXSignedIn = await XProfileScraper.hasXSession()
+                isCheckingLogin = false
             }
         } content: {
             XLoginView()
         }
         .task {
             isXSignedIn = await XProfileScraper.hasXSession()
+            isCheckingLogin = false
         }
     }
 }

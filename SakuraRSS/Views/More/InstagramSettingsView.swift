@@ -5,6 +5,7 @@ struct InstagramSettingsView: View {
     @AppStorage("Labs.InstagramProfileFeeds") private var instagramProfileFeedsEnabled: Bool = false
     @AppStorage("Instagram.HideReels") private var hideReels: Bool = false
 
+    @State private var isCheckingLogin = true
     @State private var isInstagramSignedIn = false
     @State private var showInstagramLogin = false
 
@@ -15,7 +16,9 @@ struct InstagramSettingsView: View {
                        isOn: $instagramProfileFeedsEnabled)
 
                 if instagramProfileFeedsEnabled {
-                    if isInstagramSignedIn {
+                    if isCheckingLogin {
+                        ProgressView()
+                    } else if isInstagramSignedIn {
                         Button("Labs.InstagramProfileFeeds.SignOut") {
                             Task {
                                 await InstagramProfileScraper.clearInstagramSession()
@@ -45,13 +48,16 @@ struct InstagramSettingsView: View {
         .toolbarTitleDisplayMode(.inline)
         .sheet(isPresented: $showInstagramLogin) {
             Task {
+                isCheckingLogin = true
                 isInstagramSignedIn = await InstagramProfileScraper.hasInstagramSession()
+                isCheckingLogin = false
             }
         } content: {
             InstagramLoginView()
         }
         .task {
             isInstagramSignedIn = await InstagramProfileScraper.hasInstagramSession()
+            isCheckingLogin = false
         }
     }
 }

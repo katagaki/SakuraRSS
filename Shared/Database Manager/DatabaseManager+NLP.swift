@@ -280,7 +280,7 @@ nonisolated extension DatabaseManager {
         try database.run(sql, date.timeIntervalSince1970, date.timeIntervalSince1970)
     }
 
-    // MARK: - Reading Analytics
+    // MARK: - Analytics
 
     func totalArticlesRead() throws -> Int {
         try database.scalar(articles.filter(articleIsRead == true).count)

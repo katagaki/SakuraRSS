@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct ReadingAnalyticsView: View {
+struct AnalyticsView: View {
 
     @Environment(FeedManager.self) var feedManager
     @State private var totalRead: Int = 0
@@ -17,22 +17,22 @@ struct ReadingAnalyticsView: View {
         LazyVGrid(columns: columns, spacing: 10) {
             StatCell(
                 value: totalRead.formatted(),
-                label: "ReadingAnalytics.ArticlesRead",
+                label: "Analytics.ArticlesRead",
                 icon: "book.closed.fill"
             )
             StatCell(
                 value: streak > 0 ? streak.formatted() : "-",
-                label: "ReadingAnalytics.Streak",
+                label: "Analytics.Streak",
                 icon: "flame.fill"
             )
             StatCell(
                 value: feedCount.formatted(),
-                label: "ReadingAnalytics.FeedCount",
+                label: "Analytics.FeedCount",
                 icon: "list.bullet"
             )
             StatCell(
                 value: mostReadFeedName ?? "-",
-                label: "ReadingAnalytics.MostViewed",
+                label: "Analytics.MostViewed",
                 icon: "star.fill",
                 isText: mostReadFeedName != nil
             )

@@ -16918,7 +16918,7 @@
         }
       }
     },
-    "ReadingAnalytics.ArticlesRead": {
+    "Analytics.ArticlesRead": {
       "extractionState": "manual",
       "localizations": {
         "de": {
@@ -16977,7 +16977,7 @@
         }
       }
     },
-    "ReadingAnalytics.FeedCount": {
+    "Analytics.FeedCount": {
       "extractionState": "manual",
       "localizations": {
         "de": {
@@ -17036,7 +17036,7 @@
         }
       }
     },
-    "ReadingAnalytics.MostViewed": {
+    "Analytics.MostViewed": {
       "extractionState": "manual",
       "localizations": {
         "de": {
@@ -17095,7 +17095,7 @@
         }
       }
     },
-    "ReadingAnalytics.Streak": {
+    "Analytics.Streak": {
       "extractionState": "manual",
       "localizations": {
         "de": {
@@ -18222,55 +18222,55 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ähnliche Artikel anzeigen, Themen, Organisationen und Personen aus Artikeln extrahieren. Im Suchtab durchsuchen."
+            "value": "Automatisch ähnliche Inhalte, Themen, Organisationen und Personen aus Inhalten in Ihrem Feed finden."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Show similar articles, extract topics, organizations, and people from articles. Browse them in the Search tab."
+            "value": "Automatically find similar content, topics, organizations, and people from content in your feed."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Afficher des articles similaires, extraire des sujets, organisations et personnes des articles. Parcourez-les dans l’onglet Recherche."
+            "value": "Trouver automatiquement du contenu similaire, des sujets, des organisations et des personnes à partir du contenu de votre flux."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Mostra articoli simili, estrai argomenti, organizzazioni e persone dagli articoli. Esplorali nella scheda Cerca."
+            "value": "Trova automaticamente contenuti simili, argomenti, organizzazioni e persone dai contenuti nel tuo feed."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "類似記事を表示し、記事からトピック、組織、人物を抽出します。検索タブで閲覧できます。"
+            "value": "フィードのコンテンツから類似コンテンツ、トピック、組織、人物を自動的に検出します。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "유사한 기사를 표시하고, 기사에서 주제, 조직, 인물을 추출합니다. 검색 탭에서 찾아보세요."
+            "value": "피드의 콘텐츠에서 유사한 콘텐츠, 주제, 조직, 인물을 자동으로 찾습니다."
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Hiển thị bài viết tương tự, trích xuất chủ đề, tổ chức và nhân vật từ bài viết. Duyệt chúng trong tab Tìm kiếm."
+            "value": "Tự động tìm nội dung tương tự, chủ đề, tổ chức và nhân vật từ nội dung trong nguồn cấp dữ liệu của bạn."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "显示相似文章，从文章中提取话题、组织和人物。在搜索标签页中浏览。"
+            "value": "自动从您的订阅源内容中查找相似内容、话题、组织和人物。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "顯示相似文章，從文章中擷取話題、組織和人物。在搜尋標籤中瀏覽。"
+            "value": "自動從您的訂閱源內容中尋找相似內容、話題、組織和人物。"
           }
         }
       }
@@ -19396,61 +19396,61 @@
         }
       }
     },
-    "Settings.Section.ReadingAnalytics": {
+    "Settings.Section.Analytics": {
       "extractionState": "manual",
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Lesestatistiken"
+            "value": "Statistiken"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Reading Analytics"
+            "value": "Analytics"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Statistiques de lecture"
+            "value": "Statistiques"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Statistiche di lettura"
+            "value": "Statistiche"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "読書分析"
+            "value": "アナリティクス"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "독서 분석"
+            "value": "분석"
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Thống kê đọc"
+            "value": "Thống kê"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "阅读统计"
+            "value": "统计"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "閱讀統計"
+            "value": "統計"
           }
         }
       }

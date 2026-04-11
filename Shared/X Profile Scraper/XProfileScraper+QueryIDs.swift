@@ -38,10 +38,10 @@ extension XProfileScraper {
     // MARK: - Cookie Warming
 
     @MainActor
-    private static var cookieStoreWarmed = false
+    static var cookieStoreWarmed = false
 
     @MainActor
-    private static func warmCookieStore() async {
+    static func warmCookieStore() async {
         guard !cookieStoreWarmed else { return }
         cookieStoreWarmed = true
 
