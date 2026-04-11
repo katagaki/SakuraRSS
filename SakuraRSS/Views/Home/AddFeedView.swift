@@ -381,7 +381,8 @@ extension AddFeedView {
 
     func displayURL(for feed: DiscoveredFeed) -> String {
         if XProfileScraper.isXFeedURL(feed.url)
-            || InstagramProfileScraper.isInstagramFeedURL(feed.url) {
+            || InstagramProfileScraper.isInstagramFeedURL(feed.url)
+            || YouTubePlaylistScraper.isYouTubePlaylistFeedURL(feed.url) {
             return feed.siteURL
         }
         return feed.url

@@ -123,6 +123,11 @@ final class FeedManager {
             return
         }
 
+        if feed.isYouTubePlaylistFeed {
+            try await refreshYouTubePlaylistFeed(feed, reloadData: reloadData)
+            return
+        }
+
         let database = database
         try await Task.detached {
             guard let url = URL(string: feed.url) else { return }

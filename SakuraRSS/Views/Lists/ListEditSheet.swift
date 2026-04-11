@@ -49,27 +49,31 @@ struct ListEditSheet: View {
                 }
 
                 Section("ListEdit.Icon") {
-                    LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 5),
-                              spacing: 16) {
-                        ForEach(ListIcon.allCases) { icon in
-                            Button {
-                                selectedIcon = icon.rawValue
-                            } label: {
-                                Image(systemName: icon.rawValue)
-                                    .font(.title2)
-                                    .frame(width: 44, height: 44)
-                                    .background(
-                                        selectedIcon == icon.rawValue
-                                            ? AnyShapeStyle(.tint.opacity(0.2))
-                                            : AnyShapeStyle(.clear)
-                                    )
-                                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        LazyHGrid(rows: Array(repeating: GridItem(.fixed(44), spacing: 12), count: 4),
+                                  spacing: 12) {
+                            ForEach(ListIcon.allCases) { icon in
+                                Button {
+                                    selectedIcon = icon.rawValue
+                                } label: {
+                                    Image(systemName: icon.rawValue)
+                                        .font(.title2)
+                                        .frame(width: 44, height: 44)
+                                        .background(
+                                            selectedIcon == icon.rawValue
+                                                ? AnyShapeStyle(.tint.opacity(0.2))
+                                                : AnyShapeStyle(.clear)
+                                        )
+                                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                                }
+                                .buttonStyle(.plain)
+                                .accessibilityLabel(icon.rawValue)
                             }
-                            .buttonStyle(.plain)
-                            .accessibilityLabel(icon.rawValue)
                         }
+                        .padding(.horizontal, 20)
+                        .padding(.vertical, 4)
                     }
-                    .padding(.vertical, 4)
+                    .listRowInsets(EdgeInsets())
                 }
 
                 Section("ListEdit.DisplayStyle") {

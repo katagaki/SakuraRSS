@@ -260,6 +260,9 @@ actor FeedDiscovery {
            let instagramFeed = detectInstagramProfileFeed(url: url) {
             return instagramFeed
         }
+        if let youTubeFeed = detectYouTubePlaylistFeed(url: url) {
+            return youTubeFeed
+        }
         if let blueskyFeed = await detectBlueskyFeed(url: url) {
             return blueskyFeed
         }
@@ -298,6 +301,22 @@ actor FeedDiscovery {
             title: "@\(handle)",
             url: InstagramProfileScraper.feedURL(for: handle),
             siteURL: "https://www.instagram.com/\(handle)/"
+        )
+    }
+
+    /// Detects YouTube playlist URLs and returns a pseudo-feed entry.
+    /// The feed URL uses the `youtube-playlist://` scheme so the app routes
+    /// refresh through YouTubePlaylistScraper instead of RSSParser.
+    private func detectYouTubePlaylistFeed(url: URL) -> DiscoveredFeed? {
+        guard YouTubePlaylistScraper.isYouTubePlaylistURL(url),
+              let playlistID = YouTubePlaylistScraper.extractPlaylistID(from: url) else {
+            return nil
+        }
+
+        return DiscoveredFeed(
+            title: "YouTube Playlist",
+            url: YouTubePlaylistScraper.feedURL(for: playlistID),
+            siteURL: "https://www.youtube.com/playlist?list=\(playlistID)"
         )
     }
 
