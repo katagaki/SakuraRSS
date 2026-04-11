@@ -4,20 +4,29 @@ import ParakeetASR
 
 /// Transcription engine using ParakeetASR (NVIDIA Parakeet TDT models via CoreML/ANE).
 ///
-/// Models are downloaded on demand via HuggingFace and cached by the library.
+/// Models are downloaded on demand and stored in a known directory.
 /// Runs in-process on the Neural Engine. 25 European languages supported.
 struct FluidTranscriberEngine: TranscriptionEngine {
 
     static let requiresModelDownload = true
 
-    /// Marker file we write after a successful download so we know the model is ready.
-    private static var markerFile: URL {
-        FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
-            .appendingPathComponent(".parakeet_model_ready")
+    /// Fixed directory where we tell the library to cache its models.
+    private static var cacheDirectory: URL {
+        FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0]
+            .appendingPathComponent("ParakeetModels", isDirectory: true)
     }
 
     var isModelDownloaded: Bool {
-        FileManager.default.fileExists(atPath: Self.markerFile.path)
+        let dir = Self.cacheDirectory
+        guard FileManager.default.fileExists(atPath: dir.path) else { return false }
+        // The library downloads multiple files. Check that the directory is non-trivially populated.
+        guard let enumerator = FileManager.default.enumerator(atPath: dir.path) else { return false }
+        var count = 0
+        while enumerator.nextObject() != nil {
+            count += 1
+            if count >= 3 { return true }
+        }
+        return false
     }
 
     var isAvailable: Bool {
@@ -26,33 +35,19 @@ struct FluidTranscriberEngine: TranscriptionEngine {
 
     func downloadModel() async throws {
         #if DEBUG
-        debugPrint("[ParakeetEngine] Downloading Parakeet TDT v3 model")
+        debugPrint("[ParakeetEngine] Downloading Parakeet TDT v3 model to \(Self.cacheDirectory.path)")
         #endif
-        // Let the library manage its own cache location.
-        _ = try await ParakeetASRModel.fromPretrained()
-        // Write a marker so we know the download succeeded.
-        FileManager.default.createFile(atPath: Self.markerFile.path, contents: Data())
+        try FileManager.default.createDirectory(at: Self.cacheDirectory, withIntermediateDirectories: true)
+        _ = try await ParakeetASRModel.fromPretrained(cacheDir: Self.cacheDirectory)
         #if DEBUG
         debugPrint("[ParakeetEngine] Model download complete")
         #endif
     }
 
     func deleteModel() throws {
-        // Remove the marker file.
-        try? FileManager.default.removeItem(at: Self.markerFile)
-        // The library caches in ~/Library/Caches — clear its known locations.
-        let caches = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0]
-        for dirName in ["qwen3-speech", "parakeet-asr", "huggingface"] {
-            let dir = caches.appendingPathComponent(dirName, isDirectory: true)
-            if FileManager.default.fileExists(atPath: dir.path) {
-                try? FileManager.default.removeItem(at: dir)
-            }
-        }
-        // Also check Application Support
-        let appSupport = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
-        let parakeetDir = appSupport.appendingPathComponent("ParakeetASR", isDirectory: true)
-        if FileManager.default.fileExists(atPath: parakeetDir.path) {
-            try FileManager.default.removeItem(at: parakeetDir)
+        let dir = Self.cacheDirectory
+        if FileManager.default.fileExists(atPath: dir.path) {
+            try FileManager.default.removeItem(at: dir)
         }
     }
 
@@ -65,16 +60,18 @@ struct FluidTranscriberEngine: TranscriptionEngine {
         }
 
         #if DEBUG
-        debugPrint("[ParakeetEngine] Loading Parakeet TDT v3 model")
+        debugPrint("[ParakeetEngine] Loading Parakeet TDT v3 model from \(Self.cacheDirectory.path)")
         #endif
 
-        let model = try await ParakeetASRModel.fromPretrained()
+        let model = try await ParakeetASRModel.fromPretrained(
+            cacheDir: Self.cacheDirectory,
+            offlineMode: true
+        )
 
         #if DEBUG
         debugPrint("[ParakeetEngine] Transcribing \(audioFileURL.lastPathComponent)")
         #endif
 
-        // Load audio samples from the file.
         let audioFile = try AVAudioFile(forReading: audioFileURL)
         let sampleRate = audioFile.processingFormat.sampleRate
         let frameCount = AVAudioFrameCount(audioFile.length)

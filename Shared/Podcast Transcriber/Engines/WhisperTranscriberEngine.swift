@@ -9,12 +9,19 @@ struct WhisperTranscriberEngine: TranscriptionEngine {
 
     static let requiresModelDownload = true
 
-    private var modelVariant: String {
+    private static var modelVariant: String {
         "openai_whisper-\(UserDefaults.standard.string(forKey: "Podcast.WhisperModel") ?? "base")"
     }
 
+    /// Directory where WhisperKit.download stores the model.
+    /// We persist the path after download so we can find it again.
+    private static var storedModelFolder: String? {
+        get { UserDefaults.standard.string(forKey: "Podcast.WhisperModelFolder") }
+        set { UserDefaults.standard.set(newValue, forKey: "Podcast.WhisperModelFolder") }
+    }
+
     var isModelDownloaded: Bool {
-        guard let folder = try? WhisperKit.modelFolder(for: modelVariant) else { return false }
+        guard let folder = Self.storedModelFolder else { return false }
         return FileManager.default.fileExists(atPath: folder)
     }
 
@@ -23,38 +30,49 @@ struct WhisperTranscriberEngine: TranscriptionEngine {
     }
 
     func downloadModel() async throws {
-        let variant = modelVariant
+        let variant = Self.modelVariant
         #if DEBUG
         debugPrint("[WhisperEngine] Downloading model '\(variant)'")
         #endif
-        _ = try await WhisperKit.download(variant: variant)
+        let folder = try await WhisperKit.download(variant: variant)
+        Self.storedModelFolder = folder.path
         #if DEBUG
-        debugPrint("[WhisperEngine] Model download complete")
+        debugPrint("[WhisperEngine] Model downloaded to \(folder.path)")
         #endif
     }
 
     func deleteModel() throws {
-        // WhisperKit stores models in Application Support/huggingface
-        let appSupport = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
-        let hfHub = appSupport.appendingPathComponent("huggingface", isDirectory: true)
-        if FileManager.default.fileExists(atPath: hfHub.path) {
-            try FileManager.default.removeItem(at: hfHub)
+        if let folder = Self.storedModelFolder {
+            // Delete the specific model folder
+            if FileManager.default.fileExists(atPath: folder) {
+                try FileManager.default.removeItem(atPath: folder)
+            }
+            // Also try to clean up the parent (repo) directory if empty
+            let parent = (folder as NSString).deletingLastPathComponent
+            let contents = (try? FileManager.default.contentsOfDirectory(atPath: parent)) ?? []
+            if contents.isEmpty {
+                try? FileManager.default.removeItem(atPath: parent)
+            }
         }
+        Self.storedModelFolder = nil
     }
 
     func transcribe(audioFileURL: URL, title: String) async throws -> [TranscriptSegment] {
         guard FileManager.default.fileExists(atPath: audioFileURL.path) else {
             throw TranscriptionEngineError.audioFileUnreadable
         }
-        guard isModelDownloaded else {
+        guard let folder = Self.storedModelFolder, FileManager.default.fileExists(atPath: folder) else {
             throw TranscriptionEngineError.modelNotDownloaded
         }
 
         #if DEBUG
-        debugPrint("[WhisperEngine] Initializing WhisperKit with model '\(modelVariant)'")
+        debugPrint("[WhisperEngine] Loading WhisperKit from \(folder)")
         #endif
 
-        let config = WhisperKitConfig(model: modelVariant, download: false)
+        let config = WhisperKitConfig(
+            modelFolder: folder,
+            download: false
+        )
         let pipe = try await WhisperKit(config)
 
         #if DEBUG
