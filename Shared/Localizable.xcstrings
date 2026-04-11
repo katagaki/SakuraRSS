@@ -16859,61 +16859,291 @@
         }
       }
     },
-    "Podcast.Transcripts.TranscribeDuringDownload": {
+    "Podcast.Transcripts.Engine": {
       "extractionState": "manual",
       "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Beim Herunterladen transkribieren"
-          }
-        },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Transcribe During Download"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Transcrire lors du téléchargement"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Trascrivi durante il download"
+            "value": "Transcription Engine"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "ダウンロード時に文字起こし"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "다운로드 시 스크립트 생성"
-          }
-        },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Chép lời khi tải xuống"
+            "value": "文字起こしエンジン"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "下载时转录"
+            "value": "转录引擎"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "下載時轉錄"
+            "value": "轉錄引擎"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "스크립트 엔진"
+          }
+        }
+      }
+    },
+    "Podcast.Transcripts.Engine.Off": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Off"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "オフ"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "关闭"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "關閉"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "끄기"
+          }
+        }
+      }
+    },
+    "Podcast.Transcripts.Engine.Off.Description": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Podcast transcription is disabled."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Podcastの文字起こしは無効です。"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "播客转录已关闭。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Podcast轉錄已關閉。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "팟캐스트 스크립트 기능이 비활성화되어 있습니다."
+          }
+        }
+      }
+    },
+    "Podcast.Transcripts.Engine.iOS": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "iOS"
+          }
+        }
+      }
+    },
+    "Podcast.Transcripts.Engine.iOS.Description": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uses Apple's built-in speech recognition. No downloads required."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Appleの内蔵音声認識を使用します。ダウンロード不要。"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用Apple内置语音识别。无需下载。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用Apple內建語音辨識。無需下載。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apple 내장 음성 인식을 사용합니다. 다운로드 불필요."
+          }
+        }
+      }
+    },
+    "Podcast.Transcripts.Engine.Whisper": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OpenAI Whisper"
+          }
+        }
+      }
+    },
+    "Podcast.Transcripts.Engine.Whisper.Description": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "High accuracy. Downloads models on first use (~30–950 MB)."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "高精度。初回使用時にモデルをダウンロード（約30〜950 MB）。"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "高准确率。首次使用时下载模型（约30–950 MB）。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "高準確率。首次使用時下載模型（約30–950 MB）。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "높은 정확도. 처음 사용 시 모델 다운로드 (~30–950 MB)."
+          }
+        }
+      }
+    },
+    "Podcast.Transcripts.Engine.Parakeet": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "NVIDIA Parakeet"
+          }
+        }
+      }
+    },
+    "Podcast.Transcripts.Engine.Parakeet.Description": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Parakeet TDT models. Downloads on first use. 25 European languages."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Parakeet TDTモデル。初回使用時にダウンロード。欧州25言語対応。"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Parakeet TDT模型。首次使用时下载。支持25种欧洲语言。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Parakeet TDT模型。首次使用時下載。支援25種歐洲語言。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Parakeet TDT 모델. 처음 사용 시 다운로드. 유럽 25개 언어 지원."
+          }
+        }
+      }
+    },
+    "Podcast.Transcripts.Engine.Qwen": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alibaba Qwen"
+          }
+        }
+      }
+    },
+    "Podcast.Transcripts.Engine.Qwen.Description": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Qwen3-ASR model. 52 languages, fast. Downloads on first use."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Qwen3-ASRモデル。52言語対応、高速。初回使用時にダウンロード。"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Qwen3-ASR模型。支持52种语言，速度快。首次使用时下载。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Qwen3-ASR模型。支援52種語言，速度快。首次使用時下載。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Qwen3-ASR 모델. 52개 언어 지원, 빠름. 처음 사용 시 다운로드."
           }
         }
       }

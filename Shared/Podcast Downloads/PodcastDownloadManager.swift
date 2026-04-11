@@ -243,8 +243,7 @@ final class PodcastDownloadManager: NSObject, URLSessionDownloadDelegate {
     // MARK: - Transcription
 
     private func attemptTranscription(articleID: Int64, fileURL: URL, title: String) async {
-        let transcribeEnabled = UserDefaults.standard.object(forKey: "Podcast.TranscribeDuringDownload") as? Bool ?? false
-        guard transcribeEnabled, await PodcastTranscriber.isAvailable else {
+        guard await PodcastTranscriber.isAvailable else {
             return
         }
         do {

@@ -3,13 +3,17 @@ import SwiftUI
 struct PodcastSettingsView: View {
 
     @AppStorage("Podcast.PlaybackSpeed") private var playbackSpeed: Double = 1.0
-    @AppStorage("Podcast.TranscribeDuringDownload") private var transcribeDuringDownload: Bool = false
+    @AppStorage("Podcast.TranscriptionEngine") private var transcriptionEngine: String = TranscriptionEngineType.off.rawValue
 
     @State private var downloadsSize: Int64 = 0
     @State private var showDeleteDownloadsConfirmation = false
     @State private var showDeleteTranscriptsConfirmation = false
 
     private let playbackSpeedPresets: [Double] = [0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0, 2.5, 3.0]
+
+    private var selectedEngine: TranscriptionEngineType {
+        TranscriptionEngineType(rawValue: transcriptionEngine) ?? .off
+    }
 
     var body: some View {
         List {
@@ -45,7 +49,17 @@ struct PodcastSettingsView: View {
             }
 
             Section {
-                Toggle("Podcast.Transcripts.TranscribeDuringDownload", isOn: $transcribeDuringDownload)
+                Picker("Podcast.Transcripts.Engine", selection: $transcriptionEngine) {
+                    ForEach(TranscriptionEngineType.allCases) { engine in
+                        Text(engine.displayName)
+                            .tag(engine.rawValue)
+                    }
+                }
+                if selectedEngine != .off {
+                    Text(selectedEngine.engineDescription)
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                }
                 Button(role: .destructive) {
                     showDeleteTranscriptsConfirmation = true
                 } label: {
