@@ -102,7 +102,7 @@ struct SpeechTranscriberEngine: TranscriptionEngine {
             return segments
         }
 
-        try await analyzer.analyzeSequence(from: audioFile)
+        _ = try await analyzer.analyzeSequence(from: audioFile)
         return try await collectionTask.value
     }
 

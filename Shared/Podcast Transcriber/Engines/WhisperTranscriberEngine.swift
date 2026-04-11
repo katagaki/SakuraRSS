@@ -42,7 +42,7 @@ struct WhisperTranscriberEngine: TranscriptionEngine {
         try FileManager.default.createDirectory(at: Self.baseDirectory, withIntermediateDirectories: true)
         let config = WhisperKitConfig(
             model: modelName,
-            downloadBase: Self.baseDirectory.path()
+            downloadBase: Self.baseDirectory
         )
         _ = try await WhisperKit(config)
         #if DEBUG
