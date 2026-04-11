@@ -5875,6 +5875,94 @@
         }
       }
     },
+    "Discover.ClearHistory": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clear"
+          }
+        }
+      }
+    },
+    "Discover.ClearHistory.Confirm": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clear History"
+          }
+        }
+      }
+    },
+    "Discover.ClearHistory.Message": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This will remove all recently accessed article history."
+          }
+        }
+      }
+    },
+    "Discover.Empty": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nothing to Discover Yet"
+          }
+        }
+      }
+    },
+    "Discover.Empty.Description": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Articles and topics will appear here as you read."
+          }
+        }
+      }
+    },
+    "Discover.RecentlyAccessed": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recently Accessed"
+          }
+        }
+      }
+    },
+    "Discover.Title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Discover"
+          }
+        }
+      }
+    },
+    "Discover.TopicsAndPeople": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Topics & People"
+          }
+        }
+      }
+    },
     "Feed ID": {
       "shouldTranslate": false
     },
@@ -15294,6 +15382,17 @@
         "zh-Hant": { "stringUnit": { "state": "translated", "value": "人物" } }
       }
     },
+    "Search.Results.Title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search Results"
+          }
+        }
+      }
+    },
     "Settings.AppleIntelligence.Footer": {
       "extractionState": "manual",
       "localizations": {
@@ -20464,6 +20563,17 @@
           "stringUnit": {
             "state": "translated",
             "value": "書籤"
+          }
+        }
+      }
+    },
+    "Tabs.Discover": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Discover"
           }
         }
       }

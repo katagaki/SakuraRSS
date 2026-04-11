@@ -70,6 +70,9 @@ nonisolated extension DatabaseManager {
         _ = try? database.run(listRules.addColumn(listRuleType, defaultValue: ""))
         _ = try? database.run(listRules.addColumn(listRuleValue, defaultValue: ""))
 
+        // Discover: last accessed tracking
+        _ = try? database.run(articles.addColumn(articleLastAccessed))
+
         // NLP columns on articles
         _ = try? database.run(articles.addColumn(articleSentimentScore))
         _ = try? database.run(articles.addColumn(articleSentimentProcessed, defaultValue: false))

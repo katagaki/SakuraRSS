@@ -204,6 +204,72 @@ nonisolated extension DatabaseManager {
         return counts
     }
 
+    // MARK: - Recently Accessed
+
+    func updateLastAccessed(articleID id: Int64) throws {
+        let target = articles.filter(articleID == id)
+        try database.run(target.update(articleLastAccessed <- Date().timeIntervalSince1970))
+    }
+
+    func recentlyAccessedArticles(limit: Int = 20) throws -> [Article] {
+        let query = articles
+            .filter(articleLastAccessed != nil)
+            .order(articleLastAccessed.desc)
+            .limit(limit)
+        return try database.prepare(query).map(rowToArticle)
+    }
+
+    func clearAccessHistory() throws {
+        try database.run(articles.update(articleLastAccessed <- nil))
+    }
+
+    func articlesForEntity(name: String, types: [String], limit: Int = 10) throws -> [Article] {
+        guard !types.isEmpty else { return [] }
+        let placeholders = types.map { _ in "?" }.joined(separator: ", ")
+        let sql = """
+            SELECT DISTINCT a.*
+            FROM nlp_entities ne
+            JOIN articles a ON ne.article_id = a.id
+            WHERE LOWER(ne.name) = LOWER(?)
+              AND ne.type IN (\(placeholders))
+            ORDER BY a.published_date DESC
+            LIMIT ?
+            """
+        var bindings: [Binding?] = [name as Binding?]
+        bindings.append(contentsOf: types.map { $0 as Binding? })
+        bindings.append(limit)
+        var results: [Article] = []
+        let stmt = try database.prepare(sql, bindings)
+        for row in stmt {
+            // Map raw SQL row to Article manually
+            guard let id = row[0] as? Int64,
+                  let feedID = row[1] as? Int64,
+                  let title = row[2] as? String,
+                  let url = row[3] as? String else { continue }
+            let carouselRaw = row[8] as? String
+            let carouselURLs = carouselRaw?
+                .split(separator: "\n")
+                .map(String.init) ?? []
+            results.append(Article(
+                id: id,
+                feedID: feedID,
+                title: title,
+                url: url,
+                author: row[4] as? String,
+                summary: row[5] as? String,
+                content: row[6] as? String,
+                imageURL: row[7] as? String,
+                carouselImageURLs: carouselURLs,
+                publishedDate: (row[9] as? Double).map { Date(timeIntervalSince1970: $0) },
+                isRead: (row[10] as? Int64).map { $0 != 0 } ?? false,
+                isBookmarked: (row[11] as? Int64).map { $0 != 0 } ?? false,
+                audioURL: row[12] as? String,
+                duration: (row[13] as? Int64).map { Int($0) }
+            ))
+        }
+        return results
+    }
+
     // MARK: - Cleanup
 
     func deleteArticles(olderThan date: Date) throws {

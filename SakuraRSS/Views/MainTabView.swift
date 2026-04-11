@@ -52,7 +52,7 @@ struct MainTabView: View {
                 BookmarksView()
             }
 
-            Tab("Tabs.Search", systemImage: "magnifyingglass", value: .search, role: .search) {
+            Tab("Tabs.Discover", systemImage: "magnifyingglass", value: .search, role: .search) {
                 SearchView()
             }
         }
