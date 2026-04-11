@@ -81,13 +81,13 @@ struct PodcastDownloadButton: View {
             // Background track
             Circle()
                 .stroke(.secondary.opacity(0.2), lineWidth: lineWidth)
-                .frame(width: size, height: size)
+                .frame(width: size - lineWidth, height: size - lineWidth)
 
             // Progress arc
             Circle()
                 .trim(from: 0, to: CGFloat(progress))
                 .stroke(.accent, style: StrokeStyle(lineWidth: lineWidth, lineCap: .round))
-                .frame(width: size, height: size)
+                .frame(width: size - lineWidth, height: size - lineWidth)
                 .rotationEffect(.degrees(-90))
                 .animation(.smooth, value: progress)
 
