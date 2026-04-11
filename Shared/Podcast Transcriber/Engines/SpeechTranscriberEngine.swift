@@ -136,7 +136,8 @@ struct SpeechTranscriberEngine: TranscriptionEngine {
             }
 
             while true {
-                let status = try converter.convert(to: convertBuffer, error: nil) { inNumberOfPackets, outStatus in
+                var converterError: NSError?
+                let status = try converter.convert(to: convertBuffer, error: &converterError) { inNumberOfPackets, outStatus in
                     guard let readBuffer = AVAudioPCMBuffer(
                         pcmFormat: sourceFile.processingFormat,
                         frameCapacity: inNumberOfPackets
@@ -156,6 +157,10 @@ struct SpeechTranscriberEngine: TranscriptionEngine {
                         outStatus.pointee = .endOfStream
                         return nil
                     }
+                }
+
+                if let converterError {
+                    throw TranscriptionEngineError.transcriptionFailed(converterError.localizedDescription)
                 }
 
                 if convertBuffer.frameLength == 0 || status == .endOfStream {
