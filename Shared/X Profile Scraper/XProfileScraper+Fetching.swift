@@ -107,7 +107,7 @@ extension XProfileScraper {
         request.setValue("yes", forHTTPHeaderField: "x-twitter-active-user")
         request.setValue("auth_token=\(cookies.authToken); ct0=\(cookies.csrfToken)",
                          forHTTPHeaderField: "cookie")
-        request.setValue(Self.userAgent, forHTTPHeaderField: "User-Agent")
+        request.setValue(sakuraUserAgent, forHTTPHeaderField: "User-Agent")
         return request
     }
 

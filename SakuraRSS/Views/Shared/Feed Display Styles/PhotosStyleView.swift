@@ -41,6 +41,7 @@ struct PhotosArticleCard: View {
     @State private var imageAspectRatio: CGFloat?
     @State private var feed: Feed?
     @State private var currentPage: Int = 0
+    @State private var hideImage = false
 
     @ViewBuilder
     private var feedAvatarView: some View {
@@ -154,7 +155,7 @@ struct PhotosArticleCard: View {
                     }
                     .padding(.bottom, 10)
                 }
-            } else if let imageURL = article.imageURL, let url = URL(string: imageURL) {
+            } else if !hideImage, let imageURL = article.imageURL, let url = URL(string: imageURL) {
                 let effectiveRatio = max(imageAspectRatio ?? 4.0/5.0, 4.0/5.0)
                 CachedAsyncImage(url: url) {
                     Rectangle()
@@ -185,6 +186,11 @@ struct PhotosArticleCard: View {
                     photoImage = loaded
                     if let loaded, loaded.size.height > 0 {
                         imageAspectRatio = loaded.size.width / loaded.size.height
+                        let pixelWidth = loaded.size.width * loaded.scale
+                        let pixelHeight = loaded.size.height * loaded.scale
+                        if pixelWidth <= 100 && pixelHeight <= 100 {
+                            hideImage = true
+                        }
                     }
                 }
                 .padding(.bottom, 10)

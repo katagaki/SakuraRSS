@@ -7,6 +7,7 @@ struct DiscoverArticleCard: View {
     @Environment(\.zoomNamespace) private var zoomNamespace
     let article: Article
     @State private var favicon: UIImage?
+    @State private var shouldCenterImage = false
 
     private let cardWidth: CGFloat = 200
     private let imageHeight: CGFloat = 112
@@ -16,7 +17,7 @@ struct DiscoverArticleCard: View {
     }
 
     var body: some View {
-        NavigationLink(value: article) {
+        ArticleLink(article: article, label: {
             VStack(alignment: .leading, spacing: 8) {
                 cardVisual
                     .frame(width: cardWidth, height: imageHeight)
@@ -43,10 +44,11 @@ struct DiscoverArticleCard: View {
                 }
                 .frame(width: cardWidth, alignment: .leading)
             }
-        }
+        })
         .buttonStyle(.plain)
         .task {
             guard let feed = feedManager.feedsByID[article.feedID] else { return }
+            shouldCenterImage = CenteredImageDomains.shouldCenterImage(feedDomain: feed.domain)
             favicon = await FaviconCache.shared.favicon(for: feed)
         }
     }
@@ -54,7 +56,7 @@ struct DiscoverArticleCard: View {
     @ViewBuilder
     private var cardVisual: some View {
         if let imageURL = article.imageURL, let url = URL(string: imageURL) {
-            CachedAsyncImage(url: url, alignment: .top) {
+            CachedAsyncImage(url: url, alignment: shouldCenterImage ? .center : .top) {
                 thumbnailBackground
             }
         } else {

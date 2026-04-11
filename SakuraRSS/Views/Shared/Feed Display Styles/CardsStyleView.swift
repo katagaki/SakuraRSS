@@ -145,6 +145,8 @@ private struct CardView: View {
     @State private var hasPassedThreshold = false
     @State private var isDismissing = false
     @State private var favicon: UIImage?
+    @State private var hideImage = false
+    @State private var shouldCenterImage = false
 
     private var rotation: Double {
         Double(offset.width) / 20.0
@@ -169,7 +171,7 @@ private struct CardView: View {
     }
 
     private var hasArticleImage: Bool {
-        article.imageURL != nil
+        article.imageURL != nil && !hideImage
     }
 
     var body: some View {
@@ -178,7 +180,13 @@ private struct CardView: View {
                 if hasArticleImage {
                     // Background image
                     if let imageURL = article.imageURL, let url = URL(string: imageURL) {
-                        CachedAsyncImage(url: url, alignment: .top) {
+                        CachedAsyncImage(url: url, alignment: shouldCenterImage ? .center : .top, onImageLoaded: { image in
+                            let pixelWidth = image.size.width * image.scale
+                            let pixelHeight = image.size.height * image.scale
+                            if pixelWidth <= 100 && pixelHeight <= 100 {
+                                hideImage = true
+                            }
+                        }) {
                             Rectangle()
                                 .fill(.secondary.opacity(0.2))
                         }
@@ -241,10 +249,9 @@ private struct CardView: View {
             )
         }
         .task {
-            if !hasArticleImage {
-                if let feed = feedManager.feed(forArticle: article) {
-                    favicon = await FaviconCache.shared.favicon(for: feed)
-                }
+            if let feed = feedManager.feed(forArticle: article) {
+                shouldCenterImage = CenteredImageDomains.shouldCenterImage(feedDomain: feed.domain)
+                favicon = await FaviconCache.shared.favicon(for: feed)
             }
         }
     }

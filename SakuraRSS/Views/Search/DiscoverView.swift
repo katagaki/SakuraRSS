@@ -15,8 +15,8 @@ struct DiscoverView: View {
     private var hasContent: Bool {
         !recentArticles.isEmpty
             || !entitySections.isEmpty
-            || !allTopics.isEmpty
-            || !allPeople.isEmpty
+            || !filteredTopics.isEmpty
+            || !filteredPeople.isEmpty
     }
 
     var body: some View {
@@ -33,7 +33,7 @@ struct DiscoverView: View {
                                 entitySection(section)
                             }
 
-                            if !allTopics.isEmpty || !allPeople.isEmpty {
+                            if !filteredTopics.isEmpty || !filteredPeople.isEmpty {
                                 topicsAndPeopleSection
                             }
                         }
@@ -83,7 +83,7 @@ struct DiscoverView: View {
                 Button("Discover.ClearHistory") {
                     showingClearConfirmation = true
                 }
-                .font(.subheadline)
+                .font(.title3)
             }
             .padding(.horizontal)
 
@@ -133,6 +133,14 @@ struct DiscoverView: View {
 
     // MARK: - Topics & People Pills
 
+    private var filteredTopics: [(name: String, count: Int)] {
+        allTopics.filter { $0.count > 1 }
+    }
+
+    private var filteredPeople: [(name: String, count: Int)] {
+        allPeople.filter { $0.count > 1 }
+    }
+
     @ViewBuilder
     private var topicsAndPeopleSection: some View {
         VStack(alignment: .leading, spacing: 10) {
@@ -141,35 +149,33 @@ struct DiscoverView: View {
                 .fontWeight(.bold)
                 .padding(.horizontal)
 
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 8) {
-                    ForEach(allTopics, id: \.name) { topic in
-                        NavigationLink(value: EntityDestination(name: topic.name, types: ["organization", "place"])) {
-                            Text(topic.name)
-                                .font(.subheadline)
-                                .fontWeight(.medium)
-                                .padding(.horizontal, 12)
-                                .padding(.vertical, 8)
-                                .background(.regularMaterial, in: Capsule())
-                                .foregroundStyle(.primary)
-                        }
-                        .buttonStyle(.plain)
+            FlowLayout(spacing: 8) {
+                ForEach(filteredTopics, id: \.name) { topic in
+                    NavigationLink(value: EntityDestination(name: topic.name, types: ["organization", "place"])) {
+                        Text(topic.name)
+                            .font(.subheadline)
+                            .fontWeight(.medium)
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 8)
+                            .background(.regularMaterial, in: Capsule())
+                            .foregroundStyle(.primary)
                     }
-                    ForEach(allPeople, id: \.name) { person in
-                        NavigationLink(value: EntityDestination(name: person.name, types: ["person"])) {
-                            Text(person.name)
-                                .font(.subheadline)
-                                .fontWeight(.medium)
-                                .padding(.horizontal, 12)
-                                .padding(.vertical, 8)
-                                .background(.regularMaterial, in: Capsule())
-                                .foregroundStyle(.primary)
-                        }
-                        .buttonStyle(.plain)
-                    }
+                    .buttonStyle(.plain)
                 }
-                .padding(.horizontal)
+                ForEach(filteredPeople, id: \.name) { person in
+                    NavigationLink(value: EntityDestination(name: person.name, types: ["person"])) {
+                        Text(person.name)
+                            .font(.subheadline)
+                            .fontWeight(.medium)
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 8)
+                            .background(.regularMaterial, in: Capsule())
+                            .foregroundStyle(.primary)
+                    }
+                    .buttonStyle(.plain)
+                }
             }
+            .padding(.horizontal)
         }
     }
 
@@ -269,6 +275,51 @@ struct DiscoverEntitySection: Identifiable {
     let articles: [Article]
 
     var id: String { name }
+}
+
+/// A wrapping horizontal layout that flows items to the next line when they exceed the available width.
+private struct FlowLayout: Layout {
+
+    var spacing: CGFloat
+
+    func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache _: inout ()) -> CGSize {
+        let maxWidth = proposal.width ?? .infinity
+        var currentX: CGFloat = 0
+        var currentY: CGFloat = 0
+        var lineHeight: CGFloat = 0
+        var totalHeight: CGFloat = 0
+
+        for subview in subviews {
+            let size = subview.sizeThatFits(.unspecified)
+            if currentX + size.width > maxWidth && currentX > 0 {
+                currentX = 0
+                currentY += lineHeight + spacing
+                lineHeight = 0
+            }
+            lineHeight = max(lineHeight, size.height)
+            currentX += size.width + spacing
+            totalHeight = currentY + lineHeight
+        }
+        return CGSize(width: maxWidth, height: totalHeight)
+    }
+
+    func placeSubviews(in bounds: CGRect, proposal _: ProposedViewSize, subviews: Subviews, cache _: inout ()) {
+        var currentX: CGFloat = bounds.minX
+        var currentY: CGFloat = bounds.minY
+        var lineHeight: CGFloat = 0
+
+        for subview in subviews {
+            let size = subview.sizeThatFits(.unspecified)
+            if currentX + size.width > bounds.maxX && currentX > bounds.minX {
+                currentX = bounds.minX
+                currentY += lineHeight + spacing
+                lineHeight = 0
+            }
+            subview.place(at: CGPoint(x: currentX, y: currentY), proposal: .unspecified)
+            lineHeight = max(lineHeight, size.height)
+            currentX += size.width + spacing
+        }
+    }
 }
 
 /// A simple seeded random number generator for deterministic daily shuffles.

@@ -45,7 +45,7 @@ private struct InstagramLoginWebView: UIViewRepresentable {
         config.websiteDataStore = .default()
         let webView = WKWebView(frame: .zero, configuration: config)
         webView.navigationDelegate = context.coordinator
-        webView.customUserAgent = InstagramProfileScraper.userAgent
+        webView.customUserAgent = sakuraUserAgent
 
         if let loginURL = URL(string: "https://www.instagram.com/accounts/login/") {
             webView.load(URLRequest(url: loginURL))

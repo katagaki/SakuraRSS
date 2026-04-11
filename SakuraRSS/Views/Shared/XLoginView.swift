@@ -46,7 +46,7 @@ private struct XLoginWebView: UIViewRepresentable {
         config.websiteDataStore = .default()
         let webView = WKWebView(frame: .zero, configuration: config)
         webView.navigationDelegate = context.coordinator
-        webView.customUserAgent = XProfileScraper.userAgent
+        webView.customUserAgent = sakuraUserAgent
 
         if let loginURL = URL(string: "https://x.com/i/flow/login") {
             webView.load(URLRequest(url: loginURL))

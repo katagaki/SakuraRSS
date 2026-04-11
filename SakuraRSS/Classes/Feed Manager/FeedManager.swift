@@ -77,6 +77,12 @@ final class FeedManager {
         )
         generateAcronymIcon(feedID: feedID, title: title)
         loadFromDatabase()
+        // Fetch the feed's articles in the background
+        if let feed = feedsByID[feedID] {
+            Task {
+                try? await refreshFeed(feed)
+            }
+        }
     }
 
     func deleteFeed(_ feed: Feed) throws {

@@ -79,6 +79,7 @@ struct FeedArticleRow: View {
     @State private var feed: Feed?
     @State private var showSafari = false
     @State private var imageAspectRatio: CGFloat?
+    @State private var hideImage = false
 
     private var imageHeight: CGFloat {
         if UIDevice.current.userInterfaceIdiom == .pad {
@@ -180,10 +181,16 @@ struct FeedArticleRow: View {
                         .contentMargins(.horizontal, 0)
                         .padding(.top, 4)
                     }
-                } else if let imageURL = article.imageURL, let url = URL(string: imageURL) {
-                    CachedAsyncImage(url: url, alignment: imageAspectRatio ?? 0 > 1 ? .leading : .top,
+                } else if !hideImage, let imageURL = article.imageURL, let url = URL(string: imageURL) {
+                    let shouldCenter = feed.map { CenteredImageDomains.shouldCenterImage(feedDomain: $0.domain) } ?? false
+                    CachedAsyncImage(url: url, alignment: shouldCenter ? .center : (imageAspectRatio ?? 0 > 1 ? .leading : .top),
                                      onImageLoaded: { image in
                         imageAspectRatio = image.size.height / image.size.width
+                        let pixelWidth = image.size.width * image.scale
+                        let pixelHeight = image.size.height * image.scale
+                        if pixelWidth <= 100 && pixelHeight <= 100 {
+                            hideImage = true
+                        }
                     }, placeholder: {
                         Color.secondary.opacity(0.1)
                             .frame(height: imageHeight)

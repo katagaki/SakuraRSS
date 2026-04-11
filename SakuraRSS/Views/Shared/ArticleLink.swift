@@ -105,7 +105,7 @@ struct ArticleLink<Label: View>: View {
                 } label: {
                     label()
                 }
-            } else if let url = URL(string: article.url), SafariDomains.shouldOpenInSafari(url: url) {
+            } else if let url = URL(string: article.url), OpenInBrowserDomains.shouldOpenInBrowser(url: url) {
                 Button {
                     feedManager.markRead(article)
                     showSafari = true

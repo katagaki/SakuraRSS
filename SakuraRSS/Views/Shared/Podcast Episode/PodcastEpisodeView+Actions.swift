@@ -5,13 +5,6 @@ extension PodcastEpisodeView {
     var actionButtons: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 8) {
-                if transcript != nil {
-                    Button {
-                        showingTranscript.toggle()
-                    } label: {
-                        Label("Podcast.Transcript", systemImage: "text.quote")
-                    }
-                }
                 TranslateButton(
                     hasTranslation: hasTranslationForCurrentMode,
                     isTranslating: isTranslating,

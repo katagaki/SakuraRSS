@@ -110,7 +110,7 @@ struct ArticleExtractor { // swiftlint:disable:this type_body_length
         do {
             var request = URLRequest(url: url)
             request.setValue(
-                "Mozilla/5.0 (compatible; SakuraRSS/1.0)",
+                sakuraUserAgent,
                 forHTTPHeaderField: "User-Agent"
             )
             let (data, _) = try await URLSession.shared.data(for: request)

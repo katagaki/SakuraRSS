@@ -96,6 +96,10 @@ struct PodcastEpisodeView: View {
                     .aspectRatio(contentMode: .fit)
                     .frame(maxWidth: 300, maxHeight: 300)
                     .clipShape(RoundedRectangle(cornerRadius: 16))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 16)
+                            .stroke(.quaternary, lineWidth: 0.5)
+                    )
                     .shadow(radius: 8, y: 4)
                     .padding(.horizontal, 40)
                 }
@@ -146,49 +150,34 @@ struct PodcastEpisodeView: View {
                             onSeek: { audioPlayer.seek(to: $0) }
                         )
 
-                        // Transport controls
-                        HStack(spacing: 40) {
-                            Button { audioPlayer.skipBackward() } label: {
-                                Image(systemName: "gobackward.15")
-                                    .font(.title2)
-                            }
+                        // Transport controls with transcript toggle and speed
+                        HStack {
+                            transcriptToggle
+                                .frame(maxWidth: .infinity, alignment: .leading)
 
-                            Button { audioPlayer.togglePlayPause() } label: {
-                                Image(systemName: audioPlayer.isPlaying
-                                      ? "pause.circle.fill"
-                                      : "play.circle.fill")
-                                    .font(.system(size: 72))
-                            }
+                            HStack(spacing: 40) {
+                                Button { audioPlayer.skipBackward() } label: {
+                                    Image(systemName: "gobackward.15")
+                                        .font(.title2)
+                                }
 
-                            Button { audioPlayer.skipForward() } label: {
-                                Image(systemName: "goforward.30")
-                                    .font(.title2)
-                            }
-                        }
-                        .foregroundStyle(.primary)
+                                Button { audioPlayer.togglePlayPause() } label: {
+                                    Image(systemName: audioPlayer.isPlaying
+                                          ? "pause.circle.fill"
+                                          : "play.circle.fill")
+                                        .font(.system(size: 72))
+                                }
 
-                        // Playback speed menu
-                        Menu {
-                            Picker("Podcast.PlaybackSpeed", selection: $playbackSpeed) {
-                                ForEach(playbackSpeedPresets, id: \.self) { preset in
-                                    Text(formatSpeed(preset))
-                                        .tag(preset)
+                                Button { audioPlayer.skipForward() } label: {
+                                    Image(systemName: "goforward.30")
+                                        .font(.title2)
                                 }
                             }
-                        } label: {
-                            Text(formatSpeed(playbackSpeed))
-                                .font(.subheadline)
-                                .fontWeight(.semibold)
-                                .padding(.horizontal, 12)
-                                .padding(.vertical, 6)
-                                .background(
-                                    Capsule()
-                                        .fill(.secondary.opacity(0.15))
-                                )
+
+                            playbackSpeedMenu
+                                .frame(maxWidth: .infinity, alignment: .trailing)
                         }
-                        .onChange(of: playbackSpeed) { _, newValue in
-                            audioPlayer.setPlaybackRate(Float(newValue))
-                        }
+                        .foregroundStyle(.primary)
                     }
                     .padding(.horizontal)
                 } else {
@@ -317,6 +306,53 @@ struct PodcastEpisodeView: View {
         }
         .translationTask(translationConfig) { session in
             await handleTranslation(session: session)
+        }
+    }
+
+    private var transcriptToggle: some View {
+        Button {
+            withAnimation(.smooth.speed(2.0)) {
+                showingTranscript.toggle()
+            }
+        } label: {
+            Image(systemName: "quote.bubble")
+                .font(.title3)
+                .foregroundStyle(showingTranscript ? AnyShapeStyle(.tint) : AnyShapeStyle(.secondary))
+        }
+        .buttonStyle(.plain)
+        .disabled(transcript == nil)
+    }
+
+    private var playbackSpeedMenu: some View {
+        Menu {
+            Picker("Podcast.PlaybackSpeed", selection: $playbackSpeed) {
+                ForEach(playbackSpeedPresets, id: \.self) { preset in
+                    Text(formatSpeed(preset))
+                        .tag(preset)
+                }
+            }
+        } label: {
+            Image(systemName: gaugeIcon(for: playbackSpeed))
+                .font(.title3)
+                .foregroundStyle(.primary)
+        }
+        .onChange(of: playbackSpeed) { _, newValue in
+            audioPlayer.setPlaybackRate(Float(newValue))
+        }
+    }
+
+    private func gaugeIcon(for speed: Double) -> String {
+        switch speed {
+        case ...0.75:
+            return "gauge.with.dots.needle.0percent"
+        case 0.76...1.0:
+            return "gauge.with.dots.needle.33percent"
+        case 1.01...1.5:
+            return "gauge.with.dots.needle.50percent"
+        case 1.51...2.0:
+            return "gauge.with.dots.needle.67percent"
+        default:
+            return "gauge.with.dots.needle.100percent"
         }
     }
 

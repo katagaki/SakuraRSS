@@ -70,7 +70,7 @@ extension InstagramProfileScraper {
         let config = WKWebViewConfiguration()
         config.websiteDataStore = .default()
         let webView = WKWebView(frame: .zero, configuration: config)
-        webView.customUserAgent = userAgent
+        webView.customUserAgent = sakuraUserAgent
 
         guard let url = URL(string: "https://www.instagram.com/") else { return }
         webView.load(URLRequest(url: url, timeoutInterval: 10))
@@ -127,7 +127,7 @@ extension InstagramProfileScraper {
 
     func buildRequest(url: URL, cookies: InstagramCookies) -> URLRequest {
         var request = URLRequest(url: url, timeoutInterval: 15)
-        request.setValue(Self.userAgent, forHTTPHeaderField: "User-Agent")
+        request.setValue(sakuraUserAgent, forHTTPHeaderField: "User-Agent")
         request.setValue(cookies.csrfToken, forHTTPHeaderField: "x-csrftoken")
         request.setValue("XMLHttpRequest", forHTTPHeaderField: "x-requested-with")
         request.setValue("https://www.instagram.com/", forHTTPHeaderField: "referer")

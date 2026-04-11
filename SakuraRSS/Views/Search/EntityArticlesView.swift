@@ -60,6 +60,23 @@ struct EntityArticlesView: View {
         }
         .navigationTitle(destination.name)
         .toolbarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItemGroup(placement: .topBarTrailing) {
+                Menu {
+                    DisplayStylePicker(
+                        displayStyle: $searchDisplayStyle,
+                        hasImages: hasImages,
+                        showTimeline: false,
+                        showVideo: false,
+                        showPodcast: false
+                    )
+                } label: {
+                    Image(systemName: "line.3.horizontal.decrease")
+                }
+                .menuActionDismissBehavior(.disabled)
+            }
+        }
+        .animation(.smooth.speed(2.0), value: searchDisplayStyle)
         .task {
             await loadArticles()
         }
