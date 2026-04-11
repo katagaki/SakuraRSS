@@ -10,6 +10,7 @@ struct DiscoverView: View {
     @State private var allTopics: [(name: String, count: Int)] = []
     @State private var allPeople: [(name: String, count: Int)] = []
     @State private var showingClearConfirmation = false
+    @State private var refreshID = 0
 
     private var hasContent: Bool {
         !recentArticles.isEmpty
@@ -47,8 +48,11 @@ struct DiscoverView: View {
                 }
             }
         }
-        .task {
+        .task(id: refreshID) {
             await loadData()
+        }
+        .onAppear {
+            refreshID += 1
         }
         .confirmationDialog(
             "Discover.ClearHistory.Confirm",
