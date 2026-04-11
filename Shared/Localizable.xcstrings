@@ -17573,55 +17573,55 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Inhalte"
+            "value": "Schlagzeilen, Themen, Personen"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Content"
+            "value": "Headlines, Topics, People"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Contenu"
+            "value": "Titres, Sujets, Personnes"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Contenuti"
+            "value": "Titoli, Argomenti, Persone"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "コンテンツ"
+            "value": "見出し、トピック、人物"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "콘텐츠"
+            "value": "헤드라인, 주제, 인물"
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nội dung"
+            "value": "Tiêu đề, Chủ đề, Nhân vật"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "内容"
+            "value": "标题、话题、人物"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "內容"
+            "value": "標題、話題、人物"
           }
         }
       }
