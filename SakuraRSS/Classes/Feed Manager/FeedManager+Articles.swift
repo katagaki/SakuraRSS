@@ -57,6 +57,7 @@ extension FeedManager {
 
     func markRead(_ article: Article) {
         try? database.markArticleRead(id: article.id, read: true)
+        try? database.updateLastAccessed(articleID: article.id)
         loadFromDatabase()
         updateBadgeCount()
     }
@@ -96,6 +97,17 @@ extension FeedManager {
             return unreadCounts.values.reduce(0, +)
         }
         return unreadCounts.filter { !muted.contains($0.key) }.values.reduce(0, +)
+    }
+
+    // MARK: - Recently Accessed
+
+    func recentlyAccessedArticles() -> [Article] {
+        (try? database.recentlyAccessedArticles()) ?? []
+    }
+
+    func clearAccessHistory() {
+        try? database.clearAccessHistory()
+        loadFromDatabase()
     }
 
     // MARK: - Section Queries

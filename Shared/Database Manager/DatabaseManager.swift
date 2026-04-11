@@ -53,6 +53,7 @@ nonisolated final class DatabaseManager: @unchecked Sendable {
     let articleSentimentProcessed = SQLite.Expression<Bool>("sentiment_processed")
     let articleEntitiesProcessed = SQLite.Expression<Bool>("entities_processed")
     let articleSimilarComputed = SQLite.Expression<Bool>("similar_computed")
+    let articleLastAccessed = SQLite.Expression<Double?>("last_accessed")
     let articleDownloadPath = SQLite.Expression<String?>("download_path")
     let articleTranscriptJSON = SQLite.Expression<String?>("transcript_json")
 

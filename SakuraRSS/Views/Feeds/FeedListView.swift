@@ -11,9 +11,7 @@ struct FeedListView: View {
 
     var body: some View {
         NavigationStack(path: $path) {
-            FeedsListPage { feed in
-                    path.append(feed)
-                }
+            FeedsListPage()
                 .environment(\.navigateToFeed, { feed in path.append(feed) })
                 .navigationDestination(for: Feed.self) { feed in
                     FeedArticlesView(feed: feed)

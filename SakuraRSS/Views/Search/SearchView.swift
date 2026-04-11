@@ -2,16 +2,10 @@ import SwiftUI
 
 struct SearchView: View {
 
-    enum SearchTab: String, CaseIterable {
-        case search, topics, people
-    }
-
     @Environment(FeedManager.self) var feedManager
     @AppStorage("Search.DisplayStyle") private var searchDisplayStyle: FeedDisplayStyle = .inbox
-    @AppStorage("Intelligence.ContentInsights.Enabled") private var contentInsightsEnabled: Bool = false
     @State private var searchText = ""
     @State private var searchResults: [Article] = []
-    @State private var selectedTab: SearchTab = .search
     @State private var path = NavigationPath()
     @Namespace private var cardZoom
 
@@ -31,33 +25,19 @@ struct SearchView: View {
 
     var body: some View {
         NavigationStack(path: $path) {
-            VStack(spacing: 0) {
-                if contentInsightsEnabled {
-                    Picker("", selection: $selectedTab) {
-                        Text("Search.Tab.Search").tag(SearchTab.search)
-                        Text("Search.Tab.Topics").tag(SearchTab.topics)
-                        Text("Search.Tab.People").tag(SearchTab.people)
-                    }
-                    .pickerStyle(.segmented)
-                    .padding(.horizontal)
-                    .padding(.vertical, 8)
+            Group {
+                if searchText.isEmpty {
+                    DiscoverView()
+                } else {
+                    searchResultsContent
                 }
-
-                Group {
-                    switch selectedTab {
-                    case .search:
-                        searchContent
-                    case .topics:
-                        TopicsView(filterText: searchText)
-                    case .people:
-                        PeopleView(filterText: searchText)
-                    }
-                }
-                .frame(maxHeight: .infinity)
             }
             .scrollContentBackground(.hidden)
             .sakuraBackground()
             .environment(\.zoomNamespace, cardZoom)
+            .navigationTitle(searchText.isEmpty
+                ? LocalizedStringKey("Discover.Title")
+                : LocalizedStringKey("Search.Results.Title"))
             .navigationDestination(for: Article.self) { article in
                 Group {
                     if article.isPodcastEpisode {
@@ -74,7 +54,7 @@ struct SearchView: View {
                     .environment(\.zoomNamespace, cardZoom)
             }
             .toolbar {
-                if selectedTab == .search {
+                if !searchText.isEmpty {
                     ToolbarItemGroup(placement: .topBarTrailing) {
                         Menu {
                             DisplayStylePicker(
@@ -92,8 +72,7 @@ struct SearchView: View {
                 }
             }
             .animation(.smooth.speed(2.0), value: searchDisplayStyle)
-            .animation(.smooth.speed(2.0), value: selectedTab)
-            .searchable(text: $searchText, prompt: searchPrompt)
+            .searchable(text: $searchText, prompt: "Search.Prompt")
             .task(id: searchText) {
                 let query = searchText
                 guard !query.isEmpty else {
@@ -109,37 +88,17 @@ struct SearchView: View {
                     searchResults = results
                 }
             }
-            .onChange(of: contentInsightsEnabled) { _, newValue in
-                if !newValue && selectedTab != .search {
-                    selectedTab = .search
-                }
-            }
-        }
-    }
-
-    private var searchPrompt: LocalizedStringKey {
-        switch selectedTab {
-        case .search: "Search.Prompt"
-        case .topics: "Search.Prompt.Topics"
-        case .people: "Search.Prompt.People"
         }
     }
 
     @ViewBuilder
-    private var searchContent: some View {
+    private var searchResultsContent: some View {
         DisplayStyleContentView(
             style: effectiveStyle,
             articles: searchResults
         )
         .overlay {
-            if searchText.isEmpty {
-                ContentUnavailableView {
-                    Label("Search.Empty.Title",
-                          systemImage: "magnifyingglass")
-                } description: {
-                    Text("Search.Empty.Description")
-                }
-            } else if searchResults.isEmpty {
+            if searchResults.isEmpty {
                 ContentUnavailableView {
                     Label("Search.NoResults.Title",
                           systemImage: "magnifyingglass")

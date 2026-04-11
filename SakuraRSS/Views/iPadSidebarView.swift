@@ -25,7 +25,6 @@ struct IPadSidebarView: View {
     @State private var showingAddFeed = false
     @State private var showingNewList = false
     @State private var showingMore = false
-    @State private var lastAddedFeedURL: String?
     @State private var showingOnboarding = false
     @State private var showYouTubeSafari = false
     @State private var pendingYouTubeSafariURL: URL?
@@ -92,19 +91,9 @@ struct IPadSidebarView: View {
             detailContent
         }
         .sheet(isPresented: $showingAddFeed) {
-            if let url = lastAddedFeedURL,
-               let feed = feedManager.feeds.first(where: { $0.url == url }) {
-                lastAddedFeedURL = nil
-                selectedDestination = .feed(feed)
-                Task {
-                    try? await feedManager.refreshFeed(feed)
-                }
-            }
             pendingFeedURL = nil
         } content: {
-            AddFeedView(initialURL: pendingFeedURL ?? "", onFeedAdded: { url in
-                lastAddedFeedURL = url
-            })
+            AddFeedView(initialURL: pendingFeedURL ?? "")
                 .environment(feedManager)
         }
         .sheet(isPresented: $showingOnboarding) {

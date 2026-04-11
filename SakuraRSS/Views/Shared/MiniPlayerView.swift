@@ -45,19 +45,21 @@ struct MiniPlayerView: View {
                             .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
+
+                    Button {
+                        audioPlayer.stop()
+                    } label: {
+                        Image(systemName: "stop.fill")
+                            .font(.title3)
+                            .frame(width: 32, height: 32)
+                            .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
                 }
                 .padding(.horizontal, 12)
                 .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
-        } else {
-            HStack {
-                Text("Podcast.NotPlaying")
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-                Spacer()
-            }
-            .padding(.horizontal, 16)
         }
     }
 

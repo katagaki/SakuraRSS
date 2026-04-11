@@ -170,6 +170,7 @@ final class XProfileScraper {
     /// time to load.
     @MainActor
     static func hasXSession() async -> Bool {
+        await warmCookieStore()
         let store = WKWebsiteDataStore.default()
         let cookies = await store.httpCookieStore.allCookies()
         let found = cookies.contains { cookie in

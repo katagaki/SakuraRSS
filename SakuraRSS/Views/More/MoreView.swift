@@ -26,9 +26,9 @@ struct MoreView: View {
         NavigationStack {
             List {
                 Section {
-                    ReadingAnalyticsView()
+                    AnalyticsView()
                 } header: {
-                    Text("Settings.Section.ReadingAnalytics")
+                    Text("Settings.Section.Analytics")
                 }
 
                 Section {
