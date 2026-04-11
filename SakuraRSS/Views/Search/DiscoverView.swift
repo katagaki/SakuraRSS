@@ -245,7 +245,7 @@ struct DiscoverView: View {
 
     // MARK: - Daily Deterministic Shuffle
 
-    private static func dailyShuffled(_ items: [DiscoverEntitySection]) -> [DiscoverEntitySection] {
+    private nonisolated static func dailyShuffled(_ items: [DiscoverEntitySection]) -> [DiscoverEntitySection] {
         guard items.count > 1 else { return items }
         let calendar = Calendar.current
         let day = calendar.ordinality(of: .day, in: .year, for: Date()) ?? 1
