@@ -3,10 +3,8 @@ import SwiftUI
 struct FeedsListPage: View {
 
     @Environment(FeedManager.self) var feedManager
-    var onNavigateToFeed: ((Feed) -> Void)?
     @State private var isShowingAddFeed = false
     @State private var searchText = ""
-    @State private var lastAddedFeedURL: String?
     @State private var feedToEdit: Feed?
     @State private var feedToDelete: Feed?
     @State private var feedForRules: Feed?
@@ -88,23 +86,9 @@ struct FeedsListPage: View {
         .scrollContentBackground(.hidden)
         .sakuraBackground()
         .sheet(isPresented: $isShowingAddFeed) {
-            if let url = lastAddedFeedURL,
-               let feed = feedManager.feeds.first(where: { $0.url == url }) {
-                lastAddedFeedURL = nil
-                onNavigateToFeed?(feed)
-                Task {
-                    try? await feedManager.refreshFeed(feed)
-                    // Pre-warm the favicon cache so the feed row picks it up.
-                    _ = await FaviconCache.shared.favicon(for: feed)
-                    feedManager.notifyFaviconChange()
-                }
-            }
-        } content: {
-            AddFeedView { url in
-                lastAddedFeedURL = url
-            }
-            .presentationDetents([.medium, .large])
-            .navigationTransition(.zoom(sourceID: "addFeed", in: addFeedNamespace))
+            AddFeedView()
+                .presentationDetents([.medium, .large])
+                .navigationTransition(.zoom(sourceID: "addFeed", in: addFeedNamespace))
         }
         .overlay {
             if feedManager.feeds.isEmpty {
