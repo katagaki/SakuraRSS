@@ -1,6 +1,8 @@
 import AudioKit
 import AVFoundation
+import CoreMedia
 import Foundation
+import NaturalLanguage
 import Speech
 
 enum PodcastTranscriberError: Error {
@@ -34,7 +36,7 @@ enum PodcastTranscriber {
     /// Exact API surface of iOS 26's Speech framework may require light adjustment:
     /// results are consumed via the transcriber's `results` AsyncSequence and carry
     /// `.audioTimeRange` attributes on the text's character ranges.
-    static func transcribe(audioFileURL: URL) async throws -> [TranscriptSegment] {
+    static func transcribe(audioFileURL: URL, title: String) async throws -> [TranscriptSegment] {
         guard FileManager.default.fileExists(atPath: audioFileURL.path) else {
             throw PodcastTranscriberError.audioFileUnreadable
         }
@@ -44,8 +46,8 @@ enum PodcastTranscriber {
         let fileToTranscribe: URL = audioFileURL.deletingPathExtension().appendingPathExtension("wav")
         var options = FormatConverter.Options()
         options.format = .wav
-        options.sampleRate = 48000
-        options.bitDepth = 24
+        options.sampleRate = 16000
+        options.bitDepth = 16
         options.channels = 1
         let converter = FormatConverter(
             inputURL: audioFileURL,
@@ -75,8 +77,21 @@ enum PodcastTranscriber {
         debugPrint("[PodcastTranscriber] Using file at \(fileToTranscribe.path()) for speech recognition")
         #endif
 
+        let recognizer = NLLanguageRecognizer()
+        recognizer.processString(title)
+        let detected = recognizer.dominantLanguage
+        let locale: Locale
+        if let detected {
+            locale = Locale(identifier: detected.rawValue)
+        } else {
+            locale = .current
+        }
+        #if DEBUG
+        debugPrint("[PodcastTranscriber] Detected language '\(detected?.rawValue ?? "unknown")' from title, using locale \(locale.identifier)")
+        #endif
+
         let transcriber = SpeechTranscriber(
-            locale: .current,
+            locale: locale,
             transcriptionOptions: [],
             reportingOptions: [],
             attributeOptions: []
@@ -86,7 +101,10 @@ enum PodcastTranscriber {
 
         #if DEBUG
         debugPrint("[PodcastTranscriber] Audio file format: \(audioFile.fileFormat), processing with \(audioFile.processingFormat)")
+        debugPrint("[PodcastTranscriber] Compatible formats: \(await transcriber.availableCompatibleAudioFormats)")
         #endif
+
+        try await analyzer.prepareToAnalyze(in: audioFile.processingFormat)
 
         let collectionTask = Task { () throws -> [TranscriptSegment] in
             var segments: [TranscriptSegment] = []
@@ -96,10 +114,11 @@ enum PodcastTranscriber {
                     .trimmingCharacters(in: .whitespacesAndNewlines)
                 guard !text.isEmpty else { continue }
 
+                let timeRange = result.range
                 segments.append(TranscriptSegment(
                     id: nextID,
-                    start: 0,
-                    end: 0,
+                    start: CMTimeGetSeconds(timeRange.start),
+                    end: CMTimeGetSeconds(timeRange.start + timeRange.duration),
                     text: text
                 ))
                 nextID += 1

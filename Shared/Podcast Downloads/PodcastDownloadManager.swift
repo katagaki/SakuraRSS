@@ -4,14 +4,12 @@ import Observation
 enum DownloadState: Sendable {
     case idle
     case downloading
-    case transcribing
     case completed
     case failed
 }
 
 struct DownloadProgress: Sendable {
     var state: DownloadState
-    /// 0.0 – 0.8 reflects download progress; 0.8 – 1.0 reflects transcription progress.
     var progress: Double
     var error: String?
 }
@@ -165,10 +163,16 @@ final class PodcastDownloadManager: NSObject, URLSessionDownloadDelegate {
         let relativePath = "\(articleID)/\(name)"
         try DatabaseManager.shared.setDownloadPath(relativePath, for: articleID)
 
-        activeDownloads[articleID] = DownloadProgress(state: .transcribing, progress: 0.8)
+        markCompleted(articleID: articleID)
 
-        // Trigger transcription if available; completion handled there.
-        await attemptTranscription(articleID: articleID, fileURL: destination)
+        // Transcribe in the background without blocking the UI.
+        let title = article.title
+        let transcriptionTask = Task.detached(priority: .utility) {
+            await self.attemptTranscription(articleID: articleID, fileURL: destination, title: title)
+        }
+        await MainActor.run {
+            transcriptionTasks[articleID] = Task { await transcriptionTask.value }
+        }
     }
 
     // MARK: - URLSessionDownloadDelegate
@@ -190,10 +194,9 @@ final class PodcastDownloadManager: NSObject, URLSessionDownloadDelegate {
             } else {
                 fraction = 0
             }
-            // Map download progress to 0.0–0.8 range.
             activeDownloads[articleID] = DownloadProgress(
                 state: .downloading,
-                progress: fraction * 0.8
+                progress: fraction
             )
         }
     }
@@ -239,22 +242,21 @@ final class PodcastDownloadManager: NSObject, URLSessionDownloadDelegate {
 
     // MARK: - Transcription
 
-    private func attemptTranscription(articleID: Int64, fileURL: URL) async {
-        guard await PodcastTranscriber.isAvailable else {
-            markCompleted(articleID: articleID)
+    private func attemptTranscription(articleID: Int64, fileURL: URL, title: String) async {
+        let transcribeEnabled = UserDefaults.standard.object(forKey: "Podcast.TranscribeDuringDownload") as? Bool ?? false
+        guard transcribeEnabled, await PodcastTranscriber.isAvailable else {
             return
         }
         do {
             #if DEBUG
             debugPrint("Transcribing article \(articleID) located at \(fileURL.path())")
             #endif
-            let segments = try await PodcastTranscriber.transcribe(audioFileURL: fileURL)
+            let segments = try await PodcastTranscriber.transcribe(audioFileURL: fileURL, title: title)
             try DatabaseManager.shared.cacheTranscript(segments, for: articleID)
         } catch {
             // Transcription failure is non-fatal; download still succeeded.
             print("Transcription failed for article \(articleID): \(error)")
         }
-        markCompleted(articleID: articleID)
     }
 
     private func markCompleted(articleID: Int64) {

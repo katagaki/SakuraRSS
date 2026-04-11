@@ -3,6 +3,7 @@ import SwiftUI
 struct PodcastSettingsView: View {
 
     @AppStorage("Podcast.PlaybackSpeed") private var playbackSpeed: Double = 1.0
+    @AppStorage("Podcast.TranscribeDuringDownload") private var transcribeDuringDownload: Bool = false
 
     @State private var downloadsSize: Int64 = 0
     @State private var showDeleteDownloadsConfirmation = false
@@ -44,6 +45,7 @@ struct PodcastSettingsView: View {
             }
 
             Section {
+                Toggle("Podcast.Transcripts.TranscribeDuringDownload", isOn: $transcribeDuringDownload)
                 Button(role: .destructive) {
                     showDeleteTranscriptsConfirmation = true
                 } label: {
