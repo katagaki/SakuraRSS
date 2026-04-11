@@ -268,7 +268,7 @@ struct DiscoverEntitySection: Identifiable {
 }
 
 /// A simple seeded random number generator for deterministic daily shuffles.
-private struct DailyRNG: RandomNumberGenerator {
+private nonisolated struct DailyRNG: RandomNumberGenerator {
     private var state: UInt64
 
     init(seed: UInt64) {
