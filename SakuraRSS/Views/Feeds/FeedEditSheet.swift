@@ -32,7 +32,7 @@ struct FeedEditSheet: View {
                             .frame(maxWidth: .infinity)
                             .labelsHidden()
                     }
-                    if feed.isXFeed || feed.isInstagramFeed {
+                    if feed.isXFeed || feed.isInstagramFeed || feed.isYouTubePlaylistFeed {
                         HStack {
                             Text("FeedEdit.URL")
                             Spacer()
@@ -137,7 +137,7 @@ struct FeedEditSheet: View {
                     Text("FeedEdit.Icon")
                 }
 
-                if !feed.isXFeed && !feed.isInstagramFeed {
+                if !feed.isXFeed && !feed.isInstagramFeed && !feed.isYouTubePlaylistFeed {
                     Section {
                         Picker("FeedEdit.OpenIn", selection: $openMode) {
                             Text("FeedEdit.OpenIn.InAppViewer")
@@ -183,7 +183,11 @@ struct FeedEditSheet: View {
                 guard !hasInitialized else { return }
                 hasInitialized = true
                 name = feed.title
-                url = feed.url
+                if feed.isXFeed || feed.isInstagramFeed || feed.isYouTubePlaylistFeed {
+                    url = feed.siteURL
+                } else {
+                    url = feed.url
+                }
                 let existingIconURL = feed.customIconURL
                 iconURLInput = (
                     existingIconURL == "photo" || existingIconURL == "none"
