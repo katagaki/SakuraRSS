@@ -58,12 +58,19 @@ struct FeedEditSheet: View {
                     if useDefaultIcon {
                         HStack {
                             Spacer()
-                            InitialsAvatarView(
-                                name.isEmpty ? feed.title : name,
-                                size: 64,
-                                circle: feed.isCircleIcon,
-                                cornerRadius: iconCornerRadius(size: 64)
-                            )
+                            if let data = feed.acronymIcon, let acronym = UIImage(data: data) {
+                                FaviconImage(acronym, size: 64,
+                                             cornerRadius: iconCornerRadius(size: 64),
+                                             circle: feed.isCircleIcon,
+                                             skipInset: true)
+                            } else {
+                                InitialsAvatarView(
+                                    name.isEmpty ? feed.title : name,
+                                    size: 64,
+                                    circle: feed.isCircleIcon,
+                                    cornerRadius: iconCornerRadius(size: 64)
+                                )
+                            }
                             Spacer()
                         }
                     } else if let icon = customIconImage ?? currentFavicon {
