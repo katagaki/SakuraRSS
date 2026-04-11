@@ -18,8 +18,8 @@ struct QwenTranscriberEngine: TranscriptionEngine {
     var isModelDownloaded: Bool {
         let dir = Self.modelDirectory
         guard FileManager.default.fileExists(atPath: dir.path) else { return false }
-        let contents = (try? FileManager.default.contentsOfDirectory(atPath: dir.path)) ?? []
-        return !contents.isEmpty
+        // Check recursively for a CoreML model file, which indicates successful download.
+        return Self.containsFile(withSuffix: ".mlmodelc", in: dir)
     }
 
     var isAvailable: Bool {
@@ -57,8 +57,7 @@ struct QwenTranscriberEngine: TranscriptionEngine {
         #endif
 
         let model = try await Qwen3ASRModel.fromPretrained(
-            cacheDir: Self.modelDirectory,
-            offlineMode: true
+            cacheDir: Self.modelDirectory
         )
 
         #if DEBUG
@@ -95,5 +94,22 @@ struct QwenTranscriberEngine: TranscriptionEngine {
             text: text,
             totalDuration: duration
         )
+    }
+
+    // MARK: - Helpers
+
+    /// Recursively checks if a file with the given suffix exists inside a directory.
+    private static func containsFile(withSuffix suffix: String, in directory: URL) -> Bool {
+        guard let enumerator = FileManager.default.enumerator(
+            at: directory,
+            includingPropertiesForKeys: nil,
+            options: [.skipsHiddenFiles]
+        ) else { return false }
+        for case let url as URL in enumerator {
+            if url.lastPathComponent.hasSuffix(suffix) {
+                return true
+            }
+        }
+        return false
     }
 }

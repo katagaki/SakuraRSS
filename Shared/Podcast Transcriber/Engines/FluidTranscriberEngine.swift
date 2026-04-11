@@ -17,10 +17,9 @@ struct FluidTranscriberEngine: TranscriptionEngine {
 
     var isModelDownloaded: Bool {
         let dir = Self.modelDirectory
-        // Check if the cache directory exists and contains model files.
         guard FileManager.default.fileExists(atPath: dir.path) else { return false }
-        let contents = (try? FileManager.default.contentsOfDirectory(atPath: dir.path)) ?? []
-        return !contents.isEmpty
+        // Check recursively for vocab.json which is required by the model.
+        return Self.containsFile(named: "vocab.json", in: dir)
     }
 
     var isAvailable: Bool {
@@ -32,6 +31,7 @@ struct FluidTranscriberEngine: TranscriptionEngine {
         debugPrint("[ParakeetEngine] Downloading Parakeet TDT v3 model")
         #endif
         try FileManager.default.createDirectory(at: Self.modelDirectory, withIntermediateDirectories: true)
+        // Download without offline mode — the library will fetch and cache.
         _ = try await ParakeetASRModel.fromPretrained(cacheDir: Self.modelDirectory)
         #if DEBUG
         debugPrint("[ParakeetEngine] Model download complete")
@@ -57,9 +57,9 @@ struct FluidTranscriberEngine: TranscriptionEngine {
         debugPrint("[ParakeetEngine] Loading Parakeet TDT v3 model")
         #endif
 
+        // Use the same cacheDir — the library finds its cached files automatically.
         let model = try await ParakeetASRModel.fromPretrained(
-            cacheDir: Self.modelDirectory,
-            offlineMode: true
+            cacheDir: Self.modelDirectory
         )
 
         #if DEBUG
@@ -95,6 +95,21 @@ struct FluidTranscriberEngine: TranscriptionEngine {
     }
 
     // MARK: - Helpers
+
+    /// Recursively checks if a file with the given name exists inside a directory.
+    private static func containsFile(named fileName: String, in directory: URL) -> Bool {
+        guard let enumerator = FileManager.default.enumerator(
+            at: directory,
+            includingPropertiesForKeys: nil,
+            options: [.skipsHiddenFiles]
+        ) else { return false }
+        for case let url as URL in enumerator {
+            if url.lastPathComponent == fileName {
+                return true
+            }
+        }
+        return false
+    }
 
     /// Splits text into sentences and assigns evenly distributed timestamps.
     static func distributeTimestamps(text: String, totalDuration: TimeInterval) -> [TranscriptSegment] {
