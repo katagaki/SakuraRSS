@@ -10,6 +10,10 @@ import Speech
 /// in a system daemon). Requires speech recognition authorization.
 struct SpeechTranscriberEngine: TranscriptionEngine {
 
+    static let requiresModelDownload = false
+
+    var isModelDownloaded: Bool { true }
+
     var isAvailable: Bool {
         get async {
             let current = SFSpeechRecognizer.authorizationStatus()
@@ -28,8 +32,7 @@ struct SpeechTranscriberEngine: TranscriptionEngine {
         }
 
         // Convert compressed audio (MP3, AAC, Opus, etc.) to 16 kHz mono PCM WAV.
-        let sourceFile = try AVAudioFile(forReading: audioFileURL)
-        let pcmURL = try await convertToPCM(sourceFile: sourceFile)
+        let pcmURL = try await Self.convertToPCM(inputURL: audioFileURL)
         defer { try? FileManager.default.removeItem(at: pcmURL) }
 
         #if DEBUG
@@ -106,8 +109,14 @@ struct SpeechTranscriberEngine: TranscriptionEngine {
     // MARK: - Format Conversion
 
     /// Converts a compressed audio file to 16 kHz mono Int16 PCM WAV.
-    private func convertToPCM(sourceFile: AVAudioFile) async throws -> URL {
-        try await Task.detached(priority: .utility) {
+    ///
+    /// Both `AVAudioFile` instances are created and consumed within the same
+    /// synchronous closure to avoid Sendable issues across task boundaries.
+    private static func convertToPCM(inputURL: URL) async throws -> URL {
+        let url = inputURL
+        return try await Task.detached(priority: .utility) {
+            let sourceFile = try AVAudioFile(forReading: url)
+
             guard let outputFormat = AVAudioFormat(
                 commonFormat: .pcmFormatInt16,
                 sampleRate: 16000,

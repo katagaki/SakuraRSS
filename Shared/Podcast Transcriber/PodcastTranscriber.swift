@@ -4,6 +4,8 @@ import Foundation
 ///
 /// Reads the user's engine preference from UserDefaults and delegates
 /// to the corresponding ``TranscriptionEngine`` implementation.
+/// Skips transcription entirely if the selected engine requires a model
+/// that hasn't been downloaded yet.
 enum PodcastTranscriber {
 
     private static var selectedEngineType: TranscriptionEngineType {
@@ -14,7 +16,7 @@ enum PodcastTranscriber {
         return type
     }
 
-    private static func engine(for type: TranscriptionEngineType) -> (any TranscriptionEngine)? {
+    static func engine(for type: TranscriptionEngineType) -> (any TranscriptionEngine)? {
         switch type {
         case .off:     return nil
         case .speech:  return SpeechTranscriberEngine()
@@ -26,18 +28,27 @@ enum PodcastTranscriber {
 
     // MARK: - Public API
 
-    /// Whether transcription is enabled and the selected engine is available.
+    /// Whether transcription is enabled, the selected engine is available,
+    /// and any required models are downloaded.
     static var isAvailable: Bool {
         get async {
             guard let engine = engine(for: selectedEngineType) else { return false }
+            // Skip if engine needs a model that isn't downloaded yet.
+            if type(of: engine).requiresModelDownload && !engine.isModelDownloaded {
+                return false
+            }
             return await engine.isAvailable
         }
     }
 
     /// Transcribes a local audio file using the user's selected engine.
+    /// Returns nil if the engine's model hasn't been downloaded.
     static func transcribe(audioFileURL: URL, title: String) async throws -> [TranscriptSegment] {
         guard let engine = engine(for: selectedEngineType) else {
             throw TranscriptionEngineError.notAvailable
+        }
+        if type(of: engine).requiresModelDownload && !engine.isModelDownloaded {
+            throw TranscriptionEngineError.modelNotDownloaded
         }
         return try await engine.transcribe(audioFileURL: audioFileURL, title: title)
     }

@@ -8,6 +8,10 @@ struct PodcastSettingsView: View {
     @State private var downloadsSize: Int64 = 0
     @State private var showDeleteDownloadsConfirmation = false
     @State private var showDeleteTranscriptsConfirmation = false
+    @State private var showDeleteModelConfirmation = false
+    @State private var isDownloadingModel = false
+    @State private var modelDownloadError: String?
+    @State private var modelReady = false
 
     private let playbackSpeedPresets: [Double] = [0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0, 2.5, 3.0]
 
@@ -60,6 +64,41 @@ struct PodcastSettingsView: View {
                         .font(.footnote)
                         .foregroundStyle(.secondary)
                 }
+
+                // Model management for engines that require downloads
+                if selectedEngine.requiresModelDownload {
+                    if modelReady {
+                        HStack {
+                            Label("Podcast.Transcripts.Model.Ready", systemImage: "checkmark.circle.fill")
+                                .foregroundStyle(.green)
+                            Spacer()
+                        }
+                        Button(role: .destructive) {
+                            showDeleteModelConfirmation = true
+                        } label: {
+                            Text("Podcast.Transcripts.Model.Delete")
+                        }
+                    } else if isDownloadingModel {
+                        HStack {
+                            Text("Podcast.Transcripts.Model.Downloading")
+                            Spacer()
+                            ProgressView()
+                        }
+                    } else {
+                        Button {
+                            downloadModel()
+                        } label: {
+                            Label("Podcast.Transcripts.Model.Download", systemImage: "arrow.down.circle")
+                        }
+                    }
+
+                    if let error = modelDownloadError {
+                        Text(error)
+                            .font(.footnote)
+                            .foregroundStyle(.red)
+                    }
+                }
+
                 Button(role: .destructive) {
                     showDeleteTranscriptsConfirmation = true
                 } label: {
@@ -73,6 +112,11 @@ struct PodcastSettingsView: View {
         .toolbarTitleDisplayMode(.inline)
         .task {
             downloadsSize = PodcastDownloadManager.totalDownloadedSize()
+            refreshModelStatus()
+        }
+        .onChange(of: transcriptionEngine) { _, _ in
+            modelDownloadError = nil
+            refreshModelStatus()
         }
         .alert(
             "Podcast.Downloads.DeleteAll.ConfirmTitle",
@@ -100,6 +144,57 @@ struct PodcastSettingsView: View {
         } message: {
             Text("Podcast.Transcripts.DeleteAll.ConfirmMessage")
         }
+        .alert(
+            "Podcast.Transcripts.Model.Delete.ConfirmTitle",
+            isPresented: $showDeleteModelConfirmation
+        ) {
+            Button("Podcast.Transcripts.Model.Delete.Confirm", role: .destructive) {
+                deleteModel()
+            }
+            Button("Shared.Cancel", role: .cancel) { }
+        } message: {
+            Text("Podcast.Transcripts.Model.Delete.ConfirmMessage")
+        }
+    }
+
+    // MARK: - Model Management
+
+    private func refreshModelStatus() {
+        guard let engine = PodcastTranscriber.engine(for: selectedEngine) else {
+            modelReady = false
+            return
+        }
+        modelReady = engine.isModelDownloaded
+    }
+
+    private func downloadModel() {
+        guard let engine = PodcastTranscriber.engine(for: selectedEngine) else { return }
+        isDownloadingModel = true
+        modelDownloadError = nil
+        Task {
+            do {
+                try await engine.downloadModel()
+                await MainActor.run {
+                    isDownloadingModel = false
+                    refreshModelStatus()
+                }
+            } catch {
+                await MainActor.run {
+                    isDownloadingModel = false
+                    modelDownloadError = error.localizedDescription
+                }
+            }
+        }
+    }
+
+    private func deleteModel() {
+        guard let engine = PodcastTranscriber.engine(for: selectedEngine) else { return }
+        do {
+            try engine.deleteModel()
+        } catch {
+            modelDownloadError = error.localizedDescription
+        }
+        refreshModelStatus()
     }
 
     private func formatSpeed(_ speed: Double) -> String {
