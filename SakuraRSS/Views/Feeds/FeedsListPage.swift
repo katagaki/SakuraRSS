@@ -94,6 +94,9 @@ struct FeedsListPage: View {
                 onNavigateToFeed?(feed)
                 Task {
                     try? await feedManager.refreshFeed(feed)
+                    // Pre-warm the favicon cache so the feed row picks it up.
+                    _ = await FaviconCache.shared.favicon(for: feed)
+                    feedManager.notifyFaviconChange()
                 }
             }
         } content: {

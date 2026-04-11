@@ -17,6 +17,7 @@
 		E47D105C2F549822006081EF /* WidgetsExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = E47D104D2F549821006081EF /* WidgetsExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		E47D10632F54986D006081EF /* FaviconFinder in Frameworks */ = {isa = PBXBuildFile; productRef = E47D10622F54986D006081EF /* FaviconFinder */; };
 		E47D13182F549F92006081EF /* SwiftSoup in Frameworks */ = {isa = PBXBuildFile; productRef = E47D13172F549F92006081EF /* SwiftSoup */; };
+		E4F2059E2F89D9B5006E0EDA /* AudioKit in Frameworks */ = {isa = PBXBuildFile; productRef = E4F2059D2F89D9B5006E0EDA /* AudioKit */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -99,6 +100,9 @@
 				"Favicon Cache/FaviconCache+Profiles.swift",
 				"Favicon Cache/FaviconCache+PWA.swift",
 				"Favicon Cache/FaviconCache+Trimming.swift",
+				Network/NetworkMonitor.swift,
+				"Podcast Downloads/PodcastDownloadManager.swift",
+				"Podcast Transcriber/PodcastTranscriber.swift",
 				SponsorBlock/SponsorBlockClient.swift,
 			);
 			target = E47D10332F54980E006081EF /* Add Feed */;
@@ -121,6 +125,9 @@
 				"Favicon Cache/FaviconCache+PWA.swift",
 				"Favicon Cache/FaviconCache+Trimming.swift",
 				FeedDiscovery.swift,
+				Network/NetworkMonitor.swift,
+				"Podcast Downloads/PodcastDownloadManager.swift",
+				"Podcast Transcriber/PodcastTranscriber.swift",
 				SponsorBlock/SponsorBlockClient.swift,
 			);
 			target = E47D104C2F549821006081EF /* WidgetsExtension */;
@@ -170,6 +177,7 @@
 			files = (
 				E47D102E2F5497AC006081EF /* SQLite in Frameworks */,
 				E47D10632F54986D006081EF /* FaviconFinder in Frameworks */,
+				E4F2059E2F89D9B5006E0EDA /* AudioKit in Frameworks */,
 				E47D13182F549F92006081EF /* SwiftSoup in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -256,6 +264,7 @@
 				E47D102D2F5497AC006081EF /* SQLite */,
 				E47D10622F54986D006081EF /* FaviconFinder */,
 				E47D13172F549F92006081EF /* SwiftSoup */,
+				E4F2059D2F89D9B5006E0EDA /* AudioKit */,
 			);
 			productName = SakuraRSS;
 			productReference = E47D101B2F549605006081EF /* Sakura.app */;
@@ -351,6 +360,7 @@
 				E47D102C2F5497AC006081EF /* XCRemoteSwiftPackageReference "SQLite.swift" */,
 				E47D10612F54986D006081EF /* XCRemoteSwiftPackageReference "FaviconFinder" */,
 				E47D13162F549F92006081EF /* XCRemoteSwiftPackageReference "SwiftSoup" */,
+				E4F2059C2F89D9B5006E0EDA /* XCRemoteSwiftPackageReference "AudioKit" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = E47D101C2F549605006081EF /* Products */;
@@ -872,6 +882,14 @@
 				minimumVersion = 2.11.3;
 			};
 		};
+		E4F2059C2F89D9B5006E0EDA /* XCRemoteSwiftPackageReference "AudioKit" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/AudioKit/AudioKit";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.7.2;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -899,6 +917,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = E47D13162F549F92006081EF /* XCRemoteSwiftPackageReference "SwiftSoup" */;
 			productName = SwiftSoup;
+		};
+		E4F2059D2F89D9B5006E0EDA /* AudioKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = E4F2059C2F89D9B5006E0EDA /* XCRemoteSwiftPackageReference "AudioKit" */;
+			productName = AudioKit;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

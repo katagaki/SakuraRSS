@@ -61,6 +61,66 @@
         }
       }
     },
+    "NSSpeechRecognitionUsageDescription" : {
+      "comment" : "Privacy - Speech Recognition Usage Description",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Sakura verwendet die geräteinterne Spracherkennung, um heruntergeladene Podcast-Episoden zu transkribieren. Die Audioverarbeitung erfolgt lokal und verlässt Ihr Gerät nicht."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Sakura uses on-device speech recognition to transcribe podcast episodes you download. Audio is processed locally and never leaves your device."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Sakura utilise la reconnaissance vocale sur l'appareil pour transcrire les épisodes de podcast que vous téléchargez. L'audio est traité localement et ne quitte jamais votre appareil."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Sakura utilizza il riconoscimento vocale sul dispositivo per trascrivere gli episodi podcast scaricati. L'audio viene elaborato localmente e non lascia mai il dispositivo."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "サクラリーダーはダウンロードしたポッドキャストエピソードの文字起こしにデバイス上の音声認識を使用します。音声はデバイス上でローカルに処理され、外部に送信されることはありません。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Sakura는 다운로드한 팟캐스트 에피소드를 전사하기 위해 기기 내 음성 인식을 사용합니다. 오디오는 로컬에서 처리되며 기기를 떠나지 않습니다."
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Sakura sử dụng nhận dạng giọng nói trên thiết bị để chép lời các tập podcast bạn tải xuống. Âm thanh được xử lý cục bộ và không bao giờ rời khỏi thiết bị của bạn."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Sakura 使用设备端语音识别来转录您下载的播客单集。音频在本地处理，不会离开您的设备。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Sakura 使用裝置端語音辨識來轉錄您下載的Podcast單集。音訊在本機處理，不會離開您的裝置。"
+          }
+        }
+      }
+    },
     "OPML_DOCUMENT_TYPE" : {
       "comment" : "UTType description for OPML files",
       "localizations" : {

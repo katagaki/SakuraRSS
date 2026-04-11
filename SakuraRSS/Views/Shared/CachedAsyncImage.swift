@@ -19,9 +19,9 @@ private actor ImageMemoryCache {
     }
 
     func setImage(_ image: UIImage, forKey key: String) {
-        let w = image.size.width * image.scale
-        let h = image.size.height * image.scale
-        let cost = Int(w * h * 4)
+        let width = image.size.width * image.scale
+        let height = image.size.height * image.scale
+        let cost = Int(width * height * 4)
         cache.setObject(image, forKey: key as NSString, cost: cost)
     }
 }

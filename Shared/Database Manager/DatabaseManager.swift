@@ -54,6 +54,8 @@ nonisolated final class DatabaseManager: @unchecked Sendable {
     let articleEntitiesProcessed = SQLite.Expression<Bool>("entities_processed")
     let articleSimilarComputed = SQLite.Expression<Bool>("similar_computed")
     let articleLastAccessed = SQLite.Expression<Double?>("last_accessed")
+    let articleDownloadPath = SQLite.Expression<String?>("download_path")
+    let articleTranscriptJSON = SQLite.Expression<String?>("transcript_json")
 
     let nlpEntities = Table("nlp_entities")
     let nlpEntityID = SQLite.Expression<Int64>("id")
@@ -107,6 +109,8 @@ nonisolated final class DatabaseManager: @unchecked Sendable {
             try createTables()
             fixupIfVersionChanged()
             invalidateStaleParserCache()
+            migrateContentInsightsToggle()
+            invalidateStaleSimilarContentCache()
         } catch {
             fatalError("Database initialization failed: \(error)")
         }
@@ -118,6 +122,37 @@ nonisolated final class DatabaseManager: @unchecked Sendable {
         if stored < ParserVersion.articleExtractor {
             try? invalidateAllCachedArticleContent()
             UserDefaults.standard.set(ParserVersion.articleExtractor, forKey: key)
+        }
+    }
+
+    /// Collapses the legacy `Intelligence.SimilarContent.Enabled` /
+    /// `Intelligence.TopicsPeople.Enabled` toggles into a single
+    /// `Intelligence.ContentInsights.Enabled` key. Runs exactly once per
+    /// install, tracked by `Intelligence.ContentInsights.Migrated`.
+    private func migrateContentInsightsToggle() {
+        let defaults = UserDefaults.standard
+        let migratedKey = "Intelligence.ContentInsights.Migrated"
+        guard !defaults.bool(forKey: migratedKey) else { return }
+        let legacySimilar = defaults.bool(forKey: "Intelligence.SimilarContent.Enabled")
+        let legacyTopics = defaults.bool(forKey: "Intelligence.TopicsPeople.Enabled")
+        if legacySimilar || legacyTopics {
+            defaults.set(true, forKey: "Intelligence.ContentInsights.Enabled")
+        }
+        defaults.removeObject(forKey: "Intelligence.SimilarContent.Enabled")
+        defaults.removeObject(forKey: "Intelligence.TopicsPeople.Enabled")
+        defaults.set(true, forKey: migratedKey)
+    }
+
+    /// Bumps the similar-content algorithm version and wipes the cache the
+    /// first time the app launches under a newer ranker. Mirrors the
+    /// `invalidateStaleParserCache()` pattern above.
+    private func invalidateStaleSimilarContentCache() {
+        let key = "Intelligence.SimilarContent.AlgorithmVersion"
+        let current = 2   // v1: embedding-only; v2: hybrid embedding + entity Jaccard
+        let stored = UserDefaults.standard.integer(forKey: key)
+        if stored < current {
+            try? invalidateSimilarContentCache()
+            UserDefaults.standard.set(current, forKey: key)
         }
     }
 
@@ -181,6 +216,8 @@ nonisolated final class DatabaseManager: @unchecked Sendable {
             table.column(articleSentimentProcessed, defaultValue: false)
             table.column(articleEntitiesProcessed, defaultValue: false)
             table.column(articleSimilarComputed, defaultValue: false)
+            table.column(articleDownloadPath)
+            table.column(articleTranscriptJSON)
         })
 
         try database.run(articles.createIndex(articleFeedID, ifNotExists: true))

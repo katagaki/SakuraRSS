@@ -91,9 +91,23 @@ struct PodcastEpisodeRow: View {
     @Environment(FeedManager.self) var feedManager
     let article: Article
     private let audioPlayer = AudioPlayer.shared
+    private let downloadManager = PodcastDownloadManager.shared
+    private let networkMonitor = NetworkMonitor.shared
 
     private var isCurrentlyPlaying: Bool {
         audioPlayer.currentArticleID == article.id
+    }
+
+    private var isDownloaded: Bool {
+        downloadManager.isDownloaded(articleID: article.id)
+    }
+
+    private var isOffline: Bool {
+        !networkMonitor.isOnline
+    }
+
+    private var canPlay: Bool {
+        isDownloaded || !isOffline
     }
 
     var body: some View {
@@ -136,6 +150,7 @@ struct PodcastEpisodeRow: View {
             Spacer(minLength: 0)
 
             if article.isPodcastEpisode {
+                PodcastDownloadButton(article: article, size: 28, lineWidth: 2.5)
                 Button {
                     handlePlay()
                 } label: {
@@ -147,6 +162,7 @@ struct PodcastEpisodeRow: View {
                         .symbolRenderingMode(.multicolor)
                 }
                 .buttonStyle(.plain)
+                .disabled(!canPlay && !isCurrentlyPlaying)
             }
         }
     }
@@ -154,12 +170,20 @@ struct PodcastEpisodeRow: View {
     private func handlePlay() {
         if isCurrentlyPlaying {
             audioPlayer.togglePlayPause()
-        } else if let audioURLString = article.audioURL,
-                  let audioURL = URL(string: audioURLString) {
+        } else {
+            let playbackURL: URL
+            if let localURL = downloadManager.localFileURL(for: article.id) {
+                playbackURL = localURL
+            } else if let audioURLString = article.audioURL,
+                      let audioURL = URL(string: audioURLString) {
+                playbackURL = audioURL
+            } else {
+                return
+            }
             feedManager.markRead(article)
             let feed = feedManager.feed(forArticle: article)
             audioPlayer.play(
-                url: audioURL,
+                url: playbackURL,
                 articleID: article.id,
                 feedID: article.feedID,
                 episodeTitle: article.title,

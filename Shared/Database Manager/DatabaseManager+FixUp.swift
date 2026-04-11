@@ -79,6 +79,10 @@ nonisolated extension DatabaseManager {
         _ = try? database.run(articles.addColumn(articleEntitiesProcessed, defaultValue: false))
         _ = try? database.run(articles.addColumn(articleSimilarComputed, defaultValue: false))
 
+        // Podcast download & transcription columns
+        _ = try? database.run(articles.addColumn(articleDownloadPath))
+        _ = try? database.run(articles.addColumn(articleTranscriptJSON))
+
         // nlp_entities table
         _ = try? database.run(nlpEntities.create(ifNotExists: true) { table in
             table.column(nlpEntityID, primaryKey: .autoincrement)

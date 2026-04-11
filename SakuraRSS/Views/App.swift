@@ -1,3 +1,4 @@
+import CoreSpotlight
 import SwiftUI
 import BackgroundTasks
 import StoreKit
@@ -40,6 +41,9 @@ struct SakuraRSSApp: App {
                     feedManager.loadFromDatabase()
                     feedManager.updateBadgeCount()
                     WidgetCenter.shared.reloadAllTimelines()
+                    Task {
+                        await feedManager.refreshUnfetchedFeeds()
+                    }
                 }
                 .onChange(of: backgroundRefreshEnabled) {
                     scheduleAppRefresh()
@@ -49,6 +53,11 @@ struct SakuraRSSApp: App {
                 }
                 .onOpenURL { url in
                     handleOpenURL(url)
+                }
+                .onContinueUserActivity(CSSearchableItemActionType) { activity in
+                    if let articleID = SpotlightIndexer.articleID(from: activity) {
+                        pendingArticleID = articleID
+                    }
                 }
         }
     }
@@ -82,6 +91,11 @@ struct SakuraRSSApp: App {
             case "arisishere":
                 Task {
                     await feedManager.deleteAllArticlesAndRefresh()
+                }
+            case "howmanybulbs":
+                Task {
+                    SpotlightIndexer.removeAllArticles()
+                    feedManager.reindexAllArticlesInSpotlight()
                 }
             case "forgetit":
                 let defaults = UserDefaults.standard

@@ -3,7 +3,7 @@ import SwiftUI
 struct DiscoverView: View {
 
     @Environment(FeedManager.self) var feedManager
-    @AppStorage("Intelligence.TopicsPeople.Enabled") private var topicsPeopleEnabled: Bool = false
+    @AppStorage("Intelligence.ContentInsights.Enabled") private var contentInsightsEnabled: Bool = false
 
     @State private var recentArticles: [Article] = []
     @State private var entitySections: [DiscoverEntitySection] = []
@@ -27,7 +27,7 @@ struct DiscoverView: View {
                             recentlyAccessedSection
                         }
 
-                        if topicsPeopleEnabled {
+                        if contentInsightsEnabled {
                             ForEach(entitySections) { section in
                                 entitySection(section)
                             }
@@ -173,7 +173,7 @@ struct DiscoverView: View {
 
     private func loadData() async {
         let db = DatabaseManager.shared
-        let loadEntities = topicsPeopleEnabled
+        let loadEntities = contentInsightsEnabled
 
         await Task.detached {
             let recent = (try? db.recentlyAccessedArticles()) ?? []
