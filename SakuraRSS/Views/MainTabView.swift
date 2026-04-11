@@ -22,6 +22,7 @@ struct MainTabView: View {
     @State private var showingOnboarding = false
     @State private var miniPlayerPresentedArticle: Article?
     @Namespace private var miniPlayerTransition
+    private let audioPlayer = AudioPlayer.shared
 
     var body: some View {
         if UIDevice.current.userInterfaceIdiom == .pad {
@@ -34,7 +35,7 @@ struct MainTabView: View {
         }
     }
 
-    private var iPhoneTabView: some View {
+    private var tabView: some View {
         TabView(selection: $selectedTab) {
             Tab("Tabs.Home", systemImage: "text.rectangle.page", value: .home) {
                 HomeView(pendingArticleID: $pendingArticleID)
@@ -59,48 +60,72 @@ struct MainTabView: View {
             }
         }
         .tabBarMinimizeBehavior(.onScrollDown)
-        .tabViewBottomAccessory {
-            MiniPlayerView { article in
-                miniPlayerPresentedArticle = article
-            }
-            .matchedTransitionSource(id: "miniPlayer", in: miniPlayerTransition)
-        }
-        .sheet(item: $miniPlayerPresentedArticle) { article in
-            NavigationStack {
-                PodcastEpisodeView(article: article)
-                    .environment(feedManager)
-            }
-            .navigationTransition(.zoom(sourceID: "miniPlayer", in: miniPlayerTransition))
-        }
-        .sheet(isPresented: $showingAddFeed) {
-            AddFeedView(initialURL: pendingFeedURL ?? "")
-                .environment(feedManager)
-                .onDisappear {
-                    pendingFeedURL = nil
+    }
+
+    private var iPhoneTabView: some View {
+        tabView
+            .modifier(MiniPlayerAccessoryModifier(
+                audioPlayer: audioPlayer,
+                miniPlayerPresentedArticle: $miniPlayerPresentedArticle,
+                miniPlayerTransition: miniPlayerTransition
+            ))
+            .sheet(item: $miniPlayerPresentedArticle) { article in
+                NavigationStack {
+                    PodcastEpisodeView(article: article)
+                        .environment(feedManager)
                 }
-        }
-        .sheet(isPresented: $showingOnboarding) {
-            OnboardingView {
-                onboardingCompleted = true
-                ViewStyleSwitcherTip.hasCompletedOnboarding = true
-                showingOnboarding = false
+                .navigationTransition(.zoom(sourceID: "miniPlayer", in: miniPlayerTransition))
             }
-            .environment(feedManager)
-        }
-        .onChange(of: pendingFeedURL) {
-            if pendingFeedURL != nil {
-                showingAddFeed = true
+            .sheet(isPresented: $showingAddFeed) {
+                AddFeedView(initialURL: pendingFeedURL ?? "")
+                    .environment(feedManager)
+                    .onDisappear {
+                        pendingFeedURL = nil
+                    }
             }
-        }
-        .onChange(of: pendingArticleID) {
-            if pendingArticleID != nil {
-                selectedTab = .home
+            .sheet(isPresented: $showingOnboarding) {
+                OnboardingView {
+                    onboardingCompleted = true
+                    ViewStyleSwitcherTip.hasCompletedOnboarding = true
+                    showingOnboarding = false
+                }
+                .environment(feedManager)
             }
-        }
-        .onAppear {
-            if !onboardingCompleted {
-                showingOnboarding = true
+            .onChange(of: pendingFeedURL) {
+                if pendingFeedURL != nil {
+                    showingAddFeed = true
+                }
             }
+            .onChange(of: pendingArticleID) {
+                if pendingArticleID != nil {
+                    selectedTab = .home
+                }
+            }
+            .onAppear {
+                if !onboardingCompleted {
+                    showingOnboarding = true
+                }
+            }
+    }
+}
+
+private struct MiniPlayerAccessoryModifier: ViewModifier {
+
+    let audioPlayer: AudioPlayer
+    @Binding var miniPlayerPresentedArticle: Article?
+    var miniPlayerTransition: Namespace.ID
+
+    func body(content: Content) -> some View {
+        if audioPlayer.currentArticleID != nil {
+            content
+                .tabViewBottomAccessory {
+                    MiniPlayerView { article in
+                        miniPlayerPresentedArticle = article
+                    }
+                    .matchedTransitionSource(id: "miniPlayer", in: miniPlayerTransition)
+                }
+        } else {
+            content
         }
     }
 }
