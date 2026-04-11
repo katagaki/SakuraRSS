@@ -21,7 +21,7 @@ struct ReadingAnalyticsView: View {
                 icon: "book.closed.fill"
             )
             StatCell(
-                value: streak > 0 ? streak.formatted() : "—",
+                value: streak > 0 ? streak.formatted() : "-",
                 label: "ReadingAnalytics.Streak",
                 icon: "flame.fill"
             )
@@ -31,7 +31,7 @@ struct ReadingAnalyticsView: View {
                 icon: "list.bullet"
             )
             StatCell(
-                value: mostReadFeedName ?? "—",
+                value: mostReadFeedName ?? "-",
                 label: "ReadingAnalytics.MostViewed",
                 icon: "star.fill",
                 isText: mostReadFeedName != nil
@@ -76,7 +76,7 @@ private struct StatCell: View {
                     .font(.caption)
                     .foregroundStyle(.secondary)
                 Text(label)
-                    .font(.caption2)
+                    .font(.caption)
                     .fontWeight(.medium)
                     .foregroundStyle(.secondary)
                     .lineLimit(1)
@@ -92,7 +92,8 @@ private struct StatCell: View {
                     .multilineTextAlignment(.leading)
             } else {
                 Text(value)
-                    .font(.system(.title, design: .rounded, weight: .bold))
+                    .font(.title)
+                    .fontWeight(.bold)
                     .foregroundStyle(.primary)
                     .monospacedDigit()
                     .lineLimit(1)
@@ -102,8 +103,6 @@ private struct StatCell: View {
             Spacer(minLength: 0)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .frame(minHeight: 78, alignment: .topLeading)
-        .padding(.horizontal, 12)
-        .padding(.vertical, 10)
+        .frame(minHeight: 60, alignment: .topLeading)
     }
 }

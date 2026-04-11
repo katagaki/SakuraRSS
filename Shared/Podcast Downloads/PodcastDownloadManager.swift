@@ -245,6 +245,9 @@ final class PodcastDownloadManager: NSObject, URLSessionDownloadDelegate {
             return
         }
         do {
+            #if DEBUG
+            debugPrint("Transcribing article \(articleID) located at \(fileURL.path())")
+            #endif
             let segments = try await PodcastTranscriber.transcribe(audioFileURL: fileURL)
             try DatabaseManager.shared.cacheTranscript(segments, for: articleID)
         } catch {

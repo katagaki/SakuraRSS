@@ -1,3 +1,4 @@
+import AudioKit
 import AVFoundation
 import Foundation
 import Speech
@@ -39,40 +40,53 @@ enum PodcastTranscriber {
         }
 
         // SpeechAnalyzer requires linear PCM audio. If the source file is
-        // compressed (MP3, AAC, Opus, etc.) we convert it to a temporary
-        // 16 kHz mono WAV first.
-        let fileToTranscribe: URL
-        let needsCleanup: Bool
+        // compressed (MP3, AAC, Opus, etc.) we convert it to a WAV first.
+        let fileToTranscribe: URL = audioFileURL.deletingPathExtension().appendingPathExtension("wav")
+        var options = FormatConverter.Options()
+        options.format = .wav
+        options.sampleRate = 48000
+        options.bitDepth = 24
+        options.channels = 1
+        let converter = FormatConverter(
+            inputURL: audioFileURL,
+            outputURL: fileToTranscribe,
+            options: options
+        )
 
-        let sourceFile = try AVAudioFile(forReading: audioFileURL)
-        let sourceFormat = sourceFile.processingFormat
-
-        if sourceFormat.commonFormat == .pcmFormatFloat32
-            || sourceFormat.commonFormat == .pcmFormatFloat64
-            || sourceFormat.commonFormat == .pcmFormatInt16
-            || sourceFormat.commonFormat == .pcmFormatInt32 {
-            // Already PCM — use directly.
-            fileToTranscribe = audioFileURL
-            needsCleanup = false
-        } else {
-            fileToTranscribe = try await convertToPCM(sourceFile: sourceFile)
-            needsCleanup = true
-        }
-
-        defer {
-            if needsCleanup {
-                try? FileManager.default.removeItem(at: fileToTranscribe)
+        try? await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+            converter.start { error in
+                if let error = error {
+                    print(error.localizedDescription)
+                    continuation.resume(throwing: error)
+                } else {
+                    #if DEBUG
+                    debugPrint("[PodcastTranscriber] Completed file conversion for \(fileToTranscribe)")
+                    #endif
+                    continuation.resume(returning: ())
+                }
             }
         }
 
+        defer {
+            try? FileManager.default.removeItem(at: fileToTranscribe)
+        }
+
+        #if DEBUG
+        debugPrint("[PodcastTranscriber] Using file at \(fileToTranscribe.path()) for speech recognition")
+        #endif
+
         let transcriber = SpeechTranscriber(
-            locale: Locale.current,
+            locale: .current,
             transcriptionOptions: [],
             reportingOptions: [],
             attributeOptions: []
         )
         let analyzer = SpeechAnalyzer(modules: [transcriber])
         let audioFile = try AVAudioFile(forReading: fileToTranscribe)
+
+        #if DEBUG
+        debugPrint("[PodcastTranscriber] Audio file format: \(audioFile.fileFormat), processing with \(audioFile.processingFormat)")
+        #endif
 
         let collectionTask = Task { () throws -> [TranscriptSegment] in
             var segments: [TranscriptSegment] = []
