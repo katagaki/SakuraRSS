@@ -9,26 +9,13 @@ struct WhisperTranscriberEngine: TranscriptionEngine {
 
     static let requiresModelDownload = true
 
-    /// Base directory for all WhisperKit models.
-    private static var baseDirectory: URL {
-        FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
-            .appendingPathComponent("WhisperKit", isDirectory: true)
-    }
-
-    private var modelName: String {
+    private var modelVariant: String {
         "openai_whisper-\(UserDefaults.standard.string(forKey: "Podcast.WhisperModel") ?? "base")"
     }
 
-    /// The folder containing the actual .mlmodelc files for the selected model.
-    private var modelFolder: URL {
-        Self.baseDirectory.appendingPathComponent(modelName, isDirectory: true)
-    }
-
     var isModelDownloaded: Bool {
-        let dir = modelFolder
-        guard FileManager.default.fileExists(atPath: dir.path) else { return false }
-        let contents = (try? FileManager.default.contentsOfDirectory(atPath: dir.path)) ?? []
-        return contents.contains { $0.hasSuffix(".mlmodelc") }
+        guard let folder = try? WhisperKit.modelFolder(for: modelVariant) else { return false }
+        return FileManager.default.fileExists(atPath: folder)
     }
 
     var isAvailable: Bool {
@@ -36,24 +23,22 @@ struct WhisperTranscriberEngine: TranscriptionEngine {
     }
 
     func downloadModel() async throws {
+        let variant = modelVariant
         #if DEBUG
-        debugPrint("[WhisperEngine] Downloading model '\(modelName)'")
+        debugPrint("[WhisperEngine] Downloading model '\(variant)'")
         #endif
-        try FileManager.default.createDirectory(at: Self.baseDirectory, withIntermediateDirectories: true)
-        let config = WhisperKitConfig(
-            model: modelName,
-            downloadBase: Self.baseDirectory
-        )
-        _ = try await WhisperKit(config)
+        _ = try await WhisperKit.download(variant: variant)
         #if DEBUG
         debugPrint("[WhisperEngine] Model download complete")
         #endif
     }
 
     func deleteModel() throws {
-        let dir = Self.baseDirectory
-        if FileManager.default.fileExists(atPath: dir.path) {
-            try FileManager.default.removeItem(at: dir)
+        // WhisperKit stores models in Application Support/huggingface
+        let appSupport = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
+        let hfHub = appSupport.appendingPathComponent("huggingface", isDirectory: true)
+        if FileManager.default.fileExists(atPath: hfHub.path) {
+            try FileManager.default.removeItem(at: hfHub)
         }
     }
 
@@ -66,12 +51,10 @@ struct WhisperTranscriberEngine: TranscriptionEngine {
         }
 
         #if DEBUG
-        debugPrint("[WhisperEngine] Initializing WhisperKit with model '\(modelName)' from \(modelFolder.path())")
+        debugPrint("[WhisperEngine] Initializing WhisperKit with model '\(modelVariant)'")
         #endif
 
-        let config = WhisperKitConfig(
-            modelFolder: modelFolder.path()
-        )
+        let config = WhisperKitConfig(model: modelVariant, download: false)
         let pipe = try await WhisperKit(config)
 
         #if DEBUG

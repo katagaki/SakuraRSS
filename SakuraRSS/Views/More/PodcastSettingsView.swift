@@ -73,11 +73,6 @@ struct PodcastSettingsView: View {
                                 .foregroundStyle(.green)
                             Spacer()
                         }
-                        Button(role: .destructive) {
-                            showDeleteModelConfirmation = true
-                        } label: {
-                            Text("Podcast.Transcripts.Model.Delete")
-                        }
                     } else if isDownloadingModel {
                         HStack {
                             Text("Podcast.Transcripts.Model.Downloading")
@@ -96,6 +91,12 @@ struct PodcastSettingsView: View {
                         Text(error)
                             .font(.footnote)
                             .foregroundStyle(.red)
+                    }
+
+                    Button(role: .destructive) {
+                        showDeleteModelConfirmation = true
+                    } label: {
+                        Text("Podcast.Transcripts.Model.Delete")
                     }
                 }
 

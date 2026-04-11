@@ -32,7 +32,7 @@ struct SpeechTranscriberEngine: TranscriptionEngine {
         }
 
         // Convert compressed audio (MP3, AAC, Opus, etc.) to 16 kHz mono PCM WAV.
-        let pcmURL = try await Self.convertToPCM(inputURL: audioFileURL)
+        let pcmURL = try Self.convertToPCM(inputURL: audioFileURL)
         defer { try? FileManager.default.removeItem(at: pcmURL) }
 
         #if DEBUG
@@ -108,78 +108,68 @@ struct SpeechTranscriberEngine: TranscriptionEngine {
 
     // MARK: - Format Conversion
 
-    /// Converts a compressed audio file to 16 kHz mono Int16 PCM WAV.
+    /// Converts any audio file to 16 kHz mono Int16 PCM WAV.
     ///
-    /// Both `AVAudioFile` instances are created and consumed within the same
-    /// synchronous closure to avoid Sendable issues across task boundaries.
-    private static func convertToPCM(inputURL: URL) async throws -> URL {
-        let url = inputURL
-        return try await Task.detached(priority: .utility) {
-            let sourceFile = try AVAudioFile(forReading: url)
+    /// Uses AVAudioFile's built-in decoding (opening with a PCM processing format)
+    /// which is more reliable than AVAudioConverter for compressed formats.
+    private static func convertToPCM(inputURL: URL) throws -> URL {
+        // Open the source file. AVAudioFile automatically decodes compressed
+        // formats (MP3, AAC, etc.) into its processingFormat (Float32).
+        let sourceFile = try AVAudioFile(forReading: inputURL)
+        let sourceFormat = sourceFile.processingFormat
 
-            guard let outputFormat = AVAudioFormat(
-                commonFormat: .pcmFormatInt16,
-                sampleRate: 16000,
-                channels: 1,
-                interleaved: true
-            ) else {
-                throw TranscriptionEngineError.audioFileUnreadable
-            }
+        // Target format: 16 kHz mono Int16 PCM.
+        guard let outputFormat = AVAudioFormat(
+            commonFormat: .pcmFormatInt16,
+            sampleRate: 16000,
+            channels: 1,
+            interleaved: true
+        ) else {
+            throw TranscriptionEngineError.audioFileUnreadable
+        }
 
-            guard let converter = AVAudioConverter(from: sourceFile.processingFormat, to: outputFormat) else {
-                throw TranscriptionEngineError.transcriptionFailed(
-                    "Cannot convert audio from \(sourceFile.processingFormat) to PCM"
-                )
-            }
+        let tempURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString + ".wav")
+        let outputFile = try AVAudioFile(forWriting: tempURL, settings: outputFormat.settings)
 
-            let tempURL = FileManager.default.temporaryDirectory
-                .appendingPathComponent(UUID().uuidString + ".wav")
-            let outputFile = try AVAudioFile(forWriting: tempURL, settings: outputFormat.settings)
+        // Read the entire source into a buffer. AVAudioFile handles decompression.
+        let frameCount = AVAudioFrameCount(sourceFile.length)
+        guard let sourceBuffer = AVAudioPCMBuffer(
+            pcmFormat: sourceFormat,
+            frameCapacity: frameCount
+        ) else {
+            throw TranscriptionEngineError.audioFileUnreadable
+        }
+        try sourceFile.read(into: sourceBuffer)
 
-            let bufferCapacity: AVAudioFrameCount = 4096
-            guard let convertBuffer = AVAudioPCMBuffer(
-                pcmFormat: outputFormat,
-                frameCapacity: bufferCapacity
-            ) else {
-                throw TranscriptionEngineError.audioFileUnreadable
-            }
+        // Convert from source format (e.g., 44.1 kHz stereo Float32) to output format.
+        guard let converter = AVAudioConverter(from: sourceFormat, to: outputFormat) else {
+            throw TranscriptionEngineError.transcriptionFailed(
+                "Cannot create audio converter from \(sourceFormat) to \(outputFormat)"
+            )
+        }
 
-            while true {
-                var converterError: NSError?
-                let status = try converter.convert(to: convertBuffer, error: &converterError) { inNumberOfPackets, outStatus in
-                    guard let readBuffer = AVAudioPCMBuffer(
-                        pcmFormat: sourceFile.processingFormat,
-                        frameCapacity: inNumberOfPackets
-                    ) else {
-                        outStatus.pointee = .noDataNow
-                        return nil
-                    }
-                    do {
-                        try sourceFile.read(into: readBuffer)
-                        if readBuffer.frameLength == 0 {
-                            outStatus.pointee = .endOfStream
-                            return nil
-                        }
-                        outStatus.pointee = .haveData
-                        return readBuffer
-                    } catch {
-                        outStatus.pointee = .endOfStream
-                        return nil
-                    }
-                }
+        // Calculate expected output frame count after sample rate conversion.
+        let ratio = outputFormat.sampleRate / sourceFormat.sampleRate
+        let outputFrameCount = AVAudioFrameCount(Double(sourceBuffer.frameLength) * ratio)
+        guard let outputBuffer = AVAudioPCMBuffer(
+            pcmFormat: outputFormat,
+            frameCapacity: outputFrameCount + 1024 // small padding
+        ) else {
+            throw TranscriptionEngineError.audioFileUnreadable
+        }
 
-                if let converterError {
-                    throw TranscriptionEngineError.transcriptionFailed(converterError.localizedDescription)
-                }
+        var error: NSError?
+        converter.convert(to: outputBuffer, error: &error) { _, outStatus in
+            outStatus.pointee = .haveData
+            return sourceBuffer
+        }
 
-                if convertBuffer.frameLength == 0 || status == .endOfStream {
-                    break
-                }
+        if let error {
+            throw TranscriptionEngineError.transcriptionFailed(error.localizedDescription)
+        }
 
-                try outputFile.write(from: convertBuffer)
-            }
-
-            return tempURL
-        }.value
+        try outputFile.write(from: outputBuffer)
+        return tempURL
     }
 }

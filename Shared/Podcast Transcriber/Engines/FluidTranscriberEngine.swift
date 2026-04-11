@@ -4,22 +4,20 @@ import ParakeetASR
 
 /// Transcription engine using ParakeetASR (NVIDIA Parakeet TDT models via CoreML/ANE).
 ///
-/// Models are downloaded on demand and cached in Application Support.
+/// Models are downloaded on demand via HuggingFace and cached by the library.
 /// Runs in-process on the Neural Engine. 25 European languages supported.
 struct FluidTranscriberEngine: TranscriptionEngine {
 
     static let requiresModelDownload = true
 
-    private static var modelDirectory: URL {
+    /// Marker file we write after a successful download so we know the model is ready.
+    private static var markerFile: URL {
         FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
-            .appendingPathComponent("ParakeetASR", isDirectory: true)
+            .appendingPathComponent(".parakeet_model_ready")
     }
 
     var isModelDownloaded: Bool {
-        let dir = Self.modelDirectory
-        guard FileManager.default.fileExists(atPath: dir.path) else { return false }
-        // Check recursively for vocab.json which is required by the model.
-        return Self.containsFile(named: "vocab.json", in: dir)
+        FileManager.default.fileExists(atPath: Self.markerFile.path)
     }
 
     var isAvailable: Bool {
@@ -30,18 +28,31 @@ struct FluidTranscriberEngine: TranscriptionEngine {
         #if DEBUG
         debugPrint("[ParakeetEngine] Downloading Parakeet TDT v3 model")
         #endif
-        try FileManager.default.createDirectory(at: Self.modelDirectory, withIntermediateDirectories: true)
-        // Download without offline mode — the library will fetch and cache.
-        _ = try await ParakeetASRModel.fromPretrained(cacheDir: Self.modelDirectory)
+        // Let the library manage its own cache location.
+        _ = try await ParakeetASRModel.fromPretrained()
+        // Write a marker so we know the download succeeded.
+        FileManager.default.createFile(atPath: Self.markerFile.path, contents: Data())
         #if DEBUG
         debugPrint("[ParakeetEngine] Model download complete")
         #endif
     }
 
     func deleteModel() throws {
-        let dir = Self.modelDirectory
-        if FileManager.default.fileExists(atPath: dir.path) {
-            try FileManager.default.removeItem(at: dir)
+        // Remove the marker file.
+        try? FileManager.default.removeItem(at: Self.markerFile)
+        // The library caches in ~/Library/Caches — clear its known locations.
+        let caches = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0]
+        for dirName in ["qwen3-speech", "parakeet-asr", "huggingface"] {
+            let dir = caches.appendingPathComponent(dirName, isDirectory: true)
+            if FileManager.default.fileExists(atPath: dir.path) {
+                try? FileManager.default.removeItem(at: dir)
+            }
+        }
+        // Also check Application Support
+        let appSupport = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
+        let parakeetDir = appSupport.appendingPathComponent("ParakeetASR", isDirectory: true)
+        if FileManager.default.fileExists(atPath: parakeetDir.path) {
+            try FileManager.default.removeItem(at: parakeetDir)
         }
     }
 
@@ -57,10 +68,7 @@ struct FluidTranscriberEngine: TranscriptionEngine {
         debugPrint("[ParakeetEngine] Loading Parakeet TDT v3 model")
         #endif
 
-        // Use the same cacheDir — the library finds its cached files automatically.
-        let model = try await ParakeetASRModel.fromPretrained(
-            cacheDir: Self.modelDirectory
-        )
+        let model = try await ParakeetASRModel.fromPretrained()
 
         #if DEBUG
         debugPrint("[ParakeetEngine] Transcribing \(audioFileURL.lastPathComponent)")
@@ -88,35 +96,17 @@ struct FluidTranscriberEngine: TranscriptionEngine {
 
         let text = try model.transcribeAudio(samples, sampleRate: Int(sampleRate))
 
-        // ParakeetASR returns full text without segment-level timestamps.
-        // Split into sentences and distribute timestamps proportionally.
         let duration = Double(buffer.frameLength) / sampleRate
         return Self.distributeTimestamps(text: text, totalDuration: duration)
     }
 
     // MARK: - Helpers
 
-    /// Recursively checks if a file with the given name exists inside a directory.
-    private static func containsFile(named fileName: String, in directory: URL) -> Bool {
-        guard let enumerator = FileManager.default.enumerator(
-            at: directory,
-            includingPropertiesForKeys: nil,
-            options: [.skipsHiddenFiles]
-        ) else { return false }
-        for case let url as URL in enumerator {
-            if url.lastPathComponent == fileName {
-                return true
-            }
-        }
-        return false
-    }
-
     /// Splits text into sentences and assigns evenly distributed timestamps.
     static func distributeTimestamps(text: String, totalDuration: TimeInterval) -> [TranscriptSegment] {
         let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty, totalDuration > 0 else { return [] }
 
-        // Split on sentence boundaries.
         var sentences: [String] = []
         trimmed.enumerateSubstrings(in: trimmed.startIndex..., options: [.bySentences, .localized]) { sub, _, _, _ in
             if let sentence = sub?.trimmingCharacters(in: .whitespacesAndNewlines), !sentence.isEmpty {
