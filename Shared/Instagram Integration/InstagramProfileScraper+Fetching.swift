@@ -24,6 +24,13 @@ extension InstagramProfileScraper {
         print("[InstagramProfileScraper] Fetching profile for handle: \(handle)")
         #endif
 
+        // Enforce a human-like gap since the previous scrape.  When several
+        // feeds refresh at once they serialise through `activeScrape`, so
+        // without this wait they would fire back-to-back in a tight burst
+        // — a strong automation signal.  Spacing them out imitates a user
+        // navigating between profiles.
+        await Self.awaitHumanPacing()
+
         guard let cookies = await Self.getInstagramCookies() else {
             #if DEBUG
             print("[InstagramProfileScraper] No Instagram session cookies found")
@@ -51,7 +58,65 @@ extension InstagramProfileScraper {
               + "name: \(profileData.displayName ?? "nil")")
         #endif
 
+        // Record completion time so the next serialised scrape can space
+        // itself out relative to when this one finished.
+        Self.markRequestCompleted()
+
         return profileData
+    }
+
+    // MARK: - Human-Like Pacing
+
+    /// Timestamp of the most recently completed Instagram network request.
+    /// Used to enforce a minimum inter-scrape gap so a burst of feed
+    /// refreshes does not fire back-to-back.
+    nonisolated(unsafe) private static var lastRequestCompletedAt: Date?
+    nonisolated(unsafe) private static let pacingLock = NSLock()
+
+    static func markRequestCompleted() {
+        pacingLock.lock()
+        defer { pacingLock.unlock() }
+        lastRequestCompletedAt = Date()
+    }
+
+    /// Sleeps for a randomised interval so consecutive Instagram requests
+    /// look like a human navigating, not a script.  The delay combines a
+    /// baseline jitter (always applied) with an additional cool-down that
+    /// only kicks in when we have just finished a previous request.
+    static func awaitHumanPacing() async {
+        pacingLock.lock()
+        let lastCompleted = lastRequestCompletedAt
+        pacingLock.unlock()
+
+        // Minimum gap between any two serialised scrapes — picked from a
+        // fairly wide range so the cadence is not predictable.
+        let minCooldown: TimeInterval = 3.5
+        let maxCooldown: TimeInterval = 9.0
+
+        var delay = TimeInterval.random(in: 0.4...1.8)
+        if let lastCompleted {
+            let elapsed = Date().timeIntervalSince(lastCompleted)
+            let targetCooldown = TimeInterval.random(in: minCooldown...maxCooldown)
+            if elapsed < targetCooldown {
+                delay = max(delay, targetCooldown - elapsed)
+            }
+        }
+
+        #if DEBUG
+        print("[InstagramProfileScraper] Human-pacing delay: \(String(format: "%.2f", delay))s")
+        #endif
+        try? await Task.sleep(for: .seconds(delay))
+    }
+
+    /// Short randomised pause used between back-to-back API calls inside
+    /// a single scrape (e.g. `web_profile_info` → `feed/user`).  Mimics a
+    /// user briefly looking at the profile before scrolling the feed.
+    static func awaitIntraScrapePause() async {
+        let delay = TimeInterval.random(in: 0.9...2.6)
+        #if DEBUG
+        print("[InstagramProfileScraper] Intra-scrape pause: \(String(format: "%.2f", delay))s")
+        #endif
+        try? await Task.sleep(for: .seconds(delay))
     }
 
     // MARK: - Cookie Warming
@@ -125,17 +190,43 @@ extension InstagramProfileScraper {
 
     // MARK: - Request Building
 
-    func buildRequest(url: URL, cookies: InstagramCookies) -> URLRequest {
-        var request = URLRequest(url: url, timeoutInterval: requestTimeoutInterval)
+    func buildRequest(url: URL, cookies: InstagramCookies,
+                      referer: String = "https://www.instagram.com/") -> URLRequest {
+        // Jitter the timeout slightly so the fingerprint isn't a flat 15s.
+        let jitteredTimeout = requestTimeoutInterval + TimeInterval.random(in: -1.5...2.5)
+        var request = URLRequest(url: url, timeoutInterval: max(5, jitteredTimeout))
         request.setValue(sakuraUserAgent, forHTTPHeaderField: "User-Agent")
         request.setValue(cookies.csrfToken, forHTTPHeaderField: "x-csrftoken")
         request.setValue("XMLHttpRequest", forHTTPHeaderField: "x-requested-with")
-        request.setValue("https://www.instagram.com/", forHTTPHeaderField: "referer")
+        request.setValue(referer, forHTTPHeaderField: "referer")
         request.setValue("https://www.instagram.com", forHTTPHeaderField: "origin")
         request.setValue("same-origin", forHTTPHeaderField: "sec-fetch-site")
         request.setValue("cors", forHTTPHeaderField: "sec-fetch-mode")
         request.setValue("empty", forHTTPHeaderField: "sec-fetch-dest")
         request.setValue(Self.webAppID, forHTTPHeaderField: "x-ig-app-id")
+
+        // Browser-parity headers.  Mobile Safari sends all of these on
+        // every XHR; omitting them makes the request fingerprint stick
+        // out against genuine web traffic.
+        request.setValue("*/*", forHTTPHeaderField: "Accept")
+        request.setValue("en-US,en;q=0.9", forHTTPHeaderField: "Accept-Language")
+        // NOTE: Do not set Accept-Encoding manually — URLSession sets its
+        // own supported value and transparently decodes the body.  Setting
+        // it here would disable that auto-decoding and break JSON parsing.
+        request.setValue("no-cache", forHTTPHeaderField: "Cache-Control")
+        request.setValue("no-cache", forHTTPHeaderField: "Pragma")
+        request.setValue("keep-alive", forHTTPHeaderField: "Connection")
+        // NOTE: sec-ch-ua* (User-Agent Client Hints) are a Chromium feature
+        // — Safari does NOT send them.  Including them alongside a Safari
+        // UA would itself be a detectable mismatch, so they are omitted.
+
+        // A few optional Instagram-internal headers the web client sends.
+        // They aren't strictly required, but their absence is one of the
+        // cheapest tells used to flag scrapers.  The values mirror what
+        // the desktop/mobile web client emits for unauthenticated-style
+        // public reads.
+        request.setValue("129477", forHTTPHeaderField: "x-asbd-id")
+        request.setValue("0", forHTTPHeaderField: "x-ig-www-claim")
 
         // Build the full cookie header from all Instagram cookies
         let cookieHeader = HTTPCookie.requestHeaderFields(with: cookies.allCookies)
@@ -199,6 +290,9 @@ extension InstagramProfileScraper {
             print("[InstagramProfileScraper] Profile had 0 posts, "
                   + "fetching feed for user ID: \(userId)")
             #endif
+            // Mimic a user briefly looking at the profile before the web
+            // client fires the follow-up feed XHR.
+            await Self.awaitIntraScrapePause()
             let feedPosts = await fetchUserFeed(
                 userId: userId, username: username,
                 displayName: result.displayName,
@@ -230,7 +324,11 @@ extension InstagramProfileScraper {
             return []
         }
 
-        let request = buildRequest(url: url, cookies: cookies)
+        // Use the profile page as the referer — that is what a real
+        // browser sends when the follow-up feed XHR fires from the
+        // profile page context.
+        let profileReferer = "https://www.instagram.com/\(username)/"
+        let request = buildRequest(url: url, cookies: cookies, referer: profileReferer)
 
         #if DEBUG
         print("[InstagramProfileScraper] Feed request: \(url)")
