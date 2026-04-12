@@ -3,3 +3,19 @@ import Foundation
 // swiftlint:disable line_length
 let sakuraUserAgent = "Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.0 Mobile/15E148 Safari/604.1"
 // swiftlint:enable line_length
+
+extension URLRequest {
+    /// Builds a URLRequest preconfigured with the Sakura User-Agent.  Use
+    /// this in place of `URLSession.shared.data(from: url)` so outbound
+    /// traffic doesn't leak the default `CFNetwork` UA, which advertises
+    /// both the app bundle and iOS version and gets flagged by bot
+    /// heuristics on a number of CDNs.
+    static func sakura(
+        url: URL,
+        timeoutInterval: TimeInterval = 60
+    ) -> URLRequest {
+        var request = URLRequest(url: url, timeoutInterval: timeoutInterval)
+        request.setValue(sakuraUserAgent, forHTTPHeaderField: "User-Agent")
+        return request
+    }
+}

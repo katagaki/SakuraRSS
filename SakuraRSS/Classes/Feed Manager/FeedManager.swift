@@ -133,7 +133,7 @@ final class FeedManager {
             guard let url = URL(string: feed.url) else { return }
             let fetchURL = RedirectDomains.redirectedURL(url)
 
-            let (data, _) = try await URLSession.shared.data(from: fetchURL)
+            let (data, _) = try await URLSession.shared.data(for: .sakura(url: fetchURL))
             let parser = RSSParser()
             guard let parsed = parser.parse(data: data) else { return }
 

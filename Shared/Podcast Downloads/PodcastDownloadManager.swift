@@ -47,6 +47,10 @@ final class PodcastDownloadManager: NSObject, URLSessionDownloadDelegate {
         config.waitsForConnectivity = true
         config.timeoutIntervalForRequest = 60
         config.timeoutIntervalForResource = 3600
+        // Use a Safari-parity User-Agent on every podcast download so we
+        // never send the default `CFNetwork` UA — some podcast CDNs serve
+        // a different file (or a 403) when they see an app-bundle UA.
+        config.httpAdditionalHeaders = ["User-Agent": sakuraUserAgent]
         self.urlSession = URLSession(
             configuration: config,
             delegate: self,
