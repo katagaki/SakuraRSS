@@ -101,6 +101,44 @@ nonisolated extension DatabaseManager {
         try database.scalar(articles.filter(articleFeedID == fid).count)
     }
 
+    func articles(forFeedID fid: Int64, since date: Date) throws -> [Article] {
+        let query = articles
+            .filter(articleFeedID == fid
+                    && articlePublishedDate >= date.timeIntervalSince1970)
+            .order(articlePublishedDate.desc)
+        return try database.prepare(query).map(rowToArticle)
+    }
+
+    func undatedArticles(forFeedID fid: Int64) throws -> [Article] {
+        let query = articles
+            .filter(articleFeedID == fid && articlePublishedDate == nil)
+            .order(articleID.desc)
+        return try database.prepare(query).map(rowToArticle)
+    }
+
+    func earliestArticleDate(forFeedID fid: Int64, before date: Date) throws -> Date? {
+        let query = articles
+            .filter(articleFeedID == fid
+                    && articlePublishedDate != nil
+                    && articlePublishedDate < date.timeIntervalSince1970)
+            .order(articlePublishedDate.desc)
+            .limit(1)
+        guard let row = try database.pluck(query),
+              let ts = row[articlePublishedDate] else { return nil }
+        return Date(timeIntervalSince1970: ts)
+    }
+
+    func earliestArticleDate(before date: Date) throws -> Date? {
+        let query = articles
+            .filter(articlePublishedDate != nil
+                    && articlePublishedDate < date.timeIntervalSince1970)
+            .order(articlePublishedDate.desc)
+            .limit(1)
+        guard let row = try database.pluck(query),
+              let ts = row[articlePublishedDate] else { return nil }
+        return Date(timeIntervalSince1970: ts)
+    }
+
     func allArticles(limit: Int = 100) throws -> [Article] {
         let query = articles
             .order(articlePublishedDate.desc)
@@ -108,11 +146,13 @@ nonisolated extension DatabaseManager {
         return try database.prepare(query).map(rowToArticle)
     }
 
-    func allArticles(since date: Date, limit: Int = 200) throws -> [Article] {
-        let query = articles
+    func allArticles(since date: Date, limit: Int? = 200) throws -> [Article] {
+        var query = articles
             .filter(articlePublishedDate >= date.timeIntervalSince1970)
             .order(articlePublishedDate.desc)
-            .limit(limit)
+        if let limit {
+            query = query.limit(limit)
+        }
         return try database.prepare(query).map(rowToArticle)
     }
 

@@ -156,6 +156,90 @@ extension YouTubePlaylistScraper {
 
     // MARK: - Playlist Parsing
 
+    /// Extracts the channel owner's avatar URL from ytInitialData.
+    ///
+    /// YouTube serves two different structures:
+    /// - Mobile/new layout: `header.pageHeaderRenderer` contains an
+    ///   `avatarStackViewModel` with `avatarViewModel.image.sources`.
+    /// - Desktop layout: `sidebar.playlistSidebarRenderer` contains a
+    ///   `videoOwnerRenderer` with `thumbnail.thumbnails`.
+    ///
+    /// Returns the highest-resolution URL available. The URL is upscaled
+    /// by rewriting the `=sN-` size suffix (YouTube's standard avatar
+    /// URL convention) so the cached favicon isn't stuck at 48px.
+    static func parseChannelAvatarURL(from ytData: [String: Any]) -> String? {
+        var rawURL: String?
+
+        if let header = ytData["header"] as? [String: Any],
+           let url = findAvatarViewModelURL(in: header) {
+            rawURL = url
+        }
+
+        if rawURL == nil, let sidebar = ytData["sidebar"] as? [String: Any],
+           let url = findVideoOwnerThumbnailURL(in: sidebar) {
+            rawURL = url
+        }
+
+        guard let url = rawURL else { return nil }
+        return upscaleAvatarURL(url)
+    }
+
+    /// Recursively searches for the first `avatarViewModel.image.sources[*].url`
+    /// (picking the largest source by `width`). Used by the mobile layout.
+    private static func findAvatarViewModelURL(in node: Any) -> String? {
+        if let dict = node as? [String: Any] {
+            if let avatar = dict["avatarViewModel"] as? [String: Any],
+               let image = avatar["image"] as? [String: Any],
+               let sources = image["sources"] as? [[String: Any]],
+               !sources.isEmpty {
+                let best = sources.max { lhs, rhs in
+                    (lhs["width"] as? Int ?? 0) < (rhs["width"] as? Int ?? 0)
+                }
+                if let url = best?["url"] as? String { return url }
+            }
+            for (_, value) in dict {
+                if let found = findAvatarViewModelURL(in: value) { return found }
+            }
+        } else if let array = node as? [Any] {
+            for item in array {
+                if let found = findAvatarViewModelURL(in: item) { return found }
+            }
+        }
+        return nil
+    }
+
+    /// Recursively searches for the first `videoOwnerRenderer.thumbnail.thumbnails[*].url`
+    /// (picking the largest). Used by the desktop layout.
+    private static func findVideoOwnerThumbnailURL(in node: Any) -> String? {
+        if let dict = node as? [String: Any] {
+            if let owner = dict["videoOwnerRenderer"] as? [String: Any],
+               let thumb = owner["thumbnail"] as? [String: Any],
+               let thumbs = thumb["thumbnails"] as? [[String: Any]],
+               let best = thumbs.last,
+               let url = best["url"] as? String {
+                return url
+            }
+            for (_, value) in dict {
+                if let found = findVideoOwnerThumbnailURL(in: value) { return found }
+            }
+        } else if let array = node as? [Any] {
+            for item in array {
+                if let found = findVideoOwnerThumbnailURL(in: item) { return found }
+            }
+        }
+        return nil
+    }
+
+    /// Rewrites YouTube's `=sN-` size suffix to request a larger avatar.
+    /// Avatars are served at 48/88/176 px; we always request 176.
+    private static func upscaleAvatarURL(_ url: String) -> String {
+        guard let regex = try? NSRegularExpression(pattern: "=s\\d+-") else { return url }
+        let range = NSRange(url.startIndex..., in: url)
+        return regex.stringByReplacingMatches(
+            in: url, range: range, withTemplate: "=s176-"
+        )
+    }
+
     /// Extracts the playlist title from ytInitialData.
     static func parsePlaylistTitle(from ytData: [String: Any]) -> String? {
         // Try header > pageHeaderRenderer > pageTitle (mobile)

@@ -5,12 +5,14 @@ struct ParsedPlaylistVideo: Sendable {
     let videoId: String
     let title: String
     let thumbnailURL: String
+    var publishedDate: Date?
 }
 
 /// Result of scraping a YouTube playlist.
 struct YouTubePlaylistScrapeResult: Sendable {
     let videos: [ParsedPlaylistVideo]
     let playlistTitle: String?
+    let channelAvatarURL: String?
 }
 
 /// Fetches videos from a YouTube playlist by scraping the playlist page HTML.
@@ -63,8 +65,10 @@ final class YouTubePlaylistScraper {
     /// Fetches videos from the given YouTube playlist.
     func scrapePlaylist(playlistID: String) async -> YouTubePlaylistScrapeResult {
         guard let url = Self.playlistURL(for: playlistID) else {
-            return YouTubePlaylistScrapeResult(videos: [], playlistTitle: nil)
+            return YouTubePlaylistScrapeResult(
+                videos: [], playlistTitle: nil, channelAvatarURL: nil
+            )
         }
-        return await performFetch(url: url)
+        return await performFetch(url: url, playlistID: playlistID)
     }
 }

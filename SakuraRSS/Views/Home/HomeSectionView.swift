@@ -6,21 +6,20 @@ struct HomeSectionView: View {
 
     let section: FeedSection
 
-    @State private var showingOlderArticles = false
+    @State private var loadedSinceDate: Date = FeedManager.currentChunkStart()
     @AppStorage("Display.MarkAllReadPosition") private var markAllReadPosition: MarkAllReadPosition = .bottom
     @AppStorage("Instagram.HideReels") private var hideInstagramReels: Bool = false
 
     private var displayedArticles: [Article] {
-        var articles: [Article]
-        if showingOlderArticles {
-            articles = feedManager.todayArticles(for: section) + feedManager.olderArticles(for: section)
-        } else {
-            articles = feedManager.todayArticles(for: section)
-        }
+        var articles = feedManager.articles(for: section, since: loadedSinceDate)
         if hideInstagramReels {
             articles = articles.filter { !$0.url.contains("/reel/") }
         }
         return articles
+    }
+
+    private var nextOlderChunk: Date? {
+        feedManager.nextArticleChunk(for: section, before: loadedSinceDate)
     }
 
     var body: some View {
@@ -31,8 +30,8 @@ struct HomeSectionView: View {
             isVideoFeed: section == .video,
             isPodcastFeed: section == .audio,
             isFeedViewDomain: section == .social,
-            onLoadMore: showingOlderArticles ? nil : {
-                showingOlderArticles = true
+            onLoadMore: nextOlderChunk.map { chunk in
+                { loadedSinceDate = chunk }
             },
             onRefresh: {
                 await feedManager.refreshAllFeeds()
