@@ -34,13 +34,12 @@ struct WhisperTranscriberEngine: TranscriptionEngine {
         #if DEBUG
         debugPrint("[WhisperEngine] Downloading model '\(variant)'")
         #endif
+        nonisolated(unsafe) let callback: ((Progress) -> Void)? = progress.map { report in
+            { prog in report(prog.fractionCompleted) }
+        }
         let folder = try await WhisperKit.download(
             variant: variant,
-            progressCallback: progress.map { handler in
-                { (prog: Progress) in
-                    handler(prog.fractionCompleted)
-                }
-            }
+            progressCallback: callback
         )
         Self.storedModelFolder = folder.path
         #if DEBUG

@@ -28,13 +28,17 @@ struct FluidTranscriberEngine: TranscriptionEngine {
         #if DEBUG
         debugPrint("[FluidEngine] Downloading Parakeet TDT v3 model")
         #endif
+        let handler: DownloadUtils.ProgressHandler?
+        if let progress {
+            handler = { @Sendable (dp: DownloadUtils.DownloadProgress) -> Void in
+                progress(dp.fractionCompleted)
+            }
+        } else {
+            handler = nil
+        }
         _ = try await AsrModels.download(
             version: Self.modelVersion,
-            progressHandler: progress.map { handler in
-                { (dp: DownloadProgress) in
-                    handler(dp.fractionCompleted)
-                }
-            }
+            progressHandler: handler
         )
         #if DEBUG
         debugPrint("[FluidEngine] Model download complete")
@@ -42,7 +46,7 @@ struct FluidTranscriberEngine: TranscriptionEngine {
     }
 
     func deleteModel() throws {
-        DownloadUtils.clearModelCache(forRepo: Self.modelVersion.repo, directory: Self.cacheDirectory)
+        try? FileManager.default.removeItem(at: Self.cacheDirectory)
     }
 
     func transcribe(audioFileURL: URL, title: String) async throws -> [TranscriptSegment] {

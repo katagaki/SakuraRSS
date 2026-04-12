@@ -4,6 +4,7 @@ import Observation
 enum DownloadState: Sendable {
     case idle
     case downloading
+    case transcribing
     case completed
     case failed
 }
@@ -163,16 +164,16 @@ final class PodcastDownloadManager: NSObject, URLSessionDownloadDelegate {
         let relativePath = "\(articleID)/\(name)"
         try DatabaseManager.shared.setDownloadPath(relativePath, for: articleID)
 
-        markCompleted(articleID: articleID)
+        // Transition the donut into the transcribing phase so it stays visible
+        // while the model runs. Transcription failure is non-fatal — we always
+        // finish with `markCompleted` below so the check mark appears.
+        if await PodcastTranscriber.isAvailable {
+            activeDownloads[articleID] = DownloadProgress(state: .transcribing, progress: 0)
+            let title = article.title
+            await attemptTranscription(articleID: articleID, fileURL: destination, title: title)
+        }
 
-        // Transcribe in the background without blocking the UI.
-        let title = article.title
-        let transcriptionTask = Task.detached(priority: .utility) {
-            await self.attemptTranscription(articleID: articleID, fileURL: destination, title: title)
-        }
-        await MainActor.run {
-            transcriptionTasks[articleID] = Task { await transcriptionTask.value }
-        }
+        markCompleted(articleID: articleID)
     }
 
     // MARK: - URLSessionDownloadDelegate
