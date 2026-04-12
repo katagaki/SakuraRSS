@@ -51,6 +51,18 @@ class Integration {
     /// break synchronous lookups.
     nonisolated init() {}
 
+    /// Per-request timeout used by integration network calls that build
+    /// their own `URLRequest`s (e.g. the X GraphQL API, Instagram's web
+    /// profile endpoint).  Callers performing cosmetic work — favicon
+    /// avatar lookups in particular — can raise this value to bypass the
+    /// default 15s timeout since an avatar fetch is non-critical and
+    /// should not fail on slow networks.
+    ///
+    /// Marked `nonisolated(unsafe)` so the `FaviconCache` actor can tweak
+    /// it before calling a scrape method.  The value is only ever set
+    /// before network calls start, so there is no meaningful data race.
+    nonisolated(unsafe) var requestTimeoutInterval: TimeInterval = 15
+
     // MARK: - Required overrides
 
     /// Pseudo-feed URL scheme prefix, e.g. `"x-profile://"`.
@@ -131,12 +143,21 @@ class Integration {
     /// The default implementation calls `profileImageURL(forIdentifier:)`
     /// and downloads the result. Subclasses typically only need to
     /// override the URL-resolution step.
+    ///
+    /// Because profile-photo fetches are cosmetic, they bump
+    /// `requestTimeoutInterval` to a long value so the profile-info API
+    /// call won't time out on a slow network, and use the dedicated
+    /// `FaviconCache.urlSession` (which has equally long timeouts) to
+    /// download the image bytes.
     func fetchProfilePhoto(forFeedURL url: String) async -> UIImage? {
         guard Self.supportsProfilePhoto,
-              let identifier = Self.identifierFromFeedURL(url),
-              let imageURLString = await profileImageURL(forIdentifier: identifier),
+              let identifier = Self.identifierFromFeedURL(url) else {
+            return nil
+        }
+        requestTimeoutInterval = 600
+        guard let imageURLString = await profileImageURL(forIdentifier: identifier),
               let imageURL = URL(string: imageURLString),
-              let (data, _) = try? await URLSession.shared.data(from: imageURL) else {
+              let (data, _) = try? await FaviconCache.urlSession.data(from: imageURL) else {
             return nil
         }
         return UIImage(data: data)

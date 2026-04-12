@@ -126,7 +126,7 @@ extension InstagramIntegration {
     // MARK: - Request Building
 
     func buildRequest(url: URL, cookies: InstagramCookies) -> URLRequest {
-        var request = URLRequest(url: url, timeoutInterval: 15)
+        var request = URLRequest(url: url, timeoutInterval: requestTimeoutInterval)
         request.setValue(sakuraUserAgent, forHTTPHeaderField: "User-Agent")
         request.setValue(cookies.csrfToken, forHTTPHeaderField: "x-csrftoken")
         request.setValue("XMLHttpRequest", forHTTPHeaderField: "x-requested-with")

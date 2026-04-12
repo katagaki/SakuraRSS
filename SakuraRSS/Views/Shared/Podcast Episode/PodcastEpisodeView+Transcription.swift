@@ -20,20 +20,20 @@ extension PodcastEpisodeView {
         if showingTranscript, let transcript, !transcript.isEmpty, !isTranscriptAutoScrolling {
             Button {
                 isTranscriptAutoScrolling = true
+                UIApplication.shared.isIdleTimerDisabled = true
                 if let active = activeTranscriptID(in: transcript) {
                     withAnimation(.smooth) {
                         scrollProxy.scrollTo(active, anchor: .center)
                     }
                 }
             } label: {
-                Label("Podcast.Transcript.FollowAlong", systemImage: "text.alignleft")
-                    .font(.footnote)
+                Text("Podcast.Transcript.FollowAlong")
+                    .font(.body)
                     .fontWeight(.semibold)
                     .padding(.horizontal, 14)
                     .padding(.vertical, 8)
-                    .background(.thinMaterial, in: Capsule())
             }
-            .buttonStyle(.plain)
+            .buttonStyle(.glass)
             .padding(.bottom, 12)
         }
     }

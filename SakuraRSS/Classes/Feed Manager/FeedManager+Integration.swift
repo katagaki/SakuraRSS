@@ -52,12 +52,15 @@ extension FeedManager {
         let articles = result.articles
         let feedTitle = result.feedTitle ?? feed.title
 
-        // 4. Download profile photo if this integration supports it
+        // 4. Download profile photo if this integration supports it.
+        // The image fetch uses the favicon cache's dedicated URLSession,
+        // which has long timeouts because favicons are cosmetic and must
+        // not fail just because an image takes a long time to download.
         var profileImage: UIImage?
         if integrationType.supportsProfilePhoto,
            let imageURLString = result.profileImageURL,
            let imageURL = URL(string: imageURLString),
-           let (imageData, _) = try? await URLSession.shared.data(from: imageURL) {
+           let (imageData, _) = try? await FaviconCache.urlSession.data(from: imageURL) {
             profileImage = UIImage(data: imageData)
         }
 
@@ -72,19 +75,26 @@ extension FeedManager {
             SpotlightIndexer.indexArticles(articlesToIndex, feedTitle: feedTitle)
         }.value
 
-        // 6. Cache favicon and update feed details
-        if let image = profileImage {
+        // 6. Cache favicon and update feed details.
+        //
+        // Only install the downloaded profile photo when the feed has
+        // no custom icon yet (`customIconURL == nil`).  Once the user —
+        // or a prior refresh — has assigned any custom icon, preserve
+        // it across refreshes so it isn't silently overwritten.  This
+        // means the profile photo only auto-installs on the very first
+        // fetch; to pull a fresh profile photo, the user can delete the
+        // custom icon in the edit sheet.
+        let shouldInstallProfilePhoto = profileImage != nil && feed.customIconURL == nil
+        if shouldInstallProfilePhoto, let image = profileImage {
             await FaviconCache.shared.setCustomFavicon(
                 image, feedID: feed.id, skipTrimming: true
             )
-            if feed.customIconURL != "photo" || feed.title != feedTitle {
-                try? await Task.detached {
-                    try database.updateFeedDetails(
-                        id: feed.id, title: feedTitle, url: feed.url,
-                        customIconURL: "photo"
-                    )
-                }.value
-            }
+            try? await Task.detached {
+                try database.updateFeedDetails(
+                    id: feed.id, title: feedTitle, url: feed.url,
+                    customIconURL: "photo"
+                )
+            }.value
         } else if feed.title != feedTitle {
             try? await Task.detached {
                 try database.updateFeedDetails(

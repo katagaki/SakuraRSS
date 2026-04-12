@@ -28,13 +28,13 @@ extension FaviconCache {
     nonisolated func fetchProfileAvatar(from siteURL: String) async -> UIImage? {
         guard let url = URL(string: siteURL) else { return nil }
         do {
-            let (data, _) = try await URLSession.shared.data(from: url)
+            let (data, _) = try await Self.urlSession.data(from: url)
             guard let html = String(data: data, encoding: .utf8) else { return nil }
 
             guard let imageURL = extractMetaContent(from: html, property: "og:image"),
                   let avatarURL = URL(string: imageURL) else { return nil }
 
-            let (imageData, _) = try await URLSession.shared.data(from: avatarURL)
+            let (imageData, _) = try await Self.urlSession.data(from: avatarURL)
             return UIImage(data: imageData)
         } catch {
             return nil
