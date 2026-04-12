@@ -19,7 +19,7 @@ final class YouTubePlaylistIntegration: Integration {
 
     // MARK: - Integration overrides
 
-    override class var feedURLScheme: String { YouTubePlaylistURLHelpers.feedURLScheme }
+    nonisolated override class var feedURLScheme: String { YouTubePlaylistURLHelpers.feedURLScheme }
 
     override func scrape(identifier: String) async -> IntegrationScrapeResult {
         let result = await scrapePlaylist(playlistID: identifier)

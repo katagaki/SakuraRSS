@@ -47,8 +47,10 @@ class Integration {
     // MARK: - Required overrides
 
     /// Pseudo-feed URL scheme prefix, e.g. `"x-profile://"`.
-    /// Subclasses MUST override this.
-    class var feedURLScheme: String {
+    /// Subclasses MUST override this. Marked `nonisolated` so that the
+    /// URL-matching helpers below (which are called from actor-isolated
+    /// code like `FaviconCache`) stay fully synchronous.
+    nonisolated class var feedURLScheme: String {
         fatalError("Subclass must override `feedURLScheme`")
     }
 
@@ -65,33 +67,33 @@ class Integration {
     // MARK: - Feed URL helpers (provided)
 
     /// Checks whether a feed URL belongs to this integration.
-    class func isFeedURL(_ url: String) -> Bool {
+    nonisolated class func isFeedURL(_ url: String) -> Bool {
         url.hasPrefix(feedURLScheme)
     }
 
     /// Extracts the platform-specific identifier from a pseudo-feed URL.
-    class func identifierFromFeedURL(_ url: String) -> String? {
+    nonisolated class func identifierFromFeedURL(_ url: String) -> String? {
         guard isFeedURL(url) else { return nil }
         return String(url.dropFirst(feedURLScheme.count))
     }
 
     /// Constructs a pseudo-feed URL for the given identifier.
-    class func feedURL(for identifier: String) -> String {
+    nonisolated class func feedURL(for identifier: String) -> String {
         "\(feedURLScheme)\(identifier.lowercased())"
     }
 
     // MARK: - Overridable defaults
 
     /// Minimum interval between refreshes of a single feed. Default: 30 minutes.
-    class var refreshInterval: TimeInterval { 30 * 60 }
+    nonisolated class var refreshInterval: TimeInterval { 30 * 60 }
 
     /// Whether this integration requires authentication to fetch content.
     /// Default: `false`. Subclasses like X and Instagram override to `true`.
-    class var requiresAuthentication: Bool { false }
+    nonisolated class var requiresAuthentication: Bool { false }
 
     /// Whether this integration can supply a profile photo to use as the
     /// feed's custom favicon. Default: `false`.
-    class var supportsProfilePhoto: Bool { false }
+    nonisolated class var supportsProfilePhoto: Bool { false }
 
     /// Whether the user currently has an active session for this integration.
     /// Default: `true` (for integrations that don't require authentication).
@@ -144,7 +146,10 @@ enum IntegrationRegistry {
 
     /// Returns a fresh integration instance for the given feed URL, or
     /// nil if the URL does not belong to any registered integration.
-    static func integration(forFeedURL url: String) -> Integration? {
+    ///
+    /// Marked `nonisolated` so that actor-isolated callers (e.g.
+    /// `FaviconCache`) can look up an integration without an actor hop.
+    nonisolated static func integration(forFeedURL url: String) -> Integration? {
         if XIntegration.isFeedURL(url) { return XIntegration() }
         if InstagramIntegration.isFeedURL(url) { return InstagramIntegration() }
         if YouTubePlaylistIntegration.isFeedURL(url) { return YouTubePlaylistIntegration() }
@@ -153,7 +158,7 @@ enum IntegrationRegistry {
 
     /// All registered integration types. Useful for diagnostics/settings
     /// views that want to enumerate every available integration.
-    static var allTypes: [Integration.Type] {
+    nonisolated static var allTypes: [Integration.Type] {
         [
             XIntegration.self,
             InstagramIntegration.self,

@@ -5,12 +5,16 @@ import Foundation
 /// Pure URL-matching helpers for X/Twitter. Lives in `Shared/` so that
 /// cross-target files (`Models.swift`, `FeedDiscovery.swift`) can call
 /// these without depending on the app-only `XIntegration` class.
+///
+/// Every member is `nonisolated` so the helpers can be called from any
+/// actor context — including the non-main-actor `Models.swift` and the
+/// `FeedDiscovery` actor — under Swift 6's default-main-actor isolation.
 enum XURLHelpers {
 
-    static let feedURLScheme = "x-profile://"
+    nonisolated static let feedURLScheme = "x-profile://"
 
     /// Returns true if the URL points to a specific X/Twitter post (status).
-    static func isXPostURL(_ url: URL) -> Bool {
+    nonisolated static func isXPostURL(_ url: URL) -> Bool {
         guard let host = url.host?.lowercased() else { return false }
         let isXDomain = host == "x.com" || host == "twitter.com"
             || host == "www.x.com" || host == "www.twitter.com"
@@ -22,14 +26,14 @@ enum XURLHelpers {
     }
 
     /// Extracts the tweet ID from an X/Twitter status URL.
-    static func extractTweetID(from url: URL) -> String? {
+    nonisolated static func extractTweetID(from url: URL) -> String? {
         let components = url.pathComponents
         guard components.count >= 4, components[2] == "status" else { return nil }
         return components[3]
     }
 
     /// Returns true if the URL points to an X/Twitter profile.
-    static func isXProfileURL(_ url: URL) -> Bool {
+    nonisolated static func isXProfileURL(_ url: URL) -> Bool {
         guard let host = url.host?.lowercased() else { return false }
         let isXDomain = host == "x.com" || host == "twitter.com"
             || host == "www.x.com" || host == "www.twitter.com"
@@ -52,7 +56,7 @@ enum XURLHelpers {
     }
 
     /// Extracts the username handle from an X profile URL.
-    static func extractHandle(from url: URL) -> String? {
+    nonisolated static func extractHandle(from url: URL) -> String? {
         let path = url.path
         guard path.count > 1 else { return nil }
         return path.dropFirst()
@@ -61,22 +65,22 @@ enum XURLHelpers {
     }
 
     /// Constructs a canonical X profile URL from a handle.
-    static func profileURL(for handle: String) -> URL? {
+    nonisolated static func profileURL(for handle: String) -> URL? {
         URL(string: "https://x.com/\(handle)")
     }
 
     /// The pseudo-feed URL stored in the database for an X profile.
-    static func feedURL(for handle: String) -> String {
+    nonisolated static func feedURL(for handle: String) -> String {
         "\(feedURLScheme)\(handle.lowercased())"
     }
 
     /// Checks if a feed URL is an X pseudo-feed.
-    static func isXFeedURL(_ url: String) -> Bool {
+    nonisolated static func isXFeedURL(_ url: String) -> Bool {
         url.hasPrefix(feedURLScheme)
     }
 
     /// Extracts the handle from an X pseudo-feed URL.
-    static func handleFromFeedURL(_ url: String) -> String? {
+    nonisolated static func handleFromFeedURL(_ url: String) -> String? {
         guard isXFeedURL(url) else { return nil }
         return String(url.dropFirst(feedURLScheme.count))
     }
@@ -87,10 +91,10 @@ enum XURLHelpers {
 /// Pure URL-matching helpers for Instagram.
 enum InstagramURLHelpers {
 
-    static let feedURLScheme = "instagram-profile://"
+    nonisolated static let feedURLScheme = "instagram-profile://"
 
     /// Returns true if the URL points to a specific Instagram post.
-    static func isInstagramPostURL(_ url: URL) -> Bool {
+    nonisolated static func isInstagramPostURL(_ url: URL) -> Bool {
         guard let host = url.host?.lowercased() else { return false }
         let isInstagramDomain = host == "instagram.com" || host == "www.instagram.com"
         guard isInstagramDomain else { return false }
@@ -101,7 +105,7 @@ enum InstagramURLHelpers {
     }
 
     /// Returns true if the URL points to an Instagram profile.
-    static func isInstagramProfileURL(_ url: URL) -> Bool {
+    nonisolated static func isInstagramProfileURL(_ url: URL) -> Bool {
         guard let host = url.host?.lowercased() else { return false }
         let isInstagramDomain = host == "instagram.com" || host == "www.instagram.com"
         guard isInstagramDomain else { return false }
@@ -122,7 +126,7 @@ enum InstagramURLHelpers {
     }
 
     /// Extracts the username handle from an Instagram profile URL.
-    static func extractHandle(from url: URL) -> String? {
+    nonisolated static func extractHandle(from url: URL) -> String? {
         let path = url.path
         guard path.count > 1 else { return nil }
         return path.dropFirst()
@@ -131,22 +135,22 @@ enum InstagramURLHelpers {
     }
 
     /// Constructs a canonical Instagram profile URL from a handle.
-    static func profileURL(for handle: String) -> URL? {
+    nonisolated static func profileURL(for handle: String) -> URL? {
         URL(string: "https://www.instagram.com/\(handle)/")
     }
 
     /// The pseudo-feed URL stored in the database for an Instagram profile.
-    static func feedURL(for handle: String) -> String {
+    nonisolated static func feedURL(for handle: String) -> String {
         "\(feedURLScheme)\(handle.lowercased())"
     }
 
     /// Checks if a feed URL is an Instagram pseudo-feed.
-    static func isInstagramFeedURL(_ url: String) -> Bool {
+    nonisolated static func isInstagramFeedURL(_ url: String) -> Bool {
         url.hasPrefix(feedURLScheme)
     }
 
     /// Extracts the handle from an Instagram pseudo-feed URL.
-    static func handleFromFeedURL(_ url: String) -> String? {
+    nonisolated static func handleFromFeedURL(_ url: String) -> String? {
         guard isInstagramFeedURL(url) else { return nil }
         return String(url.dropFirst(feedURLScheme.count))
     }
@@ -157,10 +161,10 @@ enum InstagramURLHelpers {
 /// Pure URL-matching helpers for YouTube playlists.
 enum YouTubePlaylistURLHelpers {
 
-    static let feedURLScheme = "youtube-playlist://"
+    nonisolated static let feedURLScheme = "youtube-playlist://"
 
     /// Returns true if the URL points to a YouTube playlist.
-    static func isYouTubePlaylistURL(_ url: URL) -> Bool {
+    nonisolated static func isYouTubePlaylistURL(_ url: URL) -> Bool {
         guard let host = url.host?.lowercased() else { return false }
         let isYouTubeDomain = host == "youtube.com" || host == "www.youtube.com"
             || host == "m.youtube.com"
@@ -170,7 +174,7 @@ enum YouTubePlaylistURLHelpers {
     }
 
     /// Extracts the playlist ID from a YouTube playlist URL.
-    static func extractPlaylistID(from url: URL) -> String? {
+    nonisolated static func extractPlaylistID(from url: URL) -> String? {
         guard let components = URLComponents(url: url, resolvingAgainstBaseURL: false) else {
             return nil
         }
@@ -178,22 +182,22 @@ enum YouTubePlaylistURLHelpers {
     }
 
     /// The pseudo-feed URL stored in the database for a YouTube playlist.
-    static func feedURL(for playlistID: String) -> String {
+    nonisolated static func feedURL(for playlistID: String) -> String {
         "\(feedURLScheme)\(playlistID)"
     }
 
     /// Constructs the canonical YouTube playlist URL from a playlist ID.
-    static func playlistURL(for playlistID: String) -> URL? {
+    nonisolated static func playlistURL(for playlistID: String) -> URL? {
         URL(string: "https://www.youtube.com/playlist?list=\(playlistID)")
     }
 
     /// Checks if a feed URL is a YouTube playlist pseudo-feed.
-    static func isYouTubePlaylistFeedURL(_ url: String) -> Bool {
+    nonisolated static func isYouTubePlaylistFeedURL(_ url: String) -> Bool {
         url.hasPrefix(feedURLScheme)
     }
 
     /// Extracts the playlist ID from a YouTube playlist pseudo-feed URL.
-    static func playlistIDFromFeedURL(_ url: String) -> String? {
+    nonisolated static func playlistIDFromFeedURL(_ url: String) -> String? {
         guard isYouTubePlaylistFeedURL(url) else { return nil }
         return String(url.dropFirst(feedURLScheme.count))
     }

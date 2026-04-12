@@ -60,11 +60,11 @@ final class XIntegration: Integration {
 
     // MARK: - Integration overrides
 
-    override class var feedURLScheme: String { XURLHelpers.feedURLScheme }
+    nonisolated override class var feedURLScheme: String { XURLHelpers.feedURLScheme }
 
-    override class var requiresAuthentication: Bool { true }
+    nonisolated override class var requiresAuthentication: Bool { true }
 
-    override class var supportsProfilePhoto: Bool { true }
+    nonisolated override class var supportsProfilePhoto: Bool { true }
 
     @MainActor
     override class func hasSession() async -> Bool {
