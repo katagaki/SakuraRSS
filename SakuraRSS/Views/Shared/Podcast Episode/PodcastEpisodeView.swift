@@ -246,9 +246,6 @@ struct PodcastEpisodeView: View {
             .padding(.vertical)
         }
         .onScrollPhaseChange { _, newPhase in
-            // When the user starts interacting with the scroll view while the
-            // transcript is showing, disable auto-follow so the transcript
-            // doesn't snap back to the active segment while they're reading.
             if showingTranscript,
                isTranscriptAutoScrolling,
                newPhase == .interacting || newPhase == .tracking {
