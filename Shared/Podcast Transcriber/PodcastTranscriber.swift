@@ -2,49 +2,37 @@ import Foundation
 
 /// Central dispatcher for podcast transcription.
 ///
-/// Reads the user's engine preference from UserDefaults and delegates
-/// to the corresponding ``TranscriptionEngine`` implementation.
-/// Skips transcription entirely if the selected engine requires a model
-/// that hasn't been downloaded yet.
+/// Reads the user's "transcription enabled" preference from UserDefaults and
+/// delegates to the FluidAudio Parakeet engine. Skips transcription if the
+/// toggle is off or the model hasn't finished downloading.
 enum PodcastTranscriber {
 
-    private static var selectedEngineType: TranscriptionEngineType {
-        guard let raw = UserDefaults.standard.string(forKey: "Podcast.TranscriptionEngine"),
-              let type = TranscriptionEngineType(rawValue: raw) else {
-            return .off
-        }
-        return type
+    /// UserDefaults key for the Parakeet-on-off toggle.
+    static let enabledKey = "Podcast.TranscriptionEnabled"
+
+    static var isEnabled: Bool {
+        UserDefaults.standard.bool(forKey: enabledKey)
     }
 
-    static func engine(for type: TranscriptionEngineType) -> (any TranscriptionEngine)? {
-        switch type {
-        case .off:     return nil
-        case .speech:  return SpeechTranscriberEngine()
-        case .whisper: return WhisperTranscriberEngine()
-        case .fluid:   return FluidTranscriberEngine()
-        }
-    }
+    static var engine: any TranscriptionEngine { FluidTranscriberEngine() }
 
     // MARK: - Public API
 
-    /// Whether transcription is enabled, the selected engine is available,
-    /// and any required models are downloaded.
+    /// Whether transcription is enabled and the Parakeet model is downloaded.
     static var isAvailable: Bool {
         get async {
-            guard let engine = engine(for: selectedEngineType) else { return false }
-            if type(of: engine).requiresModelDownload && !engine.isModelDownloaded {
-                return false
-            }
+            guard isEnabled else { return false }
+            guard engine.isModelDownloaded else { return false }
             return await engine.isAvailable
         }
     }
 
-    /// Transcribes a local audio file using the user's selected engine.
+    /// Transcribes a local audio file using the Parakeet engine.
     static func transcribe(audioFileURL: URL, title: String) async throws -> [TranscriptSegment] {
-        guard let engine = engine(for: selectedEngineType) else {
+        guard isEnabled else {
             throw TranscriptionEngineError.notAvailable
         }
-        if type(of: engine).requiresModelDownload && !engine.isModelDownloaded {
+        guard engine.isModelDownloaded else {
             throw TranscriptionEngineError.modelNotDownloaded
         }
         return try await engine.transcribe(audioFileURL: audioFileURL, title: title)

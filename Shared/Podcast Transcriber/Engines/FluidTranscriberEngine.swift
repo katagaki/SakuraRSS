@@ -25,9 +25,6 @@ struct FluidTranscriberEngine: TranscriptionEngine {
     }
 
     func downloadModel(progress: (@Sendable (Double) -> Void)?) async throws {
-        #if DEBUG
-        debugPrint("[FluidEngine] Downloading Parakeet TDT v3 model")
-        #endif
         let handler: DownloadUtils.ProgressHandler?
         if let progress {
             handler = { @Sendable (dp: DownloadUtils.DownloadProgress) -> Void in
@@ -40,9 +37,6 @@ struct FluidTranscriberEngine: TranscriptionEngine {
             version: Self.modelVersion,
             progressHandler: handler
         )
-        #if DEBUG
-        debugPrint("[FluidEngine] Model download complete")
-        #endif
     }
 
     func deleteModel() throws {
@@ -57,24 +51,97 @@ struct FluidTranscriberEngine: TranscriptionEngine {
             throw TranscriptionEngineError.modelNotDownloaded
         }
 
-        #if DEBUG
-        debugPrint("[FluidEngine] Loading Parakeet TDT v3 model")
-        #endif
-
         let models = try await AsrModels.downloadAndLoad(version: Self.modelVersion)
         let manager = AsrManager(models: models)
-
-        #if DEBUG
-        debugPrint("[FluidEngine] Transcribing \(audioFileURL.lastPathComponent)")
-        #endif
 
         var decoderState = TdtDecoderState.make()
         let result = try await manager.transcribe(audioFileURL, decoderState: &decoderState)
 
-        // FluidAudio returns full text without segment-level timestamps.
-        // Split into sentences and distribute timestamps proportionally.
+        if let timings = result.tokenTimings, !timings.isEmpty {
+            return Self.buildSegments(from: timings)
+        }
+
+        // Fallback: no token timings returned (shouldn't happen for TDT models).
         let duration = try await Self.audioDuration(of: audioFileURL)
         return Self.distributeTimestamps(text: result.text, totalDuration: duration)
+    }
+
+    // MARK: - Segment construction from token timings
+
+    /// Group per-token timings into sentence-level `TranscriptSegment`s using
+    /// real start/end times from the TDT decoder.
+    ///
+    /// FluidAudio normalizes tokens before returning them: the SentencePiece
+    /// word-boundary marker `▁` is already replaced with a space, so simply
+    /// concatenating `token` strings yields the natural transcript text.
+    /// Punctuation tokens (`.`, `!`, `?`) are attached to the preceding word
+    /// and mark sentence boundaries.
+    static func buildSegments(from timings: [TokenTiming]) -> [TranscriptSegment] {
+        var segments: [TranscriptSegment] = []
+        var buffer = ""
+        var segmentStart: TimeInterval?
+        var segmentEnd: TimeInterval = 0
+        var nextID = 0
+
+        func flush() {
+            let trimmed = buffer.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !trimmed.isEmpty, let start = segmentStart else {
+                buffer = ""
+                segmentStart = nil
+                return
+            }
+            segments.append(
+                TranscriptSegment(
+                    id: nextID,
+                    start: start,
+                    end: max(segmentEnd, start + 0.001),
+                    text: trimmed
+                )
+            )
+            nextID += 1
+            buffer = ""
+            segmentStart = nil
+        }
+
+        for timing in timings {
+            if segmentStart == nil {
+                segmentStart = timing.startTime
+            }
+            buffer.append(timing.token)
+            segmentEnd = timing.endTime
+
+            if endsSentence(timing.token) {
+                flush()
+            }
+        }
+        flush()
+
+        // If no sentence punctuation was ever emitted, fall back to one segment
+        // covering the entire utterance.
+        if segments.isEmpty, let first = timings.first, let last = timings.last {
+            let text = timings
+                .map(\.token)
+                .joined()
+                .trimmingCharacters(in: .whitespacesAndNewlines)
+            if !text.isEmpty {
+                segments.append(
+                    TranscriptSegment(
+                        id: 0,
+                        start: first.startTime,
+                        end: max(last.endTime, first.startTime + 0.001),
+                        text: text
+                    )
+                )
+            }
+        }
+
+        return segments
+    }
+
+    /// Whether a token's trailing character ends a sentence.
+    private static func endsSentence(_ token: String) -> Bool {
+        guard let last = token.last else { return false }
+        return last == "." || last == "!" || last == "?" || last == "。" || last == "？" || last == "！"
     }
 
     // MARK: - Helpers
@@ -86,6 +153,7 @@ struct FluidTranscriberEngine: TranscriptionEngine {
         return CMTimeGetSeconds(duration)
     }
 
+    /// Degraded fallback for the rare case where no token timings are returned.
     /// Splits text into sentences and assigns evenly distributed timestamps.
     static func distributeTimestamps(text: String, totalDuration: TimeInterval) -> [TranscriptSegment] {
         let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
