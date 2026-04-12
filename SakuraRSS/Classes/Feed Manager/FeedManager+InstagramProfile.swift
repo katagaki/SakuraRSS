@@ -6,11 +6,8 @@ extension FeedManager {
     // MARK: - Instagram Profile Feeds
 
     /// Minimum interval between Instagram API calls per feed (30 minutes).
-    private static let instagramRefreshInterval: TimeInterval = 30 * 60
-
-    /// Total expected worst-case duration for an Instagram profile refresh:
-    /// `fetchProfileInfo` (15s) + optional `fetchUserFeed` fallback (15s).
-    private static let instagramRefreshTotalTimeout: TimeInterval = 30
+    /// Also used by `FaviconProgressBadge` to size the cooldown pie.
+    static let instagramRefreshInterval: TimeInterval = 30 * 60
 
     func refreshInstagramFeed(_ feed: Feed, reloadData: Bool = true) async throws {
         // Skip if this feed was fetched less than 30 minutes ago to avoid rate limits
@@ -26,18 +23,6 @@ extension FeedManager {
 
         guard let handle = InstagramProfileScraper.handleFromFeedURL(feed.url),
               let profileURL = InstagramProfileScraper.profileURL(for: handle) else { return }
-
-        let feedID = feed.id
-        await MainActor.run {
-            FetchProgressTracker.shared.startFetch(
-                feedID: feedID, duration: Self.instagramRefreshTotalTimeout
-            )
-        }
-        defer {
-            Task { @MainActor in
-                FetchProgressTracker.shared.endFetch(feedID: feedID)
-            }
-        }
 
         let scraper = InstagramProfileScraper()
         let result = await scraper.scrapeProfile(profileURL: profileURL)

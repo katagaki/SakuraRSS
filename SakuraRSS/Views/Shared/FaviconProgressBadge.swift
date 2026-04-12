@@ -1,22 +1,29 @@
 import SwiftUI
 
-/// A small pie-shaped progress badge meant to be overlaid on the
-/// bottom-right corner of a feed's favicon.  Displays nothing when
-/// there is no active fetch for the given feed ID.
+/// A small pie-shaped badge meant to be overlaid on the bottom-right
+/// corner of a feed's favicon.  Visualises the rate-limit cooldown for
+/// X and Instagram profile refreshes: the pie fills from empty to full
+/// as the 30-minute window elapses, and the badge disappears once the
+/// feed is eligible to refresh again.
 ///
-/// A `TimelineView` drives the badge on a periodic schedule instead of
-/// relying on `@Observable` propagation from a singleton tracker, so the
-/// badge appears reliably the moment a fetch starts.
+/// A `TimelineView` drives the pie on a periodic schedule so it
+/// advances smoothly without relying on any external observation
+/// mechanism.
 struct FaviconProgressBadge: View {
 
-    let feedID: Int64
+    /// Last successful refresh date, or `nil` for feeds that have not
+    /// yet been fetched.
+    let lastFetched: Date?
+
+    /// Duration of the cooldown window.  For X and Instagram profile
+    /// feeds this is 30 minutes.
+    let cooldown: TimeInterval
+
     var size: CGFloat = 12
 
     var body: some View {
-        TimelineView(.periodic(from: .now, by: 0.1)) { context in
-            if let progress = FetchProgressTracker.shared.progress(
-                for: feedID, now: context.date
-            ) {
+        TimelineView(.periodic(from: .now, by: 1)) { context in
+            if let progress = cooldownProgress(now: context.date) {
                 ZStack {
                     Circle()
                         .fill(Color.black.opacity(0.6))
@@ -32,6 +39,15 @@ struct FaviconProgressBadge: View {
                 Color.clear.frame(width: size, height: size)
             }
         }
+    }
+
+    /// Returns the completed fraction (0...1) of the cooldown window,
+    /// or `nil` if the feed is already eligible to refresh (pie hidden).
+    private func cooldownProgress(now: Date) -> Double? {
+        guard let lastFetched, cooldown > 0 else { return nil }
+        let elapsed = now.timeIntervalSince(lastFetched)
+        guard elapsed >= 0, elapsed < cooldown else { return nil }
+        return min(max(elapsed / cooldown, 0), 1)
     }
 }
 

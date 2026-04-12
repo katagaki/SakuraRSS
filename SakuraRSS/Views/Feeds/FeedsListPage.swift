@@ -221,9 +221,20 @@ struct FeedRowView: View {
                     )
                 }
 
-                if feed.isXFeed || feed.isInstagramFeed {
-                    FaviconProgressBadge(feedID: feed.id, size: 13)
-                        .offset(x: 3, y: 3)
+                if feed.isXFeed {
+                    FaviconProgressBadge(
+                        lastFetched: feed.lastFetched,
+                        cooldown: FeedManager.xRefreshInterval,
+                        size: 13
+                    )
+                    .offset(x: 3, y: 3)
+                } else if feed.isInstagramFeed {
+                    FaviconProgressBadge(
+                        lastFetched: feed.lastFetched,
+                        cooldown: FeedManager.instagramRefreshInterval,
+                        size: 13
+                    )
+                    .offset(x: 3, y: 3)
                 }
             }
             .frame(width: 32, height: 32)

@@ -6,11 +6,8 @@ extension FeedManager {
     // MARK: - X Profile Feeds
 
     /// Minimum interval between X API calls per feed (30 minutes).
-    private static let xRefreshInterval: TimeInterval = 30 * 60
-
-    /// Total expected worst-case duration for an X profile refresh:
-    /// `fetchUserInfo` (15s) + up to two `fetchTweets` pages (2 × 15s).
-    private static let xRefreshTotalTimeout: TimeInterval = 45
+    /// Also used by `FaviconProgressBadge` to size the cooldown pie.
+    static let xRefreshInterval: TimeInterval = 30 * 60
 
     func refreshXFeed(_ feed: Feed, reloadData: Bool = true) async throws {
         // Skip if this feed was fetched less than 30 minutes ago to avoid rate limits
@@ -26,18 +23,6 @@ extension FeedManager {
 
         guard let handle = XProfileScraper.handleFromFeedURL(feed.url),
               let profileURL = XProfileScraper.profileURL(for: handle) else { return }
-
-        let feedID = feed.id
-        await MainActor.run {
-            FetchProgressTracker.shared.startFetch(
-                feedID: feedID, duration: Self.xRefreshTotalTimeout
-            )
-        }
-        defer {
-            Task { @MainActor in
-                FetchProgressTracker.shared.endFetch(feedID: feedID)
-            }
-        }
 
         let scraper = XProfileScraper()
         let result = await scraper.scrapeProfile(profileURL: profileURL)

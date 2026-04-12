@@ -259,7 +259,19 @@ struct FeedEditSheet: View {
             await FaviconCache.shared.removeCustomFavicon(feedID: feed.id)
         }
 
-        feedManager.updateFeedDetails(feed, title: name, url: url,
+        // For X, Instagram, and YouTube playlist feeds the editable "URL"
+        // field shows the site URL for readability, but the database stores
+        // a pseudo-feed URL (e.g. `x-profile://handle`) that encodes the
+        // feed type.  Always preserve the original `feed.url` for these
+        // feeds so that overwriting the title doesn't silently convert
+        // them into a regular feed.
+        let urlToSave: String
+        if feed.isXFeed || feed.isInstagramFeed || feed.isYouTubePlaylistFeed {
+            urlToSave = feed.url
+        } else {
+            urlToSave = url
+        }
+        feedManager.updateFeedDetails(feed, title: name, url: urlToSave,
                                       customIconURL: finalCustomIconURL)
         UserDefaults.standard.set(openMode.rawValue, forKey: "openMode-\(feed.id)")
         if articleSource == .automatic {
