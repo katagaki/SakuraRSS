@@ -8,6 +8,10 @@ extension FeedManager {
     /// Minimum interval between X API calls per feed (30 minutes).
     private static let xRefreshInterval: TimeInterval = 30 * 60
 
+    /// Total expected worst-case duration for an X profile refresh:
+    /// `fetchUserInfo` (15s) + up to two `fetchTweets` pages (2 × 15s).
+    private static let xRefreshTotalTimeout: TimeInterval = 45
+
     func refreshXFeed(_ feed: Feed, reloadData: Bool = true) async throws {
         // Skip if this feed was fetched less than 30 minutes ago to avoid rate limits
         if let lastFetched = feed.lastFetched,
@@ -22,6 +26,18 @@ extension FeedManager {
 
         guard let handle = XProfileScraper.handleFromFeedURL(feed.url),
               let profileURL = XProfileScraper.profileURL(for: handle) else { return }
+
+        let feedID = feed.id
+        await MainActor.run {
+            FetchProgressTracker.shared.startFetch(
+                feedID: feedID, duration: Self.xRefreshTotalTimeout
+            )
+        }
+        defer {
+            Task { @MainActor in
+                FetchProgressTracker.shared.endFetch(feedID: feedID)
+            }
+        }
 
         let scraper = XProfileScraper()
         let result = await scraper.scrapeProfile(profileURL: profileURL)
@@ -46,11 +62,13 @@ extension FeedManager {
 
         let feedTitle = result.displayName ?? feed.title
 
-        // Download profile photo if available
+        // Download profile photo if available. This fetch is effectively
+        // a favicon fetch and therefore uses the favicon cache's dedicated
+        // URLSession, which bypasses the normal request timeout.
         var profileImage: UIImage?
         if let imageURLString = result.profileImageURL,
            let imageURL = URL(string: imageURLString),
-           let (imageData, _) = try? await URLSession.shared.data(from: imageURL) {
+           let (imageData, _) = try? await FaviconCache.urlSession.data(from: imageURL) {
             profileImage = UIImage(data: imageData)
         }
 

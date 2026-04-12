@@ -8,6 +8,10 @@ extension FeedManager {
     /// Minimum interval between Instagram API calls per feed (30 minutes).
     private static let instagramRefreshInterval: TimeInterval = 30 * 60
 
+    /// Total expected worst-case duration for an Instagram profile refresh:
+    /// `fetchProfileInfo` (15s) + optional `fetchUserFeed` fallback (15s).
+    private static let instagramRefreshTotalTimeout: TimeInterval = 30
+
     func refreshInstagramFeed(_ feed: Feed, reloadData: Bool = true) async throws {
         // Skip if this feed was fetched less than 30 minutes ago to avoid rate limits
         if let lastFetched = feed.lastFetched,
@@ -22,6 +26,18 @@ extension FeedManager {
 
         guard let handle = InstagramProfileScraper.handleFromFeedURL(feed.url),
               let profileURL = InstagramProfileScraper.profileURL(for: handle) else { return }
+
+        let feedID = feed.id
+        await MainActor.run {
+            FetchProgressTracker.shared.startFetch(
+                feedID: feedID, duration: Self.instagramRefreshTotalTimeout
+            )
+        }
+        defer {
+            Task { @MainActor in
+                FetchProgressTracker.shared.endFetch(feedID: feedID)
+            }
+        }
 
         let scraper = InstagramProfileScraper()
         let result = await scraper.scrapeProfile(profileURL: profileURL)
@@ -46,11 +62,13 @@ extension FeedManager {
 
         let feedTitle = result.displayName ?? feed.title
 
-        // Download profile photo if available
+        // Download profile photo if available. This fetch is effectively
+        // a favicon fetch and therefore uses the favicon cache's dedicated
+        // URLSession, which bypasses the normal request timeout.
         var profileImage: UIImage?
         if let imageURLString = result.profileImageURL,
            let imageURL = URL(string: imageURLString),
-           let (imageData, _) = try? await URLSession.shared.data(from: imageURL) {
+           let (imageData, _) = try? await FaviconCache.urlSession.data(from: imageURL) {
             profileImage = UIImage(data: imageData)
         }
 

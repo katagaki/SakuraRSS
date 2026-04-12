@@ -99,7 +99,7 @@ extension XProfileScraper {
     func buildRequest(
         url: URL, cookies: XCookies
     ) -> URLRequest {
-        var request = URLRequest(url: url, timeoutInterval: 15)
+        var request = URLRequest(url: url, timeoutInterval: requestTimeoutInterval)
         let bearer = Self.bearerToken.removingPercentEncoding ?? Self.bearerToken
         request.setValue("Bearer \(bearer)", forHTTPHeaderField: "authorization")
         request.setValue(cookies.csrfToken, forHTTPHeaderField: "x-csrf-token")

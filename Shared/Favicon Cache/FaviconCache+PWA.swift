@@ -5,7 +5,7 @@ extension FaviconCache {
     /// Fetches a high-quality icon from a web app manifest or apple-touch-icon.
     nonisolated func fetchPWAIcon(from siteURL: URL) async -> UIImage? {
         do {
-            let (data, _) = try await URLSession.shared.data(from: siteURL)
+            let (data, _) = try await Self.urlSession.data(from: siteURL)
             guard let html = String(data: data, encoding: .utf8) else {
                 #if DEBUG
                 debugPrint("[Favicon] PWA: failed to decode HTML from \(siteURL)")
@@ -26,7 +26,7 @@ extension FaviconCache {
             // 2. Try apple-touch-icon (typically 180x180)
             if let touchIconHref = extractLinkHref(from: html, rel: "apple-touch-icon"),
                let iconURL = URL(string: touchIconHref, relativeTo: siteURL) {
-                let (iconData, _) = try await URLSession.shared.data(from: iconURL.absoluteURL)
+                let (iconData, _) = try await Self.urlSession.data(from: iconURL.absoluteURL)
                 if let image = UIImage(data: iconData), image.size.width >= 64 {
                     #if DEBUG
                     debugPrint("[Favicon] PWA: found apple-touch-icon from \(iconURL.absoluteURL) (\(image.size.width)x\(image.size.height))")
@@ -53,7 +53,7 @@ extension FaviconCache {
     /// Fetches the largest icon from a web app manifest JSON.
     nonisolated func fetchManifestIcon(from manifestURL: URL) async -> UIImage? {
         do {
-            let (data, _) = try await URLSession.shared.data(from: manifestURL)
+            let (data, _) = try await Self.urlSession.data(from: manifestURL)
             guard let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
                   let icons = json["icons"] as? [[String: Any]] else { return nil }
 
@@ -70,7 +70,7 @@ extension FaviconCache {
             guard let iconSrc = bestIcon?.url,
                   let iconURL = URL(string: iconSrc, relativeTo: manifestURL) else { return nil }
 
-            let (iconData, _) = try await URLSession.shared.data(from: iconURL.absoluteURL)
+            let (iconData, _) = try await Self.urlSession.data(from: iconURL.absoluteURL)
             if let image = UIImage(data: iconData), image.size.width >= 64 {
                 return image
             }

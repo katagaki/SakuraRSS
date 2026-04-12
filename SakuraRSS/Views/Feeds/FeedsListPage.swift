@@ -200,25 +200,33 @@ struct FeedRowView: View {
 
     var body: some View {
         HStack(spacing: 12) {
-            if let favicon = favicon {
-                FaviconImage(favicon, size: 32,
-                             cornerRadius: iconCornerRadius,
-                             circle: feed.isCircleIcon,
-                             skipInset: feed.isVideoFeed || feed.isPodcast || feed.isXFeed || feed.isInstagramFeed
-                                || FullFaviconDomains.shouldUseFullImage(feedDomain: feed.domain))
-            } else if let data = feed.acronymIcon, let acronym = UIImage(data: data) {
-                FaviconImage(acronym, size: 32,
-                             cornerRadius: iconCornerRadius,
-                             circle: feed.isCircleIcon,
-                             skipInset: true)
-            } else {
-                InitialsAvatarView(
-                    feed.title,
-                    size: 32,
-                    circle: feed.isCircleIcon,
-                    cornerRadius: iconCornerRadius
-                )
+            ZStack(alignment: .bottomTrailing) {
+                if let favicon = favicon {
+                    FaviconImage(favicon, size: 32,
+                                 cornerRadius: iconCornerRadius,
+                                 circle: feed.isCircleIcon,
+                                 skipInset: feed.isVideoFeed || feed.isPodcast || feed.isXFeed || feed.isInstagramFeed
+                                    || FullFaviconDomains.shouldUseFullImage(feedDomain: feed.domain))
+                } else if let data = feed.acronymIcon, let acronym = UIImage(data: data) {
+                    FaviconImage(acronym, size: 32,
+                                 cornerRadius: iconCornerRadius,
+                                 circle: feed.isCircleIcon,
+                                 skipInset: true)
+                } else {
+                    InitialsAvatarView(
+                        feed.title,
+                        size: 32,
+                        circle: feed.isCircleIcon,
+                        cornerRadius: iconCornerRadius
+                    )
+                }
+
+                if feed.isXFeed || feed.isInstagramFeed {
+                    FaviconProgressBadge(feedID: feed.id, size: 13)
+                        .offset(x: 3, y: 3)
+                }
             }
+            .frame(width: 32, height: 32)
 
             VStack(alignment: .leading, spacing: 2) {
                 HStack(spacing: 4) {
