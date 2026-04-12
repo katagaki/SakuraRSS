@@ -130,7 +130,13 @@ struct SpeechTranscriberEngine: TranscriptionEngine {
 
         let tempURL = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString + ".wav")
-        let outputFile = try AVAudioFile(forWriting: tempURL, settings: outputFormat.settings)
+
+        let outputFile = try AVAudioFile(
+            forWriting: tempURL,
+            settings: outputFormat.settings,
+            commonFormat: .pcmFormatInt16,
+            interleaved: true
+        )
 
         // Read the entire source into a buffer. AVAudioFile handles decompression.
         let frameCount = AVAudioFrameCount(sourceFile.length)
