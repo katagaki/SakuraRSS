@@ -27,8 +27,10 @@ struct DisplayStylePicker: View {
         }
         Section("Articles.StyleSection.Visual") {
             Picker(selection: $displayStyle) {
-                Label("Articles.Style.Feed", systemImage: "newspaper")
+                Label("Articles.Style.Feed", systemImage: "text.rectangle.page")
                     .tag(FeedDisplayStyle.feed)
+                Label("Articles.Style.FeedCompact", systemImage: "square.text.square")
+                    .tag(FeedDisplayStyle.feedCompact)
                 if hasImages {
                     Label("Articles.Style.Photos", systemImage: "photo.stack")
                         .tag(FeedDisplayStyle.photos)

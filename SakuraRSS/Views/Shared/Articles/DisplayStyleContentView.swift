@@ -12,7 +12,9 @@ struct DisplayStyleContentView: View {
         case .inbox:
             InboxStyleView(articles: articles, onLoadMore: onLoadMore)
         case .feed:
-            FeedStyleView(articles: articles, onLoadMore: onLoadMore)
+            FeedStyleView(articles: articles, variant: .full, onLoadMore: onLoadMore)
+        case .feedCompact:
+            FeedStyleView(articles: articles, variant: .compact, onLoadMore: onLoadMore)
         case .magazine:
             MagazineStyleView(articles: articles, onLoadMore: onLoadMore)
         case .compact:

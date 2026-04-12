@@ -37,7 +37,7 @@ struct MainTabView: View {
 
     private var tabView: some View {
         TabView(selection: $selectedTab) {
-            Tab("Tabs.Home", systemImage: "text.rectangle.page", value: .home) {
+            Tab("Tabs.Home", systemImage: "newspaper", value: .home) {
                 HomeView(pendingArticleID: $pendingArticleID)
             }
             .badge(unreadBadgeMode == .homeScreenAndHomeTab || unreadBadgeMode == .homeTabOnly

@@ -305,6 +305,7 @@ nonisolated enum ListIcon: String, CaseIterable, Identifiable, Sendable {
 nonisolated enum FeedDisplayStyle: String, CaseIterable, Sendable {
     case inbox
     case feed
+    case feedCompact
     case magazine
     case compact
     case video
@@ -318,6 +319,7 @@ nonisolated enum FeedDisplayStyle: String, CaseIterable, Sendable {
         switch self {
         case .inbox: String(localized: "Articles.Style.Inbox")
         case .feed: String(localized: "Articles.Style.Feed")
+        case .feedCompact: String(localized: "Articles.Style.FeedCompact")
         case .magazine: String(localized: "Articles.Style.Magazine")
         case .compact: String(localized: "Articles.Style.Compact")
         case .video: String(localized: "Articles.Style.Video")
