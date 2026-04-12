@@ -271,7 +271,7 @@ extension FeedManager {
 
     private func filterExcludingPodcastsAndVideos(_ articles: [Article]) -> [Article] {
         let excludedFeedIDs = Set(feeds.filter { feed in
-            feed.isMuted || feed.isPodcast || VideoDomains.shouldPreferVideo(feedDomain: feed.domain)
+            feed.isMuted || feed.isPodcast || DisplayStyleVideoDomains.shouldPreferVideo(feedDomain: feed.domain)
         }.map(\.id))
         return articles.filter { !excludedFeedIDs.contains($0.feedID) }
     }

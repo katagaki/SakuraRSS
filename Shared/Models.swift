@@ -19,7 +19,7 @@ nonisolated struct Feed: Identifiable, Hashable, Sendable {
     }
 
     var isVideoFeed: Bool {
-        VideoDomains.shouldPreferVideo(feedDomain: domain)
+        DisplayStyleVideoDomains.shouldPreferVideo(feedDomain: domain)
     }
 
     var isXFeed: Bool {
@@ -36,11 +36,11 @@ nonisolated struct Feed: Identifiable, Hashable, Sendable {
 
     var isFeedViewDomain: Bool {
         isXFeed || isInstagramFeed
-            || FeedViewDomains.shouldPreferFeedView(feedDomain: domain) || hasMastodonFeedURL
+            || DisplayStyleFeedDomains.shouldPreferFeedView(feedDomain: domain) || hasMastodonFeedURL
     }
 
     var isTimelineViewDomain: Bool {
-        TimelineViewDomains.shouldPreferTimeline(feedDomain: domain)
+        DisplayStyleTimelineDomains.shouldPreferTimeline(feedDomain: domain)
     }
 
     var isRedditFeed: Bool {
@@ -49,11 +49,11 @@ nonisolated struct Feed: Identifiable, Hashable, Sendable {
     }
 
     var isCircleIcon: Bool {
-        CircleIconDomains.shouldUseCircleIcon(feedDomain: domain)
+        FaviconCircularDomains.shouldUseCircleIcon(feedDomain: domain)
     }
 
     var isPhotoViewDomain: Bool {
-        PhotoViewDomains.shouldPreferPhotoView(feedDomain: domain)
+        DisplayStylePhotosDomains.shouldPreferPhotoView(feedDomain: domain)
     }
 
     var isSocialFeed: Bool {

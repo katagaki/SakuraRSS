@@ -194,7 +194,6 @@ struct FeedRowView: View {
 
     private var iconCornerRadius: CGFloat {
         if feed.isPodcast { return 8 }
-        if feed.isVideoFeed { return 0 }
         return 4
     }
 
@@ -205,8 +204,8 @@ struct FeedRowView: View {
                     FaviconImage(favicon, size: 32,
                                  cornerRadius: iconCornerRadius,
                                  circle: feed.isCircleIcon,
-                                 skipInset: feed.isVideoFeed || feed.isPodcast || feed.isXFeed || feed.isInstagramFeed
-                                    || FullFaviconDomains.shouldUseFullImage(feedDomain: feed.domain))
+                                 skipInset: feed.isCircleIcon || feed.isXFeed || feed.isInstagramFeed
+                                    || FaviconNoInsetDomains.shouldUseFullImage(feedDomain: feed.domain))
                 } else if let data = feed.acronymIcon, let acronym = UIImage(data: data) {
                     FaviconImage(acronym, size: 32,
                                  cornerRadius: iconCornerRadius,

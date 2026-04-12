@@ -1,7 +1,7 @@
 import Foundation
 
 /// Domains that should use the video feed display style by default.
-nonisolated enum VideoDomains {
+nonisolated enum DisplayStyleVideoDomains {
 
     static let allowlistedDomains: Set<String> = [
         "youtube.com",

@@ -57,13 +57,17 @@ struct FaviconImage: View {
     }
 
     var body: some View {
+        let shape: AnyShape = isCircle
+            ? AnyShape(Circle())
+            : AnyShape(RoundedRectangle(cornerRadius: cornerRadius))
         Image(uiImage: image)
             .resizable()
             .aspectRatio(contentMode: isNonSquare ? .fit : .fill)
             .frame(width: iconSize, height: iconSize)
             .frame(width: size, height: size)
             .background(bgColor)
-            .clipShape(isCircle ? AnyShape(Circle()) : AnyShape(RoundedRectangle(cornerRadius: cornerRadius)))
+            .clipShape(shape)
+            .overlay(shape.stroke(.tertiary, lineWidth: 0.3))
     }
 }
 

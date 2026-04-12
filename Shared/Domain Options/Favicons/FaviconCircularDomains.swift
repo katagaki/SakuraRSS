@@ -2,7 +2,7 @@ import Foundation
 
 /// Domains whose feed icons should be displayed as circles (e.g. profile photos).
 /// Icons for these domains also skip blank-padding trimming automatically.
-nonisolated enum CircleIconDomains {
+nonisolated enum FaviconCircularDomains {
 
     static let allowlistedDomains: Set<String> = [
         // X (Twitter)

@@ -76,11 +76,13 @@ struct FeedEditSheet: View {
                     } else if let icon = customIconImage ?? currentFavicon {
                         HStack {
                             Spacer()
-                            FaviconImage(icon, size: 64,
-                                         cornerRadius: iconCornerRadius(size: 64),
-                                         circle: feed.isCircleIcon,
-                                         skipInset: feed.isVideoFeed || feed.isPodcast || feed.isXFeed || feed.isInstagramFeed
-                                            || FullFaviconDomains.shouldUseFullImage(feedDomain: feed.domain))
+                            FaviconImage(
+                                icon, size: 64,
+                                cornerRadius: iconCornerRadius(size: 64),
+                                circle: feed.isCircleIcon,
+                                skipInset: feed.isCircleIcon || feed.isXFeed || feed.isInstagramFeed
+                                    || FaviconNoInsetDomains.shouldUseFullImage(feedDomain: feed.domain)
+                            )
                             Spacer()
                         }
                     }

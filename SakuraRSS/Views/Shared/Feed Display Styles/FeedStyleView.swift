@@ -289,7 +289,7 @@ struct FeedArticleRow: View {
                     acronymIcon = UIImage(data: data)
                 }
                 skipFaviconInset = loadedFeed.isVideoFeed || loadedFeed.isXFeed || loadedFeed.isInstagramFeed
-                    || FullFaviconDomains.shouldUseFullImage(feedDomain: loadedFeed.domain)
+                    || FaviconNoInsetDomains.shouldUseFullImage(feedDomain: loadedFeed.domain)
                 preferTitle = TitleOnlyDomains.shouldPreferTitle(feedDomain: loadedFeed.domain)
                 favicon = await FaviconCache.shared.favicon(for: loadedFeed)
             }

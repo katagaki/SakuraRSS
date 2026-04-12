@@ -8,7 +8,7 @@ extension FaviconCache {
         let host = domain.lowercased()
         if host.contains("youtube.com") || host.contains("youtu.be") { return true }
         if host == "bsky.app" || host.hasSuffix(".bsky.app") { return true }
-        if FeedViewDomains.shouldPreferFeedView(feedDomain: host) { return true }
+        if DisplayStyleFeedDomains.shouldPreferFeedView(feedDomain: host) { return true }
         return false
     }
 

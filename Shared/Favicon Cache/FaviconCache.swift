@@ -43,8 +43,8 @@ actor FaviconCache {
         let filePath = cacheDirectory.appendingPathComponent(sanitizedFileName(cacheKey))
         if let data = try? Data(contentsOf: filePath),
            let image = UIImage(data: data) {
-            let skipTrim = SkipTrimDomains.shouldSkipTrimming(feedDomain: domain)
-                || CircleIconDomains.shouldUseCircleIcon(feedDomain: domain)
+            let skipTrim = FaviconSkipTrimDomains.shouldSkipTrimming(feedDomain: domain)
+                || FaviconCircularDomains.shouldUseCircleIcon(feedDomain: domain)
             let result = skipTrim ? image : await image.trimmed()
             memoryCache[cacheKey] = result
             return result

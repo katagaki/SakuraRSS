@@ -1,7 +1,7 @@
 import Foundation
 
 /// Domains that should use the timeline display style by default (e.g. status pages).
-nonisolated enum TimelineViewDomains {
+nonisolated enum DisplayStyleTimelineDomains {
 
     static let allowlistedDomains: Set<String> = [
         "status.aws.amazon.com",

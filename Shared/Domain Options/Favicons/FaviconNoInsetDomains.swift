@@ -2,11 +2,14 @@ import Foundation
 
 /// Domains whose favicons should always be displayed at full size
 /// inside a circle, skipping inset and background adjustments.
-nonisolated enum FullFaviconDomains {
+nonisolated enum FaviconNoInsetDomains {
 
     static let allowlistedDomains: Set<String> = [
         "appleinsider.com",
-        "nikkei.com"
+        "nikkei.com",
+        "atp.fm",
+        "wabetainfo.com",
+        "vimeo.com"
     ]
 
     static func shouldUseFullImage(feedDomain: String) -> Bool {
