@@ -55,17 +55,11 @@ struct InitialsAvatarView: View {
     static func isGlyphBased(_ name: String) -> Bool {
         let letters = name.unicodeScalars.filter { CharacterSet.letters.contains($0) }
         guard !letters.isEmpty else { return false }
-        let glyphScalars = letters.filter { scalar in
-            // CJK Unified Ideographs, Hiragana, Katakana, Hangul Syllables, Hangul Jamo
-            (0x4E00...0x9FFF).contains(scalar.value) ||
-            (0x3040...0x309F).contains(scalar.value) ||
-            (0x30A0...0x30FF).contains(scalar.value) ||
-            (0xAC00...0xD7AF).contains(scalar.value) ||
-            (0x1100...0x11FF).contains(scalar.value) ||
-            (0x3400...0x4DBF).contains(scalar.value) ||
-            (0x20000...0x2A6DF).contains(scalar.value)
-        }
-        return glyphScalars.count > letters.count / 2
+        let allowed = CharacterSet.alphanumerics
+            .union(.whitespaces)
+            .union(CharacterSet(charactersIn: "-_.,:;!?'\"()[]{}&@#/\\*+=<>|~`^$%"))
+        let nonStandard = name.unicodeScalars.filter { !allowed.contains($0) }
+        return nonStandard.count > letters.count / 2
     }
 
     static func backgroundColor(for name: String) -> Color {
