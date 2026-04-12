@@ -27,7 +27,6 @@ extension FeedEditSheet {
 
     func iconCornerRadius(size: CGFloat) -> CGFloat {
         if feed.isPodcast { return size / 4 }
-        if feed.isVideoFeed { return 0 }
         return size / 8
     }
 

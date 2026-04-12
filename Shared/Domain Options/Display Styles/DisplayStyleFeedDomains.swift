@@ -1,7 +1,7 @@
 import Foundation
 
 /// Domains that should use the feed display style by default (e.g. social media).
-nonisolated enum FeedViewDomains {
+nonisolated enum DisplayStyleFeedDomains {
 
     static let allowlistedDomains: Set<String> = [
         // X (Twitter)

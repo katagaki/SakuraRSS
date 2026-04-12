@@ -130,7 +130,7 @@ struct MagazineArticleCard: View {
                 }
                 isVideoFeed = feed.isVideoFeed || feed.isXFeed || feed.isInstagramFeed
                 skipFaviconInset = feed.isVideoFeed || feed.isXFeed || feed.isInstagramFeed
-                    || FullFaviconDomains.shouldUseFullImage(feedDomain: feed.domain)
+                    || FaviconNoInsetDomains.shouldUseFullImage(feedDomain: feed.domain)
                 shouldCenterImage = CenteredImageDomains.shouldCenterImage(feedDomain: feed.domain)
                 favicon = await FaviconCache.shared.favicon(for: feed)
             }

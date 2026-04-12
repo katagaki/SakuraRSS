@@ -25,6 +25,17 @@ struct SakuraRSSApp: App {
                 .environment(feedManager)
                 .modifier(KeepScreenOnDuringPodcastWork())
                 .task {
+                    // Pre-warm the X and Instagram WKWebsiteDataStore
+                    // cookie stores so that the first feed refresh sees
+                    // valid session cookies.  On cold launch the cookie
+                    // store is otherwise empty until a WKWebView has
+                    // loaded a page from the domain.
+                    if UserDefaults.standard.bool(forKey: "Labs.XProfileFeeds") {
+                        await XProfileScraper.warmCookieStore()
+                    }
+                    if UserDefaults.standard.bool(forKey: "Labs.InstagramProfileFeeds") {
+                        await InstagramProfileScraper.warmCookieStore()
+                    }
                     await feedManager.refreshAllFeeds()
                     UserDefaults.standard.set(false, forKey: "App.StartupInProgress")
                     feedManager.updateBadgeCount()
@@ -107,6 +118,16 @@ struct SakuraRSSApp: App {
                 }
             case "putonpipboy":
                 wipeAllCachesAndData()
+                Task {
+                    if UserDefaults.standard.bool(forKey: "Labs.XProfileFeeds") {
+                        await XProfileScraper.fetchQueryIDsIfNeeded()
+                    }
+                    if UserDefaults.standard.bool(forKey: "Labs.InstagramProfileFeeds") {
+                        await InstagramProfileScraper.warmCookieStore()
+                    }
+                    let entries = feedManager.feeds.map { ($0.domain, $0.siteURL as String?) }
+                    await FaviconCache.shared.refreshFavicons(for: entries)
+                }
             case "forgetit":
                 let defaults = UserDefaults.standard
                 defaults.removeObject(forKey: "App.SelectedTab")

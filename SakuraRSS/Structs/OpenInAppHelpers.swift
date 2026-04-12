@@ -1,5 +1,29 @@
 import UIKit
 
+enum RedditHelper {
+
+    static var isAppInstalled: Bool {
+        guard let url = URL(string: "reddit://") else { return false }
+        return UIApplication.shared.canOpenURL(url)
+    }
+}
+
+enum XHelper {
+
+    static var isAppInstalled: Bool {
+        guard let url = URL(string: "twitter://") else { return false }
+        return UIApplication.shared.canOpenURL(url)
+    }
+}
+
+enum InstagramHelper {
+
+    static var isAppInstalled: Bool {
+        guard let url = URL(string: "instagram://") else { return false }
+        return UIApplication.shared.canOpenURL(url)
+    }
+}
+
 enum YouTubeHelper {
 
     static var isAppInstalled: Bool {

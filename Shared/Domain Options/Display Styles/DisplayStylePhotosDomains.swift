@@ -1,7 +1,7 @@
 import Foundation
 
 /// Domains that should use the photos display style by default (e.g. image-centric social media).
-nonisolated enum PhotoViewDomains {
+nonisolated enum DisplayStylePhotosDomains {
 
     static let allowlistedDomains: Set<String> = [
         // Instagram

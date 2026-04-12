@@ -1,4 +1,5 @@
 import Foundation
+import UIKit
 
 extension FeedManager {
 
@@ -33,12 +34,23 @@ extension FeedManager {
                 title: video.title,
                 url: "https://www.youtube.com/watch?v=\(video.videoId)",
                 data: ArticleInsertData(
-                    imageURL: video.thumbnailURL
+                    imageURL: video.thumbnailURL,
+                    publishedDate: video.publishedDate
                 )
             )
         }
 
         let feedTitle = result.playlistTitle ?? feed.title
+
+        // Download the playlist creator's channel avatar if available.
+        // Uses the favicon cache's dedicated URLSession so the request
+        // bypasses the normal timeout — same as X / Instagram feeds.
+        var avatarImage: UIImage?
+        if let avatarURLString = result.channelAvatarURL,
+           let avatarURL = URL(string: avatarURLString),
+           let (imageData, _) = try? await FaviconCache.urlSession.data(from: avatarURL) {
+            avatarImage = UIImage(data: imageData)
+        }
 
         // Run all DB writes off the main thread
         let database = database
@@ -51,8 +63,24 @@ extension FeedManager {
             SpotlightIndexer.indexArticles(articlesToIndex, feedTitle: feedTitle)
         }.value
 
-        // Update feed title if we discovered the playlist name
-        if feed.title != feedTitle {
+        // Only install the downloaded channel avatar when the feed has
+        // no custom icon yet. Once the user — or a prior refresh — has
+        // assigned any custom icon, preserve it across refreshes so it
+        // isn't silently overwritten. The avatar auto-installs on the
+        // very first fetch; to pull a fresh avatar, the user can delete
+        // the custom icon in the edit sheet.
+        let shouldInstallAvatar = avatarImage != nil && feed.customIconURL == nil
+        if shouldInstallAvatar, let image = avatarImage {
+            await FaviconCache.shared.setCustomFavicon(
+                image, feedID: feed.id, skipTrimming: true
+            )
+            try? await Task.detached {
+                try database.updateFeedDetails(
+                    id: feed.id, title: feedTitle, url: feed.url,
+                    customIconURL: "photo"
+                )
+            }.value
+        } else if feed.title != feedTitle {
             try? await Task.detached {
                 try database.updateFeedDetails(
                     id: feed.id, title: feedTitle, url: feed.url,

@@ -5,9 +5,7 @@ struct FeedArticlesView: View {
     @Environment(FeedManager.self) var feedManager
     let feed: Feed
 
-    private static let pageSize = 50
-
-    @State private var displayLimit: Int = FeedArticlesView.pageSize
+    @State private var loadedSinceDate: Date = FeedManager.currentChunkStart()
     @AppStorage("Display.MarkAllReadPosition") private var markAllReadPosition: MarkAllReadPosition = .bottom
     @AppStorage("Instagram.HideReels") private var hideReels: Bool = false
 
@@ -15,12 +13,13 @@ struct FeedArticlesView: View {
         feedManager.feeds.first(where: { $0.id == feed.id }) ?? feed
     }
 
-    private var hasMore: Bool {
-        feedManager.articleCount(for: feed) > displayLimit
+    private var nextOlderChunk: Date? {
+        feedManager.nextArticleChunk(for: feed, before: loadedSinceDate)
     }
 
     private var filteredArticles: [Article] {
-        var articles = feedManager.articles(for: feed, limit: displayLimit)
+        var articles = feedManager.undatedArticles(for: feed)
+            + feedManager.articles(for: feed, since: loadedSinceDate)
         if hideReels && feed.isInstagramFeed {
             articles = articles.filter { !$0.url.contains("/reel/") }
         }
@@ -38,9 +37,9 @@ struct FeedArticlesView: View {
             isInstagramFeed: feed.isInstagramFeed,
             isFeedViewDomain: feed.isFeedViewDomain,
             isTimelineViewDomain: feed.isTimelineViewDomain,
-            onLoadMore: hasMore ? {
-                displayLimit += Self.pageSize
-            } : nil,
+            onLoadMore: nextOlderChunk.map { chunk in
+                { loadedSinceDate = chunk }
+            },
             onRefresh: { [feed] in
                 try? await feedManager.refreshFeed(feed)
             },

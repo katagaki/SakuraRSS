@@ -19,7 +19,7 @@ nonisolated struct Feed: Identifiable, Hashable, Sendable {
     }
 
     var isVideoFeed: Bool {
-        VideoDomains.shouldPreferVideo(feedDomain: domain)
+        DisplayStyleVideoDomains.shouldPreferVideo(feedDomain: domain)
     }
 
     var isXFeed: Bool {
@@ -36,11 +36,11 @@ nonisolated struct Feed: Identifiable, Hashable, Sendable {
 
     var isFeedViewDomain: Bool {
         isXFeed || isInstagramFeed
-            || FeedViewDomains.shouldPreferFeedView(feedDomain: domain) || hasMastodonFeedURL
+            || DisplayStyleFeedDomains.shouldPreferFeedView(feedDomain: domain) || hasMastodonFeedURL
     }
 
     var isTimelineViewDomain: Bool {
-        TimelineViewDomains.shouldPreferTimeline(feedDomain: domain)
+        DisplayStyleTimelineDomains.shouldPreferTimeline(feedDomain: domain)
     }
 
     var isRedditFeed: Bool {
@@ -49,11 +49,11 @@ nonisolated struct Feed: Identifiable, Hashable, Sendable {
     }
 
     var isCircleIcon: Bool {
-        CircleIconDomains.shouldUseCircleIcon(feedDomain: domain)
+        FaviconCircularDomains.shouldUseCircleIcon(feedDomain: domain)
     }
 
     var isPhotoViewDomain: Bool {
-        PhotoViewDomains.shouldPreferPhotoView(feedDomain: domain)
+        DisplayStylePhotosDomains.shouldPreferPhotoView(feedDomain: domain)
     }
 
     var isSocialFeed: Bool {
@@ -305,6 +305,7 @@ nonisolated enum ListIcon: String, CaseIterable, Identifiable, Sendable {
 nonisolated enum FeedDisplayStyle: String, CaseIterable, Sendable {
     case inbox
     case feed
+    case feedCompact
     case magazine
     case compact
     case video
@@ -318,6 +319,7 @@ nonisolated enum FeedDisplayStyle: String, CaseIterable, Sendable {
         switch self {
         case .inbox: String(localized: "Articles.Style.Inbox")
         case .feed: String(localized: "Articles.Style.Feed")
+        case .feedCompact: String(localized: "Articles.Style.FeedCompact")
         case .magazine: String(localized: "Articles.Style.Magazine")
         case .compact: String(localized: "Articles.Style.Compact")
         case .video: String(localized: "Articles.Style.Video")

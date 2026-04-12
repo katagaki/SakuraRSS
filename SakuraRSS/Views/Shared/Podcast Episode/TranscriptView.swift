@@ -32,23 +32,16 @@ struct TranscriptView: View {
     }
 
     var body: some View {
-        // Render segments as continuous prose — one flowing paragraph — rather
-        // than a list of timestamped blocks. Each segment is still tappable to
-        // seek, and the active segment is emphasized with weight + color.
-        LazyVStack(alignment: .leading, spacing: 0) {
+        // Render segments as a readable list of tappable lines. Each segment
+        // is tappable to seek, and the active segment is emphasized with
+        // weight + color.
+        LazyVStack(alignment: .leading, spacing: 10) {
             ForEach(segments) { segment in
                 segmentText(segment)
                     .id(segment.id)
             }
         }
         .padding(.vertical, 12)
-        .simultaneousGesture(
-            DragGesture(minimumDistance: 8).onChanged { _ in
-                if isAutoScrolling {
-                    isAutoScrolling = false
-                }
-            }
-        )
         .onChange(of: activeSegmentID) { _, newID in
             guard isAutoScrolling, let newID else { return }
             if newID != lastActiveID {
@@ -63,8 +56,9 @@ struct TranscriptView: View {
     @ViewBuilder
     private func segmentText(_ segment: TranscriptSegment) -> some View {
         let isActive = segment.id == activeSegmentID
-        Text(segment.text + " ")
+        Text(segment.text)
             .font(.body)
+            .lineSpacing(4)
             .fontWeight(isActive ? .semibold : .regular)
             .foregroundStyle(isActive ? Color.primary : Color.primary.opacity(0.55))
             .frame(maxWidth: .infinity, alignment: .leading)

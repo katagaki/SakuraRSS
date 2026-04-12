@@ -5,8 +5,8 @@ extension FaviconCache {
 
     func trimAndCache(_ image: UIImage, cacheKey: String, filePath: URL, domain: String? = nil) async -> UIImage {
         let skipTrim = domain.map {
-            SkipTrimDomains.shouldSkipTrimming(feedDomain: $0)
-                || CircleIconDomains.shouldUseCircleIcon(feedDomain: $0)
+            FaviconSkipTrimDomains.shouldSkipTrimming(feedDomain: $0)
+                || FaviconCircularDomains.shouldUseCircleIcon(feedDomain: $0)
         } ?? false
         let result = skipTrim ? image : await image.trimmed()
         if let pngData = result.pngData() {

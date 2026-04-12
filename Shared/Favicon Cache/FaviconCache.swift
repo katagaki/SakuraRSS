@@ -5,6 +5,18 @@ actor FaviconCache {
 
     static let shared = FaviconCache()
 
+    /// Dedicated URLSession used for every favicon-related network fetch.
+    /// Favicons are cosmetic and must not fail just because an image takes
+    /// a long time to download, so this session effectively bypasses the
+    /// normal request / resource timeouts.
+    nonisolated static let urlSession: URLSession = {
+        let config = URLSessionConfiguration.default
+        config.timeoutIntervalForRequest = 600
+        config.timeoutIntervalForResource = 600
+        config.waitsForConnectivity = true
+        return URLSession(configuration: config)
+    }()
+
     let cacheDirectory: URL
     var memoryCache: [String: UIImage] = [:]
     var failedLookups: Set<String> = []
@@ -31,8 +43,8 @@ actor FaviconCache {
         let filePath = cacheDirectory.appendingPathComponent(sanitizedFileName(cacheKey))
         if let data = try? Data(contentsOf: filePath),
            let image = UIImage(data: data) {
-            let skipTrim = SkipTrimDomains.shouldSkipTrimming(feedDomain: domain)
-                || CircleIconDomains.shouldUseCircleIcon(feedDomain: domain)
+            let skipTrim = FaviconSkipTrimDomains.shouldSkipTrimming(feedDomain: domain)
+                || FaviconCircularDomains.shouldUseCircleIcon(feedDomain: domain)
             let result = skipTrim ? image : await image.trimmed()
             memoryCache[cacheKey] = result
             return result

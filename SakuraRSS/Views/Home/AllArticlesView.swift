@@ -91,7 +91,7 @@ struct AllArticlesView: View {
     @Environment(FeedManager.self) var feedManager
 
     @AppStorage("Home.SelectedSection") private var selectedSelection: HomeSelection = .section(.feed)
-    @State private var showingOlderArticles = false
+    @State private var loadedSinceDate: Date = FeedManager.currentChunkStart()
     @AppStorage("Display.MarkAllReadPosition") private var markAllReadPosition: MarkAllReadPosition = .bottom
     @AppStorage("WhileYouSlept.DismissedDate") private var whileYouSleptDismissedDate: String = ""
     @AppStorage("TodaysSummary.DismissedDate") private var todaysSummaryDismissedDate: String = ""
@@ -111,16 +111,15 @@ struct AllArticlesView: View {
     }
 
     private var displayedArticles: [Article] {
-        var articles: [Article]
-        if showingOlderArticles {
-            articles = feedManager.todayArticles() + feedManager.olderArticles()
-        } else {
-            articles = feedManager.todayArticles()
-        }
+        var articles = feedManager.articles(since: loadedSinceDate)
         if hideInstagramReels {
             articles = articles.filter { !$0.url.contains("/reel/") }
         }
         return articles
+    }
+
+    private var nextOlderChunk: Date? {
+        feedManager.nextArticleChunk(before: loadedSinceDate)
     }
 
     private var currentTitle: String {
@@ -221,8 +220,8 @@ struct AllArticlesView: View {
                     todaysSummaryDismissedDate = ""
                 }
             },
-            onLoadMore: showingOlderArticles ? nil : {
-                showingOlderArticles = true
+            onLoadMore: nextOlderChunk.map { chunk in
+                { loadedSinceDate = chunk }
             },
             onRefresh: {
                 await feedManager.refreshAllFeeds()

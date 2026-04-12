@@ -194,31 +194,49 @@ struct FeedRowView: View {
 
     private var iconCornerRadius: CGFloat {
         if feed.isPodcast { return 8 }
-        if feed.isVideoFeed { return 0 }
         return 4
     }
 
     var body: some View {
         HStack(spacing: 12) {
-            if let favicon = favicon {
-                FaviconImage(favicon, size: 32,
-                             cornerRadius: iconCornerRadius,
-                             circle: feed.isCircleIcon,
-                             skipInset: feed.isVideoFeed || feed.isPodcast || feed.isXFeed || feed.isInstagramFeed
-                                || FullFaviconDomains.shouldUseFullImage(feedDomain: feed.domain))
-            } else if let data = feed.acronymIcon, let acronym = UIImage(data: data) {
-                FaviconImage(acronym, size: 32,
-                             cornerRadius: iconCornerRadius,
-                             circle: feed.isCircleIcon,
-                             skipInset: true)
-            } else {
-                InitialsAvatarView(
-                    feed.title,
-                    size: 32,
-                    circle: feed.isCircleIcon,
-                    cornerRadius: iconCornerRadius
-                )
+            ZStack(alignment: .bottomTrailing) {
+                if let favicon = favicon {
+                    FaviconImage(favicon, size: 32,
+                                 cornerRadius: iconCornerRadius,
+                                 circle: feed.isCircleIcon,
+                                 skipInset: feed.isCircleIcon || feed.isXFeed || feed.isInstagramFeed
+                                    || FaviconNoInsetDomains.shouldUseFullImage(feedDomain: feed.domain))
+                } else if let data = feed.acronymIcon, let acronym = UIImage(data: data) {
+                    FaviconImage(acronym, size: 32,
+                                 cornerRadius: iconCornerRadius,
+                                 circle: feed.isCircleIcon,
+                                 skipInset: true)
+                } else {
+                    InitialsAvatarView(
+                        feed.title,
+                        size: 32,
+                        circle: feed.isCircleIcon,
+                        cornerRadius: iconCornerRadius
+                    )
+                }
+
+                if feed.isXFeed {
+                    FaviconProgressBadge(
+                        lastFetched: feed.lastFetched,
+                        cooldown: FeedManager.xRefreshInterval,
+                        size: 13
+                    )
+                    .offset(x: 3, y: 3)
+                } else if feed.isInstagramFeed {
+                    FaviconProgressBadge(
+                        lastFetched: feed.lastFetched,
+                        cooldown: FeedManager.instagramRefreshInterval,
+                        size: 13
+                    )
+                    .offset(x: 3, y: 3)
+                }
             }
+            .frame(width: 32, height: 32)
 
             VStack(alignment: .leading, spacing: 2) {
                 HStack(spacing: 4) {

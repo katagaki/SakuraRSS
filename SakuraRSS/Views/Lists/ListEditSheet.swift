@@ -210,7 +210,7 @@ struct FeedIconView: View {
                              circle: isCircle,
                              skipInset: feed.isVideoFeed || feed.isPodcast || feed.isXFeed
                                 || feed.isInstagramFeed
-                                || FullFaviconDomains.shouldUseFullImage(feedDomain: feed.domain))
+                                || FaviconNoInsetDomains.shouldUseFullImage(feedDomain: feed.domain))
             } else if let data = feed.acronymIcon, let acronym = UIImage(data: data) {
                 FaviconImage(acronym, size: size,
                              cornerRadius: cornerRadius,
