@@ -245,6 +245,13 @@ struct PodcastEpisodeView: View {
             }
             .padding(.vertical)
         }
+        .onScrollPhaseChange { _, newPhase in
+            if showingTranscript,
+               isTranscriptAutoScrolling,
+               newPhase == .interacting || newPhase == .tracking {
+                isTranscriptAutoScrolling = false
+            }
+        }
         .overlay(alignment: .bottom) {
             followAlongOverlay(scrollProxy: scrollProxy)
         }
