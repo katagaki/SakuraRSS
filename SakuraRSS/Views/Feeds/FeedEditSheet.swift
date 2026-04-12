@@ -249,6 +249,13 @@ struct FeedEditSheet: View {
             finalCustomIconURL = "photo"
         } else if !iconURLInput.isEmpty {
             finalCustomIconURL = iconURLInput
+        } else if feed.customIconURL == "photo" {
+            // User made no icon changes; preserve the existing custom
+            // photo (for Instagram/X feeds this is the auto-downloaded
+            // profile photo).  `iconURLInput` was intentionally emptied
+            // on load because "photo" is a sentinel, not a URL, so we
+            // can't rely on the URL branch above to carry it through.
+            finalCustomIconURL = "photo"
         } else {
             finalCustomIconURL = nil
         }
