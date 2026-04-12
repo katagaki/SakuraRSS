@@ -213,13 +213,25 @@ final class FeedManager {
         await loadFromDatabaseInBackground()
     }
 
-    func refreshAllFeeds() async {
+    /// Refreshes every feed.
+    ///
+    /// - Parameter skipAuthenticatedScrapers: When `true`, X and Instagram
+    ///   profile feeds are skipped entirely.  Pass this from background
+    ///   refresh tasks: those scrapers rely on WKWebView-backed cookie
+    ///   warming and GraphQL query-ID fetching, neither of which is
+    ///   reliable in a headless `BGAppRefreshTask`.  Hitting the APIs
+    ///   from a locked device at a fixed cadence is also itself a strong
+    ///   bot-like signal, so we reserve those scrapes for foreground use.
+    func refreshAllFeeds(skipAuthenticatedScrapers: Bool = false) async {
         await MainActor.run { isLoading = true }
         defer { Task { @MainActor in self.isLoading = false } }
 
         let currentFeeds = feeds
         await withTaskGroup(of: Void.self) { group in
             for feed in currentFeeds {
+                if skipAuthenticatedScrapers, feed.isXFeed || feed.isInstagramFeed {
+                    continue
+                }
                 group.addTask {
                     try? await self.refreshFeed(feed, reloadData: false)
                 }
