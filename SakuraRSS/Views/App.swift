@@ -102,10 +102,10 @@ struct SakuraRSSApp: App {
                 wipeAllCachesAndData()
                 Task {
                     if UserDefaults.standard.bool(forKey: "Labs.XProfileFeeds") {
-                        await XProfileScraper.fetchQueryIDsIfNeeded()
+                        await XIntegration.fetchQueryIDsIfNeeded()
                     }
                     if UserDefaults.standard.bool(forKey: "Labs.InstagramProfileFeeds") {
-                        await InstagramProfileScraper.warmCookieStore()
+                        await InstagramIntegration.warmCookieStore()
                     }
                     let entries = feedManager.feeds.map { ($0.domain, $0.siteURL as String?) }
                     await FaviconCache.shared.refreshFavicons(for: entries)

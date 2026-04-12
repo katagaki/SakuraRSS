@@ -23,15 +23,15 @@ nonisolated struct Feed: Identifiable, Hashable, Sendable {
     }
 
     var isXFeed: Bool {
-        XProfileScraper.isXFeedURL(url)
+        XURLHelpers.isXFeedURL(url)
     }
 
     var isInstagramFeed: Bool {
-        InstagramProfileScraper.isInstagramFeedURL(url)
+        InstagramURLHelpers.isInstagramFeedURL(url)
     }
 
     var isYouTubePlaylistFeed: Bool {
-        YouTubePlaylistScraper.isYouTubePlaylistFeedURL(url)
+        YouTubePlaylistURLHelpers.isYouTubePlaylistFeedURL(url)
     }
 
     var isFeedViewDomain: Bool {
@@ -123,13 +123,13 @@ nonisolated struct Article: Identifiable, Hashable, Sendable {
     /// Whether the article URL points to a specific X/Twitter post (status).
     var isXPostURL: Bool {
         guard let parsed = URL(string: url) else { return false }
-        return XProfileScraper.isXPostURL(parsed)
+        return XURLHelpers.isXPostURL(parsed)
     }
 
     /// Whether the article URL points to a specific Instagram post.
     var isInstagramPostURL: Bool {
         guard let parsed = URL(string: url) else { return false }
-        return InstagramProfileScraper.isInstagramPostURL(parsed)
+        return InstagramURLHelpers.isInstagramPostURL(parsed)
     }
 
     var isPodcastEpisode: Bool {

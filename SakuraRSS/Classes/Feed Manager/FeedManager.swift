@@ -113,18 +113,24 @@ final class FeedManager {
     func refreshFeed(_ feed: Feed, updateTitle: Bool = true, reloadData: Bool = true) async throws {
         if feed.isXFeed {
             guard UserDefaults.standard.bool(forKey: "Labs.XProfileFeeds") else { return }
-            try await refreshXFeed(feed, reloadData: reloadData)
+            try await refreshIntegrationFeed(
+                feed, integration: XIntegration(), reloadData: reloadData
+            )
             return
         }
 
         if feed.isInstagramFeed {
             guard UserDefaults.standard.bool(forKey: "Labs.InstagramProfileFeeds") else { return }
-            try await refreshInstagramFeed(feed, reloadData: reloadData)
+            try await refreshIntegrationFeed(
+                feed, integration: InstagramIntegration(), reloadData: reloadData
+            )
             return
         }
 
         if feed.isYouTubePlaylistFeed {
-            try await refreshYouTubePlaylistFeed(feed, reloadData: reloadData)
+            try await refreshIntegrationFeed(
+                feed, integration: YouTubePlaylistIntegration(), reloadData: reloadData
+            )
             return
         }
 

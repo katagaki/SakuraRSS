@@ -274,48 +274,48 @@ actor FeedDiscovery {
 
     /// Detects X/Twitter profile URLs and returns a pseudo-feed entry.
     /// The feed URL uses the `x-profile://` scheme so the app routes refresh
-    /// through XProfileScraper instead of RSSParser.
+    /// through XIntegration instead of RSSParser.
     private func detectXProfileFeed(url: URL) -> DiscoveredFeed? {
-        guard XProfileScraper.isXProfileURL(url),
-              let handle = XProfileScraper.extractHandle(from: url) else {
+        guard XURLHelpers.isXProfileURL(url),
+              let handle = XURLHelpers.extractHandle(from: url) else {
             return nil
         }
 
         return DiscoveredFeed(
             title: "@\(handle)",
-            url: XProfileScraper.feedURL(for: handle),
+            url: XURLHelpers.feedURL(for: handle),
             siteURL: "https://x.com/\(handle)"
         )
     }
 
     /// Detects Instagram profile URLs and returns a pseudo-feed entry.
     /// The feed URL uses the `instagram-profile://` scheme so the app routes
-    /// refresh through InstagramProfileScraper instead of RSSParser.
+    /// refresh through InstagramIntegration instead of RSSParser.
     private func detectInstagramProfileFeed(url: URL) -> DiscoveredFeed? {
-        guard InstagramProfileScraper.isInstagramProfileURL(url),
-              let handle = InstagramProfileScraper.extractHandle(from: url) else {
+        guard InstagramURLHelpers.isInstagramProfileURL(url),
+              let handle = InstagramURLHelpers.extractHandle(from: url) else {
             return nil
         }
 
         return DiscoveredFeed(
             title: "@\(handle)",
-            url: InstagramProfileScraper.feedURL(for: handle),
+            url: InstagramURLHelpers.feedURL(for: handle),
             siteURL: "https://www.instagram.com/\(handle)/"
         )
     }
 
     /// Detects YouTube playlist URLs and returns a pseudo-feed entry.
     /// The feed URL uses the `youtube-playlist://` scheme so the app routes
-    /// refresh through YouTubePlaylistScraper instead of RSSParser.
+    /// refresh through YouTubePlaylistIntegration instead of RSSParser.
     private func detectYouTubePlaylistFeed(url: URL) -> DiscoveredFeed? {
-        guard YouTubePlaylistScraper.isYouTubePlaylistURL(url),
-              let playlistID = YouTubePlaylistScraper.extractPlaylistID(from: url) else {
+        guard YouTubePlaylistURLHelpers.isYouTubePlaylistURL(url),
+              let playlistID = YouTubePlaylistURLHelpers.extractPlaylistID(from: url) else {
             return nil
         }
 
         return DiscoveredFeed(
             title: "YouTube Playlist",
-            url: YouTubePlaylistScraper.feedURL(for: playlistID),
+            url: YouTubePlaylistURLHelpers.feedURL(for: playlistID),
             siteURL: "https://www.youtube.com/playlist?list=\(playlistID)"
         )
     }

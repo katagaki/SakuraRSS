@@ -81,10 +81,10 @@ extension ArticleDetailView {
         if article.isXPostURL, !isFromXFeed,
            UserDefaults.standard.bool(forKey: "Labs.XProfileFeeds"),
            let url = URL(string: article.url),
-           let tweetID = XProfileScraper.extractTweetID(from: url),
-           await XProfileScraper.hasXSession() {
-            let scraper = XProfileScraper()
-            if let tweet = await scraper.fetchSingleTweet(tweetID: tweetID) {
+           let tweetID = XURLHelpers.extractTweetID(from: url),
+           await XIntegration.hasSession() {
+            let integration = XIntegration()
+            if let tweet = await integration.fetchSingleTweet(tweetID: tweetID) {
                 var text = tweet.text
                 if let imageURL = tweet.imageURL {
                     text += "\n\n{{IMG}}\(imageURL){{/IMG}}"

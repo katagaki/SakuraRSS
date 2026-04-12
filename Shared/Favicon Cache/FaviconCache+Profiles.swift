@@ -23,32 +23,6 @@ extension FaviconCache {
         return false
     }
 
-    /// Fetches an X (Twitter) profile avatar using the XProfileScraper API.
-    nonisolated func fetchXProfileAvatar(handle: String) async -> UIImage? {
-        let scraper = XProfileScraper()
-        guard let cookies = await XProfileScraper.getXCookies(),
-              let userInfo = await scraper.fetchUserInfo(screenName: handle, cookies: cookies),
-              let imageURLString = userInfo.profileImageURL,
-              let imageURL = URL(string: imageURLString),
-              let (data, _) = try? await URLSession.shared.data(from: imageURL) else {
-            return nil
-        }
-        return UIImage(data: data)
-    }
-
-    /// Fetches an Instagram profile avatar using the InstagramProfileScraper API.
-    nonisolated func fetchInstagramProfileAvatar(handle: String) async -> UIImage? {
-        guard let profileURL = InstagramProfileScraper.profileURL(for: handle) else { return nil }
-        let scraper = InstagramProfileScraper()
-        let result = await scraper.scrapeProfile(profileURL: profileURL)
-        guard let imageURLString = result.profileImageURL,
-              let imageURL = URL(string: imageURLString),
-              let (data, _) = try? await URLSession.shared.data(from: imageURL) else {
-            return nil
-        }
-        return UIImage(data: data)
-    }
-
     /// Fetches a profile avatar by scraping the profile page for the og:image meta tag.
     /// Works for YouTube channels, Mastodon profiles, and Bluesky profiles.
     nonisolated func fetchProfileAvatar(from siteURL: String) async -> UIImage? {

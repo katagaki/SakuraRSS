@@ -284,20 +284,20 @@ struct AddFeedView: View {
 
     private func addFeed(_ discovered: DiscoveredFeed) {
         // X feeds require the experiment to be enabled
-        guard !XProfileScraper.isXFeedURL(discovered.url)
+        guard !XURLHelpers.isXFeedURL(discovered.url)
                 || UserDefaults.standard.bool(forKey: "Labs.XProfileFeeds") else {
             return
         }
         // Instagram feeds require the experiment to be enabled
-        guard !InstagramProfileScraper.isInstagramFeedURL(discovered.url)
+        guard !InstagramURLHelpers.isInstagramFeedURL(discovered.url)
                 || UserDefaults.standard.bool(forKey: "Labs.InstagramProfileFeeds") else {
             return
         }
         // If this is an X feed and the user hasn't logged in yet, prompt login first
-        if XProfileScraper.isXFeedURL(discovered.url) && !feedManager.hasXFeeds {
+        if XURLHelpers.isXFeedURL(discovered.url) && !feedManager.hasXFeeds {
             pendingXFeed = discovered
             Task {
-                let hasSession = await XProfileScraper.hasXSession()
+                let hasSession = await XIntegration.hasSession()
                 if hasSession {
                     addFeedDirectly(discovered)
                 } else {
@@ -307,11 +307,11 @@ struct AddFeedView: View {
             return
         }
         // If this is an Instagram feed and the user hasn't logged in yet, prompt login first
-        if InstagramProfileScraper.isInstagramFeedURL(discovered.url)
+        if InstagramURLHelpers.isInstagramFeedURL(discovered.url)
             && !feedManager.hasInstagramFeeds {
             pendingInstagramFeed = discovered
             Task {
-                let hasSession = await InstagramProfileScraper.hasInstagramSession()
+                let hasSession = await InstagramIntegration.hasSession()
                 if hasSession {
                     addFeedDirectly(discovered)
                 } else {
@@ -338,7 +338,7 @@ struct AddFeedView: View {
 
     private func addFeedAfterXLogin(_ discovered: DiscoveredFeed) {
         Task {
-            let hasSession = await XProfileScraper.hasXSession()
+            let hasSession = await XIntegration.hasSession()
             if hasSession {
                 addFeedDirectly(discovered)
             }
@@ -348,7 +348,7 @@ struct AddFeedView: View {
 
     private func addFeedAfterInstagramLogin(_ discovered: DiscoveredFeed) {
         Task {
-            let hasSession = await InstagramProfileScraper.hasInstagramSession()
+            let hasSession = await InstagramIntegration.hasSession()
             if hasSession {
                 addFeedDirectly(discovered)
             }
@@ -380,9 +380,9 @@ extension AddFeedView {
     }
 
     func displayURL(for feed: DiscoveredFeed) -> String {
-        if XProfileScraper.isXFeedURL(feed.url)
-            || InstagramProfileScraper.isInstagramFeedURL(feed.url)
-            || YouTubePlaylistScraper.isYouTubePlaylistFeedURL(feed.url) {
+        if XURLHelpers.isXFeedURL(feed.url)
+            || InstagramURLHelpers.isInstagramFeedURL(feed.url)
+            || YouTubePlaylistURLHelpers.isYouTubePlaylistFeedURL(feed.url) {
             return feed.siteURL
         }
         return feed.url

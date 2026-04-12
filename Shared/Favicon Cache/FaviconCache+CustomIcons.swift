@@ -9,31 +9,31 @@ extension FaviconCache {
                 return nil
             }
             if customURL == "photo" {
-                return customFavicon(feedID: feed.id)
-            }
-            if let cached = customFavicon(feedID: feed.id) {
-                return cached
-            }
-            if let url = URL(string: customURL),
-               let (data, _) = try? await URLSession.shared.data(from: url),
-               let image = UIImage(data: data) {
-                await setCustomFavicon(image, feedID: feed.id)
-                return image
+                if let cached = customFavicon(feedID: feed.id) {
+                    return cached
+                }
+                // The feed is marked as using a profile photo but the
+                // cache was cleared. Fall through to the integration fetch
+                // below so the photo is re-downloaded on demand.
+            } else {
+                if let cached = customFavicon(feedID: feed.id) {
+                    return cached
+                }
+                if let url = URL(string: customURL),
+                   let (data, _) = try? await URLSession.shared.data(from: url),
+                   let image = UIImage(data: data) {
+                    await setCustomFavicon(image, feedID: feed.id)
+                    return image
+                }
             }
         }
 
-        // For X feeds without a cached photo, fetch the profile avatar via XProfileScraper
-        if feed.isXFeed,
-           let handle = XProfileScraper.handleFromFeedURL(feed.url),
-           let image = await fetchXProfileAvatar(handle: handle) {
-            await setCustomFavicon(image, feedID: feed.id, skipTrimming: true)
-            return image
-        }
-
-        // For Instagram feeds without a cached photo, fetch the profile avatar
-        if feed.isInstagramFeed,
-           let handle = InstagramProfileScraper.handleFromFeedURL(feed.url),
-           let image = await fetchInstagramProfileAvatar(handle: handle) {
+        // For integration feeds without a cached photo, ask the integration
+        // to fetch the profile avatar. The integration knows how to resolve
+        // its own pseudo-feed URL and handle authentication.
+        if let integration = IntegrationRegistry.integration(forFeedURL: feed.url),
+           type(of: integration).supportsProfilePhoto,
+           let image = await integration.fetchProfilePhoto(forFeedURL: feed.url) {
             await setCustomFavicon(image, feedID: feed.id, skipTrimming: true)
             return image
         }

@@ -3,26 +3,11 @@ import SwiftUI
 extension FeedEditSheet {
 
     func loadCurrentFavicon() async -> UIImage? {
-        if let customURL = feed.customIconURL {
-            if customURL == "none" {
-                return nil
-            }
-            if customURL == "photo" {
-                return await FaviconCache.shared.customFavicon(feedID: feed.id)
-            }
-            // Check if already cached for this feed
-            if let cached = await FaviconCache.shared.customFavicon(feedID: feed.id) {
-                return cached
-            }
-            // Download, cache locally, then return
-            if let url = URL(string: customURL),
-               let (data, _) = try? await URLSession.shared.data(from: url),
-               let image = UIImage(data: data) {
-                await FaviconCache.shared.setCustomFavicon(image, feedID: feed.id)
-                return image
-            }
-        }
-        return await FaviconCache.shared.favicon(for: feed.domain, siteURL: feed.siteURL)
+        // Delegate to FaviconCache so we share the same resolution logic
+        // (cached custom icon → integration profile photo → domain favicon).
+        // This avoids duplicating the "photo was cleared, re-fetch via
+        // integration" fallback in two places.
+        return await FaviconCache.shared.favicon(for: feed)
     }
 
     func iconCornerRadius(size: CGFloat) -> CGFloat {
@@ -35,44 +20,22 @@ extension FeedEditSheet {
         isFetchingIcon = true
         defer { isFetchingIcon = false }
 
-        // For X feeds, fetch the profile avatar using XProfileScraper
-        if feed.isXFeed,
-           let handle = XProfileScraper.handleFromFeedURL(feed.url),
-           let cookies = await XProfileScraper.getXCookies() {
-            let scraper = XProfileScraper()
-            if let userInfo = await scraper.fetchUserInfo(screenName: handle, cookies: cookies),
-               let imageURLString = userInfo.profileImageURL,
-               let imageURL = URL(string: imageURLString),
-               let (data, _) = try? await URLSession.shared.data(from: imageURL),
-               let image = UIImage(data: data) {
-                await FaviconCache.shared.setCustomFavicon(image, feedID: feed.id, skipTrimming: true)
-                customIconImage = nil
-                currentFavicon = image
-                selectedPhoto = nil
-                iconURLInput = ""
-                useDefaultIcon = false
-                return
-            }
-        }
-
-        // For Instagram feeds, fetch the profile avatar using InstagramProfileScraper
-        if feed.isInstagramFeed,
-           let handle = InstagramProfileScraper.handleFromFeedURL(feed.url),
-           let profileURL = InstagramProfileScraper.profileURL(for: handle) {
-            let scraper = InstagramProfileScraper()
-            let result = await scraper.scrapeProfile(profileURL: profileURL)
-            if let imageURLString = result.profileImageURL,
-               let imageURL = URL(string: imageURLString),
-               let (data, _) = try? await URLSession.shared.data(from: imageURL),
-               let image = UIImage(data: data) {
-                await FaviconCache.shared.setCustomFavicon(image, feedID: feed.id, skipTrimming: true)
-                customIconImage = nil
-                currentFavicon = image
-                selectedPhoto = nil
-                iconURLInput = ""
-                useDefaultIcon = false
-                return
-            }
+        // For integration feeds (X, Instagram, …), fetch the profile photo
+        // through the integration. Each integration knows how to resolve a
+        // pseudo-feed URL to an image without the caller dealing with
+        // cookies, handles, or per-platform APIs.
+        if let integration = IntegrationRegistry.integration(forFeedURL: feed.url),
+           type(of: integration).supportsProfilePhoto,
+           let image = await integration.fetchProfilePhoto(forFeedURL: feed.url) {
+            await FaviconCache.shared.setCustomFavicon(
+                image, feedID: feed.id, skipTrimming: true
+            )
+            customIconImage = nil
+            currentFavicon = image
+            selectedPhoto = nil
+            iconURLInput = ""
+            useDefaultIcon = false
+            return
         }
 
         await FaviconCache.shared.refreshFavicons(for: [(domain: feed.domain, siteURL: feed.siteURL)])

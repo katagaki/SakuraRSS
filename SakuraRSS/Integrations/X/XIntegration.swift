@@ -24,7 +24,7 @@ struct XProfileScrapeResult: Sendable {
 /// Fetches tweets from an X (Twitter) profile using GraphQL API calls.
 /// Retweets are excluded. Requires the user to be logged in via the default
 /// WKWebsiteDataStore so that session cookies are available.
-final class XProfileScraper {
+final class XIntegration: Integration {
 
     // swiftlint:disable line_length
     static let bearerToken = "AAAAAAAAAAAAAAAAAAAAANRILgAAAAAAnNwIzUejRCOuH5E6I8xnZz4puTs%3D1Zv7ttfk8LF81IUq16cHjhLTvJu4FA33AGWWjCpTnA"
@@ -48,13 +48,78 @@ final class XProfileScraper {
         "responsive_web_graphql_skip_user_profile_image_extensions_enabled": false,
         "responsive_web_graphql_timeline_navigation_enabled": true
     ]
-
     // swiftlint:enable line_length
 
     static let targetTweetCount = 50
 
     /// Serialises access so only one fetch runs at a time.
     private static var activeScrape: Task<XProfileScrapeResult, Never>?
+
+    @MainActor
+    static var queryIDsFetched = false
+
+    // MARK: - Integration overrides
+
+    override class var feedURLScheme: String { XURLHelpers.feedURLScheme }
+
+    override class var requiresAuthentication: Bool { true }
+
+    override class var supportsProfilePhoto: Bool { true }
+
+    @MainActor
+    override class func hasSession() async -> Bool {
+        await hasXSession()
+    }
+
+    @MainActor
+    override class func clearSession() async {
+        await clearXSession()
+    }
+
+    /// Resolves an X handle to its profile image URL by calling
+    /// `UserByScreenName`. This is much lighter than a full profile scrape
+    /// — no tweets are fetched — so it is well-suited to refreshing only
+    /// the feed's favicon.
+    override func profileImageURL(forIdentifier identifier: String) async -> String? {
+        guard let cookies = await Self.getXCookies(),
+              let userInfo = await fetchUserInfo(
+                screenName: identifier, cookies: cookies
+              ) else {
+            return nil
+        }
+        return userInfo.profileImageURL
+    }
+
+    override func scrape(identifier: String) async -> IntegrationScrapeResult {
+        guard let profileURL = XURLHelpers.profileURL(for: identifier) else {
+            return IntegrationScrapeResult()
+        }
+
+        let result = await scrapeProfile(profileURL: profileURL)
+
+        let articles = result.tweets.map { tweet -> ArticleInsertItem in
+            let title = tweet.text.isEmpty
+                ? "Post by @\(tweet.authorHandle)"
+                : String(tweet.text.prefix(200))
+            return ArticleInsertItem(
+                title: title,
+                url: tweet.url,
+                data: ArticleInsertData(
+                    author: tweet.author.isEmpty ? "@\(tweet.authorHandle)" : tweet.author,
+                    summary: tweet.text.isEmpty ? nil : tweet.text,
+                    imageURL: tweet.imageURL,
+                    carouselImageURLs: tweet.carouselImageURLs,
+                    publishedDate: tweet.publishedDate
+                )
+            )
+        }
+
+        return IntegrationScrapeResult(
+            articles: articles,
+            feedTitle: result.displayName,
+            profileImageURL: result.profileImageURL
+        )
+    }
 
     // MARK: - Public
 
@@ -76,87 +141,12 @@ final class XProfileScraper {
         return result
     }
 
-    @MainActor
-    static var queryIDsFetched = false
-
-    // MARK: - Static Helpers
-
-    /// Returns true if the URL points to a specific X/Twitter post (status).
-    nonisolated static func isXPostURL(_ url: URL) -> Bool {
-        guard let host = url.host?.lowercased() else { return false }
-        let isXDomain = host == "x.com" || host == "twitter.com"
-            || host == "www.x.com" || host == "www.twitter.com"
-            || host == "mobile.x.com" || host == "mobile.twitter.com"
-        guard isXDomain else { return false }
-        // Path like /username/status/1234567890
-        let components = url.pathComponents
-        return components.count >= 4 && components[2] == "status"
-    }
-
-    /// Extracts the tweet ID from an X/Twitter status URL.
-    nonisolated static func extractTweetID(from url: URL) -> String? {
-        let components = url.pathComponents
-        guard components.count >= 4, components[2] == "status" else { return nil }
-        return components[3]
-    }
-
-    /// Returns true if the URL points to an X/Twitter profile.
-    nonisolated static func isXProfileURL(_ url: URL) -> Bool {
-        guard let host = url.host?.lowercased() else { return false }
-        let isXDomain = host == "x.com" || host == "twitter.com"
-            || host == "www.x.com" || host == "www.twitter.com"
-            || host == "mobile.x.com" || host == "mobile.twitter.com"
-        guard isXDomain else { return false }
-
-        let path = url.path
-        guard path.count > 1 else { return false }
-
-        let handle = String(path.dropFirst())
-            .split(separator: "/").first.map(String.init) ?? ""
-        guard !handle.isEmpty else { return false }
-
-        let reserved: Set<String> = [
-            "home", "explore", "search", "notifications", "messages",
-            "settings", "login", "signup", "i", "intent", "hashtag",
-            "compose", "tos", "privacy"
-        ]
-        return !reserved.contains(handle.lowercased())
-    }
-
-    /// Extracts the username handle from an X profile URL.
-    nonisolated static func extractHandle(from url: URL) -> String? {
-        let path = url.path
-        guard path.count > 1 else { return nil }
-        return path.dropFirst()
-            .split(separator: "/").first
-            .map(String.init)
-    }
-
-    /// Constructs a canonical X profile URL from a handle.
-    nonisolated static func profileURL(for handle: String) -> URL? {
-        URL(string: "https://x.com/\(handle)")
-    }
-
-    /// The pseudo-feed URL stored in the database for an X profile.
-    nonisolated static func feedURL(for handle: String) -> String {
-        "x-profile://\(handle.lowercased())"
-    }
-
-    /// Checks if a feed URL is an X pseudo-feed.
-    nonisolated static func isXFeedURL(_ url: String) -> Bool {
-        url.hasPrefix("x-profile://")
-    }
-
-    /// Extracts the handle from an X pseudo-feed URL.
-    nonisolated static func handleFromFeedURL(_ url: String) -> String? {
-        guard isXFeedURL(url) else { return nil }
-        return String(url.dropFirst("x-profile://".count))
-    }
+    // MARK: - Session
 
     /// UserDefaults key used to cache the X session state so that
     /// it is available immediately on cold launch (before the WebKit
     /// cookie store has finished loading from disk).
-    private static let xSessionCacheKey = "XProfileScraper.hasSession"
+    private static let xSessionCacheKey = "XIntegration.hasSession"
 
     /// Checks if the user has X cookies (i.e. is logged in).
     ///

@@ -31,14 +31,14 @@ struct LabsView: View {
                         Button("Labs.XProfileFeeds.RefreshAuth") {
                             Task {
                                 await MainActor.run {
-                                    XProfileScraper.queryIDsFetched = false
+                                    XIntegration.queryIDsFetched = false
                                 }
-                                await XProfileScraper.fetchQueryIDsIfNeeded()
+                                await XIntegration.fetchQueryIDsIfNeeded()
                             }
                         }
                         Button("Labs.XProfileFeeds.SignOut") {
                             Task {
-                                await XProfileScraper.clearXSession()
+                                await XIntegration.clearSession()
                                 isXSignedIn = false
                             }
                         }
@@ -60,7 +60,7 @@ struct LabsView: View {
                     if isInstagramSignedIn {
                         Button("Labs.InstagramProfileFeeds.SignOut") {
                             Task {
-                                await InstagramProfileScraper.clearInstagramSession()
+                                await InstagramIntegration.clearSession()
                                 isInstagramSignedIn = false
                             }
                         }
@@ -81,21 +81,21 @@ struct LabsView: View {
         .toolbarTitleDisplayMode(.inline)
         .sheet(isPresented: $showXLogin) {
             Task {
-                isXSignedIn = await XProfileScraper.hasXSession()
+                isXSignedIn = await XIntegration.hasSession()
             }
         } content: {
             XLoginView()
         }
         .sheet(isPresented: $showInstagramLogin) {
             Task {
-                isInstagramSignedIn = await InstagramProfileScraper.hasInstagramSession()
+                isInstagramSignedIn = await InstagramIntegration.hasSession()
             }
         } content: {
             InstagramLoginView()
         }
         .task {
-            isXSignedIn = await XProfileScraper.hasXSession()
-            isInstagramSignedIn = await InstagramProfileScraper.hasInstagramSession()
+            isXSignedIn = await XIntegration.hasSession()
+            isInstagramSignedIn = await InstagramIntegration.hasSession()
         }
     }
 }

@@ -25,7 +25,7 @@ struct InstagramProfileScrapeResult: Sendable {
 /// Fetches posts from an Instagram profile using the web API.
 /// Requires the user to be logged in via the default WKWebsiteDataStore
 /// so that session cookies are available.
-final class InstagramProfileScraper {
+final class InstagramIntegration: Integration {
 
     // swiftlint:disable line_length
 
@@ -36,6 +36,67 @@ final class InstagramProfileScraper {
 
     /// Serialises access so only one fetch runs at a time.
     private static var activeScrape: Task<InstagramProfileScrapeResult, Never>?
+
+    // MARK: - Integration overrides
+
+    override class var feedURLScheme: String { InstagramURLHelpers.feedURLScheme }
+
+    override class var requiresAuthentication: Bool { true }
+
+    override class var supportsProfilePhoto: Bool { true }
+
+    @MainActor
+    override class func hasSession() async -> Bool {
+        await hasInstagramSession()
+    }
+
+    @MainActor
+    override class func clearSession() async {
+        await clearInstagramSession()
+    }
+
+    /// Resolves an Instagram handle to its profile image URL. Instagram's
+    /// `web_profile_info` endpoint returns both the profile metadata and
+    /// the first page of posts in a single request, so there's no way to
+    /// ask for the avatar alone — we just discard the posts.
+    override func profileImageURL(forIdentifier identifier: String) async -> String? {
+        guard let profileURL = InstagramURLHelpers.profileURL(for: identifier) else {
+            return nil
+        }
+        let result = await scrapeProfile(profileURL: profileURL)
+        return result.profileImageURL
+    }
+
+    override func scrape(identifier: String) async -> IntegrationScrapeResult {
+        guard let profileURL = InstagramURLHelpers.profileURL(for: identifier) else {
+            return IntegrationScrapeResult()
+        }
+
+        let result = await scrapeProfile(profileURL: profileURL)
+
+        let articles = result.posts.map { post -> ArticleInsertItem in
+            let title = post.text.isEmpty
+                ? "Post by @\(post.authorHandle)"
+                : String(post.text.prefix(200))
+            return ArticleInsertItem(
+                title: title,
+                url: post.url,
+                data: ArticleInsertData(
+                    author: post.author.isEmpty ? "@\(post.authorHandle)" : post.author,
+                    summary: post.text.isEmpty ? nil : post.text,
+                    imageURL: post.imageURL,
+                    carouselImageURLs: post.carouselImageURLs,
+                    publishedDate: post.publishedDate
+                )
+            )
+        }
+
+        return IntegrationScrapeResult(
+            articles: articles,
+            feedTitle: result.displayName,
+            profileImageURL: result.profileImageURL
+        )
+    }
 
     // MARK: - Public
 
@@ -57,72 +118,10 @@ final class InstagramProfileScraper {
         return result
     }
 
-    // MARK: - Static Helpers
-
-    /// Returns true if the URL points to a specific Instagram post.
-    nonisolated static func isInstagramPostURL(_ url: URL) -> Bool {
-        guard let host = url.host?.lowercased() else { return false }
-        let isInstagramDomain = host == "instagram.com" || host == "www.instagram.com"
-        guard isInstagramDomain else { return false }
-        let components = url.pathComponents
-        // /p/SHORTCODE/ or /reel/SHORTCODE/
-        return components.count >= 3
-            && (components[1] == "p" || components[1] == "reel")
-    }
-
-    /// Returns true if the URL points to an Instagram profile.
-    nonisolated static func isInstagramProfileURL(_ url: URL) -> Bool {
-        guard let host = url.host?.lowercased() else { return false }
-        let isInstagramDomain = host == "instagram.com" || host == "www.instagram.com"
-        guard isInstagramDomain else { return false }
-
-        let path = url.path
-        guard path.count > 1 else { return false }
-
-        let handle = String(path.dropFirst())
-            .split(separator: "/").first.map(String.init) ?? ""
-        guard !handle.isEmpty else { return false }
-
-        let reserved: Set<String> = [
-            "explore", "accounts", "p", "reel", "reels", "stories",
-            "direct", "about", "legal", "developer", "api",
-            "static", "emails", "challenge", "nux", "graphql"
-        ]
-        return !reserved.contains(handle.lowercased())
-    }
-
-    /// Extracts the username handle from an Instagram profile URL.
-    nonisolated static func extractHandle(from url: URL) -> String? {
-        let path = url.path
-        guard path.count > 1 else { return nil }
-        return path.dropFirst()
-            .split(separator: "/").first
-            .map(String.init)
-    }
-
-    /// Constructs a canonical Instagram profile URL from a handle.
-    nonisolated static func profileURL(for handle: String) -> URL? {
-        URL(string: "https://www.instagram.com/\(handle)/")
-    }
-
-    /// The pseudo-feed URL stored in the database for an Instagram profile.
-    nonisolated static func feedURL(for handle: String) -> String {
-        "instagram-profile://\(handle.lowercased())"
-    }
-
-    /// Checks if a feed URL is an Instagram pseudo-feed.
-    nonisolated static func isInstagramFeedURL(_ url: String) -> Bool {
-        url.hasPrefix("instagram-profile://")
-    }
-
-    /// Extracts the handle from an Instagram pseudo-feed URL.
-    nonisolated static func handleFromFeedURL(_ url: String) -> String? {
-        guard isInstagramFeedURL(url) else { return nil }
-        return String(url.dropFirst("instagram-profile://".count))
-    }
+    // MARK: - Session
 
     /// UserDefaults key used to cache the Instagram session state.
-    private static let sessionCacheKey = "InstagramProfileScraper.hasSession"
+    private static let sessionCacheKey = "InstagramIntegration.hasSession"
 
     /// Checks if the user has Instagram cookies (i.e. is logged in).
     @MainActor
@@ -186,4 +185,6 @@ final class InstagramProfileScraper {
         }
         UserDefaults.standard.set(false, forKey: sessionCacheKey)
     }
+
+    // swiftlint:enable line_length
 }

@@ -1,6 +1,6 @@
 import Foundation
 
-extension YouTubePlaylistScraper {
+extension YouTubePlaylistIntegration {
 
     /// Fetches the YouTube playlist page and parses the video list.
     func performFetch(url: URL) async -> YouTubePlaylistScrapeResult {
