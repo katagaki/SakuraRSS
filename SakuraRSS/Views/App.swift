@@ -25,19 +25,13 @@ struct SakuraRSSApp: App {
                 .environment(feedManager)
                 .modifier(KeepScreenOnDuringPodcastWork())
                 .task {
-                    // Pre-warm the X WKWebsiteDataStore cookie store so
-                    // that the first feed refresh sees valid session
-                    // cookies.  On cold launch the cookie store is
-                    // otherwise empty until a WKWebView has loaded a
-                    // page from the domain.
-                    //
-                    // Instagram has migrated to Keychain-backed cookie
-                    // storage, so its cookies are always available
-                    // without any WebKit warming — we just run a
-                    // one-time migration for users upgrading from a
-                    // version that only stored cookies in WebKit.
+                    // Both X and Instagram now use Keychain-backed cookie
+                    // storage, so their cookies are available without any
+                    // WebKit warming on cold launch.  We run a one-time
+                    // migration for users upgrading from versions that
+                    // only stored cookies in WebKit.
                     if UserDefaults.standard.bool(forKey: "Labs.XProfileFeeds") {
-                        await XProfileScraper.warmCookieStore()
+                        await XProfileScraper.migrateWebKitCookiesIfNeeded()
                     }
                     if UserDefaults.standard.bool(forKey: "Labs.InstagramProfileFeeds") {
                         await InstagramProfileScraper.migrateWebKitCookiesIfNeeded()
@@ -118,11 +112,13 @@ struct SakuraRSSApp: App {
             case "putonpipboy":
                 wipeAllCachesAndData()
                 Task {
+                    // X and Instagram cookies live in Keychain, which
+                    // survives the filesystem wipe above — no cookie
+                    // re-warming needed.  X still has to re-extract its
+                    // in-memory GraphQL query IDs from the JS bundle.
                     if UserDefaults.standard.bool(forKey: "Labs.XProfileFeeds") {
                         await XProfileScraper.fetchQueryIDsIfNeeded()
                     }
-                    // Instagram cookies live in Keychain, which survives
-                    // the filesystem wipe above — no re-warming needed.
                     let entries = feedManager.feeds.map { ($0.domain, $0.siteURL as String?) }
                     await FaviconCache.shared.refreshFavicons(for: entries)
                 }
@@ -273,12 +269,14 @@ struct SakuraRSSApp: App {
         let refreshTask = Task {
             let manager = FeedManager()
             // Skip X and Instagram profile feeds in background refresh.
-            // Both scrapers depend on WKWebView-backed cookie warming
-            // (and X additionally on a JS-bundle query-ID fetch) that
-            // isn't reliable in a headless BGAppRefreshTask, and firing
-            // authenticated API calls from a locked device at a fixed
-            // cadence is itself a bot-like signal.  Those feeds refresh
-            // when the user actually opens the app instead.
+            // Both scrapers' cookies now live in Keychain so they would
+            // technically be reachable from a BGAppRefreshTask, but
+            // firing authenticated API calls from a locked device at a
+            // fixed cadence is itself a bot-like signal — stronger than
+            // anything else in the request fingerprint.  X additionally
+            // depends on a JS-bundle query-ID fetch that isn't reliable
+            // in a headless BGAppRefreshTask.  Those feeds refresh when
+            // the user actually opens the app instead.
             await manager.refreshAllFeeds(skipAuthenticatedScrapers: true)
             await NLPProcessingCoordinator.processNewArticlesIfEnabled()
             manager.updateBadgeCount()

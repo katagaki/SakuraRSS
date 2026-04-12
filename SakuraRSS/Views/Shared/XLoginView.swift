@@ -71,6 +71,11 @@ private struct XLoginWebView: UIViewRepresentable {
                 try? await Task.sleep(for: .seconds(1))
                 guard !Task.isCancelled else { return }
 
+                // Copy any cookies X just set in the WKWebView over to
+                // Keychain so `hasXSession()`, which reads from Keychain,
+                // can detect the successful login.
+                await XProfileScraper.syncCookiesFromWebKit()
+
                 let loggedIn = await XProfileScraper.hasXSession()
                 if loggedIn {
                     self.isLoggedIn = true
