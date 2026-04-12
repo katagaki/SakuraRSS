@@ -27,6 +27,15 @@ struct InstagramProfileScrapeResult: Sendable {
 /// so that session cookies are available.
 final class InstagramProfileScraper {
 
+    /// Per-request timeout used for every URLRequest this scraper builds.
+    /// Callers that perform cosmetic work (e.g. favicon avatar lookups)
+    /// can raise this value to effectively bypass the normal timeout.
+    /// Marked `nonisolated(unsafe)` so it can be configured from the
+    /// favicon cache's nonisolated avatar-fetching methods; the value
+    /// is only ever set before network calls start, so there is no
+    /// meaningful data race.
+    nonisolated(unsafe) var requestTimeoutInterval: TimeInterval = 15
+
     // swiftlint:disable line_length
 
     /// Instagram's web application ID, embedded in their JS bundle.

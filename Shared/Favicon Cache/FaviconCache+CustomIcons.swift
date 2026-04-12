@@ -15,7 +15,7 @@ extension FaviconCache {
                 return cached
             }
             if let url = URL(string: customURL),
-               let (data, _) = try? await URLSession.shared.data(from: url),
+               let (data, _) = try? await Self.urlSession.data(from: url),
                let image = UIImage(data: data) {
                 await setCustomFavicon(image, feedID: feed.id)
                 return image

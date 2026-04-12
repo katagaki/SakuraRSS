@@ -6,7 +6,8 @@ extension FeedManager {
     // MARK: - Instagram Profile Feeds
 
     /// Minimum interval between Instagram API calls per feed (30 minutes).
-    private static let instagramRefreshInterval: TimeInterval = 30 * 60
+    /// Also used by `FaviconProgressBadge` to size the cooldown pie.
+    static let instagramRefreshInterval: TimeInterval = 30 * 60
 
     func refreshInstagramFeed(_ feed: Feed, reloadData: Bool = true) async throws {
         // Skip if this feed was fetched less than 30 minutes ago to avoid rate limits
@@ -46,11 +47,13 @@ extension FeedManager {
 
         let feedTitle = result.displayName ?? feed.title
 
-        // Download profile photo if available
+        // Download profile photo if available. This fetch is effectively
+        // a favicon fetch and therefore uses the favicon cache's dedicated
+        // URLSession, which bypasses the normal request timeout.
         var profileImage: UIImage?
         if let imageURLString = result.profileImageURL,
            let imageURL = URL(string: imageURLString),
-           let (imageData, _) = try? await URLSession.shared.data(from: imageURL) {
+           let (imageData, _) = try? await FaviconCache.urlSession.data(from: imageURL) {
             profileImage = UIImage(data: imageData)
         }
 
@@ -63,17 +66,24 @@ extension FeedManager {
             SpotlightIndexer.indexArticles(articlesToIndex, feedTitle: feedTitle)
         }.value
 
-        // Cache favicon and update feed details
-        if let image = profileImage {
+        // Cache favicon and update feed details.
+        //
+        // Only install the downloaded profile photo when the feed has
+        // no custom icon yet (`customIconURL == nil`).  Once the user —
+        // or a prior refresh — has assigned any custom icon, preserve
+        // it across refreshes so it isn't silently overwritten.  This
+        // means the Instagram profile photo only auto-installs on the
+        // very first fetch; to pull a fresh profile photo, the user
+        // can delete the custom icon in the edit sheet.
+        let shouldInstallProfilePhoto = profileImage != nil && feed.customIconURL == nil
+        if shouldInstallProfilePhoto, let image = profileImage {
             await FaviconCache.shared.setCustomFavicon(image, feedID: feed.id, skipTrimming: true)
-            if feed.customIconURL != "photo" || feed.title != feedTitle {
-                try? await Task.detached {
-                    try database.updateFeedDetails(
-                        id: feed.id, title: feedTitle, url: feed.url,
-                        customIconURL: "photo"
-                    )
-                }.value
-            }
+            try? await Task.detached {
+                try database.updateFeedDetails(
+                    id: feed.id, title: feedTitle, url: feed.url,
+                    customIconURL: "photo"
+                )
+            }.value
         } else if feed.title != feedTitle {
             try? await Task.detached {
                 try database.updateFeedDetails(
