@@ -1,4 +1,5 @@
 import Foundation
+import os
 import WebKit
 
 // MARK: - API Fetching
@@ -69,14 +70,15 @@ extension InstagramProfileScraper {
 
     /// Timestamp of the most recently completed Instagram network request.
     /// Used to enforce a minimum inter-scrape gap so a burst of feed
-    /// refreshes does not fire back-to-back.
-    nonisolated(unsafe) private static var lastRequestCompletedAt: Date?
-    nonisolated(unsafe) private static let pacingLock = NSLock()
+    /// refreshes does not fire back-to-back.  Wrapped in an
+    /// `OSAllocatedUnfairLock` because `NSLock.lock()`/`unlock()` are
+    /// unavailable from async contexts under Swift 6 strict concurrency.
+    private static let lastRequestCompletedAt = OSAllocatedUnfairLock<Date?>(
+        initialState: nil
+    )
 
     static func markRequestCompleted() {
-        pacingLock.lock()
-        defer { pacingLock.unlock() }
-        lastRequestCompletedAt = Date()
+        lastRequestCompletedAt.withLock { $0 = Date() }
     }
 
     /// Sleeps for a randomised interval so consecutive Instagram requests
@@ -84,9 +86,7 @@ extension InstagramProfileScraper {
     /// baseline jitter (always applied) with an additional cool-down that
     /// only kicks in when we have just finished a previous request.
     static func awaitHumanPacing() async {
-        pacingLock.lock()
-        let lastCompleted = lastRequestCompletedAt
-        pacingLock.unlock()
+        let lastCompleted = lastRequestCompletedAt.withLock { $0 }
 
         // Minimum gap between any two serialised scrapes — picked from a
         // fairly wide range so the cadence is not predictable.
