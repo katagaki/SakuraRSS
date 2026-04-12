@@ -17,6 +17,8 @@ struct YouTubePlaylistScrapeResult: Sendable {
 /// No login required — playlists are public.
 final class YouTubePlaylistIntegration: Integration {
 
+    nonisolated override init() { super.init() }
+
     // MARK: - Integration overrides
 
     nonisolated override class var feedURLScheme: String { YouTubePlaylistURLHelpers.feedURLScheme }

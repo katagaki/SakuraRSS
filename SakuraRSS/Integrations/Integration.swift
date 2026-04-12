@@ -44,6 +44,13 @@ struct IntegrationScrapeResult {
 /// - `hasSession()` / `clearSession()` (defaults: always-true / no-op)
 class Integration {
 
+    /// Explicit nonisolated initializer so subclasses can be instantiated
+    /// from any actor context (e.g. `IntegrationRegistry` called from the
+    /// `FaviconCache` actor). Without this, the default-main-actor
+    /// isolation setting would make `init()` @MainActor-isolated and
+    /// break synchronous lookups.
+    nonisolated init() {}
+
     // MARK: - Required overrides
 
     /// Pseudo-feed URL scheme prefix, e.g. `"x-profile://"`.

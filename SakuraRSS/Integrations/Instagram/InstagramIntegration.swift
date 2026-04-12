@@ -27,6 +27,8 @@ struct InstagramProfileScrapeResult: Sendable {
 /// so that session cookies are available.
 final class InstagramIntegration: Integration {
 
+    nonisolated override init() { super.init() }
+
     // swiftlint:disable line_length
 
     /// Instagram's web application ID, embedded in their JS bundle.

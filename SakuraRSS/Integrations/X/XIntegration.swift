@@ -26,6 +26,8 @@ struct XProfileScrapeResult: Sendable {
 /// WKWebsiteDataStore so that session cookies are available.
 final class XIntegration: Integration {
 
+    nonisolated override init() { super.init() }
+
     // swiftlint:disable line_length
     static let bearerToken = "AAAAAAAAAAAAAAAAAAAAANRILgAAAAAAnNwIzUejRCOuH5E6I8xnZz4puTs%3D1Zv7ttfk8LF81IUq16cHjhLTvJu4FA33AGWWjCpTnA"
 
