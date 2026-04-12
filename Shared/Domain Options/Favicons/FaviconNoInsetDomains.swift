@@ -6,8 +6,9 @@ nonisolated enum FaviconNoInsetDomains {
 
     static let allowlistedDomains: Set<String> = [
         "appleinsider.com",
-        "nikkei.com",
         "atp.fm",
+        "nikkei.com",
+        "reddit.com",
         "wabetainfo.com",
         "vimeo.com"
     ]

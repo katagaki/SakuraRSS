@@ -167,6 +167,7 @@ struct AddFeedView: View {
                                             .foregroundStyle(.accent)
                                     }
                                 }
+                                .contentShape(.rect)
                             }
                             .buttonStyle(.plain)
                         }

@@ -8,6 +8,7 @@ extension FaviconCache {
         let host = domain.lowercased()
         if host.contains("youtube.com") || host.contains("youtu.be") { return true }
         if host == "bsky.app" || host.hasSuffix(".bsky.app") { return true }
+        if host == "reddit.com" || host.hasSuffix(".reddit.com") { return true }
         if DisplayStyleFeedDomains.shouldPreferFeedView(feedDomain: host) { return true }
         return false
     }
@@ -55,10 +56,29 @@ extension FaviconCache {
         return UIImage(data: data)
     }
 
+    /// Fetches a subreddit's community icon via the Reddit Community Scraper.
+    /// Reddit doesn't expose the styled community icon through og:image,
+    /// so we pull it from `/r/<name>/about.json`.
+    nonisolated func fetchRedditCommunityIcon(subreddit: String) async -> UIImage? {
+        let scraper = RedditCommunityScraper()
+        let result = await scraper.scrapeCommunity(subreddit: subreddit)
+        guard let iconURLString = result.communityIconURL,
+              let iconURL = URL(string: iconURLString),
+              let (data, _) = try? await Self.urlSession.data(from: iconURL) else {
+            return nil
+        }
+        return UIImage(data: data)
+    }
+
     /// Fetches a profile avatar by scraping the profile page for the og:image meta tag.
     /// Works for YouTube channels, Mastodon profiles, and Bluesky profiles.
+    /// Subreddits are handled via the Reddit Community Scraper instead.
     nonisolated func fetchProfileAvatar(from siteURL: String) async -> UIImage? {
         guard let url = URL(string: siteURL) else { return nil }
+        if RedditCommunityScraper.isRedditSubredditURL(url),
+           let subreddit = RedditCommunityScraper.extractSubredditName(from: url) {
+            return await fetchRedditCommunityIcon(subreddit: subreddit)
+        }
         do {
             let (data, _) = try await Self.urlSession.data(from: url)
             guard let html = String(data: data, encoding: .utf8) else { return nil }
