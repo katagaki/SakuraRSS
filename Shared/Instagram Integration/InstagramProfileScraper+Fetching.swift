@@ -32,7 +32,7 @@ extension InstagramProfileScraper {
         // navigating between profiles.
         await Self.awaitHumanPacing()
 
-        guard let cookies = await Self.getInstagramCookies() else {
+        guard let cookies = Self.getInstagramCookies() else {
             #if DEBUG
             print("[InstagramProfileScraper] No Instagram session cookies found")
             #endif
@@ -44,10 +44,27 @@ extension InstagramProfileScraper {
               + "total cookies: \(cookies.allCookies.count)")
         #endif
 
+        // Session is created once and shared between the profile-info
+        // and feed/user requests so cookie rotations from Set-Cookie
+        // headers accumulate in a single jar that we can persist at
+        // the end of the scrape.
+        let session = makeSession(cookies: cookies)
+
         // Fetch profile info and recent posts
-        guard let profileData = await fetchProfileInfo(
-            username: handle, cookies: cookies
-        ) else {
+        let profileData = await fetchProfileInfo(
+            username: handle, cookies: cookies, session: session
+        )
+
+        // Persist any cookies Instagram rotated during the scrape,
+        // even if parsing failed — otherwise Keychain drifts stale
+        // and the user eventually gets silently signed out.
+        Self.persistRotatedCookies(from: session)
+
+        // Record completion time so the next serialised scrape can space
+        // itself out relative to when this one finished.
+        Self.markRequestCompleted()
+
+        guard let profileData else {
             #if DEBUG
             print("[InstagramProfileScraper] Failed to fetch profile info for \(handle)")
             #endif
@@ -59,11 +76,19 @@ extension InstagramProfileScraper {
               + "name: \(profileData.displayName ?? "nil")")
         #endif
 
-        // Record completion time so the next serialised scrape can space
-        // itself out relative to when this one finished.
-        Self.markRequestCompleted()
-
         return profileData
+    }
+
+    /// Writes rotated cookies from the URLSession jar back to Keychain
+    /// so subsequent scrapes pick up refreshed `sessionid` / `csrftoken`
+    /// / `mid` values that Instagram issued via `Set-Cookie`.
+    private static func persistRotatedCookies(from session: URLSession) {
+        guard let storage = session.configuration.httpCookieStorage else { return }
+        let updated = (storage.cookies ?? []).filter {
+            $0.domain.lowercased().contains("instagram.com")
+        }
+        guard !updated.isEmpty else { return }
+        InstagramProfileScraper.cookieStore.save(updated)
     }
 
     // MARK: - Human-Like Pacing
@@ -124,9 +149,12 @@ extension InstagramProfileScraper {
     @MainActor
     private static var cookieStoreWarmed = false
 
-    /// Loads a WKWebView with instagram.com to force WKWebsiteDataStore
-    /// to restore persisted cookies from disk. Without this, cookies may
-    /// not be available on cold app launch.
+    /// Loads a WKWebView with instagram.com to force `WKWebsiteDataStore`
+    /// to restore its persisted cookie jar from disk.
+    ///
+    /// This is now only used during the one-time Keychain migration in
+    /// `migrateWebKitCookiesIfNeeded()` — normal scrapes read directly
+    /// from the Keychain store and do not touch WebKit.
     @MainActor
     static func warmCookieStore() async {
         guard !cookieStoreWarmed else { return }
@@ -144,28 +172,23 @@ extension InstagramProfileScraper {
 
     // MARK: - Cookies
 
-    @MainActor
-    static func getInstagramCookies() async -> InstagramCookies? {
-        await warmCookieStore()
-
-        let store = WKWebsiteDataStore.default()
-        let allWebKitCookies = await store.httpCookieStore.allCookies()
+    /// Reads the current Instagram session from the Keychain-backed
+    /// cookie jar.  Synchronous and thread-safe — no WebKit hop.
+    static func getInstagramCookies() -> InstagramCookies? {
+        guard let cookies = InstagramProfileScraper.cookieStore.load() else {
+            return nil
+        }
 
         var csrfToken: String?
         var sessionID: String?
-        var instagramCookies: [HTTPCookie] = []
-
-        for cookie in allWebKitCookies {
-            let domain = cookie.domain.lowercased()
-            guard domain.contains("instagram.com") else { continue }
-            instagramCookies.append(cookie)
+        for cookie in cookies {
             if cookie.name == "csrftoken" { csrfToken = cookie.value }
             if cookie.name == "sessionid" { sessionID = cookie.value }
         }
 
         guard let csrf = csrfToken, let session = sessionID else { return nil }
         return InstagramCookies(csrfToken: csrf, sessionID: session,
-                                allCookies: instagramCookies)
+                                allCookies: cookies)
     }
 
     // MARK: - Session Building
@@ -240,7 +263,7 @@ extension InstagramProfileScraper {
     // MARK: - Profile Info + Posts
 
     func fetchProfileInfo(
-        username: String, cookies: InstagramCookies
+        username: String, cookies: InstagramCookies, session: URLSession
     ) async -> InstagramProfileScrapeResult? {
         guard let url = URL(
             string: "https://www.instagram.com/api/v1/users/web_profile_info/?username=\(username)"
@@ -248,7 +271,6 @@ extension InstagramProfileScraper {
             return nil
         }
 
-        let session = makeSession(cookies: cookies)
         let request = buildRequest(url: url, cookies: cookies)
 
         #if DEBUG

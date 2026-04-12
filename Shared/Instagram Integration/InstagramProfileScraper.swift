@@ -23,8 +23,10 @@ struct InstagramProfileScrapeResult: Sendable {
 }
 
 /// Fetches posts from an Instagram profile using the web API.
-/// Requires the user to be logged in via the default WKWebsiteDataStore
-/// so that session cookies are available.
+///
+/// Session cookies are kept in a Keychain-backed store (`cookieStore`)
+/// populated from the login WebView on success and, for users upgrading
+/// from older builds, by a one-time migration from `WKWebsiteDataStore`.
 final class InstagramProfileScraper {
 
     /// Per-request timeout used for every URLRequest this scraper builds.
@@ -45,6 +47,18 @@ final class InstagramProfileScraper {
 
     /// Serialises access so only one fetch runs at a time.
     private static var activeScrape: Task<InstagramProfileScrapeResult, Never>?
+
+    /// Keychain-backed persistent cookie jar.  Using Keychain (instead of
+    /// `WKWebsiteDataStore.default()` as the source of truth) removes the
+    /// MainActor WKWebView warming step from every scrape, makes
+    /// `hasInstagramSession()` a cheap synchronous read, and lets cold-
+    /// launch and background scrapes work without waiting for WebKit to
+    /// restore cookies from disk.  WebKit is still the target of the
+    /// login UI — we export cookies from it to Keychain on login success
+    /// and on a one-time migration.
+    static let cookieStore = KeychainCookieStore(
+        service: "com.tsubuzaki.SakuraRSS.InstagramCookies"
+    )
 
     // MARK: - Public
 
@@ -130,69 +144,66 @@ final class InstagramProfileScraper {
         return String(url.dropFirst("instagram-profile://".count))
     }
 
-    /// UserDefaults key used to cache the Instagram session state.
-    private static let sessionCacheKey = "InstagramProfileScraper.hasSession"
-
     /// Checks if the user has Instagram cookies (i.e. is logged in).
-    @MainActor
+    ///
+    /// Kept `async` for API stability with the old WebKit-backed
+    /// implementation; the body is a synchronous Keychain read.
     static func hasInstagramSession() async -> Bool {
-        // Ensure the WKWebsiteDataStore has restored persisted cookies from
-        // disk before we inspect them. On cold launch, allCookies() returns
-        // an empty array until a WKWebView has loaded a page from the
-        // domain, which makes the user look logged-out even when they aren't.
-        await warmCookieStore()
-
-        let store = WKWebsiteDataStore.default()
-        let cookies = await store.httpCookieStore.allCookies()
-        let found = cookies.contains { cookie in
-            let domain = cookie.domain.lowercased()
-            return domain.contains("instagram.com")
-                && (cookie.name == "sessionid" || cookie.name == "ds_user_id")
-        }
-
-        if found {
-            UserDefaults.standard.set(true, forKey: sessionCacheKey)
-            return true
-        }
-
-        // Cookie store may still not have finished loading — retry if we were
-        // previously logged in.
-        if UserDefaults.standard.bool(forKey: sessionCacheKey) {
-            try? await Task.sleep(for: .milliseconds(500))
-            let retryResult = await retryHasInstagramSession()
-            if retryResult {
-                return true
-            }
-            // Don't clear the cache here — a transient cookie-store miss
-            // shouldn't silently sign the user out. clearInstagramSession()
-            // is the only path that should flip this to false.
-            return false
-        }
-
-        UserDefaults.standard.set(false, forKey: sessionCacheKey)
-        return false
-    }
-
-    /// One retry of the cookie check.
-    @MainActor
-    private static func retryHasInstagramSession() async -> Bool {
-        let store = WKWebsiteDataStore.default()
-        let cookies = await store.httpCookieStore.allCookies()
+        guard let cookies = cookieStore.load() else { return false }
         return cookies.contains { cookie in
-            let domain = cookie.domain.lowercased()
-            return domain.contains("instagram.com")
-                && (cookie.name == "sessionid" || cookie.name == "ds_user_id")
+            cookie.name == "sessionid" || cookie.name == "ds_user_id"
         }
     }
 
-    /// Clears Instagram session cookies.
+    /// Clears Instagram session cookies from both Keychain and the
+    /// WebKit data store (so the login WebView starts fresh).
     @MainActor
     static func clearInstagramSession() async {
+        cookieStore.clear()
+
         let store = WKWebsiteDataStore.default()
         let cookies = await store.httpCookieStore.allCookies()
         for cookie in cookies where cookie.domain.lowercased().contains("instagram.com") {
             await store.httpCookieStore.deleteCookie(cookie)
         }
-        UserDefaults.standard.set(false, forKey: sessionCacheKey)
+    }
+
+    /// Exports any Instagram cookies present in the default
+    /// `WKWebsiteDataStore` into Keychain.  Called after the user
+    /// completes the login flow in `InstagramLoginView` so that the
+    /// scraper's Keychain-backed session check can find them.
+    @MainActor
+    static func syncCookiesFromWebKit() async {
+        let store = WKWebsiteDataStore.default()
+        let allCookies = await store.httpCookieStore.allCookies()
+        let instagramCookies = allCookies.filter {
+            $0.domain.lowercased().contains("instagram.com")
+        }
+        guard !instagramCookies.isEmpty else { return }
+        cookieStore.save(instagramCookies)
+
+        #if DEBUG
+        print("[InstagramProfileScraper] Synced \(instagramCookies.count) "
+              + "cookies from WebKit → Keychain")
+        #endif
+    }
+
+    /// One-time migration for users upgrading from the WebKit-only
+    /// storage model.  If Keychain is empty but the WebKit data store
+    /// holds Instagram cookies from a prior install, copy them over so
+    /// the user stays signed in without having to log in again.
+    ///
+    /// Safe to call repeatedly — the Keychain-empty check makes it a
+    /// no-op after the first successful migration.
+    @MainActor
+    static func migrateWebKitCookiesIfNeeded() async {
+        // Fast path: already migrated.
+        if cookieStore.load() != nil { return }
+
+        // Force WebKit to restore its on-disk cookie store before we
+        // inspect it — on a cold launch `allCookies()` returns an empty
+        // array until a WKWebView has loaded a page from the domain.
+        await warmCookieStore()
+        await syncCookiesFromWebKit()
     }
 }

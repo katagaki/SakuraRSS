@@ -217,11 +217,14 @@ final class FeedManager {
     ///
     /// - Parameter skipAuthenticatedScrapers: When `true`, X and Instagram
     ///   profile feeds are skipped entirely.  Pass this from background
-    ///   refresh tasks: those scrapers rely on WKWebView-backed cookie
-    ///   warming and GraphQL query-ID fetching, neither of which is
-    ///   reliable in a headless `BGAppRefreshTask`.  Hitting the APIs
-    ///   from a locked device at a fixed cadence is also itself a strong
-    ///   bot-like signal, so we reserve those scrapes for foreground use.
+    ///   refresh tasks.  Instagram's cookies now live in Keychain and so
+    ///   are technically available in the background, but hitting the
+    ///   Instagram/X APIs from a locked device at a fixed scheduler
+    ///   cadence is itself a strong bot-like signal — a stronger signal
+    ///   than anything else in the request fingerprint — so those
+    ///   scrapes are reserved for foreground use.  X additionally still
+    ///   depends on WKWebView-backed cookie warming and a JS-bundle
+    ///   query-ID fetch that is unreliable in a `BGAppRefreshTask`.
     func refreshAllFeeds(skipAuthenticatedScrapers: Bool = false) async {
         await MainActor.run { isLoading = true }
         defer { Task { @MainActor in self.isLoading = false } }

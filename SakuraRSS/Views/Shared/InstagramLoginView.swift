@@ -70,6 +70,11 @@ private struct InstagramLoginWebView: UIViewRepresentable {
                 try? await Task.sleep(for: .seconds(1))
                 guard !Task.isCancelled else { return }
 
+                // Copy any cookies Instagram just set in the WKWebView
+                // over to Keychain so `hasInstagramSession()`, which
+                // reads from Keychain, can detect the successful login.
+                await InstagramProfileScraper.syncCookiesFromWebKit()
+
                 let loggedIn = await InstagramProfileScraper.hasInstagramSession()
                 if loggedIn {
                     self.isLoggedIn = true
