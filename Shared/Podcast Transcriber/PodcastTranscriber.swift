@@ -1,200 +1,40 @@
-import AudioKit
-import AVFoundation
-import CoreMedia
 import Foundation
-import NaturalLanguage
-import Speech
 
-enum PodcastTranscriberError: Error {
-    case notAvailable
-    case audioFileUnreadable
-    case authorizationDenied
-    case transcriptionFailed(String)
-}
-
+/// Central dispatcher for podcast transcription.
+///
+/// Reads the user's "transcription enabled" preference from UserDefaults and
+/// delegates to the FluidAudio Parakeet engine. Skips transcription if the
+/// toggle is off or the model hasn't finished downloading.
 enum PodcastTranscriber {
 
-    // MARK: - Availability
+    /// UserDefaults key for the Parakeet-on-off toggle.
+    static let enabledKey = "Podcast.TranscriptionEnabled"
 
-    /// Checks whether on-device transcription is usable, including authorization.
+    static var isEnabled: Bool {
+        UserDefaults.standard.bool(forKey: enabledKey)
+    }
+
+    static var engine: any TranscriptionEngine { FluidTranscriberEngine() }
+
+    // MARK: - Public API
+
+    /// Whether transcription is enabled and the Parakeet model is downloaded.
     static var isAvailable: Bool {
         get async {
-            let current = SFSpeechRecognizer.authorizationStatus()
-            if current == .authorized { return true }
-            if current == .denied || current == .restricted { return false }
-            let status = await withCheckedContinuation { (cont: CheckedContinuation<SFSpeechRecognizerAuthorizationStatus, Never>) in
-                SFSpeechRecognizer.requestAuthorization { cont.resume(returning: $0) }
-            }
-            return status == .authorized
+            guard isEnabled else { return false }
+            guard engine.isModelDownloaded else { return false }
+            return await engine.isAvailable
         }
     }
 
-    // MARK: - Transcribe
-
-    /// Transcribes a local audio file using Apple's iOS 26 SpeechAnalyzer/SpeechTranscriber.
-    ///
-    /// Exact API surface of iOS 26's Speech framework may require light adjustment:
-    /// results are consumed via the transcriber's `results` AsyncSequence and carry
-    /// `.audioTimeRange` attributes on the text's character ranges.
+    /// Transcribes a local audio file using the Parakeet engine.
     static func transcribe(audioFileURL: URL, title: String) async throws -> [TranscriptSegment] {
-        guard FileManager.default.fileExists(atPath: audioFileURL.path) else {
-            throw PodcastTranscriberError.audioFileUnreadable
+        guard isEnabled else {
+            throw TranscriptionEngineError.notAvailable
         }
-
-        // SpeechAnalyzer requires linear PCM audio. If the source file is
-        // compressed (MP3, AAC, Opus, etc.) we convert it to a WAV first.
-        let fileToTranscribe: URL = audioFileURL.deletingPathExtension().appendingPathExtension("wav")
-        var options = FormatConverter.Options()
-        options.format = .wav
-        options.sampleRate = 16000
-        options.bitDepth = 16
-        options.channels = 1
-        let converter = FormatConverter(
-            inputURL: audioFileURL,
-            outputURL: fileToTranscribe,
-            options: options
-        )
-
-        try? await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
-            converter.start { error in
-                if let error = error {
-                    print(error.localizedDescription)
-                    continuation.resume(throwing: error)
-                } else {
-                    #if DEBUG
-                    debugPrint("[PodcastTranscriber] Completed file conversion for \(fileToTranscribe)")
-                    #endif
-                    continuation.resume(returning: ())
-                }
-            }
+        guard engine.isModelDownloaded else {
+            throw TranscriptionEngineError.modelNotDownloaded
         }
-
-        defer {
-            try? FileManager.default.removeItem(at: fileToTranscribe)
-        }
-
-        #if DEBUG
-        debugPrint("[PodcastTranscriber] Using file at \(fileToTranscribe.path()) for speech recognition")
-        #endif
-
-        let recognizer = NLLanguageRecognizer()
-        recognizer.processString(title)
-        let detected = recognizer.dominantLanguage
-        let locale: Locale
-        if let detected {
-            locale = Locale(identifier: detected.rawValue)
-        } else {
-            locale = .current
-        }
-        #if DEBUG
-        debugPrint("[PodcastTranscriber] Detected language '\(detected?.rawValue ?? "unknown")' from title, using locale \(locale.identifier)")
-        #endif
-
-        let transcriber = SpeechTranscriber(
-            locale: locale,
-            transcriptionOptions: [],
-            reportingOptions: [],
-            attributeOptions: []
-        )
-        let analyzer = SpeechAnalyzer(modules: [transcriber])
-        let audioFile = try AVAudioFile(forReading: fileToTranscribe)
-
-        #if DEBUG
-        debugPrint("[PodcastTranscriber] Audio file format: \(audioFile.fileFormat), processing with \(audioFile.processingFormat)")
-        debugPrint("[PodcastTranscriber] Compatible formats: \(await transcriber.availableCompatibleAudioFormats)")
-        #endif
-
-        try await analyzer.prepareToAnalyze(in: audioFile.processingFormat)
-
-        let collectionTask = Task { () throws -> [TranscriptSegment] in
-            var segments: [TranscriptSegment] = []
-            var nextID = 0
-            for try await result in transcriber.results {
-                let text = String(result.text.characters)
-                    .trimmingCharacters(in: .whitespacesAndNewlines)
-                guard !text.isEmpty else { continue }
-
-                let timeRange = result.range
-                segments.append(TranscriptSegment(
-                    id: nextID,
-                    start: CMTimeGetSeconds(timeRange.start),
-                    end: CMTimeGetSeconds(timeRange.start + timeRange.duration),
-                    text: text
-                ))
-                nextID += 1
-            }
-            return segments
-        }
-
-        // Stream the file into the analyzer.
-        try await analyzer.analyzeSequence(from: audioFile)
-        // Wait for any remaining results to drain.
-        return try await collectionTask.value
-    }
-
-    // MARK: - Format Conversion
-
-    /// Converts a compressed audio file to 16 kHz mono PCM WAV for Speech framework compatibility.
-    private static func convertToPCM(sourceFile: AVAudioFile) async throws -> URL {
-        try await Task.detached(priority: .utility) {
-            guard let outputFormat = AVAudioFormat(
-                commonFormat: .pcmFormatInt16,
-                sampleRate: 16000,
-                channels: 1,
-                interleaved: true
-            ) else {
-                throw PodcastTranscriberError.audioFileUnreadable
-            }
-
-            guard let converter = AVAudioConverter(from: sourceFile.processingFormat, to: outputFormat) else {
-                throw PodcastTranscriberError.transcriptionFailed(
-                    "Cannot convert audio from \(sourceFile.processingFormat) to PCM"
-                )
-            }
-
-            let tempURL = FileManager.default.temporaryDirectory
-                .appendingPathComponent(UUID().uuidString + ".wav")
-            let outputFile = try AVAudioFile(forWriting: tempURL, settings: outputFormat.settings)
-
-            let bufferCapacity: AVAudioFrameCount = 4096
-            guard let convertBuffer = AVAudioPCMBuffer(
-                pcmFormat: outputFormat,
-                frameCapacity: bufferCapacity
-            ) else {
-                throw PodcastTranscriberError.audioFileUnreadable
-            }
-
-            while true {
-                let status = try converter.convert(to: convertBuffer, error: nil) { inNumberOfPackets, outStatus in
-                    guard let readBuffer = AVAudioPCMBuffer(
-                        pcmFormat: sourceFile.processingFormat,
-                        frameCapacity: inNumberOfPackets
-                    ) else {
-                        outStatus.pointee = .noDataNow
-                        return nil
-                    }
-                    do {
-                        try sourceFile.read(into: readBuffer)
-                        if readBuffer.frameLength == 0 {
-                            outStatus.pointee = .endOfStream
-                            return nil
-                        }
-                        outStatus.pointee = .haveData
-                        return readBuffer
-                    } catch {
-                        outStatus.pointee = .endOfStream
-                        return nil
-                    }
-                }
-
-                if convertBuffer.frameLength == 0 || status == .endOfStream {
-                    break
-                }
-
-                try outputFile.write(from: convertBuffer)
-            }
-
-            return tempURL
-        }.value
+        return try await engine.transcribe(audioFileURL: audioFileURL, title: title)
     }
 }

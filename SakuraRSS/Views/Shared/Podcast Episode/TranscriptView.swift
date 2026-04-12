@@ -6,8 +6,11 @@ struct TranscriptView: View {
     let currentTime: TimeInterval
     let isPlaying: Bool
     let onSeek: (TimeInterval) -> Void
+    /// Proxy for the enclosing scroll view. Required so the transcript can
+    /// auto-follow without nesting its own ScrollView inside the parent's.
+    let scrollProxy: ScrollViewProxy
+    @Binding var isAutoScrolling: Bool
 
-    @State private var isAutoScrolling: Bool = true
     @State private var lastActiveID: Int?
 
     private var activeSegmentID: Int? {
@@ -29,73 +32,42 @@ struct TranscriptView: View {
     }
 
     var body: some View {
-        ScrollViewReader { proxy in
-            ScrollView {
-                LazyVStack(alignment: .leading, spacing: 8) {
-                    ForEach(segments) { segment in
-                        segmentRow(segment)
-                            .id(segment.id)
-                    }
-                }
-                .padding(.horizontal)
-                .padding(.vertical, 12)
+        // Render segments as continuous prose — one flowing paragraph — rather
+        // than a list of timestamped blocks. Each segment is still tappable to
+        // seek, and the active segment is emphasized with weight + color.
+        LazyVStack(alignment: .leading, spacing: 0) {
+            ForEach(segments) { segment in
+                segmentText(segment)
+                    .id(segment.id)
             }
-            .overlay(alignment: .bottom) {
-                if !isAutoScrolling {
-                    Button {
-                        isAutoScrolling = true
-                        if let activeID = activeSegmentID {
-                            withAnimation(.smooth) {
-                                proxy.scrollTo(activeID, anchor: .center)
-                            }
-                        }
-                    } label: {
-                        Label("Podcast.Transcript.FollowAlong", systemImage: "text.alignleft")
-                            .font(.footnote)
-                            .fontWeight(.semibold)
-                            .padding(.horizontal, 14)
-                            .padding(.vertical, 8)
-                            .background(.thinMaterial, in: Capsule())
-                    }
-                    .buttonStyle(.plain)
-                    .padding(.bottom, 12)
+        }
+        .padding(.vertical, 12)
+        .simultaneousGesture(
+            DragGesture(minimumDistance: 8).onChanged { _ in
+                if isAutoScrolling {
+                    isAutoScrolling = false
                 }
             }
-            .simultaneousGesture(
-                DragGesture(minimumDistance: 8).onChanged { _ in
-                    if isAutoScrolling {
-                        isAutoScrolling = false
-                    }
-                }
-            )
-            .onChange(of: activeSegmentID) { _, newID in
-                guard isAutoScrolling, let newID else { return }
-                if newID != lastActiveID {
-                    lastActiveID = newID
-                    withAnimation(.smooth) {
-                        proxy.scrollTo(newID, anchor: .center)
-                    }
+        )
+        .onChange(of: activeSegmentID) { _, newID in
+            guard isAutoScrolling, let newID else { return }
+            if newID != lastActiveID {
+                lastActiveID = newID
+                withAnimation(.smooth) {
+                    scrollProxy.scrollTo(newID, anchor: .center)
                 }
             }
         }
     }
 
     @ViewBuilder
-    private func segmentRow(_ segment: TranscriptSegment) -> some View {
+    private func segmentText(_ segment: TranscriptSegment) -> some View {
         let isActive = segment.id == activeSegmentID
-        Text(segment.text)
+        Text(segment.text + " ")
             .font(.body)
             .fontWeight(isActive ? .semibold : .regular)
-            .foregroundStyle(isActive ? Color.primary : Color.primary.opacity(0.45))
-            .padding(.horizontal, 10)
-            .padding(.vertical, 6)
+            .foregroundStyle(isActive ? Color.primary : Color.primary.opacity(0.55))
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background {
-                if isActive {
-                    RoundedRectangle(cornerRadius: 10)
-                        .fill(Color.primary.opacity(0.08))
-                }
-            }
             .contentShape(Rectangle())
             .onTapGesture {
                 onSeek(segment.start)

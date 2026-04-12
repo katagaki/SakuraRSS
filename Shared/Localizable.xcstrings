@@ -16446,65 +16446,6 @@
         }
       }
     },
-    "Podcast.Transcript": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Transkript"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Transcript"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Transcription"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Trascrizione"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "文字起こし"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "스크립트"
-          }
-        },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Bản chép lời"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "转录文本"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "轉錄文字"
-          }
-        }
-      }
-    },
     "Podcast.Transcript.FollowAlong": {
       "extractionState": "manual",
       "localizations": {
@@ -16859,61 +16800,61 @@
         }
       }
     },
-    "Podcast.Transcripts.TranscribeDuringDownload": {
+    "Podcast.Transcripts.Engine.Parakeet": {
       "extractionState": "manual",
       "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Beim Herunterladen transkribieren"
-          }
-        },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Transcribe During Download"
+            "value": "NVIDIA Parakeet"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "NVIDIA Parakeet"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Transcrire lors du téléchargement"
+            "value": "NVIDIA Parakeet"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Trascrivi durante il download"
+            "value": "NVIDIA Parakeet"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "ダウンロード時に文字起こし"
+            "value": "NVIDIA Parakeet"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "다운로드 시 스크립트 생성"
+            "value": "NVIDIA Parakeet"
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Chép lời khi tải xuống"
+            "value": "NVIDIA Parakeet"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "下载时转录"
+            "value": "NVIDIA Parakeet"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "下載時轉錄"
+            "value": "NVIDIA Parakeet"
           }
         }
       }
@@ -25999,6 +25940,146 @@
           "stringUnit": {
             "state": "translated",
             "value": "登入 YouTube"
+          }
+        }
+      }
+    },
+    "Podcast.Transcripts.Model.Ready": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Model Ready"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Modell bereit"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Modèle prêt"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Modello pronto"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "モデル準備完了"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "모델 준비 완료"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mô hình đã sẵn sàng"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "模型已就绪"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "模型已就緒"
+          }
+        }
+      }
+    },
+    "Podcast.Transcripts.Model.Downloading": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Downloading Model…"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Modell wird heruntergeladen…"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Téléchargement du modèle…"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Download del modello…"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "モデルをダウンロード中…"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "모델 다운로드 중…"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đang tải mô hình…"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在下载模型…"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在下載模型…"
+          }
+        }
+      }
+    },
+    "Podcast.Transcripts.Download.OfflineError": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Internet connection required to download the transcription model."
+          }
+        }
+      }
+    },
+    "Podcast.Transcripts.Download.GenericError": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Model download failed. Please try again."
           }
         }
       }

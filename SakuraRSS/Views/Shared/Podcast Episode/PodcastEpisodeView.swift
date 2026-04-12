@@ -23,6 +23,7 @@ struct PodcastEpisodeView: View {
     // Transcript
     @State var transcript: [TranscriptSegment]?
     @State var showingTranscript: Bool = false
+    @State var isTranscriptAutoScrolling: Bool = true
 
     var isOffline: Bool {
         !networkMonitor.isOnline
@@ -84,6 +85,7 @@ struct PodcastEpisodeView: View {
     }
 
     var body: some View {
+        ScrollViewReader { scrollProxy in
         ScrollView {
             VStack(spacing: 24) {
                 // Artwork
@@ -215,9 +217,10 @@ struct PodcastEpisodeView: View {
                             segments: transcript,
                             currentTime: audioPlayer.currentTime,
                             isPlaying: audioPlayer.isPlaying,
-                            onSeek: { audioPlayer.seek(to: $0) }
+                            onSeek: { audioPlayer.seek(to: $0) },
+                            scrollProxy: scrollProxy,
+                            isAutoScrolling: $isTranscriptAutoScrolling
                         )
-                        .frame(minHeight: 320)
                         .transition(.blurReplace)
                     } else {
                         VStack(alignment: .leading, spacing: 8) {
@@ -242,6 +245,10 @@ struct PodcastEpisodeView: View {
             }
             .padding(.vertical)
         }
+        .overlay(alignment: .bottom) {
+            followAlongOverlay(scrollProxy: scrollProxy)
+        }
+        } // ScrollViewReader
         .sakuraBackground()
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {

@@ -23,6 +23,7 @@ struct SakuraRSSApp: App {
             MainTabView(pendingFeedURL: $pendingFeedURL, pendingArticleID: $pendingArticleID)
                 .environment(\.defaultMinListRowHeight, 10.0)
                 .environment(feedManager)
+                .modifier(KeepScreenOnDuringPodcastWork())
                 .task {
                     await feedManager.refreshAllFeeds()
                     UserDefaults.standard.set(false, forKey: "App.StartupInProgress")
@@ -97,6 +98,8 @@ struct SakuraRSSApp: App {
                     SpotlightIndexer.removeAllArticles()
                     feedManager.reindexAllArticlesInSpotlight()
                 }
+            case "putonpipboy":
+                wipeAllCachesAndData()
             case "forgetit":
                 let defaults = UserDefaults.standard
                 defaults.removeObject(forKey: "App.SelectedTab")
@@ -122,6 +125,52 @@ struct SakuraRSSApp: App {
             }
         } else {
             pendingFeedURL = convertFeedURL(url)
+        }
+    }
+
+    /// Wipes everything in the app's Caches, Application Support, Documents,
+    /// and tmp directories except the feeds database in the shared app group
+    /// container. Invoked via `sakura://putonpipboy`.
+    private func wipeAllCachesAndData() {
+        let fm = FileManager.default
+
+        // Wipe the main app sandbox directories entirely.
+        let directories: [FileManager.SearchPathDirectory] = [
+            .cachesDirectory,
+            .applicationSupportDirectory,
+            .documentDirectory
+        ]
+        for searchPath in directories {
+            guard let dir = fm.urls(for: searchPath, in: .userDomainMask).first else { continue }
+            wipeContents(of: dir)
+        }
+
+        // Wipe the temporary directory.
+        wipeContents(of: fm.temporaryDirectory)
+
+        // Wipe the shared app group container, but preserve the feeds database.
+        if let groupURL = fm.containerURL(
+            forSecurityApplicationGroupIdentifier: "group.com.tsubuzaki.SakuraRSS"
+        ) {
+            let dbFile = groupURL.appendingPathComponent("Sakura.feeds").lastPathComponent
+            let dbWal = groupURL.appendingPathComponent("Sakura.feeds-wal").lastPathComponent
+            let dbShm = groupURL.appendingPathComponent("Sakura.feeds-shm").lastPathComponent
+            let preserved: Set<String> = [dbFile, dbWal, dbShm]
+            wipeContents(of: groupURL, except: preserved)
+        }
+    }
+
+    /// Removes every top-level entry inside `directory`, except names in `except`.
+    private func wipeContents(of directory: URL, except: Set<String> = []) {
+        let fm = FileManager.default
+        guard let entries = try? fm.contentsOfDirectory(
+            at: directory,
+            includingPropertiesForKeys: nil,
+            options: [.skipsHiddenFiles]
+        ) else { return }
+        for entry in entries {
+            if except.contains(entry.lastPathComponent) { continue }
+            try? fm.removeItem(at: entry)
         }
     }
 
@@ -212,4 +261,21 @@ struct SakuraRSSApp: App {
         }
     }
 
+}
+
+/// Keeps the device screen awake while any podcast download or transcription
+/// is in progress, so long-running work isn't interrupted when the device
+/// would otherwise auto-lock.
+private struct KeepScreenOnDuringPodcastWork: ViewModifier {
+    @State private var manager = PodcastDownloadManager.shared
+
+    func body(content: Content) -> some View {
+        content
+            .onChange(of: manager.activeDownloads.isEmpty, initial: true) { _, isEmpty in
+                UIApplication.shared.isIdleTimerDisabled = !isEmpty
+            }
+            .onDisappear {
+                UIApplication.shared.isIdleTimerDisabled = false
+            }
+    }
 }

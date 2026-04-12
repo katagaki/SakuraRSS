@@ -39,7 +39,11 @@ struct PodcastDownloadButton: View {
                 Button {
                     downloadManager.cancelDownload(articleID: article.id)
                 } label: {
-                    donutProgress(progress: progress.progress)
+                    if progress.state == .transcribing {
+                        transcribingDonut()
+                    } else {
+                        donutProgress(progress: progress.progress)
+                    }
                 }
                 .buttonStyle(.plain)
             } else if isDownloaded {
@@ -76,6 +80,10 @@ struct PodcastDownloadButton: View {
         .frame(width: size, height: size)
     }
 
+    private func transcribingDonut() -> some View {
+        TranscribingDonut(size: size, lineWidth: lineWidth)
+    }
+
     private func donutProgress(progress: Double) -> some View {
         ZStack {
             // Background track
@@ -95,6 +103,38 @@ struct PodcastDownloadButton: View {
             Image(systemName: "stop.fill")
                 .font(.system(size: size * 0.3))
                 .foregroundStyle(.accent)
+        }
+    }
+}
+
+/// Indeterminate spinning donut shown while transcription is running.
+private struct TranscribingDonut: View {
+
+    let size: CGFloat
+    let lineWidth: CGFloat
+
+    @State private var rotation: Double = 0
+
+    var body: some View {
+        ZStack {
+            Circle()
+                .stroke(.secondary.opacity(0.2), lineWidth: lineWidth)
+                .frame(width: size - lineWidth, height: size - lineWidth)
+
+            Circle()
+                .trim(from: 0, to: 0.25)
+                .stroke(.accent, style: StrokeStyle(lineWidth: lineWidth, lineCap: .round))
+                .frame(width: size - lineWidth, height: size - lineWidth)
+                .rotationEffect(.degrees(rotation))
+
+            Image(systemName: "waveform")
+                .font(.system(size: size * 0.45))
+                .foregroundStyle(.accent)
+        }
+        .onAppear {
+            withAnimation(.linear(duration: 1.0).repeatForever(autoreverses: false)) {
+                rotation = 360
+            }
         }
     }
 }
