@@ -3,19 +3,23 @@ import SwiftUI
 /// A small pie-shaped progress badge meant to be overlaid on the
 /// bottom-right corner of a feed's favicon.  Displays nothing when
 /// there is no active fetch for the given feed ID.
+///
+/// A `TimelineView` drives the badge on a periodic schedule instead of
+/// relying on `@Observable` propagation from a singleton tracker, so the
+/// badge appears reliably the moment a fetch starts.
 struct FaviconProgressBadge: View {
 
     let feedID: Int64
     var size: CGFloat = 12
 
     var body: some View {
-        let tracker = FetchProgressTracker.shared
-        if tracker.activeFetches[feedID] != nil {
-            TimelineView(.periodic(from: .now, by: 0.1)) { context in
-                let progress = tracker.progress(for: feedID, now: context.date) ?? 0
+        TimelineView(.periodic(from: .now, by: 0.1)) { context in
+            if let progress = FetchProgressTracker.shared.progress(
+                for: feedID, now: context.date
+            ) {
                 ZStack {
                     Circle()
-                        .fill(Color.black.opacity(0.55))
+                        .fill(Color.black.opacity(0.6))
                     Circle()
                         .strokeBorder(Color.white.opacity(0.9), lineWidth: 0.8)
                     PieSliceShape(progress: progress)
@@ -23,8 +27,9 @@ struct FaviconProgressBadge: View {
                         .padding(2)
                 }
                 .frame(width: size, height: size)
-                .shadow(color: .black.opacity(0.25), radius: 0.5, x: 0, y: 0.5)
-                .transition(.scale.combined(with: .opacity))
+                .shadow(color: .black.opacity(0.3), radius: 0.5, x: 0, y: 0.5)
+            } else {
+                Color.clear.frame(width: size, height: size)
             }
         }
     }
