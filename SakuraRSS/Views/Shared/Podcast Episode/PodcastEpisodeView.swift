@@ -246,10 +246,10 @@ struct PodcastEpisodeView: View {
             .padding(.vertical)
         }
         .onScrollPhaseChange { _, newPhase in
-            if showingTranscript,
-               isTranscriptAutoScrolling,
+            if showingTranscript, isTranscriptAutoScrolling,
                newPhase == .interacting || newPhase == .tracking {
                 isTranscriptAutoScrolling = false
+                UIApplication.shared.isIdleTimerDisabled = false
             }
         }
         .overlay(alignment: .bottom) {
