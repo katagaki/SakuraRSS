@@ -1,15 +1,6 @@
 {
-  "originHash" : "d219f596a2004196c0ce07cd756fc5011555511f156e1bae18169daf0f4bf603",
+  "originHash" : "4b6fac776aca55891e2dbe30a05b79af1c9805dc67794814e16b87ca556a1802",
   "pins" : [
-    {
-      "identity" : "audiokit",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/AudioKit/AudioKit",
-      "state" : {
-        "revision" : "97a35fe04cd8e3d13b8744e1216b8673f825bef6",
-        "version" : "5.7.2"
-      }
-    },
     {
       "identity" : "faviconfinder",
       "kind" : "remoteSourceControl",
@@ -17,6 +8,15 @@
       "state" : {
         "revision" : "11c2b27fbdc5fdfe0bf3addac01d27c40299a819",
         "version" : "5.1.5"
+      }
+    },
+    {
+      "identity" : "fluidaudio",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/FluidInference/FluidAudio",
+      "state" : {
+        "branch" : "main",
+        "revision" : "39df91d98378341f9369c35d9d96217edd5628ff"
       }
     },
     {
@@ -29,12 +29,30 @@
       }
     },
     {
+      "identity" : "swift-argument-parser",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/apple/swift-argument-parser.git",
+      "state" : {
+        "revision" : "626b5b7b2f45e1b0b1c6f4a309296d1d21d7311b",
+        "version" : "1.7.1"
+      }
+    },
+    {
       "identity" : "swiftsoup",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/scinfu/SwiftSoup",
       "state" : {
         "revision" : "6c7915e16f729857aec3e99068c361e58a00ed68",
         "version" : "2.13.4"
+      }
+    },
+    {
+      "identity" : "whisperkit",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/argmaxinc/WhisperKit.git",
+      "state" : {
+        "branch" : "main",
+        "revision" : "c71c5ed607c3853c041b8fd3c1042e6e5b5a29a3"
       }
     }
   ],
