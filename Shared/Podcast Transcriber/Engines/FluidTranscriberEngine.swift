@@ -1,54 +1,48 @@
 import AVFoundation
+import FluidAudio
 import Foundation
-import ParakeetASR
 
-/// Transcription engine using ParakeetASR (NVIDIA Parakeet TDT models via CoreML/ANE).
+/// Transcription engine using FluidAudio (NVIDIA Parakeet TDT models via CoreML/ANE).
 ///
-/// Models are downloaded on demand and stored in a known directory.
-/// Runs in-process on the Neural Engine. 25 European languages supported.
+/// Models are downloaded on demand and stored in FluidAudio's managed cache.
+/// Runs in-process on the Neural Engine. 25+ European languages supported.
 struct FluidTranscriberEngine: TranscriptionEngine {
 
     static let requiresModelDownload = true
 
-    /// Fixed directory where we tell the library to cache its models.
+    private static var modelVersion: AsrModelVersion { .v3 }
+
     private static var cacheDirectory: URL {
-        FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0]
-            .appendingPathComponent("ParakeetModels", isDirectory: true)
+        AsrModels.defaultCacheDirectory(for: modelVersion)
     }
 
     var isModelDownloaded: Bool {
-        let dir = Self.cacheDirectory
-        guard FileManager.default.fileExists(atPath: dir.path) else { return false }
-        // The library downloads multiple files. Check that the directory is non-trivially populated.
-        guard let enumerator = FileManager.default.enumerator(atPath: dir.path) else { return false }
-        var count = 0
-        while enumerator.nextObject() != nil {
-            count += 1
-            if count >= 3 { return true }
-        }
-        return false
+        AsrModels.modelsExist(at: Self.cacheDirectory, version: Self.modelVersion)
     }
 
     var isAvailable: Bool {
         get async { isModelDownloaded }
     }
 
-    func downloadModel() async throws {
+    func downloadModel(progress: (@Sendable (Double) -> Void)?) async throws {
         #if DEBUG
-        debugPrint("[ParakeetEngine] Downloading Parakeet TDT v3 model to \(Self.cacheDirectory.path)")
+        debugPrint("[FluidEngine] Downloading Parakeet TDT v3 model")
         #endif
-        try FileManager.default.createDirectory(at: Self.cacheDirectory, withIntermediateDirectories: true)
-        _ = try await ParakeetASRModel.fromPretrained(cacheDir: Self.cacheDirectory)
+        _ = try await AsrModels.download(
+            version: Self.modelVersion,
+            progressHandler: progress.map { handler in
+                { (dp: DownloadProgress) in
+                    handler(dp.fractionCompleted)
+                }
+            }
+        )
         #if DEBUG
-        debugPrint("[ParakeetEngine] Model download complete")
+        debugPrint("[FluidEngine] Model download complete")
         #endif
     }
 
     func deleteModel() throws {
-        let dir = Self.cacheDirectory
-        if FileManager.default.fileExists(atPath: dir.path) {
-            try FileManager.default.removeItem(at: dir)
-        }
+        DownloadUtils.clearModelCache(forRepo: Self.modelVersion.repo, directory: Self.cacheDirectory)
     }
 
     func transcribe(audioFileURL: URL, title: String) async throws -> [TranscriptSegment] {
@@ -60,44 +54,33 @@ struct FluidTranscriberEngine: TranscriptionEngine {
         }
 
         #if DEBUG
-        debugPrint("[ParakeetEngine] Loading Parakeet TDT v3 model from \(Self.cacheDirectory.path)")
+        debugPrint("[FluidEngine] Loading Parakeet TDT v3 model")
         #endif
 
-        let model = try await ParakeetASRModel.fromPretrained(
-            cacheDir: Self.cacheDirectory,
-            offlineMode: true
-        )
+        let models = try await AsrModels.downloadAndLoad(version: Self.modelVersion)
+        let manager = AsrManager(models: models)
 
         #if DEBUG
-        debugPrint("[ParakeetEngine] Transcribing \(audioFileURL.lastPathComponent)")
+        debugPrint("[FluidEngine] Transcribing \(audioFileURL.lastPathComponent)")
         #endif
 
-        let audioFile = try AVAudioFile(forReading: audioFileURL)
-        let sampleRate = audioFile.processingFormat.sampleRate
-        let frameCount = AVAudioFrameCount(audioFile.length)
-        guard let buffer = AVAudioPCMBuffer(
-            pcmFormat: audioFile.processingFormat,
-            frameCapacity: frameCount
-        ) else {
-            throw TranscriptionEngineError.audioFileUnreadable
-        }
-        try audioFile.read(into: buffer)
+        var decoderState = TdtDecoderState.make()
+        let result = try await manager.transcribe(audioFileURL, decoderState: &decoderState)
 
-        guard let channelData = buffer.floatChannelData else {
-            throw TranscriptionEngineError.audioFileUnreadable
-        }
-        let samples = Array(UnsafeBufferPointer(
-            start: channelData[0],
-            count: Int(buffer.frameLength)
-        ))
-
-        let text = try model.transcribeAudio(samples, sampleRate: Int(sampleRate))
-
-        let duration = Double(buffer.frameLength) / sampleRate
-        return Self.distributeTimestamps(text: text, totalDuration: duration)
+        // FluidAudio returns full text without segment-level timestamps.
+        // Split into sentences and distribute timestamps proportionally.
+        let duration = try await Self.audioDuration(of: audioFileURL)
+        return Self.distributeTimestamps(text: result.text, totalDuration: duration)
     }
 
     // MARK: - Helpers
+
+    /// Returns the duration of an audio file in seconds.
+    private static func audioDuration(of url: URL) async throws -> TimeInterval {
+        let asset = AVURLAsset(url: url)
+        let duration = try await asset.load(.duration)
+        return CMTimeGetSeconds(duration)
+    }
 
     /// Splits text into sentences and assigns evenly distributed timestamps.
     static func distributeTimestamps(text: String, totalDuration: TimeInterval) -> [TranscriptSegment] {

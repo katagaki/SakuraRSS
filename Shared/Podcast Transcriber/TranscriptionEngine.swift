@@ -6,7 +6,6 @@ enum TranscriptionEngineType: String, CaseIterable, Identifiable, Codable {
     case speech = "speech"
     case whisper = "whisper"
     case fluid = "fluid"
-    case qwen = "qwen"
 
     var id: String { rawValue }
 
@@ -16,7 +15,6 @@ enum TranscriptionEngineType: String, CaseIterable, Identifiable, Codable {
         case .speech:  return String(localized: "Podcast.Transcripts.Engine.iOS")
         case .whisper: return String(localized: "Podcast.Transcripts.Engine.Whisper")
         case .fluid:   return String(localized: "Podcast.Transcripts.Engine.Parakeet")
-        case .qwen:    return String(localized: "Podcast.Transcripts.Engine.Qwen")
         }
     }
 
@@ -30,8 +28,6 @@ enum TranscriptionEngineType: String, CaseIterable, Identifiable, Codable {
             return String(localized: "Podcast.Transcripts.Engine.Whisper.Description")
         case .fluid:
             return String(localized: "Podcast.Transcripts.Engine.Parakeet.Description")
-        case .qwen:
-            return String(localized: "Podcast.Transcripts.Engine.Qwen.Description")
         }
     }
 
@@ -39,7 +35,7 @@ enum TranscriptionEngineType: String, CaseIterable, Identifiable, Codable {
     var requiresModelDownload: Bool {
         switch self {
         case .off, .speech: return false
-        case .whisper, .fluid, .qwen: return true
+        case .whisper, .fluid: return true
         }
     }
 }
@@ -69,7 +65,9 @@ protocol TranscriptionEngine: Sendable {
     func transcribe(audioFileURL: URL, title: String) async throws -> [TranscriptSegment]
 
     /// Downloads the model. Only called for engines where ``requiresModelDownload`` is true.
-    func downloadModel() async throws
+    /// The progress callback reports fractional progress (0.0–1.0) if the underlying
+    /// library supports it. Pass `nil` if progress reporting is not needed.
+    func downloadModel(progress: (@Sendable (Double) -> Void)?) async throws
 
     /// Deletes the downloaded model. Only called for engines where ``requiresModelDownload`` is true.
     func deleteModel() throws
@@ -77,6 +75,6 @@ protocol TranscriptionEngine: Sendable {
 
 /// Default implementations for engines that don't need model management.
 extension TranscriptionEngine {
-    func downloadModel() async throws {}
+    func downloadModel(progress: (@Sendable (Double) -> Void)?) async throws {}
     func deleteModel() throws {}
 }

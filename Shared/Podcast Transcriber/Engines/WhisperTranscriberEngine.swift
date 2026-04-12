@@ -13,7 +13,7 @@ struct WhisperTranscriberEngine: TranscriptionEngine {
         "openai_whisper-\(UserDefaults.standard.string(forKey: "Podcast.WhisperModel") ?? "base")"
     }
 
-    /// Directory where WhisperKit.download stores the model.
+    /// Directory where WhisperKit.download stored the model.
     /// We persist the path after download so we can find it again.
     private static var storedModelFolder: String? {
         get { UserDefaults.standard.string(forKey: "Podcast.WhisperModelFolder") }
@@ -29,12 +29,19 @@ struct WhisperTranscriberEngine: TranscriptionEngine {
         get async { isModelDownloaded }
     }
 
-    func downloadModel() async throws {
+    func downloadModel(progress: (@Sendable (Double) -> Void)?) async throws {
         let variant = Self.modelVariant
         #if DEBUG
         debugPrint("[WhisperEngine] Downloading model '\(variant)'")
         #endif
-        let folder = try await WhisperKit.download(variant: variant)
+        let folder = try await WhisperKit.download(
+            variant: variant,
+            progressCallback: progress.map { handler in
+                { (prog: Progress) in
+                    handler(prog.fractionCompleted)
+                }
+            }
+        )
         Self.storedModelFolder = folder.path
         #if DEBUG
         debugPrint("[WhisperEngine] Model downloaded to \(folder.path)")
@@ -43,11 +50,10 @@ struct WhisperTranscriberEngine: TranscriptionEngine {
 
     func deleteModel() throws {
         if let folder = Self.storedModelFolder {
-            // Delete the specific model folder
             if FileManager.default.fileExists(atPath: folder) {
                 try FileManager.default.removeItem(atPath: folder)
             }
-            // Also try to clean up the parent (repo) directory if empty
+            // Clean up empty parent directory
             let parent = (folder as NSString).deletingLastPathComponent
             let contents = (try? FileManager.default.contentsOfDirectory(atPath: parent)) ?? []
             if contents.isEmpty {

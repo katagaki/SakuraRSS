@@ -10,6 +10,7 @@ struct PodcastSettingsView: View {
     @State private var showDeleteTranscriptsConfirmation = false
     @State private var showDeleteModelConfirmation = false
     @State private var isDownloadingModel = false
+    @State private var downloadProgress: Double = 0
     @State private var modelDownloadError: String?
     @State private var modelReady = false
 
@@ -77,7 +78,8 @@ struct PodcastSettingsView: View {
                         HStack {
                             Text("Podcast.Transcripts.Model.Downloading")
                             Spacer()
-                            ProgressView()
+                            ProgressDonut(progress: downloadProgress)
+                                .frame(width: 22, height: 22)
                         }
                     } else {
                         Button {
@@ -171,17 +173,24 @@ struct PodcastSettingsView: View {
     private func downloadModel() {
         guard let engine = PodcastTranscriber.engine(for: selectedEngine) else { return }
         isDownloadingModel = true
+        downloadProgress = 0
         modelDownloadError = nil
         Task {
             do {
-                try await engine.downloadModel()
+                try await engine.downloadModel(progress: { fraction in
+                    Task { @MainActor in
+                        downloadProgress = fraction
+                    }
+                })
                 await MainActor.run {
                     isDownloadingModel = false
+                    downloadProgress = 0
                     refreshModelStatus()
                 }
             } catch {
                 await MainActor.run {
                     isDownloadingModel = false
+                    downloadProgress = 0
                     modelDownloadError = error.localizedDescription
                 }
             }
@@ -203,5 +212,22 @@ struct PodcastSettingsView: View {
             return "\(Int(speed))×"
         }
         return "\(String(format: "%g", speed))×"
+    }
+}
+
+/// Circular determinate progress indicator styled as a donut.
+private struct ProgressDonut: View {
+    let progress: Double
+
+    var body: some View {
+        ZStack {
+            Circle()
+                .stroke(Color.secondary.opacity(0.25), lineWidth: 3)
+            Circle()
+                .trim(from: 0, to: CGFloat(max(0, min(1, progress))))
+                .stroke(Color.accentColor, style: StrokeStyle(lineWidth: 3, lineCap: .round))
+                .rotationEffect(.degrees(-90))
+                .animation(.linear(duration: 0.15), value: progress)
+        }
     }
 }

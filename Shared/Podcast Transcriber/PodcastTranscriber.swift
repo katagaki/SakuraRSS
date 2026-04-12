@@ -22,7 +22,6 @@ enum PodcastTranscriber {
         case .speech:  return SpeechTranscriberEngine()
         case .whisper: return WhisperTranscriberEngine()
         case .fluid:   return FluidTranscriberEngine()
-        case .qwen:    return QwenTranscriberEngine()
         }
     }
 
@@ -33,7 +32,6 @@ enum PodcastTranscriber {
     static var isAvailable: Bool {
         get async {
             guard let engine = engine(for: selectedEngineType) else { return false }
-            // Skip if engine needs a model that isn't downloaded yet.
             if type(of: engine).requiresModelDownload && !engine.isModelDownloaded {
                 return false
             }
@@ -42,7 +40,6 @@ enum PodcastTranscriber {
     }
 
     /// Transcribes a local audio file using the user's selected engine.
-    /// Returns nil if the engine's model hasn't been downloaded.
     static func transcribe(audioFileURL: URL, title: String) async throws -> [TranscriptSegment] {
         guard let engine = engine(for: selectedEngineType) else {
             throw TranscriptionEngineError.notAvailable
