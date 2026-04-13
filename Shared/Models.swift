@@ -39,6 +39,10 @@ nonisolated struct Feed: Identifiable, Hashable, Sendable {
             || DisplayStyleFeedDomains.shouldPreferFeedView(feedDomain: domain) || hasMastodonFeedURL
     }
 
+    var isFeedCompactViewDomain: Bool {
+        DisplayStyleFeedCompactDomains.shouldPreferFeedCompactView(feedDomain: domain)
+    }
+
     var isTimelineViewDomain: Bool {
         DisplayStyleTimelineDomains.shouldPreferTimeline(feedDomain: domain)
     }
