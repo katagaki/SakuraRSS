@@ -50,6 +50,7 @@ actor FaviconCache {
             let skipTrim = FaviconSkipTrimDomains.shouldSkipTrimming(feedDomain: domain)
                 || FaviconCircularDomains.shouldUseCircleIcon(feedDomain: domain)
             let result = skipTrim ? image : await image.trimmed()
+            attachDerivedMetrics(cacheKey: cacheKey, to: result)
             memoryCache[cacheKey] = result
             return result
         }
@@ -65,6 +66,7 @@ actor FaviconCache {
             failedLookups.remove(cacheKey)
             let filePath = cacheDirectory.appendingPathComponent(sanitizedFileName(cacheKey))
             try? FileManager.default.removeItem(at: filePath)
+            try? FileManager.default.removeItem(at: metricsSidecarURL(for: cacheKey))
         }
         await withTaskGroup(of: Void.self) { group in
             for entry in entries {
@@ -109,5 +111,32 @@ actor FaviconCache {
     func sanitizedFileName(_ key: String) -> String {
         key.replacingOccurrences(of: "/", with: "_")
             .replacingOccurrences(of: ":", with: "_") + ".png"
+    }
+
+    // MARK: - Derived Metrics Sidecar
+
+    /// JSON sidecar URL holding FaviconDerivedMetrics for a cached favicon.
+    /// Stored next to the PNG so `refreshFavicons`/`clearCache` wipe both
+    /// together by iterating the directory.
+    func metricsSidecarURL(for cacheKey: String) -> URL {
+        cacheDirectory.appendingPathComponent(sanitizedFileName(cacheKey) + ".meta.json")
+    }
+
+    /// Attaches the cached metrics to the image.  If the sidecar already
+    /// exists on disk it's decoded and attached as-is; otherwise the
+    /// metrics are computed from the pixels now and the sidecar is
+    /// written, so subsequent app launches avoid the pixel sampling
+    /// work entirely.
+    func attachDerivedMetrics(cacheKey: String, to image: UIImage) {
+        let url = metricsSidecarURL(for: cacheKey)
+        if let data = try? Data(contentsOf: url),
+           let metrics = try? JSONDecoder().decode(FaviconDerivedMetrics.self, from: data) {
+            image.faviconDerivedMetrics = metrics
+            return
+        }
+        let metrics = image.ensureFaviconDerivedMetrics()
+        if let data = try? JSONEncoder().encode(metrics) {
+            try? data.write(to: url)
+        }
     }
 }

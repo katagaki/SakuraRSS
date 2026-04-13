@@ -12,6 +12,9 @@ extension FaviconCache {
         if let pngData = result.pngData() {
             try? pngData.write(to: filePath)
         }
+        // Compute and persist the derived-metrics sidecar next to the PNG
+        // so subsequent launches don't need to re-sample the pixels.
+        attachDerivedMetrics(cacheKey: cacheKey, to: result)
         memoryCache[cacheKey] = result
         return result
     }
