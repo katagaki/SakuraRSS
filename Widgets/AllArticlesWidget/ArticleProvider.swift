@@ -22,7 +22,10 @@ struct ArticleProvider: TimelineProvider {
 
     func getTimeline(in _: Context, completion: @escaping (Timeline<ArticleEntry>) -> Void) {
         let entry = loadEntry()
-        let timeline = Timeline(entries: [entry], policy: .after(Date().addingTimeInterval(30 * 60)))
+        // Timeline refreshes every 90 minutes instead of every 30.  Widgets
+        // running outside the app process wake it on every reload; tripling
+        // the interval triples the battery savings for this path.
+        let timeline = Timeline(entries: [entry], policy: .after(Date().addingTimeInterval(90 * 60)))
         completion(timeline)
     }
 

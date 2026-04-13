@@ -30,7 +30,10 @@ struct ListWidgetProvider: AppIntentTimelineProvider {
 
     func timeline(for configuration: ListWidgetIntent, in _: Context) async -> Timeline<ListWidgetEntry> {
         let entry = await loadEntry(for: configuration)
-        return Timeline(entries: [entry], policy: .after(Date().addingTimeInterval(30 * 60)))
+        // Timeline refreshes every 90 minutes instead of every 30.  Widgets
+        // running outside the app process wake it on every reload; tripling
+        // the interval triples the battery savings for this path.
+        return Timeline(entries: [entry], policy: .after(Date().addingTimeInterval(90 * 60)))
     }
 
     private func loadEntry(for configuration: ListWidgetIntent) async -> ListWidgetEntry {
@@ -90,6 +93,16 @@ struct ListWidgetProvider: AppIntentTimelineProvider {
             let pageStart = currentPage * perPage
             let pageArticles = Array(dbArticles.dropFirst(pageStart).prefix(perPage))
 
+            // Skip image network fetches when the top article IDs haven't
+            // changed since the last timeline build.  DB-cached images still
+            // resolve normally; this prevents retrying failing downloads on
+            // every 90-minute timeline wake.
+            let articleIDsMarker = pageArticles.map(\.id).map(String.init).joined(separator: ",")
+            let markerKey = "listWidgetMarker_\(listID)_\(layout.rawValue)_\(columns)_\(currentPage)"
+            let previousMarker = defaults?.string(forKey: markerKey)
+            let articleSetUnchanged = previousMarker == articleIDsMarker
+            defaults?.set(articleIDsMarker, forKey: markerKey)
+
             var widgetArticles: [ListWidgetArticle] = []
             for article in pageArticles {
                 var imageData: Data?
@@ -97,7 +110,7 @@ struct ListWidgetProvider: AppIntentTimelineProvider {
                     var rawData: Data?
                     if let cached = try? database.cachedImageData(for: imageURLString) {
                         rawData = cached
-                    } else {
+                    } else if !articleSetUnchanged {
                         if let (data, _) = try? await URLSession.shared.data(for: .sakura(url: imageURL)) {
                             try? database.cacheImageData(data, for: imageURLString)
                             rawData = data
