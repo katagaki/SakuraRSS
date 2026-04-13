@@ -144,6 +144,21 @@ extension InstagramProfileScraper {
         try? await Task.sleep(for: .seconds(delay))
     }
 
+    // MARK: - Accept-Language
+
+    /// Accept-Language header value derived from the user's preferred
+    /// locales, in the format Safari sends (primary locale at q=1.0,
+    /// additional locales at decreasing q values).
+    static var acceptLanguageHeader: String {
+        let preferred = Locale.preferredLanguages.prefix(5)
+        guard !preferred.isEmpty else { return "en-US,en;q=0.9" }
+        return preferred.enumerated().map { index, lang in
+            if index == 0 { return lang }
+            let quality = max(0.1, 1.0 - Double(index) * 0.1)
+            return "\(lang);q=\(String(format: "%.1f", quality))"
+        }.joined(separator: ",")
+    }
+
     // MARK: - Cookie Warming
 
     @MainActor
@@ -232,24 +247,13 @@ extension InstagramProfileScraper {
         // every XHR; omitting them makes the request fingerprint stick
         // out against genuine web traffic.
         request.setValue("*/*", forHTTPHeaderField: "Accept")
-        request.setValue("en-US,en;q=0.9", forHTTPHeaderField: "Accept-Language")
+        request.setValue(Self.acceptLanguageHeader, forHTTPHeaderField: "Accept-Language")
         // NOTE: Do not set Accept-Encoding manually — URLSession sets its
         // own supported value and transparently decodes the body.  Setting
         // it here would disable that auto-decoding and break JSON parsing.
         request.setValue("no-cache", forHTTPHeaderField: "Cache-Control")
         request.setValue("no-cache", forHTTPHeaderField: "Pragma")
         request.setValue("keep-alive", forHTTPHeaderField: "Connection")
-        // NOTE: sec-ch-ua* (User-Agent Client Hints) are a Chromium feature
-        // — Safari does NOT send them.  Including them alongside a Safari
-        // UA would itself be a detectable mismatch, so they are omitted.
-
-        // A few optional Instagram-internal headers the web client sends.
-        // They aren't strictly required, but their absence is one of the
-        // cheapest tells used to flag scrapers.  The values mirror what
-        // the desktop/mobile web client emits for unauthenticated-style
-        // public reads.
-        request.setValue("129477", forHTTPHeaderField: "x-asbd-id")
-        request.setValue("0", forHTTPHeaderField: "x-ig-www-claim")
 
         // Build the full cookie header from all Instagram cookies
         let cookieHeader = HTTPCookie.requestHeaderFields(with: cookies.allCookies)

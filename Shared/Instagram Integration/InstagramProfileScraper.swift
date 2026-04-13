@@ -48,14 +48,6 @@ final class InstagramProfileScraper {
     /// Serialises access so only one fetch runs at a time.
     private static var activeScrape: Task<InstagramProfileScrapeResult, Never>?
 
-    /// Keychain-backed persistent cookie jar.  Using Keychain (instead of
-    /// `WKWebsiteDataStore.default()` as the source of truth) removes the
-    /// MainActor WKWebView warming step from every scrape, makes
-    /// `hasInstagramSession()` a cheap synchronous read, and lets cold-
-    /// launch and background scrapes work without waiting for WebKit to
-    /// restore cookies from disk.  WebKit is still the target of the
-    /// login UI — we export cookies from it to Keychain on login success
-    /// and on a one-time migration.
     static let cookieStore = KeychainCookieStore(
         service: "com.tsubuzaki.SakuraRSS.InstagramCookies"
     )

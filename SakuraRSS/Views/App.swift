@@ -268,15 +268,6 @@ struct SakuraRSSApp: App {
 
         let refreshTask = Task {
             let manager = FeedManager()
-            // Skip X and Instagram profile feeds in background refresh.
-            // Both scrapers' cookies now live in Keychain so they would
-            // technically be reachable from a BGAppRefreshTask, but
-            // firing authenticated API calls from a locked device at a
-            // fixed cadence is itself a bot-like signal — stronger than
-            // anything else in the request fingerprint.  X additionally
-            // depends on a JS-bundle query-ID fetch that isn't reliable
-            // in a headless BGAppRefreshTask.  Those feeds refresh when
-            // the user actually opens the app instead.
             await manager.refreshAllFeeds(skipAuthenticatedScrapers: true)
             await NLPProcessingCoordinator.processNewArticlesIfEnabled()
             manager.updateBadgeCount()
