@@ -15,38 +15,40 @@ struct MagazineStyleView: View {
 
     var body: some View {
         ScrollView(.vertical) {
-            LazyVGrid(columns: columns, spacing: 12) {
-                ForEach(articles) { article in
-                    ArticleLink(article: article, onShowYouTubePlayer: {
-                        youTubeArticle = $0
-                    }, label: {
-                        MagazineArticleCard(article: article)
-                            .zoomSource(id: article.id, namespace: zoomNamespace)
-                    })
-                    .buttonStyle(.plain)
-                    .contextMenu {
-                        Button {
-                            feedManager.toggleRead(article)
-                        } label: {
-                            Label(
-                                article.isRead
-                                    ? String(localized: "Article.MarkUnread")
-                                    : String(localized: "Article.MarkRead"),
-                                systemImage: article.isRead
-                                    ? "envelope" : "envelope.open"
-                            )
+            LazyVStack(spacing: 12) {
+                LazyVGrid(columns: columns, spacing: 12) {
+                    ForEach(articles) { article in
+                        ArticleLink(article: article, onShowYouTubePlayer: {
+                            youTubeArticle = $0
+                        }, label: {
+                            MagazineArticleCard(article: article)
+                                .zoomSource(id: article.id, namespace: zoomNamespace)
+                        })
+                        .buttonStyle(.plain)
+                        .contextMenu {
+                            Button {
+                                feedManager.toggleRead(article)
+                            } label: {
+                                Label(
+                                    article.isRead
+                                        ? String(localized: "Article.MarkUnread")
+                                        : String(localized: "Article.MarkRead"),
+                                    systemImage: article.isRead
+                                        ? "envelope" : "envelope.open"
+                                )
+                            }
                         }
                     }
                 }
+                .padding(.horizontal, 16)
+                if let onLoadMore {
+                    LoadPreviousArticlesButton(action: onLoadMore)
+                        .padding(.horizontal, 16)
+                }
             }
-            .padding(.horizontal, 16)
             .padding(.bottom)
-            if let onLoadMore {
-                LoadPreviousArticlesButton(action: onLoadMore)
-                    .padding(.horizontal, 16)
-                    .padding(.bottom)
-            }
         }
+        .animation(.smooth.speed(2.0), value: articles)
         .navigationDestination(item: $youTubeArticle) { article in
             YouTubePlayerView(article: article)
                 .zoomTransition(sourceID: article.id, in: zoomNamespace)

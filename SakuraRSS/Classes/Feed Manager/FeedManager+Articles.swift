@@ -4,25 +4,19 @@ extension FeedManager {
 
     // MARK: - Chunk Boundaries
 
-    /// Safety cap for chunk-walking loops — two years' worth of 12-hour
+    /// Safety cap for chunk-walking loops — two years' worth of 24-hour
     /// chunks. Hitting this means the walk has skipped past every populated
     /// chunk in that window without finding visible content.
-    static var chunkWalkLimit: Int { 365 * 2 * 2 }
+    static var chunkWalkLimit: Int { 365 * 2 }
 
-    /// Articles are paginated in 12-hour chunks. Returns the chunk boundary
-    /// (00:00 or 12:00 local) at or before `date`.
+    /// Articles are paginated in 24-hour chunks. Returns the chunk boundary
+    /// (00:00 local) at or before `date`.
     static func chunkStart(for date: Date) -> Date {
-        let calendar = Calendar.current
-        let dayStart = calendar.startOfDay(for: date)
-        let hour = calendar.component(.hour, from: date)
-        if hour >= 12 {
-            return calendar.date(byAdding: .hour, value: 12, to: dayStart) ?? dayStart
-        }
-        return dayStart
+        Calendar.current.startOfDay(for: date)
     }
 
     static func chunkEnd(for chunkStart: Date) -> Date {
-        Calendar.current.date(byAdding: .hour, value: 12, to: chunkStart) ?? chunkStart
+        Calendar.current.date(byAdding: .hour, value: 24, to: chunkStart) ?? chunkStart
     }
 
     static func currentChunkStart() -> Date {

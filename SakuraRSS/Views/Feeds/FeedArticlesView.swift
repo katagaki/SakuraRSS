@@ -36,6 +36,7 @@ struct FeedArticlesView: View {
             isPodcastFeed: feed.isPodcast,
             isInstagramFeed: feed.isInstagramFeed,
             isFeedViewDomain: feed.isFeedViewDomain,
+            isFeedCompactViewDomain: feed.isFeedCompactViewDomain,
             isTimelineViewDomain: feed.isTimelineViewDomain,
             onLoadMore: nextOlderChunk.map { chunk in
                 { loadedSinceDate = chunk }

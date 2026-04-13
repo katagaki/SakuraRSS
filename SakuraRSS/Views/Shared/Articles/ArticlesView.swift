@@ -23,6 +23,7 @@ struct ArticlesView: View {
     let isPodcastFeed: Bool
     let isInstagramFeed: Bool
     let isFeedViewDomain: Bool
+    let isFeedCompactViewDomain: Bool
     let isTimelineViewDomain: Bool
     let titleDisplayMode: ToolbarTitleDisplayMode
     var anySummaryHidden: Bool
@@ -49,7 +50,8 @@ struct ArticlesView: View {
     init(articles: [Article], title: String, subtitle: String? = nil, feedKey: String,
          isVideoFeed: Bool = false, isPodcastFeed: Bool = false,
          isInstagramFeed: Bool = false,
-         isFeedViewDomain: Bool = false, isTimelineViewDomain: Bool = false,
+         isFeedViewDomain: Bool = false, isFeedCompactViewDomain: Bool = false,
+         isTimelineViewDomain: Bool = false,
          titleDisplayMode: ToolbarTitleDisplayMode = .inline,
          anySummaryHidden: Bool = false,
          onRestoreSummaries: (() -> Void)? = nil,
@@ -64,6 +66,7 @@ struct ArticlesView: View {
         self.isPodcastFeed = isPodcastFeed
         self.isInstagramFeed = isInstagramFeed
         self.isFeedViewDomain = isFeedViewDomain
+        self.isFeedCompactViewDomain = isFeedCompactViewDomain
         self.isTimelineViewDomain = isTimelineViewDomain
         self.titleDisplayMode = titleDisplayMode
         self.anySummaryHidden = anySummaryHidden
@@ -82,6 +85,8 @@ struct ArticlesView: View {
             fallback = .photos
         } else if isTimelineViewDomain {
             fallback = .timeline
+        } else if isFeedCompactViewDomain {
+            fallback = .feedCompact
         } else if isFeedViewDomain {
             fallback = .feed
         } else {
@@ -194,6 +199,8 @@ struct ArticlesView: View {
                 fallback = .photos
             } else if isTimelineViewDomain {
                 fallback = .timeline
+            } else if isFeedCompactViewDomain {
+                fallback = .feedCompact
             } else if isFeedViewDomain {
                 fallback = .feed
             } else {

@@ -62,6 +62,8 @@ struct FeedsListPage: View {
                 }
             }
             .padding()
+            .animation(.smooth.speed(2.0), value: feedManager.feeds)
+            .animation(.smooth.speed(2.0), value: searchText)
         }
         .navigationTitle("Shared.Feeds")
         .toolbarTitleDisplayMode(.inlineLarge)
@@ -120,7 +122,9 @@ struct FeedsListPage: View {
         ) {
             Button("FeedMenu.Delete.Confirm", role: .destructive) {
                 if let feed = feedToDelete {
-                    try? feedManager.deleteFeed(feed)
+                    withAnimation(.smooth.speed(2.0)) {
+                        try? feedManager.deleteFeed(feed)
+                    }
                     feedToDelete = nil
                 }
             }
