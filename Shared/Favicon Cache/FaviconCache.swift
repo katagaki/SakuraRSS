@@ -6,17 +6,18 @@ actor FaviconCache {
     static let shared = FaviconCache()
 
     /// Dedicated URLSession used for every favicon-related network fetch.
-    /// Favicons are cosmetic and must not fail just because an image takes
-    /// a long time to download, so this session effectively bypasses the
-    /// normal request / resource timeouts.  `httpAdditionalHeaders` sets
-    /// a Safari-parity User-Agent on every request so the default
-    /// `CFNetwork` UA (which leaks the app bundle ID and iOS version) is
-    /// never sent.
+    /// Favicons are cosmetic, and hanging on a slow or unreachable host
+    /// keeps a request slot — and radio time — alive for far longer than
+    /// a missing icon is worth.  Keep the timeouts tight (3 seconds) and
+    /// disable `waitsForConnectivity` so we never sit on a request while
+    /// the device is offline.  `httpAdditionalHeaders` sets a Safari-parity
+    /// User-Agent on every request so the default `CFNetwork` UA (which
+    /// leaks the app bundle ID and iOS version) is never sent.
     nonisolated static let urlSession: URLSession = {
         let config = URLSessionConfiguration.default
-        config.timeoutIntervalForRequest = 600
-        config.timeoutIntervalForResource = 600
-        config.waitsForConnectivity = true
+        config.timeoutIntervalForRequest = 3
+        config.timeoutIntervalForResource = 3
+        config.waitsForConnectivity = false
         config.httpAdditionalHeaders = ["User-Agent": sakuraUserAgent]
         return URLSession(configuration: config)
     }()
