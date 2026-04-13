@@ -133,7 +133,7 @@ final class FeedManager {
             guard let url = URL(string: feed.url) else { return }
             let fetchURL = RedirectDomains.redirectedURL(url)
 
-            let (data, _) = try await URLSession.shared.data(from: fetchURL)
+            let (data, _) = try await URLSession.shared.data(for: .sakura(url: fetchURL))
             let parser = RSSParser()
             guard let parsed = parser.parse(data: data) else { return }
 
@@ -213,13 +213,28 @@ final class FeedManager {
         await loadFromDatabaseInBackground()
     }
 
-    func refreshAllFeeds() async {
+    /// Refreshes every feed.
+    ///
+    /// - Parameter skipAuthenticatedScrapers: When `true`, X and Instagram
+    ///   profile feeds are skipped entirely.  Pass this from background
+    ///   refresh tasks.  Both scrapers' cookies now live in Keychain and
+    ///   so are technically available in the background, but hitting the
+    ///   Instagram/X APIs from a locked device at a fixed scheduler
+    ///   cadence is itself a strong bot-like signal — a stronger signal
+    ///   than anything else in the request fingerprint — so those
+    ///   scrapes are reserved for foreground use.  X additionally still
+    ///   depends on a JS-bundle query-ID fetch that is unreliable in a
+    ///   `BGAppRefreshTask`.
+    func refreshAllFeeds(skipAuthenticatedScrapers: Bool = false) async {
         await MainActor.run { isLoading = true }
         defer { Task { @MainActor in self.isLoading = false } }
 
         let currentFeeds = feeds
         await withTaskGroup(of: Void.self) { group in
             for feed in currentFeeds {
+                if skipAuthenticatedScrapers, feed.isXFeed || feed.isInstagramFeed {
+                    continue
+                }
                 group.addTask {
                     try? await self.refreshFeed(feed, reloadData: false)
                 }

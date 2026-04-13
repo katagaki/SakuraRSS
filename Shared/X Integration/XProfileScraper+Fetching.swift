@@ -1,5 +1,4 @@
 import Foundation
-import WebKit
 
 // MARK: - API Fetching
 
@@ -64,6 +63,10 @@ extension XProfileScraper {
         print("[XProfileScraper] Fetched \(tweets.count) tweets total")
         #endif
 
+        // Persist any cookies X rotated during the scrape so Keychain
+        // tracks refreshed `ct0` / `auth_token` values.
+        Self.persistRotatedCookies()
+
         return XProfileScrapeResult(
             tweets: tweets,
             profileImageURL: userInfo.profileImageURL,
@@ -73,25 +76,49 @@ extension XProfileScraper {
 
     // MARK: - Cookies
 
+    /// Reads the current X session from the Keychain-backed cookie jar.
+    ///
+    /// Also ensures GraphQL query IDs are loaded, because every caller of
+    /// this method is about to make an API request that depends on them.
+    /// The query ID fetch still needs a MainActor hop (WKWebView-backed
+    /// bundle extraction), so this method remains `@MainActor async`, but
+    /// the cookie read itself is a cheap synchronous Keychain lookup.
     @MainActor
     static func getXCookies() async -> XCookies? {
         await fetchQueryIDsIfNeeded()
+        return readXCookiesFromKeychain()
+    }
 
-        let store = WKWebsiteDataStore.default()
-        let cookies = await store.httpCookieStore.allCookies()
+    /// Synchronous Keychain-only read, for paths that already have query
+    /// IDs loaded (e.g. between back-to-back API calls inside a scrape).
+    static func readXCookiesFromKeychain() -> XCookies? {
+        guard let cookies = cookieStore.load() else { return nil }
 
         var csrfToken: String?
         var authToken: String?
 
         for cookie in cookies {
-            let domain = cookie.domain.lowercased()
-            guard domain.contains("x.com") || domain.contains("twitter.com") else { continue }
             if cookie.name == "ct0" { csrfToken = cookie.value }
             if cookie.name == "auth_token" { authToken = cookie.value }
         }
 
         guard let csrf = csrfToken, let auth = authToken else { return nil }
         return XCookies(csrfToken: csrf, authToken: auth)
+    }
+
+    /// Writes any rotated X cookies from `HTTPCookieStorage.shared` back
+    /// to Keychain so subsequent scrapes pick up refreshed `ct0` /
+    /// `auth_token` values that X issued via `Set-Cookie`.  X API
+    /// requests use `URLSession.shared`, which deposits response cookies
+    /// into the shared jar by default.
+    static func persistRotatedCookies() {
+        let jar = HTTPCookieStorage.shared
+        let xCookies = (jar.cookies ?? []).filter {
+            let domain = $0.domain.lowercased()
+            return domain.contains("x.com") || domain.contains("twitter.com")
+        }
+        guard !xCookies.isEmpty else { return }
+        cookieStore.save(xCookies)
     }
 
     // MARK: - Request Building

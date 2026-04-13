@@ -25,16 +25,16 @@ struct SakuraRSSApp: App {
                 .environment(feedManager)
                 .modifier(KeepScreenOnDuringPodcastWork())
                 .task {
-                    // Pre-warm the X and Instagram WKWebsiteDataStore
-                    // cookie stores so that the first feed refresh sees
-                    // valid session cookies.  On cold launch the cookie
-                    // store is otherwise empty until a WKWebView has
-                    // loaded a page from the domain.
+                    // Both X and Instagram now use Keychain-backed cookie
+                    // storage, so their cookies are available without any
+                    // WebKit warming on cold launch.  We run a one-time
+                    // migration for users upgrading from versions that
+                    // only stored cookies in WebKit.
                     if UserDefaults.standard.bool(forKey: "Labs.XProfileFeeds") {
-                        await XProfileScraper.warmCookieStore()
+                        await XProfileScraper.migrateWebKitCookiesIfNeeded()
                     }
                     if UserDefaults.standard.bool(forKey: "Labs.InstagramProfileFeeds") {
-                        await InstagramProfileScraper.warmCookieStore()
+                        await InstagramProfileScraper.migrateWebKitCookiesIfNeeded()
                     }
                     await feedManager.refreshAllFeeds()
                     UserDefaults.standard.set(false, forKey: "App.StartupInProgress")
@@ -112,11 +112,12 @@ struct SakuraRSSApp: App {
             case "putonpipboy":
                 wipeAllCachesAndData()
                 Task {
+                    // X and Instagram cookies live in Keychain, which
+                    // survives the filesystem wipe above — no cookie
+                    // re-warming needed.  X still has to re-extract its
+                    // in-memory GraphQL query IDs from the JS bundle.
                     if UserDefaults.standard.bool(forKey: "Labs.XProfileFeeds") {
                         await XProfileScraper.fetchQueryIDsIfNeeded()
-                    }
-                    if UserDefaults.standard.bool(forKey: "Labs.InstagramProfileFeeds") {
-                        await InstagramProfileScraper.warmCookieStore()
                     }
                     let entries = feedManager.feeds.map { ($0.domain, $0.siteURL as String?) }
                     await FaviconCache.shared.refreshFavicons(for: entries)
@@ -267,7 +268,7 @@ struct SakuraRSSApp: App {
 
         let refreshTask = Task {
             let manager = FeedManager()
-            await manager.refreshAllFeeds()
+            await manager.refreshAllFeeds(skipAuthenticatedScrapers: true)
             await NLPProcessingCoordinator.processNewArticlesIfEnabled()
             manager.updateBadgeCount()
         }

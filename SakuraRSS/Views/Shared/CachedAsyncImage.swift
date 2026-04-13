@@ -108,7 +108,7 @@ struct CachedAsyncImage<Placeholder: View>: View {
 
         // 3. Network download
         do {
-            let (data, response) = try await URLSession.shared.data(from: url)
+            let (data, response) = try await URLSession.shared.data(for: .sakura(url: url))
             let statusCode = (response as? HTTPURLResponse)?.statusCode
             #if DEBUG
             debugPrint("[Image] Downloaded \(urlString): \(data.count) bytes, HTTP \(statusCode ?? 0)")

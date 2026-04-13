@@ -83,8 +83,7 @@ enum SponsorBlockClient {
             return []
         }
 
-        var request = URLRequest(url: url)
-        request.timeoutInterval = 5
+        let request = URLRequest.sakura(url: url, timeoutInterval: 5)
 
         do {
             let (data, response) = try await URLSession.shared.data(for: request)

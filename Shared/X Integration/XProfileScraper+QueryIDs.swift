@@ -105,7 +105,7 @@ extension XProfileScraper {
         // Step 3: Fetch the bundle JS
         let bundleText: String
         do {
-            let (data, _) = try await URLSession.shared.data(from: bundleURL)
+            let (data, _) = try await URLSession.shared.data(for: .sakura(url: bundleURL))
             guard let text = String(data: data, encoding: .utf8) else {
                 print("[XProfileScraper:QueryIDs] ERROR: Could not decode bundle JS")
                 return

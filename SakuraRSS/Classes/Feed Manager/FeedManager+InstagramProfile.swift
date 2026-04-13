@@ -9,12 +9,24 @@ extension FeedManager {
     /// Also used by `FaviconProgressBadge` to size the cooldown pie.
     static let instagramRefreshInterval: TimeInterval = 30 * 60
 
+    /// Returns a jittered effective refresh interval.  A hard 30-minute
+    /// cadence is a strong automation signal on its own — real users do
+    /// not open the same profile on the tick.  We keep 30 min as the
+    /// floor and add up to ~10 min of upward jitter so consecutive
+    /// refreshes never fall on a fixed schedule.
+    private static func jitteredRefreshInterval() -> TimeInterval {
+        instagramRefreshInterval + TimeInterval.random(in: 0...(10 * 60))
+    }
+
     func refreshInstagramFeed(_ feed: Feed, reloadData: Bool = true) async throws {
-        // Skip if this feed was fetched less than 30 minutes ago to avoid rate limits
+        // Skip if this feed was fetched too recently to avoid rate limits.
+        // The cutoff is randomised on each check to avoid a perfectly
+        // periodic fetch cadence.
+        let effectiveInterval = Self.jitteredRefreshInterval()
         if let lastFetched = feed.lastFetched,
-           Date().timeIntervalSince(lastFetched) < Self.instagramRefreshInterval {
+           Date().timeIntervalSince(lastFetched) < effectiveInterval {
             #if DEBUG
-            let remaining = Self.instagramRefreshInterval - Date().timeIntervalSince(lastFetched)
+            let remaining = effectiveInterval - Date().timeIntervalSince(lastFetched)
             print("[InstagramProfile] Skipping refresh for @\(feed.title) — "
                   + "\(Int(remaining))s until next allowed fetch")
             #endif
