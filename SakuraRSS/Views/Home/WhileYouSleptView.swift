@@ -16,6 +16,9 @@ struct WhileYouSleptView: View {
     @State var hasGenerated = false
     @State private var isExpanded = false
     @State var generationFailed = false
+    /// True when auto-generation was skipped because Low Power Mode is on.
+    /// In this state the user must tap the refresh button to start.
+    @State private var deferredForLowPowerMode = false
 
     private var isSupported: Bool {
         SystemLanguageModel.default.availability == .available
@@ -124,6 +127,10 @@ struct WhileYouSleptView: View {
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                 }
+            } else if deferredForLowPowerMode && summary.isEmpty {
+                Text("WhileYouSlept.LowPowerModePrompt")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
             } else if generationFailed {
                 Text("WhileYouSlept.Failed")
                     .font(.subheadline)
@@ -203,6 +210,14 @@ struct WhileYouSleptView: View {
             return
         }
 
+        // Under Low Power Mode we do not auto-run the on-device LLM —
+        // the user must tap the refresh button to kick off generation.
+        if ProcessInfo.processInfo.isLowPowerModeEnabled {
+            deferredForLowPowerMode = true
+            hasGenerated = true
+            return
+        }
+
         // Wait for initial feed refresh to complete before generating
         while feedManager.isLoading {
             try? await Task.sleep(for: .milliseconds(200))
@@ -218,6 +233,7 @@ struct WhileYouSleptView: View {
             summary = ""
             isExpanded = false
             generationFailed = false
+            deferredForLowPowerMode = false
         }
         await generateSummary(for: today)
     }

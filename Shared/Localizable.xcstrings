@@ -24646,6 +24646,65 @@
         }
       }
     },
+    "TodaysSummary.LowPowerModePrompt" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stromsparmodus ist aktiv. Tippen Sie auf Aktualisieren, um die Zusammenfassung zu erstellen."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Low Power Mode is on. Tap refresh to generate the summary."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le mode économie d'énergie est activé. Appuyez sur actualiser pour générer le résumé."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Risparmio energetico attivo. Tocca aggiorna per generare il riepilogo."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "低電力モードがオンです。更新をタップして要約を作成してください。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "저전력 모드가 켜져 있습니다. 새로고침을 눌러 요약을 생성하세요."
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chế độ nguồn điện thấp đang bật. Nhấn làm mới để tạo bản tóm tắt."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "低电量模式已开启。点按刷新以生成摘要。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "低耗電模式已開啟。點一下重新整理以產生摘要。"
+          }
+        }
+      }
+    },
     "TodaysSummary.PartialPrompt" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -25291,6 +25350,65 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "正在摘要夜間內容⋯"
+          }
+        }
+      }
+    },
+    "WhileYouSlept.LowPowerModePrompt" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stromsparmodus ist aktiv. Tippen Sie auf Aktualisieren, um die Zusammenfassung zu erstellen."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Low Power Mode is on. Tap refresh to generate the summary."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le mode économie d'énergie est activé. Appuyez sur actualiser pour générer le résumé."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Risparmio energetico attivo. Tocca aggiorna per generare il riepilogo."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "低電力モードがオンです。更新をタップして要約を作成してください。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "저전력 모드가 켜져 있습니다. 새로고침을 눌러 요약을 생성하세요."
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chế độ nguồn điện thấp đang bật. Nhấn làm mới để tạo bản tóm tắt."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "低电量模式已开启。点按刷新以生成摘要。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "低耗電模式已開啟。點一下重新整理以產生摘要。"
           }
         }
       }
