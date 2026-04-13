@@ -12,6 +12,7 @@ struct SakuraRSSApp: App {
     @State private var feedManager = FeedManager()
     @State private var pendingFeedURL: String?
     @State private var pendingArticleID: Int64?
+    @State private var lastForegroundWorkAt: Date?
     @AppStorage("ForceWhileYouSlept") private var forceWhileYouSlept: Bool = false
     @AppStorage("ForceTodaysSummary") private var forceTodaysSummary: Bool = false
     @AppStorage("BackgroundRefresh.Enabled") private var backgroundRefreshEnabled: Bool = true
@@ -55,8 +56,19 @@ struct SakuraRSSApp: App {
                 .onReceive(
                     NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)
                 ) { _ in
-                    feedManager.loadFromDatabase()
+                    // Always update the badge — cheap and user-visible.
                     feedManager.updateBadgeCount()
+                    // Debounce the rest of the foreground chain.  Rapid
+                    // app switches trigger willEnterForeground every
+                    // time, and re-running the DB reload + widget
+                    // reload + unfetched-feed refresh each time is
+                    // wasted energy when nothing has had time to change.
+                    let now = Date()
+                    if let last = lastForegroundWorkAt, now.timeIntervalSince(last) < 5 * 60 {
+                        return
+                    }
+                    lastForegroundWorkAt = now
+                    feedManager.loadFromDatabase()
                     WidgetCenter.shared.reloadAllTimelines()
                     Task {
                         await feedManager.refreshUnfetchedFeeds()
