@@ -36,7 +36,7 @@ struct SakuraRSSApp: App {
                     if UserDefaults.standard.bool(forKey: "Labs.InstagramProfileFeeds") {
                         await InstagramProfileScraper.migrateWebKitCookiesIfNeeded()
                     }
-                    await feedManager.refreshAllFeeds()
+                    await feedManager.refreshAllFeeds(respectCooldown: true)
                     UserDefaults.standard.set(false, forKey: "App.StartupInProgress")
                     feedManager.updateBadgeCount()
                     requestReviewIfNeeded()
@@ -280,7 +280,10 @@ struct SakuraRSSApp: App {
 
         let refreshTask = Task {
             let manager = FeedManager()
-            await manager.refreshAllFeeds(skipAuthenticatedScrapers: true)
+            await manager.refreshAllFeeds(
+                skipAuthenticatedScrapers: true,
+                respectCooldown: true
+            )
             await NLPProcessingCoordinator.processNewArticlesIfEnabled()
             manager.updateBadgeCount()
         }
