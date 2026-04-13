@@ -22,8 +22,12 @@ struct XProfileScrapeResult: Sendable {
 }
 
 /// Fetches tweets from an X (Twitter) profile using GraphQL API calls.
-/// Retweets are excluded. Requires the user to be logged in via the default
-/// WKWebsiteDataStore so that session cookies are available.
+///
+/// Retweets are excluded.  Session cookies are kept in a Keychain-backed
+/// store (`cookieStore`) populated from the login WebView on success and,
+/// for users upgrading from older builds, by a one-time migration from
+/// `WKWebsiteDataStore`.  WebKit is still used for the JS-bundle query-ID
+/// fetch (which has no Keychain equivalent) but not for cookie storage.
 final class XProfileScraper {
 
     /// Per-request timeout used for every URLRequest this scraper builds.
@@ -61,6 +65,18 @@ final class XProfileScraper {
     // swiftlint:enable line_length
 
     static let targetTweetCount = 50
+
+    /// Keychain-backed persistent cookie jar.  Using Keychain (instead of
+    /// `WKWebsiteDataStore.default()` as the source of truth) removes the
+    /// MainActor WKWebView warming step from every cookie read, makes
+    /// `hasXSession()` a cheap synchronous call, and lets cold-launch
+    /// scrapes work without waiting for WebKit to restore cookies from
+    /// disk.  WebKit is still the target of the login UI — we export
+    /// cookies from it to Keychain on login success and on a one-time
+    /// migration.
+    static let cookieStore = KeychainCookieStore(
+        service: "com.tsubuzaki.SakuraRSS.XCookies"
+    )
 
     /// Serialises access so only one fetch runs at a time.
     private static var activeScrape: Task<XProfileScrapeResult, Never>?
@@ -162,65 +178,22 @@ final class XProfileScraper {
         return String(url.dropFirst("x-profile://".count))
     }
 
-    /// UserDefaults key used to cache the X session state so that
-    /// it is available immediately on cold launch (before the WebKit
-    /// cookie store has finished loading from disk).
-    private static let xSessionCacheKey = "XProfileScraper.hasSession"
-
     /// Checks if the user has X cookies (i.e. is logged in).
     ///
-    /// On a cold app launch the WebKit cookie store may not have
-    /// finished restoring cookies from disk yet, which causes this
-    /// method to incorrectly return `false`.  To work around this,
-    /// we cache the result in UserDefaults and, when the cookie store
-    /// returns an empty result while the cache says we were previously
-    /// logged in, we retry once after a short delay to give WebKit
-    /// time to load.
-    @MainActor
+    /// Kept `async` for API stability with the old WebKit-backed
+    /// implementation; the body is a synchronous Keychain read.
     static func hasXSession() async -> Bool {
-        await warmCookieStore()
-        let store = WKWebsiteDataStore.default()
-        let cookies = await store.httpCookieStore.allCookies()
-        let found = cookies.contains { cookie in
-            let domain = cookie.domain.lowercased()
-            return (domain.contains("x.com") || domain.contains("twitter.com"))
-                && (cookie.name == "auth_token" || cookie.name == "ct0")
-        }
-
-        if found {
-            UserDefaults.standard.set(true, forKey: xSessionCacheKey)
-            return true
-        }
-
-        // Cookie store returned nothing — if we were previously logged
-        // in, retry once after a brief delay so WebKit can finish
-        // loading cookies from disk.
-        if UserDefaults.standard.bool(forKey: xSessionCacheKey) {
-            try? await Task.sleep(for: .milliseconds(500))
-            let retryResult = await retryHasXSession()
-            UserDefaults.standard.set(retryResult, forKey: xSessionCacheKey)
-            return retryResult
-        }
-
-        UserDefaults.standard.set(false, forKey: xSessionCacheKey)
-        return false
-    }
-
-    /// One retry of the cookie check (no further retries to avoid loops).
-    @MainActor
-    private static func retryHasXSession() async -> Bool {
-        let store = WKWebsiteDataStore.default()
-        let cookies = await store.httpCookieStore.allCookies()
+        guard let cookies = cookieStore.load() else { return false }
         return cookies.contains { cookie in
-            let domain = cookie.domain.lowercased()
-            return (domain.contains("x.com") || domain.contains("twitter.com"))
-                && (cookie.name == "auth_token" || cookie.name == "ct0")
+            cookie.name == "auth_token" || cookie.name == "ct0"
         }
     }
 
-    /// Clears X session cookies and cached query IDs.
+    /// Clears X session cookies (Keychain + WebKit) and cached query IDs.
     @MainActor
     static func clearXSession() async {
+        cookieStore.clear()
+
         let store = WKWebsiteDataStore.default()
         let cookies = await store.httpCookieStore.allCookies()
         for cookie in cookies where cookie.domain.lowercased().contains("x.com")
@@ -231,6 +204,45 @@ final class XProfileScraper {
         userTweetsQueryID = nil
         tweetDetailQueryID = nil
         queryIDsFetched = false
-        UserDefaults.standard.set(false, forKey: xSessionCacheKey)
+    }
+
+    /// Exports any X cookies present in the default `WKWebsiteDataStore`
+    /// into Keychain.  Called after the user completes the login flow in
+    /// `XLoginView` so that the scraper's Keychain-backed session check
+    /// can find them.
+    @MainActor
+    static func syncCookiesFromWebKit() async {
+        let store = WKWebsiteDataStore.default()
+        let allCookies = await store.httpCookieStore.allCookies()
+        let xCookies = allCookies.filter {
+            let domain = $0.domain.lowercased()
+            return domain.contains("x.com") || domain.contains("twitter.com")
+        }
+        guard !xCookies.isEmpty else { return }
+        cookieStore.save(xCookies)
+
+        #if DEBUG
+        print("[XProfileScraper] Synced \(xCookies.count) "
+              + "cookies from WebKit → Keychain")
+        #endif
+    }
+
+    /// One-time migration for users upgrading from the WebKit-only
+    /// storage model.  If Keychain is empty but the WebKit data store
+    /// holds X cookies from a prior install, copy them over so the user
+    /// stays signed in without having to log in again.
+    ///
+    /// Safe to call repeatedly — the Keychain-empty check makes it a
+    /// no-op after the first successful migration.
+    @MainActor
+    static func migrateWebKitCookiesIfNeeded() async {
+        // Fast path: already migrated.
+        if cookieStore.load() != nil { return }
+
+        // Force WebKit to restore its on-disk cookie store before we
+        // inspect it — on a cold launch `allCookies()` returns an empty
+        // array until a WKWebView has loaded a page from the domain.
+        await warmCookieStore()
+        await syncCookiesFromWebKit()
     }
 }

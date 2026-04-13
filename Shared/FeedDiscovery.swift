@@ -81,7 +81,7 @@ actor FeedDiscovery {
     private func discoverFromHTML(url: URL) async -> [DiscoveredFeed] {
 
         do {
-            let (data, _) = try await URLSession.shared.data(from: url)
+            let (data, _) = try await URLSession.shared.data(for: .sakura(url: url))
             guard let html = String(data: data, encoding: .utf8) else { return [] }
             return extractFeedLinks(from: html, baseURL: url)
         } catch {
@@ -213,9 +213,8 @@ actor FeedDiscovery {
         guard let url = URL(string: "https://\(domain)\(path)") else { return nil }
 
         do {
-            var request = URLRequest(url: url)
+            var request = URLRequest.sakura(url: url, timeoutInterval: 10)
             request.httpMethod = "GET"
-            request.timeoutInterval = 10
 
             let (data, response) = try await URLSession.shared.data(for: request)
             guard let httpResponse = response as? HTTPURLResponse,

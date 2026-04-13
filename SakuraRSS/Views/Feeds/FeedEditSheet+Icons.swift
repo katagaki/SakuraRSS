@@ -16,7 +16,7 @@ extension FeedEditSheet {
             }
             // Download, cache locally, then return
             if let url = URL(string: customURL),
-               let (data, _) = try? await URLSession.shared.data(from: url),
+               let (data, _) = try? await URLSession.shared.data(for: .sakura(url: url)),
                let image = UIImage(data: data) {
                 await FaviconCache.shared.setCustomFavicon(image, feedID: feed.id)
                 return image
@@ -42,7 +42,7 @@ extension FeedEditSheet {
             if let userInfo = await scraper.fetchUserInfo(screenName: handle, cookies: cookies),
                let imageURLString = userInfo.profileImageURL,
                let imageURL = URL(string: imageURLString),
-               let (data, _) = try? await URLSession.shared.data(from: imageURL),
+               let (data, _) = try? await URLSession.shared.data(for: .sakura(url: imageURL)),
                let image = UIImage(data: data) {
                 await FaviconCache.shared.setCustomFavicon(image, feedID: feed.id, skipTrimming: true)
                 customIconImage = nil
@@ -62,7 +62,7 @@ extension FeedEditSheet {
             let result = await scraper.scrapeProfile(profileURL: profileURL)
             if let imageURLString = result.profileImageURL,
                let imageURL = URL(string: imageURLString),
-               let (data, _) = try? await URLSession.shared.data(from: imageURL),
+               let (data, _) = try? await URLSession.shared.data(for: .sakura(url: imageURL)),
                let image = UIImage(data: data) {
                 await FaviconCache.shared.setCustomFavicon(image, feedID: feed.id, skipTrimming: true)
                 customIconImage = nil
@@ -94,7 +94,7 @@ extension FeedEditSheet {
         isFetchingIcon = true
         defer { isFetchingIcon = false }
         do {
-            let (data, _) = try await URLSession.shared.data(from: url)
+            let (data, _) = try await URLSession.shared.data(for: .sakura(url: url))
             if let image = UIImage(data: data) {
                 customIconImage = image.trimmed()
                 selectedPhoto = nil

@@ -268,7 +268,7 @@ struct AddFeedView: View {
         let fetchURL = RedirectDomains.redirectedURL(url)
 
         do {
-            let (data, response) = try await URLSession.shared.data(from: fetchURL)
+            let (data, response) = try await URLSession.shared.data(for: .sakura(url: fetchURL))
             guard let httpResponse = response as? HTTPURLResponse,
                   httpResponse.statusCode == 200 else { return nil }
 

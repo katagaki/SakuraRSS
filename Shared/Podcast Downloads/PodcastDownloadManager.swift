@@ -47,6 +47,7 @@ final class PodcastDownloadManager: NSObject, URLSessionDownloadDelegate {
         config.waitsForConnectivity = true
         config.timeoutIntervalForRequest = 60
         config.timeoutIntervalForResource = 3600
+        config.httpAdditionalHeaders = ["User-Agent": sakuraUserAgent]
         self.urlSession = URLSession(
             configuration: config,
             delegate: self,
