@@ -69,7 +69,7 @@ struct YouTubePlayerWebView: UIViewRepresentable {
         @Binding var advertiserURL: URL?
         @Binding var videoAspectRatio: CGFloat
         @Binding var isPiP: Bool
-        private var playbackObserver: Timer?
+        nonisolated(unsafe) private var playbackObserver: Timer?
 
         init(
             isPlaying: Binding<Bool>,
@@ -87,6 +87,10 @@ struct YouTubePlayerWebView: UIViewRepresentable {
             _advertiserURL = advertiserURL
             _videoAspectRatio = videoAspectRatio
             _isPiP = isPiP
+        }
+
+        deinit {
+            playbackObserver?.invalidate()
         }
 
         func invalidateObserver() {
