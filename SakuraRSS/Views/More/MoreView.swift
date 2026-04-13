@@ -7,7 +7,8 @@ struct MoreView: View {
     @Environment(FeedManager.self) var feedManager
     @Environment(\.dismiss) private var dismiss
     @AppStorage("BackgroundRefresh.Enabled") private var backgroundRefreshEnabled: Bool = true
-    @AppStorage("BackgroundRefresh.Interval") private var refreshInterval: Int = 60
+    @AppStorage("BackgroundRefresh.Interval") private var refreshInterval: Int = 240
+    @AppStorage("BackgroundRefresh.Cooldown") private var refreshCooldown: FeedRefreshCooldown = .fiveMinutes
     @AppStorage("Display.DefaultStyle") private var defaultDisplayStyle: FeedDisplayStyle = .inbox
     @AppStorage("Display.MarkAllReadPosition") private var markAllReadPosition: MarkAllReadPosition = .bottom
     @AppStorage("Display.UnreadBadgeMode") private var unreadBadgeMode: UnreadBadgeMode = .none
@@ -101,8 +102,20 @@ struct MoreView: View {
                             Text("Settings.RefreshInterval")
                         }
                     }
+                    Picker(selection: $refreshCooldown) {
+                        Text("Settings.RefreshCooldown.Off").tag(FeedRefreshCooldown.off)
+                        Text("Settings.RefreshCooldown.1min").tag(FeedRefreshCooldown.oneMinute)
+                        Text("Settings.RefreshCooldown.5min").tag(FeedRefreshCooldown.fiveMinutes)
+                        Text("Settings.RefreshCooldown.10min").tag(FeedRefreshCooldown.tenMinutes)
+                        Text("Settings.RefreshCooldown.30min").tag(FeedRefreshCooldown.thirtyMinutes)
+                        Text("Settings.RefreshCooldown.1hour").tag(FeedRefreshCooldown.oneHour)
+                    } label: {
+                        Text("Settings.RefreshCooldown")
+                    }
                 } header: {
                     Text("Settings.Section.Refresh")
+                } footer: {
+                    Text("Settings.RefreshCooldown.Footer")
                 }
 
                 Section {

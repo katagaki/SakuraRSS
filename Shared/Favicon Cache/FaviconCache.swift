@@ -6,17 +6,18 @@ actor FaviconCache {
     static let shared = FaviconCache()
 
     /// Dedicated URLSession used for every favicon-related network fetch.
-    /// Favicons are cosmetic and must not fail just because an image takes
-    /// a long time to download, so this session effectively bypasses the
-    /// normal request / resource timeouts.  `httpAdditionalHeaders` sets
-    /// a Safari-parity User-Agent on every request so the default
-    /// `CFNetwork` UA (which leaks the app bundle ID and iOS version) is
-    /// never sent.
+    /// Favicons are cosmetic, and hanging on a slow or unreachable host
+    /// keeps a request slot — and radio time — alive for far longer than
+    /// a missing icon is worth.  Keep the timeouts tight (3 seconds) and
+    /// disable `waitsForConnectivity` so we never sit on a request while
+    /// the device is offline.  `httpAdditionalHeaders` sets a Safari-parity
+    /// User-Agent on every request so the default `CFNetwork` UA (which
+    /// leaks the app bundle ID and iOS version) is never sent.
     nonisolated static let urlSession: URLSession = {
         let config = URLSessionConfiguration.default
-        config.timeoutIntervalForRequest = 600
-        config.timeoutIntervalForResource = 600
-        config.waitsForConnectivity = true
+        config.timeoutIntervalForRequest = 3
+        config.timeoutIntervalForResource = 3
+        config.waitsForConnectivity = false
         config.httpAdditionalHeaders = ["User-Agent": sakuraUserAgent]
         return URLSession(configuration: config)
     }()
@@ -50,6 +51,7 @@ actor FaviconCache {
             let skipTrim = FaviconSkipTrimDomains.shouldSkipTrimming(feedDomain: domain)
                 || FaviconCircularDomains.shouldUseCircleIcon(feedDomain: domain)
             let result = skipTrim ? image : await image.trimmed()
+            attachDerivedMetrics(cacheKey: cacheKey, to: result)
             memoryCache[cacheKey] = result
             return result
         }
@@ -65,6 +67,7 @@ actor FaviconCache {
             failedLookups.remove(cacheKey)
             let filePath = cacheDirectory.appendingPathComponent(sanitizedFileName(cacheKey))
             try? FileManager.default.removeItem(at: filePath)
+            try? FileManager.default.removeItem(at: metricsSidecarURL(for: cacheKey))
         }
         await withTaskGroup(of: Void.self) { group in
             for entry in entries {
@@ -109,5 +112,32 @@ actor FaviconCache {
     func sanitizedFileName(_ key: String) -> String {
         key.replacingOccurrences(of: "/", with: "_")
             .replacingOccurrences(of: ":", with: "_") + ".png"
+    }
+
+    // MARK: - Derived Metrics Sidecar
+
+    /// JSON sidecar URL holding FaviconDerivedMetrics for a cached favicon.
+    /// Stored next to the PNG so `refreshFavicons`/`clearCache` wipe both
+    /// together by iterating the directory.
+    func metricsSidecarURL(for cacheKey: String) -> URL {
+        cacheDirectory.appendingPathComponent(sanitizedFileName(cacheKey) + ".meta.json")
+    }
+
+    /// Attaches the cached metrics to the image.  If the sidecar already
+    /// exists on disk it's decoded and attached as-is; otherwise the
+    /// metrics are computed from the pixels now and the sidecar is
+    /// written, so subsequent app launches avoid the pixel sampling
+    /// work entirely.
+    func attachDerivedMetrics(cacheKey: String, to image: UIImage) {
+        let url = metricsSidecarURL(for: cacheKey)
+        if let data = try? Data(contentsOf: url),
+           let metrics = try? JSONDecoder().decode(FaviconDerivedMetrics.self, from: data) {
+            image.faviconDerivedMetrics = metrics
+            return
+        }
+        let metrics = image.ensureFaviconDerivedMetrics()
+        if let data = try? JSONEncoder().encode(metrics) {
+            try? data.write(to: url)
+        }
     }
 }

@@ -1,4 +1,5 @@
 import Foundation
+import NaturalLanguage
 import os
 
 enum NLPProcessingCoordinator {
@@ -6,6 +7,11 @@ enum NLPProcessingCoordinator {
     #if DEBUG
     nonisolated static let logger = Logger(subsystem: "com.tsubuzaki.SakuraRSS", category: "NLPCoordinator")
     #endif
+
+    /// Number of articles processed per chunk before yielding back to the
+    /// cooperative scheduler.  Keeps main-thread hitches short when this
+    /// coordinator runs concurrently with scrolling.
+    nonisolated private static let chunkSize = 20
 
     /// Processes unprocessed articles if Content Insights is enabled.
     /// Called after feed refresh completes.
@@ -19,6 +25,17 @@ enum NLPProcessingCoordinator {
             return
         }
 
+        // Skip all NLP processing while the device is in Low Power Mode.
+        // A non-BG caller (e.g. foreground refresh) reaches this path too,
+        // so gate here in addition to the BG-refresh gate in App.swift.
+        // Work resumes on the next refresh outside LPM.
+        if ProcessInfo.processInfo.isLowPowerModeEnabled {
+            #if DEBUG
+            logger.debug("processNewArticlesIfEnabled: Low Power Mode is on, deferring")
+            #endif
+            return
+        }
+
         let db = DatabaseManager.shared
         let sevenDaysAgo = Date().addingTimeInterval(-7 * 24 * 3600)
 
@@ -27,7 +44,7 @@ enum NLPProcessingCoordinator {
         logger.debug("processNewArticlesIfEnabled: starting")
         #endif
 
-        await Task.detached(priority: .userInitiated) {
+        await Task.detached(priority: .utility) {
             var idsToProcess = Set<Int64>()
             if let ids = try? db.unprocessedSentimentArticleIDs(since: sevenDaysAgo, limit: 200) {
                 idsToProcess.formUnion(ids)
@@ -40,12 +57,25 @@ enum NLPProcessingCoordinator {
             logger.debug("processNewArticlesIfEnabled: \(idsToProcess.count) articles to process")
             #endif
 
-            let orderedIDs = Array(idsToProcess)
-            for (index, id) in orderedIDs.enumerated() {
-                guard let article = try? db.article(byID: id) else { continue }
-                processArticleSync(article)
+            // Reuse a single sentiment tagger and a single name-type tagger
+            // across every article in this pass.  NLTagger construction is
+            // measurably expensive; setting `.string` on an existing tagger
+            // is cheap.
+            let sentimentTagger = NLTagger(tagSchemes: [.sentimentScore])
+            let nameTagger = NLTagger(tagSchemes: [.nameType])
 
-                if index > 0 && index % 50 == 0 {
+            let orderedIDs = Array(idsToProcess)
+            var processedSinceYield = 0
+            for id in orderedIDs {
+                guard let article = try? db.article(byID: id) else { continue }
+                processArticleSync(
+                    article,
+                    sentimentTagger: sentimentTagger,
+                    nameTagger: nameTagger
+                )
+                processedSinceYield += 1
+                if processedSinceYield >= chunkSize {
+                    processedSinceYield = 0
                     await Task.yield()
                 }
             }
@@ -70,7 +100,15 @@ enum NLPProcessingCoordinator {
     /// Extracts sentiment and entities for an article. Called only when
     /// Content Insights is enabled — the hybrid similarity ranker relies on
     /// entities being present, so both passes always run together.
-    private nonisolated static func processArticleSync(_ article: Article) {
+    ///
+    /// When `sentimentTagger` and `nameTagger` are supplied, they are reused
+    /// across articles by the batch caller.  The single-article path
+    /// constructs fresh taggers on each call.
+    private nonisolated static func processArticleSync(
+        _ article: Article,
+        sentimentTagger: NLTagger? = nil,
+        nameTagger: NLTagger? = nil
+    ) {
         let db = DatabaseManager.shared
         let text = [article.title, article.summary ?? ""]
             .filter { !$0.isEmpty }
@@ -80,12 +118,23 @@ enum NLPProcessingCoordinator {
         logger.debug("processArticleSync: article=\(article.id) title=\"\(article.title.prefix(60))\"")
         #endif
 
-        if let score = NLPProcessor.sentimentScore(for: text) {
-            try? db.updateSentimentScore(score, for: article.id)
+        let sentiment: Double?
+        if let sentimentTagger {
+            sentiment = NLPProcessor.sentimentScore(for: text, using: sentimentTagger)
+        } else {
+            sentiment = NLPProcessor.sentimentScore(for: text)
+        }
+        if let sentiment {
+            try? db.updateSentimentScore(sentiment, for: article.id)
         }
         try? db.markSentimentProcessed(articleId: article.id)
 
-        let entities = NLPProcessor.extractEntities(from: text)
+        let entities: [NLPProcessor.EntityResult]
+        if let nameTagger {
+            entities = NLPProcessor.extractEntities(from: text, using: nameTagger)
+        } else {
+            entities = NLPProcessor.extractEntities(from: text)
+        }
         if !entities.isEmpty {
             try? db.insertEntities(
                 entities.map { (name: $0.name, type: $0.type) },

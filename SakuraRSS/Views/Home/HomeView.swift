@@ -112,6 +112,7 @@ struct HomeView: View {
                 path = NavigationPath()
                 Task {
                     try? await Task.sleep(for: .milliseconds(300))
+                    guard pendingArticleID == articleID else { return }
                     if let article = feedManager.article(byID: articleID) {
                         if feedManager.feed(forArticle: article)?.isXFeed == true
                             || feedManager.feed(forArticle: article)?.isInstagramFeed == true {

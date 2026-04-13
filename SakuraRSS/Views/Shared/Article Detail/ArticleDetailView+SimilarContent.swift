@@ -77,7 +77,7 @@ extension ArticleDetailView {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(alignment: .top, spacing: 12) {
                     ForEach(similarArticles) { item in
-                        NavigationLink(value: item.article) {
+                        ArticleLink(article: item.article) {
                             SimilarArticleCard(item: item)
                         }
                         .buttonStyle(.plain)
