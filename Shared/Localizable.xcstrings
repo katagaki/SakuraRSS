@@ -19514,6 +19514,208 @@
         }
       }
     },
+    "Settings.RefreshCooldown" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mindestabstand zwischen Aktualisierungen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Per-Feed Cooldown"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Délai entre actualisations"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Intervallo minimo per feed"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "フィード更新の間隔"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "피드별 재시도 간격"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Khoảng thời gian tối thiểu giữa các lần làm mới"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "每个订阅源的冷却时间"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "每個訂閱源的冷卻時間"
+          }
+        }
+      }
+    },
+    "Settings.RefreshCooldown.Off" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Aus" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Off" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Désactivé" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "Disattivato" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "オフ" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "끔" } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "Tắt" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "关闭" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "關閉" } }
+      }
+    },
+    "Settings.RefreshCooldown.1min" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "1 Minute" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "1 minute" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "1 minute" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "1 minuto" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "1分" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "1분" } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "1 phút" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "1 分钟" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "1 分鐘" } }
+      }
+    },
+    "Settings.RefreshCooldown.5min" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "5 Minuten" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "5 minutes" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "5 minutes" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "5 minuti" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "5分" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "5분" } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "5 phút" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "5 分钟" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "5 分鐘" } }
+      }
+    },
+    "Settings.RefreshCooldown.10min" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "10 Minuten" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "10 minutes" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "10 minutes" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "10 minuti" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "10分" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "10분" } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "10 phút" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "10 分钟" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "10 分鐘" } }
+      }
+    },
+    "Settings.RefreshCooldown.30min" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "30 Minuten" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "30 minutes" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "30 minutes" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "30 minuti" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "30分" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "30분" } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "30 phút" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "30 分钟" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "30 分鐘" } }
+      }
+    },
+    "Settings.RefreshCooldown.1hour" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "1 Stunde" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "1 hour" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "1 heure" } },
+        "it" : { "stringUnit" : { "state" : "translated", "value" : "1 ora" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "1時間" } },
+        "ko" : { "stringUnit" : { "state" : "translated", "value" : "1시간" } },
+        "vi" : { "stringUnit" : { "state" : "translated", "value" : "1 giờ" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "1 小时" } },
+        "zh-Hant" : { "stringUnit" : { "state" : "translated", "value" : "1 小時" } }
+      }
+    },
+    "Settings.RefreshCooldown.Footer" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Feeds, die innerhalb dieses Zeitraums automatisch aktualisiert wurden, werden übersprungen. Das manuelle Herunterziehen zum Aktualisieren lädt immer alles neu. Neu hinzugefügte Feeds werden sofort geladen."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Feeds refreshed automatically within this window are skipped. Pull-to-refresh always refreshes everything. Newly added feeds always refresh."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Les flux déjà actualisés automatiquement dans cette fenêtre sont ignorés. Tirer pour actualiser rafraîchit toujours tout. Les nouveaux flux sont toujours actualisés."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "I feed aggiornati automaticamente entro questa finestra vengono saltati. Il pull-to-refresh aggiorna sempre tutto. I feed appena aggiunti si aggiornano sempre."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "この期間内に自動更新されたフィードはスキップされます。プルダウン更新では常にすべてが更新されます。新しく追加されたフィードは必ず更新されます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 기간 동안 자동으로 새로고친 피드는 건너뜁니다. 당겨서 새로고침은 항상 전체를 새로고칩니다. 새로 추가된 피드는 항상 새로고칩니다."
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Các nguồn được làm mới tự động trong khoảng thời gian này sẽ bị bỏ qua. Kéo để làm mới luôn làm mới tất cả. Nguồn mới thêm luôn được làm mới."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在此时间窗口内自动刷新过的订阅源会被跳过。下拉刷新始终会刷新所有订阅源。新添加的订阅源始终会刷新。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在此時間範圍內已自動重新整理的訂閱源會被略過。下拉重新整理一律重新整理全部。新加入的訂閱源一律重新整理。"
+          }
+        }
+      }
+    },
     "Settings.SearchDisplayStyle" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -24646,6 +24848,65 @@
         }
       }
     },
+    "TodaysSummary.LowPowerModePrompt" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stromsparmodus ist aktiv. Tippen Sie auf Aktualisieren, um die Zusammenfassung zu erstellen."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Low Power Mode is on. Tap refresh to generate the summary."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le mode économie d'énergie est activé. Appuyez sur actualiser pour générer le résumé."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Risparmio energetico attivo. Tocca aggiorna per generare il riepilogo."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "低電力モードがオンです。更新をタップして要約を作成してください。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "저전력 모드가 켜져 있습니다. 새로고침을 눌러 요약을 생성하세요."
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chế độ nguồn điện thấp đang bật. Nhấn làm mới để tạo bản tóm tắt."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "低电量模式已开启。点按刷新以生成摘要。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "低耗電模式已開啟。點一下重新整理以產生摘要。"
+          }
+        }
+      }
+    },
     "TodaysSummary.PartialPrompt" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -25291,6 +25552,65 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "正在摘要夜間內容⋯"
+          }
+        }
+      }
+    },
+    "WhileYouSlept.LowPowerModePrompt" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stromsparmodus ist aktiv. Tippen Sie auf Aktualisieren, um die Zusammenfassung zu erstellen."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Low Power Mode is on. Tap refresh to generate the summary."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le mode économie d'énergie est activé. Appuyez sur actualiser pour générer le résumé."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Risparmio energetico attivo. Tocca aggiorna per generare il riepilogo."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "低電力モードがオンです。更新をタップして要約を作成してください。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "저전력 모드가 켜져 있습니다. 새로고침을 눌러 요약을 생성하세요."
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chế độ nguồn điện thấp đang bật. Nhấn làm mới để tạo bản tóm tắt."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "低电量模式已开启。点按刷新以生成摘要。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "低耗電模式已開啟。點一下重新整理以產生摘要。"
           }
         }
       }

@@ -119,7 +119,15 @@ struct CachedAsyncImage<Placeholder: View>: View {
                 #endif
                 return nil
             }
-            try? database.cacheImageData(data, for: urlString)
+            // Skip the SQLite write if a concurrent loader has already
+            // populated the memory cache for this URL.  That task either
+            // already wrote the DB row or is about to, so a second write
+            // is wasted I/O on the write path.  The memory-cache check
+            // is what matters — the DB copy fills itself in on any later
+            // miss if the memory cache gets evicted.
+            if await memoryCache.image(forKey: urlString) == nil {
+                try? database.cacheImageData(data, for: urlString)
+            }
             await memoryCache.setImage(downloadedImage, forKey: urlString)
             return downloadedImage
         } catch {

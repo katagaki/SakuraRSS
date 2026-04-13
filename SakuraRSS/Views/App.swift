@@ -12,10 +12,11 @@ struct SakuraRSSApp: App {
     @State private var feedManager = FeedManager()
     @State private var pendingFeedURL: String?
     @State private var pendingArticleID: Int64?
+    @State private var lastForegroundWorkAt: Date?
     @AppStorage("ForceWhileYouSlept") private var forceWhileYouSlept: Bool = false
     @AppStorage("ForceTodaysSummary") private var forceTodaysSummary: Bool = false
     @AppStorage("BackgroundRefresh.Enabled") private var backgroundRefreshEnabled: Bool = true
-    @AppStorage("BackgroundRefresh.Interval") private var refreshInterval: Int = 60
+    @AppStorage("BackgroundRefresh.Interval") private var refreshInterval: Int = 240
     private let backgroundTaskID = "com.tsubuzaki.SakuraRSS.RefreshFeeds"
 
     var body: some Scene {
@@ -36,22 +37,38 @@ struct SakuraRSSApp: App {
                     if UserDefaults.standard.bool(forKey: "Labs.InstagramProfileFeeds") {
                         await InstagramProfileScraper.migrateWebKitCookiesIfNeeded()
                     }
-                    await feedManager.refreshAllFeeds()
+                    await feedManager.refreshAllFeeds(respectCooldown: true)
                     UserDefaults.standard.set(false, forKey: "App.StartupInProgress")
                     feedManager.updateBadgeCount()
                     requestReviewIfNeeded()
+                    reindexSpotlightIfSchemaChanged()
                     // Kick off NLP insight processing after startup
                     // completes so it never holds up badge refresh or
-                    // any other MainActor-visible work.
-                    Task.detached(priority: .utility) {
-                        await NLPProcessingCoordinator.processNewArticlesIfEnabled()
+                    // any other MainActor-visible work.  Skip entirely
+                    // under Low Power Mode — NLTagger work is deferred
+                    // until LPM turns off.
+                    if !ProcessInfo.processInfo.isLowPowerModeEnabled {
+                        Task.detached(priority: .utility) {
+                            await NLPProcessingCoordinator.processNewArticlesIfEnabled()
+                        }
                     }
                 }
                 .onReceive(
                     NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)
                 ) { _ in
-                    feedManager.loadFromDatabase()
+                    // Always update the badge — cheap and user-visible.
                     feedManager.updateBadgeCount()
+                    // Debounce the rest of the foreground chain.  Rapid
+                    // app switches trigger willEnterForeground every
+                    // time, and re-running the DB reload + widget
+                    // reload + unfetched-feed refresh each time is
+                    // wasted energy when nothing has had time to change.
+                    let now = Date()
+                    if let last = lastForegroundWorkAt, now.timeIntervalSince(last) < 5 * 60 {
+                        return
+                    }
+                    lastForegroundWorkAt = now
+                    feedManager.loadFromDatabase()
                     WidgetCenter.shared.reloadAllTimelines()
                     Task {
                         await feedManager.refreshUnfetchedFeeds()
@@ -79,6 +96,22 @@ struct SakuraRSSApp: App {
         if launchCount == 3 {
             requestReview()
         }
+    }
+
+    /// Runs a one-time full Spotlight reindex when the on-device index
+    /// schema doesn't match the current build's `SpotlightIndexer.schemaVersion`.
+    /// Does NOT gate on Low Power Mode: if the schema has changed, search
+    /// is broken until the reindex runs.  In the steady state — when the
+    /// stored version already matches — this method is a single
+    /// `UserDefaults` read and returns immediately.
+    private func reindexSpotlightIfSchemaChanged() {
+        let defaults = UserDefaults.standard
+        let storedRaw = defaults.object(forKey: SpotlightIndexer.schemaVersionDefaultsKey) as? Int
+        guard storedRaw != SpotlightIndexer.schemaVersion else { return }
+
+        SpotlightIndexer.removeAllArticles()
+        feedManager.reindexAllArticlesInSpotlight()
+        defaults.set(SpotlightIndexer.schemaVersion, forKey: SpotlightIndexer.schemaVersionDefaultsKey)
     }
 
     private func handleOpenURL(_ url: URL) {
@@ -258,17 +291,28 @@ struct SakuraRSSApp: App {
         }
         let request = BGAppRefreshTaskRequest(identifier: backgroundTaskID)
         let refreshInterval = UserDefaults.standard.integer(forKey: "BackgroundRefresh.Interval")
-        let minutes = refreshInterval > 0 ? refreshInterval : 60
+        let minutes = refreshInterval > 0 ? refreshInterval : 240
         request.earliestBeginDate = Date(timeIntervalSinceNow: TimeInterval(minutes * 60))
         try? BGTaskScheduler.shared.submit(request)
     }
 
     private func handleAppRefresh(task: BGAppRefreshTask) {
+        // Always reschedule the next window before deciding what to run.
         scheduleAppRefresh()
+
+        // Respect Low Power Mode: do no background work at all, just
+        // complete cleanly so the system doesn't count this as a failure.
+        if ProcessInfo.processInfo.isLowPowerModeEnabled {
+            task.setTaskCompleted(success: true)
+            return
+        }
 
         let refreshTask = Task {
             let manager = FeedManager()
-            await manager.refreshAllFeeds(skipAuthenticatedScrapers: true)
+            await manager.refreshAllFeeds(
+                skipAuthenticatedScrapers: true,
+                respectCooldown: true
+            )
             await NLPProcessingCoordinator.processNewArticlesIfEnabled()
             manager.updateBadgeCount()
         }

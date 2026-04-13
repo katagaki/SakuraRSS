@@ -155,9 +155,15 @@ final class FeedManager {
 
             try database.insertArticles(feedID: feed.id, articles: articleTuples)
 
-            let feedTitleForIndex = parsed.title.isEmpty ? feed.title : parsed.title
-            let articlesToIndex = try database.articles(forFeedID: feed.id, limit: articleTuples.count)
-            SpotlightIndexer.indexArticles(articlesToIndex, feedTitle: feedTitleForIndex)
+            // Skip Spotlight indexing under Low Power Mode so feeds still
+            // refresh while deferring the CoreSpotlight writes until LPM
+            // turns off.  The next successful refresh outside LPM will
+            // re-index the same articles.
+            if !ProcessInfo.processInfo.isLowPowerModeEnabled {
+                let feedTitleForIndex = parsed.title.isEmpty ? feed.title : parsed.title
+                let articlesToIndex = try database.articles(forFeedID: feed.id, limit: articleTuples.count)
+                SpotlightIndexer.indexArticles(articlesToIndex, feedTitle: feedTitleForIndex)
+            }
 
             if parsed.isPodcast && !feed.isPodcast {
                 try database.updateFeedIsPodcast(id: feed.id, isPodcast: true)
@@ -215,24 +221,52 @@ final class FeedManager {
 
     /// Refreshes every feed.
     ///
-    /// - Parameter skipAuthenticatedScrapers: When `true`, X and Instagram
-    ///   profile feeds are skipped entirely.  Pass this from background
-    ///   refresh tasks.  Both scrapers' cookies now live in Keychain and
-    ///   so are technically available in the background, but hitting the
-    ///   Instagram/X APIs from a locked device at a fixed scheduler
-    ///   cadence is itself a strong bot-like signal — a stronger signal
-    ///   than anything else in the request fingerprint — so those
-    ///   scrapes are reserved for foreground use.  X additionally still
-    ///   depends on a JS-bundle query-ID fetch that is unreliable in a
-    ///   `BGAppRefreshTask`.
-    func refreshAllFeeds(skipAuthenticatedScrapers: Bool = false) async {
+    /// - Parameters:
+    ///   - skipAuthenticatedScrapers: When `true`, X and Instagram
+    ///     profile feeds are skipped entirely.  Pass this from background
+    ///     refresh tasks.  Both scrapers' cookies now live in Keychain and
+    ///     so are technically available in the background, but hitting the
+    ///     Instagram/X APIs from a locked device at a fixed scheduler
+    ///     cadence is itself a strong bot-like signal — a stronger signal
+    ///     than anything else in the request fingerprint — so those
+    ///     scrapes are reserved for foreground use.  X additionally still
+    ///     depends on a JS-bundle query-ID fetch that is unreliable in a
+    ///     `BGAppRefreshTask`.
+    ///   - respectCooldown: When `true`, feeds whose `lastFetched` is
+    ///     within the user-configured `BackgroundRefresh.Cooldown`
+    ///     window are skipped.  Feeds that have never been fetched
+    ///     (`lastFetched == nil`) always refresh.  Pass this from
+    ///     automatic triggers (background refresh, app startup,
+    ///     foreground re-enter).  Leave `false` for explicit user
+    ///     actions like pull-to-refresh, which should always refresh
+    ///     everything.
+    func refreshAllFeeds(
+        skipAuthenticatedScrapers: Bool = false,
+        respectCooldown: Bool = false
+    ) async {
         await MainActor.run { isLoading = true }
         defer { Task { @MainActor in self.isLoading = false } }
+
+        let cooldownSeconds: TimeInterval? = {
+            guard respectCooldown else { return nil }
+            let raw = UserDefaults.standard.string(forKey: "BackgroundRefresh.Cooldown")
+            let cooldown = raw.flatMap(FeedRefreshCooldown.init(rawValue:)) ?? .fiveMinutes
+            return cooldown.seconds
+        }()
+        let now = Date()
 
         let currentFeeds = feeds
         await withTaskGroup(of: Void.self) { group in
             for feed in currentFeeds {
                 if skipAuthenticatedScrapers, feed.isXFeed || feed.isInstagramFeed {
+                    continue
+                }
+                if let cooldownSeconds,
+                   let lastFetched = feed.lastFetched,
+                   now.timeIntervalSince(lastFetched) < cooldownSeconds {
+                    // Inside the cooldown window.  A nil lastFetched
+                    // means the feed has never been refreshed (new or
+                    // freshly imported), so it always proceeds.
                     continue
                 }
                 group.addTask {

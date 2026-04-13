@@ -30,6 +30,14 @@ nonisolated enum NLPProcessor {
     static func extractEntities(from text: String) -> [EntityResult] {
         guard !text.isEmpty else { return [] }
         let tagger = NLTagger(tagSchemes: [.nameType])
+        return extractEntities(from: text, using: tagger)
+    }
+
+    /// Batch-friendly variant: reuses a caller-owned `NLTagger` across many
+    /// articles so tagger construction cost is amortized.  The caller is
+    /// responsible for passing a tagger initialized with `.nameType`.
+    static func extractEntities(from text: String, using tagger: NLTagger) -> [EntityResult] {
+        guard !text.isEmpty else { return [] }
         tagger.string = text
         let options: NLTagger.Options = [.omitWhitespace, .omitPunctuation, .joinNames]
 
@@ -71,6 +79,14 @@ nonisolated enum NLPProcessor {
     static func sentimentScore(for text: String) -> Double? {
         guard !text.isEmpty else { return nil }
         let tagger = NLTagger(tagSchemes: [.sentimentScore])
+        return sentimentScore(for: text, using: tagger)
+    }
+
+    /// Batch-friendly variant: reuses a caller-owned `NLTagger` across many
+    /// articles.  The caller is responsible for passing a tagger initialized
+    /// with `.sentimentScore`.
+    static func sentimentScore(for text: String, using tagger: NLTagger) -> Double? {
+        guard !text.isEmpty else { return nil }
         tagger.string = text
 
         var scores: [Double] = []

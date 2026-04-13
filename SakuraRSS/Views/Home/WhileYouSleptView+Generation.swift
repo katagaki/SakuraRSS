@@ -6,7 +6,13 @@ extension WhileYouSleptView {
     static let snippetCharLimit = 150
 
     func generateSummary(for date: Date) async {
-        let articles = feedManager.overnightArticles()
+        // Skip articles that are title-only, have empty/placeholder bodies,
+        // or whose body is just the title repeated.  Removing these up
+        // front means fewer LLM calls (lower energy) *and* a better
+        // summary — the LLM has more signal to work with.
+        let articles = feedManager.overnightArticles().filter { article in
+            BatchSummarizer.hasUsefulContent(title: article.title, summary: article.summary)
+        }
         guard !articles.isEmpty else { return }
 
         if articles.count < 5 {
