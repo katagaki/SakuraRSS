@@ -1,7 +1,13 @@
 import Foundation
 
 // swiftlint:disable line_length
-let sakuraUserAgent = "Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.0 Mobile/15E148 Safari/604.1"
+/// Safari-parity User-Agent string sent on every outbound request.
+///
+/// Marked `nonisolated` because targets in this project build with
+/// `SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor`, which would otherwise
+/// make this top-level `let` MainActor-only and unreachable from the
+/// background-thread scrapers that need to stamp it onto requests.
+nonisolated let sakuraUserAgent = "Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.0 Mobile/15E148 Safari/604.1"
 // swiftlint:enable line_length
 
 extension URLRequest {
