@@ -7,7 +7,7 @@ struct MoreView: View {
     @Environment(FeedManager.self) var feedManager
     @Environment(\.dismiss) private var dismiss
     @AppStorage("BackgroundRefresh.Enabled") private var backgroundRefreshEnabled: Bool = true
-    @AppStorage("BackgroundRefresh.Interval") private var refreshInterval: Int = 60
+    @AppStorage("BackgroundRefresh.Interval") private var refreshInterval: Int = 240
     @AppStorage("Display.DefaultStyle") private var defaultDisplayStyle: FeedDisplayStyle = .inbox
     @AppStorage("Display.MarkAllReadPosition") private var markAllReadPosition: MarkAllReadPosition = .bottom
     @AppStorage("Display.UnreadBadgeMode") private var unreadBadgeMode: UnreadBadgeMode = .none

@@ -155,9 +155,15 @@ final class FeedManager {
 
             try database.insertArticles(feedID: feed.id, articles: articleTuples)
 
-            let feedTitleForIndex = parsed.title.isEmpty ? feed.title : parsed.title
-            let articlesToIndex = try database.articles(forFeedID: feed.id, limit: articleTuples.count)
-            SpotlightIndexer.indexArticles(articlesToIndex, feedTitle: feedTitleForIndex)
+            // Skip Spotlight indexing under Low Power Mode so feeds still
+            // refresh while deferring the CoreSpotlight writes until LPM
+            // turns off.  The next successful refresh outside LPM will
+            // re-index the same articles.
+            if !ProcessInfo.processInfo.isLowPowerModeEnabled {
+                let feedTitleForIndex = parsed.title.isEmpty ? feed.title : parsed.title
+                let articlesToIndex = try database.articles(forFeedID: feed.id, limit: articleTuples.count)
+                SpotlightIndexer.indexArticles(articlesToIndex, feedTitle: feedTitleForIndex)
+            }
 
             if parsed.isPodcast && !feed.isPodcast {
                 try database.updateFeedIsPodcast(id: feed.id, isPodcast: true)

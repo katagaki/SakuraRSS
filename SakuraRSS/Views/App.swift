@@ -15,7 +15,7 @@ struct SakuraRSSApp: App {
     @AppStorage("ForceWhileYouSlept") private var forceWhileYouSlept: Bool = false
     @AppStorage("ForceTodaysSummary") private var forceTodaysSummary: Bool = false
     @AppStorage("BackgroundRefresh.Enabled") private var backgroundRefreshEnabled: Bool = true
-    @AppStorage("BackgroundRefresh.Interval") private var refreshInterval: Int = 60
+    @AppStorage("BackgroundRefresh.Interval") private var refreshInterval: Int = 240
     private let backgroundTaskID = "com.tsubuzaki.SakuraRSS.RefreshFeeds"
 
     var body: some Scene {
@@ -42,9 +42,13 @@ struct SakuraRSSApp: App {
                     requestReviewIfNeeded()
                     // Kick off NLP insight processing after startup
                     // completes so it never holds up badge refresh or
-                    // any other MainActor-visible work.
-                    Task.detached(priority: .utility) {
-                        await NLPProcessingCoordinator.processNewArticlesIfEnabled()
+                    // any other MainActor-visible work.  Skip entirely
+                    // under Low Power Mode — NLTagger work is deferred
+                    // until LPM turns off.
+                    if !ProcessInfo.processInfo.isLowPowerModeEnabled {
+                        Task.detached(priority: .utility) {
+                            await NLPProcessingCoordinator.processNewArticlesIfEnabled()
+                        }
                     }
                 }
                 .onReceive(
@@ -258,13 +262,21 @@ struct SakuraRSSApp: App {
         }
         let request = BGAppRefreshTaskRequest(identifier: backgroundTaskID)
         let refreshInterval = UserDefaults.standard.integer(forKey: "BackgroundRefresh.Interval")
-        let minutes = refreshInterval > 0 ? refreshInterval : 60
+        let minutes = refreshInterval > 0 ? refreshInterval : 240
         request.earliestBeginDate = Date(timeIntervalSinceNow: TimeInterval(minutes * 60))
         try? BGTaskScheduler.shared.submit(request)
     }
 
     private func handleAppRefresh(task: BGAppRefreshTask) {
+        // Always reschedule the next window before deciding what to run.
         scheduleAppRefresh()
+
+        // Respect Low Power Mode: do no background work at all, just
+        // complete cleanly so the system doesn't count this as a failure.
+        if ProcessInfo.processInfo.isLowPowerModeEnabled {
+            task.setTaskCompleted(success: true)
+            return
+        }
 
         let refreshTask = Task {
             let manager = FeedManager()
