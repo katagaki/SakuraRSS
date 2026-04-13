@@ -10,7 +10,12 @@ extension URLRequest {
     /// traffic doesn't leak the default `CFNetwork` UA, which advertises
     /// both the app bundle and iOS version and gets flagged by bot
     /// heuristics on a number of CDNs.
-    static func sakura(
+    ///
+    /// Marked `nonisolated` because targets in this project build with
+    /// `SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor`, which would otherwise
+    /// make this extension method MainActor-only and unreachable from
+    /// background-thread scrapers.
+    nonisolated static func sakura(
         url: URL,
         timeoutInterval: TimeInterval = 60
     ) -> URLRequest {
