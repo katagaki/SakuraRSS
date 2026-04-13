@@ -83,7 +83,7 @@ struct FaviconImage: View {
 // launched sessions can skip the sampling entirely when the favicon
 // has been seen before.
 
-struct FaviconDerivedMetrics: Codable {
+nonisolated struct FaviconDerivedMetrics: Codable, Sendable {
     /// Twelve corner alpha samples (3 per corner) from a 32×32 downscaled
     /// version of the image.
     let cornerAlphas: [UInt8]
@@ -100,7 +100,7 @@ struct FaviconDerivedMetrics: Codable {
     let isNearBlack: Bool
 }
 
-private final class FaviconDerivedMetricsBox: NSObject {
+private nonisolated final class FaviconDerivedMetricsBox: NSObject, @unchecked Sendable {
     let metrics: FaviconDerivedMetrics
     init(_ metrics: FaviconDerivedMetrics) { self.metrics = metrics }
 }
@@ -110,7 +110,7 @@ private nonisolated(unsafe) var faviconDerivedMetricsKey: UInt8 = 0
 extension UIImage {
 
     /// In-memory memoized metrics attached to this UIImage instance.
-    var faviconDerivedMetrics: FaviconDerivedMetrics? {
+    nonisolated var faviconDerivedMetrics: FaviconDerivedMetrics? {
         get {
             (objc_getAssociatedObject(self, &faviconDerivedMetricsKey) as? FaviconDerivedMetricsBox)?.metrics
         }
@@ -127,7 +127,7 @@ extension UIImage {
 
     /// Returns the cached metrics, computing and attaching them on first call.
     @discardableResult
-    func ensureFaviconDerivedMetrics() -> FaviconDerivedMetrics {
+    nonisolated func ensureFaviconDerivedMetrics() -> FaviconDerivedMetrics {
         if let existing = faviconDerivedMetrics { return existing }
         let cornerSample = _rawSampleCornerAlphas()
         let averageRGB = _rawAverageColorComponents()
@@ -157,7 +157,7 @@ extension UIImage {
     }
 
     /// Samples corner and center pixel alpha values from a downscaled version of the image.
-    fileprivate func _rawSampleCornerAlphas() -> (corners: [UInt8], centerAlpha: UInt8)? {
+    fileprivate nonisolated func _rawSampleCornerAlphas() -> (corners: [UInt8], centerAlpha: UInt8)? {
         guard let cgImage = cgImage else { return nil }
         let width = cgImage.width
         let height = cgImage.height
@@ -235,7 +235,7 @@ extension UIImage {
     }
 
     /// Raw 16×16 averaged RGB sample of opaque pixels.
-    fileprivate func _rawAverageColorComponents() -> (red: CGFloat, green: CGFloat, blue: CGFloat)? {
+    fileprivate nonisolated func _rawAverageColorComponents() -> (red: CGFloat, green: CGFloat, blue: CGFloat)? {
         guard let cgImage = cgImage else { return nil }
 
         let sampleSize = 16
@@ -332,7 +332,7 @@ extension UIImage {
         ensureFaviconDerivedMetrics().isNearBlack
     }
 
-    fileprivate func _rawIsNearBlack() -> Bool {
+    fileprivate nonisolated func _rawIsNearBlack() -> Bool {
         guard let cgImage = cgImage else { return false }
 
         let sampleSize = 16
@@ -370,7 +370,7 @@ extension UIImage {
         return Double(nearBlackCount) / Double(opaqueCount) > 0.9
     }
 
-    fileprivate func _rawAverageLuminance() -> CGFloat {
+    fileprivate nonisolated func _rawAverageLuminance() -> CGFloat {
         guard let cgImage = cgImage else { return 1.0 }
 
         let sampleSize = 16
