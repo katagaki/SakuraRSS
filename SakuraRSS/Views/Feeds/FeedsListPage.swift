@@ -22,53 +22,47 @@ struct FeedsListPage: View {
     }
 
     private func feedsForSection(_ section: FeedSection) -> [Feed] {
-        filteredFeeds.filter { $0.feedSection == section }
+        let feeds = filteredFeeds.filter { $0.feedSection == section }
+        if section == .social || section == .video || section == .audio {
+            return feeds.sorted {
+                let domainCompare = $0.domain.localizedStandardCompare($1.domain)
+                if domainCompare != .orderedSame { return domainCompare == .orderedAscending }
+                return $0.title.localizedStandardCompare($1.title) == .orderedAscending
+            }
+        }
+        return feeds
     }
 
-    @ViewBuilder
-    private func feedRows(for feeds: [Feed]) -> some View {
-        ForEach(feeds) { feed in
-            NavigationLink(value: feed) {
-                FeedRowView(feed: feed)
-            }
-            .contextMenu {
-                feedContextMenu(for: feed)
-            }
-            .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-                Button(role: .destructive) {
-                    feedToDelete = feed
-                } label: {
-                    Label("FeedMenu.Delete", systemImage: "trash")
-                }
-                Button {
-                    feedForListAssignment = feed
-                } label: {
-                    Label("FeedMenu.AddToList", systemImage: "text.badge.plus")
-                }
-                .tint(.purple)
-            }
-        }
-        .onDelete { indexSet in
-            for index in indexSet {
-                let feed = feeds[index]
-                try? feedManager.deleteFeed(feed)
-            }
-        }
-    }
+    private let gridColumns = [GridItem(.adaptive(minimum: 80), spacing: 16)]
 
     var body: some View {
-        List {
-            ForEach(FeedSection.allCases, id: \.self) { section in
-                let feeds = feedsForSection(section)
-                if !feeds.isEmpty {
-                    Section(section.localizedTitle) {
-                        feedRows(for: feeds)
+        ScrollView {
+            LazyVStack(alignment: .leading, spacing: 24) {
+                ForEach(FeedSection.allCases, id: \.self) { section in
+                    let feeds = feedsForSection(section)
+                    if !feeds.isEmpty {
+                        Section {
+                            LazyVGrid(columns: gridColumns, alignment: .leading, spacing: 16) {
+                                ForEach(feeds) { feed in
+                                    NavigationLink(value: feed) {
+                                        FeedGridCell(feed: feed)
+                                    }
+                                    .buttonStyle(.plain)
+                                    .contextMenu {
+                                        feedContextMenu(for: feed)
+                                    }
+                                }
+                            }
+                        } header: {
+                            Text(section.localizedTitle)
+                                .font(.headline)
+                                .foregroundStyle(.secondary)
+                        }
                     }
                 }
             }
+            .padding()
         }
-        .listStyle(.insetGrouped)
-        .listSectionSpacing(.compact)
         .navigationTitle("Shared.Feeds")
         .toolbarTitleDisplayMode(.inlineLarge)
         .searchable(text: $searchText, prompt: Text("FeedList.SearchPrompt"))
@@ -183,103 +177,5 @@ struct FeedsListPage: View {
             Label("FeedMenu.Delete",
                   systemImage: "trash")
         }
-    }
-}
-
-struct FeedRowView: View {
-
-    @Environment(FeedManager.self) var feedManager
-    let feed: Feed
-    @State private var favicon: UIImage?
-
-    private var iconCornerRadius: CGFloat {
-        if feed.isPodcast { return 8 }
-        return 4
-    }
-
-    var body: some View {
-        HStack(spacing: 12) {
-            ZStack(alignment: .bottomTrailing) {
-                if let favicon = favicon {
-                    FaviconImage(favicon, size: 32,
-                                 cornerRadius: iconCornerRadius,
-                                 circle: feed.isCircleIcon,
-                                 skipInset: feed.isCircleIcon || feed.isXFeed || feed.isInstagramFeed
-                                    || FaviconNoInsetDomains.shouldUseFullImage(feedDomain: feed.domain))
-                } else if let data = feed.acronymIcon, let acronym = UIImage(data: data) {
-                    FaviconImage(acronym, size: 32,
-                                 cornerRadius: iconCornerRadius,
-                                 circle: feed.isCircleIcon,
-                                 skipInset: true)
-                } else {
-                    InitialsAvatarView(
-                        feed.title,
-                        size: 32,
-                        circle: feed.isCircleIcon,
-                        cornerRadius: iconCornerRadius
-                    )
-                }
-
-                if feed.isXFeed {
-                    FaviconProgressBadge(
-                        lastFetched: feed.lastFetched,
-                        cooldown: FeedManager.xRefreshInterval,
-                        size: 13
-                    )
-                    .offset(x: 3, y: 3)
-                } else if feed.isInstagramFeed {
-                    FaviconProgressBadge(
-                        lastFetched: feed.lastFetched,
-                        cooldown: FeedManager.instagramRefreshInterval,
-                        size: 13
-                    )
-                    .offset(x: 3, y: 3)
-                }
-            }
-            .frame(width: 32, height: 32)
-
-            VStack(alignment: .leading, spacing: 2) {
-                HStack(spacing: 4) {
-                    Text(feed.title)
-                        .font(.body)
-                        .lineLimit(1)
-                    if feed.isMuted {
-                        Image(systemName: "bell.slash.fill")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
-                }
-                Text(feed.domain)
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-                    .lineLimit(1)
-            }
-
-            Spacer()
-
-            let count = feedManager.unreadCount(for: feed)
-            if count > 0 {
-                Text("\(count)")
-                    .font(.caption)
-                    .fontWeight(.semibold)
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 2)
-                    .background(.tertiary)
-                    .foregroundStyle(.secondary)
-                    .clipShape(Capsule())
-            }
-        }
-        .task {
-            favicon = await loadFavicon()
-        }
-        .onChange(of: feedManager.faviconRevision) {
-            Task {
-                favicon = await loadFavicon()
-            }
-        }
-    }
-
-    private func loadFavicon() async -> UIImage? {
-        await FaviconCache.shared.favicon(for: feed)
     }
 }
