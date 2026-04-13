@@ -11,7 +11,7 @@ enum NLPProcessingCoordinator {
     /// Number of articles processed per chunk before yielding back to the
     /// cooperative scheduler.  Keeps main-thread hitches short when this
     /// coordinator runs concurrently with scrolling.
-    private static let chunkSize = 20
+    nonisolated private static let chunkSize = 20
 
     /// Processes unprocessed articles if Content Insights is enabled.
     /// Called after feed refresh completes.
