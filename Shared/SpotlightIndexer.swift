@@ -5,6 +5,18 @@ nonisolated enum SpotlightIndexer {
 
     static let domainIdentifier = "com.tsubuzaki.SakuraRSS.article"
 
+    /// Schema version for the Spotlight searchable-item attributes produced
+    /// by `indexArticles`.  Bump this whenever the attribute shape changes
+    /// (fields added/removed/renamed) so the next launch triggers a
+    /// one-time full reindex.  The full reindex is otherwise never run
+    /// automatically — the per-feed-refresh incremental path keeps the
+    /// index up to date in the steady state.
+    static let schemaVersion: Int = 1
+
+    /// `UserDefaults` key holding the `schemaVersion` value that was in
+    /// effect the last time a full reindex completed.
+    static let schemaVersionDefaultsKey = "App.SpotlightIndexVersion"
+
     // MARK: - Indexing
 
     static func indexArticles(_ articles: [Article], feedTitle: String?) {

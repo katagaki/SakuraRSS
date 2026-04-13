@@ -40,6 +40,7 @@ struct SakuraRSSApp: App {
                     UserDefaults.standard.set(false, forKey: "App.StartupInProgress")
                     feedManager.updateBadgeCount()
                     requestReviewIfNeeded()
+                    reindexSpotlightIfSchemaChanged()
                     // Kick off NLP insight processing after startup
                     // completes so it never holds up badge refresh or
                     // any other MainActor-visible work.  Skip entirely
@@ -83,6 +84,22 @@ struct SakuraRSSApp: App {
         if launchCount == 3 {
             requestReview()
         }
+    }
+
+    /// Runs a one-time full Spotlight reindex when the on-device index
+    /// schema doesn't match the current build's `SpotlightIndexer.schemaVersion`.
+    /// Does NOT gate on Low Power Mode: if the schema has changed, search
+    /// is broken until the reindex runs.  In the steady state — when the
+    /// stored version already matches — this method is a single
+    /// `UserDefaults` read and returns immediately.
+    private func reindexSpotlightIfSchemaChanged() {
+        let defaults = UserDefaults.standard
+        let storedRaw = defaults.object(forKey: SpotlightIndexer.schemaVersionDefaultsKey) as? Int
+        guard storedRaw != SpotlightIndexer.schemaVersion else { return }
+
+        SpotlightIndexer.removeAllArticles()
+        feedManager.reindexAllArticlesInSpotlight()
+        defaults.set(SpotlightIndexer.schemaVersion, forKey: SpotlightIndexer.schemaVersionDefaultsKey)
     }
 
     private func handleOpenURL(_ url: URL) {
