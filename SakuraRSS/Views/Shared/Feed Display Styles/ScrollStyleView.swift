@@ -359,6 +359,7 @@ private struct ScrollActionButtonsColumn: View {
                     buttonContent(systemImage: "square.and.arrow.up")
                 }
                 .buttonStyle(.glass)
+                .buttonBorderShape(.circle)
                 .accessibilityLabel(Text("Article.Share"))
             }
         }
@@ -372,6 +373,7 @@ private struct ScrollActionButtonsColumn: View {
             buttonContent(systemImage: systemImage)
         }
         .buttonStyle(.glass)
+        .buttonBorderShape(.circle)
         .accessibilityLabel(label)
     }
 
