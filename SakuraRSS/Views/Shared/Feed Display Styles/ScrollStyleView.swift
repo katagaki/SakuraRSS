@@ -473,6 +473,8 @@ private struct ScrollExpandedArticleView: View {
                             }
                             .scaledToFit()
                             .clipShape(.rect(cornerRadius: 12))
+                        case .video(let url):
+                            VideoBlockView(url: url)
                         }
                     }
                 }
