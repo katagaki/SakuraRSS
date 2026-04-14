@@ -173,16 +173,15 @@ private struct ClearThisPageWebView: UIViewRepresentable {
             _pageTitle = pageTitle
         }
 
-        /// Only allow http(s) navigations. Cancels app-scheme links and
-        /// other potentially unsafe URL schemes that could be triggered
-        /// from the rendered page.
+        /// Only allow HTTPS navigations. Cancels cleartext HTTP, app-scheme
+        /// links, and other potentially unsafe URL schemes that could be
+        /// triggered from the rendered page.
         func webView(
             _: WKWebView,
             decidePolicyFor navigationAction: WKNavigationAction,
             decisionHandler: @escaping (WKNavigationActionPolicy) -> Void
         ) {
-            guard let scheme = navigationAction.request.url?.scheme?.lowercased(),
-                  scheme == "https" || scheme == "http" else {
+            guard navigationAction.request.url?.scheme?.lowercased() == "https" else {
                 decisionHandler(.cancel)
                 return
             }
