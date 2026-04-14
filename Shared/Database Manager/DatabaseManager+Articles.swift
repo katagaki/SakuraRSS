@@ -101,6 +101,19 @@ nonisolated extension DatabaseManager {
         try database.scalar(articles.filter(articleFeedID == fid).count)
     }
 
+    /// Returns the URLs already ingested for `fid` so refresh can skip
+    /// per-article work (e.g. HTML metadata lookups) on known items.
+    func existingArticleURLs(forFeedID fid: Int64) throws -> Set<String> {
+        let query = articles
+            .filter(articleFeedID == fid)
+            .select(articleURL)
+        var result = Set<String>()
+        for row in try database.prepare(query) {
+            result.insert(row[articleURL])
+        }
+        return result
+    }
+
     func articles(forFeedID fid: Int64, since date: Date) throws -> [Article] {
         let query = articles
             .filter(articleFeedID == fid

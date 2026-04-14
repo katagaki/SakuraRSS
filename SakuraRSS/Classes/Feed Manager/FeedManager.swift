@@ -200,15 +200,25 @@ final class FeedManager {
             let parser = RSSParser()
             guard let parsed = parser.parse(data: data) else { return }
 
+            // Fall back to HTML metadata (og:image, twitter:image, etc.)
+            // for new items the feed itself didn't tag with an image.
+            // Existing items are skipped so we don't re-probe pages we've
+            // already ingested on every refresh.
+            let existingURLs = (try? database.existingArticleURLs(forFeedID: feed.id)) ?? []
+            let imageBackfills = await FeedManager.backfillMetadataImages(
+                for: parsed.articles, skippingURLs: existingURLs
+            )
+
             let articleTuples = parsed.articles.map { article in
-                ArticleInsertItem(
+                let resolvedImageURL = article.imageURL ?? imageBackfills[article.url]
+                return ArticleInsertItem(
                     title: article.title,
                     url: article.url,
                     data: ArticleInsertData(
                         author: article.author,
                         summary: article.summary,
                         content: article.content,
-                        imageURL: article.imageURL,
+                        imageURL: resolvedImageURL,
                         publishedDate: article.publishedDate,
                         audioURL: article.audioURL,
                         duration: article.duration
@@ -246,6 +256,49 @@ final class FeedManager {
         if reloadData {
             await loadFromDatabaseInBackground()
         }
+    }
+
+    /// Returns `[articleURL: imageURL]` for parsed items missing an
+    /// image, by scraping each article page's HTML metadata.  Skips
+    /// articles already in `skippingURLs` and caps concurrency so a
+    /// feed with many imageless items doesn't flood a single host.
+    nonisolated static func backfillMetadataImages(
+        for articles: [ParsedArticle],
+        skippingURLs existingURLs: Set<String>
+    ) async -> [String: String] {
+        let candidates: [(articleURL: String, requestURL: URL)] = articles.compactMap { article in
+            guard article.imageURL == nil,
+                  !existingURLs.contains(article.url),
+                  let url = URL(string: article.url),
+                  let scheme = url.scheme?.lowercased(),
+                  scheme == "http" || scheme == "https" else {
+                return nil
+            }
+            return (article.url, url)
+        }
+        guard !candidates.isEmpty else { return [:] }
+
+        let maxConcurrent = 4
+        var results: [String: String] = [:]
+        var index = 0
+        while index < candidates.count {
+            let batch = candidates[index..<min(index + maxConcurrent, candidates.count)]
+            index += maxConcurrent
+            await withTaskGroup(of: (String, String?).self) { group in
+                for candidate in batch {
+                    group.addTask {
+                        let imageURL = await HTMLMetadataImage.fetchImageURL(
+                            for: candidate.requestURL
+                        )
+                        return (candidate.articleURL, imageURL)
+                    }
+                }
+                for await (articleURL, imageURL) in group {
+                    if let imageURL { results[articleURL] = imageURL }
+                }
+            }
+        }
+        return results
     }
 
     func deleteAllArticlesAndRefresh() async {
