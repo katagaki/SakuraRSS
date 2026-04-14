@@ -21,7 +21,7 @@ struct ClearThisPageView: View {
                 isLoading: $isLoading,
                 pageTitle: $pageTitle
             )
-            .ignoresSafeArea(edges: .bottom)
+            .ignoresSafeArea()
             .opacity(isLoading ? 0 : 1)
 
             if isLoading {
