@@ -9,7 +9,6 @@ struct ClearThisPageView: View {
     @Environment(\.colorScheme) private var colorScheme
     let url: URL
     @State private var isLoading = true
-    @State private var pageTitle: String = ""
     @State private var reloadTrigger = 0
 
     var body: some View {
@@ -18,29 +17,25 @@ struct ClearThisPageView: View {
                 url: url,
                 colorScheme: colorScheme,
                 reloadTrigger: reloadTrigger,
-                isLoading: $isLoading,
-                pageTitle: $pageTitle
+                isLoading: $isLoading
             )
-            .ignoresSafeArea(edges: .bottom)
+            .ignoresSafeArea()
             .opacity(isLoading ? 0 : 1)
 
             if isLoading {
                 ProgressView()
             }
         }
-        .navigationTitle(pageTitle.isEmpty
-            ? String(localized: "ClearThisPage.Title")
-            : pageTitle)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
+            ToolbarItemGroup(placement: .topBarTrailing) {
                 Button {
                     reloadTrigger &+= 1
                 } label: {
                     Image(systemName: "arrow.clockwise")
                 }
             }
-            ToolbarItem(placement: .topBarTrailing) {
+            ToolbarItemGroup(placement: .topBarTrailing) {
                 ShareLink(item: url) {
                     Image(systemName: "square.and.arrow.up")
                 }
@@ -135,10 +130,9 @@ private struct ClearThisPageWebView: UIViewRepresentable {
     let colorScheme: ColorScheme
     let reloadTrigger: Int
     @Binding var isLoading: Bool
-    @Binding var pageTitle: String
 
     func makeCoordinator() -> Coordinator {
-        Coordinator(isLoading: $isLoading, pageTitle: $pageTitle)
+        Coordinator(isLoading: $isLoading)
     }
 
     func makeUIView(context: Context) -> WKWebView {
@@ -154,6 +148,7 @@ private struct ClearThisPageWebView: UIViewRepresentable {
         webView.navigationDelegate = context.coordinator
         webView.allowsBackForwardNavigationGestures = true
         webView.customUserAgent = sakuraUserAgent
+        webView.pageZoom = 0.9
         webView.overrideUserInterfaceStyle = colorScheme == .dark ? .dark : .light
         context.coordinator.lastReloadTrigger = reloadTrigger
         if let target = clearThisPageURL(for: url) {
@@ -180,12 +175,10 @@ private struct ClearThisPageWebView: UIViewRepresentable {
 
     final class Coordinator: NSObject, WKNavigationDelegate {
         @Binding var isLoading: Bool
-        @Binding var pageTitle: String
         var lastReloadTrigger: Int = 0
 
-        init(isLoading: Binding<Bool>, pageTitle: Binding<String>) {
+        init(isLoading: Binding<Bool>) {
             _isLoading = isLoading
-            _pageTitle = pageTitle
         }
 
         /// Only allow HTTPS navigations. Cancels cleartext HTTP, app-scheme
@@ -209,13 +202,9 @@ private struct ClearThisPageWebView: UIViewRepresentable {
             }
         }
 
-        func webView(_ webView: WKWebView, didFinish _: WKNavigation!) {
-            let resolvedTitle = webView.title
+        func webView(_: WKWebView, didFinish _: WKNavigation!) {
             Task { @MainActor in
                 isLoading = false
-                if let resolvedTitle, !resolvedTitle.isEmpty {
-                    pageTitle = resolvedTitle
-                }
             }
         }
 

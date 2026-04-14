@@ -24,7 +24,7 @@ struct DiscoverArticleCard: View {
                     .clipShape(RoundedRectangle(cornerRadius: 14))
                     .overlay(
                         RoundedRectangle(cornerRadius: 14)
-                            .stroke(.quaternary, lineWidth: 0.5)
+                            .strokeBorder(.quaternary, lineWidth: 0.5)
                     )
                     .shadow(color: .black.opacity(0.08), radius: 4, y: 2)
                     .zoomSource(id: article.id, namespace: zoomNamespace)

@@ -18,6 +18,8 @@ struct AttributesView: View {
         .listStyle(.grouped)
         .navigationTitle("More.Attribution")
         .navigationBarTitleDisplayMode(.inline)
+        .scrollContentBackground(.hidden)
+        .sakuraBackground()
     }
 }
 

@@ -26,8 +26,7 @@ extension FeedEditSheet {
     }
 
     func iconCornerRadius(size: CGFloat) -> CGFloat {
-        if feed.isPodcast { return size / 4 }
-        return size / 8
+        size / 8
     }
 
     func fetchIconFromFeed() async {
