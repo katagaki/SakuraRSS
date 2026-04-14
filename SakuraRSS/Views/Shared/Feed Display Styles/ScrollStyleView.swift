@@ -57,6 +57,12 @@ struct ScrollStyleView: View {
                     .scrollTargetBehavior(.paging)
                     .scrollPosition(id: $currentID, anchor: .center)
                     .scrollDisabled(expandedArticleID != nil)
+                    .onChange(of: currentID) { oldValue, _ in
+                        if case .article(let id) = oldValue,
+                           let prev = articles.first(where: { $0.id == id }) {
+                            feedManager.markRead(prev)
+                        }
+                    }
                 }
                 .ignoresSafeArea()
             }
@@ -68,6 +74,7 @@ struct ScrollStyleView: View {
                 }
             }
             .background(Color.black.ignoresSafeArea())
+            .scrollEdgeEffectHidden(true, for: .all)
         .navigationDestination(item: $youTubeArticle) { article in
             YouTubePlayerView(article: article)
                 .zoomTransition(sourceID: article.id, in: zoomNamespace)
@@ -138,6 +145,7 @@ private struct ScrollArticlePage: View {
     @Environment(\.openURL) private var openURL
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.zoomNamespace) private var zoomNamespace
+    @Environment(\.navigateToFeed) private var navigateToFeed
     @AppStorage("YouTube.OpenMode") private var youTubeOpenMode: YouTubeOpenMode = .inAppPlayer
 
     let article: Article
@@ -148,6 +156,7 @@ private struct ScrollArticlePage: View {
     let onAdvance: () -> Void
     let onRetreat: () -> Void
 
+    @State private var feed: Feed?
     @State private var favicon: UIImage?
     @State private var acronymIcon: UIImage?
     @State private var feedName: String?
@@ -168,12 +177,13 @@ private struct ScrollArticlePage: View {
                 .clipped()
 
             ScrollStyleProgressiveBlurView()
-                .frame(width: pageSize.width, height: pageSize.height * (isExpanded ? 1.0 : 0.55))
+                .frame(width: pageSize.width, height: pageSize.height * (isExpanded ? 1.0 : 0.5))
+                .opacity(isExpanded ? 1.0 : 0.6)
                 .allowsHitTesting(false)
 
             if isExpanded {
-                (colorScheme == .dark ? Color.black : Color.white)
-                    .opacity(colorScheme == .dark ? 0.55 : 0.35)
+                Color.black
+                    .opacity(0.55)
                     .frame(width: pageSize.width, height: pageSize.height)
                     .allowsHitTesting(false)
                     .transition(.opacity)
@@ -206,13 +216,14 @@ private struct ScrollArticlePage: View {
             }
         }
         .task {
-            if let feed = feedManager.feed(forArticle: article) {
-                feedName = feed.title
-                isVideoFeed = feed.isVideoFeed || feed.isXFeed || feed.isInstagramFeed
-                if let data = feed.acronymIcon {
+            if let loadedFeed = feedManager.feed(forArticle: article) {
+                feed = loadedFeed
+                feedName = loadedFeed.title
+                isVideoFeed = loadedFeed.isVideoFeed || loadedFeed.isXFeed || loadedFeed.isInstagramFeed
+                if let data = loadedFeed.acronymIcon {
                     acronymIcon = UIImage(data: data)
                 }
-                favicon = await FaviconCache.shared.favicon(for: feed)
+                favicon = await FaviconCache.shared.favicon(for: loadedFeed)
             }
         }
     }
@@ -271,12 +282,17 @@ private struct ScrollArticlePage: View {
 
             ScrollActionButtonsColumn(
                 article: article,
-                onOpen: { openArticleURL() },
-                onToggleRead: {
-                    withAnimation(.smooth.speed(2.0)) {
-                        feedManager.toggleRead(article)
+                favicon: favicon,
+                acronymIcon: acronymIcon,
+                feedName: feedName,
+                isVideoFeed: isVideoFeed,
+                onOpenFeed: {
+                    if let feed, let navigateToFeed {
+                        UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                        navigateToFeed(feed)
                     }
                 },
+                onOpen: { openArticleURL() },
                 onCopy: {
                     UIImpactFeedbackGenerator(style: .light).impactOccurred()
                     UIPasteboard.general.string = article.url
@@ -295,34 +311,12 @@ private struct ScrollArticlePage: View {
 
     private var compactTextBlock: some View {
         VStack(alignment: .leading, spacing: 10) {
-            HStack(spacing: 8) {
-                Group {
-                    if let favicon {
-                        FaviconImage(favicon, size: 24, cornerRadius: 4, circle: isVideoFeed)
-                    } else if let acronymIcon {
-                        FaviconImage(acronymIcon, size: 24, cornerRadius: 4,
-                                     circle: isVideoFeed, skipInset: true)
-                    } else if let feedName {
-                        InitialsAvatarView(feedName, size: 24, circle: isVideoFeed, cornerRadius: 4)
-                    }
-                }
-                .matchedGeometryEffect(id: "headerIcon", in: headerNamespace)
-                if let feedName {
-                    Text(feedName)
-                        .font(.subheadline.weight(.semibold))
-                        .foregroundStyle(.white)
-                        .lineLimit(1)
-                        .matchedGeometryEffect(id: "headerFeedName", in: headerNamespace)
-                }
-            }
-
             Text(article.title)
-                .font(.system(.title2, weight: .bold))
-                .fontWidth(.condensed)
+                .font(.subheadline.weight(.bold))
                 .foregroundStyle(.white)
                 .lineLimit(2)
                 .multilineTextAlignment(.leading)
-                .shadow(color: .black.opacity(0.35), radius: 2, y: 1)
+                .shadow(color: .black.opacity(0.6), radius: 4, y: 1)
                 .matchedGeometryEffect(id: "headerTitle", in: headerNamespace)
 
             if let summary = article.summary, !summary.isEmpty {
@@ -331,7 +325,7 @@ private struct ScrollArticlePage: View {
                     .foregroundStyle(.white.opacity(0.9))
                     .lineLimit(3)
                     .multilineTextAlignment(.leading)
-                    .shadow(color: .black.opacity(0.35), radius: 2, y: 1)
+                    .shadow(color: .black.opacity(0.6), radius: 4, y: 1)
             }
         }
     }
@@ -359,28 +353,43 @@ private struct ScrollArticlePage: View {
 private struct ScrollActionButtonsColumn: View {
 
     let article: Article
+    let favicon: UIImage?
+    let acronymIcon: UIImage?
+    let feedName: String?
+    let isVideoFeed: Bool
+    let onOpenFeed: () -> Void
     let onOpen: () -> Void
-    let onToggleRead: () -> Void
     let onCopy: () -> Void
     let onToggleBookmark: () -> Void
     let shareURL: URL?
 
     var body: some View {
-        VStack(spacing: 14) {
+        VStack(spacing: 24) {
+            Button(action: onOpenFeed) {
+                Group {
+                    if let favicon {
+                        FaviconImage(favicon, size: 34, cornerRadius: 6, circle: isVideoFeed)
+                    } else if let acronymIcon {
+                        FaviconImage(acronymIcon, size: 34, cornerRadius: 6,
+                                     circle: isVideoFeed, skipInset: true)
+                    } else if let feedName {
+                        InitialsAvatarView(feedName, size: 34, circle: isVideoFeed, cornerRadius: 6)
+                    } else {
+                        Circle().fill(.white.opacity(0.2)).frame(width: 34, height: 34)
+                    }
+                }
+                .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel(Text(feedName ?? ""))
+
             Button(action: onOpen) {
-                Image(systemName: article.isYouTubeURL ? "play.rectangle" : "safari")
+                Image(systemName: article.isYouTubeURL ? "play.rectangle.fill" : "safari.fill")
             }
             .accessibilityLabel(Text("Article.OpenInBrowser"))
 
-            Button(action: onToggleRead) {
-                Image(systemName: article.isRead ? "envelope" : "envelope.open")
-            }
-            .accessibilityLabel(Text(article.isRead
-                                     ? "Article.MarkUnread"
-                                     : "Article.MarkRead"))
-
             Button(action: onCopy) {
-                Image(systemName: "square.on.square")
+                Image(systemName: "square.on.square.fill")
             }
             .accessibilityLabel(Text("Article.CopyLink"))
 
@@ -394,15 +403,16 @@ private struct ScrollActionButtonsColumn: View {
             if let shareURL {
                 ShareLink(item: shareURL) {
                     Image(systemName: "square.and.arrow.up")
+                        .offset(y: -1)
                 }
                 .accessibilityLabel(Text("Article.Share"))
             }
         }
-        .font(.title2)
-        .buttonStyle(.glass)
-        .buttonBorderShape(.circle)
-        .controlSize(.large)
-        .tint(.white)
+        .font(.title)
+        .fontWeight(.semibold)
+        .foregroundStyle(.white)
+        .shadow(color: .black.opacity(0.35), radius: 2, y: 2)
+        .buttonStyle(.plain)
     }
 }
 
@@ -473,10 +483,20 @@ private struct ScrollExpandedArticleView: View {
             .padding(.top, 20 + contextInsets.top)
             .padding(.bottom, 40 + contextInsets.bottom)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .contentShape(Rectangle())
-            .simultaneousGesture(
-                TapGesture().onEnded { onTapToCollapse() }
-            )
+        }
+        .overlay(alignment: .leading) {
+            Color.clear
+                .frame(width: 20)
+                .contentShape(Rectangle())
+                .gesture(
+                    DragGesture(minimumDistance: 10, coordinateSpace: .local)
+                        .onEnded { value in
+                            if value.translation.width > 40 &&
+                                abs(value.translation.height) < 60 {
+                                onTapToCollapse()
+                            }
+                        }
+                )
         }
         .onScrollGeometryChange(for: ScrollMetrics.self) { geo in
             ScrollMetrics(
@@ -637,18 +657,12 @@ private struct ScrollEndOfFeedPage: View {
 /// blur at the bottom of the frame, matching the style used in the Cards view.
 private struct ScrollStyleProgressiveBlurView: UIViewRepresentable {
 
-    @Environment(\.colorScheme) private var colorScheme
-
     func makeUIView(context _: Context) -> ScrollStyleProgressiveBlurUIView {
-        ScrollStyleProgressiveBlurUIView(blurStyle: blurStyle)
+        ScrollStyleProgressiveBlurUIView(blurStyle: .dark)
     }
 
     func updateUIView(_ view: ScrollStyleProgressiveBlurUIView, context _: Context) {
-        view.update(blurStyle: blurStyle)
-    }
-
-    private var blurStyle: UIBlurEffect.Style {
-        colorScheme == .dark ? .dark : .light
+        view.update(blurStyle: .dark)
     }
 }
 
