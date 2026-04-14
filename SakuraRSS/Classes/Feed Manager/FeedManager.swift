@@ -200,15 +200,29 @@ final class FeedManager {
             let parser = RSSParser()
             guard let parsed = parser.parse(data: data) else { return }
 
+            // Some feeds ship items with no enclosure, media:thumbnail, or
+            // inline <img> at all.  For any such item that's new to this
+            // feed, fall back to the article page's HTML metadata
+            // (`og:image`, `twitter:image`, etc.) so display styles that
+            // need a thumbnail still have something to show.  Only new
+            // items are probed — existing items already in the DB keep
+            // whatever they have to avoid re-hitting the same pages on
+            // every refresh.
+            let existingURLs = (try? database.existingArticleURLs(forFeedID: feed.id)) ?? []
+            let imageBackfills = await FeedManager.backfillMetadataImages(
+                for: parsed.articles, skippingURLs: existingURLs
+            )
+
             let articleTuples = parsed.articles.map { article in
-                ArticleInsertItem(
+                let resolvedImageURL = article.imageURL ?? imageBackfills[article.url]
+                return ArticleInsertItem(
                     title: article.title,
                     url: article.url,
                     data: ArticleInsertData(
                         author: article.author,
                         summary: article.summary,
                         content: article.content,
-                        imageURL: article.imageURL,
+                        imageURL: resolvedImageURL,
                         publishedDate: article.publishedDate,
                         audioURL: article.audioURL,
                         duration: article.duration
@@ -246,6 +260,54 @@ final class FeedManager {
         if reloadData {
             await loadFromDatabaseInBackground()
         }
+    }
+
+    /// Probes article URLs that the parser couldn't find an image for and
+    /// returns a `[articleURL: imageURL]` map of any HTML-metadata
+    /// fallbacks (Open Graph, Twitter card, schema.org image) that were
+    /// recovered.  Skips any article whose URL is in `skippingURLs` —
+    /// those have already been ingested and don't need re-probing.
+    ///
+    /// Probes run in parallel but with a small concurrency cap so a feed
+    /// dump of dozens of imageless items doesn't fan out into dozens of
+    /// simultaneous HTTP requests against a single host.
+    nonisolated static func backfillMetadataImages(
+        for articles: [ParsedArticle],
+        skippingURLs existingURLs: Set<String>
+    ) async -> [String: String] {
+        let candidates: [(articleURL: String, requestURL: URL)] = articles.compactMap { article in
+            guard article.imageURL == nil,
+                  !existingURLs.contains(article.url),
+                  let url = URL(string: article.url),
+                  let scheme = url.scheme?.lowercased(),
+                  scheme == "http" || scheme == "https" else {
+                return nil
+            }
+            return (article.url, url)
+        }
+        guard !candidates.isEmpty else { return [:] }
+
+        let maxConcurrent = 4
+        var results: [String: String] = [:]
+        var index = 0
+        while index < candidates.count {
+            let batch = candidates[index..<min(index + maxConcurrent, candidates.count)]
+            index += maxConcurrent
+            await withTaskGroup(of: (String, String?).self) { group in
+                for candidate in batch {
+                    group.addTask {
+                        let imageURL = await HTMLMetadataImage.fetchImageURL(
+                            for: candidate.requestURL
+                        )
+                        return (candidate.articleURL, imageURL)
+                    }
+                }
+                for await (articleURL, imageURL) in group {
+                    if let imageURL { results[articleURL] = imageURL }
+                }
+            }
+        }
+        return results
     }
 
     func deleteAllArticlesAndRefresh() async {
