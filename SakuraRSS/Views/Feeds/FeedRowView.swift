@@ -6,10 +6,7 @@ struct FeedRowView: View {
     let feed: Feed
     @State private var favicon: UIImage?
 
-    private var iconCornerRadius: CGFloat {
-        if feed.isPodcast { return 8 }
-        return 4
-    }
+    private var iconCornerRadius: CGFloat { 4 }
 
     var body: some View {
         HStack(spacing: 12) {

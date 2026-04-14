@@ -60,7 +60,7 @@ struct FaviconImage: View {
     var body: some View {
         let shape: AnyShape = isCircle
             ? AnyShape(Circle())
-            : AnyShape(RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
+            : AnyShape(RoundedRectangle(cornerRadius: cornerRadius))
         Image(uiImage: image)
             .resizable()
             .aspectRatio(contentMode: isNonSquare ? .fit : .fill)

@@ -8,10 +8,7 @@ struct FeedGridCell: View {
 
     private let iconSize: CGFloat = 48
 
-    private var iconCornerRadius: CGFloat {
-        if feed.isPodcast { return 12 }
-        return 8
-    }
+    private var iconCornerRadius: CGFloat { 8 }
 
     var body: some View {
         VStack(alignment: .center, spacing: 6) {

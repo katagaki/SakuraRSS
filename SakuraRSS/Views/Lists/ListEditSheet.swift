@@ -193,7 +193,6 @@ struct FeedIconView: View {
     @State private var favicon: UIImage?
 
     private var cornerRadius: CGFloat {
-        if feed.isPodcast { return 8 }
         if feed.isVideoFeed { return 0 }
         return 4
     }
