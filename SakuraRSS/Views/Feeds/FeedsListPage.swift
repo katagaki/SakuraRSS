@@ -55,8 +55,8 @@ struct FeedsListPage: View {
                             }
                         } header: {
                             Text(section.localizedTitle)
-                                .font(.headline)
-                                .foregroundStyle(.secondary)
+                                .font(.title3)
+                                .fontWeight(.bold)
                         }
                     }
                 }
