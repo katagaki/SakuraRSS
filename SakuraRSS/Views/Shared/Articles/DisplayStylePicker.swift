@@ -11,8 +11,8 @@ struct DisplayStylePicker: View {
     var showScroll: Bool = true
 
     var body: some View {
-        Section("Articles.StyleSection.Classic") {
-            Picker(selection: $displayStyle) {
+        Group {
+            Picker("Articles.StyleSection.Classic", selection: $displayStyle) {
                 Label("Articles.Style.Inbox", systemImage: "tray")
                     .tag(FeedDisplayStyle.inbox)
                 if hasImages {
@@ -21,13 +21,8 @@ struct DisplayStylePicker: View {
                 }
                 Label("Articles.Style.Compact", systemImage: "list.dash")
                     .tag(FeedDisplayStyle.compact)
-            } label: {
-                EmptyView()
             }
-            .menuActionDismissBehavior(.disabled)
-        }
-        Section("Articles.StyleSection.Visual") {
-            Picker(selection: $displayStyle) {
+            Picker("Articles.StyleSection.Visual", selection: $displayStyle) {
                 Label("Articles.Style.Feed", systemImage: "text.rectangle.page")
                     .tag(FeedDisplayStyle.feed)
                 Label("Articles.Style.FeedCompact", systemImage: "square.text.square")
@@ -40,13 +35,8 @@ struct DisplayStylePicker: View {
                     Label("Articles.Style.Grid", systemImage: "square.grid.3x3")
                         .tag(FeedDisplayStyle.grid)
                 }
-            } label: {
-                EmptyView()
             }
-            .menuActionDismissBehavior(.disabled)
-        }
-        Section("Articles.StyleSection.Specialized") {
-            Picker(selection: $displayStyle) {
+            Picker("Articles.StyleSection.Specialized", selection: $displayStyle) {
                 if hasImages && showCards {
                     Label("Articles.Style.Cards", systemImage: "square.stack.3d.up")
                         .tag(FeedDisplayStyle.cards)
@@ -67,10 +57,9 @@ struct DisplayStylePicker: View {
                     Label("Articles.Style.Podcast", systemImage: "headphones")
                         .tag(FeedDisplayStyle.podcast)
                 }
-            } label: {
-                EmptyView()
             }
-            .menuActionDismissBehavior(.disabled)
         }
+        .pickerStyle(.inline)
+        .menuActionDismissBehavior(.disabled)
     }
 }
