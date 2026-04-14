@@ -136,6 +136,9 @@ struct MoreView: View {
                     NavigationLink("Integrations.Instagram") {
                         InstagramSettingsView()
                     }
+                    NavigationLink("Integrations.ClearThisPage") {
+                        ClearThisPageSettingsView()
+                    }
                 } header: {
                     Text("Settings.Section.Integrations")
                 }

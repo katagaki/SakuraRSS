@@ -103,6 +103,7 @@ nonisolated enum FeedSection: String, CaseIterable, Sendable {
 nonisolated enum FeedOpenMode: String, CaseIterable, Sendable {
     case inAppViewer
     case inAppBrowser
+    case clearThisPage
     case browser
 }
 
