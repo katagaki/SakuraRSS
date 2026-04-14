@@ -273,6 +273,8 @@ struct YouTubePlayerView: View {
                                     }
                                     .aspectRatio(contentMode: .fit)
                                     .clipShape(RoundedRectangle(cornerRadius: 12))
+                                case .video(let url):
+                                    VideoBlockView(url: url)
                                 }
                             }
                             .id("\(showingSummary)-\(showingTranslation)")

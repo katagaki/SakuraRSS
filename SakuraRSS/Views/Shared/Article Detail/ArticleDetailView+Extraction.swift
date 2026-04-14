@@ -36,6 +36,32 @@ extension ArticleDetailView {
         debugPrint("[Extract] Source: \(source.rawValue), content length: \(article.content?.count ?? 0): \(article.url)")
         #endif
 
+        var contentURL: URL? = URL(string: article.url)
+        var isRedditLinkedArticle = false
+
+        if feedManager.feed(forArticle: article)?.isRedditFeed == true {
+            do {
+                let result = try await RedditPostScraper.shared.fetchContent(for: article)
+                switch result {
+                case .markerString(let markerString):
+                    if !markerString.isEmpty {
+                        extractedText = markerString
+                        try? DatabaseManager.shared.cacheArticleContent(
+                            markerString, for: article.id
+                        )
+                        return
+                    }
+                case .linkedArticle(let linkedURL):
+                    contentURL = linkedURL
+                    isRedditLinkedArticle = true
+                }
+            } catch {
+                #if DEBUG
+                debugPrint("[Extract] Reddit fetch failed, falling through: \(error)")
+                #endif
+            }
+        }
+
         switch source {
         case .feedText:
             if let content = article.content, !content.isEmpty {
@@ -122,7 +148,7 @@ extension ArticleDetailView {
             return
         }
 
-        if let content = article.content, !content.isEmpty {
+        if !isRedditLinkedArticle, let content = article.content, !content.isEmpty {
             let baseURL = URL(string: article.url)
             let text = ArticleExtractor.extractText(fromHTML: content,
                                                     baseURL: baseURL,
@@ -147,7 +173,7 @@ extension ArticleDetailView {
             #endif
         }
 
-        if let url = URL(string: article.url) {
+        if let url = contentURL {
             var text = await ArticleExtractor.extractText(fromURL: url,
                                                           excludeTitle: articleTitle)
             #if DEBUG
