@@ -18,44 +18,56 @@ struct ScrollStyleView: View {
     @State private var expandedArticleID: Int64?
     @State private var youTubeArticle: Article?
     @State private var podcastArticle: Article?
+    @State private var contextInsets: EdgeInsets = EdgeInsets()
 
     @AppStorage("YouTube.OpenMode") private var youTubeOpenMode: YouTubeOpenMode = .inAppPlayer
 
     var body: some View {
-        GeometryReader { geometry in
-            let pageSize = geometry.size
+        Color.clear
+            .overlay {
+                GeometryReader { geometry in
+                    let pageSize = geometry.size
 
-            ScrollView(.vertical, showsIndicators: false) {
-                LazyVStack(spacing: 0) {
-                    ForEach(articles) { article in
-                        ScrollArticlePage(
-                            article: article,
-                            pageSize: pageSize,
-                            isExpanded: expandedArticleID == article.id,
-                            onTapContent: { handleTap(on: article) },
-                            onAdvance: { advance(from: article) },
-                            onRetreat: { retreat(from: article) }
-                        )
-                        .frame(width: pageSize.width, height: pageSize.height)
-                        .id(ScrollPageID.article(article.id))
+                    ScrollView(.vertical, showsIndicators: false) {
+                        LazyVStack(spacing: 0) {
+                            ForEach(articles) { article in
+                                ScrollArticlePage(
+                                    article: article,
+                                    pageSize: pageSize,
+                                    contextInsets: contextInsets,
+                                    isExpanded: expandedArticleID == article.id,
+                                    onTapContent: { handleTap(on: article) },
+                                    onAdvance: { advance(from: article) },
+                                    onRetreat: { retreat(from: article) }
+                                )
+                                .frame(width: pageSize.width, height: pageSize.height)
+                                .id(ScrollPageID.article(article.id))
+                            }
+                            if onLoadMore != nil {
+                                ScrollEndOfFeedPage(
+                                    pageSize: pageSize,
+                                    onLoadMore: { onLoadMore?() }
+                                )
+                                .frame(width: pageSize.width, height: pageSize.height)
+                                .id(ScrollPageID.endOfFeed)
+                            }
+                        }
+                        .scrollTargetLayout()
                     }
-                    if onLoadMore != nil {
-                        ScrollEndOfFeedPage(
-                            pageSize: pageSize,
-                            onLoadMore: { onLoadMore?() }
-                        )
-                        .frame(width: pageSize.width, height: pageSize.height)
-                        .id(ScrollPageID.endOfFeed)
-                    }
+                    .scrollTargetBehavior(.paging)
+                    .scrollPosition(id: $currentID, anchor: .center)
+                    .scrollDisabled(expandedArticleID != nil)
                 }
-                .scrollTargetLayout()
+                .ignoresSafeArea()
             }
-            .scrollTargetBehavior(.paging)
-            .scrollPosition(id: $currentID, anchor: .center)
-            .scrollDisabled(expandedArticleID != nil)
-        }
-        .ignoresSafeArea()
-        .background(Color.black.ignoresSafeArea())
+            .background {
+                GeometryReader { proxy in
+                    Color.clear
+                        .onAppear { contextInsets = proxy.safeAreaInsets }
+                        .onChange(of: proxy.safeAreaInsets) { _, new in contextInsets = new }
+                }
+            }
+            .background(Color.black.ignoresSafeArea())
         .navigationDestination(item: $youTubeArticle) { article in
             YouTubePlayerView(article: article)
                 .zoomTransition(sourceID: article.id, in: zoomNamespace)
@@ -130,6 +142,7 @@ private struct ScrollArticlePage: View {
 
     let article: Article
     let pageSize: CGSize
+    let contextInsets: EdgeInsets
     let isExpanded: Bool
     let onTapContent: () -> Void
     let onAdvance: () -> Void
@@ -158,6 +171,14 @@ private struct ScrollArticlePage: View {
                 .frame(width: pageSize.width, height: pageSize.height * (isExpanded ? 1.0 : 0.55))
                 .allowsHitTesting(false)
 
+            if isExpanded {
+                (colorScheme == .dark ? Color.black : Color.white)
+                    .opacity(colorScheme == .dark ? 0.55 : 0.35)
+                    .frame(width: pageSize.width, height: pageSize.height)
+                    .allowsHitTesting(false)
+                    .transition(.opacity)
+            }
+
             Group {
                 if isExpanded {
                     ScrollExpandedArticleView(
@@ -166,6 +187,7 @@ private struct ScrollArticlePage: View {
                         favicon: favicon,
                         acronymIcon: acronymIcon,
                         isVideoFeed: isVideoFeed,
+                        contextInsets: contextInsets,
                         headerNamespace: headerNamespace,
                         onTapToCollapse: onTapContent,
                         onAdvance: onAdvance,
@@ -255,12 +277,19 @@ private struct ScrollArticlePage: View {
                         feedManager.toggleRead(article)
                     }
                 },
-                onCopy: { UIPasteboard.general.string = article.url },
+                onCopy: {
+                    UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                    UIPasteboard.general.string = article.url
+                },
+                onToggleBookmark: {
+                    UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                    feedManager.toggleBookmark(article)
+                },
                 shareURL: URL(string: article.url)
             )
         }
         .padding(.horizontal, 20)
-        .padding(.bottom, 32)
+        .padding(.bottom, 16 + contextInsets.bottom)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
     }
 
@@ -333,26 +362,34 @@ private struct ScrollActionButtonsColumn: View {
     let onOpen: () -> Void
     let onToggleRead: () -> Void
     let onCopy: () -> Void
+    let onToggleBookmark: () -> Void
     let shareURL: URL?
 
     var body: some View {
-        VStack(spacing: 12) {
+        VStack(spacing: 14) {
             Button(action: onOpen) {
                 Image(systemName: article.isYouTubeURL ? "play.rectangle" : "safari")
             }
             .accessibilityLabel(Text("Article.OpenInBrowser"))
 
             Button(action: onToggleRead) {
-                Image(systemName: article.isRead ? "envelope.badge" : "envelope.open")
+                Image(systemName: article.isRead ? "envelope" : "envelope.open")
             }
             .accessibilityLabel(Text(article.isRead
                                      ? "Article.MarkUnread"
                                      : "Article.MarkRead"))
 
             Button(action: onCopy) {
-                Image(systemName: "doc.on.doc")
+                Image(systemName: "square.on.square")
             }
             .accessibilityLabel(Text("Article.CopyLink"))
+
+            Button(action: onToggleBookmark) {
+                Image(systemName: article.isBookmarked ? "bookmark.fill" : "bookmark")
+            }
+            .accessibilityLabel(Text(article.isBookmarked
+                                     ? "Article.RemoveBookmark"
+                                     : "Article.Bookmark"))
 
             if let shareURL {
                 ShareLink(item: shareURL) {
@@ -361,6 +398,7 @@ private struct ScrollActionButtonsColumn: View {
                 .accessibilityLabel(Text("Article.Share"))
             }
         }
+        .font(.title2)
         .buttonStyle(.glass)
         .buttonBorderShape(.circle)
         .controlSize(.large)
@@ -379,6 +417,7 @@ private struct ScrollExpandedArticleView: View {
     let favicon: UIImage?
     let acronymIcon: UIImage?
     let isVideoFeed: Bool
+    let contextInsets: EdgeInsets
     let headerNamespace: Namespace.ID
     let onTapToCollapse: () -> Void
     let onAdvance: () -> Void
@@ -431,8 +470,8 @@ private struct ScrollExpandedArticleView: View {
                 Spacer(minLength: 40)
             }
             .padding(.horizontal, 20)
-            .padding(.top, 80)
-            .padding(.bottom, 40)
+            .padding(.top, 20 + contextInsets.top)
+            .padding(.bottom, 40 + contextInsets.bottom)
             .frame(maxWidth: .infinity, alignment: .leading)
             .contentShape(Rectangle())
             .simultaneousGesture(

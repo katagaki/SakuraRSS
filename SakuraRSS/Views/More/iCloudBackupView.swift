@@ -1,5 +1,6 @@
 import SwiftUI
 
+// swiftlint:disable:next type_name
 struct iCloudBackupView: View {
 
     @AppStorage("iCloudBackup.Interval") private var backupIntervalRaw: Int = iCloudBackupManager.BackupInterval.everyNight.rawValue
