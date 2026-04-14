@@ -31,6 +31,8 @@ struct DisplayStyleContentView: View {
             CardsStyleView(articles: articles, onRefresh: onRefresh)
         case .grid:
             GridStyleView(articles: articles, onLoadMore: onLoadMore)
+        case .scroll:
+            ScrollStyleView(articles: articles, onLoadMore: onLoadMore)
         }
     }
 }

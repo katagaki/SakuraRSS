@@ -347,6 +347,7 @@ nonisolated enum FeedDisplayStyle: String, CaseIterable, Sendable {
     case timeline
     case cards
     case grid
+    case scroll
 
     var localizedName: String {
         switch self {
@@ -361,6 +362,7 @@ nonisolated enum FeedDisplayStyle: String, CaseIterable, Sendable {
         case .timeline: String(localized: "Articles.Style.Timeline")
         case .cards: String(localized: "Articles.Style.Cards")
         case .grid: String(localized: "Articles.Style.Grid")
+        case .scroll: String(localized: "Articles.Style.Scroll")
         }
     }
 
