@@ -43,12 +43,8 @@ struct HomeSectionView: View {
         .refreshable {
             await feedManager.refreshAllFeeds()
         }
-        .safeAreaInset(edge: .bottom, alignment: .leading, spacing: 0) {
-            if markAllReadPosition == .bottom {
-                ArticlesToolbar {
-                    feedManager.markAllRead(for: section)
-                }
-            }
+        .markAllReadToolbar(show: markAllReadPosition == .bottom) {
+            feedManager.markAllRead(for: section)
         }
     }
 }

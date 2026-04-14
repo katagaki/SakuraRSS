@@ -291,12 +291,8 @@ struct AllArticlesView: View {
         .refreshable {
             await feedManager.refreshAllFeeds()
         }
-        .safeAreaInset(edge: .bottom, alignment: .leading, spacing: 0) {
-            if markAllReadPosition == .bottom {
-                ArticlesToolbar {
-                    feedManager.markAllRead()
-                }
-            }
+        .markAllReadToolbar(show: markAllReadPosition == .bottom) {
+            feedManager.markAllRead()
         }
     }
 }
