@@ -8,6 +8,7 @@ struct DisplayStylePicker: View {
     var showVideo: Bool = false
     var showPodcast: Bool = false
     var showCards: Bool = true
+    var showScroll: Bool = true
 
     var body: some View {
         Section("Articles.StyleSection.Classic") {
@@ -49,6 +50,10 @@ struct DisplayStylePicker: View {
                 if hasImages && showCards {
                     Label("Articles.Style.Cards", systemImage: "square.stack.3d.up")
                         .tag(FeedDisplayStyle.cards)
+                }
+                if showScroll {
+                    Label("Articles.Style.Scroll", systemImage: "arrow.up.and.down")
+                        .tag(FeedDisplayStyle.scroll)
                 }
                 if showTimeline {
                     Label("Articles.Style.Timeline", systemImage: "clock")
