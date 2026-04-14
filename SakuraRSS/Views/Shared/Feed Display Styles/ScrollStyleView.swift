@@ -53,8 +53,8 @@ struct ScrollStyleView: View {
             .scrollTargetBehavior(.paging)
             .scrollPosition(id: $currentID, anchor: .center)
             .scrollDisabled(expandedArticleID != nil)
-            .ignoresSafeArea()
         }
+        .ignoresSafeArea()
         .background(Color.black.ignoresSafeArea())
         .navigationDestination(item: $youTubeArticle) { article in
             YouTubePlayerView(article: article)
