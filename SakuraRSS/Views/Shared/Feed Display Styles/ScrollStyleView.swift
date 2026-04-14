@@ -1,12 +1,14 @@
 import SwiftUI
+import FoundationModels
+@preconcurrency import Translation
 
 // MARK: - Scroll Style View
 
 /// A TikTok/Reels-inspired full-screen vertical pager where each article
 /// takes up the entire screen. Tapping the image or content preview expands
 /// the article to reveal the full extracted text; tapping again collapses it.
-/// When expanded, overscrolling past the top or bottom advances to the
-/// previous or next article respectively.
+/// When expanded, overscrolling past the top collapses back to the compact
+/// overlay and overscrolling past the bottom advances to the next article.
 struct ScrollStyleView: View {
 
     @Environment(FeedManager.self) var feedManager
@@ -37,8 +39,7 @@ struct ScrollStyleView: View {
                                     contextInsets: contextInsets,
                                     isExpanded: expandedArticleID == article.id,
                                     onTapContent: { handleTap(on: article) },
-                                    onAdvance: { advance(from: article) },
-                                    onRetreat: { retreat(from: article) }
+                                    onAdvance: { advance(from: article) }
                                 )
                                 .frame(width: pageSize.width, height: pageSize.height)
                                 .id(ScrollPageID.article(article.id))
@@ -61,6 +62,15 @@ struct ScrollStyleView: View {
                         if case .article(let id) = oldValue,
                            let prev = articles.first(where: { $0.id == id }) {
                             feedManager.markRead(prev)
+                        }
+                    }
+                    .onChange(of: articles.count) { oldValue, newValue in
+                        guard newValue > oldValue,
+                              currentID == .endOfFeed,
+                              oldValue < articles.count else { return }
+                        let firstNew = articles[oldValue]
+                        withAnimation(.smooth.speed(1.5)) {
+                            currentID = .article(firstNew.id)
                         }
                     }
                 }
@@ -120,14 +130,6 @@ struct ScrollStyleView: View {
         }
     }
 
-    private func retreat(from article: Article) {
-        guard let idx = articles.firstIndex(where: { $0.id == article.id }),
-              idx > 0 else { return }
-        withAnimation(.smooth.speed(1.5)) {
-            expandedArticleID = nil
-            currentID = .article(articles[idx - 1].id)
-        }
-    }
 }
 
 // MARK: - Page identifier
@@ -154,7 +156,6 @@ private struct ScrollArticlePage: View {
     let isExpanded: Bool
     let onTapContent: () -> Void
     let onAdvance: () -> Void
-    let onRetreat: () -> Void
 
     @State private var feed: Feed?
     @State private var favicon: UIImage?
@@ -201,7 +202,7 @@ private struct ScrollArticlePage: View {
                         headerNamespace: headerNamespace,
                         onTapToCollapse: onTapContent,
                         onAdvance: onAdvance,
-                        onRetreat: onRetreat
+                        onOpenArticleURL: { openArticleURL() }
                     )
                 } else {
                     compactContentLayer
@@ -312,18 +313,18 @@ private struct ScrollArticlePage: View {
     private var compactTextBlock: some View {
         VStack(alignment: .leading, spacing: 10) {
             Text(article.title)
-                .font(.subheadline.weight(.bold))
+                .font(.body.weight(.bold))
                 .foregroundStyle(.white)
-                .lineLimit(2)
+                .lineLimit(3)
                 .multilineTextAlignment(.leading)
                 .shadow(color: .black.opacity(0.6), radius: 4, y: 1)
                 .matchedGeometryEffect(id: "headerTitle", in: headerNamespace)
 
             if let summary = article.summary, !summary.isEmpty {
                 Text(ContentBlock.stripMarkdown(summary))
-                    .font(.subheadline)
+                    .font(.body)
                     .foregroundStyle(.white.opacity(0.9))
-                    .lineLimit(3)
+                    .lineLimit(5)
                     .multilineTextAlignment(.leading)
                     .shadow(color: .black.opacity(0.6), radius: 4, y: 1)
             }
@@ -364,18 +365,18 @@ private struct ScrollActionButtonsColumn: View {
     let shareURL: URL?
 
     var body: some View {
-        VStack(spacing: 24) {
+        VStack(spacing: 20) {
             Button(action: onOpenFeed) {
                 Group {
                     if let favicon {
-                        FaviconImage(favicon, size: 34, cornerRadius: 6, circle: isVideoFeed)
+                        FaviconImage(favicon, size: 48, cornerRadius: 8, circle: isVideoFeed)
                     } else if let acronymIcon {
-                        FaviconImage(acronymIcon, size: 34, cornerRadius: 6,
+                        FaviconImage(acronymIcon, size: 48, cornerRadius: 8,
                                      circle: isVideoFeed, skipInset: true)
                     } else if let feedName {
-                        InitialsAvatarView(feedName, size: 34, circle: isVideoFeed, cornerRadius: 6)
+                        InitialsAvatarView(feedName, size: 48, circle: isVideoFeed, cornerRadius: 8)
                     } else {
-                        Circle().fill(.white.opacity(0.2)).frame(width: 34, height: 34)
+                        Circle().fill(.white.opacity(0.2)).frame(width: 48, height: 48)
                     }
                 }
                 .contentShape(Rectangle())
@@ -384,17 +385,28 @@ private struct ScrollActionButtonsColumn: View {
             .accessibilityLabel(Text(feedName ?? ""))
 
             Button(action: onOpen) {
-                Image(systemName: article.isYouTubeURL ? "play.rectangle.fill" : "safari.fill")
+                labeledIcon(
+                    systemName: article.isYouTubeURL ? "play.rectangle.fill" : "safari.fill",
+                    label: Text("Article.OpenInBrowser")
+                )
             }
             .accessibilityLabel(Text("Article.OpenInBrowser"))
 
             Button(action: onCopy) {
-                Image(systemName: "square.on.square.fill")
+                labeledIcon(
+                    systemName: "square.on.square.fill",
+                    label: Text("Article.CopyLink")
+                )
             }
             .accessibilityLabel(Text("Article.CopyLink"))
 
             Button(action: onToggleBookmark) {
-                Image(systemName: article.isBookmarked ? "bookmark.fill" : "bookmark")
+                labeledIcon(
+                    systemName: article.isBookmarked ? "bookmark.fill" : "bookmark",
+                    label: Text(article.isBookmarked
+                                ? "Article.RemoveBookmark"
+                                : "Article.Bookmark")
+                )
             }
             .accessibilityLabel(Text(article.isBookmarked
                                      ? "Article.RemoveBookmark"
@@ -402,8 +414,11 @@ private struct ScrollActionButtonsColumn: View {
 
             if let shareURL {
                 ShareLink(item: shareURL) {
-                    Image(systemName: "square.and.arrow.up")
-                        .offset(y: -1)
+                    labeledIcon(
+                        systemName: "square.and.arrow.up",
+                        label: Text("Article.Share"),
+                        iconOffsetY: -1
+                    )
                 }
                 .accessibilityLabel(Text("Article.Share"))
             }
@@ -413,6 +428,21 @@ private struct ScrollActionButtonsColumn: View {
         .foregroundStyle(.white)
         .shadow(color: .black.opacity(0.35), radius: 2, y: 2)
         .buttonStyle(.plain)
+    }
+
+    private func labeledIcon(
+        systemName: String,
+        label: Text,
+        iconOffsetY: CGFloat = 0
+    ) -> some View {
+        VStack(spacing: 2) {
+            Image(systemName: systemName)
+                .offset(y: iconOffsetY)
+            label
+                .font(.system(size: 11, weight: .semibold))
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
+        }
     }
 }
 
@@ -431,19 +461,60 @@ private struct ScrollExpandedArticleView: View {
     let headerNamespace: Namespace.ID
     let onTapToCollapse: () -> Void
     let onAdvance: () -> Void
-    let onRetreat: () -> Void
+    let onOpenArticleURL: () -> Void
 
     @State private var extractedText: String?
     @State private var isExtracting = true
     @State private var didStartExtraction = false
+
+    @State private var translatedText: String?
+    @State private var translatedTitle: String?
+    @State private var translatedSummary: String?
+    @State private var isTranslating = false
+    @State private var translationConfig: TranslationSession.Configuration?
+    @State private var showingTranslation = false
+    @State private var hasCachedTranslation = false
+
+    @State private var summarizedText: String?
+    @State private var isSummarizing = false
+    @State private var hasCachedSummary = false
+    @State private var showingSummary = false
+    @State private var summarizationError: String?
 
     @State private var scrollOffset: CGFloat = 0
     @State private var maxScrollOffset: CGFloat = 0
 
     private static let overscrollThreshold: CGFloat = 80
 
+    private var isAppleIntelligenceAvailable: Bool {
+        SystemLanguageModel.default.availability == .available
+    }
+
+    private var hasTranslationForCurrentMode: Bool {
+        if showingSummary {
+            return translatedSummary != nil
+        }
+        return translatedText != nil || hasCachedTranslation
+    }
+
     private var displayText: String? {
-        extractedText ?? article.summary
+        if showingSummary, let summarizedText {
+            if showingTranslation, let translatedSummary {
+                return translatedSummary
+            }
+            return summarizedText
+        }
+        if showingTranslation, let translatedText {
+            return translatedText
+        }
+        return extractedText ?? article.summary
+    }
+
+    private var displayTitle: String {
+        if showingTranslation, let translatedTitle {
+            return translatedTitle
+        }
+        return article.title
     }
 
     var body: some View {
@@ -451,12 +522,19 @@ private struct ScrollExpandedArticleView: View {
             VStack(alignment: .leading, spacing: 14) {
                 headerSection
 
+                actionButtons
+
                 if isExtracting && extractedText == nil {
                     ProgressView()
                         .tint(.white)
                         .frame(maxWidth: .infinity, alignment: .center)
                         .padding(.vertical, 20)
                 } else if let text = displayText {
+                    if showingSummary && summarizedText != nil {
+                        Text("AppleIntelligence.VerifyImportantInformation")
+                            .font(.caption)
+                            .foregroundStyle(.white.opacity(0.6))
+                    }
                     let blocks = ContentBlock.parse(text)
                     ForEach(blocks) { block in
                         switch block {
@@ -475,10 +553,15 @@ private struct ScrollExpandedArticleView: View {
                             .clipShape(.rect(cornerRadius: 12))
                         }
                     }
+                    .id("\(showingSummary)-\(showingTranslation)")
+                    .transition(.blurReplace)
                 }
 
                 Spacer(minLength: 40)
             }
+            .animation(.smooth.speed(2.0), value: showingSummary)
+            .animation(.smooth.speed(2.0), value: showingTranslation)
+            .animation(.smooth.speed(2.0), value: translatedText)
             .padding(.horizontal, 20)
             .padding(.top, 20 + contextInsets.top)
             .padding(.bottom, 40 + contextInsets.bottom)
@@ -510,7 +593,7 @@ private struct ScrollExpandedArticleView: View {
         .onScrollPhaseChange { _, newPhase in
             guard newPhase == .decelerating || newPhase == .idle else { return }
             if scrollOffset < -Self.overscrollThreshold {
-                onRetreat()
+                onTapToCollapse()
             } else if scrollOffset > maxScrollOffset + Self.overscrollThreshold {
                 onAdvance()
             }
@@ -519,6 +602,19 @@ private struct ScrollExpandedArticleView: View {
             guard !didStartExtraction else { return }
             didStartExtraction = true
             await loadArticleText()
+            loadCachedAIContent()
+        }
+        .translationTask(translationConfig) { session in
+            await handleTranslation(session: session)
+        }
+        .alert("Article.Summarize.Error", isPresented: Binding(
+            get: { summarizationError != nil },
+            set: { if !$0 { summarizationError = nil } }
+        )) {
+        } message: {
+            if let summarizationError {
+                Text(summarizationError)
+            }
         }
     }
 
@@ -545,7 +641,7 @@ private struct ScrollExpandedArticleView: View {
                 }
             }
 
-            Text(article.title)
+            Text(displayTitle)
                 .font(.system(.title2, weight: .bold))
                 .foregroundStyle(.white)
                 .matchedGeometryEffect(id: "headerTitle", in: headerNamespace)
@@ -571,6 +667,48 @@ private struct ScrollExpandedArticleView: View {
             Divider()
                 .overlay(.white.opacity(0.2))
         }
+    }
+
+    // MARK: - Action buttons
+
+    private var actionButtons: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 8) {
+                if !isExtracting && displayText != nil {
+                    TranslateButton(
+                        hasTranslation: hasTranslationForCurrentMode,
+                        isTranslating: isTranslating,
+                        showingTranslation: $showingTranslation,
+                        onTranslate: { triggerTranslation() }
+                    )
+                    if isAppleIntelligenceAvailable {
+                        SummarizeButton(
+                            summarizedText: summarizedText,
+                            hasCachedSummary: hasCachedSummary,
+                            isSummarizing: isSummarizing,
+                            showingSummary: $showingSummary,
+                            onSummarize: {
+                                await summarizeArticle()
+                                return summarizedText != nil
+                            }
+                        )
+                    }
+                }
+
+                OpenLinkButton(
+                    title: "Article.OpenInBrowser",
+                    systemImage: article.isYouTubeURL && YouTubeHelper.isAppInstalled
+                        ? "play.rectangle" : "safari",
+                    action: { onOpenArticleURL() }
+                )
+            }
+            .buttonStyle(.bordered)
+            .tint(.white.opacity(0.2))
+            .foregroundStyle(.white)
+            .padding(.horizontal, 20)
+        }
+        .padding(.horizontal, -20)
+        .scrollClipDisabled()
     }
 
     // MARK: - Extraction
@@ -609,6 +747,99 @@ private struct ScrollExpandedArticleView: View {
             try? DatabaseManager.shared.cacheArticleContent(result, for: article.id)
         }
         isExtracting = false
+    }
+
+    private func loadCachedAIContent() {
+        if let cached = try? DatabaseManager.shared.cachedArticleTranslation(for: article.id) {
+            translatedTitle = cached.title
+            translatedText = cached.text
+            translatedSummary = cached.summary
+            hasCachedTranslation = cached.title != nil || cached.text != nil
+            showingTranslation = hasCachedTranslation
+        }
+        if let cached = try? DatabaseManager.shared.cachedArticleSummary(for: article.id),
+           !cached.isEmpty {
+            hasCachedSummary = true
+        }
+    }
+
+    // MARK: - Translation
+
+    private func triggerTranslation() {
+        if translationConfig == nil {
+            translationConfig = .init()
+        } else {
+            translationConfig?.invalidate()
+        }
+    }
+
+    private func handleTranslation(session: TranslationSession) async {
+        isTranslating = true
+        defer { isTranslating = false }
+
+        if showingSummary, let summarizedText {
+            guard !summarizedText.isEmpty else { return }
+            do {
+                let response = try await session.translate(summarizedText)
+                translatedSummary = response.targetText
+                showingTranslation = true
+                try? DatabaseManager.shared.cacheTranslatedSummary(
+                    response.targetText, for: article.id
+                )
+            } catch {
+                // Translation failed; user can retry
+            }
+        } else {
+            let source = ContentBlock.plainText(from: extractedText ?? article.summary ?? "")
+            guard !source.isEmpty else { return }
+            do {
+                let requests = [
+                    TranslationSession.Request(sourceText: article.title),
+                    TranslationSession.Request(sourceText: source)
+                ]
+                let responses = try await session.translations(from: requests)
+                if responses.count >= 2 {
+                    translatedTitle = responses[0].targetText
+                    translatedText = responses[1].targetText
+                    hasCachedTranslation = true
+                    showingTranslation = true
+                    try? DatabaseManager.shared.cacheArticleTranslation(
+                        title: responses[0].targetText,
+                        text: responses[1].targetText,
+                        for: article.id
+                    )
+                }
+            } catch {
+                // Translation failed; user can retry
+            }
+        }
+    }
+
+    // MARK: - Summarization
+
+    private func summarizeArticle() async {
+        if let cached = try? DatabaseManager.shared.cachedArticleSummary(for: article.id),
+           !cached.isEmpty {
+            summarizedText = cached
+            return
+        }
+
+        let source = ContentBlock.plainText(from: extractedText ?? article.summary ?? "")
+        guard !source.isEmpty else { return }
+
+        isSummarizing = true
+        defer { isSummarizing = false }
+
+        let instructions = String(localized: "Article.Summarize.Prompt")
+
+        do {
+            let session = LanguageModelSession(instructions: instructions)
+            let response = try await session.respond(to: source)
+            summarizedText = response.content
+            try? DatabaseManager.shared.cacheArticleSummary(response.content, for: article.id)
+        } catch {
+            summarizationError = error.localizedDescription
+        }
     }
 }
 

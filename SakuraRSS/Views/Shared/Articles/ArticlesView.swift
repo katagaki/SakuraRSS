@@ -209,7 +209,7 @@ struct ArticlesView: View {
             displayStyle = raw.flatMap(FeedDisplayStyle.init(rawValue:)) ?? fallback
         }
         .overlay {
-            if articles.isEmpty {
+            if articles.isEmpty && effectiveStyle != .scroll {
                 ContentUnavailableView {
                     Label("Articles.Empty.Title",
                           systemImage: "doc.text")
