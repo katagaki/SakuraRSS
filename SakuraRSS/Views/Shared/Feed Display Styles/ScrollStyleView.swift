@@ -337,51 +337,34 @@ private struct ScrollActionButtonsColumn: View {
 
     var body: some View {
         VStack(spacing: 12) {
-            actionButton(
-                systemImage: article.isYouTubeURL ? "play.rectangle" : "safari",
-                label: Text("Article.OpenInBrowser"),
-                action: onOpen
-            )
-            actionButton(
-                systemImage: article.isRead ? "envelope.badge" : "envelope.open",
-                label: Text(article.isRead
-                            ? "Article.MarkUnread"
-                            : "Article.MarkRead"),
-                action: onToggleRead
-            )
-            actionButton(
-                systemImage: "doc.on.doc",
-                label: Text("Article.CopyLink"),
-                action: onCopy
-            )
+            Button(action: onOpen) {
+                Image(systemName: article.isYouTubeURL ? "play.rectangle" : "safari")
+            }
+            .accessibilityLabel(Text("Article.OpenInBrowser"))
+
+            Button(action: onToggleRead) {
+                Image(systemName: article.isRead ? "envelope.badge" : "envelope.open")
+            }
+            .accessibilityLabel(Text(article.isRead
+                                     ? "Article.MarkUnread"
+                                     : "Article.MarkRead"))
+
+            Button(action: onCopy) {
+                Image(systemName: "doc.on.doc")
+            }
+            .accessibilityLabel(Text("Article.CopyLink"))
+
             if let shareURL {
                 ShareLink(item: shareURL) {
-                    buttonContent(systemImage: "square.and.arrow.up")
+                    Image(systemName: "square.and.arrow.up")
                 }
-                .buttonStyle(.glass)
-                .buttonBorderShape(.circle)
                 .accessibilityLabel(Text("Article.Share"))
             }
         }
-    }
-
-    @ViewBuilder
-    private func actionButton(systemImage: String,
-                              label: Text,
-                              action: @escaping () -> Void) -> some View {
-        Button(action: action) {
-            buttonContent(systemImage: systemImage)
-        }
         .buttonStyle(.glass)
         .buttonBorderShape(.circle)
-        .accessibilityLabel(label)
-    }
-
-    private func buttonContent(systemImage: String) -> some View {
-        Image(systemName: systemImage)
-            .font(.system(size: 20, weight: .semibold))
-            .foregroundStyle(.white)
-            .frame(width: 28, height: 28)
+        .controlSize(.large)
+        .tint(.white)
     }
 }
 
