@@ -142,6 +142,8 @@ private struct ScrollArticlePage: View {
     @State private var hideImage = false
     @State private var showSafari = false
 
+    @Namespace private var headerNamespace
+
     private var hasArticleImage: Bool {
         article.imageURL != nil && !hideImage
     }
@@ -164,14 +166,13 @@ private struct ScrollArticlePage: View {
                         favicon: favicon,
                         acronymIcon: acronymIcon,
                         isVideoFeed: isVideoFeed,
+                        headerNamespace: headerNamespace,
                         onTapToCollapse: onTapContent,
                         onAdvance: onAdvance,
                         onRetreat: onRetreat
                     )
-                    .transition(.opacity)
                 } else {
                     compactContentLayer
-                        .transition(.opacity)
                 }
             }
         }
@@ -276,11 +277,13 @@ private struct ScrollArticlePage: View {
                         InitialsAvatarView(feedName, size: 24, circle: isVideoFeed, cornerRadius: 4)
                     }
                 }
+                .matchedGeometryEffect(id: "headerIcon", in: headerNamespace)
                 if let feedName {
                     Text(feedName)
                         .font(.subheadline.weight(.semibold))
                         .foregroundStyle(.white)
                         .lineLimit(1)
+                        .matchedGeometryEffect(id: "headerFeedName", in: headerNamespace)
                 }
             }
 
@@ -288,9 +291,10 @@ private struct ScrollArticlePage: View {
                 .font(.system(.title2, weight: .bold))
                 .fontWidth(.condensed)
                 .foregroundStyle(.white)
-                .lineLimit(4)
+                .lineLimit(2)
                 .multilineTextAlignment(.leading)
                 .shadow(color: .black.opacity(0.35), radius: 2, y: 1)
+                .matchedGeometryEffect(id: "headerTitle", in: headerNamespace)
 
             if let summary = article.summary, !summary.isEmpty {
                 Text(ContentBlock.stripMarkdown(summary))
@@ -332,53 +336,35 @@ private struct ScrollActionButtonsColumn: View {
     let shareURL: URL?
 
     var body: some View {
-        VStack(spacing: 18) {
-            actionButton(
-                systemImage: article.isYouTubeURL ? "play.rectangle" : "safari",
-                label: Text("Article.OpenInBrowser"),
-                action: onOpen
-            )
-            actionButton(
-                systemImage: article.isRead ? "envelope.badge" : "envelope.open",
-                label: Text(article.isRead
-                            ? "Article.MarkUnread"
-                            : "Article.MarkRead"),
-                action: onToggleRead
-            )
-            actionButton(
-                systemImage: "doc.on.doc",
-                label: Text("Article.CopyLink"),
-                action: onCopy
-            )
+        VStack(spacing: 12) {
+            Button(action: onOpen) {
+                Image(systemName: article.isYouTubeURL ? "play.rectangle" : "safari")
+            }
+            .accessibilityLabel(Text("Article.OpenInBrowser"))
+
+            Button(action: onToggleRead) {
+                Image(systemName: article.isRead ? "envelope.badge" : "envelope.open")
+            }
+            .accessibilityLabel(Text(article.isRead
+                                     ? "Article.MarkUnread"
+                                     : "Article.MarkRead"))
+
+            Button(action: onCopy) {
+                Image(systemName: "doc.on.doc")
+            }
+            .accessibilityLabel(Text("Article.CopyLink"))
+
             if let shareURL {
                 ShareLink(item: shareURL) {
-                    buttonContent(systemImage: "square.and.arrow.up")
+                    Image(systemName: "square.and.arrow.up")
                 }
                 .accessibilityLabel(Text("Article.Share"))
             }
         }
-    }
-
-    @ViewBuilder
-    private func actionButton(systemImage: String,
-                              label: Text,
-                              action: @escaping () -> Void) -> some View {
-        Button(action: action) {
-            buttonContent(systemImage: systemImage)
-        }
-        .accessibilityLabel(label)
-    }
-
-    private func buttonContent(systemImage: String) -> some View {
-        Image(systemName: systemImage)
-            .font(.system(size: 22, weight: .semibold))
-            .foregroundStyle(.white)
-            .shadow(color: .black.opacity(0.4), radius: 2, y: 1)
-            .frame(width: 48, height: 48)
-            .background(.ultraThinMaterial, in: Circle())
-            .overlay(
-                Circle().stroke(.white.opacity(0.15), lineWidth: 0.5)
-            )
+        .buttonStyle(.glass)
+        .buttonBorderShape(.circle)
+        .controlSize(.large)
+        .tint(.white)
     }
 }
 
@@ -393,6 +379,7 @@ private struct ScrollExpandedArticleView: View {
     let favicon: UIImage?
     let acronymIcon: UIImage?
     let isVideoFeed: Bool
+    let headerNamespace: Namespace.ID
     let onTapToCollapse: () -> Void
     let onAdvance: () -> Void
     let onRetreat: () -> Void
@@ -425,18 +412,10 @@ private struct ScrollExpandedArticleView: View {
                     ForEach(blocks) { block in
                         switch block {
                         case .text(let content):
-                            Text(ContentBlock.stripMarkdown(content))
-                                .font(.body)
-                                .foregroundStyle(.white)
-                                .textSelection(.enabled)
+                            SelectableText(content, textColor: .white)
                                 .frame(maxWidth: .infinity, alignment: .leading)
                         case .code(let content):
-                            Text(content)
-                                .font(.system(.footnote, design: .monospaced))
-                                .foregroundStyle(.white)
-                                .padding(12)
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                                .background(.black.opacity(0.35), in: .rect(cornerRadius: 8))
+                            CodeBlockView(code: content)
                         case .image(let url, _):
                             CachedAsyncImage(url: url) {
                                 Rectangle()
@@ -497,17 +476,20 @@ private struct ScrollExpandedArticleView: View {
                         InitialsAvatarView(feedName, size: 24, circle: isVideoFeed, cornerRadius: 4)
                     }
                 }
+                .matchedGeometryEffect(id: "headerIcon", in: headerNamespace)
                 if let feedName {
                     Text(feedName)
                         .font(.subheadline.weight(.semibold))
                         .foregroundStyle(.white)
                         .lineLimit(1)
+                        .matchedGeometryEffect(id: "headerFeedName", in: headerNamespace)
                 }
             }
 
             Text(article.title)
                 .font(.system(.title2, weight: .bold))
                 .foregroundStyle(.white)
+                .matchedGeometryEffect(id: "headerTitle", in: headerNamespace)
 
             HStack(spacing: 8) {
                 if let author = article.author {
