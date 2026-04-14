@@ -36,6 +36,45 @@ extension ArticleDetailView {
         debugPrint("[Extract] Source: \(source.rawValue), content length: \(article.content?.count ?? 0): \(article.url)")
         #endif
 
+        // URL the generic extractor should run against. For link posts on
+        // Reddit, this is swapped below to the destination URL so readers see
+        // the linked article's content instead of the Reddit permalink HTML.
+        var contentURL: URL? = URL(string: article.url)
+        // True when the Reddit branch swapped in an off-reddit URL; the rest
+        // of the extraction flow must skip anything that reads from the
+        // Reddit RSS `article.content` (which is score/comment junk, not the
+        // linked article).
+        var isRedditLinkedArticle = false
+
+        // Reddit posts: resolve via the public /comments/{id}.json endpoint.
+        // Text/image/gallery/video posts produce a ready-to-cache marker
+        // string; link posts fall through to the generic extractor against
+        // the destination URL.
+        if feedManager.feed(forArticle: article)?.isRedditFeed == true {
+            do {
+                let result = try await RedditPostScraper.shared.fetchContent(for: article)
+                switch result {
+                case .markerString(let markerString):
+                    if !markerString.isEmpty {
+                        extractedText = markerString
+                        try? DatabaseManager.shared.cacheArticleContent(
+                            markerString, for: article.id
+                        )
+                        return
+                    }
+                    // Empty marker string — fall through to the generic
+                    // extractor so the user at least sees the RSS summary.
+                case .linkedArticle(let linkedURL):
+                    contentURL = linkedURL
+                    isRedditLinkedArticle = true
+                }
+            } catch {
+                #if DEBUG
+                debugPrint("[Extract] Reddit fetch failed, falling through: \(error)")
+                #endif
+            }
+        }
+
         switch source {
         case .feedText:
             if let content = article.content, !content.isEmpty {
@@ -122,7 +161,7 @@ extension ArticleDetailView {
             return
         }
 
-        if let content = article.content, !content.isEmpty {
+        if !isRedditLinkedArticle, let content = article.content, !content.isEmpty {
             let baseURL = URL(string: article.url)
             let text = ArticleExtractor.extractText(fromHTML: content,
                                                     baseURL: baseURL,
@@ -147,7 +186,7 @@ extension ArticleDetailView {
             #endif
         }
 
-        if let url = URL(string: article.url) {
+        if let url = contentURL {
             var text = await ArticleExtractor.extractText(fromURL: url,
                                                           excludeTitle: articleTitle)
             #if DEBUG

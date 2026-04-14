@@ -164,6 +164,8 @@ struct ArticleDetailView: View {
                             FitWidthImage(url: url, link: link, namespace: imageViewerNamespace) {
                                 imageViewerURL = url
                             }
+                        case .video(let url):
+                            VideoBlockView(url: url)
                         }
                     }
                     .id("\(showingSummary)-\(showingTranslation)")

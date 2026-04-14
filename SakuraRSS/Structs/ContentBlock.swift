@@ -4,22 +4,27 @@ enum ContentBlock: Identifiable {
     case text(String)
     case image(URL, link: URL? = nil)
     case code(String)
+    case video(URL)
 
     var id: String {
         switch self {
         case .text(let text): return "text-\(text.hashValue)"
         case .image(let url, _): return "image-\(url.absoluteString)"
         case .code(let text): return "code-\(text.hashValue)"
+        case .video(let url): return "video-\(url.absoluteString)"
         }
     }
 
-    /// Strips image and code markers from text, returning plain text suitable for translation/summarization.
+    /// Strips image, video, and code markers from text, returning plain text suitable for translation/summarization.
     static func plainText(from text: String) -> String {
         text.replacingOccurrences(
             of: #"\{\{IMG\}\}.+?\{\{/IMG\}\}"#, with: "", options: .regularExpression
         )
         .replacingOccurrences(
             of: #"\{\{IMGLINK\}\}.+?\{\{/IMGLINK\}\}"#, with: "", options: .regularExpression
+        )
+        .replacingOccurrences(
+            of: #"\{\{VIDEO\}\}.+?\{\{/VIDEO\}\}"#, with: "", options: .regularExpression
         )
         .replacingOccurrences(of: "{{CODE}}", with: "")
         .replacingOccurrences(of: "{{/CODE}}", with: "")
@@ -37,6 +42,10 @@ enum ContentBlock: Identifiable {
         )
         result = result.replacingOccurrences(
             of: #"\{\{IMGLINK\}\}.+?\{\{/IMGLINK\}\}"#, with: "", options: .regularExpression
+        )
+        // Strip video markers
+        result = result.replacingOccurrences(
+            of: #"\{\{VIDEO\}\}.+?\{\{/VIDEO\}\}"#, with: "", options: .regularExpression
         )
         // Strip code markers, keeping content
         result = result.replacingOccurrences(of: "{{CODE}}", with: "")
@@ -75,8 +84,8 @@ enum ContentBlock: Identifiable {
     }
 
     static func parse(_ text: String) -> [ContentBlock] {
-        // Match both {{IMG}}…{{/IMG}} and {{CODE}}…{{/CODE}} markers
-        let pattern = #"\{\{(IMG|CODE)\}\}(.*?)\{\{/(IMG|CODE)\}\}"#
+        // Match {{IMG}}, {{CODE}}, and {{VIDEO}} markers.
+        let pattern = #"\{\{(IMG|CODE|VIDEO)\}\}(.*?)\{\{/(IMG|CODE|VIDEO)\}\}"#
         guard let regex = try? NSRegularExpression(pattern: pattern, options: .dotMatchesLineSeparators)
         else {
             return [.text(text)]
@@ -112,6 +121,10 @@ enum ContentBlock: Identifiable {
             if tag == "CODE" {
                 if !content.isEmpty {
                     blocks.append(.code(content))
+                }
+            } else if tag == "VIDEO" {
+                if let url = URL(string: content) {
+                    blocks.append(.video(url))
                 }
             } else {
                 // IMG — possibly with a link
