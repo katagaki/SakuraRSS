@@ -336,7 +336,7 @@ private struct ScrollActionButtonsColumn: View {
     let shareURL: URL?
 
     var body: some View {
-        VStack(spacing: 18) {
+        VStack(spacing: 12) {
             actionButton(
                 systemImage: article.isYouTubeURL ? "play.rectangle" : "safari",
                 label: Text("Article.OpenInBrowser"),
@@ -358,6 +358,7 @@ private struct ScrollActionButtonsColumn: View {
                 ShareLink(item: shareURL) {
                     buttonContent(systemImage: "square.and.arrow.up")
                 }
+                .buttonStyle(.glass)
                 .accessibilityLabel(Text("Article.Share"))
             }
         }
@@ -370,16 +371,15 @@ private struct ScrollActionButtonsColumn: View {
         Button(action: action) {
             buttonContent(systemImage: systemImage)
         }
+        .buttonStyle(.glass)
         .accessibilityLabel(label)
     }
 
     private func buttonContent(systemImage: String) -> some View {
         Image(systemName: systemImage)
-            .font(.system(size: 22, weight: .semibold))
+            .font(.system(size: 20, weight: .semibold))
             .foregroundStyle(.white)
-            .shadow(color: .black.opacity(0.4), radius: 2, y: 1)
-            .frame(width: 48, height: 48)
-            .glassEffect(.regular.interactive(), in: .circle)
+            .frame(width: 28, height: 28)
     }
 }
 
