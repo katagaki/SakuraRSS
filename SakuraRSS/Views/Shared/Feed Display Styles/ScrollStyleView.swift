@@ -65,6 +65,18 @@ struct ScrollStyleView: View {
                             feedManager.markRead(prev)
                         }
                     }
+                    .onChange(of: articles.count) { oldValue, newValue in
+                        // When new articles are appended (e.g. via "Load older"),
+                        // scroll from the end-of-feed page to the first new item
+                        // so the user isn't stuck staring at the end marker.
+                        guard newValue > oldValue,
+                              currentID == .endOfFeed,
+                              oldValue < articles.count else { return }
+                        let firstNew = articles[oldValue]
+                        withAnimation(.smooth.speed(1.5)) {
+                            currentID = .article(firstNew.id)
+                        }
+                    }
                 }
                 .ignoresSafeArea(.container, edges: .vertical)
             }
