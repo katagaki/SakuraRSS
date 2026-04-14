@@ -5,7 +5,7 @@ enum AppTab: String, CaseIterable {
     case home
     case feeds
     case lists
-    case bookmarks
+    case profile
     case search
 }
 
@@ -51,8 +51,8 @@ struct MainTabView: View {
                 ListsView()
             }
 
-            Tab("Tabs.Bookmarks", systemImage: "bookmark", value: .bookmarks) {
-                BookmarksView()
+            Tab("Tabs.Profile", systemImage: "person.crop.circle", value: .profile) {
+                MoreView(showsCloseButton: false)
             }
 
             Tab("Tabs.Discover", systemImage: "magnifyingglass", value: .search, role: .search) {

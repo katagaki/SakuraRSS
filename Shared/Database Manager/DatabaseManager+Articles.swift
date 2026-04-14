@@ -199,6 +199,10 @@ nonisolated extension DatabaseManager {
         return try database.prepare(query).map(rowToArticle)
     }
 
+    func bookmarkedCount() throws -> Int {
+        try database.scalar(articles.filter(articleIsBookmarked == true).count)
+    }
+
     func markArticleRead(id: Int64, read: Bool) throws {
         let target = articles.filter(articleID == id)
         try database.run(target.update(articleIsRead <- read))
