@@ -367,7 +367,7 @@ private struct ScrollActionButtonsColumn: View {
     let shareURL: URL?
 
     var body: some View {
-        VStack(spacing: 24) {
+        VStack(spacing: 20) {
             Button(action: onOpenFeed) {
                 Group {
                     if let favicon {
@@ -387,17 +387,28 @@ private struct ScrollActionButtonsColumn: View {
             .accessibilityLabel(Text(feedName ?? ""))
 
             Button(action: onOpen) {
-                Image(systemName: article.isYouTubeURL ? "play.rectangle.fill" : "safari.fill")
+                labeledIcon(
+                    systemName: article.isYouTubeURL ? "play.rectangle.fill" : "safari.fill",
+                    label: Text("Article.OpenInBrowser")
+                )
             }
             .accessibilityLabel(Text("Article.OpenInBrowser"))
 
             Button(action: onCopy) {
-                Image(systemName: "square.on.square.fill")
+                labeledIcon(
+                    systemName: "square.on.square.fill",
+                    label: Text("Article.CopyLink")
+                )
             }
             .accessibilityLabel(Text("Article.CopyLink"))
 
             Button(action: onToggleBookmark) {
-                Image(systemName: article.isBookmarked ? "bookmark.fill" : "bookmark")
+                labeledIcon(
+                    systemName: article.isBookmarked ? "bookmark.fill" : "bookmark",
+                    label: Text(article.isBookmarked
+                                ? "Article.RemoveBookmark"
+                                : "Article.Bookmark")
+                )
             }
             .accessibilityLabel(Text(article.isBookmarked
                                      ? "Article.RemoveBookmark"
@@ -405,8 +416,11 @@ private struct ScrollActionButtonsColumn: View {
 
             if let shareURL {
                 ShareLink(item: shareURL) {
-                    Image(systemName: "square.and.arrow.up")
-                        .offset(y: -1)
+                    labeledIcon(
+                        systemName: "square.and.arrow.up",
+                        label: Text("Article.Share"),
+                        iconOffsetY: -1
+                    )
                 }
                 .accessibilityLabel(Text("Article.Share"))
             }
@@ -416,6 +430,21 @@ private struct ScrollActionButtonsColumn: View {
         .foregroundStyle(.white)
         .shadow(color: .black.opacity(0.35), radius: 2, y: 2)
         .buttonStyle(.plain)
+    }
+
+    private func labeledIcon(
+        systemName: String,
+        label: Text,
+        iconOffsetY: CGFloat = 0
+    ) -> some View {
+        VStack(spacing: 2) {
+            Image(systemName: systemName)
+                .offset(y: iconOffsetY)
+            label
+                .font(.system(size: 11, weight: .semibold))
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
+        }
     }
 }
 
