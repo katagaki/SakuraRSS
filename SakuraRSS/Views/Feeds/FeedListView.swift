@@ -22,17 +22,11 @@ struct FeedListView: View {
                         }
                 }
                 .navigationDestination(for: Article.self) { article in
-                    Group {
-                        if article.isPodcastEpisode {
-                            PodcastEpisodeView(article: article)
-                        } else {
-                            ArticleDetailView(article: article)
-                        }
-                    }
-                    .environment(\.zoomNamespace, cardZoom)
-                    .zoomTransition(sourceID: article.id, in: cardZoom)
-                    .onAppear { savedArticleID = Int(article.id) }
-                    .onDisappear { savedArticleID = -1 }
+                    ArticleDestinationView(article: article)
+                        .environment(\.zoomNamespace, cardZoom)
+                        .zoomTransition(sourceID: article.id, in: cardZoom)
+                        .onAppear { savedArticleID = Int(article.id) }
+                        .onDisappear { savedArticleID = -1 }
                 }
                 .navigationDestination(for: EntityDestination.self) { destination in
                     EntityArticlesView(destination: destination)

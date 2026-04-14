@@ -19,17 +19,9 @@ struct ListsView: View {
                         .environment(\.zoomNamespace, cardZoom)
                 }
                 .navigationDestination(for: Article.self) { article in
-                    Group {
-                        if article.isPodcastEpisode {
-                            PodcastEpisodeView(article: article)
-                        } else if article.isYouTubeURL {
-                            YouTubePlayerView(article: article)
-                        } else {
-                            ArticleDetailView(article: article)
-                        }
-                    }
-                    .environment(\.zoomNamespace, cardZoom)
-                    .zoomTransition(sourceID: article.id, in: cardZoom)
+                    ArticleDestinationView(article: article)
+                        .environment(\.zoomNamespace, cardZoom)
+                        .zoomTransition(sourceID: article.id, in: cardZoom)
                 }
                 .navigationDestination(for: EntityDestination.self) { destination in
                     EntityArticlesView(destination: destination)

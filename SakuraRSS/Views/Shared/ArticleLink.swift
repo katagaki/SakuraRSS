@@ -16,7 +16,6 @@ struct ArticleLink<Label: View>: View {
 
     @AppStorage("YouTube.OpenMode") private var youTubeOpenMode: YouTubeOpenMode = .inAppPlayer
     @State private var showSafari = false
-    @State private var showClearThisPage = false
 
     private var feedOpenMode: FeedOpenMode {
         guard let feed = feedManager.feed(forArticle: article),
@@ -107,11 +106,12 @@ struct ArticleLink<Label: View>: View {
                     label()
                 }
             } else if feedOpenMode == .clearThisPage {
-                Button {
-                    feedManager.markRead(article)
-                    showClearThisPage = true
-                } label: {
-                    label()
+                if usesIPadDetailColumn {
+                    Button { selectForIPadDetail() } label: { label() }
+                } else if let onNavigate {
+                    Button { onNavigate(article) } label: { label() }
+                } else {
+                    NavigationLink(value: article) { label() }
                 }
             } else if let url = URL(string: article.url), OpenInBrowserDomains.shouldOpenInBrowser(url: url) {
                 Button {
@@ -134,11 +134,6 @@ struct ArticleLink<Label: View>: View {
             if let url = URL(string: article.url) {
                 SafariView(url: url)
                     .ignoresSafeArea()
-            }
-        }
-        .sheet(isPresented: $showClearThisPage) {
-            if let url = URL(string: article.url) {
-                ClearThisPageView(url: url)
             }
         }
     }
