@@ -13,6 +13,10 @@ nonisolated struct Feed: Identifiable, Hashable, Sendable {
     var isMuted: Bool
     var customIconURL: String?
     var acronymIcon: Data?
+    /// `true` when the user has manually edited the feed's title.
+    /// Refreshes must not overwrite a customized title with whatever the
+    /// remote feed currently advertises.
+    var isTitleCustomized: Bool
 
     var domain: String {
         URL(string: siteURL)?.host ?? URL(string: url)?.host ?? ""

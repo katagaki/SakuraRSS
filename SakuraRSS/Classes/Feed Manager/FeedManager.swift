@@ -70,6 +70,23 @@ final class FeedManager {
         guard !database.feedExists(url: url) else {
             throw FeedError.alreadyExists
         }
+        // Enforce per-host follow caps for authenticated scraper feeds
+        // (X, Instagram).  Unbounded follows on these hosts translate
+        // into rate-limit / account-lock pressure at refresh time, so
+        // the cap is applied at insert to keep the fleet small enough
+        // for the 30-minute refresh cadence to stay safe.
+        let newHost = URL(string: siteURL)?.host
+            ?? URL(string: url)?.host
+            ?? ""
+        if let key = FollowLimitSetDomains.limitKey(for: newHost),
+           let limit = FollowLimitSetDomains.limits[key] {
+            let current = feeds.filter { existing in
+                FollowLimitSetDomains.limitKey(for: existing.domain) == key
+            }.count
+            if current >= limit {
+                throw FeedError.followLimitExceeded(host: key, limit: limit)
+            }
+        }
         let feedID = try database.insertFeed(
             title: title, url: url, siteURL: siteURL,
             description: description, faviconURL: faviconURL,
@@ -100,8 +117,16 @@ final class FeedManager {
 
     func updateFeedDetails(_ feed: Feed, title: String, url: String,
                            customIconURL: String?) {
+        // A user-driven title change (from the edit sheet) flips the
+        // `isTitleCustomized` flag so future refreshes won't overwrite
+        // it.  If the user never touched the title we leave the existing
+        // flag alone — that way a user who previously customized and is
+        // now only editing the URL or icon doesn't accidentally clear
+        // their override.
+        let titleIsCustomized = feed.isTitleCustomized || title != feed.title
         try? database.updateFeedDetails(id: feed.id, title: title, url: url,
-                                        customIconURL: customIconURL)
+                                        customIconURL: customIconURL,
+                                        isTitleCustomized: titleIsCustomized)
         if title != feed.title {
             generateAcronymIcon(feedID: feed.id, title: title)
         }
@@ -170,7 +195,12 @@ final class FeedManager {
             } else if !parsed.isPodcast && feed.isPodcast {
                 try database.updateFeedIsPodcast(id: feed.id, isPodcast: false)
             }
-            if updateTitle, !parsed.title.isEmpty, parsed.title != feed.title {
+            // Respect user-customized titles: when the user has edited the
+            // title via the edit sheet, the refresh should never silently
+            // overwrite that override with whatever the remote feed
+            // currently advertises.
+            if updateTitle, !feed.isTitleCustomized,
+               !parsed.title.isEmpty, parsed.title != feed.title {
                 try database.updateFeed(id: feed.id, title: parsed.title, category: feed.category)
             }
             try database.updateFeedLastFetched(id: feed.id, date: Date())
@@ -376,11 +406,14 @@ final class FeedManager {
 
 enum FeedError: LocalizedError {
     case alreadyExists
+    case followLimitExceeded(host: String, limit: Int)
 
     var errorDescription: String? {
         switch self {
         case .alreadyExists:
             String(localized: "FeedError.AlreadyExists")
+        case .followLimitExceeded(let host, let limit):
+            String(localized: "FeedError.FollowLimitExceeded \(host) \(limit)")
         }
     }
 }

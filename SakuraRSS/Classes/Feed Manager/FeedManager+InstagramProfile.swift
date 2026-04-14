@@ -87,20 +87,27 @@ extension FeedManager {
         // means the Instagram profile photo only auto-installs on the
         // very first fetch; to pull a fresh profile photo, the user
         // can delete the custom icon in the edit sheet.
+        // If the user has customized the feed title, preserve their
+        // override on refresh — `effectiveTitle` always carries the
+        // stored title in that case so `updateFeedDetails` never
+        // silently overwrites it with the scraped display name.
+        let effectiveTitle = feed.isTitleCustomized ? feed.title : feedTitle
         let shouldInstallProfilePhoto = profileImage != nil && feed.customIconURL == nil
         if shouldInstallProfilePhoto, let image = profileImage {
             await FaviconCache.shared.setCustomFavicon(image, feedID: feed.id, skipTrimming: true)
             try? await Task.detached {
                 try database.updateFeedDetails(
-                    id: feed.id, title: feedTitle, url: feed.url,
-                    customIconURL: "photo"
+                    id: feed.id, title: effectiveTitle, url: feed.url,
+                    customIconURL: "photo",
+                    isTitleCustomized: feed.isTitleCustomized
                 )
             }.value
-        } else if feed.title != feedTitle {
+        } else if feed.title != effectiveTitle {
             try? await Task.detached {
                 try database.updateFeedDetails(
-                    id: feed.id, title: feedTitle, url: feed.url,
-                    customIconURL: feed.customIconURL
+                    id: feed.id, title: effectiveTitle, url: feed.url,
+                    customIconURL: feed.customIconURL,
+                    isTitleCustomized: feed.isTitleCustomized
                 )
             }.value
         }

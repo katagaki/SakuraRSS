@@ -8120,6 +8120,65 @@
         }
       }
     },
+    "FeedError.FollowLimitExceeded %@ %lld" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Du folgst bereits dem Maximum von %2$lld Feeds auf %1$@."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You are already following the maximum of %2$lld feeds on %1$@."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vous suivez déjà le maximum de %2$lld flux sur %1$@."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stai già seguendo il massimo di %2$lld feed su %1$@."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ のフィードは最大 %2$lld 件までしかフォローできません。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@에서 최대 %2$lld개의 피드를 이미 팔로우하고 있습니다."
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bạn đã theo dõi tối đa %2$lld nguồn cấp dữ liệu trên %1$@."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "你已关注 %1$@ 上最多 %2$lld 个订阅源。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "你已追蹤 %1$@ 上最多 %2$lld 個訂閱源。"
+          }
+        }
+      }
+    },
     "FeedList.Empty.AddFeed" : {
       "extractionState" : "manual",
       "localizations" : {

@@ -69,6 +69,11 @@ extension FeedManager {
         // isn't silently overwritten. The avatar auto-installs on the
         // very first fetch; to pull a fresh avatar, the user can delete
         // the custom icon in the edit sheet.
+        // If the user has customized the feed title, preserve their
+        // override on refresh — `effectiveTitle` always carries the
+        // stored title in that case so `updateFeedDetails` never
+        // silently overwrites it with the scraped playlist title.
+        let effectiveTitle = feed.isTitleCustomized ? feed.title : feedTitle
         let shouldInstallAvatar = avatarImage != nil && feed.customIconURL == nil
         if shouldInstallAvatar, let image = avatarImage {
             await FaviconCache.shared.setCustomFavicon(
@@ -76,15 +81,17 @@ extension FeedManager {
             )
             try? await Task.detached {
                 try database.updateFeedDetails(
-                    id: feed.id, title: feedTitle, url: feed.url,
-                    customIconURL: "photo"
+                    id: feed.id, title: effectiveTitle, url: feed.url,
+                    customIconURL: "photo",
+                    isTitleCustomized: feed.isTitleCustomized
                 )
             }.value
-        } else if feed.title != feedTitle {
+        } else if feed.title != effectiveTitle {
             try? await Task.detached {
                 try database.updateFeedDetails(
-                    id: feed.id, title: feedTitle, url: feed.url,
-                    customIconURL: feed.customIconURL
+                    id: feed.id, title: effectiveTitle, url: feed.url,
+                    customIconURL: feed.customIconURL,
+                    isTitleCustomized: feed.isTitleCustomized
                 )
             }.value
         }

@@ -58,12 +58,14 @@ nonisolated extension DatabaseManager {
     }
 
     func updateFeedDetails(id: Int64, title: String, url: String,
-                           customIconURL: String?) throws {
+                           customIconURL: String?,
+                           isTitleCustomized: Bool) throws {
         let target = feeds.filter(feedID == id)
         try database.run(target.update(
             feedTitle <- title,
             feedURL <- url,
-            feedCustomIconURL <- customIconURL
+            feedCustomIconURL <- customIconURL,
+            feedIsTitleCustomized <- isTitleCustomized
         ))
     }
 
@@ -102,7 +104,8 @@ nonisolated extension DatabaseManager {
             isPodcast: (try? row.get(feedIsPodcast)) ?? false,
             isMuted: (try? row.get(feedIsMuted)) ?? false,
             customIconURL: try? row.get(feedCustomIconURL),
-            acronymIcon: try? row.get(feedAcronymIcon)
+            acronymIcon: try? row.get(feedAcronymIcon),
+            isTitleCustomized: (try? row.get(feedIsTitleCustomized)) ?? false
         )
     }
 }
