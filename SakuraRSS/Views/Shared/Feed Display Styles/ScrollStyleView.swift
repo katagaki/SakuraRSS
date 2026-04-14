@@ -705,7 +705,10 @@ private struct ScrollExpandedArticleView: View {
             .buttonStyle(.bordered)
             .tint(.white.opacity(0.2))
             .foregroundStyle(.white)
+            .padding(.horizontal, 20)
         }
+        .padding(.horizontal, -20)
+        .scrollClipDisabled()
     }
 
     // MARK: - Extraction
