@@ -1,6 +1,7 @@
 import CoreSpotlight
 import Foundation
 import SwiftUI
+import UIKit
 @preconcurrency import UserNotifications
 
 @Observable
@@ -113,6 +114,43 @@ final class FeedManager {
     func toggleMuted(_ feed: Feed) {
         try? database.updateFeedMuted(id: feed.id, isMuted: !feed.isMuted)
         loadFromDatabase()
+    }
+
+    /// Applies a title/icon update from a social-feed scraper (X,
+    /// Instagram, YouTube playlist).  Each scraper fetches a display
+    /// name and optionally a profile photo; this helper centralizes
+    /// the "install the photo on first fetch, honour user-customized
+    /// titles, otherwise just sync the scraped title" logic the three
+    /// paths share so the title-customization rule lives in exactly
+    /// one place.
+    func applyScraperMetadataRefresh(
+        feed: Feed,
+        scrapedTitle: String,
+        profileImage: UIImage?
+    ) async {
+        let effectiveTitle = feed.isTitleCustomized ? feed.title : scrapedTitle
+        let shouldInstallProfilePhoto = profileImage != nil && feed.customIconURL == nil
+        let database = database
+        if shouldInstallProfilePhoto, let image = profileImage {
+            await FaviconCache.shared.setCustomFavicon(
+                image, feedID: feed.id, skipTrimming: true
+            )
+            try? await Task.detached {
+                try database.updateFeedDetails(
+                    id: feed.id, title: effectiveTitle, url: feed.url,
+                    customIconURL: "photo",
+                    isTitleCustomized: feed.isTitleCustomized
+                )
+            }.value
+        } else if feed.title != effectiveTitle {
+            try? await Task.detached {
+                try database.updateFeedDetails(
+                    id: feed.id, title: effectiveTitle, url: feed.url,
+                    customIconURL: feed.customIconURL,
+                    isTitleCustomized: feed.isTitleCustomized
+                )
+            }.value
+        }
     }
 
     func updateFeedDetails(_ feed: Feed, title: String, url: String,

@@ -78,39 +78,13 @@ extension FeedManager {
             SpotlightIndexer.indexArticles(articlesToIndex, feedTitle: feedTitle)
         }.value
 
-        // Cache favicon and update feed details.
-        //
-        // Only install the downloaded profile photo when the feed has
-        // no custom icon yet (`customIconURL == nil`).  Once the user —
-        // or a prior refresh — has assigned any custom icon, preserve
-        // it across refreshes so it isn't silently overwritten.  This
-        // means the Instagram profile photo only auto-installs on the
-        // very first fetch; to pull a fresh profile photo, the user
-        // can delete the custom icon in the edit sheet.
-        // If the user has customized the feed title, preserve their
-        // override on refresh — `effectiveTitle` always carries the
-        // stored title in that case so `updateFeedDetails` never
-        // silently overwrites it with the scraped display name.
-        let effectiveTitle = feed.isTitleCustomized ? feed.title : feedTitle
-        let shouldInstallProfilePhoto = profileImage != nil && feed.customIconURL == nil
-        if shouldInstallProfilePhoto, let image = profileImage {
-            await FaviconCache.shared.setCustomFavicon(image, feedID: feed.id, skipTrimming: true)
-            try? await Task.detached {
-                try database.updateFeedDetails(
-                    id: feed.id, title: effectiveTitle, url: feed.url,
-                    customIconURL: "photo",
-                    isTitleCustomized: feed.isTitleCustomized
-                )
-            }.value
-        } else if feed.title != effectiveTitle {
-            try? await Task.detached {
-                try database.updateFeedDetails(
-                    id: feed.id, title: effectiveTitle, url: feed.url,
-                    customIconURL: feed.customIconURL,
-                    isTitleCustomized: feed.isTitleCustomized
-                )
-            }.value
-        }
+        // Cache favicon and update feed details.  The shared helper
+        // honours `isTitleCustomized` and only installs the downloaded
+        // profile photo when `customIconURL == nil`, so a user-assigned
+        // icon or title survives every refresh.
+        await applyScraperMetadataRefresh(
+            feed: feed, scrapedTitle: feedTitle, profileImage: profileImage
+        )
 
         if reloadData {
             await loadFromDatabaseInBackground()
