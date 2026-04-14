@@ -1804,6 +1804,28 @@
         }
       }
     },
+    "ArXiv.PDF.LoadFailed" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn't load PDF."
+          }
+        }
+      }
+    },
+    "ArXiv.ViewPDF" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "View PDF"
+          }
+        }
+      }
+    },
     "Article.Bookmark" : {
       "extractionState" : "manual",
       "localizations" : {

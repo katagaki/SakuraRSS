@@ -76,6 +76,17 @@ extension ArticleDetailView {
 
         // Automatic: use domain lists to determine the best extraction method
 
+        // For arXiv abstract pages, the RSS feed already contains the paper's
+        // abstract, and the arxiv.org abstract page itself is mostly metadata
+        // we don't want to render. Prefer the feed summary directly.
+        if let url = URL(string: article.url), ArXivHelper.isArXivAbstractURL(url) {
+            if let summary = article.summary, !summary.isEmpty {
+                extractedText = summary
+                try? DatabaseManager.shared.cacheArticleContent(summary, for: article.id)
+            }
+            return
+        }
+
         // For X post URLs (from non-X feeds), use the X API to fetch the tweet directly
         let isFromXFeed = feedManager.feed(forArticle: article)?.isXFeed == true
         if article.isXPostURL, !isFromXFeed,
