@@ -35,3 +35,20 @@ struct ArticlesToolbar: View {
         }
     }
 }
+
+extension View {
+    /// Attaches the floating Mark All Read button when `show` is true.
+    @ViewBuilder
+    func markAllReadToolbar(
+        show: Bool,
+        onMarkAllRead: @escaping () -> Void
+    ) -> some View {
+        if show {
+            self.safeAreaInset(edge: .bottom, alignment: .leading, spacing: 0) {
+                ArticlesToolbar(onMarkAllRead: onMarkAllRead)
+            }
+        } else {
+            self
+        }
+    }
+}
