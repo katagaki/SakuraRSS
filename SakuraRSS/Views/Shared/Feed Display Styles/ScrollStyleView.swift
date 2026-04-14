@@ -65,9 +65,6 @@ struct ScrollStyleView: View {
                         }
                     }
                     .onChange(of: articles.count) { oldValue, newValue in
-                        // When new articles are appended (e.g. via "Load older"),
-                        // scroll from the end-of-feed page to the first new item
-                        // so the user isn't stuck staring at the end marker.
                         guard newValue > oldValue,
                               currentID == .endOfFeed,
                               oldValue < articles.count else { return }
@@ -318,7 +315,7 @@ private struct ScrollArticlePage: View {
             Text(article.title)
                 .font(.body.weight(.bold))
                 .foregroundStyle(.white)
-                .lineLimit(4)
+                .lineLimit(3)
                 .multilineTextAlignment(.leading)
                 .shadow(color: .black.opacity(0.6), radius: 4, y: 1)
                 .matchedGeometryEffect(id: "headerTitle", in: headerNamespace)
@@ -327,7 +324,7 @@ private struct ScrollArticlePage: View {
                 Text(ContentBlock.stripMarkdown(summary))
                     .font(.body)
                     .foregroundStyle(.white.opacity(0.9))
-                    .lineLimit(3)
+                    .lineLimit(5)
                     .multilineTextAlignment(.leading)
                     .shadow(color: .black.opacity(0.6), radius: 4, y: 1)
             }
