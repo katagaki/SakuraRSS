@@ -18747,61 +18747,120 @@
         }
       }
     },
-    "Podcast.Transcripts.Engine.Parakeet" : {
+    "Podcast.Transcripts.Engine.Footer" : {
       "extractionState" : "manual",
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "NVIDIA Parakeet"
+            "value" : "On-Device-Transkriptionen werden von NVIDIA Parakeet bereitgestellt."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "NVIDIA Parakeet"
+            "value" : "On-device transcriptions are powered by NVIDIA Parakeet."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "NVIDIA Parakeet"
+            "value" : "Les transcriptions sur l'appareil sont propulsées par NVIDIA Parakeet."
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "NVIDIA Parakeet"
+            "value" : "Le trascrizioni sul dispositivo sono basate su NVIDIA Parakeet."
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "NVIDIA Parakeet"
+            "value" : "オンデバイス文字起こしはNVIDIA Parakeetを使用しています。"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "NVIDIA Parakeet"
+            "value" : "온디바이스 전사는 NVIDIA Parakeet로 구동됩니다."
           }
         },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "NVIDIA Parakeet"
+            "value" : "Chuyển lời trên thiết bị được cung cấp bởi NVIDIA Parakeet."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "NVIDIA Parakeet"
+            "value" : "设备端转录由 NVIDIA Parakeet 提供支持。"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "NVIDIA Parakeet"
+            "value" : "裝置端轉錄由 NVIDIA Parakeet 提供支援。"
+          }
+        }
+      }
+    },
+    "Podcast.Transcripts.Engine.OnDevice" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "On-Device-Transkriptionen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "On-Device Transcriptions"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Transcriptions sur l'appareil"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trascrizioni sul dispositivo"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "オンデバイス文字起こし"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "온디바이스 전사"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chuyển lời trên thiết bị"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "设备端转录"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "裝置端轉錄"
           }
         }
       }
@@ -18861,65 +18920,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "正在下載模型…"
-          }
-        }
-      }
-    },
-    "Podcast.Transcripts.Model.Ready" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Modell bereit"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Model Ready"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Modèle prêt"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Modello pronto"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "モデル準備完了"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "모델 준비 완료"
-          }
-        },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Mô hình đã sẵn sàng"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "模型已就绪"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "模型已就緒"
           }
         }
       }
@@ -21196,7 +21196,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "更新間隔"
+            "value" : "自動更新の間隔"
           }
         },
         "ko" : {
@@ -21231,55 +21231,55 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Mindestabstand zwischen Aktualisierungen"
+            "value" : "Aktualisierungs-Cooldown"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Per-Feed Cooldown"
+            "value" : "Refresh Cooldown"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Délai entre actualisations"
+            "value" : "Délai d'actualisation"
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Intervallo minimo per feed"
+            "value" : "Cooldown di aggiornamento"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "フィード更新の間隔"
+            "value" : "更新クールダウン"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "피드별 재시도 간격"
+            "value" : "새로고침 쿨다운"
           }
         },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Khoảng thời gian tối thiểu giữa các lần làm mới"
+            "value" : "Thời gian chờ làm mới"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "每个订阅源的冷却时间"
+            "value" : "刷新冷却时间"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "每個訂閱源的冷卻時間"
+            "value" : "重新整理冷卻時間"
           }
         }
       }

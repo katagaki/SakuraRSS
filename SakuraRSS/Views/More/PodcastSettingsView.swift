@@ -62,7 +62,7 @@ struct PodcastSettingsView: View {
 
             Section {
                 Toggle(isOn: $toggleState) {
-                    Text("Podcast.Transcripts.Engine.Parakeet")
+                    Text("Podcast.Transcripts.Engine.OnDevice")
                 }
                 .disabled(isDownloadingModel)
                 .onChange(of: toggleState) { _, newValue in
@@ -79,9 +79,6 @@ struct PodcastSettingsView: View {
                         ProgressDonut(progress: downloadProgress)
                             .frame(width: 22, height: 22)
                     }
-                } else if modelReady && toggleState {
-                    Label("Podcast.Transcripts.Model.Ready", systemImage: "checkmark.circle.fill")
-                        .foregroundStyle(.green)
                 }
 
                 if let downloadError {
@@ -99,6 +96,8 @@ struct PodcastSettingsView: View {
                 }
             } header: {
                 Text("Podcast.Transcripts.Title")
+            } footer: {
+                Text("Podcast.Transcripts.Engine.Footer")
             }
         }
         .navigationTitle("Integrations.Podcast")

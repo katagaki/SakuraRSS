@@ -373,16 +373,8 @@ extension IPadSidebarView {
     @ViewBuilder
     var detailContent: some View {
         if let article = selectedArticle {
-            Group {
-                if article.isPodcastEpisode {
-                    PodcastEpisodeView(article: article)
-                } else if article.isYouTubeURL {
-                    YouTubePlayerView(article: article)
-                } else {
-                    ArticleDetailView(article: article)
-                }
-            }
-            .id(article.id)
+            ArticleDestinationView(article: article)
+                .id(article.id)
         } else {
             ContentUnavailableView {
                 Label("Sidebar.SelectArticle",
