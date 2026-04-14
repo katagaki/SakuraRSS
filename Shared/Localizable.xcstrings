@@ -5108,6 +5108,17 @@
         }
       }
     },
+    "ClearThisPage.Title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clear This Page"
+          }
+        }
+      }
+    },
     "DataManagement.Cleanup.AllTime" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -7825,6 +7836,17 @@
         }
       }
     },
+    "FeedEdit.OpenIn.ClearThisPage" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clear This Page"
+          }
+        }
+      }
+    },
     "FeedEdit.OpenIn.InAppBrowser" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -10299,6 +10321,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "登入 Instagram"
+          }
+        }
+      }
+    },
+    "Integrations.ClearThisPage" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clear This Page"
           }
         }
       }
@@ -18625,6 +18658,50 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "通知標記"
+          }
+        }
+      }
+    },
+    "Settings.ClearThisPage.About" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clear This Page is a third-party reader service that strips ads and clutter from web articles, presenting them in a clean, distraction-free format. When enabled for a feed, articles open inside an embedded WebView using https://clearthis.page."
+          }
+        }
+      }
+    },
+    "Settings.ClearThisPage.AboutHeader" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "About"
+          }
+        }
+      }
+    },
+    "Settings.ClearThisPage.Footer" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "To use Clear This Page for a feed, edit the feed and set its Open In option to Clear This Page."
+          }
+        }
+      }
+    },
+    "Settings.ClearThisPage.LearnMore" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Visit clearthis.page"
           }
         }
       }

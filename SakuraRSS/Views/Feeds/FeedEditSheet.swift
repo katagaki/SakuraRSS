@@ -153,6 +153,8 @@ struct FeedEditSheet: View {
                                 .tag(FeedOpenMode.inAppViewer)
                             Text("FeedEdit.OpenIn.InAppBrowser")
                                 .tag(FeedOpenMode.inAppBrowser)
+                            Text("FeedEdit.OpenIn.ClearThisPage")
+                                .tag(FeedOpenMode.clearThisPage)
                             Text("FeedEdit.OpenIn.Browser")
                                 .tag(FeedOpenMode.browser)
                         }
