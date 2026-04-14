@@ -54,10 +54,6 @@ struct SakuraRSSApp: App {
                             await NLPProcessingCoordinator.processNewArticlesIfEnabled()
                         }
                     }
-                    // Run scheduled iCloud backup if interval has elapsed
-                    Task.detached(priority: .utility) {
-                        await iCloudBackupManager.shared.backupIfScheduled()
-                    }
                 }
                 .onReceive(
                     NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)
@@ -78,9 +74,6 @@ struct SakuraRSSApp: App {
                     WidgetCenter.shared.reloadAllTimelines()
                     Task {
                         await feedManager.refreshUnfetchedFeeds()
-                    }
-                    Task.detached(priority: .utility) {
-                        await iCloudBackupManager.shared.backupIfScheduled()
                     }
                 }
                 .onChange(of: backgroundRefreshEnabled) {
