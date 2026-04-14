@@ -369,14 +369,14 @@ private struct ScrollActionButtonsColumn: View {
             Button(action: onOpenFeed) {
                 Group {
                     if let favicon {
-                        FaviconImage(favicon, size: 34, cornerRadius: 6, circle: isVideoFeed)
+                        FaviconImage(favicon, size: 48, cornerRadius: 8, circle: isVideoFeed)
                     } else if let acronymIcon {
-                        FaviconImage(acronymIcon, size: 34, cornerRadius: 6,
+                        FaviconImage(acronymIcon, size: 48, cornerRadius: 8,
                                      circle: isVideoFeed, skipInset: true)
                     } else if let feedName {
-                        InitialsAvatarView(feedName, size: 34, circle: isVideoFeed, cornerRadius: 6)
+                        InitialsAvatarView(feedName, size: 48, circle: isVideoFeed, cornerRadius: 8)
                     } else {
-                        Circle().fill(.white.opacity(0.2)).frame(width: 34, height: 34)
+                        Circle().fill(.white.opacity(0.2)).frame(width: 48, height: 48)
                     }
                 }
                 .contentShape(Rectangle())
