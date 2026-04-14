@@ -25,7 +25,7 @@ struct ArXivPDFViewerView: View {
         ZStack {
             if let document {
                 PDFKitView(document: document)
-                    .ignoresSafeArea()
+                    .ignoresSafeArea(edges: .vertical)
             } else if isLoading {
                 ProgressView()
                     .controlSize(.large)
