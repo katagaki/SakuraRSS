@@ -17892,7 +17892,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "続きを読むには、過去の記事を読み込んでください。"
+            "value" : "続きを閲覧するには、過去の記事を読み込んでください。"
           }
         },
         "ko" : {
@@ -17951,7 +17951,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "すべて読みました"
+            "value" : "すべて閲覧しました"
           }
         },
         "ko" : {
