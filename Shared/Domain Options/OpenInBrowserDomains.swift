@@ -17,7 +17,6 @@ nonisolated enum OpenInBrowserDomains {
     }
 
     static let configurations: [DomainConfig] = [
-        DomainConfig("reddit.com"),
         DomainConfig("news.ycombinator.com"),
         DomainConfig("news.yahoo.co.jp")
     ]
