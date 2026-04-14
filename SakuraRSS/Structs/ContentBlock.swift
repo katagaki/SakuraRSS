@@ -15,7 +15,7 @@ enum ContentBlock: Identifiable {
         }
     }
 
-    /// Strips image, video, and code markers from text, returning plain text suitable for translation/summarization.
+    /// Strips image and code markers from text, returning plain text suitable for translation/summarization.
     static func plainText(from text: String) -> String {
         text.replacingOccurrences(
             of: #"\{\{IMG\}\}.+?\{\{/IMG\}\}"#, with: "", options: .regularExpression
@@ -43,7 +43,6 @@ enum ContentBlock: Identifiable {
         result = result.replacingOccurrences(
             of: #"\{\{IMGLINK\}\}.+?\{\{/IMGLINK\}\}"#, with: "", options: .regularExpression
         )
-        // Strip video markers
         result = result.replacingOccurrences(
             of: #"\{\{VIDEO\}\}.+?\{\{/VIDEO\}\}"#, with: "", options: .regularExpression
         )
@@ -84,7 +83,6 @@ enum ContentBlock: Identifiable {
     }
 
     static func parse(_ text: String) -> [ContentBlock] {
-        // Match {{IMG}}, {{CODE}}, and {{VIDEO}} markers.
         let pattern = #"\{\{(IMG|CODE|VIDEO)\}\}(.*?)\{\{/(IMG|CODE|VIDEO)\}\}"#
         guard let regex = try? NSRegularExpression(pattern: pattern, options: .dotMatchesLineSeparators)
         else {

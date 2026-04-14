@@ -1,10 +1,6 @@
 import SwiftUI
 import AVKit
 
-/// Renders a video content block inline in the article detail view.
-/// Wraps `AVPlayerViewController` so users get scrubbing, fullscreen, and
-/// Picture-in-Picture controls for free. Works with any AVPlayer-compatible
-/// URL (HLS, MP4, etc.), so it isn't tied to Reddit specifically.
 struct VideoBlockView: View {
 
     let url: URL

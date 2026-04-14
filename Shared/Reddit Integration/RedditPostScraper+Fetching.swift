@@ -2,10 +2,6 @@ import Foundation
 
 extension RedditPostScraper {
 
-    /// Hits `/comments/{id}.json?raw_json=1` and hands the decoded payload to
-    /// the extraction step. One automatic retry on HTTP 429 after a short
-    /// backoff. Throws on failure so `extractArticleContent()`'s error path
-    /// can fall through to the generic extractor.
     func performFetch(postID: String) async throws -> RedditPostFetchResult {
         guard let url = Self.jsonURL(for: postID) else {
             throw RedditPostScraperError.invalidURL
