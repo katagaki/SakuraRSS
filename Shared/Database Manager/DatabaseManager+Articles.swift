@@ -101,9 +101,8 @@ nonisolated extension DatabaseManager {
         try database.scalar(articles.filter(articleFeedID == fid).count)
     }
 
-    /// Returns the set of article URLs already stored for `fid`.  Used by
-    /// the feed refresh path to skip work (e.g. HTML metadata image
-    /// lookups) for articles that have already been ingested.
+    /// Returns the URLs already ingested for `fid` so refresh can skip
+    /// per-article work (e.g. HTML metadata lookups) on known items.
     func existingArticleURLs(forFeedID fid: Int64) throws -> Set<String> {
         let query = articles
             .filter(articleFeedID == fid)

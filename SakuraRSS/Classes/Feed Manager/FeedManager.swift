@@ -200,14 +200,10 @@ final class FeedManager {
             let parser = RSSParser()
             guard let parsed = parser.parse(data: data) else { return }
 
-            // Some feeds ship items with no enclosure, media:thumbnail, or
-            // inline <img> at all.  For any such item that's new to this
-            // feed, fall back to the article page's HTML metadata
-            // (`og:image`, `twitter:image`, etc.) so display styles that
-            // need a thumbnail still have something to show.  Only new
-            // items are probed — existing items already in the DB keep
-            // whatever they have to avoid re-hitting the same pages on
-            // every refresh.
+            // Fall back to HTML metadata (og:image, twitter:image, etc.)
+            // for new items the feed itself didn't tag with an image.
+            // Existing items are skipped so we don't re-probe pages we've
+            // already ingested on every refresh.
             let existingURLs = (try? database.existingArticleURLs(forFeedID: feed.id)) ?? []
             let imageBackfills = await FeedManager.backfillMetadataImages(
                 for: parsed.articles, skippingURLs: existingURLs
@@ -262,15 +258,10 @@ final class FeedManager {
         }
     }
 
-    /// Probes article URLs that the parser couldn't find an image for and
-    /// returns a `[articleURL: imageURL]` map of any HTML-metadata
-    /// fallbacks (Open Graph, Twitter card, schema.org image) that were
-    /// recovered.  Skips any article whose URL is in `skippingURLs` —
-    /// those have already been ingested and don't need re-probing.
-    ///
-    /// Probes run in parallel but with a small concurrency cap so a feed
-    /// dump of dozens of imageless items doesn't fan out into dozens of
-    /// simultaneous HTTP requests against a single host.
+    /// Returns `[articleURL: imageURL]` for parsed items missing an
+    /// image, by scraping each article page's HTML metadata.  Skips
+    /// articles already in `skippingURLs` and caps concurrency so a
+    /// feed with many imageless items doesn't flood a single host.
     nonisolated static func backfillMetadataImages(
         for articles: [ParsedArticle],
         skippingURLs existingURLs: Set<String>

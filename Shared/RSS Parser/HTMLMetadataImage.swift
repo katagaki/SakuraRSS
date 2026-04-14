@@ -1,25 +1,14 @@
 import Foundation
 
-/// Fetches a page's `<head>` and extracts a representative image URL from
-/// its metadata tags.  Used as a fallback when an RSS item ships without an
-/// `<enclosure>`, `media:thumbnail`, `itunes:image`, or inline `<img>` —
-/// most modern news sites still emit an `og:image` even when the feed does
-/// not carry an image, so we can recover a thumbnail just by reading the
-/// article's own HTML metadata.
-///
-/// The fetcher is intentionally conservative: it caps the download size,
-/// uses a short timeout, and stops parsing once `</head>` is seen so that a
-/// large article body is never transferred just to find a meta tag.
+/// Fallback image lookup for RSS items that ship without any image tag.
+/// Fetches the article page's `<head>` and returns the first usable
+/// `og:image` / `twitter:image` / `image_src` / `itemprop=image`.
 nonisolated enum HTMLMetadataImage {
 
-    /// Maximum number of bytes to read from the page before giving up.
-    /// Metadata lives in `<head>`, which is almost always within the first
-    /// few kilobytes, so 128 KB is a comfortable upper bound that still
-    /// protects against runaway downloads on pathological pages.
+    /// Cap the body read so a large article HTML can't be pulled down
+    /// just to find a meta tag near the top of `<head>`.
     private static let maxBytes = 128 * 1024
 
-    /// Fetches `articleURL` and returns an absolute image URL extracted
-    /// from its `<head>` metadata, or `nil` if none could be found.
     static func fetchImageURL(
         for articleURL: URL,
         timeout: TimeInterval = 5
@@ -31,8 +20,6 @@ nonisolated enum HTMLMetadataImage {
 
         var request = URLRequest(url: articleURL, timeoutInterval: timeout)
         request.setValue(sakuraUserAgent, forHTTPHeaderField: "User-Agent")
-        // Hint that we only want HTML.  Servers that negotiate on Accept
-        // will skip sending us binary variants for the same URL.
         request.setValue("text/html,application/xhtml+xml", forHTTPHeaderField: "Accept")
 
         do {
@@ -45,20 +32,15 @@ nonisolated enum HTMLMetadataImage {
                     ?? String(data: slice, encoding: .isoLatin1) else {
                 return nil
             }
-            let resolvedBase = (response.url ?? articleURL)
-            return extractImageURL(from: html, baseURL: resolvedBase)
+            return extractImageURL(from: html, baseURL: response.url ?? articleURL)
         } catch {
             return nil
         }
     }
 
-    /// Parses `<head>` metadata from an HTML string and returns the best
-    /// candidate image URL, resolved against `baseURL` when the candidate
-    /// is relative.  Returns `nil` if no usable image is found.
     static func extractImageURL(from html: String, baseURL: URL?) -> String? {
-        // Only scan the `<head>` section when present — metadata lives
-        // there and scanning the rest of the document can introduce false
-        // positives from inline content images.
+        // Restrict scanning to <head> when possible so inline article
+        // images don't get picked up as false positives.
         let headSlice: String = {
             if let range = html.range(of: "</head>", options: .caseInsensitive) {
                 return String(html[..<range.lowerBound])
@@ -66,8 +48,7 @@ nonisolated enum HTMLMetadataImage {
             return html
         }()
 
-        // Ordered by quality: og:image* beats twitter:image beats
-        // link rel=image_src beats itemprop=image.  The first hit wins.
+        // Ordered best-to-worst; first hit wins.
         let metaNamePatterns = [
             "og:image:secure_url",
             "og:image:url",
@@ -98,46 +79,27 @@ nonisolated enum HTMLMetadataImage {
 
     // MARK: - Tag Matching
 
-    /// Matches `<meta ... property="<name>" ... content="...">` or
-    /// `<meta ... name="<name>" ... content="...">` in either attribute
-    /// order.  Property/name and content may appear in any order.
     private static func findMetaContent(
         in html: String, propertyOrName name: String
     ) -> String? {
         let escaped = NSRegularExpression.escapedPattern(for: name)
-        // Two orderings: identifier before content, or content before
-        // identifier.  HTML spec doesn't require a particular order.
+        // Two attribute orderings — HTML doesn't fix the order.
         let patterns = [
             #"<meta\b[^>]*?\b(?:property|name)\s*=\s*["']\#(escaped)["'][^>]*?\bcontent\s*=\s*["']([^"']+)["']"#,
             #"<meta\b[^>]*?\bcontent\s*=\s*["']([^"']+)["'][^>]*?\b(?:property|name)\s*=\s*["']\#(escaped)["']"#
         ]
-        for pattern in patterns {
-            if let value = firstCaptureGroup(in: html, pattern: pattern) {
-                let trimmed = value.trimmingCharacters(in: .whitespacesAndNewlines)
-                if !trimmed.isEmpty { return trimmed }
-            }
-        }
-        return nil
+        return firstNonEmptyCapture(in: html, patterns: patterns)
     }
 
-    /// Matches `<link rel="<rel>" href="...">` in either attribute order.
     private static func findLinkHref(in html: String, rel: String) -> String? {
         let escaped = NSRegularExpression.escapedPattern(for: rel)
         let patterns = [
             #"<link\b[^>]*?\brel\s*=\s*["']\#(escaped)["'][^>]*?\bhref\s*=\s*["']([^"']+)["']"#,
             #"<link\b[^>]*?\bhref\s*=\s*["']([^"']+)["'][^>]*?\brel\s*=\s*["']\#(escaped)["']"#
         ]
-        for pattern in patterns {
-            if let value = firstCaptureGroup(in: html, pattern: pattern) {
-                let trimmed = value.trimmingCharacters(in: .whitespacesAndNewlines)
-                if !trimmed.isEmpty { return trimmed }
-            }
-        }
-        return nil
+        return firstNonEmptyCapture(in: html, patterns: patterns)
     }
 
-    /// Matches `<meta itemprop="<name>" content="...">` for the schema.org
-    /// microdata fallback used by a few publishers (notably Google AMP).
     private static func findItempropContent(
         in html: String, itemprop: String
     ) -> String? {
@@ -146,6 +108,10 @@ nonisolated enum HTMLMetadataImage {
             #"<meta\b[^>]*?\bitemprop\s*=\s*["']\#(escaped)["'][^>]*?\bcontent\s*=\s*["']([^"']+)["']"#,
             #"<meta\b[^>]*?\bcontent\s*=\s*["']([^"']+)["'][^>]*?\bitemprop\s*=\s*["']\#(escaped)["']"#
         ]
+        return firstNonEmptyCapture(in: html, patterns: patterns)
+    }
+
+    private static func firstNonEmptyCapture(in html: String, patterns: [String]) -> String? {
         for pattern in patterns {
             if let value = firstCaptureGroup(in: html, pattern: pattern) {
                 let trimmed = value.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -169,10 +135,6 @@ nonisolated enum HTMLMetadataImage {
         return nsText.substring(with: groupRange)
     }
 
-    /// Resolves a candidate URL string to an absolute URL, handling
-    /// protocol-relative (`//host/path`) and relative forms.  Also
-    /// decodes the small set of HTML entities that commonly appear in
-    /// meta `content=` attributes.
     private static func resolveURL(_ raw: String, against baseURL: URL?) -> String? {
         let decoded = decodeBasicHTMLEntities(raw)
         if decoded.hasPrefix("http://") || decoded.hasPrefix("https://") {
