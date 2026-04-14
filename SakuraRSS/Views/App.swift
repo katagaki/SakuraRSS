@@ -17,7 +17,9 @@ struct SakuraRSSApp: App {
     @AppStorage("ForceTodaysSummary") private var forceTodaysSummary: Bool = false
     @AppStorage("BackgroundRefresh.Enabled") private var backgroundRefreshEnabled: Bool = true
     @AppStorage("BackgroundRefresh.Interval") private var refreshInterval: Int = 240
+    @AppStorage("iCloudBackup.Interval") private var iCloudBackupInterval: Int = iCloudBackupManager.BackupInterval.everyNight.rawValue
     private let backgroundTaskID = "com.tsubuzaki.SakuraRSS.RefreshFeeds"
+    private let iCloudBackupTaskID = "com.tsubuzaki.SakuraRSS.iCloudBackup"
 
     var body: some Scene {
         WindowGroup {
@@ -86,6 +88,9 @@ struct SakuraRSSApp: App {
                 }
                 .onChange(of: refreshInterval) {
                     scheduleAppRefresh()
+                }
+                .onChange(of: iCloudBackupInterval) {
+                    scheduleiCloudBackup()
                 }
                 .onOpenURL { url in
                     handleOpenURL(url)
@@ -287,7 +292,15 @@ struct SakuraRSSApp: App {
             guard let task = task as? BGAppRefreshTask else { return }
             self.handleAppRefresh(task: task)
         }
+        BGTaskScheduler.shared.register(
+            forTaskWithIdentifier: iCloudBackupTaskID,
+            using: nil
+        ) { task in
+            guard let task = task as? BGProcessingTask else { return }
+            self.handleiCloudBackup(task: task)
+        }
         scheduleAppRefresh()
+        scheduleiCloudBackup()
     }
 
     private func scheduleAppRefresh() {
@@ -322,7 +335,6 @@ struct SakuraRSSApp: App {
             )
             await NLPProcessingCoordinator.processNewArticlesIfEnabled()
             manager.updateBadgeCount()
-            await iCloudBackupManager.shared.backupIfScheduled()
         }
 
         task.expirationHandler = {
@@ -331,6 +343,42 @@ struct SakuraRSSApp: App {
 
         Task {
             _ = await refreshTask.value
+            task.setTaskCompleted(success: true)
+        }
+    }
+
+    /// Submits a `BGProcessingTaskRequest` for the iCloud backup, requiring
+    /// network connectivity and external power so the system runs it during
+    /// idle/charging windows (typically overnight on Wi-Fi). Cancelled if the
+    /// user has set the backup interval to Off.
+    private func scheduleiCloudBackup() {
+        let intervalRaw = UserDefaults.standard.integer(forKey: "iCloudBackup.Interval")
+        let interval = iCloudBackupManager.BackupInterval(rawValue: intervalRaw) ?? .everyNight
+        guard interval != .off else {
+            BGTaskScheduler.shared.cancel(taskRequestWithIdentifier: iCloudBackupTaskID)
+            return
+        }
+        let request = BGProcessingTaskRequest(identifier: iCloudBackupTaskID)
+        request.requiresNetworkConnectivity = true
+        request.requiresExternalPower = true
+        request.earliestBeginDate = Date(timeIntervalSinceNow: TimeInterval(interval.rawValue))
+        try? BGTaskScheduler.shared.submit(request)
+    }
+
+    private func handleiCloudBackup(task: BGProcessingTask) {
+        // Always reschedule the next window before doing any work.
+        scheduleiCloudBackup()
+
+        let backupTask = Task {
+            await iCloudBackupManager.shared.backupIfScheduled()
+        }
+
+        task.expirationHandler = {
+            backupTask.cancel()
+        }
+
+        Task {
+            _ = await backupTask.value
             task.setTaskCompleted(success: true)
         }
     }
