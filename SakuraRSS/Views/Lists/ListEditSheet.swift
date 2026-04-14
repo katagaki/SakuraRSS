@@ -192,10 +192,7 @@ struct FeedIconView: View {
     var size: CGFloat = 28
     @State private var favicon: UIImage?
 
-    private var cornerRadius: CGFloat {
-        if feed.isVideoFeed { return 0 }
-        return 4
-    }
+    private var cornerRadius: CGFloat { 4 }
 
     private var isCircle: Bool {
         feed.isCircleIcon
