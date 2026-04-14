@@ -5170,7 +5170,55 @@
     "ClearThisPage.Title" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clear This Page"
+          }
+        },
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clear This Page"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clear This Page"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clear This Page"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clear This Page"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clear This Page"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clear This Page"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clear This Page"
+          }
+        },
+        "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Clear This Page"
@@ -7898,7 +7946,55 @@
     "FeedEdit.OpenIn.ClearThisPage" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clear This Page"
+          }
+        },
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clear This Page"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clear This Page"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clear This Page"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clear This Page"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clear This Page"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clear This Page"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clear This Page"
+          }
+        },
+        "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Clear This Page"
@@ -10446,7 +10542,55 @@
     "Integrations.ClearThisPage" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clear This Page"
+          }
+        },
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clear This Page"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clear This Page"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clear This Page"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clear This Page"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clear This Page"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clear This Page"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clear This Page"
+          }
+        },
+        "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Clear This Page"
@@ -19963,10 +20107,58 @@
     "Settings.ClearThisPage.About" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clear This Page ist ein Drittanbieter-Leserdienst, der Werbung und störende Elemente aus Webartikeln entfernt und sie in einem übersichtlichen, ablenkungsfreien Format darstellt. Wenn diese Option für einen Feed aktiviert ist, werden Artikel in einem eingebetteten WebView über https://clearthis.page geöffnet."
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Clear This Page is a third-party reader service that strips ads and clutter from web articles, presenting them in a clean, distraction-free format. When enabled for a feed, articles open inside an embedded WebView using https://clearthis.page."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clear This Page est un service de lecture tiers qui supprime les publicités et les éléments superflus des articles web, en les présentant dans un format épuré et sans distraction. Lorsqu'il est activé pour un flux, les articles s'ouvrent dans une WebView intégrée utilisant https://clearthis.page."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clear This Page è un servizio di lettura di terze parti che rimuove pubblicità ed elementi superflui dagli articoli web, presentandoli in un formato pulito e senza distrazioni. Quando è abilitato per un feed, gli articoli si aprono all'interno di una WebView incorporata utilizzando https://clearthis.page."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clear This Pageはサードパーティ製のリーダーサービスで、Web記事から広告や不要な要素を取り除き、すっきりとした気が散らない形式で表示します。フィードで有効にすると、記事は https://clearthis.page を使用した埋め込みWebView内で開きます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clear This Page는 웹 기사에서 광고와 잡다한 요소를 제거하여 깔끔하고 방해 없는 형식으로 보여주는 제3자 리더 서비스입니다. 피드에 활성화하면 기사는 https://clearthis.page 를 사용하는 내장 WebView에서 열립니다."
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clear This Page là một dịch vụ trình đọc của bên thứ ba giúp loại bỏ quảng cáo và các yếu tố gây rối khỏi các bài viết trên web, trình bày chúng ở định dạng gọn gàng, không gây xao nhãng. Khi được bật cho một nguồn cấp, các bài viết sẽ mở bên trong WebView nhúng sử dụng https://clearthis.page."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clear This Page 是一项第三方阅读服务，可去除网页文章中的广告和杂乱内容，以简洁、无干扰的格式呈现。为订阅源启用后，文章将在使用 https://clearthis.page 的嵌入式 WebView 中打开。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clear This Page 是一項第三方閱讀服務，可去除網頁文章中的廣告和雜亂內容，以簡潔、無干擾的格式呈現。為訂閱源啟用後，文章將在使用 https://clearthis.page 的嵌入式 WebView 中開啟。"
           }
         }
       }
@@ -19974,10 +20166,58 @@
     "Settings.ClearThisPage.AboutHeader" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Info"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "About"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "À propos"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Informazioni"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "概要"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "정보"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Giới thiệu"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "关于"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "關於"
           }
         }
       }
@@ -19985,10 +20225,58 @@
     "Settings.ClearThisPage.Footer" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Um Clear This Page für einen Feed zu verwenden, bearbeiten Sie den Feed und setzen Sie die Option „Öffnen in“ auf „Clear This Page“."
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "To use Clear This Page for a feed, edit the feed and set its Open In option to Clear This Page."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pour utiliser Clear This Page pour un flux, modifiez le flux et définissez son option Ouvrir dans sur Clear This Page."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Per utilizzare Clear This Page per un feed, modifica il feed e imposta la sua opzione Apri in su Clear This Page."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "フィードでClear This Pageを使用するには、フィードを編集して「開く」オプションを「Clear This Page」に設定してください。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "피드에 Clear This Page를 사용하려면 피드를 편집하고 '열기' 옵션을 'Clear This Page'로 설정하세요."
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Để sử dụng Clear This Page cho một nguồn cấp, hãy chỉnh sửa nguồn cấp và đặt tùy chọn Mở trong thành Clear This Page."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "要为订阅源使用 Clear This Page，请编辑该订阅源并将其「打开方式」选项设置为「Clear This Page」。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "要為訂閱源使用 Clear This Page，請編輯該訂閱源並將其「打開方式」選項設定為「Clear This Page」。"
           }
         }
       }
@@ -19996,10 +20284,58 @@
     "Settings.ClearThisPage.LearnMore" : {
       "extractionState" : "manual",
       "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "clearthis.page besuchen"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Visit clearthis.page"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Visiter clearthis.page"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Visita clearthis.page"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "clearthis.page にアクセス"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "clearthis.page 방문"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Truy cập clearthis.page"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "访问 clearthis.page"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "造訪 clearthis.page"
           }
         }
       }
