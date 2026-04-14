@@ -63,31 +63,13 @@ extension FeedManager {
             SpotlightIndexer.indexArticles(articlesToIndex, feedTitle: feedTitle)
         }.value
 
-        // Only install the downloaded channel avatar when the feed has
-        // no custom icon yet. Once the user — or a prior refresh — has
-        // assigned any custom icon, preserve it across refreshes so it
-        // isn't silently overwritten. The avatar auto-installs on the
-        // very first fetch; to pull a fresh avatar, the user can delete
-        // the custom icon in the edit sheet.
-        let shouldInstallAvatar = avatarImage != nil && feed.customIconURL == nil
-        if shouldInstallAvatar, let image = avatarImage {
-            await FaviconCache.shared.setCustomFavicon(
-                image, feedID: feed.id, skipTrimming: true
-            )
-            try? await Task.detached {
-                try database.updateFeedDetails(
-                    id: feed.id, title: feedTitle, url: feed.url,
-                    customIconURL: "photo"
-                )
-            }.value
-        } else if feed.title != feedTitle {
-            try? await Task.detached {
-                try database.updateFeedDetails(
-                    id: feed.id, title: feedTitle, url: feed.url,
-                    customIconURL: feed.customIconURL
-                )
-            }.value
-        }
+        // Cache favicon and update feed details.  The shared helper
+        // honours `isTitleCustomized` and only installs the downloaded
+        // channel avatar when `customIconURL == nil`, so a user-assigned
+        // icon or title survives every refresh.
+        await applyScraperMetadataRefresh(
+            feed: feed, scrapedTitle: feedTitle, profileImage: avatarImage
+        )
 
         if reloadData {
             await loadFromDatabaseInBackground()
