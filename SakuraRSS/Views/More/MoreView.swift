@@ -4,6 +4,8 @@ import UserNotifications
 
 struct MoreView: View {
 
+    var showsCloseButton: Bool = true
+
     @Environment(FeedManager.self) var feedManager
     @Environment(\.dismiss) private var dismiss
     @AppStorage("BackgroundRefresh.Enabled") private var backgroundRefreshEnabled: Bool = true
@@ -244,12 +246,14 @@ struct MoreView: View {
             .animation(.smooth.speed(2.0), value: backgroundRefreshEnabled)
             .listStyle(.insetGrouped)
             .listSectionSpacing(.compact)
-            .navigationTitle("Tabs.More")
+            .navigationTitle("Tabs.Profile")
             .toolbarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button(role: .close) {
-                        dismiss()
+                if showsCloseButton {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button(role: .close) {
+                            dismiss()
+                        }
                     }
                 }
             }

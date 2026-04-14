@@ -272,7 +272,7 @@ struct IPadSidebarView: View {
             }
 
             Section {
-                Label("Tabs.More", systemImage: "ellipsis")
+                Label("Tabs.Profile", systemImage: "person.crop.circle")
                     .tag(SidebarDestination.more)
             }
         }
@@ -412,7 +412,7 @@ extension IPadSidebarView {
     @ViewBuilder
     func iPadBookmarksContent() -> some View {
         iPadArticleListWrapper {
-            IPadBookmarksListView()
+            BookmarksContentView(titleDisplayMode: .inline)
         }
     }
 
@@ -522,108 +522,6 @@ extension IPadSidebarView {
             Label("FeedMenu.Delete",
                   systemImage: "trash")
         }
-    }
-}
-
-// MARK: - iPad Bookmarks List (without its own NavigationStack)
-
-private struct IPadBookmarksListView: View {
-
-    @Environment(FeedManager.self) var feedManager
-    @State private var bookmarkedArticles: [Article] = []
-    @State private var displayStyle: FeedDisplayStyle
-    @State private var showingDeleteReadAlert = false
-
-    private var hasImages: Bool {
-        bookmarkedArticles.contains { $0.imageURL != nil }
-    }
-
-    init() {
-        let raw = UserDefaults.standard.string(forKey: "Display.DefaultBookmarksStyle")
-        let defaultRaw = UserDefaults.standard.string(forKey: "Display.DefaultStyle") ?? FeedDisplayStyle.inbox.rawValue
-        let fallback = FeedDisplayStyle(rawValue: defaultRaw) ?? .inbox
-        self._displayStyle = State(initialValue: raw.flatMap(FeedDisplayStyle.init(rawValue:)) ?? fallback)
-    }
-
-    var body: some View {
-        let effectiveStyle = effectiveDisplayStyle
-        Group {
-            if bookmarkedArticles.isEmpty {
-                ContentUnavailableView {
-                    Label("Bookmarks.Empty.Title",
-                          systemImage: "bookmark")
-                } description: {
-                    Text("Bookmarks.Empty.Description")
-                }
-            } else {
-                DisplayStyleContentView(
-                    style: effectiveStyle,
-                    articles: bookmarkedArticles
-                )
-            }
-        }
-        .navigationTitle("Tabs.Bookmarks")
-        .toolbarTitleDisplayMode(.inline)
-        .scrollContentBackground(.hidden)
-        .sakuraBackground()
-        .toolbar {
-            if !bookmarkedArticles.isEmpty {
-                ToolbarItemGroup(placement: .topBarTrailing) {
-                    Button {
-                        showingDeleteReadAlert = true
-                    } label: {
-                        Image(systemName: "bookmark.slash")
-                    }
-                }
-                ToolbarSpacer(.fixed, placement: .topBarTrailing)
-                ToolbarItemGroup(placement: .topBarTrailing) {
-                    Menu {
-                        DisplayStylePicker(
-                            displayStyle: $displayStyle,
-                            hasImages: hasImages,
-                            showCards: false
-                        )
-                    } label: {
-                        Image(systemName: "line.3.horizontal.decrease")
-                    }
-                    .menuActionDismissBehavior(.disabled)
-                }
-            }
-        }
-        .animation(.smooth.speed(2.0), value: displayStyle)
-        .animation(.smooth.speed(2.0), value: bookmarkedArticles)
-        .onChange(of: displayStyle) { _, newValue in
-            UserDefaults.standard.set(newValue.rawValue, forKey: "Display.DefaultBookmarksStyle")
-        }
-        .confirmationDialog(
-            "Bookmarks.DeleteAllRead",
-            isPresented: $showingDeleteReadAlert,
-            titleVisibility: .visible
-        ) {
-            Button("Bookmarks.DeleteAllRead.Confirm", role: .destructive) {
-                try? DatabaseManager.shared.removeReadBookmarks()
-                bookmarkedArticles = (try? DatabaseManager.shared.bookmarkedArticles()) ?? []
-            }
-            Button("Shared.Cancel", role: .cancel) { }
-        } message: {
-            Text("Bookmarks.DeleteAllRead.Message")
-        }
-        .onAppear {
-            bookmarkedArticles = (try? DatabaseManager.shared.bookmarkedArticles()) ?? []
-        }
-        .onChange(of: feedManager.dataRevision) {
-            bookmarkedArticles = (try? DatabaseManager.shared.bookmarkedArticles()) ?? []
-        }
-    }
-
-    private var effectiveDisplayStyle: FeedDisplayStyle {
-        if !hasImages && displayStyle.requiresImages {
-            return .inbox
-        }
-        if displayStyle == .podcast {
-            return .inbox
-        }
-        return displayStyle
     }
 }
 

@@ -13,11 +13,9 @@ struct HomeView: View {
     @State private var showYouTubeSafari = false
     @AppStorage("Display.MarkAllReadPosition") private var markAllReadPosition: MarkAllReadPosition = .bottom
     @AppStorage("Home.SelectedSection") private var selectedSelection: HomeSelection = .section(.feed)
-    @State private var showingMore = false
     @State private var isShowingMarkAllReadConfirmation = false
     @State private var pendingYouTubeSafariURL: URL?
     @Namespace private var cardZoom
-    @Namespace private var moreNamespace
 
     var body: some View {
         NavigationStack(path: $path) {
@@ -26,15 +24,6 @@ struct HomeView: View {
                 .environment(\.navigateToFeed, { feed in path.append(feed) })
                 .environment(\.hidesMarkAllReadToolbar, true)
                 .toolbar {
-                    ToolbarItemGroup(placement: .topBarLeading) {
-                        Button {
-                            showingMore = true
-                        } label: {
-                            Image(systemName: "ellipsis")
-                        }
-                        .matchedTransitionSource(id: "more", in: moreNamespace)
-                    }
-                    ToolbarSpacer(.fixed, placement: .topBarLeading)
                     if markAllReadPosition == .top {
                         ToolbarItemGroup(placement: .topBarLeading) {
                             Button {
@@ -145,13 +134,6 @@ struct HomeView: View {
                     .ignoresSafeArea()
             }
         }
-        .sheet(isPresented: $showingMore) {
-            MoreView()
-                .navigationTransition(.zoom(sourceID: "more", in: moreNamespace))
-                .presentationDetents([.medium, .large])
-                .presentationContentInteraction(.scrolls)
-                .interactiveDismissDisabled()
-        }
     }
 
     private func performMarkAllRead() {
@@ -162,6 +144,8 @@ struct HomeView: View {
             } else {
                 feedManager.markAllRead()
             }
+        case .bookmarks:
+            break
         case .list(let id):
             if let list = feedManager.lists.first(where: { $0.id == id }) {
                 feedManager.markAllRead(for: list)
