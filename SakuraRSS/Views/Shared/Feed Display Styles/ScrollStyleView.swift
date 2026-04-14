@@ -7,8 +7,8 @@ import FoundationModels
 /// A TikTok/Reels-inspired full-screen vertical pager where each article
 /// takes up the entire screen. Tapping the image or content preview expands
 /// the article to reveal the full extracted text; tapping again collapses it.
-/// When expanded, overscrolling past the top or bottom advances to the
-/// previous or next article respectively.
+/// When expanded, overscrolling past the top collapses back to the compact
+/// overlay and overscrolling past the bottom advances to the next article.
 struct ScrollStyleView: View {
 
     @Environment(FeedManager.self) var feedManager
@@ -39,8 +39,7 @@ struct ScrollStyleView: View {
                                     contextInsets: contextInsets,
                                     isExpanded: expandedArticleID == article.id,
                                     onTapContent: { handleTap(on: article) },
-                                    onAdvance: { advance(from: article) },
-                                    onRetreat: { retreat(from: article) }
+                                    onAdvance: { advance(from: article) }
                                 )
                                 .frame(width: pageSize.width, height: pageSize.height)
                                 .id(ScrollPageID.article(article.id))
@@ -134,14 +133,6 @@ struct ScrollStyleView: View {
         }
     }
 
-    private func retreat(from article: Article) {
-        guard let idx = articles.firstIndex(where: { $0.id == article.id }),
-              idx > 0 else { return }
-        withAnimation(.smooth.speed(1.5)) {
-            expandedArticleID = nil
-            currentID = .article(articles[idx - 1].id)
-        }
-    }
 }
 
 // MARK: - Page identifier
@@ -168,7 +159,6 @@ private struct ScrollArticlePage: View {
     let isExpanded: Bool
     let onTapContent: () -> Void
     let onAdvance: () -> Void
-    let onRetreat: () -> Void
 
     @State private var feed: Feed?
     @State private var favicon: UIImage?
@@ -215,7 +205,6 @@ private struct ScrollArticlePage: View {
                         headerNamespace: headerNamespace,
                         onTapToCollapse: onTapContent,
                         onAdvance: onAdvance,
-                        onRetreat: onRetreat,
                         onOpenArticleURL: { openArticleURL() }
                     )
                 } else {
@@ -327,16 +316,16 @@ private struct ScrollArticlePage: View {
     private var compactTextBlock: some View {
         VStack(alignment: .leading, spacing: 10) {
             Text(article.title)
-                .font(.subheadline.weight(.bold))
+                .font(.body.weight(.bold))
                 .foregroundStyle(.white)
-                .lineLimit(2)
+                .lineLimit(4)
                 .multilineTextAlignment(.leading)
                 .shadow(color: .black.opacity(0.6), radius: 4, y: 1)
                 .matchedGeometryEffect(id: "headerTitle", in: headerNamespace)
 
             if let summary = article.summary, !summary.isEmpty {
                 Text(ContentBlock.stripMarkdown(summary))
-                    .font(.subheadline)
+                    .font(.body)
                     .foregroundStyle(.white.opacity(0.9))
                     .lineLimit(3)
                     .multilineTextAlignment(.leading)
@@ -475,7 +464,6 @@ private struct ScrollExpandedArticleView: View {
     let headerNamespace: Namespace.ID
     let onTapToCollapse: () -> Void
     let onAdvance: () -> Void
-    let onRetreat: () -> Void
     let onOpenArticleURL: () -> Void
 
     @State private var extractedText: String?
@@ -608,7 +596,7 @@ private struct ScrollExpandedArticleView: View {
         .onScrollPhaseChange { _, newPhase in
             guard newPhase == .decelerating || newPhase == .idle else { return }
             if scrollOffset < -Self.overscrollThreshold {
-                onRetreat()
+                onTapToCollapse()
             } else if scrollOffset > maxScrollOffset + Self.overscrollThreshold {
                 onAdvance()
             }
