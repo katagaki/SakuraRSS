@@ -21231,55 +21231,55 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Mindestabstand zwischen Aktualisierungen"
+            "value" : "Aktualisierungs-Cooldown"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Per-Feed Cooldown"
+            "value" : "Refresh Cooldown"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Délai entre actualisations"
+            "value" : "Délai d'actualisation"
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Intervallo minimo per feed"
+            "value" : "Cooldown di aggiornamento"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "フィードごとのクールダウン"
+            "value" : "更新クールダウン"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "피드별 재시도 간격"
+            "value" : "새로고침 쿨다운"
           }
         },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Khoảng thời gian tối thiểu giữa các lần làm mới"
+            "value" : "Thời gian chờ làm mới"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "每个订阅源的冷却时间"
+            "value" : "刷新冷却时间"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "每個訂閱源的冷卻時間"
+            "value" : "重新整理冷卻時間"
           }
         }
       }
