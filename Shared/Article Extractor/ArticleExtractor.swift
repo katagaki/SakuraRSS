@@ -6,6 +6,13 @@ import SwiftSoup
 struct ArticleExtractor { // swiftlint:disable:this type_body_length
 
     static let contentSelectors = [
+        // High-precision schema.org / semantic markup — check first
+        "[itemprop=articleBody]",
+        "[itemprop=reviewBody]",
+        "[itemprop=text]",
+        "[data-testid=article-body]",
+        "[data-component=text-block]",
+        // Common CMS / framework selectors
         "article",
         "[role=main]",
         "main",
@@ -13,11 +20,23 @@ struct ArticleExtractor { // swiftlint:disable:this type_body_length
         ".entry-content",
         ".article-body",
         ".article-content",
+        ".article__content",
+        ".article__body",
         ".post-body",
+        ".post__content",
         ".story-body",
+        ".story-body__inner",
+        ".story__body",
         ".content-body",
+        ".content__article-body",
+        ".rich-text",
+        ".prose",
         "#article-body",
+        "#articleBody",
+        "#singleBody",
         "#content",
+        "#main-content",
+        ".contenuto",
         ".post",
         ".entry"
     ]

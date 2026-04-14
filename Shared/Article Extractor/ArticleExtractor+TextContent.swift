@@ -29,6 +29,15 @@ extension ArticleExtractor {
 
     static func textContent(of element: Element, baseURL: URL? = nil) throws -> String {
         var html = try element.html()
+        // Strip <svg>…</svg> entirely — icon SVGs inside anchors (share
+        // buttons, nav arrows) leave anchors with no meaningful text, and
+        // the link-replacement regex would otherwise capture the SVG markup
+        // as "link text" and serialize the href itself as visible text.
+        html = html.replacingOccurrences(
+            of: "<svg\\b[^>]*>[\\s\\S]*?</svg>",
+            with: "",
+            options: [.regularExpression, .caseInsensitive]
+        )
         // Consecutive <br> tags indicate a paragraph break in poorly-structured HTML.
         html = html.replacingOccurrences(
             of: "<br\\s*/?>(\\s*<br\\s*/?>)+",
@@ -142,6 +151,15 @@ extension ArticleExtractor {
             linkText = linkText
                 .replacingOccurrences(of: doubleLFPlaceholder, with: " ")
                 .replacingOccurrences(of: singleLFPlaceholder, with: " ")
+            // Drop links whose visible text is empty or just the href itself —
+            // typically icon-only share buttons that leave nothing to render.
+            let visibleText = linkText
+                .replacingOccurrences(of: "<[^>]+>", with: "", options: .regularExpression)
+                .trimmingCharacters(in: .whitespacesAndNewlines)
+            if visibleText.isEmpty || visibleText == href {
+                result = (result as NSString).replacingCharacters(in: match.range, with: "")
+                continue
+            }
             let replacement = "\(linkOpenPlaceholder)\(linkText)\(linkMidPlaceholder)\(href)\(linkClosePlaceholder)"
             result = (result as NSString).replacingCharacters(in: match.range, with: replacement)
         }

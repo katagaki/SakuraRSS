@@ -64,7 +64,7 @@ struct ScrollStyleView: View {
                         }
                     }
                 }
-                .ignoresSafeArea()
+                .ignoresSafeArea(.container, edges: .vertical)
             }
             .background {
                 GeometryReader { proxy in
