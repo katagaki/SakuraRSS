@@ -38,6 +38,10 @@ extension OnboardingView {
                         description: String(localized: "Onboarding.Feature.Summaries.Description")
                     )
                 }
+
+                if let backupMetadata {
+                    restoreSection(metadata: backupMetadata)
+                }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.horizontal, 20)
@@ -46,6 +50,66 @@ extension OnboardingView {
         .safeAreaInset(edge: .bottom) {
             continueButton { advanceStep() }
                 .padding(.bottom, isIPad ? 20 : 0)
+        }
+        .task {
+            backupMetadata = await iCloudBackupManager.shared.backupMetadata()
+        }
+        .alert("iCloudBackup.RestoreError", isPresented: $showRestoreError) {
+            Button("Shared.OK") {}
+        }
+    }
+
+    private func restoreSection(metadata: iCloudBackupManager.BackupMetadata) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Divider()
+                .padding(.vertical, 4)
+            HStack(alignment: .top, spacing: 14) {
+                Image(systemName: "icloud.fill")
+                    .font(.title)
+                    .foregroundStyle(.accent)
+                    .frame(width: 36, alignment: .center)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Onboarding.Restore.Title")
+                        .font(.body.weight(.semibold))
+                    Text("Onboarding.Restore.Description \(metadata.deviceName) \(metadata.date.formatted(date: .abbreviated, time: .shortened))")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                }
+            }
+            Button {
+                performRestore()
+            } label: {
+                HStack {
+                    if isRestoring {
+                        ProgressView()
+                            .padding(.trailing, 4)
+                        Text("Onboarding.Restore.Restoring")
+                    } else {
+                        Text("Onboarding.Restore.Button")
+                    }
+                }
+                .fontWeight(.semibold)
+                .padding(.vertical, 8)
+                .frame(maxWidth: .infinity)
+            }
+            .buttonStyle(.glassProminent)
+            .buttonBorderShape(.capsule)
+            .disabled(isRestoring)
+        }
+    }
+
+    private func performRestore() {
+        isRestoring = true
+        Task {
+            do {
+                try await iCloudBackupManager.shared.restore()
+                feedManager.loadFromDatabase()
+                UserDefaults.standard.set(true, forKey: "Onboarding.Completed")
+                onComplete()
+            } catch {
+                showRestoreError = true
+            }
+            isRestoring = false
         }
     }
 }

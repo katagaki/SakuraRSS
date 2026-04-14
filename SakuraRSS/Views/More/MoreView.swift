@@ -139,6 +139,19 @@ struct MoreView: View {
                 }
 
                 Section {
+                    NavigationLink {
+                        iCloudBackupView()
+                    } label: {
+                        HStack {
+                            Text("iCloudBackup.Title")
+                            Spacer()
+                            if let lastBackup = iCloudBackupManager.shared.lastBackupDate {
+                                Text(lastBackup, style: .relative)
+                                    .foregroundStyle(.secondary)
+                                    .font(.subheadline)
+                            }
+                        }
+                    }
                     HStack(spacing: 0) {
                         Button {
                             isExporting = true

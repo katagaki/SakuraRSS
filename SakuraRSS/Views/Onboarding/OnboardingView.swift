@@ -24,6 +24,9 @@ struct OnboardingView: View {
     @State var isSearching = false
     @State var feedErrorMessage: String?
     @State var addedURLs: Set<String> = []
+    @State var isRestoring = false
+    @State var backupMetadata: iCloudBackupManager.BackupMetadata?
+    @State var showRestoreError = false
     @FocusState var isURLFieldFocused: Bool
     var isIPad: Bool { UIDevice.current.userInterfaceIdiom == .pad }
     var onComplete: () -> Void

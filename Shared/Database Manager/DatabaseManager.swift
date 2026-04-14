@@ -5,7 +5,14 @@ nonisolated final class DatabaseManager: @unchecked Sendable {
 
     static let shared = DatabaseManager()
 
-    let database: Connection
+    static let databasePath: String = {
+        let containerURL = FileManager.default.containerURL(
+            forSecurityApplicationGroupIdentifier: "group.com.tsubuzaki.SakuraRSS"
+        )!
+        return containerURL.appendingPathComponent("Sakura.feeds").path
+    }()
+
+    private(set) var database: Connection
 
     // MARK: - Tables
 
@@ -100,12 +107,8 @@ nonisolated final class DatabaseManager: @unchecked Sendable {
     // MARK: - Init
 
     private init() {
-        let containerURL = FileManager.default.containerURL(
-            forSecurityApplicationGroupIdentifier: "group.com.tsubuzaki.SakuraRSS"
-        )!
-        let dbPath = containerURL.appendingPathComponent("Sakura.feeds").path
         do {
-            database = try Connection(dbPath)
+            database = try Connection(Self.databasePath)
             try createTables()
             fixupIfVersionChanged()
             invalidateStaleParserCache()
@@ -114,6 +117,13 @@ nonisolated final class DatabaseManager: @unchecked Sendable {
         } catch {
             fatalError("Database initialization failed: \(error)")
         }
+    }
+
+    /// Replaces the current database connection and re-creates tables.
+    /// Used after restoring a backup file to the database path.
+    func reconnect() throws {
+        database = try Connection(Self.databasePath)
+        try createTables()
     }
 
     private func invalidateStaleParserCache() {

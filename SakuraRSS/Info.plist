@@ -9,6 +9,7 @@
 	<key>BGTaskSchedulerPermittedIdentifiers</key>
 	<array>
 		<string>com.tsubuzaki.SakuraRSS.RefreshFeeds</string>
+		<string>com.tsubuzaki.SakuraRSS.iCloudBackup</string>
 	</array>
 	<key>UIBackgroundModes</key>
 	<array>
