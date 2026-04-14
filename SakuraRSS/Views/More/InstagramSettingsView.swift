@@ -46,6 +46,8 @@ struct InstagramSettingsView: View {
         .animation(.smooth.speed(2.0), value: instagramProfileFeedsEnabled)
         .navigationTitle("Integrations.Instagram")
         .toolbarTitleDisplayMode(.inline)
+        .scrollContentBackground(.hidden)
+        .sakuraBackground()
         .sheet(isPresented: $showInstagramLogin) {
             Task {
                 isCheckingLogin = true

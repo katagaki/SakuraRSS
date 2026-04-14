@@ -44,6 +44,8 @@ struct XSettingsView: View {
         .animation(.smooth.speed(2.0), value: xProfileFeedsEnabled)
         .navigationTitle("Integrations.X")
         .toolbarTitleDisplayMode(.inline)
+        .scrollContentBackground(.hidden)
+        .sakuraBackground()
         .sheet(isPresented: $showXLogin) {
             Task {
                 isCheckingLogin = true

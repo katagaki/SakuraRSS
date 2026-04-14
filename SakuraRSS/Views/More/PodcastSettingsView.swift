@@ -102,6 +102,8 @@ struct PodcastSettingsView: View {
         }
         .navigationTitle("Integrations.Podcast")
         .toolbarTitleDisplayMode(.inline)
+        .scrollContentBackground(.hidden)
+        .sakuraBackground()
         .task {
             downloadsSize = PodcastDownloadManager.totalDownloadedSize()
             refreshModelStatus()

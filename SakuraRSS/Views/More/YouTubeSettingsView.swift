@@ -86,6 +86,8 @@ struct YouTubeSettingsView: View {
         .animation(.smooth.speed(2.0), value: youTubeOpenMode)
         .navigationTitle("Integrations.YouTube")
         .toolbarTitleDisplayMode(.inline)
+        .scrollContentBackground(.hidden)
+        .sakuraBackground()
         .sheet(isPresented: $showYouTubeLogin) {
             Task {
                 isYouTubeSignedIn = await YouTubePlayerView.hasYouTubeSession()

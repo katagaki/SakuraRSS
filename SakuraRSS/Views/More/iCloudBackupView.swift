@@ -72,6 +72,8 @@ struct iCloudBackupView: View {
         }
         .navigationTitle("iCloudBackup.Title")
         .toolbarTitleDisplayMode(.inline)
+        .scrollContentBackground(.hidden)
+        .sakuraBackground()
         .task {
             iCloudAvailable = iCloudBackupManager.shared.isICloudAvailable()
             lastBackupDate = iCloudBackupManager.shared.lastBackupDate
