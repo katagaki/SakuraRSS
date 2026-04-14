@@ -29,6 +29,7 @@ struct ArticleDetailView: View {
     @State var summarizationError: String?
     @State var showYouTubePlayer = false
     @State var showYouTubeSafari = false
+    @State var arXivPDFReference: ArXivPDFReference?
     @State var imageViewerURL: URL?
     @State var heroImageAspectRatio: CGFloat?
     @Namespace private var imageViewerNamespace
@@ -203,6 +204,9 @@ struct ArticleDetailView: View {
         }
         .navigationDestination(isPresented: $showYouTubePlayer) {
             YouTubePlayerView(article: article)
+        }
+        .navigationDestination(item: $arXivPDFReference) { reference in
+            ArXivPDFViewerView(url: reference.url, title: reference.title)
         }
         .sheet(isPresented: $showYouTubeSafari) {
             if let url = URL(string: article.url) {

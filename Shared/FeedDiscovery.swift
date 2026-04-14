@@ -251,6 +251,9 @@ actor FeedDiscovery {
     /// Detects Bluesky, Mastodon, X/Twitter, and Instagram profile URLs
     /// and constructs their feed URLs.
     private func detectSocialMediaFeed(url: URL) async -> DiscoveredFeed? {
+        if let arXivFeed = detectArXivListFeed(url: url) {
+            return arXivFeed
+        }
         if UserDefaults.standard.bool(forKey: "Labs.XProfileFeeds"),
            let xFeed = detectXProfileFeed(url: url) {
             return xFeed
@@ -269,6 +272,22 @@ actor FeedDiscovery {
             return mastodonFeed
         }
         return nil
+    }
+
+    /// Detects arXiv subject listing URLs and rewrites them to the matching
+    /// RSS feed. arXiv publishes a standard RSS feed for each category
+    /// (e.g. `https://arxiv.org/list/cs.AI/recent` →
+    /// `https://rss.arxiv.org/rss/cs.AI`) so the normal RSS parser can handle
+    /// refreshes.
+    private func detectArXivListFeed(url: URL) -> DiscoveredFeed? {
+        guard let category = ArXivHelper.extractCategoryFromListURL(url) else {
+            return nil
+        }
+        return DiscoveredFeed(
+            title: "arXiv \(category)",
+            url: ArXivHelper.feedURL(forCategory: category),
+            siteURL: "https://arxiv.org/list/\(category)/recent"
+        )
     }
 
     /// Detects X/Twitter profile URLs and returns a pseudo-feed entry.

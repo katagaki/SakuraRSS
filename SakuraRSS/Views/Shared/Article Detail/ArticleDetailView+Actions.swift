@@ -26,6 +26,19 @@ extension ArticleDetailView {
                     }
                 }
 
+                if let pdfURL = ArXivHelper.pdfURL(forArticleURL: article.url) {
+                    OpenLinkButton(
+                        title: "ArXiv.ViewPDF",
+                        systemImage: "doc.richtext",
+                        action: {
+                            arXivPDFReference = ArXivPDFReference(
+                                url: pdfURL,
+                                title: article.title
+                            )
+                        }
+                    )
+                }
+
                 OpenLinkButton(
                     title: "Article.OpenInBrowser",
                     systemImage: article.isYouTubeURL && YouTubeHelper.isAppInstalled
