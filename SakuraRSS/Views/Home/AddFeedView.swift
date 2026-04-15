@@ -6,7 +6,7 @@ struct AddFeedView: View {
     @Environment(\.dismiss) var dismiss
 
     var initialURL: String = ""
-    @State private var urlInput = ""
+    @State private var urlInput: String
     @State private var discoveredFeeds: [DiscoveredFeed] = []
     @State private var isSearching = false
     @State private var errorMessage: String?
@@ -21,6 +21,21 @@ struct AddFeedView: View {
     @State private var showPetalBuilder = false
     @AppStorage("Labs.PetalRecipes") private var petalRecipesEnabled: Bool = false
     @FocusState private var isURLFieldFocused: Bool
+
+    /// Tracks whether `urlInput` came from the cache (user was mid-edit
+    /// when the sheet was rebuilt) so we don't re-trigger `searchFeeds`
+    /// on every background→foreground cycle.
+    private let restoredFromCache: Bool
+
+    init(initialURL: String = "") {
+        self.initialURL = initialURL
+        // Prefer cached in-progress input (user was mid-edit when the
+        // view was torn down by a background→foreground cycle) over
+        // the seed URL passed in from outside.
+        let cached = SheetInputCache.addFeedURLInput
+        self.restoredFromCache = !cached.isEmpty
+        _urlInput = State(initialValue: cached.isEmpty ? initialURL : cached)
+    }
 
     /// The URL to seed the Petal builder with when the user taps
     /// "Generate with Petal" after a failed search.  Prefers the
@@ -204,11 +219,15 @@ struct AddFeedView: View {
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
                     Button(role: .confirm) {
+                        SheetInputCache.clearAddFeed()
                         dismiss()
                     }
                 }
             }
             .interactiveDismissDisabled()
+            .onChange(of: urlInput) {
+                SheetInputCache.addFeedURLInput = urlInput
+            }
             .sheet(isPresented: $showXLogin) {
                 if let pending = pendingXFeed {
                     addFeedAfterXLogin(pending)
@@ -231,10 +250,9 @@ struct AddFeedView: View {
                 guard !hasInitialized else { return }
                 hasInitialized = true
                 suggestedTopics = SuggestedFeedsLoader.topicsForCurrentRegion()
-                if !initialURL.isEmpty {
-                    urlInput = initialURL
+                if !urlInput.isEmpty && !restoredFromCache {
                     searchFeeds()
-                } else {
+                } else if urlInput.isEmpty {
                     isURLFieldFocused = true
                 }
             }

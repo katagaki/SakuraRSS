@@ -11,7 +11,7 @@ struct ListEditSheet: View {
     @State private var selectedIcon: String
     @State private var selectedDisplayStyle: String?
     @State private var selectedFeedIDs: Set<Int64>
-    @State private var hasInitialized = false
+    @State private var hasInitialized: Bool
 
     private var isEditing: Bool { list != nil }
 
@@ -30,10 +30,22 @@ struct ListEditSheet: View {
 
     init(list: FeedList?) {
         self.list = list
-        _name = State(initialValue: list?.name ?? "")
-        _selectedIcon = State(initialValue: list?.icon ?? ListIcon.newspaper.rawValue)
-        _selectedDisplayStyle = State(initialValue: list?.displayStyle)
-        _selectedFeedIDs = State(initialValue: [])
+        // Restore any in-progress edits preserved from an earlier
+        // background→foreground cycle.  Feed membership is loaded from
+        // feedManager in `.onAppear` on first show.
+        if let cached = SheetInputCache.listEditSnapshot(for: list?.id) {
+            _name = State(initialValue: cached.name)
+            _selectedIcon = State(initialValue: cached.selectedIcon)
+            _selectedDisplayStyle = State(initialValue: cached.selectedDisplayStyle)
+            _selectedFeedIDs = State(initialValue: cached.selectedFeedIDs)
+            _hasInitialized = State(initialValue: true)
+        } else {
+            _name = State(initialValue: list?.name ?? "")
+            _selectedIcon = State(initialValue: list?.icon ?? ListIcon.newspaper.rawValue)
+            _selectedDisplayStyle = State(initialValue: list?.displayStyle)
+            _selectedFeedIDs = State(initialValue: [])
+            _hasInitialized = State(initialValue: false)
+        }
     }
 
     var body: some View {
@@ -129,6 +141,7 @@ struct ListEditSheet: View {
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button(role: .cancel) {
+                        SheetInputCache.clearListEdit(for: list?.id)
                         dismiss()
                     }
                 }
@@ -146,7 +159,23 @@ struct ListEditSheet: View {
                     selectedFeedIDs = feedManager.feedIDs(for: list)
                 }
             }
+            .onChange(of: name) { persistInputSnapshot() }
+            .onChange(of: selectedIcon) { persistInputSnapshot() }
+            .onChange(of: selectedDisplayStyle) { persistInputSnapshot() }
+            .onChange(of: selectedFeedIDs) { persistInputSnapshot() }
         }
+    }
+
+    private func persistInputSnapshot() {
+        SheetInputCache.setListEditSnapshot(
+            SheetInputCache.ListEditSnapshot(
+                name: name,
+                selectedIcon: selectedIcon,
+                selectedDisplayStyle: selectedDisplayStyle,
+                selectedFeedIDs: selectedFeedIDs
+            ),
+            for: list?.id
+        )
     }
 
     private func save() {
@@ -182,6 +211,7 @@ struct ListEditSheet: View {
                 }
             }
         }
+        SheetInputCache.clearListEdit(for: list?.id)
         dismiss()
     }
 }

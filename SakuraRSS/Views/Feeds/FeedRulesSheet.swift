@@ -10,20 +10,28 @@ struct FeedRulesSheet: View {
     @State private var allowedKeywords: [String]
     @State private var mutedKeywords: [String]
     @State private var mutedAuthors: [String]
-    @State private var allowedKeywordInput: String = ""
-    @State private var keywordInput: String = ""
-    @State private var authorInput: String = ""
+    @State private var allowedKeywordInput: String
+    @State private var keywordInput: String
+    @State private var authorInput: String
     @State private var availableAuthors: [String] = []
-    @State private var hasInitialized = false
+    @State private var hasInitialized: Bool
     @FocusState private var isAllowedKeywordFieldFocused: Bool
     @FocusState private var isKeywordFieldFocused: Bool
     @FocusState private var isAuthorFieldFocused: Bool
 
     init(feed: Feed) {
         self.feed = feed
-        _allowedKeywords = State(initialValue: [])
-        _mutedKeywords = State(initialValue: [])
-        _mutedAuthors = State(initialValue: [])
+        // Restore any in-progress edits preserved from an earlier
+        // background→foreground cycle; the list bodies default to empty
+        // and are filled from feedManager in `.onAppear` on first show.
+        let cached = SheetInputCache.feedRulesSnapshot(for: feed.id)
+        _allowedKeywords = State(initialValue: cached?.allowedKeywords ?? [])
+        _mutedKeywords = State(initialValue: cached?.mutedKeywords ?? [])
+        _mutedAuthors = State(initialValue: cached?.mutedAuthors ?? [])
+        _allowedKeywordInput = State(initialValue: cached?.allowedKeywordInput ?? "")
+        _keywordInput = State(initialValue: cached?.keywordInput ?? "")
+        _authorInput = State(initialValue: cached?.authorInput ?? "")
+        _hasInitialized = State(initialValue: cached != nil)
     }
 
     var suggestedAuthors: [String] {
@@ -169,6 +177,7 @@ struct FeedRulesSheet: View {
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button(role: .cancel) {
+                        SheetInputCache.clearFeedRules(for: feed.id)
                         dismiss()
                     }
                 }
@@ -179,13 +188,22 @@ struct FeedRulesSheet: View {
                 }
             }
             .onAppear {
-                guard !hasInitialized else { return }
-                hasInitialized = true
-                allowedKeywords = feedManager.allowedKeywords(for: feed)
-                mutedKeywords = feedManager.mutedKeywords(for: feed)
-                mutedAuthors = feedManager.mutedAuthors(for: feed)
-                availableAuthors = feedManager.uniqueAuthors(for: feed)
+                if !hasInitialized {
+                    hasInitialized = true
+                    allowedKeywords = feedManager.allowedKeywords(for: feed)
+                    mutedKeywords = feedManager.mutedKeywords(for: feed)
+                    mutedAuthors = feedManager.mutedAuthors(for: feed)
+                }
+                if availableAuthors.isEmpty {
+                    availableAuthors = feedManager.uniqueAuthors(for: feed)
+                }
             }
+            .onChange(of: allowedKeywords) { persistInputSnapshot() }
+            .onChange(of: mutedKeywords) { persistInputSnapshot() }
+            .onChange(of: mutedAuthors) { persistInputSnapshot() }
+            .onChange(of: allowedKeywordInput) { persistInputSnapshot() }
+            .onChange(of: keywordInput) { persistInputSnapshot() }
+            .onChange(of: authorInput) { persistInputSnapshot() }
         }
     }
 
@@ -217,6 +235,21 @@ struct FeedRulesSheet: View {
         feedManager.saveAllowedKeywords(allowedKeywords, for: feed)
         feedManager.saveMutedKeywords(mutedKeywords, for: feed)
         feedManager.saveMutedAuthors(mutedAuthors, for: feed)
+        SheetInputCache.clearFeedRules(for: feed.id)
         dismiss()
+    }
+
+    private func persistInputSnapshot() {
+        SheetInputCache.setFeedRulesSnapshot(
+            SheetInputCache.FeedRulesSnapshot(
+                allowedKeywords: allowedKeywords,
+                mutedKeywords: mutedKeywords,
+                mutedAuthors: mutedAuthors,
+                allowedKeywordInput: allowedKeywordInput,
+                keywordInput: keywordInput,
+                authorInput: authorInput
+            ),
+            for: feed.id
+        )
     }
 }
