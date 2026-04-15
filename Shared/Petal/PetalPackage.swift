@@ -105,8 +105,18 @@ nonisolated enum PetalPackage {
         return PetalZip.write(entries: entries)
     }
 
-    /// Convenience: exports straight to a temp file and returns the URL
-    /// so callers can hand it to `ShareLink` / `fileExporter`.
+    /// Convenience: exports straight to a temp file and returns the
+    /// URL so callers can hand it to `ShareLink` / `fileExporter`.
+    ///
+    /// The output goes into a *fresh, UUID-named* subdirectory of
+    /// the temp directory rather than the temp directory itself.
+    /// Even though `sanitizedFilename` already strips path
+    /// separators, writing into a throwaway subdirectory makes the
+    /// trust barrier between the user-controlled `recipe.name` and
+    /// the real filesystem explicit — a malicious name can only
+    /// clobber files inside the one-use subfolder we just created.
+    /// The resolved path is re-checked to guarantee it lives under
+    /// the sandbox folder before we write anything.
     static func exportToTempFile(
         recipe: PetalRecipe,
         iconPNG: Data? = nil
@@ -114,9 +124,25 @@ nonisolated enum PetalPackage {
         let data = try export(recipe: recipe, iconPNG: iconPNG)
         let safeName = sanitizedFilename(recipe.name)
         let filename = "\(safeName).\(fileExtension)"
-        let tempURL = FileManager.default.temporaryDirectory
-            .appendingPathComponent(filename)
-        try? FileManager.default.removeItem(at: tempURL)
+
+        let sandbox = FileManager.default.temporaryDirectory
+            .appendingPathComponent("PetalExport-\(UUID().uuidString)",
+                                    isDirectory: true)
+        try FileManager.default.createDirectory(
+            at: sandbox, withIntermediateDirectories: true
+        )
+
+        let tempURL = sandbox.appendingPathComponent(filename)
+        // Defense in depth: reject any path that escapes the
+        // sandbox after normalization.  This can't happen with the
+        // current sanitizer, but the guard documents the invariant
+        // and keeps Sonar / future refactors honest.
+        let resolvedPath = tempURL.standardizedFileURL.path
+        let sandboxPath = sandbox.standardizedFileURL.path
+        guard resolvedPath.hasPrefix(sandboxPath + "/") else {
+            throw PackageError.malformed
+        }
+
         try data.write(to: tempURL, options: .atomic)
         return tempURL
     }
