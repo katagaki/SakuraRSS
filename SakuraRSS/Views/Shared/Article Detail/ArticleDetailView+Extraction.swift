@@ -122,7 +122,7 @@ extension ArticleDetailView {
            await XProfileScraper.hasXSession() {
             let scraper = XProfileScraper()
             if let tweet = await scraper.fetchSingleTweet(tweetID: tweetID) {
-                var text = tweet.text
+                var text = ArticleMarker.escape(tweet.text)
                 if let imageURL = tweet.imageURL {
                     text += "\n\n{{IMG}}\(imageURL){{/IMG}}"
                 }

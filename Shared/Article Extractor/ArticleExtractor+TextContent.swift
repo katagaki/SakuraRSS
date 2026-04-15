@@ -64,6 +64,8 @@ extension ArticleExtractor {
         text = escapeBracketsInLinkText(text,
                                         open: linkOpenPlaceholder,
                                         mid: linkMidPlaceholder)
+        // Escape literal markers before SAKURA placeholders become real ones.
+        text = ArticleMarker.escape(text)
         text = convertPlaceholdersToMarkdown(text)
         text = stripInvalidURLSupSub(text)
         text = stripRemainingHTMLTags(text)

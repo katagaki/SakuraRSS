@@ -27,7 +27,8 @@ extension RedditPostScraper {
 
         let selftext: String = {
             guard let raw = post["selftext"] as? String else { return "" }
-            return raw.trimmingCharacters(in: .whitespacesAndNewlines)
+            let trimmed = raw.trimmingCharacters(in: .whitespacesAndNewlines)
+            return ArticleMarker.escape(trimmed)
         }()
 
         var markerLines: [String] = []

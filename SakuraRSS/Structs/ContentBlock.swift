@@ -17,7 +17,7 @@ enum ContentBlock: Identifiable {
 
     /// Strips image and code markers from text, returning plain text suitable for translation/summarization.
     static func plainText(from text: String) -> String {
-        text.replacingOccurrences(
+        let stripped = text.replacingOccurrences(
             of: #"\{\{IMG\}\}.+?\{\{/IMG\}\}"#, with: "", options: .regularExpression
         )
         .replacingOccurrences(
@@ -30,6 +30,7 @@ enum ContentBlock: Identifiable {
         .replacingOccurrences(of: "{{/CODE}}", with: "")
         .replacingOccurrences(of: #"\n{3,}"#, with: "\n\n", options: .regularExpression)
         .trimmingCharacters(in: .whitespacesAndNewlines)
+        return ArticleMarker.unescape(stripped)
     }
 
     /// Strips Markdown formatting from text, returning plain text suitable for content previews.
@@ -79,6 +80,7 @@ enum ContentBlock: Identifiable {
         result = result.replacingOccurrences(
             of: #"\n{3,}"#, with: "\n\n", options: .regularExpression
         )
+        result = ArticleMarker.unescape(result)
         return result.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
@@ -86,14 +88,14 @@ enum ContentBlock: Identifiable {
         let pattern = #"\{\{(IMG|CODE|VIDEO)\}\}(.*?)\{\{/(IMG|CODE|VIDEO)\}\}"#
         guard let regex = try? NSRegularExpression(pattern: pattern, options: .dotMatchesLineSeparators)
         else {
-            return [.text(text)]
+            return [.text(ArticleMarker.unescape(text))]
         }
 
         let nsText = text as NSString
         let matches = regex.matches(in: text, range: NSRange(location: 0, length: nsText.length))
 
         guard !matches.isEmpty else {
-            return [.text(text)]
+            return [.text(ArticleMarker.unescape(text))]
         }
 
         let linkPattern = #"^(.+?)\{\{IMGLINK\}\}(.+?)\{\{/IMGLINK\}\}$"#
@@ -109,7 +111,7 @@ enum ContentBlock: Identifiable {
                     with: NSRange(location: lastEnd, length: match.range.location - lastEnd)
                 ).trimmingCharacters(in: .whitespacesAndNewlines)
                 if !before.isEmpty {
-                    blocks.append(.text(before))
+                    blocks.append(.text(ArticleMarker.unescape(before)))
                 }
             }
 
@@ -118,7 +120,7 @@ enum ContentBlock: Identifiable {
 
             if tag == "CODE" {
                 if !content.isEmpty {
-                    blocks.append(.code(content))
+                    blocks.append(.code(ArticleMarker.unescape(content)))
                 }
             } else if tag == "VIDEO" {
                 if let url = URL(string: content) {
@@ -149,7 +151,7 @@ enum ContentBlock: Identifiable {
             let after = nsText.substring(from: lastEnd)
                 .trimmingCharacters(in: .whitespacesAndNewlines)
             if !after.isEmpty {
-                blocks.append(.text(after))
+                blocks.append(.text(ArticleMarker.unescape(after)))
             }
         }
 
