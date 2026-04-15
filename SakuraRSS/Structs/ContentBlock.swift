@@ -30,9 +30,6 @@ enum ContentBlock: Identifiable {
         .replacingOccurrences(of: "{{/CODE}}", with: "")
         .replacingOccurrences(of: #"\n{3,}"#, with: "\n\n", options: .regularExpression)
         .trimmingCharacters(in: .whitespacesAndNewlines)
-        // Restore any literal marker sequences that were escaped at
-        // extraction time so consumers (translation, summarization,
-        // previews) see the article's original text.
         return ArticleMarker.unescape(stripped)
     }
 
@@ -83,8 +80,6 @@ enum ContentBlock: Identifiable {
         result = result.replacingOccurrences(
             of: #"\n{3,}"#, with: "\n\n", options: .regularExpression
         )
-        // Restore any literal marker sequences that were escaped at
-        // extraction time so previews show the article's original text.
         result = ArticleMarker.unescape(result)
         return result.trimmingCharacters(in: .whitespacesAndNewlines)
     }

@@ -27,10 +27,6 @@ extension RedditPostScraper {
 
         let selftext: String = {
             guard let raw = post["selftext"] as? String else { return "" }
-            // Reddit selftext is user-authored Markdown that may legitimately
-            // contain `{{IMG}}`, `{{CODE}}`, etc. (templating discussions).
-            // Escape these so `ContentBlock.parse` doesn't misinterpret them
-            // as markers when the cached marker string is rendered later.
             let trimmed = raw.trimmingCharacters(in: .whitespacesAndNewlines)
             return ArticleMarker.escape(trimmed)
         }()

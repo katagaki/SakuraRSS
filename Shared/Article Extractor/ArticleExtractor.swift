@@ -426,9 +426,6 @@ struct ArticleExtractor { // swiftlint:disable:this type_body_length
         )
         let decoded = decodeCodeEntities(html)
             .trimmingCharacters(in: CharacterSet(charactersIn: "\n"))
-        // Code samples that legitimately contain `{{/CODE}}` or other
-        // marker tokens (templating tutorials) would otherwise prematurely
-        // terminate the wrapping `{{CODE}}…{{/CODE}}` block at parse time.
         return ArticleMarker.escape(decoded)
     }
 
