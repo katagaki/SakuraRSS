@@ -75,7 +75,7 @@
 			<key>UTTypeIdentifier</key>
 			<string>com.tsubuzaki.SakuraRSS.petal</string>
 			<key>UTTypeDescription</key>
-			<string>Sakura RSS Package</string>
+			<string>Sakura Web Feed</string>
 			<key>UTTypeConformsTo</key>
 			<array>
 				<string>public.zip-archive</string>
@@ -111,7 +111,7 @@
 		</dict>
 		<dict>
 			<key>CFBundleTypeName</key>
-			<string>Sakura RSS Package</string>
+			<string>Sakura Web Feed</string>
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
 			<key>LSHandlerRank</key>

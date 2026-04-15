@@ -29,6 +29,12 @@ struct PetalManagementView: View {
     var body: some View {
         List {
             Section {
+                Text("WebFeed.About.Body")
+            } header: {
+                Text("WebFeed.About.Header")
+            }
+
+            Section {
                 Button {
                     isImporting = true
                 } label: {
@@ -55,6 +61,8 @@ struct PetalManagementView: View {
         }
         .navigationTitle("Petal.Manage.Title")
         .toolbarTitleDisplayMode(.inline)
+        .scrollContentBackground(.hidden)
+        .sakuraBackground()
         .fileImporter(
             isPresented: $isImporting,
             allowedContentTypes: [PetalPackage.contentType],
