@@ -209,19 +209,21 @@ struct ArticlesView: View {
             displayStyle = raw.flatMap(FeedDisplayStyle.init(rawValue:)) ?? fallback
         }
         .overlay {
-            if articles.isEmpty && effectiveStyle != .scroll {
-                ContentUnavailableView {
-                    Label("Articles.Empty.Title",
-                          systemImage: "doc.text")
-                } description: {
-                    Text("Articles.Empty.Description")
-                }
-            } else if visibleArticles.isEmpty && hideRead {
-                ContentUnavailableView {
-                    Label("Articles.AllRead.Title",
-                          systemImage: "checkmark.circle")
-                } description: {
-                    Text("Articles.AllRead.Description")
+            if effectiveStyle != .scroll {
+                if articles.isEmpty {
+                    ContentUnavailableView {
+                        Label("Articles.Empty.Title",
+                              systemImage: "doc.text")
+                    } description: {
+                        Text("Articles.Empty.Description")
+                    }
+                } else if visibleArticles.isEmpty && hideRead {
+                    ContentUnavailableView {
+                        Label("Articles.AllRead.Title",
+                              systemImage: "checkmark.circle")
+                    } description: {
+                        Text("Articles.AllRead.Description")
+                    }
                 }
             }
         }
