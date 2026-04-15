@@ -91,10 +91,10 @@ struct PetalBuilderView: View {
             .toolbarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Shared.Cancel") { dismiss() }
+                    Button(role: .cancel) { dismiss() }
                 }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Shared.Done") { save() }
+                    Button(role: .confirm) { save() }
                         .disabled(!canSave)
                 }
             }

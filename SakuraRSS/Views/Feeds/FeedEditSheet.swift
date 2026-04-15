@@ -20,6 +20,7 @@ struct FeedEditSheet: View {
     @State var showIconFetchError = false
     @State var useDefaultIcon = false
     @State private var hasInitialized = false
+    @State private var showPetalBuilder = false
 
     var body: some View {
         NavigationStack {
@@ -40,7 +41,7 @@ struct FeedEditSheet: View {
                                 .foregroundStyle(.secondary)
                                 .lineLimit(1)
                         }
-                    } else {
+                    } else if !PetalRecipe.isPetalFeedURL(feed.url) {
                         HStack {
                             Text(String(localized: "FeedEdit.URL", table: "Feeds"))
                             TextField(String(localized: "FeedEdit.URL", table: "Feeds"), text: $url)
@@ -51,6 +52,27 @@ struct FeedEditSheet: View {
                                 .textInputAutocapitalization(.never)
                                 .labelsHidden()
                         }
+                    }
+                }
+
+                if PetalRecipe.isPetalFeedURL(feed.url) {
+                    Section {
+                        if let recipe = PetalStore.shared.recipe(forFeedURL: feed.url) {
+                            HStack {
+                                Text(String(localized: "FeedEdit.SourceURL", table: "Petal"))
+                                Spacer()
+                                Text(recipe.siteURL)
+                                    .foregroundStyle(.secondary)
+                                    .lineLimit(1)
+                            }
+                        }
+                        Button {
+                            showPetalBuilder = true
+                        } label: {
+                            Label(String(localized: "FeedEdit.EditRecipe", table: "Petal"), systemImage: "wand.and.stars")
+                        }
+                    } header: {
+                        Text(String(localized: "FeedEdit.Header", table: "Petal"))
                     }
                 }
 
@@ -221,6 +243,12 @@ struct FeedEditSheet: View {
                         iconURLInput = ""
                         useDefaultIcon = false
                     }
+                }
+            }
+            .sheet(isPresented: $showPetalBuilder) {
+                if let recipe = PetalStore.shared.recipe(forFeedURL: feed.url) {
+                    PetalBuilderView(mode: .edit(feed: feed, recipe: recipe))
+                        .environment(feedManager)
                 }
             }
             .alert(String(localized: "FeedEdit.IconFetchError", table: "Feeds"), isPresented: $showIconFetchError) {

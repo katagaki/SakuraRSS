@@ -93,35 +93,27 @@ struct PetalManagementView: View {
     }
 
     private func row(for feed: Feed) -> some View {
-        HStack {
+        Button {
+            guard let recipe = PetalStore.shared.recipe(forFeedURL: feed.url) else { return }
+            selectedRecipe = RecipeSelection(id: recipe.id, feed: feed, recipe: recipe)
+        } label: {
+            VStack(alignment: .leading, spacing: 2) {
+                Text(feed.title)
+                    .foregroundStyle(.primary)
+                Text(feed.siteURL)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .contentShape(.rect)
+        }
+        .contextMenu {
             Button {
-                guard let recipe = PetalStore.shared.recipe(forFeedURL: feed.url) else { return }
-                selectedRecipe = RecipeSelection(id: recipe.id, feed: feed, recipe: recipe)
+                exportPetal(feed: feed)
             } label: {
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(feed.title)
-                        .foregroundStyle(.primary)
-                    Text(feed.siteURL)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                        .lineLimit(1)
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .contentShape(.rect)
+                Label(String(localized: "Manage.Export", table: "Petal"), systemImage: "square.and.arrow.up")
             }
-            .buttonStyle(.plain)
-
-            Menu {
-                Button {
-                    exportPetal(feed: feed)
-                } label: {
-                    Label(String(localized: "Manage.Export", table: "Petal"), systemImage: "square.and.arrow.up")
-                }
-            } label: {
-                Image(systemName: "ellipsis.circle")
-                    .foregroundStyle(.accent)
-            }
-            .buttonStyle(.borderless)
         }
     }
 

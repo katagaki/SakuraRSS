@@ -252,7 +252,7 @@ extension ArticleExtractor {
         let skipPatterns = [
             "gravatar.com", "pixel", "spacer", "blank",
             "1x1", "transparent", "tracking", "beacon",
-            ".gif", "feeds.feedburner.com", "badge",
+            ".gif", ".svg", "feeds.feedburner.com", "badge",
             "icon", "emoji", "smiley", "avatar",
             "ad.", "ads.", "doubleclick", "googlesyndication"
         ]
