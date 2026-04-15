@@ -28693,6 +28693,457 @@
           }
         }
       }
+    },
+    "Labs.PetalRecipes" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Petal (Custom Feeds)"
+          }
+        }
+      }
+    },
+    "Labs.PetalRecipes.Footer" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Petal lets you turn any webpage into an RSS feed using on-device scraping. Useful for blogs and single-page apps that don't publish their own feed."
+          }
+        }
+      }
+    },
+    "Settings.Section.Labs" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Experimental"
+          }
+        }
+      }
+    },
+    "Petal.Builder.Title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Petal"
+          }
+        }
+      }
+    },
+    "Petal.Builder.Name.Placeholder" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Feed name"
+          }
+        }
+      }
+    },
+    "Petal.Builder.URL.Placeholder" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "https://example.com/blog"
+          }
+        }
+      }
+    },
+    "Petal.Builder.FetchMode" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fetch mode"
+          }
+        }
+      }
+    },
+    "Petal.Builder.FetchMode.Static" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Static HTML"
+          }
+        }
+      }
+    },
+    "Petal.Builder.FetchMode.Rendered" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rendered (for SPAs)"
+          }
+        }
+      }
+    },
+    "Petal.Builder.Fetch" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fetch & Preview"
+          }
+        }
+      }
+    },
+    "Petal.Builder.Section.Source" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Source"
+          }
+        }
+      }
+    },
+    "Petal.Builder.Section.SourceFooter" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rendered mode loads the page in a web view and waits for JavaScript to run. Use it for React or other single-page apps."
+          }
+        }
+      }
+    },
+    "Petal.Builder.ItemSelector" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Item selector (required)"
+          }
+        }
+      }
+    },
+    "Petal.Builder.TitleSelector" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Title selector"
+          }
+        }
+      }
+    },
+    "Petal.Builder.LinkSelector" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Link selector"
+          }
+        }
+      }
+    },
+    "Petal.Builder.SummarySelector" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Summary selector"
+          }
+        }
+      }
+    },
+    "Petal.Builder.ImageSelector" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Image selector"
+          }
+        }
+      }
+    },
+    "Petal.Builder.DateSelector" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Date selector"
+          }
+        }
+      }
+    },
+    "Petal.Builder.Section.Selectors" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Selectors"
+          }
+        }
+      }
+    },
+    "Petal.Builder.Section.SelectorsFooter" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Each selector runs relative to an item. Leave a field empty to let Petal guess from the item's own content."
+          }
+        }
+      }
+    },
+    "Petal.Builder.Section.Preview" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Preview"
+          }
+        }
+      }
+    },
+    "Petal.Builder.Preview.Empty" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No items matched. Try a broader item selector."
+          }
+        }
+      }
+    },
+    "Petal.Builder.Preview.TapFetch" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tap Fetch & Preview to load the page."
+          }
+        }
+      }
+    },
+    "Petal.Builder.Delete" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Delete Petal"
+          }
+        }
+      }
+    },
+    "Petal.Builder.DeleteConfirm.Title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Delete this Petal?"
+          }
+        }
+      }
+    },
+    "Petal.Builder.DeleteConfirm.Message" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The recipe and its fetched articles will be removed. This cannot be undone."
+          }
+        }
+      }
+    },
+    "Petal.Manage.Title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Manage Petals"
+          }
+        }
+      }
+    },
+    "Petal.Manage.Import" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Import .srss package"
+          }
+        }
+      }
+    },
+    "Petal.Manage.ImportFooter" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sakura RSS packages (.srss) contain a recipe and an optional feed icon. Nothing is uploaded — import runs entirely on device."
+          }
+        }
+      }
+    },
+    "Petal.Manage.Empty" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No Petals yet. Create one from the Add Feed screen, or import a .srss package."
+          }
+        }
+      }
+    },
+    "Petal.Manage.Section.Installed" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Installed"
+          }
+        }
+      }
+    },
+    "Petal.Manage.Export" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Export as .srss"
+          }
+        }
+      }
+    },
+    "Petal.AddFeed.Generate" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Generate feed with Petal"
+          }
+        }
+      }
+    },
+    "Petal.AddFeed.GenerateFooter" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No RSS feed was found. Petal can build one on-device by scraping the page with selectors you choose."
+          }
+        }
+      }
+    },
+    "Petal.Error.Title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Petal"
+          }
+        }
+      }
+    },
+    "Petal.Error.FetchFailed" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn't load that page. Check the URL or try rendered mode."
+          }
+        }
+      }
+    },
+    "Petal.Error.NoMatches" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No items matched the current selectors."
+          }
+        }
+      }
+    },
+    "Petal.Error.ImportFailed" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn't import that package."
+          }
+        }
+      }
+    },
+    "Petal.Error.PackageMissingRecipe" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The package is missing a recipe file."
+          }
+        }
+      }
+    },
+    "Petal.Error.PackageUnsupportedVersion" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This package was made with a newer version of Sakura. Update the app and try again."
+          }
+        }
+      }
+    },
+    "Petal.Error.PackageMalformed" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This doesn't look like a valid Sakura RSS package."
+          }
+        }
+      }
     }
   },
   "version" : "1.1"

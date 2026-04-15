@@ -18,7 +18,17 @@ struct AddFeedView: View {
     @State private var pendingInstagramFeed: DiscoveredFeed?
     @State private var suggestedTopics: [SuggestedTopic] = []
     @State private var hasInitialized = false
+    @State private var showPetalBuilder = false
+    @AppStorage("Labs.PetalRecipes") private var petalRecipesEnabled: Bool = false
     @FocusState private var isURLFieldFocused: Bool
+
+    /// The URL to seed the Petal builder with when the user taps
+    /// "Generate with Petal" after a failed search.  Prefers the
+    /// normalized input URL; falls back to whatever is in the field.
+    private var petalSeedURL: String {
+        let trimmed = urlInput.trimmingCharacters(in: .whitespaces)
+        return trimmed.isEmpty ? "" : normalizeURL(trimmed)
+    }
 
     private var appName: String {
         Bundle.main.object(forInfoDictionaryKey: "CFBundleName") as? String ?? "Sakura"
@@ -108,6 +118,18 @@ struct AddFeedView: View {
                     Section {
                         Text(errorMessage)
                             .foregroundStyle(.red)
+                    }
+
+                    if petalRecipesEnabled && !urlInput.isEmpty {
+                        Section {
+                            Button {
+                                showPetalBuilder = true
+                            } label: {
+                                Label("Petal.AddFeed.Generate", systemImage: "leaf.fill")
+                            }
+                        } footer: {
+                            Text("Petal.AddFeed.GenerateFooter")
+                        }
                     }
                 }
 
@@ -200,6 +222,10 @@ struct AddFeedView: View {
                 }
             } content: {
                 InstagramLoginView()
+            }
+            .sheet(isPresented: $showPetalBuilder) {
+                PetalBuilderView(mode: .create(initialURL: petalSeedURL))
+                    .environment(feedManager)
             }
             .onAppear {
                 guard !hasInitialized else { return }
