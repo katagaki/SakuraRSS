@@ -11,11 +11,6 @@ extension FeedManager {
         guard !database.feedExists(url: url) else {
             throw FeedError.alreadyExists
         }
-        // Enforce per-host follow caps for authenticated scraper feeds
-        // (X, Instagram).  Unbounded follows on these hosts translate
-        // into rate-limit / account-lock pressure at refresh time, so
-        // the cap is applied at insert to keep the fleet small enough
-        // for the 30-minute refresh cadence to stay safe.
         let newHost = URL(string: siteURL)?.host
             ?? URL(string: url)?.host
             ?? ""
@@ -35,7 +30,6 @@ extension FeedManager {
         )
         generateAcronymIcon(feedID: feedID, title: title)
         loadFromDatabase()
-        // Fetch the feed's articles in the background
         if let feed = feedsByID[feedID] {
             Task {
                 try? await refreshFeed(feed)
@@ -56,12 +50,8 @@ extension FeedManager {
         loadFromDatabase()
     }
 
-    /// Applies the title + profile photo fetched by a social-feed
-    /// scraper (X, Instagram, YouTube playlist) on the *first* refresh
-    /// of a freshly-added feed.  Once `feed.lastFetched != nil` this
-    /// helper is a no-op: every subsequent refresh leaves the title
-    /// and icon alone, so user edits from the edit sheet are the sole
-    /// source of truth after add.
+    /// Installs the scraped title + profile photo on the first refresh
+    /// after add.  No-op once `feed.lastFetched != nil`.
     func applyScraperMetadataRefresh(
         feed: Feed,
         scrapedTitle: String,
@@ -96,12 +86,6 @@ extension FeedManager {
 
     func updateFeedDetails(_ feed: Feed, title: String, url: String,
                            customIconURL: String?) {
-        // A user-driven title change (from the edit sheet) flips the
-        // `isTitleCustomized` flag so future refreshes won't overwrite
-        // it.  If the user never touched the title we leave the existing
-        // flag alone — that way a user who previously customized and is
-        // now only editing the URL or icon doesn't accidentally clear
-        // their override.
         let titleIsCustomized = feed.isTitleCustomized || title != feed.title
         try? database.updateFeedDetails(id: feed.id, title: title, url: url,
                                         customIconURL: customIconURL,
@@ -110,14 +94,6 @@ extension FeedManager {
             generateAcronymIcon(feedID: feed.id, title: title)
         }
         loadFromDatabase()
-        // Feed rows cache their favicon in @State from a one-shot
-        // `.task`, so without a revision bump they keep showing the
-        // pre-edit icon until they scroll off-screen and back.  Users
-        // see the stale image after pull-to-refresh and conclude the
-        // refresh clobbered their override, when really the edit just
-        // never propagated.  Bump the revision so every visible row
-        // re-queries `FaviconCache.favicon(for: feed)` and picks up
-        // the newly-saved custom icon.
         notifyFaviconChange()
     }
 

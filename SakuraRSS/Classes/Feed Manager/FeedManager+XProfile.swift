@@ -6,11 +6,9 @@ extension FeedManager {
     // MARK: - X Profile Feeds
 
     /// Minimum interval between X API calls per feed (30 minutes).
-    /// Also used by `FaviconProgressBadge` to size the cooldown pie.
     static let xRefreshInterval: TimeInterval = 30 * 60
 
     func refreshXFeed(_ feed: Feed, reloadData: Bool = true) async throws {
-        // Skip if this feed was fetched less than 30 minutes ago to avoid rate limits
         if let lastFetched = feed.lastFetched,
            Date().timeIntervalSince(lastFetched) < Self.xRefreshInterval {
             #if DEBUG
@@ -27,7 +25,6 @@ extension FeedManager {
         let scraper = XProfileScraper()
         let result = await scraper.scrapeProfile(profileURL: profileURL)
 
-        // Prepare tweet data for batch insert
         let tweetTuples = result.tweets.map { tweet in
             let title = tweet.text.isEmpty
                 ? "Post by @\(tweet.authorHandle)"
@@ -47,9 +44,6 @@ extension FeedManager {
 
         let feedTitle = result.displayName ?? feed.title
 
-        // Download the profile photo only on the first-ever refresh of
-        // this feed.  After that, metadata is frozen and user edits
-        // from the edit sheet are authoritative.
         var profileImage: UIImage?
         if feed.lastFetched == nil,
            let imageURLString = result.profileImageURL,
@@ -58,7 +52,6 @@ extension FeedManager {
             profileImage = UIImage(data: imageData)
         }
 
-        // Run all DB writes off the main thread
         let database = database
         try await Task.detached {
             try database.insertArticles(feedID: feed.id, articles: tweetTuples)
@@ -67,8 +60,6 @@ extension FeedManager {
             SpotlightIndexer.indexArticles(articlesToIndex, feedTitle: feedTitle)
         }.value
 
-        // Install title + profile photo only on the first-ever fetch.
-        // The helper itself no-ops on subsequent refreshes.
         await applyScraperMetadataRefresh(
             feed: feed, scrapedTitle: feedTitle, profileImage: profileImage
         )
@@ -78,7 +69,6 @@ extension FeedManager {
         }
     }
 
-    /// Whether the user has any X profile feeds.
     var hasXFeeds: Bool {
         feeds.contains { XProfileScraper.isXFeedURL($0.url) }
     }

@@ -36,10 +36,6 @@ extension FeedManager {
             let parser = RSSParser()
             guard let parsed = parser.parse(data: data) else { return }
 
-            // Fall back to HTML metadata (og:image, twitter:image, etc.)
-            // for new items the feed itself didn't tag with an image.
-            // Existing items are skipped so we don't re-probe pages we've
-            // already ingested on every refresh.
             let existingURLs = (try? database.existingArticleURLs(forFeedID: feed.id)) ?? []
             let imageBackfills = await FeedManager.backfillMetadataImages(
                 for: parsed.articles, skippingURLs: existingURLs
@@ -64,20 +60,12 @@ extension FeedManager {
 
             try database.insertArticles(feedID: feed.id, articles: articleTuples)
 
-            // Skip Spotlight indexing under Low Power Mode so feeds still
-            // refresh while deferring the CoreSpotlight writes until LPM
-            // turns off.  The next successful refresh outside LPM will
-            // re-index the same articles.
             if !ProcessInfo.processInfo.isLowPowerModeEnabled {
                 let feedTitleForIndex = parsed.title.isEmpty ? feed.title : parsed.title
                 let articlesToIndex = try database.articles(forFeedID: feed.id, limit: articleTuples.count)
                 SpotlightIndexer.indexArticles(articlesToIndex, feedTitle: feedTitleForIndex)
             }
 
-            // Feed metadata (title, isPodcast) is fetched exactly once,
-            // on the first refresh after add.  Subsequent refreshes
-            // never touch these fields — edits from the edit sheet are
-            // the sole source of truth after add.
             if feed.lastFetched == nil {
                 if parsed.isPodcast && !feed.isPodcast {
                     try database.updateFeedIsPodcast(id: feed.id, isPodcast: true)
@@ -98,10 +86,6 @@ extension FeedManager {
         }
     }
 
-    /// Returns `[articleURL: imageURL]` for parsed items missing an
-    /// image, by scraping each article page's HTML metadata.  Skips
-    /// articles already in `skippingURLs` and caps concurrency so a
-    /// feed with many imageless items doesn't flood a single host.
     nonisolated static func backfillMetadataImages(
         for articles: [ParsedArticle],
         skippingURLs existingURLs: Set<String>
@@ -180,27 +164,11 @@ extension FeedManager {
         await loadFromDatabaseInBackground()
     }
 
-    /// Refreshes every feed.
-    ///
-    /// - Parameters:
-    ///   - skipAuthenticatedScrapers: When `true`, X and Instagram
-    ///     profile feeds are skipped entirely.  Pass this from background
-    ///     refresh tasks.  Both scrapers' cookies now live in Keychain and
-    ///     so are technically available in the background, but hitting the
-    ///     Instagram/X APIs from a locked device at a fixed scheduler
-    ///     cadence is itself a strong bot-like signal — a stronger signal
-    ///     than anything else in the request fingerprint — so those
-    ///     scrapes are reserved for foreground use.  X additionally still
-    ///     depends on a JS-bundle query-ID fetch that is unreliable in a
-    ///     `BGAppRefreshTask`.
-    ///   - respectCooldown: When `true`, feeds whose `lastFetched` is
-    ///     within the user-configured `BackgroundRefresh.Cooldown`
-    ///     window are skipped.  Feeds that have never been fetched
-    ///     (`lastFetched == nil`) always refresh.  Pass this from
-    ///     automatic triggers (background refresh, app startup,
-    ///     foreground re-enter).  Leave `false` for explicit user
-    ///     actions like pull-to-refresh, which should always refresh
-    ///     everything.
+    /// Refreshes every feed.  `skipAuthenticatedScrapers` omits X and
+    /// Instagram profile feeds (pass from background refresh tasks).
+    /// `respectCooldown` skips feeds whose `lastFetched` is within the
+    /// `BackgroundRefresh.Cooldown` window; feeds with nil `lastFetched`
+    /// always refresh.
     func refreshAllFeeds(
         skipAuthenticatedScrapers: Bool = false,
         respectCooldown: Bool = false
@@ -225,9 +193,6 @@ extension FeedManager {
                 if let cooldownSeconds,
                    let lastFetched = feed.lastFetched,
                    now.timeIntervalSince(lastFetched) < cooldownSeconds {
-                    // Inside the cooldown window.  A nil lastFetched
-                    // means the feed has never been refreshed (new or
-                    // freshly imported), so it always proceeds.
                     continue
                 }
                 group.addTask {
@@ -238,25 +203,16 @@ extension FeedManager {
         await loadFromDatabaseInBackground()
     }
 
-    /// Refreshes feeds that have never been fetched (e.g. added by the share
-    /// extension while the main app was in the background).  Also generates
-    /// acronym icons for those feeds.
-    ///
-    /// Icons are deliberately not refreshed here.  Forcing a favicon
-    /// reload after add races with any icon the user has meanwhile
-    /// picked from the edit sheet, which reads as the refresh
-    /// clobbering their custom icon.  Rows pick up whatever is already
-    /// in `FaviconCache` lazily the first time they render.
+    /// Refreshes feeds that have never been fetched (e.g. added by the
+    /// share extension while the main app was in the background).
     func refreshUnfetchedFeeds() async {
         let unfetched = feeds.filter { $0.lastFetched == nil }
         guard !unfetched.isEmpty else { return }
 
-        // Generate acronym icons the share extension doesn't create.
         for feed in unfetched {
             generateAcronymIcon(feedID: feed.id, title: feed.title)
         }
 
-        // Fetch articles for the new feeds.
         await withTaskGroup(of: Void.self) { group in
             for feed in unfetched {
                 group.addTask {

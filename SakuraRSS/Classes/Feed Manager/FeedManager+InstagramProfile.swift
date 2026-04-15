@@ -6,22 +6,16 @@ extension FeedManager {
     // MARK: - Instagram Profile Feeds
 
     /// Minimum interval between Instagram API calls per feed (30 minutes).
-    /// Also used by `FaviconProgressBadge` to size the cooldown pie.
     static let instagramRefreshInterval: TimeInterval = 30 * 60
 
-    /// Returns a jittered effective refresh interval.  A hard 30-minute
-    /// cadence is a strong automation signal on its own — real users do
-    /// not open the same profile on the tick.  We keep 30 min as the
-    /// floor and add up to ~10 min of upward jitter so consecutive
-    /// refreshes never fall on a fixed schedule.
+    /// Jittered effective refresh interval — the 30-minute floor plus up
+    /// to ~10 minutes so consecutive refreshes don't fall on a fixed
+    /// schedule (a strong automation signal on its own).
     private static func jitteredRefreshInterval() -> TimeInterval {
         instagramRefreshInterval + TimeInterval.random(in: 0...(10 * 60))
     }
 
     func refreshInstagramFeed(_ feed: Feed, reloadData: Bool = true) async throws {
-        // Skip if this feed was fetched too recently to avoid rate limits.
-        // The cutoff is randomised on each check to avoid a perfectly
-        // periodic fetch cadence.
         let effectiveInterval = Self.jitteredRefreshInterval()
         if let lastFetched = feed.lastFetched,
            Date().timeIntervalSince(lastFetched) < effectiveInterval {
@@ -39,7 +33,6 @@ extension FeedManager {
         let scraper = InstagramProfileScraper()
         let result = await scraper.scrapeProfile(profileURL: profileURL)
 
-        // Prepare post data for batch insert
         let postTuples = result.posts.map { post in
             let title = post.text.isEmpty
                 ? "Post by @\(post.authorHandle)"
@@ -59,9 +52,6 @@ extension FeedManager {
 
         let feedTitle = result.displayName ?? feed.title
 
-        // Download the profile photo only on the first-ever refresh of
-        // this feed.  After that, metadata is frozen and user edits
-        // from the edit sheet are authoritative.
         var profileImage: UIImage?
         if feed.lastFetched == nil,
            let imageURLString = result.profileImageURL,
@@ -70,7 +60,6 @@ extension FeedManager {
             profileImage = UIImage(data: imageData)
         }
 
-        // Run all DB writes off the main thread
         let database = database
         try await Task.detached {
             try database.insertArticles(feedID: feed.id, articles: postTuples)
@@ -79,8 +68,6 @@ extension FeedManager {
             SpotlightIndexer.indexArticles(articlesToIndex, feedTitle: feedTitle)
         }.value
 
-        // Install title + profile photo only on the first-ever fetch.
-        // The helper itself no-ops on subsequent refreshes.
         await applyScraperMetadataRefresh(
             feed: feed, scrapedTitle: feedTitle, profileImage: profileImage
         )
@@ -90,7 +77,6 @@ extension FeedManager {
         }
     }
 
-    /// Whether the user has any Instagram profile feeds.
     var hasInstagramFeeds: Bool {
         feeds.contains { InstagramProfileScraper.isInstagramFeedURL($0.url) }
     }

@@ -9,7 +9,6 @@ extension FeedManager {
     private static let youTubePlaylistRefreshInterval: TimeInterval = 30 * 60
 
     func refreshYouTubePlaylistFeed(_ feed: Feed, reloadData: Bool = true) async throws {
-        // Skip if this feed was fetched less than 30 minutes ago
         if let lastFetched = feed.lastFetched,
            Date().timeIntervalSince(lastFetched) < Self.youTubePlaylistRefreshInterval {
             #if DEBUG
@@ -28,7 +27,6 @@ extension FeedManager {
         let scraper = YouTubePlaylistScraper()
         let result = await scraper.scrapePlaylist(playlistID: playlistID)
 
-        // Convert playlist videos to article insert items
         let articleTuples = result.videos.map { video in
             ArticleInsertItem(
                 title: video.title,
@@ -42,9 +40,6 @@ extension FeedManager {
 
         let feedTitle = result.playlistTitle ?? feed.title
 
-        // Download the channel avatar only on the first-ever refresh of
-        // this feed.  After that, metadata is frozen and user edits
-        // from the edit sheet are authoritative.
         var avatarImage: UIImage?
         if feed.lastFetched == nil,
            let avatarURLString = result.channelAvatarURL,
@@ -53,7 +48,6 @@ extension FeedManager {
             avatarImage = UIImage(data: imageData)
         }
 
-        // Run all DB writes off the main thread
         let database = database
         try await Task.detached {
             try database.insertArticles(feedID: feed.id, articles: articleTuples)
@@ -64,8 +58,6 @@ extension FeedManager {
             SpotlightIndexer.indexArticles(articlesToIndex, feedTitle: feedTitle)
         }.value
 
-        // Install title + channel avatar only on the first-ever fetch.
-        // The helper itself no-ops on subsequent refreshes.
         await applyScraperMetadataRefresh(
             feed: feed, scrapedTitle: feedTitle, profileImage: avatarImage
         )
@@ -75,7 +67,6 @@ extension FeedManager {
         }
     }
 
-    /// Whether the user has any YouTube playlist feeds.
     var hasYouTubePlaylistFeeds: Bool {
         feeds.contains { YouTubePlaylistScraper.isYouTubePlaylistFeedURL($0.url) }
     }
