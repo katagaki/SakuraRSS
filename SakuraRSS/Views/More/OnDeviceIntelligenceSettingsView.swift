@@ -15,22 +15,22 @@ struct OnDeviceIntelligenceSettingsView: View {
         List {
             if isAppleIntelligenceAvailable {
                 Section {
-                    Toggle("Settings.WhileYouSlept", isOn: $whileYouSleptEnabled)
-                    Toggle("Settings.TodaysSummary", isOn: $todaysSummaryEnabled)
+                    Toggle(String(localized: "WhileYouSlept", table: "Settings"), isOn: $whileYouSleptEnabled)
+                    Toggle(String(localized: "TodaysSummary", table: "Settings"), isOn: $todaysSummaryEnabled)
                 } header: {
-                    Text("Settings.Section.AppleIntelligence")
+                    Text(String(localized: "Section.AppleIntelligence", table: "Settings"))
                 } footer: {
-                    Text("Settings.AppleIntelligence.Footer")
+                    Text(String(localized: "AppleIntelligence.Footer", table: "Settings"))
                 }
             }
 
             Section {
-                Toggle("Settings.ContentInsights", isOn: $contentInsightsEnabled)
+                Toggle(String(localized: "ContentInsights", table: "Settings"), isOn: $contentInsightsEnabled)
             } footer: {
-                Text("Settings.ContentInsights.Footer")
+                Text(String(localized: "ContentInsights.Footer", table: "Settings"))
             }
         }
-        .navigationTitle("Settings.Section.InsightsAndIntelligence")
+        .navigationTitle(String(localized: "Section.InsightsAndIntelligence", table: "Settings"))
         .toolbarTitleDisplayMode(.inline)
         .scrollContentBackground(.hidden)
         .sakuraBackground()

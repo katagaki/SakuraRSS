@@ -103,8 +103,8 @@ struct PhotosArticleCard: View {
                     } label: {
                         Label(
                             article.isRead
-                                ? String(localized: "Article.MarkUnread")
-                                : String(localized: "Article.MarkRead"),
+                                ? String(localized: "Article.MarkUnread", table: "Articles")
+                                : String(localized: "Article.MarkRead", table: "Articles"),
                             systemImage: article.isRead
                                 ? "envelope" : "envelope.open"
                         )
@@ -232,12 +232,12 @@ struct PhotosArticleCard: View {
                         UIPasteboard.general.image = photoImage
                     }
                 } label: {
-                    Label("Article.CopyPhoto",
+                    Label(String(localized: "Article.CopyPhoto", table: "Articles"),
                           systemImage: "square.on.square")
                 }
 
                 ShareLink(item: URL(string: article.url) ?? URL(string: "https://")!) {
-                    Label("Article.Share",
+                    Label(String(localized: "Article.Share", table: "Articles"),
                           systemImage: "square.and.arrow.up")
                 }
                 .padding(.bottom, 1)
@@ -254,8 +254,8 @@ struct PhotosArticleCard: View {
                 } label: {
                     Label(
                         article.isBookmarked
-                            ? String(localized: "Article.RemoveBookmark")
-                            : String(localized: "Article.Bookmark"),
+                            ? String(localized: "Article.RemoveBookmark", table: "Articles")
+                            : String(localized: "Article.Bookmark", table: "Articles"),
                         systemImage: article.isBookmarked ? "bookmark.fill" : "bookmark"
                     )
                 }

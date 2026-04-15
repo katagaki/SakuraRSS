@@ -40,15 +40,15 @@ struct ListEditSheet: View {
         NavigationStack {
             Form {
                 Section {
-                    TextField("ListEdit.NamePlaceholder", text: $name)
+                    TextField(String(localized: "ListEdit.NamePlaceholder", table: "Lists"), text: $name)
                     if nameAlreadyExists {
-                        Text("ListEdit.NameExists")
+                        Text(String(localized: "ListEdit.NameExists", table: "Lists"))
                             .font(.caption)
                             .foregroundStyle(.red)
                     }
                 }
 
-                Section("ListEdit.Icon") {
+                Section(String(localized: "ListEdit.Icon", table: "Lists")) {
                     ScrollView(.horizontal, showsIndicators: false) {
                         LazyHGrid(rows: Array(repeating: GridItem(.fixed(44), spacing: 12), count: 4),
                                   spacing: 12) {
@@ -76,10 +76,10 @@ struct ListEditSheet: View {
                     .listRowInsets(EdgeInsets())
                 }
 
-                Section("ListEdit.DisplayStyle") {
-                    Picker("ListEdit.DisplayStyle",
+                Section(String(localized: "ListEdit.DisplayStyle", table: "Lists")) {
+                    Picker(String(localized: "ListEdit.DisplayStyle", table: "Lists"),
                            selection: $selectedDisplayStyle) {
-                        Text("ListEdit.DisplayStyle.Default")
+                        Text(String(localized: "ListEdit.DisplayStyle.Default", table: "Lists"))
                             .tag(nil as String?)
                         ForEach(FeedDisplayStyle.allCases.filter {
                             $0 != .video && $0 != .podcast
@@ -90,9 +90,9 @@ struct ListEditSheet: View {
                     }
                 }
 
-                Section("ListEdit.Feeds") {
+                Section(String(localized: "ListEdit.Feeds", table: "Lists")) {
                     if feedManager.feeds.isEmpty {
-                        Text("ListEdit.Feeds.Empty")
+                        Text(String(localized: "ListEdit.Feeds.Empty", table: "Lists"))
                             .foregroundStyle(.secondary)
                     } else {
                         ForEach(feedManager.feeds) { feed in
@@ -123,8 +123,8 @@ struct ListEditSheet: View {
                 }
             }
             .navigationTitle(isEditing
-                             ? String(localized: "ListEdit.Title.Edit")
-                             : String(localized: "ListEdit.Title.New"))
+                             ? String(localized: "ListEdit.Title.Edit", table: "Lists")
+                             : String(localized: "ListEdit.Title.New", table: "Lists"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {

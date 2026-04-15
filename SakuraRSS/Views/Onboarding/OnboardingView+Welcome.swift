@@ -12,30 +12,30 @@ extension OnboardingView {
                         .frame(width: 80, height: 80)
                         .foregroundStyle(.tertiary)
                         .padding(.top, 80)
-                    Text("Onboarding.Welcome.Title.\(appName)")
+                    Text(String(localized: "Welcome.Title.\(appName)", table: "Onboarding"))
                         .font(.largeTitle.bold())
                 }
 
                 VStack(alignment: .leading, spacing: 24) {
                     featureRow(
                         icon: "newspaper.fill",
-                        title: String(localized: "Onboarding.Feature.Feeds"),
-                        description: String(localized: "Onboarding.Feature.Feeds.Description")
+                        title: String(localized: "Feature.Feeds", table: "Onboarding"),
+                        description: String(localized: "Feature.Feeds.Description", table: "Onboarding")
                     )
                     featureRow(
                         icon: "rectangle.grid.2x2.fill",
-                        title: String(localized: "Onboarding.Feature.ViewStyles"),
-                        description: String(localized: "Onboarding.Feature.ViewStyles.Description")
+                        title: String(localized: "Feature.ViewStyles", table: "Onboarding"),
+                        description: String(localized: "Feature.ViewStyles.Description", table: "Onboarding")
                     )
                     featureRow(
                         icon: "headphones",
-                        title: String(localized: "Onboarding.Feature.Podcasts"),
-                        description: String(localized: "Onboarding.Feature.Podcasts.Description")
+                        title: String(localized: "Feature.Podcasts", table: "Onboarding"),
+                        description: String(localized: "Feature.Podcasts.Description", table: "Onboarding")
                     )
                     featureRow(
                         icon: "apple.intelligence",
-                        title: String(localized: "Onboarding.Feature.Summaries"),
-                        description: String(localized: "Onboarding.Feature.Summaries.Description")
+                        title: String(localized: "Feature.Summaries", table: "Onboarding"),
+                        description: String(localized: "Feature.Summaries.Description", table: "Onboarding")
                     )
                 }
 
@@ -54,7 +54,7 @@ extension OnboardingView {
         .task {
             backupMetadata = await iCloudBackupManager.shared.backupMetadata()
         }
-        .alert("iCloudBackup.RestoreError", isPresented: $showRestoreError) {
+        .alert(String(localized: "iCloudBackup.RestoreError", table: "DataManagement"), isPresented: $showRestoreError) {
             Button("Shared.OK") {}
         }
     }
@@ -69,9 +69,9 @@ extension OnboardingView {
                     .foregroundStyle(.accent)
                     .frame(width: 36, alignment: .center)
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("Onboarding.Restore.Title")
+                    Text(String(localized: "Restore.Title", table: "Onboarding"))
                         .font(.body.weight(.semibold))
-                    Text("Onboarding.Restore.Description \(metadata.deviceName) \(metadata.date.formatted(date: .abbreviated, time: .shortened))")
+                    Text(String(localized: "Restore.Description \(metadata.deviceName) \(metadata.date.formatted(date: .abbreviated, time: .shortened))", table: "Onboarding"))
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                 }
@@ -83,9 +83,9 @@ extension OnboardingView {
                     if isRestoring {
                         ProgressView()
                             .padding(.trailing, 4)
-                        Text("Onboarding.Restore.Restoring")
+                        Text(String(localized: "Restore.Restoring", table: "Onboarding"))
                     } else {
-                        Text("Onboarding.Restore.Button")
+                        Text(String(localized: "Restore.Button", table: "Onboarding"))
                     }
                 }
                 .fontWeight(.semibold)

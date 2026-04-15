@@ -51,10 +51,10 @@ struct CardsStyleView: View {
         ZStack {
             if visibleCards.isEmpty {
                 ContentUnavailableView {
-                    Label("Cards.Empty.Title",
+                    Label(String(localized: "Cards.Empty.Title", table: "Articles"),
                           systemImage: "rectangle.stack")
                 } description: {
-                    Text("Cards.Empty.Description")
+                    Text(String(localized: "Cards.Empty.Description", table: "Articles"))
                 } actions: {
                     if hasUnreadCards {
                         Button {
@@ -70,7 +70,7 @@ struct CardsStyleView: View {
                                 isRefreshing = false
                             }
                         } label: {
-                            Label("Cards.StartOver", systemImage: "arrow.counterclockwise")
+                            Label(String(localized: "Cards.StartOver", table: "Articles"), systemImage: "arrow.counterclockwise")
                         }
                         .buttonStyle(.bordered)
                         .disabled(isRefreshing)
@@ -160,14 +160,14 @@ private struct CardView: View {
         colorScheme == .dark ? .white : .black
     }
 
-    private var skipLocalizationKey: String.LocalizationValue {
+    private var skipLocalizationLabel: String {
         if article.isPodcastEpisode {
-            return "Cards.ListenLater"
+            return String(localized: "Cards.ListenLater", table: "Articles")
         }
         if article.isYouTubeURL {
-            return "Cards.WatchLater"
+            return String(localized: "Cards.WatchLater", table: "Articles")
         }
-        return "Cards.ReadLater"
+        return String(localized: "Cards.ReadLater", table: "Articles")
     }
 
     private var hasArticleImage: Bool {
@@ -293,7 +293,7 @@ private struct CardView: View {
         ZStack {
             // Right swipe: mark read indicator
             swipeIndicatorOverlay(
-                localizationKey: "Cards.MarkRead",
+                label: String(localized: "Cards.MarkRead", table: "Articles"),
                 systemImage: "envelope.open.fill",
                 color: .blue,
                 alignment: .topLeading,
@@ -302,7 +302,7 @@ private struct CardView: View {
 
             // Left swipe: read/watch/listen later indicator
             swipeIndicatorOverlay(
-                localizationKey: skipLocalizationKey,
+                label: skipLocalizationLabel,
                 systemImage: "eye.slash.fill",
                 color: .red,
                 alignment: .topTrailing,
@@ -312,7 +312,7 @@ private struct CardView: View {
     }
 
     private func swipeIndicatorOverlay(
-        localizationKey: String.LocalizationValue,
+        label: String,
         systemImage: String,
         color: Color,
         alignment: Alignment,
@@ -321,7 +321,7 @@ private struct CardView: View {
         RoundedRectangle(cornerRadius: 24)
             .stroke(color, lineWidth: 8)
             .overlay(
-                Label(String(localized: localizationKey), systemImage: systemImage)
+                Label(label, systemImage: systemImage)
                     .font(.title2)
                     .fontWeight(.bold)
                     .foregroundStyle(.white)

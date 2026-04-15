@@ -26,7 +26,7 @@ struct ListQuery: EntityQuery {
 
 struct ListEntity: AppEntity {
     static var typeDisplayRepresentation: TypeDisplayRepresentation =
-        TypeDisplayRepresentation(name: "ListWidget.List")
+        TypeDisplayRepresentation(name: LocalizedStringResource("ListWidget.List", table: "Widget"))
     static var defaultQuery = ListQuery()
 
     var id: String

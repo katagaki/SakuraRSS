@@ -7,8 +7,8 @@ struct ArticleProvider: TimelineProvider {
             date: Date(),
             articles: [
                 WidgetArticle(
-                    id: 0, title: String(localized: "Widget.Placeholder.Loading"),
-                    feedName: String(localized: "Widget.Placeholder.Feed"), publishedDate: Date(), isRead: false
+                    id: 0, title: String(localized: "Placeholder.Loading", table: "Widget"),
+                    feedName: String(localized: "Placeholder.Feed", table: "Widget"), publishedDate: Date(), isRead: false
                 )
             ],
             feedTitle: nil

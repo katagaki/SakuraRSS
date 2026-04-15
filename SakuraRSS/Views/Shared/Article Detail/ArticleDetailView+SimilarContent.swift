@@ -17,7 +17,7 @@ extension ArticleDetailView {
                 Divider()
                     .padding(.horizontal)
 
-                Label("Insights.Title", systemImage: "sparkles")
+                Label(String(localized: "Insights.Title", table: "Settings"), systemImage: "sparkles")
                     .font(.title3)
                     .fontWeight(.bold)
                     .padding(.horizontal)
@@ -34,7 +34,7 @@ extension ArticleDetailView {
 
                     if !articleTopics.isEmpty {
                         entityChipsSubsection(
-                            titleKey: "SimilarContent.Topics",
+                            titleKey: String(localized: "SimilarContent.Topics", table: "Articles"),
                             systemImage: "number",
                             types: ["organization", "place"],
                             names: articleTopics
@@ -43,7 +43,7 @@ extension ArticleDetailView {
 
                     if !articlePeople.isEmpty {
                         entityChipsSubsection(
-                            titleKey: "SimilarContent.People",
+                            titleKey: String(localized: "SimilarContent.People", table: "Articles"),
                             systemImage: "person.2",
                             types: ["person"],
                             names: articlePeople
@@ -68,7 +68,7 @@ extension ArticleDetailView {
     @ViewBuilder
     private var similarContentSubsection: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Label("SimilarContent.Title", systemImage: "square.stack.3d.up")
+            Label(String(localized: "SimilarContent.Title", table: "Articles"), systemImage: "square.stack.3d.up")
                 .font(.subheadline)
                 .fontWeight(.semibold)
                 .foregroundStyle(.secondary)
@@ -90,7 +90,7 @@ extension ArticleDetailView {
 
     @ViewBuilder
     private func entityChipsSubsection(
-        titleKey: LocalizedStringKey,
+        titleKey: String,
         systemImage: String,
         types: [String],
         names: [String]

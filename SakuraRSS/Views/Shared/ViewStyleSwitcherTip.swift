@@ -6,11 +6,11 @@ struct ViewStyleSwitcherTip: Tip {
     static var hasCompletedOnboarding: Bool = false
 
     var title: Text {
-        Text("Tip.ViewStyleSwitcher.Title")
+        Text(String(localized: "Tip.ViewStyleSwitcher.Title", table: "Onboarding"))
     }
 
     var message: Text? {
-        Text("Tip.ViewStyleSwitcher.Message")
+        Text(String(localized: "Tip.ViewStyleSwitcher.Message", table: "Onboarding"))
     }
 
     var rules: [Rule] {

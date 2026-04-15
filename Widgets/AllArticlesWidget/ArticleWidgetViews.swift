@@ -32,7 +32,7 @@ struct MediumWidgetView: View {
                 Image(systemName: "newspaper")
                     .font(.system(size: 22))
                     .foregroundStyle(.secondary)
-                Text("Widget.NoArticles")
+                Text(String(localized: "NoArticles", table: "Widget"))
                     .font(.system(size: 12))
                     .foregroundStyle(.secondary)
             }
@@ -77,7 +77,7 @@ struct LargeWidgetView: View {
                 Image(systemName: "newspaper")
                     .font(.system(size: 34))
                     .foregroundStyle(.secondary)
-                Text("Widget.NoArticles")
+                Text(String(localized: "NoArticles", table: "Widget"))
                     .font(.system(size: 15))
                     .foregroundStyle(.secondary)
             }

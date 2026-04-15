@@ -7,7 +7,7 @@ struct SingleFeedProvider: AppIntentTimelineProvider {
         let placeholderArticles = (0..<9).map { index in
             SingleFeedArticle(
                 id: Int64(index),
-                title: String(localized: "Widget.Placeholder.Loading"),
+                title: String(localized: "Placeholder.Loading", table: "Widget"),
                 imageData: nil,
                 publishedDate: Date()
             )
@@ -15,7 +15,7 @@ struct SingleFeedProvider: AppIntentTimelineProvider {
         return SingleFeedEntry(
             date: Date(),
             feedID: 0,
-            feedTitle: String(localized: "Widget.Placeholder.Feed"),
+            feedTitle: String(localized: "Placeholder.Feed", table: "Widget"),
             articles: placeholderArticles,
             layout: .thumbnails,
             columns: 3,

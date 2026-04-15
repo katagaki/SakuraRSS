@@ -15,7 +15,7 @@ extension ArticleDetailView {
         isSummarizing = true
         defer { isSummarizing = false }
 
-        let instructions = String(localized: "Article.Summarize.Prompt")
+        let instructions = String(localized: "Article.Summarize.Prompt", table: "Articles")
 
         #if DEBUG
         debugPrint("Article summary prompt:\n\(instructions)\n\n\(source)")

@@ -30,7 +30,7 @@ struct PodcastSettingsView: View {
     var body: some View {
         List {
             Section {
-                Picker("Podcast.PlaybackSpeed", selection: $playbackSpeed) {
+                Picker(String(localized: "PlaybackSpeed", table: "Podcast"), selection: $playbackSpeed) {
                     ForEach(playbackSpeedPresets, id: \.self) { preset in
                         Text(formatSpeed(preset))
                             .tag(preset)
@@ -40,12 +40,12 @@ struct PodcastSettingsView: View {
                     AudioPlayer.shared.setPlaybackRate(Float(newValue))
                 }
             } header: {
-                Text("Podcast.Playback")
+                Text(String(localized: "Playback", table: "Podcast"))
             }
 
             Section {
                 HStack {
-                    Text("Podcast.Downloads.StorageUsed")
+                    Text(String(localized: "Downloads.StorageUsed", table: "Podcast"))
                     Spacer()
                     Text(ByteCountFormatter.string(fromByteCount: downloadsSize, countStyle: .file))
                         .foregroundStyle(.secondary)
@@ -53,16 +53,16 @@ struct PodcastSettingsView: View {
                 Button(role: .destructive) {
                     showDeleteDownloadsConfirmation = true
                 } label: {
-                    Text("Podcast.Downloads.DeleteAll")
+                    Text(String(localized: "Downloads.DeleteAll", table: "Podcast"))
                 }
                 .disabled(downloadsSize == 0)
             } header: {
-                Text("Podcast.Downloads.Title")
+                Text(String(localized: "Downloads.Title", table: "Podcast"))
             }
 
             Section {
                 Toggle(isOn: $toggleState) {
-                    Text("Podcast.Transcripts.Engine.OnDevice")
+                    Text(String(localized: "Transcripts.Engine.OnDevice", table: "Podcast"))
                 }
                 .disabled(isDownloadingModel)
                 .onChange(of: toggleState) { _, newValue in
@@ -74,7 +74,7 @@ struct PodcastSettingsView: View {
 
                 if isDownloadingModel {
                     HStack {
-                        Text("Podcast.Transcripts.Model.Downloading")
+                        Text(String(localized: "Transcripts.Model.Downloading", table: "Podcast"))
                         Spacer()
                         ProgressDonut(progress: downloadProgress)
                             .frame(width: 22, height: 22)
@@ -83,8 +83,8 @@ struct PodcastSettingsView: View {
 
                 if let downloadError {
                     Text(downloadError == .offline
-                         ? "Podcast.Transcripts.Download.OfflineError"
-                         : "Podcast.Transcripts.Download.GenericError")
+                         ? String(localized: "Transcripts.Download.OfflineError", table: "Podcast")
+                         : String(localized: "Transcripts.Download.GenericError", table: "Podcast"))
                         .font(.footnote)
                         .foregroundStyle(.red)
                 }
@@ -92,15 +92,15 @@ struct PodcastSettingsView: View {
                 Button(role: .destructive) {
                     showDeleteTranscriptsConfirmation = true
                 } label: {
-                    Text("Podcast.Transcripts.DeleteAll")
+                    Text(String(localized: "Transcripts.DeleteAll", table: "Podcast"))
                 }
             } header: {
-                Text("Podcast.Transcripts.Title")
+                Text(String(localized: "Transcripts.Title", table: "Podcast"))
             } footer: {
-                Text("Podcast.Transcripts.Engine.Footer")
+                Text(String(localized: "Transcripts.Engine.Footer", table: "Podcast"))
             }
         }
-        .navigationTitle("Integrations.Podcast")
+        .navigationTitle(String(localized: "Podcast", table: "Integrations"))
         .toolbarTitleDisplayMode(.inline)
         .scrollContentBackground(.hidden)
         .sakuraBackground()
@@ -118,22 +118,22 @@ struct PodcastSettingsView: View {
             hasBootstrapped = true
         }
         .alert(
-            "Podcast.Downloads.DeleteAll.ConfirmTitle",
+            String(localized: "Downloads.DeleteAll.ConfirmTitle", table: "Podcast"),
             isPresented: $showDeleteDownloadsConfirmation
         ) {
-            Button("Podcast.Downloads.DeleteAll.Confirm", role: .destructive) {
+            Button(String(localized: "Downloads.DeleteAll.Confirm", table: "Podcast"), role: .destructive) {
                 try? PodcastDownloadManager.shared.deleteAllDownloads()
                 downloadsSize = PodcastDownloadManager.totalDownloadedSize()
             }
             Button("Shared.Cancel", role: .cancel) { }
         } message: {
-            Text("Podcast.Downloads.DeleteAll.ConfirmMessage")
+            Text(String(localized: "Downloads.DeleteAll.ConfirmMessage", table: "Podcast"))
         }
         .alert(
-            "Podcast.Transcripts.DeleteAll.ConfirmTitle",
+            String(localized: "Transcripts.DeleteAll.ConfirmTitle", table: "Podcast"),
             isPresented: $showDeleteTranscriptsConfirmation
         ) {
-            Button("Podcast.Transcripts.DeleteAll.Confirm", role: .destructive) {
+            Button(String(localized: "Transcripts.DeleteAll.Confirm", table: "Podcast"), role: .destructive) {
                 let ids = (try? DatabaseManager.shared.downloadedArticleIDs()) ?? []
                 for id in ids {
                     try? DatabaseManager.shared.clearCachedTranscript(for: id)
@@ -141,7 +141,7 @@ struct PodcastSettingsView: View {
             }
             Button("Shared.Cancel", role: .cancel) { }
         } message: {
-            Text("Podcast.Transcripts.DeleteAll.ConfirmMessage")
+            Text(String(localized: "Transcripts.DeleteAll.ConfirmMessage", table: "Podcast"))
         }
     }
 

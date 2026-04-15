@@ -14,7 +14,7 @@ struct XLoginView: View {
         NavigationStack {
             XLoginWebView(isLoggedIn: $isLoggedIn)
                 .ignoresSafeArea(edges: .bottom)
-                .navigationTitle("XLogin.Title")
+                .navigationTitle(String(localized: "XLogin.Title", table: "Integrations"))
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
                     ToolbarItem(placement: .topBarTrailing) {

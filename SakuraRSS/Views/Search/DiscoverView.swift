@@ -42,9 +42,9 @@ struct DiscoverView: View {
                 }
             } else {
                 ContentUnavailableView {
-                    Label("Discover.Empty", systemImage: "sparkles")
+                    Label(String(localized: "Discover.Empty", table: "Feeds"), systemImage: "sparkles")
                 } description: {
-                    Text("Discover.Empty.Description")
+                    Text(String(localized: "Discover.Empty.Description", table: "Feeds"))
                 }
             }
         }
@@ -55,18 +55,18 @@ struct DiscoverView: View {
             refreshID += 1
         }
         .confirmationDialog(
-            "Discover.ClearHistory.Confirm",
+            String(localized: "Discover.ClearHistory.Confirm", table: "Feeds"),
             isPresented: $showingClearConfirmation,
             titleVisibility: .visible
         ) {
-            Button("Discover.ClearHistory.Confirm", role: .destructive) {
+            Button(String(localized: "Discover.ClearHistory.Confirm", table: "Feeds"), role: .destructive) {
                 feedManager.clearAccessHistory()
                 withAnimation {
                     recentArticles = []
                 }
             }
         } message: {
-            Text("Discover.ClearHistory.Message")
+            Text(String(localized: "Discover.ClearHistory.Message", table: "Feeds"))
         }
     }
 
@@ -76,11 +76,11 @@ struct DiscoverView: View {
     private var recentlyAccessedSection: some View {
         VStack(alignment: .leading, spacing: 10) {
             HStack {
-                Text("Discover.RecentlyAccessed")
+                Text(String(localized: "Discover.RecentlyAccessed", table: "Feeds"))
                     .font(.title3)
                     .fontWeight(.bold)
                 Spacer()
-                Button("Discover.ClearHistory") {
+                Button(String(localized: "Discover.ClearHistory", table: "Feeds")) {
                     showingClearConfirmation = true
                 }
                 .font(.title3)
@@ -144,7 +144,7 @@ struct DiscoverView: View {
     @ViewBuilder
     private var topicsAndPeopleSection: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Text("Discover.TopicsAndPeople")
+            Text(String(localized: "Discover.TopicsAndPeople", table: "Feeds"))
                 .font(.title3)
                 .fontWeight(.bold)
                 .padding(.horizontal)

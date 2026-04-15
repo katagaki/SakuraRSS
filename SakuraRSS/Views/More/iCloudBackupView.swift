@@ -26,13 +26,13 @@ struct iCloudBackupView: View {
             if iCloudAvailable {
                 Section {
                     HStack {
-                        Text("iCloudBackup.LastBackupLabel")
+                        Text(String(localized: "iCloudBackup.LastBackupLabel", table: "DataManagement"))
                         Spacer()
                         if let lastBackupDate {
                             Text(lastBackupDate, style: .relative)
                                 .foregroundStyle(.secondary)
                         } else {
-                            Text("iCloudBackup.Never")
+                            Text(String(localized: "iCloudBackup.Never", table: "DataManagement"))
                                 .foregroundStyle(.secondary)
                         }
                     }
@@ -40,7 +40,7 @@ struct iCloudBackupView: View {
                         performBackup()
                     } label: {
                         HStack {
-                            Text("iCloudBackup.BackupNow")
+                            Text(String(localized: "iCloudBackup.BackupNow", table: "DataManagement"))
                             Spacer()
                             if isBackingUp {
                                 ProgressView()
@@ -49,29 +49,29 @@ struct iCloudBackupView: View {
                     }
                     .disabled(isBackingUp)
                 } footer: {
-                    Text("iCloudBackup.Footer")
+                    Text(String(localized: "iCloudBackup.Footer", table: "DataManagement"))
                 }
 
                 Section {
-                    Picker("iCloudBackup.AutoBackup", selection: backupInterval) {
-                        Text("iCloudBackup.Interval.EveryNight")
+                    Picker(String(localized: "iCloudBackup.AutoBackup", table: "DataManagement"), selection: backupInterval) {
+                        Text(String(localized: "iCloudBackup.Interval.EveryNight", table: "DataManagement"))
                             .tag(iCloudBackupManager.BackupInterval.everyNight)
-                        Text("iCloudBackup.Interval.Every12Hours")
+                        Text(String(localized: "iCloudBackup.Interval.Every12Hours", table: "DataManagement"))
                             .tag(iCloudBackupManager.BackupInterval.every12Hours)
-                        Text("iCloudBackup.Interval.Every6Hours")
+                        Text(String(localized: "iCloudBackup.Interval.Every6Hours", table: "DataManagement"))
                             .tag(iCloudBackupManager.BackupInterval.every6Hours)
-                        Text("iCloudBackup.Interval.Off")
+                        Text(String(localized: "iCloudBackup.Interval.Off", table: "DataManagement"))
                             .tag(iCloudBackupManager.BackupInterval.off)
                     }
                 }
             } else {
                 Section {
-                    Text("iCloudBackup.Unavailable")
+                    Text(String(localized: "iCloudBackup.Unavailable", table: "DataManagement"))
                         .foregroundStyle(.secondary)
                 }
             }
         }
-        .navigationTitle("iCloudBackup.Title")
+        .navigationTitle(String(localized: "iCloudBackup.Title", table: "DataManagement"))
         .toolbarTitleDisplayMode(.inline)
         .scrollContentBackground(.hidden)
         .sakuraBackground()
@@ -79,10 +79,10 @@ struct iCloudBackupView: View {
             iCloudAvailable = iCloudBackupManager.shared.isICloudAvailable()
             lastBackupDate = iCloudBackupManager.shared.lastBackupDate
         }
-        .alert("iCloudBackup.BackupSuccess", isPresented: $showBackupSuccess) {
+        .alert(String(localized: "iCloudBackup.BackupSuccess", table: "DataManagement"), isPresented: $showBackupSuccess) {
             Button("Shared.OK") {}
         }
-        .alert("iCloudBackup.BackupError", isPresented: $showBackupError) {
+        .alert(String(localized: "iCloudBackup.BackupError", table: "DataManagement"), isPresented: $showBackupError) {
             Button("Shared.OK") {}
         }
     }

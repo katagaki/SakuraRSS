@@ -80,7 +80,7 @@ struct IPadSidebarView: View {
                         iPadFeedContent(feed: feed)
                     case .more, .none:
                         ContentUnavailableView {
-                            Label("Sidebar.SelectSection",
+                            Label(String(localized: "Sidebar.SelectSection", table: "Feeds"),
                                   systemImage: "sidebar.left")
                         }
                     }
@@ -138,14 +138,14 @@ struct IPadSidebarView: View {
                 .interactiveDismissDisabled()
         }
         .confirmationDialog(
-            "FeedMenu.Delete.Title",
+            String(localized: "FeedMenu.Delete.Title", table: "Feeds"),
             isPresented: Binding(
                 get: { feedToDelete != nil },
                 set: { if !$0 { feedToDelete = nil } }
             ),
             titleVisibility: .visible
         ) {
-            Button("FeedMenu.Delete.Confirm", role: .destructive) {
+            Button(String(localized: "FeedMenu.Delete.Confirm", table: "Feeds"), role: .destructive) {
                 if let feed = feedToDelete {
                     try? feedManager.deleteFeed(feed)
                     feedToDelete = nil
@@ -156,7 +156,7 @@ struct IPadSidebarView: View {
             }
         } message: {
             if let feed = feedToDelete {
-                Text("FeedMenu.Delete.Message.\(feed.title)")
+                Text(String(localized: "FeedMenu.Delete.Message.\(feed.title)", table: "Feeds"))
             }
         }
         .sheet(item: $listToEdit) { list in
@@ -170,14 +170,14 @@ struct IPadSidebarView: View {
                 .interactiveDismissDisabled()
         }
         .confirmationDialog(
-            "ListMenu.Delete.Title",
+            String(localized: "ListMenu.Delete.Title", table: "Lists"),
             isPresented: Binding(
                 get: { listToDelete != nil },
                 set: { if !$0 { listToDelete = nil } }
             ),
             titleVisibility: .visible
         ) {
-            Button("ListMenu.Delete.Confirm", role: .destructive) {
+            Button(String(localized: "ListMenu.Delete.Confirm", table: "Lists"), role: .destructive) {
                 if let list = listToDelete {
                     feedManager.deleteList(list)
                     listToDelete = nil
@@ -188,7 +188,7 @@ struct IPadSidebarView: View {
             }
         } message: {
             if let list = listToDelete {
-                Text("ListMenu.Delete.Message.\(list.name)")
+                Text(String(localized: "ListMenu.Delete.Message.\(list.name)", table: "Lists"))
             }
         }
     }
@@ -227,9 +227,9 @@ struct IPadSidebarView: View {
 
             if contentInsightsEnabled {
                 Section {
-                    Label("Topics.Title", systemImage: "number")
+                    Label(String(localized: "Topics.Title", table: "Articles"), systemImage: "number")
                         .tag(SidebarDestination.topics)
-                    Label("People.Title", systemImage: "person.2")
+                    Label(String(localized: "People.Title", table: "Articles"), systemImage: "person.2")
                         .tag(SidebarDestination.people)
                 }
             }
@@ -260,7 +260,7 @@ struct IPadSidebarView: View {
                 }
             }
 
-            Section("Sidebar.Following") {
+            Section(String(localized: "Sidebar.Following", table: "Feeds")) {
                 ForEach(feedManager.feeds) { feed in
                     NavigationLink(value: SidebarDestination.feed(feed)) {
                         FeedRowView(feed: feed)
@@ -277,20 +277,20 @@ struct IPadSidebarView: View {
             }
         }
         .listStyle(.sidebar)
-        .searchable(text: $searchText, placement: .sidebar, prompt: Text("Search.Prompt"))
+        .searchable(text: $searchText, placement: .sidebar, prompt: Text(String(localized: "Prompt", table: "Search")))
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Menu {
                     Button {
                         showingAddFeed = true
                     } label: {
-                        Label("Sidebar.AddFeed",
+                        Label(String(localized: "Sidebar.AddFeed", table: "Feeds"),
                               systemImage: "dot.radiowaves.up.forward")
                     }
                     Button {
                         showingNewList = true
                     } label: {
-                        Label("Sidebar.CreateList",
+                        Label(String(localized: "Sidebar.CreateList", table: "Feeds"),
                               systemImage: "square.fill.text.grid.1x2")
                     }
                 } label: {
@@ -377,10 +377,10 @@ extension IPadSidebarView {
                 .id(article.id)
         } else {
             ContentUnavailableView {
-                Label("Sidebar.SelectArticle",
+                Label(String(localized: "Sidebar.SelectArticle", table: "Feeds"),
                       systemImage: "doc.text")
             } description: {
-                Text("Sidebar.SelectArticle.Description")
+                Text(String(localized: "Sidebar.SelectArticle.Description", table: "Feeds"))
             }
         }
     }
@@ -467,19 +467,19 @@ extension IPadSidebarView {
         Button {
             listToEdit = list
         } label: {
-            Label("ListMenu.Edit", systemImage: "pencil")
+            Label(String(localized: "ListMenu.Edit", table: "Lists"), systemImage: "pencil")
         }
         Button {
             listForRules = list
         } label: {
-            Label("ListMenu.Rules",
+            Label(String(localized: "ListMenu.Rules", table: "Lists"),
                   systemImage: "list.bullet.rectangle")
         }
         Divider()
         Button(role: .destructive) {
             listToDelete = list
         } label: {
-            Label("ListMenu.Delete", systemImage: "trash")
+            Label(String(localized: "ListMenu.Delete", table: "Lists"), systemImage: "trash")
         }
     }
 
@@ -490,28 +490,28 @@ extension IPadSidebarView {
         } label: {
             Label(
                 feed.isMuted
-                    ? String(localized: "FeedMenu.Unmute")
-                    : String(localized: "FeedMenu.Mute"),
+                    ? String(localized: "FeedMenu.Unmute", table: "Feeds")
+                    : String(localized: "FeedMenu.Mute", table: "Feeds"),
                 systemImage: feed.isMuted ? "bell" : "bell.slash"
             )
         }
         Button {
             feedForRules = feed
         } label: {
-            Label("FeedMenu.Rules",
+            Label(String(localized: "FeedMenu.Rules", table: "Feeds"),
                   systemImage: "list.bullet.rectangle")
         }
         Divider()
         Button {
             feedToEdit = feed
         } label: {
-            Label("FeedMenu.Edit",
+            Label(String(localized: "FeedMenu.Edit", table: "Feeds"),
                   systemImage: "pencil")
         }
         Button(role: .destructive) {
             feedToDelete = feed
         } label: {
-            Label("FeedMenu.Delete",
+            Label(String(localized: "FeedMenu.Delete", table: "Feeds"),
                   systemImage: "trash")
         }
     }
@@ -526,10 +526,10 @@ private struct IPadSearchResultsView: View {
         Group {
             if searchResults.isEmpty {
                 ContentUnavailableView {
-                    Label("Search.NoResults.Title",
+                    Label(String(localized: "NoResults.Title", table: "Search"),
                           systemImage: "magnifyingglass")
                 } description: {
-                    Text("Search.NoResults.Description")
+                    Text(String(localized: "NoResults.Description", table: "Search"))
                 }
             } else {
                 InboxStyleView(articles: searchResults)

@@ -35,7 +35,7 @@ struct EntityArticlesView: View {
         .overlay {
             if articles.isEmpty {
                 ContentUnavailableView {
-                    Label("Search.NoResults.Title",
+                    Label(String(localized: "NoResults.Title", table: "Search"),
                           systemImage: "magnifyingglass")
                 }
             }

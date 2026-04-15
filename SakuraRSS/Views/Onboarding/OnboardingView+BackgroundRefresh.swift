@@ -7,12 +7,12 @@ extension OnboardingView {
             VStack(alignment: .leading, spacing: 20) {
                 stepHeader(
                     icon: "arrow.trianglehead.clockwise",
-                    title: String(localized: "Onboarding.Step.BackgroundRefresh.Title"),
-                    description: String(localized: "Onboarding.Step.BackgroundRefresh.Description")
+                    title: String(localized: "Step.BackgroundRefresh.Title", table: "Onboarding"),
+                    description: String(localized: "Step.BackgroundRefresh.Description", table: "Onboarding")
                 )
 
                 VStack(spacing: 0) {
-                    Toggle("Settings.BackgroundRefresh", isOn: $backgroundRefreshEnabled)
+                    Toggle(String(localized: "BackgroundRefresh", table: "Settings"), isOn: $backgroundRefreshEnabled)
                         .padding(.horizontal)
                         .padding(.vertical, 12)
                 }

@@ -1,0 +1,1068 @@
+{
+  "sourceLanguage": "en",
+  "strings": {
+    "TodaysSummary.CombinePrompt": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nachfolgend sind mehrere Zusammenfassungen von Nachrichtenüberschriften aus verschiedenen Tageszeiten. Fassen Sie diese zu einer einheitlichen Liste von 3–5 Aufzählungspunkten zusammen. Jeder Aufzählungspunkt sollte ein Satz sein. Entfernen Sie Duplikate und fassen Sie verwandte Themen zusammen. Fügen Sie keine Einleitung, keinen Überblick, kein Fazit oder keinen Kommentar hinzu. Geben Sie nur die Aufzählungspunkte aus. Verwenden Sie einfache Sprache. Sie dürfen **fett** verwenden, um wichtige Begriffe hervorzuheben. Antworte auf Deutsch.\n\nZusammenfassungen:"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Below are several summaries of news headlines from different times of day. Combine them into one unified list of 3-5 bullet points. Each bullet point should be one sentence. Remove duplicates and merge related topics. Do not include any introduction, overview, conclusion, or commentary. Only output the bullet points. Use plain language. You may use **bold** to emphasize key terms. Respond in English.\n\nSummaries:"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ci-dessous se trouvent plusieurs résumés de titres d'actualité à différents moments de la journée. Combinez-les en une liste unifiée de 3 à 5 puces. Chaque puce doit être une phrase. Supprimez les doublons et fusionnez les sujets liés. N'incluez aucune introduction, vue d'ensemble, conclusion ou commentaire. Donnez uniquement les puces. Utilisez un langage simple. Vous pouvez utiliser le **gras** pour mettre en valeur les termes clés. Réponds en français.\n\nRésumés :"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Di seguito sono riportati diversi riassunti di titoli di notizie da diversi momenti della giornata. Combinali in un unico elenco di 3-5 punti. Ogni punto deve essere una frase. Rimuovi i duplicati e unisci gli argomenti correlati. Non includere introduzione, panoramica, conclusione o commenti. Riporta solo i punti elenco. Usa un linguaggio semplice. Puoi usare il **grassetto** per evidenziare i termini chiave. Rispondi in italiano.\n\nRiassunti:"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "以下は、1日の異なる時間帯のニュース見出しの要約です。これらを3〜5個の箇条書きの統一リストにまとめてください。各箇条書きは1文にしてください。重複を削除し、関連するトピックをまとめてください。導入文、概要、まとめ、コメントは一切含めないでください。箇条書きのみを出力してください。平易な言葉を使ってください。重要な用語を強調するために**太字**を使用できます。日本語で回答してください。\n\n要約:"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "아래는 하루 중 다른 시간대의 뉴스 헤드라인 요약입니다. 이를 3~5개의 글머리 기호로 된 하나의 통합 목록으로 결합하세요. 각 글머리 기호는 한 문장이어야 합니다. 중복을 제거하고 관련 주제를 병합하세요. 서론, 개요, 결론 또는 논평을 포함하지 마세요. 글머리 기호만 출력하세요. 쉬운 언어를 사용하세요. 핵심 용어를 강조하기 위해 **굵게**를 사용할 수 있습니다. 한국어로 응답하세요.\n\n요약:"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dưới đây là các bản tóm tắt tiêu đề tin tức từ các thời điểm khác nhau trong ngày. Kết hợp chúng thành một danh sách thống nhất gồm 3-5 gạch đầu dòng. Mỗi gạch đầu dòng là một câu. Loại bỏ trùng lặp và gộp các chủ đề liên quan. Không viết phần mở đầu, tổng quan, kết luận, hay bình luận. Chỉ xuất các gạch đầu dòng. Sử dụng ngôn ngữ đơn giản. Bạn có thể sử dụng **in đậm** để nhấn mạnh các thuật ngữ quan trọng. Trả lời bằng tiếng Việt.\n\nTóm tắt:"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "以下是一天中不同时段的新闻标题摘要。请将它们合并为 3 到 5 个统一的要点列表。每个要点为一句话。去除重复内容并合并相关主题。不要包含任何引言、概述、结论或评论。仅输出要点。使用简洁的语言。可以使用**粗体**来强调关键术语。用简体中文回答。\n\n摘要："
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "以下是一天中不同時段的新聞標題摘要。請將它們合併為 3 到 5 個統一的重點條列。每個條列項目應為一句話。去除重複內容並合併相關主題。不要包含任何引言、總覽、結論或評論。只輸出重點條列。使用淺顯易懂的語言。可以使用**粗體**來強調關鍵術語。用繁體中文回答。\n\n摘要："
+          }
+        }
+      }
+    },
+    "TodaysSummary.Failed": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zusammenfassung konnte nicht erstellt werden."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unable to generate summary."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impossible de générer le résumé."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impossibile generare il riepilogo."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "要約を生成できませんでした。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "요약을 생성할 수 없습니다."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Không thể tạo bản tóm tắt."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "无法生成摘要。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "無法產生摘要。"
+          }
+        }
+      }
+    },
+    "TodaysSummary.Generating": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Heutige Inhalte werden zusammengefasst …"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Summarizing today's content…"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Résumé du contenu du jour en cours…"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Riepilogo dei contenuti di oggi in corso…"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "今日のコンテンツを要約中…"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "오늘의 콘텐츠를 요약하는 중…"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đang tóm tắt nội dung hôm nay…"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在总结今日内容…"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在摘要今日內容⋯"
+          }
+        }
+      }
+    },
+    "TodaysSummary.LowPowerModePrompt": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stromsparmodus ist aktiv. Tippen Sie auf Aktualisieren, um die Zusammenfassung zu erstellen."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Low Power Mode is on. Tap refresh to generate the summary."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le mode économie d'énergie est activé. Appuyez sur actualiser pour générer le résumé."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Risparmio energetico attivo. Tocca aggiorna per generare il riepilogo."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "低電力モードがオンです。更新をタップして要約を作成してください。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "저전력 모드가 켜져 있습니다. 새로고침을 눌러 요약을 생성하세요."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chế độ nguồn điện thấp đang bật. Nhấn làm mới để tạo bản tóm tắt."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "低电量模式已开启。点按刷新以生成摘要。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "低耗電模式已開啟。點一下重新整理以產生摘要。"
+          }
+        }
+      }
+    },
+    "TodaysSummary.PartialPrompt": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nachfolgend sind Artikelüberschriften aus RSS-Feeds. Jeder Eintrag enthält einen Quellennamen und eine Überschrift und kann einen kurzen Textauszug enthalten.\n\nAntworten Sie mit 2–3 Aufzählungspunkten der wichtigsten Dinge aus diesen Überschriften. Jeder Aufzählungspunkt sollte ein Satz sein. Fassen Sie verwandte Überschriften nach Möglichkeit in einzelnen Punkten zusammen. Wiederholen Sie nicht dieselbe Meldung zweimal. Spekulieren Sie nicht über das hinaus, was die Überschriften angeben. Fügen Sie keine Einleitung, keinen Überblick, kein Fazit oder keinen Kommentar hinzu. Geben Sie nur die Aufzählungspunkte aus. Verwenden Sie einfache Sprache. Sie dürfen **fett** verwenden, um wichtige Begriffe hervorzuheben. Antworte auf Deutsch.\n\nÜberschriften:"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Below are article headlines from RSS feeds. Each entry has a source name and headline, and may include a brief snippet.\n\nRespond with 2-3 bullet points of the most important things from these headlines. Each bullet point should be one sentence. Group related headlines into single points where possible. Do not repeat the same story twice. Do not speculate beyond what the headlines indicate. Do not include any introduction, overview, conclusion, or commentary. Only output the bullet points. Use plain language. You may use **bold** to emphasize key terms. Respond in English.\n\nHeadlines:"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ci-dessous se trouvent des titres d'articles provenant de flux RSS. Chaque entrée comprend un nom de source et un titre, et peut inclure un bref extrait.\n\nRépondez avec 2 à 3 puces des éléments les plus importants de ces titres. Chaque puce doit être une phrase. Regroupez les titres liés en un seul point lorsque c'est possible. Ne répétez pas la même information deux fois. Ne spéculez pas au-delà de ce que les titres indiquent. N'incluez aucune introduction, vue d'ensemble, conclusion ou commentaire. Donnez uniquement les puces. Utilisez un langage simple. Vous pouvez utiliser le **gras** pour mettre en valeur les termes clés. Réponds en français.\n\nTitres :"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Di seguito sono riportati i titoli degli articoli dai feed RSS. Ogni voce include il nome della fonte e il titolo, e può includere un breve estratto.\n\nRispondi con 2-3 punti elenco delle cose più importanti da questi titoli. Ogni punto elenco deve essere una frase. Raggruppa i titoli correlati in singoli punti dove possibile. Non ripetere la stessa notizia due volte. Non speculare oltre quanto indicato dai titoli. Non includere introduzione, panoramica, conclusione o commenti. Riporta solo i punti elenco. Usa un linguaggio semplice. Puoi usare il **grassetto** per evidenziare i termini chiave. Rispondi in italiano.\n\nTitoli:"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "以下はRSSフィードの記事見出しです。各エントリにはソース名と見出しがあり、短い抜粋が含まれる場合もあります。\n\nこれらの見出しから最も重要なことを2〜3個の箇条書きで回答してください。各箇条書きは1文にしてください。関連する見出しはできるだけまとめてください。同じ話題を繰り返さないでください。見出しから読み取れる範囲を超えて推測しないでください。導入文、概要、まとめ、コメントは一切含めないでください。箇条書きのみを出力してください。平易な言葉を使ってください。重要な用語を強調するために**太字**を使用できます。日本語で回答してください。\n\n見出し:"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "아래는 RSS 피드의 기사 헤드라인입니다. 각 항목에는 출처 이름과 헤드라인이 있으며, 짧은 요약이 포함될 수 있습니다.\n\n이 헤드라인에서 가장 중요한 내용을 2~3개의 글머리 기호로 응답하세요. 각 글머리 기호는 한 문장이어야 합니다. 관련 헤드라인은 가능한 한 하나의 항목으로 묶으세요. 같은 기사를 두 번 반복하지 마세요. 헤드라인에 나타난 내용 이상으로 추측하지 마세요. 서론, 개요, 결론 또는 논평을 포함하지 마세요. 글머리 기호만 출력하세요. 쉬운 언어를 사용하세요. 핵심 용어를 강조하기 위해 **굵게**를 사용할 수 있습니다. 한국어로 응답하세요.\n\n헤드라인:"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dưới đây là tiêu đề bài viết từ các nguồn cấp RSS. Mỗi mục có tên nguồn và tiêu đề, và có thể kèm theo một đoạn trích ngắn.\n\nChỉ trả lời 2-3 gạch đầu dòng về những điều quan trọng nhất từ các tiêu đề này. Mỗi gạch đầu dòng là một câu. Gộp các tiêu đề liên quan thành một ý nếu có thể. Không lặp lại cùng một tin hai lần. Không suy đoán ngoài nội dung tiêu đề. Không viết phần mở đầu, tổng quan, kết luận, hay bình luận. Chỉ xuất các gạch đầu dòng. Sử dụng ngôn ngữ đơn giản. Bạn có thể sử dụng **in đậm** để nhấn mạnh các thuật ngữ quan trọng. Trả lời bằng tiếng Việt.\n\nTiêu đề:"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "以下是 RSS 订阅源的文章标题。每条包含来源名称和标题，可能还有简短摘要。\n\n用 2 到 3 个要点回复这些标题中最重要的内容。每个要点为一句话。尽可能将相关标题合并为一个要点。不要重复同一条新闻。不要超出标题所示内容进行推测。不要包含任何引言、概述、结论或评论。仅输出要点。使用简洁的语言。可以使用**粗体**来强调关键术语。用简体中文回答。\n\n标题："
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "以下是 RSS 訂閱源的文章標題。每個項目包含來源名稱和標題，可能還有簡短摘錄。\n\n僅回覆 2 到 3 個最重要的重點條列。每個條列項目應為一句話。盡可能將相關標題歸納為同一個條列項目。不要重複同一則新聞。不要做出超出標題內容的推測。不要包含任何引言、總覽、結論或評論。只輸出重點條列。使用淺顯易懂的語言。可以使用**粗體**來強調關鍵術語。用繁體中文回答。\n\n標題："
+          }
+        }
+      }
+    },
+    "TodaysSummary.Prompt": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nachfolgend sind Artikelüberschriften aus RSS-Feeds, die heute veröffentlicht wurden. Jeder Eintrag enthält einen Quellennamen und eine Überschrift und kann einen kurzen Textauszug enthalten.\n\nAntworten Sie nur mit 3–5 Aufzählungspunkten der wichtigsten Dinge aus diesen Überschriften. Jeder Aufzählungspunkt sollte ein Satz sein. Fassen Sie verwandte Überschriften nach Möglichkeit in einzelnen Punkten zusammen. Wiederholen Sie nicht dieselbe Meldung zweimal. Spekulieren Sie nicht über das hinaus, was die Überschriften angeben. Fügen Sie keine Einleitung, keinen Überblick, kein Fazit oder keinen Kommentar hinzu. Geben Sie nur die Aufzählungspunkte aus. Verwenden Sie einfache Sprache. Sie dürfen **fett** verwenden, um wichtige Begriffe hervorzuheben. Antworte auf Deutsch.\n\nÜberschriften:"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Below are article headlines from RSS feeds published today. Each entry has a source name and headline, and may include a brief snippet.\n\nRespond with only 3-5 bullet points of the most important things from these headlines. Each bullet point should be one sentence. Group related headlines into single points where possible. Do not repeat the same story twice. Do not speculate beyond what the headlines indicate. Do not include any introduction, overview, conclusion, or commentary. Only output the bullet points. Use plain language. You may use **bold** to emphasize key terms. Respond in English.\n\nHeadlines:"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ci-dessous se trouvent des titres d'articles provenant de flux RSS publiés aujourd'hui. Chaque entrée comprend un nom de source et un titre, et peut inclure un bref extrait.\n\nRépondez uniquement avec 3 à 5 puces des éléments les plus importants de ces titres. Chaque puce doit être une phrase. Regroupez les titres liés en un seul point lorsque c'est possible. Ne répétez pas la même information deux fois. Ne spéculez pas au-delà de ce que les titres indiquent. N'incluez aucune introduction, vue d'ensemble, conclusion ou commentaire. Donnez uniquement les puces. Utilisez un langage simple. Vous pouvez utiliser le **gras** pour mettre en valeur les termes clés. Réponds en français.\n\nTitres :"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Di seguito sono riportati i titoli degli articoli dai feed RSS pubblicati oggi. Ogni voce include il nome della fonte e il titolo, e può includere un breve estratto.\n\nRispondi con solo 3-5 punti elenco delle cose più importanti da questi titoli. Ogni punto elenco deve essere una frase. Raggruppa i titoli correlati in singoli punti dove possibile. Non ripetere la stessa notizia due volte. Non speculare oltre quanto indicato dai titoli. Non includere introduzione, panoramica, conclusione o commenti. Riporta solo i punti elenco. Usa un linguaggio semplice. Puoi usare il **grassetto** per evidenziare i termini chiave. Rispondi in italiano.\n\nTitoli:"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "以下は本日公開されたRSSフィードの記事見出しです。各エントリにはソース名と見出しがあり、短い抜粋が含まれる場合もあります。\n\nこれらの見出しから最も重要なことを3〜5個の箇条書きのみで回答してください。各箇条書きは1文にしてください。関連する見出しはできるだけまとめてください。同じ話題を繰り返さないでください。見出しから読み取れる範囲を超えて推測しないでください。導入文、概要、まとめ、コメントは一切含めないでください。箇条書きのみを出力してください。平易な言葉を使ってください。重要な用語を強調するために**太字**を使用できます。日本語で回答してください。\n\n見出し:"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "아래는 오늘 게시된 RSS 피드의 기사 헤드라인입니다. 각 항목에는 출처 이름과 헤드라인이 있으며, 짧은 요약이 포함될 수 있습니다.\n\n이 헤드라인에서 가장 중요한 내용을 3~5개의 글머리 기호로만 응답하세요. 각 글머리 기호는 한 문장이어야 합니다. 관련 헤드라인은 가능한 한 하나의 항목으로 묶으세요. 같은 기사를 두 번 반복하지 마세요. 헤드라인에 나타난 내용 이상으로 추측하지 마세요. 서론, 개요, 결론 또는 논평을 포함하지 마세요. 글머리 기호만 출력하세요. 쉬운 언어를 사용하세요. 핵심 용어를 강조하기 위해 **굵게**를 사용할 수 있습니다. 한국어로 응답하세요.\n\n헤드라인:"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dưới đây là tiêu đề bài viết từ các nguồn cấp RSS được đăng hôm nay. Mỗi mục có tên nguồn và tiêu đề, và có thể kèm theo một đoạn trích ngắn.\n\nChỉ trả lời 3-5 gạch đầu dòng về những điều quan trọng nhất từ các tiêu đề này. Mỗi gạch đầu dòng là một câu. Gộp các tiêu đề liên quan thành một ý nếu có thể. Không lặp lại cùng một tin hai lần. Không suy đoán ngoài nội dung tiêu đề. Không viết phần mở đầu, tổng quan, kết luận, hay bình luận. Chỉ xuất các gạch đầu dòng. Sử dụng ngôn ngữ đơn giản. Bạn có thể sử dụng **in đậm** để nhấn mạnh các thuật ngữ quan trọng. Trả lời bằng tiếng Việt.\n\nTiêu đề:"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "以下是今天发布的 RSS 订阅源文章标题。每条包含来源名称和标题，可能还有简短摘要。\n\n仅用 3 到 5 个要点回复这些标题中最重要的内容。每个要点为一句话。尽可能将相关标题合并为一个要点。不要重复同一条新闻。不要超出标题所示内容进行推测。不要包含任何引言、概述、结论或评论。仅输出要点。使用简洁的语言。可以使用**粗体**来强调关键术语。用简体中文回答。\n\n标题："
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "以下是今天發布的 RSS 訂閱源文章標題。每個項目包含來源名稱和標題，可能還有簡短摘錄。\n\n僅回覆 3 到 5 個最重要的重點條列。每個條列項目應為一句話。盡可能將相關標題歸納為同一個條列項目。不要重複同一則新聞。不要做出超出標題內容的推測。不要包含任何引言、總覽、結論或評論。只輸出重點條列。使用淺顯易懂的語言。可以使用**粗體**來強調關鍵術語。用繁體中文回答。\n\n標題："
+          }
+        }
+      }
+    },
+    "TodaysSummary.ShowLess": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Weniger anzeigen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show Less"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Afficher moins"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mostra meno"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "折りたたむ"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "접기"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Thu gọn"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "收起"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "收起"
+          }
+        }
+      }
+    },
+    "TodaysSummary.ShowMore": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mehr anzeigen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show More"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Afficher plus"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mostra di più"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "もっと見る"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "더 보기"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Xem thêm"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "展开"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "展開"
+          }
+        }
+      }
+    },
+    "TodaysSummary.Title": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zusammenfassung des Tages"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Today's Summary"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Résumé du jour"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Riepilogo di oggi"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "今日のまとめ"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "오늘의 요약"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tóm tắt hôm nay"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "今日摘要"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "今日摘要"
+          }
+        }
+      }
+    },
+    "TodaysSummary.TooFew": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Es gab zu wenige Überschriften für eine Zusammenfassung."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "There were too few headlines to summarize."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Il y avait trop peu de titres pour générer un résumé."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "I titoli erano troppo pochi per generare un riepilogo."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "要約するには見出しが少なすぎました。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "요약하기에 헤드라인이 너무 적습니다."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quá ít tiêu đề để tóm tắt."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "标题太少，无法生成摘要。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "標題太少，無法產生摘要。"
+          }
+        }
+      }
+    },
+    "WhileYouSlept.Failed": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zusammenfassung konnte nicht erstellt werden."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unable to generate summary."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impossible de générer le résumé."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impossibile generare il riepilogo."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "要約を生成できませんでした。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "요약을 생성할 수 없습니다."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Không thể tạo bản tóm tắt."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "无法生成摘要。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "無法產生摘要。"
+          }
+        }
+      }
+    },
+    "WhileYouSlept.Generating": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nächtliche Inhalte werden zusammengefasst …"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Summarizing overnight content…"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Résumé du contenu de la nuit en cours…"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Riepilogo dei contenuti notturni in corso…"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "夜間のコンテンツを要約中…"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "밤사이 콘텐츠를 요약하는 중…"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đang tóm tắt nội dung qua đêm…"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在总结夜间内容…"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在摘要夜間內容⋯"
+          }
+        }
+      }
+    },
+    "WhileYouSlept.LowPowerModePrompt": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stromsparmodus ist aktiv. Tippen Sie auf Aktualisieren, um die Zusammenfassung zu erstellen."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Low Power Mode is on. Tap refresh to generate the summary."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le mode économie d'énergie est activé. Appuyez sur actualiser pour générer le résumé."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Risparmio energetico attivo. Tocca aggiorna per generare il riepilogo."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "低電力モードがオンです。更新をタップして要約を作成してください。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "저전력 모드가 켜져 있습니다. 새로고침을 눌러 요약을 생성하세요."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chế độ nguồn điện thấp đang bật. Nhấn làm mới để tạo bản tóm tắt."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "低电量模式已开启。点按刷新以生成摘要。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "低耗電模式已開啟。點一下重新整理以產生摘要。"
+          }
+        }
+      }
+    },
+    "WhileYouSlept.Prompt": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nachfolgend sind Artikelüberschriften aus RSS-Feeds, die über Nacht veröffentlicht wurden. Jeder Eintrag enthält einen Quellennamen und eine Überschrift und kann einen kurzen Textauszug enthalten.\n\nAntworten Sie nur mit 3–5 Aufzählungspunkten der wichtigsten Dinge aus diesen Überschriften. Jeder Aufzählungspunkt sollte ein Satz sein. Fassen Sie verwandte Überschriften nach Möglichkeit in einzelnen Punkten zusammen. Wiederholen Sie nicht dieselbe Meldung zweimal. Spekulieren Sie nicht über das hinaus, was die Überschriften angeben. Fügen Sie keine Einleitung, keinen Überblick, kein Fazit oder keinen Kommentar hinzu. Geben Sie nur die Aufzählungspunkte aus. Verwenden Sie einfache Sprache. Sie dürfen **fett** verwenden, um wichtige Begriffe hervorzuheben. Antworte auf Deutsch.\n\nÜberschriften:"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Below are article headlines from RSS feeds published overnight. Each entry has a source name and headline, and may include a brief snippet.\n\nRespond with only 3-5 bullet points of the most important things from these headlines. Each bullet point should be one sentence. Group related headlines into single points where possible. Do not repeat the same story twice. Do not speculate beyond what the headlines indicate. Do not include any introduction, overview, conclusion, or commentary. Only output the bullet points. Use plain language. You may use **bold** to emphasize key terms. Respond in English.\n\nHeadlines:"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ci-dessous se trouvent des titres d'articles provenant de flux RSS publiés pendant la nuit. Chaque entrée comprend un nom de source et un titre, et peut inclure un bref extrait.\n\nRépondez uniquement avec 3 à 5 puces des éléments les plus importants de ces titres. Chaque puce doit être une phrase. Regroupez les titres liés en un seul point lorsque c'est possible. Ne répétez pas la même information deux fois. Ne spéculez pas au-delà de ce que les titres indiquent. N'incluez aucune introduction, vue d'ensemble, conclusion ou commentaire. Donnez uniquement les puces. Utilisez un langage simple. Vous pouvez utiliser le **gras** pour mettre en valeur les termes clés. Réponds en français.\n\nTitres :"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Di seguito sono riportati i titoli degli articoli dai feed RSS pubblicati durante la notte. Ogni voce include il nome della fonte e il titolo, e può includere un breve estratto.\n\nRispondi con solo 3-5 punti elenco delle cose più importanti da questi titoli. Ogni punto elenco deve essere una frase. Raggruppa i titoli correlati in singoli punti dove possibile. Non ripetere la stessa notizia due volte. Non speculare oltre quanto indicato dai titoli. Non includere introduzione, panoramica, conclusione o commenti. Riporta solo i punti elenco. Usa un linguaggio semplice. Puoi usare il **grassetto** per evidenziare i termini chiave. Rispondi in italiano.\n\nTitoli:"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "以下は夜間に公開されたRSSフィードの記事見出しです。各エントリにはソース名と見出しがあり、短い抜粋が含まれる場合もあります。\n\nこれらの見出しから最も重要なことを3〜5個の箇条書きのみで回答してください。各箇条書きは1文にしてください。関連する見出しはできるだけまとめてください。同じ話題を繰り返さないでください。見出しから読み取れる範囲を超えて推測しないでください。導入文、概要、まとめ、コメントは一切含めないでください。箇条書きのみを出力してください。平易な言葉を使ってください。重要な用語を強調するために**太字**を使用できます。日本語で回答してください。\n\n見出し:"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "아래는 밤사이 게시된 RSS 피드의 기사 헤드라인입니다. 각 항목에는 출처 이름과 헤드라인이 있으며, 짧은 요약이 포함될 수 있습니다.\n\n이 헤드라인에서 가장 중요한 내용을 3~5개의 글머리 기호로만 응답하세요. 각 글머리 기호는 한 문장이어야 합니다. 관련 헤드라인은 가능한 한 하나의 항목으로 묶으세요. 같은 기사를 두 번 반복하지 마세요. 헤드라인에 나타난 내용 이상으로 추측하지 마세요. 서론, 개요, 결론 또는 논평을 포함하지 마세요. 글머리 기호만 출력하세요. 쉬운 언어를 사용하세요. 핵심 용어를 강조하기 위해 **굵게**를 사용할 수 있습니다. 한국어로 응답하세요.\n\n헤드라인:"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dưới đây là tiêu đề bài viết từ các nguồn cấp RSS được đăng qua đêm. Mỗi mục có tên nguồn và tiêu đề, và có thể kèm theo một đoạn trích ngắn.\n\nChỉ trả lời 3-5 gạch đầu dòng về những điều quan trọng nhất từ các tiêu đề này. Mỗi gạch đầu dòng là một câu. Gộp các tiêu đề liên quan thành một ý nếu có thể. Không lặp lại cùng một tin hai lần. Không suy đoán ngoài nội dung tiêu đề. Không viết phần mở đầu, tổng quan, kết luận, hay bình luận. Chỉ xuất các gạch đầu dòng. Sử dụng ngôn ngữ đơn giản. Bạn có thể sử dụng **in đậm** để nhấn mạnh các thuật ngữ quan trọng. Trả lời bằng tiếng Việt.\n\nTiêu đề:"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "以下是夜间发布的 RSS 订阅源文章标题。每条包含来源名称和标题，可能还有简短摘要。\n\n仅用 3 到 5 个要点回复这些标题中最重要的内容。每个要点为一句话。尽可能将相关标题合并为一个要点。不要重复同一条新闻。不要超出标题所示内容进行推测。不要包含任何引言、概述、结论或评论。仅输出要点。使用简洁的语言。可以使用**粗体**来强调关键术语。用简体中文回答。\n\n标题："
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "以下是夜間發布的 RSS 訂閱源文章標題。每個項目包含來源名稱和標題，可能還有簡短摘錄。\n\n僅回覆 3 到 5 個最重要的重點條列。每個條列項目應為一句話。盡可能將相關標題歸納為同一個條列項目。不要重複同一則新聞。不要做出超出標題內容的推測。不要包含任何引言、總覽、結論或評論。只輸出重點條列。使用淺顯易懂的語言。可以使用**粗體**來強調關鍵術語。用繁體中文回答。\n\n標題："
+          }
+        }
+      }
+    },
+    "WhileYouSlept.ShowLess": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Weniger anzeigen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show Less"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Afficher moins"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mostra meno"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "折りたたむ"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "접기"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Thu gọn"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "收起"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "收起"
+          }
+        }
+      }
+    },
+    "WhileYouSlept.ShowMore": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mehr anzeigen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show More"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Afficher plus"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mostra di più"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "もっと見る"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "더 보기"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Xem thêm"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "展开"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "展開"
+          }
+        }
+      }
+    },
+    "WhileYouSlept.Title": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Während Sie schliefen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "While You Slept"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pendant votre sommeil"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mentre dormivi"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "おやすみ中のできごと"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "자는 동안"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Khi bạn ngủ"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "夜间动态"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "你睡著時"
+          }
+        }
+      }
+    },
+    "WhileYouSlept.TooFew": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Es gab zu wenige Überschriften für eine Zusammenfassung."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "There were too few headlines to summarize."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Il y avait trop peu de titres pour générer un résumé."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "I titoli erano troppo pochi per generare un riepilogo."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "要約するには見出しが少なすぎました。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "요약하기에 헤드라인이 너무 적습니다."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quá ít tiêu đề để tóm tắt."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "标题太少，无法生成摘要。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "標題太少，無法產生摘要。"
+          }
+        }
+      }
+    }
+  },
+  "version": "1.1"
+}

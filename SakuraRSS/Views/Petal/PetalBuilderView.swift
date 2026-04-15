@@ -79,7 +79,7 @@ struct PetalBuilderView: View {
                 )
                 if case .edit = mode {
                     Section {
-                        Button("Petal.Builder.Delete", role: .destructive) {
+                        Button(String(localized: "Builder.Delete", table: "Petal"), role: .destructive) {
                             showDeleteConfirm = true
                         }
                     }
@@ -87,7 +87,7 @@ struct PetalBuilderView: View {
             }
             .animation(.smooth.speed(2.0), value: previewArticles.count)
             .animation(.smooth.speed(2.0), value: isFetching)
-            .navigationTitle("Petal.Builder.Title")
+            .navigationTitle(String(localized: "Builder.Title", table: "Petal"))
             .toolbarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
@@ -98,14 +98,14 @@ struct PetalBuilderView: View {
                         .disabled(!canSave)
                 }
             }
-            .alert("Petal.Builder.DeleteConfirm.Title",
+            .alert(String(localized: "Builder.DeleteConfirm.Title", table: "Petal"),
                    isPresented: $showDeleteConfirm) {
-                Button("Petal.Builder.Delete", role: .destructive) {
+                Button(String(localized: "Builder.Delete", table: "Petal"), role: .destructive) {
                     deletePetal()
                 }
                 Button("Shared.Cancel", role: .cancel) {}
             } message: {
-                Text("Petal.Builder.DeleteConfirm.Message")
+                Text(String(localized: "Builder.DeleteConfirm.Message", table: "Petal"))
             }
             .onAppear {
                 if !recipe.siteURL.isEmpty {
@@ -161,7 +161,7 @@ struct PetalBuilderView: View {
         guard let html = fetchedHTML else { return }
         previewArticles = PetalEngine.parse(html: html, recipe: recipe)
         errorMessage = previewArticles.isEmpty
-            ? String(localized: "Petal.Error.NoMatches") : nil
+            ? String(localized: "Error.NoMatches", table: "Petal") : nil
     }
 
     /// Runs the heuristic selector finder against the currently

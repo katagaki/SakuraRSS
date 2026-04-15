@@ -22,7 +22,7 @@ extension PodcastEpisodeView {
         isSummarizing = true
         defer { isSummarizing = false }
 
-        let instructions = String(localized: "Article.Summarize.Prompt")
+        let instructions = String(localized: "Article.Summarize.Prompt", table: "Articles")
 
         do {
             let summary: String

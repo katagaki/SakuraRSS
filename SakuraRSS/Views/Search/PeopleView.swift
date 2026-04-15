@@ -16,9 +16,9 @@ struct PeopleView: View {
         Group {
             if filteredPeople.isEmpty {
                 ContentUnavailableView {
-                    Label("People.Empty", systemImage: "person.2")
+                    Label(String(localized: "People.Empty", table: "Articles"), systemImage: "person.2")
                 } description: {
-                    Text("People.Empty.Description")
+                    Text(String(localized: "People.Empty.Description", table: "Articles"))
                 }
             } else {
                 List(filteredPeople, id: \.name) { person in
@@ -42,7 +42,7 @@ struct PeopleView: View {
                 .scrollContentBackground(.hidden)
             }
         }
-        .navigationTitle("People.Title")
+        .navigationTitle(String(localized: "People.Title", table: "Articles"))
         .task {
             await loadPeople()
         }

@@ -28,10 +28,10 @@ struct PetalBuilderPreviewSection: View {
             Text(errorMessage)
                 .foregroundStyle(.red)
         } else if articles.isEmpty && !isFetching && hasFetchedHTML {
-            Text("Petal.Builder.Preview.Empty")
+            Text(String(localized: "Builder.Preview.Empty", table: "Petal"))
                 .foregroundStyle(.secondary)
         } else if articles.isEmpty && !hasFetchedHTML {
-            Text("Petal.Builder.Preview.TapFetch")
+            Text(String(localized: "Builder.Preview.TapFetch", table: "Petal"))
                 .foregroundStyle(.secondary)
         } else {
             ForEach(articles.prefix(20), id: \.url) { article in
@@ -42,7 +42,7 @@ struct PetalBuilderPreviewSection: View {
 
     private var header: some View {
         HStack {
-            Text("Petal.Builder.Section.Preview")
+            Text(String(localized: "Builder.Section.Preview", table: "Petal"))
             if !articles.isEmpty {
                 Spacer()
                 Text("\(articles.count)")

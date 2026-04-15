@@ -234,8 +234,8 @@ final class iCloudBackupManager: @unchecked Sendable {
 
         var errorDescription: String? {
             switch self {
-            case .iCloudUnavailable: String(localized: "iCloudBackup.Unavailable")
-            case .backupNotFound: String(localized: "iCloudBackup.RestoreError")
+            case .iCloudUnavailable: String(localized: "iCloudBackup.Unavailable", table: "DataManagement")
+            case .backupNotFound: String(localized: "iCloudBackup.RestoreError", table: "DataManagement")
             }
         }
     }

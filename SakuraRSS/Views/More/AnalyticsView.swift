@@ -17,22 +17,22 @@ struct AnalyticsView: View {
         LazyVGrid(columns: columns, spacing: 10) {
             StatCell(
                 value: totalRead.formatted(),
-                label: "Analytics.ArticlesRead",
+                label: String(localized: "Analytics.ArticlesRead", table: "Settings"),
                 icon: "book.closed.fill"
             )
             StatCell(
                 value: streak > 0 ? streak.formatted() : "-",
-                label: "Analytics.Streak",
+                label: String(localized: "Analytics.Streak", table: "Settings"),
                 icon: "flame.fill"
             )
             StatCell(
                 value: feedCount.formatted(),
-                label: "Analytics.FeedCount",
+                label: String(localized: "Analytics.FeedCount", table: "Settings"),
                 icon: "list.bullet"
             )
             StatCell(
                 value: mostReadFeedName ?? "-",
-                label: "Analytics.MostViewed",
+                label: String(localized: "Analytics.MostViewed", table: "Settings"),
                 icon: "star.fill",
                 isText: mostReadFeedName != nil
             )
@@ -65,7 +65,7 @@ struct AnalyticsView: View {
 private struct StatCell: View {
 
     let value: String
-    let label: LocalizedStringKey
+    let label: String
     let icon: String
     var isText: Bool = false
 

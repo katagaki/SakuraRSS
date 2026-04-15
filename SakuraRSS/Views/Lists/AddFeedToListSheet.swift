@@ -16,7 +16,7 @@ struct AddFeedToListSheet: View {
             List {
                 if feedManager.lists.isEmpty {
                     Section {
-                        Text("AddToList.NoLists")
+                        Text(String(localized: "AddToList.NoLists", table: "Lists"))
                             .foregroundStyle(.secondary)
                     }
                 } else {
@@ -53,13 +53,13 @@ struct AddFeedToListSheet: View {
                     Button {
                         isShowingNewList = true
                     } label: {
-                        Label("AddToList.NewList",
+                        Label(String(localized: "AddToList.NewList", table: "Lists"),
                               systemImage: "plus")
                     }
                 }
             }
             .listStyle(.insetGrouped)
-            .navigationTitle("AddToList.Title")
+            .navigationTitle(String(localized: "AddToList.Title", table: "Lists"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {

@@ -41,8 +41,8 @@ struct VideoStyleView: View {
                         } label: {
                             Label(
                                 article.isRead
-                                    ? String(localized: "Article.MarkUnplayed")
-                                    : String(localized: "Article.MarkPlayed"),
+                                    ? String(localized: "Article.MarkUnplayed", table: "Articles")
+                                    : String(localized: "Article.MarkPlayed", table: "Articles"),
                                 systemImage: article.isRead ? "arrow.uturn.backward" : "checkmark"
                             )
                         }
@@ -52,19 +52,19 @@ struct VideoStyleView: View {
                         } label: {
                             Label(
                                 article.isBookmarked
-                                    ? String(localized: "Article.RemoveBookmark")
-                                    : String(localized: "Article.Bookmark"),
+                                    ? String(localized: "Article.RemoveBookmark", table: "Articles")
+                                    : String(localized: "Article.Bookmark", table: "Articles"),
                                 systemImage: article.isBookmarked ? "bookmark.fill" : "bookmark"
                             )
                         }
                         Button {
                             UIPasteboard.general.string = article.url
                         } label: {
-                            Label("Article.CopyLink", systemImage: "link")
+                            Label(String(localized: "Article.CopyLink", table: "Articles"), systemImage: "link")
                         }
                         if let shareURL = URL(string: article.url) {
                             ShareLink(item: shareURL) {
-                                Label("Article.Share", systemImage: "square.and.arrow.up")
+                                Label(String(localized: "Article.Share", table: "Articles"), systemImage: "square.and.arrow.up")
                             }
                         }
                     }
@@ -178,8 +178,8 @@ struct VideoArticleCard: View {
                     } label: {
                         Label(
                             article.isRead
-                                ? String(localized: "Article.MarkUnplayed")
-                                : String(localized: "Article.MarkPlayed"),
+                                ? String(localized: "Article.MarkUnplayed", table: "Articles")
+                                : String(localized: "Article.MarkPlayed", table: "Articles"),
                             systemImage: article.isRead ? "arrow.uturn.backward" : "checkmark"
                         )
                     }
@@ -189,19 +189,19 @@ struct VideoArticleCard: View {
                     } label: {
                         Label(
                             article.isBookmarked
-                                ? String(localized: "Article.RemoveBookmark")
-                                : String(localized: "Article.Bookmark"),
+                                ? String(localized: "Article.RemoveBookmark", table: "Articles")
+                                : String(localized: "Article.Bookmark", table: "Articles"),
                             systemImage: article.isBookmarked ? "bookmark.fill" : "bookmark"
                         )
                     }
                     Button {
                         UIPasteboard.general.string = article.url
                     } label: {
-                        Label("Article.CopyLink", systemImage: "link")
+                        Label(String(localized: "Article.CopyLink", table: "Articles"), systemImage: "link")
                     }
                     if let shareURL = URL(string: article.url) {
                         ShareLink(item: shareURL) {
-                            Label("Article.Share", systemImage: "square.and.arrow.up")
+                            Label(String(localized: "Article.Share", table: "Articles"), systemImage: "square.and.arrow.up")
                         }
                     }
                 } label: {

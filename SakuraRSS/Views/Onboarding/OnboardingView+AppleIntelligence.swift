@@ -7,12 +7,12 @@ extension OnboardingView {
             VStack(alignment: .leading, spacing: 20) {
                 stepHeader(
                     icon: "apple.intelligence",
-                    title: String(localized: "Onboarding.Step.AppleIntelligence.Title"),
-                    description: String(localized: "Onboarding.Step.AppleIntelligence.Description")
+                    title: String(localized: "Step.AppleIntelligence.Title", table: "Onboarding"),
+                    description: String(localized: "Step.AppleIntelligence.Description", table: "Onboarding")
                 )
 
                 VStack(spacing: 0) {
-                    Toggle("Onboarding.Setting.AISummaries", isOn: Binding(
+                    Toggle(String(localized: "Setting.AISummaries", table: "Onboarding"), isOn: Binding(
                         get: { todaysSummaryEnabled && whileYouSleptEnabled },
                         set: { newValue in
                             todaysSummaryEnabled = newValue
@@ -37,7 +37,7 @@ extension OnboardingView {
                         currentStep = .addFeed
                     }
                 } label: {
-                    Text("Onboarding.Skip")
+                    Text(String(localized: "Skip", table: "Onboarding"))
                         .fontWeight(.semibold)
                         .padding(.vertical, 8)
                         .frame(maxWidth: .infinity)

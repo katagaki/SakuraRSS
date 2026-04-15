@@ -49,7 +49,7 @@ struct ListWidgetSmallView: View {
                 Image(systemName: "newspaper")
                     .font(.system(size: 22))
                     .foregroundStyle(.secondary)
-                Text("Widget.NoArticles")
+                Text(String(localized: "NoArticles", table: "Widget"))
                     .font(.system(size: 12))
                     .foregroundStyle(.secondary)
             }

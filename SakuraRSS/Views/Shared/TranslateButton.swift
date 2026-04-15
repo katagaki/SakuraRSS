@@ -16,8 +16,8 @@ struct TranslateButton: View {
             } label: {
                 Label(
                     String(localized: showingTranslation
-                           ? "Article.ShowOriginal"
-                           : "Article.ShowTranslation"),
+                           ? String(localized: "Article.ShowOriginal", table: "Articles")
+                           : String(localized: "Article.ShowTranslation", table: "Articles")),
                     systemImage: showingTranslation
                         ? "doc.plaintext" : "translate"
                 )
@@ -29,7 +29,7 @@ struct TranslateButton: View {
                 onTranslate()
             } label: {
                 Label(
-                    "Article.Translate",
+                    String(localized: "Article.Translate", table: "Articles"),
                     systemImage: "translate"
                 )
                 .opacity(isTranslating ? 0 : 1)

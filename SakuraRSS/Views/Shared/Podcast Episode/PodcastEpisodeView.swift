@@ -189,7 +189,7 @@ struct PodcastEpisodeView: View {
                             startPlayback()
                         } label: {
                             Label(
-                                isOffline && !isDownloaded ? "Podcast.Offline" : "Podcast.Play",
+                                isOffline && !isDownloaded ? String(localized: "Offline", table: "Podcast") : String(localized: "Play", table: "Podcast"),
                                 systemImage: "play.fill"
                             )
                                 .frame(maxWidth: .infinity)
@@ -225,7 +225,7 @@ struct PodcastEpisodeView: View {
                     } else {
                         VStack(alignment: .leading, spacing: 8) {
                             if showingSummary && summarizedText != nil {
-                                Text("AppleIntelligence.VerifyImportantInformation")
+                                Text(String(localized: "AppleIntelligence.VerifyImportantInformation", table: "Settings"))
                                     .font(.caption)
                                     .foregroundStyle(.secondary)
                             }
@@ -270,7 +270,7 @@ struct PodcastEpisodeView: View {
             ToolbarItemGroup(placement: .topBarTrailing) {
                 if let shareURL = URL(string: article.url) {
                     ShareLink(item: shareURL) {
-                        Label("Article.Share", systemImage: "square.and.arrow.up")
+                        Label(String(localized: "Article.Share", table: "Articles"), systemImage: "square.and.arrow.up")
                     }
                 }
             }
@@ -309,7 +309,7 @@ struct PodcastEpisodeView: View {
                 }
             }
         }
-        .alert("Article.Summarize.Error", isPresented: Binding(
+        .alert(String(localized: "Article.Summarize.Error", table: "Articles"), isPresented: Binding(
             get: { summarizationError != nil },
             set: { if !$0 { summarizationError = nil } }
         )) {
@@ -339,7 +339,7 @@ struct PodcastEpisodeView: View {
 
     private var playbackSpeedMenu: some View {
         Menu {
-            Picker("Podcast.PlaybackSpeed", selection: $playbackSpeed) {
+            Picker(String(localized: "PlaybackSpeed", table: "Podcast"), selection: $playbackSpeed) {
                 ForEach(playbackSpeedPresets, id: \.self) { preset in
                     Text(formatSpeed(preset))
                         .tag(preset)

@@ -48,8 +48,8 @@ struct SingleFeedWidget: Widget {
                 }
         }
         .contentMarginsDisabled()
-        .configurationDisplayName("SingleFeedWidget.DisplayName")
-        .description("SingleFeedWidget.Description")
+        .configurationDisplayName(LocalizedStringResource("SingleFeedWidget.DisplayName", table: "Widget"))
+        .description(LocalizedStringResource("SingleFeedWidget.Description", table: "Widget"))
         .supportedFamilies([.systemSmall, .systemMedium, .systemLarge])
     }
 }

@@ -26,10 +26,10 @@ struct BookmarksContentView: View {
         Group {
             if bookmarkedArticles.isEmpty {
                 ContentUnavailableView {
-                    Label("Bookmarks.Empty.Title",
+                    Label(String(localized: "Bookmarks.Empty.Title", table: "Articles"),
                           systemImage: "bookmark")
                 } description: {
-                    Text("Bookmarks.Empty.Description")
+                    Text(String(localized: "Bookmarks.Empty.Description", table: "Articles"))
                 }
             } else {
                 DisplayStyleContentView(
@@ -68,14 +68,14 @@ struct BookmarksContentView: View {
         }
         .animation(.smooth.speed(2.0), value: displayStyle)
         .animation(.smooth.speed(2.0), value: bookmarkedArticles)
-        .alert("Bookmarks.DeleteAllRead", isPresented: $showingDeleteReadAlert) {
-            Button("Bookmarks.DeleteAllRead.Confirm", role: .destructive) {
+        .alert(String(localized: "Bookmarks.DeleteAllRead", table: "Articles"), isPresented: $showingDeleteReadAlert) {
+            Button(String(localized: "Bookmarks.DeleteAllRead.Confirm", table: "Articles"), role: .destructive) {
                 try? DatabaseManager.shared.removeReadBookmarks()
                 bookmarkedArticles = (try? DatabaseManager.shared.bookmarkedArticles()) ?? []
             }
             Button("Shared.Cancel", role: .cancel) { }
         } message: {
-            Text("Bookmarks.DeleteAllRead.Message")
+            Text(String(localized: "Bookmarks.DeleteAllRead.Message", table: "Articles"))
         }
         .onChange(of: displayStyle) { _, newValue in
             UserDefaults.standard.set(newValue.rawValue, forKey: "Display.DefaultBookmarksStyle")

@@ -387,40 +387,40 @@ private struct ScrollActionButtonsColumn: View {
             Button(action: onOpen) {
                 labeledIcon(
                     systemName: article.isYouTubeURL ? "play.rectangle.fill" : "safari.fill",
-                    label: Text("Article.OpenInBrowser")
+                    label: Text(String(localized: "Article.OpenInBrowser", table: "Articles"))
                 )
             }
-            .accessibilityLabel(Text("Article.OpenInBrowser"))
+            .accessibilityLabel(Text(String(localized: "Article.OpenInBrowser", table: "Articles")))
 
             Button(action: onCopy) {
                 labeledIcon(
                     systemName: "square.on.square.fill",
-                    label: Text("Article.CopyLink")
+                    label: Text(String(localized: "Article.CopyLink", table: "Articles"))
                 )
             }
-            .accessibilityLabel(Text("Article.CopyLink"))
+            .accessibilityLabel(Text(String(localized: "Article.CopyLink", table: "Articles")))
 
             Button(action: onToggleBookmark) {
                 labeledIcon(
                     systemName: article.isBookmarked ? "bookmark.fill" : "bookmark",
                     label: Text(article.isBookmarked
-                                ? "Article.RemoveBookmark"
-                                : "Article.Bookmark")
+                                ? String(localized: "Article.RemoveBookmark", table: "Articles")
+                                : String(localized: "Article.Bookmark", table: "Articles"))
                 )
             }
             .accessibilityLabel(Text(article.isBookmarked
-                                     ? "Article.RemoveBookmark"
-                                     : "Article.Bookmark"))
+                                     ? String(localized: "Article.RemoveBookmark", table: "Articles")
+                                     : String(localized: "Article.Bookmark", table: "Articles")))
 
             if let shareURL {
                 ShareLink(item: shareURL) {
                     labeledIcon(
                         systemName: "square.and.arrow.up",
-                        label: Text("Article.Share"),
+                        label: Text(String(localized: "Article.Share", table: "Articles")),
                         iconOffsetY: -1
                     )
                 }
-                .accessibilityLabel(Text("Article.Share"))
+                .accessibilityLabel(Text(String(localized: "Article.Share", table: "Articles")))
             }
         }
         .font(.title)
@@ -531,7 +531,7 @@ private struct ScrollExpandedArticleView: View {
                         .padding(.vertical, 20)
                 } else if let text = displayText {
                     if showingSummary && summarizedText != nil {
-                        Text("AppleIntelligence.VerifyImportantInformation")
+                        Text(String(localized: "AppleIntelligence.VerifyImportantInformation", table: "Settings"))
                             .font(.caption)
                             .foregroundStyle(.white.opacity(0.6))
                     }
@@ -609,7 +609,7 @@ private struct ScrollExpandedArticleView: View {
         .translationTask(translationConfig) { session in
             await handleTranslation(session: session)
         }
-        .alert("Article.Summarize.Error", isPresented: Binding(
+        .alert(String(localized: "Article.Summarize.Error", table: "Articles"), isPresented: Binding(
             get: { summarizationError != nil },
             set: { if !$0 { summarizationError = nil } }
         )) {
@@ -698,7 +698,7 @@ private struct ScrollExpandedArticleView: View {
                 }
 
                 OpenLinkButton(
-                    title: "Article.OpenInBrowser",
+                    title: String(localized: "Article.OpenInBrowser", table: "Articles"),
                     systemImage: article.isYouTubeURL && YouTubeHelper.isAppInstalled
                         ? "play.rectangle" : "safari",
                     action: { onOpenArticleURL() }
@@ -832,7 +832,7 @@ private struct ScrollExpandedArticleView: View {
         isSummarizing = true
         defer { isSummarizing = false }
 
-        let instructions = String(localized: "Article.Summarize.Prompt")
+        let instructions = String(localized: "Article.Summarize.Prompt", table: "Articles")
 
         do {
             let session = LanguageModelSession(instructions: instructions)
@@ -862,16 +862,16 @@ private struct ScrollEndOfFeedPage: View {
             Color.black.opacity(0.85)
 
             ContentUnavailableView {
-                Label("Scroll.EndOfFeed.Title", systemImage: "clock.arrow.circlepath")
+                Label(String(localized: "Scroll.EndOfFeed.Title", table: "Articles"), systemImage: "clock.arrow.circlepath")
                     .foregroundStyle(.white)
             } description: {
-                Text("Scroll.EndOfFeed.Description")
+                Text(String(localized: "Scroll.EndOfFeed.Description", table: "Articles"))
                     .foregroundStyle(.white.opacity(0.75))
             } actions: {
                 Button {
                     onLoadMore()
                 } label: {
-                    Label("Articles.LoadPrevious", systemImage: "clock.arrow.circlepath")
+                    Label(String(localized: "LoadPrevious", table: "Articles"), systemImage: "clock.arrow.circlepath")
                         .padding(.horizontal, 8)
                         .padding(.vertical, 4)
                 }

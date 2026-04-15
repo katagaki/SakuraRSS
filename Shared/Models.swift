@@ -92,10 +92,10 @@ nonisolated enum FeedSection: String, CaseIterable, Sendable {
 
     var localizedTitle: String {
         switch self {
-        case .news: String(localized: "FeedSection.News")
-        case .social: String(localized: "FeedSection.Social")
-        case .video: String(localized: "FeedSection.Video")
-        case .audio: String(localized: "FeedSection.Audio")
+        case .news: String(localized: "FeedSection.News", table: "Feeds")
+        case .social: String(localized: "FeedSection.Social", table: "Feeds")
+        case .video: String(localized: "FeedSection.Video", table: "Feeds")
+        case .audio: String(localized: "FeedSection.Audio", table: "Feeds")
         }
     }
 }
@@ -352,18 +352,18 @@ nonisolated enum FeedDisplayStyle: String, CaseIterable, Sendable {
 
     var localizedName: String {
         switch self {
-        case .inbox: String(localized: "Articles.Style.Inbox")
-        case .feed: String(localized: "Articles.Style.Feed")
-        case .feedCompact: String(localized: "Articles.Style.FeedCompact")
-        case .magazine: String(localized: "Articles.Style.Magazine")
-        case .compact: String(localized: "Articles.Style.Compact")
-        case .video: String(localized: "Articles.Style.Video")
-        case .photos: String(localized: "Articles.Style.Photos")
-        case .podcast: String(localized: "Articles.Style.Podcast")
-        case .timeline: String(localized: "Articles.Style.Timeline")
-        case .cards: String(localized: "Articles.Style.Cards")
-        case .grid: String(localized: "Articles.Style.Grid")
-        case .scroll: String(localized: "Articles.Style.Scroll")
+        case .inbox: String(localized: "Style.Inbox", table: "Articles")
+        case .feed: String(localized: "Style.Feed", table: "Articles")
+        case .feedCompact: String(localized: "Style.FeedCompact", table: "Articles")
+        case .magazine: String(localized: "Style.Magazine", table: "Articles")
+        case .compact: String(localized: "Style.Compact", table: "Articles")
+        case .video: String(localized: "Style.Video", table: "Articles")
+        case .photos: String(localized: "Style.Photos", table: "Articles")
+        case .podcast: String(localized: "Style.Podcast", table: "Articles")
+        case .timeline: String(localized: "Style.Timeline", table: "Articles")
+        case .cards: String(localized: "Style.Cards", table: "Articles")
+        case .grid: String(localized: "Style.Grid", table: "Articles")
+        case .scroll: String(localized: "Style.Scroll", table: "Articles")
         }
     }
 

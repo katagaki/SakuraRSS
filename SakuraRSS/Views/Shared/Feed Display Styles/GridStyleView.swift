@@ -35,8 +35,8 @@ struct GridStyleView: View {
                         } label: {
                             Label(
                                 article.isRead
-                                    ? String(localized: "Article.MarkUnread")
-                                    : String(localized: "Article.MarkRead"),
+                                    ? String(localized: "Article.MarkUnread", table: "Articles")
+                                    : String(localized: "Article.MarkRead", table: "Articles"),
                                 systemImage: article.isRead
                                     ? "envelope" : "envelope.open"
                             )
@@ -44,7 +44,7 @@ struct GridStyleView: View {
                         Divider()
                         if let shareURL = URL(string: article.url) {
                             ShareLink(item: shareURL) {
-                                Label("Article.Share",
+                                Label(String(localized: "Article.Share", table: "Articles"),
                                       systemImage: "square.and.arrow.up")
                             }
                         }

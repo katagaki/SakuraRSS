@@ -12,9 +12,9 @@ enum HomeSection: String, CaseIterable, Identifiable {
     var localizedTitle: String {
         switch self {
         case .feed: String(localized: "Shared.AllArticles")
-        case .social: String(localized: "HomeSection.Social")
-        case .videos: String(localized: "HomeSection.Videos")
-        case .audio: String(localized: "HomeSection.Audio")
+        case .social: String(localized: "HomeSection.Social", table: "Feeds")
+        case .videos: String(localized: "HomeSection.Videos", table: "Feeds")
+        case .audio: String(localized: "HomeSection.Audio", table: "Feeds")
         }
     }
 

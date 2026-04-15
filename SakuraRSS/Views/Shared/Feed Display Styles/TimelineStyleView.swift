@@ -84,13 +84,13 @@ struct TimelineStyleView: View {
 
     private func daySectionTitle(for date: Date?, calendar: Calendar) -> String {
         guard let date else {
-            return String(localized: "Timeline.Earlier")
+            return String(localized: "Timeline.Earlier", table: "Articles")
         }
         if calendar.isDateInToday(date) {
-            return String(localized: "Timeline.Today")
+            return String(localized: "Timeline.Today", table: "Articles")
         }
         if calendar.isDateInYesterday(date) {
-            return String(localized: "Timeline.Yesterday")
+            return String(localized: "Timeline.Yesterday", table: "Articles")
         }
         let formatter = DateFormatter()
         formatter.doesRelativeDateFormatting = false

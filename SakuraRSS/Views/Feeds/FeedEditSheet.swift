@@ -26,15 +26,15 @@ struct FeedEditSheet: View {
             Form {
                 Section {
                     HStack {
-                        Text("FeedEdit.Name")
-                        TextField("FeedEdit.Name", text: $name)
+                        Text(String(localized: "FeedEdit.Name", table: "Feeds"))
+                        TextField(String(localized: "FeedEdit.Name", table: "Feeds"), text: $name)
                             .multilineTextAlignment(.trailing)
                             .frame(maxWidth: .infinity)
                             .labelsHidden()
                     }
                     if feed.isXFeed || feed.isInstagramFeed || feed.isYouTubePlaylistFeed {
                         HStack {
-                            Text("FeedEdit.URL")
+                            Text(String(localized: "FeedEdit.URL", table: "Feeds"))
                             Spacer()
                             Text(feed.siteURL)
                                 .foregroundStyle(.secondary)
@@ -42,8 +42,8 @@ struct FeedEditSheet: View {
                         }
                     } else {
                         HStack {
-                            Text("FeedEdit.URL")
-                            TextField("FeedEdit.URL", text: $url)
+                            Text(String(localized: "FeedEdit.URL", table: "Feeds"))
+                            TextField(String(localized: "FeedEdit.URL", table: "Feeds"), text: $url)
                                 .multilineTextAlignment(.trailing)
                                 .frame(maxWidth: .infinity)
                                 .textContentType(.URL)
@@ -88,8 +88,8 @@ struct FeedEditSheet: View {
                     }
 
                     HStack {
-                        Text("FeedEdit.IconURL")
-                        TextField("FeedEdit.IconURLPlaceholder", text: $iconURLInput)
+                        Text(String(localized: "FeedEdit.IconURL", table: "Feeds"))
+                        TextField(String(localized: "FeedEdit.IconURLPlaceholder", table: "Feeds"), text: $iconURLInput)
                             .multilineTextAlignment(.trailing)
                             .frame(maxWidth: .infinity)
                             .textContentType(.URL)
@@ -108,7 +108,7 @@ struct FeedEditSheet: View {
 
                     PhotosPicker(selection: $selectedPhoto, matching: .images) {
                         HStack {
-                            Text("FeedEdit.ChooseFromPhotos")
+                            Text(String(localized: "FeedEdit.ChooseFromPhotos", table: "Feeds"))
                             Spacer()
                             if customIconImage != nil {
                                 Image(systemName: "checkmark.circle.fill")
@@ -123,7 +123,7 @@ struct FeedEditSheet: View {
                         }
                     } label: {
                         HStack {
-                            Text("FeedEdit.FetchIconFromFeed")
+                            Text(String(localized: "FeedEdit.FetchIconFromFeed", table: "Feeds"))
                             Spacer()
                             if isFetchingIcon {
                                 ProgressView()
@@ -139,43 +139,43 @@ struct FeedEditSheet: View {
                             selectedPhoto = nil
                             iconURLInput = ""
                         } label: {
-                            Text("FeedEdit.DeleteIcon")
+                            Text(String(localized: "FeedEdit.DeleteIcon", table: "Feeds"))
                         }
                     }
                 } header: {
-                    Text("FeedEdit.Icon")
+                    Text(String(localized: "FeedEdit.Icon", table: "Feeds"))
                 }
 
                 if !feed.isXFeed && !feed.isInstagramFeed && !feed.isYouTubePlaylistFeed {
                     Section {
-                        Picker("FeedEdit.OpenIn", selection: $openMode) {
-                            Text("FeedEdit.OpenIn.InAppViewer")
+                        Picker(String(localized: "FeedEdit.OpenIn", table: "Feeds"), selection: $openMode) {
+                            Text(String(localized: "FeedEdit.OpenIn.InAppViewer", table: "Feeds"))
                                 .tag(FeedOpenMode.inAppViewer)
-                            Text("FeedEdit.OpenIn.InAppBrowser")
+                            Text(String(localized: "FeedEdit.OpenIn.InAppBrowser", table: "Feeds"))
                                 .tag(FeedOpenMode.inAppBrowser)
-                            Text("FeedEdit.OpenIn.ClearThisPage")
+                            Text(String(localized: "FeedEdit.OpenIn.ClearThisPage", table: "Feeds"))
                                 .tag(FeedOpenMode.clearThisPage)
-                            Text("FeedEdit.OpenIn.Browser")
+                            Text(String(localized: "FeedEdit.OpenIn.Browser", table: "Feeds"))
                                 .tag(FeedOpenMode.browser)
                         }
                         if !feed.isVideoFeed && !feed.isPodcast {
-                            Picker("FeedEdit.ArticleSource", selection: $articleSource) {
-                                Text("FeedEdit.ArticleSource.Automatic")
+                            Picker(String(localized: "FeedEdit.ArticleSource", table: "Feeds"), selection: $articleSource) {
+                                Text(String(localized: "FeedEdit.ArticleSource.Automatic", table: "Feeds"))
                                     .tag(ArticleSource.automatic)
-                                Text("FeedEdit.ArticleSource.FetchText")
+                                Text(String(localized: "FeedEdit.ArticleSource.FetchText", table: "Feeds"))
                                     .tag(ArticleSource.fetchText)
-                                Text("FeedEdit.ArticleSource.ExtractText")
+                                Text(String(localized: "FeedEdit.ArticleSource.ExtractText", table: "Feeds"))
                                     .tag(ArticleSource.extractText)
-                                Text("FeedEdit.ArticleSource.FeedText")
+                                Text(String(localized: "FeedEdit.ArticleSource.FeedText", table: "Feeds"))
                                     .tag(ArticleSource.feedText)
                             }
                         }
                     } header: {
-                        Text("FeedEdit.Behavior")
+                        Text(String(localized: "FeedEdit.Behavior", table: "Feeds"))
                     }
                 }
             }
-            .navigationTitle("FeedEdit.Title")
+            .navigationTitle(String(localized: "FeedEdit.Title", table: "Feeds"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
@@ -223,7 +223,7 @@ struct FeedEditSheet: View {
                     }
                 }
             }
-            .alert("FeedEdit.IconFetchError", isPresented: $showIconFetchError) {
+            .alert(String(localized: "FeedEdit.IconFetchError", table: "Feeds"), isPresented: $showIconFetchError) {
                 Button("Shared.OK", role: .cancel) { }
             }
         }
