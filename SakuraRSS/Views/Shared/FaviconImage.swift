@@ -10,9 +10,11 @@ struct FaviconImage: View {
     let skipInset: Bool
 
     var isNonSquare: Bool { !image.isSquare }
-    var showInset: Bool { !skipInset && isCircle && !image.isCircular && !image.isFilledSquare }
-    var needsWhiteBackground: Bool { !skipInset && image.isDark }
-    var isNearBlack: Bool { image.isNearBlack }
+    /// Completely filled squares are treated as edge-to-edge icons and skip every automatic inset.
+    var isFilledSquare: Bool { image.isFilledSquare }
+    var showInset: Bool { !skipInset && isCircle && !image.isCircular && !isFilledSquare }
+    var needsWhiteBackground: Bool { !skipInset && image.isDark && !isFilledSquare }
+    var isNearBlack: Bool { image.isNearBlack && !isFilledSquare }
 
     /// In round-rect mode, a transparent favicon should be inset with a tinted background.
     var showRoundRectInset: Bool { !skipInset && !isCircle && image.isSquare && image.hasTransparentPixels }
