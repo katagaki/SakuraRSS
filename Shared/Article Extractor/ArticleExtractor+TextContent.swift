@@ -64,6 +64,13 @@ extension ArticleExtractor {
         text = escapeBracketsInLinkText(text,
                                         open: linkOpenPlaceholder,
                                         mid: linkMidPlaceholder)
+        // Escape any pre-existing marker sequences (e.g. `{{IMG}}` in a
+        // Mustache/Handlebars tutorial) that came through SwiftSoup's
+        // `.text()` call BEFORE the SAKURA placeholders below are converted
+        // into real `{{IMG}}`/`{{CODE}}`/etc. markers. Otherwise
+        // `ContentBlock.parse` would later misinterpret the article's own
+        // text as image/code/video markers.
+        text = ArticleMarker.escape(text)
         text = convertPlaceholdersToMarkdown(text)
         text = stripInvalidURLSupSub(text)
         text = stripRemainingHTMLTags(text)

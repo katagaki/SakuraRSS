@@ -63,6 +63,7 @@ struct ArticleExtractor { // swiftlint:disable:this type_body_length
         if !html.contains("<") {
             var trimmed = html.trimmingCharacters(in: .whitespacesAndNewlines)
             trimmed = resolveMarkdownLinks(in: trimmed, baseURL: baseURL)
+            trimmed = ArticleMarker.escape(trimmed)
             #if DEBUG
             debugPrint("[Extract] extractText: no HTML tags, plain text (\(trimmed.count) chars)")
             #endif
@@ -81,8 +82,9 @@ struct ArticleExtractor { // swiftlint:disable:this type_body_length
             #if DEBUG
             debugPrint("[Extract] extractText: wrapped plain text/Markdown (\(tagCount) tags, \(stripped.count) chars), using directly")
             #endif
-            let cleaned = stripRemainingHTMLTags(html)
-            return resolveMarkdownLinks(in: cleaned, baseURL: baseURL)
+            var cleaned = stripRemainingHTMLTags(html)
+            cleaned = resolveMarkdownLinks(in: cleaned, baseURL: baseURL)
+            return ArticleMarker.escape(cleaned)
         }
 
         #if DEBUG
@@ -409,8 +411,9 @@ struct ArticleExtractor { // swiftlint:disable:this type_body_length
         if directDivs.count > 1 {
             let lines = try directDivs.map { try $0.text() }
             let text = lines.joined(separator: "\n")
-            return decodeCodeEntities(text)
+            let decoded = decodeCodeEntities(text)
                 .trimmingCharacters(in: CharacterSet(charactersIn: "\n"))
+            return ArticleMarker.escape(decoded)
         }
 
         // Standard <pre>/<pre><code> — use inner HTML
@@ -421,8 +424,12 @@ struct ArticleExtractor { // swiftlint:disable:this type_body_length
         html = html.replacingOccurrences(
             of: "<[^>]+>", with: "", options: .regularExpression
         )
-        return decodeCodeEntities(html)
+        let decoded = decodeCodeEntities(html)
             .trimmingCharacters(in: CharacterSet(charactersIn: "\n"))
+        // Code samples that legitimately contain `{{/CODE}}` or other
+        // marker tokens (templating tutorials) would otherwise prematurely
+        // terminate the wrapping `{{CODE}}…{{/CODE}}` block at parse time.
+        return ArticleMarker.escape(decoded)
     }
 
     private static func decodeCodeEntities(_ text: String) -> String {
