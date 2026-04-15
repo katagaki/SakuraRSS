@@ -4,6 +4,7 @@ struct LabsView: View {
 
     @AppStorage("Labs.XProfileFeeds") private var xProfileFeedsEnabled: Bool = false
     @AppStorage("Labs.InstagramProfileFeeds") private var instagramProfileFeedsEnabled: Bool = false
+    @AppStorage("Labs.PetalRecipes") private var petalRecipesEnabled: Bool = false
 
     @State private var isXSignedIn = false
     @State private var showXLogin = false
@@ -53,6 +54,18 @@ struct LabsView: View {
             }
 
             Section {
+                Toggle("Labs.PetalRecipes", isOn: $petalRecipesEnabled)
+
+                if petalRecipesEnabled {
+                    NavigationLink("Petal.Manage.Title") {
+                        PetalManagementView()
+                    }
+                }
+            } footer: {
+                Text("Labs.PetalRecipes.Footer")
+            }
+
+            Section {
                 Toggle("Labs.InstagramProfileFeeds",
                        isOn: $instagramProfileFeedsEnabled)
 
@@ -77,6 +90,7 @@ struct LabsView: View {
         }
         .animation(.smooth.speed(2.0), value: xProfileFeedsEnabled)
         .animation(.smooth.speed(2.0), value: instagramProfileFeedsEnabled)
+        .animation(.smooth.speed(2.0), value: petalRecipesEnabled)
         .navigationTitle("Labs.Title")
         .toolbarTitleDisplayMode(.inline)
         .sheet(isPresented: $showXLogin) {

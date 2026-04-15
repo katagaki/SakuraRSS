@@ -5,6 +5,11 @@ extension FeedManager {
     // MARK: - Feed Refresh
 
     func refreshFeed(_ feed: Feed, updateTitle: Bool = true, reloadData: Bool = true) async throws {
+        if PetalRecipe.isPetalFeedURL(feed.url) {
+            try await refreshPetalFeed(feed, reloadData: reloadData)
+            return
+        }
+
         if feed.isXFeed {
             guard UserDefaults.standard.bool(forKey: "Labs.XProfileFeeds") else { return }
             try await refreshXFeed(feed, reloadData: reloadData)

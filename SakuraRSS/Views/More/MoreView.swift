@@ -144,6 +144,14 @@ struct MoreView: View {
                 }
 
                 Section {
+                    NavigationLink("Labs.Title") {
+                        LabsView()
+                    }
+                } header: {
+                    Text("Settings.Section.Labs")
+                }
+
+                Section {
                     NavigationLink {
                         iCloudBackupView()
                     } label: {
