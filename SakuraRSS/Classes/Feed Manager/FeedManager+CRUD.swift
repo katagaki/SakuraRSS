@@ -82,6 +82,11 @@ extension FeedManager {
                     isTitleCustomized: feed.isTitleCustomized
                 )
             }.value
+            // Visible rows cache their favicon in @State; bump the
+            // revision so the newly-installed profile photo replaces
+            // the acronym fallback on the very first refresh without
+            // waiting for the row to scroll off-screen and back.
+            await MainActor.run { self.notifyFaviconChange() }
         } else if feed.title != effectiveTitle {
             try? await Task.detached {
                 try database.updateFeedDetails(
@@ -109,6 +114,15 @@ extension FeedManager {
             generateAcronymIcon(feedID: feed.id, title: title)
         }
         loadFromDatabase()
+        // Feed rows cache their favicon in @State from a one-shot
+        // `.task`, so without a revision bump they keep showing the
+        // pre-edit icon until they scroll off-screen and back.  Users
+        // see the stale image after pull-to-refresh and conclude the
+        // refresh clobbered their override, when really the edit just
+        // never propagated.  Bump the revision so every visible row
+        // re-queries `FaviconCache.favicon(for: feed)` and picks up
+        // the newly-saved custom icon.
+        notifyFaviconChange()
     }
 
 }
