@@ -6,19 +6,19 @@ struct PodcastEpisodeView: View {
 
     @Environment(FeedManager.self) var feedManager
     let article: Article
-    private let audioPlayer = AudioPlayer.shared
+    let audioPlayer = AudioPlayer.shared
 
-    @State private var favicon: UIImage?
-    @State private var feedName: String?
-    @State private var acronymIcon: UIImage?
+    @State var favicon: UIImage?
+    @State var feedName: String?
+    @State var acronymIcon: UIImage?
 
-    @AppStorage("Podcast.PlaybackSpeed") private var playbackSpeed: Double = 1.0
+    @AppStorage("Podcast.PlaybackSpeed") var playbackSpeed: Double = 1.0
 
-    private let playbackSpeedPresets: [Double] = [0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0, 2.5, 3.0]
+    let playbackSpeedPresets: [Double] = [0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0, 2.5, 3.0]
 
     // Downloads
-    private let downloadManager = PodcastDownloadManager.shared
-    private let networkMonitor = NetworkMonitor.shared
+    let downloadManager = PodcastDownloadManager.shared
+    let networkMonitor = NetworkMonitor.shared
     @State var isDownloaded: Bool = false
     // Transcript
     @State var transcript: [TranscriptSegment]?
@@ -80,7 +80,7 @@ struct PodcastEpisodeView: View {
         return summary
     }
 
-    private var isThisEpisode: Bool {
+    var isThisEpisode: Bool {
         audioPlayer.currentArticleID == article.id
     }
 
@@ -104,6 +104,18 @@ struct PodcastEpisodeView: View {
                         )
                         .shadow(radius: 8, y: 4)
                         .padding(.horizontal, 40)
+                    } else if let feedIcon = favicon ?? acronymIcon {
+                        Image(uiImage: feedIcon)
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .frame(maxWidth: 300, maxHeight: 300)
+                            .clipShape(RoundedRectangle(cornerRadius: 16))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 16)
+                                    .stroke(.quaternary, lineWidth: 0.5)
+                            )
+                            .shadow(radius: 8, y: 4)
+                            .padding(.horizontal, 40)
                     }
 
                     // Title and metadata
@@ -282,7 +294,7 @@ struct PodcastEpisodeView: View {
                 if let data = feed.acronymIcon {
                     acronymIcon = UIImage(data: data)
                 }
-                favicon = await FaviconCache.shared.favicon(for: feed.domain, siteURL: feed.siteURL)
+                favicon = await FaviconCache.shared.favicon(for: feed)
             }
             // Load cached summary/translation
             if let cached = try? DatabaseManager.shared.cachedArticleSummary(for: article.id),
@@ -322,83 +334,4 @@ struct PodcastEpisodeView: View {
             await handleTranslation(session: session)
         }
     }
-
-    private var transcriptToggle: some View {
-        Button {
-            withAnimation(.smooth.speed(2.0)) {
-                showingTranscript.toggle()
-            }
-        } label: {
-            Image(systemName: "quote.bubble")
-                .font(.title3)
-                .foregroundStyle(showingTranscript ? AnyShapeStyle(.tint) : AnyShapeStyle(.primary))
-        }
-        .buttonStyle(.plain)
-        .disabled(transcript == nil)
-    }
-
-    private var playbackSpeedMenu: some View {
-        Menu {
-            Picker(String(localized: "PlaybackSpeed", table: "Podcast"), selection: $playbackSpeed) {
-                ForEach(playbackSpeedPresets, id: \.self) { preset in
-                    Text(formatSpeed(preset))
-                        .tag(preset)
-                }
-            }
-        } label: {
-            Image(systemName: gaugeIcon(for: playbackSpeed))
-                .font(.title3)
-                .foregroundStyle(.primary)
-        }
-        .onChange(of: playbackSpeed) { _, newValue in
-            audioPlayer.setPlaybackRate(Float(newValue))
-        }
-    }
-
-    private func gaugeIcon(for speed: Double) -> String {
-        switch speed {
-        case ...0.75:
-            return "gauge.with.dots.needle.0percent"
-        case 0.76...1.0:
-            return "gauge.with.dots.needle.33percent"
-        case 1.01...1.5:
-            return "gauge.with.dots.needle.50percent"
-        case 1.51...2.0:
-            return "gauge.with.dots.needle.67percent"
-        default:
-            return "gauge.with.dots.needle.100percent"
-        }
-    }
-
-    private func formatSpeed(_ speed: Double) -> String {
-        if speed == floor(speed) {
-            return "\(Int(speed))×"
-        }
-        let formatted = String(format: "%g", speed)
-        return "\(formatted)×"
-    }
-
-    func startPlayback() {
-        let playbackURL: URL
-        if let localURL = downloadManager.localFileURL(for: article.id) {
-            playbackURL = localURL
-        } else if let audioURLString = article.audioURL,
-                  let audioURL = URL(string: audioURLString) {
-            playbackURL = audioURL
-        } else {
-            return
-        }
-        let feed = feedManager.feed(forArticle: article)
-        audioPlayer.play(
-            url: playbackURL,
-            articleID: article.id,
-            feedID: article.feedID,
-            episodeTitle: article.title,
-            feedTitle: feed?.title ?? "",
-            artworkURL: article.imageURL,
-            feedIconURL: feed?.faviconURL,
-            episodeDuration: article.duration
-        )
-    }
-
 }
