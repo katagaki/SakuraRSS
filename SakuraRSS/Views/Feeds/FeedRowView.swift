@@ -91,6 +91,7 @@ struct FeedRowView: View {
     }
 
     private func loadFavicon() async -> UIImage? {
-        await FaviconCache.shared.favicon(for: feed)
+        let currentFeed = feedManager.feedsByID[feed.id] ?? feed
+        return await FaviconCache.shared.favicon(for: currentFeed)
     }
 }

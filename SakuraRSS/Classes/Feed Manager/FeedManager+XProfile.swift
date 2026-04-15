@@ -6,11 +6,9 @@ extension FeedManager {
     // MARK: - X Profile Feeds
 
     /// Minimum interval between X API calls per feed (30 minutes).
-    /// Also used by `FaviconProgressBadge` to size the cooldown pie.
     static let xRefreshInterval: TimeInterval = 30 * 60
 
     func refreshXFeed(_ feed: Feed, reloadData: Bool = true) async throws {
-        // Skip if this feed was fetched less than 30 minutes ago to avoid rate limits
         if let lastFetched = feed.lastFetched,
            Date().timeIntervalSince(lastFetched) < Self.xRefreshInterval {
             #if DEBUG
@@ -27,7 +25,6 @@ extension FeedManager {
         let scraper = XProfileScraper()
         let result = await scraper.scrapeProfile(profileURL: profileURL)
 
-        // Prepare tweet data for batch insert
         let tweetTuples = result.tweets.map { tweet in
             let title = tweet.text.isEmpty
                 ? "Post by @\(tweet.authorHandle)"
@@ -47,17 +44,14 @@ extension FeedManager {
 
         let feedTitle = result.displayName ?? feed.title
 
-        // Download profile photo if available. This fetch is effectively
-        // a favicon fetch and therefore uses the favicon cache's dedicated
-        // URLSession, which bypasses the normal request timeout.
         var profileImage: UIImage?
-        if let imageURLString = result.profileImageURL,
+        if feed.lastFetched == nil,
+           let imageURLString = result.profileImageURL,
            let imageURL = URL(string: imageURLString),
            let (imageData, _) = try? await FaviconCache.urlSession.data(from: imageURL) {
             profileImage = UIImage(data: imageData)
         }
 
-        // Run all DB writes off the main thread
         let database = database
         try await Task.detached {
             try database.insertArticles(feedID: feed.id, articles: tweetTuples)
@@ -66,10 +60,6 @@ extension FeedManager {
             SpotlightIndexer.indexArticles(articlesToIndex, feedTitle: feedTitle)
         }.value
 
-        // Cache favicon and update feed details.  The shared helper
-        // honours `isTitleCustomized` and only installs the downloaded
-        // profile photo when `customIconURL == nil`, so a user-assigned
-        // icon or title survives every refresh.
         await applyScraperMetadataRefresh(
             feed: feed, scrapedTitle: feedTitle, profileImage: profileImage
         )
@@ -79,7 +69,6 @@ extension FeedManager {
         }
     }
 
-    /// Whether the user has any X profile feeds.
     var hasXFeeds: Bool {
         feeds.contains { XProfileScraper.isXFeedURL($0.url) }
     }

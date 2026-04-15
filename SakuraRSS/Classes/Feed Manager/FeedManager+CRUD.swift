@@ -11,11 +11,6 @@ extension FeedManager {
         guard !database.feedExists(url: url) else {
             throw FeedError.alreadyExists
         }
-        // Enforce per-host follow caps for authenticated scraper feeds
-        // (X, Instagram).  Unbounded follows on these hosts translate
-        // into rate-limit / account-lock pressure at refresh time, so
-        // the cap is applied at insert to keep the fleet small enough
-        // for the 30-minute refresh cadence to stay safe.
         let newHost = URL(string: siteURL)?.host
             ?? URL(string: url)?.host
             ?? ""
@@ -35,7 +30,6 @@ extension FeedManager {
         )
         generateAcronymIcon(feedID: feedID, title: title)
         loadFromDatabase()
-        // Fetch the feed's articles in the background
         if let feed = feedsByID[feedID] {
             Task {
                 try? await refreshFeed(feed)
@@ -56,18 +50,14 @@ extension FeedManager {
         loadFromDatabase()
     }
 
-    /// Applies a title/icon update from a social-feed scraper (X,
-    /// Instagram, YouTube playlist).  Each scraper fetches a display
-    /// name and optionally a profile photo; this helper centralizes
-    /// the "install the photo on first fetch, honour user-customized
-    /// titles, otherwise just sync the scraped title" logic the three
-    /// paths share so the title-customization rule lives in exactly
-    /// one place.
+    /// Installs the scraped title + profile photo on the first refresh
+    /// after add.  No-op once `feed.lastFetched != nil`.
     func applyScraperMetadataRefresh(
         feed: Feed,
         scrapedTitle: String,
         profileImage: UIImage?
     ) async {
+        guard feed.lastFetched == nil else { return }
         let effectiveTitle = feed.isTitleCustomized ? feed.title : scrapedTitle
         let shouldInstallProfilePhoto = profileImage != nil && feed.customIconURL == nil
         let database = database
@@ -82,6 +72,7 @@ extension FeedManager {
                     isTitleCustomized: feed.isTitleCustomized
                 )
             }.value
+            await MainActor.run { self.notifyFaviconChange() }
         } else if feed.title != effectiveTitle {
             try? await Task.detached {
                 try database.updateFeedDetails(
@@ -95,12 +86,6 @@ extension FeedManager {
 
     func updateFeedDetails(_ feed: Feed, title: String, url: String,
                            customIconURL: String?) {
-        // A user-driven title change (from the edit sheet) flips the
-        // `isTitleCustomized` flag so future refreshes won't overwrite
-        // it.  If the user never touched the title we leave the existing
-        // flag alone — that way a user who previously customized and is
-        // now only editing the URL or icon doesn't accidentally clear
-        // their override.
         let titleIsCustomized = feed.isTitleCustomized || title != feed.title
         try? database.updateFeedDetails(id: feed.id, title: title, url: url,
                                         customIconURL: customIconURL,
@@ -109,6 +94,7 @@ extension FeedManager {
             generateAcronymIcon(feedID: feed.id, title: title)
         }
         loadFromDatabase()
+        notifyFaviconChange()
     }
 
 }
