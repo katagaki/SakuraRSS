@@ -1,17 +1,15 @@
 import SwiftUI
 
 /// "Source" section of the Web Feed builder: feed name, page
-/// URL, fetch mode picker, and the Fetch & Preview button.
+/// URL, and fetch mode picker.
 ///
 /// Owns no state of its own — the parent `PetalBuilderView` holds
-/// the recipe and toggles `isFetching`, and passes bindings down.
+/// the recipe and passes bindings down.
 struct PetalBuilderSourceSection: View {
 
     @Binding var name: String
     @Binding var siteURL: String
     @Binding var fetchMode: PetalRecipe.FetchMode
-    let isFetching: Bool
-    let onFetch: () -> Void
 
     var body: some View {
         Section {
@@ -28,18 +26,6 @@ struct PetalBuilderSourceSection: View {
                 Text(String(localized: "Builder.FetchMode.Rendered", table: "Petal"))
                     .tag(PetalRecipe.FetchMode.rendered)
             }
-            Button {
-                onFetch()
-            } label: {
-                HStack {
-                    Text(String(localized: "Builder.Fetch", table: "Petal"))
-                    if isFetching {
-                        Spacer()
-                        ProgressView()
-                    }
-                }
-            }
-            .disabled(siteURL.isEmpty || isFetching)
         } header: {
             Text(String(localized: "Builder.Section.Source", table: "Petal"))
         } footer: {

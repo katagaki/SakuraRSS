@@ -61,14 +61,14 @@ struct PetalBuilderView: View {
                 PetalBuilderSourceSection(
                     name: $recipe.name,
                     siteURL: $recipe.siteURL,
-                    fetchMode: $recipe.fetchMode,
-                    isFetching: isFetching,
-                    onFetch: { Task { await fetchAndPreview(force: true) } }
+                    fetchMode: $recipe.fetchMode
                 )
                 PetalBuilderSelectorsSection(
                     recipe: $recipe,
                     canAutoDetect: fetchedHTML != nil && !isFetching,
+                    isFetching: isFetching,
                     onAutoDetect: runAutoDetect,
+                    onFetch: { Task { await fetchAndPreview(force: true) } },
                     onSelectorChanged: schedulePreview
                 )
                 PetalBuilderPreviewSection(
