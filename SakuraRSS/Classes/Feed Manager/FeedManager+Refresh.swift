@@ -236,7 +236,13 @@ extension FeedManager {
 
     /// Refreshes feeds that have never been fetched (e.g. added by the share
     /// extension while the main app was in the background).  Also generates
-    /// acronym icons and fetches favicons for those feeds.
+    /// acronym icons for those feeds.
+    ///
+    /// Icons are deliberately not refreshed here.  Forcing a favicon
+    /// reload after add races with any icon the user has meanwhile
+    /// picked from the edit sheet, which reads as the refresh
+    /// clobbering their custom icon.  Rows pick up whatever is already
+    /// in `FaviconCache` lazily the first time they render.
     func refreshUnfetchedFeeds() async {
         let unfetched = feeds.filter { $0.lastFetched == nil }
         guard !unfetched.isEmpty else { return }
@@ -255,12 +261,6 @@ extension FeedManager {
             }
         }
         await loadFromDatabaseInBackground()
-
-        // Clear any stale favicon failures and notify the UI so
-        // FeedRowViews re-fetch their icons.
-        let entries = unfetched.map { ($0.domain, $0.siteURL as String?) }
-        await FaviconCache.shared.clearFailedLookups(for: entries)
-        notifyFaviconChange()
     }
 
     func refreshAllFeedsAndFavicons() async {

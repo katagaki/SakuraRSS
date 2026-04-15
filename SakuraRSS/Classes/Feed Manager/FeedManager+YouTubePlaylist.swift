@@ -1,5 +1,4 @@
 import Foundation
-import UIKit
 
 extension FeedManager {
 
@@ -42,16 +41,6 @@ extension FeedManager {
 
         let feedTitle = result.playlistTitle ?? feed.title
 
-        // Download the playlist creator's channel avatar if available.
-        // Uses the favicon cache's dedicated URLSession so the request
-        // bypasses the normal timeout — same as X / Instagram feeds.
-        var avatarImage: UIImage?
-        if let avatarURLString = result.channelAvatarURL,
-           let avatarURL = URL(string: avatarURLString),
-           let (imageData, _) = try? await FaviconCache.urlSession.data(from: avatarURL) {
-            avatarImage = UIImage(data: imageData)
-        }
-
         // Run all DB writes off the main thread
         let database = database
         try await Task.detached {
@@ -63,13 +52,11 @@ extension FeedManager {
             SpotlightIndexer.indexArticles(articlesToIndex, feedTitle: feedTitle)
         }.value
 
-        // Cache favicon and update feed details.  The shared helper
-        // honours `isTitleCustomized` and only installs the downloaded
-        // channel avatar when `customIconURL == nil`, so a user-assigned
-        // icon or title survives every refresh.
-        await applyScraperMetadataRefresh(
-            feed: feed, scrapedTitle: feedTitle, profileImage: avatarImage
-        )
+        // Sync the scraped playlist title if the user hasn't customized
+        // it.  Icons are deliberately left alone here — the user can
+        // pull the channel avatar via `FeedEditSheet`'s "Fetch icon
+        // from feed" action if they want it.
+        await applyScraperMetadataRefresh(feed: feed, scrapedTitle: feedTitle)
 
         if reloadData {
             await loadFromDatabaseInBackground()

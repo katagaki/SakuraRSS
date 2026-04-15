@@ -1,5 +1,4 @@
 import Foundation
-import UIKit
 
 extension FeedManager {
 
@@ -47,16 +46,6 @@ extension FeedManager {
 
         let feedTitle = result.displayName ?? feed.title
 
-        // Download profile photo if available. This fetch is effectively
-        // a favicon fetch and therefore uses the favicon cache's dedicated
-        // URLSession, which bypasses the normal request timeout.
-        var profileImage: UIImage?
-        if let imageURLString = result.profileImageURL,
-           let imageURL = URL(string: imageURLString),
-           let (imageData, _) = try? await FaviconCache.urlSession.data(from: imageURL) {
-            profileImage = UIImage(data: imageData)
-        }
-
         // Run all DB writes off the main thread
         let database = database
         try await Task.detached {
@@ -66,13 +55,11 @@ extension FeedManager {
             SpotlightIndexer.indexArticles(articlesToIndex, feedTitle: feedTitle)
         }.value
 
-        // Cache favicon and update feed details.  The shared helper
-        // honours `isTitleCustomized` and only installs the downloaded
-        // profile photo when `customIconURL == nil`, so a user-assigned
-        // icon or title survives every refresh.
-        await applyScraperMetadataRefresh(
-            feed: feed, scrapedTitle: feedTitle, profileImage: profileImage
-        )
+        // Sync the scraped display name if the user hasn't customized
+        // the title.  Icons are deliberately left alone here — the user
+        // can pull the profile photo via `FeedEditSheet`'s "Fetch icon
+        // from feed" action if they want it.
+        await applyScraperMetadataRefresh(feed: feed, scrapedTitle: feedTitle)
 
         if reloadData {
             await loadFromDatabaseInBackground()
