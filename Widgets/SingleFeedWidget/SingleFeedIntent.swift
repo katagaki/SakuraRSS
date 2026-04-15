@@ -3,7 +3,7 @@ import WidgetKit
 
 struct SingleFeedIntent: WidgetConfigurationIntent {
     static var title: LocalizedStringResource = LocalizedStringResource("SingleFeedWidget.IntentTitle", table: "Widget")
-    static var description: IntentDescription = LocalizedStringResource("SingleFeedWidget.IntentDescription", table: "Widget")
+    static var description: IntentDescription = IntentDescription(LocalizedStringResource("SingleFeedWidget.IntentDescription", table: "Widget"))
 
     @Parameter(title: LocalizedStringResource("SingleFeedWidget.Parameter.Feed", table: "Widget"))
     var feed: FeedEntity?
