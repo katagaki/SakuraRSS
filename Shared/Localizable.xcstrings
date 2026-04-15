@@ -29144,6 +29144,17 @@
           }
         }
       }
+    },
+    "Petal.Error.PackageTooLarge" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This package is larger than Sakura will import."
+          }
+        }
+      }
     }
   },
   "version" : "1.1"

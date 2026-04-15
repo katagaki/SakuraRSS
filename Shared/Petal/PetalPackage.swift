@@ -44,6 +44,7 @@ nonisolated enum PetalPackage {
         case missingRecipe
         case unsupportedVersion
         case malformed
+        case tooLarge
 
         var errorDescription: String? {
             switch self {
@@ -53,6 +54,8 @@ nonisolated enum PetalPackage {
                 String(localized: "Petal.Error.PackageUnsupportedVersion")
             case .malformed:
                 String(localized: "Petal.Error.PackageMalformed")
+            case .tooLarge:
+                String(localized: "Petal.Error.PackageTooLarge")
             }
         }
     }
@@ -124,9 +127,18 @@ nonisolated enum PetalPackage {
     /// have a file URL; this overload handles raw bytes for tests and
     /// share-extension pass-through.
     static func importPackage(from data: Data) throws -> ImportedPackage {
+        // Reject oversized payloads before even trying to unzip them.
+        // Legitimate packages are a few KB; anything past the ZIP
+        // reader's total budget is rejected outright so the user
+        // sees a friendly error instead of a generic "malformed".
+        guard data.count <= PetalZip.Limits.maxTotalUncompressedSize * 2 else {
+            throw PackageError.tooLarge
+        }
         let entries: [PetalZip.Entry]
         do {
             entries = try PetalZip.read(data: data)
+        } catch PetalZip.ZipError.tooLarge {
+            throw PackageError.tooLarge
         } catch {
             throw PackageError.malformed
         }

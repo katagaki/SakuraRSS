@@ -33,6 +33,23 @@ nonisolated enum PetalZip {
         case malformed
         case unsupportedCompression
         case truncated
+        /// The archive — or a single entry inside it — exceeds the
+        /// hard caps we enforce on import to defend against "zip
+        /// bomb" payloads that try to exhaust memory by expanding
+        /// kilobytes of deflate into gigabytes of decoded output.
+        case tooLarge
+    }
+
+    /// Hard caps enforced by `read(data:)` when importing a `.srss`
+    /// package.  Legitimate packages are a few KB of JSON plus a
+    /// small PNG icon, so these limits leave several orders of
+    /// magnitude of headroom while still bounding memory use to
+    /// something safe if a malicious package tries to fill it.
+    enum Limits {
+        static let maxEntryCount = 16
+        static let maxEntrySize = 5 * 1024 * 1024          // 5 MB
+        static let maxTotalUncompressedSize = 10 * 1024 * 1024  // 10 MB
+        static let maxNameLength = 512
     }
 
     // MARK: - Writing
@@ -112,6 +129,10 @@ nonisolated enum PetalZip {
     /// and DEFLATE entries (by piggy-backing on Foundation's built-in
     /// `NSData.decompressed(using: .zlib)`).  Anything else surfaces
     /// `ZipError.unsupportedCompression`.
+    ///
+    /// Enforces the caps declared in `Limits` so that importing a
+    /// maliciously-crafted `.srss` file can't blow up memory or
+    /// exhaust the device with a zip-bomb-style payload.
     static func read(data: Data) throws -> [Entry] {
         guard let eocd = findEndOfCentralDirectory(in: data) else {
             throw ZipError.malformed
@@ -119,8 +140,13 @@ nonisolated enum PetalZip {
         let entryCount = Int(data.readLE(UInt16.self, at: eocd + 10))
         let cdOffset = Int(data.readLE(UInt32.self, at: eocd + 16))
 
+        guard entryCount <= Limits.maxEntryCount else {
+            throw ZipError.tooLarge
+        }
+
         var entries: [Entry] = []
         var cursor = cdOffset
+        var runningTotal = 0
 
         for _ in 0..<entryCount {
             guard cursor + 46 <= data.count else { throw ZipError.truncated }
@@ -134,6 +160,23 @@ nonisolated enum PetalZip {
             let extraLength = Int(data.readLE(UInt16.self, at: cursor + 30))
             let commentLength = Int(data.readLE(UInt16.self, at: cursor + 32))
             let localOffset = Int(data.readLE(UInt32.self, at: cursor + 42))
+
+            // Size caps — check before doing any allocation or
+            // decompression so a malicious header can't force us to
+            // read a huge payload just to reject it afterwards.
+            guard nameLength <= Limits.maxNameLength,
+                  compressedSize <= Limits.maxEntrySize,
+                  uncompressedSize <= Limits.maxEntrySize else {
+                throw ZipError.tooLarge
+            }
+            // Check total separately so overflow-adjacent sizes
+            // can't slip past the per-entry cap into a terabyte
+            // running total.
+            let (newTotal, overflow) = runningTotal.addingReportingOverflow(uncompressedSize)
+            guard !overflow, newTotal <= Limits.maxTotalUncompressedSize else {
+                throw ZipError.tooLarge
+            }
+            runningTotal = newTotal
 
             let nameStart = cursor + 46
             guard nameStart + nameLength <= data.count else {
@@ -159,6 +202,12 @@ nonisolated enum PetalZip {
                 decoded = try inflateDeflate(payload, expectedSize: uncompressedSize)
             default:
                 throw ZipError.unsupportedCompression
+            }
+            // Trust-but-verify: a deflate entry whose header lied
+            // about its uncompressed size might still try to expand
+            // into more bytes than we budgeted.
+            guard decoded.count <= Limits.maxEntrySize else {
+                throw ZipError.tooLarge
             }
             entries.append(Entry(name: name, data: decoded))
 
