@@ -8,19 +8,52 @@ struct FeedEditSheet: View {
 
     let feed: Feed
 
-    @State private var name: String = ""
-    @State private var url: String = ""
-    @State var iconURLInput: String = ""
-    @State private var openMode: FeedOpenMode = .inAppViewer
-    @State private var articleSource: ArticleSource = .automatic
+    @State private var name: String
+    @State private var url: String
+    @State var iconURLInput: String
+    @State private var openMode: FeedOpenMode
+    @State private var articleSource: ArticleSource
     @State var selectedPhoto: PhotosPickerItem?
     @State var customIconImage: UIImage?
     @State var currentFavicon: UIImage?
     @State var isFetchingIcon = false
     @State var showIconFetchError = false
-    @State var useDefaultIcon = false
-    @State private var hasInitialized = false
+    @State var useDefaultIcon: Bool
     @State private var showPetalBuilder = false
+
+    init(feed: Feed) {
+        self.feed = feed
+        // Restore any in-progress edits preserved from an earlier
+        // background→foreground cycle; fall back to the feed's current
+        // persisted values otherwise.
+        let cached = SheetInputCache.feedEditSnapshot(for: feed.id)
+        let defaultName = feed.title
+        let defaultURL: String = (feed.isXFeed || feed.isInstagramFeed || feed.isYouTubePlaylistFeed)
+            ? feed.siteURL : feed.url
+        let existingIconURL = feed.customIconURL
+        let defaultIconURLInput = (
+            existingIconURL == "photo" || existingIconURL == "none"
+        ) ? "" : (existingIconURL ?? "")
+        let defaultUseDefaultIcon = existingIconURL == "none"
+        let defaultOpenMode: FeedOpenMode = {
+            let raw = UserDefaults.standard.string(forKey: "openMode-\(feed.id)")
+            return raw.flatMap(FeedOpenMode.init(rawValue:)) ?? .inAppViewer
+        }()
+        let defaultArticleSource: ArticleSource = {
+            let raw = UserDefaults.standard.string(forKey: "articleSource-\(feed.id)")
+            return raw.flatMap(ArticleSource.init(rawValue:)) ?? .automatic
+        }()
+
+        let cachedOpenMode = (cached?.openModeRaw).flatMap(FeedOpenMode.init(rawValue:))
+        let cachedArticleSource = (cached?.articleSourceRaw).flatMap(ArticleSource.init(rawValue:))
+
+        _name = State(initialValue: cached?.name ?? defaultName)
+        _url = State(initialValue: cached?.url ?? defaultURL)
+        _iconURLInput = State(initialValue: cached?.iconURLInput ?? defaultIconURLInput)
+        _useDefaultIcon = State(initialValue: cached?.useDefaultIcon ?? defaultUseDefaultIcon)
+        _openMode = State(initialValue: cachedOpenMode ?? defaultOpenMode)
+        _articleSource = State(initialValue: cachedArticleSource ?? defaultArticleSource)
+    }
 
     var body: some View {
         NavigationStack {
@@ -202,6 +235,7 @@ struct FeedEditSheet: View {
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button(role: .cancel) {
+                        SheetInputCache.clearFeedEdit(for: feed.id)
                         dismiss()
                     }
                 }
@@ -212,25 +246,12 @@ struct FeedEditSheet: View {
                     .disabled(name.isEmpty || url.isEmpty)
                 }
             }
-            .onAppear {
-                guard !hasInitialized else { return }
-                hasInitialized = true
-                name = feed.title
-                if feed.isXFeed || feed.isInstagramFeed || feed.isYouTubePlaylistFeed {
-                    url = feed.siteURL
-                } else {
-                    url = feed.url
-                }
-                let existingIconURL = feed.customIconURL
-                iconURLInput = (
-                    existingIconURL == "photo" || existingIconURL == "none"
-                ) ? "" : (existingIconURL ?? "")
-                useDefaultIcon = existingIconURL == "none"
-                let raw = UserDefaults.standard.string(forKey: "openMode-\(feed.id)")
-                openMode = raw.flatMap(FeedOpenMode.init(rawValue:)) ?? .inAppViewer
-                let sourceRaw = UserDefaults.standard.string(forKey: "articleSource-\(feed.id)")
-                articleSource = sourceRaw.flatMap(ArticleSource.init(rawValue:)) ?? .automatic
-            }
+            .onChange(of: name) { persistInputSnapshot() }
+            .onChange(of: url) { persistInputSnapshot() }
+            .onChange(of: iconURLInput) { persistInputSnapshot() }
+            .onChange(of: useDefaultIcon) { persistInputSnapshot() }
+            .onChange(of: openMode) { persistInputSnapshot() }
+            .onChange(of: articleSource) { persistInputSnapshot() }
             .task {
                 currentFavicon = await loadCurrentFavicon()
             }
@@ -318,7 +339,22 @@ struct FeedEditSheet: View {
         } else {
             UserDefaults.standard.set(articleSource.rawValue, forKey: "articleSource-\(feed.id)")
         }
+        SheetInputCache.clearFeedEdit(for: feed.id)
         dismiss()
+    }
+
+    private func persistInputSnapshot() {
+        SheetInputCache.setFeedEditSnapshot(
+            SheetInputCache.FeedEditSnapshot(
+                name: name,
+                url: url,
+                iconURLInput: iconURLInput,
+                openModeRaw: openMode.rawValue,
+                articleSourceRaw: articleSource.rawValue,
+                useDefaultIcon: useDefaultIcon
+            ),
+            for: feed.id
+        )
     }
 
 }

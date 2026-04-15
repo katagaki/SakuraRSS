@@ -7,17 +7,31 @@ struct ListRulesSheet: View {
 
     let list: FeedList
 
-    @State private var allowedKeywords: [String] = []
-    @State private var mutedKeywords: [String] = []
-    @State private var mutedAuthors: [String] = []
-    @State private var allowedKeywordInput: String = ""
-    @State private var keywordInput: String = ""
-    @State private var authorInput: String = ""
+    @State private var allowedKeywords: [String]
+    @State private var mutedKeywords: [String]
+    @State private var mutedAuthors: [String]
+    @State private var allowedKeywordInput: String
+    @State private var keywordInput: String
+    @State private var authorInput: String
     @State private var availableAuthors: [String] = []
-    @State private var hasInitialized = false
+    @State private var hasInitialized: Bool
     @FocusState private var isAllowedKeywordFieldFocused: Bool
     @FocusState private var isKeywordFieldFocused: Bool
     @FocusState private var isAuthorFieldFocused: Bool
+
+    init(list: FeedList) {
+        self.list = list
+        // Restore any in-progress edits preserved from an earlier
+        // background→foreground cycle.
+        let cached = SheetInputCache.listRulesSnapshot(for: list.id)
+        _allowedKeywords = State(initialValue: cached?.allowedKeywords ?? [])
+        _mutedKeywords = State(initialValue: cached?.mutedKeywords ?? [])
+        _mutedAuthors = State(initialValue: cached?.mutedAuthors ?? [])
+        _allowedKeywordInput = State(initialValue: cached?.allowedKeywordInput ?? "")
+        _keywordInput = State(initialValue: cached?.keywordInput ?? "")
+        _authorInput = State(initialValue: cached?.authorInput ?? "")
+        _hasInitialized = State(initialValue: cached != nil)
+    }
 
     var suggestedAuthors: [String] {
         let existing = Set(mutedAuthors)
@@ -162,6 +176,7 @@ struct ListRulesSheet: View {
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button(role: .cancel) {
+                        SheetInputCache.clearListRules(for: list.id)
                         dismiss()
                     }
                 }
@@ -172,14 +187,37 @@ struct ListRulesSheet: View {
                 }
             }
             .onAppear {
-                guard !hasInitialized else { return }
-                hasInitialized = true
-                allowedKeywords = feedManager.allowedKeywords(for: list)
-                mutedKeywords = feedManager.mutedKeywords(for: list)
-                mutedAuthors = feedManager.mutedAuthors(for: list)
-                availableAuthors = feedManager.uniqueAuthorsInList(list)
+                if !hasInitialized {
+                    hasInitialized = true
+                    allowedKeywords = feedManager.allowedKeywords(for: list)
+                    mutedKeywords = feedManager.mutedKeywords(for: list)
+                    mutedAuthors = feedManager.mutedAuthors(for: list)
+                }
+                if availableAuthors.isEmpty {
+                    availableAuthors = feedManager.uniqueAuthorsInList(list)
+                }
             }
+            .onChange(of: allowedKeywords) { persistInputSnapshot() }
+            .onChange(of: mutedKeywords) { persistInputSnapshot() }
+            .onChange(of: mutedAuthors) { persistInputSnapshot() }
+            .onChange(of: allowedKeywordInput) { persistInputSnapshot() }
+            .onChange(of: keywordInput) { persistInputSnapshot() }
+            .onChange(of: authorInput) { persistInputSnapshot() }
         }
+    }
+
+    private func persistInputSnapshot() {
+        SheetInputCache.setListRulesSnapshot(
+            SheetInputCache.ListRulesSnapshot(
+                allowedKeywords: allowedKeywords,
+                mutedKeywords: mutedKeywords,
+                mutedAuthors: mutedAuthors,
+                allowedKeywordInput: allowedKeywordInput,
+                keywordInput: keywordInput,
+                authorInput: authorInput
+            ),
+            for: list.id
+        )
     }
 
     private func addAllowedKeyword() {
@@ -210,6 +248,7 @@ struct ListRulesSheet: View {
         feedManager.saveAllowedKeywords(allowedKeywords, for: list)
         feedManager.saveMutedKeywords(mutedKeywords, for: list)
         feedManager.saveMutedAuthors(mutedAuthors, for: list)
+        SheetInputCache.clearListRules(for: list.id)
         dismiss()
     }
 }
