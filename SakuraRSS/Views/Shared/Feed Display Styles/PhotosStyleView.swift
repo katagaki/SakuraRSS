@@ -17,6 +17,7 @@ struct PhotosStyleView: View {
                 }
                 if let onLoadMore {
                     LoadPreviousArticlesButton(action: onLoadMore)
+                        .padding(.horizontal, 16)
                         .padding(.vertical, 20)
                 }
             }
