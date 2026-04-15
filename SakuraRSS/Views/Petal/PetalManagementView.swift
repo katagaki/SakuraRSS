@@ -29,9 +29,9 @@ struct PetalManagementView: View {
     var body: some View {
         List {
             Section {
-                Text("WebFeed.About.Body")
+                Text(String(localized: "About.Body", table: "Petal"))
             } header: {
-                Text("WebFeed.About.Header")
+                Text(String(localized: "About.Header", table: "Petal"))
             }
 
             Section {

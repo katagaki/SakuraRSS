@@ -27,7 +27,7 @@ struct FluidTranscriberEngine: TranscriptionEngine {
     func downloadModel(progress: (@Sendable (Double) -> Void)?) async throws {
         let handler: DownloadUtils.ProgressHandler?
         if let progress {
-            handler = { @Sendable (dp: DownloadUtils.DownloadProgress) -> Void in
+            handler = { @Sendable (dp: DownloadUtils.DownloadProgress) in
                 progress(dp.fractionCompleted)
             }
         } else {

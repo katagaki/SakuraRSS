@@ -86,176 +86,176 @@ struct PodcastEpisodeView: View {
 
     var body: some View {
         ScrollViewReader { scrollProxy in
-        ScrollView {
-            VStack(spacing: 24) {
-                // Artwork
-                if let imageURL = article.imageURL, let url = URL(string: imageURL) {
-                    CachedAsyncImage(url: url) {
-                        RoundedRectangle(cornerRadius: 16)
-                            .fill(.secondary.opacity(0.15))
-                            .aspectRatio(1, contentMode: .fit)
-                    }
-                    .aspectRatio(contentMode: .fit)
-                    .frame(maxWidth: 300, maxHeight: 300)
-                    .clipShape(RoundedRectangle(cornerRadius: 16))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 16)
-                            .stroke(.quaternary, lineWidth: 0.5)
-                    )
-                    .shadow(radius: 8, y: 4)
-                    .padding(.horizontal, 40)
-                }
-
-                // Title and metadata
-                VStack(spacing: 8) {
-                    Text(article.title)
-                        .font(.title3)
-                        .fontWeight(.bold)
-                        .multilineTextAlignment(.center)
-
-                    HStack(spacing: 8) {
-                        if let favicon {
-                            FaviconImage(favicon, size: 18, cornerRadius: 4, skipInset: true)
-                        } else if let acronymIcon {
-                            FaviconImage(acronymIcon, size: 18, cornerRadius: 4, skipInset: true)
-                        } else if let feedName {
-                            InitialsAvatarView(feedName, size: 18, cornerRadius: 4)
+            ScrollView {
+                VStack(spacing: 24) {
+                    // Artwork
+                    if let imageURL = article.imageURL, let url = URL(string: imageURL) {
+                        CachedAsyncImage(url: url) {
+                            RoundedRectangle(cornerRadius: 16)
+                                .fill(.secondary.opacity(0.15))
+                                .aspectRatio(1, contentMode: .fit)
                         }
-
-                        if let feedName {
-                            Text(feedName)
-                                .font(.subheadline)
-                                .foregroundStyle(.secondary)
-                        }
-
-                        if let date = article.publishedDate {
-                            Text("·")
-                                .foregroundStyle(.tertiary)
-                            RelativeTimeText(date: date)
-                                .font(.subheadline)
-                                .foregroundStyle(.secondary)
-                        }
-                    }
-                }
-                .padding(.horizontal)
-
-                // Playback controls
-                if isThisEpisode {
-                    VStack(spacing: 12) {
-                        // Seek bar
-                        SeekBarView(
-                            currentTime: Binding(
-                                get: { audioPlayer.currentTime },
-                                set: { audioPlayer.currentTime = $0 }
-                            ),
-                            duration: audioPlayer.duration,
-                            onSeek: { audioPlayer.seek(to: $0) }
+                        .aspectRatio(contentMode: .fit)
+                        .frame(maxWidth: 300, maxHeight: 300)
+                        .clipShape(RoundedRectangle(cornerRadius: 16))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 16)
+                                .stroke(.quaternary, lineWidth: 0.5)
                         )
+                        .shadow(radius: 8, y: 4)
+                        .padding(.horizontal, 40)
+                    }
 
-                        // Transport controls with transcript toggle and speed
-                        HStack {
-                            transcriptToggle
-                                .frame(maxWidth: .infinity, alignment: .leading)
+                    // Title and metadata
+                    VStack(spacing: 8) {
+                        Text(article.title)
+                            .font(.title3)
+                            .fontWeight(.bold)
+                            .multilineTextAlignment(.center)
 
-                            HStack(spacing: 40) {
-                                Button { audioPlayer.skipBackward() } label: {
-                                    Image(systemName: "gobackward.15")
-                                        .font(.title2)
-                                }
-
-                                Button { audioPlayer.togglePlayPause() } label: {
-                                    Image(systemName: audioPlayer.isPlaying
-                                          ? "pause.circle.fill"
-                                          : "play.circle.fill")
-                                        .font(.system(size: 72))
-                                }
-
-                                Button { audioPlayer.skipForward() } label: {
-                                    Image(systemName: "goforward.30")
-                                        .font(.title2)
-                                }
+                        HStack(spacing: 8) {
+                            if let favicon {
+                                FaviconImage(favicon, size: 18, cornerRadius: 4, skipInset: true)
+                            } else if let acronymIcon {
+                                FaviconImage(acronymIcon, size: 18, cornerRadius: 4, skipInset: true)
+                            } else if let feedName {
+                                InitialsAvatarView(feedName, size: 18, cornerRadius: 4)
                             }
 
-                            playbackSpeedMenu
-                                .frame(maxWidth: .infinity, alignment: .trailing)
-                        }
-                        .foregroundStyle(.primary)
-                    }
-                    .padding(.horizontal)
-                } else {
-                    // Not currently playing - show play button with download
-                    HStack(spacing: 12) {
-                        Button {
-                            startPlayback()
-                        } label: {
-                            Label(
-                                isOffline && !isDownloaded ? String(localized: "Offline", table: "Podcast") : String(localized: "Play", table: "Podcast"),
-                                systemImage: "play.fill"
-                            )
-                                .frame(maxWidth: .infinity)
-                                .padding(.vertical, 8)
-                        }
-                        .buttonStyle(.borderedProminent)
-                        .disabled(!canPlay)
-
-                        PodcastDownloadButton(article: article, size: 50, lineWidth: 3.5)
-                    }
-                    .padding(.horizontal)
-
-                    if audioPlayer.isLoading && audioPlayer.currentArticleID == article.id {
-                        ProgressView()
-                    }
-                }
-
-                // Action buttons
-                actionButtons
-
-                // Transcript / Episode description
-                Group {
-                    if showingTranscript, let transcript, !transcript.isEmpty {
-                        TranscriptView(
-                            segments: transcript,
-                            currentTime: audioPlayer.currentTime,
-                            isPlaying: audioPlayer.isPlaying,
-                            onSeek: { audioPlayer.seek(to: $0) },
-                            scrollProxy: scrollProxy,
-                            isAutoScrolling: $isTranscriptAutoScrolling
-                        )
-                        .transition(.blurReplace)
-                    } else {
-                        VStack(alignment: .leading, spacing: 8) {
-                            if showingSummary && summarizedText != nil {
-                                Text(String(localized: "AppleIntelligence.VerifyImportantInformation", table: "Settings"))
-                                    .font(.caption)
+                            if let feedName {
+                                Text(feedName)
+                                    .font(.subheadline)
                                     .foregroundStyle(.secondary)
                             }
-                            if let text = displayText {
-                                SelectableText(text)
-                                    .id("\(showingSummary)-\(showingTranslation)")
-                                    .transition(.blurReplace)
+
+                            if let date = article.publishedDate {
+                                Text("·")
+                                    .foregroundStyle(.tertiary)
+                                RelativeTimeText(date: date)
+                                    .font(.subheadline)
+                                    .foregroundStyle(.secondary)
                             }
                         }
                     }
+                    .padding(.horizontal)
+
+                    // Playback controls
+                    if isThisEpisode {
+                        VStack(spacing: 12) {
+                            // Seek bar
+                            SeekBarView(
+                                currentTime: Binding(
+                                    get: { audioPlayer.currentTime },
+                                    set: { audioPlayer.currentTime = $0 }
+                                ),
+                                duration: audioPlayer.duration,
+                                onSeek: { audioPlayer.seek(to: $0) }
+                            )
+
+                            // Transport controls with transcript toggle and speed
+                            HStack {
+                                transcriptToggle
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+
+                                HStack(spacing: 40) {
+                                    Button { audioPlayer.skipBackward() } label: {
+                                        Image(systemName: "gobackward.15")
+                                            .font(.title2)
+                                    }
+
+                                    Button { audioPlayer.togglePlayPause() } label: {
+                                        Image(systemName: audioPlayer.isPlaying
+                                              ? "pause.circle.fill"
+                                              : "play.circle.fill")
+                                            .font(.system(size: 72))
+                                    }
+
+                                    Button { audioPlayer.skipForward() } label: {
+                                        Image(systemName: "goforward.30")
+                                            .font(.title2)
+                                    }
+                                }
+
+                                playbackSpeedMenu
+                                    .frame(maxWidth: .infinity, alignment: .trailing)
+                            }
+                            .foregroundStyle(.primary)
+                        }
+                        .padding(.horizontal)
+                    } else {
+                        // Not currently playing - show play button with download
+                        HStack(spacing: 12) {
+                            Button {
+                                startPlayback()
+                            } label: {
+                                Label(
+                                    isOffline && !isDownloaded ? String(localized: "Offline", table: "Podcast") : String(localized: "Play", table: "Podcast"),
+                                    systemImage: "play.fill"
+                                )
+                                    .frame(maxWidth: .infinity)
+                                    .padding(.vertical, 8)
+                            }
+                            .buttonStyle(.borderedProminent)
+                            .disabled(!canPlay)
+
+                            PodcastDownloadButton(article: article, size: 50, lineWidth: 3.5)
+                        }
+                        .padding(.horizontal)
+
+                        if audioPlayer.isLoading && audioPlayer.currentArticleID == article.id {
+                            ProgressView()
+                        }
+                    }
+
+                    // Action buttons
+                    actionButtons
+
+                    // Transcript / Episode description
+                    Group {
+                        if showingTranscript, let transcript, !transcript.isEmpty {
+                            TranscriptView(
+                                segments: transcript,
+                                currentTime: audioPlayer.currentTime,
+                                isPlaying: audioPlayer.isPlaying,
+                                onSeek: { audioPlayer.seek(to: $0) },
+                                scrollProxy: scrollProxy,
+                                isAutoScrolling: $isTranscriptAutoScrolling
+                            )
+                            .transition(.blurReplace)
+                        } else {
+                            VStack(alignment: .leading, spacing: 8) {
+                                if showingSummary && summarizedText != nil {
+                                    Text(String(localized: "AppleIntelligence.VerifyImportantInformation", table: "Settings"))
+                                        .font(.caption)
+                                        .foregroundStyle(.secondary)
+                                }
+                                if let text = displayText {
+                                    SelectableText(text)
+                                        .id("\(showingSummary)-\(showingTranslation)")
+                                        .transition(.blurReplace)
+                                }
+                            }
+                        }
+                    }
+                    .animation(.smooth.speed(2.0), value: showingSummary)
+                    .animation(.smooth.speed(2.0), value: showingTranslation)
+                    .animation(.smooth.speed(2.0), value: showingTranscript)
+                    .animation(.smooth.speed(2.0), value: translatedText)
+                    .padding(.horizontal)
                 }
-                .animation(.smooth.speed(2.0), value: showingSummary)
-                .animation(.smooth.speed(2.0), value: showingTranslation)
-                .animation(.smooth.speed(2.0), value: showingTranscript)
-                .animation(.smooth.speed(2.0), value: translatedText)
-                .padding(.horizontal)
+                .padding(.vertical)
             }
-            .padding(.vertical)
-        }
-        .onScrollPhaseChange { _, newPhase in
-            if showingTranscript, isTranscriptAutoScrolling,
-               newPhase == .interacting || newPhase == .tracking {
-                isTranscriptAutoScrolling = false
-                UIApplication.shared.isIdleTimerDisabled = false
+            .onScrollPhaseChange { _, newPhase in
+                if showingTranscript, isTranscriptAutoScrolling,
+                   newPhase == .interacting || newPhase == .tracking {
+                    isTranscriptAutoScrolling = false
+                    UIApplication.shared.isIdleTimerDisabled = false
+                }
+            }
+            .overlay(alignment: .bottom) {
+                followAlongOverlay(scrollProxy: scrollProxy)
             }
         }
-        .overlay(alignment: .bottom) {
-            followAlongOverlay(scrollProxy: scrollProxy)
-        }
-        } // ScrollViewReader
         .sakuraBackground()
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
@@ -331,7 +331,7 @@ struct PodcastEpisodeView: View {
         } label: {
             Image(systemName: "quote.bubble")
                 .font(.title3)
-                .foregroundStyle(showingTranscript ? AnyShapeStyle(.tint) : AnyShapeStyle(.secondary))
+                .foregroundStyle(showingTranscript ? AnyShapeStyle(.tint) : AnyShapeStyle(.primary))
         }
         .buttonStyle(.plain)
         .disabled(transcript == nil)

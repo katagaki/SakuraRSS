@@ -25,35 +25,6 @@ struct LabsView: View {
             }
 
             Section {
-                Toggle(String(localized: "XProfileFeeds", table: "Labs"), isOn: $xProfileFeedsEnabled)
-
-                if xProfileFeedsEnabled {
-                    if isXSignedIn {
-                        Button(String(localized: "XProfileFeeds.RefreshAuth", table: "Labs")) {
-                            Task {
-                                await MainActor.run {
-                                    XProfileScraper.queryIDsFetched = false
-                                }
-                                await XProfileScraper.fetchQueryIDsIfNeeded()
-                            }
-                        }
-                        Button(String(localized: "XProfileFeeds.SignOut", table: "Labs")) {
-                            Task {
-                                await XProfileScraper.clearXSession()
-                                isXSignedIn = false
-                            }
-                        }
-                    } else {
-                        Button(String(localized: "XProfileFeeds.SignIn", table: "Labs")) {
-                            showXLogin = true
-                        }
-                    }
-                }
-            } footer: {
-                Text(String(localized: "XProfileFeeds.Footer", table: "Labs"))
-            }
-
-            Section {
                 Toggle(String(localized: "PetalRecipes", table: "Labs"), isOn: $petalRecipesEnabled)
 
                 if petalRecipesEnabled {
@@ -64,29 +35,6 @@ struct LabsView: View {
             } footer: {
                 Text(String(localized: "PetalRecipes.Footer", table: "Labs"))
             }
-
-            Section {
-                Toggle(String(localized: "InstagramProfileFeeds", table: "Labs"),
-                       isOn: $instagramProfileFeedsEnabled)
-
-                if instagramProfileFeedsEnabled {
-                    if isInstagramSignedIn {
-                        Button(String(localized: "InstagramProfileFeeds.SignOut", table: "Labs")) {
-                            Task {
-                                await InstagramProfileScraper.clearInstagramSession()
-                                isInstagramSignedIn = false
-                            }
-                        }
-                    } else {
-                        Button(String(localized: "InstagramProfileFeeds.SignIn", table: "Labs")) {
-                            showInstagramLogin = true
-                        }
-                    }
-                }
-            } footer: {
-                Text(String(localized: "InstagramProfileFeeds.Footer", table: "Labs"))
-            }
-
         }
         .animation(.smooth.speed(2.0), value: xProfileFeedsEnabled)
         .animation(.smooth.speed(2.0), value: instagramProfileFeedsEnabled)

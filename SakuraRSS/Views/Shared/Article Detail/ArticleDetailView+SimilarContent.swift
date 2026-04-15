@@ -231,7 +231,7 @@ extension ArticleDetailView {
                     ))
                 }
             }
-            var results = Array<SimilarArticleItem?>(repeating: nil, count: rawMatches.count)
+            var results = [SimilarArticleItem?](repeating: nil, count: rawMatches.count)
             for await (index, item) in group {
                 results[index] = item
             }

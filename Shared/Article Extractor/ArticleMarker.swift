@@ -8,18 +8,18 @@ import Foundation
 nonisolated enum ArticleMarker {
 
     private static let table: [(literal: String, escaped: String)] = [
-        ("{{IMG}}",      "\u{E000}IMG\u{E001}"),
-        ("{{/IMG}}",     "\u{E000}/IMG\u{E001}"),
-        ("{{IMGLINK}}",  "\u{E000}IMGLINK\u{E001}"),
+        ("{{IMG}}", "\u{E000}IMG\u{E001}"),
+        ("{{/IMG}}", "\u{E000}/IMG\u{E001}"),
+        ("{{IMGLINK}}", "\u{E000}IMGLINK\u{E001}"),
         ("{{/IMGLINK}}", "\u{E000}/IMGLINK\u{E001}"),
-        ("{{CODE}}",     "\u{E000}CODE\u{E001}"),
-        ("{{/CODE}}",    "\u{E000}/CODE\u{E001}"),
-        ("{{VIDEO}}",    "\u{E000}VIDEO\u{E001}"),
-        ("{{/VIDEO}}",   "\u{E000}/VIDEO\u{E001}"),
-        ("{{SUP}}",      "\u{E000}SUP\u{E001}"),
-        ("{{/SUP}}",     "\u{E000}/SUP\u{E001}"),
-        ("{{SUB}}",      "\u{E000}SUB\u{E001}"),
-        ("{{/SUB}}",     "\u{E000}/SUB\u{E001}")
+        ("{{CODE}}", "\u{E000}CODE\u{E001}"),
+        ("{{/CODE}}", "\u{E000}/CODE\u{E001}"),
+        ("{{VIDEO}}", "\u{E000}VIDEO\u{E001}"),
+        ("{{/VIDEO}}", "\u{E000}/VIDEO\u{E001}"),
+        ("{{SUP}}", "\u{E000}SUP\u{E001}"),
+        ("{{/SUP}}", "\u{E000}/SUP\u{E001}"),
+        ("{{SUB}}", "\u{E000}SUB\u{E001}"),
+        ("{{/SUB}}", "\u{E000}/SUB\u{E001}")
     ]
 
     static func escape(_ text: String) -> String {

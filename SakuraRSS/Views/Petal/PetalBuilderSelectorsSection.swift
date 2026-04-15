@@ -21,7 +21,7 @@ struct PetalBuilderSelectorsSection: View {
             Button {
                 onAutoDetect()
             } label: {
-                Label("WebFeed.Builder.AutoDetect",
+                Label(String(localized: "Builder.AutoDetect", table: "Petal"),
                       systemImage: "wand.and.stars")
             }
             .disabled(!canAutoDetect)

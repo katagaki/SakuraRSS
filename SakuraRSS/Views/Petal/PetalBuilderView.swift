@@ -174,7 +174,7 @@ struct PetalBuilderView: View {
         guard let suggestion = PetalAutoDetect.detect(
             html: html, siteURL: recipe.siteURL
         ) else {
-            errorMessage = String(localized: "WebFeed.Builder.AutoDetect.Failed")
+            errorMessage = String(localized: "Builder.AutoDetect.Failed", table: "Petal")
             return
         }
         if recipe.name.isEmpty {
