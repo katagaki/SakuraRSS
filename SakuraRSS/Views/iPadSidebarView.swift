@@ -404,7 +404,7 @@ extension IPadSidebarView {
     @ViewBuilder
     func iPadBookmarksContent() -> some View {
         iPadArticleListWrapper {
-            BookmarksContentView(titleDisplayMode: .inline)
+            BookmarksContentView()
         }
     }
 

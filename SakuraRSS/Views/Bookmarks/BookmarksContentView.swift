@@ -5,7 +5,6 @@ import SwiftUI
 struct BookmarksContentView: View {
 
     @Environment(FeedManager.self) var feedManager
-    let titleDisplayMode: ToolbarTitleDisplayMode
 
     @State private var bookmarkedArticles: [Article] = []
     @State private var displayStyle: FeedDisplayStyle
@@ -15,8 +14,7 @@ struct BookmarksContentView: View {
         bookmarkedArticles.contains { $0.imageURL != nil }
     }
 
-    init(titleDisplayMode: ToolbarTitleDisplayMode = .inlineLarge) {
-        self.titleDisplayMode = titleDisplayMode
+    init() {
         let raw = UserDefaults.standard.string(forKey: "Display.DefaultBookmarksStyle")
         let defaultRaw = UserDefaults.standard.string(forKey: "Display.DefaultStyle") ?? FeedDisplayStyle.inbox.rawValue
         let fallback = FeedDisplayStyle(rawValue: defaultRaw) ?? .inbox
@@ -41,7 +39,7 @@ struct BookmarksContentView: View {
             }
         }
         .navigationTitle("Tabs.Bookmarks")
-        .toolbarTitleDisplayMode(titleDisplayMode)
+        .toolbarTitleDisplayMode(.inline)
         .scrollContentBackground(.hidden)
         .sakuraBackground()
         .toolbar {
