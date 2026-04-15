@@ -9,6 +9,7 @@ nonisolated final class RSSParser: NSObject, XMLParserDelegate, @unchecked Senda
     private var currentAuthor = ""
     private var currentContent = ""
     private var currentPubDate = ""
+    private var currentUpdatedDate = ""
     private var currentImageURL = ""
     private var currentAudioURL = ""
     private var currentDuration = ""
@@ -49,6 +50,7 @@ nonisolated final class RSSParser: NSObject, XMLParserDelegate, @unchecked Senda
         currentAuthor = ""
         currentContent = ""
         currentPubDate = ""
+        currentUpdatedDate = ""
         currentImageURL = ""
         currentAudioURL = ""
         currentDuration = ""
@@ -110,6 +112,7 @@ nonisolated final class RSSParser: NSObject, XMLParserDelegate, @unchecked Senda
         currentAuthor = ""
         currentContent = ""
         currentPubDate = ""
+        currentUpdatedDate = ""
         currentImageURL = ""
         currentAudioURL = ""
         currentDuration = ""
@@ -161,7 +164,8 @@ nonisolated final class RSSParser: NSObject, XMLParserDelegate, @unchecked Senda
         case "description", "summary", "subtitle", "media:description": currentDescription += string
         case "dc:creator", "author", "name": currentAuthor += string
         case "content:encoded", "content": currentContent += string
-        case "pubDate", "published", "updated", "dc:date": currentPubDate += string
+        case "pubDate", "published", "dc:date": currentPubDate += string
+        case "updated": currentUpdatedDate += string
         case "itunes:duration": currentDuration += string
         default: break
         }
@@ -187,6 +191,10 @@ nonisolated final class RSSParser: NSObject, XMLParserDelegate, @unchecked Senda
             let trimmedAudioURL = currentAudioURL.trimmingCharacters(in: .whitespacesAndNewlines)
             let trimmedLink = currentLink.trimmingCharacters(in: .whitespacesAndNewlines)
             let articleURL = trimmedLink.isEmpty ? trimmedAudioURL : trimmedLink
+            let trimmedPubDate = currentPubDate.trimmingCharacters(in: .whitespacesAndNewlines)
+            let dateString = trimmedPubDate.isEmpty
+                ? currentUpdatedDate.trimmingCharacters(in: .whitespacesAndNewlines)
+                : trimmedPubDate
             let article = ParsedArticle(
                 title: decodeHTMLEntities(currentTitle.trimmingCharacters(in: .whitespacesAndNewlines)),
                 url: articleURL,
@@ -199,7 +207,7 @@ nonisolated final class RSSParser: NSObject, XMLParserDelegate, @unchecked Senda
                 ),
                 content: trimmedContent.isEmpty ? nil : trimmedContent,
                 imageURL: resolveImageURL(),
-                publishedDate: parseDate(currentPubDate.trimmingCharacters(in: .whitespacesAndNewlines)),
+                publishedDate: parseDate(dateString),
                 audioURL: trimmedAudioURL.isEmpty ? nil : trimmedAudioURL,
                 duration: parseDuration(currentDuration.trimmingCharacters(in: .whitespacesAndNewlines))
             )
