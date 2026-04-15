@@ -3,7 +3,7 @@ import WidgetKit
 
 struct ListWidgetIntent: WidgetConfigurationIntent {
     static var title: LocalizedStringResource = LocalizedStringResource("ListWidget.IntentTitle", table: "Widget")
-    static var description: IntentDescription = LocalizedStringResource("ListWidget.IntentDescription", table: "Widget")
+    static var description: IntentDescription = IntentDescription(LocalizedStringResource("ListWidget.IntentDescription", table: "Widget"))
 
     @Parameter(title: LocalizedStringResource("ListWidget.Parameter.List", table: "Widget"))
     var list: ListEntity?
