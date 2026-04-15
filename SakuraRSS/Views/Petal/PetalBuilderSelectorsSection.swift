@@ -13,7 +13,9 @@ struct PetalBuilderSelectorsSection: View {
 
     @Binding var recipe: PetalRecipe
     let canAutoDetect: Bool
+    let isFetching: Bool
     let onAutoDetect: () -> Void
+    let onFetch: () -> Void
     let onSelectorChanged: () -> Void
 
     var body: some View {
@@ -56,6 +58,19 @@ struct PetalBuilderSelectorsSection: View {
                 optional: $recipe.dateSelector,
                 placeholder: "time, .published"
             )
+
+            Button {
+                onFetch()
+            } label: {
+                HStack {
+                    Text(String(localized: "Builder.Fetch", table: "Petal"))
+                    if isFetching {
+                        Spacer()
+                        ProgressView()
+                    }
+                }
+            }
+            .disabled(recipe.siteURL.isEmpty || isFetching)
         } header: {
             Text(String(localized: "Builder.Section.Selectors", table: "Petal"))
         } footer: {
