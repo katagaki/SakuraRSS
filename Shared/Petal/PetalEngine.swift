@@ -275,19 +275,26 @@ nonisolated enum PetalEngine {
         return nil
     }
 
-    private static let isoFormatter: ISO8601DateFormatter = {
+    // `ISO8601DateFormatter` and `DateFormatter` have been documented
+    // as thread-safe for read-only use since iOS 7/11 respectively,
+    // but Foundation has never marked them `Sendable`.  These static
+    // caches are only ever read — the setup closures configure the
+    // formatters once at first access and nothing mutates them
+    // afterwards — so `nonisolated(unsafe)` is the correct escape
+    // hatch for Swift 6 strict-concurrency checking.
+    nonisolated(unsafe) private static let isoFormatter: ISO8601DateFormatter = {
         let formatter = ISO8601DateFormatter()
         formatter.formatOptions = [.withInternetDateTime]
         return formatter
     }()
 
-    private static let isoFractionalFormatter: ISO8601DateFormatter = {
+    nonisolated(unsafe) private static let isoFractionalFormatter: ISO8601DateFormatter = {
         let formatter = ISO8601DateFormatter()
         formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
         return formatter
     }()
 
-    private static let fallbackDateFormatters: [DateFormatter] = {
+    nonisolated(unsafe) private static let fallbackDateFormatters: [DateFormatter] = {
         let formats = [
             "yyyy-MM-dd'T'HH:mm:ssZ",
             "yyyy-MM-dd HH:mm:ss",
