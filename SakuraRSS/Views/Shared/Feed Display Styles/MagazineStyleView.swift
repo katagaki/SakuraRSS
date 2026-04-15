@@ -31,8 +31,8 @@ struct MagazineStyleView: View {
                             } label: {
                                 Label(
                                     article.isRead
-                                        ? String(localized: "Article.MarkUnread")
-                                        : String(localized: "Article.MarkRead"),
+                                        ? String(localized: "Article.MarkUnread", table: "Articles")
+                                        : String(localized: "Article.MarkRead", table: "Articles"),
                                     systemImage: article.isRead
                                         ? "envelope" : "envelope.open"
                                 )

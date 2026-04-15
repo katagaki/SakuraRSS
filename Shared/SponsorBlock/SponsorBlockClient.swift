@@ -22,14 +22,14 @@ enum SponsorBlockCategory: String, CaseIterable {
 
     var displayName: String {
         switch self {
-        case .sponsor: String(localized: "SponsorBlock.Category.Sponsor")
-        case .selfpromo: String(localized: "SponsorBlock.Category.SelfPromo")
-        case .interaction: String(localized: "SponsorBlock.Category.Interaction")
-        case .intro: String(localized: "SponsorBlock.Category.Intro")
-        case .outro: String(localized: "SponsorBlock.Category.Outro")
-        case .preview: String(localized: "SponsorBlock.Category.Preview")
-        case .musicOfftopic: String(localized: "SponsorBlock.Category.MusicOfftopic")
-        case .filler: String(localized: "SponsorBlock.Category.Filler")
+        case .sponsor: String(localized: "SponsorBlock.Category.Sponsor", table: "Podcast")
+        case .selfpromo: String(localized: "SponsorBlock.Category.SelfPromo", table: "Podcast")
+        case .interaction: String(localized: "SponsorBlock.Category.Interaction", table: "Podcast")
+        case .intro: String(localized: "SponsorBlock.Category.Intro", table: "Podcast")
+        case .outro: String(localized: "SponsorBlock.Category.Outro", table: "Podcast")
+        case .preview: String(localized: "SponsorBlock.Category.Preview", table: "Podcast")
+        case .musicOfftopic: String(localized: "SponsorBlock.Category.MusicOfftopic", table: "Podcast")
+        case .filler: String(localized: "SponsorBlock.Category.Filler", table: "Podcast")
         }
     }
 }

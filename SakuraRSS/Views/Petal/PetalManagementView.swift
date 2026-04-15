@@ -38,15 +38,15 @@ struct PetalManagementView: View {
                 Button {
                     isImporting = true
                 } label: {
-                    Label("Petal.Manage.Import", systemImage: "square.and.arrow.down")
+                    Label(String(localized: "Manage.Import", table: "Petal"), systemImage: "square.and.arrow.down")
                 }
             } footer: {
-                Text("Petal.Manage.ImportFooter")
+                Text(String(localized: "Manage.ImportFooter", table: "Petal"))
             }
 
             if petalFeeds.isEmpty {
                 Section {
-                    Text("Petal.Manage.Empty")
+                    Text(String(localized: "Manage.Empty", table: "Petal"))
                         .foregroundStyle(.secondary)
                 }
             } else {
@@ -55,11 +55,11 @@ struct PetalManagementView: View {
                         row(for: feed)
                     }
                 } header: {
-                    Text("Petal.Manage.Section.Installed")
+                    Text(String(localized: "Manage.Section.Installed", table: "Petal"))
                 }
             }
         }
-        .navigationTitle("Petal.Manage.Title")
+        .navigationTitle(String(localized: "Manage.Title", table: "Petal"))
         .toolbarTitleDisplayMode(.inline)
         .scrollContentBackground(.hidden)
         .sakuraBackground()
@@ -77,7 +77,7 @@ struct PetalManagementView: View {
         .sheet(item: $shareItem) { item in
             ShareSheet(items: [item.url])
         }
-        .alert("Petal.Error.Title", isPresented: $showImportError) {
+        .alert(String(localized: "Error.Title", table: "Petal"), isPresented: $showImportError) {
             Button("Shared.OK") {}
         } message: {
             if let importError {
@@ -115,7 +115,7 @@ struct PetalManagementView: View {
                 Button {
                     exportPetal(feed: feed)
                 } label: {
-                    Label("Petal.Manage.Export", systemImage: "square.and.arrow.up")
+                    Label(String(localized: "Manage.Export", table: "Petal"), systemImage: "square.and.arrow.up")
                 }
             } label: {
                 Image(systemName: "ellipsis.circle")
@@ -132,7 +132,7 @@ struct PetalManagementView: View {
         case .success(let urls):
             guard let url = urls.first else { return }
             guard url.startAccessingSecurityScopedResource() else {
-                importError = String(localized: "Petal.Error.ImportFailed")
+                importError = String(localized: "Error.ImportFailed", table: "Petal")
                 showImportError = true
                 return
             }
@@ -146,11 +146,11 @@ struct PetalManagementView: View {
                 importError = error.errorDescription
                 showImportError = true
             } catch {
-                importError = String(localized: "Petal.Error.ImportFailed")
+                importError = String(localized: "Error.ImportFailed", table: "Petal")
                 showImportError = true
             }
         case .failure:
-            importError = String(localized: "Petal.Error.ImportFailed")
+            importError = String(localized: "Error.ImportFailed", table: "Petal")
             showImportError = true
         }
     }

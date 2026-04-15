@@ -149,7 +149,7 @@ struct ArticleDetailView: View {
                         .transition(.blurReplace)
                 } else if let text = displayText {
                     if showingSummary && summarizedText != nil {
-                        Text("AppleIntelligence.VerifyImportantInformation")
+                        Text(String(localized: "AppleIntelligence.VerifyImportantInformation", table: "Settings"))
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
@@ -195,7 +195,7 @@ struct ArticleDetailView: View {
         .task {
             await loadArticleMetadata()
         }
-        .alert("Article.Summarize.Error", isPresented: Binding(
+        .alert(String(localized: "Article.Summarize.Error", table: "Articles"), isPresented: Binding(
             get: { summarizationError != nil },
             set: { if !$0 { summarizationError = nil } }
         )) {

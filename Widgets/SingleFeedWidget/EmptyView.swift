@@ -5,7 +5,7 @@ func emptyView(iconSize: CGFloat, textSize: CGFloat) -> some View {
         Image(systemName: "newspaper")
             .font(.system(size: iconSize))
             .foregroundStyle(.secondary)
-        Text("Widget.NoArticles")
+        Text(String(localized: "NoArticles", table: "Widget"))
             .font(.system(size: textSize))
             .foregroundStyle(.secondary)
     }

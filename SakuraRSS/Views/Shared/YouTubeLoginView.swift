@@ -13,7 +13,7 @@ struct YouTubeLoginView: View {
         NavigationStack {
             YouTubeLoginWebView(isLoggedIn: $isLoggedIn)
                 .ignoresSafeArea(edges: .bottom)
-                .navigationTitle("YouTubeLogin.Title")
+                .navigationTitle(String(localized: "YouTubeLogin.Title", table: "Integrations"))
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
                     ToolbarItem(placement: .topBarTrailing) {

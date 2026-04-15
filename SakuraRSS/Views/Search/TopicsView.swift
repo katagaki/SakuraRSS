@@ -17,9 +17,9 @@ struct TopicsView: View {
         Group {
             if filteredTopics.isEmpty {
                 ContentUnavailableView {
-                    Label("Topics.Empty", systemImage: "tag")
+                    Label(String(localized: "Topics.Empty", table: "Articles"), systemImage: "tag")
                 } description: {
-                    Text("Topics.Empty.Description")
+                    Text(String(localized: "Topics.Empty.Description", table: "Articles"))
                 }
             } else {
                 List(filteredTopics, id: \.name) { topic in
@@ -43,7 +43,7 @@ struct TopicsView: View {
                 .scrollContentBackground(.hidden)
             }
         }
-        .navigationTitle("Topics.Title")
+        .navigationTitle(String(localized: "Topics.Title", table: "Articles"))
         .task {
             await loadTopics()
         }

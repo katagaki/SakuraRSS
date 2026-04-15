@@ -7,7 +7,7 @@ struct ListWidgetProvider: AppIntentTimelineProvider {
         let placeholderArticles = (0..<9).map { index in
             ListWidgetArticle(
                 id: Int64(index),
-                title: String(localized: "Widget.Placeholder.Loading"),
+                title: String(localized: "Placeholder.Loading", table: "Widget"),
                 imageData: nil,
                 publishedDate: Date()
             )
@@ -15,7 +15,7 @@ struct ListWidgetProvider: AppIntentTimelineProvider {
         return ListWidgetEntry(
             date: Date(),
             listID: 0,
-            listTitle: String(localized: "Widget.Placeholder.Feed"),
+            listTitle: String(localized: "Placeholder.Feed", table: "Widget"),
             articles: placeholderArticles,
             layout: .thumbnails,
             columns: 3,

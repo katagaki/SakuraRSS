@@ -7,26 +7,26 @@ extension OnboardingView {
             VStack(alignment: .leading, spacing: 20) {
                 stepHeader(
                     icon: "newspaper.fill",
-                    title: String(localized: "Onboarding.Step.DisplayStyle.Title"),
-                    description: String(localized: "Onboarding.Step.DisplayStyle.Description")
+                    title: String(localized: "Step.DisplayStyle.Title", table: "Onboarding"),
+                    description: String(localized: "Step.DisplayStyle.Description", table: "Onboarding")
                 )
 
                 VStack(spacing: 0) {
                     HStack {
-                        Text("Onboarding.Setting.DefaultStyle")
+                        Text(String(localized: "Setting.DefaultStyle", table: "Onboarding"))
                         Spacer()
-                        Picker("Onboarding.Setting.DefaultStyle", selection: Binding(
+                        Picker(String(localized: "Setting.DefaultStyle", table: "Onboarding"), selection: Binding(
                             get: { defaultDisplayStyle },
                             set: { newValue in
                                 defaultDisplayStyle = newValue
                                 searchDisplayStyle = newValue
                             }
                         )) {
-                            Text("Articles.Style.Inbox")
+                            Text(String(localized: "Style.Inbox", table: "Articles"))
                                 .tag(FeedDisplayStyle.inbox)
-                            Text("Articles.Style.Compact")
+                            Text(String(localized: "Style.Compact", table: "Articles"))
                                 .tag(FeedDisplayStyle.compact)
-                            Text("Articles.Style.Feed")
+                            Text(String(localized: "Style.Feed", table: "Articles"))
                                 .tag(FeedDisplayStyle.feed)
                         }
                         .labelsHidden()
@@ -36,7 +36,7 @@ extension OnboardingView {
                 }
                 .background(.regularMaterial, in: .capsule)
 
-                Text("Onboarding.Step.DisplayStyle.Note")
+                Text(String(localized: "Step.DisplayStyle.Note", table: "Onboarding"))
                     .font(.footnote)
                     .foregroundStyle(.secondary)
 
@@ -64,21 +64,21 @@ private struct StylePreviewView: View {
     private var sampleArticles: [Article] {
         [
             Article(id: 1, feedID: 1,
-                    title: String(localized: "Onboarding.Sample.Title1"),
-                    url: "", author: String(localized: "Onboarding.Sample.Author1"),
-                    summary: String(localized: "Onboarding.Sample.Summary1"),
+                    title: String(localized: "Sample.Title1", table: "Onboarding"),
+                    url: "", author: String(localized: "Sample.Author1", table: "Onboarding"),
+                    summary: String(localized: "Sample.Summary1", table: "Onboarding"),
                     imageURL: nil, publishedDate: Date().addingTimeInterval(-3600),
                     isRead: false, isBookmarked: false),
             Article(id: 2, feedID: 1,
-                    title: String(localized: "Onboarding.Sample.Title2"),
-                    url: "", author: String(localized: "Onboarding.Sample.Author2"),
-                    summary: String(localized: "Onboarding.Sample.Summary2"),
+                    title: String(localized: "Sample.Title2", table: "Onboarding"),
+                    url: "", author: String(localized: "Sample.Author2", table: "Onboarding"),
+                    summary: String(localized: "Sample.Summary2", table: "Onboarding"),
                     imageURL: nil, publishedDate: Date().addingTimeInterval(-7200),
                     isRead: true, isBookmarked: false),
             Article(id: 3, feedID: 1,
-                    title: String(localized: "Onboarding.Sample.Title3"),
-                    url: "", author: String(localized: "Onboarding.Sample.Author3"),
-                    summary: String(localized: "Onboarding.Sample.Summary3"),
+                    title: String(localized: "Sample.Title3", table: "Onboarding"),
+                    url: "", author: String(localized: "Sample.Author3", table: "Onboarding"),
+                    summary: String(localized: "Sample.Summary3", table: "Onboarding"),
                     imageURL: nil, publishedDate: Date().addingTimeInterval(-10800),
                     isRead: false, isBookmarked: true)
         ]

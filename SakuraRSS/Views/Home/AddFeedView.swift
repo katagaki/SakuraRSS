@@ -38,7 +38,7 @@ struct AddFeedView: View {
         NavigationStack {
             Form {
                 Section {
-                    TextField("AddFeed.DomainPlaceholder", text: $urlInput)
+                    TextField(String(localized: "AddFeed.DomainPlaceholder", table: "Feeds"), text: $urlInput)
                         .focused($isURLFieldFocused)
                         .keyboardType(.URL)
                         .textContentType(.URL)
@@ -61,7 +61,7 @@ struct AddFeedView: View {
                         searchFeeds()
                     } label: {
                         HStack {
-                            Text("AddFeed.Search")
+                            Text(String(localized: "AddFeed.Search", table: "Feeds"))
                             if isSearching {
                                 Spacer()
                                 ProgressView()
@@ -70,9 +70,9 @@ struct AddFeedView: View {
                     }
                     .disabled(urlInput.isEmpty || isSearching)
                 } header: {
-                    Text("AddFeed.Section.Search")
+                    Text(String(localized: "AddFeed.Section.Search", table: "Feeds"))
                 } footer: {
-                    Text("AddFeed.Section.SearchFooter.\(appName)")
+                    Text(String(localized: "AddFeed.Section.SearchFooter.\(appName)", table: "Feeds"))
                 }
 
                 if urlInput.isEmpty {
@@ -125,10 +125,10 @@ struct AddFeedView: View {
                             Button {
                                 showPetalBuilder = true
                             } label: {
-                                Label("Petal.AddFeed.Generate", systemImage: "leaf.fill")
+                                Label(String(localized: "AddFeed.Generate", table: "Petal"), systemImage: "leaf.fill")
                             }
                         } footer: {
-                            Text("Petal.AddFeed.GenerateFooter")
+                            Text(String(localized: "AddFeed.GenerateFooter", table: "Petal"))
                         }
                     }
                 }
@@ -164,7 +164,7 @@ struct AddFeedView: View {
                             }
                         }
                     } header: {
-                        Text("AddFeed.Section.Discovered")
+                        Text(String(localized: "AddFeed.Section.Discovered", table: "Feeds"))
                     }
                 }
 
@@ -194,12 +194,12 @@ struct AddFeedView: View {
                             .buttonStyle(.plain)
                         }
                     } header: {
-                        Text("AddFeed.Section.AddToList")
+                        Text(String(localized: "AddFeed.Section.AddToList", table: "Feeds"))
                     }
                 }
             }
             .animation(.smooth.speed(2.0), value: urlInput.isEmpty)
-            .navigationTitle("AddFeed.Title")
+            .navigationTitle(String(localized: "AddFeed.Title", table: "Feeds"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
@@ -279,7 +279,7 @@ struct AddFeedView: View {
                 withAnimation(.smooth.speed(2.0)) {
                     isSearching = false
                     if results.isEmpty {
-                        errorMessage = String(localized: "AddFeed.NoFeedsFound")
+                        errorMessage = String(localized: "AddFeed.NoFeedsFound", table: "Feeds")
                     } else {
                         discoveredFeeds = results
                     }
@@ -430,14 +430,14 @@ extension AddFeedView {
 
     func localizedTopicTitle(_ title: String) -> String {
         switch title {
-        case "Headlines": String(localized: "SuggestedFeeds.Topic.Headlines")
-        case "Technology": String(localized: "SuggestedFeeds.Topic.Technology")
-        case "Science": String(localized: "SuggestedFeeds.Topic.Science")
-        case "Economics": String(localized: "SuggestedFeeds.Topic.Economics")
-        case "Business": String(localized: "SuggestedFeeds.Topic.Business")
-        case "Sports": String(localized: "SuggestedFeeds.Topic.Sports")
-        case "Politics": String(localized: "SuggestedFeeds.Topic.Politics")
-        case "Weather": String(localized: "SuggestedFeeds.Topic.Weather")
+        case "Headlines": String(localized: "SuggestedFeeds.Topic.Headlines", table: "Feeds")
+        case "Technology": String(localized: "SuggestedFeeds.Topic.Technology", table: "Feeds")
+        case "Science": String(localized: "SuggestedFeeds.Topic.Science", table: "Feeds")
+        case "Economics": String(localized: "SuggestedFeeds.Topic.Economics", table: "Feeds")
+        case "Business": String(localized: "SuggestedFeeds.Topic.Business", table: "Feeds")
+        case "Sports": String(localized: "SuggestedFeeds.Topic.Sports", table: "Feeds")
+        case "Politics": String(localized: "SuggestedFeeds.Topic.Politics", table: "Feeds")
+        case "Weather": String(localized: "SuggestedFeeds.Topic.Weather", table: "Feeds")
         default: title
         }
     }

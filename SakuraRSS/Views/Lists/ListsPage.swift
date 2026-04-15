@@ -21,7 +21,7 @@ struct ListsPage: View {
                     Button(role: .destructive) {
                         listToDelete = list
                     } label: {
-                        Label("ListMenu.Delete", systemImage: "trash")
+                        Label(String(localized: "ListMenu.Delete", table: "Lists"), systemImage: "trash")
                     }
                 }
             }
@@ -32,7 +32,7 @@ struct ListsPage: View {
             }
         }
         .listStyle(.insetGrouped)
-        .navigationTitle("Lists.Title")
+        .navigationTitle(String(localized: "Title", table: "Lists"))
         .toolbarTitleDisplayMode(.inlineLarge)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
@@ -49,12 +49,12 @@ struct ListsPage: View {
         .overlay {
             if feedManager.lists.isEmpty {
                 ContentUnavailableView {
-                    Label("Lists.Empty.Title",
+                    Label(String(localized: "Empty.Title", table: "Lists"),
                           systemImage: "square.fill.text.grid.1x2")
                 } description: {
-                    Text("Lists.Empty.Description")
+                    Text(String(localized: "Empty.Description", table: "Lists"))
                 } actions: {
-                    Button("Lists.Empty.CreateList") {
+                    Button(String(localized: "Empty.CreateList", table: "Lists")) {
                         isShowingNewList = true
                     }
                     .buttonStyle(.borderedProminent)
@@ -80,13 +80,13 @@ struct ListsPage: View {
                 .interactiveDismissDisabled()
         }
         .alert(
-            "ListMenu.Delete.Title",
+            String(localized: "ListMenu.Delete.Title", table: "Lists"),
             isPresented: Binding(
                 get: { listToDelete != nil },
                 set: { if !$0 { listToDelete = nil } }
             )
         ) {
-            Button("ListMenu.Delete.Confirm", role: .destructive) {
+            Button(String(localized: "ListMenu.Delete.Confirm", table: "Lists"), role: .destructive) {
                 if let list = listToDelete {
                     feedManager.deleteList(list)
                     listToDelete = nil
@@ -97,7 +97,7 @@ struct ListsPage: View {
             }
         } message: {
             if let list = listToDelete {
-                Text("ListMenu.Delete.Message.\(list.name)")
+                Text(String(localized: "ListMenu.Delete.Message.\(list.name)", table: "Lists"))
             }
         }
     }
@@ -107,18 +107,18 @@ struct ListsPage: View {
         Button {
             listToEdit = list
         } label: {
-            Label("ListMenu.Edit", systemImage: "pencil")
+            Label(String(localized: "ListMenu.Edit", table: "Lists"), systemImage: "pencil")
         }
         Button {
             listForRules = list
         } label: {
-            Label("ListMenu.Rules", systemImage: "list.bullet.rectangle")
+            Label(String(localized: "ListMenu.Rules", table: "Lists"), systemImage: "list.bullet.rectangle")
         }
         Divider()
         Button(role: .destructive) {
             listToDelete = list
         } label: {
-            Label("ListMenu.Delete", systemImage: "trash")
+            Label(String(localized: "ListMenu.Delete", table: "Lists"), systemImage: "trash")
         }
     }
 }
@@ -140,7 +140,7 @@ struct ListRowView: View {
                     .font(.body)
                     .lineLimit(1)
                 let count = feedManager.feedCount(for: list)
-                Text("Lists.FeedCount \(count)")
+                Text(String(localized: "FeedCount \(count)", table: "Lists"))
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
             }

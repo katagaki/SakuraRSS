@@ -13,7 +13,7 @@ struct InstagramLoginView: View {
         NavigationStack {
             InstagramLoginWebView(isLoggedIn: $isLoggedIn)
                 .ignoresSafeArea(edges: .bottom)
-                .navigationTitle("InstagramLogin.Title")
+                .navigationTitle(String(localized: "InstagramLogin.Title", table: "Integrations"))
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
                     ToolbarItem(placement: .topBarTrailing) {

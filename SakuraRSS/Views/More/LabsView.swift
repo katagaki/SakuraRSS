@@ -18,18 +18,18 @@ struct LabsView: View {
     var body: some View {
         List {
             Section {
-                Text("Labs.Warning \(appName)")
+                Text(String(localized: "Warning \(appName)", table: "Labs"))
                     .font(.callout)
                     .foregroundStyle(.primary)
                     .listRowBackground(Color.clear)
             }
 
             Section {
-                Toggle("Labs.XProfileFeeds", isOn: $xProfileFeedsEnabled)
+                Toggle(String(localized: "XProfileFeeds", table: "Labs"), isOn: $xProfileFeedsEnabled)
 
                 if xProfileFeedsEnabled {
                     if isXSignedIn {
-                        Button("Labs.XProfileFeeds.RefreshAuth") {
+                        Button(String(localized: "XProfileFeeds.RefreshAuth", table: "Labs")) {
                             Task {
                                 await MainActor.run {
                                     XProfileScraper.queryIDsFetched = false
@@ -37,61 +37,61 @@ struct LabsView: View {
                                 await XProfileScraper.fetchQueryIDsIfNeeded()
                             }
                         }
-                        Button("Labs.XProfileFeeds.SignOut") {
+                        Button(String(localized: "XProfileFeeds.SignOut", table: "Labs")) {
                             Task {
                                 await XProfileScraper.clearXSession()
                                 isXSignedIn = false
                             }
                         }
                     } else {
-                        Button("Labs.XProfileFeeds.SignIn") {
+                        Button(String(localized: "XProfileFeeds.SignIn", table: "Labs")) {
                             showXLogin = true
                         }
                     }
                 }
             } footer: {
-                Text("Labs.XProfileFeeds.Footer")
+                Text(String(localized: "XProfileFeeds.Footer", table: "Labs"))
             }
 
             Section {
-                Toggle("Labs.PetalRecipes", isOn: $petalRecipesEnabled)
+                Toggle(String(localized: "PetalRecipes", table: "Labs"), isOn: $petalRecipesEnabled)
 
                 if petalRecipesEnabled {
-                    NavigationLink("Petal.Manage.Title") {
+                    NavigationLink(String(localized: "Manage.Title", table: "Petal")) {
                         PetalManagementView()
                     }
                 }
             } footer: {
-                Text("Labs.PetalRecipes.Footer")
+                Text(String(localized: "PetalRecipes.Footer", table: "Labs"))
             }
 
             Section {
-                Toggle("Labs.InstagramProfileFeeds",
+                Toggle(String(localized: "InstagramProfileFeeds", table: "Labs"),
                        isOn: $instagramProfileFeedsEnabled)
 
                 if instagramProfileFeedsEnabled {
                     if isInstagramSignedIn {
-                        Button("Labs.InstagramProfileFeeds.SignOut") {
+                        Button(String(localized: "InstagramProfileFeeds.SignOut", table: "Labs")) {
                             Task {
                                 await InstagramProfileScraper.clearInstagramSession()
                                 isInstagramSignedIn = false
                             }
                         }
                     } else {
-                        Button("Labs.InstagramProfileFeeds.SignIn") {
+                        Button(String(localized: "InstagramProfileFeeds.SignIn", table: "Labs")) {
                             showInstagramLogin = true
                         }
                     }
                 }
             } footer: {
-                Text("Labs.InstagramProfileFeeds.Footer")
+                Text(String(localized: "InstagramProfileFeeds.Footer", table: "Labs"))
             }
 
         }
         .animation(.smooth.speed(2.0), value: xProfileFeedsEnabled)
         .animation(.smooth.speed(2.0), value: instagramProfileFeedsEnabled)
         .animation(.smooth.speed(2.0), value: petalRecipesEnabled)
-        .navigationTitle("Labs.Title")
+        .navigationTitle(String(localized: "Title", table: "Labs"))
         .toolbarTitleDisplayMode(.inline)
         .sheet(isPresented: $showXLogin) {
             Task {

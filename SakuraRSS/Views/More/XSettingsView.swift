@@ -11,13 +11,13 @@ struct XSettingsView: View {
     var body: some View {
         List {
             Section {
-                Toggle("Labs.XProfileFeeds", isOn: $xProfileFeedsEnabled)
+                Toggle(String(localized: "XProfileFeeds", table: "Labs"), isOn: $xProfileFeedsEnabled)
 
                 if xProfileFeedsEnabled {
                     if isCheckingLogin {
                         ProgressView()
                     } else if isXSignedIn {
-                        Button("Labs.XProfileFeeds.RefreshAuth") {
+                        Button(String(localized: "XProfileFeeds.RefreshAuth", table: "Labs")) {
                             Task {
                                 await MainActor.run {
                                     XProfileScraper.queryIDsFetched = false
@@ -25,24 +25,24 @@ struct XSettingsView: View {
                                 await XProfileScraper.fetchQueryIDsIfNeeded()
                             }
                         }
-                        Button("Labs.XProfileFeeds.SignOut") {
+                        Button(String(localized: "XProfileFeeds.SignOut", table: "Labs")) {
                             Task {
                                 await XProfileScraper.clearXSession()
                                 isXSignedIn = false
                             }
                         }
                     } else {
-                        Button("Labs.XProfileFeeds.SignIn") {
+                        Button(String(localized: "XProfileFeeds.SignIn", table: "Labs")) {
                             showXLogin = true
                         }
                     }
                 }
             } footer: {
-                Text("Labs.XProfileFeeds.Footer")
+                Text(String(localized: "XProfileFeeds.Footer", table: "Labs"))
             }
         }
         .animation(.smooth.speed(2.0), value: xProfileFeedsEnabled)
-        .navigationTitle("Integrations.X")
+        .navigationTitle(String(localized: "X", table: "Integrations"))
         .toolbarTitleDisplayMode(.inline)
         .scrollContentBackground(.hidden)
         .sakuraBackground()

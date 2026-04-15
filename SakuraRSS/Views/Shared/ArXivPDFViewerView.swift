@@ -48,7 +48,7 @@ struct ArXivPDFViewerView: View {
             ToolbarItem(placement: .topBarTrailing) {
                 if document != nil {
                     ShareLink(item: url) {
-                        Label("Article.Share", systemImage: "square.and.arrow.up")
+                        Label(String(localized: "Article.Share", table: "Articles"), systemImage: "square.and.arrow.up")
                     }
                 }
             }
@@ -67,16 +67,16 @@ struct ArXivPDFViewerView: View {
             let request = URLRequest.sakura(url: url)
             let (data, response) = try await URLSession.shared.data(for: request)
             if let http = response as? HTTPURLResponse, http.statusCode != 200 {
-                loadError = String(localized: "ArXiv.PDF.LoadFailed")
+                loadError = String(localized: "ArXiv.PDF.LoadFailed", table: "Integrations")
                 return
             }
             if let doc = PDFDocument(data: data) {
                 document = doc
             } else {
-                loadError = String(localized: "ArXiv.PDF.LoadFailed")
+                loadError = String(localized: "ArXiv.PDF.LoadFailed", table: "Integrations")
             }
         } catch {
-            loadError = String(localized: "ArXiv.PDF.LoadFailed")
+            loadError = String(localized: "ArXiv.PDF.LoadFailed", table: "Integrations")
         }
     }
 }

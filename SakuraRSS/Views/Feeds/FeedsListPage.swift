@@ -67,7 +67,7 @@ struct FeedsListPage: View {
         }
         .navigationTitle("Shared.Feeds")
         .toolbarTitleDisplayMode(.inlineLarge)
-        .searchable(text: $searchText, prompt: Text("FeedList.SearchPrompt"))
+        .searchable(text: $searchText, prompt: Text(String(localized: "FeedList.SearchPrompt", table: "Feeds")))
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Button {
@@ -89,12 +89,12 @@ struct FeedsListPage: View {
         .overlay {
             if feedManager.feeds.isEmpty {
                 ContentUnavailableView {
-                    Label("FeedList.Empty.Title",
+                    Label(String(localized: "FeedList.Empty.Title", table: "Feeds"),
                           systemImage: "newspaper")
                 } description: {
-                    Text("FeedList.Empty.Description")
+                    Text(String(localized: "FeedList.Empty.Description", table: "Feeds"))
                 } actions: {
-                    Button("FeedList.Empty.AddFeed") {
+                    Button(String(localized: "FeedList.Empty.AddFeed", table: "Feeds")) {
                         isShowingAddFeed = true
                     }
                     .buttonStyle(.borderedProminent)
@@ -114,13 +114,13 @@ struct FeedsListPage: View {
                 .interactiveDismissDisabled()
         }
         .alert(
-            "FeedMenu.Delete.Title",
+            String(localized: "FeedMenu.Delete.Title", table: "Feeds"),
             isPresented: Binding(
                 get: { feedToDelete != nil },
                 set: { if !$0 { feedToDelete = nil } }
             )
         ) {
-            Button("FeedMenu.Delete.Confirm", role: .destructive) {
+            Button(String(localized: "FeedMenu.Delete.Confirm", table: "Feeds"), role: .destructive) {
                 if let feed = feedToDelete {
                     withAnimation(.smooth.speed(2.0)) {
                         try? feedManager.deleteFeed(feed)
@@ -133,7 +133,7 @@ struct FeedsListPage: View {
             }
         } message: {
             if let feed = feedToDelete {
-                Text("FeedMenu.Delete.Message.\(feed.title)")
+                Text(String(localized: "FeedMenu.Delete.Message.\(feed.title)", table: "Feeds"))
             }
         }
         .sheet(item: $feedForListAssignment) { feed in
@@ -150,8 +150,8 @@ struct FeedsListPage: View {
         } label: {
             Label(
                 feed.isMuted
-                    ? String(localized: "FeedMenu.Unmute")
-                    : String(localized: "FeedMenu.Mute"),
+                    ? String(localized: "FeedMenu.Unmute", table: "Feeds")
+                    : String(localized: "FeedMenu.Mute", table: "Feeds"),
                 systemImage: feed.isMuted
                     ? "bell" : "bell.slash"
             )
@@ -159,26 +159,26 @@ struct FeedsListPage: View {
         Button {
             feedForRules = feed
         } label: {
-            Label("FeedMenu.Rules",
+            Label(String(localized: "FeedMenu.Rules", table: "Feeds"),
                   systemImage: "list.bullet.rectangle")
         }
         Button {
             feedForListAssignment = feed
         } label: {
-            Label("FeedMenu.AddToList",
+            Label(String(localized: "FeedMenu.AddToList", table: "Feeds"),
                   systemImage: "text.badge.plus")
         }
         Divider()
         Button {
             feedToEdit = feed
         } label: {
-            Label("FeedMenu.Edit",
+            Label(String(localized: "FeedMenu.Edit", table: "Feeds"),
                   systemImage: "pencil")
         }
         Button(role: .destructive) {
             feedToDelete = feed
         } label: {
-            Label("FeedMenu.Delete",
+            Label(String(localized: "FeedMenu.Delete", table: "Feeds"),
                   systemImage: "trash")
         }
     }

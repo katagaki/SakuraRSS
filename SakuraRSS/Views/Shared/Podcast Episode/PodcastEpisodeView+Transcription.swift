@@ -27,7 +27,7 @@ extension PodcastEpisodeView {
                     }
                 }
             } label: {
-                Text("Podcast.Transcript.FollowAlong")
+                Text(String(localized: "Transcript.FollowAlong", table: "Podcast"))
                     .font(.body)
                     .fontWeight(.semibold)
                     .padding(.horizontal, 14)

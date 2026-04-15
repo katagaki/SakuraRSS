@@ -16,7 +16,7 @@ extension YouTubePlayerView {
         isSummarizing = true
         defer { isSummarizing = false }
 
-        let instructions = String(localized: "Article.Summarize.Prompt")
+        let instructions = String(localized: "Article.Summarize.Prompt", table: "Articles")
 
         do {
             let session = LanguageModelSession(instructions: instructions)

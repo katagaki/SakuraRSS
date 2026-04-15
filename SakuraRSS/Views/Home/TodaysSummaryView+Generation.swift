@@ -17,7 +17,7 @@ extension TodaysSummaryView {
 
         if articles.count < 5 {
             withAnimation(.smooth.speed(2.0)) {
-                summary = String(localized: "TodaysSummary.TooFew")
+                summary = String(localized: "TodaysSummary.TooFew", table: "Home")
             }
             hasSummary = true
             return
@@ -38,8 +38,8 @@ extension TodaysSummaryView {
         }
 
         let batches = BatchSummarizer.packBatches(descriptions, charLimit: Self.batchCharLimit)
-        let instructions = String(localized: "TodaysSummary.PartialPrompt")
-        let combineInstructions = String(localized: "TodaysSummary.CombinePrompt")
+        let instructions = String(localized: "TodaysSummary.PartialPrompt", table: "Home")
+        let combineInstructions = String(localized: "TodaysSummary.CombinePrompt", table: "Home")
 
         do {
             let finalContent = try await BatchSummarizer.summarize(

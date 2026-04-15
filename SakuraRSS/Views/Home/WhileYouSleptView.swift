@@ -82,7 +82,7 @@ struct WhileYouSleptView: View {
             HStack(spacing: 8) {
                 Image(systemName: "apple.intelligence")
                     .font(.title3)
-                Text("WhileYouSlept.Title")
+                Text(String(localized: "WhileYouSlept.Title", table: "Home"))
                     .font(.headline)
                 Spacer()
                 Button {
@@ -123,16 +123,16 @@ struct WhileYouSleptView: View {
                 HStack(spacing: 6) {
                     ProgressView()
                         .controlSize(.small)
-                    Text("WhileYouSlept.Generating")
+                    Text(String(localized: "WhileYouSlept.Generating", table: "Home"))
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                 }
             } else if deferredForLowPowerMode && summary.isEmpty {
-                Text("WhileYouSlept.LowPowerModePrompt")
+                Text(String(localized: "WhileYouSlept.LowPowerModePrompt", table: "Home"))
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
             } else if generationFailed {
-                Text("WhileYouSlept.Failed")
+                Text(String(localized: "WhileYouSlept.Failed", table: "Home"))
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
             } else if !summary.isEmpty {
@@ -147,15 +147,15 @@ struct WhileYouSleptView: View {
                     }
                 } label: {
                     Text(isExpanded
-                         ? String(localized: "WhileYouSlept.ShowLess")
-                         : String(localized: "WhileYouSlept.ShowMore"))
+                         ? String(localized: "WhileYouSlept.ShowLess", table: "Home")
+                         : String(localized: "WhileYouSlept.ShowMore", table: "Home"))
                         .font(.caption)
                         .fontWeight(.bold)
                 }
                 .buttonStyle(.plain)
             }
 
-            Text("AppleIntelligence.VerifyImportantInformation")
+            Text(String(localized: "AppleIntelligence.VerifyImportantInformation", table: "Settings"))
                 .font(.caption)
                 .foregroundStyle(.tertiary)
         }

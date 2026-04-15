@@ -7,12 +7,12 @@ extension OnboardingView {
             VStack(alignment: .leading, spacing: 20) {
                 stepHeader(
                     icon: "plus.circle.fill",
-                    title: String(localized: "Onboarding.AddFirstFeed.Title"),
-                    description: String(localized: "Onboarding.AddFirstFeed.Prompt")
+                    title: String(localized: "AddFirstFeed.Title", table: "Onboarding"),
+                    description: String(localized: "AddFirstFeed.Prompt", table: "Onboarding")
                 )
 
                 VStack(spacing: 0) {
-                    TextField("AddFeed.URLPlaceholder", text: $urlInput)
+                    TextField(String(localized: "AddFeed.URLPlaceholder", table: "Feeds"), text: $urlInput)
                         .focused($isURLFieldFocused)
                         .textContentType(.URL)
                         .autocorrectionDisabled()
@@ -28,7 +28,7 @@ extension OnboardingView {
                         searchFeeds()
                     } label: {
                         HStack {
-                            Text("AddFeed.Search")
+                            Text(String(localized: "AddFeed.Search", table: "Feeds"))
                             if isSearching {
                                 Spacer()
                                 ProgressView()
@@ -53,7 +53,7 @@ extension OnboardingView {
 
                 if !discoveredFeeds.isEmpty {
                     VStack(alignment: .leading, spacing: 12) {
-                        Text("AddFeed.Section.Discovered")
+                        Text(String(localized: "AddFeed.Section.Discovered", table: "Feeds"))
                             .font(.subheadline)
                             .foregroundStyle(.secondary)
                             .textCase(.uppercase)
@@ -110,7 +110,7 @@ extension OnboardingView {
                     Button {
                         onComplete()
                     } label: {
-                        Text("Onboarding.GetStarted")
+                        Text(String(localized: "GetStarted", table: "Onboarding"))
                             .fontWeight(.semibold)
                             .padding(.vertical, 8)
                             .frame(maxWidth: .infinity)
@@ -123,7 +123,7 @@ extension OnboardingView {
                     Button {
                         onComplete()
                     } label: {
-                        Text("Onboarding.SkipForNow")
+                        Text(String(localized: "SkipForNow", table: "Onboarding"))
                             .fontWeight(.semibold)
                             .padding(.vertical, 8)
                             .frame(maxWidth: .infinity)
@@ -175,7 +175,7 @@ extension OnboardingView {
                 withAnimation(.smooth.speed(2.0)) {
                     isSearching = false
                     if results.isEmpty {
-                        feedErrorMessage = String(localized: "AddFeed.NoFeedsFound")
+                        feedErrorMessage = String(localized: "AddFeed.NoFeedsFound", table: "Feeds")
                     } else {
                         discoveredFeeds = results
                     }

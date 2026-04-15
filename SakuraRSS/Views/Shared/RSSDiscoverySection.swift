@@ -23,9 +23,9 @@ struct RSSDiscoverySection: View {
                 }
             }
         } header: {
-            Text("AddFeed.Discovery.Header")
+            Text(String(localized: "AddFeed.Discovery.Header", table: "Feeds"))
         } footer: {
-            Text("AddFeed.Discovery.Footer.\(appName)")
+            Text(String(localized: "AddFeed.Discovery.Footer.\(appName)", table: "Feeds"))
         }
     }
 }
@@ -40,7 +40,7 @@ struct RSSDiscoveryInlineSection: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("AddFeed.Discovery.Header")
+            Text(String(localized: "AddFeed.Discovery.Header", table: "Feeds"))
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
                 .textCase(.uppercase)
@@ -68,7 +68,7 @@ struct RSSDiscoveryInlineSection: View {
             }
             .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 16))
 
-            Text("AddFeed.Discovery.Footer.\(appName)")
+            Text(String(localized: "AddFeed.Discovery.Footer.\(appName)", table: "Feeds"))
                 .font(.footnote)
                 .foregroundStyle(.secondary)
         }

@@ -83,7 +83,7 @@ struct TodaysSummaryView: View {
             HStack(spacing: 8) {
                 Image(systemName: "apple.intelligence")
                     .font(.title3)
-                Text("TodaysSummary.Title")
+                Text(String(localized: "TodaysSummary.Title", table: "Home"))
                     .font(.headline)
                 Spacer()
                 Button {
@@ -124,17 +124,17 @@ struct TodaysSummaryView: View {
                 HStack(spacing: 6) {
                     ProgressView()
                         .controlSize(.small)
-                    Text("TodaysSummary.Generating")
+                    Text(String(localized: "TodaysSummary.Generating", table: "Home"))
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                 }
             } else if deferredForLowPowerMode && summary.isEmpty {
-                Text("TodaysSummary.LowPowerModePrompt")
+                Text(String(localized: "TodaysSummary.LowPowerModePrompt", table: "Home"))
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
             } else if generationFailed {
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("TodaysSummary.Failed")
+                    Text(String(localized: "TodaysSummary.Failed", table: "Home"))
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                     if let generationError {
@@ -155,15 +155,15 @@ struct TodaysSummaryView: View {
                     }
                 } label: {
                     Text(isExpanded
-                         ? String(localized: "TodaysSummary.ShowLess")
-                         : String(localized: "TodaysSummary.ShowMore"))
+                         ? String(localized: "TodaysSummary.ShowLess", table: "Home")
+                         : String(localized: "TodaysSummary.ShowMore", table: "Home"))
                         .font(.caption)
                         .fontWeight(.bold)
                 }
                 .buttonStyle(.plain)
             }
 
-            Text("AppleIntelligence.VerifyImportantInformation")
+            Text(String(localized: "AppleIntelligence.VerifyImportantInformation", table: "Settings"))
                 .font(.caption2)
                 .foregroundStyle(.tertiary)
         }

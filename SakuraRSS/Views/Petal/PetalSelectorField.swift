@@ -9,7 +9,7 @@ import SwiftUI
 /// autocap, autocorrect) in one place later.
 struct PetalSelectorField: View {
 
-    let label: LocalizedStringKey
+    let label: String
     @Binding var text: String
     let placeholder: String
 
@@ -34,7 +34,7 @@ extension PetalSelectorField {
     /// initializer folds that convention into a single
     /// construction call.
     init(
-        label: LocalizedStringKey,
+        label: String,
         optional binding: Binding<String?>,
         placeholder: String
     ) {

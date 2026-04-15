@@ -47,7 +47,7 @@ extension OnboardingView {
         Button {
             action()
         } label: {
-            Text("Onboarding.Continue")
+            Text(String(localized: "Continue", table: "Onboarding"))
                 .fontWeight(.semibold)
                 .padding(.vertical, 8)
                 .frame(maxWidth: .infinity)

@@ -39,12 +39,12 @@ struct FeedRulesSheet: View {
             Form {
                 Section {
                     HStack {
-                        TextField("FeedRules.AllowedKeywordPlaceholder",
+                        TextField(String(localized: "FeedRules.AllowedKeywordPlaceholder", table: "Feeds"),
                                   text: $allowedKeywordInput)
                             .frame(maxWidth: .infinity)
                             .focused($isAllowedKeywordFieldFocused)
                             .onSubmit { addAllowedKeyword() }
-                        Button("FeedRules.Add") {
+                        Button(String(localized: "FeedRules.Add", table: "Feeds")) {
                             addAllowedKeyword()
                         }
                         .fixedSize()
@@ -67,19 +67,19 @@ struct FeedRulesSheet: View {
                         allowedKeywords.remove(atOffsets: indexSet)
                     }
                 } header: {
-                    Text("FeedRules.AllowedKeywords")
+                    Text(String(localized: "FeedRules.AllowedKeywords", table: "Feeds"))
                 } footer: {
-                    Text("FeedRules.AllowedKeywords.Footer")
+                    Text(String(localized: "FeedRules.AllowedKeywords.Footer", table: "Feeds"))
                 }
 
                 Section {
                     HStack {
-                        TextField("FeedRules.KeywordPlaceholder",
+                        TextField(String(localized: "FeedRules.KeywordPlaceholder", table: "Feeds"),
                                   text: $keywordInput)
                             .frame(maxWidth: .infinity)
                             .focused($isKeywordFieldFocused)
                             .onSubmit { addKeyword() }
-                        Button("FeedRules.Add") {
+                        Button(String(localized: "FeedRules.Add", table: "Feeds")) {
                             addKeyword()
                         }
                         .fixedSize()
@@ -102,19 +102,19 @@ struct FeedRulesSheet: View {
                         mutedKeywords.remove(atOffsets: indexSet)
                     }
                 } header: {
-                    Text("FeedRules.MutedKeywords")
+                    Text(String(localized: "FeedRules.MutedKeywords", table: "Feeds"))
                 } footer: {
-                    Text("FeedRules.MutedKeywords.Footer")
+                    Text(String(localized: "FeedRules.MutedKeywords.Footer", table: "Feeds"))
                 }
 
                 Section {
                     HStack {
-                        TextField("FeedRules.AuthorPlaceholder",
+                        TextField(String(localized: "FeedRules.AuthorPlaceholder", table: "Feeds"),
                                   text: $authorInput)
                             .frame(maxWidth: .infinity)
                             .focused($isAuthorFieldFocused)
                             .onSubmit { addAuthor() }
-                        Button("FeedRules.Add") {
+                        Button(String(localized: "FeedRules.Add", table: "Feeds")) {
                             addAuthor()
                         }
                         .fixedSize()
@@ -159,12 +159,12 @@ struct FeedRulesSheet: View {
                         mutedAuthors.remove(atOffsets: indexSet)
                     }
                 } header: {
-                    Text("FeedRules.MutedAuthors")
+                    Text(String(localized: "FeedRules.MutedAuthors", table: "Feeds"))
                 } footer: {
-                    Text("FeedRules.MutedAuthors.Footer")
+                    Text(String(localized: "FeedRules.MutedAuthors.Footer", table: "Feeds"))
                 }
             }
-            .navigationTitle("FeedRules.Title")
+            .navigationTitle(String(localized: "FeedRules.Title", table: "Feeds"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {

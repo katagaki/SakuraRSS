@@ -48,8 +48,8 @@ struct ListWidget: Widget {
                 }
         }
         .contentMarginsDisabled()
-        .configurationDisplayName("ListWidget.DisplayName")
-        .description("ListWidget.Description")
+        .configurationDisplayName(LocalizedStringResource("ListWidget.DisplayName", table: "Widget"))
+        .description(LocalizedStringResource("ListWidget.Description", table: "Widget"))
         .supportedFamilies([.systemSmall, .systemMedium, .systemLarge])
     }
 }

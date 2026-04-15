@@ -15,24 +15,24 @@ struct PetalBuilderSourceSection: View {
 
     var body: some View {
         Section {
-            TextField("Petal.Builder.Name.Placeholder", text: $name)
+            TextField(String(localized: "Builder.Name.Placeholder", table: "Petal"), text: $name)
                 .textInputAutocapitalization(.words)
-            TextField("Petal.Builder.URL.Placeholder", text: $siteURL)
+            TextField(String(localized: "Builder.URL.Placeholder", table: "Petal"), text: $siteURL)
                 .keyboardType(.URL)
                 .textContentType(.URL)
                 .autocorrectionDisabled()
                 .textInputAutocapitalization(.never)
-            Picker("Petal.Builder.FetchMode", selection: $fetchMode) {
-                Text("Petal.Builder.FetchMode.Static")
+            Picker(String(localized: "Builder.FetchMode", table: "Petal"), selection: $fetchMode) {
+                Text(String(localized: "Builder.FetchMode.Static", table: "Petal"))
                     .tag(PetalRecipe.FetchMode.staticHTML)
-                Text("Petal.Builder.FetchMode.Rendered")
+                Text(String(localized: "Builder.FetchMode.Rendered", table: "Petal"))
                     .tag(PetalRecipe.FetchMode.rendered)
             }
             Button {
                 onFetch()
             } label: {
                 HStack {
-                    Text("Petal.Builder.Fetch")
+                    Text(String(localized: "Builder.Fetch", table: "Petal"))
                     if isFetching {
                         Spacer()
                         ProgressView()
@@ -41,9 +41,9 @@ struct PetalBuilderSourceSection: View {
             }
             .disabled(siteURL.isEmpty || isFetching)
         } header: {
-            Text("Petal.Builder.Section.Source")
+            Text(String(localized: "Builder.Section.Source", table: "Petal"))
         } footer: {
-            Text("Petal.Builder.Section.SourceFooter")
+            Text(String(localized: "Builder.Section.SourceFooter", table: "Petal"))
         }
     }
 }

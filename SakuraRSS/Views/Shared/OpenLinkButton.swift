@@ -2,7 +2,7 @@ import SwiftUI
 
 struct OpenLinkButton: View {
 
-    let title: LocalizedStringResource
+    let title: String
     let systemImage: String
     let action: () -> Void
 
@@ -10,12 +10,9 @@ struct OpenLinkButton: View {
         Button {
             action()
         } label: {
-            Label(
-                String(localized: title),
-                systemImage: systemImage
-            )
-            .padding(.horizontal, 2)
-            .padding(.vertical, 2)
+            Label(title, systemImage: systemImage)
+                .padding(.horizontal, 2)
+                .padding(.vertical, 2)
         }
     }
 }

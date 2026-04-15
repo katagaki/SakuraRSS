@@ -27,39 +27,39 @@ struct PetalBuilderSelectorsSection: View {
             .disabled(!canAutoDetect)
 
             PetalSelectorField(
-                label: "Petal.Builder.ItemSelector",
+                label: String(localized: "Builder.ItemSelector", table: "Petal"),
                 text: $recipe.itemSelector,
                 placeholder: "article, li.post, [data-testid=card]"
             )
             PetalSelectorField(
-                label: "Petal.Builder.TitleSelector",
+                label: String(localized: "Builder.TitleSelector", table: "Petal"),
                 optional: $recipe.titleSelector,
                 placeholder: "h2, .title"
             )
             PetalSelectorField(
-                label: "Petal.Builder.LinkSelector",
+                label: String(localized: "Builder.LinkSelector", table: "Petal"),
                 optional: $recipe.linkSelector,
                 placeholder: "a, a.post-link"
             )
             PetalSelectorField(
-                label: "Petal.Builder.SummarySelector",
+                label: String(localized: "Builder.SummarySelector", table: "Petal"),
                 optional: $recipe.summarySelector,
                 placeholder: "p.excerpt, .summary"
             )
             PetalSelectorField(
-                label: "Petal.Builder.ImageSelector",
+                label: String(localized: "Builder.ImageSelector", table: "Petal"),
                 optional: $recipe.imageSelector,
                 placeholder: "img, .hero img"
             )
             PetalSelectorField(
-                label: "Petal.Builder.DateSelector",
+                label: String(localized: "Builder.DateSelector", table: "Petal"),
                 optional: $recipe.dateSelector,
                 placeholder: "time, .published"
             )
         } header: {
-            Text("Petal.Builder.Section.Selectors")
+            Text(String(localized: "Builder.Section.Selectors", table: "Petal"))
         } footer: {
-            Text("Petal.Builder.Section.SelectorsFooter")
+            Text(String(localized: "Builder.Section.SelectorsFooter", table: "Petal"))
         }
         .onChange(of: recipe.itemSelector) { _, _ in onSelectorChanged() }
         .onChange(of: recipe.titleSelector) { _, _ in onSelectorChanged() }

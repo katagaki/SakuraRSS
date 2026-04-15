@@ -8,11 +8,11 @@ struct BookmarksSectionTip: Tip {
     static var bookmarkCount: Int = 0
 
     var title: Text {
-        Text("Tip.BookmarksSection.Title")
+        Text(String(localized: "Tip.BookmarksSection.Title", table: "Onboarding"))
     }
 
     var message: Text? {
-        Text("Tip.BookmarksSection.Message")
+        Text(String(localized: "Tip.BookmarksSection.Message", table: "Onboarding"))
     }
 
     var image: Image? {

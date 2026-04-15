@@ -34,13 +34,13 @@ struct HomeView: View {
                             }
                             .popover(isPresented: $isShowingMarkAllReadConfirmation) {
                                 VStack(spacing: 12) {
-                                    Text("Articles.MarkAllRead.Confirm")
+                                    Text(String(localized: "MarkAllRead.Confirm", table: "Articles"))
                                         .font(.body)
                                     Button {
                                         performMarkAllRead()
                                         isShowingMarkAllReadConfirmation = false
                                     } label: {
-                                        Text("Articles.MarkAllRead")
+                                        Text(String(localized: "MarkAllRead", table: "Articles"))
                                             .frame(maxWidth: .infinity)
                                             .padding(.vertical, 6)
                                     }

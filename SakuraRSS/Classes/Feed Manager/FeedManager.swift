@@ -69,9 +69,9 @@ enum FeedError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .alreadyExists:
-            String(localized: "FeedError.AlreadyExists")
+            String(localized: "FeedError.AlreadyExists", table: "Feeds")
         case .followLimitExceeded(let host, let limit):
-            String(localized: "FeedError.FollowLimitExceeded \(host) \(limit)")
+            String(localized: "FeedError.FollowLimitExceeded \(host) \(limit)", table: "Feeds")
         }
     }
 }

@@ -41,7 +41,7 @@ struct ActionExtensionView: View {
     var body: some View {
         NavigationStack {
             content
-                .navigationTitle("AddFeed.Title")
+                .navigationTitle(String(localized: "AddFeed.Title", table: "Feeds"))
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
                     ToolbarItem(placement: .confirmationAction) {
@@ -66,13 +66,13 @@ struct ActionExtensionView: View {
             ContentUnavailableView {
                 ProgressView()
             } description: {
-                Text("AddFeed.Extension.Searching")
+                Text(String(localized: "AddFeed.Extension.Searching", table: "Feeds"))
             }
         case .searchingDomain(let domain):
             ContentUnavailableView {
                 ProgressView()
             } description: {
-                Text("AddFeed.Extension.SearchingDomain \(domain)")
+                Text(String(localized: "AddFeed.Extension.SearchingDomain \(domain)", table: "Feeds"))
             }
         case .found:
             List {
@@ -110,17 +110,17 @@ struct ActionExtensionView: View {
                         }
                     }
                 } header: {
-                    Text("AddFeed.Section.Discovered")
+                    Text(String(localized: "AddFeed.Section.Discovered", table: "Feeds"))
                 }
             }
         case .noFeeds:
             ContentUnavailableView(
-                String(localized: "AddFeed.NoFeedsFound"),
+                String(localized: "AddFeed.NoFeedsFound", table: "Feeds"),
                 systemImage: "rectangle.on.rectangle.slash"
             )
         case .noURL:
             ContentUnavailableView(
-                String(localized: "AddFeed.Extension.NoURL"),
+                String(localized: "AddFeed.Extension.NoURL", table: "Feeds"),
                 systemImage: "link.badge.plus"
             )
         }

@@ -12,39 +12,39 @@ struct InstagramSettingsView: View {
     var body: some View {
         List {
             Section {
-                Toggle("Labs.InstagramProfileFeeds",
+                Toggle(String(localized: "InstagramProfileFeeds", table: "Labs"),
                        isOn: $instagramProfileFeedsEnabled)
 
                 if instagramProfileFeedsEnabled {
                     if isCheckingLogin {
                         ProgressView()
                     } else if isInstagramSignedIn {
-                        Button("Labs.InstagramProfileFeeds.SignOut") {
+                        Button(String(localized: "InstagramProfileFeeds.SignOut", table: "Labs")) {
                             Task {
                                 await InstagramProfileScraper.clearInstagramSession()
                                 isInstagramSignedIn = false
                             }
                         }
                     } else {
-                        Button("Labs.InstagramProfileFeeds.SignIn") {
+                        Button(String(localized: "InstagramProfileFeeds.SignIn", table: "Labs")) {
                             showInstagramLogin = true
                         }
                     }
                 }
             } footer: {
-                Text("Labs.InstagramProfileFeeds.Footer")
+                Text(String(localized: "InstagramProfileFeeds.Footer", table: "Labs"))
             }
 
             if instagramProfileFeedsEnabled {
                 Section {
-                    Toggle("Instagram.HideReels", isOn: $hideReels)
+                    Toggle(String(localized: "Instagram.HideReels", table: "Integrations"), isOn: $hideReels)
                 } footer: {
-                    Text("Instagram.HideReels.Footer")
+                    Text(String(localized: "Instagram.HideReels.Footer", table: "Integrations"))
                 }
             }
         }
         .animation(.smooth.speed(2.0), value: instagramProfileFeedsEnabled)
-        .navigationTitle("Integrations.Instagram")
+        .navigationTitle(String(localized: "Instagram", table: "Integrations"))
         .toolbarTitleDisplayMode(.inline)
         .scrollContentBackground(.hidden)
         .sakuraBackground()

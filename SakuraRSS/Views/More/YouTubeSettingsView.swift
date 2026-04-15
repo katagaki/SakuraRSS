@@ -12,14 +12,14 @@ struct YouTubeSettingsView: View {
     var body: some View {
         List {
             Section {
-                Picker("Settings.YouTube.OpenMode", selection: $youTubeOpenMode) {
-                    Text("Settings.YouTube.InAppPlayer")
+                Picker(String(localized: "YouTube.OpenMode", table: "Settings"), selection: $youTubeOpenMode) {
+                    Text(String(localized: "YouTube.InAppPlayer", table: "Settings"))
                         .tag(YouTubeOpenMode.inAppPlayer)
                     if YouTubeHelper.isAppInstalled {
-                        Text("Settings.YouTube.YouTubeApp")
+                        Text(String(localized: "YouTube.YouTubeApp", table: "Settings"))
                             .tag(YouTubeOpenMode.youTubeApp)
                     }
-                    Text("Settings.YouTube.Browser")
+                    Text(String(localized: "YouTube.Browser", table: "Settings"))
                         .tag(YouTubeOpenMode.browser)
                 }
             }
@@ -27,28 +27,28 @@ struct YouTubeSettingsView: View {
             if youTubeOpenMode == .inAppPlayer {
                 Section {
                     if isYouTubeSignedIn {
-                        Button("Labs.YouTubePlayer.SignOut") {
+                        Button(String(localized: "YouTubePlayer.SignOut", table: "Labs")) {
                             Task {
                                 await YouTubePlayerView.clearYouTubeSession()
                                 isYouTubeSignedIn = false
                             }
                         }
                     } else {
-                        Button("Labs.YouTubePlayer.SignIn") {
+                        Button(String(localized: "YouTubePlayer.SignIn", table: "Labs")) {
                             showYouTubeLogin = true
                         }
                     }
                 } footer: {
-                    Text("Labs.YouTubePlayer.Footer")
+                    Text(String(localized: "YouTubePlayer.Footer", table: "Labs"))
                 }
 
                 Section {
                     Toggle(
-                        "Settings.YouTube.SponsorBlock",
+                        String(localized: "YouTube.SponsorBlock", table: "Settings"),
                         isOn: $sponsorBlockEnabled
                     )
                 } footer: {
-                    Text("Settings.YouTube.SponsorBlock.Footer")
+                    Text(String(localized: "YouTube.SponsorBlock.Footer", table: "Settings"))
                 }
 
                 if sponsorBlockEnabled {
@@ -78,13 +78,13 @@ struct YouTubeSettingsView: View {
                             ))
                         }
                     } header: {
-                        Text("Settings.YouTube.SponsorBlock.Categories")
+                        Text(String(localized: "YouTube.SponsorBlock.Categories", table: "Settings"))
                     }
                 }
             }
         }
         .animation(.smooth.speed(2.0), value: youTubeOpenMode)
-        .navigationTitle("Integrations.YouTube")
+        .navigationTitle(String(localized: "YouTube", table: "Integrations"))
         .toolbarTitleDisplayMode(.inline)
         .scrollContentBackground(.hidden)
         .sakuraBackground()

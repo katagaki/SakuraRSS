@@ -457,7 +457,7 @@ struct CompactFeedArticleRow: View {
                                     : (opensInExternalApp ? "arrow.up.forward.app" : "safari")
                             )
                         )
-                        Text(opensInExternalApp ? "Articles.OpenInApp" : "Articles.OpenInBrowser")
+                        Text(opensInExternalApp ? String(localized: "OpenInApp", table: "Articles") : String(localized: "OpenInBrowser", table: "Articles"))
                             .lineLimit(1)
                     }
                     .font(.subheadline.weight(.semibold))
@@ -475,7 +475,7 @@ struct CompactFeedArticleRow: View {
                     HStack(spacing: 6) {
                         Image(systemName: article.isRead ? "envelope" : "envelope.open")
                             .offset(y: article.isRead ? 0 : -1)
-                        Text(article.isRead ? "Article.MarkUnread" : "Article.MarkRead")
+                        Text(article.isRead ? String(localized: "Article.MarkUnread", table: "Articles") : String(localized: "Article.MarkRead", table: "Articles"))
                             .lineLimit(1)
                     }
                     .font(.subheadline.weight(.semibold))
@@ -494,14 +494,14 @@ struct CompactFeedArticleRow: View {
                         feedManager.toggleBookmark(article)
                     } label: {
                         Label(
-                            article.isBookmarked ? "Article.RemoveBookmark" : "Article.Bookmark",
+                            article.isBookmarked ? String(localized: "Article.RemoveBookmark", table: "Articles") : String(localized: "Article.Bookmark", table: "Articles"),
                             systemImage: article.isBookmarked ? "bookmark.fill" : "bookmark"
                         )
                     }
 
                     if let shareURL = URL(string: article.url) {
                         ShareLink(item: shareURL) {
-                            Label("Article.Share", systemImage: "square.and.arrow.up")
+                            Label(String(localized: "Article.Share", table: "Articles"), systemImage: "square.and.arrow.up")
                         }
                     }
                 } label: {

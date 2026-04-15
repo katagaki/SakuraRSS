@@ -36,8 +36,8 @@ struct SearchView: View {
             .sakuraBackground()
             .environment(\.zoomNamespace, cardZoom)
             .navigationTitle(searchText.isEmpty
-                ? LocalizedStringKey("Discover.Title")
-                : LocalizedStringKey("Search.Results.Title"))
+                ? String(localized: "Discover.Title", table: "Feeds")
+                : String(localized: "Results.Title", table: "Search"))
             .navigationDestination(for: Article.self) { article in
                 ArticleDestinationView(article: article)
                     .environment(\.zoomNamespace, cardZoom)
@@ -66,7 +66,7 @@ struct SearchView: View {
                 }
             }
             .animation(.smooth.speed(2.0), value: searchDisplayStyle)
-            .searchable(text: $searchText, prompt: "Search.Prompt")
+            .searchable(text: $searchText, prompt: String(localized: "Prompt", table: "Search"))
             .task(id: searchText) {
                 let query = searchText
                 guard !query.isEmpty else {
@@ -94,10 +94,10 @@ struct SearchView: View {
         .overlay {
             if searchResults.isEmpty {
                 ContentUnavailableView {
-                    Label("Search.NoResults.Title",
+                    Label(String(localized: "NoResults.Title", table: "Search"),
                           systemImage: "magnifyingglass")
                 } description: {
-                    Text("Search.NoResults.Description")
+                    Text(String(localized: "NoResults.Description", table: "Search"))
                 }
             }
         }

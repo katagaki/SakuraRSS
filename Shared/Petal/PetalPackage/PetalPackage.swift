@@ -56,13 +56,13 @@ nonisolated enum PetalPackage {
         var errorDescription: String? {
             switch self {
             case .missingRecipe:
-                String(localized: "Petal.Error.PackageMissingRecipe")
+                String(localized: "Error.PackageMissingRecipe", table: "Petal")
             case .unsupportedVersion:
-                String(localized: "Petal.Error.PackageUnsupportedVersion")
+                String(localized: "Error.PackageUnsupportedVersion", table: "Petal")
             case .malformed:
-                String(localized: "Petal.Error.PackageMalformed")
+                String(localized: "Error.PackageMalformed", table: "Petal")
             case .tooLarge:
-                String(localized: "Petal.Error.PackageTooLarge")
+                String(localized: "Error.PackageTooLarge", table: "Petal")
             }
         }
     }

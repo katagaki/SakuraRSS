@@ -56,13 +56,13 @@ struct PodcastDownloadButton: View {
                         .symbolRenderingMode(.hierarchical)
                 }
                 .buttonStyle(.plain)
-                .alert("Podcast.DeleteDownload", isPresented: $showingDeleteAlert) {
+                .alert(String(localized: "DeleteDownload", table: "Podcast"), isPresented: $showingDeleteAlert) {
                     Button("Shared.Cancel", role: .cancel) { }
-                    Button("Podcast.DeleteDownload.Confirm", role: .destructive) {
+                    Button(String(localized: "DeleteDownload.Confirm", table: "Podcast"), role: .destructive) {
                         try? downloadManager.deleteDownload(articleID: article.id)
                     }
                 } message: {
-                    Text("Podcast.DeleteDownload.Message")
+                    Text(String(localized: "DeleteDownload.Message", table: "Podcast"))
                 }
             } else {
                 Button {

@@ -12,7 +12,7 @@ extension YouTubePlayerView {
                 let categoryName = SponsorBlockCategory(rawValue: segment.category)?
                     .displayName ?? segment.category
                 skippedSegmentMessage = String(
-                    localized: "YouTube.SponsorBlock.Skipped \(categoryName)"
+                    localized: "YouTube.SponsorBlock.Skipped \(categoryName)", table: "Integrations"
                 )
                 Task {
                     try? await Task.sleep(for: .seconds(2))

@@ -133,13 +133,13 @@ struct ArticlesView: View {
                     }
                     .popover(isPresented: $isShowingMarkAllReadConfirmation) {
                         VStack(spacing: 12) {
-                            Text("Articles.MarkAllRead.Confirm")
+                            Text(String(localized: "MarkAllRead.Confirm", table: "Articles"))
                                 .font(.body)
                             Button {
                                 onMarkAllRead()
                                 isShowingMarkAllReadConfirmation = false
                             } label: {
-                                Text("Articles.MarkAllRead")
+                                Text(String(localized: "MarkAllRead", table: "Articles"))
                                     .frame(maxWidth: .infinity)
                                     .padding(.vertical, 6)
                             }
@@ -170,7 +170,7 @@ struct ArticlesView: View {
                     )
                     if hideReadSupported {
                         Section {
-                            Toggle("Articles.HideRead", isOn: $hideRead)
+                            Toggle(String(localized: "HideRead", table: "Articles"), isOn: $hideRead)
                         }
                     }
                 } label: {
@@ -212,17 +212,17 @@ struct ArticlesView: View {
             if effectiveStyle != .scroll {
                 if articles.isEmpty {
                     ContentUnavailableView {
-                        Label("Articles.Empty.Title",
+                        Label(String(localized: "Empty.Title", table: "Articles"),
                               systemImage: "doc.text")
                     } description: {
-                        Text("Articles.Empty.Description")
+                        Text(String(localized: "Empty.Description", table: "Articles"))
                     }
                 } else if visibleArticles.isEmpty && hideRead {
                     ContentUnavailableView {
-                        Label("Articles.AllRead.Title",
+                        Label(String(localized: "AllRead.Title", table: "Articles"),
                               systemImage: "checkmark.circle")
                     } description: {
-                        Text("Articles.AllRead.Description")
+                        Text(String(localized: "AllRead.Description", table: "Articles"))
                     }
                 }
             }
@@ -256,7 +256,7 @@ struct LoadPreviousArticlesButton: View {
         } label: {
             HStack {
                 Image(systemName: "clock.arrow.circlepath")
-                Text("Articles.LoadPrevious")
+                Text(String(localized: "LoadPrevious", table: "Articles"))
             }
             .font(.subheadline)
             .frame(maxWidth: .infinity)

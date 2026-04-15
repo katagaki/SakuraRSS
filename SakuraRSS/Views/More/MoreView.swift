@@ -31,39 +31,39 @@ struct MoreView: View {
                 Section {
                     AnalyticsView()
                 } header: {
-                    Text("Settings.Section.Analytics")
+                    Text(String(localized: "Section.Analytics", table: "Settings"))
                 }
 
                 Section {
-                    Picker("Settings.DefaultDisplayStyle", selection: $defaultDisplayStyle) {
-                        Text("Articles.Style.Inbox")
+                    Picker(String(localized: "DefaultDisplayStyle", table: "Settings"), selection: $defaultDisplayStyle) {
+                        Text(String(localized: "Style.Inbox", table: "Articles"))
                             .tag(FeedDisplayStyle.inbox)
-                        Text("Articles.Style.Compact")
+                        Text(String(localized: "Style.Compact", table: "Articles"))
                             .tag(FeedDisplayStyle.compact)
-                        Text("Articles.Style.Feed")
+                        Text(String(localized: "Style.Feed", table: "Articles"))
                             .tag(FeedDisplayStyle.feed)
                     }
-                    Picker("Settings.MarkAllReadPosition", selection: $markAllReadPosition) {
-                        Text("Settings.MarkAllReadPosition.Bottom")
+                    Picker(String(localized: "MarkAllReadPosition", table: "Settings"), selection: $markAllReadPosition) {
+                        Text(String(localized: "MarkAllReadPosition.Bottom", table: "Settings"))
                             .tag(MarkAllReadPosition.bottom)
-                        Text("Settings.MarkAllReadPosition.Top")
+                        Text(String(localized: "MarkAllReadPosition.Top", table: "Settings"))
                             .tag(MarkAllReadPosition.top)
-                        Text("Settings.MarkAllReadPosition.None")
+                        Text(String(localized: "MarkAllReadPosition.None", table: "Settings"))
                             .tag(MarkAllReadPosition.none)
                     }
-                    Picker("Settings.UnreadBadgeMode", selection: $unreadBadgeMode) {
+                    Picker(String(localized: "UnreadBadgeMode", table: "Settings"), selection: $unreadBadgeMode) {
                         if UIDevice.current.userInterfaceIdiom == .pad {
-                            Text("Settings.UnreadBadgeMode.HomeScreenOnly")
+                            Text(String(localized: "UnreadBadgeMode.HomeScreenOnly", table: "Settings"))
                                 .tag(UnreadBadgeMode.homeScreenOnly)
                         } else {
-                            Text("Settings.UnreadBadgeMode.HomeScreenAndHomeTab")
+                            Text(String(localized: "UnreadBadgeMode.HomeScreenAndHomeTab", table: "Settings"))
                                 .tag(UnreadBadgeMode.homeScreenAndHomeTab)
-                            Text("Settings.UnreadBadgeMode.HomeScreenOnly")
+                            Text(String(localized: "UnreadBadgeMode.HomeScreenOnly", table: "Settings"))
                                 .tag(UnreadBadgeMode.homeScreenOnly)
-                            Text("Settings.UnreadBadgeMode.HomeTabOnly")
+                            Text(String(localized: "UnreadBadgeMode.HomeTabOnly", table: "Settings"))
                                 .tag(UnreadBadgeMode.homeTabOnly)
                         }
-                        Text("Settings.UnreadBadgeMode.Off")
+                        Text(String(localized: "UnreadBadgeMode.Off", table: "Settings"))
                             .tag(UnreadBadgeMode.none)
                     }
                     .onChange(of: unreadBadgeMode) { _, newValue in
@@ -86,69 +86,69 @@ struct MoreView: View {
                         }
                     }
                 } header: {
-                    Text("Settings.Section.Display")
+                    Text(String(localized: "Section.Display", table: "Settings"))
                 }
 
                 Section {
-                    Toggle("Settings.BackgroundRefresh", isOn: $backgroundRefreshEnabled)
+                    Toggle(String(localized: "BackgroundRefresh", table: "Settings"), isOn: $backgroundRefreshEnabled)
                     if backgroundRefreshEnabled {
                         Picker(selection: $refreshInterval) {
-                            Text("Settings.Refresh.15min").tag(15)
-                            Text("Settings.Refresh.30min").tag(30)
-                            Text("Settings.Refresh.1hour").tag(60)
-                            Text("Settings.Refresh.4hours").tag(240)
-                            Text("Settings.Refresh.8hours").tag(480)
-                            Text("Settings.Refresh.12hours").tag(720)
-                            Text("Settings.Refresh.24hours").tag(1440)
+                            Text(String(localized: "Refresh.15min", table: "Settings")).tag(15)
+                            Text(String(localized: "Refresh.30min", table: "Settings")).tag(30)
+                            Text(String(localized: "Refresh.1hour", table: "Settings")).tag(60)
+                            Text(String(localized: "Refresh.4hours", table: "Settings")).tag(240)
+                            Text(String(localized: "Refresh.8hours", table: "Settings")).tag(480)
+                            Text(String(localized: "Refresh.12hours", table: "Settings")).tag(720)
+                            Text(String(localized: "Refresh.24hours", table: "Settings")).tag(1440)
                         } label: {
-                            Text("Settings.RefreshInterval")
+                            Text(String(localized: "RefreshInterval", table: "Settings"))
                         }
                     }
                     Picker(selection: $refreshCooldown) {
-                        Text("Settings.RefreshCooldown.Off").tag(FeedRefreshCooldown.off)
-                        Text("Settings.RefreshCooldown.1min").tag(FeedRefreshCooldown.oneMinute)
-                        Text("Settings.RefreshCooldown.5min").tag(FeedRefreshCooldown.fiveMinutes)
-                        Text("Settings.RefreshCooldown.10min").tag(FeedRefreshCooldown.tenMinutes)
-                        Text("Settings.RefreshCooldown.30min").tag(FeedRefreshCooldown.thirtyMinutes)
-                        Text("Settings.RefreshCooldown.1hour").tag(FeedRefreshCooldown.oneHour)
+                        Text(String(localized: "RefreshCooldown.Off", table: "Settings")).tag(FeedRefreshCooldown.off)
+                        Text(String(localized: "RefreshCooldown.1min", table: "Settings")).tag(FeedRefreshCooldown.oneMinute)
+                        Text(String(localized: "RefreshCooldown.5min", table: "Settings")).tag(FeedRefreshCooldown.fiveMinutes)
+                        Text(String(localized: "RefreshCooldown.10min", table: "Settings")).tag(FeedRefreshCooldown.tenMinutes)
+                        Text(String(localized: "RefreshCooldown.30min", table: "Settings")).tag(FeedRefreshCooldown.thirtyMinutes)
+                        Text(String(localized: "RefreshCooldown.1hour", table: "Settings")).tag(FeedRefreshCooldown.oneHour)
                     } label: {
-                        Text("Settings.RefreshCooldown")
+                        Text(String(localized: "RefreshCooldown", table: "Settings"))
                     }
                 } header: {
-                    Text("Settings.Section.Refresh")
+                    Text(String(localized: "Section.Refresh", table: "Settings"))
                 } footer: {
-                    Text("Settings.RefreshCooldown.Footer")
+                    Text(String(localized: "RefreshCooldown.Footer", table: "Settings"))
                 }
 
                 Section {
-                    NavigationLink("Settings.Section.InsightsAndIntelligence") {
+                    NavigationLink(String(localized: "Section.InsightsAndIntelligence", table: "Settings")) {
                         OnDeviceIntelligenceSettingsView()
                     }
-                    NavigationLink("Integrations.Podcast") {
+                    NavigationLink(String(localized: "Podcast", table: "Integrations")) {
                         PodcastSettingsView()
                     }
-                    NavigationLink("Integrations.YouTube") {
+                    NavigationLink(String(localized: "YouTube", table: "Integrations")) {
                         YouTubeSettingsView()
                     }
-                    NavigationLink("Integrations.X") {
+                    NavigationLink(String(localized: "X", table: "Integrations")) {
                         XSettingsView()
                     }
-                    NavigationLink("Integrations.Instagram") {
+                    NavigationLink(String(localized: "Instagram", table: "Integrations")) {
                         InstagramSettingsView()
                     }
-                    NavigationLink("Integrations.ClearThisPage") {
+                    NavigationLink(String(localized: "ClearThisPage", table: "Integrations")) {
                         ClearThisPageSettingsView()
                     }
                 } header: {
-                    Text("Settings.Section.Integrations")
+                    Text(String(localized: "Section.Integrations", table: "Settings"))
                 }
 
                 Section {
-                    NavigationLink("Labs.Title") {
+                    NavigationLink(String(localized: "Title", table: "Labs")) {
                         LabsView()
                     }
                 } header: {
-                    Text("Settings.Section.Labs")
+                    Text(String(localized: "Section.Labs", table: "Settings"))
                 }
 
                 Section {
@@ -156,7 +156,7 @@ struct MoreView: View {
                         iCloudBackupView()
                     } label: {
                         HStack {
-                            Text("iCloudBackup.Title")
+                            Text(String(localized: "iCloudBackup.Title", table: "DataManagement"))
                             Spacer()
                             if let lastBackup = iCloudBackupManager.shared.lastBackupDate {
                                 Text(lastBackup, style: .relative)
@@ -172,7 +172,7 @@ struct MoreView: View {
                             VStack(spacing: 6) {
                                 Image(systemName: "square.and.arrow.up")
                                     .font(.title2)
-                                Text("DataManagement.ExportOPML")
+                                Text(String(localized: "ExportOPML", table: "DataManagement"))
                                     .font(.body)
                             }
                             .frame(maxWidth: .infinity)
@@ -186,7 +186,7 @@ struct MoreView: View {
                             VStack(spacing: 6) {
                                 Image(systemName: "square.and.arrow.down")
                                     .font(.title2)
-                                Text("DataManagement.ImportOPML")
+                                Text(String(localized: "ImportOPML", table: "DataManagement"))
                                     .font(.body)
                             }
                             .frame(maxWidth: .infinity)
@@ -196,36 +196,36 @@ struct MoreView: View {
                     }
                     .listRowInsets(EdgeInsets())
                 } header: {
-                    Text("Settings.Section.DataManagement")
+                    Text(String(localized: "Section.DataManagement", table: "Settings"))
                 } footer: {
-                    Text("DataManagement.OPML.Footer")
+                    Text(String(localized: "OPML.Footer", table: "DataManagement"))
                 }
 
                 Section {
                     Menu {
-                        Button("DataManagement.Cleanup.Last24Hours") {
+                        Button(String(localized: "Cleanup.Last24Hours", table: "DataManagement")) {
                             selectedCleanupCutoff = Calendar.current.date(byAdding: .day, value: -1, to: Date())
-                            selectedCleanupLabel = String(localized: "DataManagement.Cleanup.Last24Hours")
+                            selectedCleanupLabel = String(localized: "Cleanup.Last24Hours", table: "DataManagement")
                             showCleanupConfirmation = true
                         }
-                        Button("DataManagement.Cleanup.Last7Days") {
+                        Button(String(localized: "Cleanup.Last7Days", table: "DataManagement")) {
                             selectedCleanupCutoff = Calendar.current.date(byAdding: .day, value: -7, to: Date())
-                            selectedCleanupLabel = String(localized: "DataManagement.Cleanup.Last7Days")
+                            selectedCleanupLabel = String(localized: "Cleanup.Last7Days", table: "DataManagement")
                             showCleanupConfirmation = true
                         }
-                        Button("DataManagement.Cleanup.Last4Weeks") {
+                        Button(String(localized: "Cleanup.Last4Weeks", table: "DataManagement")) {
                             selectedCleanupCutoff = Calendar.current.date(byAdding: .weekOfYear, value: -4, to: Date())
-                            selectedCleanupLabel = String(localized: "DataManagement.Cleanup.Last4Weeks")
+                            selectedCleanupLabel = String(localized: "Cleanup.Last4Weeks", table: "DataManagement")
                             showCleanupConfirmation = true
                         }
-                        Button("DataManagement.Cleanup.AllTime") {
+                        Button(String(localized: "Cleanup.AllTime", table: "DataManagement")) {
                             selectedCleanupCutoff = nil
-                            selectedCleanupLabel = String(localized: "DataManagement.Cleanup.AllTime")
+                            selectedCleanupLabel = String(localized: "Cleanup.AllTime", table: "DataManagement")
                             showCleanupConfirmation = true
                         }
                     } label: {
                         HStack {
-                            Text("DataManagement.Cleanup.Title")
+                            Text(String(localized: "Cleanup.Title", table: "DataManagement"))
                                 .foregroundStyle(.red)
                             Spacer()
                             if isCleaningUp {
@@ -278,10 +278,10 @@ struct MoreView: View {
             ) { result in
                 switch result {
                 case .success:
-                    alertMessage = String(localized: "DataManagement.Export.Success")
+                    alertMessage = String(localized: "Export.Success", table: "DataManagement")
                     showAlert = true
                 case .failure:
-                    alertMessage = String(localized: "DataManagement.Export.Error")
+                    alertMessage = String(localized: "Export.Error", table: "DataManagement")
                     showAlert = true
                 }
             }
@@ -294,7 +294,7 @@ struct MoreView: View {
                 case .success(let urls):
                     guard let url = urls.first else { return }
                     guard url.startAccessingSecurityScopedResource() else {
-                        alertMessage = String(localized: "DataManagement.Import.Error")
+                        alertMessage = String(localized: "Import.Error", table: "DataManagement")
                         showAlert = true
                         return
                     }
@@ -303,31 +303,31 @@ struct MoreView: View {
                         importedFileData = data
                         showImportModeChoice = true
                     } else {
-                        alertMessage = String(localized: "DataManagement.Import.Error")
+                        alertMessage = String(localized: "Import.Error", table: "DataManagement")
                         showAlert = true
                     }
                 case .failure:
-                    alertMessage = String(localized: "DataManagement.Import.Error")
+                    alertMessage = String(localized: "Import.Error", table: "DataManagement")
                     showAlert = true
                 }
             }
             .alert(
-                "DataManagement.Import.ModeTitle",
+                String(localized: "Import.ModeTitle", table: "DataManagement"),
                 isPresented: $showImportModeChoice
             ) {
-                Button("DataManagement.Import.Merge") {
+                Button(String(localized: "Import.Merge", table: "DataManagement")) {
                     performImport(overwrite: false)
                 }
-                Button("DataManagement.Import.Overwrite", role: .destructive) {
+                Button(String(localized: "Import.Overwrite", table: "DataManagement"), role: .destructive) {
                     performImport(overwrite: true)
                 }
                 Button("Shared.Cancel", role: .cancel) {
                     importedFileData = nil
                 }
             } message: {
-                Text("DataManagement.Import.ModeMessage")
+                Text(String(localized: "Import.ModeMessage", table: "DataManagement"))
             }
-            .alert("DataManagement.Title", isPresented: $showAlert) {
+            .alert(String(localized: "Title", table: "DataManagement"), isPresented: $showAlert) {
                 Button("Shared.OK") {}
             } message: {
                 if let alertMessage {
@@ -335,23 +335,23 @@ struct MoreView: View {
                 }
             }
             .alert(
-                "DataManagement.Cleanup.ConfirmTitle",
+                String(localized: "Cleanup.ConfirmTitle", table: "DataManagement"),
                 isPresented: $showCleanupConfirmation
             ) {
-                Button("DataManagement.Cleanup.Confirm", role: .destructive) {
+                Button(String(localized: "Cleanup.Confirm", table: "DataManagement"), role: .destructive) {
                     isCleaningUp = true
                     UIApplication.shared.isIdleTimerDisabled = true
                     Task {
                         await feedManager.deleteArticlesAndVacuum(olderThan: selectedCleanupCutoff)
                         UIApplication.shared.isIdleTimerDisabled = false
                         isCleaningUp = false
-                        alertMessage = String(localized: "DataManagement.Cleanup.Success")
+                        alertMessage = String(localized: "Cleanup.Success", table: "DataManagement")
                         showAlert = true
                     }
                 }
                 Button("Shared.Cancel", role: .cancel) {}
             } message: {
-                Text("DataManagement.Cleanup.ConfirmMessage \(selectedCleanupLabel)")
+                Text(String(localized: "Cleanup.ConfirmMessage \(selectedCleanupLabel)", table: "DataManagement"))
             }
         }
     }
@@ -361,9 +361,9 @@ struct MoreView: View {
         importedFileData = nil
         do {
             let count = try feedManager.importOPML(data: data, overwrite: overwrite)
-            alertMessage = String(localized: "DataManagement.Import.Success \(count)")
+            alertMessage = String(localized: "Import.Success \(count)", table: "DataManagement")
         } catch {
-            alertMessage = String(localized: "DataManagement.Import.Error")
+            alertMessage = String(localized: "Import.Error", table: "DataManagement")
         }
         showAlert = true
     }

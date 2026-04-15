@@ -4,9 +4,9 @@ struct ClearThisPageSettingsView: View {
 
     private var descriptionText: AttributedString {
         var attributed = AttributedString(
-            String(localized: "Settings.ClearThisPage.About")
+            String(localized: "ClearThisPage.About", table: "Settings")
             + "\n\n"
-            + String(localized: "Settings.ClearThisPage.Footer")
+            + String(localized: "ClearThisPage.Footer", table: "Settings")
         )
         let urlString = "https://clearthis.page"
         if let range = attributed.range(of: urlString),
@@ -21,10 +21,10 @@ struct ClearThisPageSettingsView: View {
             Section {
                 Text(descriptionText)
             } header: {
-                Text("Settings.ClearThisPage.AboutHeader")
+                Text(String(localized: "ClearThisPage.AboutHeader", table: "Settings"))
             }
         }
-        .navigationTitle("Integrations.ClearThisPage")
+        .navigationTitle(String(localized: "ClearThisPage", table: "Integrations"))
         .toolbarTitleDisplayMode(.inline)
         .scrollContentBackground(.hidden)
         .sakuraBackground()
