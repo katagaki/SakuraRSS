@@ -1,4 +1,5 @@
 import Foundation
+import UIKit
 
 extension FeedManager {
 
@@ -46,6 +47,17 @@ extension FeedManager {
 
         let feedTitle = result.displayName ?? feed.title
 
+        // Download the profile photo only on the first-ever refresh of
+        // this feed.  After that, metadata is frozen and user edits
+        // from the edit sheet are authoritative.
+        var profileImage: UIImage?
+        if feed.lastFetched == nil,
+           let imageURLString = result.profileImageURL,
+           let imageURL = URL(string: imageURLString),
+           let (imageData, _) = try? await FaviconCache.urlSession.data(from: imageURL) {
+            profileImage = UIImage(data: imageData)
+        }
+
         // Run all DB writes off the main thread
         let database = database
         try await Task.detached {
@@ -55,11 +67,11 @@ extension FeedManager {
             SpotlightIndexer.indexArticles(articlesToIndex, feedTitle: feedTitle)
         }.value
 
-        // Sync the scraped display name if the user hasn't customized
-        // the title.  Icons are deliberately left alone here — the user
-        // can pull the profile photo via `FeedEditSheet`'s "Fetch icon
-        // from feed" action if they want it.
-        await applyScraperMetadataRefresh(feed: feed, scrapedTitle: feedTitle)
+        // Install title + profile photo only on the first-ever fetch.
+        // The helper itself no-ops on subsequent refreshes.
+        await applyScraperMetadataRefresh(
+            feed: feed, scrapedTitle: feedTitle, profileImage: profileImage
+        )
 
         if reloadData {
             await loadFromDatabaseInBackground()

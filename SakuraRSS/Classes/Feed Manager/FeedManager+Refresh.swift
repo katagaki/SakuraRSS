@@ -74,18 +74,22 @@ extension FeedManager {
                 SpotlightIndexer.indexArticles(articlesToIndex, feedTitle: feedTitleForIndex)
             }
 
-            if parsed.isPodcast && !feed.isPodcast {
-                try database.updateFeedIsPodcast(id: feed.id, isPodcast: true)
-            } else if !parsed.isPodcast && feed.isPodcast {
-                try database.updateFeedIsPodcast(id: feed.id, isPodcast: false)
-            }
-            // Respect user-customized titles: when the user has edited the
-            // title via the edit sheet, the refresh should never silently
-            // overwrite that override with whatever the remote feed
-            // currently advertises.
-            if updateTitle, !feed.isTitleCustomized,
-               !parsed.title.isEmpty, parsed.title != feed.title {
-                try database.updateFeed(id: feed.id, title: parsed.title, category: feed.category)
+            // Feed metadata (title, isPodcast) is fetched exactly once,
+            // on the first refresh after add.  Subsequent refreshes
+            // never touch these fields — edits from the edit sheet are
+            // the sole source of truth after add.
+            if feed.lastFetched == nil {
+                if parsed.isPodcast && !feed.isPodcast {
+                    try database.updateFeedIsPodcast(id: feed.id, isPodcast: true)
+                } else if !parsed.isPodcast && feed.isPodcast {
+                    try database.updateFeedIsPodcast(id: feed.id, isPodcast: false)
+                }
+                if updateTitle, !feed.isTitleCustomized,
+                   !parsed.title.isEmpty, parsed.title != feed.title {
+                    try database.updateFeed(
+                        id: feed.id, title: parsed.title, category: feed.category
+                    )
+                }
             }
             try database.updateFeedLastFetched(id: feed.id, date: Date())
         }.value

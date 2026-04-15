@@ -1,4 +1,5 @@
 import Foundation
+import UIKit
 
 extension FeedManager {
 
@@ -55,32 +56,42 @@ extension FeedManager {
         loadFromDatabase()
     }
 
-    /// Applies a title update from a social-feed scraper (X, Instagram,
-    /// YouTube playlist).  Each scraper fetches a display name; this
-    /// helper centralizes the "honour user-customized titles, otherwise
-    /// sync the scraped title" rule the three paths share so the
-    /// title-customization logic lives in exactly one place.
-    ///
-    /// Icons are intentionally *not* touched here.  Auto-installing a
-    /// profile photo on the first post-add refresh races with any icon
-    /// the user picks from the edit sheet in the interim, and the
-    /// stale-snapshot check would overwrite their choice.  Users who
-    /// want the scraped avatar can pull it in explicitly via
-    /// `FeedEditSheet`'s "Fetch icon from feed" action.
+    /// Applies the title + profile photo fetched by a social-feed
+    /// scraper (X, Instagram, YouTube playlist) on the *first* refresh
+    /// of a freshly-added feed.  Once `feed.lastFetched != nil` this
+    /// helper is a no-op: every subsequent refresh leaves the title
+    /// and icon alone, so user edits from the edit sheet are the sole
+    /// source of truth after add.
     func applyScraperMetadataRefresh(
         feed: Feed,
-        scrapedTitle: String
+        scrapedTitle: String,
+        profileImage: UIImage?
     ) async {
+        guard feed.lastFetched == nil else { return }
         let effectiveTitle = feed.isTitleCustomized ? feed.title : scrapedTitle
-        guard feed.title != effectiveTitle else { return }
+        let shouldInstallProfilePhoto = profileImage != nil && feed.customIconURL == nil
         let database = database
-        try? await Task.detached {
-            try database.updateFeedDetails(
-                id: feed.id, title: effectiveTitle, url: feed.url,
-                customIconURL: feed.customIconURL,
-                isTitleCustomized: feed.isTitleCustomized
+        if shouldInstallProfilePhoto, let image = profileImage {
+            await FaviconCache.shared.setCustomFavicon(
+                image, feedID: feed.id, skipTrimming: true
             )
-        }.value
+            try? await Task.detached {
+                try database.updateFeedDetails(
+                    id: feed.id, title: effectiveTitle, url: feed.url,
+                    customIconURL: "photo",
+                    isTitleCustomized: feed.isTitleCustomized
+                )
+            }.value
+            await MainActor.run { self.notifyFaviconChange() }
+        } else if feed.title != effectiveTitle {
+            try? await Task.detached {
+                try database.updateFeedDetails(
+                    id: feed.id, title: effectiveTitle, url: feed.url,
+                    customIconURL: feed.customIconURL,
+                    isTitleCustomized: feed.isTitleCustomized
+                )
+            }.value
+        }
     }
 
     func updateFeedDetails(_ feed: Feed, title: String, url: String,

@@ -1,4 +1,5 @@
 import Foundation
+import UIKit
 
 extension FeedManager {
 
@@ -41,6 +42,17 @@ extension FeedManager {
 
         let feedTitle = result.playlistTitle ?? feed.title
 
+        // Download the channel avatar only on the first-ever refresh of
+        // this feed.  After that, metadata is frozen and user edits
+        // from the edit sheet are authoritative.
+        var avatarImage: UIImage?
+        if feed.lastFetched == nil,
+           let avatarURLString = result.channelAvatarURL,
+           let avatarURL = URL(string: avatarURLString),
+           let (imageData, _) = try? await FaviconCache.urlSession.data(from: avatarURL) {
+            avatarImage = UIImage(data: imageData)
+        }
+
         // Run all DB writes off the main thread
         let database = database
         try await Task.detached {
@@ -52,11 +64,11 @@ extension FeedManager {
             SpotlightIndexer.indexArticles(articlesToIndex, feedTitle: feedTitle)
         }.value
 
-        // Sync the scraped playlist title if the user hasn't customized
-        // it.  Icons are deliberately left alone here — the user can
-        // pull the channel avatar via `FeedEditSheet`'s "Fetch icon
-        // from feed" action if they want it.
-        await applyScraperMetadataRefresh(feed: feed, scrapedTitle: feedTitle)
+        // Install title + channel avatar only on the first-ever fetch.
+        // The helper itself no-ops on subsequent refreshes.
+        await applyScraperMetadataRefresh(
+            feed: feed, scrapedTitle: feedTitle, profileImage: avatarImage
+        )
 
         if reloadData {
             await loadFromDatabaseInBackground()
