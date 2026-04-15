@@ -284,27 +284,53 @@ nonisolated enum PetalZip {
 // MARK: - Little-Endian Read/Write
 
 private extension Data {
+
+    /// Appends a 16-bit value in little-endian byte order.
+    ///
+    /// The global `Swift.withUnsafeBytes(of:_:)` is spelled out in
+    /// full because inside a `Data` extension the unqualified name
+    /// resolves to `Data.withUnsafeBytes`, which has the wrong
+    /// signature for a scalar temporary.
     mutating func appendLE(_ value: UInt16) {
         var little = value.littleEndian
-        withUnsafeBytes(of: &little) { append(contentsOf: $0) }
-    }
-    mutating func appendLE(_ value: UInt32) {
-        var little = value.littleEndian
-        withUnsafeBytes(of: &little) { append(contentsOf: $0) }
-    }
-
-    func readLE(_ type: UInt16.Type, at offset: Int) -> UInt16 {
-        withUnsafeBytes { pointer in
-            UInt16(pointer[offset]) | (UInt16(pointer[offset + 1]) << 8)
+        Swift.withUnsafeBytes(of: &little) { bytes in
+            self.append(contentsOf: bytes)
         }
     }
 
-    func readLE(_ type: UInt32.Type, at offset: Int) -> UInt32 {
-        withUnsafeBytes { pointer in
-            UInt32(pointer[offset])
-                | (UInt32(pointer[offset + 1]) << 8)
-                | (UInt32(pointer[offset + 2]) << 16)
-                | (UInt32(pointer[offset + 3]) << 24)
+    mutating func appendLE(_ value: UInt32) {
+        var little = value.littleEndian
+        Swift.withUnsafeBytes(of: &little) { bytes in
+            self.append(contentsOf: bytes)
+        }
+    }
+
+    /// Reads a 16-bit little-endian value at the given byte offset.
+    ///
+    /// Uses `load(fromByteOffset:as: UInt8.self)` in preference to
+    /// `buffer[offset]`: the subscript is overloaded on both `Int`
+    /// and `Range<Int>`, and in a generic context Swift can't always
+    /// pick the right one without a type annotation.  Byte-by-byte
+    /// loads sidestep alignment concerns entirely.
+    func readLE(_: UInt16.Type, at offset: Int) -> UInt16 {
+        self.withUnsafeBytes { (buffer: UnsafeRawBufferPointer) -> UInt16 in
+            let b0 = UInt16(buffer.load(fromByteOffset: offset, as: UInt8.self))
+            let b1 = UInt16(buffer.load(fromByteOffset: offset + 1, as: UInt8.self))
+            return b0 | (b1 << 8)
+        }
+    }
+
+    func readLE(_: UInt32.Type, at offset: Int) -> UInt32 {
+        self.withUnsafeBytes { (buffer: UnsafeRawBufferPointer) -> UInt32 in
+            let b0 = UInt32(buffer.load(fromByteOffset: offset, as: UInt8.self))
+            let b1 = UInt32(buffer.load(fromByteOffset: offset + 1, as: UInt8.self))
+            let b2 = UInt32(buffer.load(fromByteOffset: offset + 2, as: UInt8.self))
+            let b3 = UInt32(buffer.load(fromByteOffset: offset + 3, as: UInt8.self))
+            // Keep the expression in two halves so the type checker
+            // doesn't time out trying to resolve a four-term OR.
+            let low: UInt32 = b0 | (b1 << 8)
+            let high: UInt32 = (b2 << 16) | (b3 << 24)
+            return low | high
         }
     }
 }
