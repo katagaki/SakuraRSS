@@ -31,9 +31,9 @@ struct SummarizeButton: View {
                 }
             } label: {
                 Label(
-                    String(localized: showingSummary
-                           ? String(localized: "Article.ShowOriginal", table: "Articles")
-                           : String(localized: "Article.ShowSummary", table: "Articles")),
+                    showingSummary
+                        ? String(localized: "Article.ShowOriginal", table: "Articles")
+                        : String(localized: "Article.ShowSummary", table: "Articles"),
                     systemImage: showingSummary
                         ? "doc.plaintext" : "apple.intelligence"
                 )

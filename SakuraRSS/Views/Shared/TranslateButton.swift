@@ -15,9 +15,9 @@ struct TranslateButton: View {
                 }
             } label: {
                 Label(
-                    String(localized: showingTranslation
-                           ? String(localized: "Article.ShowOriginal", table: "Articles")
-                           : String(localized: "Article.ShowTranslation", table: "Articles")),
+                    showingTranslation
+                        ? String(localized: "Article.ShowOriginal", table: "Articles")
+                        : String(localized: "Article.ShowTranslation", table: "Articles"),
                     systemImage: showingTranslation
                         ? "doc.plaintext" : "translate"
                 )
