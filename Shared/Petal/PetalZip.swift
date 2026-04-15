@@ -283,7 +283,11 @@ nonisolated enum PetalZip {
 
 // MARK: - Little-Endian Read/Write
 
-private extension Data {
+// `nonisolated` is required because the project builds with
+// MainActor-as-default isolation inference — without it these
+// helpers get implicitly annotated `@MainActor` and can't be
+// called from the `nonisolated enum PetalZip` above.
+nonisolated private extension Data {
 
     /// Appends a 16-bit value in little-endian byte order.
     ///
