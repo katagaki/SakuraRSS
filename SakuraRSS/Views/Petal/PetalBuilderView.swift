@@ -33,7 +33,7 @@ struct PetalBuilderView: View {
 
     let mode: Mode
 
-    @State private var recipe = PetalRecipe(name: "", siteURL: "", itemSelector: "article")
+    @State private var recipe = PetalRecipe(name: "", siteURL: "", itemSelector: "")
     @State private var fetchedHTML: String?
     @State private var previewArticles: [ParsedArticle] = []
     @State private var isFetching = false
@@ -106,7 +106,7 @@ struct PetalBuilderView: View {
                     hasInitialized = true
                     switch mode {
                     case .create(let initialURL):
-                        recipe = PetalRecipe(name: "", siteURL: initialURL, itemSelector: "article")
+                        recipe = PetalRecipe(name: "", siteURL: initialURL, itemSelector: "")
                     case .edit(_, let existingRecipe):
                         recipe = existingRecipe
                     }
