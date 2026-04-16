@@ -108,6 +108,7 @@ struct PetalManagementView: View {
             .frame(maxWidth: .infinity, alignment: .leading)
             .contentShape(.rect)
         }
+        .foregroundStyle(.primary)
         .contextMenu {
             Button {
                 exportPetal(feed: feed)
