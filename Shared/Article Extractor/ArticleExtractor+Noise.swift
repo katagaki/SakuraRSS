@@ -212,6 +212,12 @@ extension ArticleExtractor {
         "[aria-label*=Advertisement]",
         "[aria-label*=sponsored]",
         "[aria-label*=Sponsored]",
+        // NYTimes
+        ".ad-text",
+        ".ad-header",
+        "[data-testid=StandardAd]",
+        "[data-testid=CompanionAd]",
+        "[data-testid=inline-message]",
         // Affiliate / FTC disclosures
         ".ad-disclaimer",
         ".ad-disclaimer-container",
@@ -488,7 +494,8 @@ extension ArticleExtractor {
         "ad-disclaimer", "after_disclaimer",
         "visitor-promo", "youtube-video",
         "youtube-promo", "youtube-cta", "youtube-subscribe",
-        "channel-promo"
+        "channel-promo",
+        "ad-text", "ad-header"
     ]
 
     static func removeNoise(from element: Element) {
@@ -502,6 +509,7 @@ extension ArticleExtractor {
         }
 
         removeNoiseByClassPatterns(from: element)
+        removeAdvertisementTextBlocks(from: element)
         removeMenuLists(from: element)
         removeSuggestionSections(from: element)
     }
@@ -517,6 +525,42 @@ extension ArticleExtractor {
                 for pattern in noiseClassPatterns where combined.contains(pattern) {
                     try element.remove()
                     break
+                }
+            }
+        } catch {
+            // Best-effort; failures are non-critical
+        }
+    }
+
+    /// Standalone ad-label text patterns typically injected by news sites
+    /// (e.g. NYTimes "ADVERTISEMENT" paragraphs).
+    static let advertisementTextPatterns: Set<String> = [
+        "advertisement",
+        "advertising",
+        "sponsored content",
+        "paid post",
+        "paid content"
+    ]
+
+    /// Returns true when the trimmed, lowercased text matches a known ad label.
+    static func isAdvertisementText(_ text: String) -> Bool {
+        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        return advertisementTextPatterns.contains(trimmed)
+    }
+
+    /// Removes block-level elements (`<p>`, `<div>`, `<span>`) whose only
+    /// text content is a known ad label such as "ADVERTISEMENT".
+    private static func removeAdvertisementTextBlocks(from element: Element) {
+        do {
+            let candidates = try element.select("p, div, span")
+            for el in candidates {
+                let text = try el.text()
+                guard isAdvertisementText(text) else { continue }
+                // Only remove if the element has no meaningful children
+                // (images, videos, etc.) — just the ad label text.
+                let hasMedia = !(try el.select("img, video, picture, iframe")).isEmpty()
+                if !hasMedia {
+                    try el.remove()
                 }
             }
         } catch {

@@ -96,9 +96,10 @@ struct ArticleExtractor { // swiftlint:disable:this type_body_length
             removeNoise(from: doc)
             let element = try findMainContent(from: doc)
             removeNoise(from: element)
-            let paragraphs = try extractParagraphs(from: element,
-                                                   baseURL: baseURL,
-                                                   excludeTitle: excludeTitle)
+            let rawParagraphs = try extractParagraphs(from: element,
+                                                      baseURL: baseURL,
+                                                      excludeTitle: excludeTitle)
+            let paragraphs = rawParagraphs.filter { !isAdvertisementText($0) }
             let result = paragraphs.joined(separator: "\n\n")
             var cleaned = stripRemainingHTMLTags(result)
             cleaned = resolveMarkdownLinks(in: cleaned, baseURL: baseURL)
