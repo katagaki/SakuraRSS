@@ -64,8 +64,7 @@ struct AddFeedForm: View {
                 } header: {
                     Text(String(localized: "AddFeed.Section.Search", table: "Feeds"))
                 } footer: {
-                    let appName = Bundle.main.object(forInfoDictionaryKey: "CFBundleName") as? String ?? "Sakura"
-                    Text(String(localized: "AddFeed.Section.SearchFooter.\(appName)", table: "Feeds"))
+                    Text(String(localized: "AddFeed.Section.SearchFooter.\("Sakura")", table: "Feeds"))
                 }
 
                 if urlInput.isEmpty {
