@@ -6,7 +6,7 @@ struct AddFeedView: View {
     @Environment(\.dismiss) var dismiss
 
     var initialURL: String = ""
-    @State private var urlInput: String
+    @State private var urlInput = ""
     @State private var discoveredFeeds: [DiscoveredFeed] = []
     @State private var isSearching = false
     @State private var errorMessage: String?
@@ -21,11 +21,6 @@ struct AddFeedView: View {
     @State private var showPetalBuilder = false
     @AppStorage("Labs.PetalRecipes") private var petalRecipesEnabled: Bool = false
     @FocusState private var isURLFieldFocused: Bool
-
-    init(initialURL: String = "") {
-        self.initialURL = initialURL
-        _urlInput = State(initialValue: initialURL)
-    }
 
     /// The URL to seed the Petal builder with when the user taps
     /// "Generate with Petal" after a failed search.  Prefers the
@@ -216,6 +211,7 @@ struct AddFeedView: View {
             .onAppear {
                 guard !hasInitialized else { return }
                 hasInitialized = true
+                urlInput = initialURL
                 suggestedTopics = SuggestedFeedsLoader.topicsForCurrentRegion()
                 if !urlInput.isEmpty {
                     searchFeeds()
