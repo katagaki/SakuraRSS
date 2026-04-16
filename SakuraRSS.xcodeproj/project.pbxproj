@@ -88,6 +88,7 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				"Article Extractor/ArticleExtractor.swift",
+				"Article Extractor/ArticleExtractor+Embeds.swift",
 				"Article Extractor/ArticleExtractor+Noise.swift",
 				"Article Extractor/ArticleExtractor+TextContent.swift",
 				"Article Extractor/WebViewExtractor.swift",
@@ -117,6 +118,7 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				"Article Extractor/ArticleExtractor.swift",
+				"Article Extractor/ArticleExtractor+Embeds.swift",
 				"Article Extractor/ArticleExtractor+Noise.swift",
 				"Article Extractor/ArticleExtractor+TextContent.swift",
 				"Article Extractor/WebViewExtractor.swift",

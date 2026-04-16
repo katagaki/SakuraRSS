@@ -553,6 +553,10 @@ private struct ScrollExpandedArticleView: View {
                             .clipShape(.rect(cornerRadius: 12))
                         case .video(let url):
                             VideoBlockView(url: url)
+                        case .youtube(let videoID):
+                            YouTubeEmbedBlockView(videoID: videoID)
+                        case .xPost(let url):
+                            XEmbedBlockView(url: url)
                         }
                     }
                     .id("\(showingSummary)-\(showingTranslation)")

@@ -93,6 +93,10 @@ struct ArticleExtractor { // swiftlint:disable:this type_body_length
 
         do {
             let doc = try SwiftSoup.parse(html)
+            // Promote social embeds (YouTube, X) into marker paragraphs
+            // before noise removal so selectors targeting twitter-tweet
+            // blockquotes and iframes don't strip the content entirely.
+            promoteInlineEmbeds(in: doc, baseURL: baseURL)
             removeNoise(from: doc)
             let element = try findMainContent(from: doc)
             removeNoise(from: element)
@@ -103,6 +107,7 @@ struct ArticleExtractor { // swiftlint:disable:this type_body_length
             let result = paragraphs.joined(separator: "\n\n")
             var cleaned = stripRemainingHTMLTags(result)
             cleaned = resolveMarkdownLinks(in: cleaned, baseURL: baseURL)
+            cleaned = compactWhitespace(in: cleaned)
             #if DEBUG
             debugPrint("[Extract] extractText: SwiftSoup produced \(paragraphs.count) paragraphs (\(cleaned.count) chars)")
             #endif
@@ -300,6 +305,14 @@ struct ArticleExtractor { // swiftlint:disable:this type_body_length
                     #endif
                 }
             } else if blockElements.contains(tag) || isLeafBlock(child) {
+                // Fast-path: paragraphs injected by `promoteInlineEmbeds`
+                // contain only an embed marker.  Skip `textContent` so
+                // `ArticleMarker.escape` doesn't mangle the marker delimiters.
+                if let rawText = try? child.text(),
+                   let marker = embedMarkerParagraph(rawText) {
+                    paragraphs.append(marker)
+                    continue
+                }
                 var text = try textContent(of: child, baseURL: baseURL)
                 if !text.isEmpty {
                     let headingTags = ["h1", "h2", "h3", "h4", "h5", "h6"]
