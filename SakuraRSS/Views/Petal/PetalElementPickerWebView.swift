@@ -104,8 +104,7 @@ private extension PetalElementPickerWebView {
         '  user-select: none !important;' +
         '  pointer-events: auto !important;' +
         '}' +
-        '.petal-tap { outline: 3px solid rgba(255,59,48,0.8) !important;' +
-        '             background-color: rgba(255,59,48,0.08) !important; }';
+        '.petal-tap { outline: 3px solid rgba(255,59,48,0.8) !important; }';
       document.head.appendChild(style);
 
       document.addEventListener('contextmenu', function (e) {
