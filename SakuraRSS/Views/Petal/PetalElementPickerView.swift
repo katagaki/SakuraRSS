@@ -29,7 +29,7 @@ struct PetalElementPickerView: View {
             .toolbarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
-                    Button(String(localized: "Shared.Done")) { dismiss() }
+                    Button(role: .confirm) { dismiss() }
                 }
             }
             .safeAreaInset(edge: .bottom) {
