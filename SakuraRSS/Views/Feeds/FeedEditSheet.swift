@@ -8,9 +8,11 @@ struct FeedEditSheet: View {
 
     let feed: Feed
 
-    @State private var name = ""
-    @State private var url = ""
-    @State var iconURLInput = ""
+    @SceneStorage("FeedEditSheet.name") private var name = ""
+    @SceneStorage("FeedEditSheet.url") private var url = ""
+    @SceneStorage("FeedEditSheet.iconURLInput") var iconURLInput = ""
+    @SceneStorage("FeedEditSheet.useDefaultIcon") var useDefaultIcon = false
+    @SceneStorage("FeedEditSheet.hasInitialized") private var hasInitialized = false
     @State private var openMode: FeedOpenMode = .inAppViewer
     @State private var articleSource: ArticleSource = .automatic
     @State var selectedPhoto: PhotosPickerItem?
@@ -18,9 +20,7 @@ struct FeedEditSheet: View {
     @State var currentFavicon: UIImage?
     @State var isFetchingIcon = false
     @State var showIconFetchError = false
-    @State var useDefaultIcon = false
     @State private var showPetalBuilder = false
-    @State private var hasInitialized = false
 
     var body: some View {
         NavigationStack {
@@ -208,6 +208,7 @@ struct FeedEditSheet: View {
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button(role: .cancel) {
+                        clearSceneStorage()
                         dismiss()
                     }
                 }
@@ -219,6 +220,12 @@ struct FeedEditSheet: View {
                 }
             }
             .onAppear {
+                if let raw = UserDefaults.standard.string(forKey: "openMode-\(feed.id)") {
+                    openMode = FeedOpenMode(rawValue: raw) ?? .inAppViewer
+                }
+                if let raw = UserDefaults.standard.string(forKey: "articleSource-\(feed.id)") {
+                    articleSource = ArticleSource(rawValue: raw) ?? .automatic
+                }
                 guard !hasInitialized else { return }
                 hasInitialized = true
                 name = feed.title
@@ -228,12 +235,6 @@ struct FeedEditSheet: View {
                 iconURLInput = (existingIconURL == "photo" || existingIconURL == "none")
                     ? "" : (existingIconURL ?? "")
                 useDefaultIcon = existingIconURL == "none"
-                if let raw = UserDefaults.standard.string(forKey: "openMode-\(feed.id)") {
-                    openMode = FeedOpenMode(rawValue: raw) ?? .inAppViewer
-                }
-                if let raw = UserDefaults.standard.string(forKey: "articleSource-\(feed.id)") {
-                    articleSource = ArticleSource(rawValue: raw) ?? .automatic
-                }
             }
             .task {
                 currentFavicon = await loadCurrentFavicon()
@@ -322,7 +323,16 @@ struct FeedEditSheet: View {
         } else {
             UserDefaults.standard.set(articleSource.rawValue, forKey: "articleSource-\(feed.id)")
         }
+        clearSceneStorage()
         dismiss()
+    }
+
+    private func clearSceneStorage() {
+        name = ""
+        url = ""
+        iconURLInput = ""
+        useDefaultIcon = false
+        hasInitialized = false
     }
 
 }
