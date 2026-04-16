@@ -36,6 +36,7 @@ struct PetalElementPickerWebView: UIViewRepresentable {
         config.userContentController = controller
         let webView = WKWebView(frame: .zero, configuration: config)
         webView.navigationDelegate = context.coordinator
+        webView.allowsLinkPreview = false
         webView.loadHTMLString(html, baseURL: baseURL)
         return webView
     }
@@ -96,10 +97,20 @@ private extension PetalElementPickerWebView {
     (function () {
       var style = document.createElement('style');
       style.textContent =
-        '* { -webkit-tap-highlight-color: transparent; }' +
+        '*, *::before, *::after {' +
+        '  -webkit-tap-highlight-color: transparent !important;' +
+        '  -webkit-touch-callout: none !important;' +
+        '  -webkit-user-select: none !important;' +
+        '  user-select: none !important;' +
+        '  pointer-events: auto !important;' +
+        '}' +
         '.petal-tap { outline: 3px solid rgba(0,122,255,0.7) !important;' +
         '             background-color: rgba(0,122,255,0.08) !important; }';
       document.head.appendChild(style);
+
+      document.addEventListener('contextmenu', function (e) {
+        e.preventDefault();
+      }, true);
 
       function cssEscape(v) {
         return (typeof CSS !== 'undefined' && CSS.escape)
