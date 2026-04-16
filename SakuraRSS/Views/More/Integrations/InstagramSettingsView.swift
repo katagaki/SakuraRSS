@@ -12,27 +12,27 @@ struct InstagramSettingsView: View {
     var body: some View {
         List {
             Section {
-                Toggle(String(localized: "InstagramProfileFeeds", table: "Labs"),
+                Toggle(String(localized: "InstagramProfileFeeds", table: "Integrations"),
                        isOn: $instagramProfileFeedsEnabled)
 
                 if instagramProfileFeedsEnabled {
                     if isCheckingLogin {
                         ProgressView()
                     } else if isInstagramSignedIn {
-                        Button(String(localized: "InstagramProfileFeeds.SignOut", table: "Labs")) {
+                        Button(String(localized: "InstagramProfileFeeds.SignOut", table: "Integrations")) {
                             Task {
                                 await InstagramProfileScraper.clearInstagramSession()
                                 isInstagramSignedIn = false
                             }
                         }
                     } else {
-                        Button(String(localized: "InstagramProfileFeeds.SignIn", table: "Labs")) {
+                        Button(String(localized: "InstagramProfileFeeds.SignIn", table: "Integrations")) {
                             showInstagramLogin = true
                         }
                     }
                 }
             } footer: {
-                Text(String(localized: "InstagramProfileFeeds.Footer", table: "Labs"))
+                Text(String(localized: "InstagramProfileFeeds.Footer", table: "Integrations"))
             }
 
             if instagramProfileFeedsEnabled {

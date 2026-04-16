@@ -11,13 +11,13 @@ struct XSettingsView: View {
     var body: some View {
         List {
             Section {
-                Toggle(String(localized: "XProfileFeeds", table: "Labs"), isOn: $xProfileFeedsEnabled)
+                Toggle(String(localized: "XProfileFeeds", table: "Integrations"), isOn: $xProfileFeedsEnabled)
 
                 if xProfileFeedsEnabled {
                     if isCheckingLogin {
                         ProgressView()
                     } else if isXSignedIn {
-                        Button(String(localized: "XProfileFeeds.RefreshAuth", table: "Labs")) {
+                        Button(String(localized: "XProfileFeeds.RefreshAuth", table: "Integrations")) {
                             Task {
                                 await MainActor.run {
                                     XProfileScraper.queryIDsFetched = false
@@ -25,20 +25,20 @@ struct XSettingsView: View {
                                 await XProfileScraper.fetchQueryIDsIfNeeded()
                             }
                         }
-                        Button(String(localized: "XProfileFeeds.SignOut", table: "Labs")) {
+                        Button(String(localized: "XProfileFeeds.SignOut", table: "Integrations")) {
                             Task {
                                 await XProfileScraper.clearXSession()
                                 isXSignedIn = false
                             }
                         }
                     } else {
-                        Button(String(localized: "XProfileFeeds.SignIn", table: "Labs")) {
+                        Button(String(localized: "XProfileFeeds.SignIn", table: "Integrations")) {
                             showXLogin = true
                         }
                     }
                 }
             } footer: {
-                Text(String(localized: "XProfileFeeds.Footer", table: "Labs"))
+                Text(String(localized: "XProfileFeeds.Footer", table: "Integrations"))
             }
         }
         .animation(.smooth.speed(2.0), value: xProfileFeedsEnabled)

@@ -7,55 +7,55 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Über Petal"
+            "value": "Über Web-Feeds"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "About Petal"
+            "value": "About Web Feeds"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "À propos de Petal"
+            "value": "À propos des flux web"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Informazioni su Petal"
+            "value": "Informazioni sui feed web"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "Petalについて"
+            "value": "Webフィードについて"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "Petal 정보"
+            "value": "웹 피드 정보"
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Giới thiệu về Petal"
+            "value": "Giới thiệu về Web Feeds"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "关于 Petal"
+            "value": "关于网页订阅源"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "關於 Petal"
+            "value": "關於網頁訂閱源"
           }
         }
       }
@@ -66,55 +66,55 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Mit Petal kannst du eigene Feeds von jeder Webseite erstellen, auch ohne RSS."
+            "value": "Mit Web-Feeds kannst du eigene Feeds von jeder Webseite erstellen, auch ohne RSS."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Petal lets you create custom feeds from any website, even those without RSS."
+            "value": "Web Feeds lets you create custom feeds from any website, even those without RSS."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Petal vous permet de créer des flux personnalisés depuis n'importe quel site web, même sans RSS."
+            "value": "Web Feeds vous permet de créer des flux personnalisés depuis n'importe quel site web, même sans RSS."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Petal ti permette di creare feed personalizzati da qualsiasi sito web, anche senza RSS."
+            "value": "Web Feeds ti permette di creare feed personalizzati da qualsiasi sito web, anche senza RSS."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "PetalはRSSのないサイトからもカスタムフィードを作成できます。"
+            "value": "WebフィードはRSSのないサイトからもカスタムフィードを作成できます。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "Petal을 사용하면 RSS가 없는 사이트에서도 맞춤 피드를 만들 수 있습니다."
+            "value": "웹 피드를 사용하면 RSS가 없는 사이트에서도 맞춤 피드를 만들 수 있습니다."
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Petal cho phép bạn tạo nguồn cấp tùy chỉnh từ bất kỳ trang web nào, kể cả những trang không có RSS."
+            "value": "Web Feeds cho phép bạn tạo nguồn cấp tùy chỉnh từ bất kỳ trang web nào, kể cả những trang không có RSS."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "Petal 让你从任何网站创建自定义订阅源，即使没有 RSS 也可以。"
+            "value": "网页订阅源让你从任何网站创建自定义订阅源，即使没有 RSS 也可以。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "Petal 讓你從任何網站建立自訂訂閱源，即使沒有 RSS 也可以。"
+            "value": "網頁訂閱源讓你從任何網站建立自訂訂閱源，即使沒有 RSS 也可以。"
           }
         }
       }
@@ -125,55 +125,55 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Petal"
+            "value": "Web-Feed"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Petal"
+            "value": "Web Feed"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Petal"
+            "value": "Flux web"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Petal"
+            "value": "Feed web"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "Petal"
+            "value": "Webフィード"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "Petal"
+            "value": "웹 피드"
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Petal"
+            "value": "Nguồn cấp web"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "Petal"
+            "value": "网页订阅源"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "Petal"
+            "value": "網頁訂閱源"
           }
         }
       }
@@ -1069,55 +1069,55 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Jeder Selektor wird relativ zu einem Element ausgeführt. Lass ein Feld leer, damit Petal den Wert aus dem Inhalt des Elements errät."
+            "value": "Jeder Selektor wird relativ zu einem Element ausgeführt. Lass ein Feld leer, damit der Wert automatisch aus dem Inhalt des Elements ermittelt wird."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Each selector runs relative to an item. Leave a field empty to let Petal guess from the item's own content."
+            "value": "Each selector runs relative to an item. Leave a field empty to auto-detect the value from the item's own content."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Chaque sélecteur s’applique par rapport à un élément. Laissez un champ vide pour laisser Petal deviner la valeur à partir du contenu de l’élément."
+            "value": "Chaque sélecteur s’applique par rapport à un élément. Laissez un champ vide pour détecter automatiquement la valeur à partir du contenu de l’élément."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ogni selettore viene eseguito in relazione a un elemento. Lascia un campo vuoto per lasciare che Petal ricavi il valore dal contenuto dell’elemento."
+            "value": "Ogni selettore viene eseguito in relazione a un elemento. Lascia un campo vuoto per rilevare automaticamente il valore dal contenuto dell’elemento."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "各セレクタはアイテムを基準に実行されます。フィールドを空のままにすると、Petalがアイテム自体の内容から推測します。"
+            "value": "各セレクタはアイテムを基準に実行されます。フィールドを空のままにすると、アイテム自体の内容から自動的に推測します。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "각 선택자는 항목을 기준으로 실행됩니다. 필드를 비워 두면 Petal이 항목 자체의 콘텐츠에서 값을 추론합니다."
+            "value": "각 선택자는 항목을 기준으로 실행됩니다. 필드를 비워 두면 항목 자체의 콘텐츠에서 값을 자동으로 감지합니다."
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Mỗi bộ chọn chạy tương đối với một mục. Để trống một trường để Petal suy đoán từ nội dung của chính mục đó."
+            "value": "Mỗi bộ chọn chạy tương đối với một mục. Để trống một trường để tự động phát hiện giá trị từ nội dung của chính mục đó."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "每个选择器都会相对于条目运行。留空某个字段可让 Petal 从条目自身的内容中推断。"
+            "value": "每个选择器都会相对于条目运行。留空某个字段可从条目自身的内容中自动推断。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "每個選擇器都會相對於條目執行。留空某個欄位可讓 Petal 從條目自身的內容中推斷。"
+            "value": "每個選擇器都會相對於條目執行。留空某個欄位可從條目自身的內容中自動推斷。"
           }
         }
       }
@@ -1305,55 +1305,55 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Petal löschen"
+            "value": "Web-Feed löschen"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Delete Petal"
+            "value": "Delete Web Feed"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Supprimer le Petal"
+            "value": "Supprimer le flux web"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Elimina Petal"
+            "value": "Elimina feed web"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "Petalを削除"
+            "value": "Webフィードを削除"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "Petal 삭제"
+            "value": "웹 피드 삭제"
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Xóa Petal"
+            "value": "Xóa nguồn cấp web"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "删除 Petal"
+            "value": "删除网页订阅源"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "刪除 Petal"
+            "value": "刪除網頁訂閱源"
           }
         }
       }
@@ -1364,55 +1364,55 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Diesen Petal löschen?"
+            "value": "Diesen Web-Feed löschen?"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Delete this Petal?"
+            "value": "Delete this Web Feed?"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Supprimer ce Petal ?"
+            "value": "Supprimer ce flux web ?"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Eliminare questo Petal?"
+            "value": "Eliminare questo feed web?"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "このPetalを削除しますか？"
+            "value": "このWebフィードを削除しますか？"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "이 Petal을 삭제하시겠습니까?"
+            "value": "이 웹 피드를 삭제하시겠습니까?"
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Xóa Petal này?"
+            "value": "Xóa nguồn cấp web này?"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "要删除此 Petal 吗？"
+            "value": "要删除此网页订阅源吗？"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "要刪除此 Petal 嗎？"
+            "value": "要刪除此網頁訂閱源嗎？"
           }
         }
       }
@@ -1600,55 +1600,55 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Petals verwalten"
+            "value": "Web-Feeds verwalten"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Manage Petals"
+            "value": "Manage Web Feeds"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Gérer les Petals"
+            "value": "Gérer les flux web"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Gestisci Petal"
+            "value": "Gestisci feed web"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "Petalを管理"
+            "value": "Webフィードを管理"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "Petal 관리"
+            "value": "웹 피드 관리"
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Quản lý Petal"
+            "value": "Quản lý nguồn cấp web"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "管理 Petal"
+            "value": "管理网页订阅源"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "管理 Petal"
+            "value": "管理網頁訂閱源"
           }
         }
       }
@@ -1777,55 +1777,55 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Noch keine Petals. Erstelle einen im Bildschirm „Feed hinzufügen“ oder importiere ein .srss-Paket."
+            "value": "Noch keine Web-Feeds. Erstelle einen im Bildschirm „Feed hinzufügen“ oder importiere ein .srss-Paket."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "No Petals yet. Create one from the Add Feed screen, or import a .srss package."
+            "value": "No Web Feeds yet. Create one from the Add Feed screen, or import a .srss package."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Aucun Petal pour le moment. Créez-en un depuis l’écran Ajouter un flux, ou importez un paquet .srss."
+            "value": "Aucun flux web pour le moment. Créez-en un depuis l’écran Ajouter un flux, ou importez un paquet .srss."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ancora nessun Petal. Creane uno dalla schermata Aggiungi feed oppure importa un pacchetto .srss."
+            "value": "Ancora nessun feed web. Creane uno dalla schermata Aggiungi feed oppure importa un pacchetto .srss."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "まだPetalがありません。「フィードを追加」画面で作成するか、.srssパッケージを読み込んでください。"
+            "value": "まだWebフィードがありません。「フィードを追加」画面で作成するか、.srssパッケージを読み込んでください。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "아직 Petal이 없습니다. ‘피드 추가’ 화면에서 만들거나 .srss 패키지를 가져오세요."
+            "value": "아직 웹 피드가 없습니다. '피드 추가' 화면에서 만들거나 .srss 패키지를 가져오세요."
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Chưa có Petal nào. Hãy tạo một Petal từ màn hình Thêm nguồn cấp, hoặc nhập một gói .srss."
+            "value": "Chưa có nguồn cấp web nào. Hãy tạo một nguồn từ màn hình Thêm nguồn cấp, hoặc nhập một gói .srss."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "还没有 Petal。可在“添加订阅源”界面创建，或导入 .srss 包。"
+            "value": "还没有网页订阅源。可在“添加订阅源”界面创建，或导入 .srss 包。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "還沒有 Petal。可在「加入訂閱源」畫面建立，或匯入 .srss 套件。"
+            "value": "還沒有網頁訂閱源。可在「加入訂閱源」畫面建立，或匯入 .srss 套件。"
           }
         }
       }
@@ -1954,55 +1954,55 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Feed mit Petal erzeugen"
+            "value": "Web-Feed generieren"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Generate feed with Petal"
+            "value": "Generate Web Feed"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Générer un flux avec Petal"
+            "value": "Générer un flux web"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Genera feed con Petal"
+            "value": "Genera feed web"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "Petalでフィードを生成"
+            "value": "Webフィードを生成"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "Petal로 피드 생성"
+            "value": "웹 피드 생성"
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tạo nguồn cấp bằng Petal"
+            "value": "Tạo nguồn cấp web"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "使用 Petal 生成订阅源"
+            "value": "生成网页订阅源"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "使用 Petal 產生訂閱源"
+            "value": "產生網頁訂閱源"
           }
         }
       }
@@ -2013,55 +2013,55 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Kein RSS-Feed gefunden. Petal kann mit von dir gewählten Selektoren direkt auf dem Gerät einen Feed aus der Seite erstellen."
+            "value": "Kein RSS-Feed gefunden. Mit von dir gewählten Selektoren kann direkt auf dem Gerät ein Feed aus der Seite erstellt werden."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "No RSS feed was found. Petal can build one on-device by scraping the page with selectors you choose."
+            "value": "No RSS feed was found. Web Feeds can build one on-device by scraping the page with selectors you choose."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Aucun flux RSS trouvé. Petal peut en créer un sur l’appareil en analysant la page avec les sélecteurs de votre choix."
+            "value": "Aucun flux RSS trouvé. Web Feeds peut en créer un sur l’appareil en analysant la page avec les sélecteurs de votre choix."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nessun feed RSS trovato. Petal può crearne uno sul dispositivo analizzando la pagina con i selettori che scegli."
+            "value": "Nessun feed RSS trovato. Web Feeds può crearne uno sul dispositivo analizzando la pagina con i selettori che scegli."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "RSSフィードが見つかりませんでした。Petalはあなたが選んだセレクタでページをスクレイピングし、デバイス上でフィードを作成できます。"
+            "value": "RSSフィードが見つかりませんでした。選択したセレクタでページをスクレイピングし、デバイス上でWebフィードを作成できます。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "RSS 피드를 찾을 수 없습니다. Petal이 선택한 선택자로 페이지를 스크레이핑하여 기기에서 피드를 만들 수 있습니다."
+            "value": "RSS 피드를 찾을 수 없습니다. 선택한 선택자로 페이지를 스크레이핑하여 기기에서 웹 피드를 만들 수 있습니다."
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Không tìm thấy nguồn RSS. Petal có thể tạo một nguồn ngay trên thiết bị bằng cách trích xuất trang với các bộ chọn bạn chọn."
+            "value": "Không tìm thấy nguồn RSS. Web Feeds có thể tạo một nguồn ngay trên thiết bị bằng cách trích xuất trang với các bộ chọn bạn chọn."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "未找到 RSS 订阅源。Petal 可以使用你选择的选择器在设备上抓取该页面并生成订阅源。"
+            "value": "未找到 RSS 订阅源。可以使用你选择的选择器在设备上抓取该页面并生成网页订阅源。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "找不到 RSS 訂閱源。Petal 可以使用你選擇的選擇器在裝置上抓取該頁面並產生訂閱源。"
+            "value": "找不到 RSS 訂閱源。可以使用你選擇的選擇器在裝置上抓取該頁面並產生網頁訂閱源。"
           }
         }
       }
@@ -2072,55 +2072,55 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Petal"
+            "value": "Web-Feeds"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Petal"
+            "value": "Web Feeds"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Petal"
+            "value": "Flux web"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Petal"
+            "value": "Feed web"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "Petal"
+            "value": "Webフィード"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "Petal"
+            "value": "웹 피드"
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Petal"
+            "value": "Nguồn cấp web"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "Petal"
+            "value": "网页订阅源"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "Petal"
+            "value": "網頁訂閱源"
           }
         }
       }
@@ -2544,55 +2544,55 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Petal"
+            "value": "Web-Feed"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Petal"
+            "value": "Web Feed"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Petal"
+            "value": "Flux web"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Petal"
+            "value": "Feed web"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "Petal"
+            "value": "Webフィード"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "Petal"
+            "value": "웹 피드"
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Petal"
+            "value": "Nguồn cấp web"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "Petal"
+            "value": "网页订阅源"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "Petal"
+            "value": "網頁訂閱源"
           }
         }
       }
@@ -2711,6 +2711,124 @@
           "stringUnit": {
             "state": "translated",
             "value": "編輯配方"
+          }
+        }
+      }
+    },
+    "PetalRecipes": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Petal"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Petal"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Petal"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Petal"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Petal"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Petal"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Petal"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Petal"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Petal"
+          }
+        }
+      }
+    },
+    "PetalRecipes.Footer": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mit Petal kannst du jede Webseite in einen RSS-Feed verwandeln – das Scraping läuft direkt auf dem Gerät. Ideal für Blogs und Single-Page-Apps, die keinen eigenen Feed anbieten."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Petal lets you turn any webpage into an RSS feed using on-device scraping. Useful for blogs and single-page apps that don't publish their own feed."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Petal vous permet de transformer n’importe quelle page web en flux RSS grâce à un scraping effectué sur l’appareil. Pratique pour les blogs et les applications à page unique qui ne publient pas leur propre flux."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Petal ti permette di trasformare qualsiasi pagina web in un feed RSS usando uno scraping eseguito sul dispositivo. Utile per blog e app a pagina singola che non pubblicano un feed proprio."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Petalを使うと、デバイス上のスクレイピングで任意のWebページをRSSフィードに変換できます。独自のフィードを提供していないブログやシングルページアプリに便利です。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Petal을 사용하면 기기 내 스크레이핑으로 어떤 웹페이지든 RSS 피드로 바꿀 수 있습니다. 자체 피드를 제공하지 않는 블로그나 싱글 페이지 앱에 유용합니다."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Petal cho phép bạn biến bất kỳ trang web nào thành nguồn RSS bằng cách trích xuất dữ liệu ngay trên thiết bị. Hữu ích cho các blog và ứng dụng một trang không cung cấp nguồn cấp riêng."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Petal 可以通过设备端抓取，将任意网页转换为 RSS 订阅源。适用于没有自带订阅源的博客和单页应用。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Petal 可以透過裝置端抓取，將任意網頁轉換為 RSS 訂閱源。適用於沒有自帶訂閱源的部落格和單頁應用。"
           }
         }
       }

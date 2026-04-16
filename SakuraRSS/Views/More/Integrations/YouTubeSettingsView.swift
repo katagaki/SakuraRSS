@@ -27,19 +27,19 @@ struct YouTubeSettingsView: View {
             if youTubeOpenMode == .inAppPlayer {
                 Section {
                     if isYouTubeSignedIn {
-                        Button(String(localized: "YouTubePlayer.SignOut", table: "Labs")) {
+                        Button(String(localized: "YouTubePlayer.SignOut", table: "Integrations")) {
                             Task {
                                 await YouTubePlayerView.clearYouTubeSession()
                                 isYouTubeSignedIn = false
                             }
                         }
                     } else {
-                        Button(String(localized: "YouTubePlayer.SignIn", table: "Labs")) {
+                        Button(String(localized: "YouTubePlayer.SignIn", table: "Integrations")) {
                             showYouTubeLogin = true
                         }
                     }
                 } footer: {
-                    Text(String(localized: "YouTubePlayer.Footer", table: "Labs"))
+                    Text(String(localized: "YouTubePlayer.Footer", table: "Integrations"))
                 }
 
                 Section {

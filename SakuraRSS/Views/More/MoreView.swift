@@ -135,14 +135,9 @@ struct MoreView: View {
                     NavigationLink(String(localized: "ClearThisPage", table: "Integrations")) {
                         ClearThisPageSettingsView()
                     }
-                }
-
-                Section {
-                    NavigationLink(String(localized: "Title", table: "Labs")) {
-                        LabsView()
+                    NavigationLink(String(localized: "Petal", table: "Integrations")) {
+                        PetalSettingsView()
                     }
-                } header: {
-                    Text(String(localized: "Section.Labs", table: "Settings"))
                 }
 
                 MoreDataManagementSection()

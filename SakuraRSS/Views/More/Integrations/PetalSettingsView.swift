@@ -1,14 +1,11 @@
 import SwiftUI
 import UniformTypeIdentifiers
 
-/// Lists every Petal feed the user currently owns and hosts the
-/// `.srss` import/export entry points.
-///
-/// Reached from Profile > Labs > Manage Petals.  Editing a row opens
-/// the same `PetalBuilderView` used for creation.
-struct PetalManagementView: View {
+struct PetalSettingsView: View {
 
     @Environment(FeedManager.self) var feedManager
+    @AppStorage("Labs.PetalRecipes") private var petalEnabled: Bool = false
+
     @State private var isImporting = false
     @State private var importError: String?
     @State private var showImportError = false
@@ -35,31 +32,42 @@ struct PetalManagementView: View {
             }
 
             Section {
-                Button {
-                    isImporting = true
-                } label: {
-                    Label(String(localized: "Manage.Import", table: "Petal"), systemImage: "square.and.arrow.down")
-                }
+                Toggle(String(localized: "Petal", table: "Integrations"), isOn: $petalEnabled)
             } footer: {
-                Text(String(localized: "Manage.ImportFooter", table: "Petal"))
+                Text(String(localized: "Petal.Footer", table: "Integrations"))
             }
 
-            if petalFeeds.isEmpty {
-                Section {
-                    Text(String(localized: "Manage.Empty", table: "Petal"))
-                        .foregroundStyle(.secondary)
-                }
-            } else {
-                Section {
-                    ForEach(petalFeeds, id: \.id) { feed in
-                        row(for: feed)
+            if petalEnabled {
+                if petalFeeds.isEmpty {
+                    Section {
+                        Text(String(localized: "Manage.Empty", table: "Petal"))
+                            .foregroundStyle(.secondary)
+                    } header: {
+                        Text(String(localized: "Manage.Section.Installed", table: "Petal"))
                     }
-                } header: {
-                    Text(String(localized: "Manage.Section.Installed", table: "Petal"))
+                } else {
+                    Section {
+                        ForEach(petalFeeds, id: \.id) { feed in
+                            row(for: feed)
+                        }
+                    } header: {
+                        Text(String(localized: "Manage.Section.Installed", table: "Petal"))
+                    }
+                }
+
+                Section {
+                    Button {
+                        isImporting = true
+                    } label: {
+                        Label(String(localized: "Manage.Import", table: "Petal"), systemImage: "square.and.arrow.down")
+                    }
+                } footer: {
+                    Text(String(localized: "Manage.ImportFooter", table: "Petal"))
                 }
             }
         }
-        .navigationTitle(String(localized: "Manage.Title", table: "Petal"))
+        .animation(.smooth.speed(2.0), value: petalEnabled)
+        .navigationTitle(String(localized: "Petal", table: "Integrations"))
         .toolbarTitleDisplayMode(.inline)
         .scrollContentBackground(.hidden)
         .sakuraBackground()
