@@ -12,10 +12,13 @@ struct AddFeedView: View {
     @State private var errorMessage: String?
     @State private var addedURLs: Set<String> = []
     @State private var listMembership: [Int64: Set<Int64>] = [:]
+    @State private var showXLogin = false
     @State private var pendingXFeed: DiscoveredFeed?
+    @State private var showInstagramLogin = false
     @State private var pendingInstagramFeed: DiscoveredFeed?
     @State private var suggestedTopics: [SuggestedTopic] = []
     @State private var hasInitialized = false
+    @State private var showPetalBuilder = false
     @AppStorage("Labs.PetalRecipes") private var petalRecipesEnabled: Bool = false
     @FocusState private var isURLFieldFocused: Bool
 
@@ -124,7 +127,11 @@ struct AddFeedView: View {
 
                     if petalRecipesEnabled && !urlInput.isEmpty {
                         Section {
-                            PetalGenerateButton(seedURL: petalSeedURL)
+                            Button {
+                                showPetalBuilder = true
+                            } label: {
+                                Label(String(localized: "AddFeed.Generate", table: "Petal"), systemImage: "leaf.fill")
+                            }
                         } footer: {
                             Text(String(localized: "AddFeed.GenerateFooter", table: "Petal"))
                         }
@@ -218,13 +225,23 @@ struct AddFeedView: View {
             }
         }
         .interactiveDismissDisabled()
-        .sheet(item: $pendingXFeed) { pending in
+        .sheet(isPresented: $showXLogin) {
+            if let pending = pendingXFeed {
+                addFeedAfterXLogin(pending)
+            }
+        } content: {
             XLoginView()
-                .onDisappear { addFeedAfterXLogin(pending) }
         }
-        .sheet(item: $pendingInstagramFeed) { pending in
+        .sheet(isPresented: $showInstagramLogin) {
+            if let pending = pendingInstagramFeed {
+                addFeedAfterInstagramLogin(pending)
+            }
+        } content: {
             InstagramLoginView()
-                .onDisappear { addFeedAfterInstagramLogin(pending) }
+        }
+        .sheet(isPresented: $showPetalBuilder) {
+            PetalBuilderView(mode: .create(initialURL: petalSeedURL))
+                .environment(feedManager)
         }
     }
 
@@ -309,12 +326,13 @@ struct AddFeedView: View {
         }
         // If this is an X feed and the user hasn't logged in yet, prompt login first
         if XProfileScraper.isXFeedURL(discovered.url) && !feedManager.hasXFeeds {
+            pendingXFeed = discovered
             Task {
                 let hasSession = await XProfileScraper.hasXSession()
                 if hasSession {
                     addFeedDirectly(discovered)
                 } else {
-                    pendingXFeed = discovered
+                    showXLogin = true
                 }
             }
             return
@@ -322,12 +340,13 @@ struct AddFeedView: View {
         // If this is an Instagram feed and the user hasn't logged in yet, prompt login first
         if InstagramProfileScraper.isInstagramFeedURL(discovered.url)
             && !feedManager.hasInstagramFeeds {
+            pendingInstagramFeed = discovered
             Task {
                 let hasSession = await InstagramProfileScraper.hasInstagramSession()
                 if hasSession {
                     addFeedDirectly(discovered)
                 } else {
-                    pendingInstagramFeed = discovered
+                    showInstagramLogin = true
                 }
             }
             return
@@ -354,6 +373,7 @@ struct AddFeedView: View {
             if hasSession {
                 addFeedDirectly(discovered)
             }
+            pendingXFeed = nil
         }
     }
 
@@ -363,6 +383,7 @@ struct AddFeedView: View {
             if hasSession {
                 addFeedDirectly(discovered)
             }
+            pendingInstagramFeed = nil
         }
     }
 

@@ -19,6 +19,7 @@ struct FeedEditSheet: View {
     @State var isFetchingIcon = false
     @State var showIconFetchError = false
     @State var useDefaultIcon: Bool
+    @State private var showPetalBuilder = false
 
     init(feed: Feed) {
         self.feed = feed
@@ -90,7 +91,11 @@ struct FeedEditSheet: View {
                                     .lineLimit(1)
                             }
                         }
-                        PetalEditButton(feed: feed)
+                        Button {
+                            showPetalBuilder = true
+                        } label: {
+                            Label(String(localized: "FeedEdit.EditRecipe", table: "Petal"), systemImage: "wand.and.stars")
+                        }
                     } header: {
                         Text(String(localized: "FeedEdit.Header", table: "Petal"))
                     }
@@ -248,6 +253,12 @@ struct FeedEditSheet: View {
             }
             .alert(String(localized: "FeedEdit.IconFetchError", table: "Feeds"), isPresented: $showIconFetchError) {
                 Button("Shared.OK", role: .cancel) { }
+            }
+        }
+        .sheet(isPresented: $showPetalBuilder) {
+            if let recipe = PetalStore.shared.recipe(forFeedURL: feed.url) {
+                PetalBuilderView(mode: .edit(feed: feed, recipe: recipe))
+                    .environment(feedManager)
             }
         }
     }
