@@ -107,7 +107,8 @@ struct PetalElementPickerView: View {
             .padding(.horizontal, 16)
             .padding(.vertical, 10)
         }
-        .background(.bar)
+        .safeAreaPadding(.bottom)
+        .background(.ultraThinMaterial)
         .overlay(alignment: .top) {
             Divider()
         }
@@ -118,23 +119,27 @@ struct PetalElementPickerView: View {
         let isSet = !selector.isEmpty
         HStack(spacing: 4) {
             Image(systemName: isSet ? "checkmark.circle.fill" : "circle")
-                .font(.caption2)
+                .font(.subheadline.weight(.medium))
                 .foregroundStyle(isSet ? Color.green : Color.secondary)
             Text(fieldLabel(field))
-                .font(.caption)
+                .font(.subheadline)
                 .foregroundStyle(isSet ? Color.primary : Color.secondary)
             if isSet {
                 Text(selector)
-                    .font(.caption.monospaced())
+                    .font(.subheadline.monospaced())
                     .foregroundStyle(.secondary)
                     .lineLimit(1)
             }
         }
-        .padding(.horizontal, 10)
-        .padding(.vertical, 5)
-        .background(
-            RoundedRectangle(cornerRadius: 8, style: .continuous)
-                .fill(isSet ? Color.green.opacity(0.1) : Color.secondary.opacity(0.08))
+        .padding(.horizontal, 12)
+        .padding(.vertical, 6)
+        .background(.ultraThinMaterial, in: Capsule(style: .continuous))
+        .overlay(
+            Capsule(style: .continuous)
+                .strokeBorder(
+                    isSet ? Color.green.opacity(0.35) : Color.secondary.opacity(0.2),
+                    lineWidth: 0.5
+                )
         )
     }
 
