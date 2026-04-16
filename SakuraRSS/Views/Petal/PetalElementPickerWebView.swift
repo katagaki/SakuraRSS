@@ -128,27 +128,16 @@ private extension PetalElementPickerWebView {
         return cls ? tag + '.' + cls : tag;
       }
 
-      var lastTap = null;
-
-      document.addEventListener('touchstart', function (e) {
-        if (lastTap) { lastTap.classList.remove('petal-tap'); lastTap = null; }
-        var t = e.touches[0];
-        var el = document.elementFromPoint(t.clientX, t.clientY);
-        if (el && el !== document.body && el !== document.documentElement) {
-          lastTap = el;
-          el.classList.add('petal-tap');
-        }
-      }, { passive: true });
-
-      document.addEventListener('touchend', function () {
-        if (lastTap) { lastTap.classList.remove('petal-tap'); lastTap = null; }
-      }, { passive: true });
+      var selected = null;
 
       document.addEventListener('click', function (e) {
         e.preventDefault();
         e.stopImmediatePropagation();
         var el = e.target;
         if (!el || el === document.body || el === document.documentElement) return;
+        if (selected) selected.classList.remove('petal-tap');
+        selected = el;
+        el.classList.add('petal-tap');
         var text = (el.innerText || el.textContent || '').trim()
           .replace(/\s+/g, ' ').substring(0, 100);
         window.webkit.messageHandlers.elementPicked.postMessage({

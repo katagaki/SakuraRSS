@@ -12,7 +12,6 @@ struct PetalElementPickerView: View {
     @Environment(\.dismiss) private var dismiss
 
     @State private var pickedElement: PetalElementPickerWebView.PickedElement?
-    @State private var isAssignDialogPresented = false
 
     private var baseURL: URL? {
         URL(string: recipe.baseURL ?? recipe.siteURL)
@@ -23,10 +22,7 @@ struct PetalElementPickerView: View {
             PetalElementPickerWebView(
                 html: html,
                 baseURL: baseURL,
-                onElementPicked: { element in
-                    pickedElement = element
-                    isAssignDialogPresented = true
-                }
+                onElementPicked: { pickedElement = $0 }
             )
             .ignoresSafeArea()
             .navigationTitle(String(localized: "Picker.Title", table: "Petal"))
@@ -38,20 +34,6 @@ struct PetalElementPickerView: View {
             }
             .safeAreaInset(edge: .bottom) {
                 statusBar
-            }
-            .sheet(isPresented: $isAssignDialogPresented) {
-                if let element = pickedElement {
-                    PetalElementAssignSheet(
-                        element: element,
-                        onAssign: { field in
-                            assign(field: field, selector: element.selector)
-                            isAssignDialogPresented = false
-                        },
-                        onCancel: { isAssignDialogPresented = false }
-                    )
-                    .presentationDetents([.medium])
-                    .presentationDragIndicator(.visible)
-                }
             }
         }
     }
@@ -76,13 +58,13 @@ struct PetalElementPickerView: View {
         ScrollView(.horizontal, showsIndicators: false) {
             GlassEffectContainer(spacing: 8) {
                 HStack(spacing: 8) {
-                    chip(field: .item, selector: recipe.itemSelector)
-                    chip(field: .title, selector: recipe.titleSelector ?? "")
-                    chip(field: .link, selector: recipe.linkSelector ?? "")
-                    chip(field: .date, selector: recipe.dateSelector ?? "")
-                    chip(field: .author, selector: recipe.authorSelector ?? "")
-                    chip(field: .summary, selector: recipe.summarySelector ?? "")
-                    chip(field: .image, selector: recipe.imageSelector ?? "")
+                    chip(field: .item)
+                    chip(field: .title)
+                    chip(field: .link)
+                    chip(field: .date)
+                    chip(field: .author)
+                    chip(field: .summary)
+                    chip(field: .image)
                 }
             }
             .padding(.horizontal, 16)
@@ -92,25 +74,47 @@ struct PetalElementPickerView: View {
     }
 
     @ViewBuilder
-    private func chip(field: PetalRecipeField, selector: String) -> some View {
-        let isSet = !selector.isEmpty
-        HStack(spacing: 4) {
-            Image(systemName: isSet ? "checkmark.circle.fill" : "circle")
-                .font(.subheadline.weight(.medium))
-                .foregroundStyle(isSet ? Color.green : Color.secondary)
-            Text(field.localizedLabel)
-                .font(.subheadline)
-                .foregroundStyle(isSet ? Color.primary : Color.secondary)
-            if isSet {
-                Text(selector)
-                    .font(.subheadline.monospaced())
-                    .foregroundStyle(.secondary)
-                    .lineLimit(1)
+    private func chip(field: PetalRecipeField) -> some View {
+        let currentSelector = selector(for: field)
+        let isSet = !currentSelector.isEmpty
+        let canAssign = pickedElement != nil
+        Button {
+            if let el = pickedElement {
+                assign(field: field, selector: el.selector)
             }
+        } label: {
+            HStack(spacing: 4) {
+                Image(systemName: isSet ? "checkmark.circle.fill" : "circle")
+                    .font(.subheadline.weight(.medium))
+                    .foregroundStyle(isSet ? Color.green : Color.secondary)
+                Text(field.localizedLabel)
+                    .font(.subheadline)
+                    .foregroundStyle(isSet ? Color.primary : Color.secondary)
+                if isSet {
+                    Text(currentSelector)
+                        .font(.subheadline.monospaced())
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
+                }
+            }
+            .padding(.horizontal, 12)
+            .padding(.vertical, 6)
         }
-        .padding(.horizontal, 12)
-        .padding(.vertical, 6)
+        .buttonStyle(.plain)
         .glassEffect(.regular.interactive(), in: .capsule)
+        .disabled(!canAssign)
+    }
+
+    private func selector(for field: PetalRecipeField) -> String {
+        switch field {
+        case .item:    recipe.itemSelector
+        case .title:   recipe.titleSelector ?? ""
+        case .link:    recipe.linkSelector ?? ""
+        case .date:    recipe.dateSelector ?? ""
+        case .author:  recipe.authorSelector ?? ""
+        case .summary: recipe.summarySelector ?? ""
+        case .image:   recipe.imageSelector ?? ""
+        }
     }
 
 }
