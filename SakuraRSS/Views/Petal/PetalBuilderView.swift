@@ -60,11 +60,6 @@ struct PetalBuilderView: View {
                     onSelectorChanged: schedulePreview,
                     onPickElements: { showElementPicker = true }
                 )
-                .sheet(isPresented: $showElementPicker, onDismiss: schedulePreview) {
-                    if let html = fetchedHTML {
-                        PetalElementPickerView(recipe: $recipe, html: html)
-                    }
-                }
                 PetalBuilderPreviewSection(
                     articles: previewArticles,
                     errorMessage: errorMessage,
@@ -81,6 +76,11 @@ struct PetalBuilderView: View {
             }
             .animation(.smooth.speed(2.0), value: previewArticles.count)
             .animation(.smooth.speed(2.0), value: isFetching)
+            .sheet(isPresented: $showElementPicker, onDismiss: schedulePreview) {
+                if let html = fetchedHTML {
+                    PetalElementPickerView(recipe: $recipe, html: html)
+                }
+            }
             .navigationTitle(String(localized: "Builder.Title", table: "Petal"))
             .toolbarTitleDisplayMode(.inline)
             .toolbar {
