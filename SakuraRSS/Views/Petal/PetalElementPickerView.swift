@@ -39,80 +39,66 @@ struct PetalElementPickerView: View {
             .safeAreaInset(edge: .bottom) {
                 statusBar
             }
-            .confirmationDialog(
-                String(localized: "Picker.Assign.Title", table: "Petal"),
-                isPresented: $isAssignDialogPresented,
-                titleVisibility: .visible,
-                presenting: pickedElement
-            ) { element in
-                assignmentButtons(for: element)
-            } message: { element in
-                if !element.text.isEmpty {
-                    Text(element.text)
+            .sheet(isPresented: $isAssignDialogPresented) {
+                if let element = pickedElement {
+                    PetalElementAssignSheet(
+                        element: element,
+                        onAssign: { field in
+                            assign(field: field, selector: element.selector)
+                            isAssignDialogPresented = false
+                        },
+                        onCancel: { isAssignDialogPresented = false }
+                    )
+                    .presentationDetents([.medium])
+                    .presentationDragIndicator(.visible)
                 }
             }
         }
     }
 
-    // MARK: - Assignment buttons
+    // MARK: - Assignment
 
-    @ViewBuilder
-    private func assignmentButtons(for el: PetalElementPickerWebView.PickedElement) -> some View {
-        Button(fieldLabel(.item)) {
-            recipe.itemSelector = el.selector
+    private func assign(field: PetalRecipeField, selector: String) {
+        switch field {
+        case .item:    recipe.itemSelector = selector
+        case .title:   recipe.titleSelector = selector
+        case .link:    recipe.linkSelector = selector
+        case .date:    recipe.dateSelector = selector
+        case .author:  recipe.authorSelector = selector
+        case .summary: recipe.summarySelector = selector
+        case .image:   recipe.imageSelector = selector
         }
-        Button(fieldLabel(.title)) {
-            recipe.titleSelector = el.selector
-        }
-        Button(fieldLabel(.link)) {
-            recipe.linkSelector = el.selector
-        }
-        Button(fieldLabel(.date)) {
-            recipe.dateSelector = el.selector
-        }
-        Button(fieldLabel(.author)) {
-            recipe.authorSelector = el.selector
-        }
-        Button(fieldLabel(.summary)) {
-            recipe.summarySelector = el.selector
-        }
-        Button(fieldLabel(.image)) {
-            recipe.imageSelector = el.selector
-        }
-        Button(String(localized: "Shared.Cancel"), role: .cancel) {}
     }
 
     // MARK: - Status bar
 
     private var statusBar: some View {
         ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 8) {
-                chip(field: .item, selector: recipe.itemSelector)
-                chip(field: .title, selector: recipe.titleSelector ?? "")
-                chip(field: .link, selector: recipe.linkSelector ?? "")
-                chip(field: .date, selector: recipe.dateSelector ?? "")
-                chip(field: .author, selector: recipe.authorSelector ?? "")
-                chip(field: .summary, selector: recipe.summarySelector ?? "")
-                chip(field: .image, selector: recipe.imageSelector ?? "")
+            GlassEffectContainer(spacing: 8) {
+                HStack(spacing: 8) {
+                    chip(field: .item, selector: recipe.itemSelector)
+                    chip(field: .title, selector: recipe.titleSelector ?? "")
+                    chip(field: .link, selector: recipe.linkSelector ?? "")
+                    chip(field: .date, selector: recipe.dateSelector ?? "")
+                    chip(field: .author, selector: recipe.authorSelector ?? "")
+                    chip(field: .summary, selector: recipe.summarySelector ?? "")
+                    chip(field: .image, selector: recipe.imageSelector ?? "")
+                }
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 10)
         }
         .safeAreaPadding(.bottom)
-        .background(.ultraThinMaterial)
-        .overlay(alignment: .top) {
-            Divider()
-        }
     }
 
     @ViewBuilder
-    private func chip(field: RecipeField, selector: String) -> some View {
+    private func chip(field: PetalRecipeField, selector: String) -> some View {
         let isSet = !selector.isEmpty
         HStack(spacing: 4) {
             Image(systemName: isSet ? "checkmark.circle.fill" : "circle")
                 .font(.subheadline.weight(.medium))
                 .foregroundStyle(isSet ? Color.green : Color.secondary)
-            Text(fieldLabel(field))
+            Text(field.localizedLabel)
                 .font(.subheadline)
                 .foregroundStyle(isSet ? Color.primary : Color.secondary)
             if isSet {
@@ -124,33 +110,8 @@ struct PetalElementPickerView: View {
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 6)
-        .background(.ultraThinMaterial, in: Capsule(style: .continuous))
-        .overlay(
-            Capsule(style: .continuous)
-                .strokeBorder(
-                    isSet ? Color.green.opacity(0.35) : Color.secondary.opacity(0.2),
-                    lineWidth: 0.5
-                )
-        )
+        .glassEffect(.regular, in: Capsule(style: .continuous))
     }
 
-    // MARK: - Helpers
-
-    private func fieldLabel(_ field: RecipeField) -> String {
-        switch field {
-        case .item:    String(localized: "Picker.Field.Item",    table: "Petal")
-        case .title:   String(localized: "Picker.Field.Title",   table: "Petal")
-        case .link:    String(localized: "Picker.Field.Link",    table: "Petal")
-        case .date:    String(localized: "Picker.Field.Date",    table: "Petal")
-        case .author:  String(localized: "Picker.Field.Author",  table: "Petal")
-        case .summary: String(localized: "Picker.Field.Summary", table: "Petal")
-        case .image:   String(localized: "Picker.Field.Image",   table: "Petal")
-        }
-    }
 }
 
-// MARK: - RecipeField
-
-private enum RecipeField {
-    case item, title, link, date, author, summary, image
-}
