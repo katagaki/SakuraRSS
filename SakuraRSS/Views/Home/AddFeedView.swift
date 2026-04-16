@@ -22,19 +22,9 @@ struct AddFeedView: View {
     @AppStorage("Labs.PetalRecipes") private var petalRecipesEnabled: Bool = false
     @FocusState private var isURLFieldFocused: Bool
 
-    /// Tracks whether `urlInput` came from the cache (user was mid-edit
-    /// when the sheet was rebuilt) so we don't re-trigger `searchFeeds`
-    /// on every background→foreground cycle.
-    private let restoredFromCache: Bool
-
     init(initialURL: String = "") {
         self.initialURL = initialURL
-        // Prefer cached in-progress input (user was mid-edit when the
-        // view was torn down by a background→foreground cycle) over
-        // the seed URL passed in from outside.
-        let cached = SheetInputCache.addFeedURLInput
-        self.restoredFromCache = !cached.isEmpty
-        _urlInput = State(initialValue: cached.isEmpty ? initialURL : cached)
+        _urlInput = State(initialValue: initialURL)
     }
 
     /// The URL to seed the Petal builder with when the user taps
@@ -219,43 +209,39 @@ struct AddFeedView: View {
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
                     Button(role: .confirm) {
-                        SheetInputCache.clearAddFeed()
                         dismiss()
                     }
                 }
-            }
-            .interactiveDismissDisabled()
-            .onChange(of: urlInput) {
-                SheetInputCache.addFeedURLInput = urlInput
-            }
-            .sheet(isPresented: $showXLogin) {
-                if let pending = pendingXFeed {
-                    addFeedAfterXLogin(pending)
-                }
-            } content: {
-                XLoginView()
-            }
-            .sheet(isPresented: $showInstagramLogin) {
-                if let pending = pendingInstagramFeed {
-                    addFeedAfterInstagramLogin(pending)
-                }
-            } content: {
-                InstagramLoginView()
-            }
-            .sheet(isPresented: $showPetalBuilder) {
-                PetalBuilderView(mode: .create(initialURL: petalSeedURL))
-                    .environment(feedManager)
             }
             .onAppear {
                 guard !hasInitialized else { return }
                 hasInitialized = true
                 suggestedTopics = SuggestedFeedsLoader.topicsForCurrentRegion()
-                if !urlInput.isEmpty && !restoredFromCache {
+                if !urlInput.isEmpty {
                     searchFeeds()
-                } else if urlInput.isEmpty {
+                } else {
                     isURLFieldFocused = true
                 }
             }
+        }
+        .interactiveDismissDisabled()
+        .sheet(isPresented: $showXLogin) {
+            if let pending = pendingXFeed {
+                addFeedAfterXLogin(pending)
+            }
+        } content: {
+            XLoginView()
+        }
+        .sheet(isPresented: $showInstagramLogin) {
+            if let pending = pendingInstagramFeed {
+                addFeedAfterInstagramLogin(pending)
+            }
+        } content: {
+            InstagramLoginView()
+        }
+        .sheet(isPresented: $showPetalBuilder) {
+            PetalBuilderView(mode: .create(initialURL: petalSeedURL))
+                .environment(feedManager)
         }
     }
 
