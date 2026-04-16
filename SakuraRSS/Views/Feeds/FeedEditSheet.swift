@@ -254,11 +254,11 @@ struct FeedEditSheet: View {
             .alert(String(localized: "FeedEdit.IconFetchError", table: "Feeds"), isPresented: $showIconFetchError) {
                 Button("Shared.OK", role: .cancel) { }
             }
-            .sheet(isPresented: $showPetalBuilder) {
-                if let recipe = PetalStore.shared.recipe(forFeedURL: feed.url) {
-                    PetalBuilderView(mode: .edit(feed: feed, recipe: recipe))
-                        .environment(feedManager)
-                }
+        }
+        .sheet(isPresented: $showPetalBuilder) {
+            if let recipe = PetalStore.shared.recipe(forFeedURL: feed.url) {
+                PetalBuilderView(mode: .edit(feed: feed, recipe: recipe))
+                    .environment(feedManager)
             }
         }
     }
