@@ -7,11 +7,11 @@ struct ListEditSheet: View {
 
     let list: FeedList?
 
-    @State private var name: String
-    @State private var selectedIcon: String
+    @State private var name = ""
+    @State private var selectedIcon = ListIcon.newspaper.rawValue
     @State private var selectedDisplayStyle: String?
-    @State private var selectedFeedIDs: Set<Int64>
-    @State private var hasInitialized: Bool
+    @State private var selectedFeedIDs: Set<Int64> = []
+    @State private var hasInitialized = false
 
     private var isEditing: Bool { list != nil }
 
@@ -26,15 +26,6 @@ struct ListEditSheet: View {
 
     private var canSave: Bool {
         !name.trimmingCharacters(in: .whitespaces).isEmpty && !nameAlreadyExists
-    }
-
-    init(list: FeedList?) {
-        self.list = list
-        _name = State(initialValue: list?.name ?? "")
-        _selectedIcon = State(initialValue: list?.icon ?? ListIcon.newspaper.rawValue)
-        _selectedDisplayStyle = State(initialValue: list?.displayStyle)
-        _selectedFeedIDs = State(initialValue: [])
-        _hasInitialized = State(initialValue: false)
     }
 
     var body: some View {
@@ -144,6 +135,9 @@ struct ListEditSheet: View {
                 guard !hasInitialized else { return }
                 hasInitialized = true
                 if let list {
+                    name = list.name
+                    selectedIcon = list.icon
+                    selectedDisplayStyle = list.displayStyle
                     selectedFeedIDs = feedManager.feedIDs(for: list)
                 }
             }

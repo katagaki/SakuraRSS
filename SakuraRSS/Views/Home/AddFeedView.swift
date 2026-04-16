@@ -6,7 +6,8 @@ struct AddFeedView: View {
     @Environment(\.dismiss) var dismiss
 
     var initialURL: String = ""
-    @State private var urlInput: String
+    @SceneStorage("AddFeedView.urlInput") private var urlInput = ""
+    @SceneStorage("AddFeedView.hasInitialized") private var hasInitialized = false
     @State private var discoveredFeeds: [DiscoveredFeed] = []
     @State private var isSearching = false
     @State private var errorMessage: String?
@@ -17,15 +18,9 @@ struct AddFeedView: View {
     @State private var showInstagramLogin = false
     @State private var pendingInstagramFeed: DiscoveredFeed?
     @State private var suggestedTopics: [SuggestedTopic] = []
-    @State private var hasInitialized = false
     @State private var showPetalBuilder = false
     @AppStorage("Labs.PetalRecipes") private var petalRecipesEnabled: Bool = false
     @FocusState private var isURLFieldFocused: Bool
-
-    init(initialURL: String = "") {
-        self.initialURL = initialURL
-        _urlInput = State(initialValue: initialURL)
-    }
 
     /// The URL to seed the Petal builder with when the user taps
     /// "Generate with Petal" after a failed search.  Prefers the
@@ -209,14 +204,19 @@ struct AddFeedView: View {
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
                     Button(role: .confirm) {
+                        urlInput = ""
+                        hasInitialized = false
                         dismiss()
                     }
                 }
             }
             .onAppear {
+                if suggestedTopics.isEmpty {
+                    suggestedTopics = SuggestedFeedsLoader.topicsForCurrentRegion()
+                }
                 guard !hasInitialized else { return }
                 hasInitialized = true
-                suggestedTopics = SuggestedFeedsLoader.topicsForCurrentRegion()
+                urlInput = initialURL
                 if !urlInput.isEmpty {
                     searchFeeds()
                 } else {

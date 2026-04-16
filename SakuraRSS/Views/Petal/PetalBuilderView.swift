@@ -33,27 +33,14 @@ struct PetalBuilderView: View {
 
     let mode: Mode
 
-    @State private var recipe: PetalRecipe
+    @State private var recipe = PetalRecipe(name: "", siteURL: "", itemSelector: "article")
     @State private var fetchedHTML: String?
     @State private var previewArticles: [ParsedArticle] = []
     @State private var isFetching = false
     @State private var errorMessage: String?
     @State private var previewTask: Task<Void, Never>?
     @State private var showDeleteConfirm = false
-
-    init(mode: Mode) {
-        self.mode = mode
-        switch mode {
-        case .create(let initialURL):
-            _recipe = State(initialValue: PetalRecipe(
-                name: "",
-                siteURL: initialURL,
-                itemSelector: "article"
-            ))
-        case .edit(_, let recipe):
-            _recipe = State(initialValue: recipe)
-        }
-    }
+    @State private var hasInitialized = false
 
     var body: some View {
         NavigationStack {
@@ -108,6 +95,15 @@ struct PetalBuilderView: View {
                 Text(String(localized: "Builder.DeleteConfirm.Message", table: "Petal"))
             }
             .onAppear {
+                if !hasInitialized {
+                    hasInitialized = true
+                    switch mode {
+                    case .create(let initialURL):
+                        recipe = PetalRecipe(name: "", siteURL: initialURL, itemSelector: "article")
+                    case .edit(_, let existingRecipe):
+                        recipe = existingRecipe
+                    }
+                }
                 if !recipe.siteURL.isEmpty {
                     Task { await fetchAndPreview() }
                 }
