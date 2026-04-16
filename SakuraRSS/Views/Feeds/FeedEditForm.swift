@@ -50,7 +50,7 @@ struct FeedEditForm: View {
 
     var body: some View {
         NavigationStack {
-            Form {
+            List {
                 Section {
                     HStack {
                         Text(String(localized: "FeedEdit.Name", table: "Feeds"))

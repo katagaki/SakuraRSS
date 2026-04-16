@@ -28,7 +28,7 @@ struct AddFeedForm: View {
 
     var body: some View {
         NavigationStack {
-            Form {
+            List {
                 Section {
                     TextField(String(localized: "AddFeed.DomainPlaceholder", table: "Feeds"), text: $urlInput)
                         .focused($isURLFieldFocused)
