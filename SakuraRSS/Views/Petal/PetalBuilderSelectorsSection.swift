@@ -17,6 +17,7 @@ struct PetalBuilderSelectorsSection: View {
     let onAutoDetect: () -> Void
     let onFetch: () -> Void
     let onSelectorChanged: () -> Void
+    let onPickElements: () -> Void
 
     var body: some View {
         Section {
@@ -25,6 +26,14 @@ struct PetalBuilderSelectorsSection: View {
             } label: {
                 Label(String(localized: "Builder.AutoDetect", table: "Petal"),
                       systemImage: "wand.and.stars")
+            }
+            .disabled(!canAutoDetect)
+
+            Button {
+                onPickElements()
+            } label: {
+                Label(String(localized: "Builder.PickElements", table: "Petal"),
+                      systemImage: "hand.tap")
             }
             .disabled(!canAutoDetect)
 
