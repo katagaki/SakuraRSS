@@ -1,6 +1,6 @@
 import SwiftUI
 
-extension FeedEditSheet {
+extension FeedEditForm {
 
     func loadCurrentFavicon() async -> UIImage? {
         if let customURL = feed.customIconURL {
