@@ -41,6 +41,10 @@ struct PetalElementPickerWebView: UIViewRepresentable {
     }
 
     func updateUIView(_ uiView: WKWebView, context: Context) {}
+
+    static func dismantleUIView(_ uiView: WKWebView, coordinator: Coordinator) {
+        uiView.configuration.userContentController.removeScriptMessageHandler(forName: "elementPicked")
+    }
 }
 
 // MARK: - Coordinator
