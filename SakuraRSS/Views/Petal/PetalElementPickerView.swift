@@ -12,6 +12,7 @@ struct PetalElementPickerView: View {
     @Environment(\.dismiss) private var dismiss
 
     @State private var pickedElement: PetalElementPickerWebView.PickedElement?
+    @State private var isAssignDialogPresented = false
 
     private var baseURL: URL? {
         URL(string: recipe.baseURL ?? recipe.siteURL)
@@ -22,7 +23,10 @@ struct PetalElementPickerView: View {
             PetalElementPickerWebView(
                 html: html,
                 baseURL: baseURL,
-                onElementPicked: { pickedElement = $0 }
+                onElementPicked: { element in
+                    pickedElement = element
+                    isAssignDialogPresented = true
+                }
             )
             .ignoresSafeArea()
             .navigationTitle(String(localized: "Picker.Title", table: "Petal"))
@@ -37,16 +41,14 @@ struct PetalElementPickerView: View {
             }
             .confirmationDialog(
                 String(localized: "Picker.Assign.Title", table: "Petal"),
-                isPresented: Binding(
-                    get: { pickedElement != nil },
-                    set: { if !$0 { pickedElement = nil } }
-                ),
-                titleVisibility: .visible
-            ) {
-                assignmentButtons
-            } message: {
-                if let el = pickedElement, !el.text.isEmpty {
-                    Text(el.text)
+                isPresented: $isAssignDialogPresented,
+                titleVisibility: .visible,
+                presenting: pickedElement
+            ) { element in
+                assignmentButtons(for: element)
+            } message: { element in
+                if !element.text.isEmpty {
+                    Text(element.text)
                 }
             }
         }
@@ -55,40 +57,29 @@ struct PetalElementPickerView: View {
     // MARK: - Assignment buttons
 
     @ViewBuilder
-    private var assignmentButtons: some View {
-        if let el = pickedElement {
-            Button(fieldLabel(.item)) {
-                recipe.itemSelector = el.selector
-                pickedElement = nil
-            }
-            Button(fieldLabel(.title)) {
-                recipe.titleSelector = el.selector
-                pickedElement = nil
-            }
-            Button(fieldLabel(.link)) {
-                recipe.linkSelector = el.selector
-                pickedElement = nil
-            }
-            Button(fieldLabel(.date)) {
-                recipe.dateSelector = el.selector
-                pickedElement = nil
-            }
-            Button(fieldLabel(.author)) {
-                recipe.authorSelector = el.selector
-                pickedElement = nil
-            }
-            Button(fieldLabel(.summary)) {
-                recipe.summarySelector = el.selector
-                pickedElement = nil
-            }
-            Button(fieldLabel(.image)) {
-                recipe.imageSelector = el.selector
-                pickedElement = nil
-            }
-            Button(String(localized: "Shared.Cancel"), role: .cancel) {
-                pickedElement = nil
-            }
+    private func assignmentButtons(for el: PetalElementPickerWebView.PickedElement) -> some View {
+        Button(fieldLabel(.item)) {
+            recipe.itemSelector = el.selector
         }
+        Button(fieldLabel(.title)) {
+            recipe.titleSelector = el.selector
+        }
+        Button(fieldLabel(.link)) {
+            recipe.linkSelector = el.selector
+        }
+        Button(fieldLabel(.date)) {
+            recipe.dateSelector = el.selector
+        }
+        Button(fieldLabel(.author)) {
+            recipe.authorSelector = el.selector
+        }
+        Button(fieldLabel(.summary)) {
+            recipe.summarySelector = el.selector
+        }
+        Button(fieldLabel(.image)) {
+            recipe.imageSelector = el.selector
+        }
+        Button(String(localized: "Shared.Cancel"), role: .cancel) {}
     }
 
     // MARK: - Status bar
