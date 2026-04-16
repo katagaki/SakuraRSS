@@ -1,7 +1,7 @@
 import SwiftUI
 
-/// A navigation component that routes article taps to either the in-app detail view,
-/// a Safari view controller (for allowlisted domains), or the YouTube app.
+/// A navigation component that routes article taps based on the per-feed open mode
+/// (in-app viewer, Safari, SVC, SVC reader mode, Clear This Page, archive.ph, or YouTube app).
 /// On iPad with a split view, articles that would normally push onto a NavigationStack
 /// are instead shown in the detail column via the `iPadArticleSelection` environment binding.
 struct ArticleLink<Label: View>: View {
@@ -16,6 +16,7 @@ struct ArticleLink<Label: View>: View {
 
     @AppStorage("YouTube.OpenMode") private var youTubeOpenMode: YouTubeOpenMode = .inAppPlayer
     @State private var showSafari = false
+    @State private var showSafariReader = false
 
     private var feedOpenMode: FeedOpenMode {
         guard let feed = feedManager.feed(forArticle: article),
@@ -105,20 +106,20 @@ struct ArticleLink<Label: View>: View {
                 } label: {
                     label()
                 }
-            } else if feedOpenMode == .clearThisPage {
+            } else if feedOpenMode == .inAppBrowserReader {
+                Button {
+                    feedManager.markRead(article)
+                    showSafariReader = true
+                } label: {
+                    label()
+                }
+            } else if feedOpenMode == .clearThisPage || feedOpenMode == .archivePh {
                 if usesIPadDetailColumn {
                     Button { selectForIPadDetail() } label: { label() }
                 } else if let onNavigate {
                     Button { onNavigate(article) } label: { label() }
                 } else {
                     NavigationLink(value: article) { label() }
-                }
-            } else if let url = URL(string: article.url), OpenInBrowserDomains.shouldOpenInBrowser(url: url) {
-                Button {
-                    feedManager.markRead(article)
-                    showSafari = true
-                } label: {
-                    label()
                 }
             } else {
                 if usesIPadDetailColumn {
@@ -133,6 +134,12 @@ struct ArticleLink<Label: View>: View {
         .sheet(isPresented: $showSafari) {
             if let url = URL(string: article.url) {
                 SafariView(url: url)
+                    .ignoresSafeArea()
+            }
+        }
+        .sheet(isPresented: $showSafariReader) {
+            if let url = URL(string: article.url) {
+                SafariView(url: url, entersReaderIfAvailable: true)
                     .ignoresSafeArea()
             }
         }

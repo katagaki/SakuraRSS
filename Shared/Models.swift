@@ -102,9 +102,11 @@ nonisolated enum FeedSection: String, CaseIterable, Sendable {
 
 nonisolated enum FeedOpenMode: String, CaseIterable, Sendable {
     case inAppViewer
-    case inAppBrowser
-    case clearThisPage
     case browser
+    case inAppBrowser
+    case inAppBrowserReader
+    case clearThisPage
+    case archivePh
 }
 
 nonisolated struct Article: Identifiable, Hashable, Sendable {

@@ -173,12 +173,18 @@ struct FeedEditSheet: View {
                         Picker(String(localized: "FeedEdit.OpenIn", table: "Feeds"), selection: $openMode) {
                             Text(String(localized: "FeedEdit.OpenIn.InAppViewer", table: "Feeds"))
                                 .tag(FeedOpenMode.inAppViewer)
-                            Text(String(localized: "FeedEdit.OpenIn.InAppBrowser", table: "Feeds"))
-                                .tag(FeedOpenMode.inAppBrowser)
-                            Text(String(localized: "FeedEdit.OpenIn.ClearThisPage", table: "Feeds"))
-                                .tag(FeedOpenMode.clearThisPage)
+                            Divider()
                             Text(String(localized: "FeedEdit.OpenIn.Browser", table: "Feeds"))
                                 .tag(FeedOpenMode.browser)
+                            Text(String(localized: "FeedEdit.OpenIn.InAppBrowser", table: "Feeds"))
+                                .tag(FeedOpenMode.inAppBrowser)
+                            Text(String(localized: "FeedEdit.OpenIn.InAppBrowserReader", table: "Feeds"))
+                                .tag(FeedOpenMode.inAppBrowserReader)
+                            Divider()
+                            Text(String(localized: "FeedEdit.OpenIn.ClearThisPage", table: "Feeds"))
+                                .tag(FeedOpenMode.clearThisPage)
+                            Text(String(localized: "FeedEdit.OpenIn.ArchivePh", table: "Feeds"))
+                                .tag(FeedOpenMode.archivePh)
                         }
                         if !feed.isVideoFeed && !feed.isPodcast {
                             Picker(String(localized: "FeedEdit.ArticleSource", table: "Feeds"), selection: $articleSource) {

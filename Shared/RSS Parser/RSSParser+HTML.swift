@@ -119,6 +119,11 @@ nonisolated extension RSSParser {
             of: #"\n{3,}"#, with: "\n\n", options: .regularExpression
         )
 
+        result = result
+            .components(separatedBy: "\n")
+            .filter { !AdvertisementTextFilter.isAdvertisementText($0) }
+            .joined(separator: "\n")
+
         result = result.trimmingCharacters(in: .whitespacesAndNewlines)
         return result.isEmpty ? nil : result
     }
