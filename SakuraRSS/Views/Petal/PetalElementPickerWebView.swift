@@ -104,8 +104,8 @@ private extension PetalElementPickerWebView {
         '  user-select: none !important;' +
         '  pointer-events: auto !important;' +
         '}' +
-        '.petal-tap { outline: 3px solid rgba(0,122,255,0.7) !important;' +
-        '             background-color: rgba(0,122,255,0.08) !important; }';
+        '.petal-tap { outline: 3px solid rgba(255,59,48,0.8) !important;' +
+        '             background-color: rgba(255,59,48,0.08) !important; }';
       document.head.appendChild(style);
 
       document.addEventListener('contextmenu', function (e) {
@@ -135,6 +135,19 @@ private extension PetalElementPickerWebView {
         e.stopImmediatePropagation();
         var el = e.target;
         if (!el || el === document.body || el === document.documentElement) return;
+
+        // Drill into a child when tapping the already-selected element.
+        if (selected && el === selected) {
+          var stack = document.elementsFromPoint(e.clientX, e.clientY);
+          for (var i = 0; i < stack.length; i++) {
+            if (selected.contains(stack[i]) && stack[i] !== selected) {
+              el = stack[i];
+              break;
+            }
+          }
+          if (el === selected) return;
+        }
+
         if (selected) selected.classList.remove('petal-tap');
         selected = el;
         el.classList.add('petal-tap');

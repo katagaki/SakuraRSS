@@ -83,22 +83,16 @@ struct PetalElementPickerView: View {
                 assign(field: field, selector: el.selector)
             }
         } label: {
-            HStack(spacing: 4) {
+            HStack(spacing: 6) {
                 Image(systemName: isSet ? "checkmark.circle.fill" : "circle")
                     .font(.subheadline.weight(.medium))
                     .foregroundStyle(isSet ? Color.green : Color.secondary)
                 Text(field.localizedLabel)
                     .font(.subheadline)
                     .foregroundStyle(isSet ? Color.primary : Color.secondary)
-                if isSet {
-                    Text(currentSelector)
-                        .font(.subheadline.monospaced())
-                        .foregroundStyle(.secondary)
-                        .lineLimit(1)
-                }
             }
-            .padding(.horizontal, 12)
-            .padding(.vertical, 6)
+            .padding(.horizontal, 16)
+            .padding(.vertical, 10)
         }
         .buttonStyle(.plain)
         .glassEffect(.regular.interactive(), in: .capsule)
