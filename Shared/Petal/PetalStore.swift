@@ -49,8 +49,8 @@ nonisolated final class PetalStore: @unchecked Sendable {
     }
 
     func recipe(forFeedURL feedURL: String) -> PetalRecipe? {
-        guard let id = PetalRecipe.recipeID(from: feedURL) else { return nil }
-        return recipe(id: id)
+        guard let siteURL = PetalRecipe.siteURL(from: feedURL) else { return nil }
+        return allRecipes().first { $0.siteURL == siteURL }
     }
 
     func allRecipes() -> [PetalRecipe] {

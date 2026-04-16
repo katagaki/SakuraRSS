@@ -206,7 +206,7 @@ struct PetalBuilderView: View {
     private func deletePetal() {
         guard case .edit(let feed, _) = mode else { return }
         try? feedManager.deleteFeed(feed)
-        if let id = PetalRecipe.recipeID(from: feed.url) {
+        if let id = PetalStore.shared.recipe(forFeedURL: feed.url)?.id {
             try? PetalStore.shared.deleteRecipe(id: id)
         }
         dismiss()

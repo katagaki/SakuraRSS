@@ -13,7 +13,7 @@ nonisolated final class OPMLManager: @unchecked Sendable {
         lines.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>")
         lines.append("<opml version=\"2.0\">")
         lines.append("  <head>")
-        lines.append("    <title>SakuraRSS Subscriptions</title>")
+        lines.append("    <title>Sakura Subscriptions</title>")
         lines.append("    <dateCreated>\(rfc822Date(Date()))</dateCreated>")
         lines.append("  </head>")
         lines.append("  <body>")

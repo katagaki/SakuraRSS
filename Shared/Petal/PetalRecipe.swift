@@ -3,7 +3,7 @@ import Foundation
 /// A user-defined recipe that turns a webpage into a feed.
 ///
 /// Petals ship alongside the regular RSS/Atom plumbing: the feed's
-/// `url` is rewritten to `petal://<recipe-id>` so `refreshFeed`
+/// `url` is rewritten to `petal://<siteURL>` so `refreshFeed`
 /// dispatches to `PetalEngine` instead of `RSSParser`, mirroring the
 /// pattern already used for X / Instagram / YouTube pseudo-feeds.
 ///
@@ -18,8 +18,7 @@ nonisolated struct PetalRecipe: Codable, Sendable, Hashable {
 
     var version: Int = PetalRecipe.currentVersion
 
-    /// Stable identifier.  Also used to key the on-disk JSON and the
-    /// `petal://<id>` URL that lives in the feeds table.
+    /// Stable identifier.  Used to key the on-disk JSON and icon files.
     let id: UUID
 
     /// Feed display title (also becomes the `Feed.title`).
@@ -128,18 +127,17 @@ nonisolated struct PetalRecipe: Codable, Sendable, Hashable {
         case rendered
     }
 
-    /// URL scheme used in the feeds table (`petal://<uuid>`).
-    var feedURL: String { "petal://\(id.uuidString)" }
+    /// URL scheme used in the feeds table (`petal://<siteURL>`).
+    var feedURL: String { "petal://\(siteURL)" }
 
     /// `true` when the given `Feed.url` string points at a Petal recipe.
     static func isPetalFeedURL(_ url: String) -> Bool {
         url.hasPrefix("petal://")
     }
 
-    /// Extracts the recipe ID from a `petal://<uuid>` feed URL.
-    static func recipeID(from feedURL: String) -> UUID? {
+    /// Extracts the site URL from a `petal://<siteURL>` feed URL.
+    static func siteURL(from feedURL: String) -> String? {
         guard feedURL.hasPrefix("petal://") else { return nil }
-        let suffix = String(feedURL.dropFirst("petal://".count))
-        return UUID(uuidString: suffix)
+        return String(feedURL.dropFirst("petal://".count))
     }
 }

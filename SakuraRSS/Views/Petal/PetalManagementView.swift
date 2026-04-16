@@ -151,8 +151,7 @@ struct PetalManagementView: View {
 
     private func exportPetal(feed: Feed) {
         guard let recipe = PetalStore.shared.recipe(forFeedURL: feed.url) else { return }
-        let iconData = PetalRecipe.recipeID(from: feed.url)
-            .flatMap { PetalStore.shared.iconData(for: $0) }
+        let iconData = PetalStore.shared.iconData(for: recipe.id)
         do {
             let tempURL = try PetalPackage.exportToTempFile(
                 recipe: recipe, iconPNG: iconData

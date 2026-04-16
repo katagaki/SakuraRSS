@@ -7,7 +7,7 @@ extension FeedManager {
 
     /// Creates a new feed backed by a Petal recipe.  The recipe is
     /// saved to `PetalStore` and the feed's URL is set to
-    /// `petal://<recipe-id>` so `refreshFeed` dispatches to
+    /// `petal://<siteURL>` so `refreshFeed` dispatches to
     /// `PetalEngine` on every refresh.
     ///
     /// - Parameter recipe: the completed recipe from the builder.
