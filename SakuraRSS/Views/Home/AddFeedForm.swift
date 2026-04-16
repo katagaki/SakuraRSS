@@ -6,12 +6,9 @@ struct AddFeedForm: View {
     @Environment(\.dismiss) var dismiss
 
     var initialURL: String = ""
-    @Binding var showXLogin: Bool
-    @Binding var showInstagramLogin: Bool
-    @Binding var showPetalBuilder: Bool
-    @Binding var petalSeedURL: String
+    @Binding var activeSheet: AddFeedSheetDestination?
 
-    @State private var urlInput: String
+    @State private var urlInput = ""
     @State private var discoveredFeeds: [DiscoveredFeed] = []
     @State private var isSearching = false
     @State private var errorMessage: String?
@@ -24,28 +21,9 @@ struct AddFeedForm: View {
     @AppStorage("Labs.PetalRecipes") private var petalRecipesEnabled: Bool = false
     @FocusState private var isURLFieldFocused: Bool
 
-    init(
-        initialURL: String = "",
-        showXLogin: Binding<Bool>,
-        showInstagramLogin: Binding<Bool>,
-        showPetalBuilder: Binding<Bool>,
-        petalSeedURL: Binding<String>
-    ) {
-        self.initialURL = initialURL
-        _showXLogin = showXLogin
-        _showInstagramLogin = showInstagramLogin
-        _showPetalBuilder = showPetalBuilder
-        _petalSeedURL = petalSeedURL
-        _urlInput = State(initialValue: initialURL)
-    }
-
-    private var computedPetalSeedURL: String {
+    private var petalSeedURL: String {
         let trimmed = urlInput.trimmingCharacters(in: .whitespaces)
         return trimmed.isEmpty ? "" : normalizeURL(trimmed)
-    }
-
-    private var appName: String {
-        Bundle.main.object(forInfoDictionaryKey: "CFBundleName") as? String ?? "Sakura"
     }
 
     var body: some View {
@@ -86,6 +64,7 @@ struct AddFeedForm: View {
                 } header: {
                     Text(String(localized: "AddFeed.Section.Search", table: "Feeds"))
                 } footer: {
+                    let appName = Bundle.main.object(forInfoDictionaryKey: "CFBundleName") as? String ?? "Sakura"
                     Text(String(localized: "AddFeed.Section.SearchFooter.\(appName)", table: "Feeds"))
                 }
 
@@ -137,8 +116,7 @@ struct AddFeedForm: View {
                     if petalRecipesEnabled && !urlInput.isEmpty {
                         Section {
                             Button {
-                                petalSeedURL = computedPetalSeedURL
-                                showPetalBuilder = true
+                                activeSheet = .petalBuilder(seedURL: petalSeedURL)
                             } label: {
                                 Label(String(localized: "AddFeed.Generate", table: "Petal"), systemImage: "leaf.fill")
                             }
@@ -226,21 +204,27 @@ struct AddFeedForm: View {
             .onAppear {
                 guard !hasInitialized else { return }
                 hasInitialized = true
+                urlInput = initialURL
                 suggestedTopics = SuggestedFeedsLoader.topicsForCurrentRegion()
-                if !urlInput.isEmpty {
+                if !initialURL.isEmpty {
                     searchFeeds()
                 } else {
                     isURLFieldFocused = true
                 }
             }
-            .onChange(of: showXLogin) { old, new in
-                if old && !new, let pending = pendingXFeed {
-                    addFeedAfterXLogin(pending)
-                }
-            }
-            .onChange(of: showInstagramLogin) { old, new in
-                if old && !new, let pending = pendingInstagramFeed {
-                    addFeedAfterInstagramLogin(pending)
+            .onChange(of: activeSheet) { old, new in
+                guard new == nil else { return }
+                switch old {
+                case .xLogin:
+                    if let pending = pendingXFeed {
+                        addFeedAfterXLogin(pending)
+                    }
+                case .instagramLogin:
+                    if let pending = pendingInstagramFeed {
+                        addFeedAfterInstagramLogin(pending)
+                    }
+                default:
+                    break
                 }
             }
         }
@@ -333,7 +317,7 @@ struct AddFeedForm: View {
                 if hasSession {
                     addFeedDirectly(discovered)
                 } else {
-                    showXLogin = true
+                    activeSheet = .xLogin
                 }
             }
             return
@@ -347,7 +331,7 @@ struct AddFeedForm: View {
                 if hasSession {
                     addFeedDirectly(discovered)
                 } else {
-                    showInstagramLogin = true
+                    activeSheet = .instagramLogin
                 }
             }
             return

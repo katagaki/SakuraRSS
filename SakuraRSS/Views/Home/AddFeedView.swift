@@ -1,34 +1,40 @@
 import SwiftUI
 
+enum AddFeedSheetDestination: Identifiable, Equatable {
+    case xLogin
+    case instagramLogin
+    case petalBuilder(seedURL: String)
+
+    var id: String {
+        switch self {
+        case .xLogin: "xLogin"
+        case .instagramLogin: "instagramLogin"
+        case .petalBuilder: "petalBuilder"
+        }
+    }
+}
+
 struct AddFeedView: View {
 
     @Environment(FeedManager.self) var feedManager
 
     var initialURL: String = ""
 
-    @State private var showXLogin = false
-    @State private var showInstagramLogin = false
-    @State private var showPetalBuilder = false
-    @State private var petalSeedURL = ""
+    @State private var activeSheet: AddFeedSheetDestination?
 
     var body: some View {
-        AddFeedForm(
-            initialURL: initialURL,
-            showXLogin: $showXLogin,
-            showInstagramLogin: $showInstagramLogin,
-            showPetalBuilder: $showPetalBuilder,
-            petalSeedURL: $petalSeedURL
-        )
-        .interactiveDismissDisabled()
-        .sheet(isPresented: $showXLogin) {
-            XLoginView()
-        }
-        .sheet(isPresented: $showInstagramLogin) {
-            InstagramLoginView()
-        }
-        .sheet(isPresented: $showPetalBuilder) {
-            PetalBuilderView(mode: .create(initialURL: petalSeedURL))
-                .environment(feedManager)
-        }
+        AddFeedForm(initialURL: initialURL, activeSheet: $activeSheet)
+            .interactiveDismissDisabled()
+            .sheet(item: $activeSheet) { destination in
+                switch destination {
+                case .xLogin:
+                    XLoginView()
+                case .instagramLogin:
+                    InstagramLoginView()
+                case .petalBuilder(let seedURL):
+                    PetalBuilderView(mode: .create(initialURL: seedURL))
+                        .environment(feedManager)
+                }
+            }
     }
 }

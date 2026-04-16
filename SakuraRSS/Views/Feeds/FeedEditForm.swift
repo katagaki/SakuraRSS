@@ -7,7 +7,7 @@ struct FeedEditForm: View {
     @Environment(\.dismiss) var dismiss
 
     let feed: Feed
-    @Binding var showPetalBuilder: Bool
+    var onEditRecipe: () -> Void
 
     @State private var name: String
     @State private var url: String
@@ -21,9 +21,9 @@ struct FeedEditForm: View {
     @State var showIconFetchError = false
     @State var useDefaultIcon: Bool
 
-    init(feed: Feed, showPetalBuilder: Binding<Bool>) {
+    init(feed: Feed, onEditRecipe: @escaping () -> Void) {
         self.feed = feed
-        _showPetalBuilder = showPetalBuilder
+        self.onEditRecipe = onEditRecipe
         let defaultURL: String = (feed.isXFeed || feed.isInstagramFeed || feed.isYouTubePlaylistFeed)
             ? feed.siteURL : feed.url
         let existingIconURL = feed.customIconURL
@@ -93,7 +93,7 @@ struct FeedEditForm: View {
                             }
                         }
                         Button {
-                            showPetalBuilder = true
+                            onEditRecipe()
                         } label: {
                             Label(String(localized: "FeedEdit.EditRecipe", table: "Petal"), systemImage: "wand.and.stars")
                         }
