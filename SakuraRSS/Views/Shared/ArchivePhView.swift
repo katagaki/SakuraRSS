@@ -41,7 +41,7 @@ struct ArchivePhView: View {
 }
 
 private func archivePhURL(for articleURL: URL) -> URL? {
-    URL(string: "https://archive.md/newest/\(articleURL.absoluteString)")
+    URL(string: "https://archive.md/\(articleURL.absoluteString)")
 }
 
 private struct ArchivePhWebView: UIViewRepresentable {
