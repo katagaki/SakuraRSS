@@ -223,26 +223,26 @@ struct AddFeedView: View {
                     isURLFieldFocused = true
                 }
             }
+            .sheet(isPresented: $showXLogin) {
+                if let pending = pendingXFeed {
+                    addFeedAfterXLogin(pending)
+                }
+            } content: {
+                XLoginView()
+            }
+            .sheet(isPresented: $showInstagramLogin) {
+                if let pending = pendingInstagramFeed {
+                    addFeedAfterInstagramLogin(pending)
+                }
+            } content: {
+                InstagramLoginView()
+            }
+            .sheet(isPresented: $showPetalBuilder) {
+                PetalBuilderView(mode: .create(initialURL: petalSeedURL))
+                    .environment(feedManager)
+            }
         }
         .interactiveDismissDisabled()
-        .sheet(isPresented: $showXLogin) {
-            if let pending = pendingXFeed {
-                addFeedAfterXLogin(pending)
-            }
-        } content: {
-            XLoginView()
-        }
-        .sheet(isPresented: $showInstagramLogin) {
-            if let pending = pendingInstagramFeed {
-                addFeedAfterInstagramLogin(pending)
-            }
-        } content: {
-            InstagramLoginView()
-        }
-        .sheet(isPresented: $showPetalBuilder) {
-            PetalBuilderView(mode: .create(initialURL: petalSeedURL))
-                .environment(feedManager)
-        }
     }
 
     private func searchFeeds() {
