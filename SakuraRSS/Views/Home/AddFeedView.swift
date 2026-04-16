@@ -6,7 +6,8 @@ struct AddFeedView: View {
     @Environment(\.dismiss) var dismiss
 
     var initialURL: String = ""
-    @State private var urlInput = ""
+    @SceneStorage("AddFeedView.urlInput") private var urlInput = ""
+    @SceneStorage("AddFeedView.hasInitialized") private var hasInitialized = false
     @State private var discoveredFeeds: [DiscoveredFeed] = []
     @State private var isSearching = false
     @State private var errorMessage: String?
@@ -17,7 +18,6 @@ struct AddFeedView: View {
     @State private var showInstagramLogin = false
     @State private var pendingInstagramFeed: DiscoveredFeed?
     @State private var suggestedTopics: [SuggestedTopic] = []
-    @State private var hasInitialized = false
     @State private var showPetalBuilder = false
     @AppStorage("Labs.PetalRecipes") private var petalRecipesEnabled: Bool = false
     @FocusState private var isURLFieldFocused: Bool
@@ -204,15 +204,19 @@ struct AddFeedView: View {
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
                     Button(role: .confirm) {
+                        urlInput = ""
+                        hasInitialized = false
                         dismiss()
                     }
                 }
             }
             .onAppear {
+                if suggestedTopics.isEmpty {
+                    suggestedTopics = SuggestedFeedsLoader.topicsForCurrentRegion()
+                }
                 guard !hasInitialized else { return }
                 hasInitialized = true
                 urlInput = initialURL
-                suggestedTopics = SuggestedFeedsLoader.topicsForCurrentRegion()
                 if !urlInput.isEmpty {
                     searchFeeds()
                 } else {

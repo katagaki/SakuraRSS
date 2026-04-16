@@ -127,7 +127,6 @@
 				"Favicon Cache/FaviconCache+Profiles.swift",
 				"Favicon Cache/FaviconCache+PWA.swift",
 				"Favicon Cache/FaviconCache+Trimming.swift",
-				FeedDiscovery.swift,
 				Network/NetworkMonitor.swift,
 				Petal/PetalAutoDetect.swift,
 				Petal/PetalEngine/PetalEngine.swift,
