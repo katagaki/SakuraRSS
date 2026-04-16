@@ -23,11 +23,6 @@ struct FeedEditSheet: View {
 
     init(feed: Feed) {
         self.feed = feed
-        // Restore any in-progress edits preserved from an earlier
-        // background→foreground cycle; fall back to the feed's current
-        // persisted values otherwise.
-        let cached = SheetInputCache.feedEditSnapshot(for: feed.id)
-        let defaultName = feed.title
         let defaultURL: String = (feed.isXFeed || feed.isInstagramFeed || feed.isYouTubePlaylistFeed)
             ? feed.siteURL : feed.url
         let existingIconURL = feed.customIconURL
@@ -44,15 +39,12 @@ struct FeedEditSheet: View {
             return raw.flatMap(ArticleSource.init(rawValue:)) ?? .automatic
         }()
 
-        let cachedOpenMode = (cached?.openModeRaw).flatMap(FeedOpenMode.init(rawValue:))
-        let cachedArticleSource = (cached?.articleSourceRaw).flatMap(ArticleSource.init(rawValue:))
-
-        _name = State(initialValue: cached?.name ?? defaultName)
-        _url = State(initialValue: cached?.url ?? defaultURL)
-        _iconURLInput = State(initialValue: cached?.iconURLInput ?? defaultIconURLInput)
-        _useDefaultIcon = State(initialValue: cached?.useDefaultIcon ?? defaultUseDefaultIcon)
-        _openMode = State(initialValue: cachedOpenMode ?? defaultOpenMode)
-        _articleSource = State(initialValue: cachedArticleSource ?? defaultArticleSource)
+        _name = State(initialValue: feed.title)
+        _url = State(initialValue: defaultURL)
+        _iconURLInput = State(initialValue: defaultIconURLInput)
+        _useDefaultIcon = State(initialValue: defaultUseDefaultIcon)
+        _openMode = State(initialValue: defaultOpenMode)
+        _articleSource = State(initialValue: defaultArticleSource)
     }
 
     var body: some View {
@@ -235,7 +227,6 @@ struct FeedEditSheet: View {
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button(role: .cancel) {
-                        SheetInputCache.clearFeedEdit(for: feed.id)
                         dismiss()
                     }
                 }
@@ -246,12 +237,6 @@ struct FeedEditSheet: View {
                     .disabled(name.isEmpty || url.isEmpty)
                 }
             }
-            .onChange(of: name) { persistInputSnapshot() }
-            .onChange(of: url) { persistInputSnapshot() }
-            .onChange(of: iconURLInput) { persistInputSnapshot() }
-            .onChange(of: useDefaultIcon) { persistInputSnapshot() }
-            .onChange(of: openMode) { persistInputSnapshot() }
-            .onChange(of: articleSource) { persistInputSnapshot() }
             .task {
                 currentFavicon = await loadCurrentFavicon()
             }
@@ -266,14 +251,14 @@ struct FeedEditSheet: View {
                     }
                 }
             }
-            .sheet(isPresented: $showPetalBuilder) {
-                if let recipe = PetalStore.shared.recipe(forFeedURL: feed.url) {
-                    PetalBuilderView(mode: .edit(feed: feed, recipe: recipe))
-                        .environment(feedManager)
-                }
-            }
             .alert(String(localized: "FeedEdit.IconFetchError", table: "Feeds"), isPresented: $showIconFetchError) {
                 Button("Shared.OK", role: .cancel) { }
+            }
+        }
+        .sheet(isPresented: $showPetalBuilder) {
+            if let recipe = PetalStore.shared.recipe(forFeedURL: feed.url) {
+                PetalBuilderView(mode: .edit(feed: feed, recipe: recipe))
+                    .environment(feedManager)
             }
         }
     }
@@ -339,22 +324,7 @@ struct FeedEditSheet: View {
         } else {
             UserDefaults.standard.set(articleSource.rawValue, forKey: "articleSource-\(feed.id)")
         }
-        SheetInputCache.clearFeedEdit(for: feed.id)
         dismiss()
-    }
-
-    private func persistInputSnapshot() {
-        SheetInputCache.setFeedEditSnapshot(
-            SheetInputCache.FeedEditSnapshot(
-                name: name,
-                url: url,
-                iconURLInput: iconURLInput,
-                openModeRaw: openMode.rawValue,
-                articleSourceRaw: articleSource.rawValue,
-                useDefaultIcon: useDefaultIcon
-            ),
-            for: feed.id
-        )
     }
 
 }
