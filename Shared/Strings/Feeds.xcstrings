@@ -5965,55 +5965,55 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "archive.ph"
+            "value": "archive.today"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "archive.ph"
+            "value": "archive.today"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "archive.ph"
+            "value": "archive.today"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "archive.ph"
+            "value": "archive.today"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "archive.ph"
+            "value": "archive.today"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "archive.ph"
+            "value": "archive.today"
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "archive.ph"
+            "value": "archive.today"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "archive.ph"
+            "value": "archive.today"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "archive.ph"
+            "value": "archive.today"
           }
         }
       }

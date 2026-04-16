@@ -1,7 +1,7 @@
 import SwiftUI
 import WebKit
 
-/// Presents an article URL through archive.ph in an embedded WebView.
+/// Presents an article URL through archive.today in an embedded WebView.
 struct ArchivePhView: View {
 
     let url: URL
@@ -41,14 +41,7 @@ struct ArchivePhView: View {
 }
 
 private func archivePhURL(for articleURL: URL) -> URL? {
-    var components = URLComponents()
-    components.scheme = "https"
-    components.host = "archive.ph"
-    components.path = "/newest/"
-    components.queryItems = [
-        URLQueryItem(name: "url", value: articleURL.absoluteString)
-    ]
-    return components.url
+    URL(string: "https://archive.md/newest/\(articleURL.absoluteString)")
 }
 
 private struct ArchivePhWebView: UIViewRepresentable {

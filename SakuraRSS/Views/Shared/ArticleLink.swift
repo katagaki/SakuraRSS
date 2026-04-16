@@ -1,7 +1,7 @@
 import SwiftUI
 
 /// A navigation component that routes article taps based on the per-feed open mode
-/// (in-app viewer, Safari, SVC, SVC reader mode, Clear This Page, archive.ph, or YouTube app).
+/// (in-app viewer, Safari, SVC, SVC reader mode, Clear This Page, archive.today, or YouTube app).
 /// On iPad with a split view, articles that would normally push onto a NavigationStack
 /// are instead shown in the detail column via the `iPadArticleSelection` environment binding.
 struct ArticleLink<Label: View>: View {
