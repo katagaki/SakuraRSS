@@ -121,7 +121,7 @@ nonisolated extension RSSParser {
 
         result = result
             .components(separatedBy: "\n")
-            .filter { !ArticleExtractor.isAdvertisementText($0) }
+            .filter { !AdvertisementTextFilter.isAdvertisementText($0) }
             .joined(separator: "\n")
 
         result = result.trimmingCharacters(in: .whitespacesAndNewlines)
