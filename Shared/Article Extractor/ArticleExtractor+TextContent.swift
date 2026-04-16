@@ -318,6 +318,41 @@ extension ArticleExtractor {
         return result
     }
 
+    /// Collapses runs of empty, formatting-only, or separator-only lines so
+    /// cleaned article text doesn't render with gaping vertical gaps.
+    /// Runs after paragraph collection so inter-paragraph blank lines survive.
+    static func compactWhitespace(in text: String) -> String {
+        var result = text
+        // Drop Markdown horizontal rules that are alone on a line.  They
+        // almost always come from navigation separators or ad blocks.
+        result = result.replacingOccurrences(
+            of: #"(?m)^[ \t]*(?:-{3,}|={3,}|_{3,}|\*{3,})[ \t]*$"#,
+            with: "",
+            options: .regularExpression
+        )
+        // Lines that contain only `|`, punctuation, or bullet-like glyphs
+        // (e.g. breadcrumb "› › ›" residue) are noise.
+        result = result.replacingOccurrences(
+            of: #"(?m)^[ \t]*[\|\·•‣▪▫◦▶›»→・、,]+[ \t]*$"#,
+            with: "",
+            options: .regularExpression
+        )
+        // Lines with only bold/italic markers and no real content
+        // (e.g. `**  **` or `* *`) — typically empty share buttons.
+        result = result.replacingOccurrences(
+            of: #"(?m)^[ \t]*(?:\*{1,3}|_{1,3})[ \t]*(?:\*{1,3}|_{1,3})?[ \t]*$"#,
+            with: "",
+            options: .regularExpression
+        )
+        // Collapse runs of 3+ newlines back to a paragraph break.
+        result = result.replacingOccurrences(
+            of: "\\n{3,}",
+            with: "\n\n",
+            options: .regularExpression
+        )
+        return result.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
     /// Strips any remaining HTML tags that may have leaked through parsing.
     static func stripRemainingHTMLTags(_ text: String) -> String {
         var result = text

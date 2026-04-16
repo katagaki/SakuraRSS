@@ -80,8 +80,8 @@ extension ArticleExtractor {
         ".reddit-share",
         ".whatsapp-share",
         // Embedded social widgets
-        ".twitter-tweet",
-        ".twitter-timeline",
+        // (`.twitter-tweet` and `.twitter-timeline` intentionally NOT
+        // listed — they are promoted to inline embeds before this runs.)
         ".fb-post",
         ".fb-like",
         ".fb-share-button",
@@ -311,15 +311,52 @@ extension ArticleExtractor {
         "[data-block-type*=newsletter]",
         // UI elements
         ".toolbar",
+        ".toolbars",
+        ".action-bar",
+        ".action-buttons",
+        ".button-bar",
+        ".button-group",
+        ".button-row",
+        ".icon-bar",
+        ".icon-row",
+        ".iconbar",
+        ".iconlist",
+        ".meta-bar",
+        ".story-tools",
+        ".article-tools",
+        ".story-header-tools",
+        ".utility-bar",
+        ".utility-nav",
+        ".floating-bar",
+        ".floating-share",
+        ".sticky-share",
+        ".sticky-social",
+        ".sticky-tools",
+        ".social-toolbar",
+        ".share-toolbar",
+        ".post-toolbar",
+        ".article-toolbar",
+        ".article-actions",
+        ".post-actions",
+        ".entry-actions",
+        ".article-footer-actions",
         ".pagination",
         ".pager",
         ".tags",
         ".tag-list",
+        ".tag-cloud",
+        ".category-links",
+        ".post-categories",
+        ".post-tags",
+        ".entry-tags",
+        ".entry-categories",
         ".toc",
         ".table-of-contents",
         ".print-only",
         ".screen-reader-text",
         ".visually-hidden",
+        ".sr-only",
+        ".a11y-hidden",
         // Author, byline & meta sections
         // (bare ".author" / ".authors" omitted — many themes use them on
         // inline <span> elements within article text; the class-pattern
@@ -495,7 +532,19 @@ extension ArticleExtractor {
         "visitor-promo", "youtube-video",
         "youtube-promo", "youtube-cta", "youtube-subscribe",
         "channel-promo",
-        "ad-text", "ad-header"
+        "ad-text", "ad-header",
+        // Toolbars, action bars, icon rows, tag/category footers
+        "toolbar", "action-bar", "action-buttons",
+        "button-bar", "button-group", "button-row",
+        "icon-bar", "icon-row", "iconbar",
+        "meta-bar", "story-tools", "article-tools",
+        "utility-bar", "utility-nav", "floating-bar",
+        "floating-share", "sticky-share", "sticky-social",
+        "sticky-tools", "social-toolbar", "share-toolbar",
+        "post-toolbar", "article-toolbar", "article-actions",
+        "post-actions", "entry-actions", "tag-cloud",
+        "post-categories", "post-tags",
+        "entry-tags", "entry-categories", "category-links"
     ]
 
     static func removeNoise(from element: Element) {
@@ -512,6 +561,9 @@ extension ArticleExtractor {
         removeAdvertisementTextBlocks(from: element)
         removeMenuLists(from: element)
         removeSuggestionSections(from: element)
+        removeIconToolbars(from: element)
+        removeShareButtonClusters(from: element)
+        removeEmptyContainers(from: element)
     }
 
     /// Removes elements whose class or id attribute contains known noise substrings.
@@ -584,6 +636,105 @@ extension ArticleExtractor {
             }
         } catch {
             // Menu detection is best-effort; failures are non-critical
+        }
+    }
+
+    /// Heuristic: a container whose children are overwhelmingly icon-only
+    /// links or buttons (tiny text payload, many links) is almost always a
+    /// share toolbar, floating action bar, or pagination strip.
+    private static func removeIconToolbars(from element: Element) {
+        do {
+            let candidates = try element.select("div, nav, section, ul")
+            for candidate in candidates {
+                let anchorCount = (try? candidate.select("a").size()) ?? 0
+                let buttonCount = (try? candidate.select("button").size()) ?? 0
+                let actionableCount = anchorCount + buttonCount
+                guard actionableCount >= 3 else { continue }
+
+                let text = (try? candidate.text()) ?? ""
+                let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+                // Average visible characters per actionable element — share
+                // toolbars and pagination rows score <=4 (often 0 with SVG
+                // icons); real prose scores much higher.
+                let avgTextPerAction = trimmed.count / max(actionableCount, 1)
+                guard avgTextPerAction <= 4 else { continue }
+
+                // Only remove shallow containers: if they wrap long-form
+                // content alongside the toolbar, we'd nuke too much.
+                let paragraphCount = (try? candidate.select("p").size()) ?? 0
+                guard paragraphCount == 0 else { continue }
+
+                try candidate.remove()
+            }
+        } catch {
+            // Best-effort; failures are non-critical
+        }
+    }
+
+    /// Heuristic: a short container containing only links/buttons whose
+    /// href or text references a sharing target (facebook.com/sharer,
+    /// twitter.com/intent, mailto:?subject=…, window.print, …).
+    private static func removeShareButtonClusters(from element: Element) {
+        let shareTargetPatterns = [
+            "facebook.com/sharer", "facebook.com/share",
+            "twitter.com/intent", "twitter.com/share",
+            "x.com/intent", "x.com/share",
+            "linkedin.com/share", "linkedin.com/sharing",
+            "pinterest.com/pin", "reddit.com/submit",
+            "mailto:?", "sms:?", "whatsapp://send",
+            "t.me/share", "telegram.me/share",
+            "wa.me/?", "api.whatsapp.com/send",
+            "javascript:window.print", "window.print()",
+            "service.weibo.com", "bsky.app/intent/compose"
+        ]
+        do {
+            let candidates = try element.select("div, ul, nav, section, aside")
+            for candidate in candidates {
+                guard let anchors = try? candidate.select("a"), anchors.size() >= 2 else {
+                    continue
+                }
+                var sharers = 0
+                for anchor in anchors {
+                    let href = ((try? anchor.attr("href")) ?? "").lowercased()
+                    if shareTargetPatterns.contains(where: href.contains) {
+                        sharers += 1
+                    }
+                }
+                let ratio = Double(sharers) / Double(anchors.size())
+                guard sharers >= 2 && ratio >= 0.5 else { continue }
+                // Only drop shallow wrappers — refuse to delete a sidebar
+                // that happens to include a couple of share links.
+                let paragraphCount = (try? candidate.select("p").size()) ?? 0
+                guard paragraphCount <= 1 else { continue }
+                try candidate.remove()
+            }
+        } catch {
+            // Best-effort; failures are non-critical
+        }
+    }
+
+    /// Removes wrapper `<div>`/`<section>`/`<aside>` elements that contain
+    /// no text, no images, and no video — usually leftover placeholder
+    /// shells after ads or share buttons were stripped.
+    private static func removeEmptyContainers(from element: Element) {
+        do {
+            let candidates = try element.select(
+                "div, section, aside, header, footer, span"
+            )
+            // Iterate in reverse so deleting a parent doesn't invalidate
+            // positions of already-seen children.
+            for candidate in candidates.array().reversed() {
+                let text = ((try? candidate.text()) ?? "")
+                    .trimmingCharacters(in: .whitespacesAndNewlines)
+                let hasMedia = ((try? candidate.select(
+                    "img, picture, video, audio, svg, iframe, source"
+                ).size()) ?? 0) > 0
+                if text.isEmpty && !hasMedia {
+                    try? candidate.remove()
+                }
+            }
+        } catch {
+            // Best-effort; failures are non-critical
         }
     }
 

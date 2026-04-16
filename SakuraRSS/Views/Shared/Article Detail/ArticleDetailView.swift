@@ -166,6 +166,10 @@ struct ArticleDetailView: View {
                             }
                         case .video(let url):
                             VideoBlockView(url: url)
+                        case .youtube(let videoID):
+                            YouTubeEmbedBlockView(videoID: videoID)
+                        case .xPost(let url):
+                            XEmbedBlockView(url: url)
                         }
                     }
                     .id("\(showingSummary)-\(showingTranslation)")

@@ -5,6 +5,8 @@ enum ContentBlock: Identifiable {
     case image(URL, link: URL? = nil)
     case code(String)
     case video(URL)
+    case youtube(String)
+    case xPost(URL)
 
     var id: String {
         switch self {
@@ -12,6 +14,8 @@ enum ContentBlock: Identifiable {
         case .image(let url, _): return "image-\(url.absoluteString)"
         case .code(let text): return "code-\(text.hashValue)"
         case .video(let url): return "video-\(url.absoluteString)"
+        case .youtube(let videoID): return "youtube-\(videoID)"
+        case .xPost(let url): return "xpost-\(url.absoluteString)"
         }
     }
 
@@ -25,6 +29,12 @@ enum ContentBlock: Identifiable {
         )
         .replacingOccurrences(
             of: #"\{\{VIDEO\}\}.+?\{\{/VIDEO\}\}"#, with: "", options: .regularExpression
+        )
+        .replacingOccurrences(
+            of: #"\{\{YOUTUBE\}\}.+?\{\{/YOUTUBE\}\}"#, with: "", options: .regularExpression
+        )
+        .replacingOccurrences(
+            of: #"\{\{XPOST\}\}.+?\{\{/XPOST\}\}"#, with: "", options: .regularExpression
         )
         .replacingOccurrences(of: "{{CODE}}", with: "")
         .replacingOccurrences(of: "{{/CODE}}", with: "")
@@ -46,6 +56,12 @@ enum ContentBlock: Identifiable {
         )
         result = result.replacingOccurrences(
             of: #"\{\{VIDEO\}\}.+?\{\{/VIDEO\}\}"#, with: "", options: .regularExpression
+        )
+        result = result.replacingOccurrences(
+            of: #"\{\{YOUTUBE\}\}.+?\{\{/YOUTUBE\}\}"#, with: "", options: .regularExpression
+        )
+        result = result.replacingOccurrences(
+            of: #"\{\{XPOST\}\}.+?\{\{/XPOST\}\}"#, with: "", options: .regularExpression
         )
         // Strip code markers, keeping content
         result = result.replacingOccurrences(of: "{{CODE}}", with: "")
@@ -85,7 +101,7 @@ enum ContentBlock: Identifiable {
     }
 
     static func parse(_ text: String) -> [ContentBlock] {
-        let pattern = #"\{\{(IMG|CODE|VIDEO)\}\}(.*?)\{\{/(IMG|CODE|VIDEO)\}\}"#
+        let pattern = #"\{\{(IMG|CODE|VIDEO|YOUTUBE|XPOST)\}\}(.*?)\{\{/(IMG|CODE|VIDEO|YOUTUBE|XPOST)\}\}"#
         guard let regex = try? NSRegularExpression(pattern: pattern, options: .dotMatchesLineSeparators)
         else {
             return [.text(ArticleMarker.unescape(text))]
@@ -125,6 +141,16 @@ enum ContentBlock: Identifiable {
             } else if tag == "VIDEO" {
                 if let url = URL(string: content) {
                     blocks.append(.video(url))
+                }
+            } else if tag == "YOUTUBE" {
+                let trimmed = content.trimmingCharacters(in: .whitespacesAndNewlines)
+                if !trimmed.isEmpty {
+                    blocks.append(.youtube(trimmed))
+                }
+            } else if tag == "XPOST" {
+                let trimmed = content.trimmingCharacters(in: .whitespacesAndNewlines)
+                if let url = URL(string: trimmed) {
+                    blocks.append(.xPost(url))
                 }
             } else {
                 // IMG — possibly with a link
