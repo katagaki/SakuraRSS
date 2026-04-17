@@ -3717,6 +3717,124 @@
           }
         }
       }
+    },
+    "BackgroundRefresh.WiFiOnlyImageBackfill": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bildabruf nur über WLAN"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Image Backfill on Wi-Fi Only"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Récupération d'images en Wi-Fi seulement"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recupero immagini solo su Wi-Fi"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "画像の補完はWi-Fiのみ"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이미지 보완은 Wi-Fi에서만"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chỉ tải ảnh bổ sung qua Wi-Fi"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "仅在 Wi-Fi 下补充图片"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "僅在 Wi-Fi 下補充圖片"
+          }
+        }
+      }
+    },
+    "BackgroundRefresh.WiFiOnlyImageBackfill.Footer": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Überspringt optionale Artikel-Bildabrufe bei Hintergrundaktualisierungen über Mobilfunk. Feed-Inhalte selbst werden immer aktualisiert."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Skips optional article image lookups during background refresh when on cellular. Feed content itself always refreshes."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saute les recherches d'images d'articles optionnelles lors des actualisations en arrière-plan sur données cellulaires. Le contenu des flux est toujours actualisé."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Salta le ricerche facoltative di immagini degli articoli durante l'aggiornamento in background su dati cellulari. I contenuti dei feed vengono sempre aggiornati."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "セルラー通信時のバックグラウンド更新では、任意の記事画像の取得をスキップします。フィード本体は常に更新されます。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "셀룰러 연결에서는 백그라운드 새로고침 시 선택적 기사 이미지 조회를 건너뜁니다. 피드 콘텐츠 자체는 항상 새로고침됩니다."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bỏ qua việc tra cứu ảnh bài viết tùy chọn khi làm mới trong nền qua dữ liệu di động. Nội dung nguồn cấp luôn được làm mới."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在蜂窝网络下进行后台刷新时跳过可选的文章图片查询。订阅源内容本身始终会刷新。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在行動網路下進行背景重新整理時略過可選的文章圖片查詢。訂閱源內容本身一律會重新整理。"
+          }
+        }
+      }
     }
   },
   "version": "1.1"

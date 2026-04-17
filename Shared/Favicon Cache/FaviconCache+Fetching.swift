@@ -48,7 +48,7 @@ extension FaviconCache {
             #if DEBUG
             debugPrint("[Favicon] Invalid domain URL: \(domain)")
             #endif
-            failedLookups.insert(cacheKey)
+            recordFailedLookup(cacheKey)
             return nil
         }
 
@@ -67,7 +67,7 @@ extension FaviconCache {
                 #if DEBUG
                 debugPrint("[Favicon] No favicon URLs found for \(domain)")
                 #endif
-                failedLookups.insert(cacheKey)
+                recordFailedLookup(cacheKey)
                 return nil
             }
             #if DEBUG
@@ -78,7 +78,7 @@ extension FaviconCache {
                 #if DEBUG
                 debugPrint("[Favicon] Failed to decode favicon image for \(domain)")
                 #endif
-                failedLookups.insert(cacheKey)
+                recordFailedLookup(cacheKey)
                 return nil
             }
             return await trimAndCache(faviconImage.image, cacheKey: cacheKey, filePath: filePath, domain: domain)
@@ -86,7 +86,7 @@ extension FaviconCache {
             #if DEBUG
             debugPrint("[Favicon] FaviconFinder failed for \(domain): \(error.localizedDescription)")
             #endif
-            failedLookups.insert(cacheKey)
+            recordFailedLookup(cacheKey)
             return nil
         }
     }

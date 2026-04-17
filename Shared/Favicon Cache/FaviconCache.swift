@@ -24,7 +24,9 @@ actor FaviconCache {
 
     let cacheDirectory: URL
     var memoryCache: [String: UIImage] = [:]
-    var failedLookups: Set<String> = []
+    /// Hosts whose favicon fetch most recently failed, keyed by cacheKey.
+    /// Persisted to disk with a 24h TTL — see `FaviconCache+FailedLookups`.
+    var failedLookups: [String: Date] = [:]
 
     private init() {
         let containerURL = FileManager.default.containerURL(
@@ -32,12 +34,14 @@ actor FaviconCache {
         )!
         cacheDirectory = containerURL.appendingPathComponent("FaviconCache", isDirectory: true)
         try? FileManager.default.createDirectory(at: cacheDirectory, withIntermediateDirectories: true)
+        let failedLookupsURL = cacheDirectory.appendingPathComponent(Self.failedLookupsFileName)
+        failedLookups = Self.loadFailedLookupsFromDisk(at: failedLookupsURL)
     }
 
     func favicon(for domain: String, siteURL: String? = nil) async -> UIImage? {
         let cacheKey = Self.cacheKey(domain: domain, siteURL: siteURL)
 
-        if failedLookups.contains(cacheKey) {
+        if isWithinFailureTTL(cacheKey) {
             return nil
         }
 
@@ -64,7 +68,7 @@ actor FaviconCache {
         for entry in entries {
             let cacheKey = Self.cacheKey(domain: entry.domain, siteURL: entry.siteURL)
             memoryCache[cacheKey] = nil
-            failedLookups.remove(cacheKey)
+            forgetFailedLookup(cacheKey)
             let filePath = cacheDirectory.appendingPathComponent(sanitizedFileName(cacheKey))
             try? FileManager.default.removeItem(at: filePath)
             try? FileManager.default.removeItem(at: metricsSidecarURL(for: cacheKey))
@@ -85,7 +89,7 @@ actor FaviconCache {
 
     func clearCache() {
         memoryCache.removeAll()
-        failedLookups.removeAll()
+        forgetAllFailedLookups()
         try? FileManager.default.removeItem(at: cacheDirectory)
         try? FileManager.default.createDirectory(at: cacheDirectory, withIntermediateDirectories: true)
     }
@@ -95,7 +99,7 @@ actor FaviconCache {
     func clearFailedLookups(for entries: [(domain: String, siteURL: String?)]) {
         for entry in entries {
             let cacheKey = Self.cacheKey(domain: entry.domain, siteURL: entry.siteURL)
-            failedLookups.remove(cacheKey)
+            forgetFailedLookup(cacheKey)
         }
     }
 

@@ -155,15 +155,21 @@ nonisolated final class DatabaseManager: @unchecked Sendable {
     }
 
     /// Bumps the similar-content algorithm version and wipes the cache the
-    /// first time the app launches under a newer ranker. Mirrors the
-    /// `invalidateStaleParserCache()` pattern above.
+    /// first time the app launches under a newer ranker. Deferred to a
+    /// background task so the rewrite (which scans every article row)
+    /// doesn't block the DB connection during cold launch — the old
+    /// v1 rankings stay visible to the user for a few seconds longer,
+    /// which is better than a frozen first-launch screen.  The version
+    /// stamp is written eagerly so a crash between the bump and the
+    /// wipe still lets the next launch finish the job.
     private func invalidateStaleSimilarContentCache() {
         let key = "Intelligence.SimilarContent.AlgorithmVersion"
         let current = 2   // v1: embedding-only; v2: hybrid embedding + entity Jaccard
         let stored = UserDefaults.standard.integer(forKey: key)
-        if stored < current {
-            try? invalidateSimilarContentCache()
-            UserDefaults.standard.set(current, forKey: key)
+        guard stored < current else { return }
+        UserDefaults.standard.set(current, forKey: key)
+        Task.detached(priority: .utility) { [weak self] in
+            try? self?.invalidateSimilarContentCache()
         }
     }
 

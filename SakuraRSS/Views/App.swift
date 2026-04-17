@@ -32,12 +32,17 @@ struct SakuraRSSApp: App {
                     // storage, so their cookies are available without any
                     // WebKit warming on cold launch.  We run a one-time
                     // migration for users upgrading from versions that
-                    // only stored cookies in WebKit.
-                    if UserDefaults.standard.bool(forKey: "Labs.XProfileFeeds") {
-                        await XProfileScraper.migrateWebKitCookiesIfNeeded()
-                    }
-                    if UserDefaults.standard.bool(forKey: "Labs.InstagramProfileFeeds") {
-                        await InstagramProfileScraper.migrateWebKitCookiesIfNeeded()
+                    // only stored cookies in WebKit.  The two migrations
+                    // are independent, so run them concurrently — refresh
+                    // depends on cookies being in place, so we wait for
+                    // both before kicking it off.
+                    await withTaskGroup(of: Void.self) { group in
+                        if UserDefaults.standard.bool(forKey: "Labs.XProfileFeeds") {
+                            group.addTask { await XProfileScraper.migrateWebKitCookiesIfNeeded() }
+                        }
+                        if UserDefaults.standard.bool(forKey: "Labs.InstagramProfileFeeds") {
+                            group.addTask { await InstagramProfileScraper.migrateWebKitCookiesIfNeeded() }
+                        }
                     }
                     await feedManager.refreshAllFeeds(respectCooldown: true)
                     UserDefaults.standard.set(false, forKey: "App.StartupInProgress")
@@ -70,9 +75,13 @@ struct SakuraRSSApp: App {
                         return
                     }
                     lastForegroundWorkAt = now
-                    feedManager.loadFromDatabase()
+                    // Widget reload doesn't touch FeedManager state, so
+                    // it can fire synchronously while the DB reload goes
+                    // to a background Task.  Keeps the main thread free
+                    // for animations during the foreground transition.
                     WidgetCenter.shared.reloadAllTimelines()
                     Task {
+                        await feedManager.loadFromDatabaseInBackground()
                         await feedManager.refreshUnfetchedFeeds()
                     }
                 }
@@ -321,10 +330,23 @@ struct SakuraRSSApp: App {
         }
 
         let refreshTask = Task {
+            // Skip per-article HTML metadata image backfill when we're on
+            // an expensive path (cellular / hotspot) and the user has the
+            // Wi-Fi-only preference on.  The feed bodies themselves still
+            // load; only the optional og:image lookup is deferred.  A nil
+            // probe result is treated as "assume expensive" so we default
+            // to the safer behavior when the network type is unknown.
+            let wifiOnly = UserDefaults.standard.object(
+                forKey: "BackgroundRefresh.ImageBackfillWiFiOnly"
+            ) as? Bool ?? true
+            let pathExpensive = await NetworkMonitor.currentPathIsExpensive() ?? true
+            let skipImageBackfill = wifiOnly && pathExpensive
+
             let manager = FeedManager()
             await manager.refreshAllFeeds(
                 skipAuthenticatedScrapers: true,
-                respectCooldown: true
+                respectCooldown: true,
+                skipImageBackfill: skipImageBackfill
             )
             await NLPProcessingCoordinator.processNewArticlesIfEnabled()
             manager.updateBadgeCount()

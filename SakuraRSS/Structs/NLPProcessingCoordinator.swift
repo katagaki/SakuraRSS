@@ -45,16 +45,10 @@ enum NLPProcessingCoordinator {
         #endif
 
         await Task.detached(priority: .utility) {
-            var idsToProcess = Set<Int64>()
-            if let ids = try? db.unprocessedSentimentArticleIDs(since: sevenDaysAgo, limit: 200) {
-                idsToProcess.formUnion(ids)
-            }
-            if let ids = try? db.unprocessedEntitiesArticleIDs(since: sevenDaysAgo, limit: 200) {
-                idsToProcess.formUnion(ids)
-            }
+            let toProcess = (try? db.unprocessedNLPArticles(since: sevenDaysAgo, limit: 200)) ?? []
 
             #if DEBUG
-            logger.debug("processNewArticlesIfEnabled: \(idsToProcess.count) articles to process")
+            logger.debug("processNewArticlesIfEnabled: \(toProcess.count) articles to process")
             #endif
 
             // Reuse a single sentiment tagger and a single name-type tagger
@@ -64,14 +58,15 @@ enum NLPProcessingCoordinator {
             let sentimentTagger = NLTagger(tagSchemes: [.sentimentScore])
             let nameTagger = NLTagger(tagSchemes: [.nameType])
 
-            let orderedIDs = Array(idsToProcess)
             var processedSinceYield = 0
-            for id in orderedIDs {
-                guard let article = try? db.article(byID: id) else { continue }
+            for pending in toProcess {
+                guard let article = try? db.article(byID: pending.id) else { continue }
                 processArticleSync(
                     article,
-                    sentimentTagger: sentimentTagger,
-                    nameTagger: nameTagger
+                    sentimentTagger: pending.needsSentiment ? sentimentTagger : nil,
+                    nameTagger: pending.needsEntities ? nameTagger : nil,
+                    runSentiment: pending.needsSentiment,
+                    runEntities: pending.needsEntities
                 )
                 processedSinceYield += 1
                 if processedSinceYield >= chunkSize {
@@ -82,7 +77,7 @@ enum NLPProcessingCoordinator {
 
             #if DEBUG
             let elapsed = Date().timeIntervalSince(startTime)
-            logger.debug("processNewArticlesIfEnabled: finished \(orderedIDs.count) articles in \(String(format: "%.2f", elapsed))s")
+            logger.debug("processNewArticlesIfEnabled: finished \(toProcess.count) articles in \(String(format: "%.2f", elapsed))s")
             #endif
         }.value
     }
@@ -103,11 +98,15 @@ enum NLPProcessingCoordinator {
     ///
     /// When `sentimentTagger` and `nameTagger` are supplied, they are reused
     /// across articles by the batch caller.  The single-article path
-    /// constructs fresh taggers on each call.
+    /// constructs fresh taggers on each call.  `runSentiment` / `runEntities`
+    /// let the batch caller skip passes that have already been completed
+    /// for this article on a previous run.
     private nonisolated static func processArticleSync(
         _ article: Article,
         sentimentTagger: NLTagger? = nil,
-        nameTagger: NLTagger? = nil
+        nameTagger: NLTagger? = nil,
+        runSentiment: Bool = true,
+        runEntities: Bool = true
     ) {
         let db = DatabaseManager.shared
         let text = [article.title, article.summary ?? ""]
@@ -118,29 +117,33 @@ enum NLPProcessingCoordinator {
         logger.debug("processArticleSync: article=\(article.id) title=\"\(article.title.prefix(60))\"")
         #endif
 
-        let sentiment: Double?
-        if let sentimentTagger {
-            sentiment = NLPProcessor.sentimentScore(for: text, using: sentimentTagger)
-        } else {
-            sentiment = NLPProcessor.sentimentScore(for: text)
+        if runSentiment {
+            let sentiment: Double?
+            if let sentimentTagger {
+                sentiment = NLPProcessor.sentimentScore(for: text, using: sentimentTagger)
+            } else {
+                sentiment = NLPProcessor.sentimentScore(for: text)
+            }
+            if let sentiment {
+                try? db.updateSentimentScore(sentiment, for: article.id)
+            }
+            try? db.markSentimentProcessed(articleId: article.id)
         }
-        if let sentiment {
-            try? db.updateSentimentScore(sentiment, for: article.id)
-        }
-        try? db.markSentimentProcessed(articleId: article.id)
 
-        let entities: [NLPProcessor.EntityResult]
-        if let nameTagger {
-            entities = NLPProcessor.extractEntities(from: text, using: nameTagger)
-        } else {
-            entities = NLPProcessor.extractEntities(from: text)
+        if runEntities {
+            let entities: [NLPProcessor.EntityResult]
+            if let nameTagger {
+                entities = NLPProcessor.extractEntities(from: text, using: nameTagger)
+            } else {
+                entities = NLPProcessor.extractEntities(from: text)
+            }
+            if !entities.isEmpty {
+                try? db.insertEntities(
+                    entities.map { (name: $0.name, type: $0.type) },
+                    for: article.id
+                )
+            }
+            try? db.markEntitiesProcessed(articleId: article.id)
         }
-        if !entities.isEmpty {
-            try? db.insertEntities(
-                entities.map { (name: $0.name, type: $0.type) },
-                for: article.id
-            )
-        }
-        try? db.markEntitiesProcessed(articleId: article.id)
     }
 }

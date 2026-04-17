@@ -80,36 +80,48 @@ struct SingleFeedProvider: AppIntentTimelineProvider {
             let articleSetUnchanged = previousMarker == articleIDsMarker
             defaults?.set(articleIDsMarker, forKey: markerKey)
 
+            let thumbnailCache = WidgetThumbnailCache(
+                scope: "single_\(feedID)_\(layout.rawValue)_\(columns)"
+            )
+
             var widgetArticles: [SingleFeedArticle] = []
             for article in pageArticles {
                 var imageData: Data?
                 if let imageURLString = article.imageURL, let imageURL = URL(string: imageURLString) {
-                    var rawData: Data?
-                    if let cached = try? database.cachedImageData(for: imageURLString) {
-                        #if DEBUG
-                        debugPrint("[Widget] Image cache hit for \(imageURLString) (\(cached.count) bytes)")
-                        #endif
-                        rawData = cached
-                    } else if !articleSetUnchanged {
-                        if let (data, _) = try? await URLSession.shared.data(for: .sakura(url: imageURL)) {
+                    if articleSetUnchanged,
+                       let cachedThumb = thumbnailCache.thumbnail(for: article.id) {
+                        imageData = cachedThumb
+                    } else {
+                        var rawData: Data?
+                        if let cached = try? database.cachedImageData(for: imageURLString) {
                             #if DEBUG
-                            debugPrint("[Widget] Downloaded image \(imageURLString) (\(data.count) bytes)")
+                            debugPrint("[Widget] Image cache hit for \(imageURLString) (\(cached.count) bytes)")
                             #endif
-                            try? database.cacheImageData(data, for: imageURLString)
-                            rawData = data
-                        } else {
+                            rawData = cached
+                        } else if !articleSetUnchanged {
+                            if let (data, _) = try? await URLSession.shared.data(for: .sakura(url: imageURL)) {
+                                #if DEBUG
+                                debugPrint("[Widget] Downloaded image \(imageURLString) (\(data.count) bytes)")
+                                #endif
+                                try? database.cacheImageData(data, for: imageURLString)
+                                rawData = data
+                            } else {
+                                #if DEBUG
+                                debugPrint("[Widget] Failed to download image \(imageURLString)")
+                                #endif
+                            }
+                        }
+                        if let rawData {
+                            imageData = await Self.downsampleImageData(rawData, maxDimension: 300)
+                            if let imageData {
+                                thumbnailCache.storeThumbnail(imageData, for: article.id)
+                            }
                             #if DEBUG
-                            debugPrint("[Widget] Failed to download image \(imageURLString)")
+                            if imageData == nil {
+                                debugPrint("[Widget] Failed to downsample image \(imageURLString)")
+                            }
                             #endif
                         }
-                    }
-                    if let rawData {
-                        imageData = await Self.downsampleImageData(rawData, maxDimension: 300)
-                        #if DEBUG
-                        if imageData == nil {
-                            debugPrint("[Widget] Failed to downsample image \(imageURLString)")
-                        }
-                        #endif
                     }
                 }
                 widgetArticles.append(SingleFeedArticle(
@@ -119,6 +131,7 @@ struct SingleFeedProvider: AppIntentTimelineProvider {
                     publishedDate: article.publishedDate
                 ))
             }
+            thumbnailCache.prune(keeping: pageArticles.map(\.id))
 
             return SingleFeedEntry(
                 date: Date(),
@@ -145,18 +158,6 @@ struct SingleFeedProvider: AppIntentTimelineProvider {
     }
 
     private static func downsampleImageData(_ data: Data, maxDimension: CGFloat) async -> Data? {
-        guard let image = UIImage(data: data) else { return nil }
-        let size = image.size
-
-        let scale: CGFloat = size.width > size.height
-            ? maxDimension / size.width
-            : maxDimension / size.height
-        let targetSize = CGSize(
-            width: round(size.width * min(scale, 1.0)),
-            height: round(size.height * min(scale, 1.0))
-        )
-
-        guard let thumbnail = await image.byPreparingThumbnail(ofSize: targetSize) else { return nil }
-        return thumbnail.jpegData(compressionQuality: 0.7)
+        ImageDownsampler.downsampleToJPEG(data, maxPixelSize: maxDimension)
     }
 }
