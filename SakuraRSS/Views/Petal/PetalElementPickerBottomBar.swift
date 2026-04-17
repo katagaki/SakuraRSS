@@ -41,16 +41,7 @@ struct PetalElementPickerBottomBar: View {
     }
 
     private var summary: some View {
-        ZStack {
-            // Invisible size anchor: keeps capsule at 2-line caption height
-            // whether or not an element is selected.
-            VStack(alignment: .leading, spacing: 2) {
-                Text(verbatim: " ").font(.caption.monospaced().weight(.semibold))
-                Text(verbatim: " ").font(.caption)
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .opacity(0)
-
+        Group {
             if let picked {
                 VStack(alignment: .leading, spacing: 2) {
                     Text(verbatim: picked.selected.selector)
@@ -70,11 +61,12 @@ struct PetalElementPickerBottomBar: View {
                 Text(String(localized: "Picker.NoSelection", table: "Petal"))
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
+                    .frame(maxWidth: .infinity)
             }
         }
         .padding(.horizontal, 14)
-        .padding(.vertical, 8)
-        .frame(maxWidth: .infinity)
+        .padding(.vertical, 10)
+        .fixedSize(horizontal: false, vertical: true)
         .compositingGroup()
         .glassEffect(.regular, in: .capsule)
     }
