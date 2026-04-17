@@ -1,10 +1,10 @@
 import SwiftUI
 
 /// Full-screen sheet that renders fetched HTML in a web view and
-/// lets the user tap elements to assign them to recipe fields.
-///
-/// The picker modifies the recipe binding directly — changes are
-/// visible in the builder as soon as the sheet is dismissed.
+/// lets the user tap elements, navigate the DOM via a breadcrumb,
+/// and assign the current selection to a recipe field via the
+/// "Assign to…" menu.  Recipe mutations flow through the binding
+/// so the builder sees them as soon as the sheet is dismissed.
 struct PetalElementPickerView: View {
 
     @Binding var recipe: PetalRecipe
@@ -12,6 +12,7 @@ struct PetalElementPickerView: View {
     @Environment(\.dismiss) private var dismiss
 
     @State private var pickedElement: PetalElementPickerWebView.PickedElement?
+    @StateObject private var controller = PetalElementPickerController()
 
     private var baseURL: URL? {
         URL(string: recipe.baseURL ?? recipe.siteURL)
@@ -22,6 +23,7 @@ struct PetalElementPickerView: View {
             PetalElementPickerWebView(
                 html: html,
                 baseURL: baseURL,
+                controller: controller,
                 onElementPicked: { pickedElement = $0 }
             )
             .ignoresSafeArea()
@@ -33,83 +35,13 @@ struct PetalElementPickerView: View {
                 }
             }
             .safeAreaInset(edge: .bottom) {
-                statusBar
+                PetalElementPickerBottomBar(
+                    recipe: $recipe,
+                    picked: pickedElement,
+                    onSelectAncestor: controller.selectAncestor(levelsUp:),
+                    onSelectChild: controller.selectChild(atIndex:)
+                )
             }
         }
     }
-
-    // MARK: - Assignment
-
-    private func assign(field: PetalRecipeField, selector: String) {
-        switch field {
-        case .item:    recipe.itemSelector = selector
-        case .title:   recipe.titleSelector = selector
-        case .link:    recipe.linkSelector = selector
-        case .date:    recipe.dateSelector = selector
-        case .author:  recipe.authorSelector = selector
-        case .summary: recipe.summarySelector = selector
-        case .image:   recipe.imageSelector = selector
-        }
-    }
-
-    // MARK: - Status bar
-
-    private var statusBar: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            GlassEffectContainer(spacing: 8) {
-                HStack(spacing: 8) {
-                    chip(field: .item)
-                    chip(field: .title)
-                    chip(field: .link)
-                    chip(field: .date)
-                    chip(field: .author)
-                    chip(field: .summary)
-                    chip(field: .image)
-                }
-            }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 10)
-        }
-        .safeAreaPadding(.bottom)
-    }
-
-    @ViewBuilder
-    private func chip(field: PetalRecipeField) -> some View {
-        let currentSelector = selector(for: field)
-        let isSet = !currentSelector.isEmpty
-        let canAssign = pickedElement != nil
-        Button {
-            if let el = pickedElement {
-                assign(field: field, selector: el.selector)
-            }
-        } label: {
-            HStack(spacing: 6) {
-                Image(systemName: isSet ? "checkmark.circle.fill" : "circle")
-                    .font(.subheadline.weight(.medium))
-                    .foregroundStyle(isSet ? Color.green : Color.secondary)
-                Text(field.localizedLabel)
-                    .font(.subheadline)
-                    .foregroundStyle(isSet ? Color.primary : Color.secondary)
-            }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 10)
-        }
-        .buttonStyle(.plain)
-        .glassEffect(.regular.interactive(), in: .capsule)
-        .disabled(!canAssign)
-    }
-
-    private func selector(for field: PetalRecipeField) -> String {
-        switch field {
-        case .item:    recipe.itemSelector
-        case .title:   recipe.titleSelector ?? ""
-        case .link:    recipe.linkSelector ?? ""
-        case .date:    recipe.dateSelector ?? ""
-        case .author:  recipe.authorSelector ?? ""
-        case .summary: recipe.summarySelector ?? ""
-        case .image:   recipe.imageSelector ?? ""
-        }
-    }
-
 }
-
