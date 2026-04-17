@@ -40,37 +40,29 @@ struct PetalElementPickerBottomBar: View {
         }
     }
 
-    @ViewBuilder
     private var summary: some View {
-        if let picked {
-            VStack(alignment: .leading, spacing: 2) {
-                Text(verbatim: picked.selected.selector)
-                    .font(.caption.monospaced().weight(.semibold))
-                    .foregroundStyle(.primary)
-                    .lineLimit(1)
-                    .truncationMode(.head)
-                if !picked.selected.text.isEmpty {
-                    Text(picked.selected.text)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                        .lineLimit(1)
-                        .truncationMode(.tail)
-                }
-            }
-            .padding(.horizontal, 14)
-            .padding(.vertical, 8)
-            .frame(maxHeight: .infinity)
-            .compositingGroup()
-            .glassEffect(.regular, in: .capsule)
-        } else {
-            Text(String(localized: "Picker.NoSelection", table: "Petal"))
-                .font(.subheadline)
+        let selector = picked.map { Text(verbatim: $0.selected.selector) }
+            ?? Text(String(localized: "Picker.NoSelection", table: "Petal"))
+        let previewText = picked?.selected.text ?? ""
+        return VStack(alignment: .leading, spacing: 2) {
+            selector
+                .font(picked != nil
+                      ? .caption.monospaced().weight(.semibold)
+                      : .subheadline)
+                .foregroundStyle(picked != nil ? Color.primary : Color.secondary)
+                .lineLimit(1)
+                .truncationMode(.head)
+            Text(verbatim: previewText.isEmpty ? " " : previewText)
+                .font(.caption)
                 .foregroundStyle(.secondary)
-                .padding(.horizontal, 14)
-                .padding(.vertical, 8)
-                .frame(maxHeight: .infinity)
-                .compositingGroup()
-                .glassEffect(.regular, in: .capsule)
+                .lineLimit(1)
+                .truncationMode(.tail)
+                .opacity(previewText.isEmpty ? 0 : 1)
         }
+        .padding(.horizontal, 14)
+        .padding(.vertical, 8)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+        .compositingGroup()
+        .glassEffect(.regular, in: .capsule)
     }
 }
