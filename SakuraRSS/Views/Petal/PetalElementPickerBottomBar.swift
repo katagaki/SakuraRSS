@@ -12,7 +12,7 @@ struct PetalElementPickerBottomBar: View {
     let onSelectChild: (Int) -> Void
 
     var body: some View {
-        VStack(spacing: 0) {
+        VStack(spacing: 8) {
             if let picked {
                 PetalElementBreadcrumb(
                     ancestors: picked.ancestors,
@@ -21,10 +21,13 @@ struct PetalElementPickerBottomBar: View {
                     onSelectAncestor: onSelectAncestor,
                     onSelectChild: onSelectChild
                 )
-                .padding(.vertical, 8)
+                .padding(.vertical, 6)
+                .glassEffect(.regular, in: .capsule)
             }
             actionRow
         }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 10)
         .safeAreaPadding(.bottom)
     }
 
@@ -34,8 +37,6 @@ struct PetalElementPickerBottomBar: View {
             Spacer(minLength: 8)
             PetalElementAssignMenu(recipe: $recipe, picked: picked)
         }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 10)
     }
 
     @ViewBuilder

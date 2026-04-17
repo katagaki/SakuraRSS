@@ -41,7 +41,7 @@ struct PetalElementBreadcrumb: View {
                     segment(selected.selector, isCurrent: true) {}
                         .id("selected-segment")
                 }
-                .padding(.horizontal, 16)
+                .padding(.horizontal, 12)
             }
             .onChange(of: selected.selector) { _, _ in
                 withAnimation(.easeInOut(duration: 0.2)) {
