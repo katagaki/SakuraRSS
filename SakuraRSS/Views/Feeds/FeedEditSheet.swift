@@ -8,11 +8,11 @@ struct FeedEditSheet: View {
 
     let feed: Feed
 
-    @SceneStorage("FeedEditSheet.name") private var name = ""
-    @SceneStorage("FeedEditSheet.url") private var url = ""
-    @SceneStorage("FeedEditSheet.iconURLInput") var iconURLInput = ""
-    @SceneStorage("FeedEditSheet.useDefaultIcon") var useDefaultIcon = false
-    @SceneStorage("FeedEditSheet.hasInitialized") private var hasInitialized = false
+    @State private var name = ""
+    @State private var url = ""
+    @State var iconURLInput = ""
+    @State var useDefaultIcon = false
+    @State private var hasInitialized = false
     @State private var openMode: FeedOpenMode = .inAppViewer
     @State private var articleSource: ArticleSource = .automatic
     @State var selectedPhoto: PhotosPickerItem?
@@ -208,7 +208,6 @@ struct FeedEditSheet: View {
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button(role: .cancel) {
-                        clearSceneStorage()
                         dismiss()
                     }
                 }
@@ -323,16 +322,7 @@ struct FeedEditSheet: View {
         } else {
             UserDefaults.standard.set(articleSource.rawValue, forKey: "articleSource-\(feed.id)")
         }
-        clearSceneStorage()
         dismiss()
-    }
-
-    private func clearSceneStorage() {
-        name = ""
-        url = ""
-        iconURLInput = ""
-        useDefaultIcon = false
-        hasInitialized = false
     }
 
 }
