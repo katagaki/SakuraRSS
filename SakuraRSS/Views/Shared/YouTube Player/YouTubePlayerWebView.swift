@@ -13,6 +13,7 @@ struct YouTubePlayerWebView: UIViewRepresentable {
     @Binding var advertiserURL: URL?
     @Binding var videoAspectRatio: CGFloat
     @Binding var isPiP: Bool
+    var chapters: Binding<[YouTubeChapter]>?
 
     func makeCoordinator() -> Coordinator {
         Coordinator(
@@ -22,7 +23,8 @@ struct YouTubePlayerWebView: UIViewRepresentable {
             isAd: $isAd,
             advertiserURL: $advertiserURL,
             videoAspectRatio: $videoAspectRatio,
-            isPiP: $isPiP
+            isPiP: $isPiP,
+            chapters: chapters
         )
     }
 
@@ -94,7 +96,9 @@ struct YouTubePlayerWebView: UIViewRepresentable {
         @Binding var advertiserURL: URL?
         @Binding var videoAspectRatio: CGFloat
         @Binding var isPiP: Bool
+        let chapters: Binding<[YouTubeChapter]>?
         nonisolated(unsafe) private var playbackObserver: Timer?
+        private var chapterRetryCount = 0
 
         init(
             isPlaying: Binding<Bool>,
@@ -103,7 +107,8 @@ struct YouTubePlayerWebView: UIViewRepresentable {
             isAd: Binding<Bool>,
             advertiserURL: Binding<URL?>,
             videoAspectRatio: Binding<CGFloat>,
-            isPiP: Binding<Bool>
+            isPiP: Binding<Bool>,
+            chapters: Binding<[YouTubeChapter]>?
         ) {
             _isPlaying = isPlaying
             _currentTime = currentTime
@@ -112,6 +117,7 @@ struct YouTubePlayerWebView: UIViewRepresentable {
             _advertiserURL = advertiserURL
             _videoAspectRatio = videoAspectRatio
             _isPiP = isPiP
+            self.chapters = chapters
         }
 
         deinit {
@@ -127,6 +133,35 @@ struct YouTubePlayerWebView: UIViewRepresentable {
             injectStyles(into: webView)
             unmuteVideo(in: webView)
             startPlaybackObserver(for: webView)
+            chapterRetryCount = 0
+            extractChapters(from: webView)
+        }
+
+        private func extractChapters(from webView: WKWebView) {
+            guard chapters != nil else { return }
+            webView.evaluateJavaScript(YouTubePlayerScripts.extractChapters) { [weak self] result, _ in
+                guard let self else { return }
+                let parsed = Self.parseChapters(from: result)
+                DispatchQueue.main.async {
+                    if !parsed.isEmpty {
+                        self.chapters?.wrappedValue = parsed
+                    } else if self.chapterRetryCount < 3 {
+                        self.chapterRetryCount += 1
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { [weak self] in
+                            self?.extractChapters(from: webView)
+                        }
+                    }
+                }
+            }
+        }
+
+        private static func parseChapters(from result: Any?) -> [YouTubeChapter] {
+            guard let array = result as? [[String: Any]] else { return [] }
+            return array.enumerated().compactMap { index, entry in
+                guard let title = entry["title"] as? String, !title.isEmpty,
+                      let start = entry["startSeconds"] as? Double else { return nil }
+                return YouTubeChapter(id: index, title: title, startTime: start)
+            }
         }
 
         func webView(

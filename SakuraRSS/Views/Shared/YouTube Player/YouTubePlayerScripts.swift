@@ -102,4 +102,50 @@ enum YouTubePlayerScripts {
         }
     })();
     """
+
+    /// Reads chapter markers from `ytInitialPlayerResponse` and returns an
+    /// array of `{title, startSeconds}` entries, or an empty array if the
+    /// video has no chapters.
+    static let extractChapters = """
+    (function() {
+        try {
+            var data = window.ytInitialPlayerResponse;
+            if (!data || !data.playerOverlays) return [];
+            var overlay = data.playerOverlays.playerOverlayRenderer;
+            if (!overlay) return [];
+            var outer = overlay.decoratedPlayerBarRenderer;
+            if (!outer) return [];
+            var inner = outer.decoratedPlayerBarRenderer;
+            if (!inner || !inner.playerBar) return [];
+            var markers = inner.playerBar.multiMarkersPlayerBarRenderer;
+            if (!markers || !markers.markersMap) return [];
+            var entry = null;
+            for (var i = 0; i < markers.markersMap.length; i++) {
+                var m = markers.markersMap[i];
+                if (m && (m.key === 'DESCRIPTION_CHAPTERS' || m.key === 'AUTO_CHAPTERS')) {
+                    entry = m;
+                    break;
+                }
+            }
+            if (!entry || !entry.value || !entry.value.chapters) return [];
+            return entry.value.chapters.map(function(c) {
+                var r = c && c.chapterRenderer;
+                if (!r) return null;
+                var title = '';
+                if (r.title) {
+                    if (typeof r.title.simpleText === 'string') {
+                        title = r.title.simpleText;
+                    } else if (r.title.runs && r.title.runs.length) {
+                        title = r.title.runs.map(function(x) { return x.text || ''; }).join('');
+                    }
+                }
+                var ms = parseInt(r.timeRangeStartMillis, 10);
+                if (isNaN(ms)) ms = 0;
+                return { title: title, startSeconds: ms / 1000.0 };
+            }).filter(function(x) { return x && x.title; });
+        } catch (e) {
+            return [];
+        }
+    })();
+    """
 }

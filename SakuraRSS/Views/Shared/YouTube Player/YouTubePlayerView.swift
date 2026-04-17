@@ -24,6 +24,7 @@ struct YouTubePlayerView: View {
     @State private var feed: Feed?
     @State private var favicon: UIImage?
     @State private var acronymIcon: UIImage?
+    @State var chapters: [YouTubeChapter] = []
 
     // SponsorBlock
     @AppStorage("YouTube.SponsorBlock.Enabled") var sponsorBlockEnabled = false
@@ -119,7 +120,8 @@ struct YouTubePlayerView: View {
                 isAd: $isAd,
                 advertiserURL: $advertiserURL,
                 videoAspectRatio: $videoAspectRatio,
-                isPiP: $isPiP
+                isPiP: $isPiP,
+                chapters: $chapters
             )
             .aspectRatio(videoAspectRatio, contentMode: .fit)
             .clipped()
@@ -306,6 +308,12 @@ struct YouTubePlayerView: View {
         .sakuraBackground()
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
+            if !chapters.isEmpty {
+                ToolbarItemGroup(placement: .topBarTrailing) {
+                    chapterMenu
+                }
+                ToolbarSpacer(.fixed, placement: .topBarTrailing)
+            }
             ToolbarItemGroup(placement: .topBarTrailing) {
                 Button {
                     isBookmarked.toggle()
