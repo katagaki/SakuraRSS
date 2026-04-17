@@ -173,9 +173,6 @@ extension FeedManager {
         skipAuthenticatedScrapers: Bool = false,
         respectCooldown: Bool = false
     ) async {
-        await MainActor.run { isLoading = true }
-        defer { Task { @MainActor in self.isLoading = false } }
-
         let cooldownSeconds: TimeInterval? = {
             guard respectCooldown else { return nil }
             let raw = UserDefaults.standard.string(forKey: "BackgroundRefresh.Cooldown")
@@ -185,18 +182,36 @@ extension FeedManager {
         let now = Date()
 
         let currentFeeds = feeds
+        let feedsToRefresh = currentFeeds.filter { feed in
+            if skipAuthenticatedScrapers, feed.isXFeed || feed.isInstagramFeed {
+                return false
+            }
+            if let cooldownSeconds,
+               let lastFetched = feed.lastFetched,
+               now.timeIntervalSince(lastFetched) < cooldownSeconds {
+                return false
+            }
+            return true
+        }
+
+        await MainActor.run {
+            isLoading = true
+            refreshCompleted = 0
+            refreshTotal = feedsToRefresh.count
+        }
+        defer {
+            Task { @MainActor in
+                self.isLoading = false
+                self.refreshCompleted = 0
+                self.refreshTotal = 0
+            }
+        }
+
         await withTaskGroup(of: Void.self) { group in
-            for feed in currentFeeds {
-                if skipAuthenticatedScrapers, feed.isXFeed || feed.isInstagramFeed {
-                    continue
-                }
-                if let cooldownSeconds,
-                   let lastFetched = feed.lastFetched,
-                   now.timeIntervalSince(lastFetched) < cooldownSeconds {
-                    continue
-                }
+            for feed in feedsToRefresh {
                 group.addTask {
                     try? await self.refreshFeed(feed, reloadData: false)
+                    await MainActor.run { self.refreshCompleted += 1 }
                 }
             }
         }
@@ -224,14 +239,25 @@ extension FeedManager {
     }
 
     func refreshAllFeedsAndFavicons() async {
-        await MainActor.run { isLoading = true }
-        defer { Task { @MainActor in self.isLoading = false } }
-
         let currentFeeds = feeds
+        await MainActor.run {
+            isLoading = true
+            refreshCompleted = 0
+            refreshTotal = currentFeeds.count
+        }
+        defer {
+            Task { @MainActor in
+                self.isLoading = false
+                self.refreshCompleted = 0
+                self.refreshTotal = 0
+            }
+        }
+
         async let feedRefresh: Void = withTaskGroup(of: Void.self) { group in
             for feed in currentFeeds {
                 group.addTask {
                     try? await self.refreshFeed(feed, updateTitle: false, reloadData: false)
+                    await MainActor.run { self.refreshCompleted += 1 }
                 }
             }
         }
