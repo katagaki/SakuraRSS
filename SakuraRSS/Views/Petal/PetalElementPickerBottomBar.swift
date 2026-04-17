@@ -25,50 +25,39 @@ struct PetalElementPickerBottomBar: View {
                 .compositingGroup()
                 .glassEffect(.regular, in: .capsule)
             }
-            actionRow
-        }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 10)
-        .safeAreaPadding(.bottom)
-    }
-
-    private var actionRow: some View {
-        HStack(alignment: .center, spacing: 12) {
-            summary
-            Spacer(minLength: 8)
-            PetalElementAssignMenu(recipe: $recipe, picked: picked)
-        }
-        .fixedSize(horizontal: false, vertical: true)
-    }
-
-    private var summary: some View {
-        Group {
-            if let picked {
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(verbatim: picked.selected.selector)
+            HStack(alignment: .center, spacing: 12) {
+                Group {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Group {
+                            if let picked {
+                                Text(verbatim: picked.selected.selector)
+                            } else {
+                                Text(String(localized: "Picker.NoSelection", table: "Petal"))
+                            }
+                        }
                         .font(.caption.monospaced().weight(.semibold))
                         .foregroundStyle(.primary)
                         .lineLimit(1)
                         .truncationMode(.head)
-                    Text(picked.selected.text.isEmpty ? " " : picked.selected.text)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                        .lineLimit(1)
-                        .truncationMode(.tail)
-                        .opacity(picked.selected.text.isEmpty ? 0 : 1)
+                        Text(picked?.selected.text ?? "-")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                            .lineLimit(1)
+                            .truncationMode(.tail)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
                 }
-                .frame(maxWidth: .infinity, alignment: .leading)
-            } else {
-                Text(String(localized: "Picker.NoSelection", table: "Petal"))
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-                    .frame(maxWidth: .infinity)
+                .padding(.horizontal, 14)
+                .padding(.vertical, 10)
+                .fixedSize(horizontal: false, vertical: true)
+                .compositingGroup()
+                .glassEffect(.regular, in: .capsule)
+                PetalElementAssignMenu(recipe: $recipe, picked: picked)
             }
+            .fixedSize(horizontal: false, vertical: true)
         }
-        .padding(.horizontal, 14)
+        .padding(.horizontal, 16)
         .padding(.vertical, 10)
-        .fixedSize(horizontal: false, vertical: true)
-        .compositingGroup()
-        .glassEffect(.regular, in: .capsule)
+        .safeAreaPadding(.bottom)
     }
 }

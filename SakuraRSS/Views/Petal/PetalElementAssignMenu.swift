@@ -28,7 +28,7 @@ struct PetalElementAssignMenu: View {
             .compositingGroup()
             .glassEffect(.regular.interactive(), in: .capsule)
         }
-        .buttonStyle(.plain)
+        .tint(.primary)
         .disabled(picked == nil)
     }
 

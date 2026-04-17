@@ -19,33 +19,30 @@ struct PetalElementBreadcrumb: View {
 
     var body: some View {
         HStack(spacing: 6) {
-            trail
-            drillInControl
-                .padding(.trailing, 16)
-        }
-    }
-
-    private var trail: some View {
-        ScrollViewReader { proxy in
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 4) {
-                    ForEach(orderedAncestors.indices, id: \.self) { idx in
-                        segment(orderedAncestors[idx].selector, isCurrent: false) {
-                            let levelsUp = orderedAncestors.count - idx
-                            onSelectAncestor(levelsUp)
+            ScrollViewReader { proxy in
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 4) {
+                        ForEach(orderedAncestors.indices, id: \.self) { idx in
+                            segment(orderedAncestors[idx].selector, isCurrent: false) {
+                                let levelsUp = orderedAncestors.count - idx
+                                onSelectAncestor(levelsUp)
+                            }
+                            Image(systemName: "chevron.right")
+                                .font(.caption2.weight(.semibold))
+                                .foregroundStyle(.tertiary)
                         }
-                        Image(systemName: "chevron.right")
-                            .font(.caption2.weight(.semibold))
-                            .foregroundStyle(.tertiary)
+                        segment(selected.selector, isCurrent: true) {}
+                            .id("selected-segment")
+                        drillInControl
+                            .tint(.primary)
                     }
-                    segment(selected.selector, isCurrent: true) {}
-                        .id("selected-segment")
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 6)
                 }
-                .padding(.horizontal, 12)
-            }
-            .onChange(of: selected.selector) { _, _ in
-                withAnimation(.easeInOut(duration: 0.2)) {
-                    proxy.scrollTo("selected-segment", anchor: .trailing)
+                .onChange(of: selected.selector) { _, _ in
+                    withAnimation(.easeInOut(duration: 0.2)) {
+                        proxy.scrollTo("selected-segment", anchor: .trailing)
+                    }
                 }
             }
         }

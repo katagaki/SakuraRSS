@@ -43,5 +43,6 @@ struct PetalElementPickerView: View {
                 )
             }
         }
+        .interactiveDismissDisabled()
     }
 }
