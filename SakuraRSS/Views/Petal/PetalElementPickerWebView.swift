@@ -129,17 +129,43 @@ private extension PetalElementPickerWebView {
 
       var selected = null;
 
+      // Elements whose only rendered content is visually hidden
+      // (e.g. `.sr-only` link overlays that Webflow and similar CMSes
+      // use to make a whole card clickable) are not pickable targets —
+      // the user can't see them, so the picker should treat them as
+      // transparent and drill through to the real content below.
+      function isInvisibleOverlay(el) {
+        if (!el || el === document.body || el === document.documentElement) return true;
+        var textContent = (el.textContent || '').trim();
+        var innerText = (el.innerText || '').trim();
+        if (textContent.length > 0 && innerText.length === 0) return true;
+        if (!textContent && !el.querySelector('img, svg, video, canvas, picture')) {
+          return true;
+        }
+        return false;
+      }
+
+      function pickThroughOverlays(x, y, startEl) {
+        if (!isInvisibleOverlay(startEl)) return startEl;
+        var stack = document.elementsFromPoint(x, y);
+        for (var i = 0; i < stack.length; i++) {
+          if (!isInvisibleOverlay(stack[i])) return stack[i];
+        }
+        return startEl;
+      }
+
       document.addEventListener('click', function (e) {
         e.preventDefault();
         e.stopImmediatePropagation();
-        var el = e.target;
+        var el = pickThroughOverlays(e.clientX, e.clientY, e.target);
         if (!el || el === document.body || el === document.documentElement) return;
 
         // Drill into a child when tapping the already-selected element.
         if (selected && el === selected) {
           var stack = document.elementsFromPoint(e.clientX, e.clientY);
           for (var i = 0; i < stack.length; i++) {
-            if (selected.contains(stack[i]) && stack[i] !== selected) {
+            if (selected.contains(stack[i]) && stack[i] !== selected
+                && !isInvisibleOverlay(stack[i])) {
               el = stack[i];
               break;
             }
