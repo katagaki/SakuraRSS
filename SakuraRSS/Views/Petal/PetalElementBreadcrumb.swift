@@ -30,7 +30,7 @@ struct PetalElementBreadcrumb: View {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 4) {
                     ForEach(orderedAncestors.indices, id: \.self) { idx in
-                        segment(orderedAncestors[idx].tag, isCurrent: false) {
+                        segment(orderedAncestors[idx].selector, isCurrent: false) {
                             let levelsUp = orderedAncestors.count - idx
                             onSelectAncestor(levelsUp)
                         }
@@ -38,7 +38,7 @@ struct PetalElementBreadcrumb: View {
                             .font(.caption2.weight(.semibold))
                             .foregroundStyle(.tertiary)
                     }
-                    segment(selected.tag, isCurrent: true) {}
+                    segment(selected.selector, isCurrent: true) {}
                         .id("selected-segment")
                 }
                 .padding(.horizontal, 16)
@@ -80,9 +80,9 @@ struct PetalElementBreadcrumb: View {
     @ViewBuilder
     private func childLabel(_ info: Info) -> some View {
         if info.text.isEmpty {
-            Text(verbatim: "<\(info.tag)>")
+            Text(verbatim: info.selector)
         } else {
-            Text(verbatim: "<\(info.tag)>  \(info.text)")
+            Text(verbatim: "\(info.selector)  \(info.text)")
         }
     }
 
