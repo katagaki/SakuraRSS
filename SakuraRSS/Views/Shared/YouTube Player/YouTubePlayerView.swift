@@ -1,3 +1,4 @@
+import AVFoundation
 import SwiftUI
 import WebKit
 import FoundationModels
@@ -75,6 +76,12 @@ struct YouTubePlayerView: View {
             return translatedText
         }
         return descriptionSource
+    }
+
+    private func activateBackgroundAudioSession() {
+        let session = AVAudioSession.sharedInstance()
+        try? session.setCategory(.playback, mode: .moviePlayback)
+        try? session.setActive(true)
     }
 
     var youtubeAppURL: URL? {
@@ -338,6 +345,7 @@ struct YouTubePlayerView: View {
             checkSponsorSegments(at: newTime)
         }
         .task {
+            activateBackgroundAudioSession()
             isBookmarked = article.isBookmarked
             let signedIn = await YouTubePlayerView.hasYouTubeSession()
             let premium = signedIn ? await YouTubePlayerView.hasYouTubePremium() : false
