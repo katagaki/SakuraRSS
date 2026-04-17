@@ -12,20 +12,27 @@ struct MarkReadOnScrollModifier: ViewModifier {
 
     @State private var hasBeenVisible = false
 
+    private var latestIsRead: Bool {
+        feedManager.article(byID: article.id)?.isRead ?? article.isRead
+    }
+
     func body(content: Content) -> some View {
         content
             .onScrollVisibilityChange(threshold: 0.5) { isVisible in
                 guard scrollMarkAsRead else { return }
                 if isVisible {
                     hasBeenVisible = true
-                } else if hasBeenVisible, !article.isRead {
+                } else if hasBeenVisible, !latestIsRead {
                     #if DEBUG
                     debugPrint("[ScrollMarkAsRead] Marking article as read: \(article.id) — \(article.title)")
                     #endif
-                    let articleToMark = article
+                    let articleID = article.id
                     Task { @MainActor in
+                        guard let fresh = feedManager.article(byID: articleID), !fresh.isRead else {
+                            return
+                        }
                         withAnimation(.smooth.speed(2.0)) {
-                            feedManager.markRead(articleToMark)
+                            feedManager.markRead(fresh)
                         }
                     }
                 }
