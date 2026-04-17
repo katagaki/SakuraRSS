@@ -4,20 +4,32 @@ import WebKit
 /// `UIViewRepresentable` wrapping a `WKWebView` that injects a
 /// tap-to-identify overlay into fetched HTML.
 ///
-/// Every element tap produces a `PickedElement` sent back via
-/// `onElementPicked`.  Navigation is blocked so tapping links
-/// doesn't leave the picker.
+/// Every element tap produces a `PickedElement` (the selected
+/// element plus its ancestor chain and visible direct children)
+/// sent back via `onElementPicked`.  Navigation is blocked so
+/// tapping links doesn't leave the picker.
 struct PetalElementPickerWebView: UIViewRepresentable {
 
     let html: String
     let baseURL: URL?
+    let controller: PetalElementPickerController
     let onElementPicked: (PickedElement) -> Void
 
-    /// Metadata the JS overlay sends back when the user taps.
-    struct PickedElement {
+    /// A single element's summary (selector + preview text + tag).
+    struct ElementInfo: Hashable, Sendable {
         let selector: String
         let text: String
         let tag: String
+    }
+
+    /// The full payload the JS overlay sends back when a tap or
+    /// breadcrumb/child navigation changes the selection.
+    struct PickedElement {
+        let selected: ElementInfo
+        /// Immediate parent first, root-most ancestor last.
+        let ancestors: [ElementInfo]
+        /// Direct visible children of `selected`, in DOM order.
+        let children: [ElementInfo]
     }
 
     func makeCoordinator() -> Coordinator {
@@ -25,165 +37,28 @@ struct PetalElementPickerWebView: UIViewRepresentable {
     }
 
     func makeUIView(context: Context) -> WKWebView {
-        let controller = WKUserContentController()
-        controller.add(context.coordinator, name: "elementPicked")
-        controller.addUserScript(WKUserScript(
+        let userController = WKUserContentController()
+        userController.add(context.coordinator, name: "elementPicked")
+        userController.addUserScript(WKUserScript(
             source: Self.injectionJS,
             injectionTime: .atDocumentEnd,
             forMainFrameOnly: true
         ))
         let config = WKWebViewConfiguration()
-        config.userContentController = controller
+        config.userContentController = userController
         let webView = WKWebView(frame: .zero, configuration: config)
         webView.navigationDelegate = context.coordinator
         webView.allowsLinkPreview = false
         webView.loadHTMLString(html, baseURL: baseURL)
+        controller.webView = webView
         return webView
     }
 
-    func updateUIView(_ uiView: WKWebView, context: Context) {}
+    func updateUIView(_ uiView: WKWebView, context: Context) {
+        controller.webView = uiView
+    }
 
     static func dismantleUIView(_ uiView: WKWebView, coordinator: Coordinator) {
         uiView.configuration.userContentController.removeScriptMessageHandler(forName: "elementPicked")
     }
-}
-
-// MARK: - Coordinator
-
-extension PetalElementPickerWebView {
-
-    final class Coordinator: NSObject, WKScriptMessageHandler, WKNavigationDelegate {
-
-        let onElementPicked: (PickedElement) -> Void
-
-        init(onElementPicked: @escaping (PickedElement) -> Void) {
-            self.onElementPicked = onElementPicked
-        }
-
-        func userContentController(
-            _ userContentController: WKUserContentController,
-            didReceive message: WKScriptMessage
-        ) {
-            guard message.name == "elementPicked",
-                  let body = message.body as? [String: Any],
-                  let selector = body["selector"] as? String,
-                  !selector.isEmpty else { return }
-            let element = PickedElement(
-                selector: selector,
-                text: body["text"] as? String ?? "",
-                tag: body["tag"] as? String ?? ""
-            )
-            DispatchQueue.main.async { self.onElementPicked(element) }
-        }
-
-        func webView(
-            _ webView: WKWebView,
-            decidePolicyFor action: WKNavigationAction,
-            decisionHandler: @escaping (WKNavigationActionPolicy) -> Void
-        ) {
-            decisionHandler(action.navigationType == .linkActivated ? .cancel : .allow)
-        }
-    }
-}
-
-// MARK: - Injection script
-
-private extension PetalElementPickerWebView {
-
-    /// JavaScript injected at document-end.  Adds a touch-highlight
-    /// and sends a compact CSS selector back to Swift when the user
-    /// taps any element.
-    static let injectionJS = #"""
-    (function () {
-      var style = document.createElement('style');
-      style.textContent =
-        '*, *::before, *::after {' +
-        '  -webkit-tap-highlight-color: transparent !important;' +
-        '  -webkit-touch-callout: none !important;' +
-        '  -webkit-user-select: none !important;' +
-        '  user-select: none !important;' +
-        '  pointer-events: auto !important;' +
-        '}' +
-        '.petal-tap { outline: 3px solid rgba(255,59,48,0.8) !important; }';
-      document.head.appendChild(style);
-
-      document.addEventListener('contextmenu', function (e) {
-        e.preventDefault();
-      }, true);
-
-      function cssEscape(v) {
-        return (typeof CSS !== 'undefined' && CSS.escape)
-          ? CSS.escape(v) : v.replace(/([^\w-])/g, '\\$1');
-      }
-
-      function compact(el) {
-        var tag = el.tagName.toLowerCase();
-        var id = el.getAttribute('id');
-        if (id) return '#' + cssEscape(id);
-        var cls = null;
-        el.classList.forEach(function (c) {
-          if (!cls && c.indexOf('petal-') !== 0) cls = c;
-        });
-        return cls ? tag + '.' + cls : tag;
-      }
-
-      var selected = null;
-
-      // Elements whose only rendered content is visually hidden
-      // (e.g. `.sr-only` link overlays that Webflow and similar CMSes
-      // use to make a whole card clickable) are not pickable targets —
-      // the user can't see them, so the picker should treat them as
-      // transparent and drill through to the real content below.
-      function isInvisibleOverlay(el) {
-        if (!el || el === document.body || el === document.documentElement) return true;
-        var textContent = (el.textContent || '').trim();
-        var innerText = (el.innerText || '').trim();
-        if (textContent.length > 0 && innerText.length === 0) return true;
-        if (!textContent && !el.querySelector('img, svg, video, canvas, picture')) {
-          return true;
-        }
-        return false;
-      }
-
-      function pickThroughOverlays(x, y, startEl) {
-        if (!isInvisibleOverlay(startEl)) return startEl;
-        var stack = document.elementsFromPoint(x, y);
-        for (var i = 0; i < stack.length; i++) {
-          if (!isInvisibleOverlay(stack[i])) return stack[i];
-        }
-        return startEl;
-      }
-
-      document.addEventListener('click', function (e) {
-        e.preventDefault();
-        e.stopImmediatePropagation();
-        var el = pickThroughOverlays(e.clientX, e.clientY, e.target);
-        if (!el || el === document.body || el === document.documentElement) return;
-
-        // Drill into a child when tapping the already-selected element.
-        if (selected && el === selected) {
-          var stack = document.elementsFromPoint(e.clientX, e.clientY);
-          for (var i = 0; i < stack.length; i++) {
-            if (selected.contains(stack[i]) && stack[i] !== selected
-                && !isInvisibleOverlay(stack[i])) {
-              el = stack[i];
-              break;
-            }
-          }
-          if (el === selected) return;
-        }
-
-        if (selected) selected.classList.remove('petal-tap');
-        selected = el;
-        el.classList.add('petal-tap');
-        var text = (el.innerText || el.textContent || '').trim()
-          .replace(/\s+/g, ' ').substring(0, 100);
-        window.webkit.messageHandlers.elementPicked.postMessage({
-          selector: compact(el),
-          text: text,
-          tag: el.tagName.toLowerCase()
-        });
-      }, true);
-    })();
-    """#
 }
