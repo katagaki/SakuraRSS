@@ -24,6 +24,7 @@ struct PetalElementAssignMenu: View {
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 10)
+            .compositingGroup()
             .glassEffect(.regular.interactive(), in: .capsule)
         }
         .buttonStyle(.plain)

@@ -22,6 +22,7 @@ struct PetalElementPickerBottomBar: View {
                     onSelectChild: onSelectChild
                 )
                 .padding(.vertical, 6)
+                .compositingGroup()
                 .glassEffect(.regular, in: .capsule)
             }
             actionRow
@@ -67,6 +68,7 @@ struct PetalElementPickerBottomBar: View {
                 .foregroundStyle(.secondary)
                 .padding(.horizontal, 14)
                 .padding(.vertical, 8)
+                .compositingGroup()
                 .glassEffect(.regular, in: .capsule)
         }
     }
