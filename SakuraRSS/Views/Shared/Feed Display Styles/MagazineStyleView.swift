@@ -23,6 +23,7 @@ struct MagazineStyleView: View {
                         }, label: {
                             MagazineArticleCard(article: article)
                                 .zoomSource(id: article.id, namespace: zoomNamespace)
+                                .markReadOnScroll(article: article)
                         })
                         .buttonStyle(.plain)
                         .contextMenu {
@@ -38,7 +39,6 @@ struct MagazineStyleView: View {
                                 )
                             }
                         }
-                        .markReadOnScroll(article: article)
                     }
                 }
                 .padding(.horizontal, 16)

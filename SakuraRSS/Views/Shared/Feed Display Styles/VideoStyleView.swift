@@ -33,6 +33,7 @@ struct VideoStyleView: View {
                     } label: {
                         VideoArticleCard(article: article)
                             .zoomSource(id: article.id, namespace: zoomNamespace)
+                            .markReadOnScroll(article: article)
                     }
                     .buttonStyle(.plain)
                     .contextMenu {
@@ -68,7 +69,6 @@ struct VideoStyleView: View {
                             }
                         }
                     }
-                    .markReadOnScroll(article: article)
                 }
             }
             .padding(.bottom)

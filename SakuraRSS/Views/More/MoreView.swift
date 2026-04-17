@@ -44,9 +44,7 @@ struct MoreView: View {
                     } label: {
                         Text(String(localized: "MarkAllReadPosition", table: "Settings"))
                     }
-                    Toggle(isOn: $scrollMarkAsRead) {
-                        Text(String(localized: "ScrollMarkAsRead", table: "Settings"))
-                    }
+                    Toggle(String(localized: "ScrollMarkAsRead", table: "Settings"), isOn: $scrollMarkAsRead)
                     Picker(String(localized: "UnreadBadgeMode", table: "Settings"), selection: $unreadBadgeMode) {
                         if UIDevice.current.userInterfaceIdiom == .pad {
                             Text(String(localized: "UnreadBadgeMode.HomeScreenOnly", table: "Settings"))

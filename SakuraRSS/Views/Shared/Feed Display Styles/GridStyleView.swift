@@ -27,6 +27,7 @@ struct GridStyleView: View {
                     }, label: {
                         GridArticleCell(article: article)
                             .zoomSource(id: article.id, namespace: zoomNamespace)
+                            .markReadOnScroll(article: article)
                     })
                     .buttonStyle(.plain)
                     .contextMenu {
@@ -49,7 +50,6 @@ struct GridStyleView: View {
                             }
                         }
                     }
-                    .markReadOnScroll(article: article)
                 }
             }
             if let onLoadMore {

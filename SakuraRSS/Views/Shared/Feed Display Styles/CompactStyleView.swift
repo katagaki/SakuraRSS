@@ -34,6 +34,7 @@ struct CompactStyleView: View {
                 }, label: {
                     articleLabel(for: article)
                         .zoomSource(id: article.id, namespace: zoomNamespace)
+                        .markReadOnScroll(article: article)
                 })
                 .listRowBackground(Color.clear)
                 .listRowInsets(EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16))
@@ -50,7 +51,6 @@ struct CompactStyleView: View {
                         )
                     }
                 }
-                .markReadOnScroll(article: article)
             }
             if let onLoadMore {
                 LoadPreviousArticlesButton(action: onLoadMore)

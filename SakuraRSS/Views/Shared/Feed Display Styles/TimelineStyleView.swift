@@ -30,12 +30,12 @@ struct TimelineStyleView: View {
                                 isFeatured: groupIndex == 0 && index == 0
                             )
                             .zoomSource(id: article.id, namespace: zoomNamespace)
+                            .markReadOnScroll(article: article)
                         }
                         .listRowBackground(Color.clear)
                         .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16))
                         .listRowSeparator(.hidden)
                         .listRowSpacing(0)
-                        .markReadOnScroll(article: article)
                     }
                 } header: {
                     Text(group.key)

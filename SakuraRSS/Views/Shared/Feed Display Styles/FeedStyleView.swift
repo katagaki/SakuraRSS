@@ -50,6 +50,7 @@ struct FeedStyleView: View {
                         }
                     }
                     .zoomSource(id: article.id, namespace: zoomNamespace)
+                    .markReadOnScroll(article: article)
                 }
                 .padding(.horizontal, 12)
                 .listRowBackground(Color.clear)
@@ -62,7 +63,6 @@ struct FeedStyleView: View {
                 .alignmentGuide(.listRowSeparatorTrailing) { dimensions in
                     return dimensions.width
                 }
-                .markReadOnScroll(article: article)
             }
             if let onLoadMore {
                 LoadPreviousArticlesButton(action: onLoadMore)
