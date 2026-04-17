@@ -41,27 +41,40 @@ struct PetalElementPickerBottomBar: View {
     }
 
     private var summary: some View {
-        let selector = picked.map { Text(verbatim: $0.selected.selector) }
-            ?? Text(String(localized: "Picker.NoSelection", table: "Petal"))
-        let previewText = picked?.selected.text ?? ""
-        return VStack(alignment: .leading, spacing: 2) {
-            selector
-                .font(picked != nil
-                      ? .caption.monospaced().weight(.semibold)
-                      : .subheadline)
-                .foregroundStyle(picked != nil ? Color.primary : Color.secondary)
-                .lineLimit(1)
-                .truncationMode(.head)
-            Text(verbatim: previewText.isEmpty ? " " : previewText)
-                .font(.caption)
-                .foregroundStyle(.secondary)
-                .lineLimit(1)
-                .truncationMode(.tail)
-                .opacity(previewText.isEmpty ? 0 : 1)
+        ZStack {
+            // Invisible size anchor: keeps capsule at 2-line caption height
+            // whether or not an element is selected.
+            VStack(alignment: .leading, spacing: 2) {
+                Text(verbatim: " ").font(.caption.monospaced().weight(.semibold))
+                Text(verbatim: " ").font(.caption)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .opacity(0)
+
+            if let picked {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(verbatim: picked.selected.selector)
+                        .font(.caption.monospaced().weight(.semibold))
+                        .foregroundStyle(.primary)
+                        .lineLimit(1)
+                        .truncationMode(.head)
+                    Text(picked.selected.text.isEmpty ? " " : picked.selected.text)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
+                        .truncationMode(.tail)
+                        .opacity(picked.selected.text.isEmpty ? 0 : 1)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+            } else {
+                Text(String(localized: "Picker.NoSelection", table: "Petal"))
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+            }
         }
         .padding(.horizontal, 14)
         .padding(.vertical, 8)
-        .frame(maxWidth: .infinity, alignment: .leading)
+        .frame(maxWidth: .infinity)
         .compositingGroup()
         .glassEffect(.regular, in: .capsule)
     }
