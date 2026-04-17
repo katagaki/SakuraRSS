@@ -1,6 +1,6 @@
 import Foundation
 
-enum YouTubePlayerScripts {
+nonisolated enum YouTubePlayerScripts {
 
     static let pipMessageHandlerName = "sakuraPiP"
 

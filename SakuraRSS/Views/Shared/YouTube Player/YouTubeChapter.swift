@@ -1,6 +1,6 @@
 import Foundation
 
-struct YouTubeChapter: Identifiable, Equatable {
+nonisolated struct YouTubeChapter: Identifiable, Equatable, Sendable {
     let id: Int
     let title: String
     let startTime: TimeInterval
