@@ -37,6 +37,14 @@ struct MarkReadOnScrollModifier: ViewModifier {
                     }
                 }
             }
+            .onAppear {
+                if article.isRead != latestIsRead {
+                    #if DEBUG
+                    debugPrint("[ScrollMarkAsRead] Stale read state on appear for \(article.id), reloading")
+                    #endif
+                    feedManager.loadFromDatabase()
+                }
+            }
     }
 }
 
