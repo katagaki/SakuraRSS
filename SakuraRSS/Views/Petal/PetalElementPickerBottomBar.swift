@@ -38,6 +38,7 @@ struct PetalElementPickerBottomBar: View {
             Spacer(minLength: 8)
             PetalElementAssignMenu(recipe: $recipe, picked: picked)
         }
+        .fixedSize(horizontal: false, vertical: true)
     }
 
     private var summary: some View {
