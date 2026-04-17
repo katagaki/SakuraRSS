@@ -43,24 +43,24 @@ struct PetalElementPickerBottomBar: View {
     @ViewBuilder
     private var summary: some View {
         if let picked {
-            GlassEffectContainer {
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(verbatim: picked.selected.selector)
-                        .font(.caption.monospaced().weight(.semibold))
-                        .foregroundStyle(.primary)
+            VStack(alignment: .leading, spacing: 2) {
+                Text(verbatim: picked.selected.selector)
+                    .font(.caption.monospaced().weight(.semibold))
+                    .foregroundStyle(.primary)
+                    .lineLimit(1)
+                    .truncationMode(.head)
+                if !picked.selected.text.isEmpty {
+                    Text(picked.selected.text)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
                         .lineLimit(1)
-                        .truncationMode(.head)
-                    if !picked.selected.text.isEmpty {
-                        Text(picked.selected.text)
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                            .lineLimit(1)
-                            .truncationMode(.tail)
-                    }
+                        .truncationMode(.tail)
                 }
-                .padding(.horizontal, 14)
-                .padding(.vertical, 8)
             }
+            .padding(.horizontal, 14)
+            .padding(.vertical, 8)
+            .frame(maxHeight: .infinity)
+            .compositingGroup()
             .glassEffect(.regular, in: .capsule)
         } else {
             Text(String(localized: "Picker.NoSelection", table: "Petal"))
@@ -68,6 +68,7 @@ struct PetalElementPickerBottomBar: View {
                 .foregroundStyle(.secondary)
                 .padding(.horizontal, 14)
                 .padding(.vertical, 8)
+                .frame(maxHeight: .infinity)
                 .compositingGroup()
                 .glassEffect(.regular, in: .capsule)
         }
