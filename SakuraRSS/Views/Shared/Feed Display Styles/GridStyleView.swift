@@ -49,6 +49,7 @@ struct GridStyleView: View {
                             }
                         }
                     }
+                    .markReadOnScroll(article: article)
                 }
             }
             if let onLoadMore {

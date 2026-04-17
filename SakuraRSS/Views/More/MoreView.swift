@@ -13,6 +13,7 @@ struct MoreView: View {
     @AppStorage("BackgroundRefresh.Cooldown") private var refreshCooldown: FeedRefreshCooldown = .fiveMinutes
     @AppStorage("Display.DefaultStyle") private var defaultDisplayStyle: FeedDisplayStyle = .inbox
     @AppStorage("Display.MarkAllReadPosition") private var markAllReadPosition: MarkAllReadPosition = .bottom
+    @AppStorage("Display.ScrollMarkAsRead") private var scrollMarkAsRead: Bool = false
     @AppStorage("Display.UnreadBadgeMode") private var unreadBadgeMode: UnreadBadgeMode = .none
 
     var body: some View {
@@ -42,6 +43,9 @@ struct MoreView: View {
                             .tag(MarkAllReadPosition.none)
                     } label: {
                         Text(String(localized: "MarkAllReadPosition", table: "Settings"))
+                    }
+                    Toggle(isOn: $scrollMarkAsRead) {
+                        Text(String(localized: "ScrollMarkAsRead", table: "Settings"))
                     }
                     Picker(String(localized: "UnreadBadgeMode", table: "Settings"), selection: $unreadBadgeMode) {
                         if UIDevice.current.userInterfaceIdiom == .pad {

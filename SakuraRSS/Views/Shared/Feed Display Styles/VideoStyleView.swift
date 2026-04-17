@@ -68,6 +68,7 @@ struct VideoStyleView: View {
                             }
                         }
                     }
+                    .markReadOnScroll(article: article)
                 }
             }
             .padding(.bottom)

@@ -62,6 +62,7 @@ struct FeedStyleView: View {
                 .alignmentGuide(.listRowSeparatorTrailing) { dimensions in
                     return dimensions.width
                 }
+                .markReadOnScroll(article: article)
             }
             if let onLoadMore {
                 LoadPreviousArticlesButton(action: onLoadMore)

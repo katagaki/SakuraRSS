@@ -14,6 +14,7 @@ struct PhotosStyleView: View {
                 ForEach(articles) { article in
                     PhotosArticleCard(article: article, youTubeArticle: $youTubeArticle)
                         .zoomSource(id: article.id, namespace: zoomNamespace)
+                        .markReadOnScroll(article: article)
                 }
                 if let onLoadMore {
                     LoadPreviousArticlesButton(action: onLoadMore)

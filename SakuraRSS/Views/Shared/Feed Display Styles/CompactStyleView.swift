@@ -50,6 +50,7 @@ struct CompactStyleView: View {
                         )
                     }
                 }
+                .markReadOnScroll(article: article)
             }
             if let onLoadMore {
                 LoadPreviousArticlesButton(action: onLoadMore)

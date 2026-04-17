@@ -41,6 +41,7 @@ struct InboxStyleView: View {
                 .listRowSeparator(.hidden, edges: .top)
                 .listRowSeparator(.visible, edges: .bottom)
                 .listRowInsets(EdgeInsets(top: 8, leading: 12, bottom: 8, trailing: 12))
+                .markReadOnScroll(article: article)
             }
             if let onLoadMore {
                 LoadPreviousArticlesButton(action: onLoadMore)

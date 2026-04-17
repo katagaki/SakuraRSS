@@ -35,6 +35,7 @@ struct TimelineStyleView: View {
                         .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16))
                         .listRowSeparator(.hidden)
                         .listRowSpacing(0)
+                        .markReadOnScroll(article: article)
                     }
                 } header: {
                     Text(group.key)

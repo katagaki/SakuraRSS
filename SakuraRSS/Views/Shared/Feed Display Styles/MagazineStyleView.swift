@@ -38,6 +38,7 @@ struct MagazineStyleView: View {
                                 )
                             }
                         }
+                        .markReadOnScroll(article: article)
                     }
                 }
                 .padding(.horizontal, 16)
