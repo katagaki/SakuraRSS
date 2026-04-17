@@ -22,7 +22,9 @@ struct MarkReadOnScrollModifier: ViewModifier {
                     #if DEBUG
                     debugPrint("[ScrollMarkAsRead] Marking article as read: \(article.id) — \(article.title)")
                     #endif
-                    feedManager.markRead(article)
+                    withAnimation(.smooth.speed(2.0)) {
+                        feedManager.markRead(article)
+                    }
                 }
             }
     }
