@@ -74,4 +74,32 @@ enum YouTubePlayerScripts {
         }
     })();
     """
+
+    /// Blocks autoplay by pausing the video whenever it tries to play until
+    /// `window.__sakuraAutoplayBlocked` is cleared (by a native play action).
+    static let autoplayBlocker = """
+    (function() {
+        window.__sakuraAutoplayBlocked = true;
+        function attach(video) {
+            if (!video || video.__sakuraAutoplayAttached) return;
+            video.__sakuraAutoplayAttached = true;
+            video.addEventListener('play', function() {
+                if (window.__sakuraAutoplayBlocked) {
+                    video.pause();
+                }
+            });
+            if (!video.paused && window.__sakuraAutoplayBlocked) {
+                video.pause();
+            }
+        }
+        function tryAttach() {
+            document.querySelectorAll('video').forEach(attach);
+        }
+        tryAttach();
+        var observer = new MutationObserver(tryAttach);
+        if (document.documentElement) {
+            observer.observe(document.documentElement, { childList: true, subtree: true });
+        }
+    })();
+    """
 }

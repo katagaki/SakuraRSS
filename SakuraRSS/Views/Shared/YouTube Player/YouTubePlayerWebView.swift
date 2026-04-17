@@ -4,6 +4,7 @@ import WebKit
 struct YouTubePlayerWebView: UIViewRepresentable {
 
     let urlString: String
+    var autoplay: Bool = true
     @Binding var isPlaying: Bool
     @Binding var currentTime: TimeInterval
     @Binding var duration: TimeInterval
@@ -43,6 +44,13 @@ struct YouTubePlayerWebView: UIViewRepresentable {
             injectionTime: .atDocumentEnd,
             forMainFrameOnly: true
         ))
+        if !autoplay {
+            controller.addUserScript(WKUserScript(
+                source: YouTubePlayerScripts.autoplayBlocker,
+                injectionTime: .atDocumentEnd,
+                forMainFrameOnly: true
+            ))
+        }
         controller.add(context.coordinator, name: YouTubePlayerScripts.pipMessageHandlerName)
         config.userContentController = controller
 

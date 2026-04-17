@@ -32,6 +32,7 @@ struct YouTubeEmbedBlockView: View {
         VStack(spacing: 0) {
             YouTubePlayerWebView(
                 urlString: embedURL,
+                autoplay: false,
                 isPlaying: $isPlaying,
                 currentTime: $currentTime,
                 duration: $duration,
@@ -60,8 +61,8 @@ struct YouTubeEmbedBlockView: View {
                 .background(.thinMaterial)
         }
         .clipShape(RoundedRectangle(cornerRadius: 12))
-        .onChange(of: isPlaying) { _, playing in
-            if playing && !hasStartedPlaying {
+        .onChange(of: duration) { _, newDuration in
+            if newDuration > 0 && !hasStartedPlaying {
                 withAnimation(.smooth.speed(2.0)) {
                     hasStartedPlaying = true
                 }
@@ -140,7 +141,12 @@ struct YouTubeEmbedBlockView: View {
         (function() {
             var v = document.querySelector('video');
             if (!v) return;
-            if (v.paused) { v.play(); } else { v.pause(); }
+            if (v.paused) {
+                window.__sakuraAutoplayBlocked = false;
+                v.play();
+            } else {
+                v.pause();
+            }
         })();
         """
         webView?.evaluateJavaScript(script, completionHandler: nil)
