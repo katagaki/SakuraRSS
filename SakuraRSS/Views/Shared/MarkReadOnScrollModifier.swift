@@ -18,31 +18,28 @@ struct MarkReadOnScrollModifier: ViewModifier {
 
     func body(content: Content) -> some View {
         content
-            .onScrollVisibilityChange(threshold: 0.5) { isVisible in
-                guard scrollMarkAsRead else { return }
-                if isVisible {
-                    hasBeenVisible = true
-                } else if hasBeenVisible, !latestIsRead {
-                    #if DEBUG
-                    debugPrint("[ScrollMarkAsRead] Marking article as read: \(article.id) — \(article.title)")
-                    #endif
-                    let articleID = article.id
-                    Task { @MainActor in
-                        guard let fresh = feedManager.article(byID: articleID), !fresh.isRead else {
-                            return
-                        }
-                        withAnimation(.smooth.speed(2.0)) {
-                            feedManager.markRead(fresh)
-                        }
-                    }
-                }
-            }
             .onAppear {
+                hasBeenVisible = true
                 if article.isRead != latestIsRead {
                     #if DEBUG
                     debugPrint("[ScrollMarkAsRead] Stale read state on appear for \(article.id), reloading")
                     #endif
                     feedManager.loadFromDatabase()
+                }
+            }
+            .onDisappear {
+                guard scrollMarkAsRead, hasBeenVisible, !latestIsRead else { return }
+                #if DEBUG
+                debugPrint("[ScrollMarkAsRead] Marking article as read: \(article.id) — \(article.title)")
+                #endif
+                let articleID = article.id
+                Task { @MainActor in
+                    guard let fresh = feedManager.article(byID: articleID), !fresh.isRead else {
+                        return
+                    }
+                    withAnimation(.smooth.speed(2.0)) {
+                        feedManager.markRead(fresh)
+                    }
                 }
             }
     }
