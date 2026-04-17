@@ -61,7 +61,7 @@ struct PetalElementPickerBottomBar: View {
         }
         .padding(.horizontal, 14)
         .padding(.vertical, 8)
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+        .frame(maxWidth: .infinity, alignment: .leading)
         .compositingGroup()
         .glassEffect(.regular, in: .capsule)
     }
