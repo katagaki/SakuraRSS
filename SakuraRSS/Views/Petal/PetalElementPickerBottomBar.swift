@@ -22,11 +22,9 @@ struct PetalElementPickerBottomBar: View {
                     onSelectChild: onSelectChild
                 )
                 .padding(.vertical, 8)
-                Divider()
             }
             actionRow
         }
-        .background(.ultraThinMaterial)
         .safeAreaPadding(.bottom)
     }
 
@@ -43,22 +41,30 @@ struct PetalElementPickerBottomBar: View {
     @ViewBuilder
     private var summary: some View {
         if let picked {
-            VStack(alignment: .leading, spacing: 2) {
-                Text(verbatim: "<\(picked.selected.tag)>")
-                    .font(.caption.monospaced().weight(.semibold))
-                    .foregroundStyle(.primary)
-                if !picked.selected.text.isEmpty {
-                    Text(picked.selected.text)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                        .lineLimit(1)
-                        .truncationMode(.tail)
+            GlassEffectContainer {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(verbatim: picked.selected.selector)
+                        .font(.caption.monospaced().weight(.semibold))
+                        .foregroundStyle(.primary)
+                    if !picked.selected.text.isEmpty {
+                        Text(picked.selected.text)
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                            .lineLimit(1)
+                            .truncationMode(.tail)
+                    }
                 }
+                .padding(.horizontal, 14)
+                .padding(.vertical, 8)
             }
+            .glassEffect(.regular, in: .capsule)
         } else {
             Text(String(localized: "Picker.NoSelection", table: "Petal"))
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
+                .padding(.horizontal, 14)
+                .padding(.vertical, 8)
+                .glassEffect(.regular, in: .capsule)
         }
     }
 }
