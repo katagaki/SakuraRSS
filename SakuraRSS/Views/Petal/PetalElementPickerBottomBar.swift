@@ -47,6 +47,8 @@ struct PetalElementPickerBottomBar: View {
                     Text(verbatim: picked.selected.selector)
                         .font(.caption.monospaced().weight(.semibold))
                         .foregroundStyle(.primary)
+                        .lineLimit(1)
+                        .truncationMode(.head)
                     if !picked.selected.text.isEmpty {
                         Text(picked.selected.text)
                             .font(.caption)
