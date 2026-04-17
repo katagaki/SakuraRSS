@@ -1,3 +1,4 @@
+import AVFoundation
 import SwiftUI
 import WebKit
 import FoundationModels
@@ -23,6 +24,7 @@ struct YouTubePlayerView: View {
     @State private var feed: Feed?
     @State private var favicon: UIImage?
     @State private var acronymIcon: UIImage?
+    @State var chapters: [YouTubeChapter] = []
 
     // SponsorBlock
     @AppStorage("YouTube.SponsorBlock.Enabled") var sponsorBlockEnabled = false
@@ -77,6 +79,12 @@ struct YouTubePlayerView: View {
         return descriptionSource
     }
 
+    private func activateBackgroundAudioSession() {
+        let session = AVAudioSession.sharedInstance()
+        try? session.setCategory(.playback, mode: .moviePlayback)
+        try? session.setActive(true)
+    }
+
     var youtubeAppURL: URL? {
         guard let url = URL(string: article.url),
               var components = URLComponents(url: url, resolvingAgainstBaseURL: false) else {
@@ -112,7 +120,8 @@ struct YouTubePlayerView: View {
                 isAd: $isAd,
                 advertiserURL: $advertiserURL,
                 videoAspectRatio: $videoAspectRatio,
-                isPiP: $isPiP
+                isPiP: $isPiP,
+                chapters: $chapters
             )
             .aspectRatio(videoAspectRatio, contentMode: .fit)
             .clipped()
@@ -299,6 +308,12 @@ struct YouTubePlayerView: View {
         .sakuraBackground()
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
+            if !chapters.isEmpty {
+                ToolbarItemGroup(placement: .topBarTrailing) {
+                    chapterMenu
+                }
+                ToolbarSpacer(.fixed, placement: .topBarTrailing)
+            }
             ToolbarItemGroup(placement: .topBarTrailing) {
                 Button {
                     isBookmarked.toggle()
@@ -338,6 +353,7 @@ struct YouTubePlayerView: View {
             checkSponsorSegments(at: newTime)
         }
         .task {
+            activateBackgroundAudioSession()
             isBookmarked = article.isBookmarked
             let signedIn = await YouTubePlayerView.hasYouTubeSession()
             let premium = signedIn ? await YouTubePlayerView.hasYouTubePremium() : false

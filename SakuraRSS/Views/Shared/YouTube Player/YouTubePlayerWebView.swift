@@ -4,6 +4,7 @@ import WebKit
 struct YouTubePlayerWebView: UIViewRepresentable {
 
     let urlString: String
+    var autoplay: Bool = true
     @Binding var isPlaying: Bool
     @Binding var currentTime: TimeInterval
     @Binding var duration: TimeInterval
@@ -12,6 +13,7 @@ struct YouTubePlayerWebView: UIViewRepresentable {
     @Binding var advertiserURL: URL?
     @Binding var videoAspectRatio: CGFloat
     @Binding var isPiP: Bool
+    var chapters: Binding<[YouTubeChapter]>?
 
     func makeCoordinator() -> Coordinator {
         Coordinator(
@@ -21,7 +23,8 @@ struct YouTubePlayerWebView: UIViewRepresentable {
             isAd: $isAd,
             advertiserURL: $advertiserURL,
             videoAspectRatio: $videoAspectRatio,
-            isPiP: $isPiP
+            isPiP: $isPiP,
+            chapters: chapters
         )
     }
 
@@ -31,6 +34,27 @@ struct YouTubePlayerWebView: UIViewRepresentable {
         config.allowsInlineMediaPlayback = true
         config.mediaTypesRequiringUserActionForPlayback = []
         config.allowsPictureInPictureMediaPlayback = true
+
+        let controller = WKUserContentController()
+        controller.addUserScript(WKUserScript(
+            source: YouTubePlayerScripts.backgroundPlaybackOverride,
+            injectionTime: .atDocumentStart,
+            forMainFrameOnly: false
+        ))
+        controller.addUserScript(WKUserScript(
+            source: YouTubePlayerScripts.pipEventBridge,
+            injectionTime: .atDocumentEnd,
+            forMainFrameOnly: true
+        ))
+        if !autoplay {
+            controller.addUserScript(WKUserScript(
+                source: YouTubePlayerScripts.autoplayBlocker,
+                injectionTime: .atDocumentEnd,
+                forMainFrameOnly: true
+            ))
+        }
+        controller.add(context.coordinator, name: YouTubePlayerScripts.pipMessageHandlerName)
+        config.userContentController = controller
 
         let webView = WKWebView(frame: .zero, configuration: config)
         #if DEBUG
@@ -58,10 +82,13 @@ struct YouTubePlayerWebView: UIViewRepresentable {
 
     static func dismantleUIView(_ uiView: WKWebView, coordinator: Coordinator) {
         coordinator.invalidateObserver()
+        uiView.configuration.userContentController.removeScriptMessageHandler(
+            forName: YouTubePlayerScripts.pipMessageHandlerName
+        )
     }
 
     @MainActor
-    final class Coordinator: NSObject, WKNavigationDelegate {
+    final class Coordinator: NSObject, WKNavigationDelegate, WKScriptMessageHandler {
         @Binding var isPlaying: Bool
         @Binding var currentTime: TimeInterval
         @Binding var duration: TimeInterval
@@ -69,7 +96,9 @@ struct YouTubePlayerWebView: UIViewRepresentable {
         @Binding var advertiserURL: URL?
         @Binding var videoAspectRatio: CGFloat
         @Binding var isPiP: Bool
+        let chapters: Binding<[YouTubeChapter]>?
         nonisolated(unsafe) private var playbackObserver: Timer?
+        private var chapterRetryCount = 0
 
         init(
             isPlaying: Binding<Bool>,
@@ -78,7 +107,8 @@ struct YouTubePlayerWebView: UIViewRepresentable {
             isAd: Binding<Bool>,
             advertiserURL: Binding<URL?>,
             videoAspectRatio: Binding<CGFloat>,
-            isPiP: Binding<Bool>
+            isPiP: Binding<Bool>,
+            chapters: Binding<[YouTubeChapter]>?
         ) {
             _isPlaying = isPlaying
             _currentTime = currentTime
@@ -87,6 +117,7 @@ struct YouTubePlayerWebView: UIViewRepresentable {
             _advertiserURL = advertiserURL
             _videoAspectRatio = videoAspectRatio
             _isPiP = isPiP
+            self.chapters = chapters
         }
 
         deinit {
@@ -102,6 +133,35 @@ struct YouTubePlayerWebView: UIViewRepresentable {
             injectStyles(into: webView)
             unmuteVideo(in: webView)
             startPlaybackObserver(for: webView)
+            chapterRetryCount = 0
+            extractChapters(from: webView)
+        }
+
+        private func extractChapters(from webView: WKWebView) {
+            guard chapters != nil else { return }
+            webView.evaluateJavaScript(YouTubePlayerScripts.extractChapters) { [weak self] result, _ in
+                guard let self else { return }
+                let parsed = Self.parseChapters(from: result)
+                DispatchQueue.main.async {
+                    if !parsed.isEmpty {
+                        self.chapters?.wrappedValue = parsed
+                    } else if self.chapterRetryCount < 3 {
+                        self.chapterRetryCount += 1
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { [weak self] in
+                            self?.extractChapters(from: webView)
+                        }
+                    }
+                }
+            }
+        }
+
+        private static func parseChapters(from result: Any?) -> [YouTubeChapter] {
+            guard let array = result as? [[String: Any]] else { return [] }
+            return array.enumerated().compactMap { index, entry in
+                guard let title = entry["title"] as? String, !title.isEmpty,
+                      let start = entry["startSeconds"] as? Double else { return nil }
+                return YouTubeChapter(id: index, title: title, startTime: start)
+            }
         }
 
         func webView(
@@ -111,15 +171,25 @@ struct YouTubePlayerWebView: UIViewRepresentable {
             guard let url = navigationAction.request.url else { return .allow }
             let host = url.host?.lowercased() ?? ""
 
-            // Allow YouTube and Google auth navigation
             if host.contains("youtube.com") || host.contains("youtu.be")
                 || host.contains("google.com") || host.contains("accounts.google.com")
                 || host.contains("consent.youtube.com") {
                 return .allow
             }
 
-            // Block external navigation
             return .cancel
+        }
+
+        nonisolated func userContentController(
+            _ userContentController: WKUserContentController,
+            didReceive message: WKScriptMessage
+        ) {
+            guard message.name == YouTubePlayerScripts.pipMessageHandlerName,
+                  let state = message.body as? String else { return }
+            let entered = (state == "enter")
+            Task { @MainActor in
+                self.isPiP = entered
+            }
         }
 
         private func unmuteVideo(in webView: WKWebView) {
@@ -211,172 +281,5 @@ struct YouTubePlayerWebView: UIViewRepresentable {
                 }
             }
         }
-    }
-}
-
-// MARK: - Styles
-
-enum YouTubePlayerStyles {
-
-    static let css = """
-    * { margin: 0 !important; padding: 0 !important; }
-    body { overflow: hidden !important; background: #000 !important; }
-    #player, .html5-video-player, video {
-        position: fixed !important;
-        top: 0 !important;
-        left: 0 !important;
-        width: 100vw !important;
-        height: 100vh !important;
-        z-index: 999999 !important;
-    }
-    ytd-app, #content, #page-manager, ytd-watch-flexy,
-    #columns, #primary, #primary-inner, #player-container-outer,
-    #player-container-inner, #player-container,
-    #movie_player, .html5-video-container {
-        position: fixed !important;
-        top: 0 !important; left: 0 !important;
-        width: 100vw !important; height: 100vh !important;
-        max-width: none !important; max-height: none !important;
-        min-width: 0 !important; min-height: 0 !important;
-        margin: 0 !important; padding: 0 !important;
-        overflow: hidden !important;
-    }
-    #secondary, #related, #comments, #info, #meta,
-    #above-the-fold, #below, ytd-watch-metadata,
-    #masthead-container, #guide, ytd-masthead,
-    ytd-mini-guide-renderer, #chat,
-    .ytp-chrome-top, .ytp-title, .ytp-title-text,
-    .ytp-overflow-button, .ytp-settings-button,
-    .ytp-share-button, .ytp-watch-later-button,
-    header, ytm-mobile-topbar-renderer,
-    .player-controls-top,
-    .ytp-pause-overlay, .ytp-endscreen-content,
-    .ytp-chrome-bottom, .ytp-gradient-bottom,
-    .ytp-gradient-top, ytd-engagement-panel-section-list-renderer,
-    tp-yt-app-drawer, #description, #actions,
-    ytd-merch-shelf-renderer, ytd-info-panel-content-renderer,
-    .ytd-watch-next-secondary-results-renderer,
-    #chips, #header, .ytd-rich-grid-renderer,
-    ytd-feed-filter-chip-bar-renderer,
-    ytd-compact-promoted-video-renderer,
-    .ytp-ce-element, .ytp-cards-teaser,
-    .ytp-paid-content-overlay, .iv-branding,
-    .ytp-youtube-button, .ytp-watermark,
-    tp-yt-paper-dialog, ytd-popup-container,
-    ytd-consent-bump-v2-lightbox,
-    .ytp-ad-visit-advertiser-button,
-    .ytp-visit-advertiser-link, .ytp-ad-overlay-link,
-    [class*="visit-advertiser"], .ytp-ad-text,
-    .ytp-ad-progress, .ytp-ad-progress-list {
-        display: none !important;
-        visibility: hidden !important;
-        height: 0 !important;
-        width: 0 !important;
-        opacity: 0 !important;
-        pointer-events: none !important;
-    }
-    .ytp-skip-ad-button, .ytp-ad-skip-button,
-    .ytp-ad-skip-button-modern, .ytp-ad-skip-button-container,
-    button[class*="skip"] {
-        display: flex !important;
-        visibility: visible !important;
-        align-items: center !important;
-        justify-content: center !important;
-        position: fixed !important;
-        bottom: 0 !important;
-        left: 0 !important;
-        width: 100vw !important;
-        height: 48px !important;
-        opacity: 1 !important;
-        pointer-events: auto !important;
-        z-index: 9999999 !important;
-        background: rgba(0, 0, 0, 0.8) !important;
-        color: #fff !important;
-        font-size: 16px !important;
-        border: none !important;
-        border-radius: 0 !important;
-        margin: 0 !important;
-        padding: 0 !important;
-        box-sizing: border-box !important;
-    }
-    .ytp-skip-ad-button *, .ytp-ad-skip-button *,
-    .ytp-ad-skip-button-modern *, .ytp-ad-skip-button-container *,
-    button[class*="skip"] * {
-        border-radius: 0 !important;
-    }
-    """
-
-    static func injectionScript(css: String) -> String {
-        """
-        (function() {
-            var style = document.createElement('style');
-            style.textContent = `\(css)`;
-            document.head.appendChild(style);
-
-            // Re-apply after dynamic content loads
-            var observer = new MutationObserver(function() {
-                if (!document.getElementById('sakura-yt-style')) {
-                    var s = document.createElement('style');
-                    s.id = 'sakura-yt-style';
-                    s.textContent = `\(css)`;
-                    document.head.appendChild(s);
-                }
-            });
-            observer.observe(document.body, { childList: true, subtree: true });
-        })();
-        """
-    }
-}
-
-// MARK: - Premium Check
-
-final class PremiumCheckDelegate: NSObject, WKNavigationDelegate {
-    private let completion: (Bool) -> Void
-    private var hasCompleted = false
-
-    init(completion: @escaping (Bool) -> Void) {
-        self.completion = completion
-        super.init()
-    }
-
-    func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
-        guard !hasCompleted else { return }
-
-        // Check for YouTube Premium by looking for premium membership
-        // indicators in YouTube's page data
-        let script = """
-        (function() {
-            try {
-                var text = document.documentElement.innerHTML;
-                if (text.indexOf('"isPremium":true') !== -1) {
-                    return true;
-                }
-                if (text.indexOf('"hasPaidContent":true') !== -1) {
-                    return true;
-                }
-                if (document.querySelector('[is-premium-member]')) {
-                    return true;
-                }
-                return false;
-            } catch(e) {
-                return false;
-            }
-        })();
-        """
-
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) { [weak self] in
-            guard let self, !self.hasCompleted else { return }
-            webView.evaluateJavaScript(script) { [weak self] result, _ in
-                guard let self, !self.hasCompleted else { return }
-                self.hasCompleted = true
-                self.completion((result as? Bool) == true)
-            }
-        }
-    }
-
-    func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
-        guard !hasCompleted else { return }
-        hasCompleted = true
-        completion(false)
     }
 }
