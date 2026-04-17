@@ -1,10 +1,12 @@
-import SwiftUI
+import Observation
 import WebKit
 
 /// Bridges Swift → JS calls so the breadcrumb can drive the
 /// in-page selection (drilling up to an ancestor or into a
 /// direct child of the currently-selected element).
-final class PetalElementPickerController: ObservableObject {
+@MainActor
+@Observable
+final class PetalElementPickerController {
 
     weak var webView: WKWebView?
 

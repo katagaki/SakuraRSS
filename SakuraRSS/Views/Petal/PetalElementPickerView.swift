@@ -12,7 +12,7 @@ struct PetalElementPickerView: View {
     @Environment(\.dismiss) private var dismiss
 
     @State private var pickedElement: PetalElementPickerWebView.PickedElement?
-    @StateObject private var controller = PetalElementPickerController()
+    @State private var controller = PetalElementPickerController()
 
     private var baseURL: URL? {
         URL(string: recipe.baseURL ?? recipe.siteURL)
