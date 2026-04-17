@@ -11,6 +11,7 @@ struct MarkReadOnScrollModifier: ViewModifier {
     let article: Article
 
     @State private var hasBeenVisible = false
+    @State private var lastKnownMinY: CGFloat = 0
 
     private var latestIsRead: Bool {
         feedManager.article(byID: article.id)?.isRead ?? article.isRead
@@ -18,6 +19,11 @@ struct MarkReadOnScrollModifier: ViewModifier {
 
     func body(content: Content) -> some View {
         content
+            .onGeometryChange(for: CGFloat.self) { proxy in
+                proxy.frame(in: .global).minY
+            } action: { newValue in
+                lastKnownMinY = newValue
+            }
             .onAppear {
                 hasBeenVisible = true
                 if article.isRead != latestIsRead {
@@ -29,6 +35,10 @@ struct MarkReadOnScrollModifier: ViewModifier {
             }
             .onDisappear {
                 guard scrollMarkAsRead, hasBeenVisible, !latestIsRead else { return }
+                // Only mark as read when the row scrolled off the TOP of the
+                // viewport (user scrolled down past it). A negative minY means
+                // the row's top edge is above the screen's origin.
+                guard lastKnownMinY < 0 else { return }
                 #if DEBUG
                 debugPrint("[ScrollMarkAsRead] Marking article as read: \(article.id) — \(article.title)")
                 #endif
