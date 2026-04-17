@@ -142,6 +142,8 @@ struct SakuraRSSApp: App {
                 Task {
                     await feedManager.deleteAllArticlesAndRefresh()
                 }
+            case "bigbang":
+                feedManager.markAllUnread()
             case "howmanybulbs":
                 Task {
                     SpotlightIndexer.removeAllArticles()
