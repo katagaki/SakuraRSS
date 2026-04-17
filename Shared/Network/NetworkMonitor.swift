@@ -35,25 +35,28 @@ final class NetworkMonitor {
     /// reported within the timeout — treat that as "assume expensive" at
     /// the call site.
     nonisolated static func currentPathIsExpensive(timeout: TimeInterval = 1.0) async -> Bool? {
-        await withCheckedContinuation { continuation in
-            let monitor = NWPathMonitor()
-            let queue = DispatchQueue(label: "NetworkMonitor.probe")
+        final class ProbeState: @unchecked Sendable {
             var resumed = false
             let lock = NSLock()
+        }
+        let state = ProbeState()
+        return await withCheckedContinuation { continuation in
+            let monitor = NWPathMonitor()
+            let queue = DispatchQueue(label: "NetworkMonitor.probe")
             monitor.pathUpdateHandler = { path in
-                lock.lock()
-                defer { lock.unlock() }
-                guard !resumed else { return }
-                resumed = true
+                state.lock.lock()
+                defer { state.lock.unlock() }
+                guard !state.resumed else { return }
+                state.resumed = true
                 monitor.cancel()
                 continuation.resume(returning: path.isExpensive)
             }
             monitor.start(queue: queue)
             queue.asyncAfter(deadline: .now() + timeout) {
-                lock.lock()
-                defer { lock.unlock() }
-                guard !resumed else { return }
-                resumed = true
+                state.lock.lock()
+                defer { state.lock.unlock() }
+                guard !state.resumed else { return }
+                state.resumed = true
                 monitor.cancel()
                 continuation.resume(returning: nil)
             }

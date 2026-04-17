@@ -48,7 +48,7 @@ nonisolated extension PetalEngine {
         return formatter
     }()
 
-    nonisolated(unsafe) static let fallbackDateFormatters: [DateFormatter] = {
+    static let fallbackDateFormatters: [DateFormatter] = {
         let formats = [
             "yyyy-MM-dd'T'HH:mm:ssZ",
             "yyyy-MM-dd HH:mm:ss",
