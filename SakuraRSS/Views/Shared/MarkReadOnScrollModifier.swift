@@ -19,6 +19,9 @@ struct MarkReadOnScrollModifier: ViewModifier {
                 if isVisible {
                     hasBeenVisible = true
                 } else if hasBeenVisible, !article.isRead {
+                    #if DEBUG
+                    debugPrint("[ScrollMarkAsRead] Marking article as read: \(article.id) — \(article.title)")
+                    #endif
                     feedManager.markRead(article)
                 }
             }
