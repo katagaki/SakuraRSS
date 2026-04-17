@@ -2,7 +2,7 @@ import Foundation
 
 nonisolated enum YouTubePlayerScripts {
 
-    static let pipMessageHandlerName = "sakuraPiP"
+    static let pipMessageHandlerName = "ytPiP"
 
     /// Injected at document start to suppress YouTube's Page Visibility-based
     /// auto-pause so audio keeps playing when the app is backgrounded.
@@ -57,8 +57,8 @@ nonisolated enum YouTubePlayerScripts {
             } catch (e) {}
         }
         function attach(video) {
-            if (!video || video.__sakuraPiPAttached) return;
-            video.__sakuraPiPAttached = true;
+            if (!video || video.__ytPiPAttached) return;
+            video.__ytPiPAttached = true;
             video.addEventListener('enterpictureinpicture', function() { send('enter'); });
             video.addEventListener('leavepictureinpicture', function() { send('leave'); });
         }
@@ -76,19 +76,19 @@ nonisolated enum YouTubePlayerScripts {
     """
 
     /// Blocks autoplay by pausing the video whenever it tries to play until
-    /// `window.__sakuraAutoplayBlocked` is cleared (by a native play action).
+    /// `window.__ytAutoplayBlocked` is cleared (by a native play action).
     static let autoplayBlocker = """
     (function() {
-        window.__sakuraAutoplayBlocked = true;
+        window.__ytAutoplayBlocked = true;
         function attach(video) {
-            if (!video || video.__sakuraAutoplayAttached) return;
-            video.__sakuraAutoplayAttached = true;
+            if (!video || video.__ytAutoplayAttached) return;
+            video.__ytAutoplayAttached = true;
             video.addEventListener('play', function() {
-                if (window.__sakuraAutoplayBlocked) {
+                if (window.__ytAutoplayBlocked) {
                     video.pause();
                 }
             });
-            if (!video.paused && window.__sakuraAutoplayBlocked) {
+            if (!video.paused && window.__ytAutoplayBlocked) {
                 video.pause();
             }
         }

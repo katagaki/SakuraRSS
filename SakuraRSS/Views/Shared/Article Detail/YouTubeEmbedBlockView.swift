@@ -142,7 +142,7 @@ struct YouTubeEmbedBlockView: View {
             var v = document.querySelector('video');
             if (!v) return;
             if (v.paused) {
-                window.__sakuraAutoplayBlocked = false;
+                window.__ytAutoplayBlocked = false;
                 v.play();
             } else {
                 v.pause();
