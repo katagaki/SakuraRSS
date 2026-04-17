@@ -33,13 +33,14 @@ struct PetalBuilderView: View {
 
     let mode: Mode
 
-    @State private var recipe = PetalRecipe(name: "", siteURL: "", itemSelector: "article")
+    @State private var recipe = PetalRecipe(name: "", siteURL: "", itemSelector: "")
     @State private var fetchedHTML: String?
     @State private var previewArticles: [ParsedArticle] = []
     @State private var isFetching = false
     @State private var errorMessage: String?
     @State private var previewTask: Task<Void, Never>?
     @State private var showDeleteConfirm = false
+    @State private var showElementPicker = false
     @State private var hasInitialized = false
 
     var body: some View {
@@ -56,7 +57,8 @@ struct PetalBuilderView: View {
                     isFetching: isFetching,
                     onAutoDetect: runAutoDetect,
                     onFetch: { Task { await fetchAndPreview(force: true) } },
-                    onSelectorChanged: schedulePreview
+                    onSelectorChanged: schedulePreview,
+                    onPickElements: { showElementPicker = true }
                 )
                 PetalBuilderPreviewSection(
                     articles: previewArticles,
@@ -74,6 +76,11 @@ struct PetalBuilderView: View {
             }
             .animation(.smooth.speed(2.0), value: previewArticles.count)
             .animation(.smooth.speed(2.0), value: isFetching)
+            .sheet(isPresented: $showElementPicker, onDismiss: schedulePreview) {
+                if let html = fetchedHTML {
+                    PetalElementPickerView(recipe: $recipe, html: html)
+                }
+            }
             .navigationTitle(String(localized: "Builder.Title", table: "Petal"))
             .toolbarTitleDisplayMode(.inline)
             .toolbar {
@@ -99,7 +106,7 @@ struct PetalBuilderView: View {
                     hasInitialized = true
                     switch mode {
                     case .create(let initialURL):
-                        recipe = PetalRecipe(name: "", siteURL: initialURL, itemSelector: "article")
+                        recipe = PetalRecipe(name: "", siteURL: initialURL, itemSelector: "")
                     case .edit(_, let existingRecipe):
                         recipe = existingRecipe
                     }

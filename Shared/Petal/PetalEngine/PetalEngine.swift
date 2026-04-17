@@ -65,7 +65,7 @@ nonisolated enum PetalEngine {
         let articles = parse(html: html, recipe: recipe)
         return PreviewResult(
             articles: articles,
-            fetchedHTMLSample: String(html.prefix(4000)),
+            fetchedHTMLSample: html,
             errorMessage: articles.isEmpty
                 ? String(localized: "Error.NoMatches", table: "Petal") : nil
         )
