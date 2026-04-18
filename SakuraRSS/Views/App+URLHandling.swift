@@ -107,15 +107,15 @@ extension SakuraRSSApp {
 
     /// Removes every top-level entry inside `directory`, except names in `except`.
     func wipeContents(of directory: URL, except: Set<String> = []) {
-        let fm = FileManager.default
-        guard let entries = try? fm.contentsOfDirectory(
+        let fileManager = FileManager.default
+        guard let entries = try? fileManager.contentsOfDirectory(
             at: directory,
             includingPropertiesForKeys: nil,
             options: [.skipsHiddenFiles]
         ) else { return }
         for entry in entries {
             if except.contains(entry.lastPathComponent) { continue }
-            try? fm.removeItem(at: entry)
+            try? fileManager.removeItem(at: entry)
         }
     }
 

@@ -208,9 +208,9 @@ final class iCloudBackupManager: @unchecked Sendable {
     }
 
     private func buildMetadata() throws -> BackupMetadata {
-        let db = DatabaseManager.shared
-        let feedCount = try db.totalFeedCount()
-        let articleCount = try db.database.scalar(db.articles.count)
+        let database = DatabaseManager.shared
+        let feedCount = try database.totalFeedCount()
+        let articleCount = try database.database.scalar(database.articles.count)
         let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? ""
         #if os(iOS)
         let deviceName = UIDevice.current.name

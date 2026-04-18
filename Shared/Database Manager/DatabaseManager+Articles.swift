@@ -171,8 +171,8 @@ nonisolated extension DatabaseManager {
             .order(articlePublishedDate.desc)
             .limit(1)
         guard let row = try database.pluck(query),
-              let ts = row[articlePublishedDate] else { return nil }
-        return Date(timeIntervalSince1970: ts)
+              let timestamp = row[articlePublishedDate] else { return nil }
+        return Date(timeIntervalSince1970: timestamp)
     }
 
     func earliestArticleDate(before date: Date) throws -> Date? {

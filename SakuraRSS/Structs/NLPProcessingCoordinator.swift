@@ -25,10 +25,6 @@ enum NLPProcessingCoordinator {
             return
         }
 
-        // Skip all NLP processing while the device is in Low Power Mode.
-        // A non-BG caller (e.g. foreground refresh) reaches this path too,
-        // so gate here in addition to the BG-refresh gate in App.swift.
-        // Work resumes on the next refresh outside LPM.
         if ProcessInfo.processInfo.isLowPowerModeEnabled {
             #if DEBUG
             logger.debug("processNewArticlesIfEnabled: Low Power Mode is on, deferring")
@@ -36,7 +32,7 @@ enum NLPProcessingCoordinator {
             return
         }
 
-        let db = DatabaseManager.shared
+        let database = DatabaseManager.shared
         let sevenDaysAgo = Date().addingTimeInterval(-7 * 24 * 3600)
 
         #if DEBUG
@@ -45,7 +41,7 @@ enum NLPProcessingCoordinator {
         #endif
 
         await Task.detached(priority: .utility) {
-            let toProcess = (try? db.unprocessedNLPArticles(since: sevenDaysAgo, limit: 200)) ?? []
+            let toProcess = (try? database.unprocessedNLPArticles(since: sevenDaysAgo, limit: 200)) ?? []
 
             #if DEBUG
             logger.debug("processNewArticlesIfEnabled: \(toProcess.count) articles to process")
@@ -60,7 +56,7 @@ enum NLPProcessingCoordinator {
 
             var processedSinceYield = 0
             for pending in toProcess {
-                guard let article = try? db.article(byID: pending.id) else { continue }
+                guard let article = try? database.article(byID: pending.id) else { continue }
                 processArticleSync(
                     article,
                     sentimentTagger: pending.needsSentiment ? sentimentTagger : nil,

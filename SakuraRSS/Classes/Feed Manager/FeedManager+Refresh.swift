@@ -362,6 +362,9 @@ extension FeedManager {
     func cancelRefresh() {
         refreshTask?.cancel()
         refreshTask = nil
+        isLoading = false
+        refreshCompleted = 0
+        refreshTotal = 0
     }
 
 }

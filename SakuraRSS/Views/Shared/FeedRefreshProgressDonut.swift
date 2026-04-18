@@ -1,16 +1,13 @@
 import SwiftUI
 
 /// A small donut-shaped progress indicator displayed in the Home tab
-/// toolbar while feeds are refreshing.  The ring fills from empty to
-/// full as each individual feed finishes loading.  When `onStop` is
-/// supplied the donut becomes a button with a stop glyph in the
-/// center, letting the user cancel the refresh.
+/// toolbar while feeds are refreshing. 
 struct FeedRefreshProgressDonut: View {
 
     let progress: Double
-    var size: CGFloat = 18
-    var lineWidth: CGFloat = 2.5
-    var onStop: (() -> Void)? = nil
+    var size: CGFloat = 24
+    var lineWidth: CGFloat = 2.75
+    var onStop: (() -> Void)?
 
     private var clampedProgress: Double {
         min(max(progress, 0), 1)

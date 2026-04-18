@@ -286,28 +286,19 @@ struct FeedEditSheet: View {
         } else if !iconURLInput.isEmpty {
             finalCustomIconURL = iconURLInput
         } else if feed.customIconURL == "photo" {
-            // User made no icon changes; preserve the existing custom
-            // photo (for Instagram/X feeds this is the auto-downloaded
-            // profile photo).  `iconURLInput` was intentionally emptied
-            // on load because "photo" is a sentinel, not a URL, so we
-            // can't rely on the URL branch above to carry it through.
             finalCustomIconURL = "photo"
         } else {
             finalCustomIconURL = nil
         }
 
         if let customIconImage, !useDefaultIcon {
-            await FaviconCache.shared.setCustomFavicon(customIconImage, feedID: feed.id)
+            await FaviconCache.shared.setCustomFavicon(
+                customIconImage, feedID: feed.id, skipTrimming: true
+            )
         } else if useDefaultIcon && feed.customIconURL != nil && feed.customIconURL != "none" {
             await FaviconCache.shared.removeCustomFavicon(feedID: feed.id)
         }
 
-        // For X, Instagram, and YouTube playlist feeds the editable "URL"
-        // field shows the site URL for readability, but the database stores
-        // a pseudo-feed URL (e.g. `x-profile://handle`) that encodes the
-        // feed type.  Always preserve the original `feed.url` for these
-        // feeds so that overwriting the title doesn't silently convert
-        // them into a regular feed.
         let urlToSave: String
         if feed.isXFeed || feed.isInstagramFeed || feed.isYouTubePlaylistFeed {
             urlToSave = feed.url

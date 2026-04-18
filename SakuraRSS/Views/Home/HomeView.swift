@@ -24,15 +24,6 @@ struct HomeView: View {
                 .environment(\.navigateToFeed, { feed in path.append(feed) })
                 .environment(\.hidesMarkAllReadToolbar, true)
                 .toolbar {
-                    ToolbarItemGroup(placement: .topBarLeading) {
-                        if feedManager.isLoading && feedManager.refreshTotal > 0 {
-                            FeedRefreshProgressDonut(
-                                progress: feedManager.refreshProgress,
-                                onStop: { feedManager.cancelRefresh() }
-                            )
-                        }
-                    }
-                    .sharedBackgroundVisibility(.hidden)
                     if markAllReadPosition == .top {
                         ToolbarItemGroup(placement: .topBarLeading) {
                             Button {
@@ -60,6 +51,15 @@ struct HomeView: View {
                             }
                         }
                     }
+                    ToolbarItemGroup(placement: .topBarLeading) {
+                        if feedManager.isLoading && feedManager.refreshTotal > 0 {
+                            FeedRefreshProgressDonut(
+                                progress: feedManager.refreshProgress,
+                                onStop: { feedManager.cancelRefresh() }
+                            )
+                        }
+                    }
+                    .sharedBackgroundVisibility(.hidden)
                 }
                 .navigationDestination(for: Feed.self) { feed in
                     FeedArticlesView(feed: feed)

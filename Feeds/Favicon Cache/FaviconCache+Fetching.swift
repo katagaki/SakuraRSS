@@ -52,6 +52,20 @@ extension FaviconCache {
             return nil
         }
 
+        // Some domains serve a pale favicon.ico / masked manifest icon but
+        // a vibrant apple-touch-icon.png at the well-known path. Force that
+        // path for allowlisted domains so we don't fall through to the
+        // lower-quality fallbacks.
+        if FaviconForceAppleTouchIconDomains.shouldForceAppleTouchIcon(feedDomain: faviconDomain),
+           let touchURL = URL(string: "https://\(faviconDomain)/apple-touch-icon.png"),
+           let (data, _) = try? await Self.urlSession.data(from: touchURL),
+           let image = UIImage(data: data) {
+            #if DEBUG
+            debugPrint("[Favicon] Forced apple-touch-icon for \(domain)")
+            #endif
+            return await trimAndCache(image, cacheKey: cacheKey, filePath: filePath, domain: domain)
+        }
+
         // Try PWA / apple-touch-icon first for higher quality
         if let image = await fetchPWAIcon(from: url) {
             #if DEBUG

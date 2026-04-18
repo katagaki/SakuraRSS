@@ -75,9 +75,9 @@ extension ArticleExtractor {
             let permalink = (try? block.attr("data-bluesky-uri")) ?? ""
             let href: String
             if let anchor = try? block.select("a[href]").first(),
-               let h = try? anchor.attr("href"),
-               h.contains("bsky.app") {
-                href = h
+               let anchorHref = try? anchor.attr("href"),
+               anchorHref.contains("bsky.app") {
+                href = anchorHref
             } else if !permalink.isEmpty {
                 href = permalink
             } else {
@@ -219,7 +219,7 @@ extension ArticleExtractor {
                 return !text.isEmpty
             }
             if siblingHasText { break }
-            let ownText = ((try? parent.ownText()) ?? "")
+            let ownText = parent.ownText()
                 .trimmingCharacters(in: .whitespacesAndNewlines)
             if !ownText.isEmpty { break }
             current = parent

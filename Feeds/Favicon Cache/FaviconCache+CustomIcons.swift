@@ -49,6 +49,12 @@ extension FaviconCache {
         if let pngData = finalImage.pngData() {
             try? pngData.write(to: filePath)
         }
+        // Persist metrics so the post-relaunch disk read produces the same
+        // rendering as the in-session image. Without this, FaviconImage
+        // re-samples the decoded PNG's corner alphas and may flip
+        // isFilledSquare, triggering the inset/tint heuristic for an icon
+        // that rendered edge-to-edge in-session.
+        attachDerivedMetrics(cacheKey: key, to: finalImage)
     }
 
     func customFavicon(feedID: Int64) -> UIImage? {
@@ -59,6 +65,7 @@ extension FaviconCache {
         let filePath = cacheDirectory.appendingPathComponent(sanitizedFileName(key))
         if let data = try? Data(contentsOf: filePath),
            let image = UIImage(data: data) {
+            attachDerivedMetrics(cacheKey: key, to: image)
             memoryCache[key] = image
             return image
         }
@@ -70,5 +77,6 @@ extension FaviconCache {
         memoryCache[key] = nil
         let filePath = cacheDirectory.appendingPathComponent(sanitizedFileName(key))
         try? FileManager.default.removeItem(at: filePath)
+        try? FileManager.default.removeItem(at: metricsSidecarURL(for: key))
     }
 }

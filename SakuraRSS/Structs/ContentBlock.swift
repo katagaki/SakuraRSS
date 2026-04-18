@@ -160,57 +160,8 @@ enum ContentBlock: Identifiable {
 
             let tag = nsText.substring(with: match.range(at: 1))
             let content = nsText.substring(with: match.range(at: 2))
-
-            if tag == "CODE" {
-                if !content.isEmpty {
-                    blocks.append(.code(ArticleMarker.unescape(content)))
-                }
-            } else if tag == "VIDEO" {
-                if let url = URL(string: content) {
-                    blocks.append(.video(url))
-                }
-            } else if tag == "YOUTUBE" {
-                let trimmed = content.trimmingCharacters(in: .whitespacesAndNewlines)
-                if !trimmed.isEmpty {
-                    blocks.append(.youtube(trimmed))
-                }
-            } else if tag == "XPOST" {
-                let trimmed = content.trimmingCharacters(in: .whitespacesAndNewlines)
-                if let url = URL(string: trimmed) {
-                    blocks.append(.xPost(url))
-                }
-            } else if tag == "EMBED" {
-                let trimmed = content.trimmingCharacters(in: .whitespacesAndNewlines)
-                let parts = trimmed.split(separator: "|", maxSplits: 1, omittingEmptySubsequences: false)
-                if parts.count == 2,
-                   let provider = EmbedProvider(markerValue: String(parts[0])),
-                   let url = URL(string: String(parts[1])) {
-                    blocks.append(.embed(provider, url))
-                }
-            } else if tag == "TABLE" {
-                if let table = parseTableMarker(content) {
-                    blocks.append(table)
-                }
-            } else if tag == "MATH" {
-                let trimmed = content.trimmingCharacters(in: .whitespacesAndNewlines)
-                if !trimmed.isEmpty {
-                    blocks.append(.math(ArticleMarker.unescape(trimmed)))
-                }
-            } else {
-                // IMG - possibly with a link
-                let nsContent = content as NSString
-                if let linkRegex,
-                   let linkMatch = linkRegex.firstMatch(
-                    in: content, range: NSRange(location: 0, length: nsContent.length)
-                   ) {
-                    let imgURLString = nsContent.substring(with: linkMatch.range(at: 1))
-                    let linkURLString = nsContent.substring(with: linkMatch.range(at: 2))
-                    if let imgURL = URL(string: imgURLString) {
-                        blocks.append(.image(imgURL, link: URL(string: linkURLString)))
-                    }
-                } else if let url = URL(string: content) {
-                    blocks.append(.image(url))
-                }
+            if let block = block(forTag: tag, content: content, linkRegex: linkRegex) {
+                blocks.append(block)
             }
 
             lastEnd = match.range.location + match.range.length
@@ -226,6 +177,49 @@ enum ContentBlock: Identifiable {
         }
 
         return blocks
+    }
+
+    private static func block(
+        forTag tag: String,
+        content: String,
+        linkRegex: NSRegularExpression?
+    ) -> ContentBlock? {
+        switch tag {
+        case "CODE":
+            return content.isEmpty ? nil : .code(ArticleMarker.unescape(content))
+        case "VIDEO":
+            return URL(string: content).map { .video($0) }
+        case "YOUTUBE":
+            let trimmed = content.trimmingCharacters(in: .whitespacesAndNewlines)
+            return trimmed.isEmpty ? nil : .youtube(trimmed)
+        case "XPOST":
+            let trimmed = content.trimmingCharacters(in: .whitespacesAndNewlines)
+            return URL(string: trimmed).map { .xPost($0) }
+        case "EMBED":
+            let trimmed = content.trimmingCharacters(in: .whitespacesAndNewlines)
+            let parts = trimmed.split(separator: "|", maxSplits: 1, omittingEmptySubsequences: false)
+            guard parts.count == 2,
+                  let provider = EmbedProvider(markerValue: String(parts[0])),
+                  let url = URL(string: String(parts[1])) else { return nil }
+            return .embed(provider, url)
+        case "TABLE":
+            return parseTableMarker(content)
+        case "MATH":
+            let trimmed = content.trimmingCharacters(in: .whitespacesAndNewlines)
+            return trimmed.isEmpty ? nil : .math(ArticleMarker.unescape(trimmed))
+        default:
+            // IMG - possibly with a link
+            let nsContent = content as NSString
+            if let linkRegex,
+               let linkMatch = linkRegex.firstMatch(
+                in: content, range: NSRange(location: 0, length: nsContent.length)
+               ) {
+                let imgURLString = nsContent.substring(with: linkMatch.range(at: 1))
+                let linkURLString = nsContent.substring(with: linkMatch.range(at: 2))
+                return URL(string: imgURLString).map { .image($0, link: URL(string: linkURLString)) }
+            }
+            return URL(string: content).map { .image($0) }
+        }
     }
 
     /// Parses a `{{TABLE}}` marker payload into header + rows.
