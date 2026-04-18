@@ -15,8 +15,9 @@ extension ArticleExtractor {
         baseURL: URL,
         excludeTitle: String? = nil
     ) async -> String? {
-        if UserDefaults.standard.object(forKey: "ArticleParser.followPagination") != nil,
-           !UserDefaults.standard.bool(forKey: "ArticleParser.followPagination") {
+        let defaults = UserDefaults.standard
+        let key = "ArticleParser.followPagination"
+        if defaults.object(forKey: key) != nil, !defaults.bool(forKey: key) {
             return nil
         }
 

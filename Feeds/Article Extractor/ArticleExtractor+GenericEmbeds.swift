@@ -39,11 +39,14 @@ extension ArticleExtractor {
         }
         for block in blocks {
             let cite = (try? block.attr("cite")) ?? ""
-            let dataURL = (try? block.attr("data-video-id")).map { id in
-                id.isEmpty ? "" : "https://www.tiktok.com/embed/v2/\(id)"
-            } ?? ""
-            let url = !cite.isEmpty ? cite : dataURL
-            guard !url.isEmpty else { continue }
+            let url: String
+            if !cite.isEmpty {
+                url = cite
+            } else {
+                let videoID = (try? block.attr("data-video-id")) ?? ""
+                guard !videoID.isEmpty else { continue }
+                url = "https://www.tiktok.com/embed/v2/\(videoID)"
+            }
             insertEmbedMarker(replacing: block,
                               provider: .tiktok,
                               url: url)

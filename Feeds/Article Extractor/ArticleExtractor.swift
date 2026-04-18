@@ -78,7 +78,7 @@ struct ArticleExtractor {
             baseURL: baseURL,
             excludeTitle: excludeTitle
            ),
-           let text = result.text, !text.isEmpty {
+           result.text?.isEmpty == false {
             result.paywalled = result.paywalled || paywalled
             return result
         }

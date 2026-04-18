@@ -98,11 +98,10 @@ extension ArticleExtractor {
             let trimmed = string.trimmingCharacters(in: .whitespacesAndNewlines)
             return trimmed.isEmpty ? nil : trimmed
         }
-        if let dict = value as? [String: Any] {
-            if let name = dict["name"] as? String,
-               !name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                return name.trimmingCharacters(in: .whitespacesAndNewlines)
-            }
+        if let dict = value as? [String: Any],
+           let name = dict["name"] as? String {
+            let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
+            if !trimmed.isEmpty { return trimmed }
         }
         if let array = value as? [Any] {
             let names = array.compactMap { authorValue(from: $0) }

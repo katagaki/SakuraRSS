@@ -49,11 +49,7 @@ extension ArticleExtractor {
         }
         let filtered = queryItems.filter { item in
             let lowered = item.name.lowercased()
-            if trackingParameterPrefixes.contains(where: lowered.hasPrefix) {
-                return false
-            }
-            return lowered != "fbclid" && lowered != "gclid"
-                && lowered != "dclid" && lowered != "igshid"
+            return !trackingParameterPrefixes.contains(where: lowered.hasPrefix)
         }
         components.queryItems = filtered.isEmpty ? nil : filtered
         return components.string ?? absoluteString
