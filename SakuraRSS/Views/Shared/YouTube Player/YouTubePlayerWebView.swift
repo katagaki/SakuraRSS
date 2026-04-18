@@ -89,7 +89,9 @@ struct YouTubePlayerWebView: UIViewRepresentable {
         if let url = URL(string: urlString) {
             webView.load(URLRequest(url: Self.normalizedURL(url)))
         }
-        self.webView = webView
+        DispatchQueue.main.async {
+            self.webView = webView
+        }
         return webView
     }
 
