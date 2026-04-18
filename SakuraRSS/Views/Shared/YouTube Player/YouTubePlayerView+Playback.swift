@@ -9,10 +9,10 @@ extension YouTubePlayerView {
             var video = document.querySelector('video');
             if (video) {
                 if (video.paused) {
-                    window.__sakuraUserPaused = false;
+                    window.__ytUserPaused = false;
                     video.play();
                 } else {
-                    window.__sakuraUserPaused = true;
+                    window.__ytUserPaused = true;
                     video.pause();
                 }
                 return !video.paused;

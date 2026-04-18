@@ -72,9 +72,7 @@ struct YouTubePlayerWebView: UIViewRepresentable {
         webView.scrollView.backgroundColor = .black
         webView.customUserAgent = sakuraUserAgent
         webView.isUserInteractionEnabled = false
-        if let url = YouTubeEmbedURL.embedURL(from: urlString, autoplay: autoplay) {
-            webView.load(URLRequest(url: url))
-        } else if let url = URL(string: urlString) {
+        if let url = URL(string: urlString) {
             webView.load(URLRequest(url: url))
         }
 
