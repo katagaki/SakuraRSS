@@ -2,103 +2,47 @@ import Foundation
 
 nonisolated enum YouTubePlayerStyles {
 
+    /// CSS for the YouTube embed-player page. The embed page only renders the
+    /// player itself (no surrounding YouTube chrome), so we only need to:
+    /// - stretch the player to fill the web view
+    /// - hide the small bits the embed UI still draws on top of the video
+    ///   (watermark, end-of-video card grid, suggested actions, etc.) so we
+    ///   can use our own SwiftUI controls underneath.
     static let css = """
-    * { margin: 0 !important; padding: 0 !important; }
-    body { overflow: hidden !important; background: #000 !important; }
-    #player, .html5-video-player, video {
-        position: fixed !important;
-        top: 0 !important;
-        left: 0 !important;
-        width: 100vw !important;
-        height: 100vh !important;
-        z-index: 999999 !important;
-    }
-    ytd-app, #content, #page-manager, ytd-watch-flexy,
-    #columns, #primary, #primary-inner, #player-container-outer,
-    #player-container-inner, #player-container,
-    #movie_player, .html5-video-container {
-        position: fixed !important;
-        top: 0 !important; left: 0 !important;
-        width: 100vw !important; height: 100vh !important;
-        max-width: none !important; max-height: none !important;
-        min-width: 0 !important; min-height: 0 !important;
-        margin: 0 !important; padding: 0 !important;
+    html, body {
+        margin: 0 !important;
+        padding: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+        background: #000 !important;
         overflow: hidden !important;
     }
-    #secondary, #related, #comments, #info, #meta,
-    #above-the-fold, #below, ytd-watch-metadata,
-    #masthead-container, #guide, ytd-masthead,
-    ytd-mini-guide-renderer, #chat,
-    header, ytm-mobile-topbar-renderer,
-    .player-controls-top,
-    ytd-engagement-panel-section-list-renderer,
-    tp-yt-app-drawer, #description, #actions,
-    ytd-merch-shelf-renderer, ytd-info-panel-content-renderer,
-    .ytd-watch-next-secondary-results-renderer,
-    #chips, #header, .ytd-rich-grid-renderer,
-    ytd-feed-filter-chip-bar-renderer,
-    ytd-compact-promoted-video-renderer,
-    tp-yt-paper-dialog, ytd-popup-container,
-    ytd-consent-bump-v2-lightbox,
-    .ytp-chrome-top, .ytp-chrome-bottom, .ytp-chrome-controls,
-    .ytp-title, .ytp-title-text, .ytp-title-channel,
-    .ytp-title-link, .ytp-title-expanded-heading,
-    .ytp-overflow-button, .ytp-settings-button,
-    .ytp-share-button, .ytp-watch-later-button,
-    .ytp-gradient-top, .ytp-gradient-bottom,
-    .ytp-left-controls, .ytp-right-controls,
-    .ytp-progress-bar-container, .ytp-progress-bar,
-    .ytp-scrubber-container, .ytp-time-display,
-    .ytp-play-button, .ytp-pause-button,
-    .ytp-next-button, .ytp-prev-button,
-    .ytp-mute-button, .ytp-volume-panel, .ytp-volume-slider,
-    .ytp-subtitles-button, .ytp-captions-button,
-    .ytp-fullscreen-button, .ytp-size-button,
-    .ytp-miniplayer-button, .ytp-pip-button,
-    .ytp-autonav-toggle-button-container,
-    .ytp-autonav-endscreen-countdown-overlay,
-    .ytp-autonav-endscreen-upnext-container,
-    .ytp-autonav-endscreen-upnext-header,
-    .ytp-autonav-endscreen-upnext-thumbnail,
-    .ytp-autonav-endscreen-upnext-title,
-    .ytp-autonav-endscreen-upnext-button,
-    .ytp-large-play-button, .ytp-cued-thumbnail-overlay,
-    .ytp-spinner, .ytp-spinner-container,
+    #player, .html5-video-player, .html5-video-container, video {
+        width: 100% !important;
+        height: 100% !important;
+        max-width: none !important;
+        max-height: none !important;
+        background: #000 !important;
+    }
+    video {
+        object-fit: contain !important;
+    }
+    .ytp-watermark, .ytp-show-tiles,
     .ytp-pause-overlay, .ytp-pause-overlay-container,
     .ytp-endscreen-content, .ytp-endscreen-element,
     .ytp-ce-element, .ytp-ce-covering-overlay,
     .ytp-ce-covering-image, .ytp-ce-element-shadow,
     .ytp-ce-video, .ytp-ce-playlist, .ytp-ce-channel,
     .ytp-cards-teaser, .ytp-cards-button, .ytp-cards-button-title,
-    .ytp-paid-content-overlay, .ytp-watermark,
-    .ytp-youtube-button, .iv-branding, .iv-click-target,
-    .branding-img-container, .ytp-iv-video-content,
-    .ytp-show-tiles, .ytp-replay-button, .ytp-share-panel,
-    .ytp-copylink-button, .ytp-copylink,
-    .ytp-fullerscreen-edu-button,
     .ytp-suggested-action, .ytp-suggested-action-badge-container,
     .ytp-suggested-action-badge-expanded,
+    .ytp-paid-content-overlay,
     .ytp-tooltip, .ytp-tooltip-text, .ytp-tooltip-title,
-    .ytp-chapter-container, .ytp-chapter-title,
-    .ytp-multicam-button, .ytp-multicam-menu,
-    .ytp-exp-bottom-control-flexbox,
-    .ytp-menuitem, .ytp-panel, .ytp-panel-menu, .ytp-popup,
-    .ytp-contextmenu, .ytp-remote,
-    .ytp-offline-slate, .ytp-error,
-    .ytp-ad-visit-advertiser-button,
-    .ytp-visit-advertiser-link, .ytp-ad-overlay-link,
-    [class*="visit-advertiser"], .ytp-ad-text,
-    .ytp-ad-progress, .ytp-ad-progress-list,
-    .ytp-ad-player-overlay, .ytp-ad-player-overlay-layout,
-    .ytp-ad-preview-container, .ytp-ad-message-container,
-    .ytp-flyout-cta, .ytp-ad-action-interstitial,
-    .ytp-ad-overlay-container, .ytp-ad-image-overlay,
-    .ytp-featured-product, .ytp-product-picker,
-    .ytp-info-panel-preview, .ytp-videowall-still {
+    .ytp-impression-link, .ytp-iv-player-content,
+    .iv-branding, .iv-click-target, .branding-img-container,
+    .ytp-ce-covering-shadow, .ytp-videowall-still {
         display: none !important;
         visibility: hidden !important;
-        height: 0 !important;
-        width: 0 !important;
         opacity: 0 !important;
         pointer-events: none !important;
     }
@@ -136,20 +80,18 @@ nonisolated enum YouTubePlayerStyles {
     static func injectionScript(css: String) -> String {
         """
         (function() {
-            var style = document.createElement('style');
-            style.textContent = `\(css)`;
-            document.head.appendChild(style);
-
-            // Re-apply after dynamic content loads
-            var observer = new MutationObserver(function() {
-                if (!document.getElementById('sakura-yt-style')) {
-                    var s = document.createElement('style');
-                    s.id = 'sakura-yt-style';
-                    s.textContent = `\(css)`;
-                    document.head.appendChild(s);
-                }
-            });
-            observer.observe(document.body, { childList: true, subtree: true });
+            function inject() {
+                if (document.getElementById('sakura-yt-style')) return;
+                var head = document.head || document.documentElement;
+                if (!head) return;
+                var s = document.createElement('style');
+                s.id = 'sakura-yt-style';
+                s.textContent = `\(css)`;
+                head.appendChild(s);
+            }
+            inject();
+            var observer = new MutationObserver(inject);
+            observer.observe(document.documentElement, { childList: true, subtree: true });
         })();
         """
     }

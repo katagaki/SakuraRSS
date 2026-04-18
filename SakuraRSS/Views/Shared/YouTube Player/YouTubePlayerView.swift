@@ -8,6 +8,7 @@ struct YouTubePlayerView: View {
 
     @Environment(FeedManager.self) var feedManager
     @Environment(\.openURL) var openURL
+    @Environment(\.scenePhase) private var scenePhase
     let article: Article
 
     @State private var isBookmarked = false
@@ -25,6 +26,7 @@ struct YouTubePlayerView: View {
     @State private var favicon: UIImage?
     @State private var acronymIcon: UIImage?
     @State var chapters: [YouTubeChapter] = []
+    @State private var wantsPlaybackInBackground = false
 
     // SponsorBlock
     @AppStorage("YouTube.SponsorBlock.Enabled") var sponsorBlockEnabled = false
@@ -83,6 +85,35 @@ struct YouTubePlayerView: View {
         let session = AVAudioSession.sharedInstance()
         try? session.setCategory(.playback, mode: .moviePlayback)
         try? session.setActive(true)
+    }
+
+    private func handleScenePhaseChange(_ newPhase: ScenePhase) {
+        switch newPhase {
+        case .background, .inactive:
+            wantsPlaybackInBackground = isPlaying
+            activateBackgroundAudioSession()
+            if isPlaying {
+                resumePlaybackIfNeeded()
+            }
+        case .active:
+            activateBackgroundAudioSession()
+            if wantsPlaybackInBackground {
+                resumePlaybackIfNeeded()
+                wantsPlaybackInBackground = false
+            }
+        @unknown default:
+            break
+        }
+    }
+
+    private func resumePlaybackIfNeeded() {
+        let script = """
+        (function() {
+            var v = document.querySelector('video');
+            if (v && v.paused) { v.play().catch(function(){}); }
+        })();
+        """
+        webView?.evaluateJavaScript(script, completionHandler: nil)
     }
 
     var youtubeAppURL: URL? {
@@ -351,6 +382,9 @@ struct YouTubePlayerView: View {
         }
         .onChange(of: currentTime) { _, newTime in
             checkSponsorSegments(at: newTime)
+        }
+        .onChange(of: scenePhase) { _, newPhase in
+            handleScenePhaseChange(newPhase)
         }
         .task {
             activateBackgroundAudioSession()

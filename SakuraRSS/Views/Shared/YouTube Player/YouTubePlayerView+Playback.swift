@@ -8,7 +8,13 @@ extension YouTubePlayerView {
         (function() {
             var video = document.querySelector('video');
             if (video) {
-                if (video.paused) { video.play(); } else { video.pause(); }
+                if (video.paused) {
+                    window.__sakuraUserPaused = false;
+                    video.play();
+                } else {
+                    window.__sakuraUserPaused = true;
+                    video.pause();
+                }
                 return !video.paused;
             }
             return null;

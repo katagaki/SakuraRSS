@@ -46,6 +46,11 @@ struct YouTubePlayerWebView: UIViewRepresentable {
             injectionTime: .atDocumentEnd,
             forMainFrameOnly: true
         ))
+        controller.addUserScript(WKUserScript(
+            source: YouTubePlayerScripts.playbackWatchdog,
+            injectionTime: .atDocumentEnd,
+            forMainFrameOnly: true
+        ))
         if !autoplay {
             controller.addUserScript(WKUserScript(
                 source: YouTubePlayerScripts.autoplayBlocker,
@@ -67,7 +72,9 @@ struct YouTubePlayerWebView: UIViewRepresentable {
         webView.scrollView.backgroundColor = .black
         webView.customUserAgent = sakuraUserAgent
         webView.isUserInteractionEnabled = false
-        if let url = URL(string: urlString) {
+        if let url = YouTubeEmbedURL.embedURL(from: urlString, autoplay: autoplay) {
+            webView.load(URLRequest(url: url))
+        } else if let url = URL(string: urlString) {
             webView.load(URLRequest(url: url))
         }
 
