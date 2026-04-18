@@ -1,6 +1,10 @@
 import SwiftUI
 import WebKit
 
+extension Notification.Name {
+    static let youTubePlayerDidStartPlaying = Notification.Name("youTubePlayerDidStartPlaying")
+}
+
 extension YouTubePlayerView {
 
     func togglePlayPause() {
@@ -20,11 +24,31 @@ extension YouTubePlayerView {
             return null;
         })();
         """
+        let startingID = playerID
         webView?.evaluateJavaScript(script) { result, _ in
             if let playing = result as? Bool {
                 isPlaying = playing
+                if playing {
+                    NotificationCenter.default.post(
+                        name: .youTubePlayerDidStartPlaying,
+                        object: startingID
+                    )
+                }
             }
         }
+    }
+
+    func pauseForOtherPlayer() {
+        let script = """
+        (function() {
+            var video = document.querySelector('video');
+            if (video && !video.paused) {
+                window.__ytUserPaused = true;
+                video.pause();
+            }
+        })();
+        """
+        webView?.evaluateJavaScript(script, completionHandler: nil)
     }
 
     func seek(to time: TimeInterval) {

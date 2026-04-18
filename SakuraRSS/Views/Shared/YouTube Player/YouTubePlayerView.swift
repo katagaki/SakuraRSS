@@ -27,6 +27,7 @@ struct YouTubePlayerView: View {
     @State private var acronymIcon: UIImage?
     @State var chapters: [YouTubeChapter] = []
     @State private var wantsPlaybackInBackground = false
+    @State private var playerID = UUID()
 
     // SponsorBlock
     @AppStorage("YouTube.SponsorBlock.Enabled") var sponsorBlockEnabled = false
@@ -375,6 +376,10 @@ struct YouTubePlayerView: View {
                 withAnimation(.smooth.speed(2.0)) {
                     hasStartedPlaying = true
                 }
+                NotificationCenter.default.post(
+                    name: .youTubePlayerDidStartPlaying,
+                    object: playerID
+                )
             }
         }
         .onChange(of: isAd) { _, newValue in
@@ -385,6 +390,14 @@ struct YouTubePlayerView: View {
         }
         .onChange(of: scenePhase) { _, newPhase in
             handleScenePhaseChange(newPhase)
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .youTubePlayerDidStartPlaying)) { notification in
+            guard let otherID = notification.object as? UUID, otherID != playerID else { return }
+            pauseForOtherPlayer()
+            wantsPlaybackInBackground = false
+        }
+        .onDisappear {
+            pauseForOtherPlayer()
         }
         .task {
             activateBackgroundAudioSession()

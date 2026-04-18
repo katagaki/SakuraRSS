@@ -61,6 +61,21 @@ nonisolated enum YouTubePlayerStyles {
     ytm-reel-shelf-renderer,
     ytm-playlist-panel-renderer,
     ytm-video-with-context-renderer,
+    /* Mobile YouTube Shorts overlay — action bar, metadata, progress.
+       `ytm-reel-video-renderer` itself is left visible because it wraps
+       the Shorts video element. */
+    ytm-reel-player-overlay-renderer,
+    ytm-reel-player-header-renderer,
+    .reel-player-overlay-actions,
+    .reel-player-overlay-action-buttons,
+    .reel-video-action-button-container,
+    .reel-video-action-button,
+    .reel-video-metadata-panel,
+    .reel-player-overlay-metadata-renderer,
+    .reel-player-overlay-channel,
+    .reel-player-header,
+    .reel-player-progress-bar,
+    .ytp-reel-progress-bar-line,
     .related-chips-slot-wrapper,
     .video-actions,
     #player-bottom-sheet,
@@ -72,6 +87,12 @@ nonisolated enum YouTubePlayerStyles {
     ytd-merch-shelf-renderer, ytd-info-panel-content-renderer,
     ytd-compact-promoted-video-renderer, ytd-feed-filter-chip-bar-renderer,
     ytd-consent-bump-v2-lightbox, ytd-popup-container,
+    /* Desktop YouTube Shorts overlay — actions, header, metadata. The
+       video wrapper (`ytd-reel-video-renderer`) is intentionally left
+       visible because it contains the video element. */
+    ytd-reel-player-overlay-renderer,
+    ytd-reel-player-header-renderer,
+    ytd-shorts-player-controls,
     .ytd-watch-next-secondary-results-renderer,
     #description, #actions, #above-the-fold, #below, #info, #meta,
     #masthead-container, #guide, #chips, #header,
