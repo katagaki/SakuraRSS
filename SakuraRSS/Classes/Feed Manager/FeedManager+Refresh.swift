@@ -4,7 +4,12 @@ extension FeedManager {
 
     // MARK: - Feed Refresh
 
-    func refreshFeed(_ feed: Feed, updateTitle: Bool = true, reloadData: Bool = true) async throws {
+    func refreshFeed(
+        _ feed: Feed,
+        updateTitle: Bool = true,
+        reloadData: Bool = true,
+        skipImageBackfill: Bool = false
+    ) async throws {
         if PetalRecipe.isPetalFeedURL(feed.url) {
             try await refreshPetalFeed(feed, reloadData: reloadData)
             return
@@ -37,9 +42,14 @@ extension FeedManager {
             guard let parsed = parser.parse(data: data) else { return }
 
             let existingURLs = (try? database.existingArticleURLs(forFeedID: feed.id)) ?? []
-            let imageBackfills = await FeedManager.backfillMetadataImages(
-                for: parsed.articles, skippingURLs: existingURLs
-            )
+            let imageBackfills: [String: String]
+            if skipImageBackfill {
+                imageBackfills = [:]
+            } else {
+                imageBackfills = await FeedManager.backfillMetadataImages(
+                    for: parsed.articles, skippingURLs: existingURLs
+                )
+            }
 
             let articleTuples = parsed.articles.map { article in
                 let resolvedImageURL = article.imageURL ?? imageBackfills[article.url]
@@ -58,11 +68,11 @@ extension FeedManager {
                 )
             }
 
-            try database.insertArticles(feedID: feed.id, articles: articleTuples)
+            let insertedIDs = try database.insertArticles(feedID: feed.id, articles: articleTuples)
 
-            if !ProcessInfo.processInfo.isLowPowerModeEnabled {
+            if !insertedIDs.isEmpty, !ProcessInfo.processInfo.isLowPowerModeEnabled {
                 let feedTitleForIndex = parsed.title.isEmpty ? feed.title : parsed.title
-                let articlesToIndex = try database.articles(forFeedID: feed.id, limit: articleTuples.count)
+                let articlesToIndex = try database.articles(withIDs: insertedIDs)
                 SpotlightIndexer.indexArticles(articlesToIndex, feedTitle: feedTitleForIndex)
             }
 
@@ -168,10 +178,13 @@ extension FeedManager {
     /// Instagram profile feeds (pass from background refresh tasks).
     /// `respectCooldown` skips feeds whose `lastFetched` is within the
     /// `BackgroundRefresh.Cooldown` window; feeds with nil `lastFetched`
-    /// always refresh.
+    /// always refresh.  `skipImageBackfill` disables the HTML metadata
+    /// image lookup per article (cellular-safe background paths set
+    /// this when the user has the Wi-Fi-only backfill preference on).
     func refreshAllFeeds(
         skipAuthenticatedScrapers: Bool = false,
-        respectCooldown: Bool = false
+        respectCooldown: Bool = false,
+        skipImageBackfill: Bool = false
     ) async {
         let cooldownSeconds: TimeInterval? = {
             guard respectCooldown else { return nil }
@@ -207,11 +220,37 @@ extension FeedManager {
             }
         }
 
+        // Bounded concurrency so libraries with 100+ feeds don't spawn
+        // 100+ simultaneous URLSession tasks.  Empirically past ~8
+        // in-flight fetches end-to-end wall time stops improving on
+        // cellular and regresses on Wi-Fi due to contention with the
+        // main-actor reload work; 8 matches the parallelism already
+        // used by `backfillMetadataImages`.
+        let maxConcurrent = 8
         await withTaskGroup(of: Void.self) { group in
-            for feed in feedsToRefresh {
+            var submitted = 0
+            var iterator = feedsToRefresh.makeIterator()
+            while submitted < maxConcurrent, let feed = iterator.next() {
                 group.addTask {
-                    try? await self.refreshFeed(feed, reloadData: false)
+                    try? await self.refreshFeed(
+                        feed,
+                        reloadData: false,
+                        skipImageBackfill: skipImageBackfill
+                    )
                     await MainActor.run { self.refreshCompleted += 1 }
+                }
+                submitted += 1
+            }
+            while await group.next() != nil {
+                if let feed = iterator.next() {
+                    group.addTask {
+                        try? await self.refreshFeed(
+                            feed,
+                            reloadData: false,
+                            skipImageBackfill: skipImageBackfill
+                        )
+                        await MainActor.run { self.refreshCompleted += 1 }
+                    }
                 }
             }
         }
@@ -253,11 +292,23 @@ extension FeedManager {
             }
         }
 
+        let maxConcurrent = 8
         async let feedRefresh: Void = withTaskGroup(of: Void.self) { group in
-            for feed in currentFeeds {
+            var submitted = 0
+            var iterator = currentFeeds.makeIterator()
+            while submitted < maxConcurrent, let feed = iterator.next() {
                 group.addTask {
                     try? await self.refreshFeed(feed, updateTitle: false, reloadData: false)
                     await MainActor.run { self.refreshCompleted += 1 }
+                }
+                submitted += 1
+            }
+            while await group.next() != nil {
+                if let feed = iterator.next() {
+                    group.addTask {
+                        try? await self.refreshFeed(feed, updateTitle: false, reloadData: false)
+                        await MainActor.run { self.refreshCompleted += 1 }
+                    }
                 }
             }
         }

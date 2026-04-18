@@ -22,24 +22,32 @@ nonisolated extension DatabaseManager {
         try database.run(target.update(articleEntitiesProcessed <- true))
     }
 
-    func unprocessedSentimentArticleIDs(since date: Date, limit: Int) throws -> [Int64] {
-        let query = articles
-            .select(articleID)
-            .filter(articleSentimentProcessed == false
-                    && articlePublishedDate >= date.timeIntervalSince1970)
-            .order(articlePublishedDate.desc)
-            .limit(limit)
-        return try database.prepare(query).map { $0[articleID] }
+    /// Returns articles that still need either sentiment or entity
+    /// extraction, flagging which passes are outstanding for each one.
+    /// Callers fetch each article at most once and run only the tagger(s)
+    /// that are still outstanding, instead of doing two separate scans.
+    struct UnprocessedNLPArticle: Sendable {
+        let id: Int64
+        let needsSentiment: Bool
+        let needsEntities: Bool
     }
 
-    func unprocessedEntitiesArticleIDs(since date: Date, limit: Int) throws -> [Int64] {
+    func unprocessedNLPArticles(since date: Date, limit: Int) throws -> [UnprocessedNLPArticle] {
         let query = articles
-            .select(articleID)
-            .filter(articleEntitiesProcessed == false
-                    && articlePublishedDate >= date.timeIntervalSince1970)
+            .select(articleID, articleSentimentProcessed, articleEntitiesProcessed)
+            .filter(
+                (articleSentimentProcessed == false || articleEntitiesProcessed == false)
+                && articlePublishedDate >= date.timeIntervalSince1970
+            )
             .order(articlePublishedDate.desc)
             .limit(limit)
-        return try database.prepare(query).map { $0[articleID] }
+        return try database.prepare(query).map { row in
+            UnprocessedNLPArticle(
+                id: row[articleID],
+                needsSentiment: !row[articleSentimentProcessed],
+                needsEntities: !row[articleEntitiesProcessed]
+            )
+        }
     }
 
     // MARK: - Entity CRUD

@@ -1,0 +1,58 @@
+import SwiftUI
+
+struct MagazineStyleView: View {
+
+    @Environment(FeedManager.self) var feedManager
+    @Environment(\.zoomNamespace) private var zoomNamespace
+    let articles: [Article]
+    var onLoadMore: (() -> Void)?
+    @State private var youTubeArticle: Article?
+
+    private let columns = [
+        GridItem(.flexible(), spacing: 12),
+        GridItem(.flexible(), spacing: 12)
+    ]
+
+    var body: some View {
+        ScrollView(.vertical) {
+            LazyVStack(spacing: 12) {
+                LazyVGrid(columns: columns, spacing: 12) {
+                    ForEach(articles) { article in
+                        ArticleLink(article: article, onShowYouTubePlayer: {
+                            youTubeArticle = $0
+                        }, label: {
+                            MagazineArticleCard(article: article)
+                                .zoomSource(id: article.id, namespace: zoomNamespace)
+                                .markReadOnScroll(article: article)
+                        })
+                        .buttonStyle(.plain)
+                        .contextMenu {
+                            Button {
+                                feedManager.toggleRead(article)
+                            } label: {
+                                Label(
+                                    article.isRead
+                                        ? String(localized: "Article.MarkUnread", table: "Articles")
+                                        : String(localized: "Article.MarkRead", table: "Articles"),
+                                    systemImage: article.isRead
+                                        ? "envelope" : "envelope.open"
+                                )
+                            }
+                        }
+                    }
+                }
+                .padding(.horizontal, 16)
+                if let onLoadMore {
+                    LoadPreviousArticlesButton(action: onLoadMore)
+                        .padding(.horizontal, 16)
+                }
+            }
+            .padding(.bottom)
+        }
+        .animation(.smooth.speed(2.0), value: articles)
+        .navigationDestination(item: $youTubeArticle) { article in
+            YouTubePlayerView(article: article)
+                .zoomTransition(sourceID: article.id, in: zoomNamespace)
+        }
+    }
+}

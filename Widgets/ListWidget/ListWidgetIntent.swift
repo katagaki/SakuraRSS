@@ -3,15 +3,25 @@ import WidgetKit
 
 struct ListWidgetIntent: WidgetConfigurationIntent {
     static var title: LocalizedStringResource = LocalizedStringResource("ListWidget.IntentTitle", table: "Widget")
-    static var description: IntentDescription = IntentDescription(LocalizedStringResource("ListWidget.IntentDescription", table: "Widget"))
+    static var description: IntentDescription = IntentDescription(
+        LocalizedStringResource("ListWidget.IntentDescription", table: "Widget")
+    )
 
-    @Parameter(title: LocalizedStringResource("ListWidget.Parameter.List", table: "Widget"))
+    @Parameter(
+        title: LocalizedStringResource("ListWidget.Parameter.List", table: "Widget")
+    )
     var list: ListEntity?
 
-    @Parameter(title: LocalizedStringResource("SingleFeedWidget.Parameter.Layout", table: "Widget"), default: .thumbnails)
+    @Parameter(
+        title: LocalizedStringResource("SingleFeedWidget.Parameter.Layout", table: "Widget"),
+        default: .thumbnails
+    )
     var layout: SingleFeedWidgetLayout?
 
-    @Parameter(title: LocalizedStringResource("SingleFeedWidget.Parameter.Columns", table: "Widget"), default: .three)
+    @Parameter(
+        title: LocalizedStringResource("SingleFeedWidget.Parameter.Columns", table: "Widget"),
+        default: .three
+    )
     var columns: SingleFeedWidgetColumns?
 }
 

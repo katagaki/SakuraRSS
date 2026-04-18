@@ -201,7 +201,13 @@ struct PodcastEpisodeView: View {
                                 startPlayback()
                             } label: {
                                 Label(
-                                    isOffline && !isDownloaded ? String(localized: "Offline", table: "Podcast") : String(localized: "Play", table: "Podcast"),
+                                    isOffline && !isDownloaded ? String(
+                                        localized: "Offline",
+                                        table: "Podcast"
+                                    ) : String(
+                                        localized: "Play",
+                                        table: "Podcast"
+                                    ),
                                     systemImage: "play.fill"
                                 )
                                     .frame(maxWidth: .infinity)
@@ -237,9 +243,14 @@ struct PodcastEpisodeView: View {
                         } else {
                             VStack(alignment: .leading, spacing: 8) {
                                 if showingSummary && summarizedText != nil {
-                                    Text(String(localized: "AppleIntelligence.VerifyImportantInformation", table: "Settings"))
-                                        .font(.caption)
-                                        .foregroundStyle(.secondary)
+                                    Text(
+                                        String(
+                                            localized: "AppleIntelligence.VerifyImportantInformation",
+                                            table: "Settings"
+                                        )
+                                    )
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
                                 }
                                 if let text = displayText {
                                     SelectableText(text)

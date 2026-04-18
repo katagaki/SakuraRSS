@@ -11,6 +11,7 @@ struct MoreView: View {
     @AppStorage("BackgroundRefresh.Enabled") private var backgroundRefreshEnabled: Bool = true
     @AppStorage("BackgroundRefresh.Interval") private var refreshInterval: Int = 240
     @AppStorage("BackgroundRefresh.Cooldown") private var refreshCooldown: FeedRefreshCooldown = .fiveMinutes
+    @AppStorage("BackgroundRefresh.ImageBackfillWiFiOnly") private var imageBackfillWiFiOnly: Bool = true
     @AppStorage("Display.DefaultStyle") private var defaultDisplayStyle: FeedDisplayStyle = .inbox
     @AppStorage("Display.MarkAllReadPosition") private var markAllReadPosition: MarkAllReadPosition = .bottom
     @AppStorage("Display.ScrollMarkAsRead") private var scrollMarkAsRead: Bool = false
@@ -147,10 +148,17 @@ struct MoreView: View {
                     } label: {
                         Text(String(localized: "RefreshCooldown", table: "Settings"))
                     }
+                    Toggle(
+                        String(localized: "BackgroundRefresh.WiFiOnlyImageBackfill", table: "Settings"),
+                        isOn: $imageBackfillWiFiOnly
+                    )
                 } header: {
                     Text(String(localized: "Section.Refresh", table: "Settings"))
                 } footer: {
-                    Text(String(localized: "RefreshCooldown.Footer", table: "Settings"))
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text(String(localized: "RefreshCooldown.Footer", table: "Settings"))
+                        Text(String(localized: "BackgroundRefresh.WiFiOnlyImageBackfill.Footer", table: "Settings"))
+                    }
                 }
 
                 Section(String(localized: "Section.Integrations", table: "Settings")) {

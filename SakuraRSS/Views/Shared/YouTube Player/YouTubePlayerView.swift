@@ -202,9 +202,14 @@ struct YouTubePlayerView: View {
                     if let text = displayDescription, !text.isEmpty {
                         VStack(alignment: .leading, spacing: 12) {
                             if showingSummary && summarizedText != nil {
-                                Text(String(localized: "AppleIntelligence.VerifyImportantInformation", table: "Settings"))
-                                    .font(.caption)
-                                    .foregroundStyle(.secondary)
+                                Text(
+                                    String(
+                                        localized: "AppleIntelligence.VerifyImportantInformation",
+                                        table: "Settings"
+                                    )
+                                )
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
                             }
                             let blocks = ContentBlock.parse(text)
                             ForEach(blocks) { block in

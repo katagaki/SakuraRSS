@@ -2,97 +2,10 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>ITSAppUsesNonExemptEncryption</key>
-	<false/>
-	<key>NSSpeechRecognitionUsageDescription</key>
-	<string>Sakura uses on-device speech recognition to transcribe podcast episodes you download. Audio is processed locally and never leaves your device.</string>
 	<key>BGTaskSchedulerPermittedIdentifiers</key>
 	<array>
 		<string>com.tsubuzaki.SakuraRSS.RefreshFeeds</string>
 		<string>com.tsubuzaki.SakuraRSS.iCloudBackup</string>
-	</array>
-	<key>UIBackgroundModes</key>
-	<array>
-		<string>processing</string>
-		<string>audio</string>
-	</array>
-	<key>LSApplicationQueriesSchemes</key>
-	<array>
-		<string>youtube</string>
-		<string>reddit</string>
-		<string>twitter</string>
-		<string>instagram</string>
-	</array>
-	<key>CFBundleURLTypes</key>
-	<array>
-		<dict>
-			<key>CFBundleURLName</key>
-			<string>RSS Feed</string>
-			<key>CFBundleURLSchemes</key>
-			<array>
-				<string>feed</string>
-				<string>feeds</string>
-			</array>
-		</dict>
-		<dict>
-			<key>CFBundleURLName</key>
-			<string>Sakura Deep Link</string>
-			<key>CFBundleURLSchemes</key>
-			<array>
-				<string>sakura</string>
-			</array>
-		</dict>
-	</array>
-	<key>LSSupportsOpeningDocumentsInPlace</key>
-	<false/>
-	<key>UTImportedTypeDeclarations</key>
-	<array>
-		<dict>
-			<key>UTTypeIdentifier</key>
-			<string>org.opml.opml</string>
-			<key>UTTypeDescription</key>
-			<string>OPML_DOCUMENT_TYPE</string>
-			<key>UTTypeConformsTo</key>
-			<array>
-				<string>public.xml</string>
-			</array>
-			<key>UTTypeTagSpecification</key>
-			<dict>
-				<key>public.filename-extension</key>
-				<array>
-					<string>opml</string>
-				</array>
-				<key>public.mime-type</key>
-				<array>
-					<string>text/x-opml</string>
-				</array>
-			</dict>
-		</dict>
-	</array>
-	<key>UTExportedTypeDeclarations</key>
-	<array>
-		<dict>
-			<key>UTTypeIdentifier</key>
-			<string>com.tsubuzaki.SakuraRSS.petal</string>
-			<key>UTTypeDescription</key>
-			<string>Sakura Web Feed</string>
-			<key>UTTypeConformsTo</key>
-			<array>
-				<string>public.zip-archive</string>
-				<string>public.data</string>
-			</array>
-			<key>UTTypeTagSpecification</key>
-			<dict>
-				<key>public.filename-extension</key>
-				<array>
-					<string>srss</string>
-				</array>
-				<key>public.mime-type</key>
-				<array>
-					<string>application/x-sakura-rss</string>
-				</array>
-			</dict>
-		</dict>
 	</array>
 	<key>CFBundleDocumentTypes</key>
 	<array>
@@ -120,6 +33,87 @@
 			<array>
 				<string>com.tsubuzaki.SakuraRSS.petal</string>
 			</array>
+		</dict>
+	</array>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>RSS Feed</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>feed</string>
+				<string>feeds</string>
+			</array>
+		</dict>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>Sakura Deep Link</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>sakura</string>
+			</array>
+		</dict>
+	</array>
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>youtube</string>
+		<string>reddit</string>
+		<string>twitter</string>
+		<string>instagram</string>
+	</array>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>processing</string>
+		<string>audio</string>
+	</array>
+	<key>UTExportedTypeDeclarations</key>
+	<array>
+		<dict>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.zip-archive</string>
+				<string>public.data</string>
+			</array>
+			<key>UTTypeDescription</key>
+			<string>Sakura Web Feed</string>
+			<key>UTTypeIdentifier</key>
+			<string>com.tsubuzaki.SakuraRSS.petal</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>srss</string>
+				</array>
+				<key>public.mime-type</key>
+				<array>
+					<string>application/x-sakura-rss</string>
+				</array>
+			</dict>
+		</dict>
+	</array>
+	<key>UTImportedTypeDeclarations</key>
+	<array>
+		<dict>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.xml</string>
+			</array>
+			<key>UTTypeDescription</key>
+			<string>OPML_DOCUMENT_TYPE</string>
+			<key>UTTypeIdentifier</key>
+			<string>org.opml.opml</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>opml</string>
+				</array>
+				<key>public.mime-type</key>
+				<array>
+					<string>text/x-opml</string>
+				</array>
+			</dict>
 		</dict>
 	</array>
 </dict>
