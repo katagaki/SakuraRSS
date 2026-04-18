@@ -11,7 +11,7 @@ struct MarkReadOnScrollModifier: ViewModifier {
     let article: Article
 
     @State private var hasBeenVisible = false
-    @State private var lastKnownMinY: CGFloat = 0
+    @State private var hasScrolledPastTop = false
 
     private var latestIsRead: Bool {
         feedManager.article(byID: article.id)?.isRead ?? article.isRead
@@ -19,10 +19,14 @@ struct MarkReadOnScrollModifier: ViewModifier {
 
     func body(content: Content) -> some View {
         content
-            .onGeometryChange(for: CGFloat.self) { proxy in
-                proxy.frame(in: .global).minY
+            // Track only the boolean transition of crossing the viewport's top
+            // edge. `onGeometryChange` diffs the observed value, so `action`
+            // fires only when the boolean flips (instead of on every scroll
+            // frame when we were observing `minY` directly).
+            .onGeometryChange(for: Bool.self) { proxy in
+                proxy.frame(in: .global).minY < 0
             } action: { newValue in
-                lastKnownMinY = newValue
+                hasScrolledPastTop = newValue
             }
             .onAppear {
                 hasBeenVisible = true
@@ -36,9 +40,10 @@ struct MarkReadOnScrollModifier: ViewModifier {
             .onDisappear {
                 guard scrollMarkAsRead, hasBeenVisible, !latestIsRead else { return }
                 // Only mark as read when the row scrolled off the TOP of the
-                // viewport (user scrolled down past it). A negative minY means
-                // the row's top edge is above the screen's origin.
-                guard lastKnownMinY < 0 else { return }
+                // viewport (user scrolled down past it). When the top edge is
+                // above the screen's origin the transform above sets
+                // `hasScrolledPastTop` to true.
+                guard hasScrolledPastTop else { return }
                 #if DEBUG
                 debugPrint("[ScrollMarkAsRead] Marking article as read: \(article.id) - \(article.title)")
                 #endif
