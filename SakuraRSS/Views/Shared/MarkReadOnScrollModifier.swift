@@ -34,7 +34,7 @@ struct MarkReadOnScrollModifier: ViewModifier {
                     #if DEBUG
                     debugPrint("[ScrollMarkAsRead] Stale read state on appear for \(article.id), reloading")
                     #endif
-                    feedManager.loadFromDatabase()
+                    Task { await feedManager.loadFromDatabaseInBackground() }
                 }
             }
             .onDisappear {
@@ -52,9 +52,7 @@ struct MarkReadOnScrollModifier: ViewModifier {
                     guard let fresh = feedManager.article(byID: articleID), !fresh.isRead else {
                         return
                     }
-                    withAnimation(.smooth.speed(2.0)) {
-                        feedManager.markReadDebounced(fresh)
-                    }
+                    feedManager.markReadDebounced(fresh)
                 }
             }
     }
