@@ -448,10 +448,8 @@ private struct ScrollActionButtonsColumn: View {
 
 // MARK: - Expanded article content
 
-private struct ScrollExpandedArticleView: View {
-
+private struct ScrollExpandedArticleView: View { // swiftlint:disable:this type_body_length
     @Environment(FeedManager.self) var feedManager
-
     let article: Article
     let feedName: String?
     let favicon: UIImage?
@@ -466,7 +464,6 @@ private struct ScrollExpandedArticleView: View {
     @State private var extractedText: String?
     @State private var isExtracting = true
     @State private var didStartExtraction = false
-
     @State private var translatedText: String?
     @State private var translatedTitle: String?
     @State private var translatedSummary: String?
@@ -474,16 +471,13 @@ private struct ScrollExpandedArticleView: View {
     @State private var translationConfig: TranslationSession.Configuration?
     @State private var showingTranslation = false
     @State private var hasCachedTranslation = false
-
     @State private var summarizedText: String?
     @State private var isSummarizing = false
     @State private var hasCachedSummary = false
     @State private var showingSummary = false
     @State private var summarizationError: String?
-
     @State private var scrollOffset: CGFloat = 0
     @State private var maxScrollOffset: CGFloat = 0
-
     private static let overscrollThreshold: CGFloat = 80
 
     private var isAppleIntelligenceAvailable: Bool {

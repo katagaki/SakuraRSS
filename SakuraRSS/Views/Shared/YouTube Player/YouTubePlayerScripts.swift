@@ -103,7 +103,7 @@ nonisolated enum YouTubePlayerScripts {
     })();
     """
 
-    /// Reads chapter markers from `ytInitialPlayerResponse` and returns an
+/// Reads chapter markers from `ytInitialPlayerResponse` and returns an
     /// array of `{title, startSeconds}` entries, or an empty array if the
     /// video has no chapters.
     static let extractChapters = """

@@ -31,7 +31,7 @@ extension ArticleExtractor {
         promoteLazyImageSources(in: element)
         replaceImagesInDOM(in: element, baseURL: baseURL)
         var html = try element.html()
-        // Strip <svg>…</svg> entirely — icon SVGs inside anchors (share
+        // Strip <svg>…</svg> entirely - icon SVGs inside anchors (share
         // buttons, nav arrows) leave anchors with no meaningful text, and
         // the link-replacement regex would otherwise capture the SVG markup
         // as "link text" and serialize the href itself as visible text.
@@ -210,7 +210,7 @@ extension ArticleExtractor {
             linkText = linkText
                 .replacingOccurrences(of: doubleLFPlaceholder, with: " ")
                 .replacingOccurrences(of: singleLFPlaceholder, with: " ")
-            // Drop links whose visible text is empty or just the href itself —
+            // Drop links whose visible text is empty or just the href itself -
             // typically icon-only share buttons that leave nothing to render.
             let visibleText = linkText
                 .replacingOccurrences(of: "<[^>]+>", with: "", options: .regularExpression)
@@ -397,7 +397,7 @@ extension ArticleExtractor {
             options: .regularExpression
         )
         // Lines with only bold/italic markers and no real content
-        // (e.g. `**  **` or `* *`) — typically empty share buttons.
+        // (e.g. `**  **` or `* *`) - typically empty share buttons.
         result = result.replacingOccurrences(
             of: #"(?m)^[ \t]*(?:\*{1,3}|_{1,3})[ \t]*(?:\*{1,3}|_{1,3})?[ \t]*$"#,
             with: "",

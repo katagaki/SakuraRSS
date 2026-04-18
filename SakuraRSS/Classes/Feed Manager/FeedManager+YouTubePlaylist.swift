@@ -14,7 +14,7 @@ extension FeedManager {
             #if DEBUG
             let remaining = Self.youTubePlaylistRefreshInterval
                 - Date().timeIntervalSince(lastFetched)
-            print("[YouTubePlaylist] Skipping refresh for \(feed.title) — "
+            print("[YouTubePlaylist] Skipping refresh for \(feed.title) - "
                   + "\(Int(remaining))s until next allowed fetch")
             #endif
             return

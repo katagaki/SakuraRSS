@@ -31,9 +31,9 @@ nonisolated extension PetalEngine {
     // `ISO8601DateFormatter` and `DateFormatter` have been
     // documented as thread-safe for read-only use since iOS 7/11
     // respectively, but Foundation has never marked them
-    // `Sendable`.  These caches are only ever read — the setup
+    // `Sendable`.  These caches are only ever read - the setup
     // closures configure the formatters once at first access and
-    // nothing mutates them afterwards — so `nonisolated(unsafe)`
+    // nothing mutates them afterwards - so `nonisolated(unsafe)`
     // is the correct Swift 6 escape hatch.
 
     nonisolated(unsafe) static let isoFormatter: ISO8601DateFormatter = {

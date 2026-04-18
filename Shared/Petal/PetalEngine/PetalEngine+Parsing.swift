@@ -35,7 +35,7 @@ nonisolated extension PetalEngine {
         recipe: PetalRecipe,
         baseURL: URL?
     ) -> ParsedArticle? {
-        // Link — required.  Without a URL there's nothing to show.
+        // Link - required.  Without a URL there's nothing to show.
         guard let linkString = extractLink(item: item, recipe: recipe),
               let resolvedURL = resolveURL(linkString, base: baseURL) else {
             return nil

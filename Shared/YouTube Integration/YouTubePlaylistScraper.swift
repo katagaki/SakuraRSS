@@ -16,7 +16,7 @@ struct YouTubePlaylistScrapeResult: Sendable {
 }
 
 /// Fetches videos from a YouTube playlist by scraping the playlist page HTML.
-/// No login required — playlists are public.
+/// No login required - playlists are public.
 final class YouTubePlaylistScraper {
 
     // MARK: - Static Helpers

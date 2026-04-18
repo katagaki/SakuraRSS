@@ -98,7 +98,7 @@ enum NLPProcessingCoordinator {
     }
 
     /// Extracts sentiment and entities for an article. Called only when
-    /// Content Insights is enabled — the hybrid similarity ranker relies on
+    /// Content Insights is enabled - the hybrid similarity ranker relies on
     /// entities being present, so both passes always run together.
     ///
     /// When `sentimentTagger` and `nameTagger` are supplied, they are reused

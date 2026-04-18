@@ -50,14 +50,14 @@ extension YouTubePlaylistScraper {
                 videos: videos, playlistTitle: title, channelAvatarURL: avatarURL
             )
         } catch {
-            print("[YouTubePlaylist] Network request failed — \(error.localizedDescription)")
+            print("[YouTubePlaylist] Network request failed - \(error.localizedDescription)")
             return empty
         }
     }
 
     /// Fetches the public Atom feed for a playlist and returns a
     /// `[videoID: publishedDate]` lookup. Returns an empty dictionary on
-    /// any failure — upload dates are a best-effort enrichment.
+    /// any failure - upload dates are a best-effort enrichment.
     private func fetchAtomPublishDates(playlistID: String) async -> [String: Date] {
         guard let url = URL(
             string: "https://www.youtube.com/feeds/videos.xml?playlist_id=\(playlistID)"
@@ -71,7 +71,7 @@ extension YouTubePlaylistScraper {
             guard let xml = String(data: data, encoding: .utf8) else { return [:] }
             return Self.parseAtomPublishDates(xml: xml)
         } catch {
-            print("[YouTubePlaylist] Atom feed fetch failed — \(error.localizedDescription)")
+            print("[YouTubePlaylist] Atom feed fetch failed - \(error.localizedDescription)")
             return [:]
         }
     }

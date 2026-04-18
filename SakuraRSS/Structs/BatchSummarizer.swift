@@ -7,7 +7,7 @@ enum BatchSummarizer {
 
     /// Minimum body length (in characters, after stripping HTML tags) for an
     /// article to be worth handing to the LLM.  Articles shorter than this
-    /// are title-only stubs, placeholder/teaser bodies, or empty posts — all
+    /// are title-only stubs, placeholder/teaser bodies, or empty posts - all
     /// of which cost LLM energy without improving the summary.
     static let minArticleBodyCharacters = 200
 
@@ -17,7 +17,7 @@ enum BatchSummarizer {
     static func hasUsefulContent(title: String, summary: String?) -> Bool {
         guard let summary, !summary.isEmpty else { return false }
 
-        // Strip HTML tags with a simple regex — good enough for the check
+        // Strip HTML tags with a simple regex - good enough for the check
         // since we only need a character count, not a rendered result.
         let stripped = summary
             .replacingOccurrences(

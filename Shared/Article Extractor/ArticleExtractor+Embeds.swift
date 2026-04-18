@@ -17,7 +17,7 @@ extension ArticleExtractor {
     // MARK: - YouTube
 
     private static func promoteYouTubeEmbeds(in element: Element) {
-        // <iframe src=".../embed/VIDEO_ID"> — canonical YouTube embed
+        // <iframe src=".../embed/VIDEO_ID"> - canonical YouTube embed
         if let iframes = try? element.select("iframe[src]") {
             for iframe in iframes {
                 guard let src = try? iframe.attr("src"),
@@ -29,7 +29,7 @@ extension ArticleExtractor {
             }
         }
 
-        // <lite-youtube videoid="..."> — lazy-loader custom element
+        // <lite-youtube videoid="..."> - lazy-loader custom element
         if let liteElements = try? element.select("lite-youtube[videoid]") {
             for lite in liteElements {
                 guard let videoID = try? lite.attr("videoid"),
@@ -59,7 +59,7 @@ extension ArticleExtractor {
         }
 
         // Bare <a href=".../watch?v=ID"> that's the sole content of a
-        // paragraph (common in blog posts) — treat as an embed too.
+        // paragraph (common in blog posts) - treat as an embed too.
         if let anchors = try? element.select("p > a[href], figure > a[href]") {
             for anchor in anchors {
                 guard let parent = anchor.parent() else { continue }
@@ -157,7 +157,7 @@ extension ArticleExtractor {
         }
 
         // Bare <a href="https://x.com/user/status/ID"> that's the sole child
-        // of a paragraph — promote to inline embed.
+        // of a paragraph - promote to inline embed.
         if let anchors = try? element.select("p > a[href], figure > a[href]") {
             for anchor in anchors {
                 guard let parent = anchor.parent() else { continue }

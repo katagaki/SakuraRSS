@@ -85,7 +85,7 @@ nonisolated extension PetalZip {
         header: CentralDirectoryEntry,
         runningTotal: inout Int
     ) throws {
-        // Size caps — check before doing any allocation or
+        // Size caps - check before doing any allocation or
         // decompression so a malicious header can't force us to
         // read a huge payload just to reject it afterwards.
         guard header.nameLength <= Limits.maxNameLength,
@@ -155,8 +155,8 @@ nonisolated extension PetalZip {
     ///
     /// Apple's `NSData.decompressed(using: .zlib)` is a bit of a
     /// misnomer: per Apple's docs it implements RFC 1951 (raw
-    /// DEFLATE, the format used inside ZIP entries) — *not* the
-    /// wrapped zlib format from RFC 1950 — so we can hand the
+    /// DEFLATE, the format used inside ZIP entries) - *not* the
+    /// wrapped zlib format from RFC 1950 - so we can hand the
     /// compressed blob straight over.
     private static func inflateDeflate(_ data: Data, expectedSize: Int) throws -> Data {
         guard let decompressed = try? (data as NSData)
@@ -164,7 +164,7 @@ nonisolated extension PetalZip {
             throw ZipError.malformed
         }
         if decompressed.count != expectedSize {
-            // Not fatal — some producers add padding — but drop
+            // Not fatal - some producers add padding - but drop
             // anything past the declared size.
             return decompressed.prefix(expectedSize)
         }

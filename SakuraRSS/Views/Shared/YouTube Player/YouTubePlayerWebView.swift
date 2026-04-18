@@ -1,3 +1,4 @@
+import AVFoundation
 import SwiftUI
 import WebKit
 
@@ -29,6 +30,16 @@ struct YouTubePlayerWebView: UIViewRepresentable {
     }
 
     func makeUIView(context: Context) -> WKWebView {
+        // Configure the audio session for background-capable playback before
+        // the web view has a chance to start loading - so the video decoder
+        // picks up the `.playback`/`.moviePlayback` category from the very
+        // first frame. Without this, the video starts under whatever
+        // category is active, and briefly pauses on background until the
+        // scene-phase handler re-activates the session.
+        let session = AVAudioSession.sharedInstance()
+        try? session.setCategory(.playback, mode: .moviePlayback)
+        try? session.setActive(true)
+
         let config = WKWebViewConfiguration()
         config.websiteDataStore = .default()
         config.allowsInlineMediaPlayback = true
@@ -40,6 +51,11 @@ struct YouTubePlayerWebView: UIViewRepresentable {
             source: YouTubePlayerScripts.backgroundPlaybackOverride,
             injectionTime: .atDocumentStart,
             forMainFrameOnly: false
+        ))
+        controller.addUserScript(WKUserScript(
+            source: YouTubePlayerStyles.injectionScript(css: YouTubePlayerStyles.css),
+            injectionTime: .atDocumentStart,
+            forMainFrameOnly: true
         ))
         controller.addUserScript(WKUserScript(
             source: YouTubePlayerScripts.pipEventBridge,
@@ -54,6 +70,9 @@ struct YouTubePlayerWebView: UIViewRepresentable {
             ))
         }
         controller.add(context.coordinator, name: YouTubePlayerScripts.pipMessageHandlerName)
+        #if DEBUG
+        controller.add(context.coordinator, name: "ytDebug")
+        #endif
         config.userContentController = controller
 
         let webView = WKWebView(frame: .zero, configuration: config)
@@ -68,23 +87,45 @@ struct YouTubePlayerWebView: UIViewRepresentable {
         webView.customUserAgent = sakuraUserAgent
         webView.isUserInteractionEnabled = false
         if let url = URL(string: urlString) {
-            webView.load(URLRequest(url: url))
+            webView.load(URLRequest(url: Self.normalizedURL(url)))
         }
-
         DispatchQueue.main.async {
             self.webView = webView
         }
-
         return webView
     }
 
     func updateUIView(_ uiView: WKWebView, context: Context) {}
+
+    /// Rewrites Shorts URLs to the regular watch URL so the WebView loads
+    /// the standard player layout instead of the mobile Shorts UI, which
+    /// renders a separate canvas and a stack of overlays we can't reliably
+    /// hide.
+    static func normalizedURL(_ url: URL) -> URL {
+        let path = url.path
+        guard path.hasPrefix("/shorts/") else { return url }
+        let videoID = String(path.dropFirst("/shorts/".count))
+            .split(separator: "/").first.map(String.init) ?? ""
+        guard !videoID.isEmpty,
+              var components = URLComponents(url: url, resolvingAgainstBaseURL: false) else {
+            return url
+        }
+        components.path = "/watch"
+        var items = components.queryItems ?? []
+        items.removeAll { $0.name == "v" }
+        items.insert(URLQueryItem(name: "v", value: videoID), at: 0)
+        components.queryItems = items
+        return components.url ?? url
+    }
 
     static func dismantleUIView(_ uiView: WKWebView, coordinator: Coordinator) {
         coordinator.invalidateObserver()
         uiView.configuration.userContentController.removeScriptMessageHandler(
             forName: YouTubePlayerScripts.pipMessageHandlerName
         )
+        #if DEBUG
+        uiView.configuration.userContentController.removeScriptMessageHandler(forName: "ytDebug")
+        #endif
     }
 
     @MainActor
@@ -174,6 +215,15 @@ struct YouTubePlayerWebView: UIViewRepresentable {
             if host.contains("youtube.com") || host.contains("youtu.be")
                 || host.contains("google.com") || host.contains("accounts.google.com")
                 || host.contains("consent.youtube.com") {
+                if url.path.hasPrefix("/shorts/") {
+                    let normalized = YouTubePlayerWebView.normalizedURL(url)
+                    if normalized != url {
+                        DispatchQueue.main.async {
+                            webView.load(URLRequest(url: normalized))
+                        }
+                        return .cancel
+                    }
+                }
                 return .allow
             }
 
@@ -184,6 +234,12 @@ struct YouTubePlayerWebView: UIViewRepresentable {
             _ userContentController: WKUserContentController,
             didReceive message: WKScriptMessage
         ) {
+            #if DEBUG
+            if message.name == "ytDebug" {
+                print("[YT JS]", message.body)
+                return
+            }
+            #endif
             guard message.name == YouTubePlayerScripts.pipMessageHandlerName,
                   let state = message.body as? String else { return }
             let entered = (state == "enter")

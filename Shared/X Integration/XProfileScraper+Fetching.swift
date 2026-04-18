@@ -35,7 +35,7 @@ extension XProfileScraper {
         }
 
         #if DEBUG
-        print("[XProfileScraper] Got cookies — csrf: \(cookies.csrfToken.prefix(20))…")
+        print("[XProfileScraper] Got cookies - csrf: \(cookies.csrfToken.prefix(20))…")
         #endif
 
         // Step 1: Look up user ID, display name, and avatar via UserByScreenName
@@ -49,7 +49,7 @@ extension XProfileScraper {
         }
 
         #if DEBUG
-        print("[XProfileScraper] User info — id: \(userInfo.id), "
+        print("[XProfileScraper] User info - id: \(userInfo.id), "
               + "name: \(userInfo.displayName ?? "nil"), "
               + "avatar: \(userInfo.profileImageURL?.prefix(60) ?? "nil")")
         #endif

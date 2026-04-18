@@ -3,7 +3,7 @@ import Foundation
 /// Escapes literal `{{IMG}}`/`{{CODE}}`/etc. sequences in article text so
 /// `ContentBlock.parse` doesn't misinterpret them as extractor markers.
 /// Escaped form uses U+E000/U+E001 as delimiters so it contains no
-/// `{{TOKEN}}` substring — callers checking `text.contains("{{IMG}}")`
+/// `{{TOKEN}}` substring - callers checking `text.contains("{{IMG}}")`
 /// keep matching only real markers.
 nonisolated enum ArticleMarker {
 

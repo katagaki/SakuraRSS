@@ -185,7 +185,7 @@ final class InstagramProfileScraper {
     /// holds Instagram cookies from a prior install, copy them over so
     /// the user stays signed in without having to log in again.
     ///
-    /// Safe to call repeatedly — the Keychain-empty check makes it a
+    /// Safe to call repeatedly - the Keychain-empty check makes it a
     /// no-op after the first successful migration.
     @MainActor
     static func migrateWebKitCookiesIfNeeded() async {
@@ -193,7 +193,7 @@ final class InstagramProfileScraper {
         if cookieStore.load() != nil { return }
 
         // Force WebKit to restore its on-disk cookie store before we
-        // inspect it — on a cold launch `allCookies()` returns an empty
+        // inspect it - on a cold launch `allCookies()` returns an empty
         // array until a WKWebView has loaded a page from the domain.
         await warmCookieStore()
         await syncCookiesFromWebKit()

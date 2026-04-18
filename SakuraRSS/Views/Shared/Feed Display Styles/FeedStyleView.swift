@@ -182,7 +182,7 @@ struct FeedArticleRow: View {
                 .truncationMode(.tail)
 
                 if article.carouselImageURLs.count > 1 {
-                    // Multiple images — horizontal scroll at fixed height
+                    // Multiple images - horizontal scroll at fixed height
                     let urls = article.carouselImageURLs.compactMap { URL(string: $0) }
                     if !urls.isEmpty {
                         ScrollView(.horizontal, showsIndicators: false) {

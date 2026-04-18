@@ -81,7 +81,7 @@ extension ArticleExtractor {
         ".whatsapp-share",
         // Embedded social widgets
         // (`.twitter-tweet` and `.twitter-timeline` intentionally NOT
-        // listed — they are promoted to inline embeds before this runs.)
+        // listed - they are promoted to inline embeds before this runs.)
         ".fb-post",
         ".fb-like",
         ".fb-share-button",
@@ -358,7 +358,7 @@ extension ArticleExtractor {
         ".sr-only",
         ".a11y-hidden",
         // Author, byline & meta sections
-        // (bare ".author" / ".authors" omitted — many themes use them on
+        // (bare ".author" / ".authors" omitted - many themes use them on
         // inline <span> elements within article text; the class-pattern
         // sweep still catches wrapper divs via "author" substrings below.)
         ".author-bio",
@@ -644,7 +644,7 @@ extension ArticleExtractor {
                 let text = try el.text()
                 guard isAdvertisementText(text) else { continue }
                 // Only remove if the element has no meaningful children
-                // (images, videos, etc.) — just the ad label text.
+                // (images, videos, etc.) - just the ad label text.
                 let hasMedia = !(try el.select("img, video, picture, iframe")).isEmpty()
                 if !hasMedia {
                     try el.remove()
@@ -699,7 +699,7 @@ extension ArticleExtractor {
 
                 let text = (try? candidate.text()) ?? ""
                 let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
-                // Average visible characters per actionable element — share
+                // Average visible characters per actionable element - share
                 // toolbars and pagination rows score <=4 (often 0 with SVG
                 // icons); real prose scores much higher.
                 let avgTextPerAction = trimmed.count / max(actionableCount, 1)
@@ -748,7 +748,7 @@ extension ArticleExtractor {
                 }
                 let ratio = Double(sharers) / Double(anchors.size())
                 guard sharers >= 2 && ratio >= 0.5 else { continue }
-                // Only drop shallow wrappers — refuse to delete a sidebar
+                // Only drop shallow wrappers - refuse to delete a sidebar
                 // that happens to include a couple of share links.
                 let paragraphCount = (try? candidate.select("p").size()) ?? 0
                 guard paragraphCount <= 1 else { continue }
@@ -760,7 +760,7 @@ extension ArticleExtractor {
     }
 
     /// Removes wrapper `<div>`/`<section>`/`<aside>` elements that contain
-    /// no text, no images, and no video — usually leftover placeholder
+    /// no text, no images, and no video - usually leftover placeholder
     /// shells after ads or share buttons were stripped.
     private static func removeEmptyContainers(from element: Element) {
         do {

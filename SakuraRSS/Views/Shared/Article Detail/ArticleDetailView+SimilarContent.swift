@@ -211,7 +211,7 @@ extension ArticleDetailView {
             )
         }.value
 
-        // Favicons are fetched in parallel — FaviconCache.favicon(for:) is
+        // Favicons are fetched in parallel - FaviconCache.favicon(for:) is
         // already async and safe to call concurrently.
         return await withTaskGroup(of: (Int, SimilarArticleItem).self) { group in
             for (index, match) in rawMatches.enumerated() {
@@ -249,7 +249,7 @@ extension ArticleDetailView {
     ) async -> [SimilarMatchData] {
         let db = DatabaseManager.shared
 
-        // 1. Cache hit path — instant return, no NLP, no window scan.
+        // 1. Cache hit path - instant return, no NLP, no window scan.
         if (try? db.isSimilarComputed(articleId: currentArticle.id)) == true {
             if let cached = try? db.cachedSimilarArticleIDs(forSourceID: currentArticle.id),
                !cached.isEmpty {
@@ -272,7 +272,7 @@ extension ArticleDetailView {
             return []
         }
 
-        // 2. Cache miss — run the hybrid ranker.
+        // 2. Cache miss - run the hybrid ranker.
         //
         // Retrieval: widen the candidate window to ±7 days / up to 82
         // articles so the reranker gets real recall instead of a narrow

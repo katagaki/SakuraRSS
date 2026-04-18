@@ -59,7 +59,7 @@ final class WebViewExtractor: NSObject, WKNavigationDelegate {
     // MARK: - WKNavigationDelegate
 
     func webView(_: WKWebView, didFinish _: WKNavigation!) {
-        // Page loaded successfully — cancel the load timeout
+        // Page loaded successfully - cancel the load timeout
         // and give JS frameworks time to hydrate before extracting
         timeoutTask?.cancel()
         timeoutTask = nil

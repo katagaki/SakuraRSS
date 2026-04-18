@@ -5,7 +5,7 @@ nonisolated extension PetalZip {
     // MARK: - Writing
 
     /// Packs entries into a STORED-only ZIP archive.  Returns the
-    /// archive bytes — caller writes to disk (or ships elsewhere).
+    /// archive bytes - caller writes to disk (or ships elsewhere).
     ///
     /// STORE (no compression) is intentional: the payloads are a
     /// few KB of JSON plus a small PNG, so the space savings

@@ -130,7 +130,7 @@ extension XProfileScraper {
         let authorName = userCore?["name"] as? String ?? ""
         let authorHandle = userCore?["screen_name"] as? String ?? ""
 
-        // Media images — extract all photos for carousel support
+        // Media images - extract all photos for carousel support
         let extendedEntities = legacy["extended_entities"] as? [String: Any]
         let media = extendedEntities?["media"] as? [[String: Any]]
         let photoURLs = media?
