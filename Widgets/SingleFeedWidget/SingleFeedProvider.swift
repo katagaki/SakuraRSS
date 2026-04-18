@@ -86,44 +86,13 @@ struct SingleFeedProvider: AppIntentTimelineProvider {
 
             var widgetArticles: [SingleFeedArticle] = []
             for article in pageArticles {
-                var imageData: Data?
-                if let imageURLString = article.imageURL, let imageURL = URL(string: imageURLString) {
-                    if articleSetUnchanged,
-                       let cachedThumb = thumbnailCache.thumbnail(for: article.id) {
-                        imageData = cachedThumb
-                    } else {
-                        var rawData: Data?
-                        if let cached = try? database.cachedImageData(for: imageURLString) {
-                            #if DEBUG
-                            debugPrint("[Widget] Image cache hit for \(imageURLString) (\(cached.count) bytes)")
-                            #endif
-                            rawData = cached
-                        } else if !articleSetUnchanged {
-                            if let (data, _) = try? await URLSession.shared.data(for: .sakura(url: imageURL)) {
-                                #if DEBUG
-                                debugPrint("[Widget] Downloaded image \(imageURLString) (\(data.count) bytes)")
-                                #endif
-                                try? database.cacheImageData(data, for: imageURLString)
-                                rawData = data
-                            } else {
-                                #if DEBUG
-                                debugPrint("[Widget] Failed to download image \(imageURLString)")
-                                #endif
-                            }
-                        }
-                        if let rawData {
-                            imageData = await Self.downsampleImageData(rawData, maxDimension: 300)
-                            if let imageData {
-                                thumbnailCache.storeThumbnail(imageData, for: article.id)
-                            }
-                            #if DEBUG
-                            if imageData == nil {
-                                debugPrint("[Widget] Failed to downsample image \(imageURLString)")
-                            }
-                            #endif
-                        }
-                    }
-                }
+                let imageData = await resolveImageData(
+                    urlString: article.imageURL,
+                    articleID: article.id,
+                    articleSetUnchanged: articleSetUnchanged,
+                    thumbnailCache: thumbnailCache,
+                    database: database
+                )
                 widgetArticles.append(SingleFeedArticle(
                     id: article.id,
                     title: article.title,
@@ -155,6 +124,49 @@ struct SingleFeedProvider: AppIntentTimelineProvider {
                 totalPages: 1
             )
         }
+    }
+
+    private func resolveImageData(
+        urlString: String?,
+        articleID: Int64,
+        articleSetUnchanged: Bool,
+        thumbnailCache: WidgetThumbnailCache,
+        database: DatabaseManager
+    ) async -> Data? {
+        guard let urlString, let imageURL = URL(string: urlString) else { return nil }
+        if articleSetUnchanged, let cached = thumbnailCache.thumbnail(for: articleID) {
+            return cached
+        }
+        var rawData: Data?
+        if let cached = try? database.cachedImageData(for: urlString) {
+            #if DEBUG
+            debugPrint("[Widget] Image cache hit for \(urlString) (\(cached.count) bytes)")
+            #endif
+            rawData = cached
+        } else if !articleSetUnchanged {
+            if let (data, _) = try? await URLSession.shared.data(for: .sakura(url: imageURL)) {
+                #if DEBUG
+                debugPrint("[Widget] Downloaded image \(urlString) (\(data.count) bytes)")
+                #endif
+                try? database.cacheImageData(data, for: urlString)
+                rawData = data
+            } else {
+                #if DEBUG
+                debugPrint("[Widget] Failed to download image \(urlString)")
+                #endif
+            }
+        }
+        guard let rawData else { return nil }
+        let imageData = await Self.downsampleImageData(rawData, maxDimension: 300)
+        if let imageData {
+            thumbnailCache.storeThumbnail(imageData, for: articleID)
+        }
+        #if DEBUG
+        if imageData == nil {
+            debugPrint("[Widget] Failed to downsample image \(urlString)")
+        }
+        #endif
+        return imageData
     }
 
     private static func downsampleImageData(_ data: Data, maxDimension: CGFloat) async -> Data? {

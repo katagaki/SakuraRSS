@@ -104,32 +104,13 @@ struct ListWidgetProvider: AppIntentTimelineProvider {
 
             var widgetArticles: [ListWidgetArticle] = []
             for article in pageArticles {
-                var imageData: Data?
-                if let imageURLString = article.imageURL, let imageURL = URL(string: imageURLString) {
-                    // Unchanged-set fast path: the already-downsampled
-                    // JPEG bytes from last timeline build are good to
-                    // reuse verbatim, skipping the decode + resample.
-                    if articleSetUnchanged,
-                       let cachedThumb = thumbnailCache.thumbnail(for: article.id) {
-                        imageData = cachedThumb
-                    } else {
-                        var rawData: Data?
-                        if let cached = try? database.cachedImageData(for: imageURLString) {
-                            rawData = cached
-                        } else if !articleSetUnchanged {
-                            if let (data, _) = try? await URLSession.shared.data(for: .sakura(url: imageURL)) {
-                                try? database.cacheImageData(data, for: imageURLString)
-                                rawData = data
-                            }
-                        }
-                        if let rawData {
-                            imageData = await Self.downsampleImageData(rawData, maxDimension: 300)
-                            if let imageData {
-                                thumbnailCache.storeThumbnail(imageData, for: article.id)
-                            }
-                        }
-                    }
-                }
+                let imageData = await resolveImageData(
+                    urlString: article.imageURL,
+                    articleID: article.id,
+                    articleSetUnchanged: articleSetUnchanged,
+                    thumbnailCache: thumbnailCache,
+                    database: database
+                )
                 widgetArticles.append(ListWidgetArticle(
                     id: article.id,
                     title: article.title,
@@ -161,6 +142,34 @@ struct ListWidgetProvider: AppIntentTimelineProvider {
                 totalPages: 1
             )
         }
+    }
+
+    private func resolveImageData(
+        urlString: String?,
+        articleID: Int64,
+        articleSetUnchanged: Bool,
+        thumbnailCache: WidgetThumbnailCache,
+        database: DatabaseManager
+    ) async -> Data? {
+        guard let urlString, let imageURL = URL(string: urlString) else { return nil }
+        if articleSetUnchanged, let cached = thumbnailCache.thumbnail(for: articleID) {
+            return cached
+        }
+        var rawData: Data?
+        if let cached = try? database.cachedImageData(for: urlString) {
+            rawData = cached
+        } else if !articleSetUnchanged {
+            if let (data, _) = try? await URLSession.shared.data(for: .sakura(url: imageURL)) {
+                try? database.cacheImageData(data, for: urlString)
+                rawData = data
+            }
+        }
+        guard let rawData else { return nil }
+        let imageData = await Self.downsampleImageData(rawData, maxDimension: 300)
+        if let imageData {
+            thumbnailCache.storeThumbnail(imageData, for: articleID)
+        }
+        return imageData
     }
 
     private static func downsampleImageData(_ data: Data, maxDimension: CGFloat) async -> Data? {

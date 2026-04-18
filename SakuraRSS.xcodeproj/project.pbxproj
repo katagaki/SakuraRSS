@@ -63,6 +63,86 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		E426BC932F93A67F00FF1B20 /* Exceptions for "Integrations" folder in "Add Feed" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Petal/PetalAutoDetect.swift,
+				Petal/PetalEngine/PetalEngine.swift,
+				"Petal/PetalEngine/PetalEngine+Dates.swift",
+				"Petal/PetalEngine/PetalEngine+Fetching.swift",
+				"Petal/PetalEngine/PetalEngine+Parsing.swift",
+				Petal/PetalWebViewLoader.swift,
+				Podcasts/Downloads/PodcastDownloadManager.swift,
+				Podcasts/Transcriber/Engines/FluidTranscriberEngine.swift,
+				Podcasts/Transcriber/PodcastTranscriber.swift,
+				Podcasts/Transcriber/TranscriptionEngine.swift,
+				YouTube/SponsorBlock/SponsorBlockClient.swift,
+			);
+			target = E47D10332F54980E006081EF /* Add Feed */;
+		};
+		E426BC942F93A67F00FF1B20 /* Exceptions for "Integrations" folder in "WidgetsExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Petal/PetalAutoDetect.swift,
+				Petal/PetalEngine/PetalEngine.swift,
+				"Petal/PetalEngine/PetalEngine+Dates.swift",
+				"Petal/PetalEngine/PetalEngine+Fetching.swift",
+				"Petal/PetalEngine/PetalEngine+Parsing.swift",
+				Petal/PetalWebViewLoader.swift,
+				Podcasts/Downloads/PodcastDownloadManager.swift,
+				Podcasts/Transcriber/Engines/FluidTranscriberEngine.swift,
+				Podcasts/Transcriber/PodcastTranscriber.swift,
+				Podcasts/Transcriber/TranscriptionEngine.swift,
+				YouTube/SponsorBlock/SponsorBlockClient.swift,
+			);
+			target = E47D104C2F549821006081EF /* WidgetsExtension */;
+		};
+		E426BCBD2F93A87200FF1B20 /* Exceptions for "Feeds" folder in "Add Feed" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				"Article Extractor/ArticleExtractor.swift",
+				"Article Extractor/ArticleExtractor+BlockCollection.swift",
+				"Article Extractor/ArticleExtractor+CodeContent.swift",
+				"Article Extractor/ArticleExtractor+Embeds.swift",
+				"Article Extractor/ArticleExtractor+Noise.swift",
+				"Article Extractor/ArticleExtractor+NoiseHeuristics.swift",
+				"Article Extractor/ArticleExtractor+TextContent.swift",
+				"Article Extractor/ArticleExtractor+URLResolution.swift",
+				"Article Extractor/WebViewExtractor.swift",
+				"Favicon Cache/FaviconCache.swift",
+				"Favicon Cache/FaviconCache+CustomIcons.swift",
+				"Favicon Cache/FaviconCache+FailedLookups.swift",
+				"Favicon Cache/FaviconCache+Fetching.swift",
+				"Favicon Cache/FaviconCache+HTMLParsing.swift",
+				"Favicon Cache/FaviconCache+Profiles.swift",
+				"Favicon Cache/FaviconCache+PWA.swift",
+				"Favicon Cache/FaviconCache+Trimming.swift",
+			);
+			target = E47D10332F54980E006081EF /* Add Feed */;
+		};
+		E426BCBE2F93A87200FF1B20 /* Exceptions for "Feeds" folder in "WidgetsExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				"Article Extractor/ArticleExtractor.swift",
+				"Article Extractor/ArticleExtractor+BlockCollection.swift",
+				"Article Extractor/ArticleExtractor+CodeContent.swift",
+				"Article Extractor/ArticleExtractor+Embeds.swift",
+				"Article Extractor/ArticleExtractor+Noise.swift",
+				"Article Extractor/ArticleExtractor+NoiseHeuristics.swift",
+				"Article Extractor/ArticleExtractor+TextContent.swift",
+				"Article Extractor/ArticleExtractor+URLResolution.swift",
+				"Article Extractor/WebViewExtractor.swift",
+				"Favicon Cache/FaviconCache.swift",
+				"Favicon Cache/FaviconCache+CustomIcons.swift",
+				"Favicon Cache/FaviconCache+FailedLookups.swift",
+				"Favicon Cache/FaviconCache+Fetching.swift",
+				"Favicon Cache/FaviconCache+HTMLParsing.swift",
+				"Favicon Cache/FaviconCache+Profiles.swift",
+				"Favicon Cache/FaviconCache+PWA.swift",
+				"Favicon Cache/FaviconCache+Trimming.swift",
+			);
+			target = E47D104C2F549821006081EF /* WidgetsExtension */;
+		};
 		E47D10442F54980E006081EF /* Exceptions for "Add Feed" folder in "Add Feed" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
@@ -87,69 +167,39 @@
 		E4F2F02C2F839D74006E0EDA /* Exceptions for "Shared" folder in "Add Feed" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				"Article Extractor/ArticleExtractor.swift",
-				"Article Extractor/ArticleExtractor+Embeds.swift",
-				"Article Extractor/ArticleExtractor+Noise.swift",
-				"Article Extractor/ArticleExtractor+TextContent.swift",
-				"Article Extractor/WebViewExtractor.swift",
-				"Favicon Cache/FaviconCache.swift",
-				"Favicon Cache/FaviconCache+CustomIcons.swift",
-				"Favicon Cache/FaviconCache+FailedLookups.swift",
-				"Favicon Cache/FaviconCache+Fetching.swift",
-				"Favicon Cache/FaviconCache+HTMLParsing.swift",
-				"Favicon Cache/FaviconCache+Profiles.swift",
-				"Favicon Cache/FaviconCache+PWA.swift",
-				"Favicon Cache/FaviconCache+Trimming.swift",
 				Network/ImageDownsampler.swift,
 				Network/NetworkMonitor.swift,
-				Petal/PetalAutoDetect.swift,
-				Petal/PetalEngine/PetalEngine.swift,
-				"Petal/PetalEngine/PetalEngine+Dates.swift",
-				"Petal/PetalEngine/PetalEngine+Fetching.swift",
-				"Petal/PetalEngine/PetalEngine+Parsing.swift",
-				Petal/PetalWebViewLoader.swift,
-				"Podcast Downloads/PodcastDownloadManager.swift",
-				"Podcast Transcriber/Engines/FluidTranscriberEngine.swift",
-				"Podcast Transcriber/PodcastTranscriber.swift",
-				"Podcast Transcriber/TranscriptionEngine.swift",
-				SponsorBlock/SponsorBlockClient.swift,
 			);
 			target = E47D10332F54980E006081EF /* Add Feed */;
 		};
 		E4F2F02D2F839D74006E0EDA /* Exceptions for "Shared" folder in "WidgetsExtension" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				"Article Extractor/ArticleExtractor.swift",
-				"Article Extractor/ArticleExtractor+Embeds.swift",
-				"Article Extractor/ArticleExtractor+Noise.swift",
-				"Article Extractor/ArticleExtractor+TextContent.swift",
-				"Article Extractor/WebViewExtractor.swift",
-				"Favicon Cache/FaviconCache.swift",
-				"Favicon Cache/FaviconCache+CustomIcons.swift",
-				"Favicon Cache/FaviconCache+FailedLookups.swift",
-				"Favicon Cache/FaviconCache+Fetching.swift",
-				"Favicon Cache/FaviconCache+HTMLParsing.swift",
-				"Favicon Cache/FaviconCache+Profiles.swift",
-				"Favicon Cache/FaviconCache+PWA.swift",
-				"Favicon Cache/FaviconCache+Trimming.swift",
 				Network/NetworkMonitor.swift,
-				Petal/PetalAutoDetect.swift,
-				Petal/PetalEngine/PetalEngine.swift,
-				"Petal/PetalEngine/PetalEngine+Dates.swift",
-				"Petal/PetalEngine/PetalEngine+Fetching.swift",
-				"Petal/PetalEngine/PetalEngine+Parsing.swift",
-				Petal/PetalWebViewLoader.swift,
-				"Podcast Downloads/PodcastDownloadManager.swift",
-				"Podcast Transcriber/Engines/FluidTranscriberEngine.swift",
-				"Podcast Transcriber/PodcastTranscriber.swift",
-				"Podcast Transcriber/TranscriptionEngine.swift",
-				SponsorBlock/SponsorBlockClient.swift,
 			);
 			target = E47D104C2F549821006081EF /* WidgetsExtension */;
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
+		E426BC392F93A67E00FF1B20 /* Integrations */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				E426BC932F93A67F00FF1B20 /* Exceptions for "Integrations" folder in "Add Feed" target */,
+				E426BC942F93A67F00FF1B20 /* Exceptions for "Integrations" folder in "WidgetsExtension" target */,
+			);
+			path = Integrations;
+			sourceTree = "<group>";
+		};
+		E426BCBC2F93A86A00FF1B20 /* Feeds */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				E426BCBD2F93A87200FF1B20 /* Exceptions for "Feeds" folder in "Add Feed" target */,
+				E426BCBE2F93A87200FF1B20 /* Exceptions for "Feeds" folder in "WidgetsExtension" target */,
+			);
+			path = Feeds;
+			sourceTree = "<group>";
+		};
 		E47D101D2F549605006081EF /* SakuraRSS */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
@@ -223,12 +273,14 @@
 		E47D10122F549605006081EF = {
 			isa = PBXGroup;
 			children = (
+				E47D10352F54980E006081EF /* Frameworks */,
+				E47D101C2F549605006081EF /* Products */,
 				E47D10292F549709006081EF /* Shared */,
+				E426BCBC2F93A86A00FF1B20 /* Feeds */,
+				E426BC392F93A67E00FF1B20 /* Integrations */,
 				E47D101D2F549605006081EF /* SakuraRSS */,
 				E47D10382F54980E006081EF /* Add Feed */,
 				E47D10522F549821006081EF /* Widgets */,
-				E47D10352F54980E006081EF /* Frameworks */,
-				E47D101C2F549605006081EF /* Products */,
 			);
 			sourceTree = "<group>";
 		};
@@ -272,6 +324,8 @@
 				E47D105B2F549822006081EF /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
+				E426BC392F93A67E00FF1B20 /* Integrations */,
+				E426BCBC2F93A86A00FF1B20 /* Feeds */,
 				E47D101D2F549605006081EF /* SakuraRSS */,
 				E47D10292F549709006081EF /* Shared */,
 			);
@@ -300,6 +354,8 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
+				E426BC392F93A67E00FF1B20 /* Integrations */,
+				E426BCBC2F93A86A00FF1B20 /* Feeds */,
 				E47D10292F549709006081EF /* Shared */,
 				E47D10382F54980E006081EF /* Add Feed */,
 			);
@@ -324,6 +380,8 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
+				E426BC392F93A67E00FF1B20 /* Integrations */,
+				E426BCBC2F93A86A00FF1B20 /* Feeds */,
 				E47D10292F549709006081EF /* Shared */,
 				E47D10522F549821006081EF /* Widgets */,
 			);
@@ -607,7 +665,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = Shared/SakuraRSS.entitlements;
+				CODE_SIGN_ENTITLEMENTS = Shared/Entitlements.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = YYM4Z6MU8F;
@@ -616,13 +674,15 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = SakuraRSS/Info.plist;
 				INFOPLIST_KEY_BGTaskSchedulerPermittedIdentifiers = "$(PRODUCT_BUNDLE_IDENTIFIER).refresh";
+				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.news";
+				INFOPLIST_KEY_LSSupportsOpeningDocumentsInPlace = NO;
+				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "Sakura uses on-device speech recognition to transcribe podcast episodes you download. Audio is processed locally and never leaves your device.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UIBackgroundModes = fetch;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -650,7 +710,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = Shared/SakuraRSS.entitlements;
+				CODE_SIGN_ENTITLEMENTS = Shared/Entitlements.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = YYM4Z6MU8F;
@@ -659,13 +719,15 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = SakuraRSS/Info.plist;
 				INFOPLIST_KEY_BGTaskSchedulerPermittedIdentifiers = "$(PRODUCT_BUNDLE_IDENTIFIER).refresh";
+				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.news";
+				INFOPLIST_KEY_LSSupportsOpeningDocumentsInPlace = NO;
+				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "Sakura uses on-device speech recognition to transcribe podcast episodes you download. Audio is processed locally and never leaves your device.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UIBackgroundModes = fetch;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -692,7 +754,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = ActionExtensionIcon;
-				CODE_SIGN_ENTITLEMENTS = Shared/SakuraRSS.entitlements;
+				CODE_SIGN_ENTITLEMENTS = Shared/Entitlements.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = YYM4Z6MU8F;
@@ -728,7 +790,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = ActionExtensionIcon;
-				CODE_SIGN_ENTITLEMENTS = Shared/SakuraRSS.entitlements;
+				CODE_SIGN_ENTITLEMENTS = Shared/Entitlements.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = YYM4Z6MU8F;
@@ -765,7 +827,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
-				CODE_SIGN_ENTITLEMENTS = Shared/SakuraRSS.entitlements;
+				CODE_SIGN_ENTITLEMENTS = Shared/Entitlements.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = YYM4Z6MU8F;
@@ -802,7 +864,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
-				CODE_SIGN_ENTITLEMENTS = Shared/SakuraRSS.entitlements;
+				CODE_SIGN_ENTITLEMENTS = Shared/Entitlements.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = YYM4Z6MU8F;

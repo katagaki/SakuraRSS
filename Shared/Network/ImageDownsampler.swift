@@ -49,9 +49,9 @@ nonisolated enum ImageDownsampler {
             kCGImageSourceCreateThumbnailWithTransform: true,
             kCGImageSourceThumbnailMaxPixelSize: maxPixelSize
         ]
-        guard let cg = CGImageSourceCreateThumbnailAtIndex(
+        guard let cgImage = CGImageSourceCreateThumbnailAtIndex(
             source, 0, options as CFDictionary
         ) else { return nil }
-        return UIImage(cgImage: cg)
+        return UIImage(cgImage: cgImage)
     }
 }
