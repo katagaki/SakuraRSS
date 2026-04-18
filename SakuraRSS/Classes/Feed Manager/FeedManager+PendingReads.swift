@@ -15,12 +15,9 @@ extension FeedManager {
         if let idx = articles.firstIndex(where: { $0.id == article.id }),
            !articles[idx].isRead {
             articles[idx].isRead = true
-            let feedID = articles[idx].feedID
-            if let count = unreadCounts[feedID], count > 0 {
-                unreadCounts[feedID] = count - 1
-            }
+            decrementUnreadCount(feedID: articles[idx].feedID)
         }
-        dataRevision += 1
+        bumpDataRevision()
         hasPendingDebouncedReads = true
         scheduleDebouncedReadFlush()
     }

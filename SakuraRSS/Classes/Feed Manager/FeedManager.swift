@@ -72,6 +72,16 @@ final class FeedManager {
         faviconRevision += 1
     }
 
+    func decrementUnreadCount(feedID: Int64) {
+        if let count = unreadCounts[feedID], count > 0 {
+            unreadCounts[feedID] = count - 1
+        }
+    }
+
+    func bumpDataRevision() {
+        dataRevision += 1
+    }
+
 }
 
 enum FeedError: LocalizedError {
