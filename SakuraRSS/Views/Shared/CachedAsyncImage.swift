@@ -26,6 +26,13 @@ private actor ImageMemoryCache {
     }
 }
 
+/// Holds static state for `CachedAsyncImage`.  Kept in a separate
+/// non-generic type because Swift forbids stored static properties
+/// inside generic types.
+private enum CachedAsyncImageConfig {
+    static let maxDisplayPixelSize: CGFloat = 2000
+}
+
 struct CachedAsyncImage<Placeholder: View>: View {
 
     let url: URL?
@@ -81,7 +88,11 @@ struct CachedAsyncImage<Placeholder: View>: View {
     /// viewing distance.  Thumbnails in feed lists are far smaller
     /// and get downsampled further by SwiftUI on render.  The win is
     /// that a 4000×3000 photo no longer costs 48 MB of RAM per view.
-    nonisolated static let maxDisplayPixelSize: CGFloat = 2000
+    /// Computed property because generic types can't hold stored
+    /// static state; the underlying constant lives on the enum above.
+    nonisolated static var maxDisplayPixelSize: CGFloat {
+        CachedAsyncImageConfig.maxDisplayPixelSize
+    }
 
     nonisolated static func loadImage(from url: URL) async -> UIImage? {
         let urlString = url.absoluteString
