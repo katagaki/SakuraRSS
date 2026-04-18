@@ -5,7 +5,7 @@ import SwiftSoup
 /// `#mw-content-text > .mw-parser-output` container directly.
 /// Auto-suggestions, navigation boxes, and citations all live
 /// outside that scope or are easy to target with targeted selectors.
-nonisolated struct WikipediaAdapter: SiteAdapter {
+struct WikipediaAdapter: SiteAdapter {
 
     func canHandle(url: URL) -> Bool {
         matchesHost(url, ["wikipedia.org", "wikimedia.org"])

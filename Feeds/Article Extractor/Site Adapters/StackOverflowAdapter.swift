@@ -4,7 +4,7 @@ import SwiftSoup
 /// Stack Overflow / Stack Exchange answer pages are better served by
 /// concatenating the question body and the accepted / top answer body
 /// than by letting the generic extractor grapple with the whole sidebar.
-nonisolated struct StackOverflowAdapter: SiteAdapter {
+struct StackOverflowAdapter: SiteAdapter {
 
     func canHandle(url: URL) -> Bool {
         matchesHost(url, [

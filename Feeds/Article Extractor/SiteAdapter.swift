@@ -4,7 +4,7 @@ import SwiftSoup
 /// A site-specific override for the generic article extractor.  Adapters
 /// run before the generic pipeline; when one matches and returns a
 /// non-nil result, the generic path is skipped.
-nonisolated protocol SiteAdapter {
+protocol SiteAdapter {
     /// Called against the request URL (if available) and the document's
     /// canonical URL (if any) before parsing.  Hosts are matched with
     /// `hasSuffix` semantics so subdomains pass through by default.
@@ -27,7 +27,7 @@ extension SiteAdapter {
 }
 
 /// Central registry of adapters consulted by `ArticleExtractor`.
-nonisolated enum SiteAdapterRegistry {
+enum SiteAdapterRegistry {
 
     static let all: [SiteAdapter] = [
         WikipediaAdapter(),
