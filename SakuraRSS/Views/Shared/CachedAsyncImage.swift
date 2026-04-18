@@ -28,9 +28,10 @@ private actor ImageMemoryCache {
 
 /// Holds static state for `CachedAsyncImage`.  Kept in a separate
 /// non-generic type because Swift forbids stored static properties
-/// inside generic types.
+/// inside generic types.  `nonisolated` so the nonisolated image
+/// loader can read it without hopping to the main actor.
 private enum CachedAsyncImageConfig {
-    static let maxDisplayPixelSize: CGFloat = 2000
+    nonisolated static let maxDisplayPixelSize: CGFloat = 2000
 }
 
 struct CachedAsyncImage<Placeholder: View>: View {
