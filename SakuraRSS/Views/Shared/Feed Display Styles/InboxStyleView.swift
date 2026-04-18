@@ -16,6 +16,7 @@ struct InboxStyleView: View {
                 }, label: {
                     InboxArticleRow(article: article)
                         .zoomSource(id: article.id, namespace: zoomNamespace)
+                        .markReadOnScroll(article: article)
                 })
                 .swipeActions(edge: .leading) {
                     Button {

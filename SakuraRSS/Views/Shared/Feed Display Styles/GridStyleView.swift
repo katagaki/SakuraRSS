@@ -27,6 +27,7 @@ struct GridStyleView: View {
                     }, label: {
                         GridArticleCell(article: article)
                             .zoomSource(id: article.id, namespace: zoomNamespace)
+                            .markReadOnScroll(article: article)
                     })
                     .buttonStyle(.plain)
                     .contextMenu {

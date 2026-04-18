@@ -50,6 +50,7 @@ struct FeedStyleView: View {
                         }
                     }
                     .zoomSource(id: article.id, namespace: zoomNamespace)
+                    .markReadOnScroll(article: article)
                 }
                 .padding(.horizontal, 12)
                 .listRowBackground(Color.clear)

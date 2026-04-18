@@ -177,6 +177,12 @@ extension FeedManager {
         updateBadgeCount()
     }
 
+    func markAllUnread() {
+        try? database.markAllUnread()
+        loadFromDatabase()
+        updateBadgeCount()
+    }
+
     func unreadCount(for feed: Feed) -> Int {
         _ = dataRevision
         return unreadCounts[feed.id] ?? 0

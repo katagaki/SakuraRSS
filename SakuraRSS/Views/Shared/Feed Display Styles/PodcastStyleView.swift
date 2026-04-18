@@ -29,6 +29,7 @@ struct PodcastStyleView: View {
 
                     PodcastEpisodeRow(article: article)
                         .zoomSource(id: article.id, namespace: zoomNamespace)
+                        .markReadOnScroll(article: article)
                 }
                 .listRowBackground(Color.clear)
                 .listRowInsets(EdgeInsets(top: 8, leading: 12, bottom: 8, trailing: 16))
