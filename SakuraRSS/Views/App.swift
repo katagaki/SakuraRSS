@@ -48,6 +48,11 @@ struct SakuraRSSApp: App {
                     }
                 }
                 .onReceive(
+                    NotificationCenter.default.publisher(for: UIApplication.willResignActiveNotification)
+                ) { _ in
+                    feedManager.flushDebouncedReads()
+                }
+                .onReceive(
                     NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)
                 ) { _ in
                     feedManager.updateBadgeCount()

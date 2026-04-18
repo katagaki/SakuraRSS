@@ -19,6 +19,12 @@ final class FeedManager {
     private(set) var unreadCounts: [Int64: Int] = [:]
     private(set) var feedsByID: [Int64: Feed] = [:]
 
+    /// Tracks whether at least one `markReadDebounced(_:)` call has
+    /// written to the DB but has not yet run the UI-side cascade
+    /// (`loadFromDatabase()` + badge refresh).
+    @ObservationIgnored var hasPendingDebouncedReads: Bool = false
+    @ObservationIgnored var debouncedReadFlushTask: Task<Void, Never>?
+
     let database = DatabaseManager.shared
 
     init() {
