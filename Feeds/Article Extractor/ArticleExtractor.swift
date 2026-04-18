@@ -46,6 +46,56 @@ struct ArticleExtractor {
         "blockquote", "li", "figcaption", "pre", "td", "th"
     ]
 
+    /// Parses HTML and returns both the extracted text and structured
+    /// metadata (author, date, lead image).  Metadata is captured *before*
+    /// noise removal so byline strippers don't erase the byline first.
+    static func extractArticle(
+        fromHTML html: String,
+        baseURL: URL? = nil,
+        excludeTitle: String? = nil
+    ) -> ExtractionResult {
+        guard !html.isEmpty else { return ExtractionResult() }
+
+        // Fast-paths for plain-text / thin-wrapper HTML bypass the DOM.
+        if !html.contains("<") {
+            let text = extractText(fromHTML: html, baseURL: baseURL, excludeTitle: excludeTitle)
+            return ExtractionResult(text: text)
+        }
+
+        let doc: Document
+        do {
+            doc = try SwiftSoup.parse(html)
+        } catch {
+            return ExtractionResult()
+        }
+
+        let paywalled = PaywallDetector.htmlSuggestsPaywall(html)
+
+        if let baseURL,
+           let adapter = SiteAdapterRegistry.adapter(for: baseURL),
+           var result = adapter.extract(
+            document: doc,
+            baseURL: baseURL,
+            excludeTitle: excludeTitle
+           ),
+           result.text?.isEmpty == false {
+            result.paywalled = result.paywalled || paywalled
+            return result
+        }
+
+        let metadata = extractMetadata(from: doc)
+        let text = extractText(
+            fromHTML: html,
+            baseURL: baseURL,
+            excludeTitle: excludeTitle
+        )
+        return ExtractionResult(
+            text: text,
+            metadata: metadata,
+            paywalled: paywalled
+        )
+    }
+
     static func extractText(
         fromHTML html: String,
         baseURL: URL? = nil,
@@ -93,13 +143,14 @@ struct ArticleExtractor {
 
         do {
             let doc = try SwiftSoup.parse(html)
+            normalizeAMPElements(in: doc)
             // Promote social embeds (YouTube, X) into marker paragraphs
             // before noise removal so selectors targeting twitter-tweet
             // blockquotes and iframes don't strip the content entirely.
             promoteInlineEmbeds(in: doc, baseURL: baseURL)
-            removeNoise(from: doc)
+            removeNoise(from: doc, scope: .global)
             let element = try findMainContent(from: doc)
-            removeNoise(from: element)
+            removeNoise(from: element, scope: .local)
             let rawParagraphs = try extractParagraphs(from: element,
                                                       baseURL: baseURL,
                                                       excludeTitle: excludeTitle)
@@ -135,18 +186,54 @@ struct ArticleExtractor {
         }
 
         do {
-            var request = URLRequest(url: url)
-            request.setValue(
-                sakuraUserAgent,
-                forHTTPHeaderField: "User-Agent"
-            )
-            let (data, _) = try await URLSession.shared.data(for: request)
-            guard let html = String(data: data, encoding: .utf8) else {
+            let request = URLRequest.sakura(url: url)
+            let (data, response) = try await URLSession.shared.data(for: request)
+            guard let html = HTMLDataDecoder.decode(data, response: response) else {
                 return nil
             }
             return extractText(fromHTML: html, baseURL: url, excludeTitle: excludeTitle)
         } catch {
             return nil
+        }
+    }
+
+    /// URL-based fetch that also surfaces paywall, metadata, and raw HTML
+    /// signals so the caller can decide whether to escalate to WebView.
+    static func extractArticle(
+        fromURL url: URL,
+        excludeTitle: String? = nil
+    ) async -> ExtractionResult {
+        if WebViewExtractor.requiresWebView(for: url) {
+            let extractor = WebViewExtractor()
+            if let text = await extractor.extractText(from: url) {
+                return ExtractionResult(text: text)
+            }
+        }
+
+        do {
+            let request = URLRequest.sakura(url: url)
+            let (data, response) = try await URLSession.shared.data(for: request)
+            guard let html = HTMLDataDecoder.decode(data, response: response) else {
+                return ExtractionResult()
+            }
+            if BotChallengeDetector.looksLikeChallenge(html) {
+                if let webText = await WebViewExtractor().extractText(from: url) {
+                    return ExtractionResult(text: webText)
+                }
+                return ExtractionResult()
+            }
+            var result = extractArticle(
+                fromHTML: html,
+                baseURL: url,
+                excludeTitle: excludeTitle
+            )
+            if !result.paywalled,
+               PaywallDetector.detect(response: response, extractedText: result.text) {
+                result.paywalled = true
+            }
+            return result
+        } catch {
+            return ExtractionResult()
         }
     }
 }

@@ -10,6 +10,10 @@ extension ArticleDetailView {
     // swiftlint:disable:next function_body_length cyclomatic_complexity
     func extractArticleContent() async {
         isExtracting = true
+        isPaywalled = false
+        extractedAuthor = nil
+        extractedPublishedDate = nil
+        extractedLeadImageURL = nil
         defer { isExtracting = false }
 
         #if DEBUG
@@ -173,48 +177,128 @@ extension ArticleDetailView {
             #endif
         }
 
-        if let url = contentURL {
-            var text = await ArticleExtractor.extractText(fromURL: url,
-                                                          excludeTitle: articleTitle)
-            #if DEBUG
-            if let text {
-                let paragraphCount = text.components(separatedBy: "\n\n").count
-                debugPrint("[Extract] Using URL fetch (\(paragraphCount) paragraphs, \(text.count) chars): \(article.url)")
-            } else {
-                debugPrint("[Extract] URL fetch returned nil, trying WebView: \(article.url)")
-            }
-            #endif
-
-            // If plain HTTP fetch failed (e.g. JS-rendered site), try WebView extraction.
-            if text == nil {
-                text = await extractViaWebView(from: url, excludeTitle: articleTitle)
-                #if DEBUG
-                if let text {
-                    let paragraphCount = text.components(separatedBy: "\n\n").count
-                    debugPrint("[Extract] WebView fallback produced (\(paragraphCount) paragraphs, \(text.count) chars): \(url)")
-                } else {
-                    debugPrint("[Extract] WebView fallback also returned nil: \(url)")
+        if let url = contentURL.map(ArticleExtractor.unwrapGoogleAMPURL) {
+            let (rawHTML, response) = await fetchHTML(from: url)
+            var result: ExtractionResult
+            let isChallenge = rawHTML.map(BotChallengeDetector.looksLikeChallenge) ?? false
+            if isChallenge {
+                let webText = await extractViaWebView(from: url, excludeTitle: articleTitle)
+                result = ExtractionResult(text: webText)
+            } else if let rawHTML {
+                result = ArticleExtractor.extractArticle(
+                    fromHTML: rawHTML,
+                    baseURL: url,
+                    excludeTitle: articleTitle
+                )
+                if !result.paywalled,
+                   PaywallDetector.detect(response: response, extractedText: result.text) {
+                    result.paywalled = true
                 }
-                #endif
+            } else {
+                result = ExtractionResult()
             }
 
-            extractedText = text
-            if let text, !text.isEmpty {
+            // Auto-escalate when the plain HTTP extraction is too thin AND
+            // the HTML looks JS-rendered — Substack, React/Next.js, etc.
+            let weak = ArticleExtractor.isWeakExtraction(result.text)
+            let jsRendered = rawHTML.map(ArticleExtractor.looksJSRendered) ?? true
+
+            // Retry against the AMP variant of the page when the canonical
+            // response was too short.  AMP markup extracts more reliably
+            // than generic JS-rendered pages.
+            if weak && !result.paywalled, let rawHTML,
+               let ampURL = ArticleExtractor.amphtmlURL(from: rawHTML, baseURL: url) {
+                let (ampHTML, ampResponse) = await fetchHTML(from: ampURL)
+                if let ampHTML {
+                    var ampResult = ArticleExtractor.extractArticle(
+                        fromHTML: ampHTML,
+                        baseURL: ampURL,
+                        excludeTitle: articleTitle
+                    )
+                    if !ampResult.paywalled,
+                       PaywallDetector.detect(response: ampResponse,
+                                              extractedText: ampResult.text) {
+                        ampResult.paywalled = true
+                    }
+                    if let ampText = ampResult.text,
+                       !ArticleExtractor.isWeakExtraction(ampText) {
+                        result.text = ampText
+                        if result.metadata.author == nil {
+                            result.metadata.author = ampResult.metadata.author
+                        }
+                        if result.metadata.publishedDate == nil {
+                            result.metadata.publishedDate = ampResult.metadata.publishedDate
+                        }
+                        if result.metadata.leadImageURL == nil {
+                            result.metadata.leadImageURL = ampResult.metadata.leadImageURL
+                        }
+                    }
+                }
+            }
+
+            let stillWeak = ArticleExtractor.isWeakExtraction(result.text)
+            if stillWeak && jsRendered && !result.paywalled {
+                let webText = await extractViaWebView(
+                    from: url, excludeTitle: articleTitle
+                )
+                if let webText, !webText.isEmpty,
+                   !ArticleExtractor.isWeakExtraction(webText) || result.text == nil {
+                    result.text = webText
+                }
+            }
+
+            if !result.paywalled,
+               let rawHTML,
+               let text = result.text, !text.isEmpty,
+               let extras = await ArticleExtractor.fetchPaginatedExtras(
+                from: rawHTML, baseURL: url, excludeTitle: articleTitle
+               ) {
+                result.text = text + "\n\n" + extras
+            }
+
+            applyMetadata(result.metadata)
+            isPaywalled = result.paywalled
+            extractedText = result.text
+            if !result.paywalled, let text = result.text, !text.isEmpty {
                 try? DatabaseManager.shared.cacheArticleContent(text, for: article.id)
             }
+        }
+    }
+
+    /// Applies extracted metadata to `@State` fields without clobbering
+    /// values already supplied by the feed.
+    func applyMetadata(_ metadata: ArticleMetadata) {
+        if article.author == nil, let author = metadata.author {
+            extractedAuthor = author
+        }
+        if article.publishedDate == nil, let date = metadata.publishedDate {
+            extractedPublishedDate = date
+        }
+        if article.imageURL == nil, let lead = metadata.leadImageURL {
+            extractedLeadImageURL = lead
+        }
+    }
+
+    /// Raw HTTP fetch used by the automatic extraction path.  Returns the
+    /// decoded HTML string alongside the URL response for header-based
+    /// signals (paywall status codes, encoding detection, …).
+    func fetchHTML(from url: URL) async -> (String?, URLResponse?) {
+        do {
+            let request = URLRequest.sakura(url: url)
+            let (data, response) = try await URLSession.shared.data(for: request)
+            return (HTMLDataDecoder.decode(data, response: response), response)
+        } catch {
+            return (nil, nil)
         }
     }
 
     /// Simple GET + HTML parse (no JavaScript rendering).
     private func fetchText(from url: URL, excludeTitle: String?) async -> String? {
         do {
-            var request = URLRequest(url: url)
-            request.setValue(
-                sakuraUserAgent,
-                forHTTPHeaderField: "User-Agent"
+            let (data, response) = try await URLSession.shared.data(
+                for: URLRequest.sakura(url: url)
             )
-            let (data, _) = try await URLSession.shared.data(for: request)
-            guard let html = String(data: data, encoding: .utf8) else { return nil }
+            guard let html = HTMLDataDecoder.decode(data, response: response) else { return nil }
             return ArticleExtractor.extractText(fromHTML: html, baseURL: url, excludeTitle: excludeTitle)
         } catch {
             return nil

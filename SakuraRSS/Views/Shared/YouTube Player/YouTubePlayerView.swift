@@ -232,6 +232,12 @@ struct YouTubePlayerView: View {
                                     YouTubeEmbedBlockView(videoID: videoID)
                                 case .xPost(let url):
                                     XEmbedBlockView(url: url)
+                                case .embed(let provider, let url):
+                                    EmbedBlockView(provider: provider, url: url)
+                                case .table(let header, let rows):
+                                    TableBlockView(header: header, rows: rows)
+                                case .math(let latex):
+                                    MathBlockView(latex: latex)
                                 }
                             }
                             .id("\(showingSummary)-\(showingTranslation)")

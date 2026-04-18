@@ -547,7 +547,45 @@ extension ArticleExtractor {
         "entry-tags", "entry-categories", "category-links"
     ]
 
+    /// Noise-removal modes.  The aggressive `.global` pass runs on the
+    /// whole document and is free to strip broad selectors; `.local` runs
+    /// on the already-selected main content element and refuses to drop
+    /// selectors that might appear inside legitimate paragraphs.
+    enum NoiseScope {
+        case global
+        case local
+    }
+
+    /// Class/ID substrings that would be too aggressive to remove once the
+    /// article container has been isolated.  Matches the bare tokens that
+    /// legitimate inline spans (`<span class="share">value</span>`) or
+    /// image captions might use.
+    private static let unsafeInsideArticle: Set<String> = [
+        "share-bar", "share-buttons", "share-tools",
+        "share-this", "post-share", "entry-share",
+        "article-share", "sharedaddy", "addtoany",
+        "addthis", "sharethis", "social-share",
+        "social-shares", "social-bar", "social-buttons",
+        "social-media", "social-follow",
+        "newsletter", "subscribe", "subscription",
+        "signup", "sign-up",
+        "post-author", "post-byline", "entry-author",
+        "article-author", "article-byline",
+        "byline", "contributor", "coauthor", "co-authors",
+        "written-by", "about-author", "about-the-author",
+        "published-date", "publish-date", "publication-date",
+        "post-date", "entry-date", "article-date",
+        "date-published", "last-updated",
+        "related", "recommend", "suggested", "popular",
+        "trending", "more-stories", "also-like", "dont-miss",
+        "read-next", "up-next", "most-read"
+    ]
+
     static func removeNoise(from element: Element) {
+        removeNoise(from: element, scope: .global)
+    }
+
+    static func removeNoise(from element: Element, scope: NoiseScope) {
         for selector in noiseSelectors {
             do {
                 let elements = try element.select(selector)
@@ -557,18 +595,26 @@ extension ArticleExtractor {
             }
         }
 
-        removeNoiseByClassPatterns(from: element)
+        removeNoiseByClassPatterns(from: element, scope: scope)
         removeAdvertisementTextBlocks(from: element)
-        // Heuristic passes (see ArticleExtractor+NoiseHeuristics.swift)
-        removeMenuLists(from: element)
-        removeSuggestionSections(from: element)
+        // Heuristic passes (see ArticleExtractor+NoiseHeuristics.swift).
+        // Aggressive list/section sweeps only run on the full document so
+        // scoped removal doesn't nuke legitimate inline content inside the
+        // already-isolated article body.
+        if scope == .global {
+            removeMenuLists(from: element)
+            removeSuggestionSections(from: element)
+        }
         removeIconToolbars(from: element)
         removeShareButtonClusters(from: element)
         removeEmptyContainers(from: element)
     }
 
     /// Removes elements whose class or id attribute contains known noise substrings.
-    private static func removeNoiseByClassPatterns(from element: Element) {
+    private static func removeNoiseByClassPatterns(
+        from element: Element,
+        scope: NoiseScope = .global
+    ) {
         do {
             let allElements = try element.select("div, section, aside, ul, ol")
             for element in allElements {
@@ -576,6 +622,9 @@ extension ArticleExtractor {
                 let idName = (try? element.attr("id"))?.lowercased() ?? ""
                 let combined = className + " " + idName
                 for pattern in noiseClassPatterns where combined.contains(pattern) {
+                    if scope == .local && unsafeInsideArticle.contains(pattern) {
+                        continue
+                    }
                     try element.remove()
                     break
                 }

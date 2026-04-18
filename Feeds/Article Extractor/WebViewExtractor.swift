@@ -94,6 +94,37 @@ final class WebViewExtractor: NSObject, WKNavigationDelegate {
     private static let cleanupScript = """
     (function() {
         document.querySelectorAll('.sosumi').forEach(el => el.remove());
+
+        // Dismiss common consent banners / modals before snapshotting.
+        const consentSelectors = [
+            '#onetrust-banner-sdk', '#onetrust-consent-sdk',
+            '.osano-cm-window', '.qc-cmp2-container',
+            '[id*="cookie-banner" i]', '[class*="cookie-banner" i]',
+            '[id*="cookie-consent" i]', '[class*="cookie-consent" i]',
+            '[id*="cookie-notice" i]', '[class*="cookie-notice" i]',
+            '[id*="gdpr" i]', '[class*="gdpr" i]',
+            '.fc-consent-root', '#CybotCookiebotDialog',
+            '#cookiebanner', '#cookieConsentBanner',
+            '.truste_overlay', '.truste_cursheet',
+            '.sp-message-container', '.cc-window', '.cc-banner',
+            '[aria-label*="consent" i]',
+            '[role="dialog"]', '[aria-modal="true"]',
+            'dialog[open]'
+        ];
+        for (const selector of consentSelectors) {
+            try {
+                document.querySelectorAll(selector).forEach(el => el.remove());
+            } catch (_) {}
+        }
+
+        // Defeat scroll locks some consent overlays leave behind.
+        try {
+            document.documentElement.style.overflow = 'auto';
+            document.body.style.overflow = 'auto';
+            document.documentElement.style.position = '';
+            document.body.style.position = '';
+        } catch (_) {}
+
         const all = document.body.querySelectorAll('*');
         for (const el of all) {
             const style = window.getComputedStyle(el);

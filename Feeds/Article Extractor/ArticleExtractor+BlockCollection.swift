@@ -56,19 +56,22 @@ extension ArticleExtractor {
         return paragraphs
     }
 
-    /// Attempts to extract and resolve an image URL from an element's `src` attribute.
+    /// Attempts to extract and resolve an image URL from an element.
+    /// Handles `<img>`, `<amp-img>`, and `<picture>` tags, and uses
+    /// `bestImageURL` to honor `srcset` / `data-src` / `data-lazy-src`.
     /// Returns the resolved URL string, or nil if the image should be skipped.
     static func extractImageSrc(
         from element: Element, tag: String, baseURL: URL?
     ) -> String? {
+        let imageLike: Set<String> = ["img", "amp-img", "picture"]
         let imgElement: Element?
-        if tag == "img" {
+        if imageLike.contains(tag) {
             imgElement = element
         } else {
-            imgElement = try? element.select("img").first()
+            imgElement = try? element.select("img, amp-img, picture").first()
         }
         guard let imgElement,
-              let src = try? imgElement.attr("src"), !src.isEmpty else {
+              let src = bestImageURL(from: imgElement), !src.isEmpty else {
             return nil
         }
         guard isLikelyContentImage(src) else {
@@ -99,7 +102,17 @@ extension ArticleExtractor {
     ) throws {
         for child in element.children() {
             let tag = child.tagName().lowercased()
-            if tag == "img" || tag == "picture" {
+            if tag == "table" {
+                if let marker = tableMarker(from: child, baseURL: baseURL) {
+                    paragraphs.append(marker)
+                }
+                continue
+            }
+            if let mathMarker = mathMarker(from: child) {
+                paragraphs.append(mathMarker)
+                continue
+            }
+            if tag == "img" || tag == "picture" || tag == "amp-img" {
                 if let resolved = extractImageSrc(from: child, tag: tag, baseURL: baseURL) {
                     #if DEBUG
                     debugPrint("[Block] <\(tag)> → image: \(resolved)")

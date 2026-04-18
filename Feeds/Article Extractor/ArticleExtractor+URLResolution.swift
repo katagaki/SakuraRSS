@@ -4,29 +4,55 @@ extension ArticleExtractor {
 
     /// Resolves a potentially relative URL string against a base URL.
     /// Returns the resolved absolute URL string, or nil if it can't be resolved.
+    /// Tracking parameters (utm_*, fbclid, gclid, ...) are stripped so images
+    /// that differ only in tracking tags share a cache entry.
     static func resolveURL(_ src: String, against baseURL: URL?) -> String? {
+        let decoded = htmlEntityDecodedURL(src)
         // Already absolute
-        if src.hasPrefix("http://") || src.hasPrefix("https://") {
-            return src
+        if decoded.hasPrefix("http://") || decoded.hasPrefix("https://") {
+            return stripTrackingParameters(from: decoded)
         }
         // Protocol-relative
-        if src.hasPrefix("//"), let url = URL(string: "https:\(src)") {
-            #if DEBUG
-            debugPrint("[Image] Resolved protocol-relative URL: \(src) -> \(url.absoluteString)")
-            #endif
-            return url.absoluteString
+        if decoded.hasPrefix("//"), let url = URL(string: "https:\(decoded)") {
+            return stripTrackingParameters(from: url.absoluteString)
         }
         // Relative - needs base URL
-        if let baseURL, let resolved = URL(string: src, relativeTo: baseURL) {
-            #if DEBUG
-            debugPrint("[Image] Resolved relative URL: \(src) -> \(resolved.absoluteString) (base: \(baseURL.absoluteString))")
-            #endif
-            return resolved.absoluteString
+        if let baseURL, let resolved = URL(string: decoded, relativeTo: baseURL) {
+            return stripTrackingParameters(from: resolved.absoluteString)
         }
-        #if DEBUG
-        debugPrint("[Image] Failed to resolve URL: \(src) (base: \(baseURL?.absoluteString ?? "nil"))")
-        #endif
         return nil
+    }
+
+    /// Percent-decodes bare `&amp;` / `&#x26;` entity sequences commonly
+    /// left in raw attribute values before handing the string to `URL`.
+    private static func htmlEntityDecodedURL(_ src: String) -> String {
+        guard src.contains("&") else { return src }
+        return src
+            .replacingOccurrences(of: "&amp;", with: "&")
+            .replacingOccurrences(of: "&#x26;", with: "&")
+            .replacingOccurrences(of: "&#38;", with: "&")
+    }
+
+    private static let trackingParameterPrefixes: Set<String> = [
+        "utm_", "mc_", "fbclid", "gclid", "dclid",
+        "igshid", "oly_anon_id", "oly_enc_id", "ref_",
+        "spm", "sourceid", "gs_lcrp"
+    ]
+
+    /// Strips known tracking query parameters while preserving everything
+    /// else.  Improves cache-hit rate for images that differ only in their
+    /// utm_* tags between pages.
+    static func stripTrackingParameters(from absoluteString: String) -> String {
+        guard var components = URLComponents(string: absoluteString),
+              let queryItems = components.queryItems, !queryItems.isEmpty else {
+            return absoluteString
+        }
+        let filtered = queryItems.filter { item in
+            let lowered = item.name.lowercased()
+            return !trackingParameterPrefixes.contains(where: lowered.hasPrefix)
+        }
+        components.queryItems = filtered.isEmpty ? nil : filtered
+        return components.string ?? absoluteString
     }
 
     /// Resolves relative URLs inside Markdown links (`[text](url)`) against a base URL.
