@@ -24,6 +24,7 @@ final class FeedManager {
     /// single detached task once scrolling settles.
     @ObservationIgnored var pendingReadIDs: Set<Int64> = []
     @ObservationIgnored var debouncedReadFlushTask: Task<Void, Never>?
+    @ObservationIgnored var refreshTask: Task<Void, Never>?
 
     let database = DatabaseManager.shared
 

@@ -2,18 +2,46 @@ import SwiftUI
 
 /// A small donut-shaped progress indicator displayed in the Home tab
 /// toolbar while feeds are refreshing.  The ring fills from empty to
-/// full as each individual feed finishes loading.
+/// full as each individual feed finishes loading.  When `onStop` is
+/// supplied the donut becomes a button with a stop glyph in the
+/// center, letting the user cancel the refresh.
 struct FeedRefreshProgressDonut: View {
 
     let progress: Double
     var size: CGFloat = 18
     var lineWidth: CGFloat = 2.5
+    var onStop: (() -> Void)? = nil
 
     private var clampedProgress: Double {
         min(max(progress, 0), 1)
     }
 
     var body: some View {
+        if let onStop {
+            Button(action: onStop) {
+                donut
+            }
+            .buttonStyle(.plain)
+            .contentShape(Rectangle())
+            .accessibilityLabel(
+                Text(String(localized: "Refresh.Stop", table: "Home"))
+            )
+            .accessibilityValue(
+                Text(clampedProgress, format: .percent.precision(.fractionLength(0)))
+            )
+        } else {
+            donut
+                .accessibilityElement()
+                .accessibilityLabel(
+                    Text(String(localized: "Refresh.Progress", table: "Home"))
+                )
+                .accessibilityValue(
+                    Text(clampedProgress, format: .percent.precision(.fractionLength(0)))
+                )
+        }
+    }
+
+    private var donut: some View {
         ZStack {
             Circle()
                 .stroke(Color.secondary.opacity(0.25), lineWidth: lineWidth)
@@ -25,12 +53,12 @@ struct FeedRefreshProgressDonut: View {
                 )
                 .rotationEffect(.degrees(-90))
                 .animation(.smooth, value: clampedProgress)
+            if onStop != nil {
+                RoundedRectangle(cornerRadius: 1, style: .continuous)
+                    .fill(Color.accentColor)
+                    .frame(width: size * 0.32, height: size * 0.32)
+            }
         }
         .frame(width: size, height: size)
-        .accessibilityElement()
-        .accessibilityLabel(Text(String(localized: "Refresh.Progress", table: "Home")))
-        .accessibilityValue(
-            Text(clampedProgress, format: .percent.precision(.fractionLength(0)))
-        )
     }
 }

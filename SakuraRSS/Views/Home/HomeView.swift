@@ -27,7 +27,8 @@ struct HomeView: View {
                     ToolbarItemGroup(placement: .topBarLeading) {
                         if feedManager.isLoading && feedManager.refreshTotal > 0 {
                             FeedRefreshProgressDonut(
-                                progress: feedManager.refreshProgress
+                                progress: feedManager.refreshProgress,
+                                onStop: { feedManager.cancelRefresh() }
                             )
                         }
                     }

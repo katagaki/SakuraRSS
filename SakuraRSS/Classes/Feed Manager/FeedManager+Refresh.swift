@@ -217,6 +217,7 @@ extension FeedManager {
                 self.isLoading = false
                 self.refreshCompleted = 0
                 self.refreshTotal = 0
+                self.refreshTask = nil
             }
         }
 
@@ -227,33 +228,48 @@ extension FeedManager {
         // main-actor reload work; 8 matches the parallelism already
         // used by `backfillMetadataImages`.
         let maxConcurrent = 8
-        await withTaskGroup(of: Void.self) { group in
-            var submitted = 0
-            var iterator = feedsToRefresh.makeIterator()
-            while submitted < maxConcurrent, let feed = iterator.next() {
-                group.addTask {
-                    try? await self.refreshFeed(
-                        feed,
-                        reloadData: false,
-                        skipImageBackfill: skipImageBackfill
-                    )
-                    await MainActor.run { self.refreshCompleted += 1 }
-                }
-                submitted += 1
-            }
-            while await group.next() != nil {
-                if let feed = iterator.next() {
+        let work = Task { [weak self] in
+            guard let self else { return }
+            await withTaskGroup(of: Void.self) { group in
+                var submitted = 0
+                var iterator = feedsToRefresh.makeIterator()
+                while submitted < maxConcurrent, !Task.isCancelled, let feed = iterator.next() {
                     group.addTask {
+                        guard !Task.isCancelled else { return }
                         try? await self.refreshFeed(
                             feed,
                             reloadData: false,
                             skipImageBackfill: skipImageBackfill
                         )
-                        await MainActor.run { self.refreshCompleted += 1 }
+                        if !Task.isCancelled {
+                            await MainActor.run { self.refreshCompleted += 1 }
+                        }
+                    }
+                    submitted += 1
+                }
+                while await group.next() != nil {
+                    if Task.isCancelled {
+                        group.cancelAll()
+                        continue
+                    }
+                    if let feed = iterator.next() {
+                        group.addTask {
+                            guard !Task.isCancelled else { return }
+                            try? await self.refreshFeed(
+                                feed,
+                                reloadData: false,
+                                skipImageBackfill: skipImageBackfill
+                            )
+                            if !Task.isCancelled {
+                                await MainActor.run { self.refreshCompleted += 1 }
+                            }
+                        }
                     }
                 }
             }
         }
+        await MainActor.run { self.refreshTask = work }
+        _ = await work.value
         await loadFromDatabaseInBackground()
     }
 
@@ -289,36 +305,63 @@ extension FeedManager {
                 self.isLoading = false
                 self.refreshCompleted = 0
                 self.refreshTotal = 0
+                self.refreshTask = nil
             }
         }
 
         let maxConcurrent = 8
-        async let feedRefresh: Void = withTaskGroup(of: Void.self) { group in
-            var submitted = 0
-            var iterator = currentFeeds.makeIterator()
-            while submitted < maxConcurrent, let feed = iterator.next() {
-                group.addTask {
-                    try? await self.refreshFeed(feed, updateTitle: false, reloadData: false)
-                    await MainActor.run { self.refreshCompleted += 1 }
-                }
-                submitted += 1
-            }
-            while await group.next() != nil {
-                if let feed = iterator.next() {
+        let work = Task { [weak self] in
+            guard let self else { return }
+            async let feedRefresh: Void = withTaskGroup(of: Void.self) { group in
+                var submitted = 0
+                var iterator = currentFeeds.makeIterator()
+                while submitted < maxConcurrent, !Task.isCancelled, let feed = iterator.next() {
                     group.addTask {
+                        guard !Task.isCancelled else { return }
                         try? await self.refreshFeed(feed, updateTitle: false, reloadData: false)
-                        await MainActor.run { self.refreshCompleted += 1 }
+                        if !Task.isCancelled {
+                            await MainActor.run { self.refreshCompleted += 1 }
+                        }
+                    }
+                    submitted += 1
+                }
+                while await group.next() != nil {
+                    if Task.isCancelled {
+                        group.cancelAll()
+                        continue
+                    }
+                    if let feed = iterator.next() {
+                        group.addTask {
+                            guard !Task.isCancelled else { return }
+                            try? await self.refreshFeed(feed, updateTitle: false, reloadData: false)
+                            if !Task.isCancelled {
+                                await MainActor.run { self.refreshCompleted += 1 }
+                            }
+                        }
                     }
                 }
             }
+            async let faviconRefresh: Void = FaviconCache.shared.refreshFavicons(
+                for: currentFeeds.map { ($0.domain, $0.siteURL as String?) }
+            )
+            _ = await (feedRefresh, faviconRefresh)
         }
-        async let faviconRefresh: Void = FaviconCache.shared.refreshFavicons(
-            for: currentFeeds.map { ($0.domain, $0.siteURL as String?) }
-        )
-        _ = await (feedRefresh, faviconRefresh)
+        await MainActor.run { self.refreshTask = work }
+        _ = await work.value
         await loadFromDatabaseInBackground()
         regenerateAllAcronymIcons()
         notifyFaviconChange()
+    }
+
+    /// Cancels the in-flight `refreshAllFeeds` / `refreshAllFeedsAndFavicons`
+    /// task, if any.  URLSession fetches that are already in-flight receive
+    /// a `CancellationError`, no further feeds are submitted to the task
+    /// group, and the UI state (`isLoading`, progress counters) is torn down
+    /// by the refresh method's `defer` block once the task unwinds.
+    @MainActor
+    func cancelRefresh() {
+        refreshTask?.cancel()
+        refreshTask = nil
     }
 
 }
