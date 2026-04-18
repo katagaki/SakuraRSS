@@ -78,15 +78,10 @@ struct ListWidgetProvider: AppIntentTimelineProvider {
             let maxPages = 3
             let totalLimit = perPage * maxPages
 
-            // Collect articles from all feeds in the list
-            var dbArticles: [Article] = []
-            for feedID in feedIDs {
-                let feedArticles = try database.articles(forFeedID: feedID, limit: totalLimit)
-                dbArticles.append(contentsOf: feedArticles)
-            }
-            // Sort by date descending and limit
-            dbArticles.sort { ($0.publishedDate ?? .distantPast) > ($1.publishedDate ?? .distantPast) }
-            dbArticles = Array(dbArticles.prefix(totalLimit))
+            // One SQLite statement across every feed in the list, sorted
+            // and limited by the DB — saves the N per-feed queries +
+            // Swift-side merge/sort that the old path did on every wake.
+            let dbArticles = try database.articles(forFeedIDs: feedIDs, limit: totalLimit)
 
             let totalPages = max(1, Int(ceil(Double(dbArticles.count) / Double(perPage))))
             let currentPage = min(storedPage, totalPages - 1)
@@ -103,23 +98,19 @@ struct ListWidgetProvider: AppIntentTimelineProvider {
             let articleSetUnchanged = previousMarker == articleIDsMarker
             defaults?.set(articleIDsMarker, forKey: markerKey)
 
+            let thumbnailCache = WidgetThumbnailCache(
+                scope: "list_\(listID)_\(layout.rawValue)_\(columns)"
+            )
+
             var widgetArticles: [ListWidgetArticle] = []
             for article in pageArticles {
-                var imageData: Data?
-                if let imageURLString = article.imageURL, let imageURL = URL(string: imageURLString) {
-                    var rawData: Data?
-                    if let cached = try? database.cachedImageData(for: imageURLString) {
-                        rawData = cached
-                    } else if !articleSetUnchanged {
-                        if let (data, _) = try? await URLSession.shared.data(for: .sakura(url: imageURL)) {
-                            try? database.cacheImageData(data, for: imageURLString)
-                            rawData = data
-                        }
-                    }
-                    if let rawData {
-                        imageData = await Self.downsampleImageData(rawData, maxDimension: 300)
-                    }
-                }
+                let imageData = await resolveImageData(
+                    urlString: article.imageURL,
+                    articleID: article.id,
+                    articleSetUnchanged: articleSetUnchanged,
+                    thumbnailCache: thumbnailCache,
+                    database: database
+                )
                 widgetArticles.append(ListWidgetArticle(
                     id: article.id,
                     title: article.title,
@@ -127,6 +118,7 @@ struct ListWidgetProvider: AppIntentTimelineProvider {
                     publishedDate: article.publishedDate
                 ))
             }
+            thumbnailCache.prune(keeping: pageArticles.map(\.id))
 
             return ListWidgetEntry(
                 date: Date(),
@@ -152,19 +144,35 @@ struct ListWidgetProvider: AppIntentTimelineProvider {
         }
     }
 
+    private func resolveImageData(
+        urlString: String?,
+        articleID: Int64,
+        articleSetUnchanged: Bool,
+        thumbnailCache: WidgetThumbnailCache,
+        database: DatabaseManager
+    ) async -> Data? {
+        guard let urlString, let imageURL = URL(string: urlString) else { return nil }
+        if articleSetUnchanged, let cached = thumbnailCache.thumbnail(for: articleID) {
+            return cached
+        }
+        var rawData: Data?
+        if let cached = try? database.cachedImageData(for: urlString) {
+            rawData = cached
+        } else if !articleSetUnchanged {
+            if let (data, _) = try? await URLSession.shared.data(for: .sakura(url: imageURL)) {
+                try? database.cacheImageData(data, for: urlString)
+                rawData = data
+            }
+        }
+        guard let rawData else { return nil }
+        let imageData = await Self.downsampleImageData(rawData, maxDimension: 300)
+        if let imageData {
+            thumbnailCache.storeThumbnail(imageData, for: articleID)
+        }
+        return imageData
+    }
+
     private static func downsampleImageData(_ data: Data, maxDimension: CGFloat) async -> Data? {
-        guard let image = UIImage(data: data) else { return nil }
-        let size = image.size
-
-        let scale: CGFloat = size.width > size.height
-            ? maxDimension / size.width
-            : maxDimension / size.height
-        let targetSize = CGSize(
-            width: round(size.width * min(scale, 1.0)),
-            height: round(size.height * min(scale, 1.0))
-        )
-
-        guard let thumbnail = await image.byPreparingThumbnail(ofSize: targetSize) else { return nil }
-        return thumbnail.jpegData(compressionQuality: 0.7)
+        ImageDownsampler.downsampleToJPEG(data, maxPixelSize: maxDimension)
     }
 }

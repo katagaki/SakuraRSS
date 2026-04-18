@@ -1,0 +1,94 @@
+import SwiftUI
+
+struct PodcastStyleView: View {
+
+    @Environment(FeedManager.self) var feedManager
+    @Environment(\.zoomNamespace) private var zoomNamespace
+    @Environment(\.iPadArticleSelection) private var iPadArticleSelection
+    let articles: [Article]
+    var onLoadMore: (() -> Void)?
+
+    var body: some View {
+        List {
+            ForEach(articles) { article in
+                ZStack {
+                    if let iPadArticleSelection {
+                        Button {
+                            feedManager.markRead(article)
+                            iPadArticleSelection.wrappedValue = article
+                        } label: {
+                            EmptyView()
+                        }
+                        .opacity(0)
+                    } else {
+                        NavigationLink(value: article) {
+                            EmptyView()
+                        }
+                        .opacity(0)
+                    }
+
+                    PodcastEpisodeRow(article: article)
+                        .zoomSource(id: article.id, namespace: zoomNamespace)
+                        .markReadOnScroll(article: article)
+                }
+                .listRowBackground(Color.clear)
+                .listRowInsets(EdgeInsets(top: 8, leading: 12, bottom: 8, trailing: 16))
+                .swipeActions(edge: .leading) {
+                    Button {
+                        withAnimation(.smooth.speed(2.0)) {
+                            feedManager.toggleRead(article)
+                        }
+                    } label: {
+                        Image(systemName: article.isRead ? "arrow.uturn.backward" : "checkmark")
+                    }
+                    .tint(.blue)
+                }
+                .contextMenu {
+                    Button {
+                        feedManager.toggleRead(article)
+                    } label: {
+                        Label(
+                            article.isRead
+                                ? String(localized: "Article.MarkUnplayed", table: "Articles")
+                                : String(localized: "Article.MarkPlayed", table: "Articles"),
+                            systemImage: article.isRead ? "arrow.uturn.backward" : "checkmark"
+                        )
+                    }
+                    Divider()
+                    Button {
+                        feedManager.toggleBookmark(article)
+                    } label: {
+                        Label(
+                            article.isBookmarked
+                                ? String(localized: "Article.RemoveBookmark", table: "Articles")
+                                : String(localized: "Article.Bookmark", table: "Articles"),
+                            systemImage: article.isBookmarked ? "bookmark.fill" : "bookmark"
+                        )
+                    }
+                    Button {
+                        UIPasteboard.general.string = article.url
+                    } label: {
+                        Label(
+                            String(localized: "Article.CopyLink", table: "Articles"),
+                            systemImage: "link"
+                        )
+                    }
+                    if let shareURL = URL(string: article.url) {
+                        ShareLink(item: shareURL) {
+                            Label(
+                                String(localized: "Article.Share", table: "Articles"),
+                                systemImage: "square.and.arrow.up"
+                            )
+                        }
+                    }
+                }
+            }
+            if let onLoadMore {
+                LoadPreviousArticlesButton(action: onLoadMore)
+                    .listRowBackground(Color.clear)
+                    .listRowSeparator(.hidden)
+            }
+        }
+        .listStyle(.plain)
+    }
+}

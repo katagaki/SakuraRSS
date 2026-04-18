@@ -50,11 +50,13 @@ nonisolated extension DatabaseManager {
         ))
     }
 
-    func insertArticles(feedID fid: Int64, articles items: [ArticleInsertItem]) throws {
-        guard !items.isEmpty else { return }
+    @discardableResult
+    func insertArticles(feedID fid: Int64, articles items: [ArticleInsertItem]) throws -> [Int64] {
+        guard !items.isEmpty else { return [] }
         let cutoffTimestamp = UserDefaults.standard.double(forKey: "Content.CutoffDate")
         let cutoffDate: Date? = cutoffTimestamp > 0
             ? Date(timeIntervalSince1970: cutoffTimestamp) : nil
+        var insertedIDs: [Int64] = []
         try database.transaction {
             for item in items {
                 if let cutoff = cutoffDate, let published = item.data.publishedDate,
@@ -63,7 +65,7 @@ nonisolated extension DatabaseManager {
                 }
                 let carouselValue = item.data.carouselImageURLs.isEmpty
                     ? nil : item.data.carouselImageURLs.joined(separator: "\n")
-                try database.run(articles.insert(or: .ignore,
+                let rowid = try database.run(articles.insert(or: .ignore,
                     articleFeedID <- fid,
                     articleTitle <- item.title,
                     articleURL <- item.url,
@@ -78,8 +80,40 @@ nonisolated extension DatabaseManager {
                     articleAudioURL <- item.data.audioURL,
                     articleDuration <- item.data.duration
                 ))
+                // `INSERT OR IGNORE` on a URL-uniqueness conflict does not
+                // change sqlite3_changes(), so we gate on the per-statement
+                // change count rather than the returned rowid (which can
+                // carry over from a prior statement).
+                if database.changes > 0 {
+                    insertedIDs.append(rowid)
+                }
             }
         }
+        return insertedIDs
+    }
+
+    /// Returns the articles with the given IDs, ordered by published date
+    /// descending.  Used to look up just-inserted rows for Spotlight
+    /// indexing so unchanged rows aren't re-indexed on every refresh.
+    func articles(withIDs ids: [Int64]) throws -> [Article] {
+        guard !ids.isEmpty else { return [] }
+        let query = articles
+            .filter(ids.contains(articleID))
+            .order(articlePublishedDate.desc)
+        return try database.prepare(query).map(rowToArticle)
+    }
+
+    /// Returns articles for a set of feed IDs ordered by published date
+    /// descending.  Used by the list widgets so a single SQLite statement
+    /// (with indexes on `feed_id` and `published_date`) replaces N
+    /// per-feed queries merged and re-sorted in Swift.
+    func articles(forFeedIDs feedIDs: [Int64], limit: Int) throws -> [Article] {
+        guard !feedIDs.isEmpty else { return [] }
+        let query = articles
+            .filter(feedIDs.contains(articleFeedID))
+            .order(articlePublishedDate.desc)
+            .limit(limit)
+        return try database.prepare(query).map(rowToArticle)
     }
 
     func article(byID id: Int64) throws -> Article? {
@@ -148,8 +182,8 @@ nonisolated extension DatabaseManager {
             .order(articlePublishedDate.desc)
             .limit(1)
         guard let row = try database.pluck(query),
-              let ts = row[articlePublishedDate] else { return nil }
-        return Date(timeIntervalSince1970: ts)
+              let timestamp = row[articlePublishedDate] else { return nil }
+        return Date(timeIntervalSince1970: timestamp)
     }
 
     func allArticles(limit: Int = 100) throws -> [Article] {

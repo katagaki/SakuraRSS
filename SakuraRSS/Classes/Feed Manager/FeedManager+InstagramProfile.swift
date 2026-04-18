@@ -62,10 +62,12 @@ extension FeedManager {
 
         let database = database
         try await Task.detached {
-            try database.insertArticles(feedID: feed.id, articles: postTuples)
+            let insertedIDs = try database.insertArticles(feedID: feed.id, articles: postTuples)
             try database.updateFeedLastFetched(id: feed.id, date: Date())
-            let articlesToIndex = try database.articles(forFeedID: feed.id, limit: postTuples.count)
-            SpotlightIndexer.indexArticles(articlesToIndex, feedTitle: feedTitle)
+            if !insertedIDs.isEmpty {
+                let articlesToIndex = try database.articles(withIDs: insertedIDs)
+                SpotlightIndexer.indexArticles(articlesToIndex, feedTitle: feedTitle)
+            }
         }.value
 
         await applyScraperMetadataRefresh(

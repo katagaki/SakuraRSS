@@ -26,6 +26,14 @@ private actor ImageMemoryCache {
     }
 }
 
+/// Holds static state for `CachedAsyncImage`.  Kept in a separate
+/// non-generic type because Swift forbids stored static properties
+/// inside generic types.  `nonisolated` so the nonisolated image
+/// loader can read it without hopping to the main actor.
+private enum CachedAsyncImageConfig {
+    nonisolated static let maxDisplayPixelSize: CGFloat = 2000
+}
+
 struct CachedAsyncImage<Placeholder: View>: View {
 
     let url: URL?
@@ -75,6 +83,18 @@ struct CachedAsyncImage<Placeholder: View>: View {
         }
     }
 
+    /// Largest dimension we ever display.  Article-detail hero images
+    /// span the whole screen on iPad — 2000 px covers 2× iPad screen
+    /// width, which looks identical to a full-res image at normal
+    /// viewing distance.  Thumbnails in feed lists are far smaller
+    /// and get downsampled further by SwiftUI on render.  The win is
+    /// that a 4000×3000 photo no longer costs 48 MB of RAM per view.
+    /// Computed property because generic types can't hold stored
+    /// static state; the underlying constant lives on the enum above.
+    nonisolated static var maxDisplayPixelSize: CGFloat {
+        CachedAsyncImageConfig.maxDisplayPixelSize
+    }
+
     nonisolated static func loadImage(from url: URL) async -> UIImage? {
         let urlString = url.absoluteString
 
@@ -92,9 +112,13 @@ struct CachedAsyncImage<Placeholder: View>: View {
 
         let database = DatabaseManager.shared
 
-        // 2. Database cache (requires Data → UIImage decode)
+        // 2. Database cache (requires Data → UIImage decode via ImageIO
+        // downsample so the memory cost of cached thumbnails stays
+        // bounded even for originally-huge photos).
         if let cachedData = try? database.cachedImageData(for: urlString),
-           let cachedImage = UIImage(data: cachedData) {
+           let cachedImage = ImageDownsampler.downsample(
+               cachedData, maxPixelSize: maxDisplayPixelSize
+           ) ?? UIImage(data: cachedData) {
             await memoryCache.setImage(cachedImage, forKey: urlString)
             #if DEBUG
             debugPrint("[Image] Cache hit for \(urlString) (\(cachedData.count) bytes)")
@@ -106,14 +130,19 @@ struct CachedAsyncImage<Placeholder: View>: View {
         debugPrint("[Image] Cache miss, downloading \(urlString)")
         #endif
 
-        // 3. Network download
+        // 3. Network download — persist the original bytes to SQLite
+        //    (so a bigger display context can resample if ever needed)
+        //    but hold only a downsampled UIImage in memory.
         do {
             let (data, response) = try await URLSession.shared.data(for: .sakura(url: url))
             let statusCode = (response as? HTTPURLResponse)?.statusCode
             #if DEBUG
             debugPrint("[Image] Downloaded \(urlString): \(data.count) bytes, HTTP \(statusCode ?? 0)")
             #endif
-            guard let downloadedImage = UIImage(data: data) else {
+            let downsampled = ImageDownsampler.downsample(
+                data, maxPixelSize: maxDisplayPixelSize
+            ) ?? UIImage(data: data)
+            guard let downsampled else {
                 #if DEBUG
                 debugPrint("[Image] Failed to decode image data from \(urlString) (\(data.count) bytes)")
                 #endif
@@ -128,8 +157,8 @@ struct CachedAsyncImage<Placeholder: View>: View {
             if await memoryCache.image(forKey: urlString) == nil {
                 try? database.cacheImageData(data, for: urlString)
             }
-            await memoryCache.setImage(downloadedImage, forKey: urlString)
-            return downloadedImage
+            await memoryCache.setImage(downsampled, forKey: urlString)
+            return downsampled
         } catch {
             #if DEBUG
             debugPrint("[Image] Download failed for \(urlString): \(error.localizedDescription)")

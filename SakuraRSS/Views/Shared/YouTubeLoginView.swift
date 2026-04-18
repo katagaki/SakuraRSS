@@ -48,7 +48,6 @@ private struct YouTubeLoginWebView: UIViewRepresentable {
         if let loginURL = URL(string: "https://accounts.google.com/ServiceLogin?service=youtube&continue=https://m.youtube.com/") {
             webView.load(URLRequest(url: loginURL))
         }
-        // swiftlint:enable line_length
         return webView
     }
 
