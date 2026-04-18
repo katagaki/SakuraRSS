@@ -103,6 +103,17 @@ nonisolated enum YouTubePlayerStyles {
     .ytp-reel-progress-bar-line,
     .ytp-cued-thumbnail-overlay,
     .ytp-cued-thumbnail-overlay-image,
+    /* Mobile-web touch overlay that briefly flashes the CC/settings/
+       progress UI when the user seeks, even if the underlying chrome
+       elements are hidden. */
+    .layer.touch-controls,
+    .player-controls,
+    .player-controls-overlay,
+    .player-controls-content,
+    [class*="player-controls"],
+    .ytp-touch-overlay,
+    .ytp-tap-button,
+    .ytp-tap-feedback,
     .related-chips-slot-wrapper,
     .video-actions,
     #player-bottom-sheet,

@@ -81,7 +81,7 @@ struct YouTubePlayerView: View {
                     Color.black
                         .overlay {
                             VStack(spacing: 8) {
-                                Image(systemName: "pip.fill")
+                                Image(systemName: "pip")
                                     .font(.largeTitle)
                                 Text(String(localized: "YouTube.PiP.Active", table: "Integrations"))
                                     .font(.subheadline)
@@ -243,6 +243,7 @@ struct YouTubePlayerView: View {
                         .frame(height: 32)
                 }
             }
+            .ignoresSafeArea(.all, edges: [.top])
         }
         .sakuraBackground()
         .navigationBarTitleDisplayMode(.inline)
