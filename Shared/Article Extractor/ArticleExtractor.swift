@@ -237,7 +237,8 @@ struct ArticleExtractor { // swiftlint:disable:this type_body_length
         return resolved
     }
 
-    private static func collectBlocks( // swiftlint:disable:this cyclomatic_complexity
+    // swiftlint:disable:next function_body_length cyclomatic_complexity
+    private static func collectBlocks(
         from element: Element,
         into paragraphs: inout [String],
         baseURL: URL? = nil,
