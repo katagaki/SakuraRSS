@@ -8,12 +8,16 @@ import UIKit
 /// thumbnail — a full-resolution photo never has to land in memory
 /// as a UIImage, which matters in the widget extension's tight
 /// memory budget and for main-app scroll smoothness.
-enum ImageDownsampler {
+///
+/// Marked `nonisolated` because the app target infers `@MainActor`
+/// isolation for UIKit-using types by default; every method here is
+/// pure and safe to call from any actor / thread.
+nonisolated enum ImageDownsampler {
 
     /// Downsamples the encoded bytes in `data` to a thumbnail whose
     /// largest dimension is `maxPixelSize`, returning a decoded
     /// `UIImage`.  Returns `nil` if the source cannot be decoded.
-    static func downsample(_ data: Data, maxPixelSize: CGFloat) -> UIImage? {
+    nonisolated static func downsample(_ data: Data, maxPixelSize: CGFloat) -> UIImage? {
         guard let source = createSource(from: data) else { return nil }
         return downsample(source: source, maxPixelSize: maxPixelSize)
     }
@@ -22,7 +26,7 @@ enum ImageDownsampler {
     /// largest dimension is `maxPixelSize` and returns JPEG-encoded
     /// bytes suitable for storing/transporting (e.g. widget entry
     /// payloads).  Returns `nil` on any failure.
-    static func downsampleToJPEG(
+    nonisolated static func downsampleToJPEG(
         _ data: Data,
         maxPixelSize: CGFloat,
         quality: CGFloat = 0.7
@@ -31,14 +35,14 @@ enum ImageDownsampler {
         return image.jpegData(compressionQuality: quality)
     }
 
-    private static func createSource(from data: Data) -> CGImageSource? {
+    nonisolated private static func createSource(from data: Data) -> CGImageSource? {
         let options: [CFString: Any] = [
             kCGImageSourceShouldCache: false
         ]
         return CGImageSourceCreateWithData(data as CFData, options as CFDictionary)
     }
 
-    private static func downsample(source: CGImageSource, maxPixelSize: CGFloat) -> UIImage? {
+    nonisolated private static func downsample(source: CGImageSource, maxPixelSize: CGFloat) -> UIImage? {
         let options: [CFString: Any] = [
             kCGImageSourceCreateThumbnailFromImageAlways: true,
             kCGImageSourceShouldCacheImmediately: true,
