@@ -132,17 +132,35 @@ extension ArticleExtractor {
 
     // MARK: - Provider detection
 
+    private static let vimeoEmbedPattern = "player.vimeo.com/video/"
+    private static let vimeoAnchorPattern = "vimeo.com/"
+    private static let vimeoPlayerHost = "player.vimeo.com"
+    private static let tiktokEmbedPattern = "tiktok.com/embed"
+    private static let tiktokHostPattern = "tiktok.com/"
+    private static let tiktokVideoPathPattern = "/video/"
+    private static let instagramPostPattern = "instagram.com/p/"
+    private static let instagramReelPattern = "instagram.com/reel/"
+    private static let blueskyHost = "bsky.app"
+    private static let blueskyProfilePattern = "bsky.app/profile/"
+    private static let blueskyPostPathPattern = "/post/"
+    private static let spotifyEmbedPattern = "open.spotify.com/embed"
+    private static let spotifyHostPattern = "open.spotify.com/"
+    private static let soundcloudEmbedPattern = "w.soundcloud.com/player/"
+    private static let soundcloudHostPattern = "soundcloud.com/"
+    private static let codepenHostPattern = "codepen.io"
+    private static let codepenEmbedPathPattern = "/embed/"
+
     static func providerForEmbedURL(_ src: String) -> EmbedProvider? {
         let lowered = src.lowercased()
-        if lowered.contains("player.vimeo.com/video/") { return .vimeo }
-        if lowered.contains("tiktok.com/embed") { return .tiktok }
-        if lowered.contains("instagram.com/p/") || lowered.contains("instagram.com/reel/") {
+        if lowered.contains(vimeoEmbedPattern) { return .vimeo }
+        if lowered.contains(tiktokEmbedPattern) { return .tiktok }
+        if lowered.contains(instagramPostPattern) || lowered.contains(instagramReelPattern) {
             return .instagram
         }
-        if lowered.contains("bsky.app") { return .bluesky }
-        if lowered.contains("open.spotify.com/embed") { return .spotify }
-        if lowered.contains("w.soundcloud.com/player/") { return .soundcloud }
-        if lowered.contains("codepen.io") && lowered.contains("/embed/") {
+        if lowered.contains(blueskyHost) { return .bluesky }
+        if lowered.contains(spotifyEmbedPattern) { return .spotify }
+        if lowered.contains(soundcloudEmbedPattern) { return .soundcloud }
+        if lowered.contains(codepenHostPattern) && lowered.contains(codepenEmbedPathPattern) {
             return .codepen
         }
         return nil
@@ -150,15 +168,15 @@ extension ArticleExtractor {
 
     private static func providerForAnchorURL(_ src: String) -> EmbedProvider? {
         let lowered = src.lowercased()
-        if lowered.contains("vimeo.com/") && !lowered.contains("player.vimeo.com") {
+        if lowered.contains(vimeoAnchorPattern) && !lowered.contains(vimeoPlayerHost) {
             return .vimeo
         }
-        if lowered.contains("tiktok.com/") && lowered.contains("/video/") {
+        if lowered.contains(tiktokHostPattern) && lowered.contains(tiktokVideoPathPattern) {
             return .tiktok
         }
-        if lowered.contains("open.spotify.com/") { return .spotify }
-        if lowered.contains("soundcloud.com/") { return .soundcloud }
-        if lowered.contains("bsky.app/profile/") && lowered.contains("/post/") {
+        if lowered.contains(spotifyHostPattern) { return .spotify }
+        if lowered.contains(soundcloudHostPattern) { return .soundcloud }
+        if lowered.contains(blueskyProfilePattern) && lowered.contains(blueskyPostPathPattern) {
             return .bluesky
         }
         return nil

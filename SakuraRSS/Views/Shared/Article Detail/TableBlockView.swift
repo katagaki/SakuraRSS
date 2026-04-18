@@ -36,7 +36,7 @@ struct TableBlockView: View {
             ForEach(Array(cells.enumerated()), id: \.offset) { index, cell in
                 Text(cell)
                     .font(isHeader ? .callout.bold() : .callout)
-                    .foregroundStyle(isHeader ? .primary : .primary)
+                    .foregroundStyle(.primary)
                     .padding(.horizontal, 12)
                     .padding(.vertical, 8)
                     .frame(minWidth: 80, alignment: .leading)

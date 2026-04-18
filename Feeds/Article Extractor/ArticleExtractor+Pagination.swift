@@ -92,16 +92,17 @@ extension ArticleExtractor {
             }
         }
 
+        let nextLabels: Set<String> = [
+            "next", "next >", "next ›", "next page", "›"
+        ]
         if let anchors = try? doc.select("a[href]") {
             for anchor in anchors.prefix(300) {
                 let text = ((try? anchor.text()) ?? "")
                     .trimmingCharacters(in: .whitespacesAndNewlines)
                     .lowercased()
-                if text == "next" || text == "next >" || text == "next ›"
-                    || text == "next page" || text == "›" {
-                    if let href = try? anchor.attr("href"), !href.isEmpty {
-                        addIfNew(href)
-                    }
+                if nextLabels.contains(text),
+                   let href = try? anchor.attr("href"), !href.isEmpty {
+                    addIfNew(href)
                 }
             }
         }

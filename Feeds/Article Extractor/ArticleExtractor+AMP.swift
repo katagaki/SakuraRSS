@@ -3,17 +3,20 @@ import SwiftSoup
 
 extension ArticleExtractor {
 
+    private static let googleAMPHosts: Set<String> = ["google.com", "www.google.com"]
+    private static let googleAMPPathPrefix = "/amp/s/"
+
     /// Unwraps Google AMP viewer URLs (`https://www.google.com/amp/s/<host>/<path>`)
     /// to the canonical URL they wrap.  Returns the input unchanged for
     /// non-AMP URLs.
     static func unwrapGoogleAMPURL(_ url: URL) -> URL {
         guard let host = url.host?.lowercased(),
-              host == "google.com" || host == "www.google.com" else {
+              googleAMPHosts.contains(host) else {
             return url
         }
         let path = url.path
-        guard path.hasPrefix("/amp/s/") else { return url }
-        let trimmed = String(path.dropFirst("/amp/s/".count))
+        guard path.hasPrefix(googleAMPPathPrefix) else { return url }
+        let trimmed = String(path.dropFirst(googleAMPPathPrefix.count))
         // trimmed is "<host>/<path>" — prepend scheme.
         let candidate = "https://\(trimmed)"
         return URL(string: candidate) ?? url
