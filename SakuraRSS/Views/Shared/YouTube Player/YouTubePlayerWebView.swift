@@ -1,3 +1,4 @@
+import AVFoundation
 import SwiftUI
 import WebKit
 
@@ -29,6 +30,16 @@ struct YouTubePlayerWebView: UIViewRepresentable {
     }
 
     func makeUIView(context: Context) -> WKWebView {
+        // Configure the audio session for background-capable playback before
+        // the web view has a chance to start loading — so the video decoder
+        // picks up the `.playback`/`.moviePlayback` category from the very
+        // first frame. Without this, the video starts under whatever
+        // category is active, and briefly pauses on background until the
+        // scene-phase handler re-activates the session.
+        let session = AVAudioSession.sharedInstance()
+        try? session.setCategory(.playback, mode: .moviePlayback)
+        try? session.setActive(true)
+
         let config = WKWebViewConfiguration()
         config.websiteDataStore = .default()
         config.allowsInlineMediaPlayback = true
