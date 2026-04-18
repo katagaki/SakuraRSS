@@ -86,7 +86,11 @@ extension ArticleExtractor {
             } else {
                 score = 1
             }
-            if best == nil || score > best!.score {
+            if let current = best {
+                if score > current.score {
+                    best = (url, score)
+                }
+            } else {
                 best = (url, score)
             }
         }
