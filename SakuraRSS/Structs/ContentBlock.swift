@@ -153,7 +153,7 @@ enum ContentBlock: Identifiable {
                     blocks.append(.xPost(url))
                 }
             } else {
-                // IMG — possibly with a link
+                // IMG - possibly with a link
                 let nsContent = content as NSString
                 if let linkRegex,
                    let linkMatch = linkRegex.firstMatch(

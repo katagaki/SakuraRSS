@@ -9,7 +9,7 @@ extension TodaysSummaryView {
         // Skip articles that are title-only, have empty/placeholder bodies,
         // or whose body is just the title repeated.  Removing these up
         // front means fewer LLM calls (lower energy) *and* a better
-        // summary — the LLM has more signal to work with.
+        // summary - the LLM has more signal to work with.
         let articles = feedManager.todaySummaryArticles().filter { article in
             BatchSummarizer.hasUsefulContent(title: article.title, summary: article.summary)
         }

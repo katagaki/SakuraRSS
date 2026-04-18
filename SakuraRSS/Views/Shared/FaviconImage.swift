@@ -77,7 +77,7 @@ struct FaviconImage: View {
 // MARK: - Derived Metrics (memoized)
 //
 // Every pixel-sampling routine below used to run on every SwiftUI body
-// evaluation — i.e. once per favicon, per list row, per scroll tick.  The
+// evaluation - i.e. once per favicon, per list row, per scroll tick.  The
 // FaviconDerivedMetrics struct captures the raw results of each sampling
 // pass once and is attached to the UIImage via an associated object, so
 // the hot path becomes a dictionary read.  FaviconCache also persists

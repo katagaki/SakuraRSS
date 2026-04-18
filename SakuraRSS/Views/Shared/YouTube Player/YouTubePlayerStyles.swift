@@ -10,7 +10,7 @@ nonisolated enum YouTubePlayerStyles {
     ///
     /// Crucially, nothing here touches the `<video>` element, `#movie_player`,
     /// `.html5-video-player`, `.html5-video-container`, or their ancestor
-    /// containers — those must stay visible for the video to actually render.
+    /// containers - those must stay visible for the video to actually render.
     static let css = """
     html, body {
         margin: 0 !important;
@@ -20,34 +20,32 @@ nonisolated enum YouTubePlayerStyles {
         width: 100% !important;
         height: 100% !important;
     }
-    /* Keep the <video> element above every YouTube overlay (Shorts action
-       bar, title pills, channel avatar, etc.) by pinning it to the top of
-       its stacking context with the maximum z-index. Combined with the
-       explicit display/visibility, this makes sure the video is never
-       visually covered or removed. */
-    video {
-        position: relative !important;
-        z-index: 2147483647 !important;
-        display: block !important;
-        visibility: visible !important;
-        opacity: 1 !important;
-    }
-    /* Strip default margins on the page wrappers and let them fill the
-       web view, so the player isn't pushed in by YouTube's mobile gutters.
-       The video element itself is left alone; only margin/width on its
-       ancestors is normalized. Heights and paddings are left intact so the
-       16:9 aspect-ratio padding YouTube uses to size the player still
-       works. */
+    /* Strip default margins on the page wrappers and fill the web view */
     ytm-app, ytm-mobile-watch-flexy, ytm-watch,
     ytm-single-column-watch-next-results-renderer,
     ytm-watch-flexy, ytm-watch-flexy-content,
     .player-placeholder, .player-container,
     .player-screen, .player-size,
-    #movie_player, .html5-video-player {
+    #player, #player-container, #player-container-inner,
+    #player-container-id, #player-control-container,
+    #movie_player, .html5-video-player,
+    .html5-video-container {
         margin: 0 !important;
-        width: 100% !important;
+        width: 100vw !important;
+        height: 100vh !important;
         max-width: none !important;
         min-width: 0 !important;
+    }
+    /* Make the <video> element scale to fill the player. YouTube normally
+       sizes it via inline width/height matching the source resolution; on
+       the chrome-less watch page that leaves the video at its native pixel
+       size, which is much smaller than the web view. */
+    video.html5-main-video, video.video-stream {
+        width: 100vw !important;
+        height: 100vh !important;
+        object-fit: contain !important;
+        left: 0 !important;
+        top: 0 !important;
     }
     /* Mobile YouTube (m.youtube.com) chrome */
     ytm-mobile-topbar-renderer,
@@ -73,10 +71,7 @@ nonisolated enum YouTubePlayerStyles {
     ytm-reel-shelf-renderer,
     ytm-playlist-panel-renderer,
     ytm-video-with-context-renderer,
-    /* Mobile YouTube Shorts overlay — action bar, metadata, progress.
-       Anything matching these patterns is hidden; the Shorts video wrapper
-       (`ytm-reel-video-renderer`, classes like `reel-video-renderer`) is
-       NOT matched and stays visible so the video still renders. */
+    /* Mobile YouTube Shorts overlay */
     ytm-reel-player-overlay-renderer,
     ytm-reel-player-header-renderer,
     ytm-shorts-lockup-view-model,
@@ -94,6 +89,9 @@ nonisolated enum YouTubePlayerStyles {
     [class*="shorts-player-header"],
     .reel-player-overlay-actions,
     .reel-player-overlay-action-buttons,
+    .reel-player-overlay-main-content,
+    reel-action-bar-view-model,
+    like-button-view-model,
     .reel-video-action-button-container,
     .reel-video-action-button,
     .reel-video-metadata-panel,
@@ -102,6 +100,8 @@ nonisolated enum YouTubePlayerStyles {
     .reel-player-header,
     .reel-player-progress-bar,
     .ytp-reel-progress-bar-line,
+    .ytp-cued-thumbnail-overlay,
+    .ytp-cued-thumbnail-overlay-image,
     .related-chips-slot-wrapper,
     .video-actions,
     #player-bottom-sheet,
@@ -113,9 +113,7 @@ nonisolated enum YouTubePlayerStyles {
     ytd-merch-shelf-renderer, ytd-info-panel-content-renderer,
     ytd-compact-promoted-video-renderer, ytd-feed-filter-chip-bar-renderer,
     ytd-consent-bump-v2-lightbox, ytd-popup-container,
-    /* Desktop YouTube Shorts overlay — actions, header, metadata. The
-       video wrapper (`ytd-reel-video-renderer`) is intentionally left
-       visible because it contains the video element. */
+    /* Desktop YouTube Shorts overlay */
     ytd-reel-player-overlay-renderer,
     ytd-reel-player-header-renderer,
     ytd-shorts-player-controls,
@@ -129,8 +127,7 @@ nonisolated enum YouTubePlayerStyles {
         opacity: 0 !important;
         pointer-events: none !important;
     }
-    /* YouTube's own player chrome — we provide our own controls below the
-       web view. The player itself and its video element are NOT touched. */
+    /* YouTube's own player chrome */
     .ytp-chrome-top, .ytp-chrome-bottom, .ytp-chrome-controls,
     .ytp-gradient-top, .ytp-gradient-bottom,
     .ytp-title, .ytp-title-text, .ytp-title-channel,
@@ -223,14 +220,15 @@ nonisolated enum YouTubePlayerStyles {
     static func injectionScript(css: String) -> String {
         """
         (function() {
+            var cssText = `\(css)`;
             function inject() {
-                if (document.getElementById('sakura-yt-style')) return;
-                var head = document.head || document.documentElement;
-                if (!head) return;
+                if (document.getElementById('app-yt-style')) return;
+                var parent = document.head || document.documentElement;
+                if (!parent) return;
                 var s = document.createElement('style');
-                s.id = 'sakura-yt-style';
-                s.textContent = `\(css)`;
-                head.appendChild(s);
+                s.id = 'app-yt-style';
+                s.textContent = cssText;
+                parent.appendChild(s);
             }
             inject();
             var observer = new MutationObserver(inject);

@@ -47,7 +47,7 @@ struct SakuraRSSApp: App {
                     // Kick off NLP insight processing after startup
                     // completes so it never holds up badge refresh or
                     // any other MainActor-visible work.  Skip entirely
-                    // under Low Power Mode — NLTagger work is deferred
+                    // under Low Power Mode - NLTagger work is deferred
                     // until LPM turns off.
                     if !ProcessInfo.processInfo.isLowPowerModeEnabled {
                         Task.detached(priority: .utility) {
@@ -58,7 +58,7 @@ struct SakuraRSSApp: App {
                 .onReceive(
                     NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)
                 ) { _ in
-                    // Always update the badge — cheap and user-visible.
+                    // Always update the badge - cheap and user-visible.
                     feedManager.updateBadgeCount()
                     // Debounce the rest of the foreground chain.  Rapid
                     // app switches trigger willEnterForeground every
@@ -106,8 +106,8 @@ struct SakuraRSSApp: App {
     /// Runs a one-time full Spotlight reindex when the on-device index
     /// schema doesn't match the current build's `SpotlightIndexer.schemaVersion`.
     /// Does NOT gate on Low Power Mode: if the schema has changed, search
-    /// is broken until the reindex runs.  In the steady state — when the
-    /// stored version already matches — this method is a single
+    /// is broken until the reindex runs.  In the steady state - when the
+    /// stored version already matches - this method is a single
     /// `UserDefaults` read and returns immediately.
     private func reindexSpotlightIfSchemaChanged() {
         let defaults = UserDefaults.standard
@@ -153,7 +153,7 @@ struct SakuraRSSApp: App {
                 wipeAllCachesAndData()
                 Task {
                     // X and Instagram cookies live in Keychain, which
-                    // survives the filesystem wipe above — no cookie
+                    // survives the filesystem wipe above - no cookie
                     // re-warming needed.  X still has to re-extract its
                     // in-memory GraphQL query IDs from the JS bundle.
                     if UserDefaults.standard.bool(forKey: "Labs.XProfileFeeds") {

@@ -48,7 +48,7 @@ nonisolated extension PetalEngine {
     // MARK: - Rendered HTML (WKWebView)
 
     /// Loads the page in a `WKWebView` and waits for JS
-    /// hydration — needed for React / Vue / Next single-page
+    /// hydration - needed for React / Vue / Next single-page
     /// apps whose initial HTML response is a near-empty shell.
     ///
     /// The loader is `@MainActor` because `WKWebView` has to

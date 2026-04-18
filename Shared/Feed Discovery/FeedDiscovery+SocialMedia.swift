@@ -134,7 +134,7 @@ extension FeedDiscovery {
 
     /// Fetches a YouTube channel page and extracts the canonical channel ID
     /// from `<meta itemprop="identifier">` / `<meta itemprop="channelId">` /
-    /// `<link rel="canonical">`. Returns `nil` on any failure — callers fall
+    /// `<link rel="canonical">`. Returns `nil` on any failure - callers fall
     /// through to generic discovery.
     static func resolveYouTubeChannelID(from url: URL) async -> String? {
         var request = URLRequest(url: url)

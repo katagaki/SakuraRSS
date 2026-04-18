@@ -10,7 +10,7 @@ import SwiftSoup
 /// is found, it returns a partially-filled `PetalRecipe` with
 /// suggested selectors the user can tweak.
 ///
-/// The heuristic is intentionally conservative — it prefers
+/// The heuristic is intentionally conservative - it prefers
 /// **returning nothing** over returning selectors that match the
 /// wrong elements, because a bad auto-detect is a worse UX than
 /// no auto-detect at all.
@@ -158,7 +158,7 @@ nonisolated enum PetalAutoDetect {
     // MARK: - Child selectors
 
     private static func findTitleSelector(in item: Element) -> String? {
-        // Order matters — the first one that hits wins.
+        // Order matters - the first one that hits wins.
         let candidates = ["h1", "h2", "h3", "h4", ".title", "[itemprop=headline]"]
         for selector in candidates {
             if let element = try? item.select(selector).first(),
@@ -172,7 +172,7 @@ nonisolated enum PetalAutoDetect {
 
     private static func findLinkSelector(in item: Element) -> String? {
         // If there's a single <a href> inside the item the engine's
-        // fallback already handles it — no need to lock a brittle
+        // fallback already handles it - no need to lock a brittle
         // selector in.  Only return a selector when there are
         // multiple anchors (e.g. author bylines + main link).
         guard let anchors = try? item.select("a[href]"), anchors.count > 1 else {
@@ -191,7 +191,7 @@ nonisolated enum PetalAutoDetect {
             return nil
         }
         // If there are multiple imgs, stick with the first.  No
-        // selector tightening — the engine's default already picks
+        // selector tightening - the engine's default already picks
         // the first `<img src>` inside an item.
         if (try? img.attr("src"))?.isEmpty == false {
             return "img"

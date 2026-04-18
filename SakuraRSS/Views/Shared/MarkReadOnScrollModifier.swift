@@ -40,7 +40,7 @@ struct MarkReadOnScrollModifier: ViewModifier {
                 // the row's top edge is above the screen's origin.
                 guard lastKnownMinY < 0 else { return }
                 #if DEBUG
-                debugPrint("[ScrollMarkAsRead] Marking article as read: \(article.id) — \(article.title)")
+                debugPrint("[ScrollMarkAsRead] Marking article as read: \(article.id) - \(article.title)")
                 #endif
                 let articleID = article.id
                 Task { @MainActor in

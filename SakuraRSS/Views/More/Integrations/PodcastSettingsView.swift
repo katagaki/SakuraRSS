@@ -163,7 +163,7 @@ struct PodcastSettingsView: View {
             transcriptionEnabled = true
             startDownload()
         } else {
-            // Toggling off — cancel any in-flight download and wipe the model.
+            // Toggling off - cancel any in-flight download and wipe the model.
             // Don't clear downloadError here: if we're landing here because
             // the toggle was reverted after a failure, we want the error
             // message to stay visible.

@@ -4,7 +4,7 @@ extension FeedManager {
 
     // MARK: - Chunk Boundaries
 
-    /// Safety cap for chunk-walking loops — two years' worth of 24-hour
+    /// Safety cap for chunk-walking loops - two years' worth of 24-hour
     /// chunks. Hitting this means the walk has skipped past every populated
     /// chunk in that window without finding visible content.
     static var chunkWalkLimit: Int { 365 * 2 }

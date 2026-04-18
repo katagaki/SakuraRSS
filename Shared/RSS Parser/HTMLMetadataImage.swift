@@ -83,7 +83,7 @@ nonisolated enum HTMLMetadataImage {
         in html: String, propertyOrName name: String
     ) -> String? {
         let escaped = NSRegularExpression.escapedPattern(for: name)
-        // Two attribute orderings — HTML doesn't fix the order.
+        // Two attribute orderings - HTML doesn't fix the order.
         let patterns = [
             #"<meta\b[^>]*?\b(?:property|name)\s*=\s*["']\#(escaped)["'][^>]*?\bcontent\s*=\s*["']([^"']+)["']"#,
             #"<meta\b[^>]*?\bcontent\s*=\s*["']([^"']+)["'][^>]*?\b(?:property|name)\s*=\s*["']\#(escaped)["']"#

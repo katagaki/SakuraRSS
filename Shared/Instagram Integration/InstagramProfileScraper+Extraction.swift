@@ -98,7 +98,7 @@ extension InstagramProfileScraper {
             captionText = text
         }
 
-        // Image URL — for video/reel posts, display_url is the poster frame.
+        // Image URL - for video/reel posts, display_url is the poster frame.
         // Fall back to thumbnail_resources (sorted by size) if the primary
         // keys are absent.
         var imageURL = node["display_url"] as? String
@@ -173,7 +173,7 @@ extension InstagramProfileScraper {
             captionText = text
         }
 
-        // Image URL — carousel or single
+        // Image URL - carousel or single
         var imageURL: String?
         var carouselImageURLs: [String] = []
         if let carouselMedia = item["carousel_media"] as? [[String: Any]] {

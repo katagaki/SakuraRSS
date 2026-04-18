@@ -3,7 +3,7 @@ import SwiftUI
 /// "Source" section of the Web Feed builder: feed name, page
 /// URL, and fetch mode picker.
 ///
-/// Owns no state of its own — the parent `PetalBuilderView` holds
+/// Owns no state of its own - the parent `PetalBuilderView` holds
 /// the recipe and passes bindings down.
 struct PetalBuilderSourceSection: View {
 

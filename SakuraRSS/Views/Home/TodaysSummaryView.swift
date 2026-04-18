@@ -218,7 +218,7 @@ struct TodaysSummaryView: View {
             return
         }
 
-        // Under Low Power Mode we do not auto-run the on-device LLM —
+        // Under Low Power Mode we do not auto-run the on-device LLM -
         // the user must tap the refresh button to kick off generation.
         // This is the single most expensive recurring operation in the
         // app; making it opt-in under LPM is a large battery win and

@@ -8,7 +8,7 @@ extension FeedManager {
     /// Minimum interval between Instagram API calls per feed (30 minutes).
     static let instagramRefreshInterval: TimeInterval = 30 * 60
 
-    /// Jittered effective refresh interval — the 30-minute floor plus up
+    /// Jittered effective refresh interval - the 30-minute floor plus up
     /// to ~10 minutes so consecutive refreshes don't fall on a fixed
     /// schedule (a strong automation signal on its own).
     private static func jitteredRefreshInterval() -> TimeInterval {
@@ -21,7 +21,7 @@ extension FeedManager {
            Date().timeIntervalSince(lastFetched) < effectiveInterval {
             #if DEBUG
             let remaining = effectiveInterval - Date().timeIntervalSince(lastFetched)
-            print("[InstagramProfile] Skipping refresh for @\(feed.title) — "
+            print("[InstagramProfile] Skipping refresh for @\(feed.title) - "
                   + "\(Int(remaining))s until next allowed fetch")
             #endif
             return
