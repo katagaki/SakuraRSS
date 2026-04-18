@@ -8,6 +8,12 @@ final class FeedManager {
     var articles: [Article] = []
     var lists: [FeedList] = []
     var isLoading = false
+    var refreshTotal: Int = 0
+    var refreshCompleted: Int = 0
+    var refreshProgress: Double {
+        guard refreshTotal > 0 else { return 0 }
+        return min(max(Double(refreshCompleted) / Double(refreshTotal), 0), 1)
+    }
     private(set) var dataRevision: Int = 0
     private(set) var faviconRevision: Int = 0
     private(set) var unreadCounts: [Int64: Int] = [:]

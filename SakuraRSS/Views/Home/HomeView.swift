@@ -24,6 +24,14 @@ struct HomeView: View {
                 .environment(\.navigateToFeed, { feed in path.append(feed) })
                 .environment(\.hidesMarkAllReadToolbar, true)
                 .toolbar {
+                    ToolbarItemGroup(placement: .topBarLeading) {
+                        if feedManager.isLoading && feedManager.refreshTotal > 0 {
+                            FeedRefreshProgressDonut(
+                                progress: feedManager.refreshProgress
+                            )
+                        }
+                    }
+                    .sharedBackgroundVisibility(.hidden)
                     if markAllReadPosition == .top {
                         ToolbarItemGroup(placement: .topBarLeading) {
                             Button {
