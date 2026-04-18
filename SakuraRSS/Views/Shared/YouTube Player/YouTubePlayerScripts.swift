@@ -103,44 +103,7 @@ nonisolated enum YouTubePlayerScripts {
     })();
     """
 
-    /// Re-plays the video if it pauses unexpectedly (for example because iOS
-    /// throttled the backgrounded web view, or a stall happened during a
-    /// network blip). User-initiated pauses are respected by checking
-    /// `__ytUserPaused`, and the autoplay blocker takes precedence.
-    static let playbackWatchdog = """
-    (function() {
-        function attach(video) {
-            if (!video || video.__ytWatchdogAttached) return;
-            video.__ytWatchdogAttached = true;
-            video.addEventListener('pause', function() {
-                if (window.__ytAutoplayBlocked) return;
-                if (window.__ytUserPaused) return;
-                var player = document.querySelector('.html5-video-player');
-                if (player && player.classList.contains('ad-showing')) return;
-                setTimeout(function() {
-                    if (video.paused
-                        && !window.__ytAutoplayBlocked
-                        && !window.__ytUserPaused) {
-                        video.play().catch(function() {});
-                    }
-                }, 250);
-            });
-            video.addEventListener('play', function() {
-                window.__ytUserPaused = false;
-            });
-        }
-        function tryAttach() {
-            document.querySelectorAll('video').forEach(attach);
-        }
-        tryAttach();
-        var observer = new MutationObserver(tryAttach);
-        if (document.documentElement) {
-            observer.observe(document.documentElement, { childList: true, subtree: true });
-        }
-    })();
-    """
-
-    /// Reads chapter markers from `ytInitialPlayerResponse` and returns an
+/// Reads chapter markers from `ytInitialPlayerResponse` and returns an
     /// array of `{title, startSeconds}` entries, or an empty array if the
     /// video has no chapters.
     static let extractChapters = """

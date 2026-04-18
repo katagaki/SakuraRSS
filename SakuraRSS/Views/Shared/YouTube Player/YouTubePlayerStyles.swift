@@ -20,7 +20,10 @@ nonisolated enum YouTubePlayerStyles {
         width: 100% !important;
         height: 100% !important;
     }
-    /* Strip default margins on the page wrappers and fill the web view */
+    /* Strip default margins on the page wrappers and fill the web view.
+       The top:0 rule overrides YouTube's offset that reserves 48px for
+       the (now-hidden) mobile topbar — without it, the player sits below
+       an empty black band, most visible during ad transitions. */
     ytm-app, ytm-mobile-watch-flexy, ytm-watch,
     ytm-single-column-watch-next-results-renderer,
     ytm-watch-flexy, ytm-watch-flexy-content,
@@ -31,15 +34,13 @@ nonisolated enum YouTubePlayerStyles {
     #movie_player, .html5-video-player,
     .html5-video-container {
         margin: 0 !important;
+        top: 0 !important;
         width: 100vw !important;
         height: 100vh !important;
         max-width: none !important;
         min-width: 0 !important;
     }
-    /* Make the <video> element scale to fill the player. YouTube normally
-       sizes it via inline width/height matching the source resolution; on
-       the chrome-less watch page that leaves the video at its native pixel
-       size, which is much smaller than the web view. */
+    /* Make the <video> element scale to fill the player. */
     video.html5-main-video, video.video-stream {
         width: 100vw !important;
         height: 100vh !important;
@@ -218,22 +219,43 @@ nonisolated enum YouTubePlayerStyles {
     """
 
     static func injectionScript(css: String) -> String {
-        """
+        // Escape characters that would otherwise break out of the JS
+        // template literal we wrap the CSS in. Backticks terminate the
+        // string and `${` starts an interpolation; both must be escaped.
+        let safeCSS = css
+            .replacingOccurrences(of: "\\", with: "\\\\")
+            .replacingOccurrences(of: "`", with: "\\`")
+            .replacingOccurrences(of: "${", with: "\\${")
+        return """
         (function() {
-            var cssText = `\(css)`;
-            function inject() {
-                if (document.getElementById('app-yt-style')) return;
-                var parent = document.head || document.documentElement;
-                if (!parent) return;
-                var s = document.createElement('style');
-                s.id = 'app-yt-style';
-                s.textContent = cssText;
-                parent.appendChild(s);
+            function log(msg) {
+                try {
+                    window.webkit.messageHandlers.ytDebug.postMessage(String(msg));
+                } catch (e) {}
             }
-            inject();
-            var observer = new MutationObserver(inject);
-            if (document.documentElement) {
-                observer.observe(document.documentElement, { childList: true, subtree: true });
+            try {
+                var cssText = `\(safeCSS)`;
+                log('inject script start, head=' + !!document.head + ' doc=' + !!document.documentElement);
+                function inject() {
+                    if (document.getElementById('app-yt-style')) return;
+                    var parent = document.head || document.documentElement;
+                    if (!parent) { log('inject: no parent'); return; }
+                    var s = document.createElement('style');
+                    s.id = 'app-yt-style';
+                    s.textContent = cssText;
+                    parent.appendChild(s);
+                    log('inject: appended style len=' + cssText.length + ' parent=' + parent.tagName);
+                }
+                inject();
+                var observer = new MutationObserver(inject);
+                if (document.documentElement) {
+                    observer.observe(document.documentElement, { childList: true, subtree: true });
+                    log('observer attached');
+                } else {
+                    log('no documentElement for observer');
+                }
+            } catch (e) {
+                log('inject error: ' + e.message + ' stack=' + (e.stack || ''));
             }
         })();
         """

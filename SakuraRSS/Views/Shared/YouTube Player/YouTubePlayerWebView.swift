@@ -62,11 +62,6 @@ struct YouTubePlayerWebView: UIViewRepresentable {
             injectionTime: .atDocumentEnd,
             forMainFrameOnly: true
         ))
-        controller.addUserScript(WKUserScript(
-            source: YouTubePlayerScripts.playbackWatchdog,
-            injectionTime: .atDocumentEnd,
-            forMainFrameOnly: true
-        ))
         if !autoplay {
             controller.addUserScript(WKUserScript(
                 source: YouTubePlayerScripts.autoplayBlocker,
@@ -75,6 +70,9 @@ struct YouTubePlayerWebView: UIViewRepresentable {
             ))
         }
         controller.add(context.coordinator, name: YouTubePlayerScripts.pipMessageHandlerName)
+        #if DEBUG
+        controller.add(context.coordinator, name: "ytDebug")
+        #endif
         config.userContentController = controller
 
         let webView = WKWebView(frame: .zero, configuration: config)
@@ -91,11 +89,7 @@ struct YouTubePlayerWebView: UIViewRepresentable {
         if let url = URL(string: urlString) {
             webView.load(URLRequest(url: Self.normalizedURL(url)))
         }
-
-        DispatchQueue.main.async {
-            self.webView = webView
-        }
-
+        self.webView = webView
         return webView
     }
 
@@ -127,6 +121,9 @@ struct YouTubePlayerWebView: UIViewRepresentable {
         uiView.configuration.userContentController.removeScriptMessageHandler(
             forName: YouTubePlayerScripts.pipMessageHandlerName
         )
+        #if DEBUG
+        uiView.configuration.userContentController.removeScriptMessageHandler(forName: "ytDebug")
+        #endif
     }
 
     @MainActor
@@ -235,6 +232,12 @@ struct YouTubePlayerWebView: UIViewRepresentable {
             _ userContentController: WKUserContentController,
             didReceive message: WKScriptMessage
         ) {
+            #if DEBUG
+            if message.name == "ytDebug" {
+                print("[YT JS]", message.body)
+                return
+            }
+            #endif
             guard message.name == YouTubePlayerScripts.pipMessageHandlerName,
                   let state = message.body as? String else { return }
             let entered = (state == "enter")
