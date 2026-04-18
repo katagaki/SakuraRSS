@@ -83,20 +83,26 @@ struct MoreView: View {
 
                 Section {
                     Picker(selection: $batchingMode) {
-                        Text(String(localized: "Batching.Day1", table: "Settings"))
-                            .tag(BatchingMode.day1)
-                        Text(String(localized: "Batching.Day3", table: "Settings"))
-                            .tag(BatchingMode.day3)
-                        Text(String(localized: "Batching.Week1", table: "Settings"))
-                            .tag(BatchingMode.week1)
-                        Text(String(localized: "Batching.Items25", table: "Settings"))
-                            .tag(BatchingMode.items25)
-                        Text(String(localized: "Batching.Items50", table: "Settings"))
-                            .tag(BatchingMode.items50)
-                        Text(String(localized: "Batching.Items100", table: "Settings"))
-                            .tag(BatchingMode.items100)
-                        Text(String(localized: "Batching.Off", table: "Settings"))
-                            .tag(BatchingMode.off)
+                        Section {
+                            Text(String(localized: "Batching.Day1", table: "Settings"))
+                                .tag(BatchingMode.day1)
+                            Text(String(localized: "Batching.Day3", table: "Settings"))
+                                .tag(BatchingMode.day3)
+                            Text(String(localized: "Batching.Week1", table: "Settings"))
+                                .tag(BatchingMode.week1)
+                        }
+                        Section {
+                            Text(String(localized: "Batching.Items25", table: "Settings"))
+                                .tag(BatchingMode.items25)
+                            Text(String(localized: "Batching.Items50", table: "Settings"))
+                                .tag(BatchingMode.items50)
+                            Text(String(localized: "Batching.Items100", table: "Settings"))
+                                .tag(BatchingMode.items100)
+                        }
+                        Section {
+                            Text(String(localized: "Batching.Off", table: "Settings"))
+                                .tag(BatchingMode.off)
+                        }
                     } label: {
                         Text(String(localized: "BatchingMode", table: "Settings"))
                     }
