@@ -17,6 +17,25 @@ nonisolated enum YouTubePlayerStyles {
         padding: 0 !important;
         background: #000 !important;
         overflow: hidden !important;
+        width: 100% !important;
+        height: 100% !important;
+    }
+    /* Strip default margins on the page wrappers and let them fill the
+       web view, so the player isn't pushed in by YouTube's mobile gutters.
+       The video element itself is left alone; only margin/width on its
+       ancestors is normalized. Heights and paddings are left intact so the
+       16:9 aspect-ratio padding YouTube uses to size the player still
+       works. */
+    ytm-app, ytm-mobile-watch-flexy, ytm-watch,
+    ytm-single-column-watch-next-results-renderer,
+    ytm-watch-flexy, ytm-watch-flexy-content,
+    .player-placeholder, .player-container,
+    .player-screen, .player-size,
+    #movie_player, .html5-video-player {
+        margin: 0 !important;
+        width: 100% !important;
+        max-width: none !important;
+        min-width: 0 !important;
     }
     /* Mobile YouTube (m.youtube.com) chrome */
     ytm-mobile-topbar-renderer,
