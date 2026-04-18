@@ -1,0 +1,18 @@
+{
+  "table": "Articles",
+  "key": "Article.Paywall.Banner",
+  "value": {
+    "extractionState": "manual",
+    "localizations": {
+      "de": { "stringUnit": { "state": "translated", "value": "Paywall — tippen, um in Safari zu öffnen" } },
+      "en": { "stringUnit": { "state": "translated", "value": "Paywalled — tap to open in Safari" } },
+      "fr": { "stringUnit": { "state": "translated", "value": "Contenu payant — appuyez pour ouvrir dans Safari" } },
+      "it": { "stringUnit": { "state": "translated", "value": "A pagamento — tocca per aprire in Safari" } },
+      "ja": { "stringUnit": { "state": "translated", "value": "有料記事 — タップでSafariで開く" } },
+      "ko": { "stringUnit": { "state": "translated", "value": "유료 기사 — Safari에서 열려면 탭하세요" } },
+      "vi": { "stringUnit": { "state": "translated", "value": "Nội dung trả phí — chạm để mở trong Safari" } },
+      "zh-Hans": { "stringUnit": { "state": "translated", "value": "需付费 — 点击以在 Safari 中打开" } },
+      "zh-Hant": { "stringUnit": { "state": "translated", "value": "需付費 — 點擊以在 Safari 中開啟" } }
+    }
+  }
+}

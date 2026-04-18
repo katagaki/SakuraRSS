@@ -14,6 +14,10 @@ struct ArticleDetailView: View {
     @State var isVideoFeed = false
     @State var extractedText: String?
     @State var isExtracting = false
+    @State var extractedAuthor: String?
+    @State var extractedPublishedDate: Date?
+    @State var extractedLeadImageURL: String?
+    @State var isPaywalled = false
     @State var translatedText: String?
     @State var translatedTitle: String?
     @State var translatedSummary: String?
@@ -97,7 +101,7 @@ struct ArticleDetailView: View {
                             .lineLimit(1)
                     }
 
-                    if let author = article.author {
+                    if let author = article.author ?? extractedAuthor {
                         Text("·")
                             .foregroundStyle(.tertiary)
                         Text(author)
@@ -106,7 +110,7 @@ struct ArticleDetailView: View {
                             .lineLimit(1)
                     }
 
-                    if let date = article.publishedDate {
+                    if let date = article.publishedDate ?? extractedPublishedDate {
                         Text("·")
                             .foregroundStyle(.tertiary)
                         RelativeTimeText(date: date)
@@ -124,7 +128,8 @@ struct ArticleDetailView: View {
             actionButtons
 
             if !fullTextHasImages,
-               let imageURL = article.imageURL, let url = URL(string: imageURL) {
+               let imageURL = article.imageURL ?? extractedLeadImageURL,
+               let url = URL(string: imageURL) {
                 CachedAsyncImage(url: url, onImageLoaded: { image in
                     heroImageAspectRatio = image.size.width / image.size.height
                 }, placeholder: {
@@ -141,6 +146,10 @@ struct ArticleDetailView: View {
             }
 
             VStack(alignment: .leading, spacing: 16) {
+
+                if isPaywalled {
+                    PaywallBannerView(articleURL: article.url)
+                }
 
                 if isExtracting {
                     ProgressView()
@@ -170,6 +179,12 @@ struct ArticleDetailView: View {
                             YouTubeEmbedBlockView(videoID: videoID)
                         case .xPost(let url):
                             XEmbedBlockView(url: url)
+                        case .embed(let provider, let url):
+                            EmbedBlockView(provider: provider, url: url)
+                        case .table(let header, let rows):
+                            TableBlockView(header: header, rows: rows)
+                        case .math(let latex):
+                            MathBlockView(latex: latex)
                         }
                     }
                     .id("\(showingSummary)-\(showingTranslation)")

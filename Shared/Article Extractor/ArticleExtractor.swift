@@ -46,6 +46,56 @@ struct ArticleExtractor { // swiftlint:disable:this type_body_length
         "blockquote", "li", "figcaption", "pre", "td", "th"
     ]
 
+    /// Parses HTML and returns both the extracted text and structured
+    /// metadata (author, date, lead image).  Metadata is captured *before*
+    /// noise removal so byline strippers don't erase the byline first.
+    static func extractArticle(
+        fromHTML html: String,
+        baseURL: URL? = nil,
+        excludeTitle: String? = nil
+    ) -> ExtractionResult {
+        guard !html.isEmpty else { return ExtractionResult() }
+
+        // Fast-paths for plain-text / thin-wrapper HTML bypass the DOM.
+        if !html.contains("<") {
+            let text = extractText(fromHTML: html, baseURL: baseURL, excludeTitle: excludeTitle)
+            return ExtractionResult(text: text)
+        }
+
+        let doc: Document
+        do {
+            doc = try SwiftSoup.parse(html)
+        } catch {
+            return ExtractionResult()
+        }
+
+        let paywalled = PaywallDetector.htmlSuggestsPaywall(html)
+
+        if let baseURL,
+           let adapter = SiteAdapterRegistry.adapter(for: baseURL),
+           var result = adapter.extract(
+            document: doc,
+            baseURL: baseURL,
+            excludeTitle: excludeTitle
+           ),
+           let text = result.text, !text.isEmpty {
+            result.paywalled = result.paywalled || paywalled
+            return result
+        }
+
+        let metadata = extractMetadata(from: doc)
+        let text = extractText(
+            fromHTML: html,
+            baseURL: baseURL,
+            excludeTitle: excludeTitle
+        )
+        return ExtractionResult(
+            text: text,
+            metadata: metadata,
+            paywalled: paywalled
+        )
+    }
+
     static func extractText(
         fromHTML html: String,
         baseURL: URL? = nil,
@@ -93,13 +143,14 @@ struct ArticleExtractor { // swiftlint:disable:this type_body_length
 
         do {
             let doc = try SwiftSoup.parse(html)
+            normalizeAMPElements(in: doc)
             // Promote social embeds (YouTube, X) into marker paragraphs
             // before noise removal so selectors targeting twitter-tweet
             // blockquotes and iframes don't strip the content entirely.
             promoteInlineEmbeds(in: doc, baseURL: baseURL)
-            removeNoise(from: doc)
+            removeNoise(from: doc, scope: .global)
             let element = try findMainContent(from: doc)
-            removeNoise(from: element)
+            removeNoise(from: element, scope: .local)
             let rawParagraphs = try extractParagraphs(from: element,
                                                       baseURL: baseURL,
                                                       excludeTitle: excludeTitle)
@@ -135,18 +186,54 @@ struct ArticleExtractor { // swiftlint:disable:this type_body_length
         }
 
         do {
-            var request = URLRequest(url: url)
-            request.setValue(
-                sakuraUserAgent,
-                forHTTPHeaderField: "User-Agent"
-            )
-            let (data, _) = try await URLSession.shared.data(for: request)
-            guard let html = String(data: data, encoding: .utf8) else {
+            let request = URLRequest.sakura(url: url)
+            let (data, response) = try await URLSession.shared.data(for: request)
+            guard let html = HTMLDataDecoder.decode(data, response: response) else {
                 return nil
             }
             return extractText(fromHTML: html, baseURL: url, excludeTitle: excludeTitle)
         } catch {
             return nil
+        }
+    }
+
+    /// URL-based fetch that also surfaces paywall, metadata, and raw HTML
+    /// signals so the caller can decide whether to escalate to WebView.
+    static func extractArticle(
+        fromURL url: URL,
+        excludeTitle: String? = nil
+    ) async -> ExtractionResult {
+        if WebViewExtractor.requiresWebView(for: url) {
+            let extractor = WebViewExtractor()
+            if let text = await extractor.extractText(from: url) {
+                return ExtractionResult(text: text)
+            }
+        }
+
+        do {
+            let request = URLRequest.sakura(url: url)
+            let (data, response) = try await URLSession.shared.data(for: request)
+            guard let html = HTMLDataDecoder.decode(data, response: response) else {
+                return ExtractionResult()
+            }
+            if BotChallengeDetector.looksLikeChallenge(html) {
+                if let webText = await WebViewExtractor().extractText(from: url) {
+                    return ExtractionResult(text: webText)
+                }
+                return ExtractionResult()
+            }
+            var result = extractArticle(
+                fromHTML: html,
+                baseURL: url,
+                excludeTitle: excludeTitle
+            )
+            if !result.paywalled,
+               PaywallDetector.detect(response: response, extractedText: result.text) {
+                result.paywalled = true
+            }
+            return result
+        } catch {
+            return ExtractionResult()
         }
     }
 
@@ -212,14 +299,15 @@ struct ArticleExtractor { // swiftlint:disable:this type_body_length
     private static func extractImageSrc(
         from element: Element, tag: String, baseURL: URL?
     ) -> String? {
+        let imageLike: Set<String> = ["img", "amp-img", "picture"]
         let imgElement: Element?
-        if tag == "img" {
+        if imageLike.contains(tag) {
             imgElement = element
         } else {
-            imgElement = try? element.select("img").first()
+            imgElement = try? element.select("img, amp-img, picture").first()
         }
         guard let imgElement,
-              let src = try? imgElement.attr("src"), !src.isEmpty else {
+              let src = bestImageURL(from: imgElement), !src.isEmpty else {
             return nil
         }
         guard isLikelyContentImage(src) else {
@@ -245,7 +333,17 @@ struct ArticleExtractor { // swiftlint:disable:this type_body_length
     ) throws {
         for child in element.children() {
             let tag = child.tagName().lowercased()
-            if tag == "img" || tag == "picture" {
+            if tag == "table" {
+                if let marker = tableMarker(from: child, baseURL: baseURL) {
+                    paragraphs.append(marker)
+                }
+                continue
+            }
+            if let mathMarker = mathMarker(from: child) {
+                paragraphs.append(mathMarker)
+                continue
+            }
+            if tag == "img" || tag == "picture" || tag == "amp-img" {
                 if let resolved = extractImageSrc(from: child, tag: tag, baseURL: baseURL) {
                     #if DEBUG
                     debugPrint("[Block] <\(tag)> → image: \(resolved)")
@@ -354,28 +452,57 @@ struct ArticleExtractor { // swiftlint:disable:this type_body_length
     /// Resolves a potentially relative URL string against a base URL.
     /// Returns the resolved absolute URL string, or nil if it can't be resolved.
     static func resolveURL(_ src: String, against baseURL: URL?) -> String? {
+        let decoded = htmlEntityDecodedURL(src)
         // Already absolute
-        if let _ = URL(string: src), src.hasPrefix("http://") || src.hasPrefix("https://") {
-            return src
+        if let _ = URL(string: decoded),
+           decoded.hasPrefix("http://") || decoded.hasPrefix("https://") {
+            return stripTrackingParameters(from: decoded)
         }
         // Protocol-relative
-        if src.hasPrefix("//"), let url = URL(string: "https:\(src)") {
-            #if DEBUG
-            debugPrint("[Image] Resolved protocol-relative URL: \(src) -> \(url.absoluteString)")
-            #endif
-            return url.absoluteString
+        if decoded.hasPrefix("//"), let url = URL(string: "https:\(decoded)") {
+            return stripTrackingParameters(from: url.absoluteString)
         }
         // Relative — needs base URL
-        if let baseURL, let resolved = URL(string: src, relativeTo: baseURL) {
-            #if DEBUG
-            debugPrint("[Image] Resolved relative URL: \(src) -> \(resolved.absoluteString) (base: \(baseURL.absoluteString))")
-            #endif
-            return resolved.absoluteString
+        if let baseURL, let resolved = URL(string: decoded, relativeTo: baseURL) {
+            return stripTrackingParameters(from: resolved.absoluteString)
         }
-        #if DEBUG
-        debugPrint("[Image] Failed to resolve URL: \(src) (base: \(baseURL?.absoluteString ?? "nil"))")
-        #endif
         return nil
+    }
+
+    /// Percent-decodes bare `&amp;` / `&#x26;` entity sequences commonly
+    /// left in raw attribute values before handing the string to `URL`.
+    private static func htmlEntityDecodedURL(_ src: String) -> String {
+        guard src.contains("&") else { return src }
+        return src
+            .replacingOccurrences(of: "&amp;", with: "&")
+            .replacingOccurrences(of: "&#x26;", with: "&")
+            .replacingOccurrences(of: "&#38;", with: "&")
+    }
+
+    private static let trackingParameterPrefixes: Set<String> = [
+        "utm_", "mc_", "fbclid", "gclid", "dclid",
+        "igshid", "oly_anon_id", "oly_enc_id", "ref_",
+        "spm", "sourceid", "gs_lcrp"
+    ]
+
+    /// Strips known tracking query parameters while preserving everything
+    /// else.  Improves cache-hit rate for images that differ only in their
+    /// utm_* tags between pages.
+    static func stripTrackingParameters(from absoluteString: String) -> String {
+        guard var components = URLComponents(string: absoluteString),
+              let queryItems = components.queryItems, !queryItems.isEmpty else {
+            return absoluteString
+        }
+        let filtered = queryItems.filter { item in
+            let lowered = item.name.lowercased()
+            if trackingParameterPrefixes.contains(where: lowered.hasPrefix) {
+                return false
+            }
+            return lowered != "fbclid" && lowered != "gclid"
+                && lowered != "dclid" && lowered != "igshid"
+        }
+        components.queryItems = filtered.isEmpty ? nil : filtered
+        return components.string ?? absoluteString
     }
 
     /// Builds the `{{IMGLINK}}…{{/IMGLINK}}` suffix for an image block when

@@ -11,6 +11,7 @@ extension ArticleExtractor {
     static func promoteInlineEmbeds(in doc: Document, baseURL: URL? = nil) {
         promoteYouTubeEmbeds(in: doc)
         promoteXEmbeds(in: doc)
+        promoteGenericEmbeds(in: doc)
     }
 
     // MARK: - YouTube
@@ -224,7 +225,8 @@ extension ArticleExtractor {
         guard !trimmed.isEmpty else { return nil }
         let patterns = [
             #"^\{\{YOUTUBE\}\}[A-Za-z0-9_\-]+\{\{/YOUTUBE\}\}$"#,
-            #"^\{\{XPOST\}\}https?://[^\s]+\{\{/XPOST\}\}$"#
+            #"^\{\{XPOST\}\}https?://[^\s]+\{\{/XPOST\}\}$"#,
+            #"^\{\{EMBED\}\}[a-z]+\|[^\s]+\{\{/EMBED\}\}$"#
         ]
         for pattern in patterns {
             if trimmed.range(of: pattern, options: .regularExpression) != nil {

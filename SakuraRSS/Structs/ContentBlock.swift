@@ -7,6 +7,9 @@ enum ContentBlock: Identifiable {
     case video(URL)
     case youtube(String)
     case xPost(URL)
+    case embed(EmbedProvider, URL)
+    case table(header: [String], rows: [[String]])
+    case math(String)
 
     var id: String {
         switch self {
@@ -16,6 +19,11 @@ enum ContentBlock: Identifiable {
         case .video(let url): return "video-\(url.absoluteString)"
         case .youtube(let videoID): return "youtube-\(videoID)"
         case .xPost(let url): return "xpost-\(url.absoluteString)"
+        case .embed(let provider, let url):
+            return "embed-\(provider.rawValue)-\(url.absoluteString)"
+        case .table(let header, let rows):
+            return "table-\(header.hashValue)-\(rows.count)"
+        case .math(let latex): return "math-\(latex.hashValue)"
         }
     }
 
@@ -35,6 +43,15 @@ enum ContentBlock: Identifiable {
         )
         .replacingOccurrences(
             of: #"\{\{XPOST\}\}.+?\{\{/XPOST\}\}"#, with: "", options: .regularExpression
+        )
+        .replacingOccurrences(
+            of: #"\{\{EMBED\}\}.+?\{\{/EMBED\}\}"#, with: "", options: .regularExpression
+        )
+        .replacingOccurrences(
+            of: #"(?s)\{\{TABLE\}\}.+?\{\{/TABLE\}\}"#, with: "", options: .regularExpression
+        )
+        .replacingOccurrences(
+            of: #"\{\{MATH\}\}.+?\{\{/MATH\}\}"#, with: "", options: .regularExpression
         )
         .replacingOccurrences(of: "{{CODE}}", with: "")
         .replacingOccurrences(of: "{{/CODE}}", with: "")
@@ -62,6 +79,16 @@ enum ContentBlock: Identifiable {
         )
         result = result.replacingOccurrences(
             of: #"\{\{XPOST\}\}.+?\{\{/XPOST\}\}"#, with: "", options: .regularExpression
+        )
+        result = result.replacingOccurrences(
+            of: #"\{\{EMBED\}\}.+?\{\{/EMBED\}\}"#, with: "", options: .regularExpression
+        )
+        result = result.replacingOccurrences(
+            of: #"(?s)\{\{TABLE\}\}.+?\{\{/TABLE\}\}"#, with: "", options: .regularExpression
+        )
+        // Strip math markers, keeping the LaTeX text
+        result = result.replacingOccurrences(
+            of: #"\{\{MATH\}\}(.+?)\{\{/MATH\}\}"#, with: "$1", options: .regularExpression
         )
         // Strip code markers, keeping content
         result = result.replacingOccurrences(of: "{{CODE}}", with: "")
@@ -101,7 +128,7 @@ enum ContentBlock: Identifiable {
     }
 
     static func parse(_ text: String) -> [ContentBlock] {
-        let pattern = #"\{\{(IMG|CODE|VIDEO|YOUTUBE|XPOST)\}\}(.*?)\{\{/(IMG|CODE|VIDEO|YOUTUBE|XPOST)\}\}"#
+        let pattern = #"\{\{(IMG|CODE|VIDEO|YOUTUBE|XPOST|EMBED|TABLE|MATH)\}\}(.*?)\{\{/(IMG|CODE|VIDEO|YOUTUBE|XPOST|EMBED|TABLE|MATH)\}\}"#
         guard let regex = try? NSRegularExpression(pattern: pattern, options: .dotMatchesLineSeparators)
         else {
             return [.text(ArticleMarker.unescape(text))]
@@ -152,6 +179,23 @@ enum ContentBlock: Identifiable {
                 if let url = URL(string: trimmed) {
                     blocks.append(.xPost(url))
                 }
+            } else if tag == "EMBED" {
+                let trimmed = content.trimmingCharacters(in: .whitespacesAndNewlines)
+                let parts = trimmed.split(separator: "|", maxSplits: 1, omittingEmptySubsequences: false)
+                if parts.count == 2,
+                   let provider = EmbedProvider(markerValue: String(parts[0])),
+                   let url = URL(string: String(parts[1])) {
+                    blocks.append(.embed(provider, url))
+                }
+            } else if tag == "TABLE" {
+                if let table = parseTableMarker(content) {
+                    blocks.append(table)
+                }
+            } else if tag == "MATH" {
+                let trimmed = content.trimmingCharacters(in: .whitespacesAndNewlines)
+                if !trimmed.isEmpty {
+                    blocks.append(.math(ArticleMarker.unescape(trimmed)))
+                }
             } else {
                 // IMG — possibly with a link
                 let nsContent = content as NSString
@@ -182,5 +226,28 @@ enum ContentBlock: Identifiable {
         }
 
         return blocks
+    }
+
+    /// Parses a `{{TABLE}}` marker payload into header + rows.
+    /// Payload format: `header1|header2\nrow1col1|row1col2\n…`.
+    private static func parseTableMarker(_ content: String) -> ContentBlock? {
+        let lines = content
+            .split(separator: "\n", omittingEmptySubsequences: false)
+            .map { String($0) }
+        guard !lines.isEmpty else { return nil }
+        let parseRow: (String) -> [String] = { line in
+            line.components(separatedBy: "|").map {
+                ArticleMarker.unescape(
+                    $0.trimmingCharacters(in: .whitespacesAndNewlines)
+                        .replacingOccurrences(of: "¦", with: "|")
+                )
+            }
+        }
+        let header = parseRow(lines[0])
+        let rows = lines.dropFirst()
+            .map(parseRow)
+            .filter { !$0.allSatisfy(\.isEmpty) }
+        guard !header.isEmpty else { return nil }
+        return .table(header: header, rows: rows)
     }
 }

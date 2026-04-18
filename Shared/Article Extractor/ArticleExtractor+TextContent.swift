@@ -28,6 +28,8 @@ extension ArticleExtractor {
     static let singleLFPlaceholder = "{{SAKURA_SINGLE_LF}}"
 
     static func textContent(of element: Element, baseURL: URL? = nil) throws -> String {
+        promoteLazyImageSources(in: element)
+        replaceImagesInDOM(in: element, baseURL: baseURL)
         var html = try element.html()
         // Strip <svg>…</svg> entirely — icon SVGs inside anchors (share
         // buttons, nav arrows) leave anchors with no meaningful text, and
@@ -70,6 +72,61 @@ extension ArticleExtractor {
         text = stripInvalidURLSupSub(text)
         text = stripRemainingHTMLTags(text)
         return text.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
+    /// Rewrites lazy-loaded `<img>` and `<amp-img>` tags so their `src`
+    /// attribute holds the best available URL.  Lets the regex-based
+    /// `replaceImgTags` keep working for sites using `data-src` / `srcset`.
+    static func promoteLazyImageSources(in element: Element) {
+        guard let images = try? element.select("img, amp-img") else { return }
+        for image in images {
+            let currentSrc = (try? image.attr("src")) ?? ""
+            let currentValid = !currentSrc.isEmpty
+                && !currentSrc.hasPrefix("data:")
+                && isLikelyContentImage(currentSrc)
+            if currentValid { continue }
+            guard let best = bestImageURL(from: image), !best.isEmpty else {
+                continue
+            }
+            _ = try? image.attr("src", best)
+        }
+    }
+
+    /// Replaces `<img>` / `<amp-img>` / `<picture>` elements with text-only
+    /// placeholders directly in the DOM.  Avoids regex fragility on malformed
+    /// markup, nested tags, and attributes with escaped quotes.  Preserves
+    /// wrapping `<a href>` by emitting an `{{IMGLINK}}` suffix.
+    static func replaceImagesInDOM(in element: Element, baseURL: URL?) {
+        guard let images = try? element.select("img, amp-img, picture") else {
+            return
+        }
+        for image in images {
+            guard image.parent() != nil else { continue }
+            guard let rawSrc = bestImageURL(from: image), !rawSrc.isEmpty,
+                  isLikelyContentImage(rawSrc),
+                  let resolved = resolveURL(rawSrc, against: baseURL) else {
+                _ = try? image.remove()
+                continue
+            }
+            var target: Element = image
+            var linkSuffix = ""
+            if let parent = image.parent(),
+               parent.tagName().lowercased() == "a",
+               parent.children().size() == 1,
+               let href = try? parent.attr("href"),
+               !href.isEmpty,
+               let resolvedHref = resolveURL(href, against: baseURL) {
+                linkSuffix = "\(imgLinkOpenPlaceholder)\(resolvedHref)\(imgLinkClosePlaceholder)"
+                target = parent
+            }
+            let placeholder = "\(imgOpenPlaceholder)\(resolved)\(linkSuffix)\(imgClosePlaceholder)"
+            do {
+                try target.before(placeholder)
+                try target.remove()
+            } catch {
+                _ = try? target.remove()
+            }
+        }
     }
 
     // MARK: - HTML Tag Replacement
@@ -278,6 +335,8 @@ extension ArticleExtractor {
                 in: content, range: NSRange(location: 0, length: (content as NSString).length)
                ) {
                 let urlString = (content as NSString).substring(with: linkMatch.range(at: 2))
+                // Footnote anchors use fragment-only URLs like "#fn1" — let them through.
+                if urlString.hasPrefix("#") { continue }
                 if URL(string: urlString) == nil {
                     result = (result as NSString).replacingCharacters(in: match.range, with: "")
                 }
