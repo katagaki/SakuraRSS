@@ -8,6 +8,7 @@ struct YouTubeSettingsView: View {
 
     @State private var isYouTubeSignedIn = false
     @State private var showYouTubeLogin = false
+    @State private var isCheckingSession = true
 
     var body: some View {
         List {
@@ -26,7 +27,10 @@ struct YouTubeSettingsView: View {
 
             if youTubeOpenMode == .inAppPlayer {
                 Section {
-                    if isYouTubeSignedIn {
+                    if isCheckingSession {
+                        ProgressView()
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                    } else if isYouTubeSignedIn {
                         Button(String(localized: "YouTubePlayer.SignOut", table: "Integrations")) {
                             Task {
                                 await YouTubePlayerView.clearYouTubeSession()
@@ -96,7 +100,9 @@ struct YouTubeSettingsView: View {
             YouTubeLoginView()
         }
         .task {
+            await YouTubePlayerView.warmUpWebView()
             isYouTubeSignedIn = await YouTubePlayerView.hasYouTubeSession()
+            isCheckingSession = false
         }
     }
 }
