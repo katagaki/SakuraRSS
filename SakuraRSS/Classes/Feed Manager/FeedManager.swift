@@ -24,6 +24,7 @@ final class FeedManager {
     /// (`loadFromDatabase()` + badge refresh).
     @ObservationIgnored var hasPendingDebouncedReads: Bool = false
     @ObservationIgnored var debouncedReadFlushTask: Task<Void, Never>?
+    @ObservationIgnored var refreshTask: Task<Void, Never>?
 
     let database = DatabaseManager.shared
 
