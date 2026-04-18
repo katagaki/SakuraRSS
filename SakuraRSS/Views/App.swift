@@ -58,9 +58,6 @@ struct SakuraRSSApp: App {
                 .onReceive(
                     NotificationCenter.default.publisher(for: UIApplication.willResignActiveNotification)
                 ) { _ in
-                    // Make sure any debounced mark-as-read-on-scroll
-                    // updates are fully applied (full reload + badge)
-                    // before the app suspends.
                     feedManager.flushDebouncedReads()
                 }
                 .onReceive(

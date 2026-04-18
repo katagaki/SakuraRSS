@@ -2,29 +2,16 @@ import Foundation
 
 extension FeedManager {
 
-    /// Debounce window before a burst of mark-read-on-scroll updates
-    /// triggers the full `loadFromDatabase()` + badge refresh.
     private static let debouncedReadFlushDelay: Duration = .milliseconds(400)
 
     // MARK: - Debounced Mark As Read
 
-    /// Marks an article as read without triggering a full `loadFromDatabase()`
-    /// or badge refresh on every call.  The DB row is still updated
-    /// synchronously - so any view that re-queries after the `dataRevision`
-    /// bump sees the correct state - but the expensive cascade is deferred
-    /// until the user stops scrolling.
-    ///
-    /// Use this from scroll-driven callers like `MarkReadOnScrollModifier`
-    /// where many articles can be marked in quick succession.  Explicit
-    /// user actions (tapping the read button, mark all read) should keep
-    /// using `markRead(_:)` so the UI updates immediately.
+    /// Writes the row immediately but defers the full reload + badge refresh
+    /// until scrolling settles.
     func markReadDebounced(_ article: Article) {
         try? database.markArticleRead(id: article.id, read: true)
         try? database.updateLastAccessed(articleID: article.id)
 
-        // Keep the in-memory caches consistent so lookups via
-        // `article(byID:)` and `unreadCount(for:)` don't lie during
-        // the debounce window.
         if let idx = articles.firstIndex(where: { $0.id == article.id }),
            !articles[idx].isRead {
             articles[idx].isRead = true
@@ -38,9 +25,6 @@ extension FeedManager {
         scheduleDebouncedReadFlush()
     }
 
-    /// Flushes any pending debounced reads immediately.  Safe to call when
-    /// nothing is pending.  Invoked on scene backgrounding to make sure the
-    /// badge and in-memory caches are in sync before the app suspends.
     func flushDebouncedReads() {
         debouncedReadFlushTask?.cancel()
         debouncedReadFlushTask = nil
