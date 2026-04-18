@@ -210,7 +210,7 @@ struct WhileYouSleptView: View {
             return
         }
 
-        // Under Low Power Mode we do not auto-run the on-device LLM —
+        // Under Low Power Mode we do not auto-run the on-device LLM -
         // the user must tap the refresh button to kick off generation.
         if ProcessInfo.processInfo.isLowPowerModeEnabled {
             deferredForLowPowerMode = true

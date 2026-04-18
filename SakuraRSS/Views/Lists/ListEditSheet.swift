@@ -163,7 +163,7 @@ struct ListEditSheet: View {
             }
         } else {
             if let _ = try? feedManager.createList(name: trimmedName, icon: selectedIcon) {
-                // Newly created list — assign feeds
+                // Newly created list - assign feeds
                 if let newList = feedManager.lists.last {
                     for id in selectedFeedIDs {
                         if let feed = feedManager.feedsByID[id] {

@@ -86,7 +86,7 @@ struct CachedAsyncImage<Placeholder: View>: View {
     nonisolated static func loadImage(from url: URL) async -> UIImage? {
         let urlString = url.absoluteString
 
-        // Skip data: URIs — they are typically inline SVG placeholders
+        // Skip data: URIs - they are typically inline SVG placeholders
         // (e.g. Next.js blur-up shims) that contain no useful image content.
         if urlString.hasPrefix("data:") {
             return nil
@@ -140,7 +140,7 @@ struct CachedAsyncImage<Placeholder: View>: View {
             // populated the memory cache for this URL.  That task either
             // already wrote the DB row or is about to, so a second write
             // is wasted I/O on the write path.  The memory-cache check
-            // is what matters — the DB copy fills itself in on any later
+            // is what matters - the DB copy fills itself in on any later
             // miss if the memory cache gets evicted.
             if await memoryCache.image(forKey: urlString) == nil {
                 try? database.cacheImageData(data, for: urlString)

@@ -13,7 +13,7 @@ extension FeedManager {
            Date().timeIntervalSince(lastFetched) < Self.xRefreshInterval {
             #if DEBUG
             let remaining = Self.xRefreshInterval - Date().timeIntervalSince(lastFetched)
-            print("[XProfile] Skipping refresh for @\(feed.title) — "
+            print("[XProfile] Skipping refresh for @\(feed.title) - "
                   + "\(Int(remaining))s until next allowed fetch")
             #endif
             return

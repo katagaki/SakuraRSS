@@ -7,7 +7,7 @@ actor FaviconCache {
 
     /// Dedicated URLSession used for every favicon-related network fetch.
     /// Favicons are cosmetic, and hanging on a slow or unreachable host
-    /// keeps a request slot — and radio time — alive for far longer than
+    /// keeps a request slot - and radio time - alive for far longer than
     /// a missing icon is worth.  Keep the timeouts tight (3 seconds) and
     /// disable `waitsForConnectivity` so we never sit on a request while
     /// the device is offline.  `httpAdditionalHeaders` sets a Safari-parity

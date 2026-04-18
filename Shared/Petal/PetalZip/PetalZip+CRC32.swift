@@ -11,7 +11,7 @@ nonisolated extension PetalZip {
     /// and must not be used for integrity-sensitive purposes.
     ///
     /// The table is built lazily on first access inside a static
-    /// `let` initializer — no thread-safety concerns because
+    /// `let` initializer - no thread-safety concerns because
     /// static lets on top-level types are initialised exactly once
     /// under `dispatch_once` semantics.
     static func crc32(_ data: Data) -> UInt32 {

@@ -43,8 +43,7 @@ extension FeedEditSheet {
                let imageURL = URL(string: imageURLString),
                let (data, _) = try? await URLSession.shared.data(for: .sakura(url: imageURL)),
                let image = UIImage(data: data) {
-                await FaviconCache.shared.setCustomFavicon(image, feedID: feed.id, skipTrimming: true)
-                customIconImage = nil
+                customIconImage = image
                 currentFavicon = image
                 selectedPhoto = nil
                 iconURLInput = ""
@@ -63,8 +62,7 @@ extension FeedEditSheet {
                let imageURL = URL(string: imageURLString),
                let (data, _) = try? await URLSession.shared.data(for: .sakura(url: imageURL)),
                let image = UIImage(data: data) {
-                await FaviconCache.shared.setCustomFavicon(image, feedID: feed.id, skipTrimming: true)
-                customIconImage = nil
+                customIconImage = image
                 currentFavicon = image
                 selectedPhoto = nil
                 iconURLInput = ""
@@ -75,7 +73,7 @@ extension FeedEditSheet {
 
         await FaviconCache.shared.refreshFavicons(for: [(domain: feed.domain, siteURL: feed.siteURL)])
         if let image = await FaviconCache.shared.favicon(for: feed.domain, siteURL: feed.siteURL) {
-            customIconImage = nil
+            customIconImage = image
             currentFavicon = image
             selectedPhoto = nil
             iconURLInput = ""
@@ -101,7 +99,7 @@ extension FeedEditSheet {
                 return true
             }
         } catch {
-            // Icon fetch failed — show error below
+            // Icon fetch failed - show error below
         }
         showIconFetchError = true
         return false

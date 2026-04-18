@@ -16,11 +16,11 @@ import UniformTypeIdentifiers
 /// the importer somewhere to reject future incompatible formats.
 ///
 /// Implementation lives across several files in this folder:
-///   - `PetalPackage.swift` — this file: type, nested values,
+///   - `PetalPackage.swift` - this file: type, nested values,
 ///     UTType plumbing, and shared helpers.
-///   - `PetalPackage+Export.swift` — serialization / temp-file
+///   - `PetalPackage+Export.swift` - serialization / temp-file
 ///     export.
-///   - `PetalPackage+Import.swift` — parsing / validation.
+///   - `PetalPackage+Import.swift` - parsing / validation.
 nonisolated enum PetalPackage {
 
     static let fileExtension = "srss"
@@ -83,7 +83,7 @@ nonisolated enum PetalPackage {
     // MARK: - Shared helpers
 
     /// Builds a JSON encoder configured the way both `.srss`
-    /// metadata and the recipe use it — pretty-printed with
+    /// metadata and the recipe use it - pretty-printed with
     /// sorted keys so hand-diffs stay stable, and ISO8601 dates
     /// so the format survives a trip through non-Apple tooling.
     static func makeJSONEncoder() -> JSONEncoder {
@@ -101,7 +101,7 @@ nonisolated enum PetalPackage {
 
     /// Strips filesystem-hostile characters from a feed name so
     /// it can safely become a filename.  Does **not** by itself
-    /// prevent path escapes — callers must still sandbox the
+    /// prevent path escapes - callers must still sandbox the
     /// resulting write destination.  See `exportToTempFile`.
     static func sanitizedFilename(_ raw: String) -> String {
         let invalid = CharacterSet(charactersIn: "/\\:*?\"<>|")

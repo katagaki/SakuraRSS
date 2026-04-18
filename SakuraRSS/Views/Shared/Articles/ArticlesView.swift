@@ -246,23 +246,44 @@ struct ArticlesView: View {
 }
 
 struct LoadPreviousArticlesButton: View {
+
     let action: () -> Void
 
+    @AppStorage("Articles.AutoLoadWhileScrolling") private var autoLoadWhileScrolling: Bool = false
+
     var body: some View {
-        Button {
-            withAnimation(.smooth.speed(2.0)) {
-                action()
+        Group {
+            if autoLoadWhileScrolling {
+                HStack(spacing: 8) {
+                    ProgressView()
+                    Text(String(localized: "LoadPrevious.Loading", table: "Articles"))
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 12)
+                .onAppear {
+                    withAnimation(.smooth.speed(2.0)) {
+                        action()
+                    }
+                }
+            } else {
+                Button {
+                    withAnimation(.smooth.speed(2.0)) {
+                        action()
+                    }
+                } label: {
+                    HStack {
+                        Image(systemName: "clock.arrow.circlepath")
+                        Text(String(localized: "LoadPrevious", table: "Articles"))
+                    }
+                    .font(.subheadline)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 12)
+                }
+                .buttonStyle(.bordered)
+                .tint(.secondary)
             }
-        } label: {
-            HStack {
-                Image(systemName: "clock.arrow.circlepath")
-                Text(String(localized: "LoadPrevious", table: "Articles"))
-            }
-            .font(.subheadline)
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 12)
         }
-        .buttonStyle(.bordered)
-        .tint(.secondary)
     }
 }

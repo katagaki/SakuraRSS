@@ -73,7 +73,7 @@ nonisolated struct PetalRecipe: Codable, Sendable, Hashable {
     var authorSelector: String?
 
     /// Optional URL used to resolve *relative* hrefs/srcs when they
-    /// can't be resolved against `siteURL` directly (rare — only set
+    /// can't be resolved against `siteURL` directly (rare - only set
     /// this if the feed items live under a different base path).
     var baseURL: String?
 

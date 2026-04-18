@@ -1,4 +1,3 @@
-import AVFoundation
 import SwiftUI
 import WebKit
 import FoundationModels
@@ -8,6 +7,7 @@ struct YouTubePlayerView: View {
 
     @Environment(FeedManager.self) var feedManager
     @Environment(\.openURL) var openURL
+    @Environment(\.scenePhase) private var scenePhase
     let article: Article
 
     @State private var isBookmarked = false
@@ -21,10 +21,12 @@ struct YouTubePlayerView: View {
     @State private var hasStartedPlaying = false
     @State private var isPiP = false
     @State private var videoAspectRatio: CGFloat = 16 / 9
-    @State private var feed: Feed?
-    @State private var favicon: UIImage?
-    @State private var acronymIcon: UIImage?
+    @State var feed: Feed?
+    @State var favicon: UIImage?
+    @State var acronymIcon: UIImage?
     @State var chapters: [YouTubeChapter] = []
+    @State var wantsPlaybackInBackground = false
+    @State var playerID = UUID()
 
     // SponsorBlock
     @AppStorage("YouTube.SponsorBlock.Enabled") var sponsorBlockEnabled = false
@@ -45,69 +47,6 @@ struct YouTubePlayerView: View {
     @State var hasCachedSummary = false
     @State var showingSummary = false
     @State var summarizationError: String?
-
-    var isAppleIntelligenceAvailable: Bool {
-        SystemLanguageModel.default.availability == .available
-    }
-
-    var descriptionSource: String? {
-        article.summary ?? article.content
-    }
-
-    var hasDescription: Bool {
-        guard let descriptionSource else { return false }
-        return !descriptionSource.isEmpty
-    }
-
-    var hasTranslationForCurrentMode: Bool {
-        if showingSummary {
-            return translatedSummary != nil
-        }
-        return translatedText != nil || hasCachedTranslation
-    }
-
-    private var displayDescription: String? {
-        if showingSummary, let summarizedText {
-            if showingTranslation, let translatedSummary {
-                return translatedSummary
-            }
-            return summarizedText
-        }
-        if showingTranslation, let translatedText {
-            return translatedText
-        }
-        return descriptionSource
-    }
-
-    private func activateBackgroundAudioSession() {
-        let session = AVAudioSession.sharedInstance()
-        try? session.setCategory(.playback, mode: .moviePlayback)
-        try? session.setActive(true)
-    }
-
-    var youtubeAppURL: URL? {
-        guard let url = URL(string: article.url),
-              var components = URLComponents(url: url, resolvingAgainstBaseURL: false) else {
-            return nil
-        }
-        components.scheme = "youtube"
-        return components.url
-    }
-
-    @ViewBuilder
-    private var feedAvatarView: some View {
-        if let favicon {
-            FaviconImage(favicon, size: 36, circle: true, skipInset: true)
-        } else if let acronymIcon {
-            FaviconImage(acronymIcon, size: 36, circle: true, skipInset: true)
-        } else if let feed {
-            InitialsAvatarView(feed.title, size: 36, circle: true)
-        } else {
-            Circle()
-                .fill(.secondary.opacity(0.2))
-                .frame(width: 36, height: 36)
-        }
-    }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -142,7 +81,7 @@ struct YouTubePlayerView: View {
                     Color.black
                         .overlay {
                             VStack(spacing: 8) {
-                                Image(systemName: "pip.fill")
+                                Image(systemName: "pip")
                                     .font(.largeTitle)
                                 Text(String(localized: "YouTube.PiP.Active", table: "Integrations"))
                                     .font(.subheadline)
@@ -304,6 +243,7 @@ struct YouTubePlayerView: View {
                         .frame(height: 32)
                 }
             }
+            .ignoresSafeArea(.all, edges: [.top])
         }
         .sakuraBackground()
         .navigationBarTitleDisplayMode(.inline)
@@ -344,6 +284,10 @@ struct YouTubePlayerView: View {
                 withAnimation(.smooth.speed(2.0)) {
                     hasStartedPlaying = true
                 }
+                NotificationCenter.default.post(
+                    name: .youTubePlayerDidStartPlaying,
+                    object: playerID
+                )
             }
         }
         .onChange(of: isAd) { _, newValue in
@@ -351,6 +295,17 @@ struct YouTubePlayerView: View {
         }
         .onChange(of: currentTime) { _, newTime in
             checkSponsorSegments(at: newTime)
+        }
+        .onChange(of: scenePhase) { _, newPhase in
+            handleScenePhaseChange(newPhase)
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .youTubePlayerDidStartPlaying)) { notification in
+            guard let otherID = notification.object as? UUID, otherID != playerID else { return }
+            pauseForOtherPlayer()
+            wantsPlaybackInBackground = false
+        }
+        .onDisappear {
+            pauseForOtherPlayer()
         }
         .task {
             activateBackgroundAudioSession()

@@ -100,7 +100,9 @@ struct AllArticlesView: View {
     @Environment(FeedManager.self) var feedManager
 
     @AppStorage("Home.SelectedSection") private var selectedSelection: HomeSelection = .section(.feed)
-    @State private var loadedSinceDate: Date = FeedManager.currentChunkStart()
+    @AppStorage("Articles.BatchingMode") private var batchingMode: BatchingMode = .day1
+    @State private var loadedSinceDate: Date = BatchingMode.current().initialSinceDate()
+    @State private var loadedCount: Int = BatchingMode.current().initialCount()
     @AppStorage("Display.MarkAllReadPosition") private var markAllReadPosition: MarkAllReadPosition = .bottom
     @AppStorage("WhileYouSlept.DismissedDate") private var whileYouSleptDismissedDate: String = ""
     @AppStorage("TodaysSummary.DismissedDate") private var todaysSummaryDismissedDate: String = ""
@@ -120,15 +122,30 @@ struct AllArticlesView: View {
     }
 
     private var displayedArticles: [Article] {
-        var articles = feedManager.articles(since: loadedSinceDate)
+        var articles: [Article]
+        if batchingMode.isCountBased {
+            articles = feedManager.articles(limit: loadedCount)
+        } else {
+            articles = feedManager.articles(since: loadedSinceDate)
+        }
         if hideInstagramReels {
             articles = articles.filter { !$0.url.contains("/reel/") }
         }
         return articles
     }
 
-    private var nextOlderChunk: Date? {
-        feedManager.nextArticleChunk(before: loadedSinceDate)
+    private var loadMoreAction: (() -> Void)? {
+        if let days = batchingMode.chunkDays {
+            guard let next = feedManager.nextArticleChunk(before: loadedSinceDate, chunkDays: days) else {
+                return nil
+            }
+            return { loadedSinceDate = next }
+        }
+        if let batch = batchingMode.batchSize {
+            guard feedManager.hasMoreArticles(beyond: loadedCount) else { return nil }
+            return { loadedCount += batch }
+        }
+        return nil
     }
 
     private var currentTitle: String {
@@ -218,6 +235,10 @@ struct AllArticlesView: View {
         .onChange(of: feedManager.lists) {
             validateSelection()
         }
+        .onChange(of: batchingMode) { _, newMode in
+            loadedSinceDate = newMode.initialSinceDate()
+            loadedCount = newMode.initialCount()
+        }
         .onAppear {
             refreshBookmarksTip()
         }
@@ -265,9 +286,7 @@ struct AllArticlesView: View {
                     todaysSummaryDismissedDate = ""
                 }
             },
-            onLoadMore: nextOlderChunk.map { chunk in
-                { loadedSinceDate = chunk }
-            },
+            onLoadMore: loadMoreAction,
             onRefresh: {
                 await feedManager.refreshAllFeeds()
             },

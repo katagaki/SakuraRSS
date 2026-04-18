@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// Replacement for the old chip row — a single "Assign to…" button
+/// Replacement for the old chip row - a single "Assign to…" button
 /// that expands into a menu listing every recipe field the picked
 /// element can be bound to.  Rows are checkmarked when the currently
 /// picked selector already populates that field, and rows that are
@@ -44,7 +44,7 @@ struct PetalElementAssignMenu: View {
             if isAssignedToPicked {
                 Label(field.localizedLabel, systemImage: "checkmark")
             } else if let current {
-                Text(verbatim: "\(field.localizedLabel) — \(current)")
+                Text(verbatim: "\(field.localizedLabel) - \(current)")
             } else {
                 Text(field.localizedLabel)
             }

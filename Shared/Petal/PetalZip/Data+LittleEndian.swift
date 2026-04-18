@@ -5,7 +5,7 @@ import Foundation
 /// Byte-level helpers the ZIP writer and reader share.
 ///
 /// `nonisolated` is required because the project builds with
-/// MainActor-as-default isolation inference — without it these
+/// MainActor-as-default isolation inference - without it these
 /// helpers get implicitly annotated `@MainActor` and can't be
 /// called from the `nonisolated enum PetalZip` above.  Keeping the
 /// helpers file-internal (rather than exporting them as generic

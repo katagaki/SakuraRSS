@@ -186,9 +186,6 @@ extension FeedManager {
         respectCooldown: Bool = false,
         skipImageBackfill: Bool = false
     ) async {
-        await MainActor.run { isLoading = true }
-        defer { Task { @MainActor in self.isLoading = false } }
-
         let cooldownSeconds: TimeInterval? = {
             guard respectCooldown else { return nil }
             let raw = UserDefaults.standard.string(forKey: "BackgroundRefresh.Cooldown")
@@ -209,6 +206,20 @@ extension FeedManager {
             }
             return true
         }
+
+        await MainActor.run {
+            isLoading = true
+            refreshCompleted = 0
+            refreshTotal = feedsToRefresh.count
+        }
+        defer {
+            Task { @MainActor in
+                self.isLoading = false
+                self.refreshCompleted = 0
+                self.refreshTotal = 0
+            }
+        }
+
         // Bounded concurrency so libraries with 100+ feeds don't spawn
         // 100+ simultaneous URLSession tasks.  Empirically past ~8
         // in-flight fetches end-to-end wall time stops improving on
@@ -226,6 +237,7 @@ extension FeedManager {
                         reloadData: false,
                         skipImageBackfill: skipImageBackfill
                     )
+                    await MainActor.run { self.refreshCompleted += 1 }
                 }
                 submitted += 1
             }
@@ -237,6 +249,7 @@ extension FeedManager {
                             reloadData: false,
                             skipImageBackfill: skipImageBackfill
                         )
+                        await MainActor.run { self.refreshCompleted += 1 }
                     }
                 }
             }
@@ -265,10 +278,20 @@ extension FeedManager {
     }
 
     func refreshAllFeedsAndFavicons() async {
-        await MainActor.run { isLoading = true }
-        defer { Task { @MainActor in self.isLoading = false } }
-
         let currentFeeds = feeds
+        await MainActor.run {
+            isLoading = true
+            refreshCompleted = 0
+            refreshTotal = currentFeeds.count
+        }
+        defer {
+            Task { @MainActor in
+                self.isLoading = false
+                self.refreshCompleted = 0
+                self.refreshTotal = 0
+            }
+        }
+
         let maxConcurrent = 8
         async let feedRefresh: Void = withTaskGroup(of: Void.self) { group in
             var submitted = 0
@@ -276,6 +299,7 @@ extension FeedManager {
             while submitted < maxConcurrent, let feed = iterator.next() {
                 group.addTask {
                     try? await self.refreshFeed(feed, updateTitle: false, reloadData: false)
+                    await MainActor.run { self.refreshCompleted += 1 }
                 }
                 submitted += 1
             }
@@ -283,6 +307,7 @@ extension FeedManager {
                 if let feed = iterator.next() {
                     group.addTask {
                         try? await self.refreshFeed(feed, updateTitle: false, reloadData: false)
+                        await MainActor.run { self.refreshCompleted += 1 }
                     }
                 }
             }

@@ -276,6 +276,11 @@ nonisolated extension DatabaseManager {
         try database.run(target.update(articleIsRead <- true))
     }
 
+    func markAllUnread() throws {
+        let target = articles.filter(articleIsRead == true)
+        try database.run(target.update(articleIsRead <- false))
+    }
+
     func unreadCount(forFeedID fid: Int64) throws -> Int {
         try database.scalar(articles.filter(articleFeedID == fid && articleIsRead == false).count)
     }

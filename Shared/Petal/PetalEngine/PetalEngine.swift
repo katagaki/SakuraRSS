@@ -15,13 +15,13 @@ import Foundation
 /// `WKWebView`.
 ///
 /// Implementation lives across several files in this folder:
-///   - `PetalEngine.swift` — this file: type, nested values,
+///   - `PetalEngine.swift` - this file: type, nested values,
 ///     and the two public entry points.
-///   - `PetalEngine+Fetching.swift` — HTML retrieval (static
+///   - `PetalEngine+Fetching.swift` - HTML retrieval (static
 ///     URLSession + rendered WKWebView).
-///   - `PetalEngine+Parsing.swift` — SwiftSoup selector runner
+///   - `PetalEngine+Parsing.swift` - SwiftSoup selector runner
 ///     and per-item extractors.
-///   - `PetalEngine+Dates.swift` — flexible date parsing with
+///   - `PetalEngine+Dates.swift` - flexible date parsing with
 ///     shared formatter caches.
 nonisolated enum PetalEngine {
 

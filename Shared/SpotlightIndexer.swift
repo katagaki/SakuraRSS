@@ -9,7 +9,7 @@ nonisolated enum SpotlightIndexer {
     /// by `indexArticles`.  Bump this whenever the attribute shape changes
     /// (fields added/removed/renamed) so the next launch triggers a
     /// one-time full reindex.  The full reindex is otherwise never run
-    /// automatically — the per-feed-refresh incremental path keeps the
+    /// automatically - the per-feed-refresh incremental path keeps the
     /// index up to date in the steady state.
     static let schemaVersion: Int = 1
 
