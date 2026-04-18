@@ -46,7 +46,6 @@ struct MoreView: View {
                     } label: {
                         Text(String(localized: "MarkAllReadPosition", table: "Settings"))
                     }
-                    Toggle(String(localized: "ScrollMarkAsRead", table: "Settings"), isOn: $scrollMarkAsRead)
                     Picker(String(localized: "UnreadBadgeMode", table: "Settings"), selection: $unreadBadgeMode) {
                         if UIDevice.current.userInterfaceIdiom == .pad {
                             Text(String(localized: "UnreadBadgeMode.HomeScreenOnly", table: "Settings"))
@@ -110,8 +109,9 @@ struct MoreView: View {
                     }
                     Toggle(String(localized: "AutoLoadWhileScrolling", table: "Settings"),
                            isOn: $autoLoadWhileScrolling)
+                    Toggle(String(localized: "ScrollMarkAsRead", table: "Settings"), isOn: $scrollMarkAsRead)
                 } header: {
-                    Text(String(localized: "Section.Batching", table: "Settings"))
+                    Text(String(localized: "Section.Scrolling", table: "Settings"))
                 } footer: {
                     Text(String(localized: "Batching.Footer", table: "Settings"))
                 }
