@@ -48,7 +48,7 @@ struct MarkReadOnScrollModifier: ViewModifier {
                         return
                     }
                     withAnimation(.smooth.speed(2.0)) {
-                        feedManager.markRead(fresh)
+                        feedManager.markReadDebounced(fresh)
                     }
                 }
             }
