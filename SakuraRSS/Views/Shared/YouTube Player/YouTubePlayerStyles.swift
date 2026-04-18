@@ -20,6 +20,18 @@ nonisolated enum YouTubePlayerStyles {
         width: 100% !important;
         height: 100% !important;
     }
+    /* Keep the <video> element above every YouTube overlay (Shorts action
+       bar, title pills, channel avatar, etc.) by pinning it to the top of
+       its stacking context with the maximum z-index. Combined with the
+       explicit display/visibility, this makes sure the video is never
+       visually covered or removed. */
+    video {
+        position: relative !important;
+        z-index: 2147483647 !important;
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+    }
     /* Strip default margins on the page wrappers and let them fill the
        web view, so the player isn't pushed in by YouTube's mobile gutters.
        The video element itself is left alone; only margin/width on its
@@ -62,10 +74,24 @@ nonisolated enum YouTubePlayerStyles {
     ytm-playlist-panel-renderer,
     ytm-video-with-context-renderer,
     /* Mobile YouTube Shorts overlay — action bar, metadata, progress.
-       `ytm-reel-video-renderer` itself is left visible because it wraps
-       the Shorts video element. */
+       Anything matching these patterns is hidden; the Shorts video wrapper
+       (`ytm-reel-video-renderer`, classes like `reel-video-renderer`) is
+       NOT matched and stays visible so the video still renders. */
     ytm-reel-player-overlay-renderer,
     ytm-reel-player-header-renderer,
+    ytm-shorts-lockup-view-model,
+    ytm-shorts-compact-video-renderer,
+    [class*="reel-player-overlay"],
+    [class*="reel-player-header"],
+    [class*="reel-player-metadata"],
+    [class*="reel-player-info"],
+    [class*="reel-action"],
+    [class*="reel-video-action"],
+    [class*="reel-video-metadata"],
+    [class*="shorts-player-overlay"],
+    [class*="shorts-action"],
+    [class*="shorts-metadata"],
+    [class*="shorts-player-header"],
     .reel-player-overlay-actions,
     .reel-player-overlay-action-buttons,
     .reel-video-action-button-container,
