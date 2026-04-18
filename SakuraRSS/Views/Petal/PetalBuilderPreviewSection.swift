@@ -54,7 +54,7 @@ struct PetalBuilderPreviewSection: View {
 }
 
 /// A single preview row showing a matched article's title, URL,
-/// and summary — extracted so the parent `PetalBuilderPreviewSection`
+/// and summary - extracted so the parent `PetalBuilderPreviewSection`
 /// stays focused on branching between its empty/error states.
 private struct PetalBuilderPreviewRow: View {
 

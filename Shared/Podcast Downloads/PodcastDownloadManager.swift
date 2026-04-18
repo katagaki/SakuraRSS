@@ -113,9 +113,9 @@ final class PodcastDownloadManager: NSObject, URLSessionDownloadDelegate {
             do {
                 try await self?.performDownload(article: article, audioURL: audioURL)
             } catch is CancellationError {
-                // Cancelled by the user — cancelDownload() already cleaned up state.
+                // Cancelled by the user - cancelDownload() already cleaned up state.
             } catch let urlError as URLError where urlError.code == .cancelled {
-                // URLSession task was cancelled — same as above.
+                // URLSession task was cancelled - same as above.
             } catch {
                 self?.markFailed(articleID: article.id, error: error.localizedDescription)
             }
@@ -166,7 +166,7 @@ final class PodcastDownloadManager: NSObject, URLSessionDownloadDelegate {
         try DatabaseManager.shared.setDownloadPath(relativePath, for: articleID)
 
         // Transition the donut into the transcribing phase so it stays visible
-        // while the model runs. Transcription failure is non-fatal — we always
+        // while the model runs. Transcription failure is non-fatal - we always
         // finish with `markCompleted` below so the check mark appears.
         if await PodcastTranscriber.isAvailable {
             activeDownloads[articleID] = DownloadProgress(state: .transcribing, progress: 0)

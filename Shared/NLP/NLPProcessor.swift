@@ -159,7 +159,7 @@ nonisolated enum NLPProcessor {
         logger.debug("findSimilarArticlesHybrid: comparing article \(article.id) against \(candidates.count) candidates (lang=\(language.rawValue), sourceEntities=\(sourceEntities.count))")
         #endif
 
-        // NLEmbedding is not thread-safe — process serially.
+        // NLEmbedding is not thread-safe - process serially.
         var scored: [(articleID: Int64, score: Double)] = []
         scored.reserveCapacity(candidates.count)
         for candidate in candidates {
@@ -194,7 +194,7 @@ nonisolated enum NLPProcessor {
     }
 
     /// Combined text fed into the sentence embedding. Title is repeated so
-    /// it dominates summary content in the resulting vector — short, cheap,
+    /// it dominates summary content in the resulting vector - short, cheap,
     /// and noticeably helpful for headline-driven feeds.
     private static func articleText(_ article: Article) -> String {
         let title = article.title

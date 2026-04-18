@@ -28,7 +28,7 @@ extension InstagramProfileScraper {
         // Enforce a human-like gap since the previous scrape.  When several
         // feeds refresh at once they serialise through `activeScrape`, so
         // without this wait they would fire back-to-back in a tight burst
-        // — a strong automation signal.  Spacing them out imitates a user
+        // - a strong automation signal.  Spacing them out imitates a user
         // navigating between profiles.
         await Self.awaitHumanPacing()
 
@@ -40,7 +40,7 @@ extension InstagramProfileScraper {
         }
 
         #if DEBUG
-        print("[InstagramProfileScraper] Got cookies — csrf: \(cookies.csrfToken.prefix(20))..., "
+        print("[InstagramProfileScraper] Got cookies - csrf: \(cookies.csrfToken.prefix(20))..., "
               + "total cookies: \(cookies.allCookies.count)")
         #endif
 
@@ -56,7 +56,7 @@ extension InstagramProfileScraper {
         )
 
         // Persist any cookies Instagram rotated during the scrape,
-        // even if parsing failed — otherwise Keychain drifts stale
+        // even if parsing failed - otherwise Keychain drifts stale
         // and the user eventually gets silently signed out.
         Self.persistRotatedCookies(from: session)
 
@@ -113,7 +113,7 @@ extension InstagramProfileScraper {
     static func awaitHumanPacing() async {
         let lastCompleted = lastRequestCompletedAt.withLock { $0 }
 
-        // Minimum gap between any two serialised scrapes — picked from a
+        // Minimum gap between any two serialised scrapes - picked from a
         // fairly wide range so the cadence is not predictable.
         let minCooldown: TimeInterval = 3.5
         let maxCooldown: TimeInterval = 9.0
@@ -168,7 +168,7 @@ extension InstagramProfileScraper {
     /// to restore its persisted cookie jar from disk.
     ///
     /// This is now only used during the one-time Keychain migration in
-    /// `migrateWebKitCookiesIfNeeded()` — normal scrapes read directly
+    /// `migrateWebKitCookiesIfNeeded()` - normal scrapes read directly
     /// from the Keychain store and do not touch WebKit.
     @MainActor
     static func warmCookieStore() async {
@@ -188,7 +188,7 @@ extension InstagramProfileScraper {
     // MARK: - Cookies
 
     /// Reads the current Instagram session from the Keychain-backed
-    /// cookie jar.  Synchronous and thread-safe — no WebKit hop.
+    /// cookie jar.  Synchronous and thread-safe - no WebKit hop.
     static func getInstagramCookies() -> InstagramCookies? {
         guard let cookies = InstagramProfileScraper.cookieStore.load() else {
             return nil
@@ -210,7 +210,7 @@ extension InstagramProfileScraper {
 
     /// Creates a URLSession with all Instagram cookies injected into its
     /// cookie storage. This is necessary because Instagram's API performs
-    /// redirect-based authentication — the cookies must be present in
+    /// redirect-based authentication - the cookies must be present in
     /// the URLSession's cookie jar, not just in request headers.
     private func makeSession(cookies: InstagramCookies) -> URLSession {
         let config = URLSessionConfiguration.ephemeral
@@ -248,7 +248,7 @@ extension InstagramProfileScraper {
         // out against genuine web traffic.
         request.setValue("*/*", forHTTPHeaderField: "Accept")
         request.setValue(Self.acceptLanguageHeader, forHTTPHeaderField: "Accept-Language")
-        // NOTE: Do not set Accept-Encoding manually — URLSession sets its
+        // NOTE: Do not set Accept-Encoding manually - URLSession sets its
         // own supported value and transparently decodes the body.  Setting
         // it here would disable that auto-decoding and break JSON parsing.
         request.setValue("no-cache", forHTTPHeaderField: "Cache-Control")
@@ -350,7 +350,7 @@ extension InstagramProfileScraper {
             return []
         }
 
-        // Use the profile page as the referer — that is what a real
+        // Use the profile page as the referer - that is what a real
         // browser sends when the follow-up feed XHR fires from the
         // profile page context.
         let profileReferer = "https://www.instagram.com/\(username)/"

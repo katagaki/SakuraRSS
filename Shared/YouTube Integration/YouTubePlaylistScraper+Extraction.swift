@@ -73,7 +73,7 @@ extension YouTubePlaylistScraper {
                 }
                 switch escaped[next] {
                 case "x":
-                    // \xHH — two-digit hex
+                    // \xHH - two-digit hex
                     let hexStart = escaped.index(after: next)
                     if let hexEnd = escaped.index(
                         hexStart, offsetBy: 2, limitedBy: escaped.endIndex
@@ -86,7 +86,7 @@ extension YouTubePlaylistScraper {
                         index = next
                     }
                 case "u":
-                    // \uHHHH — four-digit unicode
+                    // \uHHHH - four-digit unicode
                     let hexStart = escaped.index(after: next)
                     if let hexEnd = escaped.index(
                         hexStart, offsetBy: 4, limitedBy: escaped.endIndex

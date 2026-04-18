@@ -10,11 +10,11 @@ import Foundation
 ///
 /// This exists because relying on `WKWebsiteDataStore.default()` as a
 /// cookie persistence layer requires a MainActor WKWebView round-trip
-/// to restore cookies from disk — unreliable from background tasks and
+/// to restore cookies from disk - unreliable from background tasks and
 /// adds multi-second warming latency to cold-launch scrapes.
 struct KeychainCookieStore {
 
-    /// Keychain service identifier — unique per cookie jar.
+    /// Keychain service identifier - unique per cookie jar.
     let service: String
 
     /// Single-account constant; each service stores exactly one item.

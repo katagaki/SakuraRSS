@@ -6,7 +6,7 @@ import SwiftSoup
 struct ArticleExtractor { // swiftlint:disable:this type_body_length
 
     static let contentSelectors = [
-        // High-precision schema.org / semantic markup — check first
+        // High-precision schema.org / semantic markup - check first
         "[itemprop=articleBody]",
         "[itemprop=reviewBody]",
         "[itemprop=text]",
@@ -59,7 +59,7 @@ struct ArticleExtractor { // swiftlint:disable:this type_body_length
         }
 
         // If the content has no HTML tags, it's likely already plain text
-        // or Markdown — return it directly instead of parsing as HTML.
+        // or Markdown - return it directly instead of parsing as HTML.
         if !html.contains("<") {
             var trimmed = html.trimmingCharacters(in: .whitespacesAndNewlines)
             trimmed = resolveMarkdownLinks(in: trimmed, baseURL: baseURL)
@@ -237,7 +237,8 @@ struct ArticleExtractor { // swiftlint:disable:this type_body_length
         return resolved
     }
 
-    private static func collectBlocks( // swiftlint:disable:this cyclomatic_complexity
+    // swiftlint:disable:next function_body_length cyclomatic_complexity
+    private static func collectBlocks(
         from element: Element,
         into paragraphs: inout [String],
         baseURL: URL? = nil,
@@ -365,7 +366,7 @@ struct ArticleExtractor { // swiftlint:disable:this type_body_length
             #endif
             return url.absoluteString
         }
-        // Relative — needs base URL
+        // Relative - needs base URL
         if let baseURL, let resolved = URL(string: src, relativeTo: baseURL) {
             #if DEBUG
             debugPrint("[Image] Resolved relative URL: \(src) -> \(resolved.absoluteString) (base: \(baseURL.absoluteString))")
@@ -430,7 +431,7 @@ struct ArticleExtractor { // swiftlint:disable:this type_body_length
             return ArticleMarker.escape(decoded)
         }
 
-        // Standard <pre>/<pre><code> — use inner HTML
+        // Standard <pre>/<pre><code> - use inner HTML
         var html = try source.html()
         html = html.replacingOccurrences(
             of: #"<br\s*/?>"#, with: "\n", options: .regularExpression

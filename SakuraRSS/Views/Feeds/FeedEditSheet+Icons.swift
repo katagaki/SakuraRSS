@@ -99,7 +99,7 @@ extension FeedEditSheet {
                 return true
             }
         } catch {
-            // Icon fetch failed — show error below
+            // Icon fetch failed - show error below
         }
         showIconFetchError = true
         return false

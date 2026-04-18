@@ -76,7 +76,7 @@ nonisolated final class PetalStore: @unchecked Sendable {
     // MARK: - Icons
 
     /// Path where the optional imported PNG icon for a recipe lives.
-    /// Not every recipe has one — only those imported from `.srss`
+    /// Not every recipe has one - only those imported from `.srss`
     /// packages that included a feed icon.
     func iconURL(for id: UUID) -> URL {
         iconDirectoryURL.appendingPathComponent("\(id.uuidString).png")

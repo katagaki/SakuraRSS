@@ -25,7 +25,7 @@ nonisolated enum FollowLimitSetDomains {
         return limits[key]
     }
 
-    /// Returns the canonical host key a feed domain maps to — e.g.
+    /// Returns the canonical host key a feed domain maps to - e.g.
     /// both `www.x.com` and `x.com` resolve to `"x.com"`.  Used to
     /// group existing feeds by their limit bucket when enforcing the
     /// cap.  Returns `nil` when no bucket applies.

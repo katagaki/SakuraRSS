@@ -30,7 +30,7 @@ extension RedditCommunityScraper {
                 communityIconURL: Self.stripQuery(from: rawIcon)
             )
         } catch {
-            print("[RedditCommunity] Fetch failed — \(error.localizedDescription)")
+            print("[RedditCommunity] Fetch failed - \(error.localizedDescription)")
             return empty
         }
     }

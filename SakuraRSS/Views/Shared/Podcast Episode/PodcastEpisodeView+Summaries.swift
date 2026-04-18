@@ -9,7 +9,7 @@ extension PodcastEpisodeView {
             return
         }
 
-        // Prefer the full transcript when available — summarizing actual episode content
+        // Prefer the full transcript when available - summarizing actual episode content
         // produces far better results than the RSS feed's short description.
         let transcriptText = transcript?
             .map(\.text)

@@ -38,7 +38,7 @@ nonisolated enum PetalZip {
         case malformed
         case unsupportedCompression
         case truncated
-        /// The archive — or a single entry inside it — exceeds the
+        /// The archive - or a single entry inside it - exceeds the
         /// hard caps we enforce on import to defend against "zip
         /// bomb" payloads that try to exhaust memory by expanding
         /// kilobytes of deflate into gigabytes of decoded output.

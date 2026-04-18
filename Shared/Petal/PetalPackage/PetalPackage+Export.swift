@@ -43,7 +43,7 @@ nonisolated extension PetalPackage {
     /// Even though `sanitizedFilename` already strips path
     /// separators, writing into a throwaway subdirectory makes
     /// the trust barrier between the user-controlled `recipe.name`
-    /// and the real filesystem explicit — a malicious name can
+    /// and the real filesystem explicit - a malicious name can
     /// only clobber files inside the one-use subfolder we just
     /// created.  The resolved path is re-checked to guarantee it
     /// lives under the sandbox folder before we write anything.
