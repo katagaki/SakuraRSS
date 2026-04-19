@@ -36,6 +36,7 @@ struct ArticlesView: View {
     @State private var displayStyle: FeedDisplayStyle
     @State private var isShowingMarkAllReadConfirmation = false
     @AppStorage("Articles.HideRead") private var hideRead = false
+    @AppStorage("Display.ScrollMarkAsRead") private var scrollMarkAsRead: Bool = false
     @AppStorage("Display.MarkAllReadPosition") private var markAllReadPosition: MarkAllReadPosition = .bottom
     private let viewStyleSwitcherTip = ViewStyleSwitcherTip()
 
@@ -96,6 +97,10 @@ struct ArticlesView: View {
     }
 
     private var hideReadSupported: Bool {
+        // Hiding read items conflicts with mark-as-read-on-scroll: rows would
+        // disappear as they pass the viewport edge and yank the scroll
+        // position. Force the toggle off while that setting is enabled.
+        guard !scrollMarkAsRead else { return false }
         let style = effectiveDisplayStyle
         return style == .inbox || style == .magazine || style == .compact
     }
