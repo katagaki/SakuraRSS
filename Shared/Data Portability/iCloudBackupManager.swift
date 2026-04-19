@@ -73,6 +73,8 @@ final class iCloudBackupManager: @unchecked Sendable {
     }
 
     /// Runs a backup if the user's chosen interval has elapsed since the last backup.
+    /// The system already throttled us via `earliestBeginDate`, so we allow a
+    /// 10% slack to avoid skipping a granted run over minor timing drift.
     func backupIfScheduled() async {
         let intervalRaw = UserDefaults.standard.integer(forKey: "iCloudBackup.Interval")
         let interval = BackupInterval(rawValue: intervalRaw) ?? .everyNight
@@ -81,7 +83,8 @@ final class iCloudBackupManager: @unchecked Sendable {
 
         let lastBackup = UserDefaults.standard.double(forKey: "iCloudBackup.LastBackupDate")
         let elapsed = Date().timeIntervalSince1970 - lastBackup
-        guard elapsed >= Double(interval.rawValue) else { return }
+        let threshold = Double(interval.rawValue) * 0.9
+        guard elapsed >= threshold else { return }
 
         try? await backupNow()
     }

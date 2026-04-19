@@ -92,8 +92,31 @@ extension SakuraRSSApp {
         let request = BGProcessingTaskRequest(identifier: iCloudBackupTaskID)
         request.requiresNetworkConnectivity = true
         request.requiresExternalPower = true
-        request.earliestBeginDate = Date(timeIntervalSinceNow: TimeInterval(interval.rawValue))
+        request.earliestBeginDate = earliestBackupDate(for: interval)
         try? BGTaskScheduler.shared.submit(request)
+    }
+
+    /// For `.everyNight`, target the next occurrence of 2 AM local time so
+    /// the task's earliest run overlaps with typical overnight charging.
+    /// Using `now + 24h` caused the window to drift forward each launch,
+    /// landing mid-day when the device is rarely plugged in.
+    private func earliestBackupDate(for interval: iCloudBackupManager.BackupInterval) -> Date {
+        switch interval {
+        case .everyNight:
+            let calendar = Calendar.current
+            let now = Date()
+            var components = calendar.dateComponents([.year, .month, .day], from: now)
+            components.hour = 2
+            components.minute = 0
+            components.second = 0
+            let candidate = calendar.date(from: components) ?? now
+            if candidate > now {
+                return candidate
+            }
+            return calendar.date(byAdding: .day, value: 1, to: candidate) ?? now.addingTimeInterval(86400)
+        case .every12Hours, .every6Hours, .off:
+            return Date(timeIntervalSinceNow: TimeInterval(interval.rawValue))
+        }
     }
 
     func handleiCloudBackup(task: BGProcessingTask) {
