@@ -154,9 +154,6 @@ extension ArticleDetailView {
             return
         }
 
-        // For one-cushioned domains (e.g. news.yahoo.co.jp), the feed content
-        // is only a short preview, and we must follow the cushion page to the
-        // real article. Skip the feed-content shortcut in that case.
         let isOneCushionedArticle: Bool = {
             guard let url = URL(string: article.url) else { return false }
             return OneCushionedDomains.isOneCushioned(url: url)
