@@ -81,7 +81,8 @@ extension ArticleDetailView {
             return
 
         case .fetchText:
-            if let url = URL(string: article.url) {
+            if let initialURL = URL(string: article.url) {
+                let url = await ArticleExtractor.resolveOneCushionedURL(initialURL)
                 let text = await fetchText(from: url, excludeTitle: articleTitle)
                 extractedText = text
                 if let text, !text.isEmpty {
@@ -91,7 +92,8 @@ extension ArticleDetailView {
             return
 
         case .extractText:
-            if let url = URL(string: article.url) {
+            if let initialURL = URL(string: article.url) {
+                let url = await ArticleExtractor.resolveOneCushionedURL(initialURL)
                 let text = await extractViaWebView(from: url, excludeTitle: articleTitle)
                 extractedText = text
                 if let text, !text.isEmpty {
@@ -177,8 +179,18 @@ extension ArticleDetailView {
             #endif
         }
 
-        if let url = contentURL.map(ArticleExtractor.unwrapGoogleAMPURL) {
-            let (rawHTML, response) = await fetchHTML(from: url)
+        if let initialURL = contentURL.map(ArticleExtractor.unwrapGoogleAMPURL) {
+            var url = initialURL
+            var (rawHTML, response) = await fetchHTML(from: initialURL)
+
+            if let html = rawHTML,
+               let followURL = ArticleExtractor.oneCushionedArticleURL(
+                fromHTML: html, baseURL: initialURL
+               ) {
+                url = followURL
+                (rawHTML, response) = await fetchHTML(from: followURL)
+            }
+
             var result: ExtractionResult
             let isChallenge = rawHTML.map(BotChallengeDetector.looksLikeChallenge) ?? false
             if isChallenge {
