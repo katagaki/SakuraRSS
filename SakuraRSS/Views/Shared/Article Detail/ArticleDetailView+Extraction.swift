@@ -154,7 +154,13 @@ extension ArticleDetailView {
             return
         }
 
-        if !isRedditLinkedArticle, let content = article.content, !content.isEmpty {
+        let isOneCushionedArticle: Bool = {
+            guard let url = URL(string: article.url) else { return false }
+            return OneCushionedDomains.isOneCushioned(url: url)
+        }()
+
+        if !isRedditLinkedArticle, !isOneCushionedArticle,
+           let content = article.content, !content.isEmpty {
             let baseURL = URL(string: article.url)
             let text = ArticleExtractor.extractText(fromHTML: content,
                                                     baseURL: baseURL,
