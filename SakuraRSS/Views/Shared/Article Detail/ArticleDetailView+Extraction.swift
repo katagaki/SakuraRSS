@@ -183,10 +183,6 @@ extension ArticleDetailView {
             var url = initialURL
             var (rawHTML, response) = await fetchHTML(from: initialURL)
 
-            // For one-cushioned domains (e.g. news.yahoo.co.jp), the
-            // article URL lands on a stub page that gates the body
-            // behind a "read article" anchor. Follow that anchor to
-            // the real article before running extraction.
             if let html = rawHTML,
                let followURL = ArticleExtractor.oneCushionedArticleURL(
                 fromHTML: html, baseURL: initialURL

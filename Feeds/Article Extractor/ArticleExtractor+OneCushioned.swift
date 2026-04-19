@@ -3,10 +3,6 @@ import SwiftSoup
 
 extension ArticleExtractor {
 
-    /// Follows the "read full article" link on a one-cushioned page (e.g.
-    /// news.yahoo.co.jp) and returns the URL that actually hosts the
-    /// article body. Returns `nil` when the domain is not one-cushioned
-    /// or when no matching anchor is found in the HTML.
     static func oneCushionedArticleURL(
         fromHTML html: String,
         baseURL: URL
@@ -32,9 +28,6 @@ extension ArticleExtractor {
         return URL(string: href, relativeTo: baseURL)?.absoluteURL
     }
 
-    /// Fetches `url` when it points at a one-cushioned domain and
-    /// returns the resolved real-article URL. Returns `url` unchanged
-    /// when the domain isn't one-cushioned or when the lookup fails.
     static func resolveOneCushionedURL(_ url: URL) async -> URL {
         guard OneCushionedDomains.isOneCushioned(url: url) else { return url }
         do {

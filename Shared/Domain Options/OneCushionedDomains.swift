@@ -1,18 +1,13 @@
 import Foundation
 
-/// Feed domains whose article URLs point to a stub page that gates the
-/// real article behind a "read full article" link or button (common on
-/// Japanese news aggregators such as news.yahoo.co.jp). Each entry maps
-/// the domain to the CSS selector that locates the anchor whose `href`
-/// points to the full article.
+/// Domains whose feed URLs gate the real article behind a "read more"
+/// anchor, mapped to the CSS selector that locates that anchor.
 nonisolated enum OneCushionedDomains {
 
     static let selectors: [String: String] = [
         "news.yahoo.co.jp": "a[data-ual-gotocontent=true]"
     ]
 
-    /// Returns the CSS selector for the "read article" anchor on the
-    /// given domain, or `nil` when the domain is not one-cushioned.
     static func selector(for feedDomain: String) -> String? {
         let host = feedDomain.lowercased()
         if let selector = selectors[host] {
