@@ -1,4 +1,5 @@
-1. Do not add overly verbose comments (doc comments are fine).
+1. Do not add verbose comments.
+   - You may write simple summarized docstrings.
 2. Do not create large .swift files.
    - Separate large classes/enums/structs using extensions, grouped into its own folder.
    - Avoid view builders if they are long. Separate the views and create their own .swift files.
