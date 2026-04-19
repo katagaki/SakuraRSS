@@ -27,25 +27,19 @@ extension ArticleDetailView {
                 // Translation failed; user can retry
             }
         } else {
-            let source = ContentBlock.plainText(from: extractedText ?? article.summary ?? "")
-            guard !source.isEmpty else { return }
+            let source = extractedText ?? article.summary ?? ""
+            guard !ContentBlock.plainText(from: source).isEmpty else { return }
             do {
-                let requests = [
-                    TranslationSession.Request(sourceText: article.title),
-                    TranslationSession.Request(sourceText: source)
-                ]
-                let responses = try await session.translations(from: requests)
-                if responses.count >= 2 {
-                    translatedTitle = responses[0].targetText
-                    translatedText = responses[1].targetText
-                    hasCachedTranslation = true
-                    showingTranslation = true
-                    try? DatabaseManager.shared.cacheArticleTranslation(
-                        title: responses[0].targetText,
-                        text: responses[1].targetText,
-                        for: article.id
-                    )
-                }
+                let result = try await ContentBlock.translateArticleContent(
+                    title: article.title, markerText: source, session: session
+                )
+                translatedTitle = result.title
+                translatedText = result.text
+                hasCachedTranslation = true
+                showingTranslation = true
+                try? DatabaseManager.shared.cacheArticleTranslation(
+                    title: result.title, text: result.text, for: article.id
+                )
             } catch {
                 // Translation failed; user can retry
             }

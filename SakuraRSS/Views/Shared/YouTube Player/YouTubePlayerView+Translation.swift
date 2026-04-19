@@ -28,15 +28,17 @@ extension YouTubePlayerView {
                 // Translation failed; user can retry
             }
         } else {
-            let source = ContentBlock.plainText(from: descriptionSource ?? "")
-            guard !source.isEmpty else { return }
+            let source = descriptionSource ?? ""
+            guard !ContentBlock.plainText(from: source).isEmpty else { return }
             do {
-                let response = try await session.translate(source)
-                translatedText = response.targetText
+                let result = try await ContentBlock.translateArticleContent(
+                    title: nil, markerText: source, session: session
+                )
+                translatedText = result.text
                 hasCachedTranslation = true
                 showingTranslation = true
                 try? DatabaseManager.shared.cacheArticleTranslation(
-                    title: nil, text: response.targetText, for: article.id
+                    title: nil, text: result.text, for: article.id
                 )
             } catch {
                 // Translation failed; user can retry
