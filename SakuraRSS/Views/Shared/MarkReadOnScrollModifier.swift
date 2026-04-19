@@ -12,10 +12,7 @@ struct MarkReadOnScrollModifier: ViewModifier {
 
     @State private var hasBeenVisible = false
     @State private var hasScrolledPastTop = false
-
-    private var latestIsRead: Bool {
-        feedManager.article(byID: article.id)?.isRead ?? article.isRead
-    }
+    @State private var hasQueued = false
 
     func body(content: Content) -> some View {
         content
@@ -30,30 +27,12 @@ struct MarkReadOnScrollModifier: ViewModifier {
             }
             .onAppear {
                 hasBeenVisible = true
-                if article.isRead != latestIsRead {
-                    #if DEBUG
-                    debugPrint("[ScrollMarkAsRead] Stale read state on appear for \(article.id), reloading")
-                    #endif
-                    Task { await feedManager.loadFromDatabaseInBackground() }
-                }
             }
             .onDisappear {
-                guard scrollMarkAsRead, hasBeenVisible, !latestIsRead else { return }
-                // Only mark as read when the row scrolled off the TOP of the
-                // viewport (user scrolled down past it). When the top edge is
-                // above the screen's origin the transform above sets
-                // `hasScrolledPastTop` to true.
-                guard hasScrolledPastTop else { return }
-                #if DEBUG
-                debugPrint("[ScrollMarkAsRead] Marking article as read: \(article.id) - \(article.title)")
-                #endif
-                let articleID = article.id
-                Task { @MainActor in
-                    guard let fresh = feedManager.article(byID: articleID), !fresh.isRead else {
-                        return
-                    }
-                    feedManager.markReadDebounced(fresh)
-                }
+                guard scrollMarkAsRead, hasBeenVisible, hasScrolledPastTop,
+                      !hasQueued, !article.isRead else { return }
+                hasQueued = true
+                feedManager.markReadDebounced(article)
             }
     }
 }
