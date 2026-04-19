@@ -255,6 +255,15 @@ nonisolated extension DatabaseManager {
         try database.run(target.update(articleIsRead <- read))
     }
 
+    /// Batched counterpart of `markArticleRead(id:read:)` — applies a single
+    /// `UPDATE ... WHERE id IN (...)` so N scroll-mark-as-read events collapse
+    /// into one SQLite write instead of N.
+    func markArticlesRead(ids: [Int64], read: Bool) throws {
+        guard !ids.isEmpty else { return }
+        let target = articles.filter(ids.contains(articleID))
+        try database.run(target.update(articleIsRead <- read))
+    }
+
     func toggleBookmark(id: Int64) throws {
         guard let row = try database.pluck(articles.filter(articleID == id)) else { return }
         let current = row[articleIsBookmarked]
@@ -304,6 +313,14 @@ nonisolated extension DatabaseManager {
 
     func updateLastAccessed(articleID id: Int64) throws {
         let target = articles.filter(articleID == id)
+        try database.run(target.update(articleLastAccessed <- Date().timeIntervalSince1970))
+    }
+
+    /// Batched counterpart of `updateLastAccessed(articleID:)` — stamps the
+    /// same timestamp across all ids in one `UPDATE`.
+    func updateLastAccessed(articleIDs ids: [Int64]) throws {
+        guard !ids.isEmpty else { return }
+        let target = articles.filter(ids.contains(articleID))
         try database.run(target.update(articleLastAccessed <- Date().timeIntervalSince1970))
     }
 

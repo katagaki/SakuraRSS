@@ -22,14 +22,16 @@ extension FeedManager {
         debouncedReadFlushTask?.cancel()
         debouncedReadFlushTask = nil
         guard !pendingReadIDs.isEmpty else { return }
-        let ids = pendingReadIDs
+        let ids = Array(pendingReadIDs)
         pendingReadIDs.removeAll()
         let dbm = database
         Task.detached(priority: .utility) { [weak self] in
-            for id in ids {
-                try? dbm.markArticleRead(id: id, read: true)
-                try? dbm.updateLastAccessed(articleID: id)
-            }
+            // Two batched UPDATEs (one for the read flag, one for the
+            // access timestamp) instead of 2N per-row statements — keeps
+            // CPU and disk light even when dozens of rows scroll past in
+            // quick succession.
+            try? dbm.markArticlesRead(ids: ids, read: true)
+            try? dbm.updateLastAccessed(articleIDs: ids)
             // Skip the UI-side reload: `markReadDebounced` already applied
             // the read state and unread-count decrement to the in-memory
             // arrays, so `articles` + `unreadCounts` already match what a
