@@ -22,8 +22,27 @@ extension ContentBlock {
             return text.isEmpty ? [] : [.translatable(text)]
         }
 
-        let nsText = text as NSString
-        let matches = regex.matches(in: text, range: NSRange(location: 0, length: nsText.length))
+        // Mirror `ContentBlock.parse`: if the as-is pass finds no markers
+        // but the text carries PUA-escaped delimiters, reparse against the
+        // unescaped form so image/code/embed blocks stay preserved instead
+        // of being fed into the translator as opaque Unicode runs.
+        var nsText = text as NSString
+        var matches = regex.matches(
+            in: text, range: NSRange(location: 0, length: nsText.length)
+        )
+
+        if matches.isEmpty && text.contains("\u{E000}") {
+            let unescaped = ArticleMarker.unescape(text)
+            let nsUnescaped = unescaped as NSString
+            let retry = regex.matches(
+                in: unescaped,
+                range: NSRange(location: 0, length: nsUnescaped.length)
+            )
+            if !retry.isEmpty {
+                nsText = nsUnescaped
+                matches = retry
+            }
+        }
 
         guard !matches.isEmpty else {
             return text.isEmpty ? [] : [.translatable(text)]
