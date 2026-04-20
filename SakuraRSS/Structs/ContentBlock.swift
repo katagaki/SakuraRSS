@@ -134,30 +134,12 @@ enum ContentBlock: Identifiable {
             return [.text(ArticleMarker.unescape(text))]
         }
 
-        // Pick the form that yields markers. Producers normally emit real
-        // `{{TAG}}` delimiters and PUA-escape only literal marker text in
-        // user content, but some extraction paths run `ArticleMarker.escape`
-        // over their own output and turn real markers into escaped ones.
-        // If the as-is pass finds no markers but the text carries escaped
-        // delimiters, reparse against the unescaped form so those blocks
-        // render as content instead of leaking as literal `{{TAG}}` text.
-        var nsText = text as NSString
-        var matches = regex.matches(
-            in: text, range: NSRange(location: 0, length: nsText.length)
-        )
-
-        if matches.isEmpty && text.contains("\u{E000}") {
-            let unescaped = ArticleMarker.unescape(text)
-            let nsUnescaped = unescaped as NSString
-            let retry = regex.matches(
-                in: unescaped,
-                range: NSRange(location: 0, length: nsUnescaped.length)
-            )
-            if !retry.isEmpty {
-                nsText = nsUnescaped
-                matches = retry
-            }
-        }
+        // Fall back to the unescaped form when the text carries only
+        // PUA-escaped delimiters — some extraction paths run
+        // `ArticleMarker.escape` over their own output and flip real
+        // markers to the escaped form, which would otherwise leak as
+        // literal `{{TAG}}` text.
+        let (nsText, matches) = ArticleMarker.regexMatches(of: regex, in: text)
 
         guard !matches.isEmpty else {
             return [.text(ArticleMarker.unescape(text))]

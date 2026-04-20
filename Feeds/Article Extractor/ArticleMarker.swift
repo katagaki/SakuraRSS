@@ -49,4 +49,27 @@ nonisolated enum ArticleMarker {
         }
         return result
     }
+
+    /// Runs `regex` against `text`; if it finds nothing but the text
+    /// carries PUA-escaped delimiters, retries against the unescaped
+    /// form. Returns the `NSString` that the match ranges index into
+    /// so callers can substring out captured groups directly.
+    static func regexMatches(
+        of regex: NSRegularExpression, in text: String
+    ) -> (nsText: NSString, matches: [NSTextCheckingResult]) {
+        let nsOriginal = text as NSString
+        let original = regex.matches(
+            in: text, range: NSRange(location: 0, length: nsOriginal.length)
+        )
+        if !original.isEmpty || !text.contains("\u{E000}") {
+            return (nsOriginal, original)
+        }
+        let unescaped = unescape(text)
+        let nsUnescaped = unescaped as NSString
+        let retry = regex.matches(
+            in: unescaped,
+            range: NSRange(location: 0, length: nsUnescaped.length)
+        )
+        return retry.isEmpty ? (nsOriginal, original) : (nsUnescaped, retry)
+    }
 }
