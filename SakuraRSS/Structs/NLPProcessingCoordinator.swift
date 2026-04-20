@@ -14,10 +14,7 @@ enum NLPProcessingCoordinator {
     nonisolated private static let chunkSize = 20
 
     /// Processes unprocessed articles if Content Insights is enabled.
-    /// Called after feed refresh completes.  `onBegin` fires once with
-    /// the total article count (0 when nothing to do).  `onProgress`
-    /// fires after each article, including skipped ones, so callers can
-    /// drive a progress indicator that always reaches its total.
+    /// `onBegin` fires once with the total; `onProgress` fires per article.
     static func processNewArticlesIfEnabled(
         onBegin: @Sendable (Int) async -> Void = { _ in },
         onProgress: @Sendable () async -> Void = { }

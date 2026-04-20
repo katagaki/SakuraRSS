@@ -174,15 +174,7 @@ extension FeedManager {
         await loadFromDatabaseInBackground()
     }
 
-    /// Refreshes every feed.  `skipAuthenticatedScrapers` omits X and
-    /// Instagram profile feeds (pass from background refresh tasks).
-    /// `respectCooldown` skips feeds whose `lastFetched` is within the
-    /// `BackgroundRefresh.Cooldown` window; feeds with nil `lastFetched`
-    /// always refresh.  `skipImageBackfill` disables the HTML metadata
-    /// image lookup per article (cellular-safe background paths set
-    /// this when the user has the Wi-Fi-only backfill preference on).
-    /// `runNLPAfter` chains a Content-Insights NLP pass onto the same
-    /// cancellable task so the progress donut spans both phases.
+    /// Refreshes every feed, then optionally chains the NLP pass.
     func refreshAllFeeds(
         skipAuthenticatedScrapers: Bool = false,
         respectCooldown: Bool = false,
@@ -210,12 +202,6 @@ extension FeedManager {
             return true
         }
 
-        // Slow bucket (X, Instagram, YouTube playlists, Petal) is kicked
-        // off first with a tight concurrency cap so pagination-heavy
-        // scrapers start walking immediately.  Regular RSS feeds run in
-        // parallel on a separate group with higher concurrency; both
-        // buckets share the same `refreshCompleted` counter so the donut
-        // advances smoothly across them.
         let slowFeeds = feedsToRefresh.filter { $0.isSlowRefreshFeed }
         let regularFeeds = feedsToRefresh.filter { !$0.isSlowRefreshFeed }
 
@@ -237,11 +223,6 @@ extension FeedManager {
             }
         }
 
-        // Empirically past ~8 in-flight regular fetches end-to-end wall
-        // time stops improving on cellular and regresses on Wi-Fi due to
-        // contention with the main-actor reload work.  Slow scrapers hit
-        // authenticated or rate-limited endpoints and benefit from a
-        // smaller cap so we don't thrash cookies or trip server pacing.
         let work = Task { [weak self] in
             guard let self else { return }
             async let slow: Void = self.runBoundedRefresh(
@@ -262,8 +243,7 @@ extension FeedManager {
         await loadFromDatabaseInBackground()
     }
 
-    /// Drains `feeds` through a task group capped at `maxConcurrent`
-    /// in-flight tasks, incrementing `refreshCompleted` as each finishes.
+    /// Drains `feeds` through a task group capped at `maxConcurrent`.
     fileprivate func runBoundedRefresh(
         _ feeds: [Feed],
         maxConcurrent: Int,
@@ -309,8 +289,7 @@ extension FeedManager {
         }
     }
 
-    /// Runs the Content-Insights NLP pass while mirroring progress onto
-    /// `nlpTotal` / `nlpCompleted` so the donut can cover 80–100%.
+    /// Runs the NLP pass while mirroring progress onto `nlpTotal` / `nlpCompleted`.
     fileprivate func processNewArticlesWithProgress() async {
         await NLPProcessingCoordinator.processNewArticlesIfEnabled(
             onBegin: { [weak self] total in
