@@ -16,8 +16,8 @@ enum NLPProcessingCoordinator {
     /// Processes unprocessed articles if Content Insights is enabled.
     /// `onBegin` fires once with the total; `onProgress` fires per article.
     static func processNewArticlesIfEnabled(
-        onBegin: @Sendable (Int) async -> Void = { _ in },
-        onProgress: @Sendable () async -> Void = { }
+        onBegin: @escaping @Sendable (Int) async -> Void = { _ in },
+        onProgress: @escaping @Sendable () async -> Void = { }
     ) async {
         let defaults = UserDefaults.standard
         let contentInsightsEnabled = defaults.bool(forKey: "Intelligence.ContentInsights.Enabled")
