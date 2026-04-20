@@ -333,6 +333,7 @@ extension ArticleDetailView {
         // Show spinner immediately to avoid flashing article.summary
         // while extraction is pending
         isExtracting = true
+        defer { isExtracting = false }
 
         // Clear cached images for this article
         if let imageURL = article.imageURL {
@@ -366,6 +367,11 @@ extension ArticleDetailView {
         let previousText = extractedText
         extractedText = nil
         await extractArticleContent()
+        // `extractArticleContent` flips `isExtracting` off via its own defer
+        // before returning. Re-assert it so the spinner stays visible while
+        // the fallback restoration below runs, avoiding a brief render with
+        // `article.summary` when the new extraction produced nothing.
+        isExtracting = true
 
         // If re-extraction produced nothing, restore the previous content
         // and re-cache it so subsequent loads still work.
