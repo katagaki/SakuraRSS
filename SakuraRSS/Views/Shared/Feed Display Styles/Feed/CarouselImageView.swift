@@ -8,6 +8,14 @@ struct CarouselImageView: View {
     let height: CGFloat
     @State private var image: UIImage?
 
+    init(url: URL, height: CGFloat) {
+        self.url = url
+        self.height = height
+        // Paint memory-cache hits on first render to avoid the placeholder
+        // flash during horizontal carousel scroll.
+        _image = State(initialValue: ImageMemoryCache.shared.image(forKey: url.absoluteString))
+    }
+
     var body: some View {
         Group {
             if let image {
@@ -25,8 +33,11 @@ struct CarouselImageView: View {
             RoundedRectangle(cornerRadius: 12)
                 .stroke(.quaternary, lineWidth: 0.5)
         }
-        .task {
-            image = await CachedAsyncImage<EmptyView>.loadImage(from: url)
+        .task(priority: .utility) {
+            if image != nil { return }
+            let loaded = await CachedAsyncImage<EmptyView>.loadImage(from: url)
+            if Task.isCancelled { return }
+            image = loaded
         }
     }
 }

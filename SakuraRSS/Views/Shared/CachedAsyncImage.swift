@@ -4,8 +4,9 @@ import SwiftUI
 
 /// Shared memory cache for decoded UIImages, avoiding repeated SQLite
 /// lookups and Data → UIImage decoding during scroll recycling.
-/// NSCache automatically evicts entries under memory pressure.
-private actor ImageMemoryCache {
+/// NSCache is already thread-safe, so synchronous access from any
+/// context is the fast path — no actor hop per read.
+final class ImageMemoryCache: @unchecked Sendable {
 
     static let shared = ImageMemoryCache()
     private let cache = NSCache<NSString, UIImage>()
@@ -41,7 +42,8 @@ struct CachedAsyncImage<Placeholder: View>: View {
     let onImageLoaded: ((UIImage) -> Void)?
     let placeholder: () -> Placeholder
     @State private var image: UIImage?
-    @State private var isLoading = true
+    @State private var isLoading: Bool
+    @State private var reportedCachedHit = false
 
     init(
         url: URL?,
@@ -53,6 +55,15 @@ struct CachedAsyncImage<Placeholder: View>: View {
         self.alignment = alignment
         self.onImageLoaded = onImageLoaded
         self.placeholder = placeholder
+        // Synchronous memory-cache check so the first render paints the
+        // cached bitmap directly — no placeholder flash while the async
+        // loader spins up during fast scroll recycling.
+        let initial: UIImage? = {
+            guard let url, !url.absoluteString.hasPrefix("data:") else { return nil }
+            return ImageMemoryCache.shared.image(forKey: url.absoluteString)
+        }()
+        _image = State(initialValue: initial)
+        _isLoading = State(initialValue: initial == nil)
     }
 
     var body: some View {
@@ -69,12 +80,24 @@ struct CachedAsyncImage<Placeholder: View>: View {
                 placeholder()
             }
         }
-        .task(id: url) {
+        .task(id: url, priority: .utility) {
             guard let url else {
                 isLoading = false
                 return
             }
+            if let image {
+                // Memory-cache hit from the synchronous init path — still
+                // notify the caller once so aspect-ratio-dependent layout
+                // can settle on the first appearance.
+                if !reportedCachedHit {
+                    reportedCachedHit = true
+                    onImageLoaded?(image)
+                }
+                isLoading = false
+                return
+            }
             let loadedImage = await Self.loadImage(from: url)
+            if Task.isCancelled { return }
             image = loadedImage
             if let loadedImage {
                 onImageLoaded?(loadedImage)
@@ -104,9 +127,9 @@ struct CachedAsyncImage<Placeholder: View>: View {
             return nil
         }
 
-        // 1. In-memory cache (instant, no decoding)
+        // 1. In-memory cache (instant, no decoding, no actor hop)
         let memoryCache = ImageMemoryCache.shared
-        if let cached = await memoryCache.image(forKey: urlString) {
+        if let cached = memoryCache.image(forKey: urlString) {
             return cached
         }
 
@@ -119,7 +142,7 @@ struct CachedAsyncImage<Placeholder: View>: View {
            let cachedImage = ImageDownsampler.downsample(
                cachedData, maxPixelSize: maxDisplayPixelSize
            ) ?? UIImage(data: cachedData) {
-            await memoryCache.setImage(cachedImage, forKey: urlString)
+            memoryCache.setImage(cachedImage, forKey: urlString)
             #if DEBUG
             debugPrint("[Image] Cache hit for \(urlString) (\(cachedData.count) bytes)")
             #endif
@@ -154,10 +177,10 @@ struct CachedAsyncImage<Placeholder: View>: View {
             // is wasted I/O on the write path.  The memory-cache check
             // is what matters - the DB copy fills itself in on any later
             // miss if the memory cache gets evicted.
-            if await memoryCache.image(forKey: urlString) == nil {
+            if memoryCache.image(forKey: urlString) == nil {
                 try? database.cacheImageData(data, for: urlString)
             }
-            await memoryCache.setImage(downsampled, forKey: urlString)
+            memoryCache.setImage(downsampled, forKey: urlString)
             return downsampled
         } catch {
             #if DEBUG

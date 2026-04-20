@@ -12,6 +12,8 @@ struct MoreView: View {
     @AppStorage("BackgroundRefresh.Interval") private var refreshInterval: Int = 240
     @AppStorage("BackgroundRefresh.Cooldown") private var refreshCooldown: FeedRefreshCooldown = .fiveMinutes
     @AppStorage("BackgroundRefresh.ImageBackfillWiFiOnly") private var imageBackfillWiFiOnly: Bool = true
+    @AppStorage("FeedRefresh.PreloadArticleImages") private var preloadArticleImages: Bool = true
+    @AppStorage("FeedRefresh.PreloadArticleImagesWiFiOnly") private var preloadArticleImagesWiFiOnly: Bool = true
     @AppStorage("Display.DefaultStyle") private var defaultDisplayStyle: FeedDisplayStyle = .inbox
     @AppStorage("Display.MarkAllReadPosition") private var markAllReadPosition: MarkAllReadPosition = .bottom
     @AppStorage("Display.ScrollMarkAsRead") private var scrollMarkAsRead: Bool = false
@@ -152,12 +154,23 @@ struct MoreView: View {
                         String(localized: "BackgroundRefresh.WiFiOnlyImageBackfill", table: "Settings"),
                         isOn: $imageBackfillWiFiOnly
                     )
+                    Toggle(
+                        String(localized: "FeedRefresh.PreloadArticleImages", table: "Settings"),
+                        isOn: $preloadArticleImages
+                    )
+                    if preloadArticleImages {
+                        Toggle(
+                            String(localized: "FeedRefresh.PreloadArticleImagesWiFiOnly", table: "Settings"),
+                            isOn: $preloadArticleImagesWiFiOnly
+                        )
+                    }
                 } header: {
                     Text(String(localized: "Section.Refresh", table: "Settings"))
                 } footer: {
                     VStack(alignment: .leading, spacing: 8) {
                         Text(String(localized: "RefreshCooldown.Footer", table: "Settings"))
                         Text(String(localized: "BackgroundRefresh.WiFiOnlyImageBackfill.Footer", table: "Settings"))
+                        Text(String(localized: "FeedRefresh.PreloadArticleImages.Footer", table: "Settings"))
                     }
                 }
 

@@ -8,7 +8,8 @@ extension FeedManager {
         _ feed: Feed,
         updateTitle: Bool = true,
         reloadData: Bool = true,
-        skipImageBackfill: Bool = false
+        skipImageBackfill: Bool = false,
+        imagePreloadCollector: ImagePreloadCollector? = nil
     ) async throws {
         if PetalRecipe.isPetalFeedURL(feed.url) {
             try await refreshPetalFeed(feed, reloadData: reloadData)
@@ -70,10 +71,18 @@ extension FeedManager {
 
             let insertedIDs = try database.insertArticles(feedID: feed.id, articles: articleTuples)
 
-            if !insertedIDs.isEmpty, !ProcessInfo.processInfo.isLowPowerModeEnabled {
-                let feedTitleForIndex = parsed.title.isEmpty ? feed.title : parsed.title
-                let articlesToIndex = try database.articles(withIDs: insertedIDs)
-                SpotlightIndexer.indexArticles(articlesToIndex, feedTitle: feedTitleForIndex)
+            if !insertedIDs.isEmpty {
+                let insertedArticles = (try? database.articles(withIDs: insertedIDs)) ?? []
+                if !ProcessInfo.processInfo.isLowPowerModeEnabled {
+                    let feedTitleForIndex = parsed.title.isEmpty ? feed.title : parsed.title
+                    SpotlightIndexer.indexArticles(insertedArticles, feedTitle: feedTitleForIndex)
+                }
+                if let imagePreloadCollector {
+                    let imageURLs = insertedArticles.compactMap { $0.imageURL }
+                    if !imageURLs.isEmpty {
+                        await imagePreloadCollector.add(imageURLs)
+                    }
+                }
             }
 
             if feed.lastFetched == nil {
@@ -184,7 +193,8 @@ extension FeedManager {
     func refreshAllFeeds(
         skipAuthenticatedScrapers: Bool = false,
         respectCooldown: Bool = false,
-        skipImageBackfill: Bool = false
+        skipImageBackfill: Bool = false,
+        skipImagePreload: Bool = false
     ) async {
         let cooldownSeconds: TimeInterval? = {
             guard respectCooldown else { return nil }
@@ -193,6 +203,13 @@ extension FeedManager {
             return cooldown.seconds
         }()
         let now = Date()
+
+        let preloadEnabled = UserDefaults.standard.object(
+            forKey: "FeedRefresh.PreloadArticleImages"
+        ) as? Bool ?? true
+        let imagePreloadCollector: ImagePreloadCollector? = (
+            !skipImagePreload && preloadEnabled
+        ) ? ImagePreloadCollector() : nil
 
         let currentFeeds = feeds
         let feedsToRefresh = currentFeeds.filter { feed in
@@ -239,7 +256,8 @@ extension FeedManager {
                         try? await self.refreshFeed(
                             feed,
                             reloadData: false,
-                            skipImageBackfill: skipImageBackfill
+                            skipImageBackfill: skipImageBackfill,
+                            imagePreloadCollector: imagePreloadCollector
                         )
                         if !Task.isCancelled {
                             await MainActor.run { self.refreshCompleted += 1 }
@@ -258,7 +276,8 @@ extension FeedManager {
                             try? await self.refreshFeed(
                                 feed,
                                 reloadData: false,
-                                skipImageBackfill: skipImageBackfill
+                                skipImageBackfill: skipImageBackfill,
+                                imagePreloadCollector: imagePreloadCollector
                             )
                             if !Task.isCancelled {
                                 await MainActor.run { self.refreshCompleted += 1 }
@@ -271,6 +290,23 @@ extension FeedManager {
         await MainActor.run { self.refreshTask = work }
         _ = await work.value
         await loadFromDatabaseInBackground()
+
+        if let imagePreloadCollector, !Task.isCancelled {
+            let urls = await imagePreloadCollector.drain()
+            if !urls.isEmpty {
+                let wifiOnly = UserDefaults.standard.object(
+                    forKey: "FeedRefresh.PreloadArticleImagesWiFiOnly"
+                ) as? Bool ?? true
+                let expensive = wifiOnly
+                    ? (await NetworkMonitor.currentPathIsExpensive() ?? true)
+                    : false
+                if !expensive {
+                    Task.detached(priority: .utility) {
+                        await FeedManager.preloadImages(urls: urls)
+                    }
+                }
+            }
+        }
     }
 
     /// Refreshes feeds that have never been fetched (e.g. added by the

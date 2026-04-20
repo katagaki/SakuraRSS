@@ -57,12 +57,17 @@ extension SakuraRSSApp {
             ) as? Bool ?? true
             let pathExpensive = await NetworkMonitor.currentPathIsExpensive() ?? true
             let skipImageBackfill = wifiOnly && pathExpensive
+            // Per-article image preload is higher-bandwidth than the og:image
+            // lookup, so it always respects the Wi-Fi gate regardless of how
+            // the backfill preference is set.
+            let skipImagePreload = pathExpensive
 
             let manager = FeedManager()
             await manager.refreshAllFeeds(
                 skipAuthenticatedScrapers: true,
                 respectCooldown: true,
-                skipImageBackfill: skipImageBackfill
+                skipImageBackfill: skipImageBackfill,
+                skipImagePreload: skipImagePreload
             )
             await NLPProcessingCoordinator.processNewArticlesIfEnabled()
             manager.updateBadgeCount()
