@@ -181,10 +181,13 @@ extension FeedManager {
     /// always refresh.  `skipImageBackfill` disables the HTML metadata
     /// image lookup per article (cellular-safe background paths set
     /// this when the user has the Wi-Fi-only backfill preference on).
+    /// `runNLPAfter` chains a Content-Insights NLP pass onto the same
+    /// cancellable task so the progress donut spans both phases.
     func refreshAllFeeds(
         skipAuthenticatedScrapers: Bool = false,
         respectCooldown: Bool = false,
-        skipImageBackfill: Bool = false
+        skipImageBackfill: Bool = false,
+        runNLPAfter: Bool = false
     ) async {
         let cooldownSeconds: TimeInterval? = {
             guard respectCooldown else { return nil }
@@ -207,35 +210,91 @@ extension FeedManager {
             return true
         }
 
+        // Slow bucket (X, Instagram, YouTube playlists, Petal) is kicked
+        // off first with a tight concurrency cap so pagination-heavy
+        // scrapers start walking immediately.  Regular RSS feeds run in
+        // parallel on a separate group with higher concurrency; both
+        // buckets share the same `refreshCompleted` counter so the donut
+        // advances smoothly across them.
+        let slowFeeds = feedsToRefresh.filter { $0.isSlowRefreshFeed }
+        let regularFeeds = feedsToRefresh.filter { !$0.isSlowRefreshFeed }
+
         await MainActor.run {
             isLoading = true
             refreshCompleted = 0
             refreshTotal = feedsToRefresh.count
+            nlpCompleted = 0
+            nlpTotal = 0
         }
         defer {
             Task { @MainActor in
                 self.isLoading = false
                 self.refreshCompleted = 0
                 self.refreshTotal = 0
+                self.nlpCompleted = 0
+                self.nlpTotal = 0
                 self.refreshTask = nil
             }
         }
 
-        // Bounded concurrency so libraries with 100+ feeds don't spawn
-        // 100+ simultaneous URLSession tasks.  Empirically past ~8
-        // in-flight fetches end-to-end wall time stops improving on
-        // cellular and regresses on Wi-Fi due to contention with the
-        // main-actor reload work; 8 matches the parallelism already
-        // used by `backfillMetadataImages`.
-        let maxConcurrent = 8
+        // Empirically past ~8 in-flight regular fetches end-to-end wall
+        // time stops improving on cellular and regresses on Wi-Fi due to
+        // contention with the main-actor reload work.  Slow scrapers hit
+        // authenticated or rate-limited endpoints and benefit from a
+        // smaller cap so we don't thrash cookies or trip server pacing.
         let work = Task { [weak self] in
             guard let self else { return }
-            await withTaskGroup(of: Void.self) { group in
-                var submitted = 0
-                var iterator = feedsToRefresh.makeIterator()
-                while submitted < maxConcurrent, !Task.isCancelled, let feed = iterator.next() {
-                    group.addTask {
-                        guard !Task.isCancelled else { return }
+            async let slow: Void = self.runBoundedRefresh(
+                slowFeeds, maxConcurrent: 2, skipImageBackfill: skipImageBackfill
+            )
+            async let regular: Void = self.runBoundedRefresh(
+                regularFeeds, maxConcurrent: 8, skipImageBackfill: skipImageBackfill
+            )
+            _ = await (slow, regular)
+
+            if runNLPAfter, !Task.isCancelled,
+               !ProcessInfo.processInfo.isLowPowerModeEnabled {
+                await self.processNewArticlesWithProgress()
+            }
+        }
+        await MainActor.run { self.refreshTask = work }
+        _ = await work.value
+        await loadFromDatabaseInBackground()
+    }
+
+    /// Drains `feeds` through a task group capped at `maxConcurrent`
+    /// in-flight tasks, incrementing `refreshCompleted` as each finishes.
+    fileprivate func runBoundedRefresh(
+        _ feeds: [Feed],
+        maxConcurrent: Int,
+        skipImageBackfill: Bool
+    ) async {
+        guard !feeds.isEmpty else { return }
+        await withTaskGroup(of: Void.self) { group in
+            var submitted = 0
+            var iterator = feeds.makeIterator()
+            while submitted < maxConcurrent, !Task.isCancelled, let feed = iterator.next() {
+                group.addTask { [weak self] in
+                    guard let self, !Task.isCancelled else { return }
+                    try? await self.refreshFeed(
+                        feed,
+                        reloadData: false,
+                        skipImageBackfill: skipImageBackfill
+                    )
+                    if !Task.isCancelled {
+                        await MainActor.run { self.refreshCompleted += 1 }
+                    }
+                }
+                submitted += 1
+            }
+            while await group.next() != nil {
+                if Task.isCancelled {
+                    group.cancelAll()
+                    continue
+                }
+                if let feed = iterator.next() {
+                    group.addTask { [weak self] in
+                        guard let self, !Task.isCancelled else { return }
                         try? await self.refreshFeed(
                             feed,
                             reloadData: false,
@@ -245,32 +304,22 @@ extension FeedManager {
                             await MainActor.run { self.refreshCompleted += 1 }
                         }
                     }
-                    submitted += 1
-                }
-                while await group.next() != nil {
-                    if Task.isCancelled {
-                        group.cancelAll()
-                        continue
-                    }
-                    if let feed = iterator.next() {
-                        group.addTask {
-                            guard !Task.isCancelled else { return }
-                            try? await self.refreshFeed(
-                                feed,
-                                reloadData: false,
-                                skipImageBackfill: skipImageBackfill
-                            )
-                            if !Task.isCancelled {
-                                await MainActor.run { self.refreshCompleted += 1 }
-                            }
-                        }
-                    }
                 }
             }
         }
-        await MainActor.run { self.refreshTask = work }
-        _ = await work.value
-        await loadFromDatabaseInBackground()
+    }
+
+    /// Runs the Content-Insights NLP pass while mirroring progress onto
+    /// `nlpTotal` / `nlpCompleted` so the donut can cover 80–100%.
+    fileprivate func processNewArticlesWithProgress() async {
+        await NLPProcessingCoordinator.processNewArticlesIfEnabled(
+            onBegin: { [weak self] total in
+                await MainActor.run { self?.nlpTotal = total }
+            },
+            onProgress: { [weak self] in
+                await MainActor.run { self?.nlpCompleted += 1 }
+            }
+        )
     }
 
     /// Refreshes feeds that have never been fetched (e.g. added by the
@@ -365,6 +414,8 @@ extension FeedManager {
         isLoading = false
         refreshCompleted = 0
         refreshTotal = 0
+        nlpCompleted = 0
+        nlpTotal = 0
     }
 
 }

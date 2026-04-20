@@ -14,8 +14,14 @@ enum NLPProcessingCoordinator {
     nonisolated private static let chunkSize = 20
 
     /// Processes unprocessed articles if Content Insights is enabled.
-    /// Called after feed refresh completes.
-    static func processNewArticlesIfEnabled() async {
+    /// Called after feed refresh completes.  `onBegin` fires once with
+    /// the total article count (0 when nothing to do).  `onProgress`
+    /// fires after each article, including skipped ones, so callers can
+    /// drive a progress indicator that always reaches its total.
+    static func processNewArticlesIfEnabled(
+        onBegin: @Sendable (Int) async -> Void = { _ in },
+        onProgress: @Sendable () async -> Void = { }
+    ) async {
         let defaults = UserDefaults.standard
         let contentInsightsEnabled = defaults.bool(forKey: "Intelligence.ContentInsights.Enabled")
         guard contentInsightsEnabled else {
@@ -47,6 +53,8 @@ enum NLPProcessingCoordinator {
             logger.debug("processNewArticlesIfEnabled: \(toProcess.count) articles to process")
             #endif
 
+            await onBegin(toProcess.count)
+
             // Reuse a single sentiment tagger and a single name-type tagger
             // across every article in this pass.  NLTagger construction is
             // measurably expensive; setting `.string` on an existing tagger
@@ -56,14 +64,17 @@ enum NLPProcessingCoordinator {
 
             var processedSinceYield = 0
             for pending in toProcess {
-                guard let article = try? database.article(byID: pending.id) else { continue }
-                processArticleSync(
-                    article,
-                    sentimentTagger: pending.needsSentiment ? sentimentTagger : nil,
-                    nameTagger: pending.needsEntities ? nameTagger : nil,
-                    runSentiment: pending.needsSentiment,
-                    runEntities: pending.needsEntities
-                )
+                if Task.isCancelled { break }
+                if let article = try? database.article(byID: pending.id) {
+                    processArticleSync(
+                        article,
+                        sentimentTagger: pending.needsSentiment ? sentimentTagger : nil,
+                        nameTagger: pending.needsEntities ? nameTagger : nil,
+                        runSentiment: pending.needsSentiment,
+                        runEntities: pending.needsEntities
+                    )
+                }
+                await onProgress()
                 processedSinceYield += 1
                 if processedSinceYield >= chunkSize {
                     processedSinceYield = 0

@@ -36,16 +36,14 @@ struct SakuraRSSApp: App {
                             group.addTask { await InstagramProfileScraper.migrateWebKitCookiesIfNeeded() }
                         }
                     }
-                    await feedManager.refreshAllFeeds(respectCooldown: true)
+                    await feedManager.refreshAllFeeds(
+                        respectCooldown: true,
+                        runNLPAfter: true
+                    )
                     UserDefaults.standard.set(false, forKey: "App.StartupInProgress")
                     feedManager.updateBadgeCount()
                     requestReviewIfNeeded()
                     reindexSpotlightIfSchemaChanged()
-                    if !ProcessInfo.processInfo.isLowPowerModeEnabled {
-                        Task.detached(priority: .utility) {
-                            await NLPProcessingCoordinator.processNewArticlesIfEnabled()
-                        }
-                    }
                 }
                 .onReceive(
                     NotificationCenter.default.publisher(for: UIApplication.willResignActiveNotification)

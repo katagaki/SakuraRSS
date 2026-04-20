@@ -10,9 +10,27 @@ final class FeedManager {
     var isLoading = false
     var refreshTotal: Int = 0
     var refreshCompleted: Int = 0
+    var nlpTotal: Int = 0
+    var nlpCompleted: Int = 0
+
+    /// Donut progress combining feed refresh (0–80%) and NLP processing
+    /// (80–100%).  When only one phase is active the other is treated as
+    /// neutral so the donut still advances monotonically.
     var refreshProgress: Double {
-        guard refreshTotal > 0 else { return 0 }
-        return min(max(Double(refreshCompleted) / Double(refreshTotal), 0), 1)
+        let hasRefresh = refreshTotal > 0
+        let hasNLP = nlpTotal > 0
+        guard hasRefresh || hasNLP else { return 0 }
+        let refreshFraction: Double = hasRefresh
+            ? Double(refreshCompleted) / Double(refreshTotal)
+            : 1.0
+        let nlpFraction: Double = hasNLP
+            ? Double(nlpCompleted) / Double(nlpTotal)
+            : 0.0
+        return min(max(refreshFraction * 0.8 + nlpFraction * 0.2, 0), 1)
+    }
+
+    var hasActiveRefreshProgress: Bool {
+        refreshTotal > 0 || nlpTotal > 0
     }
     private(set) var dataRevision: Int = 0
     private(set) var faviconRevision: Int = 0

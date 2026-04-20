@@ -68,6 +68,15 @@ nonisolated struct Feed: Identifiable, Hashable, Sendable {
         isXFeed || isInstagramFeed || isRedditFeed || isFeedViewDomain || isPhotoViewDomain
     }
 
+    /// Feeds whose refresh path is slow because it walks paginated pages
+    /// (X, Instagram), scrapes HTML (YouTube playlists), or runs a custom
+    /// recipe (Petal).  Prioritized ahead of regular RSS feeds so the
+    /// wall-clock refresh is bounded by the slowest bucket, not by where
+    /// slow feeds happen to land in the feed list.
+    var isSlowRefreshFeed: Bool {
+        isXFeed || isInstagramFeed || isYouTubePlaylistFeed || PetalRecipe.isPetalFeedURL(url)
+    }
+
     /// The feed category section for grouped display.
     var feedSection: FeedSection {
         if isPodcast { return .audio }
