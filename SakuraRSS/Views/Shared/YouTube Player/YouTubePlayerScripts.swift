@@ -103,49 +103,93 @@ nonisolated enum YouTubePlayerScripts {
     })();
     """
 
-/// Reads chapter markers from `ytInitialPlayerResponse` and returns an
-    /// array of `{title, startSeconds}` entries, or an empty array if the
-    /// video has no chapters.
+/// Reads chapter markers and returns an array of `{title, startSeconds}`
+    /// entries, or an empty array if the video has no chapters. Tries the
+    /// desktop player overlay shape first, then falls back to the mobile
+    /// engagement panels shape (m.youtube.com).
     static let extractChapters = """
     (function() {
-        try {
-            var data = window.ytInitialPlayerResponse;
-            if (!data || !data.playerOverlays) return [];
-            var overlay = data.playerOverlays.playerOverlayRenderer;
-            if (!overlay) return [];
-            var outer = overlay.decoratedPlayerBarRenderer;
-            if (!outer) return [];
-            var inner = outer.decoratedPlayerBarRenderer;
-            if (!inner || !inner.playerBar) return [];
-            var markers = inner.playerBar.multiMarkersPlayerBarRenderer;
-            if (!markers || !markers.markersMap) return [];
-            var entry = null;
-            for (var i = 0; i < markers.markersMap.length; i++) {
-                var m = markers.markersMap[i];
-                if (m && (m.key === 'DESCRIPTION_CHAPTERS' || m.key === 'AUTO_CHAPTERS')) {
-                    entry = m;
-                    break;
-                }
+        function textFrom(v) {
+            if (!v) return '';
+            if (typeof v === 'string') return v;
+            if (typeof v.simpleText === 'string') return v.simpleText;
+            if (v.runs && v.runs.length) {
+                return v.runs.map(function(x) { return x.text || ''; }).join('');
             }
-            if (!entry || !entry.value || !entry.value.chapters) return [];
-            return entry.value.chapters.map(function(c) {
-                var r = c && c.chapterRenderer;
-                if (!r) return null;
-                var title = '';
-                if (r.title) {
-                    if (typeof r.title.simpleText === 'string') {
-                        title = r.title.simpleText;
-                    } else if (r.title.runs && r.title.runs.length) {
-                        title = r.title.runs.map(function(x) { return x.text || ''; }).join('');
+            return '';
+        }
+        function parseTimestamp(s) {
+            if (!s) return 0;
+            var parts = s.split(':').map(function(p) { return parseInt(p, 10) || 0; });
+            if (parts.length === 3) return parts[0] * 3600 + parts[1] * 60 + parts[2];
+            if (parts.length === 2) return parts[0] * 60 + parts[1];
+            return parts[0] || 0;
+        }
+        function fromPlayerOverlays(data) {
+            try {
+                var overlay = data && data.playerOverlays
+                    && data.playerOverlays.playerOverlayRenderer;
+                var outer = overlay && overlay.decoratedPlayerBarRenderer;
+                var inner = outer && outer.decoratedPlayerBarRenderer;
+                var bar = inner && inner.playerBar;
+                var markers = bar && bar.multiMarkersPlayerBarRenderer;
+                if (!markers || !markers.markersMap) return [];
+                var entry = null;
+                for (var i = 0; i < markers.markersMap.length; i++) {
+                    var m = markers.markersMap[i];
+                    if (m && (m.key === 'DESCRIPTION_CHAPTERS' || m.key === 'AUTO_CHAPTERS')) {
+                        entry = m; break;
                     }
                 }
-                var ms = parseInt(r.timeRangeStartMillis, 10);
-                if (isNaN(ms)) ms = 0;
-                return { title: title, startSeconds: ms / 1000.0 };
-            }).filter(function(x) { return x && x.title; });
-        } catch (e) {
-            return [];
+                if (!entry || !entry.value || !entry.value.chapters) return [];
+                return entry.value.chapters.map(function(c) {
+                    var r = c && c.chapterRenderer;
+                    if (!r) return null;
+                    var ms = parseInt(r.timeRangeStartMillis, 10);
+                    if (isNaN(ms)) ms = 0;
+                    return { title: textFrom(r.title), startSeconds: ms / 1000.0 };
+                }).filter(function(x) { return x && x.title; });
+            } catch (e) { return []; }
         }
+        function fromEngagementPanels(data) {
+            try {
+                var panels = data && data.engagementPanels;
+                if (!panels || !panels.length) return [];
+                for (var i = 0; i < panels.length; i++) {
+                    var p = panels[i] && panels[i].engagementPanelSectionListRenderer;
+                    if (!p) continue;
+                    var target = p.targetId || p.panelIdentifier || '';
+                    if (target.indexOf('macro-markers') === -1
+                        && target.indexOf('chapters') === -1) continue;
+                    var list = p.content && p.content.macroMarkersListRenderer;
+                    if (!list || !list.contents) continue;
+                    var out = [];
+                    for (var j = 0; j < list.contents.length; j++) {
+                        var item = list.contents[j]
+                            && list.contents[j].macroMarkersListItemRenderer;
+                        if (!item) continue;
+                        var title = textFrom(item.title);
+                        if (!title) continue;
+                        var startSec = 0;
+                        var endpoint = item.onTap && item.onTap.watchEndpoint;
+                        if (endpoint && typeof endpoint.startTimeSeconds === 'number') {
+                            startSec = endpoint.startTimeSeconds;
+                        } else {
+                            startSec = parseTimestamp(textFrom(item.timeDescription));
+                        }
+                        out.push({ title: title, startSeconds: startSec });
+                    }
+                    if (out.length) return out;
+                }
+                return [];
+            } catch (e) { return []; }
+        }
+        var pr = window.ytInitialPlayerResponse;
+        var pd = window.ytInitialData;
+        var result = fromPlayerOverlays(pr);
+        if (!result.length) result = fromEngagementPanels(pd);
+        if (!result.length) result = fromEngagementPanels(pr);
+        return result;
     })();
     """
 }
