@@ -53,11 +53,19 @@ extension SakuraRSSApp {
             // load; only the optional og:image lookup is deferred.  A nil
             // probe result is treated as "assume expensive" so we default
             // to the safer behavior when the network type is unknown.
-            let wifiOnly = UserDefaults.standard.object(
-                forKey: "BackgroundRefresh.ImageBackfillWiFiOnly"
-            ) as? Bool ?? true
+            let imageBackfillModeRaw = UserDefaults.standard.string(
+                forKey: "BackgroundRefresh.ImageBackfillMode"
+            )
+            let imageBackfillMode = imageBackfillModeRaw
+                .flatMap(FetchImagesMode.init(rawValue:)) ?? .wifiOnly
             let pathExpensive = await NetworkMonitor.currentPathIsExpensive() ?? true
-            let skipImageBackfill = wifiOnly && pathExpensive
+            let skipImageBackfill: Bool = {
+                switch imageBackfillMode {
+                case .always: return false
+                case .wifiOnly: return pathExpensive
+                case .off: return true
+                }
+            }()
             // Per-article image preload is an order of magnitude more
             // bandwidth than the og:image lookup, and background fetches
             // run off the user's battery.  Gate on plugged-in + Wi-Fi so

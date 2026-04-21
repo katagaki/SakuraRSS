@@ -204,11 +204,13 @@ extension FeedManager {
         }()
         let now = Date()
 
-        let preloadEnabled = UserDefaults.standard.object(
-            forKey: "FeedRefresh.PreloadArticleImages"
-        ) as? Bool ?? true
+        let preloadModeRaw = UserDefaults.standard.string(
+            forKey: "FeedRefresh.PreloadArticleImagesMode"
+        )
+        let preloadMode = preloadModeRaw
+            .flatMap(FetchImagesMode.init(rawValue:)) ?? .wifiOnly
         let imagePreloadCollector: ImagePreloadCollector? = (
-            !skipImagePreload && preloadEnabled
+            !skipImagePreload && preloadMode != .off
         ) ? ImagePreloadCollector() : nil
 
         let currentFeeds = feeds
@@ -273,12 +275,12 @@ extension FeedManager {
         if let imagePreloadCollector, !Task.isCancelled {
             let urls = await imagePreloadCollector.drain()
             if !urls.isEmpty {
-                let wifiOnly = UserDefaults.standard.object(
-                    forKey: "FeedRefresh.PreloadArticleImagesWiFiOnly"
-                ) as? Bool ?? true
-                let expensive = wifiOnly
-                    ? (await NetworkMonitor.currentPathIsExpensive() ?? true)
-                    : false
+                let expensive: Bool
+                switch preloadMode {
+                case .always: expensive = false
+                case .wifiOnly: expensive = await NetworkMonitor.currentPathIsExpensive() ?? true
+                case .off: expensive = true
+                }
                 if !expensive {
                     Task.detached(priority: .utility) {
                         await FeedManager.preloadImages(urls: urls)

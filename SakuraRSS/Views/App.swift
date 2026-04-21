@@ -17,6 +17,7 @@ struct SakuraRSSApp: App {
     @AppStorage("ForceTodaysSummary") var forceTodaysSummary: Bool = false
     @AppStorage("BackgroundRefresh.Enabled") private var backgroundRefreshEnabled: Bool = true
     @AppStorage("BackgroundRefresh.Interval") private var refreshInterval: Int = 240
+    @AppStorage("App.FetchOnStartup") private var fetchOnStartup: Bool = true
     @AppStorage("iCloudBackup.Interval") private var iCloudBackupInterval: Int = iCloudBackupManager.BackupInterval.everyNight.rawValue
     let backgroundTaskID = "com.tsubuzaki.SakuraRSS.RefreshFeeds"
     let iCloudBackupTaskID = "com.tsubuzaki.SakuraRSS.iCloudBackup"
@@ -36,10 +37,12 @@ struct SakuraRSSApp: App {
                             group.addTask { await InstagramProfileScraper.migrateWebKitCookiesIfNeeded() }
                         }
                     }
-                    await feedManager.refreshAllFeeds(
-                        respectCooldown: true,
-                        runNLPAfter: true
-                    )
+                    if fetchOnStartup {
+                        await feedManager.refreshAllFeeds(
+                            respectCooldown: true,
+                            runNLPAfter: true
+                        )
+                    }
                     UserDefaults.standard.set(false, forKey: "App.StartupInProgress")
                     feedManager.updateBadgeCount()
                     requestReviewIfNeeded()
