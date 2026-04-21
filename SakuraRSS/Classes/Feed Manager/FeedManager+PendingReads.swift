@@ -29,15 +29,7 @@ extension FeedManager {
             decrements[newArticles[idx].feedID, default: 0] += 1
         }
         articles = newArticles
-
-        if !decrements.isEmpty {
-            var newUnreadCounts = unreadCounts
-            for (feedID, delta) in decrements {
-                guard let current = newUnreadCounts[feedID], current > 0 else { continue }
-                newUnreadCounts[feedID] = max(0, current - delta)
-            }
-            unreadCounts = newUnreadCounts
-        }
+        applyUnreadDecrements(decrements)
         updateBadgeCount()
 
         let idArray = Array(ids)

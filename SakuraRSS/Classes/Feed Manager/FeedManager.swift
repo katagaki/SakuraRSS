@@ -102,6 +102,18 @@ final class FeedManager {
         }
     }
 
+    /// Applies per-feed decrement deltas in a single mutation so observers
+    /// only receive one notification for the batch.
+    func applyUnreadDecrements(_ decrements: [Int64: Int]) {
+        guard !decrements.isEmpty else { return }
+        var newCounts = unreadCounts
+        for (feedID, delta) in decrements {
+            guard let current = newCounts[feedID], current > 0 else { continue }
+            newCounts[feedID] = max(0, current - delta)
+        }
+        unreadCounts = newCounts
+    }
+
     func bumpDataRevision() {
         dataRevision += 1
     }
