@@ -18,11 +18,25 @@ extension FeedManager {
         let ids = pendingReadIDs
         pendingReadIDs.removeAll()
 
-        let indexByID = Dictionary(uniqueKeysWithValues: articles.enumerated().map { ($1.id, $0) })
+        // Collapse per-row observable writes into one notification per
+        // property so badge observers don't get invalidated N times.
+        var newArticles = articles
+        var decrements: [Int64: Int] = [:]
+        let indexByID = Dictionary(uniqueKeysWithValues: newArticles.enumerated().map { ($1.id, $0) })
         for id in ids {
-            guard let idx = indexByID[id], !articles[idx].isRead else { continue }
-            articles[idx].isRead = true
-            decrementUnreadCount(feedID: articles[idx].feedID)
+            guard let idx = indexByID[id], !newArticles[idx].isRead else { continue }
+            newArticles[idx].isRead = true
+            decrements[newArticles[idx].feedID, default: 0] += 1
+        }
+        articles = newArticles
+
+        if !decrements.isEmpty {
+            var newUnreadCounts = unreadCounts
+            for (feedID, delta) in decrements {
+                guard let current = newUnreadCounts[feedID], current > 0 else { continue }
+                newUnreadCounts[feedID] = max(0, current - delta)
+            }
+            unreadCounts = newUnreadCounts
         }
         updateBadgeCount()
 
