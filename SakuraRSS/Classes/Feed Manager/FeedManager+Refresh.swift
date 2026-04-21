@@ -8,7 +8,8 @@ extension FeedManager {
         _ feed: Feed,
         updateTitle: Bool = true,
         reloadData: Bool = true,
-        skipImageBackfill: Bool = false
+        skipImageBackfill: Bool = false,
+        imagePreloadCollector: ImagePreloadCollector? = nil
     ) async throws {
         if PetalRecipe.isPetalFeedURL(feed.url) {
             try await refreshPetalFeed(feed, reloadData: reloadData)
@@ -41,17 +42,22 @@ extension FeedManager {
             let parser = RSSParser()
             guard let parsed = parser.parse(data: data) else { return }
 
+            let feedDomain = feed.domain
+            let preparedArticles = parsed.articles.map { article in
+                BodyPriorityDomains.applying(to: article, feedDomain: feedDomain)
+            }
+
             let existingURLs = (try? database.existingArticleURLs(forFeedID: feed.id)) ?? []
             let imageBackfills: [String: String]
             if skipImageBackfill {
                 imageBackfills = [:]
             } else {
                 imageBackfills = await FeedManager.backfillMetadataImages(
-                    for: parsed.articles, skippingURLs: existingURLs
+                    for: preparedArticles, skippingURLs: existingURLs
                 )
             }
 
-            let articleTuples = parsed.articles.map { article in
+            let articleTuples = preparedArticles.map { article in
                 let resolvedImageURL = article.imageURL ?? imageBackfills[article.url]
                 return ArticleInsertItem(
                     title: article.title,
@@ -70,10 +76,18 @@ extension FeedManager {
 
             let insertedIDs = try database.insertArticles(feedID: feed.id, articles: articleTuples)
 
-            if !insertedIDs.isEmpty, !ProcessInfo.processInfo.isLowPowerModeEnabled {
-                let feedTitleForIndex = parsed.title.isEmpty ? feed.title : parsed.title
-                let articlesToIndex = try database.articles(withIDs: insertedIDs)
-                SpotlightIndexer.indexArticles(articlesToIndex, feedTitle: feedTitleForIndex)
+            if !insertedIDs.isEmpty {
+                let insertedArticles = (try? database.articles(withIDs: insertedIDs)) ?? []
+                if !ProcessInfo.processInfo.isLowPowerModeEnabled {
+                    let feedTitleForIndex = parsed.title.isEmpty ? feed.title : parsed.title
+                    SpotlightIndexer.indexArticles(insertedArticles, feedTitle: feedTitleForIndex)
+                }
+                if let imagePreloadCollector {
+                    let imageURLs = insertedArticles.compactMap { $0.imageURL }
+                    if !imageURLs.isEmpty {
+                        await imagePreloadCollector.add(imageURLs)
+                    }
+                }
             }
 
             if feed.lastFetched == nil {
@@ -179,6 +193,7 @@ extension FeedManager {
         skipAuthenticatedScrapers: Bool = false,
         respectCooldown: Bool = false,
         skipImageBackfill: Bool = false,
+        skipImagePreload: Bool = false,
         runNLPAfter: Bool = false
     ) async {
         let cooldownSeconds: TimeInterval? = {
@@ -188,6 +203,13 @@ extension FeedManager {
             return cooldown.seconds
         }()
         let now = Date()
+
+        let preloadEnabled = UserDefaults.standard.object(
+            forKey: "FeedRefresh.PreloadArticleImages"
+        ) as? Bool ?? true
+        let imagePreloadCollector: ImagePreloadCollector? = (
+            !skipImagePreload && preloadEnabled
+        ) ? ImagePreloadCollector() : nil
 
         let currentFeeds = feeds
         let feedsToRefresh = currentFeeds.filter { feed in
@@ -226,10 +248,16 @@ extension FeedManager {
         let work = Task { [weak self] in
             guard let self else { return }
             async let slow: Void = self.runBoundedRefresh(
-                slowFeeds, maxConcurrent: 2, skipImageBackfill: skipImageBackfill
+                slowFeeds,
+                maxConcurrent: 2,
+                skipImageBackfill: skipImageBackfill,
+                imagePreloadCollector: imagePreloadCollector
             )
             async let regular: Void = self.runBoundedRefresh(
-                regularFeeds, maxConcurrent: 8, skipImageBackfill: skipImageBackfill
+                regularFeeds,
+                maxConcurrent: 8,
+                skipImageBackfill: skipImageBackfill,
+                imagePreloadCollector: imagePreloadCollector
             )
             _ = await (slow, regular)
 
@@ -241,13 +269,31 @@ extension FeedManager {
         await MainActor.run { self.refreshTask = work }
         _ = await work.value
         await loadFromDatabaseInBackground()
+
+        if let imagePreloadCollector, !Task.isCancelled {
+            let urls = await imagePreloadCollector.drain()
+            if !urls.isEmpty {
+                let wifiOnly = UserDefaults.standard.object(
+                    forKey: "FeedRefresh.PreloadArticleImagesWiFiOnly"
+                ) as? Bool ?? true
+                let expensive = wifiOnly
+                    ? (await NetworkMonitor.currentPathIsExpensive() ?? true)
+                    : false
+                if !expensive {
+                    Task.detached(priority: .utility) {
+                        await FeedManager.preloadImages(urls: urls)
+                    }
+                }
+            }
+        }
     }
 
     /// Drains `feeds` through a task group capped at `maxConcurrent`.
     fileprivate func runBoundedRefresh(
         _ feeds: [Feed],
         maxConcurrent: Int,
-        skipImageBackfill: Bool
+        skipImageBackfill: Bool,
+        imagePreloadCollector: ImagePreloadCollector?
     ) async {
         guard !feeds.isEmpty else { return }
         await withTaskGroup(of: Void.self) { group in
@@ -259,7 +305,8 @@ extension FeedManager {
                     try? await self.refreshFeed(
                         feed,
                         reloadData: false,
-                        skipImageBackfill: skipImageBackfill
+                        skipImageBackfill: skipImageBackfill,
+                        imagePreloadCollector: imagePreloadCollector
                     )
                     if !Task.isCancelled {
                         await MainActor.run { self.refreshCompleted += 1 }
@@ -278,7 +325,8 @@ extension FeedManager {
                         try? await self.refreshFeed(
                             feed,
                             reloadData: false,
-                            skipImageBackfill: skipImageBackfill
+                            skipImageBackfill: skipImageBackfill,
+                            imagePreloadCollector: imagePreloadCollector
                         )
                         if !Task.isCancelled {
                             await MainActor.run { self.refreshCompleted += 1 }

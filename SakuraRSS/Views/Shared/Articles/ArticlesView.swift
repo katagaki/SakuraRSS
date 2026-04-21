@@ -255,6 +255,7 @@ struct LoadPreviousArticlesButton: View {
     let action: () -> Void
 
     @AppStorage("Articles.AutoLoadWhileScrolling") private var autoLoadWhileScrolling: Bool = false
+    @State private var isVisible: Bool = false
 
     var body: some View {
         Group {
@@ -267,9 +268,11 @@ struct LoadPreviousArticlesButton: View {
                 }
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 12)
-                .onAppear {
-                    withAnimation(.smooth.speed(2.0)) {
-                        action()
+                .onScrollVisibilityChange(threshold: 0.1) { visible in
+                    let wasVisible = isVisible
+                    isVisible = visible
+                    if visible && !wasVisible {
+                        triggerLoad()
                     }
                 }
             } else {
@@ -288,6 +291,14 @@ struct LoadPreviousArticlesButton: View {
                 }
                 .buttonStyle(.bordered)
                 .tint(.secondary)
+            }
+        }
+    }
+
+    private func triggerLoad() {
+        Task { @MainActor in
+            withAnimation(.smooth.speed(2.0)) {
+                action()
             }
         }
     }
