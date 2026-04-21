@@ -106,7 +106,7 @@ extension FeedManager {
             try database.updateFeedLastFetched(id: feed.id, date: Date())
         }.value
         if reloadData {
-            await loadFromDatabaseInBackground()
+            await loadFromDatabaseInBackground(animated: true)
         }
     }
 
@@ -268,7 +268,7 @@ extension FeedManager {
         }
         await MainActor.run { self.refreshTask = work }
         _ = await work.value
-        await loadFromDatabaseInBackground()
+        await loadFromDatabaseInBackground(animated: true)
 
         if let imagePreloadCollector, !Task.isCancelled {
             let urls = await imagePreloadCollector.drain()
@@ -366,7 +366,7 @@ extension FeedManager {
                 }
             }
         }
-        await loadFromDatabaseInBackground()
+        await loadFromDatabaseInBackground(animated: true)
     }
 
     func refreshAllFeedsAndFavicons() async {
@@ -424,7 +424,7 @@ extension FeedManager {
         }
         await MainActor.run { self.refreshTask = work }
         _ = await work.value
-        await loadFromDatabaseInBackground()
+        await loadFromDatabaseInBackground(animated: true)
         regenerateAllAcronymIcons()
         notifyFaviconChange()
     }

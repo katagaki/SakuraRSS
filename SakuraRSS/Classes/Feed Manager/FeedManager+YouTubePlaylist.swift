@@ -63,7 +63,7 @@ extension FeedManager {
         )
 
         if reloadData {
-            await loadFromDatabaseInBackground()
+            await loadFromDatabaseInBackground(animated: true)
         }
     }
 

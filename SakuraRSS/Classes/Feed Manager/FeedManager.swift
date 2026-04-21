@@ -61,7 +61,7 @@ final class FeedManager {
         }
     }
 
-    func loadFromDatabaseInBackground() async {
+    func loadFromDatabaseInBackground(animated: Bool = false) async {
         let dbm = database
         do {
             let (loadedFeeds, loadedArticles, loadedUnreadCounts, loadedLists) = try await Task.detached {
@@ -72,12 +72,19 @@ final class FeedManager {
                 return (feeds, articles, unreadCounts, lists)
             }.value
             await MainActor.run {
-                self.feeds = loadedFeeds
-                self.feedsByID = Dictionary(uniqueKeysWithValues: loadedFeeds.map { ($0.id, $0) })
-                self.articles = loadedArticles
-                self.unreadCounts = loadedUnreadCounts
-                self.lists = loadedLists
-                self.dataRevision += 1
+                let apply = {
+                    self.feeds = loadedFeeds
+                    self.feedsByID = Dictionary(uniqueKeysWithValues: loadedFeeds.map { ($0.id, $0) })
+                    self.articles = loadedArticles
+                    self.unreadCounts = loadedUnreadCounts
+                    self.lists = loadedLists
+                    self.dataRevision += 1
+                }
+                if animated {
+                    withAnimation(.smooth.speed(2.0)) { apply() }
+                } else {
+                    apply()
+                }
             }
         } catch {
             print("Failed to load from database: \(error)")
