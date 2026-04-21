@@ -5,8 +5,10 @@ import SwiftUI
 /// Shared memory cache for decoded UIImages, avoiding repeated SQLite
 /// lookups and Data → UIImage decoding during scroll recycling.
 /// NSCache is already thread-safe, so synchronous access from any
-/// context is the fast path — no actor hop per read.
-final class ImageMemoryCache: @unchecked Sendable {
+/// context is the fast path — no actor hop per read.  Marked
+/// `nonisolated` because the app target otherwise infers `@MainActor`
+/// on UIKit-using types.
+nonisolated final class ImageMemoryCache: @unchecked Sendable {
 
     static let shared = ImageMemoryCache()
     private let cache = NSCache<NSString, UIImage>()
