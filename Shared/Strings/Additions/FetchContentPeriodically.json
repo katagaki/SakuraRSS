@@ -1,0 +1,18 @@
+{
+  "table": "Settings",
+  "key": "FetchContentPeriodically",
+  "value": {
+    "extractionState": "manual",
+    "localizations": {
+      "de": { "stringUnit": { "state": "translated", "value": "Inhalte regelmäßig abrufen" } },
+      "en": { "stringUnit": { "state": "translated", "value": "Fetch Content Periodically" } },
+      "fr": { "stringUnit": { "state": "translated", "value": "Récupérer le contenu périodiquement" } },
+      "it": { "stringUnit": { "state": "translated", "value": "Scarica contenuto periodicamente" } },
+      "ja": { "stringUnit": { "state": "translated", "value": "コンテンツを定期的に取得" } },
+      "ko": { "stringUnit": { "state": "translated", "value": "콘텐츠를 주기적으로 가져오기" } },
+      "vi": { "stringUnit": { "state": "translated", "value": "Tải nội dung định kỳ" } },
+      "zh-Hans": { "stringUnit": { "state": "translated", "value": "定期获取内容" } },
+      "zh-Hant": { "stringUnit": { "state": "translated", "value": "定期擷取內容" } }
+    }
+  }
+}

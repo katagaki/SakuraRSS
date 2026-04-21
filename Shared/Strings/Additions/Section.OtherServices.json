@@ -1,0 +1,18 @@
+{
+  "table": "Settings",
+  "key": "Section.OtherServices",
+  "value": {
+    "extractionState": "manual",
+    "localizations": {
+      "de": { "stringUnit": { "state": "translated", "value": "Weitere Dienste" } },
+      "en": { "stringUnit": { "state": "translated", "value": "Other Services" } },
+      "fr": { "stringUnit": { "state": "translated", "value": "Autres services" } },
+      "it": { "stringUnit": { "state": "translated", "value": "Altri servizi" } },
+      "ja": { "stringUnit": { "state": "translated", "value": "その他のサービス" } },
+      "ko": { "stringUnit": { "state": "translated", "value": "기타 서비스" } },
+      "vi": { "stringUnit": { "state": "translated", "value": "Dịch vụ khác" } },
+      "zh-Hans": { "stringUnit": { "state": "translated", "value": "其他服务" } },
+      "zh-Hant": { "stringUnit": { "state": "translated", "value": "其他服務" } }
+    }
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "table": "Settings",
+  "key": "Section.Data",
+  "value": {
+    "extractionState": "manual",
+    "localizations": {
+      "de": { "stringUnit": { "state": "translated", "value": "Daten" } },
+      "en": { "stringUnit": { "state": "translated", "value": "Data" } },
+      "fr": { "stringUnit": { "state": "translated", "value": "Données" } },
+      "it": { "stringUnit": { "state": "translated", "value": "Dati" } },
+      "ja": { "stringUnit": { "state": "translated", "value": "データ" } },
+      "ko": { "stringUnit": { "state": "translated", "value": "데이터" } },
+      "vi": { "stringUnit": { "state": "translated", "value": "Dữ liệu" } },
+      "zh-Hans": { "stringUnit": { "state": "translated", "value": "数据" } },
+      "zh-Hant": { "stringUnit": { "state": "translated", "value": "資料" } }
+    }
+  }
+}

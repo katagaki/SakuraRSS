@@ -1,0 +1,18 @@
+{
+  "table": "Integrations",
+  "key": "ArchivePh",
+  "value": {
+    "extractionState": "manual",
+    "localizations": {
+      "de": { "stringUnit": { "state": "translated", "value": "Archive.md" } },
+      "en": { "stringUnit": { "state": "translated", "value": "Archive.md" } },
+      "fr": { "stringUnit": { "state": "translated", "value": "Archive.md" } },
+      "it": { "stringUnit": { "state": "translated", "value": "Archive.md" } },
+      "ja": { "stringUnit": { "state": "translated", "value": "Archive.md" } },
+      "ko": { "stringUnit": { "state": "translated", "value": "Archive.md" } },
+      "vi": { "stringUnit": { "state": "translated", "value": "Archive.md" } },
+      "zh-Hans": { "stringUnit": { "state": "translated", "value": "Archive.md" } },
+      "zh-Hant": { "stringUnit": { "state": "translated", "value": "Archive.md" } }
+    }
+  }
+}

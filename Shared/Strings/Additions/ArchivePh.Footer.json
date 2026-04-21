@@ -1,0 +1,18 @@
+{
+  "table": "Settings",
+  "key": "ArchivePh.Footer",
+  "value": {
+    "extractionState": "manual",
+    "localizations": {
+      "de": { "stringUnit": { "state": "translated", "value": "Mehr erfahren unter https://archive.md" } },
+      "en": { "stringUnit": { "state": "translated", "value": "Learn more at https://archive.md" } },
+      "fr": { "stringUnit": { "state": "translated", "value": "En savoir plus sur https://archive.md" } },
+      "it": { "stringUnit": { "state": "translated", "value": "Scopri di più su https://archive.md" } },
+      "ja": { "stringUnit": { "state": "translated", "value": "詳細は https://archive.md をご覧ください" } },
+      "ko": { "stringUnit": { "state": "translated", "value": "자세한 내용은 https://archive.md 에서 확인하세요" } },
+      "vi": { "stringUnit": { "state": "translated", "value": "Tìm hiểu thêm tại https://archive.md" } },
+      "zh-Hans": { "stringUnit": { "state": "translated", "value": "了解更多：https://archive.md" } },
+      "zh-Hant": { "stringUnit": { "state": "translated", "value": "瞭解更多：https://archive.md" } }
+    }
+  }
+}

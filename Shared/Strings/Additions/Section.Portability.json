@@ -1,0 +1,18 @@
+{
+  "table": "Settings",
+  "key": "Section.Portability",
+  "value": {
+    "extractionState": "manual",
+    "localizations": {
+      "de": { "stringUnit": { "state": "translated", "value": "Übertragbarkeit" } },
+      "en": { "stringUnit": { "state": "translated", "value": "Portability" } },
+      "fr": { "stringUnit": { "state": "translated", "value": "Portabilité" } },
+      "it": { "stringUnit": { "state": "translated", "value": "Portabilità" } },
+      "ja": { "stringUnit": { "state": "translated", "value": "ポータビリティ" } },
+      "ko": { "stringUnit": { "state": "translated", "value": "이동성" } },
+      "vi": { "stringUnit": { "state": "translated", "value": "Tính di động" } },
+      "zh-Hans": { "stringUnit": { "state": "translated", "value": "可移植性" } },
+      "zh-Hant": { "stringUnit": { "state": "translated", "value": "可攜性" } }
+    }
+  }
+}

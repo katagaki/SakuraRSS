@@ -1,0 +1,18 @@
+{
+  "table": "Settings",
+  "key": "Section.WebFeeds",
+  "value": {
+    "extractionState": "manual",
+    "localizations": {
+      "de": { "stringUnit": { "state": "translated", "value": "Web-Feeds" } },
+      "en": { "stringUnit": { "state": "translated", "value": "Web Feeds" } },
+      "fr": { "stringUnit": { "state": "translated", "value": "Flux Web" } },
+      "it": { "stringUnit": { "state": "translated", "value": "Feed Web" } },
+      "ja": { "stringUnit": { "state": "translated", "value": "ウェブフィード" } },
+      "ko": { "stringUnit": { "state": "translated", "value": "웹 피드" } },
+      "vi": { "stringUnit": { "state": "translated", "value": "Web Feed" } },
+      "zh-Hans": { "stringUnit": { "state": "translated", "value": "网络订阅源" } },
+      "zh-Hant": { "stringUnit": { "state": "translated", "value": "網路訂閱源" } }
+    }
+  }
+}

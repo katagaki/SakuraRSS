@@ -1,0 +1,18 @@
+{
+  "table": "Settings",
+  "key": "FetchInterval",
+  "value": {
+    "extractionState": "manual",
+    "localizations": {
+      "de": { "stringUnit": { "state": "translated", "value": "Abrufintervall" } },
+      "en": { "stringUnit": { "state": "translated", "value": "Fetch Interval" } },
+      "fr": { "stringUnit": { "state": "translated", "value": "Intervalle de récupération" } },
+      "it": { "stringUnit": { "state": "translated", "value": "Intervallo di recupero" } },
+      "ja": { "stringUnit": { "state": "translated", "value": "取得間隔" } },
+      "ko": { "stringUnit": { "state": "translated", "value": "가져오기 간격" } },
+      "vi": { "stringUnit": { "state": "translated", "value": "Khoảng thời gian tải" } },
+      "zh-Hans": { "stringUnit": { "state": "translated", "value": "获取间隔" } },
+      "zh-Hant": { "stringUnit": { "state": "translated", "value": "擷取間隔" } }
+    }
+  }
+}

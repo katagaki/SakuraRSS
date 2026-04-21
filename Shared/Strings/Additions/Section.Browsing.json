@@ -1,0 +1,18 @@
+{
+  "table": "Settings",
+  "key": "Section.Browsing",
+  "value": {
+    "extractionState": "manual",
+    "localizations": {
+      "de": { "stringUnit": { "state": "translated", "value": "Durchsuchen" } },
+      "en": { "stringUnit": { "state": "translated", "value": "Browsing" } },
+      "fr": { "stringUnit": { "state": "translated", "value": "Navigation" } },
+      "it": { "stringUnit": { "state": "translated", "value": "Navigazione" } },
+      "ja": { "stringUnit": { "state": "translated", "value": "閲覧" } },
+      "ko": { "stringUnit": { "state": "translated", "value": "탐색" } },
+      "vi": { "stringUnit": { "state": "translated", "value": "Duyệt" } },
+      "zh-Hans": { "stringUnit": { "state": "translated", "value": "浏览" } },
+      "zh-Hant": { "stringUnit": { "state": "translated", "value": "瀏覽" } }
+    }
+  }
+}

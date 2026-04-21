@@ -1,0 +1,18 @@
+{
+  "table": "Settings",
+  "key": "FetchImages.Background.Footer",
+  "value": {
+    "extractionState": "manual",
+    "localizations": {
+      "de": { "stringUnit": { "state": "translated", "value": "Bilder abrufen, während die App im Hintergrund aktualisiert." } },
+      "en": { "stringUnit": { "state": "translated", "value": "Fetch images while the app refreshes in the background." } },
+      "fr": { "stringUnit": { "state": "translated", "value": "Récupérer les images lorsque l'app s'actualise en arrière-plan." } },
+      "it": { "stringUnit": { "state": "translated", "value": "Scarica le immagini quando l'app si aggiorna in background." } },
+      "ja": { "stringUnit": { "state": "translated", "value": "バックグラウンドでアプリが更新中に画像を取得します。" } },
+      "ko": { "stringUnit": { "state": "translated", "value": "앱이 백그라운드에서 새로 고칠 때 이미지를 가져옵니다." } },
+      "vi": { "stringUnit": { "state": "translated", "value": "Tải hình ảnh khi ứng dụng làm mới ở chế độ nền." } },
+      "zh-Hans": { "stringUnit": { "state": "translated", "value": "应用在后台刷新时获取图片。" } },
+      "zh-Hant": { "stringUnit": { "state": "translated", "value": "App 在背景重新整理時擷取圖片。" } }
+    }
+  }
+}

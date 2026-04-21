@@ -1,0 +1,18 @@
+{
+  "table": "Settings",
+  "key": "Section.Storage",
+  "value": {
+    "extractionState": "manual",
+    "localizations": {
+      "de": { "stringUnit": { "state": "translated", "value": "Speicher" } },
+      "en": { "stringUnit": { "state": "translated", "value": "Storage" } },
+      "fr": { "stringUnit": { "state": "translated", "value": "Stockage" } },
+      "it": { "stringUnit": { "state": "translated", "value": "Archiviazione" } },
+      "ja": { "stringUnit": { "state": "translated", "value": "ストレージ" } },
+      "ko": { "stringUnit": { "state": "translated", "value": "저장 공간" } },
+      "vi": { "stringUnit": { "state": "translated", "value": "Bộ nhớ" } },
+      "zh-Hans": { "stringUnit": { "state": "translated", "value": "存储" } },
+      "zh-Hant": { "stringUnit": { "state": "translated", "value": "儲存空間" } }
+    }
+  }
+}

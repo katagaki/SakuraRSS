@@ -1,7 +1,7 @@
 import SwiftUI
 import UniformTypeIdentifiers
 
-struct MoreDataManagementSection: View {
+struct DataSettingsSection: View {
 
     @Environment(FeedManager.self) var feedManager
     @State private var isExporting = false
@@ -21,16 +21,11 @@ struct MoreDataManagementSection: View {
                 NavigationLink {
                     iCloudBackupView()
                 } label: {
-                    HStack {
-                        Text(String(localized: "iCloudBackup.Title", table: "DataManagement"))
-                        Spacer()
-                        if let lastBackup = iCloudBackupManager.shared.lastBackupDate {
-                            Text(lastBackup, style: .relative)
-                                .foregroundStyle(.secondary)
-                                .font(.subheadline)
-                        }
-                    }
+                    Text(String(localized: "iCloudBackup.Title", table: "DataManagement"))
                 }
+            }
+
+            Section {
                 HStack(spacing: 0) {
                     Button {
                         isExporting = true
@@ -62,7 +57,7 @@ struct MoreDataManagementSection: View {
                 }
                 .listRowInsets(EdgeInsets())
             } header: {
-                Text(String(localized: "Section.DataManagement", table: "Settings"))
+                Text(String(localized: "Section.Portability", table: "Settings"))
             } footer: {
                 Text(String(localized: "OPML.Footer", table: "DataManagement"))
             }
@@ -100,6 +95,8 @@ struct MoreDataManagementSection: View {
                     }
                 }
                 .disabled(isCleaningUp)
+            } header: {
+                Text(String(localized: "Section.Storage", table: "Settings"))
             }
         }
         .fileExporter(

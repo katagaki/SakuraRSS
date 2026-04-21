@@ -1,0 +1,18 @@
+{
+  "table": "Settings",
+  "key": "Section.Appearance",
+  "value": {
+    "extractionState": "manual",
+    "localizations": {
+      "de": { "stringUnit": { "state": "translated", "value": "Erscheinungsbild" } },
+      "en": { "stringUnit": { "state": "translated", "value": "Appearance" } },
+      "fr": { "stringUnit": { "state": "translated", "value": "Apparence" } },
+      "it": { "stringUnit": { "state": "translated", "value": "Aspetto" } },
+      "ja": { "stringUnit": { "state": "translated", "value": "外観" } },
+      "ko": { "stringUnit": { "state": "translated", "value": "외관" } },
+      "vi": { "stringUnit": { "state": "translated", "value": "Giao diện" } },
+      "zh-Hans": { "stringUnit": { "state": "translated", "value": "外观" } },
+      "zh-Hant": { "stringUnit": { "state": "translated", "value": "外觀" } }
+    }
+  }
+}

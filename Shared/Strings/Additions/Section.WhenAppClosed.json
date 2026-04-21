@@ -1,0 +1,18 @@
+{
+  "table": "Settings",
+  "key": "Section.WhenAppClosed",
+  "value": {
+    "extractionState": "manual",
+    "localizations": {
+      "de": { "stringUnit": { "state": "translated", "value": "Wenn App geschlossen ist" } },
+      "en": { "stringUnit": { "state": "translated", "value": "When App is Closed" } },
+      "fr": { "stringUnit": { "state": "translated", "value": "Lorsque l'app est fermée" } },
+      "it": { "stringUnit": { "state": "translated", "value": "Quando l'app è chiusa" } },
+      "ja": { "stringUnit": { "state": "translated", "value": "アプリを閉じているとき" } },
+      "ko": { "stringUnit": { "state": "translated", "value": "앱이 닫혀 있을 때" } },
+      "vi": { "stringUnit": { "state": "translated", "value": "Khi ứng dụng đóng" } },
+      "zh-Hans": { "stringUnit": { "state": "translated", "value": "应用关闭时" } },
+      "zh-Hant": { "stringUnit": { "state": "translated", "value": "App 關閉時" } }
+    }
+  }
+}

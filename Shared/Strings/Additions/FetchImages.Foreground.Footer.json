@@ -1,0 +1,18 @@
+{
+  "table": "Settings",
+  "key": "FetchImages.Foreground.Footer",
+  "value": {
+    "extractionState": "manual",
+    "localizations": {
+      "de": { "stringUnit": { "state": "translated", "value": "Bilder abrufen, während du Feeds in der App durchsuchst." } },
+      "en": { "stringUnit": { "state": "translated", "value": "Fetch images while browsing feeds in the app." } },
+      "fr": { "stringUnit": { "state": "translated", "value": "Récupérer les images lors de la navigation dans l'app." } },
+      "it": { "stringUnit": { "state": "translated", "value": "Scarica le immagini durante la navigazione dei feed nell'app." } },
+      "ja": { "stringUnit": { "state": "translated", "value": "アプリでフィードを閲覧中に画像を取得します。" } },
+      "ko": { "stringUnit": { "state": "translated", "value": "앱에서 피드를 탐색하는 동안 이미지를 가져옵니다." } },
+      "vi": { "stringUnit": { "state": "translated", "value": "Tải hình ảnh khi duyệt nguồn cấp trong ứng dụng." } },
+      "zh-Hans": { "stringUnit": { "state": "translated", "value": "在应用中浏览订阅源时获取图片。" } },
+      "zh-Hant": { "stringUnit": { "state": "translated", "value": "在 App 中瀏覽訂閱源時擷取圖片。" } }
+    }
+  }
+}

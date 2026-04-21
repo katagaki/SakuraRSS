@@ -1,0 +1,18 @@
+{
+  "table": "Settings",
+  "key": "Section.DisplayStyles",
+  "value": {
+    "extractionState": "manual",
+    "localizations": {
+      "de": { "stringUnit": { "state": "translated", "value": "Anzeigestile" } },
+      "en": { "stringUnit": { "state": "translated", "value": "Display Styles" } },
+      "fr": { "stringUnit": { "state": "translated", "value": "Styles d'affichage" } },
+      "it": { "stringUnit": { "state": "translated", "value": "Stili di visualizzazione" } },
+      "ja": { "stringUnit": { "state": "translated", "value": "表示スタイル" } },
+      "ko": { "stringUnit": { "state": "translated", "value": "표시 스타일" } },
+      "vi": { "stringUnit": { "state": "translated", "value": "Kiểu hiển thị" } },
+      "zh-Hans": { "stringUnit": { "state": "translated", "value": "显示样式" } },
+      "zh-Hant": { "stringUnit": { "state": "translated", "value": "顯示樣式" } }
+    }
+  }
+}

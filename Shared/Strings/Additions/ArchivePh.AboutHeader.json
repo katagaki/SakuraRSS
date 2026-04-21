@@ -1,0 +1,18 @@
+{
+  "table": "Settings",
+  "key": "ArchivePh.AboutHeader",
+  "value": {
+    "extractionState": "manual",
+    "localizations": {
+      "de": { "stringUnit": { "state": "translated", "value": "Über" } },
+      "en": { "stringUnit": { "state": "translated", "value": "About" } },
+      "fr": { "stringUnit": { "state": "translated", "value": "À propos" } },
+      "it": { "stringUnit": { "state": "translated", "value": "Informazioni" } },
+      "ja": { "stringUnit": { "state": "translated", "value": "情報" } },
+      "ko": { "stringUnit": { "state": "translated", "value": "정보" } },
+      "vi": { "stringUnit": { "state": "translated", "value": "Giới thiệu" } },
+      "zh-Hans": { "stringUnit": { "state": "translated", "value": "关于" } },
+      "zh-Hant": { "stringUnit": { "state": "translated", "value": "關於" } }
+    }
+  }
+}
