@@ -4,19 +4,25 @@ import UIKit
 extension SakuraRSSApp {
 
     func registerBackgroundTask() {
+        // Launch handlers run on BGTaskScheduler's queue; hop to the MainActor
+        // before touching `SakuraRSSApp`'s MainActor-isolated state.
         BGTaskScheduler.shared.register(
             forTaskWithIdentifier: backgroundTaskID,
             using: nil
         ) { task in
             guard let task = task as? BGAppRefreshTask else { return }
-            self.handleAppRefresh(task: task)
+            Task { @MainActor in
+                self.handleAppRefresh(task: task)
+            }
         }
         BGTaskScheduler.shared.register(
             forTaskWithIdentifier: iCloudBackupTaskID,
             using: nil
         ) { task in
             guard let task = task as? BGProcessingTask else { return }
-            self.handleiCloudBackup(task: task)
+            Task { @MainActor in
+                self.handleiCloudBackup(task: task)
+            }
         }
         scheduleAppRefresh()
         scheduleiCloudBackup()
