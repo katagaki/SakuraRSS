@@ -22,8 +22,7 @@ extension ContentBlock {
             return text.isEmpty ? [] : [.translatable(text)]
         }
 
-        let nsText = text as NSString
-        let matches = regex.matches(in: text, range: NSRange(location: 0, length: nsText.length))
+        let (nsText, matches) = ArticleMarker.regexMatches(of: regex, in: text)
 
         guard !matches.isEmpty else {
             return text.isEmpty ? [] : [.translatable(text)]
