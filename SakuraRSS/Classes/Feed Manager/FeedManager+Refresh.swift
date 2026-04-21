@@ -42,17 +42,22 @@ extension FeedManager {
             let parser = RSSParser()
             guard let parsed = parser.parse(data: data) else { return }
 
+            let feedDomain = feed.domain
+            let preparedArticles = parsed.articles.map { article in
+                BodyPriorityDomains.applying(to: article, feedDomain: feedDomain)
+            }
+
             let existingURLs = (try? database.existingArticleURLs(forFeedID: feed.id)) ?? []
             let imageBackfills: [String: String]
             if skipImageBackfill {
                 imageBackfills = [:]
             } else {
                 imageBackfills = await FeedManager.backfillMetadataImages(
-                    for: parsed.articles, skippingURLs: existingURLs
+                    for: preparedArticles, skippingURLs: existingURLs
                 )
             }
 
-            let articleTuples = parsed.articles.map { article in
+            let articleTuples = preparedArticles.map { article in
                 let resolvedImageURL = article.imageURL ?? imageBackfills[article.url]
                 return ArticleInsertItem(
                     title: article.title,
