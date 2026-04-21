@@ -1,4 +1,5 @@
 import BackgroundTasks
+import UIKit
 
 extension SakuraRSSApp {
 
@@ -57,10 +58,19 @@ extension SakuraRSSApp {
             ) as? Bool ?? true
             let pathExpensive = await NetworkMonitor.currentPathIsExpensive() ?? true
             let skipImageBackfill = wifiOnly && pathExpensive
-            // Per-article image preload is higher-bandwidth than the og:image
-            // lookup, so it always respects the Wi-Fi gate regardless of how
-            // the backfill preference is set.
-            let skipImagePreload = pathExpensive
+            // Per-article image preload is an order of magnitude more
+            // bandwidth than the og:image lookup, and background fetches
+            // run off the user's battery.  Gate on plugged-in + Wi-Fi so
+            // it only ever runs during an overnight/desk charging window.
+            let pluggedIn = await MainActor.run { () -> Bool in
+                UIDevice.current.isBatteryMonitoringEnabled = true
+                switch UIDevice.current.batteryState {
+                case .charging, .full: return true
+                case .unplugged, .unknown: return false
+                @unknown default: return false
+                }
+            }
+            let skipImagePreload = pathExpensive || !pluggedIn
 
             let manager = FeedManager()
             await manager.refreshAllFeeds(
