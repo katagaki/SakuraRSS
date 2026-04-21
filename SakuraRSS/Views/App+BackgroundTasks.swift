@@ -77,9 +77,9 @@ extension SakuraRSSApp {
                 skipAuthenticatedScrapers: true,
                 respectCooldown: true,
                 skipImageBackfill: skipImageBackfill,
-                skipImagePreload: skipImagePreload
+                skipImagePreload: skipImagePreload,
+                runNLPAfter: true
             )
-            await NLPProcessingCoordinator.processNewArticlesIfEnabled()
             manager.updateBadgeCount()
         }
 

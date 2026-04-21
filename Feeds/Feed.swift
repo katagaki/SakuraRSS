@@ -68,6 +68,11 @@ nonisolated struct Feed: Identifiable, Hashable, Sendable {
         isXFeed || isInstagramFeed || isRedditFeed || isFeedViewDomain || isPhotoViewDomain
     }
 
+    /// Feeds whose refresh path walks pages or runs a custom recipe.
+    var isSlowRefreshFeed: Bool {
+        isXFeed || isInstagramFeed || isYouTubePlaylistFeed || PetalRecipe.isPetalFeedURL(url)
+    }
+
     /// The feed category section for grouped display.
     var feedSection: FeedSection {
         if isPodcast { return .audio }
