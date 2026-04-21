@@ -367,10 +367,8 @@ extension ArticleDetailView {
         let previousText = extractedText
         extractedText = nil
         await extractArticleContent()
-        // `extractArticleContent` flips `isExtracting` off via its own defer
-        // before returning. Re-assert it so the spinner stays visible while
-        // the fallback restoration below runs, avoiding a brief render with
-        // `article.summary` when the new extraction produced nothing.
+        // Re-assert over `extractArticleContent`'s own `defer` so the
+        // spinner stays visible through the fallback restoration below.
         isExtracting = true
 
         // If re-extraction produced nothing, restore the previous content

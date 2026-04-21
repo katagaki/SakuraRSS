@@ -134,11 +134,6 @@ enum ContentBlock: Identifiable {
             return [.text(ArticleMarker.unescape(text))]
         }
 
-        // Fall back to the unescaped form when the text carries only
-        // PUA-escaped delimiters — some extraction paths run
-        // `ArticleMarker.escape` over their own output and flip real
-        // markers to the escaped form, which would otherwise leak as
-        // literal `{{TAG}}` text.
         let (nsText, matches) = ArticleMarker.regexMatches(of: regex, in: text)
 
         guard !matches.isEmpty else {

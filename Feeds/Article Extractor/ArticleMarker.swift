@@ -50,10 +50,8 @@ nonisolated enum ArticleMarker {
         return result
     }
 
-    /// Runs `regex` against `text`; if it finds nothing but the text
-    /// carries PUA-escaped delimiters, retries against the unescaped
-    /// form. Returns the `NSString` that the match ranges index into
-    /// so callers can substring out captured groups directly.
+    /// Runs `regex` against `text`, retrying on the unescaped form when
+    /// the as-is pass finds nothing but PUA delimiters are present.
     static func regexMatches(
         of regex: NSRegularExpression, in text: String
     ) -> (nsText: NSString, matches: [NSTextCheckingResult]) {

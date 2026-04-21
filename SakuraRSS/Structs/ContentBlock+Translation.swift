@@ -22,10 +22,6 @@ extension ContentBlock {
             return text.isEmpty ? [] : [.translatable(text)]
         }
 
-        // Use the same escape-fallback as `ContentBlock.parse` so image,
-        // code, and embed blocks stay preserved when upstream text carries
-        // escaped delimiters instead of being fed into the translator as
-        // opaque Unicode runs.
         let (nsText, matches) = ArticleMarker.regexMatches(of: regex, in: text)
 
         guard !matches.isEmpty else {
