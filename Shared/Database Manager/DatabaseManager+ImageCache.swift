@@ -10,6 +10,15 @@ nonisolated extension DatabaseManager {
         return row[imageCacheData]
     }
 
+    /// Cheap existence check for the image cache — avoids loading the full
+    /// `BLOB` just to decide whether a preload step should skip a URL.
+    func isImageCached(for url: String) -> Bool {
+        guard let row = try? database.pluck(
+            imageCache.select(imageCacheURL).filter(imageCacheURL == url)
+        ) else { return false }
+        return row[imageCacheURL] == url
+    }
+
     func cacheImageData(_ data: Data, for url: String) throws {
         try database.run(imageCache.insert(or: .replace,
             imageCacheURL <- url,
