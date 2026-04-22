@@ -83,7 +83,10 @@ extension FeedManager {
         let parsed = await PetalEngine.fetchArticles(for: recipe)
         guard !parsed.isEmpty else {
             try? database.updateFeedLastFetched(id: feed.id, date: Date())
-            if reloadData { await loadFromDatabaseInBackground(animated: true) }
+            if reloadData {
+                await loadFromDatabaseInBackground(animated: true)
+                await MainActor.run { self.bumpRefreshRevision() }
+            }
             return
         }
 
@@ -111,6 +114,7 @@ extension FeedManager {
 
         if reloadData {
             await loadFromDatabaseInBackground(animated: true)
+            await MainActor.run { self.bumpRefreshRevision() }
         }
     }
 }

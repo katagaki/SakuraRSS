@@ -2302,61 +2302,61 @@
         }
       }
     },
-    "HideRead": {
+    "HideViewedContent": {
       "extractionState": "manual",
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Gelesene ausblenden"
+            "value": "Gesehene Inhalte ausblenden"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Hide Read"
+            "value": "Hide Viewed Content"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Masquer les lus"
+            "value": "Masquer le contenu lu"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nascondi letti"
+            "value": "Nascondi contenuti visti"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "既読を非表示"
+            "value": "閲覧済みを非表示"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "읽은 항목 숨기기"
+            "value": "읽은 콘텐츠 숨기기"
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ẩn đã đọc"
+            "value": "Ẩn nội dung đã xem"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "隐藏已读"
+            "value": "隐藏已查看的内容"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "隱藏已讀"
+            "value": "隱藏已檢視的內容"
           }
         }
       }
@@ -3006,6 +3006,65 @@
           "stringUnit": {
             "state": "translated",
             "value": "已全部看完"
+          }
+        }
+      }
+    },
+    "ShowViewedContent": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gesehene Inhalte anzeigen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show Viewed Content"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Afficher le contenu lu"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mostra contenuti visti"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "閲覧済みを表示"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "읽은 콘텐츠 표시"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hiện nội dung đã xem"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "显示已查看的内容"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "顯示已檢視的內容"
           }
         }
       }

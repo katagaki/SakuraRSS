@@ -35,8 +35,8 @@ struct ArticlesView: View {
     @Environment(\.hidesMarkAllReadToolbar) private var hidesMarkAllReadToolbar
     @State private var displayStyle: FeedDisplayStyle
     @State private var isShowingMarkAllReadConfirmation = false
-    @AppStorage("Articles.HideRead") private var hideRead = false
-    @AppStorage("Display.ScrollMarkAsRead") private var scrollMarkAsRead: Bool = false
+    @State private var stagedReadIDs: Set<Int64> = []
+    @State private var didStageInitial = false
     @AppStorage("Display.MarkAllReadPosition") private var markAllReadPosition: MarkAllReadPosition = .bottom
     private let viewStyleSwitcherTip = ViewStyleSwitcherTip()
 
@@ -96,20 +96,18 @@ struct ArticlesView: View {
         self._displayStyle = State(initialValue: raw.flatMap(FeedDisplayStyle.init(rawValue:)) ?? fallback)
     }
 
-    private var hideReadSupported: Bool {
-        // Hiding read items conflicts with mark-as-read-on-scroll: rows would
-        // disappear as they pass the viewport edge and yank the scroll
-        // position. Force the toggle off while that setting is enabled.
-        guard !scrollMarkAsRead else { return false }
+    private var stagingSupported: Bool {
         let style = effectiveDisplayStyle
         return style == .inbox || style == .magazine || style == .compact
     }
 
+    private var hasHiddenReadArticles: Bool {
+        articles.contains { $0.isRead && !stagedReadIDs.contains($0.id) }
+    }
+
     private var visibleArticles: [Article] {
-        if hideRead && hideReadSupported {
-            return articles.filter { !$0.isRead }
-        }
-        return articles
+        guard stagingSupported else { return articles }
+        return articles.filter { !$0.isRead || stagedReadIDs.contains($0.id) }
     }
 
     var body: some View {
@@ -173,9 +171,27 @@ struct ArticlesView: View {
                         showVideo: isVideoFeed,
                         showPodcast: isPodcastFeed || hasAudioArticles
                     )
-                    if hideReadSupported {
+                    if stagingSupported {
                         Section {
-                            Toggle(String(localized: "HideRead", table: "Articles"), isOn: $hideRead)
+                            Button {
+                                hideViewedContent()
+                            } label: {
+                                Label(
+                                    String(localized: "HideViewedContent", table: "Articles"),
+                                    systemImage: "eye.slash"
+                                )
+                            }
+                            .disabled(stagedReadIDs.isEmpty)
+
+                            Button {
+                                showViewedContent()
+                            } label: {
+                                Label(
+                                    String(localized: "ShowViewedContent", table: "Articles"),
+                                    systemImage: "eye"
+                                )
+                            }
+                            .disabled(!hasHiddenReadArticles)
                         }
                     }
                 } label: {
@@ -186,7 +202,31 @@ struct ArticlesView: View {
             }
         }
         .animation(.smooth.speed(2.0), value: displayStyle)
-        .animation(.smooth.speed(2.0), value: hideRead)
+        .animation(.smooth.speed(2.0), value: stagedReadIDs)
+        .onAppear {
+            if !didStageInitial {
+                stagedReadIDs = Set(articles.filter { $0.isRead }.map(\.id))
+                didStageInitial = true
+            }
+        }
+        .onChange(of: articles) { oldValue, newValue in
+            // Stage any articles whose read state flipped while the view was
+            // mounted so they don't vanish from under the user's finger.
+            let previouslyRead = Set(oldValue.filter { $0.isRead }.map(\.id))
+            let currentlyRead = Set(newValue.filter { $0.isRead }.map(\.id))
+            let newlyRead = currentlyRead.subtracting(previouslyRead)
+            if !newlyRead.isEmpty {
+                stagedReadIDs.formUnion(newlyRead)
+            }
+            // Drop staged IDs that have been removed from the article list.
+            let currentIDs = Set(newValue.map(\.id))
+            stagedReadIDs.formIntersection(currentIDs)
+        }
+        .onChange(of: feedManager.refreshRevision) { _, _ in
+            withAnimation(.smooth.speed(2.0)) {
+                stagedReadIDs.removeAll()
+            }
+        }
         .onChange(of: displayStyle) { _, newValue in
             UserDefaults.standard.set(newValue.rawValue, forKey: "Display.Style.\(feedKey)")
         }
@@ -222,7 +262,7 @@ struct ArticlesView: View {
                     } description: {
                         Text(String(localized: "Empty.Description", table: "Articles"))
                     }
-                } else if visibleArticles.isEmpty && hideRead {
+                } else if visibleArticles.isEmpty && stagingSupported {
                     ContentUnavailableView {
                         Label(String(localized: "AllRead.Title", table: "Articles"),
                               systemImage: "checkmark.circle")
@@ -231,6 +271,18 @@ struct ArticlesView: View {
                     }
                 }
             }
+        }
+    }
+
+    private func hideViewedContent() {
+        withAnimation(.smooth.speed(2.0)) {
+            stagedReadIDs.removeAll()
+        }
+    }
+
+    private func showViewedContent() {
+        withAnimation(.smooth.speed(2.0)) {
+            stagedReadIDs = Set(articles.filter { $0.isRead }.map(\.id))
         }
     }
 
