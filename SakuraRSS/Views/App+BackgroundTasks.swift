@@ -12,11 +12,8 @@ extension SakuraRSSApp {
         scheduleiCloudBackup()
     }
 
-    /// Registers BGTaskScheduler launch handlers from a `nonisolated` seam so
-    /// the handler closures don't inherit `SakuraRSSApp`'s `@MainActor`
-    /// isolation. Without this, the Swift 6 runtime asserts isolation at the
-    /// closure's entry and crashes (`dispatch_assert_queue_fail`) when
-    /// BGTaskScheduler invokes the handler on its own background queue.
+    /// Registers launch handlers from a nonisolated seam so the closures
+    /// don't inherit `SakuraRSSApp`'s `@MainActor` isolation.
     nonisolated private func registerLaunchHandlers(
         appRefreshTaskID: String,
         cloudBackupTaskID: String
