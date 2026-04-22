@@ -1,34 +1,40 @@
-import BackgroundTasks
+@preconcurrency import BackgroundTasks
 import UIKit
 
 extension SakuraRSSApp {
 
     func registerBackgroundTask() {
-        // Launch handlers run on BGTaskScheduler's queue; hop to the MainActor
-        // before touching `SakuraRSSApp`'s MainActor-isolated state.
-        BGTaskScheduler.shared.register(
-            forTaskWithIdentifier: backgroundTaskID,
-            using: nil
-        ) { task in
-            guard let task = task as? BGAppRefreshTask else { return }
-            Task { @MainActor in
-                self.handleAppRefresh(task: task)
-            }
-        }
-        BGTaskScheduler.shared.register(
-            forTaskWithIdentifier: iCloudBackupTaskID,
-            using: nil
-        ) { task in
-            guard let task = task as? BGProcessingTask else { return }
-            Task { @MainActor in
-                self.handleiCloudBackup(task: task)
-            }
-        }
+        registerLaunchHandlers(
+            appRefreshTaskID: backgroundTaskID,
+            cloudBackupTaskID: iCloudBackupTaskID
+        )
         scheduleAppRefresh()
         scheduleiCloudBackup()
     }
 
-    func scheduleAppRefresh() {
+    /// Registers launch handlers from a nonisolated seam so the closures
+    /// don't inherit `SakuraRSSApp`'s `@MainActor` isolation.
+    nonisolated private func registerLaunchHandlers(
+        appRefreshTaskID: String,
+        cloudBackupTaskID: String
+    ) {
+        BGTaskScheduler.shared.register(
+            forTaskWithIdentifier: appRefreshTaskID,
+            using: nil
+        ) { task in
+            guard let task = task as? BGAppRefreshTask else { return }
+            self.handleAppRefresh(task: task)
+        }
+        BGTaskScheduler.shared.register(
+            forTaskWithIdentifier: cloudBackupTaskID,
+            using: nil
+        ) { task in
+            guard let task = task as? BGProcessingTask else { return }
+            self.handleiCloudBackup(task: task)
+        }
+    }
+
+    nonisolated func scheduleAppRefresh() {
         let isEnabled = UserDefaults.standard.object(forKey: "BackgroundRefresh.Enabled") as? Bool ?? true
         guard isEnabled else {
             BGTaskScheduler.shared.cancel(taskRequestWithIdentifier: backgroundTaskID)
@@ -41,7 +47,7 @@ extension SakuraRSSApp {
         try? BGTaskScheduler.shared.submit(request)
     }
 
-    func handleAppRefresh(task: BGAppRefreshTask) {
+    nonisolated func handleAppRefresh(task: BGAppRefreshTask) {
         // Always reschedule the next window before deciding what to run.
         scheduleAppRefresh()
 
@@ -86,7 +92,7 @@ extension SakuraRSSApp {
             }
             let skipImagePreload = pathExpensive || !pluggedIn
 
-            let manager = FeedManager()
+            let manager = await MainActor.run { FeedManager() }
             await manager.refreshAllFeeds(
                 skipAuthenticatedScrapers: true,
                 respectCooldown: true,
@@ -111,7 +117,7 @@ extension SakuraRSSApp {
     /// network connectivity and external power so the system runs it during
     /// idle/charging windows (typically overnight on Wi-Fi). Cancelled if the
     /// user has set the backup interval to Off.
-    func scheduleiCloudBackup() {
+    nonisolated func scheduleiCloudBackup() {
         let intervalRaw = UserDefaults.standard.integer(forKey: "iCloudBackup.Interval")
         let interval = iCloudBackupManager.BackupInterval(rawValue: intervalRaw) ?? .everyNight
         guard interval != .off else {
@@ -129,7 +135,7 @@ extension SakuraRSSApp {
     /// the task's earliest run overlaps with typical overnight charging.
     /// Using `now + 24h` caused the window to drift forward each launch,
     /// landing mid-day when the device is rarely plugged in.
-    private func earliestBackupDate(for interval: iCloudBackupManager.BackupInterval) -> Date {
+    nonisolated private func earliestBackupDate(for interval: iCloudBackupManager.BackupInterval) -> Date {
         switch interval {
         case .everyNight:
             let calendar = Calendar.current
@@ -148,7 +154,7 @@ extension SakuraRSSApp {
         }
     }
 
-    func handleiCloudBackup(task: BGProcessingTask) {
+    nonisolated func handleiCloudBackup(task: BGProcessingTask) {
         // Always reschedule the next window before doing any work.
         scheduleiCloudBackup()
 
