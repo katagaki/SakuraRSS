@@ -9,6 +9,7 @@ extension FaviconCache {
         if host.contains("youtube.com") || host.contains("youtu.be") { return true }
         if host == "bsky.app" || host.hasSuffix(".bsky.app") { return true }
         if host == "reddit.com" || host.hasSuffix(".reddit.com") { return true }
+        if host == "note.com" || host.hasSuffix(".note.com") { return true }
         if DisplayStyleFeedDomains.shouldPreferFeedView(feedDomain: host) { return true }
         return false
     }
@@ -56,6 +57,20 @@ extension FaviconCache {
         return UIImage(data: data)
     }
 
+    /// Fetches a note.com creator's profile photo via the public v2
+    /// creators API. note.com doesn't expose a usable og:image on the
+    /// profile page, so we pull it from `/api/v2/creators/<urlname>`.
+    nonisolated func fetchNoteProfileAvatar(handle: String) async -> UIImage? {
+        let scraper = NoteProfileScraper()
+        let result = await scraper.scrapeProfile(handle: handle)
+        guard let imageURLString = result.profileImageURL,
+              let imageURL = URL(string: imageURLString),
+              let (data, _) = try? await Self.urlSession.data(from: imageURL) else {
+            return nil
+        }
+        return UIImage(data: data)
+    }
+
     /// Fetches a subreddit's community icon via the Reddit Community Scraper.
     /// Reddit doesn't expose the styled community icon through og:image,
     /// so we pull it from `/r/<name>/about.json`.
@@ -78,6 +93,10 @@ extension FaviconCache {
         if RedditCommunityScraper.isRedditSubredditURL(url),
            let subreddit = RedditCommunityScraper.extractSubredditName(from: url) {
             return await fetchRedditCommunityIcon(subreddit: subreddit)
+        }
+        if NoteProfileScraper.isNoteProfileURL(url),
+           let handle = NoteProfileScraper.extractHandle(from: url) {
+            return await fetchNoteProfileAvatar(handle: handle)
         }
         do {
             let (data, _) = try await Self.urlSession.data(from: url)
