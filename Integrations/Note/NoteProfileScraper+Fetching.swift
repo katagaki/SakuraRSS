@@ -20,10 +20,8 @@ extension NoteProfileScraper {
 
             let payload = (root["data"] as? [String: Any]) ?? root
 
-            let imageURL = (payload["user_profile_image_path"] as? String)
-                ?? (payload["userProfileImagePath"] as? String)
-            let displayName = (payload["nickname"] as? String)
-                ?? (payload["name"] as? String)
+            let imageURL = payload["profileImageUrl"] as? String
+            let displayName = payload["nickname"] as? String
 
             let cleanedImage = imageURL.flatMap { $0.isEmpty ? nil : $0 }
             let cleanedName = displayName.flatMap { $0.isEmpty ? nil : $0 }
