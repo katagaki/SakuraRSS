@@ -101,6 +101,10 @@ struct ArticlesView: View {
         return style == .inbox || style == .magazine || style == .compact
     }
 
+    private var hasHiddenReadArticles: Bool {
+        articles.contains { $0.isRead && !stagedReadIDs.contains($0.id) }
+    }
+
     private var visibleArticles: [Article] {
         guard stagingSupported else { return articles }
         return articles.filter { !$0.isRead || stagedReadIDs.contains($0.id) }
@@ -178,6 +182,16 @@ struct ArticlesView: View {
                                 )
                             }
                             .disabled(stagedReadIDs.isEmpty)
+
+                            Button {
+                                showViewedContent()
+                            } label: {
+                                Label(
+                                    String(localized: "ShowViewedContent", table: "Articles"),
+                                    systemImage: "eye"
+                                )
+                            }
+                            .disabled(!hasHiddenReadArticles)
                         }
                     }
                 } label: {
@@ -263,6 +277,12 @@ struct ArticlesView: View {
     private func hideViewedContent() {
         withAnimation(.smooth.speed(2.0)) {
             stagedReadIDs.removeAll()
+        }
+    }
+
+    private func showViewedContent() {
+        withAnimation(.smooth.speed(2.0)) {
+            stagedReadIDs = Set(articles.filter { $0.isRead }.map(\.id))
         }
     }
 
