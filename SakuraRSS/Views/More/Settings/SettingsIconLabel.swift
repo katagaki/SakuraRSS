@@ -19,7 +19,7 @@ struct SettingsIconLabel: View {
             Text(title)
         } icon: {
             Image(systemName: systemImage)
-                .font(.system(size: size * 0.55, weight: .semibold))
+                .font(.system(size: size * 0.48, weight: .semibold))
                 .foregroundStyle(.white)
                 .frame(width: size, height: size)
                 .background(color.gradient, in: RoundedRectangle(cornerRadius: size * 0.22))
