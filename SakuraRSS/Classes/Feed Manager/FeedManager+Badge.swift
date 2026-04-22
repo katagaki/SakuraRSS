@@ -5,7 +5,7 @@ extension FeedManager {
 
     // MARK: - Badge
 
-    func updateBadgeCount() {
+    nonisolated func updateBadgeCount() {
         let mode = UserDefaults.standard.string(forKey: "Display.UnreadBadgeMode") ?? "none"
         let center = UNUserNotificationCenter.current()
         guard mode == "homeScreenAndHomeTab" || mode == "homeScreenOnly" else {
@@ -15,7 +15,7 @@ extension FeedManager {
         Task {
             let settings = await center.notificationSettings()
             guard settings.badgeSetting == .enabled else { return }
-            let count = self.totalUnreadCount()
+            let count = await self.totalUnreadCount()
             try? await center.setBadgeCount(count)
         }
     }

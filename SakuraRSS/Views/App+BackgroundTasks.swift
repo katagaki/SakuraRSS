@@ -92,7 +92,7 @@ extension SakuraRSSApp {
             }
             let skipImagePreload = pathExpensive || !pluggedIn
 
-            let manager = FeedManager()
+            let manager = await MainActor.run { FeedManager() }
             await manager.refreshAllFeeds(
                 skipAuthenticatedScrapers: true,
                 respectCooldown: true,
