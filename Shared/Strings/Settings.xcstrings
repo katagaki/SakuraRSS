@@ -4338,7 +4338,7 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "コンテンツを定期的に取得"
+            "value": "定期的にコンテンツを取得"
           }
         },
         "ko": {
@@ -4373,55 +4373,55 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Abruf-Cooldown"
+            "value": "Inhaltsabruf-Cooldown"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Fetch Cooldown"
+            "value": "Content Fetch Cooldown"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Délai entre récupérations"
+            "value": "Délai entre récupérations de contenu"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Intervallo tra recuperi"
+            "value": "Intervallo tra recuperi di contenuto"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "取得クールダウン"
+            "value": "コンテンツ取得クールダウン"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "가져오기 대기 시간"
+            "value": "콘텐츠 가져오기 대기 시간"
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Thời gian chờ tải"
+            "value": "Thời gian chờ tải nội dung"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "获取冷却时间"
+            "value": "内容获取冷却时间"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "擷取冷卻時間"
+            "value": "內容擷取冷卻時間"
           }
         }
       }
@@ -4491,19 +4491,19 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bilder abrufen, während die App im Hintergrund aktualisiert."
+            "value": "Bilder herunterladen, während die App im Hintergrund aktualisiert."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Fetch images while the app refreshes in the background."
+            "value": "Download images while the app refreshes in the background."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Récupérer les images lorsque l'app s'actualise en arrière-plan."
+            "value": "Télécharger les images lorsque l'app s'actualise en arrière-plan."
           }
         },
         "it": {
@@ -4515,31 +4515,31 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "バックグラウンドでアプリが更新中に画像を取得します。"
+            "value": "バックグラウンドでアプリが更新中に画像をダウンロードします。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "앱이 백그라운드에서 새로 고칠 때 이미지를 가져옵니다."
+            "value": "앱이 백그라운드에서 새로 고칠 때 이미지를 다운로드합니다."
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tải hình ảnh khi ứng dụng làm mới ở chế độ nền."
+            "value": "Tải xuống hình ảnh khi ứng dụng làm mới ở chế độ nền."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "应用在后台刷新时获取图片。"
+            "value": "应用在后台刷新时下载图片。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "App 在背景重新整理時擷取圖片。"
+            "value": "App 在背景重新整理時下載圖片。"
           }
         }
       }
@@ -4550,19 +4550,19 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bilder abrufen, während du Feeds in der App durchsuchst."
+            "value": "Bilder herunterladen, während du Feeds in der App durchsuchst."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Fetch images while browsing feeds in the app."
+            "value": "Download images while browsing feeds in the app."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Récupérer les images lors de la navigation dans l'app."
+            "value": "Télécharger les images lors de la navigation dans l'app."
           }
         },
         "it": {
@@ -4574,31 +4574,31 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "アプリでフィードを閲覧中に画像を取得します。"
+            "value": "アプリでフィードを閲覧中に画像をダウンロードします。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "앱에서 피드를 탐색하는 동안 이미지를 가져옵니다."
+            "value": "앱에서 피드를 탐색하는 동안 이미지를 다운로드합니다."
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tải hình ảnh khi duyệt nguồn cấp trong ứng dụng."
+            "value": "Tải xuống hình ảnh khi duyệt nguồn cấp trong ứng dụng."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "在应用中浏览订阅源时获取图片。"
+            "value": "在应用中浏览订阅源时下载图片。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "在 App 中瀏覽訂閱源時擷取圖片。"
+            "value": "在 App 中瀏覽訂閱源時下載圖片。"
           }
         }
       }
@@ -4727,19 +4727,19 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bilder abrufen"
+            "value": "Bilder herunterladen"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Fetch Images"
+            "value": "Download Images"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Récupérer les images"
+            "value": "Télécharger les images"
           }
         },
         "it": {
@@ -4751,31 +4751,31 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "画像を取得"
+            "value": "画像をダウンロード"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "이미지 가져오기"
+            "value": "이미지 다운로드"
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tải hình ảnh"
+            "value": "Tải xuống hình ảnh"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "获取图片"
+            "value": "下载图片"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "擷取圖片"
+            "value": "下載圖片"
           }
         }
       }
@@ -4786,55 +4786,55 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Abrufintervall"
+            "value": "Inhalts-Abrufintervall"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Fetch Interval"
+            "value": "Content Fetch Interval"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Intervalle de récupération"
+            "value": "Intervalle de récupération du contenu"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Intervallo di recupero"
+            "value": "Intervallo di recupero contenuto"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "取得間隔"
+            "value": "コンテンツ取得間隔"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "가져오기 간격"
+            "value": "콘텐츠 가져오기 간격"
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Khoảng thời gian tải"
+            "value": "Khoảng thời gian tải nội dung"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "获取间隔"
+            "value": "内容获取间隔"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "擷取間隔"
+            "value": "內容擷取間隔"
           }
         }
       }
@@ -4845,55 +4845,55 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Beim Start abrufen"
+            "value": "Inhalte beim Start abrufen"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Fetch on Startup"
+            "value": "Fetch Content on Startup"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Récupérer au démarrage"
+            "value": "Récupérer le contenu au démarrage"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Scarica all'avvio"
+            "value": "Scarica contenuto all'avvio"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "起動時に取得"
+            "value": "起動時にコンテンツを取得"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "시작 시 가져오기"
+            "value": "시작 시 콘텐츠 가져오기"
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tải khi khởi động"
+            "value": "Tải nội dung khi khởi động"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "启动时获取"
+            "value": "启动时获取内容"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "啟動時擷取"
+            "value": "啟動時擷取內容"
           }
         }
       }
@@ -5720,6 +5720,183 @@
           "stringUnit": {
             "state": "translated",
             "value": "App 開啟時"
+          }
+        }
+      }
+    },
+    "Section.BuiltInServices": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Integrierte Dienste"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Built In Services"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Services intégrés"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Servizi integrati"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "内蔵サービス"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "내장 서비스"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dịch vụ tích hợp"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "内置服务"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "內建服務"
+          }
+        }
+      }
+    },
+    "Section.Customization": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Anpassung"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Customization"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Personnalisation"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Personalizzazione"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "カスタマイズ"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "사용자 설정"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tùy chỉnh"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "自定义"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "自訂"
+          }
+        }
+      }
+    },
+    "Section.ReaderServices": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reader-Dienste"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reader Services"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Services de lecture"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Servizi di lettura"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "リーダーサービス"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "리더 서비스"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dịch vụ đọc"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "阅读服务"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "閱讀服務"
           }
         }
       }

@@ -48,7 +48,6 @@ struct BrowsingSettingsView: View {
             }
         }
         .listStyle(.insetGrouped)
-        .listSectionSpacing(.compact)
         .scrollContentBackground(.hidden)
         .sakuraBackground()
         .navigationTitle(String(localized: "Section.Browsing", table: "Settings"))

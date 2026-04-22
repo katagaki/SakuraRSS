@@ -8,16 +8,11 @@ struct IntegrationsSettingsView: View {
                 NavigationLink(String(localized: "Podcast", table: "Integrations")) {
                     PodcastSettingsView()
                 }
-            } header: {
-                Text(String(localized: "Section.Podcasts", table: "Settings"))
-            }
-
-            Section {
                 NavigationLink(String(localized: "Petal", table: "Integrations")) {
                     PetalSettingsView()
                 }
             } header: {
-                Text(String(localized: "Section.WebFeeds", table: "Settings"))
+                Text(String(localized: "Section.BuiltInServices", table: "Settings"))
             }
 
             Section {
@@ -27,6 +22,11 @@ struct IntegrationsSettingsView: View {
                 NavigationLink(String(localized: "ClearThisPage", table: "Integrations")) {
                     ClearThisPageSettingsView()
                 }
+            } header: {
+                Text(String(localized: "Section.ReaderServices", table: "Settings"))
+            }
+
+            Section {
                 NavigationLink(String(localized: "Instagram", table: "Integrations")) {
                     InstagramSettingsView()
                 }
@@ -41,7 +41,6 @@ struct IntegrationsSettingsView: View {
             }
         }
         .listStyle(.insetGrouped)
-        .listSectionSpacing(.compact)
         .scrollContentBackground(.hidden)
         .sakuraBackground()
         .navigationTitle(String(localized: "Section.Integrations", table: "Settings"))
