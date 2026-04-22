@@ -12,7 +12,7 @@ struct NoteProfileScrapeResult: Sendable {
 final class NoteProfileScraper {
 
     /// Path segments that live under `note.com` but are not creator handles.
-    static let reservedHandles: Set<String> = [
+    nonisolated static let reservedHandles: Set<String> = [
         "api", "search", "magazine", "magazines", "circle", "login", "signup",
         "hashtag", "topic", "topics", "notifications", "settings", "m", "info",
         "help", "contest", "timeline", "notes", "n"
