@@ -1,4 +1,4 @@
-@preconcurrency import BackgroundTasks
+import BackgroundTasks
 import UIKit
 
 extension SakuraRSSApp {
@@ -23,22 +23,18 @@ extension SakuraRSSApp {
             using: nil
         ) { task in
             guard let task = task as? BGAppRefreshTask else { return }
-            Task { @MainActor in
-                self.handleAppRefresh(task: task)
-            }
+            self.handleAppRefresh(task: task)
         }
         BGTaskScheduler.shared.register(
             forTaskWithIdentifier: cloudBackupTaskID,
             using: nil
         ) { task in
             guard let task = task as? BGProcessingTask else { return }
-            Task { @MainActor in
-                self.handleiCloudBackup(task: task)
-            }
+            self.handleiCloudBackup(task: task)
         }
     }
 
-    func scheduleAppRefresh() {
+    nonisolated func scheduleAppRefresh() {
         let isEnabled = UserDefaults.standard.object(forKey: "BackgroundRefresh.Enabled") as? Bool ?? true
         guard isEnabled else {
             BGTaskScheduler.shared.cancel(taskRequestWithIdentifier: backgroundTaskID)
@@ -51,7 +47,7 @@ extension SakuraRSSApp {
         try? BGTaskScheduler.shared.submit(request)
     }
 
-    func handleAppRefresh(task: BGAppRefreshTask) {
+    nonisolated func handleAppRefresh(task: BGAppRefreshTask) {
         // Always reschedule the next window before deciding what to run.
         scheduleAppRefresh()
 
@@ -121,7 +117,7 @@ extension SakuraRSSApp {
     /// network connectivity and external power so the system runs it during
     /// idle/charging windows (typically overnight on Wi-Fi). Cancelled if the
     /// user has set the backup interval to Off.
-    func scheduleiCloudBackup() {
+    nonisolated func scheduleiCloudBackup() {
         let intervalRaw = UserDefaults.standard.integer(forKey: "iCloudBackup.Interval")
         let interval = iCloudBackupManager.BackupInterval(rawValue: intervalRaw) ?? .everyNight
         guard interval != .off else {
@@ -139,7 +135,7 @@ extension SakuraRSSApp {
     /// the task's earliest run overlaps with typical overnight charging.
     /// Using `now + 24h` caused the window to drift forward each launch,
     /// landing mid-day when the device is rarely plugged in.
-    private func earliestBackupDate(for interval: iCloudBackupManager.BackupInterval) -> Date {
+    nonisolated private func earliestBackupDate(for interval: iCloudBackupManager.BackupInterval) -> Date {
         switch interval {
         case .everyNight:
             let calendar = Calendar.current
@@ -158,7 +154,7 @@ extension SakuraRSSApp {
         }
     }
 
-    func handleiCloudBackup(task: BGProcessingTask) {
+    nonisolated func handleiCloudBackup(task: BGProcessingTask) {
         // Always reschedule the next window before doing any work.
         scheduleiCloudBackup()
 
