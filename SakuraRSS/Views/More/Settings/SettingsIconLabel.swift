@@ -22,7 +22,7 @@ struct SettingsIconLabel: View {
                 .font(.system(size: size * 0.48, weight: .semibold))
                 .foregroundStyle(.white)
                 .frame(width: size, height: size)
-                .background(color.gradient, in: RoundedRectangle(cornerRadius: size * 0.22))
+                .background(color.gradient, in: RoundedRectangle(cornerRadius: size * 0.28))
         }
     }
 }
