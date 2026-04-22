@@ -56,6 +56,11 @@ nonisolated struct Feed: Identifiable, Hashable, Sendable {
         return host == "reddit.com" || host.hasSuffix(".reddit.com")
     }
 
+    var isNoteFeed: Bool {
+        let host = domain.lowercased()
+        return host == "note.com" || host.hasSuffix(".note.com")
+    }
+
     var isCircleIcon: Bool {
         FaviconCircularDomains.shouldUseCircleIcon(feedDomain: domain)
     }
@@ -65,7 +70,8 @@ nonisolated struct Feed: Identifiable, Hashable, Sendable {
     }
 
     var isSocialFeed: Bool {
-        isXFeed || isInstagramFeed || isRedditFeed || isFeedViewDomain || isPhotoViewDomain
+        isXFeed || isInstagramFeed || isRedditFeed || isNoteFeed
+            || isFeedViewDomain || isPhotoViewDomain
     }
 
     /// Feeds whose refresh path walks pages or runs a custom recipe.

@@ -15,7 +15,9 @@ nonisolated enum FaviconCircularDomains {
         "pixelfed.tokyo",
         // YouTube
         "youtube.com",
-        "youtu.be"
+        "youtu.be",
+        // note
+        "note.com"
     ]
 
     static func shouldUseCircleIcon(feedDomain: String) -> Bool {

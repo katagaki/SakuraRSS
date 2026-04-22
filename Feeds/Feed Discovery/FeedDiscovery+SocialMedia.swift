@@ -30,6 +30,9 @@ extension FeedDiscovery {
         if let mastodonFeed = await detectMastodonFeed(url: url) {
             return mastodonFeed
         }
+        if let noteFeed = await detectNoteFeed(url: url) {
+            return noteFeed
+        }
         return nil
     }
 
@@ -213,6 +216,16 @@ extension FeedDiscovery {
               !handle.isEmpty else { return nil }
 
         return await probeFeedAt(domain: "bsky.app", path: "/profile/\(handle)/rss")
+    }
+
+    /// Detects note.com creator profile URLs and constructs the RSS feed URL.
+    /// Format: note.com/<urlname> → note.com/<urlname>/rss
+    func detectNoteFeed(url: URL) async -> DiscoveredFeed? {
+        guard NoteProfileScraper.isNoteProfileURL(url),
+              let handle = NoteProfileScraper.extractHandle(from: url) else {
+            return nil
+        }
+        return await probeFeedAt(domain: "note.com", path: "/\(handle)/rss")
     }
 
     /// Detects Mastodon profile URLs and constructs the RSS feed URL.
