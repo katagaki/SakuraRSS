@@ -4,10 +4,25 @@ import UIKit
 extension SakuraRSSApp {
 
     func registerBackgroundTask() {
-        // Launch handlers run on BGTaskScheduler's queue; hop to the MainActor
-        // before touching `SakuraRSSApp`'s MainActor-isolated state.
+        registerLaunchHandlers(
+            appRefreshTaskID: backgroundTaskID,
+            cloudBackupTaskID: iCloudBackupTaskID
+        )
+        scheduleAppRefresh()
+        scheduleiCloudBackup()
+    }
+
+    /// Registers BGTaskScheduler launch handlers from a `nonisolated` seam so
+    /// the handler closures don't inherit `SakuraRSSApp`'s `@MainActor`
+    /// isolation. Without this, the Swift 6 runtime asserts isolation at the
+    /// closure's entry and crashes (`dispatch_assert_queue_fail`) when
+    /// BGTaskScheduler invokes the handler on its own background queue.
+    nonisolated private func registerLaunchHandlers(
+        appRefreshTaskID: String,
+        cloudBackupTaskID: String
+    ) {
         BGTaskScheduler.shared.register(
-            forTaskWithIdentifier: backgroundTaskID,
+            forTaskWithIdentifier: appRefreshTaskID,
             using: nil
         ) { task in
             guard let task = task as? BGAppRefreshTask else { return }
@@ -16,7 +31,7 @@ extension SakuraRSSApp {
             }
         }
         BGTaskScheduler.shared.register(
-            forTaskWithIdentifier: iCloudBackupTaskID,
+            forTaskWithIdentifier: cloudBackupTaskID,
             using: nil
         ) { task in
             guard let task = task as? BGProcessingTask else { return }
@@ -24,8 +39,6 @@ extension SakuraRSSApp {
                 self.handleiCloudBackup(task: task)
             }
         }
-        scheduleAppRefresh()
-        scheduleiCloudBackup()
     }
 
     func scheduleAppRefresh() {
