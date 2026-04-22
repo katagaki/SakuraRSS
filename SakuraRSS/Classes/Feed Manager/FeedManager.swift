@@ -32,6 +32,9 @@ final class FeedManager {
     }
     private(set) var dataRevision: Int = 0
     private(set) var faviconRevision: Int = 0
+    /// Bumped when any feed refresh completes so views can flush any
+    /// staged UI state (e.g. the mark-as-read staging buffer) on refresh.
+    private(set) var refreshRevision: Int = 0
     private(set) var unreadCounts: [Int64: Int] = [:]
     private(set) var feedsByID: [Int64: Feed] = [:]
 
@@ -116,6 +119,10 @@ final class FeedManager {
 
     func bumpDataRevision() {
         dataRevision += 1
+    }
+
+    func bumpRefreshRevision() {
+        refreshRevision += 1
     }
 
 }

@@ -38,6 +38,17 @@ struct MagazineStyleView: View {
                                         ? "envelope" : "envelope.open"
                                 )
                             }
+                            Button {
+                                feedManager.toggleBookmark(article)
+                            } label: {
+                                Label(
+                                    article.isBookmarked
+                                        ? String(localized: "Article.RemoveBookmark", table: "Articles")
+                                        : String(localized: "Article.Bookmark", table: "Articles"),
+                                    systemImage: article.isBookmarked
+                                        ? "bookmark.fill" : "bookmark"
+                                )
+                            }
                         }
                     }
                 }

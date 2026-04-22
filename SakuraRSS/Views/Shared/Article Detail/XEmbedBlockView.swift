@@ -9,7 +9,6 @@ struct XEmbedBlockView: View {
 
     let url: URL
 
-    @Environment(\.openURL) private var openURL
     @State private var tweet: ParsedTweet?
     @State private var isLoading = false
     @State private var loadFailed = false
@@ -19,20 +18,19 @@ struct XEmbedBlockView: View {
     }
 
     var body: some View {
-        Button {
-            openURL(url)
-        } label: {
-            content
-                .padding(12)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 12))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 12)
-                        .strokeBorder(.secondary.opacity(0.2), lineWidth: 1)
-                )
-        }
-        .buttonStyle(.plain)
-        .task { await loadTweet() }
+        content
+            .padding(12)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 12))
+            .overlay(
+                RoundedRectangle(cornerRadius: 12)
+                    .strokeBorder(.secondary.opacity(0.2), lineWidth: 1)
+            )
+            .contentShape(.rect(cornerRadius: 12))
+            .onTapGesture {
+                UIApplication.shared.open(url)
+            }
+            .task { await loadTweet() }
     }
 
     @ViewBuilder
@@ -86,9 +84,6 @@ struct XEmbedBlockView: View {
     @ViewBuilder
     private var header: some View {
         HStack(spacing: 6) {
-            Image(systemName: "bird")
-                .font(.caption.bold())
-                .foregroundStyle(.secondary)
             if let tweet {
                 Text(tweet.author)
                     .font(.caption.bold())
