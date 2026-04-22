@@ -17,32 +17,56 @@ struct MoreView: View {
                     NavigationLink {
                         AppearanceSettingsView()
                     } label: {
-                        Text(String(localized: "Section.Appearance", table: "Settings"))
+                        SettingsIconLabel(
+                            String(localized: "Section.Appearance", table: "Settings"),
+                            systemImage: "paintpalette.fill",
+                            color: .orange
+                        )
                     }
                     NavigationLink {
                         BrowsingSettingsView()
                     } label: {
-                        Text(String(localized: "Section.Browsing", table: "Settings"))
+                        SettingsIconLabel(
+                            String(localized: "Section.Browsing", table: "Settings"),
+                            systemImage: "book.fill",
+                            color: .blue
+                        )
                     }
                     NavigationLink {
                         FetchingSettingsView()
                     } label: {
-                        Text(String(localized: "Section.Refreshing", table: "Settings"))
+                        SettingsIconLabel(
+                            String(localized: "Section.Refreshing", table: "Settings"),
+                            systemImage: "arrow.triangle.2.circlepath",
+                            color: .green
+                        )
                     }
                     NavigationLink {
                         IntegrationsSettingsView()
                     } label: {
-                        Text(String(localized: "Section.Integrations", table: "Settings"))
+                        SettingsIconLabel(
+                            String(localized: "Section.Integrations", table: "Settings"),
+                            systemImage: "puzzlepiece.extension.fill",
+                            color: .indigo
+                        )
                     }
                     NavigationLink {
                         OnDeviceIntelligenceSettingsView()
                     } label: {
-                        Text(String(localized: "Section.InsightsAndIntelligence", table: "Settings"))
+                        SettingsIconLabel(
+                            String(localized: "Section.InsightsAndIntelligence", table: "Settings"),
+                            systemImage: "sparkles",
+                            color: .pink
+                        )
                     }
                     NavigationLink {
                         DataSettingsView()
                     } label: {
-                        Text(String(localized: "Section.Data", table: "Settings"))
+                        SettingsIconLabel(
+                            String(localized: "Section.Data", table: "Settings"),
+                            systemImage: "externaldrive.fill",
+                            color: .gray
+                        )
                     }
                 } header: {
                     Text(String(localized: "Section.Settings", table: "Settings"))
@@ -66,7 +90,6 @@ struct MoreView: View {
                 }
             }
             .listStyle(.insetGrouped)
-            .listSectionSpacing(.compact)
             .scrollContentBackground(.hidden)
             .sakuraBackground()
             .navigationTitle("Tabs.Profile")

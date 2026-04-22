@@ -70,10 +70,11 @@ struct AppearanceSettingsView: View {
                         }
                     }
                 }
+            } header: {
+                Text(String(localized: "Section.Customization", table: "Settings"))
             }
         }
         .listStyle(.insetGrouped)
-        .listSectionSpacing(.compact)
         .scrollContentBackground(.hidden)
         .sakuraBackground()
         .navigationTitle(String(localized: "Section.Appearance", table: "Settings"))

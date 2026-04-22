@@ -7,7 +7,6 @@ struct DataSettingsView: View {
             DataSettingsSection()
         }
         .listStyle(.insetGrouped)
-        .listSectionSpacing(.compact)
         .scrollContentBackground(.hidden)
         .sakuraBackground()
         .navigationTitle(String(localized: "Section.Data", table: "Settings"))
