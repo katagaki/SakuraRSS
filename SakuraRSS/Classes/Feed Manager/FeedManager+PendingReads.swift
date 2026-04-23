@@ -2,58 +2,47 @@ import Foundation
 
 extension FeedManager {
 
-    private static let debouncedReadFlushDelay: Duration = .milliseconds(500)
-    private static let scrollSettleRecheckDelay: Duration = .milliseconds(150)
-    private static let maxScrollSettleWaitCycles: Int = 40
+    private static let persistReadsDelay: Duration = .milliseconds(500)
 
-    // MARK: - Debounced Mark As Read
-
-    func markReadDebounced(_ article: Article) {
+    /// Flips the article to read in memory immediately and enqueues the ID
+    /// for a debounced SQLite write so fast scrolls don't thrash the disk.
+    func markReadOnScroll(_ article: Article) {
         guard pendingReadIDs.insert(article.id).inserted else { return }
-        scheduleDebouncedReadFlush()
+
+        if let idx = articles.firstIndex(where: { $0.id == article.id }),
+           !articles[idx].isRead {
+            let feedID = articles[idx].feedID
+            articles[idx].isRead = true
+            if let current = unreadCounts[feedID], current > 0 {
+                unreadCounts[feedID] = current - 1
+            }
+            updateBadgeCount()
+        }
+
+        schedulePersistReads()
     }
 
+    /// Persists queued read-state flips to SQLite and clears the queue.
+    /// Also called from `willResignActive` before the app backgrounds.
     func flushDebouncedReads() {
         debouncedReadFlushTask?.cancel()
         debouncedReadFlushTask = nil
         guard !pendingReadIDs.isEmpty else { return }
-        let ids = pendingReadIDs
+        let idArray = Array(pendingReadIDs)
         pendingReadIDs.removeAll()
-        let idArray = Array(ids)
-
-        // Persist before publishing observable changes so re-reads via `dataRevision` see the update.
-        try? database.markArticlesRead(ids: idArray, read: true)
-
-        var newArticles = articles
-        var decrements: [Int64: Int] = [:]
-        let indexByID = Dictionary(uniqueKeysWithValues: newArticles.enumerated().map { ($1.id, $0) })
-        for id in ids {
-            guard let idx = indexByID[id], !newArticles[idx].isRead else { continue }
-            newArticles[idx].isRead = true
-            decrements[newArticles[idx].feedID, default: 0] += 1
-        }
-        articles = newArticles
-        applyUnreadDecrements(decrements)
-        bumpDataRevision()
-        updateBadgeCount()
 
         let dbm = database
         Task.detached(priority: .utility) {
+            try? dbm.markArticlesRead(ids: idArray, read: true)
             try? dbm.updateLastAccessed(articleIDs: idArray)
         }
     }
 
-    private func scheduleDebouncedReadFlush() {
+    private func schedulePersistReads() {
         debouncedReadFlushTask?.cancel()
         debouncedReadFlushTask = Task { @MainActor [weak self] in
-            try? await Task.sleep(for: FeedManager.debouncedReadFlushDelay)
+            try? await Task.sleep(for: FeedManager.persistReadsDelay)
             guard !Task.isCancelled, let self else { return }
-            var cycles = 0
-            while !self.isScrollSettled, cycles < FeedManager.maxScrollSettleWaitCycles {
-                try? await Task.sleep(for: FeedManager.scrollSettleRecheckDelay)
-                guard !Task.isCancelled else { return }
-                cycles += 1
-            }
             self.flushDebouncedReads()
         }
     }

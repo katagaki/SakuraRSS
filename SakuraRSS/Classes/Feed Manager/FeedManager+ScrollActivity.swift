@@ -1,32 +1,31 @@
 import SwiftUI
 
+enum ScrollDirection: Sendable {
+    case none, up, down
+}
+
 extension FeedManager {
 
-    static let scrollVelocityIdleThreshold: CGFloat = 120
-
-    /// True when the scroll view is idle and its velocity has decayed
-    /// below the threshold for committing mark-as-read writes.
-    var isScrollSettled: Bool {
-        guard currentScrollPhase == .idle else { return false }
-        return abs(currentScrollVelocity) < FeedManager.scrollVelocityIdleThreshold
-    }
+    /// Minimum per-sample offset delta to switch direction, in points.
+    /// Below this the scroll is treated as noise and direction is sticky.
+    private static let scrollDirectionDeadband: CGFloat = 1
 
     func updateScrollPhase(_ phase: ScrollPhase) {
         currentScrollPhase = phase
-        if phase == .idle {
-            currentScrollVelocity = 0
-        }
     }
 
+    /// Updates `currentScrollDirection` from the running offset. Direction
+    /// persists after scrolling stops so visibility callbacks that fire
+    /// on the trailing edge of a flick can still read a meaningful value.
     func updateScrollOffset(_ offset: CGFloat) {
-        let now = ProcessInfo.processInfo.systemUptime
-        let dt = now - lastScrollSampleTime
-        if lastScrollSampleTime > 0, dt > 0 {
-            let instantaneous = (offset - lastScrollOffset) / CGFloat(dt)
-            currentScrollVelocity = currentScrollVelocity * 0.5 + instantaneous * 0.5
+        let delta = offset - lastScrollOffset
+        if delta > FeedManager.scrollDirectionDeadband {
+            currentScrollDirection = .down
+        } else if delta < -FeedManager.scrollDirectionDeadband {
+            currentScrollDirection = .up
         }
         lastScrollOffset = offset
-        lastScrollSampleTime = now
+        lastScrollSampleTime = ProcessInfo.processInfo.systemUptime
     }
 
 }

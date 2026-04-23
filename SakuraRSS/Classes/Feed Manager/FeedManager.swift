@@ -35,14 +35,15 @@ final class FeedManager {
     private(set) var unreadCounts: [Int64: Int] = [:]
     private(set) var feedsByID: [Int64: Feed] = [:]
 
-    /// Pending read-state flushes to SQLite; committed once scrolling settles.
+    /// Pending read-state flips awaiting a debounced SQLite write.
     @ObservationIgnored var pendingReadIDs: Set<Int64> = []
     @ObservationIgnored var debouncedReadFlushTask: Task<Void, Never>?
     @ObservationIgnored var refreshTask: Task<Void, Never>?
 
-    /// Scroll state used to defer mark-as-read commits during fast scroll.
+    /// Scroll state read by `MarkReadOnScrollModifier` to gate read flips
+    /// on direction — only downward scrolls mark articles read.
     @ObservationIgnored var currentScrollPhase: ScrollPhase = .idle
-    @ObservationIgnored var currentScrollVelocity: CGFloat = 0
+    @ObservationIgnored var currentScrollDirection: ScrollDirection = .none
     @ObservationIgnored var lastScrollOffset: CGFloat = 0
     @ObservationIgnored var lastScrollSampleTime: CFTimeInterval = 0
 
