@@ -21,6 +21,7 @@ struct ScrollArticlePage: View {
     @State private var acronymIcon: UIImage?
     @State private var feedName: String?
     @State private var isVideoFeed = false
+    @State private var isSocialFeed = false
     @State private var backgroundImage: UIImage?
     @State private var showSafari = false
 
@@ -76,6 +77,7 @@ struct ScrollArticlePage: View {
                 feed = loadedFeed
                 feedName = loadedFeed.title
                 isVideoFeed = loadedFeed.isVideoFeed || loadedFeed.isXFeed || loadedFeed.isInstagramFeed
+                isSocialFeed = loadedFeed.isSocialFeed
                 if let data = loadedFeed.acronymIcon {
                     acronymIcon = UIImage(data: data)
                 }
@@ -118,12 +120,19 @@ struct ScrollArticlePage: View {
             Rectangle()
                 .fill(bgColor)
             if let favicon {
-                Image(uiImage: favicon)
+                let iconImage = Image(uiImage: favicon)
                     .resizable()
-                    .aspectRatio(contentMode: .fit)
+                    .aspectRatio(contentMode: isSocialFeed ? .fill : .fit)
                     .frame(width: pageSize.width * 0.5, height: pageSize.width * 0.5)
-                    .opacity(isDark ? 0.6 : 0.4)
-                    .offset(y: -pageSize.height * 0.1)
+                Group {
+                    if isSocialFeed {
+                        iconImage.clipShape(Circle())
+                    } else {
+                        iconImage
+                    }
+                }
+                .opacity(isDark ? 0.6 : 0.4)
+                .offset(y: -pageSize.height * 0.1)
             }
             LinearGradient(
                 colors: [bgColor.opacity(0), bgColor],

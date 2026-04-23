@@ -3,7 +3,6 @@ import SwiftUI
 struct InboxArticleRow: View {
 
     @Environment(FeedManager.self) var feedManager
-    @Environment(\.colorScheme) private var colorScheme
     let article: Article
     @State private var favicon: UIImage?
     @State private var acronymIcon: UIImage?
@@ -23,7 +22,15 @@ struct InboxArticleRow: View {
                 .frame(width: 48, height: 48)
                 .clipShape(RoundedRectangle(cornerRadius: 8))
             } else {
-                feedIconFallback
+                FeedIconPlaceholder(
+                    favicon: favicon,
+                    acronymIcon: acronymIcon,
+                    feedName: feedName,
+                    isSocialFeed: isSocialFeed,
+                    iconSize: 30,
+                    cornerRadius: 8
+                )
+                .frame(width: 48, height: 48)
             }
 
             VStack(alignment: .leading, spacing: 4) {
@@ -78,32 +85,5 @@ struct InboxArticleRow: View {
                 favicon = await FaviconCache.shared.favicon(for: feed)
             }
         }
-    }
-
-    @ViewBuilder
-    private var feedIconFallback: some View {
-        let isDark = colorScheme == .dark
-        let bgColor = favicon?.cardBackgroundColor(isDarkMode: isDark)
-            ?? (isDark ? Color(white: 0.15) : Color(white: 0.9))
-        ZStack {
-            RoundedRectangle(cornerRadius: 8)
-                .fill(bgColor)
-            if let favicon {
-                Image(uiImage: favicon)
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(width: 30, height: 30)
-            } else if let acronymIcon {
-                Image(uiImage: acronymIcon)
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(width: 30, height: 30)
-            } else if let feedName {
-                Text(feedName.prefix(1).uppercased())
-                    .font(.headline)
-                    .foregroundStyle(.secondary)
-            }
-        }
-        .frame(width: 48, height: 48)
     }
 }

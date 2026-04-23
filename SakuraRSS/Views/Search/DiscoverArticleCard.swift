@@ -3,10 +3,10 @@ import SwiftUI
 struct DiscoverArticleCard: View {
 
     @Environment(FeedManager.self) var feedManager
-    @Environment(\.colorScheme) private var colorScheme
     @Environment(\.zoomNamespace) private var zoomNamespace
     let article: Article
     @State private var favicon: UIImage?
+    @State private var isSocialFeed = false
     @State private var shouldCenterImage = false
 
     private let cardWidth: CGFloat = 200
@@ -48,6 +48,7 @@ struct DiscoverArticleCard: View {
         .buttonStyle(.plain)
         .task {
             guard let feed = feedManager.feedsByID[article.feedID] else { return }
+            isSocialFeed = feed.isSocialFeed
             shouldCenterImage = CenteredImageDomains.shouldCenterImage(feedDomain: feed.domain)
             favicon = await FaviconCache.shared.favicon(for: feed)
         }
@@ -64,26 +65,14 @@ struct DiscoverArticleCard: View {
         }
     }
 
-    @ViewBuilder
     private var thumbnailBackground: some View {
-        let isDark = colorScheme == .dark
-        let bgColor = favicon?.cardBackgroundColor(isDarkMode: isDark)
-            ?? (isDark ? Color(white: 0.15) : Color(white: 0.9))
-
-        ZStack {
-            Rectangle()
-                .fill(bgColor)
-
-            if let favicon {
-                Image(uiImage: favicon)
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(width: imageHeight * 0.5, height: imageHeight * 0.5)
-            } else {
-                Image(systemName: "doc.text")
-                    .font(.system(size: imageHeight * 0.35, weight: .light))
-                    .foregroundStyle(.tertiary)
-            }
-        }
+        FeedIconPlaceholder(
+            favicon: favicon,
+            acronymIcon: nil,
+            feedName: feedName,
+            isSocialFeed: isSocialFeed,
+            iconSize: imageHeight * 0.5,
+            fallback: .symbol("doc.text")
+        )
     }
 }

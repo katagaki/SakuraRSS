@@ -4,6 +4,7 @@ struct SimilarArticleItem: Identifiable {
     let id: Int64
     let article: Article
     let feedName: String
+    let isSocialFeed: Bool
     let sentiment: Double?
     let favicon: UIImage?
 }
@@ -226,6 +227,7 @@ extension ArticleDetailView {
                         id: match.article.id,
                         article: match.article,
                         feedName: match.feedName,
+                        isSocialFeed: match.feed?.isSocialFeed ?? false,
                         sentiment: match.sentiment,
                         favicon: favicon
                     ))
@@ -356,7 +358,6 @@ private struct SimilarMatchData: Sendable {
 
 private struct SimilarArticleCard: View {
 
-    @Environment(\.colorScheme) private var colorScheme
     @Environment(\.zoomNamespace) private var zoomNamespace
     let item: SimilarArticleItem
 
@@ -403,26 +404,14 @@ private struct SimilarArticleCard: View {
         }
     }
 
-    @ViewBuilder
     private var thumbnailBackground: some View {
-        let isDark = colorScheme == .dark
-        let bgColor = item.favicon?.cardBackgroundColor(isDarkMode: isDark)
-            ?? (isDark ? Color(white: 0.15) : Color(white: 0.9))
-
-        ZStack {
-            Rectangle()
-                .fill(bgColor)
-
-            if let favicon = item.favicon {
-                Image(uiImage: favicon)
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(width: imageHeight * 0.5, height: imageHeight * 0.5)
-            } else {
-                Image(systemName: "doc.text")
-                    .font(.system(size: imageHeight * 0.35, weight: .light))
-                    .foregroundStyle(.tertiary)
-            }
-        }
+        FeedIconPlaceholder(
+            favicon: item.favicon,
+            acronymIcon: nil,
+            feedName: item.feedName,
+            isSocialFeed: item.isSocialFeed,
+            iconSize: imageHeight * 0.5,
+            fallback: .symbol("doc.text")
+        )
     }
 }

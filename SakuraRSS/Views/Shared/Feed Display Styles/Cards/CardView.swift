@@ -14,6 +14,7 @@ struct CardView: View {
     @State private var favicon: UIImage?
     @State private var cardImage: UIImage?
     @State private var shouldCenterImage = false
+    @State private var isSocialFeed = false
 
     private var rotation: Double {
         Double(offset.width) / 20.0
@@ -106,6 +107,7 @@ struct CardView: View {
         .task {
             if let feed = feedManager.feed(forArticle: article) {
                 shouldCenterImage = CenteredImageDomains.shouldCenterImage(feedDomain: feed.domain)
+                isSocialFeed = feed.isSocialFeed
                 favicon = await FaviconCache.shared.favicon(for: feed)
             }
         }
@@ -135,14 +137,21 @@ struct CardView: View {
 
             // Favicon displayed large and slightly rotated
             if let favicon {
-                Image(uiImage: favicon)
+                let iconImage = Image(uiImage: favicon)
                     .resizable()
-                    .aspectRatio(contentMode: .fit)
+                    .aspectRatio(contentMode: isSocialFeed ? .fill : .fit)
                     .frame(width: geometry.size.width * 0.4,
                            height: geometry.size.width * 0.4)
-                    .opacity(isDark ? 0.6 : 0.4)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .offset(y: -geometry.size.height * 0.1)
+                Group {
+                    if isSocialFeed {
+                        iconImage.clipShape(Circle())
+                    } else {
+                        iconImage
+                    }
+                }
+                .opacity(isDark ? 0.6 : 0.4)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .offset(y: -geometry.size.height * 0.1)
             }
 
             // Bottom gradient for text readability
