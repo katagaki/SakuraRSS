@@ -255,12 +255,14 @@ struct ScrollExpandedArticleView: View { // swiftlint:disable:this type_body_len
                     }
                 }
 
-                OpenLinkButton(
-                    title: String(localized: "Article.OpenInBrowser", table: "Articles"),
-                    systemImage: article.isYouTubeURL && YouTubeHelper.isAppInstalled
-                        ? "play.rectangle" : "safari",
-                    action: { onOpenArticleURL() }
-                )
+                if article.hasLink {
+                    OpenLinkButton(
+                        title: String(localized: "Article.OpenInBrowser", table: "Articles"),
+                        systemImage: article.isYouTubeURL && YouTubeHelper.isAppInstalled
+                            ? "play.rectangle" : "safari",
+                        action: { onOpenArticleURL() }
+                    )
+                }
             }
             .buttonStyle(.bordered)
             .tint(.white.opacity(0.2))

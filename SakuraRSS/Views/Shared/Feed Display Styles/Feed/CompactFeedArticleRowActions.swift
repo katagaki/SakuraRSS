@@ -15,7 +15,9 @@ struct CompactFeedArticleRowActions: View {
 
     var body: some View {
         HStack(spacing: 8) {
-            openButton
+            if article.hasLink {
+                openButton
+            }
             markReadButton
             Spacer(minLength: 0)
         }

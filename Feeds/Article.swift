@@ -17,6 +17,10 @@ nonisolated struct Article: Identifiable, Hashable, Sendable {
     var audioURL: String?
     var duration: Int?
 
+    var hasLink: Bool {
+        !url.isEmpty && URL(string: url) != nil
+    }
+
     var isYouTubeURL: Bool {
         let lowered = url.lowercased()
         return lowered.contains("youtube.com") || lowered.contains("youtu.be")

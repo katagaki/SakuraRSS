@@ -33,13 +33,15 @@ struct ScrollActionButtonsColumn: View {
             .buttonStyle(.plain)
             .accessibilityLabel(Text(feedName ?? ""))
 
-            Button(action: onOpen) {
-                labeledIcon(
-                    systemName: article.isYouTubeURL ? "play.rectangle.fill" : "safari.fill",
-                    label: Text(String(localized: "Article.OpenInBrowser", table: "Articles"))
-                )
+            if article.hasLink {
+                Button(action: onOpen) {
+                    labeledIcon(
+                        systemName: article.isYouTubeURL ? "play.rectangle.fill" : "safari.fill",
+                        label: Text(String(localized: "Article.OpenInBrowser", table: "Articles"))
+                    )
+                }
+                .accessibilityLabel(Text(String(localized: "Article.OpenInBrowser", table: "Articles")))
             }
-            .accessibilityLabel(Text(String(localized: "Article.OpenInBrowser", table: "Articles")))
 
             Button(action: onCopy) {
                 labeledIcon(
