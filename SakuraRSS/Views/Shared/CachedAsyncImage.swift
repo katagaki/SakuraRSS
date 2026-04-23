@@ -78,7 +78,7 @@ struct CachedAsyncImage<Placeholder: View>: View {
                             .aspectRatio(contentMode: .fill)
                     }
                     .clipped()
-            } else if isLoading {
+            } else {
                 placeholder()
             }
         }

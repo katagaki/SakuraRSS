@@ -17,7 +17,14 @@ struct InboxArticleRow: View {
 
             if let imageURL = article.imageURL, let url = URL(string: imageURL) {
                 CachedAsyncImage(url: url) {
-                    Color.secondary.opacity(0.1)
+                    FeedIconPlaceholder(
+                        favicon: favicon,
+                        acronymIcon: acronymIcon,
+                        feedName: feedName,
+                        isSocialFeed: isSocialFeed,
+                        iconSize: 30,
+                        cornerRadius: 8
+                    )
                 }
                 .frame(width: 48, height: 48)
                 .clipShape(RoundedRectangle(cornerRadius: 8))
