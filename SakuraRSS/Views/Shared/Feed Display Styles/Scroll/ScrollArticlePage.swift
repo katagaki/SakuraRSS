@@ -21,14 +21,11 @@ struct ScrollArticlePage: View {
     @State private var acronymIcon: UIImage?
     @State private var feedName: String?
     @State private var isVideoFeed = false
-    @State private var hideImage = false
+    @State private var isSocialFeed = false
+    @State private var backgroundImage: UIImage?
     @State private var showSafari = false
 
     @Namespace private var headerNamespace
-
-    private var hasArticleImage: Bool {
-        article.imageURL != nil && !hideImage
-    }
 
     var body: some View {
         ZStack(alignment: .bottom) {
@@ -80,10 +77,22 @@ struct ScrollArticlePage: View {
                 feed = loadedFeed
                 feedName = loadedFeed.title
                 isVideoFeed = loadedFeed.isVideoFeed || loadedFeed.isXFeed || loadedFeed.isInstagramFeed
+                isSocialFeed = loadedFeed.isSocialFeed
                 if let data = loadedFeed.acronymIcon {
                     acronymIcon = UIImage(data: data)
                 }
                 favicon = await FaviconCache.shared.favicon(for: loadedFeed)
+            }
+        }
+        .task(id: article.imageURL) {
+            guard let urlString = article.imageURL, let url = URL(string: urlString) else { return }
+            let image = await CachedAsyncImage<EmptyView>.loadImage(from: url)
+            guard !Task.isCancelled, let image else { return }
+            let pixelWidth = image.size.width * image.scale
+            let pixelHeight = image.size.height * image.scale
+            guard pixelWidth > 100 || pixelHeight > 100 else { return }
+            withAnimation(.easeOut(duration: 0.3)) {
+                backgroundImage = image
             }
         }
     }
@@ -92,19 +101,14 @@ struct ScrollArticlePage: View {
 
     @ViewBuilder
     private var backgroundLayer: some View {
-        if hasArticleImage, let urlString = article.imageURL, let url = URL(string: urlString) {
-            CachedAsyncImage(url: url, alignment: .center) { image in
-                let pixelWidth = image.size.width * image.scale
-                let pixelHeight = image.size.height * image.scale
-                if pixelWidth <= 100 && pixelHeight <= 100 {
-                    hideImage = true
-                }
-            } placeholder: {
-                faviconBackground
-            }
-            .scaledToFill()
-        } else {
+        ZStack {
             faviconBackground
+            if let backgroundImage {
+                Image(uiImage: backgroundImage)
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .transition(.opacity)
+            }
         }
     }
 
@@ -116,12 +120,19 @@ struct ScrollArticlePage: View {
             Rectangle()
                 .fill(bgColor)
             if let favicon {
-                Image(uiImage: favicon)
+                let iconImage = Image(uiImage: favicon)
                     .resizable()
-                    .aspectRatio(contentMode: .fit)
+                    .aspectRatio(contentMode: isSocialFeed ? .fill : .fit)
                     .frame(width: pageSize.width * 0.5, height: pageSize.width * 0.5)
-                    .opacity(isDark ? 0.6 : 0.4)
-                    .offset(y: -pageSize.height * 0.1)
+                Group {
+                    if isSocialFeed {
+                        iconImage.clipShape(Circle())
+                    } else {
+                        iconImage
+                    }
+                }
+                .opacity(isDark ? 0.6 : 0.4)
+                .offset(y: -pageSize.height * 0.1)
             }
             LinearGradient(
                 colors: [bgColor.opacity(0), bgColor],

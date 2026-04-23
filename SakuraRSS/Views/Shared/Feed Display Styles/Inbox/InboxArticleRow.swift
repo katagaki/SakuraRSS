@@ -21,12 +21,16 @@ struct InboxArticleRow: View {
                 }
                 .frame(width: 48, height: 48)
                 .clipShape(RoundedRectangle(cornerRadius: 8))
-            } else if let favicon {
-                FaviconImage(favicon, size: 48, cornerRadius: 8)
-            } else if let acronymIcon {
-                FaviconImage(acronymIcon, size: 48, cornerRadius: 8, skipInset: true)
-            } else if let feedName {
-                InitialsAvatarView(feedName, size: 48, cornerRadius: 8)
+            } else {
+                FeedIconPlaceholder(
+                    favicon: favicon,
+                    acronymIcon: acronymIcon,
+                    feedName: feedName,
+                    isSocialFeed: isSocialFeed,
+                    iconSize: 30,
+                    cornerRadius: 8
+                )
+                .frame(width: 48, height: 48)
             }
 
             VStack(alignment: .leading, spacing: 4) {

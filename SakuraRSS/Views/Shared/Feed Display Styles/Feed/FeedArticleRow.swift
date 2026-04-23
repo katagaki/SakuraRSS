@@ -16,7 +16,7 @@ struct FeedArticleRow: View {
     @State private var feed: Feed?
     @State private var showSafari = false
     @State private var imageAspectRatio: CGFloat?
-    @State private var hideImage = false
+    @State private var loadedImage: UIImage?
 
     private var imageHeight: CGFloat {
         if UIDevice.current.userInterfaceIdiom == .pad {
@@ -118,43 +118,36 @@ struct FeedArticleRow: View {
                         .contentMargins(.horizontal, 0)
                         .padding(.top, 4)
                     }
-                } else if !hideImage, let imageURL = article.imageURL, let url = URL(string: imageURL) {
+                } else if let loadedImage {
                     let shouldCenter = feed.map {
                         CenteredImageDomains.shouldCenterImage(feedDomain: $0.domain)
                     } ?? false
-                    CachedAsyncImage(
-                        url: url,
-                        alignment: shouldCenter ? .center : (imageAspectRatio ?? 0 > 1 ? .leading : .top),
-                        onImageLoaded: { image in
-                            imageAspectRatio = image.size.height / image.size.width
-                            let pixelWidth = image.size.width * image.scale
-                            let pixelHeight = image.size.height * image.scale
-                            if pixelWidth <= 100 && pixelHeight <= 100 {
-                                hideImage = true
-                            }
-                        },
-                        placeholder: {
-                        Color.secondary.opacity(0.1)
-                            .frame(height: imageHeight)
-                    })
-                    .frame(maxWidth: imageAspectRatio ?? 0 > 1 ? nil : .infinity)
-                    .frame(height: imageHeight)
-                    .clipShape(.rect(cornerRadius: 12))
-                    .overlay {
-                        RoundedRectangle(cornerRadius: 12)
-                            .stroke(.quaternary, lineWidth: 0.5)
-                    }
-                    .overlay {
-                        if feed?.isVideoFeed == true || feed?.isPodcast == true {
-                            Image(systemName: "play.fill")
-                                .font(.title)
-                                .foregroundStyle(.primary)
-                                .padding(16)
-                                .background(.ultraThinMaterial, in: .circle)
-                                .glassEffect(.regular.interactive(), in: .circle)
+                    Color.clear
+                        .frame(maxWidth: imageAspectRatio ?? 0 > 1 ? nil : .infinity)
+                        .frame(height: imageHeight)
+                        .overlay(alignment: shouldCenter ? .center : (imageAspectRatio ?? 0 > 1 ? .leading : .top)) {
+                            Image(uiImage: loadedImage)
+                                .resizable()
+                                .aspectRatio(contentMode: .fill)
                         }
-                    }
-                    .padding(.top, 4)
+                        .clipped()
+                        .clipShape(.rect(cornerRadius: 12))
+                        .overlay {
+                            RoundedRectangle(cornerRadius: 12)
+                                .stroke(.quaternary, lineWidth: 0.5)
+                        }
+                        .overlay {
+                            if feed?.isVideoFeed == true || feed?.isPodcast == true {
+                                Image(systemName: "play.fill")
+                                    .font(.title)
+                                    .foregroundStyle(.primary)
+                                    .padding(16)
+                                    .background(.ultraThinMaterial, in: .circle)
+                                    .glassEffect(.regular.interactive(), in: .circle)
+                            }
+                        }
+                        .padding(.top, 4)
+                        .transition(.opacity)
                 }
 
                 HStack {
@@ -234,6 +227,23 @@ struct FeedArticleRow: View {
                     || FaviconNoInsetDomains.shouldUseFullImage(feedDomain: loadedFeed.domain)
                 preferTitle = TitleOnlyDomains.shouldPreferTitle(feedDomain: loadedFeed.domain)
                 favicon = await FaviconCache.shared.favicon(for: loadedFeed)
+            }
+        }
+        .task(id: article.imageURL) {
+            guard let imageURL = article.imageURL, let url = URL(string: imageURL) else {
+                loadedImage = nil
+                imageAspectRatio = nil
+                return
+            }
+            let image = await CachedAsyncImage<EmptyView>.loadImage(from: url)
+            guard !Task.isCancelled, let image else { return }
+            let pixelWidth = image.size.width * image.scale
+            let pixelHeight = image.size.height * image.scale
+            guard pixelWidth > 100 || pixelHeight > 100 else { return }
+            let aspect = image.size.height / image.size.width
+            withAnimation(.easeOut(duration: 0.2)) {
+                imageAspectRatio = aspect
+                loadedImage = image
             }
         }
         .sheet(isPresented: $showSafari) {

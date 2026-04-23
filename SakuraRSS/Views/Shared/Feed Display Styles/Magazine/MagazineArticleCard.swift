@@ -3,13 +3,13 @@ import SwiftUI
 struct MagazineArticleCard: View {
 
     @Environment(FeedManager.self) var feedManager
-    @Environment(\.colorScheme) private var colorScheme
     let article: Article
     @State private var favicon: UIImage?
     @State private var feedName: String?
     @State private var acronymIcon: UIImage?
     @State private var skipFaviconInset = false
     @State private var isVideoFeed = false
+    @State private var isSocialFeed = false
     @State private var shouldCenterImage = false
 
     var body: some View {
@@ -75,6 +75,7 @@ struct MagazineArticleCard: View {
                     acronymIcon = UIImage(data: data)
                 }
                 isVideoFeed = feed.isVideoFeed || feed.isXFeed || feed.isInstagramFeed
+                isSocialFeed = feed.isSocialFeed
                 skipFaviconInset = feed.isVideoFeed || feed.isXFeed || feed.isInstagramFeed
                     || FaviconNoInsetDomains.shouldUseFullImage(feedDomain: feed.domain)
                 shouldCenterImage = CenteredImageDomains.shouldCenterImage(feedDomain: feed.domain)
@@ -83,32 +84,16 @@ struct MagazineArticleCard: View {
         }
     }
 
-    @ViewBuilder
     private var magazineFallbackBackground: some View {
-        let isDark = colorScheme == .dark
-        let bgColor = favicon?.cardBackgroundColor(isDarkMode: isDark)
-            ?? (isDark ? Color(white: 0.15) : Color(white: 0.9))
-
-        ZStack {
-            RoundedRectangle(cornerRadius: 12)
-                .fill(bgColor)
-
-            if let favicon {
-                Image(uiImage: favicon)
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(width: 40, height: 40)
-            } else if let acronymIcon {
-                Image(uiImage: acronymIcon)
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(width: 40, height: 40)
-            } else {
-                Image(systemName: "doc.text")
-                    .font(.system(size: 30, weight: .light))
-                    .foregroundStyle(.tertiary)
-            }
-        }
+        FeedIconPlaceholder(
+            favicon: favicon,
+            acronymIcon: acronymIcon,
+            feedName: feedName,
+            isSocialFeed: isSocialFeed,
+            iconSize: 40,
+            cornerRadius: 12,
+            fallback: .symbol("doc.text")
+        )
         .frame(height: 120)
     }
 }

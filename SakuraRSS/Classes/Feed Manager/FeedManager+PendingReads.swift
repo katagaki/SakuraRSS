@@ -19,9 +19,13 @@ extension FeedManager {
         guard !pendingReadIDs.isEmpty else { return }
         let ids = pendingReadIDs
         pendingReadIDs.removeAll()
+        let idArray = Array(ids)
 
-        // Collapse per-row observable writes into one notification per
-        // property so badge observers don't get invalidated N times.
+        // Persist before publishing observable changes so the next render
+        // of the article list views — which re-read from SQLite via
+        // `dataRevision` — sees the updated read state.
+        try? database.markArticlesRead(ids: idArray, read: true)
+
         var newArticles = articles
         var decrements: [Int64: Int] = [:]
         let indexByID = Dictionary(uniqueKeysWithValues: newArticles.enumerated().map { ($1.id, $0) })
@@ -32,12 +36,11 @@ extension FeedManager {
         }
         articles = newArticles
         applyUnreadDecrements(decrements)
+        bumpDataRevision()
         updateBadgeCount()
 
-        let idArray = Array(ids)
         let dbm = database
         Task.detached(priority: .utility) {
-            try? dbm.markArticlesRead(ids: idArray, read: true)
             try? dbm.updateLastAccessed(articleIDs: idArray)
         }
     }

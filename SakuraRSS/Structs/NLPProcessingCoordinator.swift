@@ -14,10 +14,15 @@ enum NLPProcessingCoordinator {
     nonisolated private static let chunkSize = 20
 
     /// Processes unprocessed articles if Content Insights is enabled.
-    /// `onBegin` fires once with the total; `onProgress` fires per article.
+    /// `onBegin` fires once with the total; `onProgress` fires in batches
+    /// (aligned to each cooperative-yield boundary) with the number of
+    /// articles completed since the last call.  Coalescing the ticks keeps
+    /// the progress donut from hopping to the MainActor 200 times per
+    /// refresh, which is the source of the scroll hitches users see while
+    /// NLP runs.
     static func processNewArticlesIfEnabled(
         onBegin: @escaping @Sendable (Int) async -> Void = { _ in },
-        onProgress: @escaping @Sendable () async -> Void = { }
+        onProgress: @escaping @Sendable (Int) async -> Void = { _ in }
     ) async {
         let defaults = UserDefaults.standard
         let contentInsightsEnabled = defaults.bool(forKey: "Intelligence.ContentInsights.Enabled")
@@ -71,12 +76,15 @@ enum NLPProcessingCoordinator {
                         runEntities: pending.needsEntities
                     )
                 }
-                await onProgress()
                 processedSinceYield += 1
                 if processedSinceYield >= chunkSize {
+                    await onProgress(processedSinceYield)
                     processedSinceYield = 0
                     await Task.yield()
                 }
+            }
+            if processedSinceYield > 0 {
+                await onProgress(processedSinceYield)
             }
 
             #if DEBUG

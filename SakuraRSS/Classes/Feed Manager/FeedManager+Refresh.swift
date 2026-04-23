@@ -347,8 +347,8 @@ extension FeedManager {
             onBegin: { [weak self] total in
                 await MainActor.run { self?.nlpTotal = total }
             },
-            onProgress: { [weak self] in
-                await MainActor.run { self?.nlpCompleted += 1 }
+            onProgress: { [weak self] delta in
+                await MainActor.run { self?.nlpCompleted += delta }
             }
         )
     }
