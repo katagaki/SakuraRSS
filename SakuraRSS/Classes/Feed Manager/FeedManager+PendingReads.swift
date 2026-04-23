@@ -44,7 +44,7 @@ extension FeedManager {
     }
 
     private func schedulePersistReads() {
-        debouncedReadFlushTask?.cancel()
+        guard debouncedReadFlushTask == nil else { return }
         debouncedReadFlushTask = Task { @MainActor [weak self] in
             try? await Task.sleep(for: FeedManager.persistReadsDelay)
             guard !Task.isCancelled, let self else { return }
