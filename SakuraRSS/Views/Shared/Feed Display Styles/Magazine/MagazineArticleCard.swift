@@ -50,10 +50,10 @@ struct MagazineArticleCard: View {
             HStack(spacing: 4) {
                 Text(article.title)
                     .font(.subheadline)
-                    .fontWeight(article.isRead ? .regular : .semibold)
+                    .fontWeight(feedManager.isRead(article) ? .regular : .semibold)
                     .lineLimit(2)
                     .multilineTextAlignment(.leading)
-                    .foregroundStyle(article.isRead ? .secondary : .primary)
+                    .foregroundStyle(feedManager.isRead(article) ? .secondary : .primary)
 
                 Spacer(minLength: 0)
             }

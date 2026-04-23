@@ -11,7 +11,7 @@ struct InboxArticleRow: View {
 
     var body: some View {
         HStack(alignment: .center, spacing: 8) {
-            UnreadDotView(isRead: article.isRead)
+            UnreadDotView(isRead: feedManager.isRead(article))
                 .padding(.leading, -4)
                 .padding(.top, 6)
 
@@ -44,9 +44,9 @@ struct InboxArticleRow: View {
                 if isSocialFeed, let feedName {
                     Text(feedName)
                         .font(.body)
-                        .fontWeight(article.isRead ? .regular : .semibold)
+                        .fontWeight(feedManager.isRead(article) ? .regular : .semibold)
                         .lineLimit(1)
-                        .foregroundStyle(article.isRead ? .secondary : .primary)
+                        .foregroundStyle(feedManager.isRead(article) ? .secondary : .primary)
 
                     Text(article.title)
                         .font(.subheadline)
@@ -55,9 +55,9 @@ struct InboxArticleRow: View {
                 } else {
                     Text(article.title)
                         .font(.body)
-                        .fontWeight(article.isRead ? .regular : .semibold)
+                        .fontWeight(feedManager.isRead(article) ? .regular : .semibold)
                         .lineLimit(1)
-                        .foregroundStyle(article.isRead ? .secondary : .primary)
+                        .foregroundStyle(feedManager.isRead(article) ? .secondary : .primary)
 
                     if article.hasMeaningfulSummary, let summary = article.summary {
                         Text(ContentBlock.stripMarkdown(summary))

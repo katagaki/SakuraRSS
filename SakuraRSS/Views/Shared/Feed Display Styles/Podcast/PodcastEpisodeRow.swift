@@ -49,8 +49,8 @@ struct PodcastEpisodeRow: View {
 
                 Text(article.title)
                     .font(.subheadline)
-                    .fontWeight(article.isRead ? .regular : .semibold)
-                    .foregroundStyle(article.isRead ? .secondary : .primary)
+                    .fontWeight(feedManager.isRead(article) ? .regular : .semibold)
+                    .foregroundStyle(feedManager.isRead(article) ? .secondary : .primary)
                     .lineLimit(2)
 
                 if let duration = article.duration {

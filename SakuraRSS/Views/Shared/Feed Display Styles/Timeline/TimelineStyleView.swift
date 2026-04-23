@@ -122,13 +122,13 @@ struct TimelineStyleView: View {
             .frame(width: 64, alignment: .trailing)
             .padding(.top, 12)
 
-            TimelineConnector(isFirst: isFirst, isLast: isLast, isRead: article.isRead)
+            TimelineConnector(isFirst: isFirst, isLast: isLast, isRead: feedManager.isRead(article))
                 .frame(width: 28)
 
             Text(article.title)
                 .font(isFeatured ? .body : .subheadline)
-                .fontWeight(titleWeight(isFeatured: isFeatured, isRead: article.isRead))
-                .foregroundStyle(article.isRead ? .secondary : .primary)
+                .fontWeight(titleWeight(isFeatured: isFeatured, isRead: feedManager.isRead(article)))
+                .foregroundStyle(feedManager.isRead(article) ? .secondary : .primary)
                 .lineLimit(isFeatured ? 3 : 2)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.vertical, 12)

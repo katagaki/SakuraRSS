@@ -59,8 +59,8 @@ struct PhotosArticleCard: View {
 
                 Spacer()
 
-                if !article.isRead {
-                    UnreadDotView(isRead: article.isRead)
+                if !feedManager.isRead(article) {
+                    UnreadDotView(isRead: feedManager.isRead(article))
                 }
 
                 Menu {
@@ -71,10 +71,10 @@ struct PhotosArticleCard: View {
                         feedManager.toggleRead(article)
                     } label: {
                         Label(
-                            article.isRead
+                            feedManager.isRead(article)
                                 ? String(localized: "Article.MarkUnread", table: "Articles")
                                 : String(localized: "Article.MarkRead", table: "Articles"),
-                            systemImage: article.isRead
+                            systemImage: feedManager.isRead(article)
                                 ? "envelope" : "envelope.open"
                         )
                     }

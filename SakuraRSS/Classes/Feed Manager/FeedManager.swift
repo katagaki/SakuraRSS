@@ -35,7 +35,9 @@ final class FeedManager {
     private(set) var feedsByID: [Int64: Feed] = [:]
 
     /// IDs queued by mark-read-on-scroll; flushed on scroll idle or backgrounding.
-    @ObservationIgnored var pendingReadIDs: Set<Int64> = []
+    /// Observable so rows can render as read the moment the ID is queued,
+    /// before the SQLite write lands.
+    var pendingReadIDs: Set<Int64> = []
     @ObservationIgnored var refreshTask: Task<Void, Never>?
 
     /// Scroll state read by `MarkReadOnScrollModifier` to gate read flips

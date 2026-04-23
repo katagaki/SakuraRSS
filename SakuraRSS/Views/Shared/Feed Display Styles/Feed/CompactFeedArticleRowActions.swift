@@ -68,10 +68,10 @@ struct CompactFeedArticleRowActions: View {
             feedManager.toggleRead(article)
         } label: {
             HStack(spacing: 6) {
-                Image(systemName: article.isRead ? "envelope" : "envelope.open")
-                    .offset(y: article.isRead ? 0 : -1)
+                Image(systemName: feedManager.isRead(article) ? "envelope" : "envelope.open")
+                    .offset(y: feedManager.isRead(article) ? 0 : -1)
                 Text(
-                    article.isRead
+                    feedManager.isRead(article)
                         ? String(localized: "Article.MarkUnread", table: "Articles")
                         : String(localized: "Article.MarkRead", table: "Articles")
                 )

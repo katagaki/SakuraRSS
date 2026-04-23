@@ -235,10 +235,17 @@ struct LoadPreviousArticlesButton: View {
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 12)
                 .onScrollVisibilityChange(threshold: 0.1) { visible in
-                    let wasVisible = isVisible
                     isVisible = visible
-                    if visible && !wasVisible {
-                        triggerLoad()
+                }
+                .task(id: isVisible) {
+                    guard isVisible else { return }
+                    while !Task.isCancelled, isVisible {
+                        await MainActor.run {
+                            withAnimation(.smooth.speed(2.0)) {
+                                action()
+                            }
+                        }
+                        try? await Task.sleep(for: .milliseconds(300))
                     }
                 }
             } else {
@@ -257,14 +264,6 @@ struct LoadPreviousArticlesButton: View {
                 }
                 .buttonStyle(.bordered)
                 .tint(.secondary)
-            }
-        }
-    }
-
-    private func triggerLoad() {
-        Task { @MainActor in
-            withAnimation(.smooth.speed(2.0)) {
-                action()
             }
         }
     }
