@@ -1,9 +1,6 @@
 import SwiftUI
 
-/// Resolves the correct detail view for a pushed `Article` navigation
-/// destination. Consolidates the podcast / YouTube / clearthis.page /
-/// default article branching so every `navigationDestination(for: Article.self)`
-/// handler behaves consistently.
+/// Resolves the correct detail view for an `Article` navigation destination.
 struct ArticleDestinationView: View {
 
     @Environment(FeedManager.self) private var feedManager

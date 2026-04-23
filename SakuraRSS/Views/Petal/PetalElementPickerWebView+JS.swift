@@ -1,10 +1,6 @@
 extension PetalElementPickerWebView {
 
-    /// JavaScript injected at document-end.  Adds a touch-highlight,
-    /// posts the current selection (plus ancestors and visible
-    /// children) back to Swift on every tap, and exposes
-    /// `window.petalSelectAncestor` / `window.petalSelectChild` so
-    /// the breadcrumb can drive the selection from Swift.
+    /// JS that highlights tapped elements and bridges selection to Swift.
     static let injectionJS = #"""
     (function () {
       var style = document.createElement('style');

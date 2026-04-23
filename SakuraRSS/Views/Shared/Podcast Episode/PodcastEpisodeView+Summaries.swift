@@ -9,8 +9,7 @@ extension PodcastEpisodeView {
             return
         }
 
-        // Prefer the full transcript when available - summarizing actual episode content
-        // produces far better results than the RSS feed's short description.
+        // Prefer the transcript when available for better summaries than the RSS description.
         let transcriptText = transcript?
             .map(\.text)
             .joined(separator: " ") ?? ""
@@ -27,8 +26,7 @@ extension PodcastEpisodeView {
         do {
             let summary: String
             if useTranscript {
-                // Full transcripts can easily exceed the language model's context window.
-                // Use the existing BatchSummarizer to chunk, summarize concurrently, then combine.
+                // Full transcripts exceed the context window; batch-summarize then combine.
                 let charLimit = 6000
                 let sentences = source
                     .split(whereSeparator: { ".!?".contains($0) })

@@ -1,13 +1,7 @@
 import SwiftUI
 import WebKit
 
-/// `UIViewRepresentable` wrapping a `WKWebView` that injects a
-/// tap-to-identify overlay into fetched HTML.
-///
-/// Every element tap produces a `PickedElement` (the selected
-/// element plus its ancestor chain and visible direct children)
-/// sent back via `onElementPicked`.  Navigation is blocked so
-/// tapping links doesn't leave the picker.
+/// `WKWebView` with a tap-to-identify overlay; element taps emit `PickedElement`.
 struct PetalElementPickerWebView: UIViewRepresentable {
 
     let html: String
@@ -15,15 +9,12 @@ struct PetalElementPickerWebView: UIViewRepresentable {
     let controller: PetalElementPickerController
     let onElementPicked: (PickedElement) -> Void
 
-    /// A single element's summary (selector + preview text + tag).
     struct ElementInfo: Hashable, Sendable {
         let selector: String
         let text: String
         let tag: String
     }
 
-    /// The full payload the JS overlay sends back when a tap or
-    /// breadcrumb/child navigation changes the selection.
     struct PickedElement {
         let selected: ElementInfo
         /// Immediate parent first, root-most ancestor last.

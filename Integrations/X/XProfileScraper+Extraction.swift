@@ -102,7 +102,6 @@ extension XProfileScraper {
             return nil
         }
 
-        // Handle TweetWithVisibilityResults wrapper
         let actualResult: [String: Any]
         if (tweetResult["__typename"] as? String) == "TweetWithVisibilityResults",
            let tweet = tweetResult["tweet"] as? [String: Any] {
@@ -113,7 +112,6 @@ extension XProfileScraper {
 
         guard let legacy = actualResult["legacy"] as? [String: Any] else { return nil }
 
-        // Skip retweets
         if legacy["retweeted_status_result"] != nil { return nil }
 
         let fullText = legacy["full_text"] as? String ?? ""
@@ -122,7 +120,6 @@ extension XProfileScraper {
 
         guard !idStr.isEmpty else { return nil }
 
-        // Author info from core.user_results.result
         let core = actualResult["core"] as? [String: Any]
         let userResults = core?["user_results"] as? [String: Any]
         let userResult = userResults?["result"] as? [String: Any]
@@ -130,7 +127,6 @@ extension XProfileScraper {
         let authorName = userCore?["name"] as? String ?? ""
         let authorHandle = userCore?["screen_name"] as? String ?? ""
 
-        // Media images - extract all photos for carousel support
         let extendedEntities = legacy["extended_entities"] as? [String: Any]
         let media = extendedEntities?["media"] as? [[String: Any]]
         let photoURLs = media?
@@ -141,7 +137,6 @@ extension XProfileScraper {
         let publishedDate = dateFormatter.date(from: createdAt)
         let tweetURL = "https://x.com/\(authorHandle)/status/\(idStr)"
 
-        // Replace t.co URLs with their expanded URLs from entities
         var cleanText = fullText
         let entities = legacy["entities"] as? [String: Any]
         if let urlEntities = entities?["urls"] as? [[String: Any]] {
@@ -153,7 +148,7 @@ extension XProfileScraper {
             }
         }
 
-        // Remove trailing t.co URLs (media links that have no expanded form)
+        // Strip trailing t.co media links that have no expanded form.
         cleanText = cleanText.replacingOccurrences(
             of: "\\s*https://t\\.co/\\S+$",
             with: "",
@@ -199,9 +194,6 @@ extension XProfileScraper {
         dateFormatter.locale = Locale(identifier: "en_US_POSIX")
         dateFormatter.dateFormat = "EEE MMM dd HH:mm:ss Z yyyy"
 
-        // TweetDetail entries have a different structure: the focal tweet is inside
-        // content.itemContent (for single-item entries) or content.items[] (for
-        // conversation thread entries).
         for entry in entries {
             guard let content = entry["content"] as? [String: Any] else { continue }
             let entryType = content["entryType"] as? String
@@ -213,7 +205,6 @@ extension XProfileScraper {
                     return tweet
                 }
             } else if entryType == "TimelineTimelineModule" {
-                // Thread modules contain an items array
                 guard let items = content["items"] as? [[String: Any]] else { continue }
                 for item in items {
                     guard let itemObj = item["item"] as? [String: Any] else { continue }

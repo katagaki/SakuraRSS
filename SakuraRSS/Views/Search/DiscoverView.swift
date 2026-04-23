@@ -208,7 +208,6 @@ struct DiscoverView: View {
                 topics = topTopics
                 people = topPeople
 
-                // Build entity sections from top 3 of each
                 var sectionItems: [DiscoverEntitySection] = []
                 for topic in topTopics.prefix(3) {
                     let articles = (try? db.articlesForEntity(
@@ -239,7 +238,6 @@ struct DiscoverView: View {
                     }
                 }
 
-                // Daily-deterministic shuffle
                 sectionItems = Self.dailyShuffled(sectionItems)
                 sections = sectionItems
             }
@@ -277,7 +275,6 @@ struct DiscoverEntitySection: Identifiable {
     var id: String { name }
 }
 
-/// A wrapping horizontal layout that flows items to the next line when they exceed the available width.
 private struct FlowLayout: Layout {
 
     var spacing: CGFloat
@@ -322,7 +319,7 @@ private struct FlowLayout: Layout {
     }
 }
 
-/// A simple seeded random number generator for deterministic daily shuffles.
+/// Seeded RNG for deterministic daily shuffles.
 private nonisolated struct DailyRNG: RandomNumberGenerator {
     private var state: UInt64
 
@@ -331,7 +328,6 @@ private nonisolated struct DailyRNG: RandomNumberGenerator {
     }
 
     mutating func next() -> UInt64 {
-        // xorshift64
         state ^= state << 13
         state ^= state >> 7
         state ^= state << 17

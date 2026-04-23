@@ -1,17 +1,11 @@
 import Foundation
 import SwiftSoup
 
-/// A site-specific override for the generic article extractor.  Adapters
-/// run before the generic pipeline; when one matches and returns a
-/// non-nil result, the generic path is skipped.
+/// Site-specific override invoked before the generic extractor.
 protocol SiteAdapter {
-    /// Called against the request URL (if available) and the document's
-    /// canonical URL (if any) before parsing.  Hosts are matched with
-    /// `hasSuffix` semantics so subdomains pass through by default.
     func canHandle(url: URL) -> Bool
 
-    /// Extracts text + metadata from the parsed document.  Return `nil` to
-    /// fall back to the generic pipeline.
+    /// Returns extracted content, or nil to fall back to the generic pipeline.
     func extract(
         document: Document,
         baseURL: URL,
@@ -26,7 +20,6 @@ extension SiteAdapter {
     }
 }
 
-/// Central registry of adapters consulted by `ArticleExtractor`.
 enum SiteAdapterRegistry {
 
     static let all: [SiteAdapter] = [

@@ -106,11 +106,7 @@ extension ArticleDetailView {
             break
         }
 
-        // Automatic: use domain lists to determine the best extraction method
-
-        // For arXiv abstract pages, the RSS feed already contains the paper's
-        // abstract, and the arxiv.org abstract page itself is mostly metadata
-        // we don't want to render. Prefer the feed summary directly.
+        // arxiv.org abstract pages are mostly metadata; prefer the feed summary directly.
         if let url = URL(string: article.url), ArXivHelper.isArXivAbstractURL(url) {
             if let summary = article.summary, !summary.isEmpty {
                 extractedText = summary
@@ -119,7 +115,6 @@ extension ArticleDetailView {
             return
         }
 
-        // For X post URLs (from non-X feeds), use the X API to fetch the tweet directly
         let isFromXFeed = feedManager.feed(forArticle: article)?.isXFeed == true
         if article.isXPostURL, !isFromXFeed,
            UserDefaults.standard.bool(forKey: "Labs.XProfileFeeds"),
@@ -138,13 +133,11 @@ extension ArticleDetailView {
                 }
                 return
             }
-            // If X API fetch failed, fall through to normal extraction
             #if DEBUG
             debugPrint("[Extract] X post fetch failed, falling through: \(article.url)")
             #endif
         }
 
-        // For ExtractText domains (e.g. apple.com), use WebView-based extraction
         if let url = URL(string: article.url), ExtractTextDomains.shouldExtractText(for: url) {
             let text = await extractViaWebView(from: url, excludeTitle: articleTitle)
             extractedText = text
@@ -167,9 +160,7 @@ extension ArticleDetailView {
                                                     excludeTitle: articleTitle)
             if let text, !text.isEmpty {
                 let paragraphCount = text.components(separatedBy: "\n\n").count
-                // If a long text has very few paragraphs, the feed content likely
-                // lacks proper HTML structure. Fall through to URL fetch for a
-                // better extraction with the original page's <p> tags.
+                // If long text has very few paragraphs, feed HTML is likely malformed; fall through.
                 let looksWellStructured = paragraphCount > 1 || text.count < 500
                 #if DEBUG
                 debugPrint("[Extract] Feed content: \(paragraphCount) paragraphs, \(text.count) chars, wellStructured=\(looksWellStructured): \(article.url)")
@@ -216,14 +207,10 @@ extension ArticleDetailView {
                 result = ExtractionResult()
             }
 
-            // Auto-escalate when the plain HTTP extraction is too thin AND
-            // the HTML looks JS-rendered — Substack, React/Next.js, etc.
             let weak = ArticleExtractor.isWeakExtraction(result.text)
             let jsRendered = rawHTML.map(ArticleExtractor.looksJSRendered) ?? true
 
-            // Retry against the AMP variant of the page when the canonical
-            // response was too short.  AMP markup extracts more reliably
-            // than generic JS-rendered pages.
+            // AMP markup extracts more reliably than generic JS-rendered pages.
             if weak && !result.paywalled, let rawHTML,
                let ampURL = ArticleExtractor.amphtmlURL(from: rawHTML, baseURL: url) {
                 let (ampHTML, ampResponse) = await fetchHTML(from: ampURL)
@@ -283,8 +270,7 @@ extension ArticleDetailView {
         }
     }
 
-    /// Applies extracted metadata to `@State` fields without clobbering
-    /// values already supplied by the feed.
+    /// Applies extracted metadata without clobbering values already supplied by the feed.
     func applyMetadata(_ metadata: ArticleMetadata) {
         if article.author == nil, let author = metadata.author {
             extractedAuthor = author
@@ -297,9 +283,7 @@ extension ArticleDetailView {
         }
     }
 
-    /// Raw HTTP fetch used by the automatic extraction path.  Returns the
-    /// decoded HTML string alongside the URL response for header-based
-    /// signals (paywall status codes, encoding detection, …).
+    /// Raw HTTP fetch returning decoded HTML and the response for header signals.
     func fetchHTML(from url: URL) async -> (String?, URLResponse?) {
         do {
             let request = URLRequest.sakura(url: url)
@@ -310,7 +294,6 @@ extension ArticleDetailView {
         }
     }
 
-    /// Simple GET + HTML parse (no JavaScript rendering).
     private func fetchText(from url: URL, excludeTitle: String?) async -> String? {
         do {
             let (data, response) = try await URLSession.shared.data(
@@ -323,19 +306,16 @@ extension ArticleDetailView {
         }
     }
 
-    /// WebView-based extraction (loads page with JavaScript like Apple Newsroom).
     private func extractViaWebView(from url: URL, excludeTitle: String?) async -> String? {
         let extractor = WebViewExtractor()
         return await extractor.extractText(from: url)
     }
 
     func refreshArticleContent() async {
-        // Show spinner immediately to avoid flashing article.summary
-        // while extraction is pending
+        // Show spinner immediately to avoid flashing article.summary while extraction is pending.
         isExtracting = true
         defer { isExtracting = false }
 
-        // Clear cached images for this article
         if let imageURL = article.imageURL {
             try? DatabaseManager.shared.clearCachedImageData(for: imageURL)
         }
@@ -363,18 +343,13 @@ extension ArticleDetailView {
         hasCachedSummary = false
         showingSummary = false
 
-        // Keep the previous text so we can fall back if re-extraction fails
         let previousText = extractedText
         extractedText = nil
         await extractArticleContent()
-        // Re-assert over `extractArticleContent`'s own `defer` so the
-        // spinner stays visible through the fallback restoration below.
+        // Re-assert over `extractArticleContent`'s `defer` so spinner stays visible through fallback.
         isExtracting = true
 
-        // If re-extraction produced nothing, restore the previous content
-        // and re-cache it so subsequent loads still work.
-        // Only restore if the previous content was well-structured;
-        // don't re-cache a wall of text with no paragraph breaks.
+        // Only restore previous content if it was well-structured.
         if extractedText == nil, let previousText {
             let prevParagraphs = previousText.components(separatedBy: "\n\n").count
             if prevParagraphs > 1 || previousText.count < 500 {

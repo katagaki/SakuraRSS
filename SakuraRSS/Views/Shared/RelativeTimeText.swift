@@ -1,8 +1,6 @@
 import SwiftUI
 
-/// Displays a date as localized relative time
-/// (e.g. "5 minutes ago", "2 weeks ago", "3 months ago", "2週間前").
-/// Articles less than a minute old show "Just now".
+/// Localized relative time text; sub-minute intervals render as "Just now".
 struct RelativeTimeText: View {
 
     let date: Date

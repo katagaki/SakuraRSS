@@ -1,10 +1,6 @@
 import SwiftUI
 
-/// Full-screen sheet that renders fetched HTML in a web view and
-/// lets the user tap elements, navigate the DOM via a breadcrumb,
-/// and assign the current selection to a recipe field via the
-/// "Assign to…" menu.  Recipe mutations flow through the binding
-/// so the builder sees them as soon as the sheet is dismissed.
+/// Element-picker sheet for assigning DOM selections to recipe fields.
 struct PetalElementPickerView: View {
 
     @Binding var recipe: PetalRecipe

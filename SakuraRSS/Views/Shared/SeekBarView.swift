@@ -26,18 +26,15 @@ struct SeekBarView: View {
 
     var body: some View {
         VStack(spacing: 8) {
-            // Track
             GeometryReader { geometry in
                 let trackWidth = geometry.size.width
                 let thumbX = progress * trackWidth
 
                 ZStack(alignment: .leading) {
-                    // Background track
                     Capsule()
                         .fill(.tertiary)
                         .frame(height: isDragging ? 8 : 6)
 
-                    // Sponsor segment markers
                     if duration > 0 {
                         ForEach(Array(segments.enumerated()), id: \.offset) { _, segment in
                             let startFraction = CGFloat(segment.start / duration)
@@ -53,7 +50,6 @@ struct SeekBarView: View {
                         }
                     }
 
-                    // Filled track
                     Capsule()
                         .fill(.tint)
                         .frame(width: max(thumbX, 0), height: isDragging ? 8 : 6)
@@ -83,7 +79,6 @@ struct SeekBarView: View {
             .frame(height: 16)
             .animation(.easeInOut(duration: 0.15), value: isDragging)
 
-            // Time labels
             HStack {
                 Text(formatTime(displayTime))
                     .font(.caption)

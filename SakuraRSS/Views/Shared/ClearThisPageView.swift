@@ -1,9 +1,7 @@
 import SwiftUI
 import WebKit
 
-/// Presents an article URL through the clearthis.page reader service in an
-/// embedded WebView. The service strips ads and clutter and reformats the
-/// page for distraction-free reading.
+/// Presents an article URL through clearthis.page in an embedded WebView.
 struct ClearThisPageView: View {
 
     @Environment(\.colorScheme) private var colorScheme
@@ -44,9 +42,6 @@ struct ClearThisPageView: View {
     }
 }
 
-/// Builds a clearthis.page URL that wraps the supplied article URL.
-/// Uses `URLComponents` so the article URL is properly percent-encoded
-/// without manual string interpolation.
 private func clearThisPageURL(for articleURL: URL) -> URL? {
     var components = URLComponents()
     components.scheme = "https"
@@ -58,14 +53,7 @@ private func clearThisPageURL(for articleURL: URL) -> URL? {
     return components.url
 }
 
-/// User script injected at document start. clearthis.page uses
-/// `dark-mode-switch.min.js`, which reads `localStorage['darkSwitch']`
-/// to decide whether to add `data-theme="dark"` to the `<body>` and check
-/// the `#darkSwitch` checkbox. This script seeds that storage value from
-/// the system color scheme (`prefers-color-scheme`), reapplies the body
-/// attribute itself for safety, hides the manual `.topbar` toggle since
-/// theme selection is automatic, and stays in sync if the system
-/// appearance changes while the WebView is open.
+/// Seeds `localStorage['darkSwitch']` from the system color scheme and keeps it in sync.
 private let clearThisPageThemeScript = """
 (function() {
   function isDark() {
@@ -102,8 +90,6 @@ private let clearThisPageThemeScript = """
     applyBodyAttribute();
     hideToggle();
   }
-  // Seed storage immediately so the page's own dark-mode-switch script
-  // picks up the right value as soon as it runs.
   syncStorage();
   if (document.readyState !== 'loading') {
     applyAll();
@@ -111,7 +97,6 @@ private let clearThisPageThemeScript = """
     document.addEventListener('DOMContentLoaded', applyAll);
   }
   window.addEventListener('load', applyAll);
-  // React to system appearance changes while the WebView is open.
   if (window.matchMedia) {
     var mq = window.matchMedia('(prefers-color-scheme: dark)');
     var listener = function() { applyAll(); };
@@ -181,9 +166,7 @@ private struct ClearThisPageWebView: UIViewRepresentable {
             _isLoading = isLoading
         }
 
-        /// Only allow HTTPS navigations. Cancels cleartext HTTP, app-scheme
-        /// links, and other potentially unsafe URL schemes that could be
-        /// triggered from the rendered page.
+        /// Only allows HTTPS navigations.
         func webView(
             _: WKWebView,
             decidePolicyFor navigationAction: WKNavigationAction,

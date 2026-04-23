@@ -1,10 +1,6 @@
 import SwiftUI
 
-/// Inline X (Twitter) embed used when an article body contains a
-/// `{{XPOST}}<url>{{/XPOST}}` marker.  When the reader is signed in to X
-/// and the X profile feeds lab is enabled, the tweet text is fetched via
-/// the same scraper the profile-feed feature uses; otherwise the embed
-/// falls back to a tappable link card that opens the original post.
+/// Inline X embed for `{{XPOST}}` markers; fetches the tweet when signed in, else shows a link card.
 struct XEmbedBlockView: View {
 
     let url: URL

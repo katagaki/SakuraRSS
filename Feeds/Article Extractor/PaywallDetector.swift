@@ -1,11 +1,8 @@
 import Foundation
 
-/// Detects publisher paywalls so the UI can surface a "open in Safari"
-/// banner instead of caching a truncated teaser as if it were the article.
+/// Detects paywalled articles so the UI can prompt for Safari instead of caching a teaser.
 nonisolated enum PaywallDetector {
 
-    /// Minimal textual signals — matched against the lowercased first 2 KB
-    /// of extracted text.
     static let textPatterns: [String] = [
         "subscribe to continue",
         "subscribe to keep reading",
@@ -28,8 +25,7 @@ nonisolated enum PaywallDetector {
         "this content is reserved"
     ]
 
-    /// Returns `true` when the HTTP response or the extracted text contain
-    /// recognizable paywall signals.
+    /// True when the HTTP response status or extracted text matches paywall signals.
     static func detect(
         response: URLResponse?,
         extractedText: String?
@@ -43,8 +39,7 @@ nonisolated enum PaywallDetector {
         return textPatterns.contains(where: lowered.contains)
     }
 
-    /// Returns `true` when the raw HTML includes common markup signals
-    /// for a paywall gate (regwall overlay, subscriber-only metadata).
+    /// True when raw HTML contains paywall markup like `data-paywall` or subscriber-only meta tags.
     static func htmlSuggestsPaywall(_ html: String) -> Bool {
         let lowered = html.lowercased()
         let markers = [

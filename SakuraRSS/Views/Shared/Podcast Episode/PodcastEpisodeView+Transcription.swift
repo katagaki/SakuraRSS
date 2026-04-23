@@ -2,7 +2,6 @@ import SwiftUI
 
 extension PodcastEpisodeView {
 
-    /// Reloads the cached transcript from the database.
     func reloadCachedTranscript() {
         if let cached = try? DatabaseManager.shared.cachedTranscript(for: article.id),
            !cached.isEmpty {
@@ -12,9 +11,7 @@ extension PodcastEpisodeView {
         }
     }
 
-    /// A "follow along" button shown at the bottom of the scroll view when
-    /// the user has scrolled away from the active transcript segment.
-    /// Tapping it re-enables auto-scroll and jumps back to the active segment.
+    /// Overlay button that re-enables transcript auto-scroll and jumps to the active segment.
     @ViewBuilder
     func followAlongOverlay(scrollProxy: ScrollViewProxy) -> some View {
         if showingTranscript, let transcript, !transcript.isEmpty, !isTranscriptAutoScrolling {
@@ -38,8 +35,7 @@ extension PodcastEpisodeView {
         }
     }
 
-    /// The id of the transcript segment that covers the current playback time.
-    /// Uses binary search since segments are sorted by start time.
+    /// Returns the id of the segment covering the current playback time.
     func activeTranscriptID(in segments: [TranscriptSegment]) -> Int? {
         guard !segments.isEmpty else { return nil }
         let currentTime = AudioPlayer.shared.currentTime

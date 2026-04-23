@@ -12,8 +12,6 @@ extension SakuraRSSApp {
         scheduleiCloudBackup()
     }
 
-    /// Registers launch handlers from a nonisolated seam so the closures
-    /// don't inherit `SakuraRSSApp`'s `@MainActor` isolation.
     nonisolated private func registerLaunchHandlers(
         appRefreshTaskID: String,
         cloudBackupTaskID: String
@@ -48,23 +46,15 @@ extension SakuraRSSApp {
     }
 
     nonisolated func handleAppRefresh(task: BGAppRefreshTask) {
-        // Always reschedule the next window before deciding what to run.
         scheduleAppRefresh()
 
-        // Respect Low Power Mode: do no background work at all, just
-        // complete cleanly so the system doesn't count this as a failure.
         if ProcessInfo.processInfo.isLowPowerModeEnabled {
             task.setTaskCompleted(success: true)
             return
         }
 
         let refreshTask = Task {
-            // Skip per-article HTML metadata image backfill when we're on
-            // an expensive path (cellular / hotspot) and the user has the
-            // Wi-Fi-only preference on.  The feed bodies themselves still
-            // load; only the optional og:image lookup is deferred.  A nil
-            // probe result is treated as "assume expensive" so we default
-            // to the safer behavior when the network type is unknown.
+            // nil probe means "assume expensive" so we default to the safer behavior.
             let imageBackfillModeRaw = UserDefaults.standard.string(
                 forKey: "BackgroundRefresh.ImageBackfillMode"
             )
@@ -78,10 +68,7 @@ extension SakuraRSSApp {
                 case .off: return true
                 }
             }()
-            // Per-article image preload is an order of magnitude more
-            // bandwidth than the og:image lookup, and background fetches
-            // run off the user's battery.  Gate on plugged-in + Wi-Fi so
-            // it only ever runs during an overnight/desk charging window.
+            // Gate image preload on plugged-in + Wi-Fi so it only runs during overnight charging.
             let pluggedIn = await MainActor.run { () -> Bool in
                 UIDevice.current.isBatteryMonitoringEnabled = true
                 switch UIDevice.current.batteryState {
@@ -113,10 +100,8 @@ extension SakuraRSSApp {
         }
     }
 
-    /// Submits a `BGProcessingTaskRequest` for the iCloud backup, requiring
-    /// network connectivity and external power so the system runs it during
-    /// idle/charging windows (typically overnight on Wi-Fi). Cancelled if the
-    /// user has set the backup interval to Off.
+    /// Submits a `BGProcessingTaskRequest` for the iCloud backup; requires
+    /// network + external power so it runs overnight on Wi-Fi.
     nonisolated func scheduleiCloudBackup() {
         let intervalRaw = UserDefaults.standard.integer(forKey: "iCloudBackup.Interval")
         let interval = iCloudBackupManager.BackupInterval(rawValue: intervalRaw) ?? .everyNight
@@ -131,11 +116,8 @@ extension SakuraRSSApp {
         try? BGTaskScheduler.shared.submit(request)
     }
 
-    /// For `.everyNight`, target the next occurrence of 2 AM local time so
-    /// the task's earliest run overlaps with typical overnight charging.
-    /// Using `now + 24h` caused the window to drift forward each launch,
-    /// landing mid-day when the device is rarely plugged in.
     nonisolated private func earliestBackupDate(for interval: iCloudBackupManager.BackupInterval) -> Date {
+        // For `.everyNight`, target the next 2 AM local so the run overlaps with typical overnight charging.
         switch interval {
         case .everyNight:
             let calendar = Calendar.current
@@ -155,7 +137,6 @@ extension SakuraRSSApp {
     }
 
     nonisolated func handleiCloudBackup(task: BGProcessingTask) {
-        // Always reschedule the next window before doing any work.
         scheduleiCloudBackup()
 
         let backupTask = Task {

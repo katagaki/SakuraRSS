@@ -1,7 +1,6 @@
 import SwiftUI
 
-/// A small donut-shaped progress indicator displayed in the Home tab
-/// toolbar while feeds are refreshing. 
+/// Donut progress indicator shown in the Home toolbar during feed refresh.
 struct FeedRefreshProgressDonut: View {
 
     let progress: Double

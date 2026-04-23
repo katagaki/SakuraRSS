@@ -163,7 +163,6 @@ struct ActionExtensionView: View {
 
         model.status = .searchingDomain(host)
 
-        // Try page URL discovery first (handles social media profiles and page-level feeds)
         let pageFeeds = await FeedDiscovery.shared.discoverFeeds(fromPageURL: url)
         if !pageFeeds.isEmpty {
             model.discoveredFeeds = pageFeeds
@@ -171,7 +170,6 @@ struct ActionExtensionView: View {
             return
         }
 
-        // Fall back to domain-level discovery
         let feeds = await FeedDiscovery.shared.discoverFeeds(forDomain: host)
 
         if feeds.isEmpty {

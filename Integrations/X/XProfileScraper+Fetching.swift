@@ -38,7 +38,6 @@ extension XProfileScraper {
         print("[XProfileScraper] Got cookies - csrf: \(cookies.csrfToken.prefix(20))…")
         #endif
 
-        // Step 1: Look up user ID, display name, and avatar via UserByScreenName
         guard let userInfo = await fetchUserInfo(
             screenName: handle, cookies: cookies
         ) else {
@@ -54,7 +53,6 @@ extension XProfileScraper {
               + "avatar: \(userInfo.profileImageURL?.prefix(60) ?? "nil")")
         #endif
 
-        // Step 2: Fetch tweets via UserTweets
         let tweets = await fetchTweets(
             userId: userInfo.id, cookies: cookies
         )
@@ -63,8 +61,7 @@ extension XProfileScraper {
         print("[XProfileScraper] Fetched \(tweets.count) tweets total")
         #endif
 
-        // Persist any cookies X rotated during the scrape so Keychain
-        // tracks refreshed `ct0` / `auth_token` values.
+        // Persist any cookies X rotated during the scrape.
         Self.persistRotatedCookies()
 
         return XProfileScrapeResult(
@@ -76,21 +73,13 @@ extension XProfileScraper {
 
     // MARK: - Cookies
 
-    /// Reads the current X session from the Keychain-backed cookie jar.
-    ///
-    /// Also ensures GraphQL query IDs are loaded, because every caller of
-    /// this method is about to make an API request that depends on them.
-    /// The query ID fetch still needs a MainActor hop (WKWebView-backed
-    /// bundle extraction), so this method remains `@MainActor async`, but
-    /// the cookie read itself is a cheap synchronous Keychain lookup.
+    /// Reads the current X session and ensures GraphQL query IDs are loaded.
     @MainActor
     static func getXCookies() async -> XCookies? {
         await fetchQueryIDsIfNeeded()
         return readXCookiesFromKeychain()
     }
 
-    /// Synchronous Keychain-only read, for paths that already have query
-    /// IDs loaded (e.g. between back-to-back API calls inside a scrape).
     static func readXCookiesFromKeychain() -> XCookies? {
         guard let cookies = cookieStore.load() else { return nil }
 
@@ -106,11 +95,7 @@ extension XProfileScraper {
         return XCookies(csrfToken: csrf, authToken: auth)
     }
 
-    /// Writes any rotated X cookies from `HTTPCookieStorage.shared` back
-    /// to Keychain so subsequent scrapes pick up refreshed `ct0` /
-    /// `auth_token` values that X issued via `Set-Cookie`.  X API
-    /// requests use `URLSession.shared`, which deposits response cookies
-    /// into the shared jar by default.
+    /// Writes rotated X cookies from `HTTPCookieStorage.shared` back to Keychain.
     static func persistRotatedCookies() {
         let jar = HTTPCookieStorage.shared
         let xCookies = (jar.cookies ?? []).filter {
@@ -208,15 +193,12 @@ extension XProfileScraper {
         let restId = result["rest_id"] as? String ?? ""
         guard !restId.isEmpty else { return nil }
 
-        // Display name and screen name are in result.core
         let core = result["core"] as? [String: Any]
         let displayName = core?["name"] as? String
 
-        // Profile image is in result.avatar
         let avatar = result["avatar"] as? [String: Any]
         var profileImageURL = avatar?["image_url"] as? String
 
-        // Upgrade to high-res version
         if let url = profileImageURL {
             profileImageURL = url
                 .replacingOccurrences(of: "_normal.", with: "_400x400.")
@@ -234,8 +216,7 @@ extension XProfileScraper {
 
     // MARK: - Single Tweet
 
-    /// Fetches a single tweet by its ID using the TweetDetail GraphQL endpoint.
-    /// Returns the parsed tweet, or nil if the fetch fails.
+    /// Fetches a single tweet via the TweetDetail GraphQL endpoint.
     func fetchSingleTweet(tweetID: String) async -> ParsedTweet? {
         guard let cookies = await Self.getXCookies() else {
             #if DEBUG
@@ -303,7 +284,6 @@ extension XProfileScraper {
         var seenIDs = Set<String>()
         var cursor: String?
 
-        // Fetch up to 2 pages to reach targetTweetCount
         for page in 0..<2 {
             guard !Task.isCancelled else { break }
 

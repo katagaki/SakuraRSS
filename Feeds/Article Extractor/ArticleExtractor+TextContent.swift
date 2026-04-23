@@ -22,25 +22,21 @@ extension ArticleExtractor {
     static let codeOpenPlaceholder = "{{SAKURA_CODE_OPEN}}"
     static let codeClosePlaceholder = "{{SAKURA_CODE_CLOSE}}"
 
-    /// Extracts text from a block element, preserving `<br>` tags as newlines
-    /// and `<a>` tags as Markdown links.
     static let doubleLFPlaceholder = "{{SAKURA_DOUBLE_LF}}"
     static let singleLFPlaceholder = "{{SAKURA_SINGLE_LF}}"
 
+    /// Extracts text from a block element, preserving `<br>` as newlines and `<a>` as Markdown links.
     static func textContent(of element: Element, baseURL: URL? = nil) throws -> String {
         promoteLazyImageSources(in: element)
         replaceImagesInDOM(in: element, baseURL: baseURL)
         var html = try element.html()
-        // Strip <svg>…</svg> entirely - icon SVGs inside anchors (share
-        // buttons, nav arrows) leave anchors with no meaningful text, and
-        // the link-replacement regex would otherwise capture the SVG markup
-        // as "link text" and serialize the href itself as visible text.
+        // Strip <svg> entirely so icon-only anchors don't leak SVG markup
+        // as "link text" through the link-replacement regex.
         html = html.replacingOccurrences(
             of: "<svg\\b[^>]*>[\\s\\S]*?</svg>",
             with: "",
             options: [.regularExpression, .caseInsensitive]
         )
-        // Consecutive <br> tags indicate a paragraph break in poorly-structured HTML.
         html = html.replacingOccurrences(
             of: "<br\\s*/?>(\\s*<br\\s*/?>)+",
             with: doubleLFPlaceholder,
@@ -51,8 +47,7 @@ extension ArticleExtractor {
             with: singleLFPlaceholder,
             options: .regularExpression
         )
-        // Preserve literal newlines in the HTML source (e.g. Markdown content
-        // that has no <br> or <p> tags) before SwiftSoup's .text() strips them.
+        // Preserve literal newlines before SwiftSoup's .text() strips them.
         html = html.replacingOccurrences(of: "\n\n", with: doubleLFPlaceholder)
         html = html.replacingOccurrences(of: "\n", with: singleLFPlaceholder)
         html = replaceLinkedImgTags(in: html, baseURL: baseURL)
@@ -74,9 +69,7 @@ extension ArticleExtractor {
         return text.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
-    /// Rewrites lazy-loaded `<img>` and `<amp-img>` tags so their `src`
-    /// attribute holds the best available URL.  Lets the regex-based
-    /// `replaceImgTags` keep working for sites using `data-src` / `srcset`.
+    /// Rewrites lazy-loaded `<img>`/`<amp-img>` so `src` holds the best URL.
     static func promoteLazyImageSources(in element: Element) {
         guard let images = try? element.select("img, amp-img") else { return }
         for image in images {
@@ -92,10 +85,7 @@ extension ArticleExtractor {
         }
     }
 
-    /// Replaces `<img>` / `<amp-img>` / `<picture>` elements with text-only
-    /// placeholders directly in the DOM.  Avoids regex fragility on malformed
-    /// markup, nested tags, and attributes with escaped quotes.  Preserves
-    /// wrapping `<a href>` by emitting an `{{IMGLINK}}` suffix.
+    /// Replaces image elements in the DOM with text-only placeholders, keeping wrapping anchors.
     static func replaceImagesInDOM(in element: Element, baseURL: URL?) {
         guard let images = try? element.select("img, amp-img, picture") else {
             return
@@ -131,8 +121,7 @@ extension ArticleExtractor {
 
     // MARK: - HTML Tag Replacement
 
-    /// Handles `<a href="..."><img src="..."></a>` patterns, converting them to
-    /// image placeholders with link info before the separate img/link replacements run.
+    /// Converts `<a><img></a>` patterns to image placeholders with link info.
     private static func replaceLinkedImgTags(in html: String, baseURL: URL? = nil) -> String {
         guard let regex = try? NSRegularExpression(
             pattern: "<a\\s[^>]*href=[\"']([^\"']+)[\"'][^>]*>\\s*<img\\s[^>]*src=[\"']([^\"']+)[\"'][^>]*/?>\\s*</a>",
@@ -183,18 +172,15 @@ extension ArticleExtractor {
     private static func replaceLinkTags(in html: String) -> String {
         var result = html
 
-        // Remove empty links first.
         result = result.replacingOccurrences(
             of: "<a\\s[^>]*>\\s*</a>",
             with: "",
             options: .regularExpression
         )
 
-        // Replace links using NSRegularExpression so we can collapse newline
-        // placeholders inside the captured link text.  A simple
-        // `replacingOccurrences(of:with:options:.regularExpression)` substitution
-        // would preserve the placeholders verbatim, producing broken Markdown
-        // like `[\nDJIA\n46504.67\n](\url)`.
+        // Use NSRegularExpression so newline placeholders inside link text
+        // can be collapsed; a plain regex substitution would preserve them
+        // and produce broken Markdown like `[\nText\n](url)`.
         guard let regex = try? NSRegularExpression(
             pattern: "<a\\s[^>]*href=[\"']([^\"']+)[\"'][^>]*>(.+?)</a>",
             options: .caseInsensitive
@@ -206,12 +192,9 @@ extension ArticleExtractor {
         for match in matches.reversed() {
             let href = nsResult.substring(with: match.range(at: 1))
             var linkText = nsResult.substring(with: match.range(at: 2))
-            // Collapse newline placeholders inside link text to a single space.
             linkText = linkText
                 .replacingOccurrences(of: doubleLFPlaceholder, with: " ")
                 .replacingOccurrences(of: singleLFPlaceholder, with: " ")
-            // Drop links whose visible text is empty or just the href itself -
-            // typically icon-only share buttons that leave nothing to render.
             let visibleText = linkText
                 .replacingOccurrences(of: "<[^>]+>", with: "", options: .regularExpression)
                 .trimmingCharacters(in: .whitespacesAndNewlines)
@@ -301,7 +284,6 @@ extension ArticleExtractor {
     // MARK: - Utility
 
     static func isLikelyContentImage(_ url: String) -> Bool {
-        // Skip data URIs (inline SVG placeholders, base64 spacers, etc.)
         if url.hasPrefix("data:") {
             return false
         }
@@ -319,8 +301,7 @@ extension ArticleExtractor {
         return true
     }
 
-    /// Removes `{{SUP}}…{{/SUP}}` and `{{SUB}}…{{/SUB}}` markers whose
-    /// content contains an invalid URL (either as a Markdown link or raw URL).
+    /// Removes sup/sub markers whose content contains an invalid URL.
     static func stripInvalidURLSupSub(_ text: String) -> String {
         let pattern = #"\{\{(SUP|SUB)\}\}(.+?)\{\{/(SUP|SUB)\}\}"#
         guard let regex = try? NSRegularExpression(pattern: pattern) else { return text }
@@ -335,7 +316,7 @@ extension ArticleExtractor {
                 in: content, range: NSRange(location: 0, length: (content as NSString).length)
                ) {
                 let urlString = (content as NSString).substring(with: linkMatch.range(at: 2))
-                // Footnote anchors use fragment-only URLs like "#fn1" — let them through.
+                // Footnote anchors use fragment-only URLs like "#fn1"; keep them.
                 if urlString.hasPrefix("#") { continue }
                 if URL(string: urlString) == nil {
                     result = (result as NSString).replacingCharacters(in: match.range, with: "")
@@ -377,33 +358,24 @@ extension ArticleExtractor {
         return result
     }
 
-    /// Collapses runs of empty, formatting-only, or separator-only lines so
-    /// cleaned article text doesn't render with gaping vertical gaps.
-    /// Runs after paragraph collection so inter-paragraph blank lines survive.
+    /// Collapses empty, formatting-only, or separator-only lines in extracted text.
     static func compactWhitespace(in text: String) -> String {
         var result = text
-        // Drop Markdown horizontal rules that are alone on a line.  They
-        // almost always come from navigation separators or ad blocks.
         result = result.replacingOccurrences(
             of: #"(?m)^[ \t]*(?:-{3,}|={3,}|_{3,}|\*{3,})[ \t]*$"#,
             with: "",
             options: .regularExpression
         )
-        // Lines that contain only `|`, punctuation, or bullet-like glyphs
-        // (e.g. breadcrumb "› › ›" residue) are noise.
         result = result.replacingOccurrences(
             of: #"(?m)^[ \t]*[\|\·•‣▪▫◦▶›»→・、,]+[ \t]*$"#,
             with: "",
             options: .regularExpression
         )
-        // Lines with only bold/italic markers and no real content
-        // (e.g. `**  **` or `* *`) - typically empty share buttons.
         result = result.replacingOccurrences(
             of: #"(?m)^[ \t]*(?:\*{1,3}|_{1,3})[ \t]*(?:\*{1,3}|_{1,3})?[ \t]*$"#,
             with: "",
             options: .regularExpression
         )
-        // Collapse runs of 3+ newlines back to a paragraph break.
         result = result.replacingOccurrences(
             of: "\\n{3,}",
             with: "\n\n",

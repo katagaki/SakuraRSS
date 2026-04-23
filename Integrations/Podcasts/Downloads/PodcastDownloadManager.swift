@@ -32,13 +32,10 @@ final class PodcastDownloadManager: NSObject, URLSessionDownloadDelegate {
 
     private var urlSession: URLSession!
     private var downloadTasks: [Int64: URLSessionDownloadTask] = [:]
-    /// Maps URLSessionTask identifiers back to article IDs for delegate callbacks.
     private var taskArticleIDs: [Int: Int64] = [:]
-    /// Continuations waiting for download completion, keyed by article ID.
     private var downloadContinuations: [Int64: CheckedContinuation<URL, any Error>] = [:]
     private let fileManager = FileManager.default
 
-    /// Tracks pending transcription work so cancellation can reach it.
     private var transcriptionTasks: [Int64: Task<Void, Never>] = [:]
 
     private override init() {
@@ -113,9 +110,9 @@ final class PodcastDownloadManager: NSObject, URLSessionDownloadDelegate {
             do {
                 try await self?.performDownload(article: article, audioURL: audioURL)
             } catch is CancellationError {
-                // Cancelled by the user - cancelDownload() already cleaned up state.
+                // cancelDownload() already cleaned up state.
             } catch let urlError as URLError where urlError.code == .cancelled {
-                // URLSession task was cancelled - same as above.
+                // Same as above.
             } catch {
                 self?.markFailed(articleID: article.id, error: error.localizedDescription)
             }
@@ -131,7 +128,6 @@ final class PodcastDownloadManager: NSObject, URLSessionDownloadDelegate {
         let destination = episodeDir.appendingPathComponent(name)
         let articleID = article.id
 
-        // Prepare the directory on a background thread.
         let dir = episodeDir
         let dest = destination
         try await Task.detached(priority: .utility) {
@@ -144,7 +140,6 @@ final class PodcastDownloadManager: NSObject, URLSessionDownloadDelegate {
             }
         }.value
 
-        // Start a delegate-based download so we get per-byte progress.
         let tempURL: URL = try await withCheckedThrowingContinuation { continuation in
             let sessionTask = urlSession.downloadTask(with: audioURL)
             downloadTasks[articleID] = sessionTask
@@ -153,10 +148,8 @@ final class PodcastDownloadManager: NSObject, URLSessionDownloadDelegate {
             sessionTask.resume()
         }
 
-        // Clean up tracking state.
         downloadTasks[articleID] = nil
 
-        // Move the downloaded file to its final location.
         try await Task.detached(priority: .utility) {
             try FileManager.default.moveItem(at: tempURL, to: dest)
         }.value
@@ -165,9 +158,7 @@ final class PodcastDownloadManager: NSObject, URLSessionDownloadDelegate {
         let relativePath = "\(articleID)/\(name)"
         try DatabaseManager.shared.setDownloadPath(relativePath, for: articleID)
 
-        // Transition the donut into the transcribing phase so it stays visible
-        // while the model runs. Transcription failure is non-fatal - we always
-        // finish with `markCompleted` below so the check mark appears.
+        // Transcription failure is non-fatal; we still markCompleted below.
         if await PodcastTranscriber.isAvailable {
             activeDownloads[articleID] = DownloadProgress(state: .transcribing, progress: 0)
             let title = article.title
@@ -208,7 +199,7 @@ final class PodcastDownloadManager: NSObject, URLSessionDownloadDelegate {
         downloadTask: URLSessionDownloadTask,
         didFinishDownloadingTo location: URL
     ) {
-        // Copy to a stable temp location before the system deletes it.
+        // Copy before the system deletes `location`.
         let tempCopy = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString)
         try? FileManager.default.moveItem(at: location, to: tempCopy)
@@ -255,7 +246,6 @@ final class PodcastDownloadManager: NSObject, URLSessionDownloadDelegate {
             let segments = try await PodcastTranscriber.transcribe(audioFileURL: fileURL, title: title)
             try DatabaseManager.shared.cacheTranscript(segments, for: articleID)
         } catch {
-            // Transcription failure is non-fatal; download still succeeded.
             print("Transcription failed for article \(articleID): \(error)")
         }
     }
@@ -264,7 +254,6 @@ final class PodcastDownloadManager: NSObject, URLSessionDownloadDelegate {
         activeDownloads[articleID] = DownloadProgress(state: .completed, progress: 1.0)
         downloadTasks[articleID] = nil
         transcriptionTasks[articleID] = nil
-        // Fade out completed entry so views reflect the new "downloaded" state.
         Task { @MainActor [weak self] in
             try? await Task.sleep(for: .seconds(1))
             self?.activeDownloads[articleID] = nil
@@ -288,13 +277,10 @@ final class PodcastDownloadManager: NSObject, URLSessionDownloadDelegate {
         downloadTasks[articleID] = nil
         transcriptionTasks[articleID]?.cancel()
         transcriptionTasks[articleID] = nil
-        // If a continuation is still waiting, resume it with a cancellation error
-        // so the async chain unwinds cleanly.
         if let continuation = downloadContinuations.removeValue(forKey: articleID) {
             continuation.resume(throwing: CancellationError())
         }
         activeDownloads[articleID] = nil
-        // Clean partial file
         if let dir = episodeDirectory(for: articleID),
            fileManager.fileExists(atPath: dir.path) {
             try? fileManager.removeItem(at: dir)
@@ -328,8 +314,6 @@ final class PodcastDownloadManager: NSObject, URLSessionDownloadDelegate {
     // MARK: - Cleanup
 
     /// Removes download files whose article no longer exists in the database.
-    /// Static + nonisolated so callers on background queues don't need to hop
-    /// to the main actor just to clean up orphaned files.
     nonisolated static func cleanupOrphanedDownloads() {
         let fileManager = FileManager.default
         guard let container = fileManager.containerURL(

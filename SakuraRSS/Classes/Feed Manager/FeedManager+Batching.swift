@@ -101,10 +101,7 @@ extension FeedManager {
 
     // MARK: - Date-based Batches (Arbitrary Window)
 
-    /// Walks backwards in `chunkDays`-sized windows until it finds a window
-    /// that contains at least one visible article, honoring muted feeds and
-    /// per-feed / per-list rules. Returns the start date of that window, or
-    /// `nil` if no older content exists.
+    /// Walks backwards in `chunkDays` windows until a visible-article window is found.
     func nextArticleChunk(before date: Date, chunkDays days: Int) -> Date? {
         _ = dataRevision
         let calendar = Calendar.current
@@ -127,7 +124,6 @@ extension FeedManager {
         return nil
     }
 
-    /// Section-scoped variant of `nextArticleChunk(before:chunkDays:)`.
     func nextArticleChunk(for section: FeedSection, before date: Date, chunkDays days: Int) -> Date? {
         _ = dataRevision
         let sectionFeedIDs = Set(feeds.filter { $0.feedSection == section }.map(\.id))
@@ -152,7 +148,6 @@ extension FeedManager {
         return nil
     }
 
-    /// Feed-scoped variant of `nextArticleChunk(before:chunkDays:)`.
     func nextArticleChunk(for feed: Feed, before date: Date, chunkDays days: Int) -> Date? {
         _ = dataRevision
         let calendar = Calendar.current

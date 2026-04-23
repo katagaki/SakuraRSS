@@ -1,9 +1,7 @@
 import SwiftUI
 import WebKit
 
-/// Inline YouTube embed used when an article body contains a
-/// `{{YOUTUBE}}<id>{{/YOUTUBE}}` marker.  Uses the same WebKit-based
-/// player as `YouTubePlayerView` but exposes only a compact control row.
+/// Inline YouTube embed for `{{YOUTUBE}}` markers with a compact control row.
 struct YouTubeEmbedBlockView: View {
 
     let videoID: String

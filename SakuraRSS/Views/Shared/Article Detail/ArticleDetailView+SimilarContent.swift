@@ -123,11 +123,7 @@ extension ArticleDetailView {
         }
     }
 
-    /// Kicks off insight loading (similar articles, topics, people) in
-    /// the background so it never blocks the UI thread. The SQLite
-    /// reads and NLP passes live inside `nonisolated static` helpers
-    /// that run on the generic executor (off MainActor); only the
-    /// final @State writes land back on MainActor after the awaits.
+    /// Kicks off similar/topic/people loading off MainActor.
     func loadInsightsInBackground() {
         guard contentInsightsEnabled else { return }
         let currentArticle = article
@@ -153,8 +149,7 @@ extension ArticleDetailView {
         }
     }
 
-    /// Runs entity extraction entirely off the main actor. Callable from
-    /// a detached task because it takes only Sendable inputs.
+    /// Runs entity extraction off the main actor using Sendable inputs.
     fileprivate nonisolated static func computeArticleEntities(
         articleID: Int64,
         articleTitle: String,
@@ -162,7 +157,6 @@ extension ArticleDetailView {
     ) async -> (topics: [String], people: [String]) {
         let db = DatabaseManager.shared
         return await Task.detached(priority: .userInitiated) {
-            // Ensure entity extraction has been run for this article.
             if (try? db.isEntitiesProcessed(articleId: articleID)) != true {
                 let text = [articleTitle, articleSummary]
                     .filter { !$0.isEmpty }
@@ -199,9 +193,7 @@ extension ArticleDetailView {
         }.value
     }
 
-    /// Runs similar-article discovery entirely off the main actor. The
-    /// NLP embedding pass, SQLite reads, and cache writes all happen on
-    /// a detached utility task; favicons are fetched concurrently after.
+    /// Runs similar-article discovery off the main actor.
     fileprivate nonisolated static func computeSimilarArticles(
         currentArticle: Article,
         feedsLookup: [Int64: Feed]
@@ -212,8 +204,6 @@ extension ArticleDetailView {
             )
         }.value
 
-        // Favicons are fetched in parallel - FaviconCache.favicon(for:) is
-        // already async and safe to call concurrently.
         return await withTaskGroup(of: (Int, SimilarArticleItem).self) { group in
             for (index, match) in rawMatches.enumerated() {
                 group.addTask {
@@ -241,17 +231,13 @@ extension ArticleDetailView {
         }
     }
 
-    /// Returns match metadata ordered by hybrid similarity score. Uses the
-    /// SQLite cache when available; otherwise runs the retrieve-then-rerank
-    /// pipeline, persists the result, and marks the source article as
-    /// computed. Must be called from a detached task.
+    /// Returns match metadata ordered by hybrid similarity score.
     fileprivate nonisolated static func computeRawMatches(
         currentArticle: Article,
         feedsLookup: [Int64: Feed]
     ) async -> [SimilarMatchData] {
         let db = DatabaseManager.shared
 
-        // 1. Cache hit path - instant return, no NLP, no window scan.
         if (try? db.isSimilarComputed(articleId: currentArticle.id)) == true {
             if let cached = try? db.cachedSimilarArticleIDs(forSourceID: currentArticle.id),
                !cached.isEmpty {
@@ -270,15 +256,10 @@ extension ArticleDetailView {
                 }
                 return results
             }
-            // Empty cache → computed earlier, no matches, skip recompute.
+            // Empty cache means computed earlier with no matches; skip recompute.
             return []
         }
 
-        // 2. Cache miss - run the hybrid ranker.
-        //
-        // Retrieval: widen the candidate window to ±7 days / up to 82
-        // articles so the reranker gets real recall instead of a narrow
-        // 48h slice.
         guard let candidates = try? db.articlesInWindow(
             around: currentArticle, hours: 168, limit: 82
         ), !candidates.isEmpty else {
@@ -286,10 +267,6 @@ extension ArticleDetailView {
             return []
         }
 
-        // Ensure the source article has entities extracted. The background
-        // coordinator normally handles this during feed refresh, but a
-        // freshly opened brand-new article may not have been processed yet.
-        // Same pattern as `computeArticleEntities` above.
         if (try? db.isEntitiesProcessed(articleId: currentArticle.id)) != true {
             let sourceText = [currentArticle.title, currentArticle.summary ?? ""]
                 .filter { !$0.isEmpty }
@@ -304,7 +281,6 @@ extension ArticleDetailView {
             try? db.markEntitiesProcessed(articleId: currentArticle.id)
         }
 
-        // Batch-load source + candidate entities in a single query.
         let sourceEntities: Set<String> = (try? db.entities(forArticleID: currentArticle.id))
             .map { Set($0.map { $0.name.lowercased() }) } ?? []
         let candidateIDs = candidates.map { $0.id }
@@ -321,8 +297,7 @@ extension ArticleDetailView {
             minimumScore: 0.35
         )
 
-        // Persist `1 - score` as the distance column so lower-is-better and
-        // rank-ordering stay consistent with the existing cache reader.
+        // Persist `1 - score` as distance so lower-is-better matches the cache reader.
         try? db.cacheSimilarArticles(
             similar.map { (id: $0.articleID, distance: 1.0 - $0.score) },
             forSourceID: currentArticle.id
@@ -345,8 +320,6 @@ extension ArticleDetailView {
     }
 }
 
-// Intermediate type so the detached task can return a single value type
-// without tripping the large-tuple lint rule.
 private struct SimilarMatchData: Sendable {
     let article: Article
     let feedName: String
@@ -362,7 +335,7 @@ private struct SimilarArticleCard: View {
     let item: SimilarArticleItem
 
     private let cardWidth: CGFloat = 240
-    private let imageHeight: CGFloat = 135  // 16:9 widescreen
+    private let imageHeight: CGFloat = 135
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {

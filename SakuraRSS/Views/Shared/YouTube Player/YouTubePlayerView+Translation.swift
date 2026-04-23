@@ -25,7 +25,6 @@ extension YouTubePlayerView {
                     response.targetText, for: article.id
                 )
             } catch {
-                // Translation failed; user can retry
             }
         } else {
             let source = descriptionSource ?? ""
@@ -41,7 +40,6 @@ extension YouTubePlayerView {
                     title: nil, text: result.text, for: article.id
                 )
             } catch {
-                // Translation failed; user can retry
             }
         }
     }

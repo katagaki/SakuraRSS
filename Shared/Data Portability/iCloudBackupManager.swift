@@ -53,13 +53,11 @@ final class iCloudBackupManager: @unchecked Sendable {
 
         let destinationURL = documentsURL.appendingPathComponent("Sakura.feeds")
 
-        // Replace atomically
         if FileManager.default.fileExists(atPath: destinationURL.path) {
             try FileManager.default.removeItem(at: destinationURL)
         }
         try FileManager.default.copyItem(at: cleanedURL, to: destinationURL)
 
-        // Write metadata
         let metadata = try buildMetadata()
         let metadataURL = documentsURL.appendingPathComponent("backup-metadata.json")
         let encoder = JSONEncoder()
@@ -67,14 +65,11 @@ final class iCloudBackupManager: @unchecked Sendable {
         let data = try encoder.encode(metadata)
         try data.write(to: metadataURL, options: .atomic)
 
-        // Record last backup date
         UserDefaults.standard.set(Date().timeIntervalSince1970,
                                   forKey: "iCloudBackup.LastBackupDate")
     }
 
-    /// Runs a backup if the user's chosen interval has elapsed since the last backup.
-    /// The system already throttled us via `earliestBeginDate`, so we allow a
-    /// 10% slack to avoid skipping a granted run over minor timing drift.
+    /// Runs a backup if the user's chosen interval has elapsed (allows 10% slack for timing drift).
     func backupIfScheduled() async {
         let intervalRaw = UserDefaults.standard.integer(forKey: "iCloudBackup.Interval")
         let interval = BackupInterval(rawValue: intervalRaw) ?? .everyNight
@@ -101,10 +96,8 @@ final class iCloudBackupManager: @unchecked Sendable {
             .appendingPathComponent("Documents")
             .appendingPathComponent("backup-metadata.json")
 
-        // Trigger download if needed
         if !FileManager.default.fileExists(atPath: metadataURL.path) {
             try? FileManager.default.startDownloadingUbiquitousItem(at: metadataURL)
-            // Wait briefly for download
             for _ in 0..<20 {
                 try? await Task.sleep(nanoseconds: 250_000_000)
                 if FileManager.default.fileExists(atPath: metadataURL.path) { break }
@@ -126,7 +119,6 @@ final class iCloudBackupManager: @unchecked Sendable {
             .appendingPathComponent("Documents")
             .appendingPathComponent("Sakura.feeds")
 
-        // Trigger download if needed
         if !FileManager.default.fileExists(atPath: backupURL.path) {
             try FileManager.default.startDownloadingUbiquitousItem(at: backupURL)
             for _ in 0..<60 {
@@ -142,7 +134,6 @@ final class iCloudBackupManager: @unchecked Sendable {
         let dbPath = DatabaseManager.databasePath
         let dbURL = URL(fileURLWithPath: dbPath)
 
-        // Remove existing database files (main + WAL + SHM if present)
         for suffix in ["", "-wal", "-shm"] {
             let fileURL = URL(fileURLWithPath: dbPath + suffix)
             if FileManager.default.fileExists(atPath: fileURL.path) {
@@ -150,10 +141,7 @@ final class iCloudBackupManager: @unchecked Sendable {
             }
         }
 
-        // Copy backup to database location
         try FileManager.default.copyItem(at: backupURL, to: dbURL)
-
-        // Reconnect DatabaseManager
         try DatabaseManager.shared.reconnect()
     }
 
@@ -179,11 +167,10 @@ final class iCloudBackupManager: @unchecked Sendable {
             try FileManager.default.removeItem(at: tempDB)
         }
 
-        // Copy the live database file
         let sourceURL = URL(fileURLWithPath: DatabaseManager.databasePath)
         try FileManager.default.copyItem(at: sourceURL, to: tempDB)
 
-        // Also copy WAL/SHM if they exist so the temp copy is complete
+        // Copy WAL/SHM so the temp copy is complete.
         for suffix in ["-wal", "-shm"] {
             let src = URL(fileURLWithPath: DatabaseManager.databasePath + suffix)
             let dst = tempDir.appendingPathComponent("Sakura-backup.feeds" + suffix)
@@ -195,13 +182,11 @@ final class iCloudBackupManager: @unchecked Sendable {
             }
         }
 
-        // Open the temp copy and strip caches, then vacuum
         let connection = try Connection(tempDB.path)
         try connection.run("DELETE FROM image_cache")
         try connection.run("DELETE FROM summary_cache")
         try connection.run("VACUUM")
 
-        // Clean up WAL/SHM from temp (VACUUM consolidates everything)
         for suffix in ["-wal", "-shm"] {
             let dst = tempDir.appendingPathComponent("Sakura-backup.feeds" + suffix)
             try? FileManager.default.removeItem(at: dst)

@@ -1,8 +1,6 @@
 import Foundation
 
-/// Accumulates article image URLs discovered during a refresh pass so
-/// `refreshAllFeeds` can run a single bounded-concurrency preload step
-/// at the end instead of contending with the feed-body fetches.
+/// Accumulates image URLs during refresh for a single bounded preload step at the end.
 actor ImagePreloadCollector {
 
     private var urls: [String] = []
@@ -20,13 +18,7 @@ actor ImagePreloadCollector {
 
 extension FeedManager {
 
-    /// Downloads and SQLite-caches the raw bytes for the given article
-    /// image URLs.  Runs at `.utility` priority with a small concurrency
-    /// cap so foreground scroll-driven image requests and the main
-    /// refresh pipeline stay ahead of this work.  Only the encoded bytes
-    /// are persisted — the `CachedAsyncImage` loader still does the
-    /// ImageIO downsample on first display, so this step adds zero
-    /// decoded-pixel memory pressure.
+    /// Downloads and caches raw bytes for article images at utility priority.
     nonisolated static func preloadImages(urls: [String]) async {
         guard !urls.isEmpty else { return }
 

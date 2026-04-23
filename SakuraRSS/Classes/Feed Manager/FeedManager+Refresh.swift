@@ -189,7 +189,7 @@ extension FeedManager {
         await loadFromDatabaseInBackground()
     }
 
-    /// Refreshes every feed, then optionally chains the NLP pass.
+    /// Refreshes every feed, optionally chaining the NLP pass.
     func refreshAllFeeds(
         skipAuthenticatedScrapers: Bool = false,
         respectCooldown: Bool = false,
@@ -292,7 +292,6 @@ extension FeedManager {
         }
     }
 
-    /// Drains `feeds` through a task group capped at `maxConcurrent`.
     fileprivate func runBoundedRefresh(
         _ feeds: [Feed],
         maxConcurrent: Int,
@@ -341,7 +340,6 @@ extension FeedManager {
         }
     }
 
-    /// Runs the NLP pass while mirroring progress onto `nlpTotal` / `nlpCompleted`.
     fileprivate func processNewArticlesWithProgress() async {
         await NLPProcessingCoordinator.processNewArticlesIfEnabled(
             onBegin: { [weak self] total in
@@ -353,8 +351,7 @@ extension FeedManager {
         )
     }
 
-    /// Refreshes feeds that have never been fetched (e.g. added by the
-    /// share extension while the main app was in the background).
+    /// Refreshes feeds that have never been fetched.
     func refreshUnfetchedFeeds() async {
         let unfetched = feeds.filter { $0.lastFetched == nil }
         guard !unfetched.isEmpty else { return }
@@ -434,11 +431,7 @@ extension FeedManager {
         notifyFaviconChange()
     }
 
-    /// Cancels the in-flight `refreshAllFeeds` / `refreshAllFeedsAndFavicons`
-    /// task, if any.  URLSession fetches that are already in-flight receive
-    /// a `CancellationError`, no further feeds are submitted to the task
-    /// group, and the UI state (`isLoading`, progress counters) is torn down
-    /// by the refresh method's `defer` block once the task unwinds.
+    /// Cancels the in-flight refresh task; `defer` in the refresh method tears down UI state.
     @MainActor
     func cancelRefresh() {
         refreshTask?.cancel()

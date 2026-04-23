@@ -1,26 +1,6 @@
 import SwiftUI
 
 /// Selector-based recipe editor for a single Web Feed.
-///
-/// The view keeps things approachable for users who've never
-/// heard of CSS selectors:
-///
-/// 1. They paste a URL and tap **Fetch**.
-/// 2. The builder loads the page and shows a live preview of
-///    every item that currently matches `itemSelector`.
-/// 3. **Auto-Detect** runs a heuristic pattern finder that tries
-///    to guess the right selectors for them.
-/// 4. Saving calls `FeedManager.addPetalFeed` (create) or
-///    `updatePetalRecipe` (edit), which re-routes the refresh to
-///    `PetalEngine`.
-///
-/// The preview re-runs on a debounced basis so heavy typing
-/// doesn't hammer the network; fetches are cached so tweaking
-/// selectors after an initial fetch is instantaneous.
-///
-/// This view owns the state and action methods; the three form
-/// sections (source, selectors, preview) live in their own
-/// sibling files so each is small enough to read in one screen.
 struct PetalBuilderView: View {
 
     enum Mode {
@@ -151,7 +131,6 @@ struct PetalBuilderView: View {
 
     private func schedulePreview() {
         previewTask?.cancel()
-        // Only run the in-memory re-parse if we already have HTML.
         guard fetchedHTML != nil else { return }
         previewTask = Task {
             try? await Task.sleep(for: .milliseconds(250))
@@ -167,11 +146,7 @@ struct PetalBuilderView: View {
             ? String(localized: "Error.NoMatches", table: "Petal") : nil
     }
 
-    /// Runs the heuristic selector finder against the currently
-    /// cached HTML and folds its suggestions into the editable
-    /// recipe.  Preserves any fields the user has already filled
-    /// in (notably `name`, which is usually already set by the
-    /// AddFeed flow that seeds the builder with a URL).
+    /// Runs the heuristic selector finder against cached HTML and folds suggestions into the recipe.
     private func runAutoDetect() {
         guard let html = fetchedHTML else { return }
         guard let suggestion = PetalAutoDetect.detect(

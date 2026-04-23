@@ -1,7 +1,6 @@
 import SwiftUI
 
-/// Loads and displays an image fitted to a fixed height, letting
-/// its natural aspect ratio determine the width.
+/// Image fitted to a fixed height; width follows the natural aspect ratio.
 struct CarouselImageView: View {
 
     let url: URL
@@ -11,8 +10,7 @@ struct CarouselImageView: View {
     init(url: URL, height: CGFloat) {
         self.url = url
         self.height = height
-        // Paint memory-cache hits on first render to avoid the placeholder
-        // flash during horizontal carousel scroll.
+        // Paint memory-cache hits on first render to avoid placeholder flash during scroll.
         _image = State(initialValue: ImageMemoryCache.shared.image(forKey: url.absoluteString))
     }
 

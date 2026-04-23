@@ -2,10 +2,7 @@ import AVFoundation
 import FluidAudio
 import Foundation
 
-/// Transcription engine using FluidAudio (NVIDIA Parakeet TDT models via CoreML/ANE).
-///
-/// Models are downloaded on demand and stored in FluidAudio's managed cache.
-/// Runs in-process on the Neural Engine. 25+ European languages supported.
+/// Transcription engine using FluidAudio's Parakeet TDT models on the Neural Engine.
 struct FluidTranscriberEngine: TranscriptionEngine {
 
     static let requiresModelDownload = true
@@ -61,21 +58,14 @@ struct FluidTranscriberEngine: TranscriptionEngine {
             return Self.buildSegments(from: timings)
         }
 
-        // Fallback: no token timings returned (shouldn't happen for TDT models).
+        // Fallback: no token timings (shouldn't happen for TDT models).
         let duration = try await Self.audioDuration(of: audioFileURL)
         return Self.distributeTimestamps(text: result.text, totalDuration: duration)
     }
 
     // MARK: - Segment construction from token timings
 
-    /// Group per-token timings into sentence-level `TranscriptSegment`s using
-    /// real start/end times from the TDT decoder.
-    ///
-    /// FluidAudio normalizes tokens before returning them: the SentencePiece
-    /// word-boundary marker `▁` is already replaced with a space, so simply
-    /// concatenating `token` strings yields the natural transcript text.
-    /// Punctuation tokens (`.`, `!`, `?`) are attached to the preceding word
-    /// and mark sentence boundaries.
+    /// Groups per-token timings into sentence-level segments using the TDT decoder's timestamps.
     static func buildSegments(from timings: [TokenTiming]) -> [TranscriptSegment] {
         var segments: [TranscriptSegment] = []
         var buffer = ""
@@ -116,8 +106,7 @@ struct FluidTranscriberEngine: TranscriptionEngine {
         }
         flush()
 
-        // If no sentence punctuation was ever emitted, fall back to one segment
-        // covering the entire utterance.
+        // Fallback single-segment if no sentence punctuation was emitted.
         if segments.isEmpty, let first = timings.first, let last = timings.last {
             let text = timings
                 .map(\.token)
@@ -138,7 +127,6 @@ struct FluidTranscriberEngine: TranscriptionEngine {
         return segments
     }
 
-    /// Whether a token's trailing character ends a sentence.
     private static func endsSentence(_ token: String) -> Bool {
         guard let last = token.last else { return false }
         return last == "." || last == "!" || last == "?" || last == "。" || last == "？" || last == "！"
@@ -146,15 +134,13 @@ struct FluidTranscriberEngine: TranscriptionEngine {
 
     // MARK: - Helpers
 
-    /// Returns the duration of an audio file in seconds.
     private static func audioDuration(of url: URL) async throws -> TimeInterval {
         let asset = AVURLAsset(url: url)
         let duration = try await asset.load(.duration)
         return CMTimeGetSeconds(duration)
     }
 
-    /// Degraded fallback for the rare case where no token timings are returned.
-    /// Splits text into sentences and assigns evenly distributed timestamps.
+    /// Degraded fallback: splits text into sentences with evenly distributed timestamps.
     static func distributeTimestamps(text: String, totalDuration: TimeInterval) -> [TranscriptSegment] {
         let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty, totalDuration > 0 else { return [] }

@@ -24,7 +24,6 @@ extension PodcastEpisodeView {
                     response.targetText, for: article.id
                 )
             } catch {
-                // Translation failed; user can retry
             }
         } else {
             let source = article.summary ?? ""
@@ -39,7 +38,6 @@ extension PodcastEpisodeView {
                     for: article.id
                 )
             } catch {
-                // Translation failed; user can retry
             }
         }
     }

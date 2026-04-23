@@ -10,13 +10,10 @@ struct FaviconImage: View {
     let skipInset: Bool
 
     var isNonSquare: Bool { !image.isSquare }
-    /// Completely filled squares are treated as edge-to-edge icons and skip every automatic inset.
     var isFilledSquare: Bool { image.isFilledSquare }
     var showInset: Bool { !skipInset && isCircle && !image.isCircular && !isFilledSquare }
     var needsWhiteBackground: Bool { !skipInset && image.isDark && !isFilledSquare }
     var isNearBlack: Bool { image.isNearBlack && !isFilledSquare }
-
-    /// In round-rect mode, a transparent favicon should be inset with a tinted background.
     var showRoundRectInset: Bool { !skipInset && !isCircle && image.isSquare && image.hasTransparentPixels }
 
     var iconSize: CGFloat {
@@ -75,30 +72,13 @@ struct FaviconImage: View {
 }
 
 // MARK: - Derived Metrics (memoized)
-//
-// Every pixel-sampling routine below used to run on every SwiftUI body
-// evaluation - i.e. once per favicon, per list row, per scroll tick.  The
-// FaviconDerivedMetrics struct captures the raw results of each sampling
-// pass once and is attached to the UIImage via an associated object, so
-// the hot path becomes a dictionary read.  FaviconCache also persists
-// the struct as a small JSON sidecar next to the cached PNG, so newly
-// launched sessions can skip the sampling entirely when the favicon
-// has been seen before.
 
 nonisolated struct FaviconDerivedMetrics: Codable, Sendable {
-    /// Twelve corner alpha samples (3 per corner) from a 32×32 downscaled
-    /// version of the image.
     let cornerAlphas: [UInt8]
-    /// Centre-pixel alpha from the same downscaled sample.
     let centerAlpha: UInt8
-    /// True when the image was too small (<8px) to corner-sample reliably.
     let cornerSampleUnavailable: Bool
-    /// Average RGB of every opaque pixel (16×16 sample), or `nil` when the
-    /// image has no opaque pixels.
     let averageColor: [Double]?
-    /// Average relative luminance (ITU-R BT.709) across opaque pixels.
     let averageLuminance: Double
-    /// True when virtually every opaque pixel is near-black.
     let isNearBlack: Bool
 }
 
@@ -111,7 +91,6 @@ private nonisolated(unsafe) var faviconDerivedMetricsKey: UInt8 = 0
 
 extension UIImage {
 
-    /// In-memory memoized metrics attached to this UIImage instance.
     nonisolated var faviconDerivedMetrics: FaviconDerivedMetrics? {
         get {
             (objc_getAssociatedObject(self, &faviconDerivedMetricsKey) as? FaviconDerivedMetricsBox)?.metrics
@@ -127,7 +106,6 @@ extension UIImage {
         }
     }
 
-    /// Returns the cached metrics, computing and attaching them on first call.
     @discardableResult
     nonisolated func ensureFaviconDerivedMetrics() -> FaviconDerivedMetrics {
         if let existing = faviconDerivedMetrics { return existing }
@@ -152,13 +130,11 @@ extension UIImage {
 
 extension UIImage {
 
-    /// Returns `true` when the image has equal width and height.
     var isSquare: Bool {
         guard let cgImage = cgImage else { return true }
         return cgImage.width == cgImage.height
     }
 
-    /// Samples corner and center pixel alpha values from a downscaled version of the image.
     fileprivate nonisolated func _rawSampleCornerAlphas() -> (corners: [UInt8], centerAlpha: UInt8)? {
         guard let cgImage = cgImage else { return nil }
         let width = cgImage.width
@@ -199,16 +175,14 @@ extension UIImage {
         return (corners, centerAlpha)
     }
 
-    /// Returns `true` when the image corners are transparent and the centre is opaque,
-    /// indicating the favicon is already circular (or rounded) and needs no inset treatment.
+    /// True when corners are transparent and centre is opaque (already circular/rounded).
     var isCircular: Bool {
         let metrics = ensureFaviconDerivedMetrics()
         guard !metrics.cornerSampleUnavailable else { return false }
         return metrics.cornerAlphas.allSatisfy { $0 <= 25 } && metrics.centerAlpha >= 200
     }
 
-    /// Returns `true` when all corners are opaque, meaning the image completely fills
-    /// the square and can be clipped to a circle at full size without needing an inset.
+    /// True when all corners are opaque; the image fills the square edge-to-edge.
     var isFilledSquare: Bool {
         let metrics = ensureFaviconDerivedMetrics()
         guard !metrics.cornerSampleUnavailable else { return false }
@@ -223,12 +197,10 @@ extension UIImage {
         ensureFaviconDerivedMetrics().averageLuminance < 0.3
     }
 
-    /// Returns `true` when the image contains any transparent pixels.
     var hasTransparentPixels: Bool {
         !isFilledSquare
     }
 
-    /// Computes the average colour of all opaque pixels as a SwiftUI `Color`.
     var averageColor: Color {
         guard let rgb = ensureFaviconDerivedMetrics().averageColor, rgb.count >= 3 else {
             return .gray
@@ -236,7 +208,6 @@ extension UIImage {
         return Color(red: rgb[0], green: rgb[1], blue: rgb[2])
     }
 
-    /// Raw 16×16 averaged RGB sample of opaque pixels.
     fileprivate nonisolated func _rawAverageColorComponents() -> (red: CGFloat, green: CGFloat, blue: CGFloat)? {
         guard let cgImage = cgImage else { return nil }
 
@@ -275,7 +246,6 @@ extension UIImage {
         return (totalR / opaqueCount, totalG / opaqueCount, totalB / opaqueCount)
     }
 
-    /// Returns an RGB tuple of the average colour of all opaque pixels.
     var averageColorComponents: (red: CGFloat, green: CGFloat, blue: CGFloat)? {
         guard let rgb = ensureFaviconDerivedMetrics().averageColor, rgb.count >= 3 else {
             return nil
@@ -283,15 +253,13 @@ extension UIImage {
         return (CGFloat(rgb[0]), CGFloat(rgb[1]), CGFloat(rgb[2]))
     }
 
-    /// Returns a background colour derived from the favicon's average colour,
-    /// lightened in light mode or darkened in dark mode, suitable for card backgrounds.
+    /// Background colour derived from the favicon's average colour for card backgrounds.
     func cardBackgroundColor(isDarkMode: Bool) -> Color {
         guard let avg = averageColorComponents else {
             return isDarkMode ? Color(white: 0.15) : Color(white: 0.9)
         }
 
         if isDarkMode {
-            // Mix 65% black with 35% of the average colour for a dark tinted background
             let blend: CGFloat = 0.35
             return Color(
                 red: blend * avg.red,
@@ -299,7 +267,6 @@ extension UIImage {
                 blue: blend * avg.blue
             )
         } else {
-            // Mix 65% white with 35% of the average colour for a light tinted background
             let whiteBlend: CGFloat = 0.65
             return Color(
                 red: whiteBlend + (1 - whiteBlend) * avg.red,
@@ -309,8 +276,7 @@ extension UIImage {
         }
     }
 
-    /// A near-white tint derived from the average colour of the image,
-    /// suitable as a subtle background behind a transparent favicon.
+    /// Near-white tint derived from the average colour for backgrounds behind transparent favicons.
     var nearWhiteAverageColor: Color {
         guard let rgb = ensureFaviconDerivedMetrics().averageColor, rgb.count >= 3 else {
             return Color(.secondarySystemBackground)
@@ -319,7 +285,6 @@ extension UIImage {
         let avgG = rgb[1]
         let avgB = rgb[2]
 
-        // Mix 85% white with 15% of the average colour
         let whiteBlend: Double = 0.85
         return Color(
             red: whiteBlend + (1 - whiteBlend) * avgR,
@@ -328,8 +293,7 @@ extension UIImage {
         )
     }
 
-    /// Returns `true` when virtually all opaque pixels are near-black,
-    /// meaning the icon would be invisible on a dark background.
+    /// True when virtually all opaque pixels are near-black.
     var isNearBlack: Bool {
         ensureFaviconDerivedMetrics().isNearBlack
     }
@@ -404,7 +368,6 @@ extension UIImage {
             let green = CGFloat(pixelData[offset + 1]) / 255.0
             let blue = CGFloat(pixelData[offset + 2]) / 255.0
 
-            // Relative luminance (ITU-R BT.709)
             totalLuminance += 0.2126 * red + 0.7152 * green + 0.0722 * blue
             opaquePixelCount += 1
         }

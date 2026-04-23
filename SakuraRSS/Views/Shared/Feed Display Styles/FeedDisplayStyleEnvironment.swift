@@ -29,15 +29,10 @@ extension EnvironmentValues {
 // MARK: - Zoom Transition Modifiers
 
 extension View {
-    /// Applies the zoom navigation transition on the destination side.
-    /// When no matching `matchedTransitionSource` exists, the system
-    /// falls back to the default push transition automatically.
     func zoomTransition(sourceID: Int64, in namespace: Namespace.ID) -> some View {
         self.navigationTransition(.zoom(sourceID: sourceID, in: namespace))
     }
 
-    /// Applies the zoom navigation transition on the destination side,
-    /// accepting an optional namespace.
     @ViewBuilder
     func zoomTransition(sourceID: Int64, in namespace: Namespace.ID?) -> some View {
         if let namespace {
@@ -47,7 +42,6 @@ extension View {
         }
     }
 
-    /// Marks this view as the source for a zoom navigation transition.
     @ViewBuilder
     func zoomSource(id: Int64, namespace: Namespace.ID?) -> some View {
         if let namespace {

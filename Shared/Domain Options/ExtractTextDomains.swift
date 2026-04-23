@@ -1,7 +1,6 @@
 import Foundation
 
-/// Domains that require WebView-based text extraction (JavaScript rendering)
-/// instead of simple HTTP fetch, because their content is dynamically loaded.
+/// Domains that require WebView-based text extraction because content is dynamically loaded.
 nonisolated enum ExtractTextDomains {
 
     static let allowlistedDomains: Set<String> = [

@@ -4,16 +4,8 @@ nonisolated extension PetalZip {
 
     // MARK: - CRC32
 
-    /// Table-driven CRC32 (polynomial 0xEDB88320, reflected).
-    ///
-    /// This is the checksum that PKZIP entries use to let readers
-    /// verify entry integrity; it is **not** a cryptographic hash
-    /// and must not be used for integrity-sensitive purposes.
-    ///
-    /// The table is built lazily on first access inside a static
-    /// `let` initializer - no thread-safety concerns because
-    /// static lets on top-level types are initialised exactly once
-    /// under `dispatch_once` semantics.
+    /// Table-driven CRC32 (polynomial 0xEDB88320, reflected) for PKZIP entries.
+    /// Not a cryptographic hash.
     static func crc32(_ data: Data) -> UInt32 {
         var crc: UInt32 = 0xFFFFFFFF
         for byte in data {
@@ -23,8 +15,6 @@ nonisolated extension PetalZip {
         return crc ^ 0xFFFFFFFF
     }
 
-    /// Precomputed 256-entry lookup table for the reflected
-    /// CRC32 polynomial 0xEDB88320.
     private static let crcTable: [UInt32] = {
         var table = [UInt32](repeating: 0, count: 256)
         for index in 0..<256 {

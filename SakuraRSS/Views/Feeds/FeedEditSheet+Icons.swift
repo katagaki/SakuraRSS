@@ -10,11 +10,9 @@ extension FeedEditSheet {
             if customURL == "photo" {
                 return await FaviconCache.shared.customFavicon(feedID: feed.id)
             }
-            // Check if already cached for this feed
             if let cached = await FaviconCache.shared.customFavicon(feedID: feed.id) {
                 return cached
             }
-            // Download, cache locally, then return
             if let url = URL(string: customURL),
                let (data, _) = try? await URLSession.shared.data(for: .sakura(url: url)),
                let image = UIImage(data: data) {
@@ -33,7 +31,6 @@ extension FeedEditSheet {
         isFetchingIcon = true
         defer { isFetchingIcon = false }
 
-        // For X feeds, fetch the profile avatar using XProfileScraper
         if feed.isXFeed,
            let handle = XProfileScraper.handleFromFeedURL(feed.url),
            let cookies = await XProfileScraper.getXCookies() {
@@ -52,7 +49,6 @@ extension FeedEditSheet {
             }
         }
 
-        // For Instagram feeds, fetch the profile avatar using InstagramProfileScraper
         if feed.isInstagramFeed,
            let handle = InstagramProfileScraper.handleFromFeedURL(feed.url),
            let profileURL = InstagramProfileScraper.profileURL(for: handle) {
@@ -99,7 +95,6 @@ extension FeedEditSheet {
                 return true
             }
         } catch {
-            // Icon fetch failed - show error below
         }
         showIconFetchError = true
         return false

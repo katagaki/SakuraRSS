@@ -4,8 +4,7 @@ extension FeedDiscovery {
 
     // MARK: - Social Media Feed Detection
 
-    /// Detects Bluesky, Mastodon, X/Twitter, and Instagram profile URLs
-    /// and constructs their feed URLs.
+    /// Detects social media profile URLs and constructs their feed URLs.
     func detectSocialMediaFeed(url: URL) async -> DiscoveredFeed? {
         if let arXivFeed = detectArXivListFeed(url: url) {
             return arXivFeed
@@ -36,11 +35,7 @@ extension FeedDiscovery {
         return nil
     }
 
-    /// Detects arXiv subject listing URLs and rewrites them to the matching
-    /// RSS feed. arXiv publishes a standard RSS feed for each category
-    /// (e.g. `https://arxiv.org/list/cs.AI/recent` →
-    /// `https://rss.arxiv.org/rss/cs.AI`) so the normal RSS parser can handle
-    /// refreshes.
+    /// Rewrites arXiv subject listing URLs to their matching RSS feed.
     func detectArXivListFeed(url: URL) -> DiscoveredFeed? {
         guard let category = ArXivHelper.extractCategoryFromListURL(url) else {
             return nil
@@ -52,9 +47,7 @@ extension FeedDiscovery {
         )
     }
 
-    /// Detects X/Twitter profile URLs and returns a pseudo-feed entry.
-    /// The feed URL uses the `x-profile://` scheme so the app routes refresh
-    /// through XProfileScraper instead of RSSParser.
+    /// Returns a pseudo-feed for an X/Twitter profile URL (routed via XProfileScraper).
     func detectXProfileFeed(url: URL) -> DiscoveredFeed? {
         guard XProfileScraper.isXProfileURL(url),
               let handle = XProfileScraper.extractHandle(from: url) else {
@@ -68,9 +61,7 @@ extension FeedDiscovery {
         )
     }
 
-    /// Detects Instagram profile URLs and returns a pseudo-feed entry.
-    /// The feed URL uses the `instagram-profile://` scheme so the app routes
-    /// refresh through InstagramProfileScraper instead of RSSParser.
+    /// Returns a pseudo-feed for an Instagram profile URL (routed via InstagramProfileScraper).
     func detectInstagramProfileFeed(url: URL) -> DiscoveredFeed? {
         guard InstagramProfileScraper.isInstagramProfileURL(url),
               let handle = InstagramProfileScraper.extractHandle(from: url) else {
@@ -84,9 +75,7 @@ extension FeedDiscovery {
         )
     }
 
-    /// Detects YouTube playlist URLs and returns a pseudo-feed entry.
-    /// The feed URL uses the `youtube-playlist://` scheme so the app routes
-    /// refresh through YouTubePlaylistScraper instead of RSSParser.
+    /// Returns a pseudo-feed for a YouTube playlist URL (routed via YouTubePlaylistScraper).
     func detectYouTubePlaylistFeed(url: URL) -> DiscoveredFeed? {
         guard YouTubePlaylistScraper.isYouTubePlaylistURL(url),
               let playlistID = YouTubePlaylistScraper.extractPlaylistID(from: url) else {
@@ -100,11 +89,7 @@ extension FeedDiscovery {
         )
     }
 
-    /// Detects YouTube channel URLs (`/channel/UC...`, `/@handle`, `/user/<name>`,
-    /// `/c/<name>`) and returns a discovered feed that points at the public
-    /// Atom feed (`/feeds/videos.xml?channel_id=UC...`). The Atom feed works
-    /// directly with the generic RSS refresh pipeline, so the app fetches
-    /// title and videos on first refresh just like any other RSS feed.
+    /// Returns a discovered feed pointing at the channel's Atom feed.
     func detectYouTubeChannelFeed(url: URL) async -> DiscoveredFeed? {
         guard let host = url.host?.lowercased(),
               host == "youtube.com" || host == "www.youtube.com" || host == "m.youtube.com" else {
@@ -135,10 +120,7 @@ extension FeedDiscovery {
         return DiscoveredFeed(title: title, url: feedURL, siteURL: siteURL)
     }
 
-    /// Fetches a YouTube channel page and extracts the canonical channel ID
-    /// from `<meta itemprop="identifier">` / `<meta itemprop="channelId">` /
-    /// `<link rel="canonical">`. Returns `nil` on any failure - callers fall
-    /// through to generic discovery.
+    /// Extracts the canonical `UC...` channel ID from a YouTube channel page.
     static func resolveYouTubeChannelID(from url: URL) async -> String? {
         var request = URLRequest(url: url)
         request.setValue(sakuraUserAgent, forHTTPHeaderField: "User-Agent")
@@ -153,8 +135,7 @@ extension FeedDiscovery {
         }
     }
 
-    /// Pulls a `UC...` channel ID out of the YouTube channel page HTML using
-    /// any of the several stable markers YouTube embeds.
+    /// Pulls a `UC...` channel ID out of YouTube channel page HTML.
     static func extractYouTubeChannelID(from html: String) -> String? {
         let patterns = [
             #"<meta itemprop="identifier" content="(UC[\w-]+)""#,
@@ -175,10 +156,7 @@ extension FeedDiscovery {
         return nil
     }
 
-    /// Best-effort fetch of the YouTube Atom feed's `<title>` so the
-    /// discovered feed entry can show the real channel name immediately.
-    /// Returns `nil` on any failure; generic refresh will fill it in on
-    /// the subsequent initial refresh.
+    /// Best-effort fetch of the YouTube Atom feed's `<title>`.
     static func fetchYouTubeAtomTitle(feedURL: String) async -> String? {
         guard let url = URL(string: feedURL) else { return nil }
         var request = URLRequest(url: url)
@@ -200,8 +178,7 @@ extension FeedDiscovery {
         return nil
     }
 
-    /// Detects Bluesky profile URLs and constructs the RSS feed URL.
-    /// Format: bsky.app/profile/<handle> → bsky.app/profile/<handle>/rss
+    /// Constructs a Bluesky profile RSS feed URL.
     func detectBlueskyFeed(url: URL) async -> DiscoveredFeed? {
         guard let host = url.host?.lowercased(),
               host == "bsky.app" || host.hasSuffix(".bsky.app") else {
@@ -218,8 +195,7 @@ extension FeedDiscovery {
         return await probeFeedAt(domain: "bsky.app", path: "/profile/\(handle)/rss")
     }
 
-    /// Detects note.com creator profile URLs and constructs the RSS feed URL.
-    /// Format: note.com/<urlname> → note.com/<urlname>/rss
+    /// Constructs a note.com creator profile RSS feed URL.
     func detectNoteFeed(url: URL) async -> DiscoveredFeed? {
         guard NoteProfileScraper.isNoteProfileURL(url),
               let handle = NoteProfileScraper.extractHandle(from: url) else {
@@ -228,8 +204,7 @@ extension FeedDiscovery {
         return await probeFeedAt(domain: "note.com", path: "/\(handle)/rss")
     }
 
-    /// Detects Mastodon profile URLs and constructs the RSS feed URL.
-    /// Format: <instance>/@<username> → <instance>/@<username>.rss
+    /// Constructs a Mastodon profile RSS feed URL.
     func detectMastodonFeed(url: URL) async -> DiscoveredFeed? {
         guard let host = url.host?.lowercased() else { return nil }
 

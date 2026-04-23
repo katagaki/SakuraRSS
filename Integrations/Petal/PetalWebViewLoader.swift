@@ -1,17 +1,7 @@
 import Foundation
 import WebKit
 
-/// Loads a URL in a `WKWebView` and returns the fully-hydrated HTML
-/// after client-side JavaScript has run.
-///
-/// Used by `PetalEngine` when a recipe's `fetchMode` is `.rendered`,
-/// which is the only way to extract content from React / Vue / Next
-/// SPAs whose initial HTML response contains little more than an
-/// empty `<div id="root">` shell.
-///
-/// Mirrors `WebViewExtractor` but lives next to the Petal code so
-/// tweaks to its waits-and-evals don't accidentally regress the
-/// article-extractor path.
+/// Loads a URL in a `WKWebView` and returns the fully-hydrated HTML after JS runs.
 @MainActor
 final class PetalWebViewLoader: NSObject, WKNavigationDelegate {
 
@@ -19,8 +9,6 @@ final class PetalWebViewLoader: NSObject, WKNavigationDelegate {
     private var continuation: CheckedContinuation<String?, Never>?
     private var timeoutTask: Task<Void, Never>?
 
-    /// Load the URL, wait for JS to settle, and return the final HTML.
-    /// Times out at 10 s to keep the refresh pipeline moving.
     func loadHTML(from url: URL) async -> String? {
         await withCheckedContinuation { continuation in
             self.continuation = continuation
@@ -64,7 +52,7 @@ final class PetalWebViewLoader: NSObject, WKNavigationDelegate {
         timeoutTask?.cancel()
         timeoutTask = nil
         Task {
-            // Give client-side hydration a moment to run.
+            // Let client-side hydration run before snapshotting the DOM.
             try? await Task.sleep(for: .seconds(2))
             self.extractHTML()
         }

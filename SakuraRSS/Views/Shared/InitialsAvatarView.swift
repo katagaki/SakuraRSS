@@ -79,14 +79,12 @@ struct InitialsAvatarView: View {
         return renderer.image { _ in
             let rect = CGRect(origin: .zero, size: CGSize(width: size, height: size))
 
-            // Draw rounded rectangle background
             let cornerRadius = size / 8
             let path = UIBezierPath(roundedRect: rect, cornerRadius: cornerRadius)
             bgColor.setFill()
             path.fill()
 
             if isGlyphBased(name) {
-                // Draw newspaper SF Symbol for glyph-based languages
                 let fontSize = size * 0.4
                 let config = UIImage.SymbolConfiguration(pointSize: fontSize, weight: .semibold)
                 if let symbol = UIImage(systemName: "newspaper", withConfiguration: config)?
@@ -101,7 +99,6 @@ struct InitialsAvatarView: View {
                     symbol.draw(in: symbolRect)
                 }
             } else {
-                // Draw initials text for Latin-based languages
                 let initials = initials(for: name)
                 let fontSize = size * 0.4
                 let font = UIFont.systemFont(ofSize: fontSize, weight: .semibold)

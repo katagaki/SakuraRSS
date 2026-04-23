@@ -24,7 +24,6 @@ extension ArticleDetailView {
                     response.targetText, for: article.id
                 )
             } catch {
-                // Translation failed; user can retry
             }
         } else {
             let source = extractedText ?? article.summary ?? ""
@@ -41,7 +40,6 @@ extension ArticleDetailView {
                     title: result.title, text: result.text, for: article.id
                 )
             } catch {
-                // Translation failed; user can retry
             }
         }
     }

@@ -1,26 +1,12 @@
 import Foundation
 
-/// A minimal Keychain-backed persistence layer for `HTTPCookie` arrays.
-///
-/// Cookies are archived with secure coding and stored as a single
-/// `kSecClassGenericPassword` item per `service`.  Items are accessible
-/// `kSecAttrAccessibleAfterFirstUnlock`, which means they survive
-/// process relaunches and are readable from `BGAppRefreshTask`s on a
-/// device that has been unlocked at least once since boot.
-///
-/// This exists because relying on `WKWebsiteDataStore.default()` as a
-/// cookie persistence layer requires a MainActor WKWebView round-trip
-/// to restore cookies from disk - unreliable from background tasks and
-/// adds multi-second warming latency to cold-launch scrapes.
+/// Keychain-backed persistence for `HTTPCookie` arrays, readable from background tasks.
 struct KeychainCookieStore {
 
-    /// Keychain service identifier - unique per cookie jar.
     let service: String
-
-    /// Single-account constant; each service stores exactly one item.
     private let account = "cookies"
 
-    /// Persists the given cookies, replacing any previously stored value.
+    /// Persists cookies, replacing any previously stored value.
     func save(_ cookies: [HTTPCookie]) {
         let data: Data
         do {
@@ -46,7 +32,6 @@ struct KeychainCookieStore {
             kSecAttrAccessible as String: kSecAttrAccessibleAfterFirstUnlock
         ]
 
-        // Try update first, fall back to add on first save.
         let updateStatus = SecItemUpdate(
             matchQuery as CFDictionary,
             updateAttributes as CFDictionary
@@ -67,8 +52,7 @@ struct KeychainCookieStore {
         }
     }
 
-    /// Loads the persisted cookies, or returns `nil` if no item is stored
-    /// or if the archived data cannot be decoded.
+    /// Loads persisted cookies, or `nil` if none stored or decode fails.
     func load() -> [HTTPCookie]? {
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
@@ -98,7 +82,6 @@ struct KeychainCookieStore {
         }
     }
 
-    /// Deletes the stored cookies, if any.
     func clear() {
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,

@@ -17,8 +17,7 @@ struct TodaysSummaryView: View {
     @State private var isExpanded = false
     @State var generationFailed = false
     @State var generationError: String?
-    /// True when auto-generation was skipped because Low Power Mode is on.
-    /// In this state the user must tap the refresh button to start.
+    /// Auto-generation skipped under Low Power Mode; user must tap refresh.
     @State private var deferredForLowPowerMode = false
 
     private var isSupported: Bool {
@@ -218,18 +217,13 @@ struct TodaysSummaryView: View {
             return
         }
 
-        // Under Low Power Mode we do not auto-run the on-device LLM -
-        // the user must tap the refresh button to kick off generation.
-        // This is the single most expensive recurring operation in the
-        // app; making it opt-in under LPM is a large battery win and
-        // the inline hint below explains why nothing is happening.
+        // Under Low Power Mode, require user action to kick off the on-device LLM.
         if ProcessInfo.processInfo.isLowPowerModeEnabled {
             deferredForLowPowerMode = true
             hasGenerated = true
             return
         }
 
-        // Wait for initial feed refresh to complete before generating
         while feedManager.isLoading {
             try? await Task.sleep(for: .milliseconds(200))
         }

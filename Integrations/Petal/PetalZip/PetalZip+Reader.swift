@@ -4,14 +4,7 @@ nonisolated extension PetalZip {
 
     // MARK: - Reading
 
-    /// Reads the entries from a ZIP archive.  Supports STORE entries
-    /// and DEFLATE entries (via Foundation's built-in
-    /// `NSData.decompressed(using: .zlib)`).  Anything else surfaces
-    /// `ZipError.unsupportedCompression`.
-    ///
-    /// Enforces the caps declared in `Limits` so that importing a
-    /// maliciously-crafted `.srss` file can't blow up memory or
-    /// exhaust the device with a zip-bomb-style payload.
+    /// Reads entries from a ZIP archive (STORE or DEFLATE). Enforces `Limits`.
     static func read(data: Data) throws -> [Entry] {
         guard let eocd = findEndOfCentralDirectory(in: data) else {
             throw ZipError.malformed
@@ -35,9 +28,7 @@ nonisolated extension PetalZip {
             let payload = try readEntryPayload(in: data, header: header)
             let decoded = try decodePayload(payload, header: header)
 
-            // Trust-but-verify: a deflate entry whose header lied
-            // about its uncompressed size might still try to
-            // expand into more bytes than we budgeted.
+            // A deflate entry can expand past its declared size; re-check after decoding.
             guard decoded.count <= Limits.maxEntrySize else {
                 throw ZipError.tooLarge
             }
@@ -85,17 +76,12 @@ nonisolated extension PetalZip {
         header: CentralDirectoryEntry,
         runningTotal: inout Int
     ) throws {
-        // Size caps - check before doing any allocation or
-        // decompression so a malicious header can't force us to
-        // read a huge payload just to reject it afterwards.
         guard header.nameLength <= Limits.maxNameLength,
               header.compressedSize <= Limits.maxEntrySize,
               header.uncompressedSize <= Limits.maxEntrySize else {
             throw ZipError.tooLarge
         }
-        // Check total separately so overflow-adjacent sizes can't
-        // slip past the per-entry cap into a terabyte running
-        // total.
+        // Use overflow-reporting add so oversized sizes can't wrap past the total cap.
         let (newTotal, overflow) = runningTotal
             .addingReportingOverflow(header.uncompressedSize)
         guard !overflow, newTotal <= Limits.maxTotalUncompressedSize else {
@@ -123,7 +109,6 @@ nonisolated extension PetalZip {
         in data: Data,
         header: CentralDirectoryEntry
     ) throws -> Data {
-        // Local file header: 30 fixed bytes + file name + extra.
         guard header.localOffset + 30 <= data.count else {
             throw ZipError.truncated
         }
@@ -152,20 +137,14 @@ nonisolated extension PetalZip {
     // MARK: - Inflate
 
     /// Inflates a raw DEFLATE stream into `expectedSize` bytes.
-    ///
-    /// Apple's `NSData.decompressed(using: .zlib)` is a bit of a
-    /// misnomer: per Apple's docs it implements RFC 1951 (raw
-    /// DEFLATE, the format used inside ZIP entries) - *not* the
-    /// wrapped zlib format from RFC 1950 - so we can hand the
-    /// compressed blob straight over.
+    /// `NSData.decompressed(using: .zlib)` is actually raw DEFLATE (RFC 1951), not zlib-wrapped.
     private static func inflateDeflate(_ data: Data, expectedSize: Int) throws -> Data {
         guard let decompressed = try? (data as NSData)
             .decompressed(using: .zlib) as Data else {
             throw ZipError.malformed
         }
         if decompressed.count != expectedSize {
-            // Not fatal - some producers add padding - but drop
-            // anything past the declared size.
+            // Some producers pad; trim to the declared size.
             return decompressed.prefix(expectedSize)
         }
         return decompressed
@@ -175,7 +154,6 @@ nonisolated extension PetalZip {
 
     private static func findEndOfCentralDirectory(in data: Data) -> Int? {
         guard data.count >= 22 else { return nil }
-        // Scan backwards looking for the signature.
         var cursor = data.count - 22
         let minCursor = max(0, data.count - 65_557) // max comment 64 KB
         while cursor >= minCursor {

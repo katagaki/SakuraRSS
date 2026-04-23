@@ -2,8 +2,7 @@ import UIKit
 
 extension FaviconCache {
 
-    /// Domains where each feed represents a unique profile and
-    /// the profile page's og:image should be used as the favicon.
+    /// Checks whether the domain's feeds represent unique profiles that use og:image as favicon.
     static func isProfileBasedDomain(_ domain: String) -> Bool {
         let host = domain.lowercased()
         if host.contains("youtube.com") || host.contains("youtu.be") { return true }
@@ -14,20 +13,16 @@ extension FaviconCache {
         return false
     }
 
-    /// Checks domain or siteURL pattern to detect profile-based feeds,
-    /// including Mastodon instances not in the allowlist.
+    /// Detects profile-based feeds including unlisted Mastodon instances.
     static func isProfileBased(domain: String, siteURL: String?) -> Bool {
         if isProfileBasedDomain(domain) { return true }
-        // Detect unlisted Mastodon instances by /@username path pattern
         if let siteURL, let url = URL(string: siteURL), url.path.hasPrefix("/@") {
             return true
         }
         return false
     }
 
-    /// Fetches an X (Twitter) profile avatar using the XProfileScraper API.
-    /// Uses a long request timeout since favicons are cosmetic and should
-    /// not fail when the network is slow.
+    /// Fetches an X (Twitter) profile avatar via XProfileScraper.
     nonisolated func fetchXProfileAvatar(handle: String) async -> UIImage? {
         let scraper = XProfileScraper()
         scraper.requestTimeoutInterval = 600
@@ -41,9 +36,7 @@ extension FaviconCache {
         return UIImage(data: data)
     }
 
-    /// Fetches an Instagram profile avatar using the InstagramProfileScraper API.
-    /// Uses a long request timeout since favicons are cosmetic and should
-    /// not fail when the network is slow.
+    /// Fetches an Instagram profile avatar via InstagramProfileScraper.
     nonisolated func fetchInstagramProfileAvatar(handle: String) async -> UIImage? {
         guard let profileURL = InstagramProfileScraper.profileURL(for: handle) else { return nil }
         let scraper = InstagramProfileScraper()
@@ -57,9 +50,7 @@ extension FaviconCache {
         return UIImage(data: data)
     }
 
-    /// Fetches a note.com creator's profile photo via the public v2
-    /// creators API. note.com doesn't expose a usable og:image on the
-    /// profile page, so we pull it from `/api/v2/creators/<urlname>`.
+    /// Fetches a note.com creator's profile photo via the public creators API.
     nonisolated func fetchNoteProfileAvatar(handle: String) async -> UIImage? {
         let scraper = NoteProfileScraper()
         let result = await scraper.scrapeProfile(handle: handle)
@@ -71,9 +62,7 @@ extension FaviconCache {
         return UIImage(data: data)
     }
 
-    /// Fetches a subreddit's community icon via the Reddit Community Scraper.
-    /// Reddit doesn't expose the styled community icon through og:image,
-    /// so we pull it from `/r/<name>/about.json`.
+    /// Fetches a subreddit's community icon via RedditCommunityScraper.
     nonisolated func fetchRedditCommunityIcon(subreddit: String) async -> UIImage? {
         let scraper = RedditCommunityScraper()
         let result = await scraper.scrapeCommunity(subreddit: subreddit)
@@ -85,9 +74,7 @@ extension FaviconCache {
         return UIImage(data: data)
     }
 
-    /// Fetches a profile avatar by scraping the profile page for the og:image meta tag.
-    /// Works for YouTube channels, Mastodon profiles, and Bluesky profiles.
-    /// Subreddits are handled via the Reddit Community Scraper instead.
+    /// Fetches a profile avatar by scraping the profile page's og:image meta tag.
     nonisolated func fetchProfileAvatar(from siteURL: String) async -> UIImage? {
         guard let url = URL(string: siteURL) else { return nil }
         if RedditCommunityScraper.isRedditSubredditURL(url),

@@ -64,7 +64,6 @@ extension FeedManager {
     func todayArticles(for list: FeedList) -> [Article] {
         let listFeedIDs = feedIDs(for: list)
         guard !listFeedIDs.isEmpty else { return [] }
-        // Get today's articles filtered by list's feeds, applying per-feed rules
         let articles = todayArticles().filter { listFeedIDs.contains($0.feedID) }
         return applyListRules(articles, listID: list.id)
     }
@@ -133,7 +132,7 @@ extension FeedManager {
         return result
     }
 
-    // MARK: - List Rule Application (additive on top of per-feed rules)
+    // MARK: - List Rule Application
 
     func applyListRules(_ articles: [Article], listID: Int64) -> [Article] {
         let allowedKeywords = (try? database.listRules(forListID: listID, type: "allowed_keyword")) ?? []

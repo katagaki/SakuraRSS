@@ -7,10 +7,7 @@ struct CardsStyleView: View {
     let articles: [Article]
     var onRefresh: (() async -> Void)?
 
-    /// Snapshot of article IDs that were unread when the deck was built.
-    /// Using a snapshot prevents cards from disappearing when markRead is
-    /// called during navigation, which would remove the matched transition
-    /// source and break the zoom animation.
+    /// Snapshot of unread article IDs; prevents cards vanishing during markRead navigation.
     @State private var deckArticleIDs: Set<Int64>?
     @State private var selectedArticle: Article?
     @State private var youTubeArticle: Article?
@@ -20,8 +17,7 @@ struct CardsStyleView: View {
         return articles.filter { ids.contains($0.id) }
     }
 
-    /// Tracks article IDs that have been swiped away during this view's lifetime.
-    /// This keeps the deck session-scoped: navigating away and back resets the deck.
+    /// Session-scoped swipe dismissals; resets on navigate-away-and-back.
     @State private var dismissedIDs: Set<Int64> = []
 
     private var visibleCards: [Article] {
@@ -64,7 +60,6 @@ struct CardsStyleView: View {
                     }
                 }
             } else {
-                // Show front card and one behind; new back cards fade in after swipe
                 ForEach(Array(visibleCards.prefix(2).enumerated().reversed()),
                         id: \.element.id) { index, article in
                     ArticleLink(article: article, onShowYouTubePlayer: {

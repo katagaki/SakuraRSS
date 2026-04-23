@@ -16,8 +16,7 @@ struct WhileYouSleptView: View {
     @State var hasGenerated = false
     @State private var isExpanded = false
     @State var generationFailed = false
-    /// True when auto-generation was skipped because Low Power Mode is on.
-    /// In this state the user must tap the refresh button to start.
+    /// Auto-generation skipped under Low Power Mode; user must tap refresh.
     @State private var deferredForLowPowerMode = false
 
     private var isSupported: Bool {
@@ -210,15 +209,12 @@ struct WhileYouSleptView: View {
             return
         }
 
-        // Under Low Power Mode we do not auto-run the on-device LLM -
-        // the user must tap the refresh button to kick off generation.
         if ProcessInfo.processInfo.isLowPowerModeEnabled {
             deferredForLowPowerMode = true
             hasGenerated = true
             return
         }
 
-        // Wait for initial feed refresh to complete before generating
         while feedManager.isLoading {
             try? await Task.sleep(for: .milliseconds(200))
         }

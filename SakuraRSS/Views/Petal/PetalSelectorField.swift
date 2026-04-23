@@ -1,12 +1,6 @@
 import SwiftUI
 
-/// A tiny labelled monospaced text field used by the selectors
-/// section of the Web Feed builder.
-///
-/// Extracted so each selector row is one call to this view rather
-/// than three lines of layout repeated six times.  Keeping it
-/// separate also makes it easy to tweak the field styling (font,
-/// autocap, autocorrect) in one place later.
+/// Labelled monospaced text field used by the Web Feed builder's selector rows.
 struct PetalSelectorField: View {
 
     let label: String
@@ -28,11 +22,7 @@ struct PetalSelectorField: View {
 
 extension PetalSelectorField {
 
-    /// Convenience initializer for recipe fields that are
-    /// `String?`.  The builder treats an empty string as "no
-    /// selector" so the engine falls back to its defaults; this
-    /// initializer folds that convention into a single
-    /// construction call.
+    /// Convenience initializer for optional fields; empty string is treated as nil.
     init(
         label: String,
         optional binding: Binding<String?>,

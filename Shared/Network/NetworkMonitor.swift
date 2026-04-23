@@ -9,9 +9,7 @@ final class NetworkMonitor {
     static let shared = NetworkMonitor()
 
     private(set) var isOnline: Bool = true
-    /// True when the active path is cellular, Personal Hotspot, or otherwise
-    /// flagged as expensive by the system.  Callers use this to skip
-    /// optional/cosmetic downloads during background refresh.
+    /// True when the active path is flagged as expensive by the system.
     private(set) var isExpensive: Bool = false
 
     private let monitor = NWPathMonitor()
@@ -29,11 +27,7 @@ final class NetworkMonitor {
         monitor.start(queue: queue)
     }
 
-    /// One-shot path probe safe to call from non-MainActor contexts (e.g.
-    /// the `BGAppRefreshTask` handler).  Spins up a short-lived monitor,
-    /// awaits one path update, and returns.  Returns `nil` if no path is
-    /// reported within the timeout — treat that as "assume expensive" at
-    /// the call site.
+    /// One-shot path probe safe from non-MainActor contexts; returns `nil` on timeout.
     nonisolated static func currentPathIsExpensive(timeout: TimeInterval = 1.0) async -> Bool? {
         final class ProbeState: @unchecked Sendable {
             var resumed = false

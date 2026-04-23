@@ -2,13 +2,8 @@ import Foundation
 
 extension YouTubePlaylistScraper {
 
-    /// Fetches the YouTube playlist page and parses the video list.
-    ///
-    /// Also fetches the public Atom feed
-    /// (`/feeds/videos.xml?playlist_id=...`) to enrich each video with its
-    /// actual upload date, which isn't present in the playlist page's
-    /// `ytInitialData` blob. The Atom feed is capped at ~15 entries, so
-    /// older videos may remain without a publish date.
+    /// Fetches the playlist page and enriches each video with the Atom feed's publish date.
+    /// Atom feed caps at ~15 entries, so older videos may lack a publish date.
     func performFetch(url: URL, playlistID: String) async -> YouTubePlaylistScrapeResult {
         var request = URLRequest(url: url)
         request.setValue(sakuraUserAgent, forHTTPHeaderField: "User-Agent")
@@ -55,9 +50,6 @@ extension YouTubePlaylistScraper {
         }
     }
 
-    /// Fetches the public Atom feed for a playlist and returns a
-    /// `[videoID: publishedDate]` lookup. Returns an empty dictionary on
-    /// any failure - upload dates are a best-effort enrichment.
     private func fetchAtomPublishDates(playlistID: String) async -> [String: Date] {
         guard let url = URL(
             string: "https://www.youtube.com/feeds/videos.xml?playlist_id=\(playlistID)"
@@ -76,10 +68,6 @@ extension YouTubePlaylistScraper {
         }
     }
 
-    /// Parses an Atom feed body for `<entry>` elements and extracts
-    /// `yt:videoId` → `published` pairs using simple string scanning.
-    /// Robust enough for YouTube's stable Atom format; avoids pulling in
-    /// an `XMLParser` delegate for a handful of fields.
     static func parseAtomPublishDates(xml: String) -> [String: Date] {
         var result: [String: Date] = [:]
         let formatter = ISO8601DateFormatter()

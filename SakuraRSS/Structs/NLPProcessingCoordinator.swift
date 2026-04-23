@@ -8,18 +8,10 @@ enum NLPProcessingCoordinator {
     nonisolated static let logger = Logger(subsystem: "com.tsubuzaki.SakuraRSS", category: "NLPCoordinator")
     #endif
 
-    /// Number of articles processed per chunk before yielding back to the
-    /// cooperative scheduler.  Keeps main-thread hitches short when this
-    /// coordinator runs concurrently with scrolling.
     nonisolated private static let chunkSize = 20
 
     /// Processes unprocessed articles if Content Insights is enabled.
-    /// `onBegin` fires once with the total; `onProgress` fires in batches
-    /// (aligned to each cooperative-yield boundary) with the number of
-    /// articles completed since the last call.  Coalescing the ticks keeps
-    /// the progress donut from hopping to the MainActor 200 times per
-    /// refresh, which is the source of the scroll hitches users see while
-    /// NLP runs.
+    /// `onProgress` is coalesced per chunk to avoid MainActor hitches.
     static func processNewArticlesIfEnabled(
         onBegin: @escaping @Sendable (Int) async -> Void = { _ in },
         onProgress: @escaping @Sendable (Int) async -> Void = { _ in }
@@ -57,10 +49,7 @@ enum NLPProcessingCoordinator {
 
             await onBegin(toProcess.count)
 
-            // Reuse a single sentiment tagger and a single name-type tagger
-            // across every article in this pass.  NLTagger construction is
-            // measurably expensive; setting `.string` on an existing tagger
-            // is cheap.
+            // Reuse taggers across articles; NLTagger construction is expensive.
             let sentimentTagger = NLTagger(tagSchemes: [.sentimentScore])
             let nameTagger = NLTagger(tagSchemes: [.nameType])
 
@@ -94,7 +83,7 @@ enum NLPProcessingCoordinator {
         }.value
     }
 
-    /// Processes a single article on-demand (e.g., from ArticleDetailView).
+    /// Processes a single article on-demand.
     static func processArticle(_ article: Article) async {
         let defaults = UserDefaults.standard
         guard defaults.bool(forKey: "Intelligence.ContentInsights.Enabled") else { return }
@@ -104,15 +93,7 @@ enum NLPProcessingCoordinator {
         }.value
     }
 
-    /// Extracts sentiment and entities for an article. Called only when
-    /// Content Insights is enabled - the hybrid similarity ranker relies on
-    /// entities being present, so both passes always run together.
-    ///
-    /// When `sentimentTagger` and `nameTagger` are supplied, they are reused
-    /// across articles by the batch caller.  The single-article path
-    /// constructs fresh taggers on each call.  `runSentiment` / `runEntities`
-    /// let the batch caller skip passes that have already been completed
-    /// for this article on a previous run.
+    /// Extracts sentiment and entities for an article; reuses taggers when supplied.
     private nonisolated static func processArticleSync(
         _ article: Article,
         sentimentTagger: NLTagger? = nil,

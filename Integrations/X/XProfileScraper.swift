@@ -1,7 +1,6 @@
 import Foundation
 import WebKit
 
-/// Parsed tweet from an X profile page.
 struct ParsedTweet: Sendable {
     let id: String
     let text: String
@@ -9,12 +8,10 @@ struct ParsedTweet: Sendable {
     let authorHandle: String
     let url: String
     let imageURL: String?
-    /// All photo URLs when a tweet has multiple images. Empty for single-image tweets.
     let carouselImageURLs: [String]
     let publishedDate: Date?
 }
 
-/// Result of scraping an X profile: tweets and optional profile metadata.
 struct XProfileScrapeResult: Sendable {
     let tweets: [ParsedTweet]
     let profileImageURL: String?
@@ -22,21 +19,8 @@ struct XProfileScrapeResult: Sendable {
 }
 
 /// Fetches tweets from an X (Twitter) profile using GraphQL API calls.
-///
-/// Retweets are excluded.  Session cookies are kept in a Keychain-backed
-/// store (`cookieStore`) populated from the login WebView on success and,
-/// for users upgrading from older builds, by a one-time migration from
-/// `WKWebsiteDataStore`.  WebKit is still used for the JS-bundle query-ID
-/// fetch (which has no Keychain equivalent) but not for cookie storage.
 final class XProfileScraper {
 
-    /// Per-request timeout used for every URLRequest this scraper builds.
-    /// Callers that perform cosmetic work (e.g. favicon avatar lookups)
-    /// can raise this value to effectively bypass the normal timeout.
-    /// Marked `nonisolated(unsafe)` so it can be configured from the
-    /// favicon cache's nonisolated avatar-fetching methods; the value
-    /// is only ever set before network calls start, so there is no
-    /// meaningful data race.
     nonisolated(unsafe) var requestTimeoutInterval: TimeInterval = 15
 
     // swiftlint:disable line_length
@@ -66,14 +50,7 @@ final class XProfileScraper {
 
     static let targetTweetCount = 50
 
-    /// Keychain-backed persistent cookie jar.  Using Keychain (instead of
-    /// `WKWebsiteDataStore.default()` as the source of truth) removes the
-    /// MainActor WKWebView warming step from every cookie read, makes
-    /// `hasXSession()` a cheap synchronous call, and lets cold-launch
-    /// scrapes work without waiting for WebKit to restore cookies from
-    /// disk.  WebKit is still the target of the login UI - we export
-    /// cookies from it to Keychain on login success and on a one-time
-    /// migration.
+    /// Keychain-backed persistent cookie jar.
     static let cookieStore = KeychainCookieStore(
         service: "com.tsubuzaki.SakuraRSS.XCookies"
     )
@@ -83,10 +60,8 @@ final class XProfileScraper {
 
     // MARK: - Public
 
-    /// Fetches the most recent tweets (excluding retweets) from the given profile URL.
-    /// Also extracts the profile photo URL and display name.
-    ///
-    /// Only one fetch runs at a time; concurrent calls are serialised.
+    /// Fetches recent tweets (no retweets), profile photo and display name.
+    /// Serialised: only one fetch runs at a time.
     func scrapeProfile(profileURL: URL) async -> XProfileScrapeResult {
         if let existing = Self.activeScrape {
             _ = await existing.value
@@ -113,7 +88,6 @@ final class XProfileScraper {
             || host == "www.x.com" || host == "www.twitter.com"
             || host == "mobile.x.com" || host == "mobile.twitter.com"
         guard isXDomain else { return false }
-        // Path like /username/status/1234567890
         let components = url.pathComponents
         return components.count >= 4 && components[2] == "status"
     }
@@ -179,9 +153,6 @@ final class XProfileScraper {
     }
 
     /// Checks if the user has X cookies (i.e. is logged in).
-    ///
-    /// Kept `async` for API stability with the old WebKit-backed
-    /// implementation; the body is a synchronous Keychain read.
     static func hasXSession() async -> Bool {
         guard let cookies = cookieStore.load() else { return false }
         return cookies.contains { cookie in
@@ -206,10 +177,7 @@ final class XProfileScraper {
         queryIDsFetched = false
     }
 
-    /// Exports any X cookies present in the default `WKWebsiteDataStore`
-    /// into Keychain.  Called after the user completes the login flow in
-    /// `XLoginView` so that the scraper's Keychain-backed session check
-    /// can find them.
+    /// Exports X cookies from WKWebsiteDataStore to Keychain after login.
     @MainActor
     static func syncCookiesFromWebKit() async {
         let store = WKWebsiteDataStore.default()
@@ -227,21 +195,11 @@ final class XProfileScraper {
         #endif
     }
 
-    /// One-time migration for users upgrading from the WebKit-only
-    /// storage model.  If Keychain is empty but the WebKit data store
-    /// holds X cookies from a prior install, copy them over so the user
-    /// stays signed in without having to log in again.
-    ///
-    /// Safe to call repeatedly - the Keychain-empty check makes it a
-    /// no-op after the first successful migration.
+    /// Migrates cookies from WebKit to Keychain once for users upgrading from older builds.
     @MainActor
     static func migrateWebKitCookiesIfNeeded() async {
-        // Fast path: already migrated.
         if cookieStore.load() != nil { return }
 
-        // Force WebKit to restore its on-disk cookie store before we
-        // inspect it - on a cold launch `allCookies()` returns an empty
-        // array until a WKWebView has loaded a page from the domain.
         await warmCookieStore()
         await syncCookiesFromWebKit()
     }

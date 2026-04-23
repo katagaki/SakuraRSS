@@ -13,7 +13,6 @@ extension FaviconCache {
                 return nil
             }
 
-            // 1. Try web app manifest
             if let manifestHref = extractLinkHref(from: html, rel: "manifest"),
                let manifestURL = URL(string: manifestHref, relativeTo: siteURL),
                let icon = await fetchManifestIcon(from: manifestURL.absoluteURL) {
@@ -23,7 +22,6 @@ extension FaviconCache {
                 return icon
             }
 
-            // 2. Try apple-touch-icon (typically 180x180)
             if let touchIconHref = extractLinkHref(from: html, rel: "apple-touch-icon"),
                let iconURL = URL(string: touchIconHref, relativeTo: siteURL) {
                 let (iconData, _) = try await Self.urlSession.data(from: iconURL.absoluteURL)
@@ -57,7 +55,6 @@ extension FaviconCache {
             guard let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
                   let icons = json["icons"] as? [[String: Any]] else { return nil }
 
-            // Find the largest square icon
             var bestIcon: (url: String, size: Int)?
             for icon in icons {
                 guard let src = icon["src"] as? String else { continue }

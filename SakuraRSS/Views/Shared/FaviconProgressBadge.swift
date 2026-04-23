@@ -1,22 +1,9 @@
 import SwiftUI
 
-/// A small pie-shaped badge meant to be overlaid on the bottom-right
-/// corner of a feed's favicon.  Visualises the rate-limit cooldown for
-/// X and Instagram profile refreshes: the pie fills from empty to full
-/// as the 30-minute window elapses, and the badge disappears once the
-/// feed is eligible to refresh again.
-///
-/// A `TimelineView` drives the pie on a periodic schedule so it
-/// advances smoothly without relying on any external observation
-/// mechanism.
+/// Pie badge overlaid on a favicon to visualise rate-limit cooldown progress.
 struct FaviconProgressBadge: View {
 
-    /// Last successful refresh date, or `nil` for feeds that have not
-    /// yet been fetched.
     let lastFetched: Date?
-
-    /// Duration of the cooldown window.  For X and Instagram profile
-    /// feeds this is 30 minutes.
     let cooldown: TimeInterval
 
     var size: CGFloat = 12
@@ -41,8 +28,7 @@ struct FaviconProgressBadge: View {
         }
     }
 
-    /// Returns the completed fraction (0...1) of the cooldown window,
-    /// or `nil` if the feed is already eligible to refresh (pie hidden).
+    /// Returns 0...1 cooldown fraction, or `nil` if refresh is already eligible.
     private func cooldownProgress(now: Date) -> Double? {
         guard let lastFetched, cooldown > 0 else { return nil }
         let elapsed = now.timeIntervalSince(lastFetched)
@@ -51,7 +37,6 @@ struct FaviconProgressBadge: View {
     }
 }
 
-/// Filled pie slice starting at 12 o'clock and sweeping clockwise.
 struct PieSliceShape: Shape {
 
     var progress: Double
