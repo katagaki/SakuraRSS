@@ -90,5 +90,6 @@ struct PodcastStyleView: View {
             }
         }
         .listStyle(.plain)
+        .trackScrollActivity()
     }
 }

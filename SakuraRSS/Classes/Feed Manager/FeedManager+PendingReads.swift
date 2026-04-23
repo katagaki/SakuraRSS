@@ -2,7 +2,9 @@ import Foundation
 
 extension FeedManager {
 
-    private static let debouncedReadFlushDelay: Duration = .milliseconds(400)
+    private static let debouncedReadFlushDelay: Duration = .milliseconds(500)
+    private static let scrollSettleRecheckDelay: Duration = .milliseconds(150)
+    private static let maxScrollSettleWaitCycles: Int = 40
 
     // MARK: - Debounced Mark As Read
 
@@ -44,8 +46,14 @@ extension FeedManager {
         debouncedReadFlushTask?.cancel()
         debouncedReadFlushTask = Task { @MainActor [weak self] in
             try? await Task.sleep(for: FeedManager.debouncedReadFlushDelay)
-            guard !Task.isCancelled else { return }
-            self?.flushDebouncedReads()
+            guard !Task.isCancelled, let self else { return }
+            var cycles = 0
+            while !self.isScrollSettled, cycles < FeedManager.maxScrollSettleWaitCycles {
+                try? await Task.sleep(for: FeedManager.scrollSettleRecheckDelay)
+                guard !Task.isCancelled else { return }
+                cycles += 1
+            }
+            self.flushDebouncedReads()
         }
     }
 
