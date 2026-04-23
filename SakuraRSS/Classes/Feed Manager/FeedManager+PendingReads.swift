@@ -2,36 +2,43 @@ import Foundation
 
 extension FeedManager {
 
-    private static let persistReadsDelay: Duration = .milliseconds(500)
+    private static let persistReadsDelay: Duration = .milliseconds(100)
 
-    /// Flips the article to read in memory immediately and enqueues the ID
-    /// for a debounced SQLite write so fast scrolls don't thrash the disk.
+    /// Enqueues the article for a debounced flush that writes SQLite and
+    /// updates in-memory state in the same pass so `articles(for:)`
+    /// re-queries see the fresh state on the next `dataRevision` tick.
     func markReadOnScroll(_ article: Article) {
         guard pendingReadIDs.insert(article.id).inserted else { return }
-
-        if let idx = articles.firstIndex(where: { $0.id == article.id }),
-           !articles[idx].isRead {
-            let feedID = articles[idx].feedID
-            articles[idx].isRead = true
-            decrementUnreadCount(feedID: feedID)
-            updateBadgeCount()
-        }
-
         schedulePersistReads()
     }
 
-    /// Persists queued read-state flips to SQLite and clears the queue.
-    /// Also called from `willResignActive` before the app backgrounds.
     func flushDebouncedReads() {
         debouncedReadFlushTask?.cancel()
         debouncedReadFlushTask = nil
         guard !pendingReadIDs.isEmpty else { return }
-        let idArray = Array(pendingReadIDs)
+        let ids = pendingReadIDs
         pendingReadIDs.removeAll()
+        let idArray = Array(ids)
+
+        try? database.markArticlesRead(ids: idArray, read: true)
+
+        var newArticles = articles
+        var decrements: [Int64: Int] = [:]
+        let indexByID = Dictionary(
+            uniqueKeysWithValues: newArticles.enumerated().map { ($1.id, $0) }
+        )
+        for id in ids {
+            guard let idx = indexByID[id], !newArticles[idx].isRead else { continue }
+            newArticles[idx].isRead = true
+            decrements[newArticles[idx].feedID, default: 0] += 1
+        }
+        articles = newArticles
+        applyUnreadDecrements(decrements)
+        bumpDataRevision()
+        updateBadgeCount()
 
         let dbm = database
         Task.detached(priority: .utility) {
-            try? dbm.markArticlesRead(ids: idArray, read: true)
             try? dbm.updateLastAccessed(articleIDs: idArray)
         }
     }
