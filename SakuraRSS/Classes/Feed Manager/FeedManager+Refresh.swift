@@ -57,8 +57,17 @@ extension FeedManager {
                 )
             }
 
+            let redditImages: [String: String] = (!skipImageBackfill && feed.isRedditFeed)
+                ? await FeedManager.backfillRedditImages(forFeedURL: feed.url)
+                : [:]
+
             let articleTuples = preparedArticles.map { article in
-                let resolvedImageURL = article.imageURL ?? imageBackfills[article.url]
+                let redditImage = FeedManager.redditImageURL(
+                    for: article.url, in: redditImages
+                )
+                let resolvedImageURL = redditImage
+                    ?? article.imageURL
+                    ?? imageBackfills[article.url]
                 return ArticleInsertItem(
                     title: article.title,
                     url: article.url,
