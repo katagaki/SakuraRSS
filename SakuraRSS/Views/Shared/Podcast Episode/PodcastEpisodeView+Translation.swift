@@ -23,7 +23,8 @@ extension PodcastEpisodeView {
                 try? DatabaseManager.shared.cacheTranslatedSummary(
                     response.targetText, for: article.id
                 )
-            } catch { }
+            } catch {
+            }
         } else {
             let source = article.summary ?? ""
             guard !source.isEmpty else { return }
@@ -36,7 +37,8 @@ extension PodcastEpisodeView {
                     text: response.targetText,
                     for: article.id
                 )
-            } catch { }
+            } catch {
+            }
         }
     }
 }

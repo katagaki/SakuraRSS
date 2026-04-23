@@ -345,7 +345,8 @@ struct ScrollExpandedArticleView: View { // swiftlint:disable:this type_body_len
                 try? DatabaseManager.shared.cacheTranslatedSummary(
                     response.targetText, for: article.id
                 )
-            } catch { }
+            } catch {
+            }
         } else {
             let source = extractedText ?? article.summary ?? ""
             guard !ContentBlock.plainText(from: source).isEmpty else { return }
@@ -360,7 +361,8 @@ struct ScrollExpandedArticleView: View { // swiftlint:disable:this type_body_len
                 try? DatabaseManager.shared.cacheArticleTranslation(
                     title: result.title, text: result.text, for: article.id
                 )
-            } catch { }
+            } catch {
+            }
         }
     }
 

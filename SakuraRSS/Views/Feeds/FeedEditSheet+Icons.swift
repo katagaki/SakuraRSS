@@ -94,7 +94,8 @@ extension FeedEditSheet {
                 useDefaultIcon = false
                 return true
             }
-        } catch { }
+        } catch {
+        }
         showIconFetchError = true
         return false
     }
