@@ -110,6 +110,7 @@ nonisolated final class DatabaseManager: @unchecked Sendable {
     private init() {
         do {
             database = try Connection(Self.databasePath)
+            try Self.applyConnectionPragmas(database)
             try createTables()
             fixupIfVersionChanged()
             invalidateStaleParserCache()
@@ -124,7 +125,19 @@ nonisolated final class DatabaseManager: @unchecked Sendable {
     /// Used after restoring a backup file to the database path.
     func reconnect() throws {
         database = try Connection(Self.databasePath)
+        try Self.applyConnectionPragmas(database)
         try createTables()
+    }
+
+    /// Switches the connection to WAL mode and raises the busy timeout so
+    /// main-thread reads from view bodies don't stall while background
+    /// NLP or refresh tasks hold a write transaction. Rollback-journal
+    /// mode locks the whole file; WAL lets readers progress concurrently
+    /// with a single writer, which is the access pattern this app has.
+    private static func applyConnectionPragmas(_ connection: Connection) throws {
+        try connection.run("PRAGMA journal_mode = WAL")
+        try connection.run("PRAGMA synchronous = NORMAL")
+        connection.busyTimeout = 5.0
     }
 
     private func invalidateStaleParserCache() {
