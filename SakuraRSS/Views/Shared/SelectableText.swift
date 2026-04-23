@@ -1,9 +1,6 @@
 import SwiftUI
 
-/// A read-only text view that supports proper range selection with drag handles.
-/// Uses Apple's `AttributedString(markdown:)` parser for inline formatting (bold, italic,
-/// links, strikethrough, code), with additional support for heading prefixes
-/// (`# `, `## `, `### `) and custom `{{SUP}}`/`{{SUB}}` markers.
+/// Read-only text view with range selection, Markdown formatting, and `{{SUP}}`/`{{SUB}}` markers.
 struct SelectableText: UIViewRepresentable {
 
     let text: String
@@ -57,7 +54,6 @@ struct SelectableText: UIViewRepresentable {
             var contentLine = line
             var lineFont = font
 
-            // Detect heading prefixes
             if contentLine.hasPrefix("### ") {
                 contentLine = String(contentLine.dropFirst(4))
                 lineFont = UIFont.preferredFont(forTextStyle: .headline)
@@ -75,8 +71,7 @@ struct SelectableText: UIViewRepresentable {
         return attributed
     }
 
-    /// Splits a line around `{{SUP}}…{{/SUP}}` and `{{SUB}}…{{/SUB}}` markers,
-    /// parsing the remaining segments as standard Markdown.
+    /// Splits around `{{SUP/SUB}}` markers and parses remaining segments as Markdown.
     private func parseLine(_ text: String, baseFont: UIFont) -> NSAttributedString {
         let supSubPattern = #"\{\{(SUP|SUB)\}\}(.+?)\{\{/(SUP|SUB)\}\}"#
         guard let supSubRegex = try? NSRegularExpression(pattern: supSubPattern) else {
@@ -124,8 +119,7 @@ struct SelectableText: UIViewRepresentable {
         return result
     }
 
-    /// Parses standard Markdown using `AttributedString(markdown:)` and converts
-    /// Foundation attributes into UIKit attributes for the text view.
+    /// Parses Markdown via `AttributedString` and converts to UIKit attributes.
     private func parseMarkdown(_ text: String, baseFont: UIFont) -> NSAttributedString {
         guard !text.isEmpty else {
             return NSAttributedString()

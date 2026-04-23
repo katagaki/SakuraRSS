@@ -24,9 +24,7 @@ extension YouTubePlayerView {
                 try? DatabaseManager.shared.cacheTranslatedSummary(
                     response.targetText, for: article.id
                 )
-            } catch {
-                // Translation failed; user can retry
-            }
+            } catch { }
         } else {
             let source = descriptionSource ?? ""
             guard !ContentBlock.plainText(from: source).isEmpty else { return }
@@ -40,9 +38,7 @@ extension YouTubePlayerView {
                 try? DatabaseManager.shared.cacheArticleTranslation(
                     title: nil, text: result.text, for: article.id
                 )
-            } catch {
-                // Translation failed; user can retry
-            }
+            } catch { }
         }
     }
 }

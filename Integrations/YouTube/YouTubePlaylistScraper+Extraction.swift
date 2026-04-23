@@ -4,11 +4,8 @@ extension YouTubePlaylistScraper {
 
     // MARK: - JSON Extraction
 
-    /// Extracts the ytInitialData JSON blob from YouTube's HTML.
-    ///
-    /// YouTube serves two formats depending on the user agent:
-    /// - Desktop: `var ytInitialData = { ... };`  (raw JSON object)
-    /// - Mobile:  `var ytInitialData = '\x7b...';` (hex-escaped string in single quotes)
+    /// Extracts the ytInitialData JSON blob. Handles both desktop raw-object and
+    /// mobile hex-escaped single-quoted formats.
     static func extractYTInitialData(from html: String) -> [String: Any]? {
         let marker = "var ytInitialData = "
         guard let markerRange = html.range(of: marker) else {
@@ -23,14 +20,12 @@ extension YouTubePlaylistScraper {
 
         let jsonString: String
         if firstChar == "'" {
-            // Mobile format: hex-escaped JSON in single quotes
             guard let parsed = extractSingleQuotedValue(from: html, startIndex: startIndex) else {
                 print("[YouTubePlaylist] Failed to extract single-quoted ytInitialData.")
                 return nil
             }
             jsonString = parsed
         } else if firstChar == "{" {
-            // Desktop format: raw JSON object
             jsonString = extractBraceBalancedJSON(from: html, startIndex: startIndex)
         } else {
             print("[YouTubePlaylist] Unexpected ytInitialData format.")
@@ -45,22 +40,19 @@ extension YouTubePlaylistScraper {
         return json
     }
 
-    /// Extracts a single-quoted, hex-escaped string value starting at the opening quote.
     private static func extractSingleQuotedValue(
         from html: String, startIndex: String.Index
     ) -> String? {
-        // Skip the opening single quote
         let contentStart = html.index(after: startIndex)
         guard contentStart < html.endIndex else { return nil }
 
-        // Find the closing single quote followed by ; (to avoid matching escaped quotes)
+        // `';` avoids matching escaped quotes inside the payload.
         guard let endRange = html.range(of: "';", range: contentStart..<html.endIndex) else {
             return nil
         }
 
         let escaped = String(html[contentStart..<endRange.lowerBound])
 
-        // Decode JavaScript string escapes: \xHH, \uHHHH, \\, \/, \n, \r, \t, \'
         var result = ""
         var index = escaped.startIndex
         while index < escaped.endIndex {
@@ -73,7 +65,6 @@ extension YouTubePlaylistScraper {
                 }
                 switch escaped[next] {
                 case "x":
-                    // \xHH - two-digit hex
                     let hexStart = escaped.index(after: next)
                     if let hexEnd = escaped.index(
                         hexStart, offsetBy: 2, limitedBy: escaped.endIndex
@@ -86,7 +77,6 @@ extension YouTubePlaylistScraper {
                         index = next
                     }
                 case "u":
-                    // \uHHHH - four-digit unicode
                     let hexStart = escaped.index(after: next)
                     if let hexEnd = escaped.index(
                         hexStart, offsetBy: 4, limitedBy: escaped.endIndex
@@ -129,7 +119,6 @@ extension YouTubePlaylistScraper {
         return result
     }
 
-    /// Extracts a brace-balanced JSON object from HTML starting at the opening brace.
     private static func extractBraceBalancedJSON(
         from html: String, startIndex: String.Index
     ) -> String {
@@ -156,17 +145,7 @@ extension YouTubePlaylistScraper {
 
     // MARK: - Playlist Parsing
 
-    /// Extracts the channel owner's avatar URL from ytInitialData.
-    ///
-    /// YouTube serves two different structures:
-    /// - Mobile/new layout: `header.pageHeaderRenderer` contains an
-    ///   `avatarStackViewModel` with `avatarViewModel.image.sources`.
-    /// - Desktop layout: `sidebar.playlistSidebarRenderer` contains a
-    ///   `videoOwnerRenderer` with `thumbnail.thumbnails`.
-    ///
-    /// Returns the highest-resolution URL available. The URL is upscaled
-    /// by rewriting the `=sN-` size suffix (YouTube's standard avatar
-    /// URL convention) so the cached favicon isn't stuck at 48px.
+    /// Extracts the channel owner's avatar URL, upscaling the `=sN-` suffix to 176px.
     static func parseChannelAvatarURL(from ytData: [String: Any]) -> String? {
         var rawURL: String?
 
@@ -184,8 +163,6 @@ extension YouTubePlaylistScraper {
         return upscaleAvatarURL(url)
     }
 
-    /// Recursively searches for the first `avatarViewModel.image.sources[*].url`
-    /// (picking the largest source by `width`). Used by the mobile layout.
     private static func findAvatarViewModelURL(in node: Any) -> String? {
         if let dict = node as? [String: Any] {
             if let avatar = dict["avatarViewModel"] as? [String: Any],
@@ -208,8 +185,6 @@ extension YouTubePlaylistScraper {
         return nil
     }
 
-    /// Recursively searches for the first `videoOwnerRenderer.thumbnail.thumbnails[*].url`
-    /// (picking the largest). Used by the desktop layout.
     private static func findVideoOwnerThumbnailURL(in node: Any) -> String? {
         if let dict = node as? [String: Any] {
             if let owner = dict["videoOwnerRenderer"] as? [String: Any],
@@ -230,8 +205,6 @@ extension YouTubePlaylistScraper {
         return nil
     }
 
-    /// Rewrites YouTube's `=sN-` size suffix to request a larger avatar.
-    /// Avatars are served at 48/88/176 px; we always request 176.
     private static func upscaleAvatarURL(_ url: String) -> String {
         guard let regex = try? NSRegularExpression(pattern: "=s\\d+-") else { return url }
         let range = NSRange(url.startIndex..., in: url)
@@ -240,23 +213,19 @@ extension YouTubePlaylistScraper {
         )
     }
 
-    /// Extracts the playlist title from ytInitialData.
     static func parsePlaylistTitle(from ytData: [String: Any]) -> String? {
-        // Try header > pageHeaderRenderer > pageTitle (mobile)
         if let header = ytData["header"] as? [String: Any],
            let pageHeader = header["pageHeaderRenderer"] as? [String: Any],
            let pageTitle = pageHeader["pageTitle"] as? String {
             return pageTitle
         }
 
-        // Try metadata > playlistMetadataRenderer > title (desktop)
         if let metadata = ytData["metadata"] as? [String: Any],
            let playlistMeta = metadata["playlistMetadataRenderer"] as? [String: Any],
            let title = playlistMeta["title"] as? String {
             return title
         }
 
-        // Try microformat > microformatDataRenderer > title (strip " - YouTube" suffix)
         if let microformat = ytData["microformat"] as? [String: Any],
            let mfData = microformat["microformatDataRenderer"] as? [String: Any],
            let rawTitle = mfData["title"] as? String {
@@ -270,9 +239,6 @@ extension YouTubePlaylistScraper {
         return nil
     }
 
-    /// Walks the ytInitialData structure to extract playlist video entries.
-    /// Supports both mobile (singleColumnBrowseResultsRenderer) and
-    /// desktop (twoColumnBrowseResultsRenderer) layouts.
     static func parsePlaylistVideos(from ytData: [String: Any]) -> [ParsedPlaylistVideo] {
         guard let contents = ytData["contents"] as? [String: Any] else { return [] }
 
@@ -295,7 +261,6 @@ extension YouTubePlaylistScraper {
 
             guard let videoId = renderer["videoId"] as? String else { continue }
 
-            // Title: title.runs[0].text
             let title: String
             if let titleObj = renderer["title"] as? [String: Any],
                let runs = titleObj["runs"] as? [[String: Any]],
@@ -306,7 +271,6 @@ extension YouTubePlaylistScraper {
                 title = "(Unknown Title)"
             }
 
-            // Thumbnail: pick the highest-resolution thumbnail available
             let thumbnailURL: String
             if let thumbObj = renderer["thumbnail"] as? [String: Any],
                let thumbs = thumbObj["thumbnails"] as? [[String: Any]],
@@ -325,8 +289,6 @@ extension YouTubePlaylistScraper {
         return videos
     }
 
-    /// Navigates the tabs > sectionList > itemSection > playlistVideoList hierarchy
-    /// shared by both single- and two-column layouts.
     private static func extractVideoEntries(
         fromBrowseRenderer renderer: [String: Any]
     ) -> [[String: Any]]? {

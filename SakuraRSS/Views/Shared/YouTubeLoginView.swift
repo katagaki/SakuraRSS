@@ -1,9 +1,7 @@
 import SwiftUI
 import WebKit
 
-/// A web view that presents the YouTube/Google login page.
-/// Session cookies persist in the default WKWebsiteDataStore so that
-/// the YouTube player can use them for authenticated playback (e.g. PiP).
+/// Web view presenting the YouTube/Google login page; cookies persist for authenticated playback.
 struct YouTubeLoginView: View {
 
     @Environment(\.dismiss) var dismiss

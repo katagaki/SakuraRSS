@@ -1,9 +1,7 @@
 import SwiftUI
 import WebKit
 
-/// A web view that presents the Instagram login page.
-/// Session cookies persist in the default WKWebsiteDataStore so that
-/// InstagramProfileScraper can use them for authenticated profile scraping.
+/// Web view presenting the Instagram login page; cookies persist for InstagramProfileScraper.
 struct InstagramLoginView: View {
 
     @Environment(\.dismiss) var dismiss
@@ -31,7 +29,6 @@ struct InstagramLoginView: View {
     }
 }
 
-/// UIViewRepresentable wrapper for a WKWebView that loads the Instagram login page.
 private struct InstagramLoginWebView: UIViewRepresentable {
 
     @Binding var isLoggedIn: Bool
@@ -70,9 +67,6 @@ private struct InstagramLoginWebView: UIViewRepresentable {
                 try? await Task.sleep(for: .seconds(1))
                 guard !Task.isCancelled else { return }
 
-                // Copy any cookies Instagram just set in the WKWebView
-                // over to Keychain so `hasInstagramSession()`, which
-                // reads from Keychain, can detect the successful login.
                 await InstagramProfileScraper.syncCookiesFromWebKit()
 
                 let loggedIn = await InstagramProfileScraper.hasInstagramSession()

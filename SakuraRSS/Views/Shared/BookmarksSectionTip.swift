@@ -1,7 +1,6 @@
 import TipKit
 
-/// Tip shown once to point users at the new Bookmarks entry inside the
-/// Home section picker.  Only displays when at least one bookmark exists.
+/// One-time tip pointing to the Bookmarks entry when at least one bookmark exists.
 struct BookmarksSectionTip: Tip {
 
     @Parameter

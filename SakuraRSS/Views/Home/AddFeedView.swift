@@ -22,9 +22,6 @@ struct AddFeedView: View {
     @AppStorage("Labs.PetalRecipes") private var petalRecipesEnabled: Bool = false
     @FocusState private var isURLFieldFocused: Bool
 
-    /// The URL to seed the Petal builder with when the user taps
-    /// "Generate with Petal" after a failed search.  Prefers the
-    /// normalized input URL; falls back to whatever is in the field.
     private var petalSeedURL: String {
         let trimmed = urlInput.trimmingCharacters(in: .whitespaces)
         return trimmed.isEmpty ? "" : normalizeURL(trimmed)
@@ -253,30 +250,25 @@ struct AddFeedView: View {
         Task {
             var results: [DiscoveredFeed] = []
 
-            // 1. Try as direct feed URL (highest priority)
             if let feed = await tryDirectFeedURL(urlInput) {
                 results.append(feed)
             }
 
-            // 2. Search for feeds on the full URL
             let normalizedURL = normalizeURL(urlInput)
             if let url = URL(string: normalizedURL) {
                 let urlFeeds = await FeedDiscovery.shared.discoverFeeds(fromPageURL: url)
                 results.append(contentsOf: urlFeeds)
             }
 
-            // 3. Fall back to root domain search if nothing found yet
             if results.isEmpty {
                 let domain = extractDomain(from: urlInput)
                 let domainFeeds = await FeedDiscovery.shared.discoverFeeds(forDomain: domain)
                 results.append(contentsOf: domainFeeds)
             }
 
-            // Deduplicate by URL, keeping the first (highest priority) occurrence
             var seen = Set<String>()
             results = results.filter { seen.insert($0.url).inserted }
 
-            // Sort alphabetically by title
             results.sort { $0.title.localizedCaseInsensitiveCompare($1.title) == .orderedAscending }
 
             await MainActor.run {
@@ -314,17 +306,14 @@ struct AddFeedView: View {
     }
 
     private func addFeed(_ discovered: DiscoveredFeed) {
-        // X feeds require the experiment to be enabled
         guard !XProfileScraper.isXFeedURL(discovered.url)
                 || UserDefaults.standard.bool(forKey: "Labs.XProfileFeeds") else {
             return
         }
-        // Instagram feeds require the experiment to be enabled
         guard !InstagramProfileScraper.isInstagramFeedURL(discovered.url)
                 || UserDefaults.standard.bool(forKey: "Labs.InstagramProfileFeeds") else {
             return
         }
-        // If this is an X feed and the user hasn't logged in yet, prompt login first
         if XProfileScraper.isXFeedURL(discovered.url) && !feedManager.hasXFeeds {
             pendingXFeed = discovered
             Task {
@@ -337,7 +326,6 @@ struct AddFeedView: View {
             }
             return
         }
-        // If this is an Instagram feed and the user hasn't logged in yet, prompt login first
         if InstagramProfileScraper.isInstagramFeedURL(discovered.url)
             && !feedManager.hasInstagramFeeds {
             pendingInstagramFeed = discovered

@@ -31,7 +31,6 @@ struct PhotosArticleCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            // Profile photo and feed name header
             HStack(spacing: 10) {
                 if let feed {
                     NavigationLink(value: feed) {
@@ -92,7 +91,6 @@ struct PhotosArticleCard: View {
             .padding(.horizontal, 12)
             .padding(.vertical, 10)
 
-            // Edge-to-edge photo or carousel
             if article.carouselImageURLs.count > 1 {
                 let urls = article.carouselImageURLs.compactMap { URL(string: $0) }
                 if !urls.isEmpty {
@@ -157,7 +155,6 @@ struct PhotosArticleCard: View {
                     .transition(.opacity)
             }
 
-            // Article caption / title (tapping opens the article)
             ArticleLink(article: article, onShowYouTubePlayer: {
                 youTubeArticle = $0
             }, label: {
@@ -181,7 +178,6 @@ struct PhotosArticleCard: View {
                     .padding(.bottom, 10)
             }
 
-            // Action buttons below photo
             HStack(spacing: 16) {
                 Button {
                     #if DEBUG

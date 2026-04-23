@@ -1,17 +1,14 @@
 import PDFKit
 import SwiftUI
 
-/// Identifier passed to `.navigationDestination(item:)` for the arXiv PDF
-/// viewer. Using a dedicated type (rather than `URL`) avoids colliding with
-/// the article detail view's other URL-typed navigation destinations.
+/// Navigation identifier for the arXiv PDF viewer.
 struct ArXivPDFReference: Identifiable, Hashable {
     let url: URL
     let title: String
     var id: URL { url }
 }
 
-/// In-app PDF viewer used for arXiv papers. Downloads the PDF with the
-/// standard Sakura user agent and renders it with PDFKit.
+/// In-app PDF viewer for arXiv papers.
 struct ArXivPDFViewerView: View {
 
     let url: URL

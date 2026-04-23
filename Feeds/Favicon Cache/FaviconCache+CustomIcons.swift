@@ -22,7 +22,6 @@ extension FaviconCache {
             }
         }
 
-        // For X feeds without a cached photo, fetch the profile avatar via XProfileScraper
         if feed.isXFeed,
            let handle = XProfileScraper.handleFromFeedURL(feed.url),
            let image = await fetchXProfileAvatar(handle: handle) {
@@ -30,7 +29,6 @@ extension FaviconCache {
             return image
         }
 
-        // For Instagram feeds without a cached photo, fetch the profile avatar
         if feed.isInstagramFeed,
            let handle = InstagramProfileScraper.handleFromFeedURL(feed.url),
            let image = await fetchInstagramProfileAvatar(handle: handle) {
@@ -49,11 +47,7 @@ extension FaviconCache {
         if let pngData = finalImage.pngData() {
             try? pngData.write(to: filePath)
         }
-        // Persist metrics so the post-relaunch disk read produces the same
-        // rendering as the in-session image. Without this, FaviconImage
-        // re-samples the decoded PNG's corner alphas and may flip
-        // isFilledSquare, triggering the inset/tint heuristic for an icon
-        // that rendered edge-to-edge in-session.
+        // Persist metrics so post-relaunch disk reads match in-session rendering (avoids re-sampling flipping isFilledSquare).
         attachDerivedMetrics(cacheKey: key, to: finalImage)
     }
 

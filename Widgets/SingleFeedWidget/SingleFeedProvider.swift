@@ -30,9 +30,7 @@ struct SingleFeedProvider: AppIntentTimelineProvider {
 
     func timeline(for configuration: SingleFeedIntent, in _: Context) async -> Timeline<SingleFeedEntry> {
         let entry = await loadEntry(for: configuration)
-        // Timeline refreshes every 90 minutes instead of every 30.  Widgets
-        // running outside the app process wake it on every reload; tripling
-        // the interval triples the battery savings for this path.
+        // 90-minute interval; widget reloads wake the app process.
         return Timeline(entries: [entry], policy: .after(Date().addingTimeInterval(90 * 60)))
     }
 
@@ -70,10 +68,7 @@ struct SingleFeedProvider: AppIntentTimelineProvider {
             let pageStart = currentPage * perPage
             let pageArticles = Array(dbArticles.dropFirst(pageStart).prefix(perPage))
 
-            // Skip image network fetches when the top article IDs haven't
-            // changed since the last timeline build.  DB-cached images still
-            // resolve normally; this prevents retrying failing downloads on
-            // every 90-minute timeline wake.
+            // Skip network fetches when article set is unchanged, to avoid retrying failed downloads each wake.
             let articleIDsMarker = pageArticles.map(\.id).map(String.init).joined(separator: ",")
             let markerKey = "singleFeedMarker_\(feedID)_\(layout.rawValue)_\(columns)_\(currentPage)"
             let previousMarker = defaults?.string(forKey: markerKey)

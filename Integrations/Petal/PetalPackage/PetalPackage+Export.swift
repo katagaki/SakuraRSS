@@ -4,9 +4,7 @@ nonisolated extension PetalPackage {
 
     // MARK: - Export
 
-    /// Serializes a recipe (plus optional icon) into a `.srss`
-    /// blob.  Recipes, metadata, and an optional PNG icon are
-    /// bundled together as a ZIP archive.
+    /// Serializes a recipe plus optional icon into a `.srss` ZIP archive.
     static func export(
         recipe: PetalRecipe,
         iconPNG: Data? = nil
@@ -34,19 +32,8 @@ nonisolated extension PetalPackage {
         return PetalZip.write(entries: entries)
     }
 
-    /// Convenience: exports straight to a temp file and returns
-    /// the URL so callers can hand it to `ShareLink` /
-    /// `fileExporter`.
-    ///
-    /// The output goes into a *fresh, UUID-named* subdirectory of
-    /// the temp directory rather than the temp directory itself.
-    /// Even though `sanitizedFilename` already strips path
-    /// separators, writing into a throwaway subdirectory makes
-    /// the trust barrier between the user-controlled `recipe.name`
-    /// and the real filesystem explicit - a malicious name can
-    /// only clobber files inside the one-use subfolder we just
-    /// created.  The resolved path is re-checked to guarantee it
-    /// lives under the sandbox folder before we write anything.
+    /// Exports to a temp file and returns the URL for `ShareLink` / `fileExporter`.
+    /// Writes into a fresh UUID-named subdirectory to sandbox the user-controlled name.
     static func exportToTempFile(
         recipe: PetalRecipe,
         iconPNG: Data? = nil
@@ -63,10 +50,7 @@ nonisolated extension PetalPackage {
         )
 
         let tempURL = sandbox.appendingPathComponent(filename)
-        // Defense in depth: reject any path that escapes the
-        // sandbox after normalization.  This can't happen with
-        // the current sanitizer, but the guard documents the
-        // invariant and keeps Sonar / future refactors honest.
+        // Defense in depth: reject any path that escapes the sandbox after normalization.
         let resolvedPath = tempURL.standardizedFileURL.path
         let sandboxPath = sandbox.standardizedFileURL.path
         guard resolvedPath.hasPrefix(sandboxPath + "/") else {

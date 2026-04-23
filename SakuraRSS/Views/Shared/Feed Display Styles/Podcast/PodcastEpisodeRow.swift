@@ -26,7 +26,6 @@ struct PodcastEpisodeRow: View {
 
     var body: some View {
         HStack(spacing: 12) {
-            // Episode artwork
             if let imageURL = article.imageURL, let url = URL(string: imageURL) {
                 CachedAsyncImage(url: url) {
                     RoundedRectangle(cornerRadius: 8)

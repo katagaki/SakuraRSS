@@ -2,10 +2,7 @@ import Foundation
 
 extension ArticleExtractor {
 
-    /// Heuristic signal that an HTML payload is a JavaScript-rendered shell.
-    /// When this is true and the plain-HTTP extraction yielded very little
-    /// text, the caller should retry via the WebView extractor so hydration
-    /// has a chance to run.
+    /// True when the HTML looks like a JS-rendered shell (retry via WebView).
     static func looksJSRendered(_ html: String) -> Bool {
         let skeletonMarkers = [
             #"<div id="__next">\s*</div>"#,
@@ -42,9 +39,7 @@ extension ArticleExtractor {
         return false
     }
 
-    /// Returns `true` when the extracted text is short, has few paragraphs,
-    /// or is missing the usual structural signals of a real article body.
-    /// Used to decide whether to escalate from plain HTTP fetch to WebView.
+    /// True when extracted text is too short or sparse to trust; triggers WebView fallback.
     static func isWeakExtraction(_ text: String?) -> Bool {
         guard let text, !text.isEmpty else { return true }
         let paragraphCount = text.components(separatedBy: "\n\n").count

@@ -1,9 +1,6 @@
 import Foundation
 
-/// User-configurable cooldown between automatic per-feed refreshes.
-/// Applied when an automatic trigger (background refresh, app startup,
-/// foreground re-enter) asks to refresh every feed.  Does not affect
-/// explicit user-triggered refreshes such as pull-to-refresh.
+/// Cooldown between automatic per-feed refreshes (does not affect user-triggered pull-to-refresh).
 nonisolated enum FeedRefreshCooldown: String, CaseIterable, Sendable {
     case off
     case oneMinute

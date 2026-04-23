@@ -1,10 +1,6 @@
 import SwiftUI
 
-/// A TikTok/Reels-inspired full-screen vertical pager where each article
-/// takes up the entire screen. Tapping the image or content preview expands
-/// the article to reveal the full extracted text; tapping again collapses it.
-/// When expanded, overscrolling past the top collapses back to the compact
-/// overlay and overscrolling past the bottom advances to the next article.
+/// Full-screen vertical pager; tap to expand an article, overscroll to navigate.
 struct ScrollStyleView: View {
 
     @Environment(FeedManager.self) var feedManager
@@ -92,13 +88,11 @@ struct ScrollStyleView: View {
     }
 
     private func handleTap(on article: Article) {
-        // YouTube videos always open in player (never expand inline)
         if article.isYouTubeURL && youTubeOpenMode == .inAppPlayer {
             feedManager.markRead(article)
             youTubeArticle = article
             return
         }
-        // Podcast episodes always open in podcast player (never expand inline)
         if article.isPodcastEpisode {
             feedManager.markRead(article)
             podcastArticle = article

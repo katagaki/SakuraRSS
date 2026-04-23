@@ -9,7 +9,7 @@ nonisolated struct Article: Identifiable, Hashable, Sendable {
     var summary: String?
     var content: String?
     var imageURL: String?
-    /// All image URLs for Instagram carousel posts. Empty for single-image posts.
+    /// All image URLs for Instagram carousel posts.
     var carouselImageURLs: [String] = []
     var publishedDate: Date?
     var isRead: Bool
@@ -22,13 +22,11 @@ nonisolated struct Article: Identifiable, Hashable, Sendable {
         return lowered.contains("youtube.com") || lowered.contains("youtu.be")
     }
 
-    /// Whether the article URL points to a specific X/Twitter post (status).
     var isXPostURL: Bool {
         guard let parsed = URL(string: url) else { return false }
         return XProfileScraper.isXPostURL(parsed)
     }
 
-    /// Whether the article URL points to a specific Instagram post.
     var isInstagramPostURL: Bool {
         guard let parsed = URL(string: url) else { return false }
         return InstagramProfileScraper.isInstagramPostURL(parsed)
@@ -38,8 +36,7 @@ nonisolated struct Article: Identifiable, Hashable, Sendable {
         audioURL != nil
     }
 
-    /// Whether the summary has enough meaningful content to display.
-    /// Filters out placeholder text like "Comments" from Hacker News feeds.
+    /// Filters out placeholder summaries (e.g. "Comments" from Hacker News).
     var hasMeaningfulSummary: Bool {
         guard let summary else { return false }
         return summary.count >= 20

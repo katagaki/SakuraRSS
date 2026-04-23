@@ -5,15 +5,7 @@ extension FeedManager {
 
     // MARK: - Petal Feed Lifecycle
 
-    /// Creates a new feed backed by a Petal recipe.  The recipe is
-    /// saved to `PetalStore` and the feed's URL is set to
-    /// `petal://<siteURL>` so `refreshFeed` dispatches to
-    /// `PetalEngine` on every refresh.
-    ///
-    /// - Parameter recipe: the completed recipe from the builder.
-    /// - Parameter iconData: an optional PNG payload imported from a
-    ///   `.srss` package (user-supplied icons override the acronym
-    ///   placeholder).
+    /// Creates a feed backed by a Petal recipe; the feed URL is `petal://<siteURL>`.
     @discardableResult
     func addPetalFeed(
         recipe: PetalRecipe,
@@ -31,8 +23,6 @@ extension FeedManager {
         )
         let feed = feeds.first(where: { $0.url == recipe.feedURL })
 
-        // Install the imported icon as the feed's custom favicon so
-        // it flows through the existing FaviconCache pipeline.
         if let feed, let iconData, let image = UIImage(data: iconData) {
             Task {
                 await FaviconCache.shared.setCustomFavicon(
@@ -45,8 +35,6 @@ extension FeedManager {
     }
 
     /// Updates the backing recipe for an existing Petal feed.
-    /// Also refreshes the feed's title/siteURL in the database if the
-    /// recipe's name or source URL changed.
     func updatePetalRecipe(
         feed: Feed,
         recipe: PetalRecipe
@@ -69,9 +57,7 @@ extension FeedManager {
         }
     }
 
-    /// Replacement for the RSS code path used by the normal refresh
-    /// pipeline.  Mirrors `FeedManager+Refresh.swift`'s
-    /// `refreshFeed(_:)` control flow but drives `PetalEngine`.
+    /// Mirror of `refreshFeed(_:)` that drives `PetalEngine` instead of the RSS path.
     func refreshPetalFeed(_ feed: Feed, reloadData: Bool) async throws {
         guard UserDefaults.standard.bool(forKey: "Labs.PetalRecipes") else {
             return

@@ -1,9 +1,6 @@
 import SwiftUI
 
-/// Picker chrome pinned to the bottom of the sheet:
-/// breadcrumb trail on top, picked-element summary + "Assign to…"
-/// menu on the bottom.  Shows a placeholder until the user taps
-/// an element in the web view.
+/// Bottom bar with breadcrumb trail and picked-element assign menu.
 struct PetalElementPickerBottomBar: View {
 
     @Binding var recipe: PetalRecipe

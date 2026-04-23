@@ -5,8 +5,7 @@ import WebKit
 
 extension XProfileScraper {
 
-    /// Fetches x.com HTML, finds the main JS bundle, and extracts query IDs.
-    /// Also warms the WKWebView cookie store as a side effect.
+    /// Fetches x.com HTML, finds the main JS bundle, and extracts GraphQL query IDs.
     @MainActor
     static func fetchQueryIDsIfNeeded() async {
         guard !queryIDsFetched else { return }
@@ -14,14 +13,11 @@ extension XProfileScraper {
 
         print("[XProfileScraper:QueryIDs] Starting query ID fetch…")
 
-        // Warm cookie store (needed for API calls later)
         await warmCookieStore()
 
-        // Get cookies for the URLSession requests
         let cookies = await getHTTPCookies()
         print("[XProfileScraper:QueryIDs] Got \(cookies.count) cookies for x.com")
 
-        // Fetch query IDs from X's JS bundle
         await fetchQueryIDsFromBundle(cookies: cookies)
 
         if userByScreenNameQueryID == nil || userTweetsQueryID == nil
@@ -68,7 +64,6 @@ extension XProfileScraper {
     // MARK: - Bundle Parsing
 
     private static func fetchQueryIDsFromBundle(cookies: [HTTPCookie]) async {
-        // Step 1: Fetch x.com HTML to find the main JS bundle URL
         guard let pageURL = URL(string: "https://x.com") else { return }
 
         var request = URLRequest(url: pageURL)
@@ -92,8 +87,6 @@ extension XProfileScraper {
             return
         }
 
-        // Step 2: Find main bundle URL in HTML
-        // Pattern: https://abs.twimg.com/responsive-web/client-web/main.HASH.js
         guard let bundleURL = extractMainBundleURL(from: pageHTML) else {
             print("[XProfileScraper:QueryIDs] ERROR: Could not find main bundle URL in HTML")
             print("[XProfileScraper:QueryIDs] HTML preview: \(pageHTML.prefix(2000))")
@@ -102,7 +95,6 @@ extension XProfileScraper {
 
         print("[XProfileScraper:QueryIDs] Found main bundle: \(bundleURL)")
 
-        // Step 3: Fetch the bundle JS
         let bundleText: String
         do {
             let (data, _) = try await URLSession.shared.data(for: .sakura(url: bundleURL))
@@ -117,13 +109,10 @@ extension XProfileScraper {
             return
         }
 
-        // Step 4: Extract query IDs
-        // Pattern in bundle: queryId:"XXXX",operationName:"UserTweets"
         extractQueryIDs(from: bundleText)
     }
 
     private static func extractMainBundleURL(from html: String) -> URL? {
-        // Match src="...client-web/main.HASH.js"
         let pattern = #"(https://abs\.twimg\.com/responsive-web/client-web/main\.[a-zA-Z0-9]+\.js)"#
         guard let regex = try? NSRegularExpression(pattern: pattern),
               let match = regex.firstMatch(

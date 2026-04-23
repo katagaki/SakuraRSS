@@ -4,9 +4,7 @@ import Foundation
 nonisolated enum DisplayStylePhotosDomains {
 
     static let allowlistedDomains: Set<String> = [
-        // Instagram
         "instagram.com",
-        // Pixelfed
         "pixelfed.social",
         "pixelfed.tokyo"
     ]

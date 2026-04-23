@@ -66,8 +66,7 @@ struct PodcastSettingsView: View {
                 }
                 .disabled(isDownloadingModel)
                 .onChange(of: toggleState) { _, newValue in
-                    // Ignore the synthetic change fired when `.task` syncs
-                    // local state to persisted state on view appear.
+                    // Ignore synthetic change fired when `.task` syncs on appear.
                     guard hasBootstrapped else { return }
                     handleToggleChange(newValue)
                 }
@@ -107,10 +106,7 @@ struct PodcastSettingsView: View {
         .task {
             downloadsSize = PodcastDownloadManager.totalDownloadedSize()
             refreshModelStatus()
-            // Reconcile the toggle with on-disk state: if the user flipped the
-            // toggle on previously but the model never downloaded (or was
-            // manually removed), reset the toggle to off so the UI matches
-            // reality. Otherwise adopt the persisted value.
+            // Reconcile toggle with on-disk state when the model is missing.
             if transcriptionEnabled && !modelReady {
                 transcriptionEnabled = false
             }
@@ -149,13 +145,9 @@ struct PodcastSettingsView: View {
 
     private func handleToggleChange(_ newValue: Bool) {
         if newValue {
-            // User flipped on. Any stale error goes away now.
             downloadError = nil
-            // Guard: require network before kicking off a download.
             guard NetworkMonitor.shared.isOnline else {
                 downloadError = .offline
-                // Revert the toggle. The re-fire of this handler will land
-                // in the else branch, which is idempotent.
                 transcriptionEnabled = false
                 toggleState = false
                 return
@@ -163,10 +155,7 @@ struct PodcastSettingsView: View {
             transcriptionEnabled = true
             startDownload()
         } else {
-            // Toggling off - cancel any in-flight download and wipe the model.
-            // Don't clear downloadError here: if we're landing here because
-            // the toggle was reverted after a failure, we want the error
-            // message to stay visible.
+            // Don't clear downloadError: preserve it when toggle reverted after a failure.
             if downloadTask != nil {
                 userCancelledDownload = true
                 downloadTask?.cancel()
@@ -194,9 +183,6 @@ struct PodcastSettingsView: View {
                 })
                 await MainActor.run {
                     downloadTask = nil
-                    // If the user toggled off after the download completed
-                    // but before this continuation ran, delete the freshly
-                    // downloaded model so the UI and disk stay in sync.
                     if userCancelledDownload {
                         userCancelledDownload = false
                         try? engine.deleteModel()
@@ -214,17 +200,13 @@ struct PodcastSettingsView: View {
                     downloadTask = nil
                     isDownloadingModel = false
                     downloadProgress = 0
-                    // User-initiated cancel: silently swallow, UI already reset.
                     if userCancelledDownload {
                         userCancelledDownload = false
                         try? engine.deleteModel()
                         refreshModelStatus()
                         return
                     }
-                    // Distinguish offline from other failures so we can show
-                    // the right message.
                     downloadError = NetworkMonitor.shared.isOnline ? .generic : .offline
-                    // Roll the toggle back off and clean up any partial files.
                     transcriptionEnabled = false
                     try? engine.deleteModel()
                     toggleState = false
@@ -246,7 +228,6 @@ struct PodcastSettingsView: View {
     }
 }
 
-/// Circular determinate progress indicator styled as a donut.
 private struct ProgressDonut: View {
     let progress: Double
 

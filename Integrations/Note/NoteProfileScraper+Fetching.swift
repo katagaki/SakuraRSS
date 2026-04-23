@@ -2,10 +2,6 @@ import Foundation
 
 extension NoteProfileScraper {
 
-    /// Calls the v2 creators API and extracts the profile photo URL and
-    /// display name. Returns an empty result on any failure; the favicon
-    /// lookup path treats this as a miss and falls back to the generic
-    /// favicon fetch.
     func performFetch(url: URL) async -> NoteProfileScrapeResult {
         var request = URLRequest(url: url)
         request.setValue(sakuraUserAgent, forHTTPHeaderField: "User-Agent")

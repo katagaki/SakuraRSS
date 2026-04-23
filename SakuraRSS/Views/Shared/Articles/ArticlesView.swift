@@ -210,15 +210,13 @@ struct ArticlesView: View {
             }
         }
         .onChange(of: articles) { oldValue, newValue in
-            // Stage any articles whose read state flipped while the view was
-            // mounted so they don't vanish from under the user's finger.
+            // Stage flipped-read articles so they don't vanish under the user's finger.
             let previouslyRead = Set(oldValue.filter { $0.isRead }.map(\.id))
             let currentlyRead = Set(newValue.filter { $0.isRead }.map(\.id))
             let newlyRead = currentlyRead.subtracting(previouslyRead)
             if !newlyRead.isEmpty {
                 stagedReadIDs.formUnion(newlyRead)
             }
-            // Drop staged IDs that have been removed from the article list.
             let currentIDs = Set(newValue.map(\.id))
             stagedReadIDs.formIntersection(currentIDs)
         }
@@ -286,8 +284,7 @@ struct ArticlesView: View {
         }
     }
 
-    /// Falls back to inbox if the selected style requires images but none are available,
-    /// or if podcast style is selected for a non-podcast feed.
+    /// Falls back to inbox when the chosen style isn't valid for the current feed.
     private var effectiveDisplayStyle: FeedDisplayStyle {
         if !hasImages && displayStyle.requiresImages {
             return .inbox

@@ -5,8 +5,7 @@ enum RedditPostFetchResult: Sendable {
     case linkedArticle(URL)
 }
 
-/// Fetches Reddit posts via the public `/comments/{id}.json` endpoint and
-/// translates them into `ContentBlock` marker strings.
+/// Fetches Reddit posts and translates them into `ContentBlock` marker strings.
 final class RedditPostScraper: @unchecked Sendable {
 
     static let shared = RedditPostScraper()

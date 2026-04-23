@@ -16,11 +16,9 @@ struct PodcastEpisodeView: View {
 
     let playbackSpeedPresets: [Double] = [0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0, 2.5, 3.0]
 
-    // Downloads
     let downloadManager = PodcastDownloadManager.shared
     let networkMonitor = NetworkMonitor.shared
     @State var isDownloaded: Bool = false
-    // Transcript
     @State var transcript: [TranscriptSegment]?
     @State var showingTranscript: Bool = false
     @State var isTranscriptAutoScrolling: Bool = true
@@ -41,14 +39,12 @@ struct PodcastEpisodeView: View {
         !isDownloaded && !isOffline && downloadProgress == nil
     }
 
-    // Translation state
     @State var translatedText: String?
     @State var translatedSummary: String?
     @State var isTranslating = false
     @State var translationConfig: TranslationSession.Configuration?
     @State var showingTranslation = false
 
-    // Summarization state
     @State var summarizedText: String?
     @State var isSummarizing = false
     @State var hasCachedSummary = false
@@ -88,7 +84,6 @@ struct PodcastEpisodeView: View {
         ScrollViewReader { scrollProxy in
             ScrollView {
                 VStack(spacing: 24) {
-                    // Artwork
                     if let imageURL = article.imageURL, let url = URL(string: imageURL) {
                         CachedAsyncImage(url: url) {
                             RoundedRectangle(cornerRadius: 16)
@@ -118,7 +113,6 @@ struct PodcastEpisodeView: View {
                             .padding(.horizontal, 40)
                     }
 
-                    // Title and metadata
                     VStack(spacing: 8) {
                         Text(article.title)
                             .font(.title3)
@@ -151,10 +145,8 @@ struct PodcastEpisodeView: View {
                     }
                     .padding(.horizontal)
 
-                    // Playback controls
                     if isThisEpisode {
                         VStack(spacing: 12) {
-                            // Seek bar
                             SeekBarView(
                                 currentTime: Binding(
                                     get: { audioPlayer.currentTime },
@@ -164,7 +156,6 @@ struct PodcastEpisodeView: View {
                                 onSeek: { audioPlayer.seek(to: $0) }
                             )
 
-                            // Transport controls with transcript toggle and speed
                             HStack {
                                 transcriptToggle
                                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -195,7 +186,6 @@ struct PodcastEpisodeView: View {
                         }
                         .padding(.horizontal)
                     } else {
-                        // Not currently playing - show play button with download
                         HStack(spacing: 12) {
                             Button {
                                 startPlayback()
@@ -225,10 +215,8 @@ struct PodcastEpisodeView: View {
                         }
                     }
 
-                    // Action buttons
                     actionButtons
 
-                    // Transcript / Episode description
                     Group {
                         if showingTranscript, let transcript, !transcript.isEmpty {
                             TranscriptView(
@@ -307,7 +295,6 @@ struct PodcastEpisodeView: View {
                 }
                 favicon = await FaviconCache.shared.favicon(for: feed)
             }
-            // Load cached summary/translation
             if let cached = try? DatabaseManager.shared.cachedArticleSummary(for: article.id),
                !cached.isEmpty {
                 hasCachedSummary = true
@@ -316,7 +303,6 @@ struct PodcastEpisodeView: View {
                let text = cached.text, !text.isEmpty {
                 translatedText = text
             }
-            // Load download/transcript state
             isDownloaded = downloadManager.isDownloaded(articleID: article.id)
             if let cached = try? DatabaseManager.shared.cachedTranscript(for: article.id),
                !cached.isEmpty {

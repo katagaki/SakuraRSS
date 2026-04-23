@@ -28,14 +28,12 @@ struct YouTubePlayerView: View {
     @State var wantsPlaybackInBackground = false
     @State var playerID = UUID()
 
-    // SponsorBlock
     @AppStorage("YouTube.SponsorBlock.Enabled") var sponsorBlockEnabled = false
     @AppStorage("YouTube.SponsorBlock.Categories") private var sponsorBlockCategories = "sponsor,selfpromo,interaction"
     @State var sponsorSegments: [SponsorSegment] = []
     @State var skippedSegmentIDs: Set<String> = []
     @State var skippedSegmentMessage: String?
 
-    // Translation & summarization
     @State var translatedText: String?
     @State var translatedSummary: String?
     @State var isTranslating = false
@@ -99,13 +97,11 @@ struct YouTubePlayerView: View {
 
             ScrollView(.vertical) {
                 VStack(spacing: 8) {
-                    // Title
                     WordWrappingText(article.title, font: .preferredFont(forTextStyle: .title2, weight: .bold))
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(.horizontal)
                         .padding(.top, 12)
 
-                    // Seek bar
                     SeekBarView(
                         currentTime: Binding(
                             get: { currentTime },
@@ -119,7 +115,6 @@ struct YouTubePlayerView: View {
                     .padding(.horizontal)
                     .padding(.top, 16)
 
-                    // Playback controls
                     HStack(spacing: 32) {
                         Button {
                             togglePiP()
@@ -161,7 +156,6 @@ struct YouTubePlayerView: View {
                     .foregroundStyle(.primary)
                     .padding(.top, 16)
 
-                    // Visit Advertiser button
                     if isAd, let advertiserURL {
                         Button {
                             openURL(advertiserURL)
@@ -174,7 +168,6 @@ struct YouTubePlayerView: View {
                         .padding(.top, 12)
                     }
 
-                    // Channel info
                     if let feed {
                         HStack(alignment: .top, spacing: 12) {
                             feedAvatarView
@@ -195,10 +188,8 @@ struct YouTubePlayerView: View {
                         .padding(.top, 20)
                     }
 
-                    // Action buttons
                     descriptionActionButtons
 
-                    // Description
                     if let text = displayDescription, !text.isEmpty {
                         VStack(alignment: .leading, spacing: 12) {
                             if showingSummary && summarizedText != nil {

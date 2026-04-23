@@ -1,14 +1,6 @@
 import SwiftUI
 
-/// "Selectors" section of the Web Feed builder: the Auto-Detect
-/// button plus the six CSS-selector input rows.
-///
-/// Takes a binding to the whole recipe (rather than individual
-/// selector bindings) because every selector field ends up
-/// needing the same pattern and passing seven bindings clutters
-/// the parent call site.  Preview-refresh scheduling is
-/// delegated back via `onSelectorChanged` so this view doesn't
-/// have to own a debounce task.
+/// "Selectors" section of the Web Feed builder with Auto-Detect and CSS-selector rows.
 struct PetalBuilderSelectorsSection: View {
 
     @Binding var recipe: PetalRecipe

@@ -1,24 +1,15 @@
 import Foundation
 import FoundationModels
 
-/// Runs LLM batch summarization: splits content into batches, summarizes each concurrently,
-/// then combines into a single summary.
+/// Runs LLM batch summarization concurrently then combines into a single summary.
 enum BatchSummarizer {
 
-    /// Minimum body length (in characters, after stripping HTML tags) for an
-    /// article to be worth handing to the LLM.  Articles shorter than this
-    /// are title-only stubs, placeholder/teaser bodies, or empty posts - all
-    /// of which cost LLM energy without improving the summary.
     static let minArticleBodyCharacters = 200
 
-    /// Returns true when `summary` has enough real content (after stripping
-    /// HTML tags and whitespace) to contribute to an LLM summary, and is not
-    /// a trivial duplicate of the title.
+    /// Returns true when `summary` has enough real content beyond the title to feed the LLM.
     static func hasUsefulContent(title: String, summary: String?) -> Bool {
         guard let summary, !summary.isEmpty else { return false }
 
-        // Strip HTML tags with a simple regex - good enough for the check
-        // since we only need a character count, not a rendered result.
         let stripped = summary
             .replacingOccurrences(
                 of: "<[^>]+>",
@@ -29,14 +20,13 @@ enum BatchSummarizer {
 
         guard stripped.count >= minArticleBodyCharacters else { return false }
 
-        // Reject bodies that are just the title repeated.
         if stripped.caseInsensitiveCompare(title) == .orderedSame {
             return false
         }
         return true
     }
 
-    /// Summarizes batches concurrently (max 3 at a time), then combines results if needed.
+    /// Summarizes batches concurrently (max 3 at a time), then combines.
     static func summarize(
         batches: [String],
         instructions: String,
@@ -83,7 +73,7 @@ enum BatchSummarizer {
         return response.content
     }
 
-    /// Packs strings into batches that each fit within the given character limit.
+    /// Packs strings into batches fitting within `charLimit`.
     static func packBatches(_ descriptions: [String], charLimit: Int) -> [String] {
         var batches: [String] = []
         var current: [String] = []

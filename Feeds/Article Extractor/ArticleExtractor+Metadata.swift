@@ -3,9 +3,7 @@ import SwiftSoup
 
 extension ArticleExtractor {
 
-    /// Extracts structured metadata (author, publish date, lead image) from
-    /// a document.  Runs **before** noise removal so byline strippers don't
-    /// race us to the data.
+    /// Extracts author, publish date, and lead image. Call before `removeNoise`.
     static func extractMetadata(from doc: Document) -> ArticleMetadata {
         var metadata = ArticleMetadata()
 

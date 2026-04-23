@@ -1,8 +1,6 @@
 import SwiftUI
 
-/// Forwards scroll phase and offset updates from an enclosing scroll view
-/// to `FeedManager` so mark-as-read commits can wait until scrolling
-/// has slowed down.
+/// Forwards scroll phase/offset to `FeedManager` so mark-as-read can defer during fast scroll.
 struct TrackScrollActivityModifier: ViewModifier {
 
     @Environment(FeedManager.self) private var feedManager

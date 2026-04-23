@@ -29,7 +29,6 @@ extension InstagramProfileScraper {
 
         var posts: [ParsedInstagramPost] = []
 
-        // Format 1: GraphQL edge format (edge_owner_to_timeline_media.edges[].node)
         if let edgeMedia = user["edge_owner_to_timeline_media"] as? [String: Any],
            let edges = edgeMedia["edges"] as? [[String: Any]] {
             for edge in edges {
@@ -41,10 +40,7 @@ extension InstagramProfileScraper {
             }
         }
 
-        // Format 2: v1 API format (edge_owner_to_timeline_media.edges is empty,
-        // but items may be in a different location)
         if posts.isEmpty, let edgeMedia = user["edge_owner_to_timeline_media"] as? [String: Any] {
-            // Some responses nest count but no edges; check for items array
             if let items = edgeMedia["items"] as? [[String: Any]] {
                 for item in items {
                     if let post = parseV1Item(item: item, username: username,
@@ -55,7 +51,6 @@ extension InstagramProfileScraper {
             }
         }
 
-        // Format 3: Media object at top level of user
         if posts.isEmpty, let media = user["media"] as? [String: Any] {
             if let items = media["items"] as? [[String: Any]] {
                 for item in items {
@@ -88,7 +83,6 @@ extension InstagramProfileScraper {
 
         let shortcode = node["shortcode"] as? String ?? ""
 
-        // Caption text
         var captionText = ""
         if let edgeCaption = node["edge_media_to_caption"] as? [String: Any],
            let captionEdges = edgeCaption["edges"] as? [[String: Any]],
@@ -98,9 +92,6 @@ extension InstagramProfileScraper {
             captionText = text
         }
 
-        // Image URL - for video/reel posts, display_url is the poster frame.
-        // Fall back to thumbnail_resources (sorted by size) if the primary
-        // keys are absent.
         var imageURL = node["display_url"] as? String
             ?? node["thumbnail_src"] as? String
         if imageURL == nil,
@@ -111,7 +102,6 @@ extension InstagramProfileScraper {
             imageURL = sorted.first?["src"] as? String
         }
 
-        // Carousel images (edge_sidecar_to_children contains all slides)
         var carouselImageURLs: [String] = []
         if let sidecar = node["edge_sidecar_to_children"] as? [String: Any],
            let edges = sidecar["edges"] as? [[String: Any]] {
@@ -123,7 +113,6 @@ extension InstagramProfileScraper {
             }
         }
 
-        // Publish date
         var publishedDate: Date?
         if let timestamp = node["taken_at_timestamp"] as? TimeInterval {
             publishedDate = Date(timeIntervalSince1970: timestamp)
@@ -151,7 +140,6 @@ extension InstagramProfileScraper {
     private static func parseV1Item(
         item: [String: Any], username: String, displayName: String?
     ) -> ParsedInstagramPost? {
-        // ID can be "id", "pk", or "media_id"
         let id: String
         if let idStr = item["id"] as? String {
             id = idStr
@@ -166,14 +154,12 @@ extension InstagramProfileScraper {
 
         let code = item["code"] as? String ?? ""
 
-        // Caption
         var captionText = ""
         if let caption = item["caption"] as? [String: Any],
            let text = caption["text"] as? String {
             captionText = text
         }
 
-        // Image URL - carousel or single
         var imageURL: String?
         var carouselImageURLs: [String] = []
         if let carouselMedia = item["carousel_media"] as? [[String: Any]] {
@@ -188,7 +174,6 @@ extension InstagramProfileScraper {
             imageURL = bestImageURL(from: item)
         }
 
-        // Publish date
         var publishedDate: Date?
         if let timestamp = item["taken_at"] as? TimeInterval {
             publishedDate = Date(timeIntervalSince1970: timestamp)
@@ -216,7 +201,6 @@ extension InstagramProfileScraper {
 
     // MARK: - User ID Extraction
 
-    /// Extracts the user ID from the web_profile_info response data.
     static func extractUserID(from data: Data) -> String? {
         guard let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
               let dataObj = json["data"] as? [String: Any],
@@ -235,7 +219,6 @@ extension InstagramProfileScraper {
 
     // MARK: - Feed Endpoint Parsing
 
-    /// Parses the response from `/api/v1/feed/user/{id}/`.
     static func parseFeedResponse(
         data: Data, username: String, displayName: String?
     ) -> [ParsedInstagramPost] {
@@ -262,9 +245,7 @@ extension InstagramProfileScraper {
         return posts
     }
 
-    /// Extracts the best available image URL from a media item.
     private static func bestImageURL(from item: [String: Any]) -> String? {
-        // image_versions2.candidates[] sorted by width
         if let imageVersions = item["image_versions2"] as? [String: Any],
            let candidates = imageVersions["candidates"] as? [[String: Any]] {
             let sorted = candidates.sorted {
@@ -274,7 +255,6 @@ extension InstagramProfileScraper {
                 return url
             }
         }
-        // Fallback keys
         return item["display_url"] as? String
             ?? item["thumbnail_src"] as? String
             ?? item["image_url"] as? String

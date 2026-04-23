@@ -5,14 +5,7 @@ actor FaviconCache {
 
     static let shared = FaviconCache()
 
-    /// Dedicated URLSession used for every favicon-related network fetch.
-    /// Favicons are cosmetic, and hanging on a slow or unreachable host
-    /// keeps a request slot - and radio time - alive for far longer than
-    /// a missing icon is worth.  Keep the timeouts tight (3 seconds) and
-    /// disable `waitsForConnectivity` so we never sit on a request while
-    /// the device is offline.  `httpAdditionalHeaders` sets a Safari-parity
-    /// User-Agent on every request so the default `CFNetwork` UA (which
-    /// leaks the app bundle ID and iOS version) is never sent.
+    /// Dedicated short-timeout URLSession for favicon fetches.
     nonisolated static let urlSession: URLSession = {
         let config = URLSessionConfiguration.default
         config.timeoutIntervalForRequest = 3
@@ -24,8 +17,6 @@ actor FaviconCache {
 
     let cacheDirectory: URL
     var memoryCache: [String: UIImage] = [:]
-    /// Hosts whose favicon fetch most recently failed, keyed by cacheKey.
-    /// Persisted to disk with a 24h TTL — see `FaviconCache+FailedLookups`.
     var failedLookups: [String: Date] = [:]
 
     private init() {
@@ -94,8 +85,7 @@ actor FaviconCache {
         try? FileManager.default.createDirectory(at: cacheDirectory, withIntermediateDirectories: true)
     }
 
-    /// Removes specific entries from the failed-lookups set so they will be
-    /// retried on the next request.
+    /// Removes specific entries from the failed-lookups set to be retried.
     func clearFailedLookups(for entries: [(domain: String, siteURL: String?)]) {
         for entry in entries {
             let cacheKey = Self.cacheKey(domain: entry.domain, siteURL: entry.siteURL)
@@ -120,18 +110,12 @@ actor FaviconCache {
 
     // MARK: - Derived Metrics Sidecar
 
-    /// JSON sidecar URL holding FaviconDerivedMetrics for a cached favicon.
-    /// Stored next to the PNG so `refreshFavicons`/`clearCache` wipe both
-    /// together by iterating the directory.
+    /// Returns the JSON sidecar URL for a cached favicon's derived metrics.
     func metricsSidecarURL(for cacheKey: String) -> URL {
         cacheDirectory.appendingPathComponent(sanitizedFileName(cacheKey) + ".meta.json")
     }
 
-    /// Attaches the cached metrics to the image.  If the sidecar already
-    /// exists on disk it's decoded and attached as-is; otherwise the
-    /// metrics are computed from the pixels now and the sidecar is
-    /// written, so subsequent app launches avoid the pixel sampling
-    /// work entirely.
+    /// Attaches cached metrics to the image, computing and persisting them if missing.
     func attachDerivedMetrics(cacheKey: String, to image: UIImage) {
         let url = metricsSidecarURL(for: cacheKey)
         if let data = try? Data(contentsOf: url),

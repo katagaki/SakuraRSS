@@ -35,10 +35,7 @@ extension SakuraRSSApp {
             case "putonpipboy":
                 wipeAllCachesAndData()
                 Task {
-                    // X and Instagram cookies live in Keychain, which
-                    // survives the filesystem wipe above - no cookie
-                    // re-warming needed.  X still has to re-extract its
-                    // in-memory GraphQL query IDs from the JS bundle.
+                    // X/Instagram cookies in Keychain survive the wipe; X must re-extract GraphQL IDs.
                     if UserDefaults.standard.bool(forKey: "Labs.XProfileFeeds") {
                         await XProfileScraper.fetchQueryIDsIfNeeded()
                     }
@@ -73,13 +70,10 @@ extension SakuraRSSApp {
         }
     }
 
-    /// Wipes everything in the app's Caches, Application Support, Documents,
-    /// and tmp directories except the feeds database in the shared app group
-    /// container. Invoked via `sakura://putonpipboy`.
+    /// Wipes app sandbox directories and tmp, preserving the feeds database in the group container.
     func wipeAllCachesAndData() {
         let fm = FileManager.default
 
-        // Wipe the main app sandbox directories entirely.
         let directories: [FileManager.SearchPathDirectory] = [
             .cachesDirectory,
             .applicationSupportDirectory,
@@ -90,10 +84,8 @@ extension SakuraRSSApp {
             wipeContents(of: dir)
         }
 
-        // Wipe the temporary directory.
         wipeContents(of: fm.temporaryDirectory)
 
-        // Wipe the shared app group container, but preserve the feeds database.
         if let groupURL = fm.containerURL(
             forSecurityApplicationGroupIdentifier: "group.com.tsubuzaki.SakuraRSS"
         ) {
@@ -105,7 +97,6 @@ extension SakuraRSSApp {
         }
     }
 
-    /// Removes every top-level entry inside `directory`, except names in `except`.
     func wipeContents(of directory: URL, except: Set<String> = []) {
         let fileManager = FileManager.default
         guard let entries = try? fileManager.contentsOfDirectory(

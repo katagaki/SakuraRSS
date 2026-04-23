@@ -3,10 +3,8 @@ import SwiftSoup
 
 extension ArticleExtractor {
 
-    /// Extracts the raw text content from a code block element (`<pre>`,
-    /// or a code block wrapper div), preserving whitespace and newlines.
+    /// Extracts raw text from a code block element, preserving whitespace and newlines.
     static func codeContent(of element: Element) throws -> String {
-        // Find the innermost code element, or use the element itself
         let source: Element
         if let codeChild = try? element.select("code").first() {
             source = codeChild
@@ -16,8 +14,8 @@ extension ArticleExtractor {
             source = element
         }
 
-        // For elements with line-oriented children (e.g. Code Hike uses
-        // <div> per line inside <code>), extract text line by line.
+        // Code Hike-style blocks use one <div> per line inside <code>,
+        // so extract line-by-line when children are line divs.
         let directDivs = source.children().filter {
             $0.tagName().lowercased() == "div"
         }
@@ -29,7 +27,6 @@ extension ArticleExtractor {
             return ArticleMarker.escape(decoded)
         }
 
-        // Standard <pre>/<pre><code> - use inner HTML
         var html = try source.html()
         html = html.replacingOccurrences(
             of: #"<br\s*/?>"#, with: "\n", options: .regularExpression

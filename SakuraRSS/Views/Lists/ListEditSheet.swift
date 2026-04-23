@@ -149,7 +149,6 @@ struct ListEditSheet: View {
         if let list {
             feedManager.updateList(list, name: trimmedName, icon: selectedIcon,
                                    displayStyle: selectedDisplayStyle)
-            // Update feed membership
             let currentIDs = feedManager.feedIDs(for: list)
             for id in selectedFeedIDs where !currentIDs.contains(id) {
                 if let feed = feedManager.feedsByID[id] {
@@ -163,7 +162,6 @@ struct ListEditSheet: View {
             }
         } else {
             if let _ = try? feedManager.createList(name: trimmedName, icon: selectedIcon) {
-                // Newly created list - assign feeds
                 if let newList = feedManager.lists.last {
                     for id in selectedFeedIDs {
                         if let feed = feedManager.feedsByID[id] {

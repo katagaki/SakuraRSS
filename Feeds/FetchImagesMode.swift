@@ -1,8 +1,6 @@
 import Foundation
 
-/// Controls whether article images should be prefetched during feed
-/// refreshes, and whether the work is restricted to non-expensive
-/// (typically Wi-Fi) network paths.
+/// Controls article image prefetching during feed refreshes.
 nonisolated enum FetchImagesMode: String, CaseIterable, Sendable {
     case always
     case wifiOnly

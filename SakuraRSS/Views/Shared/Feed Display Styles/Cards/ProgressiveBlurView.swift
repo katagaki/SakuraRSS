@@ -1,13 +1,6 @@
 import SwiftUI
 
-/// Builds a progressive blur by stacking multiple blur layers, each masked
-/// to reveal only its vertical slice. The result fades from sharp at the top
-/// to heavily blurred at the bottom, with a tint that adapts to the current
-/// color scheme for text contrast.
-///
-/// Uses a custom UIView subclass so that gradient masks are re-applied in
-/// `layoutSubviews`, ensuring the blur is visible on the very first display
-/// (not just after the view reappears).
+/// Progressive blur fading from sharp top to heavily blurred bottom.
 struct ProgressiveBlurView: UIViewRepresentable {
 
     @Environment(\.colorScheme) private var colorScheme
@@ -81,7 +74,6 @@ final class ProgressiveBlurUIView: UIView {
             blur.alpha = CGFloat(index + 1) / CGFloat(Self.steps)
         }
 
-        // Tint overlay
         tintOverlay.frame = bounds
         tintOverlay.backgroundColor = blurStyle == .dark
             ? UIColor.black.withAlphaComponent(0.3)

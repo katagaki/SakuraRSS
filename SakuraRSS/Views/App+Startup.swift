@@ -26,12 +26,7 @@ extension SakuraRSSApp {
         }
     }
 
-    /// Runs a one-time full Spotlight reindex when the on-device index
-    /// schema doesn't match the current build's `SpotlightIndexer.schemaVersion`.
-    /// Does NOT gate on Low Power Mode: if the schema has changed, search
-    /// is broken until the reindex runs.  In the steady state - when the
-    /// stored version already matches - this method is a single
-    /// `UserDefaults` read and returns immediately.
+    /// Full Spotlight reindex when the on-device schema doesn't match the current build.
     func reindexSpotlightIfSchemaChanged() {
         let defaults = UserDefaults.standard
         let storedRaw = defaults.object(forKey: SpotlightIndexer.schemaVersionDefaultsKey) as? Int

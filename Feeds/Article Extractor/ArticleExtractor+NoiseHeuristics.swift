@@ -10,9 +10,8 @@ extension ArticleExtractor {
             for list in lists {
                 let items = try list.select("li")
                 guard items.size() > 2 else { continue }
-                // Count link-bearing items rather than total <a>s / total <li>s.
-                // A decorative <li> (close button, label, search box) alongside
-                // real link items would otherwise defeat a strict ratio check.
+                // Count link-bearing items instead of total <a>s so a
+                // decorative <li> won't defeat the ratio check.
                 var linkItems = 0
                 for item in items where (try? item.select("a").first()) != nil {
                     linkItems += 1
@@ -20,19 +19,16 @@ extension ArticleExtractor {
                 guard linkItems >= 3 else { continue }
                 let totalText = try list.text()
                 let avgTextPerLinkItem = totalText.count / max(linkItems, 1)
-                // Two signals: mostly-links, and short labels per link.
                 let linkDensity = Double(linkItems) / Double(items.size())
                 if linkDensity >= 0.6 && avgTextPerLinkItem < 50 {
                     try list.remove()
                 }
             }
         } catch {
-            // Menu detection is best-effort; failures are non-critical
         }
     }
 
-    /// Detects and removes "suggestion" sections: a heading like
-    /// "Related Articles" or "You May Also Like" followed by a link-heavy block.
+    /// Removes "Related Articles" / "You May Also Like" style suggestion sections.
     static func removeSuggestionSections(from element: Element) {
         let suggestionHeadingPatterns = [
             "related", "recommended", "suggested", "you may also",
@@ -74,13 +70,10 @@ extension ArticleExtractor {
                 }
             }
         } catch {
-            // Best-effort; failures are non-critical
         }
     }
 
-    /// Heuristic: a container whose children are overwhelmingly icon-only
-    /// links or buttons (tiny text payload, many links) is almost always a
-    /// share toolbar, floating action bar, or pagination strip.
+    /// Removes containers dominated by icon-only links or buttons (share toolbars, pagination).
     static func removeIconToolbars(from element: Element) {
         do {
             let candidates = try element.select("div, nav, section, ul")
@@ -92,27 +85,21 @@ extension ArticleExtractor {
 
                 let text = (try? candidate.text()) ?? ""
                 let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
-                // Average visible characters per actionable element - share
-                // toolbars and pagination rows score <=4 (often 0 with SVG
-                // icons); real prose scores much higher.
+                // Icon toolbars score <=4 chars per action; prose scores higher.
                 let avgTextPerAction = trimmed.count / max(actionableCount, 1)
                 guard avgTextPerAction <= 4 else { continue }
 
-                // Only remove shallow containers: if they wrap long-form
-                // content alongside the toolbar, we'd nuke too much.
+                // Only strip shallow containers to avoid nuking prose alongside a toolbar.
                 let paragraphCount = (try? candidate.select("p").size()) ?? 0
                 guard paragraphCount == 0 else { continue }
 
                 try candidate.remove()
             }
         } catch {
-            // Best-effort; failures are non-critical
         }
     }
 
-    /// Heuristic: a short container containing only links/buttons whose
-    /// href or text references a sharing target (facebook.com/sharer,
-    /// twitter.com/intent, mailto:?subject=…, window.print, …).
+    /// Removes short containers of share links (facebook/sharer, twitter/intent, mailto, etc.).
     static func removeShareButtonClusters(from element: Element) {
         let shareTargetPatterns = [
             "facebook.com/sharer", "facebook.com/share",
@@ -141,27 +128,23 @@ extension ArticleExtractor {
                 }
                 let ratio = Double(sharers) / Double(anchors.size())
                 guard sharers >= 2 && ratio >= 0.5 else { continue }
-                // Only drop shallow wrappers - refuse to delete a sidebar
-                // that happens to include a couple of share links.
+                // Only drop shallow wrappers so sidebars with a few share
+                // links aren't deleted wholesale.
                 let paragraphCount = (try? candidate.select("p").size()) ?? 0
                 guard paragraphCount <= 1 else { continue }
                 try candidate.remove()
             }
         } catch {
-            // Best-effort; failures are non-critical
         }
     }
 
-    /// Removes wrapper `<div>`/`<section>`/`<aside>` elements that contain
-    /// no text, no images, and no video - usually leftover placeholder
-    /// shells after ads or share buttons were stripped.
+    /// Removes wrapper containers with no text or media (leftover placeholder shells).
     static func removeEmptyContainers(from element: Element) {
         do {
             let candidates = try element.select(
                 "div, section, aside, header, footer, span"
             )
-            // Iterate in reverse so deleting a parent doesn't invalidate
-            // positions of already-seen children.
+            // Reverse iteration so parent removal doesn't invalidate positions.
             for candidate in candidates.array().reversed() {
                 let text = ((try? candidate.text()) ?? "")
                     .trimmingCharacters(in: .whitespacesAndNewlines)
@@ -173,7 +156,6 @@ extension ArticleExtractor {
                 }
             }
         } catch {
-            // Best-effort; failures are non-critical
         }
     }
 }

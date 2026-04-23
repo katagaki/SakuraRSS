@@ -2,29 +2,21 @@ import Foundation
 
 extension ArticleExtractor {
 
-    /// Resolves a potentially relative URL string against a base URL.
-    /// Returns the resolved absolute URL string, or nil if it can't be resolved.
-    /// Tracking parameters (utm_*, fbclid, gclid, ...) are stripped so images
-    /// that differ only in tracking tags share a cache entry.
+    /// Resolves a URL against a base and strips tracking query parameters.
     static func resolveURL(_ src: String, against baseURL: URL?) -> String? {
         let decoded = htmlEntityDecodedURL(src)
-        // Already absolute
         if decoded.hasPrefix("http://") || decoded.hasPrefix("https://") {
             return stripTrackingParameters(from: decoded)
         }
-        // Protocol-relative
         if decoded.hasPrefix("//"), let url = URL(string: "https:\(decoded)") {
             return stripTrackingParameters(from: url.absoluteString)
         }
-        // Relative - needs base URL
         if let baseURL, let resolved = URL(string: decoded, relativeTo: baseURL) {
             return stripTrackingParameters(from: resolved.absoluteString)
         }
         return nil
     }
 
-    /// Percent-decodes bare `&amp;` / `&#x26;` entity sequences commonly
-    /// left in raw attribute values before handing the string to `URL`.
     private static func htmlEntityDecodedURL(_ src: String) -> String {
         guard src.contains("&") else { return src }
         return src
@@ -39,9 +31,7 @@ extension ArticleExtractor {
         "spm", "sourceid", "gs_lcrp"
     ]
 
-    /// Strips known tracking query parameters while preserving everything
-    /// else.  Improves cache-hit rate for images that differ only in their
-    /// utm_* tags between pages.
+    /// Removes utm_*, fbclid, gclid and similar tracking query parameters.
     static func stripTrackingParameters(from absoluteString: String) -> String {
         guard var components = URLComponents(string: absoluteString),
               let queryItems = components.queryItems, !queryItems.isEmpty else {
@@ -55,8 +45,7 @@ extension ArticleExtractor {
         return components.string ?? absoluteString
     }
 
-    /// Resolves relative URLs inside Markdown links (`[text](url)`) against a base URL.
-    /// Also percent-encodes spaces in link URLs.
+    /// Resolves relative URLs inside Markdown links and percent-encodes spaces.
     static func resolveMarkdownLinks(in text: String, baseURL: URL?) -> String {
         guard let baseURL else { return text }
         let pattern = #"\[([^\]]*)\]\(([^)]+)\)"#

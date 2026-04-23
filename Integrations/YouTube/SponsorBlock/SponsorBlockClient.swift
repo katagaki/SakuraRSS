@@ -44,7 +44,6 @@ enum SponsorBlockClient {
 
         let host = components.host?.lowercased() ?? ""
 
-        // youtube.com/watch?v=ID
         if host.contains("youtube.com") {
             if components.path.hasPrefix("/shorts/") {
                 let parts = components.path.split(separator: "/")
@@ -55,7 +54,6 @@ enum SponsorBlockClient {
             return components.queryItems?.first(where: { $0.name == "v" })?.value
         }
 
-        // youtu.be/ID
         if host.contains("youtu.be") {
             let path = components.path.trimmingCharacters(in: CharacterSet(charactersIn: "/"))
             return path.isEmpty ? nil : path

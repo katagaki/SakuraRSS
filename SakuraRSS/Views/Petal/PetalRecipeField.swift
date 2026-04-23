@@ -1,7 +1,6 @@
 import Foundation
 
-/// Every recipe slot the element picker knows how to assign a
-/// selector to.
+/// Recipe slots the element picker can assign a selector to.
 enum PetalRecipeField: CaseIterable {
     case item, title, link, date, author, summary, image
 

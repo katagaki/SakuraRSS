@@ -2,9 +2,6 @@ import Foundation
 
 extension RedditCommunityScraper {
 
-    /// Fetches `about.json` for the subreddit and extracts `community_icon`.
-    /// The query string is stripped from the returned URL because Reddit's
-    /// signed params are not required for the image to load.
     func performFetch(url: URL) async -> RedditCommunityScrapeResult {
         var request = URLRequest(url: url)
         request.setValue(sakuraUserAgent, forHTTPHeaderField: "User-Agent")

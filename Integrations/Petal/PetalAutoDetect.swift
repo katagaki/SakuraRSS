@@ -1,38 +1,9 @@
 import Foundation
 import SwiftSoup
 
-/// Heuristic selector inference for Web Feed recipes.
-///
-/// When the user hits "Auto-Detect" in the builder, this inspects
-/// the fetched HTML for a repeating container pattern that looks
-/// like a feed index: three or more sibling-like elements that
-/// each wrap a link, a heading, and (optionally) an image.  If one
-/// is found, it returns a partially-filled `PetalRecipe` with
-/// suggested selectors the user can tweak.
-///
-/// The heuristic is intentionally conservative - it prefers
-/// **returning nothing** over returning selectors that match the
-/// wrong elements, because a bad auto-detect is a worse UX than
-/// no auto-detect at all.
-///
-/// Algorithm, in broad strokes:
-///
-/// 1. Collect every `<a href>` on the page and walk up to three
-///    ancestors to fingerprint the enclosing container (tag plus
-///    first CSS class).
-/// 2. Group the walk hits by fingerprint and score each one by
-///    how many distinct anchors it contains.  Prefer fingerprints
-///    with a class over bare tag names (class-less containers
-///    like `div` tend to match way too loosely).
-/// 3. Validate the winner by re-running the selector through
-///    SwiftSoup and making sure it actually matches ≥ 3 elements.
-/// 4. For the first matching container, probe common child
-///    selectors for title / link / image / date / summary and
-///    return whichever ones land.
+/// Heuristic selector inference for Web Feed recipes, used by the builder's Auto-Detect.
 nonisolated enum PetalAutoDetect {
 
-    /// Hands back a partial recipe seeded with guessed selectors,
-    /// or `nil` if no repeating pattern looks confident enough.
     static func detect(html: String, siteURL: String) -> PetalRecipe? {
         guard let document = try? SwiftSoup.parse(html, siteURL) else {
             return nil
@@ -41,9 +12,6 @@ nonisolated enum PetalAutoDetect {
         guard let itemSelector = findItemSelector(in: document) else {
             return nil
         }
-        // Re-select through the document so the first item we hand
-        // to the child-selector probes is the same one a subsequent
-        // `PetalEngine.parse` run would hit.
         guard let firstItem = try? document.select(itemSelector).first() else {
             return nil
         }
@@ -76,22 +44,11 @@ nonisolated enum PetalAutoDetect {
 
     // MARK: - Item selector
 
-    /// Scores candidate container fingerprints and picks the best.
-    /// Returns `nil` if no fingerprint matched enough repeating
-    /// elements to be worth surfacing.
     private static func findItemSelector(in document: Document) -> String? {
         guard let links = try? document.select("a[href]") else {
             return nil
         }
 
-        // Fingerprint → (anchor count, element count)
-        // `anchorCount` counts how many distinct `<a href>`s are
-        // reachable under the fingerprint; `elementCount` is how
-        // many siblings the fingerprint itself expands to when
-        // re-selected from the document root.  We pick using both
-        // because a fingerprint that matches 12 elements each
-        // containing 1 link beats one that matches 2 elements each
-        // containing 6 links.
         var anchorCounts: [String: Int] = [:]
         var seenAnchorsByFingerprint: [String: Set<Int>] = [:]
 
@@ -112,9 +69,6 @@ nonisolated enum PetalAutoDetect {
             }
         }
 
-        // Only keep fingerprints that wrap ≥ 3 distinct anchors.
-        // The cut-off rejects once-only nav bars and footer
-        // groups that happen to show up in the same DOM path.
         let ranked = anchorCounts
             .filter { $0.value >= 3 }
             .sorted { lhs, rhs in
@@ -129,8 +83,6 @@ nonisolated enum PetalAutoDetect {
                   matched.count >= 3 else {
                 continue
             }
-            // Avoid overly permissive matches like `div` alone
-            // that sweep in headers and sidebars.
             if matched.count > 60 && !candidate.key.contains(".") {
                 continue
             }
@@ -139,12 +91,6 @@ nonisolated enum PetalAutoDetect {
         return nil
     }
 
-    /// Builds a compact CSS selector for an element: `tag.class`
-    /// when it has a class, or just `tag` otherwise.  Multiple
-    /// classes collapse to the first non-empty one because (a)
-    /// chaining every class tends to produce brittle selectors
-    /// and (b) many sites decorate elements with utility classes
-    /// (Tailwind, Bootstrap) that don't survive layout changes.
     private static func fingerprintFor(_ element: Element) -> String {
         let tag = element.tagName().lowercased()
         let className = (try? element.className()) ?? ""
@@ -158,7 +104,6 @@ nonisolated enum PetalAutoDetect {
     // MARK: - Child selectors
 
     private static func findTitleSelector(in item: Element) -> String? {
-        // Order matters - the first one that hits wins.
         let candidates = ["h1", "h2", "h3", "h4", ".title", "[itemprop=headline]"]
         for selector in candidates {
             if let element = try? item.select(selector).first(),
@@ -171,14 +116,9 @@ nonisolated enum PetalAutoDetect {
     }
 
     private static func findLinkSelector(in item: Element) -> String? {
-        // If there's a single <a href> inside the item the engine's
-        // fallback already handles it - no need to lock a brittle
-        // selector in.  Only return a selector when there are
-        // multiple anchors (e.g. author bylines + main link).
         guard let anchors = try? item.select("a[href]"), anchors.count > 1 else {
             return nil
         }
-        // Prefer the anchor wrapping the title.
         if let titleLink = try? item.select("h1 a, h2 a, h3 a, h4 a").first(),
            (try? titleLink.attr("href"))?.isEmpty == false {
             return "h1 a, h2 a, h3 a, h4 a"
@@ -190,9 +130,6 @@ nonisolated enum PetalAutoDetect {
         guard let img = try? item.select("img[src]").first() else {
             return nil
         }
-        // If there are multiple imgs, stick with the first.  No
-        // selector tightening - the engine's default already picks
-        // the first `<img src>` inside an item.
         if (try? img.attr("src"))?.isEmpty == false {
             return "img"
         }
@@ -215,15 +152,11 @@ nonisolated enum PetalAutoDetect {
         in item: Element,
         excluding titleSelector: String?
     ) -> String? {
-        // The first paragraph inside the item is a reasonable
-        // summary candidate, as long as it isn't the same element
-        // we already picked for the title.
         guard let paragraph = try? item.select("p").first(),
               let text = try? paragraph.text(),
               !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
             return nil
         }
-        // If the title selector is something like `p` we'd collide.
         if titleSelector == "p" { return nil }
         return "p"
     }

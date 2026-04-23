@@ -1,8 +1,5 @@
 import Foundation
 
-/// Output of an article extraction.  `text` is the marker-laden
-/// article body; `metadata` holds author / publish date / lead image
-/// when discoverable.  `paywalled` flags recognized paywall gates.
 nonisolated struct ExtractionResult {
     var text: String?
     var metadata: ArticleMetadata

@@ -4,12 +4,9 @@ import Foundation
 nonisolated enum DisplayStyleFeedDomains {
 
     static let allowlistedDomains: Set<String> = [
-        // X (Twitter)
         "x.com",
         "twitter.com",
-        // Bluesky
         "bsky.app",
-        // Mastodon
         "mastodon.social",
         "mastodon.online",
         "mastodon.world",

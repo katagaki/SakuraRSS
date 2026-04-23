@@ -59,10 +59,8 @@ struct CardView: View {
                         .frame(maxHeight: .infinity, alignment: .bottom)
                 }
 
-                // Swipe indicator overlays
                 swipeIndicators
 
-                // Title and subtitle
                 VStack(alignment: .leading, spacing: 8) {
                     Spacer()
 
@@ -131,11 +129,9 @@ struct CardView: View {
             ?? (isDark ? Color(white: 0.15) : Color(white: 0.9))
 
         ZStack {
-            // Solid tinted background
             Rectangle()
                 .fill(bgColor)
 
-            // Favicon displayed large and slightly rotated
             if let favicon {
                 let iconImage = Image(uiImage: favicon)
                     .resizable()
@@ -154,7 +150,6 @@ struct CardView: View {
                 .offset(y: -geometry.size.height * 0.1)
             }
 
-            // Bottom gradient for text readability
             LinearGradient(
                 colors: [bgColor.opacity(0), bgColor],
                 startPoint: .init(x: 0.5, y: 0.5),
@@ -166,7 +161,6 @@ struct CardView: View {
 
     private var swipeIndicators: some View {
         ZStack {
-            // Right swipe: mark read indicator
             swipeIndicatorOverlay(
                 label: String(localized: "Cards.MarkRead", table: "Articles"),
                 systemImage: "envelope.open.fill",
@@ -175,7 +169,6 @@ struct CardView: View {
                 opacity: offset.width > 0 ? swipeProgress : 0
             )
 
-            // Left swipe: read/watch/listen later indicator
             swipeIndicatorOverlay(
                 label: skipLocalizationLabel,
                 systemImage: "eye.slash.fill",

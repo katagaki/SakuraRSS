@@ -4,13 +4,9 @@ extension FeedManager {
 
     // MARK: - Chunk Boundaries
 
-    /// Safety cap for chunk-walking loops - two years' worth of 24-hour
-    /// chunks. Hitting this means the walk has skipped past every populated
-    /// chunk in that window without finding visible content.
     static var chunkWalkLimit: Int { 365 * 2 }
 
-    /// Articles are paginated in 24-hour chunks. Returns the chunk boundary
-    /// (00:00 local) at or before `date`.
+    /// Returns the 00:00-local chunk boundary at or before `date`.
     static func chunkStart(for date: Date) -> Date {
         Calendar.current.startOfDay(for: date)
     }
@@ -123,9 +119,7 @@ extension FeedManager {
         let muted = mutedFeedIDs
         var cursor = date
         var iterations = 0
-        // Walk backwards past chunks where every article is muted. The cursor
-        // must strictly decrease each iteration; the cap is a belt-and-braces
-        // guard against calendar edge cases so a bad step cannot spin forever.
+        // Cursor must strictly decrease each iteration; cap guards against calendar edge cases.
         while iterations < FeedManager.chunkWalkLimit {
             iterations += 1
             guard let earlier = (try? database.earliestArticleDate(before: cursor)) ?? nil else {

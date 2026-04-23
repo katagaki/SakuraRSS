@@ -39,12 +39,10 @@ struct IPadSidebarView: View {
         return (try? DatabaseManager.shared.searchArticles(query: searchText)) ?? []
     }
 
-    // Feed management state (mirrored from FeedsListPage)
     @State private var feedToEdit: Feed?
     @State private var feedToDelete: Feed?
     @State private var feedForRules: Feed?
 
-    // List management state
     @State private var listToEdit: FeedList?
     @State private var listForRules: FeedList?
     @State private var listToDelete: FeedList?

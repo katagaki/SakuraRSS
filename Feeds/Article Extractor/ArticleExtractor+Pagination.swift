@@ -5,11 +5,8 @@ extension ArticleExtractor {
 
     private static let maxAdditionalPages = 4
 
-    /// Finds "next page" links on a document and fetches up to
-    /// `maxAdditionalPages` additional pages, returning their extracted
-    /// text concatenated with `\n\n` separators.  Respects the feature
-    /// flag at `UserDefaults.standard.bool(forKey: "ArticleParser.followPagination")`
-    /// (defaults to enabled — returns `false` only when explicitly disabled).
+    /// Follows "next page" links and returns concatenated extracted text.
+    /// Respects `ArticleParser.followPagination` in UserDefaults.
     static func fetchPaginatedExtras(
         from html: String,
         baseURL: URL,
@@ -51,8 +48,7 @@ extension ArticleExtractor {
         return combined.isEmpty ? nil : combined.joined(separator: "\n\n")
     }
 
-    /// Locates candidate next-page URLs from rel=next links and common
-    /// "Next" anchors.  Returns unique URLs in DOM order.
+    /// Returns unique next-page URLs from rel=next and common "Next" anchors.
     static func nextPageURLs(from html: String, baseURL: URL) -> [URL] {
         guard let doc = try? SwiftSoup.parse(html, baseURL.absoluteString) else {
             return []

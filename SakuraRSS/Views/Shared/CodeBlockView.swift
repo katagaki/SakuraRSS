@@ -1,7 +1,6 @@
 import SwiftUI
 
-/// A styled view for displaying code blocks extracted from `<pre>` elements.
-/// Shows monospaced text with a tinted background and horizontal scrolling for long lines.
+/// Monospaced block for code extracted from `<pre>` elements.
 struct CodeBlockView: View {
 
     let code: String

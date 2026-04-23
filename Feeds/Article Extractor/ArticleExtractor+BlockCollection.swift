@@ -45,8 +45,6 @@ extension ArticleExtractor {
         if paragraphs.isEmpty {
             let text = try textContent(of: element, baseURL: baseURL)
             if text.isEmpty { return [] }
-            // If the text contains paragraph breaks (e.g. Markdown content
-            // or text with <br><br>), split into separate paragraphs.
             let split = text.components(separatedBy: "\n\n")
                 .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
                 .filter { !$0.isEmpty }
@@ -56,10 +54,7 @@ extension ArticleExtractor {
         return paragraphs
     }
 
-    /// Attempts to extract and resolve an image URL from an element.
-    /// Handles `<img>`, `<amp-img>`, and `<picture>` tags, and uses
-    /// `bestImageURL` to honor `srcset` / `data-src` / `data-lazy-src`.
-    /// Returns the resolved URL string, or nil if the image should be skipped.
+    /// Extracts and resolves the best image URL from an `<img>`, `<amp-img>`, or `<picture>`.
     static func extractImageSrc(
         from element: Element, tag: String, baseURL: URL?
     ) -> String? {
@@ -90,10 +85,7 @@ extension ArticleExtractor {
     }
 
     // swiftlint:disable function_body_length cyclomatic_complexity
-    /// Walks the DOM tree collecting text from block-level elements.
-    /// Recurses into non-block wrappers (div, section, etc.) so that
-    /// nested blocks like `<div><p>…</p></div>` don't produce duplicates.
-    /// Treats leaf divs (divs with no block-level children) as paragraphs.
+    /// Walks the DOM collecting text from block-level elements and leaf wrappers.
     static func collectBlocks(
         from element: Element,
         into paragraphs: inout [String],
@@ -125,7 +117,6 @@ extension ArticleExtractor {
                 }
             } else if tag == "figure" {
                 if let resolved = extractImageSrc(from: child, tag: tag, baseURL: baseURL) {
-                    // Check if the image inside the figure is wrapped in a link
                     let linkHref = try? child.select("a[href]").first()?.attr("href")
                     let suffix = linkSuffix(for: linkHref, baseURL: baseURL)
                     #if DEBUG
@@ -172,9 +163,8 @@ extension ArticleExtractor {
                     #endif
                 }
             } else if blockElements.contains(tag) || isLeafBlock(child) {
-                // Fast-path: paragraphs injected by `promoteInlineEmbeds`
-                // contain only an embed marker.  Skip `textContent` so
-                // `ArticleMarker.escape` doesn't mangle the marker delimiters.
+                // Skip textContent for embed-marker paragraphs so
+                // ArticleMarker.escape doesn't mangle the delimiters.
                 if let rawText = try? child.text(),
                    let marker = embedMarkerParagraph(rawText) {
                     paragraphs.append(marker)
@@ -219,8 +209,7 @@ extension ArticleExtractor {
     }
     // swiftlint:enable function_body_length cyclomatic_complexity
 
-    /// Builds the `{{IMGLINK}}…{{/IMGLINK}}` suffix for an image block when
-    /// the image is wrapped in a link.
+    /// Builds an `{{IMGLINK}}` suffix when an image is wrapped in a link.
     static func linkSuffix(for href: String?, baseURL: URL?) -> String {
         guard let href, !href.isEmpty,
               let resolved = resolveURL(href, against: baseURL) else {
@@ -229,8 +218,7 @@ extension ArticleExtractor {
         return "{{IMGLINK}}\(resolved){{/IMGLINK}}"
     }
 
-    /// Detects non-`<pre>` code block containers (e.g. Code Hike's
-    /// `<div class="ch-codeblock">` or GitHub's `<div class="highlight">`).
+    /// Detects non-`<pre>` code block containers like `.ch-codeblock` or `.highlight`.
     static func isCodeBlockWrapper(_ element: Element) -> Bool {
         let className = (try? element.className()) ?? ""
         let codeBlockClasses = [
@@ -243,8 +231,7 @@ extension ArticleExtractor {
         return false
     }
 
-    /// A wrapper element (div, section, span, etc.) that contains no nested
-    /// block-level or structural children should be treated as a leaf paragraph.
+    /// True when a wrapper has no block-level or structural children and should be a paragraph.
     static func isLeafBlock(_ element: Element) -> Bool {
         let structuralTags: Set<String> = ["div", "section", "article", "main", "aside"]
         for child in element.children() {

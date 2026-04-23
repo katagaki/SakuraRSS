@@ -88,8 +88,7 @@ nonisolated extension RSSParser {
         return decoded.isEmpty ? nil : decoded
     }
 
-    /// Converts HTML to plain text, preserving paragraph/heading structure as newlines
-    /// and rendering `<a>` links as Markdown `[text](url)` for tappable display.
+    /// Converts HTML to plain text, preserving structure with newlines and Markdown links.
     func cleanHTMLPreservingStructure(_ html: String, baseURL: URL? = nil) -> String? {
         guard html.contains("<") else {
             let decoded = decodeHTMLEntities(html).trimmingCharacters(in: .whitespacesAndNewlines)
@@ -128,8 +127,7 @@ nonisolated extension RSSParser {
         return result.isEmpty ? nil : result
     }
 
-    /// Converts `<a>` tags to Markdown links, stripping empty-text links.
-    /// Resolves relative URLs against `baseURL` when provided.
+    /// Converts `<a>` tags to Markdown links, resolving relative URLs against `baseURL`.
     private func convertLinksToMarkdown(_ text: String, baseURL: URL? = nil) -> String {
         guard let linkRegex = try? NSRegularExpression(
             pattern: #"<a\s[^>]*href=["']([^"']+)["'][^>]*>(.*?)</a>"#
@@ -148,9 +146,7 @@ nonisolated extension RSSParser {
             if linkText.isEmpty {
                 result = (result as NSString).replacingCharacters(in: match.range, with: "")
             } else {
-                // Percent-encode spaces in the URL for valid Markdown links
                 url = url.replacingOccurrences(of: " ", with: "%20")
-                // Resolve relative URLs against the base URL
                 if !url.hasPrefix("http://") && !url.hasPrefix("https://") {
                     if url.hasPrefix("//"), let abs = URL(string: "https:\(url)") {
                         url = abs.absoluteString
@@ -168,7 +164,7 @@ nonisolated extension RSSParser {
         return result
     }
 
-    /// Converts headers, bold, italic, superscript, and subscript HTML tags to Markdown.
+    /// Converts inline HTML tags (headers, bold, italic, sup, sub, code) to Markdown.
     private func convertInlineMarkup(_ text: String) -> String {
         var result = text
 
@@ -222,7 +218,6 @@ nonisolated extension RSSParser {
     }
 
     func extractImageFromHTML(_ html: String) -> String? {
-        // Try double-quoted src first, then single-quoted
         let patterns = [
             #"<img[^>]+src="([^"]+)""#,
             #"<img[^>]+src='([^']+)'"#
@@ -240,7 +235,6 @@ nonisolated extension RSSParser {
                 }
             }
         }
-        // No hero-quality image found, return first image as fallback
         for pattern in patterns {
             if let range = html.range(of: pattern, options: .regularExpression) {
                 let match = html[range]
@@ -254,9 +248,7 @@ nonisolated extension RSSParser {
         return nil
     }
 
-    /// Removes `{{SUP}}…{{/SUP}}` and `{{SUB}}…{{/SUB}}` markers whose
-    /// content contains an invalid URL (either as a Markdown link or raw URL).
-    /// Markers with no URL (e.g. plain numbers) are kept as-is.
+    /// Removes SUP/SUB markers whose content contains an invalid URL.
     func stripInvalidURLSupSub(_ text: String) -> String {
         let pattern = #"\{\{(SUP|SUB)\}\}(.+?)\{\{/(SUP|SUB)\}\}"#
         guard let regex = try? NSRegularExpression(pattern: pattern) else { return text }
@@ -284,7 +276,7 @@ nonisolated extension RSSParser {
         return result
     }
 
-    /// Converts `<pre>` blocks (optionally containing `<code>`) to `{{CODE}}…{{/CODE}}` markers.
+    /// Converts `<pre>` blocks to `{{CODE}}...{{/CODE}}` markers.
     private func replacePreTagsWithMarkers(_ text: String) -> String {
         guard let regex = try? NSRegularExpression(
             pattern: #"<pre(?:\s[^>]*)?>(?:\s*<code(?:\s[^>]*)?>)?(.*?)(?:</code>\s*)?</pre>"#,
@@ -295,7 +287,6 @@ nonisolated extension RSSParser {
         let matches = regex.matches(in: result, range: NSRange(location: 0, length: nsResult.length))
         for match in matches.reversed() {
             var content = nsResult.substring(with: match.range(at: 1))
-            // Strip any remaining inner HTML tags
             content = content.replacingOccurrences(of: "<[^>]+>", with: "", options: .regularExpression)
             content = content.trimmingCharacters(in: CharacterSet(charactersIn: "\n"))
             if !content.isEmpty {
@@ -327,7 +318,6 @@ nonisolated extension RSSParser {
 
     private func isLikelyHeroImage(_ url: String) -> Bool {
         let lowered = url.lowercased()
-        // Skip tracking pixels, icons, and spacers
         let skipPatterns = [
             "gravatar.com", "pixel", "spacer", "blank",
             "1x1", "transparent", "tracking", "beacon",

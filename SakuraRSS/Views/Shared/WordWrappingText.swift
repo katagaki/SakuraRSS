@@ -1,7 +1,6 @@
 import SwiftUI
 
-/// A text view that uses strict word wrapping via UILabel,
-/// preventing the system from breaking lines mid-word at punctuation like apostrophes.
+/// UILabel-backed text view with strict word wrapping.
 struct WordWrappingText: UIViewRepresentable {
 
     let text: String
@@ -29,8 +28,7 @@ struct WordWrappingText: UIViewRepresentable {
     }
 }
 
-/// A UILabel subclass that sets preferredMaxLayoutWidth on layout,
-/// ensuring multiline text wraps correctly inside SwiftUI.
+/// UILabel that sets preferredMaxLayoutWidth so multiline wraps correctly inside SwiftUI.
 class WrappingLabel: UILabel {
     override func layoutSubviews() {
         super.layoutSubviews()

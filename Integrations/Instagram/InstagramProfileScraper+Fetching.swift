@@ -9,7 +9,6 @@ extension InstagramProfileScraper {
     struct InstagramCookies {
         let csrfToken: String
         let sessionID: String
-        /// All Instagram HTTP cookies for injection into URLSession.
         let allCookies: [HTTPCookie]
     }
 
@@ -25,11 +24,6 @@ extension InstagramProfileScraper {
         print("[InstagramProfileScraper] Fetching profile for handle: \(handle)")
         #endif
 
-        // Enforce a human-like gap since the previous scrape.  When several
-        // feeds refresh at once they serialise through `activeScrape`, so
-        // without this wait they would fire back-to-back in a tight burst
-        // - a strong automation signal.  Spacing them out imitates a user
-        // navigating between profiles.
         await Self.awaitHumanPacing()
 
         guard let cookies = Self.getInstagramCookies() else {
@@ -44,24 +38,13 @@ extension InstagramProfileScraper {
               + "total cookies: \(cookies.allCookies.count)")
         #endif
 
-        // Session is created once and shared between the profile-info
-        // and feed/user requests so cookie rotations from Set-Cookie
-        // headers accumulate in a single jar that we can persist at
-        // the end of the scrape.
         let session = makeSession(cookies: cookies)
 
-        // Fetch profile info and recent posts
         let profileData = await fetchProfileInfo(
             username: handle, cookies: cookies, session: session
         )
 
-        // Persist any cookies Instagram rotated during the scrape,
-        // even if parsing failed - otherwise Keychain drifts stale
-        // and the user eventually gets silently signed out.
         Self.persistRotatedCookies(from: session)
-
-        // Record completion time so the next serialised scrape can space
-        // itself out relative to when this one finished.
         Self.markRequestCompleted()
 
         guard let profileData else {
@@ -79,9 +62,7 @@ extension InstagramProfileScraper {
         return profileData
     }
 
-    /// Writes rotated cookies from the URLSession jar back to Keychain
-    /// so subsequent scrapes pick up refreshed `sessionid` / `csrftoken`
-    /// / `mid` values that Instagram issued via `Set-Cookie`.
+    /// Writes rotated Instagram cookies from the URLSession jar back to Keychain.
     private static func persistRotatedCookies(from session: URLSession) {
         guard let storage = session.configuration.httpCookieStorage else { return }
         let updated = (storage.cookies ?? []).filter {
@@ -93,11 +74,6 @@ extension InstagramProfileScraper {
 
     // MARK: - Human-Like Pacing
 
-    /// Timestamp of the most recently completed Instagram network request.
-    /// Used to enforce a minimum inter-scrape gap so a burst of feed
-    /// refreshes does not fire back-to-back.  Wrapped in an
-    /// `OSAllocatedUnfairLock` because `NSLock.lock()`/`unlock()` are
-    /// unavailable from async contexts under Swift 6 strict concurrency.
     private static let lastRequestCompletedAt = OSAllocatedUnfairLock<Date?>(
         initialState: nil
     )
@@ -106,15 +82,10 @@ extension InstagramProfileScraper {
         lastRequestCompletedAt.withLock { $0 = Date() }
     }
 
-    /// Sleeps for a randomised interval so consecutive Instagram requests
-    /// look like a human navigating, not a script.  The delay combines a
-    /// baseline jitter (always applied) with an additional cool-down that
-    /// only kicks in when we have just finished a previous request.
+    /// Sleeps for a randomised interval so consecutive Instagram requests look human-paced.
     static func awaitHumanPacing() async {
         let lastCompleted = lastRequestCompletedAt.withLock { $0 }
 
-        // Minimum gap between any two serialised scrapes - picked from a
-        // fairly wide range so the cadence is not predictable.
         let minCooldown: TimeInterval = 3.5
         let maxCooldown: TimeInterval = 9.0
 
@@ -133,9 +104,7 @@ extension InstagramProfileScraper {
         try? await Task.sleep(for: .seconds(delay))
     }
 
-    /// Short randomised pause used between back-to-back API calls inside
-    /// a single scrape (e.g. `web_profile_info` → `feed/user`).  Mimics a
-    /// user briefly looking at the profile before scrolling the feed.
+    /// Short randomised pause between back-to-back API calls inside a single scrape.
     static func awaitIntraScrapePause() async {
         let delay = TimeInterval.random(in: 0.9...2.6)
         #if DEBUG
@@ -146,9 +115,7 @@ extension InstagramProfileScraper {
 
     // MARK: - Accept-Language
 
-    /// Accept-Language header value derived from the user's preferred
-    /// locales, in the format Safari sends (primary locale at q=1.0,
-    /// additional locales at decreasing q values).
+    /// Accept-Language header value derived from the user's preferred locales, Safari-style.
     static var acceptLanguageHeader: String {
         let preferred = Locale.preferredLanguages.prefix(5)
         guard !preferred.isEmpty else { return "en-US,en;q=0.9" }
@@ -164,12 +131,8 @@ extension InstagramProfileScraper {
     @MainActor
     private static var cookieStoreWarmed = false
 
-    /// Loads a WKWebView with instagram.com to force `WKWebsiteDataStore`
-    /// to restore its persisted cookie jar from disk.
-    ///
-    /// This is now only used during the one-time Keychain migration in
-    /// `migrateWebKitCookiesIfNeeded()` - normal scrapes read directly
-    /// from the Keychain store and do not touch WebKit.
+    /// Loads Instagram in a WKWebView to restore its persisted cookie jar from disk.
+    /// Used only during the one-time Keychain migration.
     @MainActor
     static func warmCookieStore() async {
         guard !cookieStoreWarmed else { return }
@@ -187,8 +150,7 @@ extension InstagramProfileScraper {
 
     // MARK: - Cookies
 
-    /// Reads the current Instagram session from the Keychain-backed
-    /// cookie jar.  Synchronous and thread-safe - no WebKit hop.
+    /// Reads the current Instagram session from the Keychain-backed cookie jar.
     static func getInstagramCookies() -> InstagramCookies? {
         guard let cookies = InstagramProfileScraper.cookieStore.load() else {
             return nil
@@ -208,16 +170,11 @@ extension InstagramProfileScraper {
 
     // MARK: - Session Building
 
-    /// Creates a URLSession with all Instagram cookies injected into its
-    /// cookie storage. This is necessary because Instagram's API performs
-    /// redirect-based authentication - the cookies must be present in
-    /// the URLSession's cookie jar, not just in request headers.
+    /// Creates a URLSession with Instagram cookies injected so redirects carry auth.
     private func makeSession(cookies: InstagramCookies) -> URLSession {
         let config = URLSessionConfiguration.ephemeral
         config.httpShouldSetCookies = true
         config.httpCookieAcceptPolicy = .always
-        // Ephemeral config creates its own empty cookie storage;
-        // inject all WKWebView cookies so redirects carry auth.
         if let storage = config.httpCookieStorage {
             for cookie in cookies.allCookies {
                 storage.setCookie(cookie)
@@ -230,7 +187,6 @@ extension InstagramProfileScraper {
 
     func buildRequest(url: URL, cookies: InstagramCookies,
                       referer: String = "https://www.instagram.com/") -> URLRequest {
-        // Jitter the timeout slightly so the fingerprint isn't a flat 15s.
         let jitteredTimeout = requestTimeoutInterval + TimeInterval.random(in: -1.5...2.5)
         var request = URLRequest(url: url, timeoutInterval: max(5, jitteredTimeout))
         request.setValue(sakuraUserAgent, forHTTPHeaderField: "User-Agent")
@@ -243,19 +199,13 @@ extension InstagramProfileScraper {
         request.setValue("empty", forHTTPHeaderField: "sec-fetch-dest")
         request.setValue(Self.webAppID, forHTTPHeaderField: "x-ig-app-id")
 
-        // Browser-parity headers.  Mobile Safari sends all of these on
-        // every XHR; omitting them makes the request fingerprint stick
-        // out against genuine web traffic.
         request.setValue("*/*", forHTTPHeaderField: "Accept")
         request.setValue(Self.acceptLanguageHeader, forHTTPHeaderField: "Accept-Language")
-        // NOTE: Do not set Accept-Encoding manually - URLSession sets its
-        // own supported value and transparently decodes the body.  Setting
-        // it here would disable that auto-decoding and break JSON parsing.
+        // Do not set Accept-Encoding manually; URLSession handles decoding.
         request.setValue("no-cache", forHTTPHeaderField: "Cache-Control")
         request.setValue("no-cache", forHTTPHeaderField: "Pragma")
         request.setValue("keep-alive", forHTTPHeaderField: "Connection")
 
-        // Build the full cookie header from all Instagram cookies
         let cookieHeader = HTTPCookie.requestHeaderFields(with: cookies.allCookies)
         for (key, value) in cookieHeader {
             request.setValue(value, forHTTPHeaderField: key)
@@ -309,15 +259,12 @@ extension InstagramProfileScraper {
             return nil
         }
 
-        // The web_profile_info endpoint often returns edges: [] even when
-        // posts exist. Fall back to the feed endpoint using the user ID.
+        // web_profile_info often returns empty edges even when posts exist; fall back to feed endpoint.
         if result.posts.isEmpty, let userId = Self.extractUserID(from: data) {
             #if DEBUG
             print("[InstagramProfileScraper] Profile had 0 posts, "
                   + "fetching feed for user ID: \(userId)")
             #endif
-            // Mimic a user briefly looking at the profile before the web
-            // client fires the follow-up feed XHR.
             await Self.awaitIntraScrapePause()
             let feedPosts = await fetchUserFeed(
                 userId: userId, username: username,
@@ -338,8 +285,7 @@ extension InstagramProfileScraper {
 
     // MARK: - User Feed Endpoint
 
-    /// Fetches posts from the `/api/v1/feed/user/{id}/` endpoint, which
-    /// reliably returns post data when `web_profile_info` edges are empty.
+    /// Fetches posts from the user feed endpoint when `web_profile_info` edges are empty.
     private func fetchUserFeed(
         userId: String, username: String, displayName: String?,
         cookies: InstagramCookies, session: URLSession
@@ -350,9 +296,6 @@ extension InstagramProfileScraper {
             return []
         }
 
-        // Use the profile page as the referer - that is what a real
-        // browser sends when the follow-up feed XHR fires from the
-        // profile page context.
         let profileReferer = "https://www.instagram.com/\(username)/"
         let request = buildRequest(url: url, cookies: cookies, referer: profileReferer)
 
