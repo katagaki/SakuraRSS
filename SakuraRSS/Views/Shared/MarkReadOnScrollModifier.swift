@@ -11,6 +11,7 @@ struct MarkReadOnScrollModifier: ViewModifier {
     let article: Article
 
     @State private var hasBeenVisible = false
+    @State private var isVisibleNow = false
     @State private var isPastTop = false
     @State private var hasQueued = false
 
@@ -20,20 +21,33 @@ struct MarkReadOnScrollModifier: ViewModifier {
                 proxy.frame(in: .global).minY < 0
             } action: { newValue in
                 isPastTop = newValue
+                if newValue {
+                    tryQueueRead()
+                }
             }
             .onScrollVisibilityChange(threshold: 0.01) { isVisible in
+                isVisibleNow = isVisible
                 if isVisible {
                     hasBeenVisible = true
-                    return
+                } else {
+                    tryQueueRead()
                 }
-                guard scrollMarkAsRead,
-                      hasBeenVisible,
-                      isPastTop,
-                      !hasQueued,
-                      !article.isRead else { return }
-                hasQueued = true
-                feedManager.markReadDebounced(article)
             }
+    }
+
+    /// Driven from both callbacks: either the visibility change lands
+    /// first (nav bar clips the row before its frame crosses y=0) or the
+    /// geometry change does (fast scroll past y=0 before the visibility
+    /// sampler catches up). Whichever update completes the pair triggers.
+    private func tryQueueRead() {
+        guard scrollMarkAsRead,
+              hasBeenVisible,
+              isPastTop,
+              !isVisibleNow,
+              !hasQueued,
+              !article.isRead else { return }
+        hasQueued = true
+        feedManager.markReadDebounced(article)
     }
 }
 

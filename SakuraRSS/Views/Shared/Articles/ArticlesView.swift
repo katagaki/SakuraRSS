@@ -99,6 +99,7 @@ struct ArticlesView: View {
     private var stagingSupported: Bool {
         let style = effectiveDisplayStyle
         return style == .inbox || style == .magazine || style == .compact
+            || style == .feed || style == .feedCompact
     }
 
     private var hasHiddenReadArticles: Bool {
