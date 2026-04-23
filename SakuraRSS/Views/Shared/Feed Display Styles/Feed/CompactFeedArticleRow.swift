@@ -121,6 +121,8 @@ struct CompactFeedArticleRow: View {
                         .fixedSize(horizontal: false, vertical: true)
                         .frame(maxWidth: .infinity, alignment: .leading)
 
+                    Spacer(minLength: 0)
+
                     CompactFeedArticleRowActions(
                         article: article,
                         opensInExternalApp: opensInExternalApp,
@@ -128,6 +130,7 @@ struct CompactFeedArticleRow: View {
                         onShowSafari: { showSafari = true }
                     )
                 }
+                .frame(maxHeight: .infinity)
 
                 thumbnail
             }
