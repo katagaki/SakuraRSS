@@ -56,7 +56,7 @@ extension SakuraRSSApp {
         let refreshTask = Task {
             // nil probe means "assume expensive" so we default to the safer behavior.
             let imageFetchModeRaw = UserDefaults.standard.string(
-                forKey: "BackgroundRefresh.ImageBackfillMode"
+                forKey: "BackgroundRefresh.ImageFetchMode"
             )
             let imageFetchMode = imageFetchModeRaw
                 .flatMap(FetchImagesMode.init(rawValue:)) ?? .wifiOnly
