@@ -34,9 +34,8 @@ final class FeedManager {
     private(set) var unreadCounts: [Int64: Int] = [:]
     private(set) var feedsByID: [Int64: Feed] = [:]
 
-    /// Pending read-state flips awaiting a debounced SQLite write.
+    /// IDs queued by mark-read-on-scroll; flushed on scroll idle or backgrounding.
     @ObservationIgnored var pendingReadIDs: Set<Int64> = []
-    @ObservationIgnored var debouncedReadFlushTask: Task<Void, Never>?
     @ObservationIgnored var refreshTask: Task<Void, Never>?
 
     /// Scroll state read by `MarkReadOnScrollModifier` to gate read flips

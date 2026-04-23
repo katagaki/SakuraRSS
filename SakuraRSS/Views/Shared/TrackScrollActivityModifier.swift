@@ -1,6 +1,8 @@
 import SwiftUI
 
-/// Forwards scroll phase/offset to `FeedManager` so mark-as-read can defer during fast scroll.
+/// Forwards scroll phase/offset to `FeedManager`, and flushes queued
+/// mark-as-read IDs when scrolling goes idle so the resulting re-render
+/// doesn't land in the middle of a flick.
 struct TrackScrollActivityModifier: ViewModifier {
 
     @Environment(FeedManager.self) private var feedManager
@@ -9,6 +11,9 @@ struct TrackScrollActivityModifier: ViewModifier {
         content
             .onScrollPhaseChange { _, newPhase in
                 feedManager.updateScrollPhase(newPhase)
+                if newPhase == .idle {
+                    feedManager.flushDebouncedReads()
+                }
             }
             .onScrollGeometryChange(for: CGFloat.self) { geo in
                 geo.contentOffset.y

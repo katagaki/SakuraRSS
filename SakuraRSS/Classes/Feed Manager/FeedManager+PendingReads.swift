@@ -2,19 +2,15 @@ import Foundation
 
 extension FeedManager {
 
-    private static let persistReadsDelay: Duration = .milliseconds(100)
-
-    /// Enqueues the article for a debounced flush that writes SQLite and
-    /// updates in-memory state in the same pass so `articles(for:)`
-    /// re-queries see the fresh state on the next `dataRevision` tick.
+    /// Queues the article for a flush that fires the next time scrolling
+    /// goes idle, so continuous scrolls don't trigger re-render cascades
+    /// that break auto-load-on-scroll and drop visibility callbacks.
     func markReadOnScroll(_ article: Article) {
-        guard pendingReadIDs.insert(article.id).inserted else { return }
-        schedulePersistReads()
+        pendingReadIDs.insert(article.id)
     }
 
+    /// Fired from the scroll-phase idle transition and from willResignActive.
     func flushDebouncedReads() {
-        debouncedReadFlushTask?.cancel()
-        debouncedReadFlushTask = nil
         guard !pendingReadIDs.isEmpty else { return }
         let ids = pendingReadIDs
         pendingReadIDs.removeAll()
@@ -40,15 +36,6 @@ extension FeedManager {
         let dbm = database
         Task.detached(priority: .utility) {
             try? dbm.updateLastAccessed(articleIDs: idArray)
-        }
-    }
-
-    private func schedulePersistReads() {
-        guard debouncedReadFlushTask == nil else { return }
-        debouncedReadFlushTask = Task { @MainActor [weak self] in
-            try? await Task.sleep(for: FeedManager.persistReadsDelay)
-            guard !Task.isCancelled, let self else { return }
-            self.flushDebouncedReads()
         }
     }
 
