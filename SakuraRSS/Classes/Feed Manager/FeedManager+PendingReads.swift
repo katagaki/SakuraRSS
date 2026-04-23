@@ -13,9 +13,7 @@ extension FeedManager {
            !articles[idx].isRead {
             let feedID = articles[idx].feedID
             articles[idx].isRead = true
-            if let current = unreadCounts[feedID], current > 0 {
-                unreadCounts[feedID] = current - 1
-            }
+            decrementUnreadCount(feedID: feedID)
             updateBadgeCount()
         }
 
