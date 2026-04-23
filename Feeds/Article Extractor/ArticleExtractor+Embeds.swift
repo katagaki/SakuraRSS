@@ -3,11 +3,8 @@ import SwiftSoup
 
 extension ArticleExtractor {
 
-    /// Pre-processes the document to convert supported social embeds
-    /// (YouTube, X/Twitter) into plain-text marker paragraphs that survive
-    /// noise removal and text extraction.  Must run *before* `removeNoise`
-    /// because the noise selectors would otherwise strip twitter-tweet
-    /// blockquotes and YouTube iframes entirely.
+    /// Converts supported social embeds into marker paragraphs.
+    /// Must run before `removeNoise` so embed elements aren't stripped.
     static func promoteInlineEmbeds(in doc: Document, baseURL: URL? = nil) {
         promoteYouTubeEmbeds(in: doc)
         promoteXEmbeds(in: doc)
@@ -17,7 +14,6 @@ extension ArticleExtractor {
     // MARK: - YouTube
 
     private static func promoteYouTubeEmbeds(in element: Element) {
-        // <iframe src=".../embed/VIDEO_ID"> - canonical YouTube embed
         if let iframes = try? element.select("iframe[src]") {
             for iframe in iframes {
                 guard let src = try? iframe.attr("src"),
@@ -29,7 +25,6 @@ extension ArticleExtractor {
             }
         }
 
-        // <lite-youtube videoid="..."> - lazy-loader custom element
         if let liteElements = try? element.select("lite-youtube[videoid]") {
             for lite in liteElements {
                 guard let videoID = try? lite.attr("videoid"),
@@ -39,15 +34,12 @@ extension ArticleExtractor {
             }
         }
 
-        // <div data-youtube-id="..."> / <div data-video-id="..."> on
-        // YouTube-hosted player shells
         if let ytShells = try? element.select(
             "div[data-youtube-id], div[data-youtube-video-id]"
         ) {
             for shell in ytShells {
                 // SwiftSoup's `attr` returns "" for missing attributes, so
-                // we can't use nil-coalescing to select the first non-empty
-                // attribute value.
+                // nil-coalescing cannot select the first non-empty value.
                 var videoID = (try? shell.attr("data-youtube-id")) ?? ""
                 if videoID.isEmpty {
                     videoID = (try? shell.attr("data-youtube-video-id")) ?? ""
@@ -58,12 +50,9 @@ extension ArticleExtractor {
             }
         }
 
-        // Bare <a href=".../watch?v=ID"> that's the sole content of a
-        // paragraph (common in blog posts) - treat as an embed too.
         if let anchors = try? element.select("p > a[href], figure > a[href]") {
             for anchor in anchors {
                 guard let parent = anchor.parent() else { continue }
-                // Only one child, an anchor, with visible text == the href
                 let siblingCount = parent.children().size()
                 guard siblingCount == 1 else { continue }
                 guard let href = try? anchor.attr("href"),
@@ -72,8 +61,8 @@ extension ArticleExtractor {
                 }
                 let text = (try? anchor.text()) ?? ""
                 let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
-                // Only collapse if the visible link text is the URL itself.
-                // Otherwise the link has meaningful anchor text and should stay.
+                // Only collapse when link text is the URL itself; otherwise
+                // the anchor text is meaningful and should remain.
                 guard trimmed == href || trimmed.isEmpty else { continue }
                 replaceWithMarker(element: parent,
                                   marker: "{{YOUTUBE}}\(videoID){{/YOUTUBE}}")
@@ -81,9 +70,7 @@ extension ArticleExtractor {
         }
     }
 
-    /// Extracts a YouTube video ID from an embed URL like
-    /// `https://www.youtube.com/embed/VIDEO_ID?...` or
-    /// `https://www.youtube-nocookie.com/embed/VIDEO_ID`.
+    /// Extracts a YouTube video ID from a `/embed/VIDEO_ID` style URL.
     static func youTubeVideoID(fromEmbedURL src: String) -> String? {
         let lowered = src.lowercased()
         let isYT = lowered.contains("youtube.com/embed/")
@@ -96,8 +83,7 @@ extension ArticleExtractor {
         return id.isEmpty ? nil : id
     }
 
-    /// Extracts a YouTube video ID from a watch or short URL like
-    /// `https://www.youtube.com/watch?v=ID` or `https://youtu.be/ID`.
+    /// Extracts a YouTube video ID from a watch, shorts, or youtu.be URL.
     static func youTubeVideoID(fromWatchURL src: String) -> String? {
         guard let url = URL(string: absoluteURLString(src)),
               let components = URLComponents(url: url, resolvingAgainstBaseURL: false) else {
@@ -121,7 +107,6 @@ extension ArticleExtractor {
     // MARK: - X / Twitter
 
     private static func promoteXEmbeds(in element: Element) {
-        // <blockquote class="twitter-tweet"> with a trailing <a href="…/status/ID">
         if let blockquotes = try? element.select("blockquote.twitter-tweet") {
             for blockquote in blockquotes {
                 guard let anchor = xStatusAnchor(in: blockquote),
@@ -134,7 +119,6 @@ extension ArticleExtractor {
             }
         }
 
-        // Twitter/X iframe embeds (platform.twitter.com/embed/Tweet.html?id=…)
         if let iframes = try? element.select("iframe[src]") {
             for iframe in iframes {
                 guard let src = try? iframe.attr("src"),
@@ -156,8 +140,6 @@ extension ArticleExtractor {
             }
         }
 
-        // Bare <a href="https://x.com/user/status/ID"> that's the sole child
-        // of a paragraph - promote to inline embed.
         if let anchors = try? element.select("p > a[href], figure > a[href]") {
             for anchor in anchors {
                 guard let parent = anchor.parent() else { continue }
@@ -185,8 +167,7 @@ extension ArticleExtractor {
         return nil
     }
 
-    /// Returns a canonicalized x.com status URL string, or nil if the input
-    /// isn't a recognizable X/Twitter status URL.
+    /// Returns a canonicalized x.com status URL, or nil if unrecognizable.
     static func normalizedXStatusURL(_ src: String) -> String? {
         guard let url = URL(string: absoluteURLString(src)),
               let host = url.host?.lowercased() else {
@@ -196,7 +177,6 @@ extension ArticleExtractor {
             || host == "twitter.com" || host.hasSuffix(".twitter.com")
             || host == "mobile.twitter.com" || host == "mobile.x.com"
         guard isXHost else { return nil }
-        // Expect /user/status/ID or /i/status/ID (or /i/web/status/ID)
         let parts = url.path.split(separator: "/").map(String.init)
         guard let statusIndex = parts.firstIndex(of: "status"),
               statusIndex + 1 < parts.count else {
@@ -217,9 +197,7 @@ extension ArticleExtractor {
 
     // MARK: - Marker detection
 
-    /// Returns the sole embed marker (`{{YOUTUBE}}…{{/YOUTUBE}}` or
-    /// `{{XPOST}}…{{/XPOST}}`) if `text` contains only a single marker
-    /// and nothing else (ignoring surrounding whitespace).
+    /// Returns the marker if `text` is exactly a single embed marker.
     static func embedMarkerParagraph(_ text: String) -> String? {
         let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return nil }
@@ -238,38 +216,28 @@ extension ArticleExtractor {
 
     // MARK: - Helpers
 
-    /// Ensures a URL string has a scheme.  Protocol-relative URLs (`//…`)
-    /// are resolved to `https:` so downstream parsing sees an absolute host.
+    /// Resolves protocol-relative URLs to `https:` so downstream parsing sees an absolute host.
     private static func absoluteURLString(_ src: String) -> String {
         if src.hasPrefix("//") { return "https:\(src)" }
         return src
     }
 
-    /// Replaces a DOM element with a `<p>` containing only a marker string.
-    /// Using `<p>` keeps the marker isolated as its own paragraph during
-    /// block collection, preventing surrounding text from merging in.
-    /// Walks up through common embed wrappers (`<figure>`, `<div>` etc.)
-    /// when the wrapper has no other meaningful content, so the marker
-    /// surfaces at the article-body level.
+    /// Replaces a DOM element with a `<p>` containing only the marker string.
+    /// Hoists through single-child wrapper elements so the marker surfaces at article level.
     private static func replaceWithMarker(element: Element, marker: String) {
         let target = outermostEmbedWrapper(for: element)
         do {
             try target.before("<p>\(marker)</p>")
             try target.remove()
         } catch {
-            // Best-effort: a failed promotion leaves the original element,
-            // which noise removal will likely strip anyway.
         }
     }
 
-    /// Walks up through wrapper elements (`<figure>`, `<div>`, `<aside>`,
-    /// `<p>`) that contain *only* the embed element (ignoring whitespace).
-    /// Stops as soon as the parent has other content.
+    /// Walks up through single-child wrapper elements around an embed.
     private static func outermostEmbedWrapper(for element: Element) -> Element {
         let wrapperTags: Set<String> = ["figure", "div", "aside", "p", "span"]
         var current: Element = element
         while let parent = current.parent(), wrapperTags.contains(parent.tagName().lowercased()) {
-            // Only hoist when current is the parent's sole significant child.
             let siblings = parent.children().filter { $0 !== current }
             let siblingHasText = siblings.contains { element in
                 let text = ((try? element.text()) ?? "")
@@ -277,7 +245,6 @@ extension ArticleExtractor {
                 return !text.isEmpty
             }
             if siblingHasText { break }
-            // Also check for raw text nodes on the parent.
             let ownText = parent.ownText()
                 .trimmingCharacters(in: .whitespacesAndNewlines)
             if !ownText.isEmpty { break }

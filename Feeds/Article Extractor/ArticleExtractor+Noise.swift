@@ -476,7 +476,6 @@ extension ArticleExtractor {
         "template"
     ]
 
-    /// Class/ID substrings that strongly indicate non-article content.
     private static let noiseClassPatterns = [
         "related", "recommend", "suggested", "popular",
         "trending", "sidebar", "widget", "promo",
@@ -547,19 +546,12 @@ extension ArticleExtractor {
         "entry-tags", "entry-categories", "category-links"
     ]
 
-    /// Noise-removal modes.  The aggressive `.global` pass runs on the
-    /// whole document and is free to strip broad selectors; `.local` runs
-    /// on the already-selected main content element and refuses to drop
-    /// selectors that might appear inside legitimate paragraphs.
+    /// `.global` strips broadly across the document; `.local` is conservative inside an already-selected article.
     enum NoiseScope {
         case global
         case local
     }
 
-    /// Class/ID substrings that would be too aggressive to remove once the
-    /// article container has been isolated.  Matches the bare tokens that
-    /// legitimate inline spans (`<span class="share">value</span>`) or
-    /// image captions might use.
     private static let unsafeInsideArticle: Set<String> = [
         "share-bar", "share-buttons", "share-tools",
         "share-this", "post-share", "entry-share",
@@ -597,10 +589,8 @@ extension ArticleExtractor {
 
         removeNoiseByClassPatterns(from: element, scope: scope)
         removeAdvertisementTextBlocks(from: element)
-        // Heuristic passes (see ArticleExtractor+NoiseHeuristics.swift).
-        // Aggressive list/section sweeps only run on the full document so
-        // scoped removal doesn't nuke legitimate inline content inside the
-        // already-isolated article body.
+        // Aggressive list/section sweeps only run on the full document to
+        // avoid nuking legitimate inline content inside isolated articles.
         if scope == .global {
             removeMenuLists(from: element)
             removeSuggestionSections(from: element)
@@ -610,7 +600,6 @@ extension ArticleExtractor {
         removeEmptyContainers(from: element)
     }
 
-    /// Removes elements whose class or id attribute contains known noise substrings.
     private static func removeNoiseByClassPatterns(
         from element: Element,
         scope: NoiseScope = .global
@@ -630,32 +619,26 @@ extension ArticleExtractor {
                 }
             }
         } catch {
-            // Best-effort; failures are non-critical
         }
     }
 
-    /// Returns true when the trimmed, lowercased text matches a known ad label.
     static func isAdvertisementText(_ text: String) -> Bool {
         AdvertisementTextFilter.isAdvertisementText(text)
     }
 
-    /// Removes block-level elements (`<p>`, `<div>`, `<span>`) whose only
-    /// text content is a known ad label such as "ADVERTISEMENT".
     private static func removeAdvertisementTextBlocks(from element: Element) {
         do {
             let candidates = try element.select("p, div, span")
             for element in candidates {
                 let text = try element.text()
                 guard isAdvertisementText(text) else { continue }
-                // Only remove if the element has no meaningful children
-                // (images, videos, etc.) - just the ad label text.
+                // Keep elements containing media; only strip pure-label blocks.
                 let hasMedia = !(try element.select("img, video, picture, iframe")).isEmpty()
                 if !hasMedia {
                     try element.remove()
                 }
             }
         } catch {
-            // Best-effort; failures are non-critical
         }
     }
 

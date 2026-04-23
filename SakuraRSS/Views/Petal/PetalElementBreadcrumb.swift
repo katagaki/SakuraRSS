@@ -1,20 +1,14 @@
 import SwiftUI
 
-/// Horizontal breadcrumb trail showing the ancestor chain from the
-/// document root down to the currently-selected element, with a
-/// trailing drill-in control that exposes the selected element's
-/// direct visible children as menu items.
-///
-/// Tapping an ancestor segment drills *out* (selects that ancestor);
-/// picking a child from the trailing menu drills *in*.
+/// Breadcrumb trail for the element picker with drill-in child menu.
 struct PetalElementBreadcrumb: View {
 
     typealias Info = PetalElementPickerWebView.ElementInfo
 
-    let ancestors: [Info]           // immediate parent first
+    let ancestors: [Info]
     let selected: Info
     let children: [Info]
-    let onSelectAncestor: (Int) -> Void   // levels up (1 = parent)
+    let onSelectAncestor: (Int) -> Void
     let onSelectChild: (Int) -> Void
 
     var body: some View {
@@ -84,7 +78,7 @@ struct PetalElementBreadcrumb: View {
     }
 
     private var orderedAncestors: [Info] {
-        Array(ancestors.reversed())   // outermost first
+        Array(ancestors.reversed())
     }
 
     @ViewBuilder

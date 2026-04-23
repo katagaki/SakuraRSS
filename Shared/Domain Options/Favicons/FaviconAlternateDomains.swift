@@ -1,8 +1,6 @@
 import Foundation
 
 /// Maps feed domains to alternative domains for favicon fetching.
-/// For example, feeds served from a CDN subdomain can be mapped
-/// to the main site so that the correct favicon is retrieved.
 nonisolated enum FaviconAlternateDomains {
 
     static let mappings: [String: String] = [

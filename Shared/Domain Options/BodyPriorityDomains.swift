@@ -1,11 +1,6 @@
 import Foundation
 
-/// Domains whose feeds carry the meaningful article text in the
-/// body/summary while the `<title>` element holds a generic category
-/// label (e.g. the JMA extra feed at
-/// https://www.data.jma.go.jp/developer/xml/feed/extra.xml). For these
-/// feeds, the title and body are swapped so lists surface the useful
-/// information first.
+/// Domains where the meaningful text lives in the body while the title is generic; swap them.
 nonisolated enum BodyPriorityDomains {
 
     static let allowlistedDomains: Set<String> = [
@@ -17,9 +12,7 @@ nonisolated enum BodyPriorityDomains {
         return allowlistedDomains.contains(where: { host == $0 || host.hasSuffix(".\($0)") })
     }
 
-    /// Returns a copy of `article` with title and body swapped when the
-    /// feed's domain is in the allowlist. The body is sourced from
-    /// `summary` when present, otherwise from `content`.
+    /// Returns a copy of `article` with title and body swapped when the domain is allowlisted.
     static func applying(to article: ParsedArticle, feedDomain: String) -> ParsedArticle {
         guard shouldSwapTitleAndBody(feedDomain: feedDomain) else { return article }
 

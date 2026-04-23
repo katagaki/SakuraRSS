@@ -6,8 +6,6 @@ nonisolated extension PetalEngine {
     // MARK: - Parsing
 
     /// Runs the recipe's selectors against the given HTML.
-    /// Public so the builder can feed pre-fetched HTML in
-    /// without re-fetching on every keystroke.
     static func parse(html: String, recipe: PetalRecipe) -> [ParsedArticle] {
         let base = URL(string: recipe.baseURL ?? recipe.siteURL)
         do {
@@ -35,7 +33,6 @@ nonisolated extension PetalEngine {
         recipe: PetalRecipe,
         baseURL: URL?
     ) -> ParsedArticle? {
-        // Link - required.  Without a URL there's nothing to show.
         guard let linkString = extractLink(item: item, recipe: recipe),
               let resolvedURL = resolveURL(linkString, base: baseURL) else {
             return nil
@@ -80,7 +77,6 @@ nonisolated extension PetalEngine {
            !value.isEmpty {
             return value
         }
-        // Fall back to the first <a href> inside the item.
         if let anchor = try? item.select("a[href]").first(),
            let href = try? anchor.attr("href"), !href.isEmpty {
             return href
@@ -117,7 +113,6 @@ nonisolated extension PetalEngine {
                 return resolveURL(value, base: baseURL)
             }
         }
-        // Fall back to the first <img src> inside the item.
         if let img = try? item.select("img[src]").first(),
            let value = try? img.attr("src"), !value.isEmpty {
             return resolveURL(value, base: baseURL)
@@ -147,9 +142,6 @@ nonisolated extension PetalEngine {
     // MARK: - URL resolution
 
     /// Resolves a potentially relative URL against a base.
-    /// Mirrors `ArticleExtractor.resolveURL` but kept local so
-    /// the engine has no cross-module dependency beyond
-    /// Foundation + SwiftSoup.
     private static func resolveURL(_ href: String, base: URL?) -> String? {
         let trimmed = href.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return nil }

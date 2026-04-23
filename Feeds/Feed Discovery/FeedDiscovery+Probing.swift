@@ -4,8 +4,7 @@ extension FeedDiscovery {
 
     // MARK: - RSS Suffix Probing
 
-    /// For non-root URLs, tries appending `.rss` to the path.
-    /// Works for sites like Reddit where /r/subreddit.rss is a valid feed.
+    /// Tries appending `.rss` to non-root URL paths (e.g. Reddit).
     func probeRSSSuffix(for url: URL) async -> DiscoveredFeed? {
         let path = url.path
         guard !path.isEmpty,
@@ -75,7 +74,6 @@ extension FeedDiscovery {
                 }
             }
         } catch {
-            // Probe failed, not a feed
         }
 
         return nil

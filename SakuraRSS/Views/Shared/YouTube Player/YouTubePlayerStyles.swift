@@ -2,15 +2,7 @@ import Foundation
 
 nonisolated enum YouTubePlayerStyles {
 
-    /// CSS injected into the YouTube watch page to hide the surrounding
-    /// mobile-site chrome (top bar, metadata section, comments, related
-    /// videos, subscribe buttons, etc.) and YouTube's own player controls,
-    /// so that only the bare video player remains visible while our SwiftUI
-    /// controls sit underneath.
-    ///
-    /// Crucially, nothing here touches the `<video>` element, `#movie_player`,
-    /// `.html5-video-player`, `.html5-video-container`, or their ancestor
-    /// containers - those must stay visible for the video to actually render.
+    /// CSS injected into YouTube watch pages to hide chrome while keeping the video visible.
     static let css = """
     html, body {
         margin: 0 !important;
@@ -230,9 +222,7 @@ nonisolated enum YouTubePlayerStyles {
     """
 
     static func injectionScript(css: String) -> String {
-        // Escape characters that would otherwise break out of the JS
-        // template literal we wrap the CSS in. Backticks terminate the
-        // string and `${` starts an interpolation; both must be escaped.
+        // Escape characters that would break out of the JS template literal.
         let safeCSS = css
             .replacingOccurrences(of: "\\", with: "\\\\")
             .replacingOccurrences(of: "`", with: "\\`")

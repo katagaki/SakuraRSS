@@ -21,9 +21,7 @@ extension FeedManager {
         pendingReadIDs.removeAll()
         let idArray = Array(ids)
 
-        // Persist before publishing observable changes so the next render
-        // of the article list views — which re-read from SQLite via
-        // `dataRevision` — sees the updated read state.
+        // Persist before publishing observable changes so re-reads via `dataRevision` see the update.
         try? database.markArticlesRead(ids: idArray, read: true)
 
         var newArticles = articles

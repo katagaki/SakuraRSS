@@ -10,14 +10,9 @@ nonisolated enum NLPProcessor {
 
     // MARK: - Hybrid Scoring Tunables
 
-    /// Weight applied to the normalized embedding similarity term in the
-    /// hybrid ranker. The two weights should sum to 1.0.
+    // Weights should sum to 1.0.
     static let hybridEmbeddingWeight: Double = 0.65
-    /// Weight applied to the entity Jaccard overlap term in the hybrid
-    /// ranker. Ignored when the source article has no entities.
     static let hybridEntityWeight: Double = 0.35
-    /// Cosine-distance ceiling returned by `NLEmbedding.distance`. Used to
-    /// normalize distances to a [0, 1] similarity in the hybrid formula.
     static let maxEmbeddingDistance: Double = 2.0
 
     struct EntityResult {
@@ -33,9 +28,7 @@ nonisolated enum NLPProcessor {
         return extractEntities(from: text, using: tagger)
     }
 
-    /// Batch-friendly variant: reuses a caller-owned `NLTagger` across many
-    /// articles so tagger construction cost is amortized.  The caller is
-    /// responsible for passing a tagger initialized with `.nameType`.
+    /// Batch-friendly variant reusing a caller-owned `.nameType` tagger.
     static func extractEntities(from text: String, using tagger: NLTagger) -> [EntityResult] {
         guard !text.isEmpty else { return [] }
         tagger.string = text
@@ -82,9 +75,7 @@ nonisolated enum NLPProcessor {
         return sentimentScore(for: text, using: tagger)
     }
 
-    /// Batch-friendly variant: reuses a caller-owned `NLTagger` across many
-    /// articles.  The caller is responsible for passing a tagger initialized
-    /// with `.sentimentScore`.
+    /// Batch-friendly variant reusing a caller-owned `.sentimentScore` tagger.
     static func sentimentScore(for text: String, using tagger: NLTagger) -> Double? {
         guard !text.isEmpty else { return nil }
         tagger.string = text
@@ -116,19 +107,7 @@ nonisolated enum NLPProcessor {
 
     // MARK: - Similarity via NLEmbedding + Entity Overlap
 
-    /// Ranks `candidates` by a hybrid score that blends normalized
-    /// `NLEmbedding` sentence-embedding similarity with entity Jaccard
-    /// overlap. See `hybridEmbeddingWeight` / `hybridEntityWeight`.
-    ///
-    /// - Parameters:
-    ///   - article: Source article being viewed.
-    ///   - sourceEntities: Lowercased entity names for the source article.
-    ///     Pass an empty set to fall back to embedding-only scoring.
-    ///   - candidates: Candidate articles paired with their lowercased
-    ///     entity sets. Caller is expected to batch-load entities so this
-    ///     function stays allocation-light.
-    ///   - maxResults: Maximum number of ranked matches to return.
-    ///   - minimumScore: Matches below this blended score are dropped.
+    /// Ranks candidates by blended embedding similarity and entity Jaccard overlap.
     static func findSimilarArticlesHybrid(
         to article: Article,
         sourceEntities: Set<String>,
@@ -193,9 +172,7 @@ nonisolated enum NLPProcessor {
         return results
     }
 
-    /// Combined text fed into the sentence embedding. Title is repeated so
-    /// it dominates summary content in the resulting vector - short, cheap,
-    /// and noticeably helpful for headline-driven feeds.
+    // Title is repeated so it dominates summary content in the embedding vector.
     private static func articleText(_ article: Article) -> String {
         let title = article.title
         let summary = article.summary ?? ""

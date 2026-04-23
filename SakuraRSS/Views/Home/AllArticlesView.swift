@@ -70,7 +70,7 @@ enum HomeSelection: Hashable, RawRepresentable {
                 return
             }
         }
-        // Legacy migration: bare section names from before the HomeSelection wrapper
+        // Legacy: bare section names from before the HomeSelection wrapper.
         if let section = HomeSection(rawValue: rawValue) {
             self = .section(section)
             return

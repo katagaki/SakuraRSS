@@ -3,17 +3,12 @@ import Foundation
 
 extension ContentBlock {
 
-    /// A contiguous slice of marker-encoded article text for translation purposes.
     enum TranslationSegment {
-        /// Plain text between markers — safe to send to the translator.
         case translatable(String)
-        /// A `{{TAG}}...{{/TAG}}` block whose payload must be preserved verbatim.
         case preserved(String)
     }
 
     /// Splits marker-encoded text into translatable spans and preserved marker blocks.
-    /// Translatable spans contain everything outside of `{{IMG}}`, `{{CODE}}`, `{{VIDEO}}`,
-    /// `{{YOUTUBE}}`, `{{XPOST}}`, `{{EMBED}}`, `{{TABLE}}`, and `{{MATH}}` markers.
     static func translationSegments(from text: String) -> [TranslationSegment] {
         let pattern = #"\{\{(IMG|CODE|VIDEO|YOUTUBE|XPOST|EMBED|TABLE|MATH)\}\}.*?\{\{/\1\}\}"#
         guard let regex = try? NSRegularExpression(
@@ -54,9 +49,7 @@ extension ContentBlock {
         return segments
     }
 
-    /// Translates marker-encoded article text one text block at a time, batching all text blocks
-    /// (and the optional title) into a single `session.translations(from:)` call so non-text
-    /// blocks (images, code, tables, embeds, math) are preserved verbatim in the output.
+    /// Translates marker-encoded article text, preserving non-text blocks verbatim.
     static func translateArticleContent(
         title: String?, markerText: String, session: TranslationSession
     ) async throws -> (title: String?, text: String) {

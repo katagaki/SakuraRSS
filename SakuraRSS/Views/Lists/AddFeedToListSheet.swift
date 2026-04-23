@@ -79,7 +79,6 @@ struct AddFeedToListSheet: View {
                 selectedListIDs = feedManager.listIDsForFeed(feed)
             }
             .sheet(isPresented: $isShowingNewList) {
-                // After creating a new list, auto-select it
                 if let newList = feedManager.lists.last {
                     selectedListIDs.insert(newList.id)
                 }
@@ -94,13 +93,11 @@ struct AddFeedToListSheet: View {
 
     private func save() {
         let currentIDs = feedManager.listIDsForFeed(feed)
-        // Add to newly selected lists
         for id in selectedListIDs where !currentIDs.contains(id) {
             if let list = feedManager.lists.first(where: { $0.id == id }) {
                 feedManager.addFeedToList(list, feed: feed)
             }
         }
-        // Remove from deselected lists
         for id in currentIDs where !selectedListIDs.contains(id) {
             if let list = feedManager.lists.first(where: { $0.id == id }) {
                 feedManager.removeFeedFromList(list, feed: feed)

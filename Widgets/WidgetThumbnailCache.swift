@@ -1,11 +1,6 @@
 import Foundation
 
-/// Small on-disk cache of already-downsampled widget thumbnail bytes.
-/// When a widget timeline build detects an unchanged article set, the
-/// provider pulls from this cache instead of re-running the SQLite
-/// fetch + ImageIO thumbnail pass — a straight file read, bytes out.
-/// One cache per `scope` (e.g. list + layout + column combination)
-/// keeps state isolated between widget configurations.
+/// On-disk cache of downsampled widget thumbnail bytes, scoped per widget configuration.
 struct WidgetThumbnailCache {
 
     let scope: String
@@ -35,8 +30,7 @@ struct WidgetThumbnailCache {
         try? data.write(to: url, options: .atomic)
     }
 
-    /// Deletes entries outside `keeping`, so stale thumbnails from
-    /// since-rotated articles don't accumulate on disk.
+    /// Deletes thumbnails whose article IDs aren't in `ids`.
     func prune(keeping ids: [Int64]) {
         guard let directory else { return }
         let keepSet = Set(ids.map { "\($0).jpg" })

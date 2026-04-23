@@ -4,8 +4,7 @@ nonisolated enum YouTubePlayerScripts {
 
     static let pipMessageHandlerName = "ytPiP"
 
-    /// Injected at document start to suppress YouTube's Page Visibility-based
-    /// auto-pause so audio keeps playing when the app is backgrounded.
+    /// Suppresses YouTube's visibility-based auto-pause so audio continues when backgrounded.
     static let backgroundPlaybackOverride = """
     (function() {
         try {
@@ -47,8 +46,7 @@ nonisolated enum YouTubePlayerScripts {
     })();
     """
 
-    /// Attaches listeners to the video so PiP enter/leave events are forwarded
-    /// to native code immediately, without waiting for the polling observer.
+    /// Forwards PiP enter/leave events to native code immediately.
     static let pipEventBridge = """
     (function() {
         function send(state) {
@@ -75,8 +73,7 @@ nonisolated enum YouTubePlayerScripts {
     })();
     """
 
-    /// Blocks autoplay by pausing the video whenever it tries to play until
-    /// `window.__ytAutoplayBlocked` is cleared (by a native play action).
+    /// Blocks autoplay until `window.__ytAutoplayBlocked` is cleared by a native play action.
     static let autoplayBlocker = """
     (function() {
         window.__ytAutoplayBlocked = true;
@@ -103,10 +100,7 @@ nonisolated enum YouTubePlayerScripts {
     })();
     """
 
-/// Reads chapter markers and returns an array of `{title, startSeconds}`
-    /// entries, or an empty array if the video has no chapters. Tries the
-    /// desktop player overlay shape first, then falls back to the mobile
-    /// engagement panels shape (m.youtube.com).
+    /// Returns `[{title, startSeconds}]` for chapters, empty when none exist.
     static let extractChapters = """
     (function() {
         function textFrom(v) {

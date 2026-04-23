@@ -1,9 +1,6 @@
 import Foundation
 
-/// Controls how the Home / Feed / List views paginate older articles behind
-/// the "Show Older Content" affordance.  Date-based modes walk backwards in
-/// fixed-size day windows; count-based modes grow a running limit by a fixed
-/// number of items; `.off` loads everything up-front with no paging.
+/// Controls how views paginate older articles (by day windows, item count, or off).
 nonisolated enum BatchingMode: String, CaseIterable, Identifiable, Sendable {
     case off
     case day1
@@ -15,8 +12,7 @@ nonisolated enum BatchingMode: String, CaseIterable, Identifiable, Sendable {
 
     var id: String { rawValue }
 
-    /// Number of days covered by one date-based batch, or `nil` for
-    /// non-date-based modes.
+    /// Days per date-based batch, or `nil`.
     var chunkDays: Int? {
         switch self {
         case .day1: return 1
@@ -26,8 +22,7 @@ nonisolated enum BatchingMode: String, CaseIterable, Identifiable, Sendable {
         }
     }
 
-    /// Number of items added per count-based batch, or `nil` for
-    /// non-count-based modes.
+    /// Items per count-based batch, or `nil`.
     var batchSize: Int? {
         switch self {
         case .items25: return 25
@@ -40,9 +35,7 @@ nonisolated enum BatchingMode: String, CaseIterable, Identifiable, Sendable {
     var isDateBased: Bool { chunkDays != nil }
     var isCountBased: Bool { batchSize != nil }
 
-    /// Date at which the initial batch should begin for date-based modes.
-    /// Returns `.distantPast` for non-date-based modes so existing
-    /// `articles(since:)` callers keep working.
+    /// Start date for the initial date-based batch (epoch for non-date modes).
     func initialSinceDate() -> Date {
         guard let days = chunkDays else { return Date(timeIntervalSince1970: 0) }
         let startOfToday = Calendar.current.startOfDay(for: Date())
@@ -50,12 +43,9 @@ nonisolated enum BatchingMode: String, CaseIterable, Identifiable, Sendable {
             ?? startOfToday
     }
 
-    /// Initial item count for the first count-based batch.
     func initialCount() -> Int { batchSize ?? 0 }
 
-    /// The currently persisted mode, used to seed `@State` values so the
-    /// initial window matches the stored configuration rather than the
-    /// `@AppStorage` default.
+    /// Returns the currently persisted mode.
     static func current() -> BatchingMode {
         let raw = UserDefaults.standard.string(forKey: "Articles.BatchingMode")
         return raw.flatMap(BatchingMode.init(rawValue:)) ?? .day1

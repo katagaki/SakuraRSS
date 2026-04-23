@@ -1,19 +1,6 @@
 import Foundation
 
-/// On-disk store for `PetalRecipe` JSON files.
-///
-/// Recipes live in the shared app-group container alongside the SQLite
-/// database so widgets and the share extension can read them.  Each
-/// recipe is stored as a separate JSON file keyed by UUID, so editing
-/// a Petal is a single-file write and corrupting one file can't take
-/// the rest of the library with it.
-///
-/// ```
-/// group.com.tsubuzaki.SakuraRSS/
-///   Petals/
-///     <uuid>.json
-///     <uuid>.png       ← optional icon, imported from .srss packages
-/// ```
+/// On-disk store for `PetalRecipe` JSON files in the shared app-group container.
 nonisolated final class PetalStore: @unchecked Sendable {
 
     static let shared = PetalStore()
@@ -75,9 +62,6 @@ nonisolated final class PetalStore: @unchecked Sendable {
 
     // MARK: - Icons
 
-    /// Path where the optional imported PNG icon for a recipe lives.
-    /// Not every recipe has one - only those imported from `.srss`
-    /// packages that included a feed icon.
     func iconURL(for id: UUID) -> URL {
         iconDirectoryURL.appendingPathComponent("\(id.uuidString).png")
     }

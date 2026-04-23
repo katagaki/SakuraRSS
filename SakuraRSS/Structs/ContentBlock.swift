@@ -27,7 +27,7 @@ enum ContentBlock: Identifiable {
         }
     }
 
-    /// Strips image and code markers from text, returning plain text suitable for translation/summarization.
+    /// Strips block markers, returning plain text suitable for translation/summarization.
     static func plainText(from text: String) -> String {
         let stripped = text.replacingOccurrences(
             of: #"\{\{IMG\}\}.+?\{\{/IMG\}\}"#, with: "", options: .regularExpression
@@ -60,11 +60,9 @@ enum ContentBlock: Identifiable {
         return ArticleMarker.unescape(stripped)
     }
 
-    /// Strips Markdown formatting from text, returning plain text suitable for content previews.
-    /// Handles links (including escaped brackets), bold, italic, headings, and sup/sub markers.
+    /// Strips Markdown formatting, returning plain text for content previews.
     static func stripMarkdown(_ text: String) -> String {
         var result = text
-        // Strip image markers (including optional link markers)
         result = result.replacingOccurrences(
             of: #"\{\{IMG\}\}.+?\{\{/IMG\}\}"#, with: "", options: .regularExpression
         )
@@ -86,40 +84,31 @@ enum ContentBlock: Identifiable {
         result = result.replacingOccurrences(
             of: #"(?s)\{\{TABLE\}\}.+?\{\{/TABLE\}\}"#, with: "", options: .regularExpression
         )
-        // Strip math markers, keeping the LaTeX text
         result = result.replacingOccurrences(
             of: #"\{\{MATH\}\}(.+?)\{\{/MATH\}\}"#, with: "$1", options: .regularExpression
         )
-        // Strip code markers, keeping content
         result = result.replacingOccurrences(of: "{{CODE}}", with: "")
         result = result.replacingOccurrences(of: "{{/CODE}}", with: "")
-        // Strip sup/sub markers, keeping content
         result = result.replacingOccurrences(
             of: #"\{\{SUP\}\}(.+?)\{\{/SUP\}\}"#, with: "$1", options: .regularExpression
         )
         result = result.replacingOccurrences(
             of: #"\{\{SUB\}\}(.+?)\{\{/SUB\}\}"#, with: "$1", options: .regularExpression
         )
-        // Strip Markdown links [text](url) → text (handle escaped brackets)
         result = result.replacingOccurrences(
             of: #"\[((?:[^\]\\]|\\.)+)\]\([^)]+\)"#, with: "$1", options: .regularExpression
         )
-        // Unescape brackets
         result = result.replacingOccurrences(of: "\\[", with: "[")
         result = result.replacingOccurrences(of: "\\]", with: "]")
-        // Strip bold **text** → text
         result = result.replacingOccurrences(
             of: #"\*\*(.+?)\*\*"#, with: "$1", options: .regularExpression
         )
-        // Strip italic *text* → text
         result = result.replacingOccurrences(
             of: #"\*(.+?)\*"#, with: "$1", options: .regularExpression
         )
-        // Strip heading prefixes
         result = result.replacingOccurrences(
             of: #"(?m)^#{1,6}\s+"#, with: "", options: .regularExpression
         )
-        // Collapse whitespace
         result = result.replacingOccurrences(
             of: #"\n{3,}"#, with: "\n\n", options: .regularExpression
         )
@@ -147,7 +136,6 @@ enum ContentBlock: Identifiable {
         var lastEnd = 0
 
         for match in matches {
-            // Text before the marker
             if match.range.location > lastEnd {
                 let before = nsText.substring(
                     with: NSRange(location: lastEnd, length: match.range.location - lastEnd)
@@ -166,7 +154,6 @@ enum ContentBlock: Identifiable {
             lastEnd = match.range.location + match.range.length
         }
 
-        // Text after the last marker
         if lastEnd < nsText.length {
             let after = nsText.substring(from: lastEnd)
                 .trimmingCharacters(in: .whitespacesAndNewlines)
@@ -207,7 +194,6 @@ enum ContentBlock: Identifiable {
             let trimmed = content.trimmingCharacters(in: .whitespacesAndNewlines)
             return trimmed.isEmpty ? nil : .math(ArticleMarker.unescape(trimmed))
         default:
-            // IMG - possibly with a link
             let nsContent = content as NSString
             if let linkRegex,
                let linkMatch = linkRegex.firstMatch(
@@ -221,8 +207,7 @@ enum ContentBlock: Identifiable {
         }
     }
 
-    /// Parses a `{{TABLE}}` marker payload into header + rows.
-    /// Payload format: `header1|header2\nrow1col1|row1col2\n…`.
+    /// Parses `{{TABLE}}` payload `header1|header2\nrow1col1|row1col2\n…` into header + rows.
     private static func parseTableMarker(_ content: String) -> ContentBlock? {
         let lines = content
             .split(separator: "\n", omittingEmptySubsequences: false)

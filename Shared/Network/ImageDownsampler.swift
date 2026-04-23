@@ -2,30 +2,16 @@ import Foundation
 import ImageIO
 import UIKit
 
-/// ImageIO-backed thumbnail helpers.  Preferred over
-/// `UIImage(data:) → byPreparingThumbnail(ofSize:)` because
-/// `CGImageSource` decodes only enough of the source to produce the
-/// thumbnail — a full-resolution photo never has to land in memory
-/// as a UIImage, which matters in the widget extension's tight
-/// memory budget and for main-app scroll smoothness.
-///
-/// Marked `nonisolated` because the app target infers `@MainActor`
-/// isolation for UIKit-using types by default; every method here is
-/// pure and safe to call from any actor / thread.
+/// ImageIO-backed thumbnail helpers that avoid full-resolution decoding.
 nonisolated enum ImageDownsampler {
 
-    /// Downsamples the encoded bytes in `data` to a thumbnail whose
-    /// largest dimension is `maxPixelSize`, returning a decoded
-    /// `UIImage`.  Returns `nil` if the source cannot be decoded.
+    /// Downsamples encoded bytes to a thumbnail whose largest dimension is `maxPixelSize`.
     nonisolated static func downsample(_ data: Data, maxPixelSize: CGFloat) -> UIImage? {
         guard let source = createSource(from: data) else { return nil }
         return downsample(source: source, maxPixelSize: maxPixelSize)
     }
 
-    /// Downsamples the encoded bytes in `data` to a thumbnail whose
-    /// largest dimension is `maxPixelSize` and returns JPEG-encoded
-    /// bytes suitable for storing/transporting (e.g. widget entry
-    /// payloads).  Returns `nil` on any failure.
+    /// Downsamples encoded bytes and returns JPEG-encoded thumbnail bytes.
     nonisolated static func downsampleToJPEG(
         _ data: Data,
         maxPixelSize: CGFloat,

@@ -1,12 +1,8 @@
 import Foundation
 
-/// Fallback image lookup for RSS items that ship without any image tag.
-/// Fetches the article page's `<head>` and returns the first usable
-/// `og:image` / `twitter:image` / `image_src` / `itemprop=image`.
+/// Fallback image lookup for RSS items without image tags via `<head>` meta tags.
 nonisolated enum HTMLMetadataImage {
 
-    /// Cap the body read so a large article HTML can't be pulled down
-    /// just to find a meta tag near the top of `<head>`.
     private static let maxBytes = 128 * 1024
 
     static func fetchImageURL(
@@ -39,8 +35,7 @@ nonisolated enum HTMLMetadataImage {
     }
 
     static func extractImageURL(from html: String, baseURL: URL?) -> String? {
-        // Restrict scanning to <head> when possible so inline article
-        // images don't get picked up as false positives.
+        // Restrict scanning to <head> to avoid picking up inline article images.
         let headSlice: String = {
             if let range = html.range(of: "</head>", options: .caseInsensitive) {
                 return String(html[..<range.lowerBound])
@@ -48,7 +43,6 @@ nonisolated enum HTMLMetadataImage {
             return html
         }()
 
-        // Ordered best-to-worst; first hit wins.
         let metaNamePatterns = [
             "og:image:secure_url",
             "og:image:url",
@@ -83,7 +77,6 @@ nonisolated enum HTMLMetadataImage {
         in html: String, propertyOrName name: String
     ) -> String? {
         let escaped = NSRegularExpression.escapedPattern(for: name)
-        // Two attribute orderings - HTML doesn't fix the order.
         let patterns = [
             #"<meta\b[^>]*?\b(?:property|name)\s*=\s*["']\#(escaped)["'][^>]*?\bcontent\s*=\s*["']([^"']+)["']"#,
             #"<meta\b[^>]*?\bcontent\s*=\s*["']([^"']+)["'][^>]*?\b(?:property|name)\s*=\s*["']\#(escaped)["']"#

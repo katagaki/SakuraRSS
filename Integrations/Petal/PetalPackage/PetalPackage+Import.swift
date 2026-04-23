@@ -4,15 +4,9 @@ nonisolated extension PetalPackage {
 
     // MARK: - Import
 
-    /// Parses a `.srss` package from raw bytes.  Use the URL
-    /// overload when you have a file URL; this one handles raw
-    /// `Data` for tests and share-extension pass-through.
+    /// Parses a `.srss` package from raw bytes.
     static func importPackage(from data: Data) throws -> ImportedPackage {
-        // Reject oversized payloads before even trying to unzip
-        // them.  Legitimate packages are a few KB; anything past
-        // the ZIP reader's total budget is rejected outright so
-        // the user sees a friendly error instead of a generic
-        // "malformed".
+        // Reject oversized payloads up front so users see `tooLarge` instead of `malformed`.
         guard data.count <= PetalZip.Limits.maxTotalUncompressedSize * 2 else {
             throw PackageError.tooLarge
         }
@@ -62,10 +56,7 @@ nonisolated extension PetalPackage {
         return recipe
     }
 
-    /// Decoding the metadata is best-effort: if the sidecar is
-    /// missing or unreadable we synthesise one rather than
-    /// failing the whole import, because a valid recipe alone is
-    /// still a usable package.
+    /// Best-effort metadata decode; synthesises a default if the sidecar is missing.
     private static func decodeMetadata(
         from entries: [PetalZip.Entry]
     ) -> Metadata {

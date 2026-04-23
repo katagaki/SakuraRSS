@@ -1,10 +1,6 @@
 import SwiftUI
 
-/// Placeholder tile drawn wherever an article has no cover image.
-/// Fills the tile with the favicon's average color and centers the
-/// feed icon (favicon, acronym icon, or first-letter fallback).
-/// Social-feed favicons, which are usually profile photos, are
-/// clipped into a circle so they read as avatars rather than squares.
+/// Placeholder tile used when an article has no cover image; centers the feed icon.
 struct FeedIconPlaceholder: View {
 
     enum Fallback {

@@ -30,9 +30,7 @@ struct ListWidgetProvider: AppIntentTimelineProvider {
 
     func timeline(for configuration: ListWidgetIntent, in _: Context) async -> Timeline<ListWidgetEntry> {
         let entry = await loadEntry(for: configuration)
-        // Timeline refreshes every 90 minutes instead of every 30.  Widgets
-        // running outside the app process wake it on every reload; tripling
-        // the interval triples the battery savings for this path.
+        // 90-minute interval; widget reloads wake the app process.
         return Timeline(entries: [entry], policy: .after(Date().addingTimeInterval(90 * 60)))
     }
 
@@ -78,9 +76,6 @@ struct ListWidgetProvider: AppIntentTimelineProvider {
             let maxPages = 3
             let totalLimit = perPage * maxPages
 
-            // One SQLite statement across every feed in the list, sorted
-            // and limited by the DB — saves the N per-feed queries +
-            // Swift-side merge/sort that the old path did on every wake.
             let dbArticles = try database.articles(forFeedIDs: feedIDs, limit: totalLimit)
 
             let totalPages = max(1, Int(ceil(Double(dbArticles.count) / Double(perPage))))
@@ -88,10 +83,7 @@ struct ListWidgetProvider: AppIntentTimelineProvider {
             let pageStart = currentPage * perPage
             let pageArticles = Array(dbArticles.dropFirst(pageStart).prefix(perPage))
 
-            // Skip image network fetches when the top article IDs haven't
-            // changed since the last timeline build.  DB-cached images still
-            // resolve normally; this prevents retrying failing downloads on
-            // every 90-minute timeline wake.
+            // Skip network fetches when article set is unchanged, to avoid retrying failed downloads each wake.
             let articleIDsMarker = pageArticles.map(\.id).map(String.init).joined(separator: ",")
             let markerKey = "listWidgetMarker_\(listID)_\(layout.rawValue)_\(columns)_\(currentPage)"
             let previousMarker = defaults?.string(forKey: markerKey)

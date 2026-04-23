@@ -22,7 +22,6 @@ extension FeedDiscovery {
     func extractFeedLinks(from html: String, baseURL: URL) -> [DiscoveredFeed] {
         var feeds: [DiscoveredFeed] = []
 
-        // 1. Standard <link> tags with RSS/Atom type
         let linkPattern = #"<link[^>]+type="application/(rss|atom)\+xml"[^>]*>"#
         if let linkRegex = try? NSRegularExpression(pattern: linkPattern, options: .caseInsensitive) {
             let matches = linkRegex.matches(in: html, range: NSRange(html.startIndex..., in: html))
@@ -44,7 +43,6 @@ extension FeedDiscovery {
             }
         }
 
-        // 2. <a> tags with "RSS Feed" or "RSS" in their link text
         let anchorPattern = #"<a\s[^>]*href="([^"]*)"[^>]*>(.*?)</a>"#
         let anchorOptions: NSRegularExpression.Options = [.caseInsensitive, .dotMatchesLineSeparators]
         if let anchorRegex = try? NSRegularExpression(pattern: anchorPattern, options: anchorOptions) {

@@ -1,9 +1,7 @@
 import SwiftUI
 import WebKit
 
-/// A web view that presents the X (Twitter) login page.
-/// Session cookies persist in the default WKWebsiteDataStore so that
-/// XProfileScraper can use them for authenticated profile scraping.
+/// Web view presenting the X login page; session cookies persist for XProfileScraper.
 struct XLoginView: View {
 
     @Environment(\.dismiss) var dismiss
@@ -32,7 +30,6 @@ struct XLoginView: View {
     }
 }
 
-/// UIViewRepresentable wrapper for a WKWebView that loads the X login page.
 private struct XLoginWebView: UIViewRepresentable {
 
     @Binding var isLoggedIn: Bool
@@ -71,9 +68,6 @@ private struct XLoginWebView: UIViewRepresentable {
                 try? await Task.sleep(for: .seconds(1))
                 guard !Task.isCancelled else { return }
 
-                // Copy any cookies X just set in the WKWebView over to
-                // Keychain so `hasXSession()`, which reads from Keychain,
-                // can detect the successful login.
                 await XProfileScraper.syncCookiesFromWebKit()
 
                 let loggedIn = await XProfileScraper.hasXSession()

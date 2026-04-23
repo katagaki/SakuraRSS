@@ -1,8 +1,6 @@
 import SwiftUI
 
-/// Keeps the device screen awake while any podcast download or transcription
-/// is in progress, so long-running work isn't interrupted when the device
-/// would otherwise auto-lock.
+/// Keeps the screen awake while podcast downloads or transcriptions are active.
 struct KeepScreenOnDuringPodcastWork: ViewModifier {
     @State private var manager = PodcastDownloadManager.shared
 

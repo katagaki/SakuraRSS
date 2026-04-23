@@ -2,12 +2,7 @@ import SwiftUI
 
 // MARK: - In-Memory Image Cache
 
-/// Shared memory cache for decoded UIImages, avoiding repeated SQLite
-/// lookups and Data → UIImage decoding during scroll recycling.
-/// NSCache is already thread-safe, so synchronous access from any
-/// context is the fast path — no actor hop per read.  Marked
-/// `nonisolated` because the app target otherwise infers `@MainActor`
-/// on UIKit-using types.
+/// Shared memory cache for decoded UIImages.
 nonisolated final class ImageMemoryCache: @unchecked Sendable {
 
     static let shared = ImageMemoryCache()
@@ -29,10 +24,6 @@ nonisolated final class ImageMemoryCache: @unchecked Sendable {
     }
 }
 
-/// Holds static state for `CachedAsyncImage`.  Kept in a separate
-/// non-generic type because Swift forbids stored static properties
-/// inside generic types.  `nonisolated` so the nonisolated image
-/// loader can read it without hopping to the main actor.
 private enum CachedAsyncImageConfig {
     nonisolated static let maxDisplayPixelSize: CGFloat = 2000
 }
@@ -57,9 +48,6 @@ struct CachedAsyncImage<Placeholder: View>: View {
         self.alignment = alignment
         self.onImageLoaded = onImageLoaded
         self.placeholder = placeholder
-        // Synchronous memory-cache check so the first render paints the
-        // cached bitmap directly — no placeholder flash while the async
-        // loader spins up during fast scroll recycling.
         let initial: UIImage? = {
             guard let url, !url.absoluteString.hasPrefix("data:") else { return nil }
             return ImageMemoryCache.shared.image(forKey: url.absoluteString)
@@ -88,9 +76,6 @@ struct CachedAsyncImage<Placeholder: View>: View {
                 return
             }
             if let image {
-                // Memory-cache hit from the synchronous init path — still
-                // notify the caller once so aspect-ratio-dependent layout
-                // can settle on the first appearance.
                 if !reportedCachedHit {
                     reportedCachedHit = true
                     onImageLoaded?(image)
@@ -108,14 +93,7 @@ struct CachedAsyncImage<Placeholder: View>: View {
         }
     }
 
-    /// Largest dimension we ever display.  Article-detail hero images
-    /// span the whole screen on iPad — 2000 px covers 2× iPad screen
-    /// width, which looks identical to a full-res image at normal
-    /// viewing distance.  Thumbnails in feed lists are far smaller
-    /// and get downsampled further by SwiftUI on render.  The win is
-    /// that a 4000×3000 photo no longer costs 48 MB of RAM per view.
-    /// Computed property because generic types can't hold stored
-    /// static state; the underlying constant lives on the enum above.
+    /// Largest dimension ever displayed; originals are downsampled to this size.
     nonisolated static var maxDisplayPixelSize: CGFloat {
         CachedAsyncImageConfig.maxDisplayPixelSize
     }
@@ -123,13 +101,10 @@ struct CachedAsyncImage<Placeholder: View>: View {
     nonisolated static func loadImage(from url: URL) async -> UIImage? {
         let urlString = url.absoluteString
 
-        // Skip data: URIs - they are typically inline SVG placeholders
-        // (e.g. Next.js blur-up shims) that contain no useful image content.
         if urlString.hasPrefix("data:") {
             return nil
         }
 
-        // 1. In-memory cache (instant, no decoding, no actor hop)
         let memoryCache = ImageMemoryCache.shared
         if let cached = memoryCache.image(forKey: urlString) {
             return cached
@@ -137,9 +112,6 @@ struct CachedAsyncImage<Placeholder: View>: View {
 
         let database = DatabaseManager.shared
 
-        // 2. Database cache (requires Data → UIImage decode via ImageIO
-        // downsample so the memory cost of cached thumbnails stays
-        // bounded even for originally-huge photos).
         if let cachedData = try? database.cachedImageData(for: urlString),
            let cachedImage = ImageDownsampler.downsample(
                cachedData, maxPixelSize: maxDisplayPixelSize
@@ -155,9 +127,6 @@ struct CachedAsyncImage<Placeholder: View>: View {
         debugPrint("[Image] Cache miss, downloading \(urlString)")
         #endif
 
-        // 3. Network download — persist the original bytes to SQLite
-        //    (so a bigger display context can resample if ever needed)
-        //    but hold only a downsampled UIImage in memory.
         do {
             let (data, response) = try await URLSession.shared.data(for: .sakura(url: url))
             let statusCode = (response as? HTTPURLResponse)?.statusCode
@@ -173,12 +142,6 @@ struct CachedAsyncImage<Placeholder: View>: View {
                 #endif
                 return nil
             }
-            // Skip the SQLite write if a concurrent loader has already
-            // populated the memory cache for this URL.  That task either
-            // already wrote the DB row or is about to, so a second write
-            // is wasted I/O on the write path.  The memory-cache check
-            // is what matters - the DB copy fills itself in on any later
-            // miss if the memory cache gets evicted.
             if memoryCache.image(forKey: urlString) == nil {
                 try? database.cacheImageData(data, for: urlString)
             }

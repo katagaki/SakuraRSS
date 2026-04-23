@@ -4,14 +4,7 @@ nonisolated extension PetalZip {
 
     // MARK: - Writing
 
-    /// Packs entries into a STORED-only ZIP archive.  Returns the
-    /// archive bytes - caller writes to disk (or ships elsewhere).
-    ///
-    /// STORE (no compression) is intentional: the payloads are a
-    /// few KB of JSON plus a small PNG, so the space savings
-    /// wouldn't pay for the extra compression code.  The format we
-    /// emit is still a fully valid ZIP and any reader (including
-    /// our own `read(data:)`) can extract it.
+    /// Packs entries into a STORED-only ZIP archive and returns the bytes.
     static func write(entries: [Entry]) -> Data {
         var output = Data()
         var centralDirectory = Data()

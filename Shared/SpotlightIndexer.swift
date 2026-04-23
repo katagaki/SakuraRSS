@@ -5,16 +5,9 @@ nonisolated enum SpotlightIndexer {
 
     static let domainIdentifier = "com.tsubuzaki.SakuraRSS.article"
 
-    /// Schema version for the Spotlight searchable-item attributes produced
-    /// by `indexArticles`.  Bump this whenever the attribute shape changes
-    /// (fields added/removed/renamed) so the next launch triggers a
-    /// one-time full reindex.  The full reindex is otherwise never run
-    /// automatically - the per-feed-refresh incremental path keeps the
-    /// index up to date in the steady state.
+    /// Bump to trigger a one-time full reindex on next launch when attribute shape changes.
     static let schemaVersion: Int = 1
 
-    /// `UserDefaults` key holding the `schemaVersion` value that was in
-    /// effect the last time a full reindex completed.
     static let schemaVersionDefaultsKey = "App.SpotlightIndexVersion"
 
     // MARK: - Indexing
@@ -108,44 +101,37 @@ nonisolated enum SpotlightIndexer {
 
     private static func stripMarkup(_ text: String) -> String? {
         var result = text
-        // Remove image placeholders like {{IMG}}https://...{{/IMG}}
         result = result.replacingOccurrences(
             of: "\\{\\{IMG\\}\\}.*?\\{\\{/IMG\\}\\}",
             with: "",
             options: .regularExpression
         )
-        // Remove markdown images ![alt](url)
         result = result.replacingOccurrences(
             of: "!\\[[^\\]]*\\]\\([^)]*\\)",
             with: "",
             options: .regularExpression
         )
-        // Convert markdown links [text](url) to just text
         result = result.replacingOccurrences(
             of: "\\[([^\\]]+)\\]\\([^)]*\\)",
             with: "$1",
             options: .regularExpression
         )
-        // Remove bare URLs
         result = result.replacingOccurrences(
             of: "https?://\\S+",
             with: "",
             options: .regularExpression
         )
-        // Strip any remaining HTML tags
         result = result.replacingOccurrences(
             of: "<[^>]+>",
             with: " ",
             options: .regularExpression
         )
-        // Decode HTML entities
         result = result.replacingOccurrences(of: "&amp;", with: "&")
         result = result.replacingOccurrences(of: "&lt;", with: "<")
         result = result.replacingOccurrences(of: "&gt;", with: ">")
         result = result.replacingOccurrences(of: "&quot;", with: "\"")
         result = result.replacingOccurrences(of: "&#39;", with: "'")
         result = result.replacingOccurrences(of: "&nbsp;", with: " ")
-        // Collapse whitespace
         result = result.replacingOccurrences(
             of: "\\s+",
             with: " ",

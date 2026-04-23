@@ -1,10 +1,7 @@
 import Foundation
 
-/// Escapes literal `{{IMG}}`/`{{CODE}}`/etc. sequences in article text so
-/// `ContentBlock.parse` doesn't misinterpret them as extractor markers.
-/// Escaped form uses U+E000/U+E001 as delimiters so it contains no
-/// `{{TOKEN}}` substring - callers checking `text.contains("{{IMG}}")`
-/// keep matching only real markers.
+/// Escapes literal `{{TOKEN}}` sequences in article text using PUA
+/// delimiters so `ContentBlock.parse` only matches real markers.
 nonisolated enum ArticleMarker {
 
     private static let table: [(literal: String, escaped: String)] = [
@@ -50,8 +47,7 @@ nonisolated enum ArticleMarker {
         return result
     }
 
-    /// Runs `regex` against `text`, retrying on the unescaped form when
-    /// the as-is pass finds nothing but PUA delimiters are present.
+    /// Matches `regex` against `text`, retrying on the unescaped form if needed.
     static func regexMatches(
         of regex: NSRegularExpression, in text: String
     ) -> (nsText: NSString, matches: [NSTextCheckingResult]) {

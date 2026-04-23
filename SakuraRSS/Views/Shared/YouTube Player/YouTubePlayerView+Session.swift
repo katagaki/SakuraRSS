@@ -39,7 +39,7 @@ extension YouTubePlayerView {
             return true
         }
 
-        // Retry once after a delay to let WebKit finish loading cookies from disk.
+        // Retry once so WebKit can finish loading cookies from disk.
         if UserDefaults.standard.bool(forKey: youtubeSessionCacheKey) {
             try? await Task.sleep(for: .milliseconds(500))
             let retryResult = await retryHasYouTubeSession()
@@ -62,9 +62,7 @@ extension YouTubePlayerView {
         }
     }
 
-    /// Creates a hidden WKWebView that loads YouTube, initialising the default
-    /// WKWebsiteDataStore (and its cookie store) so that a subsequent call to
-    /// `hasYouTubeSession()` sees the persisted session cookies.
+    /// Hidden WKWebView load to warm the default cookie store before `hasYouTubeSession`.
     @MainActor
     static func warmUpWebView() async {
         let config = WKWebViewConfiguration()

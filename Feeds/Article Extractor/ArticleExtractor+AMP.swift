@@ -6,9 +6,7 @@ extension ArticleExtractor {
     private static let googleAMPHosts: Set<String> = ["google.com", "www.google.com"]
     private static let googleAMPPathPrefix = "/amp/s/"
 
-    /// Unwraps Google AMP viewer URLs (`https://www.google.com/amp/s/<host>/<path>`)
-    /// to the canonical URL they wrap.  Returns the input unchanged for
-    /// non-AMP URLs.
+    /// Unwraps `google.com/amp/s/<host>/<path>` to the canonical URL.
     static func unwrapGoogleAMPURL(_ url: URL) -> URL {
         guard let host = url.host?.lowercased(),
               googleAMPHosts.contains(host) else {
@@ -17,15 +15,11 @@ extension ArticleExtractor {
         let path = url.path
         guard path.hasPrefix(googleAMPPathPrefix) else { return url }
         let trimmed = String(path.dropFirst(googleAMPPathPrefix.count))
-        // trimmed is "<host>/<path>" — prepend scheme.
         let candidate = "https://\(trimmed)"
         return URL(string: candidate) ?? url
     }
 
-    /// Scans the document for `<link rel="amphtml" href="…">` and returns
-    /// the first such URL resolved against the base URL.  AMP pages have
-    /// mechanically cleaner markup that extracts better when the canonical
-    /// page is JS-heavy.
+    /// Returns the first `<link rel="amphtml">` URL resolved against baseURL.
     static func amphtmlURL(from html: String, baseURL: URL) -> URL? {
         guard let doc = try? SwiftSoup.parse(html, baseURL.absoluteString),
               let link = try? doc.select("link[rel=amphtml]").first(),
@@ -35,9 +29,7 @@ extension ArticleExtractor {
         return URL(string: href, relativeTo: baseURL)?.absoluteURL
     }
 
-    /// Treats `<amp-video>` and `<amp-youtube>` elements as regular `<video>`
-    /// and YouTube embeds by rewriting them in-place.  Call before
-    /// `promoteInlineEmbeds`.
+    /// Rewrites `<amp-*>` elements as their regular HTML counterparts. Call before `promoteInlineEmbeds`.
     static func normalizeAMPElements(in doc: Document) {
         if let ampYouTubes = try? doc.select("amp-youtube") {
             for element in ampYouTubes {

@@ -4,13 +4,7 @@ nonisolated extension PetalEngine {
 
     // MARK: - Flexible date parsing
 
-    /// Parses timestamps using a handful of common formats.
-    /// Falls back to `ISO8601DateFormatter` and the system-locale
-    /// date parsers so the builder doesn't need a date-format
-    /// picker for the most common cases.
-    ///
-    /// Package-internal because `PetalEngine+Parsing` calls it
-    /// from across the file boundary.
+    /// Parses timestamps using ISO8601 and a handful of common fallback formats.
     static func parseFlexibleDate(_ raw: String) -> Date? {
         if let iso = isoFormatter.date(from: raw) {
             return iso
@@ -28,13 +22,8 @@ nonisolated extension PetalEngine {
 
     // MARK: - Formatter caches
 
-    // `ISO8601DateFormatter` and `DateFormatter` have been
-    // documented as thread-safe for read-only use since iOS 7/11
-    // respectively, but Foundation has never marked them
-    // `Sendable`.  These caches are only ever read - the setup
-    // closures configure the formatters once at first access and
-    // nothing mutates them afterwards - so `nonisolated(unsafe)`
-    // is the correct Swift 6 escape hatch.
+    // Foundation date formatters are thread-safe for read-only use but not Sendable,
+    // so `nonisolated(unsafe)` is used since these caches are never mutated after setup.
 
     nonisolated(unsafe) static let isoFormatter: ISO8601DateFormatter = {
         let formatter = ISO8601DateFormatter()

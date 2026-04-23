@@ -274,7 +274,6 @@ struct ScrollExpandedArticleView: View { // swiftlint:disable:this type_body_len
     // MARK: - Extraction
 
     private func loadArticleText() async {
-        // Check cache first
         if let cached = try? DatabaseManager.shared.cachedArticleContent(for: article.id),
            !cached.isEmpty {
             extractedText = cached
@@ -347,7 +346,6 @@ struct ScrollExpandedArticleView: View { // swiftlint:disable:this type_body_len
                     response.targetText, for: article.id
                 )
             } catch {
-                // Translation failed; user can retry
             }
         } else {
             let source = extractedText ?? article.summary ?? ""
@@ -364,7 +362,6 @@ struct ScrollExpandedArticleView: View { // swiftlint:disable:this type_body_len
                     title: result.title, text: result.text, for: article.id
                 )
             } catch {
-                // Translation failed; user can retry
             }
         }
     }

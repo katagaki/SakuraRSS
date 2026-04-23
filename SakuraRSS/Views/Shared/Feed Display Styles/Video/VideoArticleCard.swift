@@ -27,7 +27,6 @@ struct VideoArticleCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            // Thumbnail
             if let imageURL = article.imageURL, let url = URL(string: imageURL) {
                 Color.clear
                     .aspectRatio(16 / 9, contentMode: .fit)
@@ -44,7 +43,6 @@ struct VideoArticleCard: View {
                     .aspectRatio(16 / 9, contentMode: .fit)
             }
 
-            // Channel avatar + title + metadata
             HStack(alignment: .top, spacing: 12) {
                 if let feed, let navigateToFeed {
                     Button { navigateToFeed(feed) } label: { feedAvatarView }

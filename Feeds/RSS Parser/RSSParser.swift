@@ -238,15 +238,12 @@ nonisolated final class RSSParser: NSObject, XMLParserDelegate, @unchecked Senda
     // MARK: - Image Resolution
 
     private func resolveImageURL() -> String? {
-        // Prefer explicitly tagged image from feed elements
         if !currentImageURL.isEmpty {
             return currentImageURL
         }
-        // Try extracting from content:encoded (usually has full article HTML)
         if !currentContent.isEmpty, let url = extractImageFromHTML(currentContent) {
             return url
         }
-        // Try extracting from description/summary
         if !currentDescription.isEmpty, let url = extractImageFromHTML(currentDescription) {
             return url
         }

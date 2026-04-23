@@ -59,8 +59,7 @@ final class WebViewExtractor: NSObject, WKNavigationDelegate {
     // MARK: - WKNavigationDelegate
 
     func webView(_: WKWebView, didFinish _: WKNavigation!) {
-        // Page loaded successfully - cancel the load timeout
-        // and give JS frameworks time to hydrate before extracting
+        // Give JS frameworks time to hydrate before snapshotting.
         timeoutTask?.cancel()
         timeoutTask = nil
         Task {
@@ -95,7 +94,6 @@ final class WebViewExtractor: NSObject, WKNavigationDelegate {
     (function() {
         document.querySelectorAll('.sosumi').forEach(el => el.remove());
 
-        // Dismiss common consent banners / modals before snapshotting.
         const consentSelectors = [
             '#onetrust-banner-sdk', '#onetrust-consent-sdk',
             '.osano-cm-window', '.qc-cmp2-container',
@@ -117,7 +115,7 @@ final class WebViewExtractor: NSObject, WKNavigationDelegate {
             } catch (_) {}
         }
 
-        // Defeat scroll locks some consent overlays leave behind.
+        // Some consent overlays leave scroll locks on <html>/<body>.
         try {
             document.documentElement.style.overflow = 'auto';
             document.body.style.overflow = 'auto';

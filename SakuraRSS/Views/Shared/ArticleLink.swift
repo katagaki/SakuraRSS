@@ -1,9 +1,6 @@
 import SwiftUI
 
-/// A navigation component that routes article taps based on the per-feed open mode
-/// (in-app viewer, Safari, SVC, SVC reader mode, Clear This Page, archive.today, or YouTube app).
-/// On iPad with a split view, articles that would normally push onto a NavigationStack
-/// are instead shown in the detail column via the `iPadArticleSelection` environment binding.
+/// Routes article taps based on the per-feed open mode; iPad splits route to the detail column.
 struct ArticleLink<Label: View>: View {
 
     @Environment(FeedManager.self) var feedManager
@@ -35,8 +32,6 @@ struct ArticleLink<Label: View>: View {
         feedManager.feed(forArticle: article)?.isInstagramFeed == true
     }
 
-    /// Whether this article should navigate to the iPad detail column
-    /// instead of pushing onto the NavigationStack.
     private var usesIPadDetailColumn: Bool {
         iPadArticleSelection != nil
     }

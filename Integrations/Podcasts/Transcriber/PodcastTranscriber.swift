@@ -1,13 +1,8 @@
 import Foundation
 
-/// Central dispatcher for podcast transcription.
-///
-/// Reads the user's "transcription enabled" preference from UserDefaults and
-/// delegates to the FluidAudio Parakeet engine. Skips transcription if the
-/// toggle is off or the model hasn't finished downloading.
+/// Dispatcher that gates transcription on user opt-in and model availability.
 enum PodcastTranscriber {
 
-    /// UserDefaults key for the Parakeet-on-off toggle.
     static let enabledKey = "Podcast.TranscriptionEnabled"
 
     static var isEnabled: Bool {
@@ -18,7 +13,6 @@ enum PodcastTranscriber {
 
     // MARK: - Public API
 
-    /// Whether transcription is enabled and the Parakeet model is downloaded.
     static var isAvailable: Bool {
         get async {
             guard isEnabled else { return false }
@@ -27,7 +21,6 @@ enum PodcastTranscriber {
         }
     }
 
-    /// Transcribes a local audio file using the Parakeet engine.
     static func transcribe(audioFileURL: URL, title: String) async throws -> [TranscriptSegment] {
         guard isEnabled else {
             throw TranscriptionEngineError.notAvailable

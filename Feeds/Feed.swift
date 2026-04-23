@@ -13,9 +13,7 @@ nonisolated struct Feed: Identifiable, Hashable, Sendable {
     var isMuted: Bool
     var customIconURL: String?
     var acronymIcon: Data?
-    /// `true` when the user has manually edited the feed's title.
-    /// Refreshes must not overwrite a customized title with whatever the
-    /// remote feed currently advertises.
+    /// `true` when the user has manually edited the feed's title; refreshes must not overwrite it.
     var isTitleCustomized: Bool
 
     var domain: String {
@@ -79,7 +77,6 @@ nonisolated struct Feed: Identifiable, Hashable, Sendable {
         isXFeed || isInstagramFeed || isYouTubePlaylistFeed || PetalRecipe.isPetalFeedURL(url)
     }
 
-    /// The feed category section for grouped display.
     var feedSection: FeedSection {
         if isPodcast { return .audio }
         if isVideoFeed { return .video }
@@ -87,7 +84,7 @@ nonisolated struct Feed: Identifiable, Hashable, Sendable {
         return .news
     }
 
-    /// Detects Mastodon feeds from unlisted instances by checking for the /@username.rss URL pattern.
+    /// Detects unlisted Mastodon instances via the /@username.rss URL pattern.
     private var hasMastodonFeedURL: Bool {
         guard let urlObj = URL(string: url) else { return false }
         let path = urlObj.path

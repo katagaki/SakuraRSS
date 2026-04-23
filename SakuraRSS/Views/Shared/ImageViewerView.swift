@@ -41,7 +41,6 @@ private class LayoutAwareScrollView: UIScrollView {
             imageView.frame = CGRect(origin: .zero, size: fitSize)
             contentSize = fitSize
         }
-        // Center the image within the scroll view bounds
         let offsetX = max((bounds.width - contentSize.width) / 2, 0)
         let offsetY = max((bounds.height - contentSize.height) / 2, 0)
         imageView.frame.origin = CGPoint(x: offsetX, y: offsetY)

@@ -122,18 +122,13 @@ nonisolated final class DatabaseManager: @unchecked Sendable {
     }
 
     /// Replaces the current database connection and re-creates tables.
-    /// Used after restoring a backup file to the database path.
     func reconnect() throws {
         database = try Connection(Self.databasePath)
         try Self.applyConnectionPragmas(database)
         try createTables()
     }
 
-    /// Switches the connection to WAL mode and raises the busy timeout so
-    /// main-thread reads from view bodies don't stall while background
-    /// NLP or refresh tasks hold a write transaction. Rollback-journal
-    /// mode locks the whole file; WAL lets readers progress concurrently
-    /// with a single writer, which is the access pattern this app has.
+    /// Enables WAL mode and raises busy timeout so reads don't stall behind writes.
     private static func applyConnectionPragmas(_ connection: Connection) throws {
         try connection.run("PRAGMA journal_mode = WAL")
         try connection.run("PRAGMA synchronous = NORMAL")
@@ -149,10 +144,7 @@ nonisolated final class DatabaseManager: @unchecked Sendable {
         }
     }
 
-    /// Collapses the legacy `Intelligence.SimilarContent.Enabled` /
-    /// `Intelligence.TopicsPeople.Enabled` toggles into a single
-    /// `Intelligence.ContentInsights.Enabled` key. Runs exactly once per
-    /// install, tracked by `Intelligence.ContentInsights.Migrated`.
+    /// Collapses legacy intelligence toggles into `Intelligence.ContentInsights.Enabled`.
     private func migrateContentInsightsToggle() {
         let defaults = UserDefaults.standard
         let migratedKey = "Intelligence.ContentInsights.Migrated"
@@ -167,14 +159,7 @@ nonisolated final class DatabaseManager: @unchecked Sendable {
         defaults.set(true, forKey: migratedKey)
     }
 
-    /// Bumps the similar-content algorithm version and wipes the cache the
-    /// first time the app launches under a newer ranker. Deferred to a
-    /// background task so the rewrite (which scans every article row)
-    /// doesn't block the DB connection during cold launch — the old
-    /// v1 rankings stay visible to the user for a few seconds longer,
-    /// which is better than a frozen first-launch screen.  The version
-    /// stamp is written eagerly so a crash between the bump and the
-    /// wipe still lets the next launch finish the job.
+    /// Bumps the similar-content algorithm version and wipes the cache on upgrade.
     private func invalidateStaleSimilarContentCache() {
         let key = "Intelligence.SimilarContent.AlgorithmVersion"
         let current = 2   // v1: embedding-only; v2: hybrid embedding + entity Jaccard

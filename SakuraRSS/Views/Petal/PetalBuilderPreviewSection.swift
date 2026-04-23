@@ -1,10 +1,6 @@
 import SwiftUI
 
-/// "Preview" section of the Web Feed builder: shows what the
-/// current recipe would produce if saved, or a prompt telling
-/// the user to fetch the page first.
-///
-/// All state flows in via the parent; this view is pure.
+/// "Preview" section of the Web Feed builder showing matched articles.
 struct PetalBuilderPreviewSection: View {
 
     let articles: [ParsedArticle]
@@ -19,8 +15,6 @@ struct PetalBuilderPreviewSection: View {
             header
         }
     }
-
-    // MARK: - Body branches
 
     @ViewBuilder
     private var contentBody: some View {
@@ -53,9 +47,6 @@ struct PetalBuilderPreviewSection: View {
     }
 }
 
-/// A single preview row showing a matched article's title, URL,
-/// and summary - extracted so the parent `PetalBuilderPreviewSection`
-/// stays focused on branching between its empty/error states.
 private struct PetalBuilderPreviewRow: View {
 
     let article: ParsedArticle

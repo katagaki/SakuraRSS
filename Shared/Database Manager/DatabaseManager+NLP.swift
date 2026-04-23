@@ -22,10 +22,7 @@ nonisolated extension DatabaseManager {
         try database.run(target.update(articleEntitiesProcessed <- true))
     }
 
-    /// Returns articles that still need either sentiment or entity
-    /// extraction, flagging which passes are outstanding for each one.
-    /// Callers fetch each article at most once and run only the tagger(s)
-    /// that are still outstanding, instead of doing two separate scans.
+    /// An article pending sentiment or entity extraction, with per-pass flags.
     struct UnprocessedNLPArticle: Sendable {
         let id: Int64
         let needsSentiment: Bool
@@ -74,9 +71,7 @@ nonisolated extension DatabaseManager {
         }
     }
 
-    /// Batch-fetches entities for many article IDs in a single query, returning
-    /// a map of article ID → lowercased entity-name set. Used by the hybrid
-    /// similarity ranker so we don't fire N single-row queries.
+    /// Batch-fetches entities for many article IDs as a map of id to lowercased name set.
     func entities(forArticleIDs ids: [Int64]) throws -> [Int64: Set<String>] {
         guard !ids.isEmpty else { return [:] }
         let placeholders = ids.map { _ in "?" }.joined(separator: ", ")
@@ -242,11 +237,9 @@ nonisolated extension DatabaseManager {
         forSourceID sourceID: Int64
     ) throws {
         try database.transaction {
-            // Clear any existing cache for this source
             try database.run(
                 similarArticles.filter(similarSourceID == sourceID).delete()
             )
-            // Insert new entries
             for (index, match) in matches.enumerated() {
                 try database.run(similarArticles.insert(
                     similarSourceID <- sourceID,
@@ -255,7 +248,7 @@ nonisolated extension DatabaseManager {
                     similarRank <- index
                 ))
             }
-            // Mark source as computed (even if matches is empty)
+            // Mark source as computed even when matches is empty.
             try database.run(
                 articles.filter(articleID == sourceID)
                     .update(articleSimilarComputed <- true)
@@ -263,9 +256,7 @@ nonisolated extension DatabaseManager {
         }
     }
 
-    /// Wipes every cached similar-article match and resets the per-article
-    /// `similar_computed` flag. Used on algorithm-version bumps so the next
-    /// article open recomputes under the new scoring.
+    /// Wipes every cached similar-article match and resets `similar_computed`.
     func invalidateSimilarContentCache() throws {
         try database.transaction {
             try database.run(similarArticles.delete())

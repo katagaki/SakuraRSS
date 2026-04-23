@@ -6,8 +6,7 @@ struct TranscriptView: View {
     let currentTime: TimeInterval
     let isPlaying: Bool
     let onSeek: (TimeInterval) -> Void
-    /// Proxy for the enclosing scroll view. Required so the transcript can
-    /// auto-follow without nesting its own ScrollView inside the parent's.
+    /// Proxy from the enclosing scroll view; required so auto-follow doesn't nest scroll views.
     let scrollProxy: ScrollViewProxy
     @Binding var isAutoScrolling: Bool
 
@@ -15,7 +14,6 @@ struct TranscriptView: View {
 
     private var activeSegmentID: Int? {
         guard !segments.isEmpty else { return nil }
-        // Binary search for the latest segment whose start is <= currentTime.
         var low = 0
         var high = segments.count - 1
         var result: Int?
@@ -32,9 +30,6 @@ struct TranscriptView: View {
     }
 
     var body: some View {
-        // Render segments as a readable list of tappable lines. Each segment
-        // is tappable to seek, and the active segment is emphasized with
-        // weight + color.
         LazyVStack(alignment: .leading, spacing: 10) {
             ForEach(segments) { segment in
                 segmentText(segment)

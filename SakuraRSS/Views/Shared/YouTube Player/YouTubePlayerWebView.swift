@@ -30,12 +30,7 @@ struct YouTubePlayerWebView: UIViewRepresentable {
     }
 
     func makeUIView(context: Context) -> WKWebView {
-        // Configure the audio session for background-capable playback before
-        // the web view has a chance to start loading - so the video decoder
-        // picks up the `.playback`/`.moviePlayback` category from the very
-        // first frame. Without this, the video starts under whatever
-        // category is active, and briefly pauses on background until the
-        // scene-phase handler re-activates the session.
+        // Configure audio session before load so the decoder picks up `.playback` from the first frame.
         let session = AVAudioSession.sharedInstance()
         try? session.setCategory(.playback, mode: .moviePlayback)
         try? session.setActive(true)
@@ -97,10 +92,7 @@ struct YouTubePlayerWebView: UIViewRepresentable {
 
     func updateUIView(_ uiView: WKWebView, context: Context) {}
 
-    /// Rewrites Shorts URLs to the regular watch URL so the WebView loads
-    /// the standard player layout instead of the mobile Shorts UI, which
-    /// renders a separate canvas and a stack of overlays we can't reliably
-    /// hide.
+    /// Rewrites Shorts URLs to the regular watch URL so the WebView uses the standard player.
     static func normalizedURL(_ url: URL) -> URL {
         let path = url.path
         guard path.hasPrefix("/shorts/") else { return url }

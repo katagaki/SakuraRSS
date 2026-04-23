@@ -13,7 +13,6 @@ final class FeedManager {
     var nlpTotal: Int = 0
     var nlpCompleted: Int = 0
 
-    /// Donut progress: feed refresh 0–80%, NLP processing 80–100%.
     var refreshProgress: Double {
         let hasRefresh = refreshTotal > 0
         let hasNLP = nlpTotal > 0
@@ -32,21 +31,16 @@ final class FeedManager {
     }
     private(set) var dataRevision: Int = 0
     private(set) var faviconRevision: Int = 0
-    /// Bumped when any feed refresh completes so views can flush any
-    /// staged UI state (e.g. the mark-as-read staging buffer) on refresh.
     private(set) var refreshRevision: Int = 0
     private(set) var unreadCounts: [Int64: Int] = [:]
     private(set) var feedsByID: [Int64: Feed] = [:]
 
-    /// Article IDs whose read state has been applied to the in-memory
-    /// `articles` array but not yet persisted to SQLite. Flushed in a
-    /// single detached task once scrolling settles.
+    /// Pending read-state flushes to SQLite; committed once scrolling settles.
     @ObservationIgnored var pendingReadIDs: Set<Int64> = []
     @ObservationIgnored var debouncedReadFlushTask: Task<Void, Never>?
     @ObservationIgnored var refreshTask: Task<Void, Never>?
 
-    /// Scroll state used to defer mark-as-read commits while the user
-    /// is scrolling fast. Updated by `TrackScrollActivityModifier`.
+    /// Scroll state used to defer mark-as-read commits during fast scroll.
     @ObservationIgnored var currentScrollPhase: ScrollPhase = .idle
     @ObservationIgnored var currentScrollVelocity: CGFloat = 0
     @ObservationIgnored var lastScrollOffset: CGFloat = 0
@@ -101,7 +95,6 @@ final class FeedManager {
         }
     }
 
-    /// Notify the UI that favicons may have changed so views re-fetch them.
     func notifyFaviconChange() {
         faviconRevision += 1
     }
@@ -112,8 +105,7 @@ final class FeedManager {
         }
     }
 
-    /// Applies per-feed decrement deltas in a single mutation so observers
-    /// only receive one notification for the batch.
+    /// Applies per-feed decrement deltas in a single mutation.
     func applyUnreadDecrements(_ decrements: [Int64: Int]) {
         guard !decrements.isEmpty else { return }
         var newCounts = unreadCounts
