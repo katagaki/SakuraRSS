@@ -22,10 +22,8 @@ extension RedditListingScraper {
         return RedditListingScrapeResult(imagesByPostID: map)
     }
 
-    /// Picks the highest-quality still image that Reddit exposes for a post.
-    /// Prefers the full-resolution preview, then gallery metadata, then the
-    /// thumbnail field if it happens to be a URL rather than a placeholder
-    /// sentinel like `self` / `default` / `nsfw`.
+    /// Best still image for a post: preview source, then gallery, then
+    /// the `thumbnail` field if it's an actual URL.
     static func bestImageURL(from post: [String: Any]) -> String? {
         if let url = previewImageURL(from: post) {
             return url

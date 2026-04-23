@@ -2,9 +2,8 @@ import Foundation
 
 extension FeedManager {
 
-    /// Fetches a subreddit's listing JSON once and returns a post-ID → image
-    /// URL map used to populate `imageURL` for articles whose RSS entry
-    /// didn't ship a usable thumbnail.
+    /// Fetches one subreddit listing and returns a post-ID → image URL
+    /// map used to backfill articles whose RSS entry lacks a thumbnail.
     nonisolated static func backfillRedditImages(
         forFeedURL feedURL: String
     ) async -> [String: String] {
@@ -16,9 +15,7 @@ extension FeedManager {
         return result.imagesByPostID
     }
 
-    /// Resolves the Reddit post ID from an article URL and looks it up in the
-    /// listing-image map, returning `nil` when the URL isn't a Reddit comment
-    /// link or the post wasn't in the listing window.
+    /// Looks up the listing-image URL for an article by its Reddit post ID.
     nonisolated static func redditImageURL(
         for articleURL: String, in map: [String: String]
     ) -> String? {

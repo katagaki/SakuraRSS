@@ -1,8 +1,7 @@
 import SwiftUI
 
 /// Marks an article as read once the user has seen it on screen and then
-/// scrolled it past the top of the list. Driven by the
-/// `Display.ScrollMarkAsRead` setting.
+/// scrolled it past the top of the list.
 struct MarkReadOnScrollModifier: ViewModifier {
 
     @Environment(FeedManager.self) private var feedManager
@@ -35,10 +34,8 @@ struct MarkReadOnScrollModifier: ViewModifier {
             }
     }
 
-    /// Driven from both callbacks: either the visibility change lands
-    /// first (nav bar clips the row before its frame crosses y=0) or the
-    /// geometry change does (fast scroll past y=0 before the visibility
-    /// sampler catches up). Whichever update completes the pair triggers.
+    /// Driven from both callbacks so whichever of the visibility and
+    /// geometry updates lands second commits the queue.
     private func tryQueueRead() {
         guard scrollMarkAsRead,
               hasBeenVisible,

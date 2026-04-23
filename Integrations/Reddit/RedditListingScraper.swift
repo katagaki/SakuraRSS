@@ -1,15 +1,12 @@
 import Foundation
 
-/// Result of scraping a subreddit's `/r/<sub>/new.json` listing for per-post
-/// image URLs.  Keyed by Reddit post ID (e.g. `1abcdef`).
+/// Image URLs for a subreddit's recent posts, keyed by Reddit post ID.
 struct RedditListingScrapeResult: Sendable {
     let imagesByPostID: [String: String]
 }
 
-/// Fetches a subreddit's public listing and extracts a best-available image
-/// URL for each post.  Reddit's Atom feed often omits thumbnails entirely or
-/// ships small `b.thumbs.redditmedia.com` URLs that 403 without a Referer
-/// header, so one listing call backfills all posts for the current refresh.
+/// Fetches `/r/<sub>/new.json` and extracts a best-available image URL
+/// per post so RSS entries without a usable thumbnail can be backfilled.
 final class RedditListingScraper: @unchecked Sendable {
 
     static let shared = RedditListingScraper()
