@@ -13,7 +13,6 @@ struct PhotosArticleCard: View {
     @State private var imageAspectRatio: CGFloat?
     @State private var feed: Feed?
     @State private var currentPage: Int = 0
-    @State private var hideImage = false
 
     @ViewBuilder
     private var feedAvatarView: some View {
@@ -127,45 +126,35 @@ struct PhotosArticleCard: View {
                     }
                     .padding(.bottom, 10)
                 }
-            } else if !hideImage, let imageURL = article.imageURL, let url = URL(string: imageURL) {
+            } else if let photoImage, article.imageURL != nil {
                 let effectiveRatio = max(imageAspectRatio ?? 4.0/5.0, 4.0/5.0)
-                CachedAsyncImage(url: url) {
-                    Rectangle()
-                        .fill(.secondary.opacity(0.1))
-                        .aspectRatio(4.0/5.0, contentMode: .fit)
-                }
-                .aspectRatio(effectiveRatio, contentMode: .fit)
-                .frame(maxWidth: .infinity)
-                .clipped()
-                .allowsHitTesting(false)
-                .overlay {
-                    if article.url.contains("/reel/") {
-                        ArticleLink(article: article, onShowYouTubePlayer: {
-                            youTubeArticle = $0
-                        }, label: {
-                            Image(systemName: "play.fill")
-                                .font(.title)
-                                .foregroundStyle(.primary)
-                                .padding(16)
-                                .background(.ultraThinMaterial, in: .circle)
-                                .glassEffect(.regular.interactive(), in: .circle)
-                        })
-                        .buttonStyle(.plain)
+                Color.clear
+                    .aspectRatio(effectiveRatio, contentMode: .fit)
+                    .overlay {
+                        Image(uiImage: photoImage)
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
                     }
-                }
-                .task {
-                    let loaded = await CachedAsyncImage<EmptyView>.loadImage(from: url)
-                    photoImage = loaded
-                    if let loaded, loaded.size.height > 0 {
-                        imageAspectRatio = loaded.size.width / loaded.size.height
-                        let pixelWidth = loaded.size.width * loaded.scale
-                        let pixelHeight = loaded.size.height * loaded.scale
-                        if pixelWidth <= 100 && pixelHeight <= 100 {
-                            hideImage = true
+                    .frame(maxWidth: .infinity)
+                    .clipped()
+                    .allowsHitTesting(false)
+                    .overlay {
+                        if article.url.contains("/reel/") {
+                            ArticleLink(article: article, onShowYouTubePlayer: {
+                                youTubeArticle = $0
+                            }, label: {
+                                Image(systemName: "play.fill")
+                                    .font(.title)
+                                    .foregroundStyle(.primary)
+                                    .padding(16)
+                                    .background(.ultraThinMaterial, in: .circle)
+                                    .glassEffect(.regular.interactive(), in: .circle)
+                            })
+                            .buttonStyle(.plain)
                         }
                     }
-                }
-                .padding(.bottom, 10)
+                    .padding(.bottom, 10)
+                    .transition(.opacity)
             }
 
             // Article caption / title (tapping opens the article)
@@ -251,6 +240,21 @@ struct PhotosArticleCard: View {
                 skipFaviconInset = loadedFeed.isVideoFeed || loadedFeed.isXFeed || loadedFeed.isInstagramFeed
                     || FaviconNoInsetDomains.shouldUseFullImage(feedDomain: loadedFeed.domain)
                 favicon = await FaviconCache.shared.favicon(for: loadedFeed)
+            }
+        }
+        .task(id: article.imageURL) {
+            guard article.carouselImageURLs.count <= 1,
+                  let imageURL = article.imageURL,
+                  let url = URL(string: imageURL) else { return }
+            let loaded = await CachedAsyncImage<EmptyView>.loadImage(from: url)
+            guard !Task.isCancelled, let loaded, loaded.size.height > 0 else { return }
+            let pixelWidth = loaded.size.width * loaded.scale
+            let pixelHeight = loaded.size.height * loaded.scale
+            guard pixelWidth > 100 || pixelHeight > 100 else { return }
+            let aspect = loaded.size.width / loaded.size.height
+            withAnimation(.easeOut(duration: 0.2)) {
+                imageAspectRatio = aspect
+                photoImage = loaded
             }
         }
     }

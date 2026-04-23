@@ -12,7 +12,7 @@ struct CardView: View {
     @State private var hasPassedThreshold = false
     @State private var isDismissing = false
     @State private var favicon: UIImage?
-    @State private var hideImage = false
+    @State private var cardImage: UIImage?
     @State private var shouldCenterImage = false
 
     private var rotation: Double {
@@ -37,37 +37,25 @@ struct CardView: View {
         return String(localized: "Cards.ReadLater", table: "Articles")
     }
 
-    private var hasArticleImage: Bool {
-        article.imageURL != nil && !hideImage
-    }
-
     var body: some View {
         GeometryReader { geometry in
             ZStack(alignment: .bottomLeading) {
-                if hasArticleImage {
-                    // Background image
-                    if let imageURL = article.imageURL, let url = URL(string: imageURL) {
-                        CachedAsyncImage(url: url, alignment: shouldCenterImage ? .center : .top, onImageLoaded: { image in
-                            let pixelWidth = image.size.width * image.scale
-                            let pixelHeight = image.size.height * image.scale
-                            if pixelWidth <= 100 && pixelHeight <= 100 {
-                                hideImage = true
-                            }
-                        }) {
-                            Rectangle()
-                                .fill(.secondary.opacity(0.2))
+                faviconCardBackground(geometry: geometry)
+
+                if let cardImage {
+                    Color.clear
+                        .overlay(alignment: shouldCenterImage ? .center : .top) {
+                            Image(uiImage: cardImage)
+                                .resizable()
+                                .aspectRatio(contentMode: .fill)
                         }
                         .frame(width: geometry.size.width, height: geometry.size.height)
                         .clipped()
-                    }
+                        .transition(.opacity)
 
-                    // Progressive blur over the bottom portion of the card
                     ProgressiveBlurView()
                         .frame(height: geometry.size.height * 0.5)
                         .frame(maxHeight: .infinity, alignment: .bottom)
-                } else {
-                    // Favicon-based card background
-                    faviconCardBackground(geometry: geometry)
                 }
 
                 // Swipe indicator overlays
@@ -119,6 +107,17 @@ struct CardView: View {
             if let feed = feedManager.feed(forArticle: article) {
                 shouldCenterImage = CenteredImageDomains.shouldCenterImage(feedDomain: feed.domain)
                 favicon = await FaviconCache.shared.favicon(for: feed)
+            }
+        }
+        .task(id: article.imageURL) {
+            guard let imageURL = article.imageURL, let url = URL(string: imageURL) else { return }
+            let image = await CachedAsyncImage<EmptyView>.loadImage(from: url)
+            guard !Task.isCancelled, let image else { return }
+            let pixelWidth = image.size.width * image.scale
+            let pixelHeight = image.size.height * image.scale
+            guard pixelWidth > 100 || pixelHeight > 100 else { return }
+            withAnimation(.easeOut(duration: 0.3)) {
+                cardImage = image
             }
         }
     }
