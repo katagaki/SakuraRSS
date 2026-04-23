@@ -81,6 +81,7 @@ struct VideoStyleView: View {
                     .padding(.bottom)
             }
         }
+        .trackScrollActivity()
         .navigationDestination(item: $youTubePlayerArticle) { article in
             YouTubePlayerView(article: article)
                 .zoomTransition(sourceID: article.id, in: zoomNamespace)

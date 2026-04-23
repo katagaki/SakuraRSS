@@ -58,6 +58,7 @@ struct GridStyleView: View {
                     .padding(.vertical, 12)
             }
         }
+        .trackScrollActivity()
         .navigationDestination(item: $youTubeArticle) { article in
             YouTubePlayerView(article: article)
                 .zoomTransition(sourceID: article.id, in: zoomNamespace)

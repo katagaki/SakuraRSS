@@ -45,6 +45,13 @@ final class FeedManager {
     @ObservationIgnored var debouncedReadFlushTask: Task<Void, Never>?
     @ObservationIgnored var refreshTask: Task<Void, Never>?
 
+    /// Scroll state used to defer mark-as-read commits while the user
+    /// is scrolling fast. Updated by `TrackScrollActivityModifier`.
+    @ObservationIgnored var currentScrollPhase: ScrollPhase = .idle
+    @ObservationIgnored var currentScrollVelocity: CGFloat = 0
+    @ObservationIgnored var lastScrollOffset: CGFloat = 0
+    @ObservationIgnored var lastScrollSampleTime: CFTimeInterval = 0
+
     let database = DatabaseManager.shared
 
     init() {

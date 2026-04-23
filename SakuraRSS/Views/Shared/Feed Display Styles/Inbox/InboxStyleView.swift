@@ -50,6 +50,7 @@ struct InboxStyleView: View {
             }
         }
         .listStyle(.plain)
+        .trackScrollActivity()
         .navigationLinkIndicatorVisibility(.hidden)
         .navigationDestination(item: $youTubeArticle) { article in
             YouTubePlayerView(article: article)

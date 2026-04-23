@@ -61,6 +61,7 @@ struct MagazineStyleView: View {
             .padding(.bottom)
         }
         .animation(.smooth.speed(2.0), value: articles)
+        .trackScrollActivity()
         .navigationDestination(item: $youTubeArticle) { article in
             YouTubePlayerView(article: article)
                 .zoomTransition(sourceID: article.id, in: zoomNamespace)

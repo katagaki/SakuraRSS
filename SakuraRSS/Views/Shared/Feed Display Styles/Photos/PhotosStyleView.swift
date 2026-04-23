@@ -23,6 +23,7 @@ struct PhotosStyleView: View {
                 }
             }
         }
+        .trackScrollActivity()
         .navigationDestination(item: $youTubeArticle) { article in
             YouTubePlayerView(article: article)
                 .zoomTransition(sourceID: article.id, in: zoomNamespace)
