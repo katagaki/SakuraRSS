@@ -3,8 +3,8 @@ import Foundation
 extension FeedManager {
 
     /// Fetches one subreddit listing and returns a post-ID → image URL
-    /// map used to backfill articles whose RSS entry lacks a thumbnail.
-    nonisolated static func backfillRedditImages(
+    /// map for articles whose RSS entry lacks a thumbnail.
+    nonisolated static func fetchRedditImages(
         forFeedURL feedURL: String
     ) async -> [String: String] {
         guard let url = URL(string: feedURL),

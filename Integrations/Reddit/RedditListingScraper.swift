@@ -6,7 +6,7 @@ struct RedditListingScrapeResult: Sendable {
 }
 
 /// Fetches `/r/<sub>/new.json` and extracts a best-available image URL
-/// per post so RSS entries without a usable thumbnail can be backfilled.
+/// per post so RSS entries without a usable thumbnail can be filled in.
 final class RedditListingScraper: @unchecked Sendable {
 
     static let shared = RedditListingScraper()
