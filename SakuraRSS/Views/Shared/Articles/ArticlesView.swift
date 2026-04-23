@@ -35,8 +35,6 @@ struct ArticlesView: View {
     @Environment(\.hidesMarkAllReadToolbar) private var hidesMarkAllReadToolbar
     @State private var displayStyle: FeedDisplayStyle
     @State private var isShowingMarkAllReadConfirmation = false
-    @State private var stagedReadIDs: Set<Int64> = []
-    @State private var didStageInitial = false
     @AppStorage("Display.MarkAllReadPosition") private var markAllReadPosition: MarkAllReadPosition = .bottom
     private let viewStyleSwitcherTip = ViewStyleSwitcherTip()
 
@@ -96,27 +94,12 @@ struct ArticlesView: View {
         self._displayStyle = State(initialValue: raw.flatMap(FeedDisplayStyle.init(rawValue:)) ?? fallback)
     }
 
-    private var stagingSupported: Bool {
-        let style = effectiveDisplayStyle
-        return style == .inbox || style == .magazine || style == .compact
-            || style == .feed || style == .feedCompact
-    }
-
-    private var hasHiddenReadArticles: Bool {
-        articles.contains { $0.isRead && !stagedReadIDs.contains($0.id) }
-    }
-
-    private var visibleArticles: [Article] {
-        guard stagingSupported else { return articles }
-        return articles.filter { !$0.isRead || stagedReadIDs.contains($0.id) }
-    }
-
     var body: some View {
         let effectiveStyle = effectiveDisplayStyle
         Group {
             DisplayStyleContentView(
                 style: effectiveStyle,
-                articles: visibleArticles,
+                articles: articles,
                 onLoadMore: onLoadMore,
                 onRefresh: onRefresh
             )
@@ -172,29 +155,6 @@ struct ArticlesView: View {
                         showVideo: isVideoFeed,
                         showPodcast: isPodcastFeed || hasAudioArticles
                     )
-                    if stagingSupported {
-                        Section {
-                            Button {
-                                hideViewedContent()
-                            } label: {
-                                Label(
-                                    String(localized: "HideViewedContent", table: "Articles"),
-                                    systemImage: "eye.slash"
-                                )
-                            }
-                            .disabled(stagedReadIDs.isEmpty)
-
-                            Button {
-                                showViewedContent()
-                            } label: {
-                                Label(
-                                    String(localized: "ShowViewedContent", table: "Articles"),
-                                    systemImage: "eye"
-                                )
-                            }
-                            .disabled(!hasHiddenReadArticles)
-                        }
-                    }
                 } label: {
                     Image(systemName: "line.3.horizontal.decrease")
                 }
@@ -203,29 +163,6 @@ struct ArticlesView: View {
             }
         }
         .animation(.smooth.speed(2.0), value: displayStyle)
-        .animation(.smooth.speed(2.0), value: stagedReadIDs)
-        .onAppear {
-            if !didStageInitial {
-                stagedReadIDs = Set(articles.filter { $0.isRead }.map(\.id))
-                didStageInitial = true
-            }
-        }
-        .onChange(of: articles) { oldValue, newValue in
-            // Stage flipped-read articles so they don't vanish under the user's finger.
-            let previouslyRead = Set(oldValue.filter { $0.isRead }.map(\.id))
-            let currentlyRead = Set(newValue.filter { $0.isRead }.map(\.id))
-            let newlyRead = currentlyRead.subtracting(previouslyRead)
-            if !newlyRead.isEmpty {
-                stagedReadIDs.formUnion(newlyRead)
-            }
-            let currentIDs = Set(newValue.map(\.id))
-            stagedReadIDs.formIntersection(currentIDs)
-        }
-        .onChange(of: feedManager.refreshRevision) { _, _ in
-            withAnimation(.smooth.speed(2.0)) {
-                stagedReadIDs.removeAll()
-            }
-        }
         .onChange(of: displayStyle) { _, newValue in
             UserDefaults.standard.set(newValue.rawValue, forKey: "Display.Style.\(feedKey)")
         }
@@ -253,35 +190,14 @@ struct ArticlesView: View {
             displayStyle = raw.flatMap(FeedDisplayStyle.init(rawValue:)) ?? fallback
         }
         .overlay {
-            if effectiveStyle != .scroll {
-                if articles.isEmpty {
-                    ContentUnavailableView {
-                        Label(String(localized: "Empty.Title", table: "Articles"),
-                              systemImage: "doc.text")
-                    } description: {
-                        Text(String(localized: "Empty.Description", table: "Articles"))
-                    }
-                } else if visibleArticles.isEmpty && stagingSupported {
-                    ContentUnavailableView {
-                        Label(String(localized: "AllRead.Title", table: "Articles"),
-                              systemImage: "checkmark.circle")
-                    } description: {
-                        Text(String(localized: "AllRead.Description", table: "Articles"))
-                    }
+            if effectiveStyle != .scroll, articles.isEmpty {
+                ContentUnavailableView {
+                    Label(String(localized: "Empty.Title", table: "Articles"),
+                          systemImage: "doc.text")
+                } description: {
+                    Text(String(localized: "Empty.Description", table: "Articles"))
                 }
             }
-        }
-    }
-
-    private func hideViewedContent() {
-        withAnimation(.smooth.speed(2.0)) {
-            stagedReadIDs.removeAll()
-        }
-    }
-
-    private func showViewedContent() {
-        withAnimation(.smooth.speed(2.0)) {
-            stagedReadIDs = Set(articles.filter { $0.isRead }.map(\.id))
         }
     }
 

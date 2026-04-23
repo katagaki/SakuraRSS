@@ -31,7 +31,6 @@ final class FeedManager {
     }
     private(set) var dataRevision: Int = 0
     private(set) var faviconRevision: Int = 0
-    private(set) var refreshRevision: Int = 0
     private(set) var unreadCounts: [Int64: Int] = [:]
     private(set) var feedsByID: [Int64: Feed] = [:]
 
@@ -119,10 +118,6 @@ final class FeedManager {
 
     func bumpDataRevision() {
         dataRevision += 1
-    }
-
-    func bumpRefreshRevision() {
-        refreshRevision += 1
     }
 
 }

@@ -64,7 +64,6 @@ extension FeedManager {
 
         if reloadData {
             await loadFromDatabaseInBackground(animated: true)
-            await MainActor.run { self.bumpRefreshRevision() }
         }
     }
 

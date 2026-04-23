@@ -116,7 +116,6 @@ extension FeedManager {
         }.value
         if reloadData {
             await loadFromDatabaseInBackground(animated: true)
-            await MainActor.run { self.bumpRefreshRevision() }
         }
     }
 
@@ -281,7 +280,6 @@ extension FeedManager {
         await MainActor.run { self.refreshTask = work }
         _ = await work.value
         await loadFromDatabaseInBackground(animated: true)
-        await MainActor.run { self.bumpRefreshRevision() }
 
         if let imagePreloadCollector, !Task.isCancelled {
             let urls = await imagePreloadCollector.drain()
@@ -435,7 +433,6 @@ extension FeedManager {
         await MainActor.run { self.refreshTask = work }
         _ = await work.value
         await loadFromDatabaseInBackground(animated: true)
-        await MainActor.run { self.bumpRefreshRevision() }
         regenerateAllAcronymIcons()
         notifyFaviconChange()
     }
