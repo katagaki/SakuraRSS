@@ -28,6 +28,7 @@ struct HomeSectionView: View {
     }
 
     private func performRefresh() async {
+        feedManager.flushDebouncedReads()
         visibility.capture(from: rawArticles, isEnabled: hideViewedContent)
         await feedManager.refreshAllFeeds()
         visibility.extend(from: rawArticles, isEnabled: hideViewedContent)

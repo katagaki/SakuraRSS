@@ -49,6 +49,7 @@ struct FeedArticlesView: View {
     }
 
     private func performRefresh() async {
+        feedManager.flushDebouncedReads()
         visibility.capture(from: rawArticles, isEnabled: hideViewedContent)
         try? await feedManager.refreshFeed(feed)
         visibility.extend(from: rawArticles, isEnabled: hideViewedContent)
