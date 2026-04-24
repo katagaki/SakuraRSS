@@ -1,7 +1,6 @@
 import SwiftUI
 
-/// Marks an article as read the instant the row's top crosses above the
-/// top of the screen after the user has seen it.
+/// Marks an article as read the instant its top crosses above the screen.
 struct MarkReadOnScrollModifier: ViewModifier {
 
     @Environment(FeedManager.self) private var feedManager

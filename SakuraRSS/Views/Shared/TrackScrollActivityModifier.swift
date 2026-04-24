@@ -1,7 +1,6 @@
 import SwiftUI
 
-/// Flushes queued mark-as-read IDs when scrolling goes idle so the
-/// resulting re-render doesn't land in the middle of a flick.
+/// Flushes queued mark-as-read IDs when scrolling goes idle.
 struct TrackScrollActivityModifier: ViewModifier {
 
     @Environment(FeedManager.self) private var feedManager

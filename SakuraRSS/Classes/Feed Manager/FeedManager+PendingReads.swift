@@ -2,13 +2,11 @@ import Foundation
 
 extension FeedManager {
 
-    /// True if the article is persisted as read or queued for the next flush.
+    /// True if persisted as read or queued for the next flush.
     func isRead(_ article: Article) -> Bool {
         article.isRead || pendingReadIDs.contains(article.id)
     }
 
-    /// Flips the article to read instantly (overlay + unread count + badge)
-    /// and queues it for the SQLite write that fires on scroll idle.
     func markReadOnScroll(_ article: Article) {
         guard !article.isRead,
               pendingReadIDs.insert(article.id).inserted else { return }
@@ -16,7 +14,6 @@ extension FeedManager {
         updateBadgeCount()
     }
 
-    /// Fired from the scroll-phase idle transition and from willResignActive.
     func flushDebouncedReads() {
         guard !pendingReadIDs.isEmpty else { return }
         let ids = pendingReadIDs

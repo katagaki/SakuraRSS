@@ -34,14 +34,10 @@ final class FeedManager {
     private(set) var unreadCounts: [Int64: Int] = [:]
     private(set) var feedsByID: [Int64: Feed] = [:]
 
-    /// IDs queued by mark-read-on-scroll; flushed on scroll idle or backgrounding.
-    /// Observable so rows can render as read the moment the ID is queued,
-    /// before the SQLite write lands.
+    /// Queued mark-read IDs; flushed on scroll idle or backgrounding.
     var pendingReadIDs: Set<Int64> = []
     @ObservationIgnored var refreshTask: Task<Void, Never>?
 
-    /// Current scroll phase; used by `TrackScrollActivityModifier` to trigger
-    /// a flush of queued mark-as-read IDs when the scroll goes idle.
     @ObservationIgnored var currentScrollPhase: ScrollPhase = .idle
 
     let database = DatabaseManager.shared
