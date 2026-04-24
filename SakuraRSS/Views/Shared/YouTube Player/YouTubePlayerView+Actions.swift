@@ -32,15 +32,17 @@ extension YouTubePlayerView {
                         action: { UIApplication.shared.open(youtubeAppURL) }
                     )
                 }
-                OpenLinkButton(
-                    title: String(localized: "YouTube.OpenInBrowser", table: "Integrations"),
-                    systemImage: "safari",
-                    action: {
-                        if let url = URL(string: article.url) {
-                            openURL(url)
+                if article.hasLink {
+                    OpenLinkButton(
+                        title: String(localized: "YouTube.OpenInBrowser", table: "Integrations"),
+                        systemImage: "safari",
+                        action: {
+                            if let url = URL(string: article.url) {
+                                openURL(url)
+                            }
                         }
-                    }
-                )
+                    )
+                }
             }
             .buttonStyle(.bordered)
             .tint(.primary)

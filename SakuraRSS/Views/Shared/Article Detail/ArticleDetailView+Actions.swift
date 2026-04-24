@@ -39,12 +39,14 @@ extension ArticleDetailView {
                     )
                 }
 
-                OpenLinkButton(
-                    title: String(localized: "Article.OpenInBrowser", table: "Articles"),
-                    systemImage: article.isYouTubeURL && YouTubeHelper.isAppInstalled
-                        ? "play.rectangle" : "safari",
-                    action: { openArticleURL() }
-                )
+                if article.hasLink {
+                    OpenLinkButton(
+                        title: String(localized: "Article.OpenInBrowser", table: "Articles"),
+                        systemImage: article.isYouTubeURL && YouTubeHelper.isAppInstalled
+                            ? "play.rectangle" : "safari",
+                        action: { openArticleURL() }
+                    )
+                }
             }
             .buttonStyle(.bordered)
             .tint(.primary)

@@ -40,6 +40,7 @@ struct ScrollActionButtonsColumn: View {
                 )
             }
             .accessibilityLabel(Text(String(localized: "Article.OpenInBrowser", table: "Articles")))
+            .disabled(!article.hasLink)
 
             Button(action: onCopy) {
                 labeledIcon(
