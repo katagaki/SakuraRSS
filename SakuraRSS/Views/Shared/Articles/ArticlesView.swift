@@ -36,7 +36,6 @@ struct ArticlesView: View {
     @State private var displayStyle: FeedDisplayStyle
     @State private var isShowingMarkAllReadConfirmation = false
     @AppStorage("Display.MarkAllReadPosition") private var markAllReadPosition: MarkAllReadPosition = .bottom
-    @AppStorage("Display.HideReadArticles") private var hideReadArticles: Bool = false
     private let viewStyleSwitcherTip = ViewStyleSwitcherTip()
 
     private var hasImages: Bool {
@@ -45,11 +44,6 @@ struct ArticlesView: View {
 
     private var hasAudioArticles: Bool {
         articles.contains { $0.audioURL != nil }
-    }
-
-    private var displayedArticles: [Article] {
-        guard hideReadArticles else { return articles }
-        return articles.filter { !feedManager.isRead($0) }
     }
 
     init(articles: [Article], title: String, subtitle: String? = nil, feedKey: String,
@@ -105,7 +99,7 @@ struct ArticlesView: View {
         Group {
             DisplayStyleContentView(
                 style: effectiveStyle,
-                articles: displayedArticles,
+                articles: articles,
                 onLoadMore: onLoadMore,
                 onRefresh: onRefresh
             )
@@ -161,14 +155,6 @@ struct ArticlesView: View {
                         showVideo: isVideoFeed,
                         showPodcast: isPodcastFeed || hasAudioArticles
                     )
-                    Section {
-                        Toggle(isOn: $hideReadArticles) {
-                            Label(
-                                String(localized: "HideReadArticles", table: "Articles"),
-                                systemImage: "eye.slash"
-                            )
-                        }
-                    }
                 } label: {
                     Image(systemName: "line.3.horizontal.decrease")
                 }
@@ -177,7 +163,6 @@ struct ArticlesView: View {
             }
         }
         .animation(.smooth.speed(2.0), value: displayStyle)
-        .animation(.smooth.speed(2.0), value: hideReadArticles)
         .onChange(of: displayStyle) { _, newValue in
             UserDefaults.standard.set(newValue.rawValue, forKey: "Display.Style.\(feedKey)")
         }
@@ -205,21 +190,12 @@ struct ArticlesView: View {
             displayStyle = raw.flatMap(FeedDisplayStyle.init(rawValue:)) ?? fallback
         }
         .overlay {
-            if effectiveStyle != .scroll {
-                if articles.isEmpty {
-                    ContentUnavailableView {
-                        Label(String(localized: "Empty.Title", table: "Articles"),
-                              systemImage: "doc.text")
-                    } description: {
-                        Text(String(localized: "Empty.Description", table: "Articles"))
-                    }
-                } else if displayedArticles.isEmpty {
-                    ContentUnavailableView {
-                        Label(String(localized: "AllRead.Title", table: "Articles"),
-                              systemImage: "checkmark.circle")
-                    } description: {
-                        Text(String(localized: "AllRead.Description", table: "Articles"))
-                    }
+            if effectiveStyle != .scroll, articles.isEmpty {
+                ContentUnavailableView {
+                    Label(String(localized: "Empty.Title", table: "Articles"),
+                          systemImage: "doc.text")
+                } description: {
+                    Text(String(localized: "Empty.Description", table: "Articles"))
                 }
             }
         }
