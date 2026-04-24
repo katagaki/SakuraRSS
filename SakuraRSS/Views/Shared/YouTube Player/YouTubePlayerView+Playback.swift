@@ -105,7 +105,7 @@ extension YouTubePlayerView {
     func skipAd() {
         #if DEBUG
         print("[YT Native] skipAd invoked isAd=\(isAd) isAdSkippable=\(isAdSkippable) "
-            + "isPiP=\(isPiP) webView=\(webView != nil)")
+            + "webView=\(webView != nil)")
         #endif
         webView?.evaluateJavaScript(YouTubePlayerScripts.skipAd) { result, error in
             #if DEBUG
