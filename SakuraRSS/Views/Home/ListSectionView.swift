@@ -11,7 +11,7 @@ struct ListSectionView: View {
     @State private var loadedCount: Int = BatchingMode.current().initialCount()
     @AppStorage("Display.MarkAllReadPosition") private var markAllReadPosition: MarkAllReadPosition = .bottom
     @AppStorage("Articles.HideViewedContent") private var hideViewedContent: Bool = false
-    @State private var visibleArticleIDs: Set<Int64>?
+    @State private var visibility = ArticleVisibilityTracker()
 
     private var rawArticles: [Article] {
         if batchingMode.isCountBased {
@@ -20,35 +20,10 @@ struct ListSectionView: View {
         return feedManager.articles(for: list, since: loadedSinceDate)
     }
 
-    private var displayedArticles: [Article] {
-        let articles = rawArticles
-        if hideViewedContent, let visibleArticleIDs {
-            return articles.filter { visibleArticleIDs.contains($0.id) }
-        }
-        return articles
-    }
-
-    private func captureVisibleSnapshot() {
-        guard hideViewedContent else {
-            visibleArticleIDs = nil
-            return
-        }
-        visibleArticleIDs = Set(rawArticles.filter { !$0.isRead }.map(\.id))
-    }
-
-    private func extendVisibleSnapshot() {
-        guard hideViewedContent else {
-            visibleArticleIDs = nil
-            return
-        }
-        let unreadIDs = Set(rawArticles.filter { !$0.isRead }.map(\.id))
-        visibleArticleIDs = (visibleArticleIDs ?? []).union(unreadIDs)
-    }
-
     private func performRefresh() async {
-        captureVisibleSnapshot()
+        visibility.capture(from: rawArticles, isEnabled: hideViewedContent)
         await feedManager.refreshAllFeeds()
-        extendVisibleSnapshot()
+        visibility.extend(from: rawArticles, isEnabled: hideViewedContent)
     }
 
     private var loadMoreAction: (() -> Void)? {
@@ -69,7 +44,7 @@ struct ListSectionView: View {
 
     var body: some View {
         ArticlesView(
-            articles: displayedArticles,
+            articles: visibility.filter(rawArticles, isEnabled: hideViewedContent),
             title: list.name,
             feedKey: "list.\(list.id)",
             onLoadMore: loadMoreAction,
@@ -86,28 +61,17 @@ struct ListSectionView: View {
         .markAllReadToolbar(show: markAllReadPosition == .bottom) {
             feedManager.markAllRead(for: list)
         }
-        .task {
-            if visibleArticleIDs == nil {
-                captureVisibleSnapshot()
-            }
-        }
+        .trackArticleVisibility(
+            $visibility,
+            hideViewedContent: hideViewedContent,
+            loadedSinceDate: loadedSinceDate,
+            loadedCount: loadedCount,
+            rawArticles: { rawArticles }
+        )
         .onChange(of: batchingMode) { _, newMode in
             loadedSinceDate = newMode.initialSinceDate()
             loadedCount = newMode.initialCount()
-            captureVisibleSnapshot()
-        }
-        .onChange(of: loadedSinceDate) { _, _ in
-            extendVisibleSnapshot()
-        }
-        .onChange(of: loadedCount) { _, _ in
-            extendVisibleSnapshot()
-        }
-        .onChange(of: hideViewedContent) { _, newValue in
-            if newValue {
-                captureVisibleSnapshot()
-            } else {
-                visibleArticleIDs = nil
-            }
+            visibility.capture(from: rawArticles, isEnabled: hideViewedContent)
         }
     }
 }

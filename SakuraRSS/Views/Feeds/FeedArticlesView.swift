@@ -11,7 +11,7 @@ struct FeedArticlesView: View {
     @AppStorage("Display.MarkAllReadPosition") private var markAllReadPosition: MarkAllReadPosition = .bottom
     @AppStorage("Instagram.HideReels") private var hideReels: Bool = false
     @AppStorage("Articles.HideViewedContent") private var hideViewedContent: Bool = false
-    @State private var visibleArticleIDs: Set<Int64>?
+    @State private var visibility = ArticleVisibilityTracker()
 
     private var currentFeed: Feed {
         feedManager.feeds.first(where: { $0.id == feed.id }) ?? feed
@@ -48,40 +48,15 @@ struct FeedArticlesView: View {
         return articles
     }
 
-    private var filteredArticles: [Article] {
-        let articles = rawArticles
-        if hideViewedContent, let visibleArticleIDs {
-            return articles.filter { visibleArticleIDs.contains($0.id) }
-        }
-        return articles
-    }
-
-    private func captureVisibleSnapshot() {
-        guard hideViewedContent else {
-            visibleArticleIDs = nil
-            return
-        }
-        visibleArticleIDs = Set(rawArticles.filter { !$0.isRead }.map(\.id))
-    }
-
-    private func extendVisibleSnapshot() {
-        guard hideViewedContent else {
-            visibleArticleIDs = nil
-            return
-        }
-        let unreadIDs = Set(rawArticles.filter { !$0.isRead }.map(\.id))
-        visibleArticleIDs = (visibleArticleIDs ?? []).union(unreadIDs)
-    }
-
     private func performRefresh() async {
-        captureVisibleSnapshot()
+        visibility.capture(from: rawArticles, isEnabled: hideViewedContent)
         try? await feedManager.refreshFeed(feed)
-        extendVisibleSnapshot()
+        visibility.extend(from: rawArticles, isEnabled: hideViewedContent)
     }
 
     var body: some View {
         ArticlesView(
-            articles: filteredArticles,
+            articles: visibility.filter(rawArticles, isEnabled: hideViewedContent),
             title: currentFeed.title,
             subtitle: currentFeed.domain,
             feedKey: String(feed.id),
@@ -105,28 +80,17 @@ struct FeedArticlesView: View {
         .markAllReadToolbar(show: markAllReadPosition == .bottom) {
             feedManager.markAllRead(feed: feed)
         }
-        .task {
-            if visibleArticleIDs == nil {
-                captureVisibleSnapshot()
-            }
-        }
+        .trackArticleVisibility(
+            $visibility,
+            hideViewedContent: hideViewedContent,
+            loadedSinceDate: loadedSinceDate,
+            loadedCount: loadedCount,
+            rawArticles: { rawArticles }
+        )
         .onChange(of: batchingMode) { _, newMode in
             loadedSinceDate = newMode.initialSinceDate()
             loadedCount = newMode.initialCount()
-            captureVisibleSnapshot()
-        }
-        .onChange(of: loadedSinceDate) { _, _ in
-            extendVisibleSnapshot()
-        }
-        .onChange(of: loadedCount) { _, _ in
-            extendVisibleSnapshot()
-        }
-        .onChange(of: hideViewedContent) { _, newValue in
-            if newValue {
-                captureVisibleSnapshot()
-            } else {
-                visibleArticleIDs = nil
-            }
+            visibility.capture(from: rawArticles, isEnabled: hideViewedContent)
         }
     }
 }
