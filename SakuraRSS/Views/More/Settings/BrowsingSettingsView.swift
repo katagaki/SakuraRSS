@@ -4,11 +4,14 @@ struct BrowsingSettingsView: View {
 
     @AppStorage("Articles.BatchingMode") private var batchingMode: BatchingMode = .day1
     @AppStorage("Articles.AutoLoadWhileScrolling") private var autoLoadWhileScrolling: Bool = false
+    @AppStorage("Articles.HideViewedContent") private var hideViewedContent: Bool = false
     @AppStorage("Display.ScrollMarkAsRead") private var scrollMarkAsRead: Bool = false
 
     var body: some View {
         List {
             Section {
+                Toggle(String(localized: "HideViewedContent", table: "Settings"),
+                       isOn: $hideViewedContent)
                 Picker(selection: $batchingMode) {
                     Section {
                         Text(String(localized: "Batching.Day1", table: "Settings"))
@@ -34,7 +37,7 @@ struct BrowsingSettingsView: View {
                     Text(String(localized: "BatchingMode", table: "Settings"))
                 }
             } header: {
-                Text(String(localized: "Section.ContentGrouping", table: "Settings"))
+                Text(String(localized: "Section.Feeds", table: "Settings"))
             } footer: {
                 Text(String(localized: "Batching.Footer", table: "Settings"))
             }

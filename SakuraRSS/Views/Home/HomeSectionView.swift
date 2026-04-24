@@ -11,8 +11,10 @@ struct HomeSectionView: View {
     @State private var loadedCount: Int = BatchingMode.current().initialCount()
     @AppStorage("Display.MarkAllReadPosition") private var markAllReadPosition: MarkAllReadPosition = .bottom
     @AppStorage("Instagram.HideReels") private var hideInstagramReels: Bool = false
+    @AppStorage("Articles.HideViewedContent") private var hideViewedContent: Bool = false
+    @State private var visibility = ArticleVisibilityTracker()
 
-    private var displayedArticles: [Article] {
+    private var rawArticles: [Article] {
         var articles: [Article]
         if batchingMode.isCountBased {
             articles = feedManager.articles(for: section, limit: loadedCount)
@@ -23,6 +25,12 @@ struct HomeSectionView: View {
             articles = articles.filter { !$0.url.contains("/reel/") }
         }
         return articles
+    }
+
+    private func performRefresh() async {
+        visibility.capture(from: rawArticles, isEnabled: hideViewedContent)
+        await feedManager.refreshAllFeeds()
+        visibility.extend(from: rawArticles, isEnabled: hideViewedContent)
     }
 
     private var loadMoreAction: (() -> Void)? {
@@ -43,7 +51,7 @@ struct HomeSectionView: View {
 
     var body: some View {
         ArticlesView(
-            articles: displayedArticles,
+            articles: visibility.filter(rawArticles, isEnabled: hideViewedContent),
             title: section.localizedTitle,
             feedKey: "home.\(section.rawValue)",
             isVideoFeed: section == .video,
@@ -51,21 +59,29 @@ struct HomeSectionView: View {
             isFeedViewDomain: section == .social,
             onLoadMore: loadMoreAction,
             onRefresh: {
-                await feedManager.refreshAllFeeds()
+                await performRefresh()
             },
             onMarkAllRead: {
                 feedManager.markAllRead(for: section)
             }
         )
         .refreshable {
-            await feedManager.refreshAllFeeds()
+            await performRefresh()
         }
         .markAllReadToolbar(show: markAllReadPosition == .bottom) {
             feedManager.markAllRead(for: section)
         }
+        .trackArticleVisibility(
+            $visibility,
+            hideViewedContent: hideViewedContent,
+            loadedSinceDate: loadedSinceDate,
+            loadedCount: loadedCount,
+            rawArticles: { rawArticles }
+        )
         .onChange(of: batchingMode) { _, newMode in
             loadedSinceDate = newMode.initialSinceDate()
             loadedCount = newMode.initialCount()
+            visibility.capture(from: rawArticles, isEnabled: hideViewedContent)
         }
     }
 }

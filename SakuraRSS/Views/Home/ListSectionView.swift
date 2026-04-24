@@ -10,12 +10,20 @@ struct ListSectionView: View {
     @State private var loadedSinceDate: Date = BatchingMode.current().initialSinceDate()
     @State private var loadedCount: Int = BatchingMode.current().initialCount()
     @AppStorage("Display.MarkAllReadPosition") private var markAllReadPosition: MarkAllReadPosition = .bottom
+    @AppStorage("Articles.HideViewedContent") private var hideViewedContent: Bool = false
+    @State private var visibility = ArticleVisibilityTracker()
 
-    private var displayedArticles: [Article] {
+    private var rawArticles: [Article] {
         if batchingMode.isCountBased {
             return feedManager.articles(for: list, limit: loadedCount)
         }
         return feedManager.articles(for: list, since: loadedSinceDate)
+    }
+
+    private func performRefresh() async {
+        visibility.capture(from: rawArticles, isEnabled: hideViewedContent)
+        await feedManager.refreshAllFeeds()
+        visibility.extend(from: rawArticles, isEnabled: hideViewedContent)
     }
 
     private var loadMoreAction: (() -> Void)? {
@@ -36,26 +44,34 @@ struct ListSectionView: View {
 
     var body: some View {
         ArticlesView(
-            articles: displayedArticles,
+            articles: visibility.filter(rawArticles, isEnabled: hideViewedContent),
             title: list.name,
             feedKey: "list.\(list.id)",
             onLoadMore: loadMoreAction,
             onRefresh: {
-                await feedManager.refreshAllFeeds()
+                await performRefresh()
             },
             onMarkAllRead: {
                 feedManager.markAllRead(for: list)
             }
         )
         .refreshable {
-            await feedManager.refreshAllFeeds()
+            await performRefresh()
         }
         .markAllReadToolbar(show: markAllReadPosition == .bottom) {
             feedManager.markAllRead(for: list)
         }
+        .trackArticleVisibility(
+            $visibility,
+            hideViewedContent: hideViewedContent,
+            loadedSinceDate: loadedSinceDate,
+            loadedCount: loadedCount,
+            rawArticles: { rawArticles }
+        )
         .onChange(of: batchingMode) { _, newMode in
             loadedSinceDate = newMode.initialSinceDate()
             loadedCount = newMode.initialCount()
+            visibility.capture(from: rawArticles, isEnabled: hideViewedContent)
         }
     }
 }

@@ -107,6 +107,8 @@ struct AllArticlesView: View {
     @AppStorage("WhileYouSlept.DismissedDate") private var whileYouSleptDismissedDate: String = ""
     @AppStorage("TodaysSummary.DismissedDate") private var todaysSummaryDismissedDate: String = ""
     @AppStorage("Instagram.HideReels") private var hideInstagramReels: Bool = false
+    @AppStorage("Articles.HideViewedContent") private var hideViewedContent: Bool = false
+    @State private var visibility = ArticleVisibilityTracker()
     @State private var whileYouSleptAvailable = false
     @State private var todaysSummaryAvailable = false
 
@@ -121,7 +123,7 @@ struct AllArticlesView: View {
         || (todaysSummaryDismissedDate == todayDateKey && todaysSummaryAvailable)
     }
 
-    private var displayedArticles: [Article] {
+    private var rawArticles: [Article] {
         var articles: [Article]
         if batchingMode.isCountBased {
             articles = feedManager.articles(limit: loadedCount)
@@ -132,6 +134,16 @@ struct AllArticlesView: View {
             articles = articles.filter { !$0.url.contains("/reel/") }
         }
         return articles
+    }
+
+    private var displayedArticles: [Article] {
+        visibility.filter(rawArticles, isEnabled: hideViewedContent)
+    }
+
+    private func performRefresh() async {
+        visibility.capture(from: rawArticles, isEnabled: hideViewedContent)
+        await feedManager.refreshAllFeeds()
+        visibility.extend(from: rawArticles, isEnabled: hideViewedContent)
     }
 
     private var loadMoreAction: (() -> Void)? {
@@ -238,6 +250,7 @@ struct AllArticlesView: View {
         .onChange(of: batchingMode) { _, newMode in
             loadedSinceDate = newMode.initialSinceDate()
             loadedCount = newMode.initialCount()
+            visibility.capture(from: rawArticles, isEnabled: hideViewedContent)
         }
         .onAppear {
             refreshBookmarksTip()
@@ -288,7 +301,7 @@ struct AllArticlesView: View {
             },
             onLoadMore: loadMoreAction,
             onRefresh: {
-                await feedManager.refreshAllFeeds()
+                await performRefresh()
             },
             onMarkAllRead: {
                 feedManager.markAllRead()
@@ -308,10 +321,17 @@ struct AllArticlesView: View {
             .padding(.bottom, 8)
         }
         .refreshable {
-            await feedManager.refreshAllFeeds()
+            await performRefresh()
         }
         .markAllReadToolbar(show: markAllReadPosition == .bottom) {
             feedManager.markAllRead()
         }
+        .trackArticleVisibility(
+            $visibility,
+            hideViewedContent: hideViewedContent,
+            loadedSinceDate: loadedSinceDate,
+            loadedCount: loadedCount,
+            rawArticles: { rawArticles }
+        )
     }
 }

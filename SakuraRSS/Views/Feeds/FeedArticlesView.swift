@@ -10,6 +10,8 @@ struct FeedArticlesView: View {
     @State private var loadedCount: Int = BatchingMode.current().initialCount()
     @AppStorage("Display.MarkAllReadPosition") private var markAllReadPosition: MarkAllReadPosition = .bottom
     @AppStorage("Instagram.HideReels") private var hideReels: Bool = false
+    @AppStorage("Articles.HideViewedContent") private var hideViewedContent: Bool = false
+    @State private var visibility = ArticleVisibilityTracker()
 
     private var currentFeed: Feed {
         feedManager.feeds.first(where: { $0.id == feed.id }) ?? feed
@@ -31,7 +33,7 @@ struct FeedArticlesView: View {
         return nil
     }
 
-    private var filteredArticles: [Article] {
+    private var rawArticles: [Article] {
         var articles: [Article]
         if batchingMode.isCountBased {
             articles = feedManager.undatedArticles(for: feed)
@@ -46,9 +48,15 @@ struct FeedArticlesView: View {
         return articles
     }
 
+    private func performRefresh() async {
+        visibility.capture(from: rawArticles, isEnabled: hideViewedContent)
+        try? await feedManager.refreshFeed(feed)
+        visibility.extend(from: rawArticles, isEnabled: hideViewedContent)
+    }
+
     var body: some View {
         ArticlesView(
-            articles: filteredArticles,
+            articles: visibility.filter(rawArticles, isEnabled: hideViewedContent),
             title: currentFeed.title,
             subtitle: currentFeed.domain,
             feedKey: String(feed.id),
@@ -59,22 +67,30 @@ struct FeedArticlesView: View {
             isFeedCompactViewDomain: feed.isFeedCompactViewDomain,
             isTimelineViewDomain: feed.isTimelineViewDomain,
             onLoadMore: loadMoreAction,
-            onRefresh: { [feed] in
-                try? await feedManager.refreshFeed(feed)
+            onRefresh: {
+                await performRefresh()
             },
             onMarkAllRead: {
                 feedManager.markAllRead(feed: feed)
             }
         )
         .refreshable {
-            try? await feedManager.refreshFeed(feed)
+            await performRefresh()
         }
         .markAllReadToolbar(show: markAllReadPosition == .bottom) {
             feedManager.markAllRead(feed: feed)
         }
+        .trackArticleVisibility(
+            $visibility,
+            hideViewedContent: hideViewedContent,
+            loadedSinceDate: loadedSinceDate,
+            loadedCount: loadedCount,
+            rawArticles: { rawArticles }
+        )
         .onChange(of: batchingMode) { _, newMode in
             loadedSinceDate = newMode.initialSinceDate()
             loadedCount = newMode.initialCount()
+            visibility.capture(from: rawArticles, isEnabled: hideViewedContent)
         }
     }
 }
