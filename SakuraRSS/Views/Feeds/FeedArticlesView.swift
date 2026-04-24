@@ -74,8 +74,9 @@ struct FeedArticlesView: View {
     }
 
     private func performRefresh() async {
-        try? await feedManager.refreshFeed(feed)
         captureVisibleSnapshot()
+        try? await feedManager.refreshFeed(feed)
+        extendVisibleSnapshot()
     }
 
     var body: some View {

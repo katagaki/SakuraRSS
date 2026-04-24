@@ -107,6 +107,8 @@ struct AllArticlesView: View {
     @AppStorage("WhileYouSlept.DismissedDate") private var whileYouSleptDismissedDate: String = ""
     @AppStorage("TodaysSummary.DismissedDate") private var todaysSummaryDismissedDate: String = ""
     @AppStorage("Instagram.HideReels") private var hideInstagramReels: Bool = false
+    @AppStorage("Articles.HideViewedContent") private var hideViewedContent: Bool = false
+    @State private var visibleArticleIDs: Set<Int64>?
     @State private var whileYouSleptAvailable = false
     @State private var todaysSummaryAvailable = false
 
@@ -121,7 +123,7 @@ struct AllArticlesView: View {
         || (todaysSummaryDismissedDate == todayDateKey && todaysSummaryAvailable)
     }
 
-    private var displayedArticles: [Article] {
+    private var rawArticles: [Article] {
         var articles: [Article]
         if batchingMode.isCountBased {
             articles = feedManager.articles(limit: loadedCount)
@@ -132,6 +134,37 @@ struct AllArticlesView: View {
             articles = articles.filter { !$0.url.contains("/reel/") }
         }
         return articles
+    }
+
+    private var displayedArticles: [Article] {
+        let articles = rawArticles
+        if hideViewedContent, let visibleArticleIDs {
+            return articles.filter { visibleArticleIDs.contains($0.id) }
+        }
+        return articles
+    }
+
+    private func captureVisibleSnapshot() {
+        guard hideViewedContent else {
+            visibleArticleIDs = nil
+            return
+        }
+        visibleArticleIDs = Set(rawArticles.filter { !$0.isRead }.map(\.id))
+    }
+
+    private func extendVisibleSnapshot() {
+        guard hideViewedContent else {
+            visibleArticleIDs = nil
+            return
+        }
+        let unreadIDs = Set(rawArticles.filter { !$0.isRead }.map(\.id))
+        visibleArticleIDs = (visibleArticleIDs ?? []).union(unreadIDs)
+    }
+
+    private func performRefresh() async {
+        captureVisibleSnapshot()
+        await feedManager.refreshAllFeeds()
+        extendVisibleSnapshot()
     }
 
     private var loadMoreAction: (() -> Void)? {
@@ -238,6 +271,7 @@ struct AllArticlesView: View {
         .onChange(of: batchingMode) { _, newMode in
             loadedSinceDate = newMode.initialSinceDate()
             loadedCount = newMode.initialCount()
+            captureVisibleSnapshot()
         }
         .onAppear {
             refreshBookmarksTip()
@@ -288,7 +322,7 @@ struct AllArticlesView: View {
             },
             onLoadMore: loadMoreAction,
             onRefresh: {
-                await feedManager.refreshAllFeeds()
+                await performRefresh()
             },
             onMarkAllRead: {
                 feedManager.markAllRead()
@@ -308,10 +342,28 @@ struct AllArticlesView: View {
             .padding(.bottom, 8)
         }
         .refreshable {
-            await feedManager.refreshAllFeeds()
+            await performRefresh()
         }
         .markAllReadToolbar(show: markAllReadPosition == .bottom) {
             feedManager.markAllRead()
+        }
+        .task {
+            if visibleArticleIDs == nil {
+                captureVisibleSnapshot()
+            }
+        }
+        .onChange(of: loadedSinceDate) { _, _ in
+            extendVisibleSnapshot()
+        }
+        .onChange(of: loadedCount) { _, _ in
+            extendVisibleSnapshot()
+        }
+        .onChange(of: hideViewedContent) { _, newValue in
+            if newValue {
+                captureVisibleSnapshot()
+            } else {
+                visibleArticleIDs = nil
+            }
         }
     }
 }
