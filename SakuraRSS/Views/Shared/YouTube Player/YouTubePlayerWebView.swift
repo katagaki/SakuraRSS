@@ -30,10 +30,7 @@ struct YouTubePlayerWebView: UIViewRepresentable {
     }
 
     func makeUIView(context: Context) -> WKWebView {
-        // Configure audio session before load so the decoder picks up `.playback` from the first frame.
-        let session = AVAudioSession.sharedInstance()
-        try? session.setCategory(.playback, mode: .moviePlayback)
-        try? session.setActive(true)
+        YouTubeAudioSession.configureForPlaybackIfNeeded()
 
         let config = WKWebViewConfiguration()
         config.websiteDataStore = .default()
@@ -51,6 +48,11 @@ struct YouTubePlayerWebView: UIViewRepresentable {
             source: YouTubePlayerStyles.injectionScript(css: YouTubePlayerStyles.css),
             injectionTime: .atDocumentStart,
             forMainFrameOnly: true
+        ))
+        controller.addUserScript(WKUserScript(
+            source: YouTubePlayerScripts.pauseGuard,
+            injectionTime: .atDocumentEnd,
+            forMainFrameOnly: false
         ))
         controller.addUserScript(WKUserScript(
             source: YouTubePlayerScripts.pipEventBridge,

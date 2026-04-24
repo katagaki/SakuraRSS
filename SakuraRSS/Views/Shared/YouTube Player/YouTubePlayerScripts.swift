@@ -46,6 +46,35 @@ nonisolated enum YouTubePlayerScripts {
     })();
     """
 
+    /// Resumes playback when the system (not the user) pauses the video, so background
+    /// and PiP transitions don't produce an audible fade-out/fade-in.
+    static let pauseGuard = """
+    (function() {
+        function attach(video) {
+            if (!video || video.__ytPauseGuardAttached) return;
+            video.__ytPauseGuardAttached = true;
+            video.addEventListener('pause', function() {
+                if (window.__ytUserPaused === true) return;
+                if (video.ended) return;
+                if (video.currentTime > 0 && video.duration > 0
+                    && video.currentTime >= video.duration - 0.25) return;
+                var promise = video.play();
+                if (promise && typeof promise.catch === 'function') {
+                    promise.catch(function(){});
+                }
+            }, true);
+        }
+        function scan() {
+            document.querySelectorAll('video').forEach(attach);
+        }
+        scan();
+        var observer = new MutationObserver(scan);
+        if (document.documentElement) {
+            observer.observe(document.documentElement, { childList: true, subtree: true });
+        }
+    })();
+    """
+
     /// Forwards PiP enter/leave events to native code immediately.
     static let pipEventBridge = """
     (function() {
