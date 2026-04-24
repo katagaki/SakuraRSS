@@ -188,12 +188,14 @@ nonisolated enum YouTubePlayerStyles {
         pointer-events: none !important;
     }
     /* Keep the ad overlay containers in the render tree so the skip button
-       inside can be discovered and clicked programmatically, but neutralize
-       their visuals and input so they do not occlude the video. */
+       inside can be discovered and clicked programmatically, but paint
+       nothing. visibility: hidden cascades while still participating in
+       layout, and the skip button rule below overrides it back to visible
+       for that one element only. */
     .ytp-ad-player-overlay, .ytp-ad-player-overlay-layout,
     .ytp-ad-preview-container {
         background: transparent !important;
-        opacity: 1 !important;
+        visibility: hidden !important;
         pointer-events: none !important;
     }
     /* Park the skip-ad button offscreen but keep it in the DOM and clickable so
