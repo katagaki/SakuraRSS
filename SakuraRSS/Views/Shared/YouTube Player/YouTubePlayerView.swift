@@ -132,6 +132,7 @@ struct YouTubePlayerView: View {
                             Image(systemName: "pip.enter")
                                 .font(.title2)
                         }
+                        .disabled(isAd)
 
                         Button {
                             rewind()
@@ -169,6 +170,7 @@ struct YouTubePlayerView: View {
                             Image(systemName: "arrow.up.left.and.arrow.down.right")
                                 .font(.title2)
                         }
+                        .disabled(isAd)
                     }
                     .foregroundStyle(.primary)
                     .padding(.top, 16)
