@@ -142,6 +142,7 @@ struct YouTubePlayerWebView: UIViewRepresentable {
         let chapters: Binding<[YouTubeChapter]>?
         nonisolated(unsafe) private var playbackObserver: Timer?
         private var chapterRetryCount = 0
+        private var chaptersLoaded = false
 
         init(
             isPlaying: Binding<Bool>,
@@ -178,17 +179,20 @@ struct YouTubePlayerWebView: UIViewRepresentable {
             injectStyles(into: webView)
             unmuteVideo(in: webView)
             startPlaybackObserver(for: webView)
-            chapterRetryCount = 0
-            extractChapters(from: webView)
+            if !chaptersLoaded {
+                extractChapters(from: webView)
+            }
         }
 
         private func extractChapters(from webView: WKWebView) {
-            guard chapters != nil else { return }
+            guard chapters != nil, !chaptersLoaded else { return }
             webView.evaluateJavaScript(YouTubePlayerScripts.extractChapters) { [weak self] result, _ in
                 guard let self else { return }
                 let parsed = Self.parseChapters(from: result)
                 DispatchQueue.main.async {
+                    guard !self.chaptersLoaded else { return }
                     if !parsed.isEmpty {
+                        self.chaptersLoaded = true
                         self.chapters?.wrappedValue = parsed
                     } else if self.chapterRetryCount < 3 {
                         self.chapterRetryCount += 1

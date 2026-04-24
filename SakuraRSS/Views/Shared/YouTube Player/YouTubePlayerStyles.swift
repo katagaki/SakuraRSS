@@ -177,8 +177,7 @@ nonisolated enum YouTubePlayerStyles {
     .ytp-visit-advertiser-link, .ytp-ad-overlay-link,
     [class*="visit-advertiser"], .ytp-ad-text,
     .ytp-ad-progress, .ytp-ad-progress-list,
-    .ytp-ad-player-overlay, .ytp-ad-player-overlay-layout,
-    .ytp-ad-preview-container, .ytp-ad-message-container,
+    .ytp-ad-message-container,
     .ytp-flyout-cta, .ytp-ad-action-interstitial,
     .ytp-ad-overlay-container, .ytp-ad-image-overlay,
     .ytp-featured-product, .ytp-product-picker,
@@ -186,6 +185,15 @@ nonisolated enum YouTubePlayerStyles {
         display: none !important;
         visibility: hidden !important;
         opacity: 0 !important;
+        pointer-events: none !important;
+    }
+    /* Keep the ad overlay containers in the render tree so the skip button
+       inside can be discovered and clicked programmatically, but neutralize
+       their visuals and input so they do not occlude the video. */
+    .ytp-ad-player-overlay, .ytp-ad-player-overlay-layout,
+    .ytp-ad-preview-container {
+        background: transparent !important;
+        opacity: 1 !important;
         pointer-events: none !important;
     }
     /* Park the skip-ad button offscreen but keep it in the DOM and clickable so
