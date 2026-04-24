@@ -34,11 +34,12 @@ final class FeedManager {
     private(set) var unreadCounts: [Int64: Int] = [:]
     private(set) var feedsByID: [Int64: Feed] = [:]
 
-    /// Queued mark-read IDs; flushed on scroll idle or backgrounding.
+    /// Queued mark-read IDs; flushed every 250ms while scrolling, on idle, or on backgrounding.
     var pendingReadIDs: Set<Int64> = []
     @ObservationIgnored var refreshTask: Task<Void, Never>?
 
     @ObservationIgnored var currentScrollPhase: ScrollPhase = .idle
+    @ObservationIgnored var pendingReadsFlushWorkItem: DispatchWorkItem?
 
     let database = DatabaseManager.shared
 
