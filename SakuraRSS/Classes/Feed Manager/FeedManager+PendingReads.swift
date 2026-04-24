@@ -7,11 +7,13 @@ extension FeedManager {
         article.isRead || pendingReadIDs.contains(article.id)
     }
 
-    /// Queues the article for a flush that fires the next time scrolling
-    /// goes idle, so continuous scrolls don't trigger re-render cascades
-    /// that break auto-load-on-scroll and drop visibility callbacks.
+    /// Flips the article to read instantly (overlay + unread count + badge)
+    /// and queues it for the SQLite write that fires on scroll idle.
     func markReadOnScroll(_ article: Article) {
-        pendingReadIDs.insert(article.id)
+        guard !article.isRead,
+              pendingReadIDs.insert(article.id).inserted else { return }
+        decrementUnreadCount(feedID: article.feedID)
+        updateBadgeCount()
     }
 
     /// Fired from the scroll-phase idle transition and from willResignActive.
@@ -22,21 +24,7 @@ extension FeedManager {
         let idArray = Array(ids)
 
         try? database.markArticlesRead(ids: idArray, read: true)
-
-        var newArticles = articles
-        var decrements: [Int64: Int] = [:]
-        let indexByID = Dictionary(
-            uniqueKeysWithValues: newArticles.enumerated().map { ($1.id, $0) }
-        )
-        for id in ids {
-            guard let idx = indexByID[id], !newArticles[idx].isRead else { continue }
-            newArticles[idx].isRead = true
-            decrements[newArticles[idx].feedID, default: 0] += 1
-        }
-        articles = newArticles
-        applyUnreadDecrements(decrements)
         bumpDataRevision()
-        updateBadgeCount()
 
         let dbm = database
         Task.detached(priority: .utility) {
