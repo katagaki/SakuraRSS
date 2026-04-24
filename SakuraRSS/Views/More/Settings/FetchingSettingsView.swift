@@ -9,7 +9,7 @@ struct FetchingSettingsView: View {
     private var fetchCooldown: FeedRefreshCooldown = .fiveMinutes
     @AppStorage("BackgroundRefresh.Enabled") private var backgroundRefreshEnabled: Bool = true
     @AppStorage("BackgroundRefresh.Interval") private var fetchInterval: Int = 240
-    @AppStorage("BackgroundRefresh.ImageBackfillMode")
+    @AppStorage("BackgroundRefresh.ImageFetchMode")
     private var backgroundImagesMode: FetchImagesMode = .wifiOnly
 
     var body: some View {

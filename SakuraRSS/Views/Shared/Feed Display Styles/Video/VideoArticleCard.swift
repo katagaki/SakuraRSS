@@ -55,7 +55,7 @@ struct VideoArticleCard: View {
                     Text(article.title)
                         .font(.body)
                         .fontWeight(.semibold)
-                        .foregroundStyle(article.isRead ? .secondary : .primary)
+                        .foregroundStyle(feedManager.isRead(article) ? .secondary : .primary)
                         .lineLimit(2)
                         .multilineTextAlignment(.leading)
 
@@ -85,10 +85,10 @@ struct VideoArticleCard: View {
                         feedManager.toggleRead(article)
                     } label: {
                         Label(
-                            article.isRead
+                            feedManager.isRead(article)
                                 ? String(localized: "Article.MarkUnplayed", table: "Articles")
                                 : String(localized: "Article.MarkPlayed", table: "Articles"),
-                            systemImage: article.isRead ? "arrow.uturn.backward" : "checkmark"
+                            systemImage: feedManager.isRead(article) ? "arrow.uturn.backward" : "checkmark"
                         )
                     }
                     Divider()

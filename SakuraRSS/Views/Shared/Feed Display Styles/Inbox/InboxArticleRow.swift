@@ -11,13 +11,20 @@ struct InboxArticleRow: View {
 
     var body: some View {
         HStack(alignment: .center, spacing: 8) {
-            UnreadDotView(isRead: article.isRead)
+            UnreadDotView(isRead: feedManager.isRead(article))
                 .padding(.leading, -4)
                 .padding(.top, 6)
 
             if let imageURL = article.imageURL, let url = URL(string: imageURL) {
                 CachedAsyncImage(url: url) {
-                    Color.secondary.opacity(0.1)
+                    FeedIconPlaceholder(
+                        favicon: favicon,
+                        acronymIcon: acronymIcon,
+                        feedName: feedName,
+                        isSocialFeed: isSocialFeed,
+                        iconSize: 30,
+                        cornerRadius: 8
+                    )
                 }
                 .frame(width: 48, height: 48)
                 .clipShape(RoundedRectangle(cornerRadius: 8))
@@ -37,9 +44,9 @@ struct InboxArticleRow: View {
                 if isSocialFeed, let feedName {
                     Text(feedName)
                         .font(.body)
-                        .fontWeight(article.isRead ? .regular : .semibold)
+                        .fontWeight(feedManager.isRead(article) ? .regular : .semibold)
                         .lineLimit(1)
-                        .foregroundStyle(article.isRead ? .secondary : .primary)
+                        .foregroundStyle(feedManager.isRead(article) ? .secondary : .primary)
 
                     Text(article.title)
                         .font(.subheadline)
@@ -48,9 +55,9 @@ struct InboxArticleRow: View {
                 } else {
                     Text(article.title)
                         .font(.body)
-                        .fontWeight(article.isRead ? .regular : .semibold)
+                        .fontWeight(feedManager.isRead(article) ? .regular : .semibold)
                         .lineLimit(1)
-                        .foregroundStyle(article.isRead ? .secondary : .primary)
+                        .foregroundStyle(feedManager.isRead(article) ? .secondary : .primary)
 
                     if article.hasMeaningfulSummary, let summary = article.summary {
                         Text(ContentBlock.stripMarkdown(summary))

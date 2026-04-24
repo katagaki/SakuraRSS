@@ -24,4 +24,25 @@ extension URLRequest {
         }
         return request
     }
+
+    /// Image-fetch variant that asks for image/* so origins like
+    /// external-preview.redd.it don't serve an HTML wrapper page.
+    nonisolated static func sakuraImage(
+        url: URL,
+        timeoutInterval: TimeInterval = 60
+    ) -> URLRequest {
+        var request = URLRequest(url: url, timeoutInterval: timeoutInterval)
+        request.setValue(sakuraUserAgent, forHTTPHeaderField: "User-Agent")
+        request.setValue(
+            "image/avif,image/webp,image/*,*/*;q=0.8",
+            forHTTPHeaderField: "Accept"
+        )
+        if let host = url.host,
+           let scheme = url.scheme,
+           let referer = URL(string: "\(scheme)://\(host)/") {
+            request.setValue(referer.absoluteString,
+                             forHTTPHeaderField: "Referer")
+        }
+        return request
+    }
 }

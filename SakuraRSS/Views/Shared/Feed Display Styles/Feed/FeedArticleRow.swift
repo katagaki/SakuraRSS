@@ -84,8 +84,8 @@ struct FeedArticleRow: View {
 
                     Spacer()
 
-                    if !article.isRead {
-                        UnreadDotView(isRead: article.isRead)
+                    if !feedManager.isRead(article) {
+                        UnreadDotView(isRead: feedManager.isRead(article))
                     }
                 }
 
@@ -186,7 +186,7 @@ struct FeedArticleRow: View {
                         feedManager.toggleRead(article)
                     } label: {
                         Image(
-                            systemName: article.isRead
+                            systemName: feedManager.isRead(article)
                                 ? "envelope" : "envelope.open"
                         )
                     }

@@ -24,7 +24,7 @@ struct InboxStyleView: View {
                             feedManager.toggleRead(article)
                         }
                     } label: {
-                        Image(systemName: article.isRead ? "envelope" : "envelope.open")
+                        Image(systemName: feedManager.isRead(article) ? "envelope" : "envelope.open")
                     }
                     .tint(.blue)
                 }

@@ -8,7 +8,7 @@ extension FeedManager {
         _ feed: Feed,
         updateTitle: Bool = true,
         reloadData: Bool = true,
-        skipImageBackfill: Bool = false,
+        skipImageFetch: Bool = false,
         imagePreloadCollector: ImagePreloadCollector? = nil
     ) async throws {
         if PetalRecipe.isPetalFeedURL(feed.url) {
@@ -48,17 +48,26 @@ extension FeedManager {
             }
 
             let existingURLs = (try? database.existingArticleURLs(forFeedID: feed.id)) ?? []
-            let imageBackfills: [String: String]
-            if skipImageBackfill {
-                imageBackfills = [:]
+            let metadataImages: [String: String]
+            if skipImageFetch {
+                metadataImages = [:]
             } else {
-                imageBackfills = await FeedManager.backfillMetadataImages(
+                metadataImages = await FeedManager.fetchMetadataImages(
                     for: preparedArticles, skippingURLs: existingURLs
                 )
             }
 
+            let redditImages: [String: String] = (!skipImageFetch && feed.isRedditFeed)
+                ? await FeedManager.fetchRedditImages(forFeedURL: feed.url)
+                : [:]
+
             let articleTuples = preparedArticles.map { article in
-                let resolvedImageURL = article.imageURL ?? imageBackfills[article.url]
+                let redditImage = FeedManager.redditImageURL(
+                    for: article.url, in: redditImages
+                )
+                let resolvedImageURL = redditImage
+                    ?? article.imageURL
+                    ?? metadataImages[article.url]
                 return ArticleInsertItem(
                     title: article.title,
                     url: article.url,
@@ -107,11 +116,10 @@ extension FeedManager {
         }.value
         if reloadData {
             await loadFromDatabaseInBackground(animated: true)
-            await MainActor.run { self.bumpRefreshRevision() }
         }
     }
 
-    nonisolated static func backfillMetadataImages(
+    nonisolated static func fetchMetadataImages(
         for articles: [ParsedArticle],
         skippingURLs existingURLs: Set<String>
     ) async -> [String: String] {
@@ -193,7 +201,7 @@ extension FeedManager {
     func refreshAllFeeds(
         skipAuthenticatedScrapers: Bool = false,
         respectCooldown: Bool = false,
-        skipImageBackfill: Bool = false,
+        skipImageFetch: Bool = false,
         skipImagePreload: Bool = false,
         runNLPAfter: Bool = false
     ) async {
@@ -253,13 +261,13 @@ extension FeedManager {
             async let slow: Void = self.runBoundedRefresh(
                 slowFeeds,
                 maxConcurrent: 2,
-                skipImageBackfill: skipImageBackfill,
+                skipImageFetch: skipImageFetch,
                 imagePreloadCollector: imagePreloadCollector
             )
             async let regular: Void = self.runBoundedRefresh(
                 regularFeeds,
                 maxConcurrent: 8,
-                skipImageBackfill: skipImageBackfill,
+                skipImageFetch: skipImageFetch,
                 imagePreloadCollector: imagePreloadCollector
             )
             _ = await (slow, regular)
@@ -272,7 +280,6 @@ extension FeedManager {
         await MainActor.run { self.refreshTask = work }
         _ = await work.value
         await loadFromDatabaseInBackground(animated: true)
-        await MainActor.run { self.bumpRefreshRevision() }
 
         if let imagePreloadCollector, !Task.isCancelled {
             let urls = await imagePreloadCollector.drain()
@@ -295,7 +302,7 @@ extension FeedManager {
     fileprivate func runBoundedRefresh(
         _ feeds: [Feed],
         maxConcurrent: Int,
-        skipImageBackfill: Bool,
+        skipImageFetch: Bool,
         imagePreloadCollector: ImagePreloadCollector?
     ) async {
         guard !feeds.isEmpty else { return }
@@ -308,7 +315,7 @@ extension FeedManager {
                     try? await self.refreshFeed(
                         feed,
                         reloadData: false,
-                        skipImageBackfill: skipImageBackfill,
+                        skipImageFetch: skipImageFetch,
                         imagePreloadCollector: imagePreloadCollector
                     )
                     if !Task.isCancelled {
@@ -328,7 +335,7 @@ extension FeedManager {
                         try? await self.refreshFeed(
                             feed,
                             reloadData: false,
-                            skipImageBackfill: skipImageBackfill,
+                            skipImageFetch: skipImageFetch,
                             imagePreloadCollector: imagePreloadCollector
                         )
                         if !Task.isCancelled {
@@ -426,7 +433,6 @@ extension FeedManager {
         await MainActor.run { self.refreshTask = work }
         _ = await work.value
         await loadFromDatabaseInBackground(animated: true)
-        await MainActor.run { self.bumpRefreshRevision() }
         regenerateAllAcronymIcons()
         notifyFaviconChange()
     }

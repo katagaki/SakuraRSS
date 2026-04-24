@@ -55,14 +55,14 @@ extension SakuraRSSApp {
 
         let refreshTask = Task {
             // nil probe means "assume expensive" so we default to the safer behavior.
-            let imageBackfillModeRaw = UserDefaults.standard.string(
-                forKey: "BackgroundRefresh.ImageBackfillMode"
+            let imageFetchModeRaw = UserDefaults.standard.string(
+                forKey: "BackgroundRefresh.ImageFetchMode"
             )
-            let imageBackfillMode = imageBackfillModeRaw
+            let imageFetchMode = imageFetchModeRaw
                 .flatMap(FetchImagesMode.init(rawValue:)) ?? .wifiOnly
             let pathExpensive = await NetworkMonitor.currentPathIsExpensive() ?? true
-            let skipImageBackfill: Bool = {
-                switch imageBackfillMode {
+            let skipImageFetch: Bool = {
+                switch imageFetchMode {
                 case .always: return false
                 case .wifiOnly: return pathExpensive
                 case .off: return true
@@ -83,7 +83,7 @@ extension SakuraRSSApp {
             await manager.refreshAllFeeds(
                 skipAuthenticatedScrapers: true,
                 respectCooldown: true,
-                skipImageBackfill: skipImageBackfill,
+                skipImageFetch: skipImageFetch,
                 skipImagePreload: skipImagePreload,
                 runNLPAfter: true
             )

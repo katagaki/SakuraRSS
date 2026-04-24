@@ -1,8 +1,6 @@
 import SwiftUI
 
-/// Marks an article as read once the user has seen it on screen and then
-/// scrolled it past the top of the list. Driven by the
-/// `Display.ScrollMarkAsRead` setting.
+/// Marks an article as read the instant its top crosses above the screen.
 struct MarkReadOnScrollModifier: ViewModifier {
 
     @Environment(FeedManager.self) private var feedManager
@@ -11,28 +9,27 @@ struct MarkReadOnScrollModifier: ViewModifier {
     let article: Article
 
     @State private var hasBeenVisible = false
-    @State private var isPastTop = false
     @State private var hasQueued = false
+    @State private var lastMinY: CGFloat = .greatestFiniteMagnitude
 
     func body(content: Content) -> some View {
         content
-            .onGeometryChange(for: Bool.self) { proxy in
-                proxy.frame(in: .global).minY < 0
-            } action: { newValue in
-                isPastTop = newValue
-            }
             .onScrollVisibilityChange(threshold: 0.01) { isVisible in
-                if isVisible {
-                    hasBeenVisible = true
-                    return
+                if isVisible { hasBeenVisible = true }
+            }
+            .onGeometryChange(for: CGFloat.self) { proxy in
+                proxy.frame(in: .global).minY
+            } action: { newValue in
+                if !hasQueued,
+                   hasBeenVisible,
+                   scrollMarkAsRead,
+                   !article.isRead,
+                   lastMinY >= 0,
+                   newValue < 0 {
+                    hasQueued = true
+                    feedManager.markReadOnScroll(article)
                 }
-                guard scrollMarkAsRead,
-                      hasBeenVisible,
-                      isPastTop,
-                      !hasQueued,
-                      !article.isRead else { return }
-                hasQueued = true
-                feedManager.markReadDebounced(article)
+                lastMinY = newValue
             }
     }
 }

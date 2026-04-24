@@ -71,7 +71,7 @@ extension FeedManager {
         let database = DatabaseManager.shared
         if database.isImageCached(for: urlString) { return }
         do {
-            let (data, response) = try await URLSession.shared.data(for: .sakura(url: url))
+            let (data, response) = try await URLSession.shared.data(for: .sakuraImage(url: url))
             if let http = response as? HTTPURLResponse,
                !(200..<300).contains(http.statusCode) {
                 return

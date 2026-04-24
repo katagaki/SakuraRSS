@@ -35,10 +35,10 @@ struct GridStyleView: View {
                             feedManager.toggleRead(article)
                         } label: {
                             Label(
-                                article.isRead
+                                feedManager.isRead(article)
                                     ? String(localized: "Article.MarkUnread", table: "Articles")
                                     : String(localized: "Article.MarkRead", table: "Articles"),
-                                systemImage: article.isRead
+                                systemImage: feedManager.isRead(article)
                                     ? "envelope" : "envelope.open"
                             )
                         }

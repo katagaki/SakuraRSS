@@ -31,20 +31,14 @@ final class FeedManager {
     }
     private(set) var dataRevision: Int = 0
     private(set) var faviconRevision: Int = 0
-    private(set) var refreshRevision: Int = 0
     private(set) var unreadCounts: [Int64: Int] = [:]
     private(set) var feedsByID: [Int64: Feed] = [:]
 
-    /// Pending read-state flushes to SQLite; committed once scrolling settles.
-    @ObservationIgnored var pendingReadIDs: Set<Int64> = []
-    @ObservationIgnored var debouncedReadFlushTask: Task<Void, Never>?
+    /// Queued mark-read IDs; flushed on scroll idle or backgrounding.
+    var pendingReadIDs: Set<Int64> = []
     @ObservationIgnored var refreshTask: Task<Void, Never>?
 
-    /// Scroll state used to defer mark-as-read commits during fast scroll.
     @ObservationIgnored var currentScrollPhase: ScrollPhase = .idle
-    @ObservationIgnored var currentScrollVelocity: CGFloat = 0
-    @ObservationIgnored var lastScrollOffset: CGFloat = 0
-    @ObservationIgnored var lastScrollSampleTime: CFTimeInterval = 0
 
     let database = DatabaseManager.shared
 
@@ -118,10 +112,6 @@ final class FeedManager {
 
     func bumpDataRevision() {
         dataRevision += 1
-    }
-
-    func bumpRefreshRevision() {
-        refreshRevision += 1
     }
 
 }

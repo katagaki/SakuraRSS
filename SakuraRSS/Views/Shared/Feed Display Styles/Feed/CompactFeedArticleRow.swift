@@ -74,8 +74,8 @@ struct CompactFeedArticleRow: View {
 
             Spacer(minLength: 4)
 
-            if !article.isRead {
-                UnreadDotView(isRead: article.isRead)
+            if !feedManager.isRead(article) {
+                UnreadDotView(isRead: feedManager.isRead(article))
             }
 
             CompactFeedArticleRowOverflowMenu(article: article)

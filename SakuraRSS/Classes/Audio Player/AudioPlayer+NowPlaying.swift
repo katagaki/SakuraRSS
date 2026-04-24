@@ -33,7 +33,7 @@ extension AudioPlayer {
 
     func loadArtwork(from urlString: String?) {
         guard let urlString, let url = URL(string: urlString) else { return }
-        URLSession.shared.dataTask(with: URLRequest.sakura(url: url)) { [weak self] data, _, _ in
+        URLSession.shared.dataTask(with: URLRequest.sakuraImage(url: url)) { [weak self] data, _, _ in
             guard let data, let image = UIImage(data: data), let cgImage = image.cgImage else { return }
             let safeImage = UIImage(cgImage: cgImage)
             let size = safeImage.size

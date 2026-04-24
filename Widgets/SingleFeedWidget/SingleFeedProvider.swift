@@ -139,7 +139,7 @@ struct SingleFeedProvider: AppIntentTimelineProvider {
             #endif
             rawData = cached
         } else if !articleSetUnchanged {
-            if let (data, _) = try? await URLSession.shared.data(for: .sakura(url: imageURL)) {
+            if let (data, _) = try? await URLSession.shared.data(for: .sakuraImage(url: imageURL)) {
                 #if DEBUG
                 debugPrint("[Widget] Downloaded image \(urlString) (\(data.count) bytes)")
                 #endif

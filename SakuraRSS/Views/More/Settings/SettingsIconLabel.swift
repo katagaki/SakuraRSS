@@ -7,7 +7,7 @@ struct SettingsIconLabel: View {
     let color: Color
     let size: CGFloat
 
-    init(_ title: String, systemImage: String, color: Color, size: CGFloat = 28) {
+    init(_ title: String, systemImage: String, color: Color, size: CGFloat = 30) {
         self.title = title
         self.systemImage = systemImage
         self.color = color
@@ -19,7 +19,7 @@ struct SettingsIconLabel: View {
             Text(title)
         } icon: {
             Image(systemName: systemImage)
-                .font(.system(size: size * 0.48, weight: .semibold))
+                .font(.system(size: size * 0.42, weight: .semibold))
                 .foregroundStyle(.white)
                 .frame(width: size, height: size)
                 .background(color.gradient, in: RoundedRectangle(cornerRadius: size * 0.28))
