@@ -146,6 +146,35 @@ nonisolated enum YouTubePlayerScripts {
     })();
     """
 
+    /// Inline JS expression that returns the visible ad-skip button element or null.
+    static let findSkipButtonExpression = """
+    (function() {
+        var selector = '.ytp-skip-ad-button, .ytp-ad-skip-button,'
+            + ' .ytp-ad-skip-button-modern, .ytp-skip-ad-button-text';
+        var buttons = document.querySelectorAll(selector);
+        for (var i = 0; i < buttons.length; i++) {
+            var btn = buttons[i];
+            if (btn.disabled) continue;
+            var rect = btn.getBoundingClientRect();
+            if (rect.width === 0 && rect.height === 0) continue;
+            if (getComputedStyle(btn).visibility === 'hidden') continue;
+            return btn;
+        }
+        return null;
+    })()
+    """
+
+    /// Clicks the ad-skip button if one is currently skippable. Returns a bool.
+    static let skipAd = """
+    (function() {
+        var btn = \(findSkipButtonExpression);
+        if (!btn) return false;
+        var target = btn.closest('button') || btn;
+        target.click();
+        return true;
+    })();
+    """
+
     /// Returns `[{title, startSeconds}]` for chapters, empty when none exist.
     static let extractChapters = """
     (function() {
