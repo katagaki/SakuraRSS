@@ -1,13 +1,19 @@
 import SwiftUI
 
-extension YouTubePlayerView {
+struct ChapterMenu: View, Equatable {
 
-    @ViewBuilder
-    var chapterMenu: some View {
+    let chapters: [YouTubeChapter]
+    let onSelect: (TimeInterval) -> Void
+
+    static func == (lhs: ChapterMenu, rhs: ChapterMenu) -> Bool {
+        lhs.chapters == rhs.chapters
+    }
+
+    var body: some View {
         Menu {
             ForEach(chapters) { chapter in
                 Button {
-                    seek(to: chapter.startTime)
+                    onSelect(chapter.startTime)
                 } label: {
                     Text(chapter.title)
                     Text(chapter.formattedTimestamp)
