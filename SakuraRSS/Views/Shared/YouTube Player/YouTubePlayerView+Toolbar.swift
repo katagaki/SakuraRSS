@@ -6,7 +6,8 @@ extension YouTubePlayerView {
     var playerToolbar: some ToolbarContent {
         if !chapters.isEmpty {
             ToolbarItemGroup(placement: .topBarTrailing) {
-                chapterMenu
+                ChapterMenu(chapters: chapters, onSelect: seek(to:))
+                    .equatable()
             }
             ToolbarSpacer(.fixed, placement: .topBarTrailing)
         }
