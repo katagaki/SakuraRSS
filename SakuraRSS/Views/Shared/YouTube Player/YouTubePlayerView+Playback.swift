@@ -103,7 +103,16 @@ extension YouTubePlayerView {
     }
 
     func skipAd() {
-        webView?.evaluateJavaScript(YouTubePlayerScripts.skipAd) { _, _ in }
+        #if DEBUG
+        print("[YT Native] skipAd invoked isAd=\(isAd) isAdSkippable=\(isAdSkippable) "
+            + "webView=\(webView != nil)")
+        #endif
+        webView?.evaluateJavaScript(YouTubePlayerScripts.skipAd) { result, error in
+            #if DEBUG
+            print("[YT Native] skipAd result=\(String(describing: result)) "
+                + "error=\(String(describing: error))")
+            #endif
+        }
     }
 
     func togglePiP() {

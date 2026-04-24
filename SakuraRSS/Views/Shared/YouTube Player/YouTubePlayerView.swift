@@ -10,7 +10,7 @@ struct YouTubePlayerView: View {
     @Environment(\.scenePhase) private var scenePhase
     let article: Article
 
-    @State private var isBookmarked = false
+    @State var isBookmarked = false
     @State var isPlaying = false
     @State private var isPiPEligible = false
     @State private var currentTime: TimeInterval = 0
@@ -76,13 +76,6 @@ struct YouTubePlayerView: View {
                 }
             }
             .animation(.smooth.speed(2.0), value: skippedSegmentMessage)
-            .overlay(alignment: .bottomTrailing) {
-                if isAd && isAdSkippable && !isPiP {
-                    skipAdButton
-                        .padding(12)
-                        .transition(.opacity.combined(with: .scale(scale: 0.9)))
-                }
-            }
             .animation(.smooth.speed(2.0), value: isAd && isAdSkippable && !isPiP)
             .overlay {
                 if isPiP {
@@ -132,6 +125,8 @@ struct YouTubePlayerView: View {
                             Image(systemName: "pip.enter")
                                 .font(.title2)
                         }
+                        .disabled(isAd)
+                        .opacity(isAd ? 0.5 : 1.0)
 
                         Button {
                             rewind()
@@ -140,6 +135,7 @@ struct YouTubePlayerView: View {
                                 .font(.title2)
                         }
                         .disabled(isAd)
+                        .opacity(isAd ? 0.5 : 1.0)
 
                         Button {
                             togglePlayPause()
@@ -155,13 +151,14 @@ struct YouTubePlayerView: View {
                                 fastForward()
                             }
                         } label: {
-                            Image(systemName: (isAd && isAdSkippable)
+                            Image(systemName: isAd
                                 ? "forward.end.fill"
                                 : "goforward.10")
                                 .font(.title2)
                                 .contentTransition(.symbolEffect(.replace))
                         }
                         .disabled(isAd && !isAdSkippable)
+                        .opacity(isAd ? 0.5 : 1.0)
 
                         Button {
                             enterFullscreen()
@@ -169,6 +166,7 @@ struct YouTubePlayerView: View {
                             Image(systemName: "arrow.up.left.and.arrow.down.right")
                                 .font(.title2)
                         }
+                        .disabled(isAd)
                     }
                     .foregroundStyle(.primary)
                     .padding(.top, 16)
@@ -266,30 +264,7 @@ struct YouTubePlayerView: View {
         }
         .sakuraBackground()
         .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            if !chapters.isEmpty {
-                ToolbarItemGroup(placement: .topBarTrailing) {
-                    chapterMenu
-                }
-                ToolbarSpacer(.fixed, placement: .topBarTrailing)
-            }
-            ToolbarItemGroup(placement: .topBarTrailing) {
-                Button {
-                    isBookmarked.toggle()
-                    feedManager.toggleBookmark(article)
-                } label: {
-                    Image(systemName: isBookmarked ? "bookmark.fill" : "bookmark")
-                }
-            }
-            ToolbarSpacer(.fixed, placement: .topBarTrailing)
-            ToolbarItemGroup(placement: .topBarTrailing) {
-                if let shareURL = URL(string: article.url) {
-                    ShareLink(item: shareURL) {
-                        Label(String(localized: "Article.Share", table: "Articles"), systemImage: "square.and.arrow.up")
-                    }
-                }
-            }
-        }
+        .toolbar { playerToolbar }
         .onReceive(
             NotificationCenter.default.publisher(for: UIDevice.orientationDidChangeNotification)
         ) { _ in

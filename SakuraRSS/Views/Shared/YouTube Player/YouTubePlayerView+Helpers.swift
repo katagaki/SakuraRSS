@@ -46,28 +46,6 @@ extension YouTubePlayerView {
     }
 
     @ViewBuilder
-    var skipAdButton: some View {
-        Button {
-            skipAd()
-        } label: {
-            Label {
-                Text(String(localized: "YouTube.Ad.Skip", table: "Integrations"))
-            } icon: {
-                Image(systemName: "forward.end.fill")
-            }
-            .font(.subheadline.bold())
-            .padding(.horizontal, 14)
-            .padding(.vertical, 10)
-            .background(.ultraThinMaterial, in: Capsule())
-            .overlay {
-                Capsule()
-                    .strokeBorder(.white.opacity(0.25), lineWidth: 1)
-            }
-        }
-        .foregroundStyle(.white)
-    }
-
-    @ViewBuilder
     var feedAvatarView: some View {
         if let favicon {
             FaviconImage(favicon, size: 36, circle: true, skipInset: true)
