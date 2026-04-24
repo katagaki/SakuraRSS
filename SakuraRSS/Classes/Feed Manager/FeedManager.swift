@@ -40,12 +40,9 @@ final class FeedManager {
     var pendingReadIDs: Set<Int64> = []
     @ObservationIgnored var refreshTask: Task<Void, Never>?
 
-    /// Scroll state read by `MarkReadOnScrollModifier` to gate read flips
-    /// on direction — only downward scrolls mark articles read.
+    /// Current scroll phase; used by `TrackScrollActivityModifier` to trigger
+    /// a flush of queued mark-as-read IDs when the scroll goes idle.
     @ObservationIgnored var currentScrollPhase: ScrollPhase = .idle
-    @ObservationIgnored var currentScrollDirection: ScrollDirection = .none
-    @ObservationIgnored var lastScrollOffset: CGFloat = 0
-    @ObservationIgnored var lastScrollSampleTime: CFTimeInterval = 0
 
     let database = DatabaseManager.shared
 
