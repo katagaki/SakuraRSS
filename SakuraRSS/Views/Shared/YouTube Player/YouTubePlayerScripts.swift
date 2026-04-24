@@ -46,6 +46,52 @@ nonisolated enum YouTubePlayerScripts {
     })();
     """
 
+    /// Blocks YouTube's internal `video.pause()` calls (e.g. on visibility change or
+    /// PiP transitions) so there is no pause to fade out of. Pauses are only honored
+    /// when Swift first sets `window.__ytUserPaused = true` or when the video has ended.
+    static let pauseOverride = """
+    (function() {
+        var proto = HTMLMediaElement.prototype;
+        if (proto.__ytPauseOverridden) return;
+        proto.__ytPauseOverridden = true;
+        var originalPause = proto.pause;
+        proto.pause = function() {
+            if (window.__ytUserPaused === true || this.ended) {
+                return originalPause.apply(this, arguments);
+            }
+        };
+    })();
+    """
+
+    /// Safety net for native pauses that bypass the JS pause override (e.g. WebKit
+    /// suspending media directly). Resumes immediately in the same event loop.
+    static let pauseGuard = """
+    (function() {
+        function attach(video) {
+            if (!video || video.__ytPauseGuardAttached) return;
+            video.__ytPauseGuardAttached = true;
+            video.addEventListener('pause', function() {
+                if (window.__ytUserPaused === true) return;
+                if (video.ended) return;
+                if (video.currentTime > 0 && video.duration > 0
+                    && video.currentTime >= video.duration - 0.25) return;
+                var promise = video.play();
+                if (promise && typeof promise.catch === 'function') {
+                    promise.catch(function(){});
+                }
+            }, true);
+        }
+        function scan() {
+            document.querySelectorAll('video').forEach(attach);
+        }
+        scan();
+        var observer = new MutationObserver(scan);
+        if (document.documentElement) {
+            observer.observe(document.documentElement, { childList: true, subtree: true });
+        }
+    })();
+    """
+
     /// Forwards PiP enter/leave events to native code immediately.
     static let pipEventBridge = """
     (function() {
@@ -97,6 +143,35 @@ nonisolated enum YouTubePlayerScripts {
         if (document.documentElement) {
             observer.observe(document.documentElement, { childList: true, subtree: true });
         }
+    })();
+    """
+
+    /// Inline JS expression that returns the visible ad-skip button element or null.
+    static let findSkipButtonExpression = """
+    (function() {
+        var selector = '.ytp-skip-ad-button, .ytp-ad-skip-button,'
+            + ' .ytp-ad-skip-button-modern, .ytp-skip-ad-button-text';
+        var buttons = document.querySelectorAll(selector);
+        for (var i = 0; i < buttons.length; i++) {
+            var btn = buttons[i];
+            if (btn.disabled) continue;
+            var rect = btn.getBoundingClientRect();
+            if (rect.width === 0 && rect.height === 0) continue;
+            if (getComputedStyle(btn).visibility === 'hidden') continue;
+            return btn;
+        }
+        return null;
+    })()
+    """
+
+    /// Clicks the ad-skip button if one is currently skippable. Returns a bool.
+    static let skipAd = """
+    (function() {
+        var btn = \(findSkipButtonExpression);
+        if (!btn) return false;
+        var target = btn.closest('button') || btn;
+        target.click();
+        return true;
     })();
     """
 

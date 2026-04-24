@@ -188,36 +188,21 @@ nonisolated enum YouTubePlayerStyles {
         opacity: 0 !important;
         pointer-events: none !important;
     }
-    /* Keep the skip-ad button visible and tappable, styled as a full-width
-       strip at the bottom of the web view. */
+    /* Park the skip-ad button offscreen but keep it in the DOM and clickable so
+       our native Skip Ad button can trigger `.click()` on it. */
     .ytp-skip-ad-button, .ytp-ad-skip-button,
     .ytp-ad-skip-button-modern, .ytp-ad-skip-button-container,
     button[class*="skip"] {
-        display: flex !important;
+        display: block !important;
         visibility: visible !important;
-        align-items: center !important;
-        justify-content: center !important;
         position: fixed !important;
-        bottom: 0 !important;
-        left: 0 !important;
-        width: 100vw !important;
-        height: 48px !important;
-        opacity: 1 !important;
+        top: -9999px !important;
+        left: -9999px !important;
+        width: 1px !important;
+        height: 1px !important;
+        opacity: 0 !important;
         pointer-events: auto !important;
-        z-index: 9999999 !important;
-        background: rgba(0, 0, 0, 0.8) !important;
-        color: #fff !important;
-        font-size: 16px !important;
-        border: none !important;
-        border-radius: 0 !important;
-        margin: 0 !important;
-        padding: 0 !important;
-        box-sizing: border-box !important;
-    }
-    .ytp-skip-ad-button *, .ytp-ad-skip-button *,
-    .ytp-ad-skip-button-modern *, .ytp-ad-skip-button-container *,
-    button[class*="skip"] * {
-        border-radius: 0 !important;
+        z-index: -1 !important;
     }
     """
 

@@ -102,6 +102,10 @@ extension YouTubePlayerView {
         webView?.evaluateJavaScript(script, completionHandler: nil)
     }
 
+    func skipAd() {
+        webView?.evaluateJavaScript(YouTubePlayerScripts.skipAd) { _, _ in }
+    }
+
     func togglePiP() {
         let script = """
         (function() {

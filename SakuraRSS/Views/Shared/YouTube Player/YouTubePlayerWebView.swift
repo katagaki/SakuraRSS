@@ -11,6 +11,7 @@ struct YouTubePlayerWebView: UIViewRepresentable {
     @Binding var duration: TimeInterval
     @Binding var webView: WKWebView?
     @Binding var isAd: Bool
+    @Binding var isAdSkippable: Bool
     @Binding var advertiserURL: URL?
     @Binding var videoAspectRatio: CGFloat
     @Binding var isPiP: Bool
@@ -22,6 +23,7 @@ struct YouTubePlayerWebView: UIViewRepresentable {
             currentTime: $currentTime,
             duration: $duration,
             isAd: $isAd,
+            isAdSkippable: $isAdSkippable,
             advertiserURL: $advertiserURL,
             videoAspectRatio: $videoAspectRatio,
             isPiP: $isPiP,
@@ -30,10 +32,7 @@ struct YouTubePlayerWebView: UIViewRepresentable {
     }
 
     func makeUIView(context: Context) -> WKWebView {
-        // Configure audio session before load so the decoder picks up `.playback` from the first frame.
-        let session = AVAudioSession.sharedInstance()
-        try? session.setCategory(.playback, mode: .moviePlayback)
-        try? session.setActive(true)
+        YouTubeAudioSession.prepare()
 
         let config = WKWebViewConfiguration()
         config.websiteDataStore = .default()
@@ -43,6 +42,11 @@ struct YouTubePlayerWebView: UIViewRepresentable {
 
         let controller = WKUserContentController()
         controller.addUserScript(WKUserScript(
+            source: YouTubePlayerScripts.pauseOverride,
+            injectionTime: .atDocumentStart,
+            forMainFrameOnly: false
+        ))
+        controller.addUserScript(WKUserScript(
             source: YouTubePlayerScripts.backgroundPlaybackOverride,
             injectionTime: .atDocumentStart,
             forMainFrameOnly: false
@@ -51,6 +55,11 @@ struct YouTubePlayerWebView: UIViewRepresentable {
             source: YouTubePlayerStyles.injectionScript(css: YouTubePlayerStyles.css),
             injectionTime: .atDocumentStart,
             forMainFrameOnly: true
+        ))
+        controller.addUserScript(WKUserScript(
+            source: YouTubePlayerScripts.pauseGuard,
+            injectionTime: .atDocumentEnd,
+            forMainFrameOnly: false
         ))
         controller.addUserScript(WKUserScript(
             source: YouTubePlayerScripts.pipEventBridge,
@@ -126,6 +135,7 @@ struct YouTubePlayerWebView: UIViewRepresentable {
         @Binding var currentTime: TimeInterval
         @Binding var duration: TimeInterval
         @Binding var isAd: Bool
+        @Binding var isAdSkippable: Bool
         @Binding var advertiserURL: URL?
         @Binding var videoAspectRatio: CGFloat
         @Binding var isPiP: Bool
@@ -138,6 +148,7 @@ struct YouTubePlayerWebView: UIViewRepresentable {
             currentTime: Binding<TimeInterval>,
             duration: Binding<TimeInterval>,
             isAd: Binding<Bool>,
+            isAdSkippable: Binding<Bool>,
             advertiserURL: Binding<URL?>,
             videoAspectRatio: Binding<CGFloat>,
             isPiP: Binding<Bool>,
@@ -147,6 +158,7 @@ struct YouTubePlayerWebView: UIViewRepresentable {
             _currentTime = currentTime
             _duration = duration
             _isAd = isAd
+            _isAdSkippable = isAdSkippable
             _advertiserURL = advertiserURL
             _videoAspectRatio = videoAspectRatio
             _isPiP = isPiP
@@ -277,11 +289,13 @@ struct YouTubePlayerWebView: UIViewRepresentable {
                     var vw = video.videoWidth || 0;
                     var vh = video.videoHeight || 0;
                     var inPiP = document.pictureInPictureElement === video;
+                    var skipBtn = \(YouTubePlayerScripts.findSkipButtonExpression);
                     return {
                         playing: !video.paused,
                         currentTime: video.currentTime,
                         duration: video.duration || 0,
                         isAd: isAd,
+                        adSkippable: isAd && !!skipBtn,
                         advertiserURL: advURL,
                         videoWidth: vw,
                         videoHeight: vh,
@@ -306,6 +320,9 @@ struct YouTubePlayerWebView: UIViewRepresentable {
                                 self?.isAd = ad
                             }
                             // swiftlint:enable identifier_name
+                            if let skippable = dict["adSkippable"] as? Bool {
+                                self?.isAdSkippable = skippable
+                            }
                             if let urlStr = dict["advertiserURL"] as? String, !urlStr.isEmpty {
                                 self?.advertiserURL = URL(string: urlStr)
                             } else {

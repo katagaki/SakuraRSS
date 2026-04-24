@@ -12,6 +12,7 @@ struct YouTubeEmbedBlockView: View {
     @State private var duration: TimeInterval = 0
     @State private var webView: WKWebView?
     @State private var isAd = false
+    @State private var isAdSkippable = false
     @State private var advertiserURL: URL?
     @State private var videoAspectRatio: CGFloat = 16 / 9
     @State private var isPiP = false
@@ -36,6 +37,7 @@ struct YouTubeEmbedBlockView: View {
                 duration: $duration,
                 webView: $webView,
                 isAd: $isAd,
+                isAdSkippable: $isAdSkippable,
                 advertiserURL: $advertiserURL,
                 videoAspectRatio: $videoAspectRatio,
                 isPiP: $isPiP

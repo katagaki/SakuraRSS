@@ -17,6 +17,7 @@ struct YouTubePlayerView: View {
     @State private var duration: TimeInterval = 0
     @State var webView: WKWebView?
     @State var isAd = false
+    @State var isAdSkippable = false
     @State private var advertiserURL: URL?
     @State private var hasStartedPlaying = false
     @State private var isPiP = false
@@ -55,6 +56,7 @@ struct YouTubePlayerView: View {
                 duration: $duration,
                 webView: $webView,
                 isAd: $isAd,
+                isAdSkippable: $isAdSkippable,
                 advertiserURL: $advertiserURL,
                 videoAspectRatio: $videoAspectRatio,
                 isPiP: $isPiP,
@@ -74,6 +76,14 @@ struct YouTubePlayerView: View {
                 }
             }
             .animation(.smooth.speed(2.0), value: skippedSegmentMessage)
+            .overlay(alignment: .bottomTrailing) {
+                if isAd && isAdSkippable && !isPiP {
+                    skipAdButton
+                        .padding(12)
+                        .transition(.opacity.combined(with: .scale(scale: 0.9)))
+                }
+            }
+            .animation(.smooth.speed(2.0), value: isAd && isAdSkippable && !isPiP)
             .overlay {
                 if isPiP {
                     Color.black
@@ -139,12 +149,19 @@ struct YouTubePlayerView: View {
                         }
 
                         Button {
-                            fastForward()
+                            if isAd && isAdSkippable {
+                                skipAd()
+                            } else {
+                                fastForward()
+                            }
                         } label: {
-                            Image(systemName: "goforward.10")
+                            Image(systemName: (isAd && isAdSkippable)
+                                ? "forward.end.fill"
+                                : "goforward.10")
                                 .font(.title2)
+                                .contentTransition(.symbolEffect(.replace))
                         }
-                        .disabled(isAd)
+                        .disabled(isAd && !isAdSkippable)
 
                         Button {
                             enterFullscreen()
@@ -307,7 +324,10 @@ struct YouTubePlayerView: View {
             wantsPlaybackInBackground = false
         }
         .onDisappear {
-            pauseForOtherPlayer()
+            if !isPiP {
+                pauseForOtherPlayer()
+                YouTubeAudioSession.deactivate()
+            }
         }
         .task {
             activateBackgroundAudioSession()
