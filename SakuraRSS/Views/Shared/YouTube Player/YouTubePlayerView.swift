@@ -76,13 +76,6 @@ struct YouTubePlayerView: View {
                 }
             }
             .animation(.smooth.speed(2.0), value: skippedSegmentMessage)
-            .overlay(alignment: .bottomTrailing) {
-                if isAd && isAdSkippable && !isPiP {
-                    skipAdButton
-                        .padding(12)
-                        .transition(.opacity.combined(with: .scale(scale: 0.9)))
-                }
-            }
             .animation(.smooth.speed(2.0), value: isAd && isAdSkippable && !isPiP)
             .overlay {
                 if isPiP {
@@ -133,6 +126,7 @@ struct YouTubePlayerView: View {
                                 .font(.title2)
                         }
                         .disabled(isAd)
+                        .opacity(isAd ? 0.5 : 1.0)
 
                         Button {
                             rewind()
@@ -141,6 +135,7 @@ struct YouTubePlayerView: View {
                                 .font(.title2)
                         }
                         .disabled(isAd)
+                        .opacity(isAd ? 0.5 : 1.0)
 
                         Button {
                             togglePlayPause()
@@ -163,6 +158,7 @@ struct YouTubePlayerView: View {
                                 .contentTransition(.symbolEffect(.replace))
                         }
                         .disabled(isAd && !isAdSkippable)
+                        .opacity(isAd ? 0.5 : 1.0)
 
                         Button {
                             enterFullscreen()
