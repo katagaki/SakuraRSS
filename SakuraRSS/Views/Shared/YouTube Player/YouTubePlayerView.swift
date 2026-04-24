@@ -158,7 +158,7 @@ struct YouTubePlayerView: View {
                                 .contentTransition(.symbolEffect(.replace))
                         }
                         .disabled(isAd && !isAdSkippable)
-                        .opacity(isAd ? 0.5 : 1.0)
+                        .opacity((isAd && !isAdSkippable) ? 0.5 : 1.0)
 
                         Button {
                             enterFullscreen()
@@ -167,6 +167,7 @@ struct YouTubePlayerView: View {
                                 .font(.title2)
                         }
                         .disabled(isAd)
+                        .opacity(isAd ? 0.5 : 1.0)
                     }
                     .foregroundStyle(.primary)
                     .padding(.top, 16)
