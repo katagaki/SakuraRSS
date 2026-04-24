@@ -164,14 +164,40 @@ nonisolated enum YouTubePlayerScripts {
     })()
     """
 
-    /// Clicks the ad-skip button if one is currently skippable. Returns a bool.
+    /// Skips the current ad either by clicking YouTube's skip button or by
+    /// seeking the ad video to its end. Returns a bool indicating any action.
     static let skipAd = """
     (function() {
+        var acted = false;
         var btn = \(findSkipButtonExpression);
-        if (!btn) return false;
-        var target = btn.closest('button') || btn;
-        target.click();
-        return true;
+        if (btn) {
+            var target = btn.closest('button') || btn;
+            try { target.focus(); } catch (e) {}
+            try { target.click(); acted = true; } catch (e) {}
+            try {
+                var types = ['pointerdown', 'mousedown', 'pointerup', 'mouseup', 'click'];
+                types.forEach(function(type) {
+                    var Ctor = (type.indexOf('pointer') === 0 && window.PointerEvent)
+                        ? window.PointerEvent : MouseEvent;
+                    var ev = new Ctor(type, {
+                        bubbles: true, cancelable: true, view: window,
+                        button: 0, buttons: 1
+                    });
+                    target.dispatchEvent(ev);
+                });
+                acted = true;
+            } catch (e) {}
+        }
+        try {
+            var player = document.querySelector('.html5-video-player');
+            var showingAd = player && player.classList.contains('ad-showing');
+            var video = document.querySelector('video');
+            if (showingAd && video && isFinite(video.duration) && video.duration > 0) {
+                video.currentTime = Math.max(video.duration - 0.05, video.currentTime);
+                acted = true;
+            }
+        } catch (e) {}
+        return acted;
     })();
     """
 
