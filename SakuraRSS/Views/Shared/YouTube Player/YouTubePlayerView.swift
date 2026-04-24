@@ -156,7 +156,7 @@ struct YouTubePlayerView: View {
                                 fastForward()
                             }
                         } label: {
-                            Image(systemName: (isAd && isAdSkippable)
+                            Image(systemName: isAd
                                 ? "forward.end.fill"
                                 : "goforward.10")
                                 .font(.title2)
