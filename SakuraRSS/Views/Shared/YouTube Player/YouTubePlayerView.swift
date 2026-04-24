@@ -10,7 +10,7 @@ struct YouTubePlayerView: View {
     @Environment(\.scenePhase) private var scenePhase
     let article: Article
 
-    @State private var isBookmarked = false
+    @State var isBookmarked = false
     @State var isPlaying = false
     @State private var isPiPEligible = false
     @State private var currentTime: TimeInterval = 0
@@ -268,30 +268,7 @@ struct YouTubePlayerView: View {
         }
         .sakuraBackground()
         .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            if !chapters.isEmpty {
-                ToolbarItemGroup(placement: .topBarTrailing) {
-                    chapterMenu
-                }
-                ToolbarSpacer(.fixed, placement: .topBarTrailing)
-            }
-            ToolbarItemGroup(placement: .topBarTrailing) {
-                Button {
-                    isBookmarked.toggle()
-                    feedManager.toggleBookmark(article)
-                } label: {
-                    Image(systemName: isBookmarked ? "bookmark.fill" : "bookmark")
-                }
-            }
-            ToolbarSpacer(.fixed, placement: .topBarTrailing)
-            ToolbarItemGroup(placement: .topBarTrailing) {
-                if let shareURL = URL(string: article.url) {
-                    ShareLink(item: shareURL) {
-                        Label(String(localized: "Article.Share", table: "Articles"), systemImage: "square.and.arrow.up")
-                    }
-                }
-            }
-        }
+        .toolbar { playerToolbar }
         .onReceive(
             NotificationCenter.default.publisher(for: UIDevice.orientationDidChangeNotification)
         ) { _ in
