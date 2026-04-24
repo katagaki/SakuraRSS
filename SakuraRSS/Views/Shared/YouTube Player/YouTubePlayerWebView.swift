@@ -30,7 +30,7 @@ struct YouTubePlayerWebView: UIViewRepresentable {
     }
 
     func makeUIView(context: Context) -> WKWebView {
-        YouTubeAudioSession.configureForPlaybackIfNeeded()
+        YouTubeAudioSession.prepare()
 
         let config = WKWebViewConfiguration()
         config.websiteDataStore = .default()
@@ -39,6 +39,11 @@ struct YouTubePlayerWebView: UIViewRepresentable {
         config.allowsPictureInPictureMediaPlayback = true
 
         let controller = WKUserContentController()
+        controller.addUserScript(WKUserScript(
+            source: YouTubePlayerScripts.pauseOverride,
+            injectionTime: .atDocumentStart,
+            forMainFrameOnly: false
+        ))
         controller.addUserScript(WKUserScript(
             source: YouTubePlayerScripts.backgroundPlaybackOverride,
             injectionTime: .atDocumentStart,

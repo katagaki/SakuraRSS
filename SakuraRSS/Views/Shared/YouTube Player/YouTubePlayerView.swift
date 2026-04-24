@@ -307,7 +307,10 @@ struct YouTubePlayerView: View {
             wantsPlaybackInBackground = false
         }
         .onDisappear {
-            pauseForOtherPlayer()
+            if !isPiP {
+                pauseForOtherPlayer()
+                YouTubeAudioSession.deactivate()
+            }
         }
         .task {
             activateBackgroundAudioSession()

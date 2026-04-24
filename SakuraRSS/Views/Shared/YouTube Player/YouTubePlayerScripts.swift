@@ -46,8 +46,25 @@ nonisolated enum YouTubePlayerScripts {
     })();
     """
 
-    /// Resumes playback when the system (not the user) pauses the video, so background
-    /// and PiP transitions don't produce an audible fade-out/fade-in.
+    /// Blocks YouTube's internal `video.pause()` calls (e.g. on visibility change or
+    /// PiP transitions) so there is no pause to fade out of. Pauses are only honored
+    /// when Swift first sets `window.__ytUserPaused = true` or when the video has ended.
+    static let pauseOverride = """
+    (function() {
+        var proto = HTMLMediaElement.prototype;
+        if (proto.__ytPauseOverridden) return;
+        proto.__ytPauseOverridden = true;
+        var originalPause = proto.pause;
+        proto.pause = function() {
+            if (window.__ytUserPaused === true || this.ended) {
+                return originalPause.apply(this, arguments);
+            }
+        };
+    })();
+    """
+
+    /// Safety net for native pauses that bypass the JS pause override (e.g. WebKit
+    /// suspending media directly). Resumes immediately in the same event loop.
     static let pauseGuard = """
     (function() {
         function attach(video) {
