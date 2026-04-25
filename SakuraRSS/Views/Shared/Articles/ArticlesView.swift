@@ -234,6 +234,8 @@ struct LoadPreviousArticlesButton: View {
                 }
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 12)
+                .onAppear { isVisible = true }
+                .onDisappear { isVisible = false }
                 .onScrollVisibilityChange(threshold: 0.1) { visible in
                     isVisible = visible
                 }
