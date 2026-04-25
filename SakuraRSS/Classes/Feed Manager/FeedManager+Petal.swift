@@ -61,7 +61,8 @@ extension FeedManager {
     func refreshPetalFeed(
         _ feed: Feed,
         reloadData: Bool,
-        articleInsertCollector: ArticleInsertCollector? = nil
+        skipImagePreload: Bool = false,
+        runNLP: Bool = true
     ) async throws {
         guard UserDefaults.standard.bool(forKey: "Labs.PetalRecipes") else {
             return
@@ -98,18 +99,19 @@ extension FeedManager {
                     )
                 )
             }
-            if let articleInsertCollector {
-                await articleInsertCollector.add(
-                    feedID: feedID,
-                    items: articleItems,
-                    feedTitleForSpotlight: feedTitle
-                )
-            } else {
-                try database.insertArticles(feedID: feedID, articles: articleItems)
-            }
+            let insertedIDs = (try? database.insertArticles(
+                feedID: feedID, articles: articleItems
+            )) ?? []
+            await FeedManager.runPostInsertPipeline(
+                insertedIDs: insertedIDs,
+                feedTitle: feedTitle,
+                skipImagePreload: skipImagePreload,
+                runNLP: runNLP
+            )
             try database.updateFeedLastFetched(id: feedID, date: Date())
         }.value
 
+        await MainActor.run { self.bumpDataRevision() }
         if reloadData {
             await loadFromDatabaseInBackground(animated: true)
         }

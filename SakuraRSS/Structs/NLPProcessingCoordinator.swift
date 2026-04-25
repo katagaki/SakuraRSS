@@ -93,6 +93,30 @@ enum NLPProcessingCoordinator {
         }.value
     }
 
+    /// Processes the given article IDs inline as part of a per-feed refresh pipeline.
+    /// Skipped when content insights are disabled or in Low Power Mode.
+    nonisolated static func processArticles(ids: [Int64]) async {
+        guard !ids.isEmpty else { return }
+        let defaults = UserDefaults.standard
+        guard defaults.bool(forKey: "Intelligence.ContentInsights.Enabled") else { return }
+        if ProcessInfo.processInfo.isLowPowerModeEnabled { return }
+
+        let database = DatabaseManager.shared
+        let sentimentTagger = NLTagger(tagSchemes: [.sentimentScore])
+        let nameTagger = NLTagger(tagSchemes: [.nameType])
+
+        for id in ids {
+            if Task.isCancelled { return }
+            guard let article = try? database.article(byID: id) else { continue }
+            processArticleSync(
+                article,
+                sentimentTagger: sentimentTagger,
+                nameTagger: nameTagger
+            )
+            await Task.yield()
+        }
+    }
+
     /// Extracts sentiment and entities for an article; reuses taggers when supplied.
     private nonisolated static func processArticleSync(
         _ article: Article,

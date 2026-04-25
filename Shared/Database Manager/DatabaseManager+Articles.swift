@@ -59,28 +59,6 @@ nonisolated extension DatabaseManager {
         return insertedIDs
     }
 
-    /// Batched counterpart of `insertArticles(feedID:articles:)` that inserts every feed's
-    /// articles inside one transaction, so the UI sees a single mutation instead of one per feed.
-    @discardableResult
-    func insertArticles(
-        byFeed groups: [(feedID: Int64, items: [ArticleInsertItem])]
-    ) throws -> [Int64: [Int64]] {
-        guard !groups.isEmpty else { return [:] }
-        let cutoffDate = articleCutoffDate()
-        var insertedByFeed: [Int64: [Int64]] = [:]
-        try database.transaction {
-            for group in groups where !group.items.isEmpty {
-                let ids = try insertArticleItems(
-                    feedID: group.feedID, items: group.items, cutoffDate: cutoffDate
-                )
-                if !ids.isEmpty {
-                    insertedByFeed[group.feedID, default: []].append(contentsOf: ids)
-                }
-            }
-        }
-        return insertedByFeed
-    }
-
     private func articleCutoffDate() -> Date? {
         let cutoffTimestamp = UserDefaults.standard.double(forKey: "Content.CutoffDate")
         return cutoffTimestamp > 0 ? Date(timeIntervalSince1970: cutoffTimestamp) : nil

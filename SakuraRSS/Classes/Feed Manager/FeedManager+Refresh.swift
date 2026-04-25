@@ -4,17 +4,24 @@ extension FeedManager {
 
     // MARK: - Feed Refresh
 
+    /// Runs the full per-feed pipeline: fetch -> parse -> metadata images -> insert
+    /// -> spotlight -> image preload -> NLP. Insert always runs once the feed has
+    /// been fetched, so a user-initiated stop only skips post-insert work for
+    /// feeds in flight; feeds that have completed keep their articles.
     func refreshFeed(
         _ feed: Feed,
         updateTitle: Bool = true,
         reloadData: Bool = true,
         skipImageFetch: Bool = false,
-        imagePreloadCollector: ImagePreloadCollector? = nil,
-        articleInsertCollector: ArticleInsertCollector? = nil
+        skipImagePreload: Bool = false,
+        runNLP: Bool = true
     ) async throws {
         if PetalRecipe.isPetalFeedURL(feed.url) {
             try await refreshPetalFeed(
-                feed, reloadData: reloadData, articleInsertCollector: articleInsertCollector
+                feed,
+                reloadData: reloadData,
+                skipImagePreload: skipImagePreload,
+                runNLP: runNLP
             )
             return
         }
@@ -22,7 +29,10 @@ extension FeedManager {
         if feed.isXFeed {
             guard UserDefaults.standard.bool(forKey: "Labs.XProfileFeeds") else { return }
             try await refreshXFeed(
-                feed, reloadData: reloadData, articleInsertCollector: articleInsertCollector
+                feed,
+                reloadData: reloadData,
+                skipImagePreload: skipImagePreload,
+                runNLP: runNLP
             )
             return
         }
@@ -30,14 +40,20 @@ extension FeedManager {
         if feed.isInstagramFeed {
             guard UserDefaults.standard.bool(forKey: "Labs.InstagramProfileFeeds") else { return }
             try await refreshInstagramFeed(
-                feed, reloadData: reloadData, articleInsertCollector: articleInsertCollector
+                feed,
+                reloadData: reloadData,
+                skipImagePreload: skipImagePreload,
+                runNLP: runNLP
             )
             return
         }
 
         if feed.isYouTubePlaylistFeed {
             try await refreshYouTubePlaylistFeed(
-                feed, reloadData: reloadData, articleInsertCollector: articleInsertCollector
+                feed,
+                reloadData: reloadData,
+                skipImagePreload: skipImagePreload,
+                runNLP: runNLP
             )
             return
         }
@@ -93,32 +109,16 @@ extension FeedManager {
             }
 
             let feedTitleForIndex = parsed.title.isEmpty ? feed.title : parsed.title
+            let insertedIDs = (try? database.insertArticles(
+                feedID: feed.id, articles: articleTuples
+            )) ?? []
 
-            if let articleInsertCollector {
-                await articleInsertCollector.add(
-                    feedID: feed.id,
-                    items: articleTuples,
-                    feedTitleForSpotlight: feedTitleForIndex
-                )
-            } else {
-                let insertedIDs = try database.insertArticles(
-                    feedID: feed.id, articles: articleTuples
-                )
-                if !insertedIDs.isEmpty {
-                    let insertedArticles = (try? database.articles(withIDs: insertedIDs)) ?? []
-                    if !ProcessInfo.processInfo.isLowPowerModeEnabled {
-                        SpotlightIndexer.indexArticles(
-                            insertedArticles, feedTitle: feedTitleForIndex
-                        )
-                    }
-                    if let imagePreloadCollector {
-                        let imageURLs = insertedArticles.compactMap { $0.imageURL }
-                        if !imageURLs.isEmpty {
-                            await imagePreloadCollector.add(imageURLs)
-                        }
-                    }
-                }
-            }
+            await FeedManager.runPostInsertPipeline(
+                insertedIDs: insertedIDs,
+                feedTitle: feedTitleForIndex,
+                skipImagePreload: skipImagePreload,
+                runNLP: runNLP
+            )
 
             if feed.lastFetched == nil {
                 if parsed.isPodcast && !feed.isPodcast {
@@ -135,8 +135,41 @@ extension FeedManager {
             }
             try database.updateFeedLastFetched(id: feed.id, date: Date())
         }.value
+        await MainActor.run { self.bumpDataRevision() }
         if reloadData {
             await loadFromDatabaseInBackground(animated: true)
+        }
+    }
+
+    /// Spotlight indexing, image preloading, and NLP for the articles a feed
+    /// just inserted. Runs as the tail of the per-feed pipeline so each feed
+    /// finishes its work end-to-end before the next stage of the queue starts.
+    nonisolated static func runPostInsertPipeline(
+        insertedIDs: [Int64],
+        feedTitle: String,
+        skipImagePreload: Bool,
+        runNLP: Bool
+    ) async {
+        guard !insertedIDs.isEmpty else { return }
+        let database = DatabaseManager.shared
+        let insertedArticles = (try? database.articles(withIDs: insertedIDs)) ?? []
+        if insertedArticles.isEmpty { return }
+
+        if !ProcessInfo.processInfo.isLowPowerModeEnabled {
+            SpotlightIndexer.indexArticles(insertedArticles, feedTitle: feedTitle)
+        }
+        if Task.isCancelled { return }
+
+        if !skipImagePreload {
+            let imageURLs = insertedArticles.compactMap { $0.imageURL }
+            if !imageURLs.isEmpty {
+                await FeedManager.preloadImages(urls: imageURLs)
+            }
+        }
+        if Task.isCancelled { return }
+
+        if runNLP {
+            await NLPProcessingCoordinator.processArticles(ids: insertedIDs)
         }
     }
 
@@ -218,7 +251,9 @@ extension FeedManager {
         await loadFromDatabaseInBackground()
     }
 
-    /// Refreshes every feed, optionally chaining the NLP pass.
+    /// Runs each feed's full pipeline concurrently in a bounded queue. Articles for
+    /// completed feeds are visible immediately; if cancellation comes mid-refresh,
+    /// every feed that has already finished its pipeline keeps its inserted articles.
     func refreshAllFeeds(
         skipAuthenticatedScrapers: Bool = false,
         respectCooldown: Bool = false,
@@ -233,17 +268,6 @@ extension FeedManager {
             return cooldown.seconds
         }()
         let now = Date()
-
-        let preloadModeRaw = UserDefaults.standard.string(
-            forKey: "FeedRefresh.PreloadArticleImagesMode"
-        )
-        let preloadMode = preloadModeRaw
-            .flatMap(FetchImagesMode.init(rawValue:)) ?? .wifiOnly
-        let imagePreloadCollector: ImagePreloadCollector? = (
-            !skipImagePreload && preloadMode != .off
-        ) ? ImagePreloadCollector() : nil
-        let articleInsertCollector = ArticleInsertCollector()
-
         let currentFeeds = feeds
         let feedsToRefresh = currentFeeds.filter { feed in
             if skipAuthenticatedScrapers, feed.isXFeed || feed.isInstagramFeed {
@@ -256,6 +280,7 @@ extension FeedManager {
             }
             return true
         }
+        guard !feedsToRefresh.isEmpty else { return }
 
         let slowFeeds = feedsToRefresh.filter { $0.isSlowRefreshFeed }
         let regularFeeds = feedsToRefresh.filter { !$0.isSlowRefreshFeed }
@@ -264,17 +289,29 @@ extension FeedManager {
             isLoading = true
             refreshCompleted = 0
             refreshTotal = feedsToRefresh.count
-            nlpCompleted = 0
-            nlpTotal = 0
         }
         defer {
             Task { @MainActor in
                 self.isLoading = false
                 self.refreshCompleted = 0
                 self.refreshTotal = 0
-                self.nlpCompleted = 0
-                self.nlpTotal = 0
                 self.refreshTask = nil
+            }
+        }
+
+        let preloadModeRaw = UserDefaults.standard.string(
+            forKey: "FeedRefresh.PreloadArticleImagesMode"
+        )
+        let preloadMode = preloadModeRaw
+            .flatMap(FetchImagesMode.init(rawValue:)) ?? .wifiOnly
+        let effectiveSkipPreload: Bool
+        if skipImagePreload {
+            effectiveSkipPreload = true
+        } else {
+            switch preloadMode {
+            case .always: effectiveSkipPreload = false
+            case .wifiOnly: effectiveSkipPreload = await NetworkMonitor.currentPathIsExpensive() ?? true
+            case .off: effectiveSkipPreload = true
             }
         }
 
@@ -284,56 +321,29 @@ extension FeedManager {
                 slowFeeds,
                 maxConcurrent: 2,
                 skipImageFetch: skipImageFetch,
-                imagePreloadCollector: imagePreloadCollector,
-                articleInsertCollector: articleInsertCollector
+                skipImagePreload: effectiveSkipPreload,
+                runNLP: runNLPAfter
             )
             async let regular: Void = self.runBoundedRefresh(
                 regularFeeds,
                 maxConcurrent: 8,
                 skipImageFetch: skipImageFetch,
-                imagePreloadCollector: imagePreloadCollector,
-                articleInsertCollector: articleInsertCollector
+                skipImagePreload: effectiveSkipPreload,
+                runNLP: runNLPAfter
             )
             _ = await (slow, regular)
-
-            await self.flushArticleInsertCollector(
-                articleInsertCollector,
-                imagePreloadCollector: imagePreloadCollector
-            )
-
-            if runNLPAfter, !Task.isCancelled,
-               !ProcessInfo.processInfo.isLowPowerModeEnabled {
-                await self.processNewArticlesWithProgress()
-            }
         }
         await MainActor.run { self.refreshTask = work }
         _ = await work.value
         await loadFromDatabaseInBackground(animated: true)
-
-        if let imagePreloadCollector, !Task.isCancelled {
-            let urls = await imagePreloadCollector.drain()
-            if !urls.isEmpty {
-                let expensive: Bool
-                switch preloadMode {
-                case .always: expensive = false
-                case .wifiOnly: expensive = await NetworkMonitor.currentPathIsExpensive() ?? true
-                case .off: expensive = true
-                }
-                if !expensive {
-                    Task.detached(priority: .utility) {
-                        await FeedManager.preloadImages(urls: urls)
-                    }
-                }
-            }
-        }
     }
 
     fileprivate func runBoundedRefresh(
         _ feeds: [Feed],
         maxConcurrent: Int,
         skipImageFetch: Bool,
-        imagePreloadCollector: ImagePreloadCollector?,
-        articleInsertCollector: ArticleInsertCollector?
+        skipImagePreload: Bool,
+        runNLP: Bool
     ) async {
         guard !feeds.isEmpty else { return }
         await withTaskGroup(of: Void.self) { group in
@@ -346,8 +356,8 @@ extension FeedManager {
                         feed,
                         reloadData: false,
                         skipImageFetch: skipImageFetch,
-                        imagePreloadCollector: imagePreloadCollector,
-                        articleInsertCollector: articleInsertCollector
+                        skipImagePreload: skipImagePreload,
+                        runNLP: runNLP
                     )
                     if !Task.isCancelled {
                         await MainActor.run { self.refreshCompleted += 1 }
@@ -367,8 +377,8 @@ extension FeedManager {
                             feed,
                             reloadData: false,
                             skipImageFetch: skipImageFetch,
-                            imagePreloadCollector: imagePreloadCollector,
-                            articleInsertCollector: articleInsertCollector
+                            skipImagePreload: skipImagePreload,
+                            runNLP: runNLP
                         )
                         if !Task.isCancelled {
                             await MainActor.run { self.refreshCompleted += 1 }
@@ -377,63 +387,6 @@ extension FeedManager {
                 }
             }
         }
-    }
-
-    /// Writes all collected article inserts in a single transaction, then runs Spotlight
-    /// indexing and image-preload aggregation against whatever was actually inserted.
-    fileprivate func flushArticleInsertCollector(
-        _ collector: ArticleInsertCollector,
-        imagePreloadCollector: ImagePreloadCollector?
-    ) async {
-        let pending = await collector.drain()
-        guard !pending.isEmpty else { return }
-        let database = database
-        let lowPower = ProcessInfo.processInfo.isLowPowerModeEnabled
-        await Task.detached {
-            let groups: [(feedID: Int64, items: [ArticleInsertItem])] = pending.map { entry in
-                (feedID: entry.feedID, items: entry.items)
-            }
-            let insertedByFeed: [Int64: [Int64]]
-            do {
-                insertedByFeed = try database.insertArticles(byFeed: groups)
-            } catch {
-                return
-            }
-            guard !insertedByFeed.isEmpty else { return }
-
-            let allInsertedIDs = insertedByFeed.values.flatMap { $0 }
-            let insertedArticles = (try? database.articles(withIDs: allInsertedIDs)) ?? []
-            let articlesByFeedID = Dictionary(grouping: insertedArticles, by: { $0.feedID })
-
-            if !lowPower {
-                for entry in pending {
-                    guard let articles = articlesByFeedID[entry.feedID], !articles.isEmpty else {
-                        continue
-                    }
-                    SpotlightIndexer.indexArticles(
-                        articles, feedTitle: entry.feedTitleForSpotlight
-                    )
-                }
-            }
-
-            if let imagePreloadCollector {
-                let imageURLs = insertedArticles.compactMap { $0.imageURL }
-                if !imageURLs.isEmpty {
-                    await imagePreloadCollector.add(imageURLs)
-                }
-            }
-        }.value
-    }
-
-    fileprivate func processNewArticlesWithProgress() async {
-        await NLPProcessingCoordinator.processNewArticlesIfEnabled(
-            onBegin: { [weak self] total in
-                await MainActor.run { self?.nlpTotal = total }
-            },
-            onProgress: { [weak self] delta in
-                await MainActor.run { self?.nlpCompleted += delta }
-            }
-        )
     }
 
     /// Refreshes feeds that have never been fetched.
@@ -445,19 +398,13 @@ extension FeedManager {
             generateAcronymIcon(feedID: feed.id, title: feed.title)
         }
 
-        let articleInsertCollector = ArticleInsertCollector()
         await withTaskGroup(of: Void.self) { group in
             for feed in unfetched {
                 group.addTask {
-                    try? await self.refreshFeed(
-                        feed,
-                        reloadData: false,
-                        articleInsertCollector: articleInsertCollector
-                    )
+                    try? await self.refreshFeed(feed, reloadData: false)
                 }
             }
         }
-        await flushArticleInsertCollector(articleInsertCollector, imagePreloadCollector: nil)
         await loadFromDatabaseInBackground(animated: true)
     }
 
@@ -478,7 +425,6 @@ extension FeedManager {
         }
 
         let maxConcurrent = 8
-        let articleInsertCollector = ArticleInsertCollector()
         let work = Task { [weak self] in
             guard let self else { return }
             async let feedRefresh: Void = withTaskGroup(of: Void.self) { group in
@@ -490,8 +436,7 @@ extension FeedManager {
                         try? await self.refreshFeed(
                             feed,
                             updateTitle: false,
-                            reloadData: false,
-                            articleInsertCollector: articleInsertCollector
+                            reloadData: false
                         )
                         if !Task.isCancelled {
                             await MainActor.run { self.refreshCompleted += 1 }
@@ -510,8 +455,7 @@ extension FeedManager {
                             try? await self.refreshFeed(
                                 feed,
                                 updateTitle: false,
-                                reloadData: false,
-                                articleInsertCollector: articleInsertCollector
+                                reloadData: false
                             )
                             if !Task.isCancelled {
                                 await MainActor.run { self.refreshCompleted += 1 }
@@ -524,9 +468,6 @@ extension FeedManager {
                 for: currentFeeds.map { ($0.domain, $0.siteURL as String?) }
             )
             _ = await (feedRefresh, faviconRefresh)
-            await self.flushArticleInsertCollector(
-                articleInsertCollector, imagePreloadCollector: nil
-            )
         }
         await MainActor.run { self.refreshTask = work }
         _ = await work.value
@@ -535,7 +476,10 @@ extension FeedManager {
         notifyFaviconChange()
     }
 
-    /// Cancels the in-flight refresh task; `defer` in the refresh method tears down UI state.
+    /// Cancels the in-flight refresh task. Feeds whose RSS fetch has already
+    /// completed run their pipeline through to insert; feeds still waiting on
+    /// the network drop their work. Triggers a database reload so any articles
+    /// collected up to the cancel point appear immediately.
     @MainActor
     func cancelRefresh() {
         refreshTask?.cancel()
@@ -543,8 +487,7 @@ extension FeedManager {
         isLoading = false
         refreshCompleted = 0
         refreshTotal = 0
-        nlpCompleted = 0
-        nlpTotal = 0
+        Task { await self.loadFromDatabaseInBackground(animated: true) }
     }
 
 }

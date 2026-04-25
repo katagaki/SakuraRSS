@@ -1,21 +1,5 @@
 import Foundation
 
-/// Accumulates image URLs during refresh for a single bounded preload step at the end.
-actor ImagePreloadCollector {
-
-    private var urls: [String] = []
-
-    func add(_ newURLs: [String]) {
-        urls.append(contentsOf: newURLs)
-    }
-
-    func drain() -> [String] {
-        let out = urls
-        urls.removeAll(keepingCapacity: false)
-        return out
-    }
-}
-
 extension FeedManager {
 
     /// Downloads and caches raw bytes for article images at utility priority.

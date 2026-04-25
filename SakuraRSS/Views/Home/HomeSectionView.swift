@@ -34,6 +34,17 @@ struct HomeSectionView: View {
         visibility.extend(from: rawArticles, isEnabled: hideViewedContent)
     }
 
+    /// Kicks off a refresh and returns immediately so SwiftUI dismisses the
+    /// pull-to-refresh indicator; in-flight progress shows via the toolbar donut.
+    private func startRefreshWithoutBlocking() {
+        feedManager.flushDebouncedReads()
+        visibility.capture(from: rawArticles, isEnabled: hideViewedContent)
+        Task { @MainActor in
+            await feedManager.refreshAllFeeds()
+            visibility.extend(from: rawArticles, isEnabled: hideViewedContent)
+        }
+    }
+
     private var loadMoreAction: (() -> Void)? {
         if let days = batchingMode.chunkDays {
             guard let next = feedManager.nextArticleChunk(for: section,
@@ -67,7 +78,7 @@ struct HomeSectionView: View {
             }
         )
         .refreshable {
-            await performRefresh()
+            startRefreshWithoutBlocking()
         }
         .markAllReadToolbar(show: markAllReadPosition == .bottom) {
             feedManager.markAllRead(for: section)

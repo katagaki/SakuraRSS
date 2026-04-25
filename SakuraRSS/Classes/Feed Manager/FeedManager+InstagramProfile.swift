@@ -15,7 +15,8 @@ extension FeedManager {
     func refreshInstagramFeed(
         _ feed: Feed,
         reloadData: Bool = true,
-        articleInsertCollector: ArticleInsertCollector? = nil
+        skipImagePreload: Bool = false,
+        runNLP: Bool = true
     ) async throws {
         let effectiveInterval = Self.jitteredRefreshInterval()
         if let lastFetched = feed.lastFetched,
@@ -63,21 +64,15 @@ extension FeedManager {
 
         let database = database
         try await Task.detached {
-            if let articleInsertCollector {
-                await articleInsertCollector.add(
-                    feedID: feed.id,
-                    items: postTuples,
-                    feedTitleForSpotlight: feedTitle
-                )
-            } else {
-                let insertedIDs = try database.insertArticles(
-                    feedID: feed.id, articles: postTuples
-                )
-                if !insertedIDs.isEmpty {
-                    let articlesToIndex = try database.articles(withIDs: insertedIDs)
-                    SpotlightIndexer.indexArticles(articlesToIndex, feedTitle: feedTitle)
-                }
-            }
+            let insertedIDs = (try? database.insertArticles(
+                feedID: feed.id, articles: postTuples
+            )) ?? []
+            await FeedManager.runPostInsertPipeline(
+                insertedIDs: insertedIDs,
+                feedTitle: feedTitle,
+                skipImagePreload: skipImagePreload,
+                runNLP: runNLP
+            )
             try database.updateFeedLastFetched(id: feed.id, date: Date())
         }.value
 
@@ -85,6 +80,7 @@ extension FeedManager {
             feed: feed, scrapedTitle: feedTitle, profileImage: profileImage
         )
 
+        await MainActor.run { self.bumpDataRevision() }
         if reloadData {
             await loadFromDatabaseInBackground(animated: true)
         }
