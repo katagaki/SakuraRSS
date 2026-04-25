@@ -268,23 +268,6 @@ extension FeedManager {
             return cooldown.seconds
         }()
         let now = Date()
-
-        let preloadModeRaw = UserDefaults.standard.string(
-            forKey: "FeedRefresh.PreloadArticleImagesMode"
-        )
-        let preloadMode = preloadModeRaw
-            .flatMap(FetchImagesMode.init(rawValue:)) ?? .wifiOnly
-        let effectiveSkipPreload: Bool
-        if skipImagePreload {
-            effectiveSkipPreload = true
-        } else {
-            switch preloadMode {
-            case .always: effectiveSkipPreload = false
-            case .wifiOnly: effectiveSkipPreload = await NetworkMonitor.currentPathIsExpensive() ?? true
-            case .off: effectiveSkipPreload = true
-            }
-        }
-
         let currentFeeds = feeds
         let feedsToRefresh = currentFeeds.filter { feed in
             if skipAuthenticatedScrapers, feed.isXFeed || feed.isInstagramFeed {
@@ -297,6 +280,7 @@ extension FeedManager {
             }
             return true
         }
+        guard !feedsToRefresh.isEmpty else { return }
 
         let slowFeeds = feedsToRefresh.filter { $0.isSlowRefreshFeed }
         let regularFeeds = feedsToRefresh.filter { !$0.isSlowRefreshFeed }
@@ -312,6 +296,22 @@ extension FeedManager {
                 self.refreshCompleted = 0
                 self.refreshTotal = 0
                 self.refreshTask = nil
+            }
+        }
+
+        let preloadModeRaw = UserDefaults.standard.string(
+            forKey: "FeedRefresh.PreloadArticleImagesMode"
+        )
+        let preloadMode = preloadModeRaw
+            .flatMap(FetchImagesMode.init(rawValue:)) ?? .wifiOnly
+        let effectiveSkipPreload: Bool
+        if skipImagePreload {
+            effectiveSkipPreload = true
+        } else {
+            switch preloadMode {
+            case .always: effectiveSkipPreload = false
+            case .wifiOnly: effectiveSkipPreload = await NetworkMonitor.currentPathIsExpensive() ?? true
+            case .off: effectiveSkipPreload = true
             }
         }
 
