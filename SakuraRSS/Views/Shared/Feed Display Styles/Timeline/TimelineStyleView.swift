@@ -47,7 +47,7 @@ struct TimelineStyleView: View {
             }
 
             if let onLoadMore {
-                LoadPreviousArticlesButton(action: onLoadMore)
+                LoadPreviousArticlesButton(action: onLoadMore, articleCount: articles.count)
                     .listRowBackground(Color.clear)
                     .listRowSeparator(.hidden)
             }

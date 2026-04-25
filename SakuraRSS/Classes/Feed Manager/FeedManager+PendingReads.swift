@@ -12,21 +12,30 @@ extension FeedManager {
     func markReadOnScroll(_ article: Article) {
         guard !article.isRead,
               pendingReadIDs.insert(article.id).inserted else { return }
-        decrementUnreadCount(feedID: article.feedID)
-        updateBadgeCount()
+        pendingReadDecrements[article.feedID, default: 0] += 1
         schedulePendingReadsFlush()
     }
 
+    /// Persists queued mark-read IDs, applies the batched unread-count
+    /// decrements, and refreshes the badge once per flush.
+    /// Crucially, this does NOT call `bumpDataRevision()` and does NOT clear
+    /// `pendingReadIDs` — the IDs remain in the set so `isRead(_:)` keeps
+    /// masking them as read until the next legitimate `loadFromDatabase`.
+    /// This avoids forcing every `_ = dataRevision` consumer (notably
+    /// `nextArticleChunk`, which walks up to 730 chunks per call) to
+    /// recompute on the main thread every 250 ms while the user is scrolling.
     func flushDebouncedReads() {
         pendingReadsFlushWorkItem?.cancel()
         pendingReadsFlushWorkItem = nil
         guard !pendingReadIDs.isEmpty else { return }
-        let ids = pendingReadIDs
-        pendingReadIDs.removeAll()
-        let idArray = Array(ids)
+        let decrements = pendingReadDecrements
+        pendingReadDecrements.removeAll()
 
+        applyUnreadDecrements(decrements)
+        updateBadgeCount()
+
+        let idArray = Array(pendingReadIDs)
         try? database.markArticlesRead(ids: idArray, read: true)
-        bumpDataRevision()
 
         let dbm = database
         Task.detached(priority: .utility) {

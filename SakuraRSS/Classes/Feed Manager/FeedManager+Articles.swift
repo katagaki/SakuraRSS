@@ -149,7 +149,8 @@ extension FeedManager {
     }
 
     func toggleRead(_ article: Article) {
-        try? database.markArticleRead(id: article.id, read: !article.isRead)
+        let currentReadState = isRead(article)
+        try? database.markArticleRead(id: article.id, read: !currentReadState)
         loadFromDatabase()
         updateBadgeCount()
     }
