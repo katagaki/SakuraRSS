@@ -76,7 +76,7 @@ struct VideoStyleView: View {
             }
             .padding(.bottom)
             if let onLoadMore {
-                LoadPreviousArticlesButton(action: onLoadMore)
+                LoadPreviousArticlesButton(action: onLoadMore, articleCount: articles.count)
                     .padding(.horizontal, 16)
                     .padding(.bottom)
             }

@@ -54,7 +54,7 @@ struct MagazineStyleView: View {
                 }
                 .padding(.horizontal, 16)
                 if let onLoadMore {
-                    LoadPreviousArticlesButton(action: onLoadMore)
+                    LoadPreviousArticlesButton(action: onLoadMore, articleCount: articles.count)
                         .padding(.horizontal, 16)
                 }
             }

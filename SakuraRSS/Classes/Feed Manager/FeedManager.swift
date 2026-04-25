@@ -27,6 +27,7 @@ final class FeedManager {
 
     /// Queued mark-read IDs; flushed every 250ms while scrolling, on idle, or on backgrounding.
     var pendingReadIDs: Set<Int64> = []
+    @ObservationIgnored var pendingReadDecrements: [Int64: Int] = [:]
     @ObservationIgnored var refreshTask: Task<Void, Never>?
 
     @ObservationIgnored var currentScrollPhase: ScrollPhase = .idle
@@ -45,6 +46,8 @@ final class FeedManager {
             articles = try database.allArticles(limit: 200)
             unreadCounts = (try? database.allUnreadCounts()) ?? [:]
             lists = (try? database.allLists()) ?? []
+            pendingReadIDs.removeAll()
+            pendingReadDecrements.removeAll()
             dataRevision += 1
         } catch {
             print("Failed to load from database: \(error)")
@@ -68,6 +71,8 @@ final class FeedManager {
                     self.articles = loadedArticles
                     self.unreadCounts = loadedUnreadCounts
                     self.lists = loadedLists
+                    self.pendingReadIDs.removeAll()
+                    self.pendingReadDecrements.removeAll()
                     self.dataRevision += 1
                 }
                 if animated {

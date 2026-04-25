@@ -17,7 +17,7 @@ struct PhotosStyleView: View {
                         .markReadOnScroll(article: article)
                 }
                 if let onLoadMore {
-                    LoadPreviousArticlesButton(action: onLoadMore)
+                    LoadPreviousArticlesButton(action: onLoadMore, articleCount: articles.count)
                         .padding(.horizontal, 16)
                         .padding(.vertical, 20)
                 }
