@@ -1,14 +1,16 @@
 import SwiftUI
 
 /// Sentinel pinned to the bottom of an article list.
-/// Manual mode shows a tap-to-load button. Auto mode triggers `action()` once
-/// each time the sentinel scrolls into view, so subsequent scrolls past the
-/// next batch re-fire the next load.
+/// Manual mode shows a tap-to-load button. Auto mode keeps firing `action()`
+/// while the sentinel is on-screen, so it works whether the user has to scroll
+/// to reveal it or whether it was visible from the start because the feed
+/// didn't fill the viewport.
 struct LoadPreviousArticlesButton: View {
 
     let action: () -> Void
 
     @AppStorage("Articles.AutoLoadWhileScrolling") private var autoLoadWhileScrolling: Bool = false
+    @State private var isOnScreen = false
 
     var body: some View {
         Group {
@@ -29,10 +31,16 @@ struct LoadPreviousArticlesButton: View {
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 12)
-        .onScrollVisibilityChange(threshold: 0.1) { visible in
-            guard visible else { return }
-            withAnimation(.smooth.speed(2.0)) {
-                action()
+        .onScrollVisibilityChange(threshold: 0.05) { visible in
+            isOnScreen = visible
+        }
+        .task(id: isOnScreen) {
+            guard isOnScreen else { return }
+            while !Task.isCancelled {
+                withAnimation(.smooth.speed(2.0)) {
+                    action()
+                }
+                try? await Task.sleep(for: .milliseconds(500))
             }
         }
     }
