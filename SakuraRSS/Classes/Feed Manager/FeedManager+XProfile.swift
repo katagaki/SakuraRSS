@@ -11,7 +11,8 @@ extension FeedManager {
     func refreshXFeed(
         _ feed: Feed,
         reloadData: Bool = true,
-        articleInsertCollector: ArticleInsertCollector? = nil
+        skipImagePreload: Bool = false,
+        runNLP: Bool = true
     ) async throws {
         if let lastFetched = feed.lastFetched,
            Date().timeIntervalSince(lastFetched) < Self.xRefreshInterval {
@@ -58,21 +59,15 @@ extension FeedManager {
 
         let database = database
         try await Task.detached {
-            if let articleInsertCollector {
-                await articleInsertCollector.add(
-                    feedID: feed.id,
-                    items: tweetTuples,
-                    feedTitleForSpotlight: feedTitle
-                )
-            } else {
-                let insertedIDs = try database.insertArticles(
-                    feedID: feed.id, articles: tweetTuples
-                )
-                if !insertedIDs.isEmpty {
-                    let articlesToIndex = try database.articles(withIDs: insertedIDs)
-                    SpotlightIndexer.indexArticles(articlesToIndex, feedTitle: feedTitle)
-                }
-            }
+            let insertedIDs = (try? database.insertArticles(
+                feedID: feed.id, articles: tweetTuples
+            )) ?? []
+            await FeedManager.runPostInsertPipeline(
+                insertedIDs: insertedIDs,
+                feedTitle: feedTitle,
+                skipImagePreload: skipImagePreload,
+                runNLP: runNLP
+            )
             try database.updateFeedLastFetched(id: feed.id, date: Date())
         }.value
 
@@ -80,6 +75,7 @@ extension FeedManager {
             feed: feed, scrapedTitle: feedTitle, profileImage: profileImage
         )
 
+        await MainActor.run { self.bumpDataRevision() }
         if reloadData {
             await loadFromDatabaseInBackground(animated: true)
         }
