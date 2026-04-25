@@ -135,10 +135,8 @@ struct ArticleDetailView: View {
                 }, placeholder: {
                     Rectangle()
                         .fill(.secondary.opacity(0.1))
-                        .frame(height: 200)
                 })
-                .aspectRatio(heroImageAspectRatio, contentMode: .fill)
-                .clipped()
+                .aspectRatio(heroImageAspectRatio ?? (16.0 / 9.0), contentMode: .fit)
                 .clipShape(RoundedRectangle(cornerRadius: 12))
                 .matchedTransitionSource(id: url, in: imageViewerNamespace)
                 .onTapGesture { imageViewerURL = url }
@@ -256,44 +254,34 @@ struct FitWidthImage: View {
     @Environment(\.openURL) private var openURL
 
     var body: some View {
-        GeometryReader { geo in
-            let maxWidth = geo.size.width
-            let naturalWidth = imageSize?.width ?? maxWidth
-            let displayWidth = min(naturalWidth, maxWidth)
-
-            CachedAsyncImage(url: url, onImageLoaded: { image in
-                aspectRatio = image.size.width / image.size.height
-                imageSize = image.size
-            }, placeholder: {
-                Rectangle()
-                    .fill(.secondary.opacity(0.1))
-                    .frame(height: 200)
-            })
-            .aspectRatio(aspectRatio, contentMode: .fill)
-            .frame(width: displayWidth)
-            .clipped()
-            .clipShape(RoundedRectangle(cornerRadius: 12))
-            .overlay(alignment: .bottomTrailing) {
-                if let link, displayWidth >= 120 {
-                    Button {
-                        openURL(link)
-                    } label: {
-                        Label("Shared.Link", systemImage: "link")
-                            .font(.caption)
-                            .fontWeight(.medium)
-                            .padding(.horizontal, 10)
-                            .padding(.vertical, 6)
-                            .background(.ultraThinMaterial, in: Capsule())
-                    }
-                    .buttonStyle(.plain)
-                    .padding(8)
-                }
-            }
-            .matchedTransitionSource(id: url, in: namespace)
-            .onTapGesture { onTap?() }
-            .frame(maxWidth: .infinity, alignment: .center)
-        }
-        .aspectRatio(aspectRatio, contentMode: .fit)
+        CachedAsyncImage(url: url, onImageLoaded: { image in
+            aspectRatio = image.size.width / image.size.height
+            imageSize = image.size
+        }, placeholder: {
+            Rectangle()
+                .fill(.secondary.opacity(0.1))
+        })
+        .aspectRatio(aspectRatio ?? (16.0 / 9.0), contentMode: .fit)
         .frame(maxWidth: imageSize?.width)
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .overlay(alignment: .bottomTrailing) {
+            if let link, (imageSize?.width ?? 120) >= 120 {
+                Button {
+                    openURL(link)
+                } label: {
+                    Label("Shared.Link", systemImage: "link")
+                        .font(.caption)
+                        .fontWeight(.medium)
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 6)
+                        .background(.ultraThinMaterial, in: Capsule())
+                }
+                .buttonStyle(.plain)
+                .padding(8)
+            }
+        }
+        .matchedTransitionSource(id: url, in: namespace)
+        .onTapGesture { onTap?() }
+        .frame(maxWidth: .infinity, alignment: .center)
     }
 }
