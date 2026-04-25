@@ -57,7 +57,9 @@ struct CachedAsyncImage<Placeholder: View>: View {
     }
 
     var body: some View {
-        Group {
+        ZStack {
+            placeholder()
+                .opacity(image == nil ? 1 : 0)
             if let image {
                 Color.clear
                     .overlay(alignment: alignment) {
@@ -66,9 +68,11 @@ struct CachedAsyncImage<Placeholder: View>: View {
                             .aspectRatio(contentMode: .fill)
                     }
                     .clipped()
-            } else {
-                placeholder()
             }
+        }
+        .transaction { transaction in
+            transaction.animation = nil
+            transaction.disablesAnimations = true
         }
         .task(id: url, priority: .utility) {
             guard let url else {
