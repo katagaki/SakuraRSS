@@ -1,10 +1,6 @@
 import SwiftUI
 
 /// Sentinel pinned to the bottom of an article list.
-/// Manual mode shows a tap-to-load button. Auto mode fires `action()` once
-/// when the sentinel becomes visible, and re-fires only after `articleCount`
-/// changes — so a feed whose loaded chunks contain no new visible articles
-/// can't get stuck spinning indefinitely.
 struct LoadPreviousArticlesButton: View {
 
     let action: () -> Void

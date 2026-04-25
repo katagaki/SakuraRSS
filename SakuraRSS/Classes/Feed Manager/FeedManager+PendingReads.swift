@@ -16,14 +16,8 @@ extension FeedManager {
         schedulePendingReadsFlush()
     }
 
-    /// Persists queued mark-read IDs, applies the batched unread-count
-    /// decrements, and refreshes the badge once per flush.
-    /// Crucially, this does NOT call `bumpDataRevision()` and does NOT clear
-    /// `pendingReadIDs` — the IDs remain in the set so `isRead(_:)` keeps
-    /// masking them as read until the next legitimate `loadFromDatabase`.
-    /// This avoids forcing every `_ = dataRevision` consumer (notably
-    /// `nextArticleChunk`, which walks up to 730 chunks per call) to
-    /// recompute on the main thread every 250 ms while the user is scrolling.
+    /// IDs stay in `pendingReadIDs` past the flush so `isRead(_:)` keeps masking them
+    /// without bumping `dataRevision`; cleared on the next `loadFromDatabase`.
     func flushDebouncedReads() {
         pendingReadsFlushWorkItem?.cancel()
         pendingReadsFlushWorkItem = nil

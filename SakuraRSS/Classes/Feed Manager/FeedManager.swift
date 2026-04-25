@@ -26,10 +26,7 @@ final class FeedManager {
     private(set) var feedsByID: [Int64: Feed] = [:]
 
     /// Queued mark-read IDs; flushed every 250ms while scrolling, on idle, or on backgrounding.
-    /// Once flushed, IDs persist here until the next `loadFromDatabase` so views keep
-    /// rendering them as read without forcing a full data revision bump every flush.
     var pendingReadIDs: Set<Int64> = []
-    /// Per-feed unread decrements accumulated between flushes.
     @ObservationIgnored var pendingReadDecrements: [Int64: Int] = [:]
     @ObservationIgnored var refreshTask: Task<Void, Never>?
 
