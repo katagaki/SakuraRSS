@@ -221,7 +221,6 @@ struct LoadPreviousArticlesButton: View {
     let action: () -> Void
 
     @AppStorage("Articles.AutoLoadWhileScrolling") private var autoLoadWhileScrolling: Bool = false
-    @State private var isVisible: Bool = false
 
     var body: some View {
         Group {
@@ -234,14 +233,8 @@ struct LoadPreviousArticlesButton: View {
                 }
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 12)
-                .onAppear { isVisible = true }
-                .onDisappear { isVisible = false }
-                .onScrollVisibilityChange(threshold: 0.1) { visible in
-                    isVisible = visible
-                }
-                .task(id: isVisible) {
-                    guard isVisible else { return }
-                    while !Task.isCancelled, isVisible {
+                .task {
+                    while !Task.isCancelled {
                         await MainActor.run {
                             withAnimation(.smooth.speed(2.0)) {
                                 action()
