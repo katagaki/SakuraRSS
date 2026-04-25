@@ -12,7 +12,7 @@ struct ArticleInsertData: Sendable {
     var duration: Int?
 }
 
-struct ArticleInsertItem {
+struct ArticleInsertItem: Sendable {
     var title: String
     var url: String
     var data: ArticleInsertData
@@ -51,37 +51,72 @@ nonisolated extension DatabaseManager {
     @discardableResult
     func insertArticles(feedID fid: Int64, articles items: [ArticleInsertItem]) throws -> [Int64] {
         guard !items.isEmpty else { return [] }
-        let cutoffTimestamp = UserDefaults.standard.double(forKey: "Content.CutoffDate")
-        let cutoffDate: Date? = cutoffTimestamp > 0
-            ? Date(timeIntervalSince1970: cutoffTimestamp) : nil
+        let cutoffDate = articleCutoffDate()
         var insertedIDs: [Int64] = []
         try database.transaction {
-            for item in items {
-                if let cutoff = cutoffDate, let published = item.data.publishedDate,
-                   published < cutoff {
-                    continue
+            insertedIDs = try insertArticleItems(feedID: fid, items: items, cutoffDate: cutoffDate)
+        }
+        return insertedIDs
+    }
+
+    /// Batched counterpart of `insertArticles(feedID:articles:)` that inserts every feed's
+    /// articles inside one transaction, so the UI sees a single mutation instead of one per feed.
+    @discardableResult
+    func insertArticles(
+        byFeed groups: [(feedID: Int64, items: [ArticleInsertItem])]
+    ) throws -> [Int64: [Int64]] {
+        guard !groups.isEmpty else { return [:] }
+        let cutoffDate = articleCutoffDate()
+        var insertedByFeed: [Int64: [Int64]] = [:]
+        try database.transaction {
+            for group in groups where !group.items.isEmpty {
+                let ids = try insertArticleItems(
+                    feedID: group.feedID, items: group.items, cutoffDate: cutoffDate
+                )
+                if !ids.isEmpty {
+                    insertedByFeed[group.feedID, default: []].append(contentsOf: ids)
                 }
-                let carouselValue = item.data.carouselImageURLs.isEmpty
-                    ? nil : item.data.carouselImageURLs.joined(separator: "\n")
-                let rowid = try database.run(articles.insert(or: .ignore,
-                    articleFeedID <- fid,
-                    articleTitle <- item.title,
-                    articleURL <- item.url,
-                    articleAuthor <- item.data.author,
-                    articleSummary <- item.data.summary,
-                    articleContent <- item.data.content,
-                    articleImageURL <- item.data.imageURL,
-                    articleCarouselURLs <- carouselValue,
-                    articlePublishedDate <- item.data.publishedDate?.timeIntervalSince1970,
-                    articleIsRead <- false,
-                    articleIsBookmarked <- false,
-                    articleAudioURL <- item.data.audioURL,
-                    articleDuration <- item.data.duration
-                ))
-                // INSERT OR IGNORE leaves sqlite3_changes() unchanged on conflict, so gate on per-statement change count rather than rowid.
-                if database.changes > 0 {
-                    insertedIDs.append(rowid)
-                }
+            }
+        }
+        return insertedByFeed
+    }
+
+    private func articleCutoffDate() -> Date? {
+        let cutoffTimestamp = UserDefaults.standard.double(forKey: "Content.CutoffDate")
+        return cutoffTimestamp > 0 ? Date(timeIntervalSince1970: cutoffTimestamp) : nil
+    }
+
+    private func insertArticleItems(
+        feedID fid: Int64,
+        items: [ArticleInsertItem],
+        cutoffDate: Date?
+    ) throws -> [Int64] {
+        var insertedIDs: [Int64] = []
+        for item in items {
+            if let cutoff = cutoffDate, let published = item.data.publishedDate,
+               published < cutoff {
+                continue
+            }
+            let carouselValue = item.data.carouselImageURLs.isEmpty
+                ? nil : item.data.carouselImageURLs.joined(separator: "\n")
+            let rowid = try database.run(articles.insert(or: .ignore,
+                articleFeedID <- fid,
+                articleTitle <- item.title,
+                articleURL <- item.url,
+                articleAuthor <- item.data.author,
+                articleSummary <- item.data.summary,
+                articleContent <- item.data.content,
+                articleImageURL <- item.data.imageURL,
+                articleCarouselURLs <- carouselValue,
+                articlePublishedDate <- item.data.publishedDate?.timeIntervalSince1970,
+                articleIsRead <- false,
+                articleIsBookmarked <- false,
+                articleAudioURL <- item.data.audioURL,
+                articleDuration <- item.data.duration
+            ))
+            // INSERT OR IGNORE leaves sqlite3_changes() unchanged on conflict, so gate on per-statement change count rather than rowid.
+            if database.changes > 0 {
+                insertedIDs.append(rowid)
             }
         }
         return insertedIDs
