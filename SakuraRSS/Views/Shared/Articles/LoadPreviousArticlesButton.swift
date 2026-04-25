@@ -12,10 +12,12 @@ struct LoadPreviousArticlesButton: View {
 
     var body: some View {
         Group {
-            if autoLoadWhileScrolling {
-                autoLoadingIndicator
-            } else {
-                manualButton
+            if articleCount > 0 {
+                if autoLoadWhileScrolling {
+                    autoLoadingIndicator
+                } else {
+                    manualButton
+                }
             }
         }
     }
