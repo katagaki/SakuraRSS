@@ -58,7 +58,11 @@ extension FeedManager {
     }
 
     /// Mirror of `refreshFeed(_:)` that drives `PetalEngine` instead of the RSS path.
-    func refreshPetalFeed(_ feed: Feed, reloadData: Bool) async throws {
+    func refreshPetalFeed(
+        _ feed: Feed,
+        reloadData: Bool,
+        articleInsertCollector: ArticleInsertCollector? = nil
+    ) async throws {
         guard UserDefaults.standard.bool(forKey: "Labs.PetalRecipes") else {
             return
         }
@@ -77,6 +81,7 @@ extension FeedManager {
 
         let database = database
         let feedID = feed.id
+        let feedTitle = feed.title
         try await Task.detached {
             let articleItems = parsed.map { article in
                 ArticleInsertItem(
@@ -93,7 +98,15 @@ extension FeedManager {
                     )
                 )
             }
-            try database.insertArticles(feedID: feedID, articles: articleItems)
+            if let articleInsertCollector {
+                await articleInsertCollector.add(
+                    feedID: feedID,
+                    items: articleItems,
+                    feedTitleForSpotlight: feedTitle
+                )
+            } else {
+                try database.insertArticles(feedID: feedID, articles: articleItems)
+            }
             try database.updateFeedLastFetched(id: feedID, date: Date())
         }.value
 

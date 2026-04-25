@@ -8,7 +8,11 @@ extension FeedManager {
     /// Minimum interval between YouTube playlist fetches per feed (30 minutes).
     private static let youTubePlaylistRefreshInterval: TimeInterval = 30 * 60
 
-    func refreshYouTubePlaylistFeed(_ feed: Feed, reloadData: Bool = true) async throws {
+    func refreshYouTubePlaylistFeed(
+        _ feed: Feed,
+        reloadData: Bool = true,
+        articleInsertCollector: ArticleInsertCollector? = nil
+    ) async throws {
         if let lastFetched = feed.lastFetched,
            Date().timeIntervalSince(lastFetched) < Self.youTubePlaylistRefreshInterval {
             #if DEBUG
@@ -50,12 +54,22 @@ extension FeedManager {
 
         let database = database
         try await Task.detached {
-            let insertedIDs = try database.insertArticles(feedID: feed.id, articles: articleTuples)
-            try database.updateFeedLastFetched(id: feed.id, date: Date())
-            if !insertedIDs.isEmpty {
-                let articlesToIndex = try database.articles(withIDs: insertedIDs)
-                SpotlightIndexer.indexArticles(articlesToIndex, feedTitle: feedTitle)
+            if let articleInsertCollector {
+                await articleInsertCollector.add(
+                    feedID: feed.id,
+                    items: articleTuples,
+                    feedTitleForSpotlight: feedTitle
+                )
+            } else {
+                let insertedIDs = try database.insertArticles(
+                    feedID: feed.id, articles: articleTuples
+                )
+                if !insertedIDs.isEmpty {
+                    let articlesToIndex = try database.articles(withIDs: insertedIDs)
+                    SpotlightIndexer.indexArticles(articlesToIndex, feedTitle: feedTitle)
+                }
             }
+            try database.updateFeedLastFetched(id: feed.id, date: Date())
         }.value
 
         await applyScraperMetadataRefresh(

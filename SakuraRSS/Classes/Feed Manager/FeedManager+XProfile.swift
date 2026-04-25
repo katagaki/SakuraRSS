@@ -8,7 +8,11 @@ extension FeedManager {
     /// Minimum interval between X API calls per feed (30 minutes).
     static let xRefreshInterval: TimeInterval = 30 * 60
 
-    func refreshXFeed(_ feed: Feed, reloadData: Bool = true) async throws {
+    func refreshXFeed(
+        _ feed: Feed,
+        reloadData: Bool = true,
+        articleInsertCollector: ArticleInsertCollector? = nil
+    ) async throws {
         if let lastFetched = feed.lastFetched,
            Date().timeIntervalSince(lastFetched) < Self.xRefreshInterval {
             #if DEBUG
@@ -54,12 +58,22 @@ extension FeedManager {
 
         let database = database
         try await Task.detached {
-            let insertedIDs = try database.insertArticles(feedID: feed.id, articles: tweetTuples)
-            try database.updateFeedLastFetched(id: feed.id, date: Date())
-            if !insertedIDs.isEmpty {
-                let articlesToIndex = try database.articles(withIDs: insertedIDs)
-                SpotlightIndexer.indexArticles(articlesToIndex, feedTitle: feedTitle)
+            if let articleInsertCollector {
+                await articleInsertCollector.add(
+                    feedID: feed.id,
+                    items: tweetTuples,
+                    feedTitleForSpotlight: feedTitle
+                )
+            } else {
+                let insertedIDs = try database.insertArticles(
+                    feedID: feed.id, articles: tweetTuples
+                )
+                if !insertedIDs.isEmpty {
+                    let articlesToIndex = try database.articles(withIDs: insertedIDs)
+                    SpotlightIndexer.indexArticles(articlesToIndex, feedTitle: feedTitle)
+                }
             }
+            try database.updateFeedLastFetched(id: feed.id, date: Date())
         }.value
 
         await applyScraperMetadataRefresh(

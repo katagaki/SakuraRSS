@@ -12,7 +12,11 @@ extension FeedManager {
         instagramRefreshInterval + TimeInterval.random(in: 0...(10 * 60))
     }
 
-    func refreshInstagramFeed(_ feed: Feed, reloadData: Bool = true) async throws {
+    func refreshInstagramFeed(
+        _ feed: Feed,
+        reloadData: Bool = true,
+        articleInsertCollector: ArticleInsertCollector? = nil
+    ) async throws {
         let effectiveInterval = Self.jitteredRefreshInterval()
         if let lastFetched = feed.lastFetched,
            Date().timeIntervalSince(lastFetched) < effectiveInterval {
@@ -59,12 +63,22 @@ extension FeedManager {
 
         let database = database
         try await Task.detached {
-            let insertedIDs = try database.insertArticles(feedID: feed.id, articles: postTuples)
-            try database.updateFeedLastFetched(id: feed.id, date: Date())
-            if !insertedIDs.isEmpty {
-                let articlesToIndex = try database.articles(withIDs: insertedIDs)
-                SpotlightIndexer.indexArticles(articlesToIndex, feedTitle: feedTitle)
+            if let articleInsertCollector {
+                await articleInsertCollector.add(
+                    feedID: feed.id,
+                    items: postTuples,
+                    feedTitleForSpotlight: feedTitle
+                )
+            } else {
+                let insertedIDs = try database.insertArticles(
+                    feedID: feed.id, articles: postTuples
+                )
+                if !insertedIDs.isEmpty {
+                    let articlesToIndex = try database.articles(withIDs: insertedIDs)
+                    SpotlightIndexer.indexArticles(articlesToIndex, feedTitle: feedTitle)
+                }
             }
+            try database.updateFeedLastFetched(id: feed.id, date: Date())
         }.value
 
         await applyScraperMetadataRefresh(
