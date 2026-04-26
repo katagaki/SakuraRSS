@@ -26,8 +26,9 @@ struct LoadPreviousArticlesButton: View {
     }
 
     /// Fires when the sentinel becomes visible. The trigger row is sized
-    /// taller than the indicator content so that it crosses into view well
-    /// before the user reaches the absolute bottom of the list.
+    /// taller than the indicator content so it crosses into view a bit
+    /// before the user reaches the absolute bottom of the list, but small
+    /// enough that the empty placeholder isn't a distracting gap.
     private var autoLoadingIndicator: some View {
         HStack(spacing: 8) {
             if isLoading {
@@ -38,7 +39,8 @@ struct LoadPreviousArticlesButton: View {
             }
         }
         .frame(maxWidth: .infinity)
-        .frame(minHeight: 240)
+        .frame(minHeight: 88)
+        .padding(.vertical, 4)
         .onAppear { isOnScreen = true }
         .onDisappear { isOnScreen = false }
         .onScrollVisibilityChange(threshold: 0.05) { visible in
