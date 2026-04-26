@@ -2,7 +2,7 @@ import Foundation
 
 /// Bypass values used while Doomscrolling Mode is active. The user's stored
 /// settings are preserved; only the effective values returned here change.
-enum DoomscrollingMode {
+nonisolated enum DoomscrollingMode {
 
     static let storageKey = "Articles.DoomscrollingMode"
 
