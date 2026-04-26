@@ -51,9 +51,17 @@ struct FeedArticlesView: View {
 
     private func performRefresh() async {
         feedManager.flushDebouncedReads()
-        visibility.capture(from: rawArticles, isEnabled: hideViewedContent)
+        visibility.beginRefresh(from: rawArticles, isEnabled: hideViewedContent)
         try? await feedManager.refreshFeed(feed)
-        visibility.extend(from: rawArticles, isEnabled: hideViewedContent)
+        withAnimation(.smooth.speed(2.0)) {
+            visibility.endRefresh(from: rawArticles, isEnabled: hideViewedContent)
+        }
+    }
+
+    private func acceptPendingRefresh() {
+        withAnimation(.smooth.speed(2.0)) {
+            visibility.acceptPendingRefresh()
+        }
     }
 
     var body: some View {
@@ -89,6 +97,15 @@ struct FeedArticlesView: View {
             loadedCount: loadedCount,
             rawArticles: { rawArticles }
         )
+        .trackBackgroundRefresh(
+            $visibility,
+            isLoading: feedManager.isLoading,
+            hideViewedContent: hideViewedContent,
+            rawArticles: { rawArticles }
+        )
+        .refreshPromptOverlay(isVisible: visibility.hasPendingRefresh) {
+            acceptPendingRefresh()
+        }
         .onChange(of: batchingMode) { _, newMode in
             loadedSinceDate = newMode.initialSinceDate()
             loadedCount = newMode.initialCount()

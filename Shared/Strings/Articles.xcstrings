@@ -857,13 +857,13 @@
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "有料記事 — タップでSafariで開く"
+            "value": "有料コンテンツ — タップでSafariで開く"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "유료 기사 — Safari에서 열려면 탭하세요"
+            "value": "유료 콘텐츠 — Safari에서 열려면 탭하세요"
           }
         },
         "vi": {
@@ -1305,55 +1305,55 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nachfolgend ist der vollständige Text eines Artikels. Fassen Sie ihn zusammen, indem Sie die wichtigsten Punkte aus jedem Absatz extrahieren. Antworten Sie in derselben Sprache wie der Artikel. Verwenden Sie einfache Sprache. Sie dürfen **fett** verwenden, um wichtige Begriffe hervorzuheben. Fügen Sie keine Einleitung oder kein Fazit hinzu. Geben Sie nur die wichtigsten Punkte als knappe Aufzählungspunkte aus.\n\nArtikel:"
+            "value": "Nachfolgend ist der vollständige Text des Inhalts. Fassen Sie ihn zusammen, indem Sie die wichtigsten Punkte aus jedem Absatz extrahieren. Antworten Sie in derselben Sprache wie der Inhalt. Verwenden Sie einfache Sprache. Sie dürfen **fett** verwenden, um wichtige Begriffe hervorzuheben. Fügen Sie keine Einleitung oder kein Fazit hinzu. Geben Sie nur die wichtigsten Punkte als knappe Aufzählungspunkte aus.\n\nInhalt:"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Below is the full text of an article. Summarize it by extracting the key points from each paragraph. Respond in the same language as the article. Use plain language. You may use **bold** to emphasize key terms. Do not include any introduction or conclusion. Only output the key points as concise bullet points.\n\nArticle:"
+            "value": "Below is the full text of the content. Summarize it by extracting the key points from each paragraph. Respond in the same language as the content. Use plain language. You may use **bold** to emphasize key terms. Do not include any introduction or conclusion. Only output the key points as concise bullet points.\n\nContent:"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ci-dessous se trouve le texte complet d'un article. Résumez-le en extrayant les points clés de chaque paragraphe. Répondez dans la même langue que l'article. Utilisez un langage simple. Vous pouvez utiliser le **gras** pour mettre en valeur les termes clés. N'incluez aucune introduction ni conclusion. Donnez uniquement les points clés sous forme de puces concises.\n\nArticle :"
+            "value": "Ci-dessous se trouve le texte complet du contenu. Résumez-le en extrayant les points clés de chaque paragraphe. Répondez dans la même langue que le contenu. Utilisez un langage simple. Vous pouvez utiliser le **gras** pour mettre en valeur les termes clés. N'incluez aucune introduction ni conclusion. Donnez uniquement les points clés sous forme de puces concises.\n\nContenu :"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Di seguito è riportato il testo completo di un articolo. Riassumilo estraendo i punti chiave da ogni paragrafo. Rispondi nella stessa lingua dell'articolo. Usa un linguaggio semplice. Puoi usare il **grassetto** per evidenziare i termini chiave. Non includere introduzione o conclusione. Riporta solo i punti chiave come elenco puntato conciso.\n\nArticolo:"
+            "value": "Di seguito è riportato il testo completo del contenuto. Riassumilo estraendo i punti chiave da ogni paragrafo. Rispondi nella stessa lingua del contenuto. Usa un linguaggio semplice. Puoi usare il **grassetto** per evidenziare i termini chiave. Non includere introduzione o conclusione. Riporta solo i punti chiave come elenco puntato conciso.\n\nContenuto:"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "以下は記事の全文です。各段落の要点を抽出して要約してください。記事と同じ言語で回答してください。平易な言葉を使ってください。重要な用語を強調するために**太字**を使用できます。導入文やまとめは含めないでください。簡潔な箇条書きで要点のみを出力してください。\n\n記事:"
+            "value": "以下はコンテンツの全文です。各段落の要点を抽出して要約してください。コンテンツと同じ言語で回答してください。平易な言葉を使ってください。重要な用語を強調するために**太字**を使用できます。導入文やまとめは含めないでください。簡潔な箇条書きで要点のみを出力してください。\n\nコンテンツ:"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "아래는 기사의 전문입니다. 각 단락에서 핵심 내용을 추출하여 요약하세요. 기사와 같은 언어로 응답하세요. 쉬운 언어를 사용하세요. 핵심 용어를 강조하기 위해 **굵게**를 사용할 수 있습니다. 서론이나 결론을 포함하지 마세요. 핵심 내용만 간결한 글머리 기호로 출력하세요.\n\n기사:"
+            "value": "아래는 콘텐츠의 전문입니다. 각 단락에서 핵심 내용을 추출하여 요약하세요. 콘텐츠와 같은 언어로 응답하세요. 쉬운 언어를 사용하세요. 핵심 용어를 강조하기 위해 **굵게**를 사용할 수 있습니다. 서론이나 결론을 포함하지 마세요. 핵심 내용만 간결한 글머리 기호로 출력하세요.\n\n콘텐츠:"
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Dưới đây là toàn bộ nội dung của một bài viết. Hãy tóm tắt bằng cách trích xuất các ý chính từ mỗi đoạn. Trả lời bằng tiếng Việt. Sử dụng ngôn ngữ đơn giản. Bạn có thể sử dụng **in đậm** để nhấn mạnh các thuật ngữ quan trọng. Không viết phần mở đầu hay kết luận. Chỉ xuất các ý chính dưới dạng gạch đầu dòng ngắn gọn.\n\nBài viết:"
+            "value": "Dưới đây là toàn bộ nội dung. Hãy tóm tắt bằng cách trích xuất các ý chính từ mỗi đoạn. Trả lời bằng ngôn ngữ tương tự nội dung. Sử dụng ngôn ngữ đơn giản. Bạn có thể sử dụng **in đậm** để nhấn mạnh các thuật ngữ quan trọng. Không viết phần mở đầu hay kết luận. Chỉ xuất các ý chính dưới dạng gạch đầu dòng ngắn gọn.\n\nNội dung:"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "以下是一篇文章的全文。请提取每个段落的要点进行总结。用与文章相同的语言回答。使用简洁的语言。可以使用**粗体**来强调关键术语。不要包含任何引言或结论。仅输出简洁的要点列表。\n\n文章："
+            "value": "以下是内容全文。请提取每个段落的要点进行总结。用与内容相同的语言回答。使用简洁的语言。可以使用**粗体**来强调关键术语。不要包含任何引言或结论。仅输出简洁的要点列表。\n\n内容："
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "以下是一篇文章的全文。請從每個段落中提取重點來進行摘要。用與文章相同的語言回答。使用淺顯易懂的語言。可以使用**粗體**來強調關鍵術語。不要包含任何引言或結論。只輸出簡潔的重點條列。\n\n文章："
+            "value": "以下是內容全文。請從每個段落中提取重點來進行摘要。用與內容相同的語言回答。使用淺顯易懂的語言。可以使用**粗體**來強調關鍵術語。不要包含任何引言或結論。只輸出簡潔的重點條列。\n\n內容："
           }
         }
       }
@@ -2780,55 +2780,55 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "In Artikeln erwähnte Personen werden hier nach der Verarbeitung angezeigt. Aktivieren Sie „Themen & Personen“ in den Einstellungen für Geräteintelligenz."
+            "value": "In Inhalten erwähnte Personen werden hier nach der Verarbeitung angezeigt. Aktivieren Sie „Themen & Personen“ in den Einstellungen für Geräteintelligenz."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "People mentioned in articles will appear here after processing. Enable Topics & People in On-Device Intelligence settings."
+            "value": "People mentioned in content will appear here after processing. Enable Topics & People in On-Device Intelligence settings."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Les personnes mentionnées dans les articles apparaîtront ici après traitement. Activez Sujets et personnes dans les réglages Intelligence sur l’appareil."
+            "value": "Les personnes mentionnées dans le contenu apparaîtront ici après traitement. Activez Sujets et personnes dans les réglages Intelligence sur l’appareil."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Le persone menzionate negli articoli appariranno qui dopo l’elaborazione. Abilita Argomenti e persone nelle impostazioni Intelligenza sul dispositivo."
+            "value": "Le persone menzionate nei contenuti appariranno qui dopo l’elaborazione. Abilita Argomenti e persone nelle impostazioni Intelligenza sul dispositivo."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "記事で言及された人物が処理後にここに表示されます。オンデバイスインテリジェンス設定で「トピックと人物」を有効にしてください。"
+            "value": "コンテンツ内で言及された人物が処理後にここに表示されます。オンデバイスインテリジェンス設定で「トピックと人物」を有効にしてください。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "기사에서 언급된 인물이 처리 후 여기에 표시됩니다. 온디바이스 인텔리전스 설정에서 주제 및 인물을 활성화하세요."
+            "value": "콘텐츠에서 언급된 인물이 처리 후 여기에 표시됩니다. 온디바이스 인텔리전스 설정에서 주제 및 인물을 활성화하세요."
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Những người được nhắc đến trong bài viết sẽ xuất hiện ở đây sau khi xử lý. Bật Chủ đề và Nhân vật trong cài đặt Trí tuệ trên thiết bị."
+            "value": "Những người được nhắc đến trong nội dung sẽ xuất hiện ở đây sau khi xử lý. Bật Chủ đề và Nhân vật trong cài đặt Trí tuệ trên thiết bị."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "文章中提到的人物将在处理后显示在此。请在设备端智能设置中启用话题与人物。"
+            "value": "内容中提到的人物将在处理后显示在此。请在设备端智能设置中启用话题与人物。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "文章中提到的人物將在處理後顯示於此。請在裝置端智慧設定中啟用話題與人物。"
+            "value": "內容中提到的人物將在處理後顯示於此。請在裝置端智慧設定中啟用話題與人物。"
           }
         }
       }
@@ -2892,61 +2892,120 @@
         }
       }
     },
+    "Refresh.NewContent": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Neue Inhalte"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "New Content"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nouveau contenu"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nuovi contenuti"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "新しいコンテンツ"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "새로운 콘텐츠"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nội dung mới"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "新内容"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "新內容"
+          }
+        }
+      }
+    },
     "Scroll.EndOfFeed.Description": {
       "extractionState": "manual",
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Lade ältere Artikel, um weiter zu scrollen."
+            "value": "Lade ältere Inhalte, um weiter zu scrollen."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Load older articles to keep scrolling."
+            "value": "Load older content to keep scrolling."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Chargez des articles plus anciens pour continuer à défiler."
+            "value": "Chargez du contenu plus ancien pour continuer à défiler."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Carica articoli più vecchi per continuare a scorrere."
+            "value": "Carica contenuti più vecchi per continuare a scorrere."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "続きを閲覧するには、過去の記事を読み込んでください。"
+            "value": "続きを閲覧するには、過去のコンテンツを読み込んでください。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "계속 스크롤하려면 이전 기사를 불러오세요."
+            "value": "계속 스크롤하려면 이전 콘텐츠를 불러오세요."
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tải thêm bài viết cũ hơn để tiếp tục cuộn."
+            "value": "Tải thêm nội dung cũ hơn để tiếp tục cuộn."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "加载更早的文章以继续滚动。"
+            "value": "加载更早的内容以继续滚动。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "載入較舊的文章以繼續捲動。"
+            "value": "載入較舊的內容以繼續捲動。"
           }
         }
       }
@@ -4373,55 +4432,55 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Themen erscheinen, nachdem Artikel verarbeitet wurden. Aktivieren Sie „Themen & Personen“ in den Einstellungen für Geräteintelligenz."
+            "value": "Themen erscheinen, nachdem Inhalte verarbeitet wurden. Aktivieren Sie „Themen & Personen“ in den Einstellungen für Geräteintelligenz."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Topics will appear after articles are processed. Enable Topics & People in On-Device Intelligence settings."
+            "value": "Topics will appear after content is processed. Enable Topics & People in On-Device Intelligence settings."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Les sujets apparaîtront après le traitement des articles. Activez Sujets et personnes dans les réglages Intelligence sur l’appareil."
+            "value": "Les sujets apparaîtront après le traitement du contenu. Activez Sujets et personnes dans les réglages Intelligence sur l’appareil."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Gli argomenti appariranno dopo l’elaborazione degli articoli. Abilita Argomenti e persone nelle impostazioni Intelligenza sul dispositivo."
+            "value": "Gli argomenti appariranno dopo l’elaborazione dei contenuti. Abilita Argomenti e persone nelle impostazioni Intelligenza sul dispositivo."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "記事が処理された後にトピックが表示されます。オンデバイスインテリジェンス設定で「トピックと人物」を有効にしてください。"
+            "value": "コンテンツが処理された後にトピックが表示されます。オンデバイスインテリジェンス設定で「トピックと人物」を有効にしてください。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "기사가 처리된 후 주제가 표시됩니다. 온디바이스 인텔리전스 설정에서 주제 및 인물을 활성화하세요."
+            "value": "콘텐츠가 처리된 후 주제가 표시됩니다. 온디바이스 인텔리전스 설정에서 주제 및 인물을 활성화하세요."
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Chủ đề sẽ xuất hiện sau khi bài viết được xử lý. Bật Chủ đề và Nhân vật trong cài đặt Trí tuệ trên thiết bị."
+            "value": "Chủ đề sẽ xuất hiện sau khi nội dung được xử lý. Bật Chủ đề và Nhân vật trong cài đặt Trí tuệ trên thiết bị."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "文章处理后将显示话题。请在设备端智能设置中启用话题与人物。"
+            "value": "内容处理后将显示话题。请在设备端智能设置中启用话题与人物。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "文章處理後將顯示話題。請在裝置端智慧設定中啟用話題與人物。"
+            "value": "內容處理後將顯示話題。請在裝置端智慧設定中啟用話題與人物。"
           }
         }
       }
