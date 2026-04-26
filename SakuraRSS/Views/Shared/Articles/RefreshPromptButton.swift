@@ -11,7 +11,7 @@ struct RefreshPromptButton: View {
         Button {
             action()
         } label: {
-            Text(String(localized: "Refresh.NewArticles", table: "Articles"))
+            Text(String(localized: "Refresh.NewContent", table: "Articles"))
                 .font(.subheadline.weight(.semibold))
                 .padding(.horizontal, 10)
                 .padding(.vertical, 4)
