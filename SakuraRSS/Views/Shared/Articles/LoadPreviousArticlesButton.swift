@@ -31,6 +31,8 @@ struct LoadPreviousArticlesButton: View {
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 12)
+        .onAppear { isOnScreen = true }
+        .onDisappear { isOnScreen = false }
         .onScrollVisibilityChange(threshold: 0.05) { visible in
             isOnScreen = visible
         }
