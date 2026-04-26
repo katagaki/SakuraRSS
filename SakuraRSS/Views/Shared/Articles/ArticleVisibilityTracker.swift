@@ -37,7 +37,9 @@ struct ArticleVisibilityTracker {
         visibleIDs = Set(articles.filter { !$0.isRead }.map(\.id))
     }
 
-    /// Returns true if at least one new unread ID was added.
+    /// Returns true if at least one new unread ID was added. Pending refresh
+    /// IDs are excluded so an auto-load that surfaces nothing visible can't
+    /// be masked by content the user hasn't accepted yet.
     @discardableResult
     mutating func extend(from articles: [Article], isEnabled: Bool) -> Bool {
         guard isEnabled else {
@@ -45,6 +47,7 @@ struct ArticleVisibilityTracker {
             return false
         }
         let unreadIDs = Set(articles.filter { !$0.isRead }.map(\.id))
+            .subtracting(pendingIDs)
         let previous = visibleIDs ?? []
         let merged = previous.union(unreadIDs)
         let didGrow = merged.count > previous.count
