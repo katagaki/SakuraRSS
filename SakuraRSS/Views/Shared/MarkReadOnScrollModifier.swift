@@ -4,7 +4,12 @@ import SwiftUI
 struct MarkReadOnScrollModifier: ViewModifier {
 
     @Environment(FeedManager.self) private var feedManager
-    @AppStorage("Display.ScrollMarkAsRead") private var scrollMarkAsRead: Bool = false
+    @AppStorage("Display.ScrollMarkAsRead") private var storedScrollMarkAsRead: Bool = false
+    @AppStorage(DoomscrollingMode.storageKey) private var doomscrollingMode: Bool = false
+
+    private var scrollMarkAsRead: Bool {
+        DoomscrollingMode.effectiveScrollMarkAsRead(storedScrollMarkAsRead)
+    }
 
     let article: Article
 

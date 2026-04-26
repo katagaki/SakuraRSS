@@ -7,13 +7,13 @@ struct LoadPreviousArticlesButton: View {
     let action: () -> Void
     var articleCount: Int = 0
 
-    @AppStorage("Articles.AutoLoadWhileScrolling") private var autoLoadWhileScrolling: Bool = false
+    @AppStorage(DoomscrollingMode.storageKey) private var doomscrollingMode: Bool = false
     @State private var isLoading = false
 
     var body: some View {
         Group {
             if articleCount > 0 {
-                if autoLoadWhileScrolling {
+                if doomscrollingMode {
                     autoLoadingIndicator
                 } else {
                     manualButton

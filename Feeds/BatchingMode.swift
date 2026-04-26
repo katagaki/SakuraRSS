@@ -45,8 +45,11 @@ nonisolated enum BatchingMode: String, CaseIterable, Identifiable, Sendable {
 
     func initialCount() -> Int { batchSize ?? 0 }
 
-    /// Returns the currently persisted mode.
+    /// Returns the currently persisted mode, with Doomscrolling Mode applied.
     static func current() -> BatchingMode {
+        if UserDefaults.standard.bool(forKey: DoomscrollingMode.storageKey) {
+            return .items25
+        }
         let raw = UserDefaults.standard.string(forKey: "Articles.BatchingMode")
         return raw.flatMap(BatchingMode.init(rawValue:)) ?? .day1
     }

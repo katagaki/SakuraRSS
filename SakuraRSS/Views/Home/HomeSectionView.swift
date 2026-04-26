@@ -6,19 +6,32 @@ struct HomeSectionView: View {
 
     let section: FeedSection
 
-    @AppStorage("Articles.BatchingMode") private var batchingMode: BatchingMode = .day1
+    @AppStorage("Articles.BatchingMode") private var storedBatchingMode: BatchingMode = .day1
+    @AppStorage(DoomscrollingMode.storageKey) private var doomscrollingMode: Bool = false
     @State private var loadedSinceDate: Date = BatchingMode.current().initialSinceDate()
     @State private var loadedCount: Int = BatchingMode.current().initialCount()
     @AppStorage("Display.MarkAllReadPosition") private var markAllReadPosition: MarkAllReadPosition = .bottom
     @AppStorage("Instagram.HideReels") private var hideInstagramReels: Bool = false
-    @AppStorage("Articles.HideViewedContent") private var hideViewedContent: Bool = false
+    @AppStorage("Articles.HideViewedContent") private var storedHideViewedContent: Bool = false
     @State private var visibility = ArticleVisibilityTracker()
     @State private var scrollToTopTick: Int = 0
+
+    private var batchingMode: BatchingMode {
+        DoomscrollingMode.effectiveBatchingMode(storedBatchingMode)
+    }
+
+    private var hideViewedContent: Bool {
+        DoomscrollingMode.effectiveHideViewedContent(storedHideViewedContent)
+    }
 
     private var rawArticles: [Article] {
         var articles: [Article]
         if batchingMode.isCountBased {
-            articles = feedManager.articles(for: section, limit: loadedCount)
+            articles = feedManager.articles(
+                for: section,
+                limit: loadedCount,
+                requireUnread: hideViewedContent
+            )
         } else {
             articles = feedManager.articles(for: section, since: loadedSinceDate)
         }
@@ -29,8 +42,11 @@ struct HomeSectionView: View {
     }
 
     private func performRefresh() async {
+        guard !feedManager.isLoading else { return }
         feedManager.flushDebouncedReads()
-        visibility.beginRefresh(from: rawArticles, isEnabled: hideViewedContent)
+        withAnimation(.smooth.speed(2.0)) {
+            visibility.beginRefresh(from: rawArticles, isEnabled: hideViewedContent)
+        }
         await feedManager.refreshAllFeeds()
         withAnimation(.smooth.speed(2.0)) {
             visibility.endRefresh(from: rawArticles, isEnabled: hideViewedContent)
@@ -40,8 +56,11 @@ struct HomeSectionView: View {
     /// Kicks off a refresh and returns immediately so SwiftUI dismisses the
     /// pull-to-refresh indicator; in-flight progress shows via the toolbar donut.
     private func startRefreshWithoutBlocking() {
+        guard !feedManager.isLoading else { return }
         feedManager.flushDebouncedReads()
-        visibility.beginRefresh(from: rawArticles, isEnabled: hideViewedContent)
+        withAnimation(.smooth.speed(2.0)) {
+            visibility.beginRefresh(from: rawArticles, isEnabled: hideViewedContent)
+        }
         Task { @MainActor in
             await feedManager.refreshAllFeeds()
             withAnimation(.smooth.speed(2.0)) {
@@ -126,6 +145,9 @@ struct HomeSectionView: View {
         .onChange(of: batchingMode) { _, newMode in
             loadedSinceDate = newMode.initialSinceDate()
             loadedCount = newMode.initialCount()
+            visibility.capture(from: rawArticles, isEnabled: hideViewedContent)
+        }
+        .onChange(of: doomscrollingMode) { _, _ in
             visibility.capture(from: rawArticles, isEnabled: hideViewedContent)
         }
     }

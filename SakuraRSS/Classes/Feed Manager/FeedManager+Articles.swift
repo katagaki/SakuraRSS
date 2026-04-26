@@ -59,10 +59,25 @@ extension FeedManager {
         return applyAllRules(all)
     }
 
-    func articles(for feed: Feed, limit: Int? = nil) -> [Article] {
+    func articles(for feed: Feed, limit: Int? = nil, requireUnread: Bool = false) -> [Article] {
         _ = dataRevision
-        let all = (try? database.articles(forFeedID: feed.id, limit: limit)) ?? []
-        return applyRules(all, feedID: feed.id)
+        guard requireUnread, let limit else {
+            let all = (try? database.articles(forFeedID: feed.id, limit: limit)) ?? []
+            return applyRules(all, feedID: feed.id)
+        }
+        var fetchLimit = max(limit * 4, 100)
+        let maxIterations = 20
+        for _ in 0..<maxIterations {
+            let all = (try? database.articles(forFeedID: feed.id, limit: fetchLimit)) ?? []
+            let pool = applyRules(all, feedID: feed.id)
+            let unread = pool.filter { !$0.isRead }
+            if unread.count >= limit || pool.count < fetchLimit {
+                return Array(unread.prefix(limit))
+            }
+            fetchLimit *= 2
+        }
+        let all = (try? database.articles(forFeedID: feed.id, limit: fetchLimit)) ?? []
+        return Array(applyRules(all, feedID: feed.id).filter { !$0.isRead }.prefix(limit))
     }
 
     func articles(for feed: Feed, since date: Date) -> [Article] {
