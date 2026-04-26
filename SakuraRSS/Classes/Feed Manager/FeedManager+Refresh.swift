@@ -60,85 +60,105 @@ extension FeedManager {
 
         let database = database
         try await Task.detached {
-            guard let url = URL(string: feed.url) else { return }
-            let fetchURL = RedirectDomains.redirectedURL(url)
-
-            let (data, _) = try await URLSession.shared.data(for: .sakura(url: fetchURL, timeoutInterval: 5))
-            let parser = RSSParser()
-            guard let parsed = parser.parse(data: data) else { return }
-
-            let feedDomain = feed.domain
-            let preparedArticles = parsed.articles.map { article in
-                BodyPriorityDomains.applying(to: article, feedDomain: feedDomain)
-            }
-
-            let existingURLs = (try? database.existingArticleURLs(forFeedID: feed.id)) ?? []
-            let metadataImages: [String: String]
-            if skipImageFetch {
-                metadataImages = [:]
-            } else {
-                metadataImages = await FeedManager.fetchMetadataImages(
-                    for: preparedArticles, skippingURLs: existingURLs
-                )
-            }
-
-            let redditImages: [String: String] = (!skipImageFetch && feed.isRedditFeed)
-                ? await FeedManager.fetchRedditImages(forFeedURL: feed.url)
-                : [:]
-
-            let articleTuples = preparedArticles.map { article in
-                let redditImage = FeedManager.redditImageURL(
-                    for: article.url, in: redditImages
-                )
-                let resolvedImageURL = redditImage
-                    ?? article.imageURL
-                    ?? metadataImages[article.url]
-                return ArticleInsertItem(
-                    title: article.title,
-                    url: article.url,
-                    data: ArticleInsertData(
-                        author: article.author,
-                        summary: article.summary,
-                        content: article.content,
-                        imageURL: resolvedImageURL,
-                        publishedDate: article.publishedDate,
-                        audioURL: article.audioURL,
-                        duration: article.duration
-                    )
-                )
-            }
-
-            let feedTitleForIndex = parsed.title.isEmpty ? feed.title : parsed.title
-            let insertedIDs = (try? database.insertArticles(
-                feedID: feed.id, articles: articleTuples
-            )) ?? []
-
-            await FeedManager.runPostInsertPipeline(
-                insertedIDs: insertedIDs,
-                feedTitle: feedTitleForIndex,
+            try await FeedManager.runStandardFeedPipeline(
+                feed: feed,
+                database: database,
+                updateTitle: updateTitle,
+                skipImageFetch: skipImageFetch,
                 skipImagePreload: skipImagePreload,
                 runNLP: runNLP
             )
-
-            if feed.lastFetched == nil {
-                if parsed.isPodcast && !feed.isPodcast {
-                    try database.updateFeedIsPodcast(id: feed.id, isPodcast: true)
-                } else if !parsed.isPodcast && feed.isPodcast {
-                    try database.updateFeedIsPodcast(id: feed.id, isPodcast: false)
-                }
-                if updateTitle, !feed.isTitleCustomized,
-                   !parsed.title.isEmpty, parsed.title != feed.title {
-                    try database.updateFeed(
-                        id: feed.id, title: parsed.title, category: feed.category
-                    )
-                }
-            }
-            try database.updateFeedLastFetched(id: feed.id, date: Date())
         }.value
         await MainActor.run { self.bumpDataRevision() }
         if reloadData {
             await loadFromDatabaseInBackground(animated: true)
         }
+    }
+
+    /// Fetches and parses an RSS feed, resolves images, inserts new articles,
+    /// runs the post-insert pipeline, and updates feed metadata.
+    nonisolated static func runStandardFeedPipeline(
+        feed: Feed,
+        database: DatabaseManager,
+        updateTitle: Bool,
+        skipImageFetch: Bool,
+        skipImagePreload: Bool,
+        runNLP: Bool
+    ) async throws {
+        guard let url = URL(string: feed.url) else { return }
+        let fetchURL = RedirectDomains.redirectedURL(url)
+
+        let (data, _) = try await URLSession.shared.data(for: .sakura(url: fetchURL, timeoutInterval: 5))
+        let parser = RSSParser()
+        guard let parsed = parser.parse(data: data) else { return }
+
+        let feedDomain = feed.domain
+        let preparedArticles = parsed.articles.map { article in
+            BodyPriorityDomains.applying(to: article, feedDomain: feedDomain)
+        }
+
+        let existingURLs = (try? database.existingArticleURLs(forFeedID: feed.id)) ?? []
+        let metadataImages: [String: String]
+        if skipImageFetch {
+            metadataImages = [:]
+        } else {
+            metadataImages = await FeedManager.fetchMetadataImages(
+                for: preparedArticles, skippingURLs: existingURLs
+            )
+        }
+
+        let redditImages: [String: String] = (!skipImageFetch && feed.isRedditFeed)
+            ? await FeedManager.fetchRedditImages(forFeedURL: feed.url)
+            : [:]
+
+        let articleTuples = preparedArticles.map { article in
+            let redditImage = FeedManager.redditImageURL(
+                for: article.url, in: redditImages
+            )
+            let resolvedImageURL = redditImage
+                ?? article.imageURL
+                ?? metadataImages[article.url]
+            return ArticleInsertItem(
+                title: article.title,
+                url: article.url,
+                data: ArticleInsertData(
+                    author: article.author,
+                    summary: article.summary,
+                    content: article.content,
+                    imageURL: resolvedImageURL,
+                    publishedDate: article.publishedDate,
+                    audioURL: article.audioURL,
+                    duration: article.duration
+                )
+            )
+        }
+
+        let feedTitleForIndex = parsed.title.isEmpty ? feed.title : parsed.title
+        let insertedIDs = (try? database.insertArticles(
+            feedID: feed.id, articles: articleTuples
+        )) ?? []
+
+        await FeedManager.runPostInsertPipeline(
+            insertedIDs: insertedIDs,
+            feedTitle: feedTitleForIndex,
+            skipImagePreload: skipImagePreload,
+            runNLP: runNLP
+        )
+
+        if feed.lastFetched == nil {
+            if parsed.isPodcast && !feed.isPodcast {
+                try database.updateFeedIsPodcast(id: feed.id, isPodcast: true)
+            } else if !parsed.isPodcast && feed.isPodcast {
+                try database.updateFeedIsPodcast(id: feed.id, isPodcast: false)
+            }
+            if updateTitle, !feed.isTitleCustomized,
+               !parsed.title.isEmpty, parsed.title != feed.title {
+                try database.updateFeed(
+                    id: feed.id, title: parsed.title, category: feed.category
+                )
+            }
+        }
+        try database.updateFeedLastFetched(id: feed.id, date: Date())
     }
 
     /// Spotlight indexing, image preloading, and NLP for the articles a feed
