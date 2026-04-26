@@ -30,13 +30,13 @@ extension EnvironmentValues {
 
 extension View {
     func zoomTransition(sourceID: Int64, in namespace: Namespace.ID) -> some View {
-        self.navigationTransition(.zoom(sourceID: sourceID, in: namespace))
+        ZoomTransitionModifier(sourceID: sourceID, namespace: namespace, wrappedView: self)
     }
 
     @ViewBuilder
     func zoomTransition(sourceID: Int64, in namespace: Namespace.ID?) -> some View {
         if let namespace {
-            self.navigationTransition(.zoom(sourceID: sourceID, in: namespace))
+            ZoomTransitionModifier(sourceID: sourceID, namespace: namespace, wrappedView: self)
         } else {
             self
         }
@@ -45,9 +45,39 @@ extension View {
     @ViewBuilder
     func zoomSource(id: Int64, namespace: Namespace.ID?) -> some View {
         if let namespace {
-            self.matchedTransitionSource(id: id, in: namespace)
+            ZoomSourceModifier(id: id, namespace: namespace, wrappedView: self)
         } else {
             self
+        }
+    }
+}
+
+private struct ZoomTransitionModifier<WrappedView: View>: View {
+    @AppStorage("Display.ZoomTransition") private var zoomTransitionEnabled: Bool = true
+    let sourceID: Int64
+    let namespace: Namespace.ID
+    let wrappedView: WrappedView
+
+    var body: some View {
+        if zoomTransitionEnabled {
+            wrappedView.navigationTransition(.zoom(sourceID: sourceID, in: namespace))
+        } else {
+            wrappedView
+        }
+    }
+}
+
+private struct ZoomSourceModifier<WrappedView: View>: View {
+    @AppStorage("Display.ZoomTransition") private var zoomTransitionEnabled: Bool = true
+    let id: Int64
+    let namespace: Namespace.ID
+    let wrappedView: WrappedView
+
+    var body: some View {
+        if zoomTransitionEnabled {
+            wrappedView.matchedTransitionSource(id: id, in: namespace)
+        } else {
+            wrappedView
         }
     }
 }

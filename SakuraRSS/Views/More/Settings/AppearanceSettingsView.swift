@@ -7,6 +7,7 @@ struct AppearanceSettingsView: View {
     @AppStorage("Display.DefaultStyle") private var defaultDisplayStyle: FeedDisplayStyle = .inbox
     @AppStorage("Display.MarkAllReadPosition") private var markAllReadPosition: MarkAllReadPosition = .bottom
     @AppStorage("Display.UnreadBadgeMode") private var unreadBadgeMode: UnreadBadgeMode = .none
+    @AppStorage("Display.ZoomTransition") private var zoomTransitionEnabled: Bool = true
 
     var body: some View {
         List {
@@ -26,6 +27,8 @@ struct AppearanceSettingsView: View {
             }
 
             Section {
+                Toggle(String(localized: "ZoomTransition", table: "Settings"),
+                       isOn: $zoomTransitionEnabled)
                 Picker(selection: $markAllReadPosition) {
                     Text(String(localized: "MarkAllReadPosition.Bottom", table: "Settings"))
                         .tag(MarkAllReadPosition.bottom)
