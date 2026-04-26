@@ -46,6 +46,7 @@ struct HomeSectionView: View {
     }
 
     private var loadMoreAction: (() -> Void)? {
+        if hideViewedContent && visibility.hasReachedEnd { return nil }
         if let days = batchingMode.chunkDays {
             guard let next = feedManager.nextArticleChunk(for: section,
                                                           before: loadedSinceDate,
