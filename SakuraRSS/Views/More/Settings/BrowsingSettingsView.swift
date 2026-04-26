@@ -3,7 +3,6 @@ import SwiftUI
 struct BrowsingSettingsView: View {
 
     @AppStorage("Articles.BatchingMode") private var batchingMode: BatchingMode = .day1
-    @AppStorage("Articles.AutoLoadWhileScrolling") private var autoLoadWhileScrolling: Bool = false
     @AppStorage("Articles.HideViewedContent") private var hideViewedContent: Bool = false
     @AppStorage("Display.ScrollMarkAsRead") private var scrollMarkAsRead: Bool = false
     @AppStorage(DoomscrollingMode.storageKey) private var doomscrollingMode: Bool = false
@@ -76,8 +75,6 @@ struct BrowsingSettingsView: View {
             }
 
             Section {
-                Toggle(String(localized: "AutoLoadWhileScrolling", table: "Settings"),
-                       isOn: $autoLoadWhileScrolling)
                 Toggle(String(localized: "ScrollMarkAsRead", table: "Settings"),
                        isOn: scrollMarkAsReadBinding)
                     .disabled(doomscrollingMode)
