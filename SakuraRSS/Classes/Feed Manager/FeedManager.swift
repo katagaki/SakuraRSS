@@ -26,7 +26,10 @@ final class FeedManager {
     private(set) var feedsByID: [Int64: Feed] = [:]
 
     /// Queued mark-read IDs; flushed every 250ms while scrolling, on idle, or on backgrounding.
-    var pendingReadIDs: Set<Int64> = []
+    /// Kept out of observation so scroll-driven mutations don't cascade body re-evaluations
+    /// across every visible article row; views observe `readMaskRevision` instead.
+    @ObservationIgnored var pendingReadIDs: Set<Int64> = []
+    private(set) var readMaskRevision: Int = 0
     @ObservationIgnored var pendingReadDecrements: [Int64: Int] = [:]
     @ObservationIgnored var refreshTask: Task<Void, Never>?
 
@@ -48,6 +51,7 @@ final class FeedManager {
             lists = (try? database.allLists()) ?? []
             pendingReadIDs.removeAll()
             pendingReadDecrements.removeAll()
+            readMaskRevision += 1
             dataRevision += 1
         } catch {
             print("Failed to load from database: \(error)")
@@ -73,6 +77,7 @@ final class FeedManager {
                     self.lists = loadedLists
                     self.pendingReadIDs.removeAll()
                     self.pendingReadDecrements.removeAll()
+                    self.readMaskRevision += 1
                     self.dataRevision += 1
                 }
                 if animated {

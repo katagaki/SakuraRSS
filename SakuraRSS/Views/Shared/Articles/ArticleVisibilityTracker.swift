@@ -69,17 +69,20 @@ struct ArticleVisibilityTracker {
     }
 
     /// Computes the set of article IDs that arrived during the refresh and
-    /// stores them as pending until the user taps the refresh prompt.
+    /// stores them as pending until the user taps the refresh prompt. Each
+    /// call processes the diff so a re-mounted `.task` or interleaved
+    /// onChange can't strand the count above zero and miss new content.
     mutating func endRefresh(from articles: [Article], isEnabled: Bool) {
         guard activeRefreshCount > 0 else { return }
         activeRefreshCount -= 1
-        guard activeRefreshCount == 0 else { return }
         let currentIDs = Set(articles.map(\.id))
         let newIDs = currentIDs.subtracting(preRefreshIDs)
         if !newIDs.isEmpty {
             pendingIDs.formUnion(newIDs)
         }
-        preRefreshIDs = []
+        if activeRefreshCount == 0 {
+            preRefreshIDs = []
+        }
     }
 
     /// Releases any pending articles into the visible list.

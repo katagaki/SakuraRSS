@@ -4,9 +4,12 @@ extension FeedManager {
 
     static let pendingReadsDebounceInterval: DispatchTimeInterval = .milliseconds(250)
 
-    /// True if persisted as read or queued for the next flush.
+    /// True if persisted as read or queued for the next flush. Reads
+    /// `readMaskRevision` so views refresh when the queue flushes, while
+    /// individual scroll-driven inserts stay outside observation.
     func isRead(_ article: Article) -> Bool {
-        article.isRead || pendingReadIDs.contains(article.id)
+        _ = readMaskRevision
+        return article.isRead || pendingReadIDs.contains(article.id)
     }
 
     func markReadOnScroll(_ article: Article) {
@@ -17,7 +20,9 @@ extension FeedManager {
     }
 
     /// IDs stay in `pendingReadIDs` past the flush so `isRead(_:)` keeps masking them
-    /// without bumping `dataRevision`; cleared on the next `loadFromDatabase`.
+    /// without bumping `dataRevision`; cleared on the next `loadFromDatabase`. Bumps
+    /// `readMaskRevision` so views observing `isRead(_:)` update once per debounce
+    /// window instead of once per scroll-driven mark.
     func flushDebouncedReads() {
         pendingReadsFlushWorkItem?.cancel()
         pendingReadsFlushWorkItem = nil
@@ -30,6 +35,7 @@ extension FeedManager {
 
         let idArray = Array(pendingReadIDs)
         try? database.markArticlesRead(ids: idArray, read: true)
+        readMaskRevision += 1
 
         let dbm = database
         Task.detached(priority: .utility) {
