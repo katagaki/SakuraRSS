@@ -22,19 +22,29 @@ struct ListSectionView: View {
 
     private func performRefresh() async {
         feedManager.flushDebouncedReads()
-        visibility.capture(from: rawArticles, isEnabled: hideViewedContent)
+        visibility.beginRefresh(from: rawArticles, isEnabled: hideViewedContent)
         await feedManager.refreshAllFeeds()
-        visibility.extend(from: rawArticles, isEnabled: hideViewedContent)
+        withAnimation(.smooth.speed(2.0)) {
+            visibility.endRefresh(from: rawArticles, isEnabled: hideViewedContent)
+        }
     }
 
     /// Kicks off a refresh and returns immediately so SwiftUI dismisses the
     /// pull-to-refresh indicator; in-flight progress shows via the toolbar donut.
     private func startRefreshWithoutBlocking() {
         feedManager.flushDebouncedReads()
-        visibility.capture(from: rawArticles, isEnabled: hideViewedContent)
+        visibility.beginRefresh(from: rawArticles, isEnabled: hideViewedContent)
         Task { @MainActor in
             await feedManager.refreshAllFeeds()
-            visibility.extend(from: rawArticles, isEnabled: hideViewedContent)
+            withAnimation(.smooth.speed(2.0)) {
+                visibility.endRefresh(from: rawArticles, isEnabled: hideViewedContent)
+            }
+        }
+    }
+
+    private func acceptPendingRefresh() {
+        withAnimation(.smooth.speed(2.0)) {
+            visibility.acceptPendingRefresh()
         }
     }
 
@@ -81,6 +91,15 @@ struct ListSectionView: View {
             loadedCount: loadedCount,
             rawArticles: { rawArticles }
         )
+        .trackBackgroundRefresh(
+            $visibility,
+            isLoading: feedManager.isLoading,
+            hideViewedContent: hideViewedContent,
+            rawArticles: { rawArticles }
+        )
+        .refreshPromptOverlay(isVisible: visibility.hasPendingRefresh) {
+            acceptPendingRefresh()
+        }
         .onChange(of: batchingMode) { _, newMode in
             loadedSinceDate = newMode.initialSinceDate()
             loadedCount = newMode.initialCount()
