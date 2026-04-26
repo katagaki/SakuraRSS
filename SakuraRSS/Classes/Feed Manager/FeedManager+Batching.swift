@@ -74,7 +74,7 @@ extension FeedManager {
         return applyListRules(filtered, listID: list.id)
     }
 
-    func nextArticleChunk(for list: FeedList, before date: Date, chunkDays days: Int) -> Date? {
+    func nextArticleChunk(for list: FeedList, before date: Date, chunkDays days: Int, requireUnread: Bool = false) -> Date? {
         _ = dataRevision
         let listFeedIDs = feedIDs(for: list)
         guard !listFeedIDs.isEmpty else { return nil }
@@ -91,6 +91,9 @@ extension FeedManager {
             var visible = muted.isEmpty ? windowArticles : windowArticles.filter { !muted.contains($0.feedID) }
             visible = applyAllRules(visible).filter { listFeedIDs.contains($0.feedID) }
             visible = applyListRules(visible, listID: list.id)
+            if requireUnread {
+                visible = visible.filter { !$0.isRead }
+            }
             if !visible.isEmpty {
                 return newStart
             }
@@ -101,8 +104,11 @@ extension FeedManager {
 
     // MARK: - Date-based Batches (Arbitrary Window)
 
-    /// Walks backwards in `chunkDays` windows until a visible-article window is found.
-    func nextArticleChunk(before date: Date, chunkDays days: Int) -> Date? {
+    /// Walks backwards in `chunkDays` windows until a visible-article window is
+    /// found. When `requireUnread` is set, chunks with only-read articles are
+    /// skipped so callers with Hide Viewed Content on don't dead-end on a
+    /// chunk whose contents would be filtered out anyway.
+    func nextArticleChunk(before date: Date, chunkDays days: Int, requireUnread: Bool = false) -> Date? {
         _ = dataRevision
         let calendar = Calendar.current
         let muted = mutedFeedIDs
@@ -116,6 +122,9 @@ extension FeedManager {
             let windowArticles = (try? database.allArticles(from: newStart, to: cursor, limit: 10000)) ?? []
             var visible = muted.isEmpty ? windowArticles : windowArticles.filter { !muted.contains($0.feedID) }
             visible = applyAllRules(visible)
+            if requireUnread {
+                visible = visible.filter { !$0.isRead }
+            }
             if !visible.isEmpty {
                 return newStart
             }
@@ -124,7 +133,7 @@ extension FeedManager {
         return nil
     }
 
-    func nextArticleChunk(for section: FeedSection, before date: Date, chunkDays days: Int) -> Date? {
+    func nextArticleChunk(for section: FeedSection, before date: Date, chunkDays days: Int, requireUnread: Bool = false) -> Date? {
         _ = dataRevision
         let sectionFeedIDs = Set(feeds.filter { $0.feedSection == section }.map(\.id))
         guard !sectionFeedIDs.isEmpty else { return nil }
@@ -140,6 +149,9 @@ extension FeedManager {
             let windowArticles = (try? database.allArticles(from: newStart, to: cursor, limit: 10000)) ?? []
             var visible = muted.isEmpty ? windowArticles : windowArticles.filter { !muted.contains($0.feedID) }
             visible = applyAllRules(visible).filter { sectionFeedIDs.contains($0.feedID) }
+            if requireUnread {
+                visible = visible.filter { !$0.isRead }
+            }
             if !visible.isEmpty {
                 return newStart
             }
@@ -148,7 +160,7 @@ extension FeedManager {
         return nil
     }
 
-    func nextArticleChunk(for feed: Feed, before date: Date, chunkDays days: Int) -> Date? {
+    func nextArticleChunk(for feed: Feed, before date: Date, chunkDays days: Int, requireUnread: Bool = false) -> Date? {
         _ = dataRevision
         let calendar = Calendar.current
         var cursor = date
@@ -162,7 +174,11 @@ extension FeedManager {
             guard let newStart = calendar.date(byAdding: .day, value: -days, to: cursor) else { return nil }
             let windowArticles = ((try? database.articles(forFeedID: feed.id, since: newStart)) ?? [])
                 .filter { ($0.publishedDate ?? .distantPast) < cursor }
-            if !applyRules(windowArticles, feedID: feed.id).isEmpty {
+            var visible = applyRules(windowArticles, feedID: feed.id)
+            if requireUnread {
+                visible = visible.filter { !$0.isRead }
+            }
+            if !visible.isEmpty {
                 return newStart
             }
             cursor = newStart
