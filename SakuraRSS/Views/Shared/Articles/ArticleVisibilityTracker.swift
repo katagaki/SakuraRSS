@@ -25,6 +25,10 @@ struct ArticleVisibilityTracker {
         if !pendingIDs.isEmpty {
             result = result.filter { !pendingIDs.contains($0.id) }
         }
+        // Hide arrivals that land before `endRefresh` moves them to `pendingIDs`.
+        if activeRefreshCount > 0 {
+            result = result.filter { preRefreshIDs.contains($0.id) }
+        }
         return result
     }
 
@@ -37,9 +41,8 @@ struct ArticleVisibilityTracker {
         visibleIDs = Set(articles.filter { !$0.isRead }.map(\.id))
     }
 
-    /// Returns true if at least one new unread ID was added. Pending refresh
-    /// IDs are excluded so an auto-load that surfaces nothing visible can't
-    /// be masked by content the user hasn't accepted yet.
+    /// Returns true if at least one new unread ID was added. Pending IDs are
+    /// excluded so unaccepted refresh content can't fake growth.
     @discardableResult
     mutating func extend(from articles: [Article], isEnabled: Bool) -> Bool {
         guard isEnabled else {
@@ -71,10 +74,8 @@ struct ArticleVisibilityTracker {
         activeRefreshCount += 1
     }
 
-    /// Computes the set of article IDs that arrived during the refresh and
-    /// stores them as pending until the user taps the refresh prompt. Each
-    /// call processes the diff so a re-mounted `.task` or interleaved
-    /// onChange can't strand the count above zero and miss new content.
+    /// Diffs against `preRefreshIDs` on every call so an imbalanced count
+    /// can't strand new arrivals outside `pendingIDs`.
     mutating func endRefresh(from articles: [Article], isEnabled: Bool) {
         guard activeRefreshCount > 0 else { return }
         activeRefreshCount -= 1

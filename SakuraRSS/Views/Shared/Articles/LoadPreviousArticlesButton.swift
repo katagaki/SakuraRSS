@@ -1,8 +1,7 @@
 import SwiftUI
 
-/// Sentinel pinned to the bottom of an article list. Manual mode shows a
-/// tap target; auto mode fires from `.onAppear` so List's lazy rendering
-/// triggers a load whenever the user scrolls the sentinel into view.
+/// Sentinel at the end of an article list. Manual mode shows a button;
+/// auto mode loads via `.onAppear` from List's lazy rendering.
 struct LoadPreviousArticlesButton: View {
 
     let action: () -> Void
@@ -40,13 +39,11 @@ struct LoadPreviousArticlesButton: View {
             action()
         }
         .onChange(of: articleCount) { _, _ in
-            // The previous load completed; allow the next onAppear to fire.
             isLoading = false
         }
     }
 
-    /// Fires synchronously without `withAnimation` so the list keeps its
-    /// existing scroll position instead of animating new rows in.
+    /// No `withAnimation`; preserves the list's current scroll offset.
     private var manualButton: some View {
         Button {
             action()
