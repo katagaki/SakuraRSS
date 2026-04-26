@@ -29,7 +29,7 @@ final class FeedManager {
     /// Kept out of observation so scroll-driven mutations don't cascade body re-evaluations
     /// across every visible article row; views observe `readMaskRevision` instead.
     @ObservationIgnored var pendingReadIDs: Set<Int64> = []
-    private(set) var readMaskRevision: Int = 0
+    var readMaskRevision: Int = 0
     @ObservationIgnored var pendingReadDecrements: [Int64: Int] = [:]
     @ObservationIgnored var refreshTask: Task<Void, Never>?
 
