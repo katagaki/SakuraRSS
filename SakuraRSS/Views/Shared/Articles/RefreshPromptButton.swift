@@ -1,8 +1,8 @@
 import SwiftUI
 
-/// Capsule Liquid Glass button that appears at the top of an article list when
-/// new content has arrived during a refresh. Tapping it releases the pending
-/// articles into the visible list.
+/// Button that appears at the top of an article list when new content has
+/// arrived during a refresh. Tapping it releases the pending articles into
+/// the visible list.
 struct RefreshPromptButton: View {
 
     let action: () -> Void
@@ -11,16 +11,12 @@ struct RefreshPromptButton: View {
         Button {
             action()
         } label: {
-            HStack(spacing: 6) {
-                Image(systemName: "arrow.clockwise")
-                    .font(.system(size: 13.0, weight: .semibold))
-                Text(String(localized: "Refresh.NewArticles", table: "Articles"))
-                    .font(.subheadline.weight(.semibold))
-            }
-            .padding(.horizontal, 14)
-            .padding(.vertical, 8)
+            Text(String(localized: "Refresh.NewArticles", table: "Articles"))
+                .font(.subheadline.weight(.semibold))
+                .padding(.horizontal, 10)
+                .padding(.vertical, 4)
         }
-        .buttonStyle(.glassProminent)
+        .buttonStyle(.glass)
         .buttonBorderShape(.capsule)
         .shadow(color: Color.black.opacity(0.15), radius: 8, x: 0, y: 2)
     }
