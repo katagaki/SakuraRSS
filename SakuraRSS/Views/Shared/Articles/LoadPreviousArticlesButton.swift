@@ -1,17 +1,15 @@
 import SwiftUI
 
 /// Sentinel pinned to the bottom of an article list. Manual mode shows a
-/// tap target; auto mode fires when the user scrolls within range of the
-/// bottom and reveals a progress indicator until the new batch arrives.
+/// tap target; auto mode fires from `.onAppear` so List's lazy rendering
+/// triggers a load whenever the user scrolls the sentinel into view.
 struct LoadPreviousArticlesButton: View {
 
     let action: () -> Void
     var articleCount: Int = 0
 
     @AppStorage("Articles.AutoLoadWhileScrolling") private var autoLoadWhileScrolling: Bool = false
-    @State private var isOnScreen = false
     @State private var isLoading = false
-    @State private var lastFiredAtCount: Int? = nil
 
     var body: some View {
         Group {
@@ -25,10 +23,6 @@ struct LoadPreviousArticlesButton: View {
         }
     }
 
-    /// Fires when the sentinel becomes visible. The trigger row is sized
-    /// taller than the indicator content so it crosses into view a bit
-    /// before the user reaches the absolute bottom of the list, but small
-    /// enough that the empty placeholder isn't a distracting gap.
     private var autoLoadingIndicator: some View {
         HStack(spacing: 8) {
             if isLoading {
@@ -39,21 +33,15 @@ struct LoadPreviousArticlesButton: View {
             }
         }
         .frame(maxWidth: .infinity)
-        .frame(minHeight: 88)
-        .padding(.vertical, 4)
-        .onAppear { isOnScreen = true }
-        .onDisappear { isOnScreen = false }
-        .onScrollVisibilityChange(threshold: 0.05) { visible in
-            isOnScreen = visible
-        }
-        .task(id: AutoLoadKey(isOnScreen: isOnScreen, count: articleCount)) {
-            isLoading = false
-            guard isOnScreen, lastFiredAtCount != articleCount else { return }
-            lastFiredAtCount = articleCount
-            try? await Task.sleep(for: .milliseconds(50))
-            guard !Task.isCancelled else { return }
+        .frame(minHeight: isLoading ? 44 : 1)
+        .onAppear {
+            guard !isLoading else { return }
             isLoading = true
             action()
+        }
+        .onChange(of: articleCount) { _, _ in
+            // The previous load completed; allow the next onAppear to fire.
+            isLoading = false
         }
     }
 
@@ -74,9 +62,4 @@ struct LoadPreviousArticlesButton: View {
         .buttonStyle(.bordered)
         .tint(.secondary)
     }
-}
-
-private struct AutoLoadKey: Equatable {
-    let isOnScreen: Bool
-    let count: Int
 }
