@@ -13,6 +13,10 @@ struct ArticleVisibilityTracker {
     /// the load-more sentinel can be hidden until the next refresh / mode change.
     var hasReachedEnd: Bool = false
     private var preRefreshIDs: Set<Int64> = []
+    /// Highest article ID seen at refresh start. Articles inserted during
+    /// the refresh land with IDs above this (sqlite autoincrement); pre-existing
+    /// articles surfaced by load-more sit at or below it.
+    private var preRefreshMaxID: Int64 = .max
     private var activeRefreshCount: Int = 0
 
     var hasPendingRefresh: Bool { !pendingIDs.isEmpty }
@@ -26,8 +30,10 @@ struct ArticleVisibilityTracker {
             result = result.filter { !pendingIDs.contains($0.id) }
         }
         // Hide arrivals that land before `endRefresh` moves them to `pendingIDs`.
+        // Pre-existing articles (id <= preRefreshMaxID) pass through so load-more
+        // during a refresh still surfaces older content.
         if activeRefreshCount > 0 {
-            result = result.filter { preRefreshIDs.contains($0.id) }
+            result = result.filter { $0.id <= preRefreshMaxID }
         }
         return result
     }
@@ -65,6 +71,7 @@ struct ArticleVisibilityTracker {
         if activeRefreshCount == 0 {
             hasReachedEnd = false
             preRefreshIDs = Set(articles.map(\.id)).union(visibleIDs ?? []).union(pendingIDs)
+            preRefreshMaxID = preRefreshIDs.max() ?? .max
             if isEnabled {
                 visibleIDs = Set(articles.filter { !$0.isRead }.map(\.id))
             } else {
@@ -86,6 +93,7 @@ struct ArticleVisibilityTracker {
         }
         if activeRefreshCount == 0 {
             preRefreshIDs = []
+            preRefreshMaxID = .max
         }
     }
 
