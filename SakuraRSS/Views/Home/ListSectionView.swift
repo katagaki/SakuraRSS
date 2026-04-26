@@ -12,6 +12,7 @@ struct ListSectionView: View {
     @AppStorage("Display.MarkAllReadPosition") private var markAllReadPosition: MarkAllReadPosition = .bottom
     @AppStorage("Articles.HideViewedContent") private var hideViewedContent: Bool = false
     @State private var visibility = ArticleVisibilityTracker()
+    @State private var scrollToTopTick: Int = 0
 
     private var rawArticles: [Article] {
         if batchingMode.isCountBased {
@@ -46,6 +47,7 @@ struct ListSectionView: View {
         withAnimation(.smooth.speed(2.0)) {
             visibility.acceptPendingRefresh()
         }
+        scrollToTopTick &+= 1
     }
 
     private var loadMoreAction: (() -> Void)? {
@@ -76,7 +78,8 @@ struct ListSectionView: View {
             },
             onMarkAllRead: {
                 feedManager.markAllRead(for: list)
-            }
+            },
+            scrollToTopTrigger: scrollToTopTick
         )
         .refreshable {
             startRefreshWithoutBlocking()

@@ -12,6 +12,7 @@ struct FeedArticlesView: View {
     @AppStorage("Instagram.HideReels") private var hideReels: Bool = false
     @AppStorage("Articles.HideViewedContent") private var hideViewedContent: Bool = false
     @State private var visibility = ArticleVisibilityTracker()
+    @State private var scrollToTopTick: Int = 0
 
     private var currentFeed: Feed {
         feedManager.feeds.first(where: { $0.id == feed.id }) ?? feed
@@ -62,6 +63,7 @@ struct FeedArticlesView: View {
         withAnimation(.smooth.speed(2.0)) {
             visibility.acceptPendingRefresh()
         }
+        scrollToTopTick &+= 1
     }
 
     var body: some View {
@@ -82,7 +84,8 @@ struct FeedArticlesView: View {
             },
             onMarkAllRead: {
                 feedManager.markAllRead(feed: feed)
-            }
+            },
+            scrollToTopTrigger: scrollToTopTick
         )
         .refreshable {
             await performRefresh()

@@ -13,6 +13,7 @@ struct HomeSectionView: View {
     @AppStorage("Instagram.HideReels") private var hideInstagramReels: Bool = false
     @AppStorage("Articles.HideViewedContent") private var hideViewedContent: Bool = false
     @State private var visibility = ArticleVisibilityTracker()
+    @State private var scrollToTopTick: Int = 0
 
     private var rawArticles: [Article] {
         var articles: [Article]
@@ -53,6 +54,7 @@ struct HomeSectionView: View {
         withAnimation(.smooth.speed(2.0)) {
             visibility.acceptPendingRefresh()
         }
+        scrollToTopTick &+= 1
     }
 
     private var loadMoreAction: (() -> Void)? {
@@ -86,7 +88,8 @@ struct HomeSectionView: View {
             },
             onMarkAllRead: {
                 feedManager.markAllRead(for: section)
-            }
+            },
+            scrollToTopTrigger: scrollToTopTick
         )
         .refreshable {
             startRefreshWithoutBlocking()

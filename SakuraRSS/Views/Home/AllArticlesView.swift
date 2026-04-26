@@ -109,6 +109,7 @@ struct AllArticlesView: View {
     @AppStorage("Instagram.HideReels") private var hideInstagramReels: Bool = false
     @AppStorage("Articles.HideViewedContent") private var hideViewedContent: Bool = false
     @State private var visibility = ArticleVisibilityTracker()
+    @State private var scrollToTopTick: Int = 0
     @State private var whileYouSleptAvailable = false
     @State private var todaysSummaryAvailable = false
 
@@ -166,6 +167,7 @@ struct AllArticlesView: View {
         withAnimation(.smooth.speed(2.0)) {
             visibility.acceptPendingRefresh()
         }
+        scrollToTopTick &+= 1
     }
 
     private var loadMoreAction: (() -> Void)? {
@@ -328,7 +330,8 @@ struct AllArticlesView: View {
             },
             onMarkAllRead: {
                 feedManager.markAllRead()
-            }
+            },
+            scrollToTopTrigger: scrollToTopTick
         )
         .safeAreaInset(edge: .top, spacing: 0) {
             VStack(spacing: 0) {
