@@ -12,6 +12,7 @@ struct ListSectionView: View {
     @AppStorage("Display.MarkAllReadPosition") private var markAllReadPosition: MarkAllReadPosition = .bottom
     @AppStorage("Articles.HideViewedContent") private var hideViewedContent: Bool = false
     @State private var visibility = ArticleVisibilityTracker()
+    @State private var scrollToTopTick: Int = 0
 
     private var rawArticles: [Article] {
         if batchingMode.isCountBased {
@@ -46,21 +47,32 @@ struct ListSectionView: View {
         withAnimation(.smooth.speed(2.0)) {
             visibility.acceptPendingRefresh()
         }
+        scrollToTopTick &+= 1
     }
 
     private var loadMoreAction: (() -> Void)? {
         if hideViewedContent && visibility.hasReachedEnd { return nil }
         if let days = batchingMode.chunkDays {
-            guard let next = feedManager.nextArticleChunk(for: list,
-                                                          before: loadedSinceDate,
-                                                          chunkDays: days) else {
+            guard let next = feedManager.nextArticleChunk(
+                for: list,
+                before: loadedSinceDate,
+                chunkDays: days,
+                requireUnread: hideViewedContent
+            ) else {
                 return nil
             }
             return { loadedSinceDate = next }
         }
         if let batch = batchingMode.batchSize {
-            guard feedManager.hasMoreArticles(for: list, beyond: loadedCount) else { return nil }
-            return { loadedCount += batch }
+            guard let next = feedManager.nextLoadedCount(
+                for: list,
+                after: loadedCount,
+                batchSize: batch,
+                requireUnread: hideViewedContent
+            ) else {
+                return nil
+            }
+            return { loadedCount = next }
         }
         return nil
     }
@@ -76,7 +88,8 @@ struct ListSectionView: View {
             },
             onMarkAllRead: {
                 feedManager.markAllRead(for: list)
-            }
+            },
+            scrollToTopTrigger: scrollToTopTick
         )
         .refreshable {
             startRefreshWithoutBlocking()

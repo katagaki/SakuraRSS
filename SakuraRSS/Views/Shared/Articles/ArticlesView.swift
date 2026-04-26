@@ -31,6 +31,7 @@ struct ArticlesView: View {
     var onLoadMore: (() -> Void)?
     var onRefresh: (() async -> Void)?
     var onMarkAllRead: (() -> Void)?
+    var scrollToTopTrigger: Int
 
     @Environment(\.hidesMarkAllReadToolbar) private var hidesMarkAllReadToolbar
     @State private var displayStyle: FeedDisplayStyle
@@ -56,7 +57,8 @@ struct ArticlesView: View {
          onRestoreSummaries: (() -> Void)? = nil,
          onLoadMore: (() -> Void)? = nil,
          onRefresh: (() async -> Void)? = nil,
-         onMarkAllRead: (() -> Void)? = nil) {
+         onMarkAllRead: (() -> Void)? = nil,
+         scrollToTopTrigger: Int = 0) {
         self.articles = articles
         self.title = title
         self.subtitle = subtitle
@@ -73,6 +75,7 @@ struct ArticlesView: View {
         self.onLoadMore = onLoadMore
         self.onRefresh = onRefresh
         self.onMarkAllRead = onMarkAllRead
+        self.scrollToTopTrigger = scrollToTopTrigger
         let raw = UserDefaults.standard.string(forKey: "Display.Style.\(feedKey)")
         let defaultRaw = UserDefaults.standard.string(forKey: "Display.DefaultStyle") ?? FeedDisplayStyle.inbox.rawValue
         let fallback: FeedDisplayStyle
@@ -96,13 +99,19 @@ struct ArticlesView: View {
 
     var body: some View {
         let effectiveStyle = effectiveDisplayStyle
-        Group {
+        ScrollViewReader { proxy in
             DisplayStyleContentView(
                 style: effectiveStyle,
                 articles: articles,
                 onLoadMore: onLoadMore,
                 onRefresh: onRefresh
             )
+            .onChange(of: scrollToTopTrigger) { _, _ in
+                guard let firstID = articles.first?.id else { return }
+                withAnimation(.smooth.speed(2.0)) {
+                    proxy.scrollTo(firstID, anchor: .top)
+                }
+            }
         }
         .scrollContentBackground(.hidden)
         .sakuraBackground()

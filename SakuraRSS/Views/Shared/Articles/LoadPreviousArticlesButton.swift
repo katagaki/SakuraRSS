@@ -1,14 +1,14 @@
 import SwiftUI
 
-/// Sentinel pinned to the bottom of an article list.
+/// Sentinel at the end of an article list. Manual mode shows a button;
+/// auto mode loads via `.onAppear` from List's lazy rendering.
 struct LoadPreviousArticlesButton: View {
 
     let action: () -> Void
     var articleCount: Int = 0
 
     @AppStorage("Articles.AutoLoadWhileScrolling") private var autoLoadWhileScrolling: Bool = false
-    @State private var isOnScreen = false
-    @State private var lastFiredAtCount: Int? = nil
+    @State private var isLoading = false
 
     var body: some View {
         Group {
@@ -24,35 +24,29 @@ struct LoadPreviousArticlesButton: View {
 
     private var autoLoadingIndicator: some View {
         HStack(spacing: 8) {
-            ProgressView()
-            Text(String(localized: "LoadPrevious.Loading", table: "Articles"))
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
+            if isLoading {
+                ProgressView()
+                Text(String(localized: "LoadPrevious.Loading", table: "Articles"))
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+            }
         }
         .frame(maxWidth: .infinity)
-        .padding(.vertical, 12)
-        .onAppear { isOnScreen = true }
-        .onDisappear { isOnScreen = false }
-        .onScrollVisibilityChange(threshold: 0.05) { visible in
-            isOnScreen = visible
+        .frame(minHeight: isLoading ? 44 : 1)
+        .onAppear {
+            guard !isLoading else { return }
+            isLoading = true
+            action()
         }
-        .task(id: AutoLoadKey(isOnScreen: isOnScreen, count: articleCount)) {
-            guard isOnScreen,
-                  lastFiredAtCount != articleCount else { return }
-            lastFiredAtCount = articleCount
-            try? await Task.sleep(for: .milliseconds(50))
-            guard !Task.isCancelled else { return }
-            withAnimation(.smooth.speed(2.0)) {
-                action()
-            }
+        .onChange(of: articleCount) { _, _ in
+            isLoading = false
         }
     }
 
+    /// No `withAnimation`; preserves the list's current scroll offset.
     private var manualButton: some View {
         Button {
-            withAnimation(.smooth.speed(2.0)) {
-                action()
-            }
+            action()
         } label: {
             HStack {
                 Image(systemName: "clock.arrow.circlepath")
@@ -65,9 +59,4 @@ struct LoadPreviousArticlesButton: View {
         .buttonStyle(.bordered)
         .tint(.secondary)
     }
-}
-
-private struct AutoLoadKey: Equatable {
-    let isOnScreen: Bool
-    let count: Int
 }
