@@ -79,49 +79,32 @@ extension FeedManager {
         let listFeedIDs = feedIDs(for: list)
         guard !listFeedIDs.isEmpty else { return nil }
         let calendar = Calendar.current
+        guard (try? database.earliestArticleDate(before: date)) ?? nil != nil else { return nil }
+        guard let newStart = calendar.date(byAdding: .day, value: -days, to: date) else { return nil }
         let muted = mutedFeedIDs
-        var cursor = date
-        var iterations = 0
-        let maxIterations = FeedManager.chunkWalkLimit
-        while iterations < maxIterations {
-            iterations += 1
-            guard (try? database.earliestArticleDate(before: cursor)) ?? nil != nil else { return nil }
-            guard let newStart = calendar.date(byAdding: .day, value: -days, to: cursor) else { return nil }
-            let windowArticles = (try? database.allArticles(from: newStart, to: cursor, limit: 10000)) ?? []
-            var visible = muted.isEmpty ? windowArticles : windowArticles.filter { !muted.contains($0.feedID) }
-            visible = applyAllRules(visible).filter { listFeedIDs.contains($0.feedID) }
-            visible = applyListRules(visible, listID: list.id)
-            if !visible.isEmpty {
-                return newStart
-            }
-            cursor = newStart
-        }
-        return nil
+        let windowArticles = (try? database.allArticles(from: newStart, to: date, limit: 10000)) ?? []
+        var visible = muted.isEmpty ? windowArticles : windowArticles.filter { !muted.contains($0.feedID) }
+        visible = applyAllRules(visible).filter { listFeedIDs.contains($0.feedID) }
+        visible = applyListRules(visible, listID: list.id)
+        return visible.isEmpty ? nil : newStart
     }
 
     // MARK: - Date-based Batches (Arbitrary Window)
 
-    /// Walks backwards in `chunkDays` windows until a visible-article window is found.
+    /// Returns the start of the immediately preceding `chunkDays` window, or
+    /// nil if that window has no visible articles. Stopping at the first empty
+    /// window keeps the auto-load sentinel from skipping silently across long
+    /// gaps when there is no new content to surface.
     func nextArticleChunk(before date: Date, chunkDays days: Int) -> Date? {
         _ = dataRevision
         let calendar = Calendar.current
+        guard (try? database.earliestArticleDate(before: date)) ?? nil != nil else { return nil }
+        guard let newStart = calendar.date(byAdding: .day, value: -days, to: date) else { return nil }
         let muted = mutedFeedIDs
-        var cursor = date
-        var iterations = 0
-        let maxIterations = FeedManager.chunkWalkLimit
-        while iterations < maxIterations {
-            iterations += 1
-            guard (try? database.earliestArticleDate(before: cursor)) ?? nil != nil else { return nil }
-            guard let newStart = calendar.date(byAdding: .day, value: -days, to: cursor) else { return nil }
-            let windowArticles = (try? database.allArticles(from: newStart, to: cursor, limit: 10000)) ?? []
-            var visible = muted.isEmpty ? windowArticles : windowArticles.filter { !muted.contains($0.feedID) }
-            visible = applyAllRules(visible)
-            if !visible.isEmpty {
-                return newStart
-            }
-            cursor = newStart
-        }
-        return nil
+        let windowArticles = (try? database.allArticles(from: newStart, to: date, limit: 10000)) ?? []
+        var visible = muted.isEmpty ? windowArticles : windowArticles.filter { !muted.contains($0.feedID) }
+        visible = applyAllRules(visible)
+        return visible.isEmpty ? nil : newStart
     }
 
     func nextArticleChunk(for section: FeedSection, before date: Date, chunkDays days: Int) -> Date? {
@@ -129,44 +112,24 @@ extension FeedManager {
         let sectionFeedIDs = Set(feeds.filter { $0.feedSection == section }.map(\.id))
         guard !sectionFeedIDs.isEmpty else { return nil }
         let calendar = Calendar.current
+        guard (try? database.earliestArticleDate(before: date)) ?? nil != nil else { return nil }
+        guard let newStart = calendar.date(byAdding: .day, value: -days, to: date) else { return nil }
         let muted = mutedFeedIDs
-        var cursor = date
-        var iterations = 0
-        let maxIterations = FeedManager.chunkWalkLimit
-        while iterations < maxIterations {
-            iterations += 1
-            guard (try? database.earliestArticleDate(before: cursor)) ?? nil != nil else { return nil }
-            guard let newStart = calendar.date(byAdding: .day, value: -days, to: cursor) else { return nil }
-            let windowArticles = (try? database.allArticles(from: newStart, to: cursor, limit: 10000)) ?? []
-            var visible = muted.isEmpty ? windowArticles : windowArticles.filter { !muted.contains($0.feedID) }
-            visible = applyAllRules(visible).filter { sectionFeedIDs.contains($0.feedID) }
-            if !visible.isEmpty {
-                return newStart
-            }
-            cursor = newStart
-        }
-        return nil
+        let windowArticles = (try? database.allArticles(from: newStart, to: date, limit: 10000)) ?? []
+        var visible = muted.isEmpty ? windowArticles : windowArticles.filter { !muted.contains($0.feedID) }
+        visible = applyAllRules(visible).filter { sectionFeedIDs.contains($0.feedID) }
+        return visible.isEmpty ? nil : newStart
     }
 
     func nextArticleChunk(for feed: Feed, before date: Date, chunkDays days: Int) -> Date? {
         _ = dataRevision
         let calendar = Calendar.current
-        var cursor = date
-        var iterations = 0
-        let maxIterations = FeedManager.chunkWalkLimit
-        while iterations < maxIterations {
-            iterations += 1
-            guard (try? database.earliestArticleDate(forFeedID: feed.id, before: cursor)) ?? nil != nil else {
-                return nil
-            }
-            guard let newStart = calendar.date(byAdding: .day, value: -days, to: cursor) else { return nil }
-            let windowArticles = ((try? database.articles(forFeedID: feed.id, since: newStart)) ?? [])
-                .filter { ($0.publishedDate ?? .distantPast) < cursor }
-            if !applyRules(windowArticles, feedID: feed.id).isEmpty {
-                return newStart
-            }
-            cursor = newStart
+        guard (try? database.earliestArticleDate(forFeedID: feed.id, before: date)) ?? nil != nil else {
+            return nil
         }
-        return nil
+        guard let newStart = calendar.date(byAdding: .day, value: -days, to: date) else { return nil }
+        let windowArticles = ((try? database.articles(forFeedID: feed.id, since: newStart)) ?? [])
+            .filter { ($0.publishedDate ?? .distantPast) < date }
+        return applyRules(windowArticles, feedID: feed.id).isEmpty ? nil : newStart
     }
 }
