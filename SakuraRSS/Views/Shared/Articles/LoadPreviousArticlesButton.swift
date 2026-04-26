@@ -1,7 +1,7 @@
 import SwiftUI
 
 /// Sentinel pinned to the bottom of an article list. Manual mode shows a
-/// tap target; auto mode fires when the scroll position approaches the
+/// tap target; auto mode fires when the user scrolls within range of the
 /// bottom and reveals a progress indicator until the new batch arrives.
 struct LoadPreviousArticlesButton: View {
 
@@ -9,12 +9,9 @@ struct LoadPreviousArticlesButton: View {
     var articleCount: Int = 0
 
     @AppStorage("Articles.AutoLoadWhileScrolling") private var autoLoadWhileScrolling: Bool = false
-    @State private var isLoading: Bool = false
-    @State private var isNearBottom: Bool = false
-    @State private var fireToken: Int = 0
-
-    /// Distance (in points) from the bottom at which auto-load fires.
-    private static let nearBottomThreshold: CGFloat = 800
+    @State private var isOnScreen = false
+    @State private var isLoading = false
+    @State private var lastFiredAtCount: Int? = nil
 
     var body: some View {
         Group {
@@ -28,6 +25,9 @@ struct LoadPreviousArticlesButton: View {
         }
     }
 
+    /// Fires when the sentinel becomes visible. The trigger row is sized
+    /// taller than the indicator content so that it crosses into view well
+    /// before the user reaches the absolute bottom of the list.
     private var autoLoadingIndicator: some View {
         HStack(spacing: 8) {
             if isLoading {
@@ -38,23 +38,18 @@ struct LoadPreviousArticlesButton: View {
             }
         }
         .frame(maxWidth: .infinity)
-        .frame(minHeight: 44)
-        .padding(.vertical, 4)
-        .onScrollGeometryChange(for: Bool.self) { geo in
-            let distance = geo.contentSize.height - geo.contentOffset.y - geo.containerSize.height
-            return distance < Self.nearBottomThreshold
-        } action: { _, near in
-            guard near != isNearBottom else { return }
-            isNearBottom = near
-            fireToken &+= 1
+        .frame(minHeight: 240)
+        .onAppear { isOnScreen = true }
+        .onDisappear { isOnScreen = false }
+        .onScrollVisibilityChange(threshold: 0.05) { visible in
+            isOnScreen = visible
         }
-        .onChange(of: articleCount) { _, _ in
+        .task(id: AutoLoadKey(isOnScreen: isOnScreen, count: articleCount)) {
             isLoading = false
-            fireToken &+= 1
-        }
-        .task(id: fireToken) {
+            guard isOnScreen, lastFiredAtCount != articleCount else { return }
+            lastFiredAtCount = articleCount
             try? await Task.sleep(for: .milliseconds(50))
-            guard !Task.isCancelled, isNearBottom, !isLoading else { return }
+            guard !Task.isCancelled else { return }
             isLoading = true
             action()
         }
@@ -77,4 +72,9 @@ struct LoadPreviousArticlesButton: View {
         .buttonStyle(.bordered)
         .tint(.secondary)
     }
+}
+
+private struct AutoLoadKey: Equatable {
+    let isOnScreen: Bool
+    let count: Int
 }
