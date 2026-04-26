@@ -4,15 +4,37 @@ extension FeedManager {
 
     // MARK: - Count-based Batches (All)
 
-    func articles(limit: Int) -> [Article] {
+    func articles(limit: Int, requireUnread: Bool = false) -> [Article] {
         _ = dataRevision
-        let fetchLimit = max(limit * 4, 100)
-        var all = (try? database.allArticles(limit: fetchLimit)) ?? []
+        if !requireUnread {
+            let fetchLimit = max(limit * 4, 100)
+            var all = (try? database.allArticles(limit: fetchLimit)) ?? []
+            let muted = mutedFeedIDs
+            if !muted.isEmpty {
+                all = all.filter { !muted.contains($0.feedID) }
+            }
+            return Array(applyAllRules(all).prefix(limit))
+        }
+        var fetchLimit = max(limit * 4, 100)
+        let maxIterations = 20
         let muted = mutedFeedIDs
+        for _ in 0..<maxIterations {
+            var all = (try? database.allArticles(limit: fetchLimit)) ?? []
+            if !muted.isEmpty {
+                all = all.filter { !muted.contains($0.feedID) }
+            }
+            let pool = applyAllRules(all)
+            let unread = pool.filter { !$0.isRead }
+            if unread.count >= limit || pool.count < fetchLimit {
+                return Array(unread.prefix(limit))
+            }
+            fetchLimit *= 2
+        }
+        var all = (try? database.allArticles(limit: fetchLimit)) ?? []
         if !muted.isEmpty {
             all = all.filter { !muted.contains($0.feedID) }
         }
-        return Array(applyAllRules(all).prefix(limit))
+        return Array(applyAllRules(all).filter { !$0.isRead }.prefix(limit))
     }
 
     func hasMoreArticles(beyond count: Int) -> Bool {
@@ -26,34 +48,35 @@ extension FeedManager {
         return applyAllRules(all).count > count
     }
 
-    /// Walks forward in `batchSize` increments until the newly-revealed range
-    /// contains at least one unread article. Returns nil when there is no
-    /// further content to surface. With `requireUnread: false` any growth
-    /// suffices, matching the simple `count + batchSize` increment.
+    /// Returns the next loaded count, or nil if there's nothing more to reveal.
     func nextLoadedCount(after count: Int, batchSize: Int, requireUnread: Bool = false) -> Int? {
         _ = dataRevision
-        let maxIterations = 100
-        var newCount = count + batchSize
-        for _ in 0..<maxIterations {
-            let revealedRange = self.articles(limit: newCount)
-            guard revealedRange.count > count else { return nil }
-            if !requireUnread {
-                return newCount
-            }
-            if revealedRange.suffix(revealedRange.count - count).contains(where: { !$0.isRead }) {
-                return newCount
-            }
-            newCount += batchSize
-        }
-        return nil
+        let newCount = count + batchSize
+        let revealedRange = self.articles(limit: newCount, requireUnread: requireUnread)
+        guard revealedRange.count > count else { return nil }
+        return newCount
     }
 
     // MARK: - Count-based Batches (Section)
 
-    func articles(for section: FeedSection, limit: Int) -> [Article] {
+    func articles(for section: FeedSection, limit: Int, requireUnread: Bool = false) -> [Article] {
         let sectionFeedIDs = Set(feeds.filter { $0.feedSection == section }.map(\.id))
         guard !sectionFeedIDs.isEmpty else { return [] }
-        return Array(articles(limit: limit * 3).filter { sectionFeedIDs.contains($0.feedID) }.prefix(limit))
+        if !requireUnread {
+            return Array(articles(limit: limit * 3).filter { sectionFeedIDs.contains($0.feedID) }.prefix(limit))
+        }
+        var multiplier = 3
+        let maxIterations = 20
+        for _ in 0..<maxIterations {
+            let pool = articles(limit: limit * multiplier)
+            let filtered = pool.filter { sectionFeedIDs.contains($0.feedID) && !$0.isRead }
+            if filtered.count >= limit || pool.count < limit * multiplier {
+                return Array(filtered.prefix(limit))
+            }
+            multiplier *= 2
+        }
+        let pool = articles(limit: limit * multiplier)
+        return Array(pool.filter { sectionFeedIDs.contains($0.feedID) && !$0.isRead }.prefix(limit))
     }
 
     func hasMoreArticles(for section: FeedSection, beyond count: Int) -> Bool {
@@ -64,20 +87,10 @@ extension FeedManager {
     }
 
     func nextLoadedCount(for section: FeedSection, after count: Int, batchSize: Int, requireUnread: Bool = false) -> Int? {
-        let maxIterations = 100
-        var newCount = count + batchSize
-        for _ in 0..<maxIterations {
-            let revealedRange = self.articles(for: section, limit: newCount)
-            guard revealedRange.count > count else { return nil }
-            if !requireUnread {
-                return newCount
-            }
-            if revealedRange.suffix(revealedRange.count - count).contains(where: { !$0.isRead }) {
-                return newCount
-            }
-            newCount += batchSize
-        }
-        return nil
+        let newCount = count + batchSize
+        let revealedRange = self.articles(for: section, limit: newCount, requireUnread: requireUnread)
+        guard revealedRange.count > count else { return nil }
+        return newCount
     }
 
     // MARK: - Count-based Batches (Feed)
@@ -90,30 +103,36 @@ extension FeedManager {
 
     func nextLoadedCount(for feed: Feed, after count: Int, batchSize: Int, requireUnread: Bool = false) -> Int? {
         _ = dataRevision
-        let maxIterations = 100
-        var newCount = count + batchSize
-        for _ in 0..<maxIterations {
-            let all = (try? database.articles(forFeedID: feed.id, limit: newCount)) ?? []
-            let revealedRange = applyRules(all, feedID: feed.id)
-            guard revealedRange.count > count else { return nil }
-            if !requireUnread {
-                return newCount
-            }
-            if revealedRange.suffix(revealedRange.count - count).contains(where: { !$0.isRead }) {
-                return newCount
-            }
-            newCount += batchSize
-        }
-        return nil
+        let newCount = count + batchSize
+        let revealedRange = self.articles(for: feed, limit: newCount, requireUnread: requireUnread)
+        guard revealedRange.count > count else { return nil }
+        return newCount
     }
 
     // MARK: - Count-based Batches (List)
 
-    func articles(for list: FeedList, limit: Int) -> [Article] {
+    func articles(for list: FeedList, limit: Int, requireUnread: Bool = false) -> [Article] {
         let listFeedIDs = feedIDs(for: list)
         guard !listFeedIDs.isEmpty else { return [] }
-        let pooled = articles(limit: limit * 3).filter { listFeedIDs.contains($0.feedID) }
-        return Array(applyListRules(pooled, listID: list.id).prefix(limit))
+        if !requireUnread {
+            let pooled = articles(limit: limit * 3).filter { listFeedIDs.contains($0.feedID) }
+            return Array(applyListRules(pooled, listID: list.id).prefix(limit))
+        }
+        var multiplier = 3
+        let maxIterations = 20
+        for _ in 0..<maxIterations {
+            let pool = articles(limit: limit * multiplier)
+            let pooled = pool.filter { listFeedIDs.contains($0.feedID) }
+            let listed = applyListRules(pooled, listID: list.id)
+            let unread = listed.filter { !$0.isRead }
+            if unread.count >= limit || pool.count < limit * multiplier {
+                return Array(unread.prefix(limit))
+            }
+            multiplier *= 2
+        }
+        let pool = articles(limit: limit * multiplier)
+        let pooled = pool.filter { listFeedIDs.contains($0.feedID) }
+        return Array(applyListRules(pooled, listID: list.id).filter { !$0.isRead }.prefix(limit))
     }
 
     func hasMoreArticles(for list: FeedList, beyond count: Int) -> Bool {
@@ -124,20 +143,10 @@ extension FeedManager {
     }
 
     func nextLoadedCount(for list: FeedList, after count: Int, batchSize: Int, requireUnread: Bool = false) -> Int? {
-        let maxIterations = 100
-        var newCount = count + batchSize
-        for _ in 0..<maxIterations {
-            let revealedRange = self.articles(for: list, limit: newCount)
-            guard revealedRange.count > count else { return nil }
-            if !requireUnread {
-                return newCount
-            }
-            if revealedRange.suffix(revealedRange.count - count).contains(where: { !$0.isRead }) {
-                return newCount
-            }
-            newCount += batchSize
-        }
-        return nil
+        let newCount = count + batchSize
+        let revealedRange = self.articles(for: list, limit: newCount, requireUnread: requireUnread)
+        guard revealedRange.count > count else { return nil }
+        return newCount
     }
 
     // MARK: - Date-based Batches (List)

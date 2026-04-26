@@ -6,13 +6,45 @@ struct BrowsingSettingsView: View {
     @AppStorage("Articles.AutoLoadWhileScrolling") private var autoLoadWhileScrolling: Bool = false
     @AppStorage("Articles.HideViewedContent") private var hideViewedContent: Bool = false
     @AppStorage("Display.ScrollMarkAsRead") private var scrollMarkAsRead: Bool = false
+    @AppStorage(DoomscrollingMode.storageKey) private var doomscrollingMode: Bool = false
+
+    private var hideViewedContentBinding: Binding<Bool> {
+        Binding(
+            get: { doomscrollingMode ? false : hideViewedContent },
+            set: { newValue in
+                guard !doomscrollingMode else { return }
+                hideViewedContent = newValue
+            }
+        )
+    }
+
+    private var scrollMarkAsReadBinding: Binding<Bool> {
+        Binding(
+            get: { doomscrollingMode ? false : scrollMarkAsRead },
+            set: { newValue in
+                guard !doomscrollingMode else { return }
+                scrollMarkAsRead = newValue
+            }
+        )
+    }
+
+    private var batchingModeBinding: Binding<BatchingMode> {
+        Binding(
+            get: { doomscrollingMode ? .items25 : batchingMode },
+            set: { newValue in
+                guard !doomscrollingMode else { return }
+                batchingMode = newValue
+            }
+        )
+    }
 
     var body: some View {
         List {
             Section {
                 Toggle(String(localized: "HideViewedContent", table: "Settings"),
-                       isOn: $hideViewedContent)
-                Picker(selection: $batchingMode) {
+                       isOn: hideViewedContentBinding)
+                    .disabled(doomscrollingMode)
+                Picker(selection: batchingModeBinding) {
                     Section {
                         Text(String(localized: "Batching.Day1", table: "Settings"))
                             .tag(BatchingMode.day1)
@@ -36,6 +68,7 @@ struct BrowsingSettingsView: View {
                 } label: {
                     Text(String(localized: "BatchingMode", table: "Settings"))
                 }
+                .disabled(doomscrollingMode)
             } header: {
                 Text(String(localized: "Section.Feeds", table: "Settings"))
             } footer: {
@@ -45,9 +78,26 @@ struct BrowsingSettingsView: View {
             Section {
                 Toggle(String(localized: "AutoLoadWhileScrolling", table: "Settings"),
                        isOn: $autoLoadWhileScrolling)
-                Toggle(String(localized: "ScrollMarkAsRead", table: "Settings"), isOn: $scrollMarkAsRead)
+                Toggle(String(localized: "ScrollMarkAsRead", table: "Settings"),
+                       isOn: scrollMarkAsReadBinding)
+                    .disabled(doomscrollingMode)
             } header: {
                 Text(String(localized: "Section.Scrolling", table: "Settings"))
+            }
+
+            Section {
+                Toggle(String(localized: "Doomscrolling.Enable", table: "Settings"),
+                       isOn: Binding(
+                            get: { doomscrollingMode },
+                            set: { newValue in
+                                withAnimation(.smooth.speed(2.0)) {
+                                    doomscrollingMode = newValue
+                                }
+                            }
+                       ))
+                    .tint(.red)
+            } header: {
+                Text(String(localized: "Section.Doomscrolling", table: "Settings"))
             }
         }
         .listStyle(.insetGrouped)

@@ -5,14 +5,23 @@ struct FeedArticlesView: View {
     @Environment(FeedManager.self) var feedManager
     let feed: Feed
 
-    @AppStorage("Articles.BatchingMode") private var batchingMode: BatchingMode = .day1
+    @AppStorage("Articles.BatchingMode") private var storedBatchingMode: BatchingMode = .day1
+    @AppStorage(DoomscrollingMode.storageKey) private var doomscrollingMode: Bool = false
     @State private var loadedSinceDate: Date = BatchingMode.current().initialSinceDate()
     @State private var loadedCount: Int = BatchingMode.current().initialCount()
     @AppStorage("Display.MarkAllReadPosition") private var markAllReadPosition: MarkAllReadPosition = .bottom
     @AppStorage("Instagram.HideReels") private var hideReels: Bool = false
-    @AppStorage("Articles.HideViewedContent") private var hideViewedContent: Bool = false
+    @AppStorage("Articles.HideViewedContent") private var storedHideViewedContent: Bool = false
     @State private var visibility = ArticleVisibilityTracker()
     @State private var scrollToTopTick: Int = 0
+
+    private var batchingMode: BatchingMode {
+        DoomscrollingMode.effectiveBatchingMode(storedBatchingMode)
+    }
+
+    private var hideViewedContent: Bool {
+        DoomscrollingMode.effectiveHideViewedContent(storedHideViewedContent)
+    }
 
     private var currentFeed: Feed {
         feedManager.feeds.first(where: { $0.id == feed.id }) ?? feed
@@ -49,7 +58,11 @@ struct FeedArticlesView: View {
         var articles: [Article]
         if batchingMode.isCountBased {
             articles = feedManager.undatedArticles(for: feed)
-                + feedManager.articles(for: feed, limit: loadedCount)
+                + feedManager.articles(
+                    for: feed,
+                    limit: loadedCount,
+                    requireUnread: hideViewedContent
+                )
         } else {
             articles = feedManager.undatedArticles(for: feed)
                 + feedManager.articles(for: feed, since: loadedSinceDate)
@@ -61,8 +74,11 @@ struct FeedArticlesView: View {
     }
 
     private func performRefresh() async {
+        guard !feedManager.isLoading else { return }
         feedManager.flushDebouncedReads()
-        visibility.beginRefresh(from: rawArticles, isEnabled: hideViewedContent)
+        withAnimation(.smooth.speed(2.0)) {
+            visibility.beginRefresh(from: rawArticles, isEnabled: hideViewedContent)
+        }
         try? await feedManager.refreshFeed(feed)
         withAnimation(.smooth.speed(2.0)) {
             visibility.endRefresh(from: rawArticles, isEnabled: hideViewedContent)
@@ -122,6 +138,9 @@ struct FeedArticlesView: View {
         .onChange(of: batchingMode) { _, newMode in
             loadedSinceDate = newMode.initialSinceDate()
             loadedCount = newMode.initialCount()
+            visibility.capture(from: rawArticles, isEnabled: hideViewedContent)
+        }
+        .onChange(of: doomscrollingMode) { _, _ in
             visibility.capture(from: rawArticles, isEnabled: hideViewedContent)
         }
     }
