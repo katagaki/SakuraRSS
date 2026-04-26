@@ -109,6 +109,7 @@ struct AllArticlesView: View {
     @AppStorage("Instagram.HideReels") private var hideInstagramReels: Bool = false
     @AppStorage("Articles.HideViewedContent") private var hideViewedContent: Bool = false
     @State private var visibility = ArticleVisibilityTracker()
+    @State private var scrollToTopTick: Int = 0
     @State private var whileYouSleptAvailable = false
     @State private var todaysSummaryAvailable = false
 
@@ -166,19 +167,30 @@ struct AllArticlesView: View {
         withAnimation(.smooth.speed(2.0)) {
             visibility.acceptPendingRefresh()
         }
+        scrollToTopTick &+= 1
     }
 
     private var loadMoreAction: (() -> Void)? {
         if hideViewedContent && visibility.hasReachedEnd { return nil }
         if let days = batchingMode.chunkDays {
-            guard let next = feedManager.nextArticleChunk(before: loadedSinceDate, chunkDays: days) else {
+            guard let next = feedManager.nextArticleChunk(
+                before: loadedSinceDate,
+                chunkDays: days,
+                requireUnread: hideViewedContent
+            ) else {
                 return nil
             }
             return { loadedSinceDate = next }
         }
         if let batch = batchingMode.batchSize {
-            guard feedManager.hasMoreArticles(beyond: loadedCount) else { return nil }
-            return { loadedCount += batch }
+            guard let next = feedManager.nextLoadedCount(
+                after: loadedCount,
+                batchSize: batch,
+                requireUnread: hideViewedContent
+            ) else {
+                return nil
+            }
+            return { loadedCount = next }
         }
         return nil
     }
@@ -328,7 +340,8 @@ struct AllArticlesView: View {
             },
             onMarkAllRead: {
                 feedManager.markAllRead()
-            }
+            },
+            scrollToTopTrigger: scrollToTopTick
         )
         .safeAreaInset(edge: .top, spacing: 0) {
             VStack(spacing: 0) {

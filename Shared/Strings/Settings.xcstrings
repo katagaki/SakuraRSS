@@ -4019,55 +4019,55 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Beim Scrollen automatisch laden"
+            "value": "Doomscrolling"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Auto-Load While Scrolling"
+            "value": "Doomscrolling Mode"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Charger automatiquement en faisant défiler"
+            "value": "Mode Doomscrolling"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Carica automaticamente durante lo scorrimento"
+            "value": "Modalità Doomscrolling"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "スクロール中に自動読み込み"
+            "value": "ドゥームスクロール"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "스크롤 시 자동 로드"
+            "value": "둠스크롤"
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tự động tải khi cuộn"
+            "value": "Chế độ Doomscrolling"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "滚动时自动加载"
+            "value": "末日刷屏模式"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "滾動時自動載入"
+            "value": "末日刷屏模式"
           }
         }
       }

@@ -13,6 +13,7 @@ struct HomeSectionView: View {
     @AppStorage("Instagram.HideReels") private var hideInstagramReels: Bool = false
     @AppStorage("Articles.HideViewedContent") private var hideViewedContent: Bool = false
     @State private var visibility = ArticleVisibilityTracker()
+    @State private var scrollToTopTick: Int = 0
 
     private var rawArticles: [Article] {
         var articles: [Article]
@@ -53,21 +54,32 @@ struct HomeSectionView: View {
         withAnimation(.smooth.speed(2.0)) {
             visibility.acceptPendingRefresh()
         }
+        scrollToTopTick &+= 1
     }
 
     private var loadMoreAction: (() -> Void)? {
         if hideViewedContent && visibility.hasReachedEnd { return nil }
         if let days = batchingMode.chunkDays {
-            guard let next = feedManager.nextArticleChunk(for: section,
-                                                          before: loadedSinceDate,
-                                                          chunkDays: days) else {
+            guard let next = feedManager.nextArticleChunk(
+                for: section,
+                before: loadedSinceDate,
+                chunkDays: days,
+                requireUnread: hideViewedContent
+            ) else {
                 return nil
             }
             return { loadedSinceDate = next }
         }
         if let batch = batchingMode.batchSize {
-            guard feedManager.hasMoreArticles(for: section, beyond: loadedCount) else { return nil }
-            return { loadedCount += batch }
+            guard let next = feedManager.nextLoadedCount(
+                for: section,
+                after: loadedCount,
+                batchSize: batch,
+                requireUnread: hideViewedContent
+            ) else {
+                return nil
+            }
+            return { loadedCount = next }
         }
         return nil
     }
@@ -86,7 +98,8 @@ struct HomeSectionView: View {
             },
             onMarkAllRead: {
                 feedManager.markAllRead(for: section)
-            }
+            },
+            scrollToTopTrigger: scrollToTopTick
         )
         .refreshable {
             startRefreshWithoutBlocking()

@@ -10,26 +10,26 @@ struct MarkReadOnScrollModifier: ViewModifier {
 
     @State private var hasBeenVisible = false
     @State private var hasQueued = false
-    @State private var lastMinY: CGFloat = .greatestFiniteMagnitude
+    @State private var topAtOrBelowScreenTop = true
 
     func body(content: Content) -> some View {
         content
             .onScrollVisibilityChange(threshold: 0.01) { isVisible in
                 if isVisible { hasBeenVisible = true }
             }
-            .onGeometryChange(for: CGFloat.self) { proxy in
-                proxy.frame(in: .global).minY
+            .onGeometryChange(for: Bool.self) { proxy in
+                proxy.frame(in: .global).minY >= 0
             } action: { newValue in
-                if !hasQueued,
-                   hasBeenVisible,
-                   scrollMarkAsRead,
-                   !article.isRead,
-                   lastMinY >= 0,
-                   newValue < 0 {
+                if hasQueued { return }
+                if topAtOrBelowScreenTop, !newValue,
+                   hasBeenVisible, scrollMarkAsRead, !article.isRead {
                     hasQueued = true
                     feedManager.markReadOnScroll(article)
+                    return
                 }
-                lastMinY = newValue
+                if topAtOrBelowScreenTop != newValue {
+                    topAtOrBelowScreenTop = newValue
+                }
             }
     }
 }

@@ -12,6 +12,7 @@ struct FeedArticlesView: View {
     @AppStorage("Instagram.HideReels") private var hideReels: Bool = false
     @AppStorage("Articles.HideViewedContent") private var hideViewedContent: Bool = false
     @State private var visibility = ArticleVisibilityTracker()
+    @State private var scrollToTopTick: Int = 0
 
     private var currentFeed: Feed {
         feedManager.feeds.first(where: { $0.id == feed.id }) ?? feed
@@ -20,16 +21,26 @@ struct FeedArticlesView: View {
     private var loadMoreAction: (() -> Void)? {
         if hideViewedContent && visibility.hasReachedEnd { return nil }
         if let days = batchingMode.chunkDays {
-            guard let next = feedManager.nextArticleChunk(for: feed,
-                                                          before: loadedSinceDate,
-                                                          chunkDays: days) else {
+            guard let next = feedManager.nextArticleChunk(
+                for: feed,
+                before: loadedSinceDate,
+                chunkDays: days,
+                requireUnread: hideViewedContent
+            ) else {
                 return nil
             }
             return { loadedSinceDate = next }
         }
         if let batch = batchingMode.batchSize {
-            guard feedManager.hasMoreArticles(for: feed, beyond: loadedCount) else { return nil }
-            return { loadedCount += batch }
+            guard let next = feedManager.nextLoadedCount(
+                for: feed,
+                after: loadedCount,
+                batchSize: batch,
+                requireUnread: hideViewedContent
+            ) else {
+                return nil
+            }
+            return { loadedCount = next }
         }
         return nil
     }
@@ -62,6 +73,7 @@ struct FeedArticlesView: View {
         withAnimation(.smooth.speed(2.0)) {
             visibility.acceptPendingRefresh()
         }
+        scrollToTopTick &+= 1
     }
 
     var body: some View {
@@ -82,7 +94,8 @@ struct FeedArticlesView: View {
             },
             onMarkAllRead: {
                 feedManager.markAllRead(feed: feed)
-            }
+            },
+            scrollToTopTrigger: scrollToTopTick
         )
         .refreshable {
             await performRefresh()
