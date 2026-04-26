@@ -71,8 +71,15 @@ struct HomeSectionView: View {
             return { loadedSinceDate = next }
         }
         if let batch = batchingMode.batchSize {
-            guard feedManager.hasMoreArticles(for: section, beyond: loadedCount) else { return nil }
-            return { loadedCount += batch }
+            guard let next = feedManager.nextLoadedCount(
+                for: section,
+                after: loadedCount,
+                batchSize: batch,
+                requireUnread: hideViewedContent
+            ) else {
+                return nil
+            }
+            return { loadedCount = next }
         }
         return nil
     }

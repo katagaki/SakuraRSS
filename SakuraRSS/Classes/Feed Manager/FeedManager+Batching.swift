@@ -26,6 +26,28 @@ extension FeedManager {
         return applyAllRules(all).count > count
     }
 
+    /// Walks forward in `batchSize` increments until the newly-revealed range
+    /// contains at least one unread article. Returns nil when there is no
+    /// further content to surface. With `requireUnread: false` any growth
+    /// suffices, matching the simple `count + batchSize` increment.
+    func nextLoadedCount(after count: Int, batchSize: Int, requireUnread: Bool = false) -> Int? {
+        _ = dataRevision
+        let maxIterations = 100
+        var newCount = count + batchSize
+        for _ in 0..<maxIterations {
+            let revealedRange = self.articles(limit: newCount)
+            guard revealedRange.count > count else { return nil }
+            if !requireUnread {
+                return newCount
+            }
+            if revealedRange.suffix(revealedRange.count - count).contains(where: { !$0.isRead }) {
+                return newCount
+            }
+            newCount += batchSize
+        }
+        return nil
+    }
+
     // MARK: - Count-based Batches (Section)
 
     func articles(for section: FeedSection, limit: Int) -> [Article] {
@@ -41,12 +63,48 @@ extension FeedManager {
         return filtered.count > count
     }
 
+    func nextLoadedCount(for section: FeedSection, after count: Int, batchSize: Int, requireUnread: Bool = false) -> Int? {
+        let maxIterations = 100
+        var newCount = count + batchSize
+        for _ in 0..<maxIterations {
+            let revealedRange = self.articles(for: section, limit: newCount)
+            guard revealedRange.count > count else { return nil }
+            if !requireUnread {
+                return newCount
+            }
+            if revealedRange.suffix(revealedRange.count - count).contains(where: { !$0.isRead }) {
+                return newCount
+            }
+            newCount += batchSize
+        }
+        return nil
+    }
+
     // MARK: - Count-based Batches (Feed)
 
     func hasMoreArticles(for feed: Feed, beyond count: Int) -> Bool {
         _ = dataRevision
         let all = (try? database.articles(forFeedID: feed.id, limit: count + 1)) ?? []
         return applyRules(all, feedID: feed.id).count > count
+    }
+
+    func nextLoadedCount(for feed: Feed, after count: Int, batchSize: Int, requireUnread: Bool = false) -> Int? {
+        _ = dataRevision
+        let maxIterations = 100
+        var newCount = count + batchSize
+        for _ in 0..<maxIterations {
+            let all = (try? database.articles(forFeedID: feed.id, limit: newCount)) ?? []
+            let revealedRange = applyRules(all, feedID: feed.id)
+            guard revealedRange.count > count else { return nil }
+            if !requireUnread {
+                return newCount
+            }
+            if revealedRange.suffix(revealedRange.count - count).contains(where: { !$0.isRead }) {
+                return newCount
+            }
+            newCount += batchSize
+        }
+        return nil
     }
 
     // MARK: - Count-based Batches (List)
@@ -63,6 +121,23 @@ extension FeedManager {
         guard !listFeedIDs.isEmpty else { return false }
         let pooled = articles(limit: (count + 1) * 3).filter { listFeedIDs.contains($0.feedID) }
         return applyListRules(pooled, listID: list.id).count > count
+    }
+
+    func nextLoadedCount(for list: FeedList, after count: Int, batchSize: Int, requireUnread: Bool = false) -> Int? {
+        let maxIterations = 100
+        var newCount = count + batchSize
+        for _ in 0..<maxIterations {
+            let revealedRange = self.articles(for: list, limit: newCount)
+            guard revealedRange.count > count else { return nil }
+            if !requireUnread {
+                return newCount
+            }
+            if revealedRange.suffix(revealedRange.count - count).contains(where: { !$0.isRead }) {
+                return newCount
+            }
+            newCount += batchSize
+        }
+        return nil
     }
 
     // MARK: - Date-based Batches (List)
