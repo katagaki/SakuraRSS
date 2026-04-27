@@ -6,5 +6,6 @@ nonisolated enum FeedOpenMode: String, CaseIterable, Sendable {
     case inAppBrowser
     case inAppBrowserReader
     case clearThisPage
+    case readability
     case archivePh
 }

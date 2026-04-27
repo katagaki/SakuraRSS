@@ -6195,6 +6195,183 @@
           }
         }
       }
+    },
+    "Readability.About": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Readability ist eine Open-Source-Bibliothek von Mozilla, die den Hauptinhalt eines Web-Artikels extrahiert und ihn in einem aufgeräumten, ablenkungsfreien Layout anzeigt. Wenn diese Option für einen Feed aktiviert ist, werden Inhalte direkt auf dem Gerät verarbeitet und in einem eingebetteten WebView angezeigt. Quellcode unter https://github.com/mozilla/readability verfügbar."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Readability is an open-source library by Mozilla that extracts the main content from a web article and presents it in a clean, distraction-free layout. When enabled for a feed, content is processed on-device and displayed inside an embedded WebView. Source available at https://github.com/mozilla/readability."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Readability est une bibliothèque open source de Mozilla qui extrait le contenu principal d'un article web et le présente dans une mise en page épurée et sans distraction. Lorsqu'elle est activée pour un flux, le contenu est traité sur l'appareil et affiché dans une WebView intégrée. Code source disponible sur https://github.com/mozilla/readability."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Readability è una libreria open source di Mozilla che estrae il contenuto principale di un articolo web e lo presenta in un layout pulito e senza distrazioni. Quando è abilitato per un feed, il contenuto viene elaborato sul dispositivo e mostrato all'interno di una WebView incorporata. Codice sorgente disponibile su https://github.com/mozilla/readability."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ReadabilityはMozillaが提供するオープンソースライブラリで、Web記事から本文を抽出し、すっきりとした気が散らないレイアウトで表示します。フィードで有効にすると、コンテンツは端末上で処理され、埋め込みWebView内に表示されます。ソースコードは https://github.com/mozilla/readability で公開されています。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Readability는 Mozilla의 오픈소스 라이브러리로, 웹 기사에서 본문을 추출하여 깔끔하고 방해 없는 레이아웃으로 보여줍니다. 피드에 활성화하면 콘텐츠는 기기에서 처리되어 내장 WebView에 표시됩니다. 소스 코드는 https://github.com/mozilla/readability 에서 확인할 수 있습니다."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Readability là một thư viện mã nguồn mở của Mozilla, trích xuất nội dung chính từ một bài viết web và trình bày trong bố cục gọn gàng, không gây xao nhãng. Khi được bật cho một nguồn cấp, nội dung được xử lý trên thiết bị và hiển thị bên trong WebView nhúng. Mã nguồn có sẵn tại https://github.com/mozilla/readability."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Readability 是 Mozilla 提供的开源库，可从网页文章中提取正文并以简洁、无干扰的布局呈现。为订阅源启用后，内容将在设备上本地处理并显示在嵌入式 WebView 中。源代码可在 https://github.com/mozilla/readability 获取。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Readability 是 Mozilla 提供的開源函式庫，可從網頁文章中擷取正文並以簡潔、無干擾的版面呈現。為訂閱源啟用後，內容將在裝置上本機處理並顯示於嵌入式 WebView 中。原始碼可在 https://github.com/mozilla/readability 取得。"
+          }
+        }
+      }
+    },
+    "Readability.AboutHeader": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Info"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "About"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "À propos"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Informazioni"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "概要"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "정보"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Giới thiệu"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "关于"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "關於"
+          }
+        }
+      }
+    },
+    "Readability.Footer": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Um Readability für einen Feed zu verwenden, bearbeiten Sie den Feed und setzen Sie die Option „Öffnen in“ auf „Readability“."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "To use Readability for a feed, edit the feed and set its Open In option to Readability."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pour utiliser Readability pour un flux, modifiez le flux et définissez son option Ouvrir dans sur Readability."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Per utilizzare Readability per un feed, modifica il feed e imposta la sua opzione Apri in su Readability."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "フィードでReadabilityを使用するには、フィードを編集して「開く」オプションを「Readability」に設定してください。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "피드에 Readability를 사용하려면 피드를 편집하고 '열기' 옵션을 'Readability'로 설정하세요."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Để sử dụng Readability cho một nguồn cấp, hãy chỉnh sửa nguồn cấp và đặt tùy chọn Mở trong thành Readability."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "要为订阅源使用 Readability，请编辑该订阅源并将其「打开方式」选项设置为「Readability」。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "要為訂閱源使用 Readability，請編輯該訂閱源並將其「打開方式」選項設定為「Readability」。"
+          }
+        }
+      }
     }
   },
   "version": "1.1"

@@ -183,6 +183,8 @@ struct FeedEditSheet: View {
                             Divider()
                             Text(String(localized: "FeedEdit.OpenIn.ClearThisPage", table: "Feeds"))
                                 .tag(FeedOpenMode.clearThisPage)
+                            Text(String(localized: "FeedEdit.OpenIn.Readability", table: "Feeds"))
+                                .tag(FeedOpenMode.readability)
                             Text(String(localized: "FeedEdit.OpenIn.ArchivePh", table: "Feeds"))
                                 .tag(FeedOpenMode.archivePh)
                         }
