@@ -4,9 +4,17 @@ import WebKit
 /// Presents an article URL through archive.today in an embedded WebView.
 struct ArchivePhView: View {
 
+    let article: Article
     let url: URL
     @State private var isLoading = true
     @State private var reloadTrigger = 0
+    @State private var isBookmarked: Bool
+
+    init(article: Article, url: URL) {
+        self.article = article
+        self.url = url
+        _isBookmarked = State(initialValue: article.isBookmarked)
+    }
 
     var body: some View {
         ZStack {
@@ -24,18 +32,12 @@ struct ArchivePhView: View {
         }
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
-            ToolbarItemGroup(placement: .topBarTrailing) {
-                Button {
-                    reloadTrigger &+= 1
-                } label: {
-                    Image(systemName: "arrow.clockwise")
-                }
-            }
-            ToolbarItemGroup(placement: .topBarTrailing) {
-                ShareLink(item: url) {
-                    Image(systemName: "square.and.arrow.up")
-                }
-            }
+            WebArticleViewerToolbar(
+                article: article,
+                url: url,
+                isBookmarked: $isBookmarked,
+                onReload: { reloadTrigger &+= 1 }
+            )
         }
     }
 }
