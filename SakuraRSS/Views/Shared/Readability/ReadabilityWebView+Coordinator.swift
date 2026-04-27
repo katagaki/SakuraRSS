@@ -18,8 +18,7 @@ extension ReadabilityWebView {
             decidePolicyFor navigationAction: WKNavigationAction,
             decisionHandler: @escaping (WKNavigationActionPolicy) -> Void
         ) {
-            let scheme = navigationAction.request.url?.scheme?.lowercased()
-            guard scheme == "https" || scheme == "http" || scheme == "about" else {
+            guard navigationAction.request.url?.scheme?.lowercased() == "https" else {
                 decisionHandler(.cancel)
                 return
             }
