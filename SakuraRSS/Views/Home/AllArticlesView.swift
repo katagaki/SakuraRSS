@@ -283,17 +283,28 @@ struct AllArticlesView: View {
         .navigationTitle(currentTitle)
         .toolbarTitleDisplayMode(.inlineLarge)
         .toolbarTitleMenu {
-            ForEach(availableSections) { section in
-                Button {
-                    withAnimation(.smooth.speed(2.0)) {
-                        selectedSelection = .section(section)
+            ForEach(followingSections) { section in
+                sectionButton(for: section)
+            }
+
+            if !primarySections.isEmpty || !socialAndVideoSections.isEmpty {
+                Divider()
+            }
+
+            ForEach(primarySections) { section in
+                sectionButton(for: section)
+            }
+
+            if !socialAndVideoSections.isEmpty {
+                Menu {
+                    ForEach(socialAndVideoSections) { section in
+                        sectionButton(for: section)
                     }
                 } label: {
-                    if let systemImage = section.systemImage {
-                        Label(section.localizedTitle, systemImage: systemImage)
-                    } else {
-                        Text(section.localizedTitle)
-                    }
+                    Label(
+                        String(localized: "FeedSection.SocialAndVideo", table: "Feeds"),
+                        systemImage: "person.2"
+                    )
                 }
             }
 
@@ -366,6 +377,33 @@ struct AllArticlesView: View {
         HomeSection.allCases.filter { section in
             guard let feedSection = section.feedSection else { return true }
             return feedManager.hasFeeds(for: feedSection)
+        }
+    }
+
+    private var followingSections: [HomeSection] {
+        availableSections.filter { $0 == .all }
+    }
+
+    private var primarySections: [HomeSection] {
+        availableSections.filter { $0 == .feeds || $0 == .podcasts }
+    }
+
+    private var socialAndVideoSections: [HomeSection] {
+        availableSections.filter { $0 != .all && $0 != .feeds && $0 != .podcasts }
+    }
+
+    @ViewBuilder
+    private func sectionButton(for section: HomeSection) -> some View {
+        Button {
+            withAnimation(.smooth.speed(2.0)) {
+                selectedSelection = .section(section)
+            }
+        } label: {
+            if let systemImage = section.systemImage {
+                Label(section.localizedTitle, systemImage: systemImage)
+            } else {
+                Text(section.localizedTitle)
+            }
         }
     }
 

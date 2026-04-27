@@ -42,8 +42,10 @@ struct ListEditSheet: View {
 
                 Section(String(localized: "ListEdit.Icon", table: "Lists")) {
                     ScrollView(.horizontal, showsIndicators: false) {
-                        LazyHGrid(rows: Array(repeating: GridItem(.fixed(44), spacing: 12), count: 4),
-                                  spacing: 12) {
+                        LazyHGrid(
+                            rows: Array(repeating: GridItem(.fixed(44), spacing: 12), count: 4),
+                            spacing: 12
+                        ) {
                             ForEach(ListIcon.allCases) { icon in
                                 Button {
                                     selectedIcon = icon.rawValue
@@ -53,17 +55,17 @@ struct ListEditSheet: View {
                                         .frame(width: 44, height: 44)
                                         .background(
                                             selectedIcon == icon.rawValue
-                                                ? AnyShapeStyle(.tint.opacity(0.2))
+                                                ? AnyShapeStyle(.tint.opacity(0.4))
                                                 : AnyShapeStyle(.clear)
                                         )
-                                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                                        .clipShape(.rect(cornerRadius: 12))
                                 }
                                 .buttonStyle(.plain)
                                 .accessibilityLabel(icon.rawValue)
                             }
                         }
-                        .padding(.horizontal, 20)
-                        .padding(.vertical, 4)
+                        .padding(.horizontal, 18)
+                        .padding(.vertical, 18)
                     }
                     .listRowInsets(EdgeInsets())
                 }
