@@ -479,55 +479,55 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Das Rezept und die abgerufenen Artikel werden entfernt. Dies kann nicht rückgängig gemacht werden."
+            "value" : "Das Rezept und die abgerufenen Inhalte werden entfernt. Dies kann nicht rückgängig gemacht werden."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "The recipe and its fetched articles will be removed. This cannot be undone."
+            "value" : "The recipe and its fetched content will be removed. This cannot be undone."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "La recette et les articles récupérés seront supprimés. Cette action est irréversible."
+            "value" : "La recette et les contenus récupérés seront supprimés. Cette action est irréversible."
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "La ricetta e gli articoli recuperati verranno rimossi. L’operazione non può essere annullata."
+            "value" : "La ricetta e i contenuti recuperati verranno rimossi. L’operazione non può essere annullata."
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "レシピと取得した記事が削除されます。この操作は取り消せません。"
+            "value" : "レシピと取得したコンテンツが削除されます。この操作は取り消せません。"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "레시피와 가져온 기사가 삭제됩니다. 이 작업은 취소할 수 없습니다."
+            "value" : "레시피와 가져온 콘텐츠가 삭제됩니다. 이 작업은 취소할 수 없습니다."
           }
         },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Công thức và các bài viết đã tải sẽ bị xóa. Hành động này không thể hoàn tác."
+            "value" : "Công thức và nội dung đã tải sẽ bị xóa. Hành động này không thể hoàn tác."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "配方及其已抓取的文章将被移除。此操作无法撤销。"
+            "value" : "配方及其已抓取的内容将被移除。此操作无法撤销。"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "配方及其已抓取的文章將被移除。此操作無法復原。"
+            "value" : "配方及其已抓取的內容將被移除。此操作無法復原。"
           }
         }
       }

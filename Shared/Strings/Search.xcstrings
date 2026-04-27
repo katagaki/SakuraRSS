@@ -1,655 +1,655 @@
 {
-  "sourceLanguage": "en",
-  "strings": {
-    "Empty.Description": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Suchen Sie nach Titel, Autor oder Zusammenfassung."
+  "sourceLanguage" : "en",
+  "strings" : {
+    "Empty.Description" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Suchen Sie nach Titel, Autor oder Zusammenfassung."
           }
         },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Search by title, author, or summary."
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Search by title, author, or summary."
           }
         },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Recherchez par titre, auteur ou résumé."
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Recherchez par titre, auteur ou résumé."
           }
         },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Cerca per titolo, autore o riassunto."
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cerca per titolo, autore o riassunto."
           }
         },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "タイトル、著者、または要約で検索します。"
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "タイトル、著者、または要約で検索します。"
           }
         },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "제목, 작성자 또는 요약으로 검색하세요."
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "제목, 작성자 또는 요약으로 검색하세요."
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Tìm theo tiêu đề, tác giả, hoặc tóm tắt."
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tìm theo tiêu đề, tác giả, hoặc tóm tắt."
           }
         },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "按标题、作者或摘要搜索。"
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "按标题、作者或摘要搜索。"
           }
         },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "依標題、作者或摘要搜尋。"
-          }
-        }
-      }
-    },
-    "Empty.Title": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Inhalte durchsuchen"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Search Content"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Rechercher du contenu"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Cerca contenuti"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "コンテンツを検索"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "콘텐츠 검색"
-          }
-        },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Tìm nội dung"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "搜索内容"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "搜尋內容"
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "依標題、作者或摘要搜尋。"
           }
         }
       }
     },
-    "NoResults.Description": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Versuchen Sie einen anderen Suchbegriff."
+    "Empty.Title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Inhalte durchsuchen"
           }
         },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Try a different search term."
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Search Content"
           }
         },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Essayez un autre terme de recherche."
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rechercher du contenu"
           }
         },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Prova con un altro termine di ricerca."
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cerca contenuti"
           }
         },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "別のキーワードをお試しください。"
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "コンテンツを検索"
           }
         },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "다른 검색어를 사용해 보세요."
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "콘텐츠 검색"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Thử từ khóa khác."
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tìm nội dung"
           }
         },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "试试其他搜索词。"
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "搜索内容"
           }
         },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "試試其他搜尋字詞。"
-          }
-        }
-      }
-    },
-    "NoResults.Title": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Keine Ergebnisse"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "No Results"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Aucun résultat"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Nessun risultato"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "結果がありません"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "결과 없음"
-          }
-        },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Không có kết quả"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "无结果"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "沒有結果"
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "搜尋內容"
           }
         }
       }
     },
-    "Prompt": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Schlagzeilen, Themen, Personen"
+    "NoResults.Description" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Versuchen Sie einen anderen Suchbegriff."
           }
         },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Headlines, Topics, People"
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Try a different search term."
           }
         },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Titres, Sujets, Personnes"
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Essayez un autre terme de recherche."
           }
         },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Titoli, Argomenti, Persone"
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prova con un altro termine di ricerca."
           }
         },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "ヘッドライン、トピック、人物"
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "別のキーワードをお試しください。"
           }
         },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "헤드라인, 주제, 인물"
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "다른 검색어를 사용해 보세요."
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Tiêu đề, Chủ đề, Nhân vật"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Thử từ khóa khác."
           }
         },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "标题、话题、人物"
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "试试其他搜索词。"
           }
         },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "標題、話題、人物"
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "試試其他搜尋字詞。"
           }
         }
       }
     },
-    "Prompt.People": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Personen"
+    "NoResults.Title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keine Ergebnisse"
           }
         },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "People"
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No Results"
           }
         },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Personnes"
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aucun résultat"
           }
         },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Persone"
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nessun risultato"
           }
         },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "人物"
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "結果がありません"
           }
         },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "인물"
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "결과 없음"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Nhân vật"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Không có kết quả"
           }
         },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "人物"
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "无结果"
           }
         },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "人物"
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "沒有結果"
           }
         }
       }
     },
-    "Prompt.Topics": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Themen"
+    "Prompt" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Schlagzeilen, Themen, Personen"
           }
         },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Topics"
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Headlines, Topics, People"
           }
         },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Sujets"
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Titres, Sujets, Personnes"
           }
         },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Argomenti"
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Titoli, Argomenti, Persone"
           }
         },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "トピック"
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ヘッドライン、トピック、人物"
           }
         },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "주제"
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "헤드라인, 주제, 인물"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Chủ đề"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tiêu đề, Chủ đề, Nhân vật"
           }
         },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "话题"
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "标题、话题、人物"
           }
         },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "話題"
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "標題、話題、人物"
           }
         }
       }
     },
-    "Results.Title": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Suchergebnisse"
+    "Prompt.People" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Personen"
           }
         },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Search Results"
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "People"
           }
         },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Résultats de recherche"
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Personnes"
           }
         },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Risultati di ricerca"
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Persone"
           }
         },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "検索結果"
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "人物"
           }
         },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "검색 결과"
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "인물"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Kết quả tìm kiếm"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nhân vật"
           }
         },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "搜索结果"
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "人物"
           }
         },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "搜尋結果"
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "人物"
           }
         }
       }
     },
-    "Tab.People": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Personen"
+    "Prompt.Topics" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Themen"
           }
         },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "People"
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Topics"
           }
         },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Personnes"
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sujets"
           }
         },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Persone"
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Argomenti"
           }
         },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "人物"
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "トピック"
           }
         },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "인물"
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "주제"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Nhân vật"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chủ đề"
           }
         },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "人物"
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "话题"
           }
         },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "人物"
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "話題"
           }
         }
       }
     },
-    "Tab.Search": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Suche"
+    "Results.Title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Suchergebnisse"
           }
         },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Search"
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Search Results"
           }
         },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Rechercher"
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Résultats de recherche"
           }
         },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Cerca"
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Risultati di ricerca"
           }
         },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "検索"
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "検索結果"
           }
         },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "검색"
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "검색 결과"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Tìm kiếm"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kết quả tìm kiếm"
           }
         },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "搜索"
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "搜索结果"
           }
         },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "搜尋"
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "搜尋結果"
           }
         }
       }
     },
-    "Tab.Topics": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Themen"
+    "Tab.People" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Personen"
           }
         },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Topics"
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "People"
           }
         },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Sujets"
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Personnes"
           }
         },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Argomenti"
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Persone"
           }
         },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "トピック"
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "人物"
           }
         },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "주제"
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "인물"
           }
         },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Chủ đề"
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nhân vật"
           }
         },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "话题"
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "人物"
           }
         },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "話題"
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "人物"
+          }
+        }
+      }
+    },
+    "Tab.Search" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Suche"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Search"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rechercher"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cerca"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "検索"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "검색"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tìm kiếm"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "搜索"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "搜尋"
+          }
+        }
+      }
+    },
+    "Tab.Topics" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Themen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Topics"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sujets"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Argomenti"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "トピック"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "주제"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chủ đề"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "话题"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "話題"
           }
         }
       }
     }
   },
-  "version": "1.1"
+  "version" : "1.1"
 }
