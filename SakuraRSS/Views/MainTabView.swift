@@ -4,7 +4,7 @@ import TipKit
 enum AppTab: String, CaseIterable {
     case home
     case feeds
-    case lists
+    case bookmarks
     case profile
     case search
 }
@@ -47,8 +47,8 @@ struct MainTabView: View {
                 FeedListView()
             }
 
-            Tab("Tabs.Lists", systemImage: "square.fill.text.grid.1x2", value: .lists) {
-                ListsView()
+            Tab("Tabs.Bookmarks", systemImage: "bookmark", value: .bookmarks) {
+                BookmarksView()
             }
 
             Tab("Tabs.Profile", systemImage: "person.crop.circle", value: .profile) {

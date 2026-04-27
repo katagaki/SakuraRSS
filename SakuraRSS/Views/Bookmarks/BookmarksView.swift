@@ -1,19 +1,15 @@
 import SwiftUI
 
-struct ListsView: View {
+struct BookmarksView: View {
 
     @Environment(FeedManager.self) var feedManager
     @Namespace private var cardZoom
 
     var body: some View {
         NavigationStack {
-            ListsPage()
+            BookmarksContentView()
                 .environment(\.zoomNamespace, cardZoom)
-                .navigationDestination(for: FeedList.self) { list in
-                    ListSectionView(list: list)
-                        .environment(\.zoomNamespace, cardZoom)
-                        .environment(\.navigateToFeed, { _ in })
-                }
+                .environment(\.navigateToFeed, { _ in })
                 .navigationDestination(for: Feed.self) { feed in
                     FeedArticlesView(feed: feed)
                         .environment(\.zoomNamespace, cardZoom)

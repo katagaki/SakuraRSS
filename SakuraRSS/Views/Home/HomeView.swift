@@ -145,8 +145,6 @@ struct HomeView: View {
             } else {
                 feedManager.markAllRead()
             }
-        case .bookmarks:
-            break
         case .list(let id):
             if let list = feedManager.lists.first(where: { $0.id == id }) {
                 feedManager.markAllRead(for: list)

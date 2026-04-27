@@ -114,25 +114,23 @@ extension FeedManager {
     func articles(for list: FeedList, limit: Int, requireUnread: Bool = false) -> [Article] {
         let listFeedIDs = feedIDs(for: list)
         guard !listFeedIDs.isEmpty else { return [] }
-        if !requireUnread {
-            let pooled = articles(limit: limit * 3).filter { listFeedIDs.contains($0.feedID) }
-            return Array(applyListRules(pooled, listID: list.id).prefix(limit))
-        }
         var multiplier = 3
         let maxIterations = 20
         for _ in 0..<maxIterations {
             let pool = articles(limit: limit * multiplier)
             let pooled = pool.filter { listFeedIDs.contains($0.feedID) }
             let listed = applyListRules(pooled, listID: list.id)
-            let unread = listed.filter { !$0.isRead }
-            if unread.count >= limit || pool.count < limit * multiplier {
-                return Array(unread.prefix(limit))
+            let candidates = requireUnread ? listed.filter { !$0.isRead } : listed
+            if candidates.count >= limit || pool.count < limit * multiplier {
+                return Array(candidates.prefix(limit))
             }
             multiplier *= 2
         }
         let pool = articles(limit: limit * multiplier)
         let pooled = pool.filter { listFeedIDs.contains($0.feedID) }
-        return Array(applyListRules(pooled, listID: list.id).filter { !$0.isRead }.prefix(limit))
+        let listed = applyListRules(pooled, listID: list.id)
+        let candidates = requireUnread ? listed.filter { !$0.isRead } : listed
+        return Array(candidates.prefix(limit))
     }
 
     func hasMoreArticles(for list: FeedList, beyond count: Int) -> Bool {

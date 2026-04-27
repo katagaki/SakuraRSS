@@ -1,5 +1,4 @@
 import SwiftUI
-import TipKit
 
 enum HomeSection: String, CaseIterable, Identifiable {
     case all
@@ -65,25 +64,19 @@ enum HomeSection: String, CaseIterable, Identifiable {
 }
 
 /// Represents the selected view in the Home tab title menu.
-/// Can be a static section, the bookmarks collection, or a user-created list.
+/// Can be a static section or a user-created list.
 enum HomeSelection: Hashable, RawRepresentable {
     case section(HomeSection)
-    case bookmarks
     case list(Int64)
 
     var rawValue: String {
         switch self {
         case .section(let section): "section.\(section.rawValue)"
-        case .bookmarks: "bookmarks"
         case .list(let id): "list.\(id)"
         }
     }
 
     init?(rawValue: String) {
-        if rawValue == "bookmarks" {
-            self = .bookmarks
-            return
-        }
         if rawValue.hasPrefix("section.") {
             let sectionRaw = String(rawValue.dropFirst("section.".count))
             if let section = HomeSection(rawValue: sectionRaw) {
@@ -108,7 +101,6 @@ enum HomeSelection: Hashable, RawRepresentable {
     var localizedTitle: String {
         switch self {
         case .section(let section): section.localizedTitle
-        case .bookmarks: String(localized: "Tabs.Bookmarks")
         case .list: ""
         }
     }
@@ -116,7 +108,6 @@ enum HomeSelection: Hashable, RawRepresentable {
     var systemImage: String? {
         switch self {
         case .section(let section): section.systemImage
-        case .bookmarks: "bookmark"
         case .list: nil
         }
     }
@@ -244,15 +235,11 @@ struct AllArticlesView: View {
         switch selectedSelection {
         case .section(let section):
             return section.localizedTitle
-        case .bookmarks:
-            return String(localized: "Tabs.Bookmarks")
         case .list(let id):
             return feedManager.lists.first { $0.id == id }?.name
                 ?? String(localized: "Shared.AllArticles")
         }
     }
-
-    private let bookmarksSectionTip = BookmarksSectionTip()
 
     var body: some View {
         Group {
@@ -263,21 +250,12 @@ struct AllArticlesView: View {
                 } else {
                     feedTabContent
                 }
-            case .bookmarks:
-                BookmarksContentView()
             case .list(let id):
                 if let list = feedManager.lists.first(where: { $0.id == id }) {
                     ListSectionView(list: list)
                 } else {
                     feedTabContent
                 }
-            }
-        }
-        .safeAreaInset(edge: .top, spacing: 0) {
-            if selectedSelection != .bookmarks {
-                TipView(bookmarksSectionTip)
-                    .padding(.horizontal)
-                    .padding(.top, 8)
             }
         }
         .navigationTitle(currentTitle)
@@ -308,16 +286,6 @@ struct AllArticlesView: View {
                 }
             }
 
-            Divider()
-            Button {
-                withAnimation(.smooth.speed(2.0)) {
-                    selectedSelection = .bookmarks
-                }
-                bookmarksSectionTip.invalidate(reason: .actionPerformed)
-            } label: {
-                Label("Tabs.Bookmarks", systemImage: "bookmark")
-            }
-
             if !feedManager.lists.isEmpty {
                 Divider()
                 ForEach(feedManager.lists) { list in
@@ -345,17 +313,6 @@ struct AllArticlesView: View {
         .onChange(of: doomscrollingMode) { _, _ in
             visibility.capture(from: rawArticles, isEnabled: hideViewedContent)
         }
-        .onAppear {
-            refreshBookmarksTip()
-        }
-        .onChange(of: feedManager.dataRevision) {
-            refreshBookmarksTip()
-        }
-    }
-
-    private func refreshBookmarksTip() {
-        let count = (try? DatabaseManager.shared.bookmarkedCount()) ?? 0
-        BookmarksSectionTip.bookmarkCount = count
     }
 
     private func validateSelection() {
@@ -364,8 +321,6 @@ struct AllArticlesView: View {
             if !availableSections.contains(section) {
                 selectedSelection = .section(.all)
             }
-        case .bookmarks:
-            break
         case .list(let id):
             if !feedManager.lists.contains(where: { $0.id == id }) {
                 selectedSelection = .section(.all)

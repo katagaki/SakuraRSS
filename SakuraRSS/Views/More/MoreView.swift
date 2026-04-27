@@ -5,6 +5,13 @@ struct MoreView: View {
     var showsCloseButton: Bool = true
 
     @Environment(\.dismiss) private var dismiss
+    @Environment(FeedManager.self) private var feedManager
+    @Namespace private var cardZoom
+
+    @State private var isShowingNewList = false
+    @State private var listToEdit: FeedList?
+    @State private var listForRules: FeedList?
+    @State private var listToDelete: FeedList?
 
     var body: some View {
         NavigationStack {
@@ -12,6 +19,13 @@ struct MoreView: View {
                 Section(String(localized: "Section.Analytics", table: "Settings")) {
                     AnalyticsView()
                 }
+
+                MoreListsSection(
+                    listToEdit: $listToEdit,
+                    listForRules: $listForRules,
+                    listToDelete: $listToDelete,
+                    isShowingNewList: $isShowingNewList
+                )
 
                 Section {
                     NavigationLink {
@@ -101,6 +115,63 @@ struct MoreView: View {
                             dismiss()
                         }
                     }
+                }
+            }
+            .navigationDestination(for: FeedList.self) { list in
+                ListSectionView(list: list)
+                    .environment(\.zoomNamespace, cardZoom)
+                    .environment(\.navigateToFeed, { _ in })
+            }
+            .navigationDestination(for: Feed.self) { feed in
+                FeedArticlesView(feed: feed)
+                    .environment(\.zoomNamespace, cardZoom)
+            }
+            .navigationDestination(for: Article.self) { article in
+                ArticleDestinationView(article: article)
+                    .environment(\.zoomNamespace, cardZoom)
+                    .zoomTransition(sourceID: article.id, in: cardZoom)
+            }
+            .navigationDestination(for: EntityDestination.self) { destination in
+                EntityArticlesView(destination: destination)
+                    .environment(\.zoomNamespace, cardZoom)
+            }
+            .sheet(isPresented: $isShowingNewList) {
+                ListEditSheet(list: nil)
+                    .environment(feedManager)
+                    .presentationDetents([.medium, .large])
+                    .interactiveDismissDisabled()
+            }
+            .sheet(item: $listToEdit) { list in
+                ListEditSheet(list: list)
+                    .environment(feedManager)
+                    .presentationDetents([.medium, .large])
+                    .interactiveDismissDisabled()
+            }
+            .sheet(item: $listForRules) { list in
+                ListRulesSheet(list: list)
+                    .environment(feedManager)
+                    .presentationDetents([.medium, .large])
+                    .interactiveDismissDisabled()
+            }
+            .alert(
+                String(localized: "ListMenu.Delete.Title", table: "Lists"),
+                isPresented: Binding(
+                    get: { listToDelete != nil },
+                    set: { if !$0 { listToDelete = nil } }
+                )
+            ) {
+                Button(String(localized: "ListMenu.Delete.Confirm", table: "Lists"), role: .destructive) {
+                    if let list = listToDelete {
+                        feedManager.deleteList(list)
+                        listToDelete = nil
+                    }
+                }
+                Button("Shared.Cancel", role: .cancel) {
+                    listToDelete = nil
+                }
+            } message: {
+                if let list = listToDelete {
+                    Text(String(localized: "ListMenu.Delete.Message.\(list.name)", table: "Lists"))
                 }
             }
         }
