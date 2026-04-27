@@ -4,7 +4,6 @@ import WebKit
 /// Presents an article URL through archive.today in an embedded WebView.
 struct ArchivePhView: View {
 
-    @Environment(FeedManager.self) private var feedManager
     let article: Article
     let url: URL
     @State private var isLoading = true
@@ -33,26 +32,12 @@ struct ArchivePhView: View {
         }
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
-            ToolbarItemGroup(placement: .topBarTrailing) {
-                Button {
-                    isBookmarked.toggle()
-                    feedManager.toggleBookmark(article)
-                } label: {
-                    Image(systemName: isBookmarked ? "bookmark.fill" : "bookmark")
-                }
-            }
-            ToolbarItemGroup(placement: .topBarTrailing) {
-                Button {
-                    reloadTrigger &+= 1
-                } label: {
-                    Image(systemName: "arrow.clockwise")
-                }
-            }
-            ToolbarItemGroup(placement: .topBarTrailing) {
-                ShareLink(item: url) {
-                    Image(systemName: "square.and.arrow.up")
-                }
-            }
+            WebArticleViewerToolbar(
+                article: article,
+                url: url,
+                isBookmarked: $isBookmarked,
+                onReload: { reloadTrigger &+= 1 }
+            )
         }
     }
 }

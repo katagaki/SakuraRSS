@@ -5,7 +5,6 @@ import WebKit
 struct ClearThisPageView: View {
 
     @Environment(\.colorScheme) private var colorScheme
-    @Environment(FeedManager.self) private var feedManager
     let article: Article
     let url: URL
     @State private var isLoading = true
@@ -35,26 +34,12 @@ struct ClearThisPageView: View {
         }
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
-            ToolbarItemGroup(placement: .topBarTrailing) {
-                Button {
-                    isBookmarked.toggle()
-                    feedManager.toggleBookmark(article)
-                } label: {
-                    Image(systemName: isBookmarked ? "bookmark.fill" : "bookmark")
-                }
-            }
-            ToolbarItemGroup(placement: .topBarTrailing) {
-                Button {
-                    reloadTrigger &+= 1
-                } label: {
-                    Image(systemName: "arrow.clockwise")
-                }
-            }
-            ToolbarItemGroup(placement: .topBarTrailing) {
-                ShareLink(item: url) {
-                    Image(systemName: "square.and.arrow.up")
-                }
-            }
+            WebArticleViewerToolbar(
+                article: article,
+                url: url,
+                isBookmarked: $isBookmarked,
+                onReload: { reloadTrigger &+= 1 }
+            )
         }
     }
 }
