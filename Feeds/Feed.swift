@@ -59,6 +59,52 @@ nonisolated struct Feed: Identifiable, Hashable, Sendable {
         return host == "note.com" || host.hasSuffix(".note.com")
     }
 
+    var isYouTubeFeed: Bool {
+        let host = domain.lowercased()
+        return host == "youtube.com" || host.hasSuffix(".youtube.com")
+            || host == "youtu.be" || host.hasSuffix(".youtu.be")
+            || isYouTubePlaylistFeed
+    }
+
+    var isVimeoFeed: Bool {
+        let host = domain.lowercased()
+        return host == "vimeo.com" || host.hasSuffix(".vimeo.com")
+    }
+
+    var isNiconicoFeed: Bool {
+        let host = domain.lowercased()
+        return host == "nicovideo.jp" || host.hasSuffix(".nicovideo.jp")
+    }
+
+    var isPixelfedFeed: Bool {
+        let host = domain.lowercased()
+        return host == "pixelfed.social" || host.hasSuffix(".pixelfed.social")
+            || host == "pixelfed.tokyo" || host.hasSuffix(".pixelfed.tokyo")
+    }
+
+    var isBlueskyFeed: Bool {
+        let host = domain.lowercased()
+        return host == "bsky.app" || host.hasSuffix(".bsky.app")
+    }
+
+    var isMastodonFeed: Bool {
+        if hasMastodonFeedURL { return true }
+        let host = domain.lowercased()
+        let mastodonHosts: Set<String> = [
+            "mastodon.social",
+            "mastodon.online",
+            "mastodon.world",
+            "mstdn.social",
+            "mstdn.jp",
+            "fosstodon.org",
+            "hachyderm.io",
+            "infosec.exchange",
+            "techhub.social",
+            "mas.to"
+        ]
+        return mastodonHosts.contains(where: { host == $0 || host.hasSuffix(".\($0)") })
+    }
+
     var isCircleIcon: Bool {
         FaviconCircularDomains.shouldUseCircleIcon(feedDomain: domain)
     }
@@ -78,10 +124,18 @@ nonisolated struct Feed: Identifiable, Hashable, Sendable {
     }
 
     var feedSection: FeedSection {
-        if isPodcast { return .audio }
-        if isVideoFeed { return .video }
-        if isSocialFeed { return .social }
-        return .news
+        if isPodcast { return .podcasts }
+        if isXFeed { return .x }
+        if isYouTubeFeed { return .youtube }
+        if isInstagramFeed { return .instagram }
+        if isPixelfedFeed { return .pixelfed }
+        if isVimeoFeed { return .vimeo }
+        if isNiconicoFeed { return .niconico }
+        if isBlueskyFeed { return .bluesky }
+        if isMastodonFeed { return .mastodon }
+        if isRedditFeed { return .reddit }
+        if isNoteFeed { return .note }
+        return .feeds
     }
 
     /// Detects unlisted Mastodon instances via the /@username.rss URL pattern.

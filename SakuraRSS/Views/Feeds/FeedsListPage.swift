@@ -23,14 +23,14 @@ struct FeedsListPage: View {
 
     private func feedsForSection(_ section: FeedSection) -> [Feed] {
         let feeds = filteredFeeds.filter { $0.feedSection == section }
-        if section == .social || section == .video || section == .audio {
-            return feeds.sorted {
-                let domainCompare = $0.domain.localizedStandardCompare($1.domain)
-                if domainCompare != .orderedSame { return domainCompare == .orderedAscending }
-                return $0.title.localizedStandardCompare($1.title) == .orderedAscending
-            }
+        if section == .feeds {
+            return feeds
         }
-        return feeds
+        return feeds.sorted {
+            let domainCompare = $0.domain.localizedStandardCompare($1.domain)
+            if domainCompare != .orderedSame { return domainCompare == .orderedAscending }
+            return $0.title.localizedStandardCompare($1.title) == .orderedAscending
+        }
     }
 
     private let gridColumns = [GridItem(.adaptive(minimum: 80), spacing: 16)]

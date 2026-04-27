@@ -2,37 +2,66 @@ import SwiftUI
 import TipKit
 
 enum HomeSection: String, CaseIterable, Identifiable {
-    case feed
-    case social
-    case videos
-    case audio
+    case all
+    case feeds
+    case podcasts
+    case bluesky
+    case instagram
+    case mastodon
+    case note
+    case pixelfed
+    case reddit
+    case vimeo
+    case x // swiftlint:disable:this identifier_name
+    case youtube
+    case niconico
 
     var id: String { rawValue }
 
     var localizedTitle: String {
         switch self {
-        case .feed: String(localized: "Shared.AllArticles")
-        case .social: String(localized: "HomeSection.Social", table: "Feeds")
-        case .videos: String(localized: "HomeSection.Videos", table: "Feeds")
-        case .audio: String(localized: "HomeSection.Audio", table: "Feeds")
+        case .all: String(localized: "Shared.AllArticles")
+        case .feeds: String(localized: "FeedSection.Feeds", table: "Feeds")
+        case .podcasts: String(localized: "FeedSection.Podcasts", table: "Feeds")
+        case .bluesky: String(localized: "FeedSection.Bluesky", table: "Feeds")
+        case .instagram: String(localized: "FeedSection.Instagram", table: "Feeds")
+        case .mastodon: String(localized: "FeedSection.Mastodon", table: "Feeds")
+        case .note: String(localized: "FeedSection.Note", table: "Feeds")
+        case .pixelfed: String(localized: "FeedSection.Pixelfed", table: "Feeds")
+        case .reddit: String(localized: "FeedSection.Reddit", table: "Feeds")
+        case .vimeo: String(localized: "FeedSection.Vimeo", table: "Feeds")
+        case .x: String(localized: "FeedSection.X", table: "Feeds")
+        case .youtube: String(localized: "FeedSection.YouTube", table: "Feeds")
+        case .niconico: String(localized: "FeedSection.Niconico", table: "Feeds")
         }
     }
 
     var systemImage: String {
         switch self {
-        case .feed: "square.stack"
-        case .social: "person.2"
-        case .videos: "play.rectangle"
-        case .audio: "headphones"
+        case .all: "square.stack"
+        case .feeds: "newspaper"
+        case .podcasts: "headphones"
+        case .instagram, .pixelfed: "photo.on.rectangle"
+        case .bluesky, .mastodon, .note, .reddit, .x: "person.2"
+        case .vimeo, .youtube, .niconico: "play.rectangle"
         }
     }
 
     var feedSection: FeedSection? {
         switch self {
-        case .feed: nil
-        case .social: .social
-        case .videos: .video
-        case .audio: .audio
+        case .all: nil
+        case .feeds: .feeds
+        case .podcasts: .podcasts
+        case .bluesky: .bluesky
+        case .instagram: .instagram
+        case .mastodon: .mastodon
+        case .note: .note
+        case .pixelfed: .pixelfed
+        case .reddit: .reddit
+        case .vimeo: .vimeo
+        case .x: .x
+        case .youtube: .youtube
+        case .niconico: .niconico
         }
     }
 }
@@ -99,7 +128,7 @@ struct AllArticlesView: View {
 
     @Environment(FeedManager.self) var feedManager
 
-    @AppStorage("Home.SelectedSection") private var selectedSelection: HomeSelection = .section(.feed)
+    @AppStorage("Home.SelectedSection") private var selectedSelection: HomeSelection = .section(.all)
     @AppStorage("Articles.BatchingMode") private var storedBatchingMode: BatchingMode = .day1
     @AppStorage(DoomscrollingMode.storageKey) private var doomscrollingMode: Bool = false
     @State private var loadedSinceDate: Date = BatchingMode.current().initialSinceDate()
@@ -231,15 +260,10 @@ struct AllArticlesView: View {
         Group {
             switch selectedSelection {
             case .section(let section):
-                switch section {
-                case .feed:
+                if let feedSection = section.feedSection {
+                    HomeSectionView(section: feedSection)
+                } else {
                     feedTabContent
-                case .social:
-                    HomeSectionView(section: .social)
-                case .videos:
-                    HomeSectionView(section: .video)
-                case .audio:
-                    HomeSectionView(section: .audio)
                 }
             case .bookmarks:
                 BookmarksContentView()
@@ -325,13 +349,13 @@ struct AllArticlesView: View {
         switch selectedSelection {
         case .section(let section):
             if !availableSections.contains(section) {
-                selectedSelection = .section(.feed)
+                selectedSelection = .section(.all)
             }
         case .bookmarks:
             break
         case .list(let id):
             if !feedManager.lists.contains(where: { $0.id == id }) {
-                selectedSelection = .section(.feed)
+                selectedSelection = .section(.all)
             }
         }
     }
@@ -346,7 +370,7 @@ struct AllArticlesView: View {
     private var feedTabContent: some View {
         ArticlesView(
             articles: displayedArticles,
-            title: HomeSection.feed.localizedTitle,
+            title: HomeSection.all.localizedTitle,
             feedKey: "all",
             anySummaryHidden: anySummaryHidden,
             onRestoreSummaries: {

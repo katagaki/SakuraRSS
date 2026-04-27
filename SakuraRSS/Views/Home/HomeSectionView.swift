@@ -103,14 +103,22 @@ struct HomeSectionView: View {
         return nil
     }
 
+    private var isVideoSection: Bool {
+        section == .youtube || section == .vimeo || section == .niconico
+    }
+
+    private var isFeedViewSection: Bool {
+        section == .x || section == .mastodon || section == .bluesky
+    }
+
     var body: some View {
         ArticlesView(
             articles: visibility.filter(rawArticles, isEnabled: hideViewedContent),
             title: section.localizedTitle,
             feedKey: "home.\(section.rawValue)",
-            isVideoFeed: section == .video,
-            isPodcastFeed: section == .audio,
-            isFeedViewDomain: section == .social,
+            isVideoFeed: isVideoSection,
+            isPodcastFeed: section == .podcasts,
+            isFeedViewDomain: isFeedViewSection,
             onLoadMore: loadMoreAction,
             onRefresh: {
                 await performRefresh()

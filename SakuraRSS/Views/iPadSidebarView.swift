@@ -360,7 +360,7 @@ struct IPadSidebarView: View {
     // MARK: - Helpers
 
     private var availableSections: [FeedSection] {
-        FeedSection.allCases.filter { $0 != .news && feedManager.hasFeeds(for: $0) }
+        FeedSection.allCases.filter { $0 != .feeds && feedManager.hasFeeds(for: $0) }
     }
 }
 
@@ -453,10 +453,11 @@ extension IPadSidebarView {
 
     func sectionIcon(_ section: FeedSection) -> String {
         switch section {
-        case .news: "newspaper"
-        case .social: "person.2"
-        case .video: "play.rectangle"
-        case .audio: "headphones"
+        case .feeds: "newspaper"
+        case .podcasts: "headphones"
+        case .instagram, .pixelfed: "photo.on.rectangle"
+        case .bluesky, .mastodon, .note, .reddit, .x: "person.2"
+        case .vimeo, .youtube, .niconico: "play.rectangle"
         }
     }
 
