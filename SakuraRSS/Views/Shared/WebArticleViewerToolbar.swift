@@ -17,8 +17,6 @@ struct WebArticleViewerToolbar: ToolbarContent {
             } label: {
                 Image(systemName: isBookmarked ? "bookmark.fill" : "bookmark")
             }
-        }
-        ToolbarItemGroup(placement: .topBarTrailing) {
             Button(action: onReload) {
                 Image(systemName: "arrow.clockwise")
             }
