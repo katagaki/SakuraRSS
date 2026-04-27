@@ -136,7 +136,7 @@ struct ArticleDetailView: View {
                     Rectangle()
                         .fill(.secondary.opacity(0.1))
                 })
-                .aspectRatio(heroImageAspectRatio ?? (16.0 / 9.0), contentMode: .fit)
+                .aspectRatio(max(heroImageAspectRatio ?? (16.0 / 9.0), 3.0 / 4.0), contentMode: .fit)
                 .clipShape(RoundedRectangle(cornerRadius: 12))
                 .matchedTransitionSource(id: url, in: imageViewerNamespace)
                 .onTapGesture { imageViewerURL = url }
