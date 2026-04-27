@@ -3,7 +3,7 @@ import SwiftUI
 
 extension ReadabilityWebView {
 
-    final class Coordinator: NSObject, WKNavigationDelegate, WKScriptMessageHandler {
+    final class Coordinator: NSObject, WKNavigationDelegate {
 
         @Binding var isLoading: Bool
         var lastReloadTrigger: Int = 0
@@ -39,12 +39,13 @@ extension ReadabilityWebView {
                 }
                 return
             }
-            webView.evaluateJavaScript(ReadabilityScript.runScript) { [weak self] _, _ in
+            webView.evaluateJavaScript(ReadabilityScript.runScript) { [weak self] result, _ in
                 guard let self else { return }
-                if !self.hasAppliedReadability {
-                    Task { @MainActor in
-                        self.isLoading = false
-                    }
+                if (result as? Bool) == true {
+                    self.hasAppliedReadability = true
+                }
+                Task { @MainActor in
+                    self.isLoading = false
                 }
             }
         }
@@ -57,20 +58,6 @@ extension ReadabilityWebView {
 
         func webView(_: WKWebView, didFailProvisionalNavigation _: WKNavigation!,
                      withError _: Error) {
-            Task { @MainActor in
-                isLoading = false
-            }
-        }
-
-        func userContentController(
-            _: WKUserContentController,
-            didReceive message: WKScriptMessage
-        ) {
-            guard message.name == ReadabilityScript.messageHandlerName else { return }
-            if let payload = message.body as? [String: Any],
-               (payload["ok"] as? Bool) == true {
-                hasAppliedReadability = true
-            }
             Task { @MainActor in
                 isLoading = false
             }

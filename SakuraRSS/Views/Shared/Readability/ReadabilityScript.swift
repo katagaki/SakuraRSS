@@ -2,8 +2,6 @@ import Foundation
 
 enum ReadabilityScript {
 
-    static let messageHandlerName = "sakuraReadability"
-
     /// Loads `Readability.js` from the bundle so it can be injected at document start.
     static var bundledLibrary: String {
         guard let url = Bundle.main.url(forResource: "Readability", withExtension: "js"),
@@ -14,14 +12,10 @@ enum ReadabilityScript {
     }
 
     /// Runs Readability against the loaded document and replaces it with a clean reader layout.
+    /// Returns `true` if the document was successfully transformed.
     static let runScript = """
     (function() {
-      if (window.__sakuraReadabilityApplied) { return; }
-      function done(payload) {
-        try {
-          window.webkit.messageHandlers.sakuraReadability.postMessage(payload);
-        } catch (e) {}
-      }
+      if (window.__sakuraReadabilityApplied) { return false; }
       function escapeText(value) {
         if (value == null) { return ''; }
         return String(value)
@@ -31,16 +25,10 @@ enum ReadabilityScript {
           .replace(/"/g, '&quot;');
       }
       try {
-        if (typeof Readability !== 'function') {
-          done({ ok: false, reason: 'unavailable' });
-          return;
-        }
+        if (typeof Readability !== 'function') { return false; }
         var clone = document.cloneNode(true);
         var parsed = new Readability(clone).parse();
-        if (!parsed || !parsed.content) {
-          done({ ok: false, reason: 'noContent' });
-          return;
-        }
+        if (!parsed || !parsed.content) { return false; }
         window.__sakuraReadabilityApplied = true;
         var titleHTML = parsed.title ? '<h1 class="reader-title">' + escapeText(parsed.title) + '</h1>' : '';
         var bylineHTML = parsed.byline ? '<p class="reader-byline">' + escapeText(parsed.byline) + '</p>' : '';
@@ -72,9 +60,9 @@ enum ReadabilityScript {
         document.open();
         document.write(html);
         document.close();
-        done({ ok: true });
+        return true;
       } catch (e) {
-        done({ ok: false, reason: 'error', error: String(e) });
+        return false;
       }
     })();
     """

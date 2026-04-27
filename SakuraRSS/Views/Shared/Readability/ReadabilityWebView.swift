@@ -22,10 +22,6 @@ struct ReadabilityWebView: UIViewRepresentable {
             forMainFrameOnly: true
         )
         config.userContentController.addUserScript(library)
-        config.userContentController.add(
-            context.coordinator,
-            name: ReadabilityScript.messageHandlerName
-        )
 
         let webView = WKWebView(frame: .zero, configuration: config)
         webView.navigationDelegate = context.coordinator
