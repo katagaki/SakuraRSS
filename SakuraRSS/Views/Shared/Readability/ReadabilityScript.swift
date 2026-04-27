@@ -3,13 +3,14 @@ import Foundation
 enum ReadabilityScript {
 
     /// Loads `Readability.js` from the bundle so it can be injected at document start.
-    static var bundledLibrary: String {
-        guard let url = Bundle.main.url(forResource: "Readability", withExtension: "js"),
-              let source = try? String(contentsOf: url, encoding: .utf8) else {
+    static let bundledLibrary: String = {
+        guard let path = Bundle.main.path(forResource: "Readability", ofType: "js"),
+              let data = FileManager.default.contents(atPath: path),
+              let source = String(data: data, encoding: .utf8) else {
             return ""
         }
         return source
-    }
+    }()
 
     /// Runs Readability against the loaded document and replaces it with a clean reader layout.
     /// Returns `true` if the document was successfully transformed.
