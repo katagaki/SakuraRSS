@@ -5,9 +5,18 @@ import WebKit
 struct ClearThisPageView: View {
 
     @Environment(\.colorScheme) private var colorScheme
+    @Environment(FeedManager.self) private var feedManager
+    let article: Article
     let url: URL
     @State private var isLoading = true
     @State private var reloadTrigger = 0
+    @State private var isBookmarked: Bool
+
+    init(article: Article, url: URL) {
+        self.article = article
+        self.url = url
+        _isBookmarked = State(initialValue: article.isBookmarked)
+    }
 
     var body: some View {
         ZStack {
@@ -26,6 +35,14 @@ struct ClearThisPageView: View {
         }
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
+            ToolbarItemGroup(placement: .topBarTrailing) {
+                Button {
+                    isBookmarked.toggle()
+                    feedManager.toggleBookmark(article)
+                } label: {
+                    Image(systemName: isBookmarked ? "bookmark.fill" : "bookmark")
+                }
+            }
             ToolbarItemGroup(placement: .topBarTrailing) {
                 Button {
                     reloadTrigger &+= 1

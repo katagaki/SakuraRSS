@@ -22,10 +22,10 @@ struct ArticleDestinationView: View {
             YouTubePlayerView(article: article)
         } else if feedOpenMode == .clearThisPage,
                   let url = URL(string: article.url) {
-            ClearThisPageView(url: url)
+            ClearThisPageView(article: article, url: url)
         } else if feedOpenMode == .archivePh,
                   let url = URL(string: article.url) {
-            ArchivePhView(url: url)
+            ArchivePhView(article: article, url: url)
         } else {
             ArticleDetailView(article: article)
         }
