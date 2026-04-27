@@ -22,6 +22,9 @@ struct IntegrationsSettingsView: View {
                 NavigationLink(String(localized: "ClearThisPage", table: "Integrations")) {
                     ClearThisPageSettingsView()
                 }
+                NavigationLink(String(localized: "Readability", table: "Integrations")) {
+                    ReadabilitySettingsView()
+                }
             } header: {
                 Text(String(localized: "Section.ReaderServices", table: "Settings"))
             }

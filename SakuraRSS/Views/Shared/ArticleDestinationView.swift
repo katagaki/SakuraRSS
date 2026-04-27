@@ -23,6 +23,9 @@ struct ArticleDestinationView: View {
         } else if feedOpenMode == .clearThisPage,
                   let url = URL(string: article.url) {
             ClearThisPageView(article: article, url: url)
+        } else if feedOpenMode == .readability,
+                  let url = URL(string: article.url) {
+            ReadabilityView(article: article, url: url)
         } else if feedOpenMode == .archivePh,
                   let url = URL(string: article.url) {
             ArchivePhView(article: article, url: url)
