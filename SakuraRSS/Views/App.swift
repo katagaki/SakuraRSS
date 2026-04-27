@@ -18,7 +18,8 @@ struct SakuraRSSApp: App {
     @AppStorage("BackgroundRefresh.Enabled") private var backgroundRefreshEnabled: Bool = true
     @AppStorage("BackgroundRefresh.Interval") private var refreshInterval: Int = 240
     @AppStorage("App.FetchOnStartup") private var fetchOnStartup: Bool = true
-    @AppStorage("iCloudBackup.Interval") private var iCloudBackupInterval: Int = iCloudBackupManager.BackupInterval.everyNight.rawValue
+    @AppStorage("iCloudBackup.Interval")
+    private var iCloudBackupInterval: Int = iCloudBackupManager.BackupInterval.everyNight.rawValue
     let backgroundTaskID = "com.tsubuzaki.SakuraRSS.RefreshFeeds"
     let iCloudBackupTaskID = "com.tsubuzaki.SakuraRSS.iCloudBackup"
 

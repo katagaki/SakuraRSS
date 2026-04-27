@@ -53,6 +53,7 @@ nonisolated enum HTMLDataDecoder {
             guard let regex = try? NSRegularExpression(
                 pattern: pattern, options: .caseInsensitive
             ) else { continue }
+            // swiftlint:disable:next identifier_name
             let ns = asciiHead as NSString
             if let match = regex.firstMatch(
                 in: asciiHead, range: NSRange(location: 0, length: ns.length)

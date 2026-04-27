@@ -36,14 +36,12 @@ enum HomeSection: String, CaseIterable, Identifiable {
         }
     }
 
-    var systemImage: String {
+    var systemImage: String? {
         switch self {
         case .all: "square.stack"
         case .feeds: "newspaper"
         case .podcasts: "headphones"
-        case .instagram, .pixelfed: "photo.on.rectangle"
-        case .bluesky, .mastodon, .note, .reddit, .x: "person.2"
-        case .vimeo, .youtube, .niconico: "play.rectangle"
+        default: nil
         }
     }
 
@@ -115,11 +113,11 @@ enum HomeSelection: Hashable, RawRepresentable {
         }
     }
 
-    var systemImage: String {
+    var systemImage: String? {
         switch self {
         case .section(let section): section.systemImage
         case .bookmarks: "bookmark"
-        case .list: ""
+        case .list: nil
         }
     }
 }
@@ -291,7 +289,11 @@ struct AllArticlesView: View {
                         selectedSelection = .section(section)
                     }
                 } label: {
-                    Label(section.localizedTitle, systemImage: section.systemImage)
+                    if let systemImage = section.systemImage {
+                        Label(section.localizedTitle, systemImage: systemImage)
+                    } else {
+                        Text(section.localizedTitle)
+                    }
                 }
             }
 

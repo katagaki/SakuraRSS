@@ -155,23 +155,23 @@ extension ArticleDetailView {
         articleTitle: String,
         articleSummary: String
     ) async -> (topics: [String], people: [String]) {
-        let db = DatabaseManager.shared
+        let database = DatabaseManager.shared
         return await Task.detached(priority: .userInitiated) {
-            if (try? db.isEntitiesProcessed(articleId: articleID)) != true {
+            if (try? database.isEntitiesProcessed(articleId: articleID)) != true {
                 let text = [articleTitle, articleSummary]
                     .filter { !$0.isEmpty }
                     .joined(separator: " ")
                 let entities = NLPProcessor.extractEntities(from: text)
                 if !entities.isEmpty {
-                    try? db.insertEntities(
+                    try? database.insertEntities(
                         entities.map { (name: $0.name, type: $0.type) },
                         for: articleID
                     )
                 }
-                try? db.markEntitiesProcessed(articleId: articleID)
+                try? database.markEntitiesProcessed(articleId: articleID)
             }
 
-            guard let rows = try? db.entities(forArticleID: articleID) else {
+            guard let rows = try? database.entities(forArticleID: articleID) else {
                 return (topics: [String](), people: [String]())
             }
             var topics: [String] = []
@@ -236,17 +236,17 @@ extension ArticleDetailView {
         currentArticle: Article,
         feedsLookup: [Int64: Feed]
     ) async -> [SimilarMatchData] {
-        let db = DatabaseManager.shared
+        let database = DatabaseManager.shared
 
-        if (try? db.isSimilarComputed(articleId: currentArticle.id)) == true {
-            if let cached = try? db.cachedSimilarArticleIDs(forSourceID: currentArticle.id),
+        if (try? database.isSimilarComputed(articleId: currentArticle.id)) == true {
+            if let cached = try? database.cachedSimilarArticleIDs(forSourceID: currentArticle.id),
                !cached.isEmpty {
                 var results: [SimilarMatchData] = []
                 results.reserveCapacity(cached.count)
                 for entry in cached {
-                    guard let matchArticle = try? db.article(byID: entry.id) else { continue }
+                    guard let matchArticle = try? database.article(byID: entry.id) else { continue }
                     let feed = feedsLookup[matchArticle.feedID]
-                    let sentiment = try? db.sentimentScore(for: entry.id)
+                    let sentiment = try? database.sentimentScore(for: entry.id)
                     results.append(SimilarMatchData(
                         article: matchArticle,
                         feedName: feed?.title ?? "",
@@ -260,31 +260,31 @@ extension ArticleDetailView {
             return []
         }
 
-        guard let candidates = try? db.articlesInWindow(
+        guard let candidates = try? database.articlesInWindow(
             around: currentArticle, hours: 168, limit: 82
         ), !candidates.isEmpty else {
-            try? db.cacheSimilarArticles([], forSourceID: currentArticle.id)
+            try? database.cacheSimilarArticles([], forSourceID: currentArticle.id)
             return []
         }
 
-        if (try? db.isEntitiesProcessed(articleId: currentArticle.id)) != true {
+        if (try? database.isEntitiesProcessed(articleId: currentArticle.id)) != true {
             let sourceText = [currentArticle.title, currentArticle.summary ?? ""]
                 .filter { !$0.isEmpty }
                 .joined(separator: " ")
             let extracted = NLPProcessor.extractEntities(from: sourceText)
             if !extracted.isEmpty {
-                try? db.insertEntities(
+                try? database.insertEntities(
                     extracted.map { (name: $0.name, type: $0.type) },
                     for: currentArticle.id
                 )
             }
-            try? db.markEntitiesProcessed(articleId: currentArticle.id)
+            try? database.markEntitiesProcessed(articleId: currentArticle.id)
         }
 
-        let sourceEntities: Set<String> = (try? db.entities(forArticleID: currentArticle.id))
+        let sourceEntities: Set<String> = (try? database.entities(forArticleID: currentArticle.id))
             .map { Set($0.map { $0.name.lowercased() }) } ?? []
         let candidateIDs = candidates.map { $0.id }
-        let entityMap = (try? db.entities(forArticleIDs: candidateIDs)) ?? [:]
+        let entityMap = (try? database.entities(forArticleIDs: candidateIDs)) ?? [:]
         let pairs: [(article: Article, entities: Set<String>)] = candidates.map { candidate in
             (article: candidate, entities: entityMap[candidate.id] ?? [])
         }
@@ -298,7 +298,7 @@ extension ArticleDetailView {
         )
 
         // Persist `1 - score` as distance so lower-is-better matches the cache reader.
-        try? db.cacheSimilarArticles(
+        try? database.cacheSimilarArticles(
             similar.map { (id: $0.articleID, distance: 1.0 - $0.score) },
             forSourceID: currentArticle.id
         )
@@ -306,9 +306,9 @@ extension ArticleDetailView {
         var results: [SimilarMatchData] = []
         results.reserveCapacity(similar.count)
         for match in similar {
-            guard let matchArticle = try? db.article(byID: match.articleID) else { continue }
+            guard let matchArticle = try? database.article(byID: match.articleID) else { continue }
             let feed = feedsLookup[matchArticle.feedID]
-            let sentiment = try? db.sentimentScore(for: match.articleID)
+            let sentiment = try? database.sentimentScore(for: match.articleID)
             results.append(SimilarMatchData(
                 article: matchArticle,
                 feedName: feed?.title ?? "",

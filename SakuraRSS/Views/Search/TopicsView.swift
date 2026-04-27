@@ -50,10 +50,10 @@ struct TopicsView: View {
     }
 
     private func loadTopics() async {
-        let db = DatabaseManager.shared
+        let database = DatabaseManager.shared
         await Task.detached {
             let sevenDaysAgo = Date().addingTimeInterval(-7 * 24 * 3600)
-            let results = (try? db.topEntities(
+            let results = (try? database.topEntities(
                 types: ["organization", "place"],
                 since: sevenDaysAgo,
                 limit: 50

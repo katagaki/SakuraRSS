@@ -144,8 +144,10 @@ extension InstagramProfileScraper {
         if let idStr = item["id"] as? String {
             id = idStr
         } else if let pk = item["pk"] as? Int64 {
+            // swiftlint:disable:previous identifier_name
             id = String(pk)
         } else if let pk = item["pk"] as? String {
+            // swiftlint:disable:previous identifier_name
             id = pk
         } else {
             return nil
@@ -210,8 +212,10 @@ extension InstagramProfileScraper {
         if let idStr = user["id"] as? String {
             return idStr
         } else if let pk = user["pk"] as? Int64 {
+            // swiftlint:disable:previous identifier_name
             return String(pk)
         } else if let pk = user["pk"] as? String {
+            // swiftlint:disable:previous identifier_name
             return pk
         }
         return nil

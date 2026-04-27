@@ -72,7 +72,7 @@ extension SakuraRSSApp {
 
     /// Wipes app sandbox directories and tmp, preserving the feeds database in the group container.
     func wipeAllCachesAndData() {
-        let fm = FileManager.default
+        let fileManager = FileManager.default
 
         let directories: [FileManager.SearchPathDirectory] = [
             .cachesDirectory,
@@ -80,13 +80,16 @@ extension SakuraRSSApp {
             .documentDirectory
         ]
         for searchPath in directories {
-            guard let dir = fm.urls(for: searchPath, in: .userDomainMask).first else { continue }
+            guard let dir = fileManager.urls(
+                for: searchPath,
+                in: .userDomainMask
+            ).first else { continue }
             wipeContents(of: dir)
         }
 
-        wipeContents(of: fm.temporaryDirectory)
+        wipeContents(of: fileManager.temporaryDirectory)
 
-        if let groupURL = fm.containerURL(
+        if let groupURL = fileManager.containerURL(
             forSecurityApplicationGroupIdentifier: "group.com.tsubuzaki.SakuraRSS"
         ) {
             let dbFile = groupURL.appendingPathComponent("Sakura.feeds").lastPathComponent

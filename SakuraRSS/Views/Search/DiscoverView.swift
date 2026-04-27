@@ -182,11 +182,11 @@ struct DiscoverView: View {
     // MARK: - Data Loading
 
     private func loadData() async {
-        let db = DatabaseManager.shared
+        let database = DatabaseManager.shared
         let loadEntities = contentInsightsEnabled
 
         await Task.detached {
-            let recent = (try? db.recentlyAccessedArticles()) ?? []
+            let recent = (try? database.recentlyAccessedArticles()) ?? []
 
             var sections: [DiscoverEntitySection] = []
             var topics: [(name: String, count: Int)] = []
@@ -194,12 +194,12 @@ struct DiscoverView: View {
 
             if loadEntities {
                 let sevenDaysAgo = Date().addingTimeInterval(-7 * 24 * 3600)
-                let topTopics = (try? db.topEntities(
+                let topTopics = (try? database.topEntities(
                     types: ["organization", "place"],
                     since: sevenDaysAgo,
                     limit: 50
                 )) ?? []
-                let topPeople = (try? db.topEntities(
+                let topPeople = (try? database.topEntities(
                     type: "person",
                     since: sevenDaysAgo,
                     limit: 50
@@ -210,7 +210,7 @@ struct DiscoverView: View {
 
                 var sectionItems: [DiscoverEntitySection] = []
                 for topic in topTopics.prefix(3) {
-                    let articles = (try? db.articlesForEntity(
+                    let articles = (try? database.articlesForEntity(
                         name: topic.name,
                         types: ["organization", "place"],
                         limit: 10
@@ -224,7 +224,7 @@ struct DiscoverView: View {
                     }
                 }
                 for person in topPeople.prefix(3) {
-                    let articles = (try? db.articlesForEntity(
+                    let articles = (try? database.articlesForEntity(
                         name: person.name,
                         types: ["person"],
                         limit: 10

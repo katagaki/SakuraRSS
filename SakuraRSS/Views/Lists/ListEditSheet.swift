@@ -168,9 +168,13 @@ struct ListEditSheet: View {
                             feedManager.addFeedToList(newList, feed: feed)
                         }
                     }
-                    if let ds = selectedDisplayStyle {
-                        feedManager.updateList(newList, name: trimmedName,
-                                               icon: selectedIcon, displayStyle: ds)
+                    if let displayStyle = selectedDisplayStyle {
+                        feedManager.updateList(
+                            newList,
+                            name: trimmedName,
+                            icon: selectedIcon,
+                            displayStyle: displayStyle
+                        )
                     }
                 }
             }

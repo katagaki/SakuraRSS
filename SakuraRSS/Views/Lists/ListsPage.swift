@@ -25,7 +25,7 @@ struct ListsPage: View {
                     }
                 }
             }
-            .onMove { from, to in
+            .onMove { from, to in // swiftlint:disable:this identifier_name
                 var reordered = feedManager.lists
                 reordered.move(fromOffsets: from, toOffset: to)
                 feedManager.reorderLists(reordered)

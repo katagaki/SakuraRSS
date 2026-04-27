@@ -127,6 +127,7 @@ extension YouTubePlaylistScraper {
         var started = false
 
         for indice in html[startIndex...].indices {
+            // swiftlint:disable:next identifier_name
             let ch = html[indice]
             if ch == "{" {
                 depth += 1

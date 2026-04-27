@@ -13,6 +13,7 @@ extension ArticleExtractor {
             metadata.leadImageURL = metadata.leadImageURL ?? jsonLD.leadImageURL
         }
 
+        // swiftlint:disable:next identifier_name
         if let og = metadataFromMetaTags(in: doc) {
             metadata.author = metadata.author ?? og.author
             metadata.publishedDate = metadata.publishedDate ?? og.publishedDate
@@ -42,7 +43,7 @@ extension ArticleExtractor {
         ) else { return nil }
         var result = ArticleMetadata()
         for script in scripts {
-            let raw = (try? script.data()) ?? ""
+            let raw = script.data()
             guard !raw.isEmpty, let data = raw.data(using: .utf8) else { continue }
             let jsonObjects = decodeJSONLDObjects(from: data)
             for object in jsonObjects {

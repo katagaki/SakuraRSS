@@ -77,17 +77,17 @@ struct EntityArticlesView: View {
     }
 
     private func loadArticles() async {
-        let db = DatabaseManager.shared
+        let database = DatabaseManager.shared
         let name = destination.name
         let types = destination.types
         await Task.detached {
             let ids: [Int64]
             if types.count == 1 {
-                ids = (try? db.articleIDs(forEntity: name, type: types[0])) ?? []
+                ids = (try? database.articleIDs(forEntity: name, type: types[0])) ?? []
             } else {
-                ids = (try? db.articleIDs(forEntity: name, types: types)) ?? []
+                ids = (try? database.articleIDs(forEntity: name, types: types)) ?? []
             }
-            let loaded = ids.compactMap { try? db.article(byID: $0) }
+            let loaded = ids.compactMap { try? database.article(byID: $0) }
             await MainActor.run {
                 articles = loaded
             }

@@ -125,7 +125,7 @@ enum NLPProcessingCoordinator {
         runSentiment: Bool = true,
         runEntities: Bool = true
     ) {
-        let db = DatabaseManager.shared
+        let database = DatabaseManager.shared
         let text = [article.title, article.summary ?? ""]
             .filter { !$0.isEmpty }
             .joined(separator: " ")
@@ -142,9 +142,9 @@ enum NLPProcessingCoordinator {
                 sentiment = NLPProcessor.sentimentScore(for: text)
             }
             if let sentiment {
-                try? db.updateSentimentScore(sentiment, for: article.id)
+                try? database.updateSentimentScore(sentiment, for: article.id)
             }
-            try? db.markSentimentProcessed(articleId: article.id)
+            try? database.markSentimentProcessed(articleId: article.id)
         }
 
         if runEntities {
@@ -155,12 +155,12 @@ enum NLPProcessingCoordinator {
                 entities = NLPProcessor.extractEntities(from: text)
             }
             if !entities.isEmpty {
-                try? db.insertEntities(
+                try? database.insertEntities(
                     entities.map { (name: $0.name, type: $0.type) },
                     for: article.id
                 )
             }
-            try? db.markEntitiesProcessed(articleId: article.id)
+            try? database.markEntitiesProcessed(articleId: article.id)
         }
     }
 }

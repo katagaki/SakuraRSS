@@ -48,7 +48,6 @@ extension FaviconCache {
             return nil
         }
 
-        // Some domains serve a pale favicon.ico but a vibrant apple-touch-icon.png; force that path for allowlisted hosts.
         if FaviconForceAppleTouchIconDomains.shouldForceAppleTouchIcon(feedDomain: faviconDomain),
            let touchURL = URL(string: "https://\(faviconDomain)/apple-touch-icon.png"),
            let (data, _) = try? await Self.urlSession.data(from: touchURL),

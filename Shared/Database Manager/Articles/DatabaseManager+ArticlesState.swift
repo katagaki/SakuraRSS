@@ -1,0 +1,62 @@
+import Foundation
+@preconcurrency import SQLite
+
+nonisolated extension DatabaseManager {
+
+    func markArticleRead(id: Int64, read: Bool) throws {
+        let target = articles.filter(articleID == id)
+        try database.run(target.update(articleIsRead <- read))
+    }
+
+    /// Batched counterpart of `markArticleRead(id:read:)`.
+    func markArticlesRead(ids: [Int64], read: Bool) throws {
+        guard !ids.isEmpty else { return }
+        let target = articles.filter(ids.contains(articleID))
+        try database.run(target.update(articleIsRead <- read))
+    }
+
+    func toggleBookmark(id: Int64) throws {
+        guard let row = try database.pluck(articles.filter(articleID == id)) else { return }
+        let current = row[articleIsBookmarked]
+        try database.run(articles.filter(articleID == id).update(articleIsBookmarked <- !current))
+    }
+
+    func removeReadBookmarks() throws {
+        let target = articles.filter(articleIsBookmarked == true && articleIsRead == true)
+        try database.run(target.update(articleIsBookmarked <- false))
+    }
+
+    func markAllRead(feedID fid: Int64) throws {
+        let target = articles.filter(articleFeedID == fid && articleIsRead == false)
+        try database.run(target.update(articleIsRead <- true))
+    }
+
+    func markAllRead() throws {
+        let target = articles.filter(articleIsRead == false)
+        try database.run(target.update(articleIsRead <- true))
+    }
+
+    func markAllUnread() throws {
+        let target = articles.filter(articleIsRead == true)
+        try database.run(target.update(articleIsRead <- false))
+    }
+
+    func unreadCount(forFeedID fid: Int64) throws -> Int {
+        try database.scalar(articles.filter(articleFeedID == fid && articleIsRead == false).count)
+    }
+
+    func totalUnreadCount() throws -> Int {
+        try database.scalar(articles.filter(articleIsRead == false).count)
+    }
+
+    func allUnreadCounts() throws -> [Int64: Int] {
+        var counts: [Int64: Int] = [:]
+        let query = "SELECT feed_id, COUNT(*) FROM articles WHERE is_read = 0 GROUP BY feed_id"
+        for row in try database.prepare(query) {
+            if let feedID = row[0] as? Int64, let count = row[1] as? Int64 {
+                counts[feedID] = Int(count)
+            }
+        }
+        return counts
+    }
+}
