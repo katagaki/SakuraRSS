@@ -29,6 +29,11 @@ struct AppearanceSettingsView: View {
             Section {
                 Toggle(String(localized: "ZoomTransition", table: "Settings"),
                        isOn: $zoomTransitionEnabled)
+            } header: {
+                Text(String(localized: "Section.Navigation", table: "Settings"))
+            }
+
+            Section {
                 Picker(selection: $markAllReadPosition) {
                     Text(String(localized: "MarkAllReadPosition.Bottom", table: "Settings"))
                         .tag(MarkAllReadPosition.bottom)
