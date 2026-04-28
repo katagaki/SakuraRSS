@@ -18,11 +18,10 @@ struct PaywallBannerView: View {
                     .font(.body)
                     .foregroundStyle(.primary)
                     .lineLimit(2)
-                Spacer(minLength: 0)
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 12)
-            .frame(maxWidth: .infinity, alignment: .leading)
+            .frame(alignment: .leading)
         }
         .buttonStyle(.plain)
         .glassEffect(

@@ -48,6 +48,8 @@ struct YouTubePlayerView: View {
     @State var hasCachedSummary = false
     @State var showingSummary = false
     @State var summarizationError: String?
+    @State private var imageViewerURL: URL?
+    @Namespace private var imageViewerNamespace
 
     var body: some View {
         VStack(spacing: 0) {
@@ -231,35 +233,11 @@ struct YouTubePlayerView: View {
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
                             }
-                            let blocks = ContentBlock.parse(text)
-                            ForEach(blocks) { block in
-                                switch block {
-                                case .text(let content):
-                                    SelectableText(content)
-                                case .code(let content):
-                                    CodeBlockView(code: content)
-                                case .image(let url, _):
-                                    CachedAsyncImage(url: url) {
-                                        Rectangle()
-                                            .fill(.secondary.opacity(0.1))
-                                            .frame(height: 200)
-                                    }
-                                    .aspectRatio(contentMode: .fit)
-                                    .clipShape(RoundedRectangle(cornerRadius: 12))
-                                case .video(let url):
-                                    VideoBlockView(url: url)
-                                case .youtube(let videoID):
-                                    YouTubeEmbedBlockView(videoID: videoID)
-                                case .xPost(let url):
-                                    XEmbedBlockView(url: url)
-                                case .embed(let provider, let url):
-                                    EmbedBlockView(provider: provider, url: url)
-                                case .table(let header, let rows):
-                                    TableBlockView(header: header, rows: rows)
-                                case .math(let latex):
-                                    MathBlockView(latex: latex)
-                                }
-                            }
+                            ContentBlockStack(
+                                text: text,
+                                imageNamespace: imageViewerNamespace,
+                                onImageTap: { url in imageViewerURL = url }
+                            )
                             .id("\(showingSummary)-\(showingTranslation)")
                             .transition(.blurReplace)
                         }
@@ -369,6 +347,10 @@ struct YouTubePlayerView: View {
         }
         .translationTask(translationConfig) { session in
             await handleTranslation(session: session)
+        }
+        .navigationDestination(item: $imageViewerURL) { url in
+            ImageViewerView(url: url)
+                .navigationTransition(.zoom(sourceID: url, in: imageViewerNamespace))
         }
     }
 

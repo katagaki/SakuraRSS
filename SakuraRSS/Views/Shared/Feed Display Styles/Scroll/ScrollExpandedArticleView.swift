@@ -32,6 +32,8 @@ struct ScrollExpandedArticleView: View { // swiftlint:disable:this type_body_len
     @State private var summarizationError: String?
     @State private var scrollOffset: CGFloat = 0
     @State private var maxScrollOffset: CGFloat = 0
+    @State private var imageViewerURL: URL?
+    @Namespace private var imageViewerNamespace
     private static let overscrollThreshold: CGFloat = 80
 
     private var isAppleIntelligenceAvailable: Bool {
@@ -83,36 +85,12 @@ struct ScrollExpandedArticleView: View { // swiftlint:disable:this type_body_len
                             .font(.caption)
                             .foregroundStyle(.white.opacity(0.6))
                     }
-                    let blocks = ContentBlock.parse(text)
-                    ForEach(blocks) { block in
-                        switch block {
-                        case .text(let content):
-                            SelectableText(content, textColor: .white)
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                        case .code(let content):
-                            CodeBlockView(code: content)
-                        case .image(let url, _):
-                            CachedAsyncImage(url: url) {
-                                Rectangle()
-                                    .fill(.white.opacity(0.1))
-                                    .frame(height: 180)
-                            }
-                            .scaledToFit()
-                            .clipShape(.rect(cornerRadius: 12))
-                        case .video(let url):
-                            VideoBlockView(url: url)
-                        case .youtube(let videoID):
-                            YouTubeEmbedBlockView(videoID: videoID)
-                        case .xPost(let url):
-                            XEmbedBlockView(url: url)
-                        case .embed(let provider, let url):
-                            EmbedBlockView(provider: provider, url: url)
-                        case .table(let header, let rows):
-                            TableBlockView(header: header, rows: rows)
-                        case .math(let latex):
-                            MathBlockView(latex: latex)
-                        }
-                    }
+                    ContentBlockStack(
+                        text: text,
+                        textStyle: .white,
+                        imageNamespace: imageViewerNamespace,
+                        onImageTap: { url in imageViewerURL = url }
+                    )
                     .id("\(showingSummary)-\(showingTranslation)")
                     .transition(.blurReplace)
                 }
@@ -157,6 +135,10 @@ struct ScrollExpandedArticleView: View { // swiftlint:disable:this type_body_len
             } else if scrollOffset > maxScrollOffset + Self.overscrollThreshold {
                 onAdvance()
             }
+        }
+        .navigationDestination(item: $imageViewerURL) { url in
+            ImageViewerView(url: url)
+                .navigationTransition(.zoom(sourceID: url, in: imageViewerNamespace))
         }
         .task {
             guard !didStartExtraction else { return }

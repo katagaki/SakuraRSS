@@ -172,31 +172,11 @@ struct ArticleDetailView: View {
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
-                    let blocks = ContentBlock.parse(text)
-                    ForEach(blocks) { block in
-                        switch block {
-                        case .text(let content):
-                            SelectableText(content)
-                        case .code(let content):
-                            CodeBlockView(code: content)
-                        case .image(let url, let link):
-                            FitWidthImage(url: url, link: link, namespace: imageViewerNamespace) {
-                                imageViewerURL = url
-                            }
-                        case .video(let url):
-                            VideoBlockView(url: url)
-                        case .youtube(let videoID):
-                            YouTubeEmbedBlockView(videoID: videoID)
-                        case .xPost(let url):
-                            XEmbedBlockView(url: url)
-                        case .embed(let provider, let url):
-                            EmbedBlockView(provider: provider, url: url)
-                        case .table(let header, let rows):
-                            TableBlockView(header: header, rows: rows)
-                        case .math(let latex):
-                            MathBlockView(latex: latex)
-                        }
-                    }
+                    ContentBlockStack(
+                        text: text,
+                        imageNamespace: imageViewerNamespace,
+                        onImageTap: { url in imageViewerURL = url }
+                    )
                     .id("\(showingSummary)-\(showingTranslation)")
                     .transition(.blurReplace)
                 }
@@ -218,9 +198,12 @@ struct ArticleDetailView: View {
         }
         .safeAreaInset(edge: .bottom) {
             if isPaywalled {
-                PaywallBannerView(articleURL: article.url)
-                    .padding(.horizontal, 20)
-                    .padding(.bottom, 20)
+                HStack(spacing: 0) {
+                    Spacer(minLength: 0)
+                    PaywallBannerView(articleURL: article.url)
+                        .padding(.horizontal, 20)
+                        .padding(.bottom, 20)
+                }
             }
         }
         .sakuraBackground()
