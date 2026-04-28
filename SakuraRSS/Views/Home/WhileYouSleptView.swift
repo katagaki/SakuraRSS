@@ -63,6 +63,11 @@ struct WhileYouSleptView: View {
         if shouldShow {
             summaryCard
                 .transition(.opacity)
+                .animation(.smooth.speed(2.0), value: isGenerating)
+                .animation(.smooth.speed(2.0), value: summary)
+                .animation(.smooth.speed(2.0), value: generationFailed)
+                .animation(.smooth.speed(2.0), value: deferredForLowPowerMode)
+                .animation(.smooth.speed(2.0), value: isExpanded)
                 .task {
                     if !hasGenerated {
                         await loadOrGenerateSummary()
