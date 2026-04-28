@@ -9,16 +9,11 @@ extension FeedDiscovery {
         if let arXivFeed = detectArXivListFeed(url: url) {
             return arXivFeed
         }
-        if UserDefaults.standard.bool(forKey: "Labs.XProfileFeeds"),
-           let xFeed = detectXProfileFeed(url: url) {
-            return xFeed
-        }
-        if UserDefaults.standard.bool(forKey: "Labs.InstagramProfileFeeds"),
-           let instagramFeed = detectInstagramProfileFeed(url: url) {
-            return instagramFeed
-        }
-        if let youTubeFeed = detectYouTubePlaylistFeed(url: url) {
-            return youTubeFeed
+        for provider in FeedProviderRegistry.all where provider.isEnabled {
+            if let profile = provider as? any ProfileFeedProvider.Type,
+               let discovered = profile.discoveredFeed(forProfileURL: url) {
+                return discovered
+            }
         }
         if let youTubeChannelFeed = await detectYouTubeChannelFeed(url: url) {
             return youTubeChannelFeed
@@ -44,48 +39,6 @@ extension FeedDiscovery {
             title: "arXiv \(category)",
             url: ArXivHelper.feedURL(forCategory: category),
             siteURL: "https://arxiv.org/list/\(category)/recent"
-        )
-    }
-
-    /// Returns a pseudo-feed for an X/Twitter profile URL (routed via XProfileFetcher).
-    func detectXProfileFeed(url: URL) -> DiscoveredFeed? {
-        guard XProfileFetcher.isProfileURL(url),
-              let handle = XProfileFetcher.extractIdentifier(from: url) else {
-            return nil
-        }
-
-        return DiscoveredFeed(
-            title: "@\(handle)",
-            url: XProfileFetcher.feedURL(for: handle),
-            siteURL: "https://x.com/\(handle)"
-        )
-    }
-
-    /// Returns a pseudo-feed for an Instagram profile URL (routed via InstagramProfileFetcher).
-    func detectInstagramProfileFeed(url: URL) -> DiscoveredFeed? {
-        guard InstagramProfileFetcher.isProfileURL(url),
-              let handle = InstagramProfileFetcher.extractIdentifier(from: url) else {
-            return nil
-        }
-
-        return DiscoveredFeed(
-            title: "@\(handle)",
-            url: InstagramProfileFetcher.feedURL(for: handle),
-            siteURL: "https://www.instagram.com/\(handle)/"
-        )
-    }
-
-    /// Returns a pseudo-feed for a YouTube playlist URL (routed via YouTubePlaylistFetcher).
-    func detectYouTubePlaylistFeed(url: URL) -> DiscoveredFeed? {
-        guard YouTubePlaylistFetcher.isProfileURL(url),
-              let playlistID = YouTubePlaylistFetcher.extractIdentifier(from: url) else {
-            return nil
-        }
-
-        return DiscoveredFeed(
-            title: "YouTube Playlist",
-            url: YouTubePlaylistFetcher.feedURL(for: playlistID),
-            siteURL: "https://www.youtube.com/playlist?list=\(playlistID)"
         )
     }
 

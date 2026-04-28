@@ -26,31 +26,11 @@ extension FeedManager {
             return
         }
 
-        if feed.isXFeed {
-            guard UserDefaults.standard.bool(forKey: "Labs.XProfileFeeds") else { return }
-            try await refreshXFeed(
-                feed,
-                reloadData: reloadData,
-                skipImagePreload: skipImagePreload,
-                runNLP: runNLP
-            )
-            return
-        }
-
-        if feed.isInstagramFeed {
-            guard UserDefaults.standard.bool(forKey: "Labs.InstagramProfileFeeds") else { return }
-            try await refreshInstagramFeed(
-                feed,
-                reloadData: reloadData,
-                skipImagePreload: skipImagePreload,
-                runNLP: runNLP
-            )
-            return
-        }
-
-        if feed.isYouTubePlaylistFeed {
-            try await refreshYouTubePlaylistFeed(
-                feed,
+        if let provider = FeedProviderRegistry.refreshableProvider(forFeedURL: feed.url) {
+            guard provider.isEnabled else { return }
+            try await provider.refresh(
+                feed: feed,
+                on: self,
                 reloadData: reloadData,
                 skipImagePreload: skipImagePreload,
                 runNLP: runNLP
