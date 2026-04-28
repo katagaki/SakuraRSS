@@ -44,7 +44,7 @@ private struct SubstackLoginWebView: UIViewRepresentable {
         webView.navigationDelegate = context.coordinator
         webView.customUserAgent = sakuraUserAgent
 
-        if let loginURL = URL(string: "https://substack.com/sign-in") {
+        if let loginURL = URL(string: "https://substack.com/sign-in?redirect=%2F") {
             webView.load(URLRequest(url: loginURL))
         }
         return webView
@@ -62,17 +62,25 @@ private struct SubstackLoginWebView: UIViewRepresentable {
 
         func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
             guard !isLoggedIn else { return }
+            guard let url = webView.url, isPostLoginRedirect(url) else { return }
+
             checkTask?.cancel()
             checkTask = Task { @MainActor in
-                try? await Task.sleep(for: .seconds(1))
-                guard !Task.isCancelled else { return }
-
                 await SubstackAuth.syncCookiesFromWebKit()
 
                 if SubstackAuth.hasSession() {
                     self.isLoggedIn = true
                 }
             }
+        }
+
+        private func isPostLoginRedirect(_ url: URL) -> Bool {
+            guard let host = url.host?.lowercased(),
+                  host == "substack.com" || host == "www.substack.com" else {
+                return false
+            }
+            let path = url.path
+            return path.isEmpty || path == "/"
         }
     }
 }

@@ -20,10 +20,6 @@ struct XEmbedBlockView: View {
             .padding(12)
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 12))
-            .overlay(
-                RoundedRectangle(cornerRadius: 12)
-                    .strokeBorder(.secondary.opacity(0.2), lineWidth: 1)
-            )
             .contentShape(.rect(cornerRadius: 12))
             .onTapGesture {
                 UIApplication.shared.open(url)
@@ -76,7 +72,7 @@ struct XEmbedBlockView: View {
                     .lineLimit(1)
                     .truncationMode(.middle)
                 Spacer(minLength: 0)
-                Image(systemName: "arrow.up.right.square")
+                Image(systemName: "safari")
                     .font(.caption2)
                     .foregroundStyle(.tertiary)
             }

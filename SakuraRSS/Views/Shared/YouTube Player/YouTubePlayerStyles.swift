@@ -14,7 +14,7 @@ nonisolated enum YouTubePlayerStyles {
     }
     /* Strip default margins on the page wrappers and fill the web view.
        The top:0 rule overrides YouTube's offset that reserves 48px for
-       the (now-hidden) mobile topbar — without it, the player sits below
+       the (now-hidden) mobile topbar - without it, the player sits below
        an empty black band, most visible during ad transitions. */
     ytm-app, ytm-mobile-watch-flexy, ytm-watch,
     ytm-single-column-watch-next-results-renderer,
