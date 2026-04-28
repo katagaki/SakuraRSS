@@ -190,12 +190,9 @@ struct ArticleDetailView: View {
         }
         .safeAreaInset(edge: .bottom) {
             if isPaywalled {
-                HStack(spacing: 0) {
-                    Spacer(minLength: 0)
-                    PaywallBannerView(articleURL: article.url)
-                        .padding(.horizontal, 20)
-                        .padding(.bottom, 20)
-                }
+                PaywallBannerView(articleURL: article.url)
+                    .padding(.horizontal, 20)
+                    .padding(.bottom, 20)
             }
         }
         .sakuraBackground()

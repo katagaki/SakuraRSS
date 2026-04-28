@@ -15,9 +15,13 @@ struct ScrollExpandedArticleView: View { // swiftlint:disable:this type_body_len
     let onAdvance: () -> Void
     let onOpenArticleURL: () -> Void
 
-    @State private var extractedText: String?
-    @State private var isExtracting = true
-    @State private var didStartExtraction = false
+    @State var extractedText: String?
+    @State var isExtracting = true
+    @State var isPaywalled = false
+    @State var extractedAuthor: String?
+    @State var extractedPublishedDate: Date?
+    @State var extractedLeadImageURL: String?
+    @State var extractedPageTitle: String?
     @State private var translatedText: String?
     @State private var translatedTitle: String?
     @State private var translatedSummary: String?
@@ -141,9 +145,7 @@ struct ScrollExpandedArticleView: View { // swiftlint:disable:this type_body_len
                 .navigationTransition(.zoom(sourceID: url, in: imageViewerNamespace))
         }
         .task {
-            guard !didStartExtraction else { return }
-            didStartExtraction = true
-            await loadArticleText()
+            await extractArticleContent()
             loadCachedAIContent()
         }
         .translationTask(translationConfig) { session in
@@ -257,41 +259,6 @@ struct ScrollExpandedArticleView: View { // swiftlint:disable:this type_body_len
 
     // MARK: - Extraction
 
-    private func loadArticleText() async {
-        if let cached = try? DatabaseManager.shared.cachedArticleContent(for: article.id),
-           !cached.isEmpty {
-            extractedText = cached
-            isExtracting = false
-            return
-        }
-
-        let title = article.title
-        var result: String?
-
-        if let content = article.content, !content.isEmpty {
-            let baseURL = URL(string: article.url)
-            if let text = ArticleExtractor.extractText(fromHTML: content,
-                                                       baseURL: baseURL,
-                                                       excludeTitle: title),
-               !text.isEmpty {
-                let paragraphCount = text.components(separatedBy: "\n\n").count
-                if paragraphCount > 1 || text.count < 500 {
-                    result = text
-                }
-            }
-        }
-
-        if result == nil, let url = URL(string: article.url) {
-            result = await ArticleExtractor.extractText(fromURL: url, excludeTitle: title)
-        }
-
-        if let result, !result.isEmpty {
-            extractedText = result
-            try? DatabaseManager.shared.cacheArticleContent(result, for: article.id)
-        }
-        isExtracting = false
-    }
-
     private func loadCachedAIContent() {
         if let cached = try? DatabaseManager.shared.cachedArticleTranslation(for: article.id) {
             translatedTitle = cached.title
@@ -377,6 +344,8 @@ struct ScrollExpandedArticleView: View { // swiftlint:disable:this type_body_len
         }
     }
 }
+
+extension ScrollExpandedArticleView: ExtractsArticle {}
 
 struct ScrollMetrics: Equatable {
     let offset: CGFloat
