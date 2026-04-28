@@ -33,6 +33,9 @@ struct IntegrationsSettingsView: View {
                 NavigationLink(String(localized: "Instagram", table: "Integrations")) {
                     InstagramSettingsView()
                 }
+                NavigationLink(String(localized: "Substack", table: "Integrations")) {
+                    SubstackSettingsView()
+                }
                 NavigationLink(String(localized: "X", table: "Integrations")) {
                     XSettingsView()
                 }
@@ -44,7 +47,6 @@ struct IntegrationsSettingsView: View {
             }
         }
         .listStyle(.insetGrouped)
-        .scrollContentBackground(.hidden)
         .sakuraBackground()
         .navigationTitle(String(localized: "Section.Integrations", table: "Settings"))
         .toolbarTitleDisplayMode(.inline)

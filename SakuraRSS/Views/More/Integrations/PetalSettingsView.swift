@@ -69,7 +69,6 @@ struct PetalSettingsView: View {
         .animation(.smooth.speed(2.0), value: petalEnabled)
         .navigationTitle(String(localized: "Petal", table: "Integrations"))
         .toolbarTitleDisplayMode(.inline)
-        .scrollContentBackground(.hidden)
         .sakuraBackground()
         .fileImporter(
             isPresented: $isImporting,

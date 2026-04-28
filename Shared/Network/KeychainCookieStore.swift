@@ -1,7 +1,7 @@
 import Foundation
 
 /// Keychain-backed persistence for `HTTPCookie` arrays, readable from background tasks.
-struct KeychainCookieStore {
+nonisolated struct KeychainCookieStore {
 
     let service: String
     private let account = "cookies"

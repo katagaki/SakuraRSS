@@ -73,7 +73,6 @@ struct iCloudBackupView: View {
         }
         .navigationTitle(String(localized: "iCloudBackup.Title", table: "DataManagement"))
         .toolbarTitleDisplayMode(.inline)
-        .scrollContentBackground(.hidden)
         .sakuraBackground()
         .task {
             iCloudAvailable = iCloudBackupManager.shared.isICloudAvailable()

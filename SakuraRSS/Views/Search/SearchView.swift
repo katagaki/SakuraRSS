@@ -32,7 +32,6 @@ struct SearchView: View {
                     searchResultsContent
                 }
             }
-            .scrollContentBackground(.hidden)
             .sakuraBackground()
             .environment(\.zoomNamespace, cardZoom)
             .navigationTitle(searchText.isEmpty

@@ -79,7 +79,6 @@ struct FeedsListPage: View {
                 .matchedTransitionSource(id: "addFeed", in: addFeedNamespace)
             }
         }
-        .scrollContentBackground(.hidden)
         .sakuraBackground()
         .sheet(isPresented: $isShowingAddFeed) {
             AddFeedView()

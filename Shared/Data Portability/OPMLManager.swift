@@ -45,7 +45,7 @@ nonisolated final class OPMLManager: @unchecked Sendable {
         var attrs = "type=\"rss\""
         attrs += " text=\"\(escapeXML(feed.title))\""
         attrs += " title=\"\(escapeXML(feed.title))\""
-        attrs += " xmlUrl=\"\(escapeXML(feed.url))\""
+        attrs += " xmlUrl=\"\(escapeXML(feed.fetchURL))\""
         if !feed.siteURL.isEmpty {
             attrs += " htmlUrl=\"\(escapeXML(feed.siteURL))\""
         }

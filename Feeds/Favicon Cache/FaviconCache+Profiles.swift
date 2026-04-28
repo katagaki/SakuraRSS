@@ -9,6 +9,7 @@ extension FaviconCache {
         if host == "bsky.app" || host.hasSuffix(".bsky.app") { return true }
         if host == "reddit.com" || host.hasSuffix(".reddit.com") { return true }
         if host == "note.com" || host.hasSuffix(".note.com") { return true }
+        if SubstackPublicationScraper.isSubstackPublicationHost(host) { return true }
         if DisplayStyleFeedDomains.shouldPreferFeedView(feedDomain: host) { return true }
         return false
     }
@@ -74,6 +75,18 @@ extension FaviconCache {
         return UIImage(data: data)
     }
 
+    /// Fetches a Substack publication's logo via the public publication API.
+    nonisolated func fetchSubstackPublicationLogo(host: String) async -> UIImage? {
+        let scraper = SubstackPublicationScraper()
+        let result = await scraper.scrapePublication(host: host)
+        guard let logoURLString = result.logoURL,
+              let logoURL = URL(string: logoURLString),
+              let (data, _) = try? await Self.urlSession.data(from: logoURL) else {
+            return nil
+        }
+        return UIImage(data: data)
+    }
+
     /// Fetches a profile avatar by scraping the profile page's og:image meta tag.
     nonisolated func fetchProfileAvatar(from siteURL: String) async -> UIImage? {
         guard let url = URL(string: siteURL) else { return nil }
@@ -84,6 +97,11 @@ extension FaviconCache {
         if NoteProfileScraper.isNoteProfileURL(url),
            let handle = NoteProfileScraper.extractHandle(from: url) {
             return await fetchNoteProfileAvatar(handle: handle)
+        }
+        if SubstackPublicationScraper.isSubstackPublicationURL(url),
+           let host = url.host,
+           let image = await fetchSubstackPublicationLogo(host: host) {
+            return image
         }
         do {
             let (data, _) = try await Self.urlSession.data(from: url)

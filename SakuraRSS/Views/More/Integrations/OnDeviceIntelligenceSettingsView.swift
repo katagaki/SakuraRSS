@@ -32,7 +32,6 @@ struct OnDeviceIntelligenceSettingsView: View {
         }
         .navigationTitle(String(localized: "Section.InsightsAndIntelligence", table: "Settings"))
         .toolbarTitleDisplayMode(.inline)
-        .scrollContentBackground(.hidden)
         .sakuraBackground()
     }
 }

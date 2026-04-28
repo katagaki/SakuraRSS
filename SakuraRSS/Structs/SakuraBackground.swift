@@ -8,6 +8,7 @@ struct SakuraBackground: ViewModifier {
     func body(content: Content) -> some View {
         if sakuraBackgroundEnabled {
             content
+                .scrollContentBackground(.hidden)
                 .background {
                     LinearGradient(
                         colors: [

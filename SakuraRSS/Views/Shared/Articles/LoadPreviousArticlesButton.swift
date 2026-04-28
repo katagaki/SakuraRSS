@@ -43,10 +43,11 @@ struct LoadPreviousArticlesButton: View {
         }
     }
 
-    /// No `withAnimation`; preserves the list's current scroll offset.
     private var manualButton: some View {
         Button {
-            action()
+            withAnimation(.smooth.speed(2.0)) {
+                action()
+            }
         } label: {
             HStack {
                 Image(systemName: "clock.arrow.circlepath")

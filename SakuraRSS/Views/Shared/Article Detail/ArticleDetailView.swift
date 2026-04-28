@@ -161,10 +161,6 @@ struct ArticleDetailView: View {
 
             VStack(alignment: .leading, spacing: 16) {
 
-                if isPaywalled {
-                    PaywallBannerView(articleURL: article.url)
-                }
-
                 if isExtracting {
                     ProgressView()
                         .frame(maxWidth: .infinity, alignment: .center)
@@ -219,6 +215,13 @@ struct ArticleDetailView: View {
         }
         .refreshable {
             await refreshArticleContent()
+        }
+        .safeAreaInset(edge: .bottom) {
+            if isPaywalled {
+                PaywallBannerView(articleURL: article.url)
+                    .padding(.horizontal, 20)
+                    .padding(.bottom, 20)
+            }
         }
         .sakuraBackground()
         .navigationBarTitleDisplayMode(.inline)

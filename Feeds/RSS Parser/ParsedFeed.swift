@@ -6,6 +6,7 @@ nonisolated struct ParsedFeed: Sendable {
     var description: String
     var articles: [ParsedArticle]
     var hasITunesNamespace: Bool = false
+    var generator: String?
 
     /// Every article in the feed has an audio enclosure.
     var allArticlesHaveAudio: Bool {

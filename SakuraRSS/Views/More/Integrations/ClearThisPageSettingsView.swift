@@ -26,7 +26,6 @@ struct ClearThisPageSettingsView: View {
         }
         .navigationTitle(String(localized: "ClearThisPage", table: "Integrations"))
         .toolbarTitleDisplayMode(.inline)
-        .scrollContentBackground(.hidden)
         .sakuraBackground()
     }
 }
