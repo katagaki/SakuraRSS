@@ -13,6 +13,15 @@ extension FaviconCache {
                 return nil
             }
 
+            if let host = siteURL.host,
+               SubstackPublicationScraper.htmlIndicatesSubstack(html),
+               let image = await fetchSubstackPublicationLogo(host: host) {
+                #if DEBUG
+                debugPrint("[Favicon] PWA: found Substack publication logo for \(siteURL)")
+                #endif
+                return image
+            }
+
             if let manifestHref = extractLinkHref(from: html, rel: "manifest"),
                let manifestURL = URL(string: manifestHref, relativeTo: siteURL),
                let icon = await fetchManifestIcon(from: manifestURL.absoluteURL) {

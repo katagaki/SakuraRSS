@@ -33,6 +33,13 @@ final class SubstackPublicationScraper {
         return url.path.hasSuffix("/feed")
     }
 
+    /// Heuristic check for Substack-powered pages on custom domains.
+    nonisolated static func htmlIndicatesSubstack(_ html: String) -> Bool {
+        return html.contains("substackcdn.com")
+            || html.contains("substackapi.com")
+            || html.contains("content=\"Substack\"")
+    }
+
     nonisolated static func publicationAPIURL(for host: String) -> URL? {
         URL(string: "https://\(host)/api/v1/publication")
     }
