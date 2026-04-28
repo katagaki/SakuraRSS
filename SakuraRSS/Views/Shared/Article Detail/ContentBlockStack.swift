@@ -1,8 +1,6 @@
 import SwiftUI
 
-/// Renders a sequence of `ContentBlock`s using `FitWidthImage` for images
-/// (matching `ArticleDetailView`'s presentation) and a configurable text style
-/// so dark-backdrop hosts can opt into white body text.
+/// Renders a sequence of `ContentBlock`s
 struct ContentBlockStack: View {
 
     enum TextStyle {
@@ -24,7 +22,11 @@ struct ContentBlockStack: View {
             case .code(let content):
                 CodeBlockView(code: content)
             case .image(let url, let link):
-                FitWidthImage(url: url, link: link, namespace: imageNamespace) {
+                ImageBlockView(
+                    url: url,
+                    link: link,
+                    namespace: imageNamespace
+                ) {
                     onImageTap(url)
                 }
             case .video(let url):

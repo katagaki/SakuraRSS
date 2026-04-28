@@ -357,6 +357,7 @@ extension ArticleExtractor {
         ".visually-hidden",
         ".sr-only",
         ".a11y-hidden",
+        ".article__meta-guides",
         // Author, byline & meta sections
         // (bare ".author" / ".authors" omitted - many themes use them on
         // inline <span> elements within article text; the class-pattern
@@ -486,7 +487,7 @@ extension ArticleExtractor {
         "share-bar", "share-buttons", "share-tools",
         "share-this", "post-share", "entry-share",
         "article-share", "sharedaddy", "addtoany",
-        "addthis", "sharethis",
+        "addthis", "sharethis", "rich-share",
         "ad-slot", "ad-wrap", "ad-unit", "ad-container",
         "ad-banner", "ad-block", "ad-box", "ad-label",
         "ad-leaderboard", "ad-sidebar", "ad-inline",

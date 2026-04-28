@@ -39,7 +39,6 @@ struct ArticleDetailView: View {
     @State var showYouTubeSafari = false
     @State var arXivPDFReference: ArXivPDFReference?
     @State var imageViewerURL: URL?
-    @State var heroImageAspectRatio: CGFloat?
     @Namespace private var imageViewerNamespace
     @AppStorage("YouTube.OpenMode") var youTubeOpenMode: YouTubeOpenMode = .inAppPlayer
     @AppStorage("Intelligence.ContentInsights.Enabled") var contentInsightsEnabled: Bool = false
@@ -143,23 +142,14 @@ struct ArticleDetailView: View {
 
             actionButtons
 
-            if !fullTextHasImages,
-               let imageURL = article.imageURL ?? extractedLeadImageURL,
-               let url = URL(string: imageURL) {
-                CachedAsyncImage(url: url, onImageLoaded: { image in
-                    heroImageAspectRatio = image.size.width / image.size.height
-                }, placeholder: {
-                    Rectangle()
-                        .fill(.secondary.opacity(0.1))
-                })
-                .aspectRatio(max(heroImageAspectRatio ?? (16.0 / 9.0), 16.0 / 9.0), contentMode: .fit)
-                .clipShape(RoundedRectangle(cornerRadius: 12))
-                .matchedTransitionSource(id: url, in: imageViewerNamespace)
-                .onTapGesture { imageViewerURL = url }
-                .padding(.horizontal)
-            }
-
             VStack(alignment: .leading, spacing: 16) {
+                if !fullTextHasImages,
+                   let imageURL = article.imageURL ?? extractedLeadImageURL,
+                   let url = URL(string: imageURL) {
+                    ImageBlockView(url: url, namespace: imageViewerNamespace) {
+                        imageViewerURL = url
+                    }
+                }
 
                 if isExtracting {
                     ProgressView()
@@ -242,48 +232,5 @@ struct ArticleDetailView: View {
         .translationTask(translationConfig) { session in
             await handleTranslation(session: session)
         }
-    }
-}
-
-struct FitWidthImage: View {
-
-    let url: URL
-    var link: URL?
-    let namespace: Namespace.ID
-    var onTap: (() -> Void)?
-    @State private var aspectRatio: CGFloat?
-    @State private var imageSize: CGSize?
-    @Environment(\.openURL) private var openURL
-
-    var body: some View {
-        CachedAsyncImage(url: url, onImageLoaded: { image in
-            aspectRatio = image.size.width / image.size.height
-            imageSize = image.size
-        }, placeholder: {
-            Rectangle()
-                .fill(.secondary.opacity(0.1))
-        })
-        .aspectRatio(aspectRatio ?? (16.0 / 9.0), contentMode: .fit)
-        .frame(maxWidth: imageSize?.width)
-        .clipShape(RoundedRectangle(cornerRadius: 12))
-        .overlay(alignment: .bottomTrailing) {
-            if let link, (imageSize?.width ?? 120) >= 120 {
-                Button {
-                    openURL(link)
-                } label: {
-                    Label("Shared.Link", systemImage: "link")
-                        .font(.caption)
-                        .fontWeight(.medium)
-                        .padding(.horizontal, 10)
-                        .padding(.vertical, 6)
-                        .background(.ultraThinMaterial, in: Capsule())
-                }
-                .buttonStyle(.plain)
-                .padding(8)
-            }
-        }
-        .matchedTransitionSource(id: url, in: namespace)
-        .onTapGesture { onTap?() }
-        .frame(maxWidth: .infinity, alignment: .center)
     }
 }
