@@ -113,7 +113,6 @@ struct ArticlesView: View {
                 }
             }
         }
-        .scrollContentBackground(.hidden)
         .sakuraBackground()
         .navigationTitle(title)
         .navigationSubtitle(subtitle ?? "")

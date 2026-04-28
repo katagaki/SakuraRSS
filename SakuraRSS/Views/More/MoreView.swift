@@ -104,7 +104,6 @@ struct MoreView: View {
                 }
             }
             .listStyle(.insetGrouped)
-            .scrollContentBackground(.hidden)
             .sakuraBackground()
             .navigationTitle("Tabs.Profile")
             .toolbarTitleDisplayMode(.inline)

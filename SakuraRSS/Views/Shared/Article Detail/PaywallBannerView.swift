@@ -3,6 +3,7 @@ import SwiftUI
 struct PaywallBannerView: View {
 
     let articleURL: String
+    @Environment(\.colorScheme) private var colorScheme
     @Environment(\.openURL) private var openURL
 
     var body: some View {
@@ -14,11 +15,10 @@ struct PaywallBannerView: View {
             HStack(spacing: 10) {
                 Image(systemName: "lock.fill")
                 Text(String(localized: "Article.Paywall.Banner", table: "Articles"))
-                    .font(.footnote)
+                    .font(.body)
                     .foregroundStyle(.primary)
                     .lineLimit(2)
                 Spacer(minLength: 0)
-                Image(systemName: "safari")
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 12)
@@ -26,9 +26,8 @@ struct PaywallBannerView: View {
         }
         .buttonStyle(.plain)
         .glassEffect(
-            .regular.tint(.orange.opacity(0.3)).interactive(),
-            in: .rect(cornerRadius: 16)
+            .regular.tint(.orange.opacity(colorScheme == .dark ? 0.35 : 0.4)).interactive(),
+            in: .capsule
         )
-        .padding(.horizontal, 16)
     }
 }

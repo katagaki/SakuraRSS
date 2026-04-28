@@ -40,7 +40,6 @@ struct BookmarksContentView: View {
         }
         .navigationTitle("Tabs.Bookmarks")
         .toolbarTitleDisplayMode(.inline)
-        .scrollContentBackground(.hidden)
         .sakuraBackground()
         .toolbar {
             if !bookmarkedArticles.isEmpty {

@@ -554,7 +554,6 @@ private struct IPadSearchResultsView: View {
                 }
             } else {
                 InboxStyleView(articles: searchResults)
-                    .scrollContentBackground(.hidden)
                     .sakuraBackground()
             }
         }

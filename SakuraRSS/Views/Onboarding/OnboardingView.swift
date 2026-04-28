@@ -41,7 +41,6 @@ struct OnboardingView: View {
 
     var body: some View {
         currentStepContent
-            .scrollContentBackground(.hidden)
             .sakuraBackground()
             .overlay {
                 ZStack(alignment: .topLeading) {

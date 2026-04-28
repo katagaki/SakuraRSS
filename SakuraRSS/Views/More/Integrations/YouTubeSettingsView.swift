@@ -90,7 +90,6 @@ struct YouTubeSettingsView: View {
         .animation(.smooth.speed(2.0), value: youTubeOpenMode)
         .navigationTitle(String(localized: "YouTube", table: "Integrations"))
         .toolbarTitleDisplayMode(.inline)
-        .scrollContentBackground(.hidden)
         .sakuraBackground()
         .sheet(isPresented: $showYouTubeLogin) {
             Task {

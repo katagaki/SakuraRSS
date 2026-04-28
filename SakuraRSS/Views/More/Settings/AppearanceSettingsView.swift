@@ -103,7 +103,6 @@ struct AppearanceSettingsView: View {
             }
         }
         .listStyle(.insetGrouped)
-        .scrollContentBackground(.hidden)
         .sakuraBackground()
         .navigationTitle(String(localized: "Section.Appearance", table: "Settings"))
         .toolbarTitleDisplayMode(.inline)

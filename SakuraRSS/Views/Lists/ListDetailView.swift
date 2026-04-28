@@ -31,7 +31,6 @@ struct ListDetailView: View {
         .listStyle(.insetGrouped)
         .navigationTitle(list.name)
         .toolbarTitleDisplayMode(.inline)
-        .scrollContentBackground(.hidden)
         .sakuraBackground()
         .toolbar {
             ToolbarItemGroup(placement: .topBarTrailing) {

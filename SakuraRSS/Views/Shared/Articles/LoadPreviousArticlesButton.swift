@@ -45,7 +45,7 @@ struct LoadPreviousArticlesButton: View {
 
     private var manualButton: some View {
         Button {
-            withAnimation(.smooth.animation(2.0)) {
+            withAnimation(.smooth.speed(2.0)) {
                 action()
             }
         } label: {

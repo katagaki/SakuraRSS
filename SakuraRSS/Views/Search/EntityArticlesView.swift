@@ -40,7 +40,6 @@ struct EntityArticlesView: View {
                 }
             }
         }
-        .scrollContentBackground(.hidden)
         .sakuraBackground()
         .environment(\.zoomNamespace, cardZoom)
         .navigationDestination(for: Article.self) { article in
