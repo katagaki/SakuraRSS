@@ -142,6 +142,7 @@ struct ArticleDetailView: View {
 
             Divider()
                 .padding(.horizontal)
+                .padding(.vertical, 4)
 
             VStack(alignment: .leading, spacing: 16) {
                 if !fullTextHasImages,
@@ -197,6 +198,14 @@ struct ArticleDetailView: View {
                 }
             }
             .animation(.smooth.speed(2.0), value: isPaywalled)
+            .animation(.smooth.speed(2.0), value: isExtracting)
+            .animation(.smooth.speed(2.0), value: extractedText)
+            .animation(.smooth.speed(2.0), value: isTranslating)
+            .animation(.smooth.speed(2.0), value: showingTranslation)
+            .animation(.smooth.speed(2.0), value: isSummarizing)
+            .animation(.smooth.speed(2.0), value: showingSummary)
+            .animation(.smooth.speed(2.0), value: hasCachedSummary)
+            .animation(.smooth.speed(2.0), value: summarizedText)
             .padding(.horizontal, 20)
             .padding(.bottom, 20)
         }

@@ -5,6 +5,7 @@ struct ActionButton: View {
     let size: CGFloat = 48.0
     let systemImage: String
     var isLoading: Bool = false
+    var isTinted: Bool = false
     let accessibilityLabel: String
     var glassID: String?
     var glassNamespace: Namespace.ID?
@@ -15,7 +16,7 @@ struct ActionButton: View {
             ZStack {
                 Image(systemName: systemImage)
                     .font(.system(size: size * 0.38))
-                    .foregroundStyle(.primary)
+                    .foregroundStyle(isTinted ? .white : .primary)
                     .opacity(isLoading ? 0 : 1)
                 if isLoading {
                     ProgressView()
@@ -25,11 +26,20 @@ struct ActionButton: View {
             .contentShape(.circle)
         }
         .buttonStyle(.plain)
-        .glassEffect(.regular.interactive(), in: .circle)
+        .glassEffect(glassEffect, in: .circle)
         .modifier(OptionalGlassEffectID(id: glassID, namespace: glassNamespace))
         .disabled(isLoading)
         .accessibilityLabel(accessibilityLabel)
         .animation(.smooth.speed(2.0), value: isLoading)
+        .animation(.smooth.speed(2.0), value: isTinted)
+    }
+
+    private var glassEffect: Glass {
+        if isTinted {
+            return .regular.tint(.accentColor).interactive()
+        } else {
+            return .regular.interactive()
+        }
     }
 }
 

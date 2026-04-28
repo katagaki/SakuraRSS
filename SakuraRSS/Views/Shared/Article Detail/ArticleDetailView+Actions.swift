@@ -8,6 +8,7 @@ extension ArticleDetailView {
                 ActionButton(
                     systemImage: translateButtonSystemImage,
                     isLoading: isTranslating,
+                    isTinted: showingTranslation,
                     accessibilityLabel: translateButtonAccessibilityLabel,
                     glassID: "action.translate",
                     glassNamespace: glassNamespace
@@ -19,6 +20,7 @@ extension ArticleDetailView {
                     ActionButton(
                         systemImage: summarizeButtonSystemImage,
                         isLoading: isSummarizing,
+                        isTinted: showingSummary,
                         accessibilityLabel: summarizeButtonAccessibilityLabel,
                         glassID: "action.summarize",
                         glassNamespace: glassNamespace
