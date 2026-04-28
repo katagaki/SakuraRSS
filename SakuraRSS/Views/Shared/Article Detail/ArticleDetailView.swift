@@ -67,6 +67,10 @@ struct ArticleDetailView: View {
         return translatedText != nil || hasCachedTranslation
     }
 
+    var hasTranslatedFullText: Bool {
+        translatedText != nil || hasCachedTranslation
+    }
+
     var fullTextHasImages: Bool {
         extractedText?.contains("{{IMG}}") == true
     }
@@ -188,7 +192,7 @@ struct ArticleDetailView: View {
         .refreshable {
             await refreshArticleContent()
         }
-        .safeAreaInset(edge: .bottom) {
+        .safeAreaInset(edge: .bottom, spacing: 0) {
             GlassEffectContainer(spacing: 8) {
                 if isPaywalled {
                     PaywallBannerView(articleURL: article.url)
@@ -197,6 +201,7 @@ struct ArticleDetailView: View {
                     actionButtons
                 }
             }
+            .padding()
             .animation(.smooth.speed(2.0), value: isPaywalled)
             .animation(.smooth.speed(2.0), value: isExtracting)
             .animation(.smooth.speed(2.0), value: extractedText)
@@ -206,8 +211,6 @@ struct ArticleDetailView: View {
             .animation(.smooth.speed(2.0), value: showingSummary)
             .animation(.smooth.speed(2.0), value: hasCachedSummary)
             .animation(.smooth.speed(2.0), value: summarizedText)
-            .padding(.horizontal, 20)
-            .padding(.bottom, 20)
         }
         .sakuraBackground()
         .navigationBarTitleDisplayMode(.inline)

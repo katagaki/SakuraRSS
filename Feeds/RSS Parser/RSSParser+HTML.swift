@@ -120,7 +120,7 @@ nonisolated extension RSSParser {
 
         result = result
             .components(separatedBy: "\n")
-            .filter { !ArticleExtractor.isAdvertisementText($0) }
+            .filter { !isAdvertisementLabel($0) }
             .joined(separator: "\n")
 
         result = result.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -314,6 +314,11 @@ nonisolated extension RSSParser {
             }
         }
         return result
+    }
+
+    private func isAdvertisementLabel(_ text: String) -> Bool {
+        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        return trimmed == "advertisement" || trimmed == "advertising"
     }
 
     private func isLikelyHeroImage(_ url: String) -> Bool {

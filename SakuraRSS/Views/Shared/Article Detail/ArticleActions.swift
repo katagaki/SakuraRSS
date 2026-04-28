@@ -8,6 +8,7 @@ protocol ArticleActions {
     var isAppleIntelligenceAvailable: Bool { get }
 
     var hasTranslationForCurrentMode: Bool { get }
+    var hasTranslatedFullText: Bool { get }
     var isTranslating: Bool { get }
     var showingTranslation: Bool { get nonmutating set }
 
@@ -44,7 +45,7 @@ extension ArticleActions {
         HStack(spacing: 8) {
             if !isExtracting && displayText != nil {
                 ActionButton(
-                    systemImage: translateButtonSystemImage,
+                    systemImage: "translate",
                     isLoading: isTranslating,
                     isTinted: showingTranslation,
                     accessibilityLabel: translateButtonAccessibilityLabel,
@@ -56,7 +57,7 @@ extension ArticleActions {
 
                 if isAppleIntelligenceAvailable {
                     ActionButton(
-                        systemImage: summarizeButtonSystemImage,
+                        systemImage: "text.line.3.summary",
                         isLoading: isSummarizing,
                         isTinted: showingSummary,
                         accessibilityLabel: summarizeButtonAccessibilityLabel,
@@ -93,13 +94,6 @@ extension ArticleActions {
         }
     }
 
-    private var translateButtonSystemImage: String {
-        if hasTranslationForCurrentMode && !isTranslating {
-            return showingTranslation ? "doc.plaintext" : "translate"
-        }
-        return "translate"
-    }
-
     private var translateButtonAccessibilityLabel: String {
         if hasTranslationForCurrentMode && !isTranslating {
             return showingTranslation
@@ -107,14 +101,6 @@ extension ArticleActions {
                 : String(localized: "Article.ShowTranslation", table: "Articles")
         }
         return String(localized: "Article.Translate", table: "Articles")
-    }
-
-    private var summarizeButtonSystemImage: String {
-        let hasAvailableSummary = (summarizedText != nil || hasCachedSummary) && !isSummarizing
-        if hasAvailableSummary {
-            return showingSummary ? "doc.plaintext" : "text.line.3.summary"
-        }
-        return "text.line.3.summary"
     }
 
     private var summarizeButtonAccessibilityLabel: String {
@@ -141,6 +127,9 @@ extension ArticleActions {
         let hasAvailableSummary = (summarizedText != nil || hasCachedSummary) && !isSummarizing
         if hasAvailableSummary && summarizedText != nil {
             withAnimation(.smooth.speed(2.0)) {
+                if showingSummary && showingTranslation && !hasTranslatedFullText {
+                    showingTranslation = false
+                }
                 showingSummary.toggle()
             }
         } else if !isSummarizing {

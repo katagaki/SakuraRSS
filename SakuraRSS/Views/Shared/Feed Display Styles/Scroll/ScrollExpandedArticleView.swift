@@ -53,6 +53,10 @@ struct ScrollExpandedArticleView: View { // swiftlint:disable:this type_body_len
         return translatedText != nil || hasCachedTranslation
     }
 
+    var hasTranslatedFullText: Bool {
+        translatedText != nil || hasCachedTranslation
+    }
+
     var displayText: String? {
         if showingSummary, let summarizedText {
             if showingTranslation, let translatedSummary {
@@ -74,6 +78,7 @@ struct ScrollExpandedArticleView: View { // swiftlint:disable:this type_body_len
             "tr:\(isTranslating)",
             "showTr:\(showingTranslation)",
             "hasTr:\(hasTranslationForCurrentMode)",
+            "hasTrFull:\(hasTranslatedFullText)",
             "su:\(isSummarizing)",
             "showSu:\(showingSummary)",
             "hasSu:\(summarizedText != nil)",

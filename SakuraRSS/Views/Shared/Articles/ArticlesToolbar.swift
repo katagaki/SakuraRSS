@@ -76,29 +76,29 @@ struct ArticlesToolbar: View {
                     ) {
                         isShowingMarkAllReadConfirmation = true
                     }
+                    .popover(isPresented: $isShowingMarkAllReadConfirmation) {
+                        VStack(spacing: 12) {
+                            Text(String(localized: "MarkAllRead.Confirm", table: "Articles"))
+                                .font(.body)
+                            Button {
+                                onMarkAllRead()
+                                isShowingMarkAllReadConfirmation = false
+                            } label: {
+                                Text(String(localized: "MarkAllRead", table: "Articles"))
+                                    .frame(maxWidth: .infinity)
+                                    .padding(.vertical, 6)
+                            }
+                            .buttonStyle(.bordered)
+                        }
+                        .padding(20)
+                        .presentationCompactAdaptation(.popover)
+                    }
                 }
             }
             .frame(maxWidth: .infinity, alignment: alignment)
         }
-        .animation(.smooth.speed(2.0), value: override?.id)
         .padding()
-        .popover(isPresented: $isShowingMarkAllReadConfirmation) {
-            VStack(spacing: 12) {
-                Text(String(localized: "MarkAllRead.Confirm", table: "Articles"))
-                    .font(.body)
-                Button {
-                    onMarkAllRead()
-                    isShowingMarkAllReadConfirmation = false
-                } label: {
-                    Text(String(localized: "MarkAllRead", table: "Articles"))
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 6)
-                }
-                .buttonStyle(.bordered)
-            }
-            .padding(20)
-            .presentationCompactAdaptation(.popover)
-        }
+        .animation(.smooth.speed(2.0), value: override?.id)
     }
 }
 
@@ -110,7 +110,7 @@ private struct MarkAllReadToolbarModifier: ViewModifier {
     func body(content: Content) -> some View {
         Group {
             if show || override != nil {
-                content.safeAreaInset(edge: .bottom, alignment: .leading, spacing: 0) {
+                content.safeAreaInset(edge: .bottom, spacing: 0) {
                     ArticlesToolbar(onMarkAllRead: onMarkAllRead, override: override)
                 }
             } else {
