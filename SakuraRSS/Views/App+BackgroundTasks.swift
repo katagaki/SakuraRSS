@@ -81,7 +81,7 @@ extension SakuraRSSApp {
 
             let manager = await MainActor.run { FeedManager() }
             await manager.refreshAllFeeds(
-                skipAuthenticatedScrapers: true,
+                skipAuthenticatedFetchers: true,
                 respectCooldown: true,
                 skipImageFetch: skipImageFetch,
                 skipImagePreload: skipImagePreload,

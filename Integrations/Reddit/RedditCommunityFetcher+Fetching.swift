@@ -1,13 +1,13 @@
 import Foundation
 
-extension RedditCommunityScraper {
+extension RedditCommunityFetcher {
 
-    func performFetch(url: URL) async -> RedditCommunityScrapeResult {
+    func performFetch(url: URL) async -> RedditCommunityFetchResult {
         var request = URLRequest(url: url)
         request.setValue(sakuraUserAgent, forHTTPHeaderField: "User-Agent")
         request.setValue("application/json", forHTTPHeaderField: "Accept")
 
-        let empty = RedditCommunityScrapeResult(communityIconURL: nil)
+        let empty = RedditCommunityFetchResult(communityIconURL: nil)
 
         do {
             let (data, _) = try await URLSession.shared.data(for: request)
@@ -23,7 +23,7 @@ extension RedditCommunityScraper {
             }
 
             guard let rawIcon else { return empty }
-            return RedditCommunityScrapeResult(
+            return RedditCommunityFetchResult(
                 communityIconURL: Self.stripQuery(from: rawIcon)
             )
         } catch {

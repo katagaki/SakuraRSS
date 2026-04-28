@@ -102,7 +102,7 @@ extension ExtractsArticle {
 
         if feedManager.feed(forArticle: article)?.isRedditFeed == true {
             do {
-                let result = try await RedditPostScraper.shared.fetchContent(for: article)
+                let result = try await RedditPostFetcher.shared.fetchContent(for: article)
                 switch result {
                 case .markerString(let markerString):
                     if !markerString.isEmpty {
@@ -193,10 +193,10 @@ extension ExtractsArticle {
         if article.isXPostURL, !isFromXFeed,
            UserDefaults.standard.bool(forKey: "Labs.XProfileFeeds"),
            let url = URL(string: article.url),
-           let tweetID = XProfileScraper.extractTweetID(from: url),
-           await XProfileScraper.hasXSession() {
-            let scraper = XProfileScraper()
-            if let tweet = await scraper.fetchSingleTweet(tweetID: tweetID) {
+           let tweetID = XProfileFetcher.extractTweetID(from: url),
+           XProfileFetcher.hasSession() {
+            let fetcher = XProfileFetcher()
+            if let tweet = await fetcher.fetchSingleTweet(tweetID: tweetID) {
                 var text = ArticleMarker.escape(tweet.text)
                 if let imageURL = tweet.imageURL {
                     text += "\n\n{{IMG}}\(imageURL){{/IMG}}"

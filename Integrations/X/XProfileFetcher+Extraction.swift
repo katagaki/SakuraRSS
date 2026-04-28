@@ -2,7 +2,7 @@ import Foundation
 
 // MARK: - API Configuration & Response Parsing
 
-extension XProfileScraper {
+extension XProfileFetcher {
 
     static let userTweetsFeatures: [String: Bool] = [
         "rweb_video_screen_enabled": false,
@@ -176,7 +176,7 @@ extension XProfileScraper {
                   as? [String: Any],
               let instructions = threadedConvo["instructions"] as? [[String: Any]] else {
             #if DEBUG
-            print("[XProfileScraper] Failed to parse TweetDetail JSON structure")
+            print("[XProfileFetcher] Failed to parse TweetDetail JSON structure")
             #endif
             return nil
         }
@@ -185,7 +185,7 @@ extension XProfileScraper {
             where: { ($0["type"] as? String) == "TimelineAddEntries" }
         ), let entries = addEntries["entries"] as? [[String: Any]] else {
             #if DEBUG
-            print("[XProfileScraper] No TimelineAddEntries in TweetDetail")
+            print("[XProfileFetcher] No TimelineAddEntries in TweetDetail")
             #endif
             return nil
         }
@@ -218,7 +218,7 @@ extension XProfileScraper {
         }
 
         #if DEBUG
-        print("[XProfileScraper] TweetDetail: focal tweet \(tweetID) not found in entries")
+        print("[XProfileFetcher] TweetDetail: focal tweet \(tweetID) not found in entries")
         #endif
         return nil
     }

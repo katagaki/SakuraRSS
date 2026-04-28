@@ -1,13 +1,13 @@
 import Foundation
 
-extension SubstackPublicationScraper {
+extension SubstackPublicationFetcher {
 
-    func performFetch(url: URL) async -> SubstackPublicationScrapeResult {
+    func performFetch(url: URL) async -> SubstackPublicationFetchResult {
         var request = URLRequest(url: url)
         request.setValue(sakuraUserAgent, forHTTPHeaderField: "User-Agent")
         request.setValue("application/json", forHTTPHeaderField: "Accept")
 
-        let empty = SubstackPublicationScrapeResult(logoURL: nil)
+        let empty = SubstackPublicationFetchResult(logoURL: nil)
 
         do {
             let (data, _) = try await URLSession.shared.data(for: request)
@@ -17,7 +17,7 @@ extension SubstackPublicationScraper {
             let logoURL = (root["logo_url"] as? String).flatMap { $0.isEmpty ? nil : $0 }
                 ?? (root["cover_photo_url"] as? String).flatMap { $0.isEmpty ? nil : $0 }
 
-            return SubstackPublicationScrapeResult(logoURL: logoURL)
+            return SubstackPublicationFetchResult(logoURL: logoURL)
         } catch {
             print("[SubstackPublication] Fetch failed - \(error.localizedDescription)")
             return empty

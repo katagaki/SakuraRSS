@@ -1,6 +1,6 @@
 import Foundation
 
-extension YouTubePlaylistScraper {
+extension YouTubePlaylistFetcher {
 
     // MARK: - JSON Extraction
 

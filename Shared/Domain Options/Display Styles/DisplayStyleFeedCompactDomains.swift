@@ -1,14 +1,13 @@
 import Foundation
 
 /// Domains that should use the feed (compact) display style by default.
-nonisolated enum DisplayStyleFeedCompactDomains {
+nonisolated enum DisplayStyleFeedCompactDomains: DomainExceptions {
 
-    static let allowlistedDomains: Set<String> = [
+    static let exceptionDomains: Set<String> = [
         "reddit.com"
     ]
 
     static func shouldPreferFeedCompactView(feedDomain: String) -> Bool {
-        let host = feedDomain.lowercased()
-        return allowlistedDomains.contains(where: { host == $0 || host.hasSuffix(".\($0)") })
+        matches(feedDomain: feedDomain)
     }
 }

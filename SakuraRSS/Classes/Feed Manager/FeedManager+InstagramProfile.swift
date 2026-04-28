@@ -29,11 +29,11 @@ extension FeedManager {
             return
         }
 
-        guard let handle = InstagramProfileScraper.handleFromFeedURL(feed.url),
-              let profileURL = InstagramProfileScraper.profileURL(for: handle) else { return }
+        guard let handle = InstagramProfileFetcher.identifierFromFeedURL(feed.url),
+              let profileURL = InstagramProfileFetcher.profileURL(for: handle) else { return }
 
-        let scraper = InstagramProfileScraper()
-        let result = await scraper.scrapeProfile(profileURL: profileURL)
+        let fetcher = InstagramProfileFetcher()
+        let result = await fetcher.fetchProfile(profileURL: profileURL)
 
         let postTuples = result.posts.map { post in
             let title = post.text.isEmpty
@@ -76,8 +76,8 @@ extension FeedManager {
             try database.updateFeedLastFetched(id: feed.id, date: Date())
         }.value
 
-        await applyScraperMetadataRefresh(
-            feed: feed, scrapedTitle: feedTitle, profileImage: profileImage
+        await applyFetcherMetadataRefresh(
+            feed: feed, fetchdTitle: feedTitle, profileImage: profileImage
         )
 
         await MainActor.run { self.bumpDataRevision() }
@@ -87,6 +87,6 @@ extension FeedManager {
     }
 
     var hasInstagramFeeds: Bool {
-        feeds.contains { InstagramProfileScraper.isInstagramFeedURL($0.url) }
+        feeds.contains { InstagramProfileFetcher.isFeedURL($0.url) }
     }
 }

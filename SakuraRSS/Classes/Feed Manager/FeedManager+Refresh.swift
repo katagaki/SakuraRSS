@@ -286,7 +286,7 @@ extension FeedManager {
     /// completed feeds are visible immediately; if cancellation comes mid-refresh,
     /// every feed that has already finished its pipeline keeps its inserted articles.
     func refreshAllFeeds(
-        skipAuthenticatedScrapers: Bool = false,
+        skipAuthenticatedFetchers: Bool = false,
         respectCooldown: Bool = false,
         skipImageFetch: Bool = false,
         skipImagePreload: Bool = false,
@@ -301,7 +301,7 @@ extension FeedManager {
         let now = Date()
         let currentFeeds = feeds
         let feedsToRefresh = currentFeeds.filter { feed in
-            if skipAuthenticatedScrapers, feed.isXFeed || feed.isInstagramFeed {
+            if skipAuthenticatedFetchers, feed.isXFeed || feed.isInstagramFeed {
                 return false
             }
             if let cooldownSeconds,

@@ -1,9 +1,9 @@
 import Foundation
 
 /// Domains that should use the timeline display style by default (e.g. status pages).
-nonisolated enum DisplayStyleTimelineDomains {
+nonisolated enum DisplayStyleTimelineDomains: DomainExceptions {
 
-    static let allowlistedDomains: Set<String> = [
+    static let exceptionDomains: Set<String> = [
         "status.aws.amazon.com",
         "status.dev.azure.com",
         "rssfeed.azure.status.microsoft",
@@ -18,7 +18,6 @@ nonisolated enum DisplayStyleTimelineDomains {
     ]
 
     static func shouldPreferTimeline(feedDomain: String) -> Bool {
-        let host = feedDomain.lowercased()
-        return allowlistedDomains.contains(where: { host == $0 || host.hasSuffix(".\($0)") })
+        matches(feedDomain: feedDomain)
     }
 }

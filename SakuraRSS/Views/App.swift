@@ -37,10 +37,10 @@ struct SakuraRSSApp: App {
                 .task {
                     await withTaskGroup(of: Void.self) { group in
                         if UserDefaults.standard.bool(forKey: "Labs.XProfileFeeds") {
-                            group.addTask { await XProfileScraper.migrateWebKitCookiesIfNeeded() }
+                            group.addTask { await XProfileFetcher.migrateWebKitCookiesIfNeeded() }
                         }
                         if UserDefaults.standard.bool(forKey: "Labs.InstagramProfileFeeds") {
-                            group.addTask { await InstagramProfileScraper.migrateWebKitCookiesIfNeeded() }
+                            group.addTask { await InstagramProfileFetcher.migrateWebKitCookiesIfNeeded() }
                         }
                     }
                     if fetchOnStartup {

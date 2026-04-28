@@ -23,14 +23,14 @@ extension FaviconCache {
         }
 
         if feed.isXFeed,
-           let handle = XProfileScraper.handleFromFeedURL(feed.url),
+           let handle = XProfileFetcher.identifierFromFeedURL(feed.url),
            let image = await fetchXProfileAvatar(handle: handle) {
             await setCustomFavicon(image, feedID: feed.id, skipTrimming: true)
             return image
         }
 
         if feed.isInstagramFeed,
-           let handle = InstagramProfileScraper.handleFromFeedURL(feed.url),
+           let handle = InstagramProfileFetcher.identifierFromFeedURL(feed.url),
            let image = await fetchInstagramProfileAvatar(handle: handle) {
             await setCustomFavicon(image, feedID: feed.id, skipTrimming: true)
             return image

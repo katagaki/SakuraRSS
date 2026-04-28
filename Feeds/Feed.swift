@@ -36,15 +36,15 @@ nonisolated struct Feed: Identifiable, Hashable, Sendable {
     }
 
     var isXFeed: Bool {
-        XProfileScraper.isXFeedURL(url)
+        XProfileFetcher.isFeedURL(url)
     }
 
     var isInstagramFeed: Bool {
-        InstagramProfileScraper.isInstagramFeedURL(url)
+        InstagramProfileFetcher.isFeedURL(url)
     }
 
     var isYouTubePlaylistFeed: Bool {
-        YouTubePlaylistScraper.isYouTubePlaylistFeedURL(url)
+        YouTubePlaylistFetcher.isFeedURL(url)
     }
 
     var isFeedViewDomain: Bool {

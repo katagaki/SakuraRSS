@@ -25,12 +25,12 @@ extension FeedManager {
             return
         }
 
-        guard let playlistID = YouTubePlaylistScraper.playlistIDFromFeedURL(feed.url) else {
+        guard let playlistID = YouTubePlaylistFetcher.identifierFromFeedURL(feed.url) else {
             return
         }
 
-        let scraper = YouTubePlaylistScraper()
-        let result = await scraper.scrapePlaylist(playlistID: playlistID)
+        let fetcher = YouTubePlaylistFetcher()
+        let result = await fetcher.fetchPlaylist(playlistID: playlistID)
 
         let articleTuples = result.videos.map { video in
             ArticleInsertItem(
@@ -67,8 +67,8 @@ extension FeedManager {
             try database.updateFeedLastFetched(id: feed.id, date: Date())
         }.value
 
-        await applyScraperMetadataRefresh(
-            feed: feed, scrapedTitle: feedTitle, profileImage: avatarImage
+        await applyFetcherMetadataRefresh(
+            feed: feed, fetchdTitle: feedTitle, profileImage: avatarImage
         )
 
         await MainActor.run { self.bumpDataRevision() }
@@ -78,6 +78,6 @@ extension FeedManager {
     }
 
     var hasYouTubePlaylistFeeds: Bool {
-        feeds.contains { YouTubePlaylistScraper.isYouTubePlaylistFeedURL($0.url) }
+        feeds.contains { YouTubePlaylistFetcher.isFeedURL($0.url) }
     }
 }

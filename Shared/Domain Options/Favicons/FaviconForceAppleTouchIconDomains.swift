@@ -1,9 +1,9 @@
 import Foundation
 
 /// Domains whose favicon should be fetched directly from `/apple-touch-icon.png`.
-nonisolated enum FaviconForceAppleTouchIconDomains {
+nonisolated enum FaviconForceAppleTouchIconDomains: DomainExceptions {
 
-    static let allowlistedDomains: Set<String> = [
+    static let exceptionDomains: Set<String> = [
         "apple.com",
         "asahi.com",
         "claude.com",
@@ -12,7 +12,6 @@ nonisolated enum FaviconForceAppleTouchIconDomains {
     ]
 
     static func shouldForceAppleTouchIcon(feedDomain: String) -> Bool {
-        let host = feedDomain.lowercased()
-        return allowlistedDomains.contains(where: { host == $0 || host.hasSuffix(".\($0)") })
+        matches(feedDomain: feedDomain)
     }
 }

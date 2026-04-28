@@ -628,8 +628,16 @@ extension ArticleExtractor {
         }
     }
 
+    /// Standalone ad-label text patterns typically injected by news sites
+    private static let advertisementPatterns: Set<String> = [
+        "advertisement",
+        "advertising"
+    ]
+
+    /// Returns true when the trimmed, lowercased text matches a known ad label.
     static func isAdvertisementText(_ text: String) -> Bool {
-        AdvertisementTextFilter.isAdvertisementText(text)
+        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        return advertisementPatterns.contains(trimmed)
     }
 
     private static func removeAdvertisementTextBlocks(from element: Element) {

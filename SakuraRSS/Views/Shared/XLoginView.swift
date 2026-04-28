@@ -1,7 +1,7 @@
 import SwiftUI
 import WebKit
 
-/// Web view presenting the X login page; session cookies persist for XProfileScraper.
+/// Web view presenting the X login page; session cookies persist for XProfileFetcher.
 struct XLoginView: View {
 
     @Environment(\.dismiss) var dismiss
@@ -68,9 +68,9 @@ private struct XLoginWebView: UIViewRepresentable {
                 try? await Task.sleep(for: .seconds(1))
                 guard !Task.isCancelled else { return }
 
-                await XProfileScraper.syncCookiesFromWebKit()
+                await XProfileFetcher.syncCookiesFromWebKit()
 
-                let loggedIn = await XProfileScraper.hasXSession()
+                let loggedIn = XProfileFetcher.hasSession()
                 if loggedIn {
                     self.isLoggedIn = true
                 }

@@ -1,13 +1,13 @@
 import Foundation
 
-extension NoteProfileScraper {
+extension NoteProfileFetcher {
 
-    func performFetch(url: URL) async -> NoteProfileScrapeResult {
+    func performFetch(url: URL) async -> NoteProfileFetchResult {
         var request = URLRequest(url: url)
         request.setValue(sakuraUserAgent, forHTTPHeaderField: "User-Agent")
         request.setValue("application/json", forHTTPHeaderField: "Accept")
 
-        let empty = NoteProfileScrapeResult(profileImageURL: nil, displayName: nil)
+        let empty = NoteProfileFetchResult(profileImageURL: nil, displayName: nil)
 
         do {
             let (data, _) = try await URLSession.shared.data(for: request)
@@ -22,7 +22,7 @@ extension NoteProfileScraper {
             let cleanedImage = imageURL.flatMap { $0.isEmpty ? nil : $0 }
             let cleanedName = displayName.flatMap { $0.isEmpty ? nil : $0 }
 
-            return NoteProfileScrapeResult(
+            return NoteProfileFetchResult(
                 profileImageURL: cleanedImage,
                 displayName: cleanedName
             )

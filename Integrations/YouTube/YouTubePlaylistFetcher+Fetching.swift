@@ -1,15 +1,15 @@
 import Foundation
 
-extension YouTubePlaylistScraper {
+extension YouTubePlaylistFetcher {
 
     /// Fetches the playlist page and enriches each video with the Atom feed's publish date.
     /// Atom feed caps at ~15 entries, so older videos may lack a publish date.
-    func performFetch(url: URL, playlistID: String) async -> YouTubePlaylistScrapeResult {
+    func performFetch(url: URL, playlistID: String) async -> YouTubePlaylistFetchResult {
         var request = URLRequest(url: url)
         request.setValue(sakuraUserAgent, forHTTPHeaderField: "User-Agent")
         request.setValue("en-US,en;q=0.9", forHTTPHeaderField: "Accept-Language")
 
-        let empty = YouTubePlaylistScrapeResult(
+        let empty = YouTubePlaylistFetchResult(
             videos: [], playlistTitle: nil, channelAvatarURL: nil
         )
 
@@ -41,7 +41,7 @@ extension YouTubePlaylistScraper {
                 }
             }
 
-            return YouTubePlaylistScrapeResult(
+            return YouTubePlaylistFetchResult(
                 videos: videos, playlistTitle: title, channelAvatarURL: avatarURL
             )
         } catch {

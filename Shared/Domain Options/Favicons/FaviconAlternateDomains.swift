@@ -1,7 +1,7 @@
 import Foundation
 
 /// Maps feed domains to alternative domains for favicon fetching.
-nonisolated enum FaviconAlternateDomains {
+nonisolated enum FaviconAlternateDomains: DomainExceptions {
 
     static let mappings: [String: String] = [
         "feeds.bbci.co.uk": "bbc.co.uk",
@@ -10,15 +10,12 @@ nonisolated enum FaviconAlternateDomains {
         "status.azure.com": "microsoft.com"
     ]
 
+    static var exceptionDomains: Set<String> { Set(mappings.keys) }
+
     /// Returns the mapped domain for favicon fetching, or the original domain if no mapping exists.
     static func faviconDomain(for feedDomain: String) -> String {
-        let host = feedDomain.lowercased()
-        if let mapped = mappings[host] {
-            return mapped
-        }
-        for (source, destination) in mappings where host.hasSuffix(".\(source)") {
-            return destination
-        }
-        return host
+        guard let source = matchedDomain(for: feedDomain),
+              let destination = mappings[source] else { return feedDomain.lowercased() }
+        return destination
     }
 }

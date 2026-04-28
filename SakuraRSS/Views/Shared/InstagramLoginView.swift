@@ -1,7 +1,7 @@
 import SwiftUI
 import WebKit
 
-/// Web view presenting the Instagram login page; cookies persist for InstagramProfileScraper.
+/// Web view presenting the Instagram login page; cookies persist for InstagramProfileFetcher.
 struct InstagramLoginView: View {
 
     @Environment(\.dismiss) var dismiss
@@ -67,9 +67,9 @@ private struct InstagramLoginWebView: UIViewRepresentable {
                 try? await Task.sleep(for: .seconds(1))
                 guard !Task.isCancelled else { return }
 
-                await InstagramProfileScraper.syncCookiesFromWebKit()
+                await InstagramProfileFetcher.syncCookiesFromWebKit()
 
-                let loggedIn = await InstagramProfileScraper.hasInstagramSession()
+                let loggedIn = InstagramProfileFetcher.hasSession()
                 if loggedIn {
                     self.isLoggedIn = true
                 }

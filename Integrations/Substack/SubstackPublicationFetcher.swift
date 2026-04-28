@@ -1,11 +1,11 @@
 import Foundation
 
-struct SubstackPublicationScrapeResult: Sendable {
+struct SubstackPublicationFetchResult: Sendable {
     let logoURL: String?
 }
 
 /// Fetches Substack publication metadata via the public `/api/v1/publication` endpoint.
-final class SubstackPublicationScraper {
+final class SubstackPublicationFetcher {
 
     // MARK: - Static Helpers
 
@@ -46,9 +46,9 @@ final class SubstackPublicationScraper {
 
     // MARK: - Public
 
-    func scrapePublication(host: String) async -> SubstackPublicationScrapeResult {
+    func fetchPublication(host: String) async -> SubstackPublicationFetchResult {
         guard let url = Self.publicationAPIURL(for: host) else {
-            return SubstackPublicationScrapeResult(logoURL: nil)
+            return SubstackPublicationFetchResult(logoURL: nil)
         }
         return await performFetch(url: url)
     }

@@ -4,7 +4,7 @@ import WebKit
 
 // MARK: - API Fetching
 
-extension InstagramProfileScraper {
+extension InstagramProfileFetcher {
 
     struct InstagramCookies {
         let csrfToken: String
@@ -12,29 +12,29 @@ extension InstagramProfileScraper {
         let allCookies: [HTTPCookie]
     }
 
-    func performFetch(profileURL: URL) async -> InstagramProfileScrapeResult {
-        guard let handle = Self.extractHandle(from: profileURL) else {
+    func performFetch(profileURL: URL) async -> InstagramProfileFetchResult {
+        guard let handle = Self.extractIdentifier(from: profileURL) else {
             #if DEBUG
-            print("[InstagramProfileScraper] Failed to extract handle from URL: \(profileURL)")
+            print("[InstagramProfileFetcher] Failed to extract handle from URL: \(profileURL)")
             #endif
-            return InstagramProfileScrapeResult(posts: [], profileImageURL: nil, displayName: nil)
+            return InstagramProfileFetchResult(posts: [], profileImageURL: nil, displayName: nil)
         }
 
         #if DEBUG
-        print("[InstagramProfileScraper] Fetching profile for handle: \(handle)")
+        print("[InstagramProfileFetcher] Fetching profile for handle: \(handle)")
         #endif
 
         await Self.awaitHumanPacing()
 
         guard let cookies = Self.getInstagramCookies() else {
             #if DEBUG
-            print("[InstagramProfileScraper] No Instagram session cookies found")
+            print("[InstagramProfileFetcher] No Instagram session cookies found")
             #endif
-            return InstagramProfileScrapeResult(posts: [], profileImageURL: nil, displayName: nil)
+            return InstagramProfileFetchResult(posts: [], profileImageURL: nil, displayName: nil)
         }
 
         #if DEBUG
-        print("[InstagramProfileScraper] Got cookies - csrf: \(cookies.csrfToken.prefix(20))..., "
+        print("[InstagramProfileFetcher] Got cookies - csrf: \(cookies.csrfToken.prefix(20))..., "
               + "total cookies: \(cookies.allCookies.count)")
         #endif
 
@@ -49,13 +49,13 @@ extension InstagramProfileScraper {
 
         guard let profileData else {
             #if DEBUG
-            print("[InstagramProfileScraper] Failed to fetch profile info for \(handle)")
+            print("[InstagramProfileFetcher] Failed to fetch profile info for \(handle)")
             #endif
-            return InstagramProfileScrapeResult(posts: [], profileImageURL: nil, displayName: nil)
+            return InstagramProfileFetchResult(posts: [], profileImageURL: nil, displayName: nil)
         }
 
         #if DEBUG
-        print("[InstagramProfileScraper] Fetched \(profileData.posts.count) posts, "
+        print("[InstagramProfileFetcher] Fetched \(profileData.posts.count) posts, "
               + "name: \(profileData.displayName ?? "nil")")
         #endif
 
@@ -69,7 +69,7 @@ extension InstagramProfileScraper {
             $0.domain.lowercased().contains("instagram.com")
         }
         guard !updated.isEmpty else { return }
-        InstagramProfileScraper.cookieStore.save(updated)
+        InstagramProfileFetcher.cookieStore.save(updated)
     }
 
     // MARK: - Human-Like Pacing
@@ -99,16 +99,16 @@ extension InstagramProfileScraper {
         }
 
         #if DEBUG
-        print("[InstagramProfileScraper] Human-pacing delay: \(String(format: "%.2f", delay))s")
+        print("[InstagramProfileFetcher] Human-pacing delay: \(String(format: "%.2f", delay))s")
         #endif
         try? await Task.sleep(for: .seconds(delay))
     }
 
-    /// Short randomised pause between back-to-back API calls inside a single scrape.
-    static func awaitIntraScrapePause() async {
+    /// Short randomised pause between back-to-back API calls inside a single fetch.
+    static func awaitIntraFetchPause() async {
         let delay = TimeInterval.random(in: 0.9...2.6)
         #if DEBUG
-        print("[InstagramProfileScraper] Intra-scrape pause: \(String(format: "%.2f", delay))s")
+        print("[InstagramProfileFetcher] Intra-fetch pause: \(String(format: "%.2f", delay))s")
         #endif
         try? await Task.sleep(for: .seconds(delay))
     }
@@ -126,33 +126,11 @@ extension InstagramProfileScraper {
         }.joined(separator: ",")
     }
 
-    // MARK: - Cookie Warming
-
-    @MainActor
-    private static var cookieStoreWarmed = false
-
-    /// Loads Instagram in a WKWebView to restore its persisted cookie jar from disk.
-    /// Used only during the one-time Keychain migration.
-    @MainActor
-    static func warmCookieStore() async {
-        guard !cookieStoreWarmed else { return }
-        cookieStoreWarmed = true
-
-        let config = WKWebViewConfiguration()
-        config.websiteDataStore = .default()
-        let webView = WKWebView(frame: .zero, configuration: config)
-        webView.customUserAgent = sakuraUserAgent
-
-        guard let url = URL(string: "https://www.instagram.com/") else { return }
-        webView.load(URLRequest(url: url, timeoutInterval: 10))
-        try? await Task.sleep(for: .seconds(2))
-    }
-
     // MARK: - Cookies
 
     /// Reads the current Instagram session from the Keychain-backed cookie jar.
     static func getInstagramCookies() -> InstagramCookies? {
-        guard let cookies = InstagramProfileScraper.cookieStore.load() else {
+        guard let cookies = InstagramProfileFetcher.cookieStore.load() else {
             return nil
         }
 
@@ -218,7 +196,7 @@ extension InstagramProfileScraper {
 
     func fetchProfileInfo(
         username: String, cookies: InstagramCookies, session: URLSession
-    ) async -> InstagramProfileScrapeResult? {
+    ) async -> InstagramProfileFetchResult? {
         guard let url = URL(
             string: "https://www.instagram.com/api/v1/users/web_profile_info/?username=\(username)"
         ) else {
@@ -228,7 +206,7 @@ extension InstagramProfileScraper {
         let request = buildRequest(url: url, cookies: cookies)
 
         #if DEBUG
-        print("[InstagramProfileScraper] Profile info request: \(url)")
+        print("[InstagramProfileFetcher] Profile info request: \(url)")
         #endif
 
         let data: Data
@@ -237,7 +215,7 @@ extension InstagramProfileScraper {
             (data, response) = try await session.data(for: request)
         } catch {
             #if DEBUG
-            print("[InstagramProfileScraper] Profile info network error: \(error)")
+            print("[InstagramProfileFetcher] Profile info network error: \(error)")
             #endif
             return nil
         }
@@ -245,9 +223,9 @@ extension InstagramProfileScraper {
         guard let httpResponse = response as? HTTPURLResponse else { return nil }
 
         #if DEBUG
-        print("[InstagramProfileScraper] Profile info status: \(httpResponse.statusCode)")
+        print("[InstagramProfileFetcher] Profile info status: \(httpResponse.statusCode)")
         if let body = String(data: data, encoding: .utf8) {
-            print("[InstagramProfileScraper] Profile info response: \(body.prefix(1000))")
+            print("[InstagramProfileFetcher] Profile info response: \(body.prefix(1000))")
         }
         #endif
 
@@ -262,17 +240,17 @@ extension InstagramProfileScraper {
         // web_profile_info often returns empty edges even when posts exist; fall back to feed endpoint.
         if result.posts.isEmpty, let userId = Self.extractUserID(from: data) {
             #if DEBUG
-            print("[InstagramProfileScraper] Profile had 0 posts, "
+            print("[InstagramProfileFetcher] Profile had 0 posts, "
                   + "fetching feed for user ID: \(userId)")
             #endif
-            await Self.awaitIntraScrapePause()
+            await Self.awaitIntraFetchPause()
             let feedPosts = await fetchUserFeed(
                 userId: userId, username: username,
                 displayName: result.displayName,
                 cookies: cookies, session: session
             )
             if !feedPosts.isEmpty {
-                result = InstagramProfileScrapeResult(
+                result = InstagramProfileFetchResult(
                     posts: feedPosts,
                     profileImageURL: result.profileImageURL,
                     displayName: result.displayName
@@ -300,7 +278,7 @@ extension InstagramProfileScraper {
         let request = buildRequest(url: url, cookies: cookies, referer: profileReferer)
 
         #if DEBUG
-        print("[InstagramProfileScraper] Feed request: \(url)")
+        print("[InstagramProfileFetcher] Feed request: \(url)")
         #endif
 
         let data: Data
@@ -309,7 +287,7 @@ extension InstagramProfileScraper {
             (data, response) = try await session.data(for: request)
         } catch {
             #if DEBUG
-            print("[InstagramProfileScraper] Feed network error: \(error)")
+            print("[InstagramProfileFetcher] Feed network error: \(error)")
             #endif
             return []
         }
@@ -317,7 +295,7 @@ extension InstagramProfileScraper {
         guard let httpResponse = response as? HTTPURLResponse,
               httpResponse.statusCode == 200 else {
             #if DEBUG
-            print("[InstagramProfileScraper] Feed request failed: "
+            print("[InstagramProfileFetcher] Feed request failed: "
                   + "\((response as? HTTPURLResponse)?.statusCode ?? -1)")
             #endif
             return []
@@ -325,7 +303,7 @@ extension InstagramProfileScraper {
 
         #if DEBUG
         if let body = String(data: data, encoding: .utf8) {
-            print("[InstagramProfileScraper] Feed response: \(body.prefix(500))")
+            print("[InstagramProfileFetcher] Feed response: \(body.prefix(500))")
         }
         #endif
 

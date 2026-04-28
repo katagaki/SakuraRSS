@@ -14,7 +14,7 @@ extension FaviconCache {
             }
 
             if let host = siteURL.host,
-               SubstackPublicationScraper.htmlIndicatesSubstack(html),
+               SubstackPublicationFetcher.htmlIndicatesSubstack(html),
                let image = await fetchSubstackPublicationLogo(host: host) {
                 #if DEBUG
                 debugPrint("[Favicon] PWA: found Substack publication logo for \(siteURL)")

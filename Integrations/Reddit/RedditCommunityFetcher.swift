@@ -1,11 +1,11 @@
 import Foundation
 
-struct RedditCommunityScrapeResult: Sendable {
+struct RedditCommunityFetchResult: Sendable {
     let communityIconURL: String?
 }
 
 /// Fetches subreddit metadata from `/r/<name>/about.json`.
-final class RedditCommunityScraper {
+final class RedditCommunityFetcher {
 
     // MARK: - Static Helpers
 
@@ -39,9 +39,9 @@ final class RedditCommunityScraper {
 
     // MARK: - Public
 
-    func scrapeCommunity(subreddit: String) async -> RedditCommunityScrapeResult {
+    func fetchCommunity(subreddit: String) async -> RedditCommunityFetchResult {
         guard let url = Self.aboutURL(for: subreddit) else {
-            return RedditCommunityScrapeResult(communityIconURL: nil)
+            return RedditCommunityFetchResult(communityIconURL: nil)
         }
         return await performFetch(url: url)
     }

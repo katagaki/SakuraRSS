@@ -24,11 +24,11 @@ extension FeedManager {
             return
         }
 
-        guard let handle = XProfileScraper.handleFromFeedURL(feed.url),
-              let profileURL = XProfileScraper.profileURL(for: handle) else { return }
+        guard let handle = XProfileFetcher.identifierFromFeedURL(feed.url),
+              let profileURL = XProfileFetcher.profileURL(for: handle) else { return }
 
-        let scraper = XProfileScraper()
-        let result = await scraper.scrapeProfile(profileURL: profileURL)
+        let fetcher = XProfileFetcher()
+        let result = await fetcher.fetchProfile(profileURL: profileURL)
 
         let tweetTuples = result.tweets.map { tweet in
             let title = tweet.text.isEmpty
@@ -71,8 +71,8 @@ extension FeedManager {
             try database.updateFeedLastFetched(id: feed.id, date: Date())
         }.value
 
-        await applyScraperMetadataRefresh(
-            feed: feed, scrapedTitle: feedTitle, profileImage: profileImage
+        await applyFetcherMetadataRefresh(
+            feed: feed, fetchdTitle: feedTitle, profileImage: profileImage
         )
 
         await MainActor.run { self.bumpDataRevision() }
@@ -82,6 +82,6 @@ extension FeedManager {
     }
 
     var hasXFeeds: Bool {
-        feeds.contains { XProfileScraper.isXFeedURL($0.url) }
+        feeds.contains { XProfileFetcher.isFeedURL($0.url) }
     }
 }

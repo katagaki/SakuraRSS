@@ -32,10 +32,10 @@ extension FeedEditSheet {
         defer { isFetchingIcon = false }
 
         if feed.isXFeed,
-           let handle = XProfileScraper.handleFromFeedURL(feed.url),
-           let cookies = await XProfileScraper.getXCookies() {
-            let scraper = XProfileScraper()
-            if let userInfo = await scraper.fetchUserInfo(screenName: handle, cookies: cookies),
+           let handle = XProfileFetcher.identifierFromFeedURL(feed.url),
+           let cookies = await XProfileFetcher.getXCookies() {
+            let fetcher = XProfileFetcher()
+            if let userInfo = await fetcher.fetchUserInfo(screenName: handle, cookies: cookies),
                let imageURLString = userInfo.profileImageURL,
                let imageURL = URL(string: imageURLString),
                let (data, _) = try? await URLSession.shared.data(for: .sakuraImage(url: imageURL)),
@@ -50,10 +50,10 @@ extension FeedEditSheet {
         }
 
         if feed.isInstagramFeed,
-           let handle = InstagramProfileScraper.handleFromFeedURL(feed.url),
-           let profileURL = InstagramProfileScraper.profileURL(for: handle) {
-            let scraper = InstagramProfileScraper()
-            let result = await scraper.scrapeProfile(profileURL: profileURL)
+           let handle = InstagramProfileFetcher.identifierFromFeedURL(feed.url),
+           let profileURL = InstagramProfileFetcher.profileURL(for: handle) {
+            let fetcher = InstagramProfileFetcher()
+            let result = await fetcher.fetchProfile(profileURL: profileURL)
             if let imageURLString = result.profileImageURL,
                let imageURL = URL(string: imageURLString),
                let (data, _) = try? await URLSession.shared.data(for: .sakuraImage(url: imageURL)),

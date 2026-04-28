@@ -1,10 +1,10 @@
 import Foundation
 
-extension RedditPostScraper {
+extension RedditPostFetcher {
 
     func performFetch(postID: String) async throws -> RedditPostFetchResult {
         guard let url = Self.jsonURL(for: postID) else {
-            throw RedditPostScraperError.invalidURL
+            throw RedditPostFetcherError.invalidURL
         }
 
         var request = URLRequest(url: url)
@@ -14,12 +14,12 @@ extension RedditPostScraper {
         let (data, response) = try await sendWithRetry(request: request)
 
         if let http = response as? HTTPURLResponse, !(200..<300).contains(http.statusCode) {
-            throw RedditPostScraperError.badResponse
+            throw RedditPostFetcherError.badResponse
         }
 
         let json = try JSONSerialization.jsonObject(with: data)
         guard let listings = json as? [Any] else {
-            throw RedditPostScraperError.parseFailed
+            throw RedditPostFetcherError.parseFailed
         }
 
         return try Self.extractResult(fromListings: listings)

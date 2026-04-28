@@ -47,44 +47,44 @@ extension FeedDiscovery {
         )
     }
 
-    /// Returns a pseudo-feed for an X/Twitter profile URL (routed via XProfileScraper).
+    /// Returns a pseudo-feed for an X/Twitter profile URL (routed via XProfileFetcher).
     func detectXProfileFeed(url: URL) -> DiscoveredFeed? {
-        guard XProfileScraper.isXProfileURL(url),
-              let handle = XProfileScraper.extractHandle(from: url) else {
+        guard XProfileFetcher.isProfileURL(url),
+              let handle = XProfileFetcher.extractIdentifier(from: url) else {
             return nil
         }
 
         return DiscoveredFeed(
             title: "@\(handle)",
-            url: XProfileScraper.feedURL(for: handle),
+            url: XProfileFetcher.feedURL(for: handle),
             siteURL: "https://x.com/\(handle)"
         )
     }
 
-    /// Returns a pseudo-feed for an Instagram profile URL (routed via InstagramProfileScraper).
+    /// Returns a pseudo-feed for an Instagram profile URL (routed via InstagramProfileFetcher).
     func detectInstagramProfileFeed(url: URL) -> DiscoveredFeed? {
-        guard InstagramProfileScraper.isInstagramProfileURL(url),
-              let handle = InstagramProfileScraper.extractHandle(from: url) else {
+        guard InstagramProfileFetcher.isProfileURL(url),
+              let handle = InstagramProfileFetcher.extractIdentifier(from: url) else {
             return nil
         }
 
         return DiscoveredFeed(
             title: "@\(handle)",
-            url: InstagramProfileScraper.feedURL(for: handle),
+            url: InstagramProfileFetcher.feedURL(for: handle),
             siteURL: "https://www.instagram.com/\(handle)/"
         )
     }
 
-    /// Returns a pseudo-feed for a YouTube playlist URL (routed via YouTubePlaylistScraper).
+    /// Returns a pseudo-feed for a YouTube playlist URL (routed via YouTubePlaylistFetcher).
     func detectYouTubePlaylistFeed(url: URL) -> DiscoveredFeed? {
-        guard YouTubePlaylistScraper.isYouTubePlaylistURL(url),
-              let playlistID = YouTubePlaylistScraper.extractPlaylistID(from: url) else {
+        guard YouTubePlaylistFetcher.isProfileURL(url),
+              let playlistID = YouTubePlaylistFetcher.extractIdentifier(from: url) else {
             return nil
         }
 
         return DiscoveredFeed(
             title: "YouTube Playlist",
-            url: YouTubePlaylistScraper.feedURL(for: playlistID),
+            url: YouTubePlaylistFetcher.feedURL(for: playlistID),
             siteURL: "https://www.youtube.com/playlist?list=\(playlistID)"
         )
     }
@@ -197,8 +197,8 @@ extension FeedDiscovery {
 
     /// Constructs a note.com creator profile RSS feed URL.
     func detectNoteFeed(url: URL) async -> DiscoveredFeed? {
-        guard NoteProfileScraper.isNoteProfileURL(url),
-              let handle = NoteProfileScraper.extractHandle(from: url) else {
+        guard NoteProfileFetcher.isProfileURL(url),
+              let handle = NoteProfileFetcher.extractIdentifier(from: url) else {
             return nil
         }
         return await probeFeedAt(domain: "note.com", path: "/\(handle)/rss")

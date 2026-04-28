@@ -1,9 +1,9 @@
 import Foundation
 
 /// Domains that should use the feed display style by default (e.g. social media).
-nonisolated enum DisplayStyleFeedDomains {
+nonisolated enum DisplayStyleFeedDomains: DomainExceptions {
 
-    static let allowlistedDomains: Set<String> = [
+    static let exceptionDomains: Set<String> = [
         "x.com",
         "twitter.com",
         "bsky.app",
@@ -20,7 +20,6 @@ nonisolated enum DisplayStyleFeedDomains {
     ]
 
     static func shouldPreferFeedView(feedDomain: String) -> Bool {
-        let host = feedDomain.lowercased()
-        return allowlistedDomains.contains(where: { host == $0 || host.hasSuffix(".\($0)") })
+        matches(feedDomain: feedDomain)
     }
 }

@@ -1,9 +1,9 @@
 import Foundation
 
 /// Domains whose feed icons should be displayed as circles (also skips trimming).
-nonisolated enum FaviconCircularDomains {
+nonisolated enum FaviconCircularDomains: DomainExceptions {
 
-    static let allowlistedDomains: Set<String> = [
+    static let exceptionDomains: Set<String> = [
         "x.com",
         "twitter.com",
         "instagram.com",
@@ -15,7 +15,6 @@ nonisolated enum FaviconCircularDomains {
     ]
 
     static func shouldUseCircleIcon(feedDomain: String) -> Bool {
-        let host = feedDomain.lowercased()
-        return allowlistedDomains.contains(where: { host == $0 || host.hasSuffix(".\($0)") })
+        matches(feedDomain: feedDomain)
     }
 }

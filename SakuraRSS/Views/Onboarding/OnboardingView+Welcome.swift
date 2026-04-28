@@ -54,7 +54,10 @@ extension OnboardingView {
         .task {
             backupMetadata = await iCloudBackupManager.shared.backupMetadata()
         }
-        .alert(String(localized: "iCloudBackup.RestoreError", table: "DataManagement"), isPresented: $showRestoreError) {
+        .alert(
+            String(localized: "iCloudBackup.RestoreError", table: "DataManagement"),
+            isPresented: $showRestoreError
+        ) {
             Button("Shared.OK") {}
         }
     }

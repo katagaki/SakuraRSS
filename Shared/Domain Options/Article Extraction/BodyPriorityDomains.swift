@@ -1,15 +1,14 @@
 import Foundation
 
 /// Domains where the meaningful text lives in the body while the title is generic; swap them.
-nonisolated enum BodyPriorityDomains {
+nonisolated enum BodyPriorityDomains: DomainExceptions {
 
-    static let allowlistedDomains: Set<String> = [
+    static let exceptionDomains: Set<String> = [
         "data.jma.go.jp"
     ]
 
     static func shouldSwapTitleAndBody(feedDomain: String) -> Bool {
-        let host = feedDomain.lowercased()
-        return allowlistedDomains.contains(where: { host == $0 || host.hasSuffix(".\($0)") })
+        matches(feedDomain: feedDomain)
     }
 
     /// Returns a copy of `article` with title and body swapped when the domain is allowlisted.

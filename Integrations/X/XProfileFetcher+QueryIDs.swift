@@ -3,7 +3,7 @@ import WebKit
 
 // MARK: - Dynamic Query ID Fetching
 
-extension XProfileScraper {
+extension XProfileFetcher {
 
     /// Fetches x.com HTML, finds the main JS bundle, and extracts GraphQL query IDs.
     @MainActor
@@ -11,44 +11,24 @@ extension XProfileScraper {
         guard !queryIDsFetched else { return }
         queryIDsFetched = true
 
-        print("[XProfileScraper:QueryIDs] Starting query ID fetch…")
+        print("[XProfileFetcher:QueryIDs] Starting query ID fetch…")
 
         await warmCookieStore()
 
         let cookies = await getHTTPCookies()
-        print("[XProfileScraper:QueryIDs] Got \(cookies.count) cookies for x.com")
+        print("[XProfileFetcher:QueryIDs] Got \(cookies.count) cookies for x.com")
 
         await fetchQueryIDsFromBundle(cookies: cookies)
 
         if userByScreenNameQueryID == nil || userTweetsQueryID == nil
             || tweetDetailQueryID == nil {
-            print("[XProfileScraper:QueryIDs] WARNING: Not all query IDs extracted. "
+            print("[XProfileFetcher:QueryIDs] WARNING: Not all query IDs extracted. "
                   + "UserByScreenName=\(userByScreenNameQueryID ?? "nil"), "
                   + "UserTweets=\(userTweetsQueryID ?? "nil"), "
                   + "TweetDetail=\(tweetDetailQueryID ?? "nil")")
         } else {
-            print("[XProfileScraper:QueryIDs] All query IDs extracted successfully")
+            print("[XProfileFetcher:QueryIDs] All query IDs extracted successfully")
         }
-    }
-
-    // MARK: - Cookie Warming
-
-    @MainActor
-    static var cookieStoreWarmed = false
-
-    @MainActor
-    static func warmCookieStore() async {
-        guard !cookieStoreWarmed else { return }
-        cookieStoreWarmed = true
-
-        let config = WKWebViewConfiguration()
-        config.websiteDataStore = .default()
-        let webView = WKWebView(frame: .zero, configuration: config)
-        webView.customUserAgent = sakuraUserAgent
-
-        guard let url = URL(string: "https://x.com/settings") else { return }
-        webView.load(URLRequest(url: url, timeoutInterval: 10))
-        try? await Task.sleep(for: .seconds(2))
     }
 
     @MainActor
@@ -77,35 +57,35 @@ extension XProfileScraper {
         do {
             let (data, _) = try await URLSession.shared.data(for: request)
             guard let html = String(data: data, encoding: .utf8) else {
-                print("[XProfileScraper:QueryIDs] ERROR: Could not decode page HTML")
+                print("[XProfileFetcher:QueryIDs] ERROR: Could not decode page HTML")
                 return
             }
             pageHTML = html
-            print("[XProfileScraper:QueryIDs] Fetched x.com HTML (\(html.count) chars)")
+            print("[XProfileFetcher:QueryIDs] Fetched x.com HTML (\(html.count) chars)")
         } catch {
-            print("[XProfileScraper:QueryIDs] ERROR fetching x.com: \(error)")
+            print("[XProfileFetcher:QueryIDs] ERROR fetching x.com: \(error)")
             return
         }
 
         guard let bundleURL = extractMainBundleURL(from: pageHTML) else {
-            print("[XProfileScraper:QueryIDs] ERROR: Could not find main bundle URL in HTML")
-            print("[XProfileScraper:QueryIDs] HTML preview: \(pageHTML.prefix(2000))")
+            print("[XProfileFetcher:QueryIDs] ERROR: Could not find main bundle URL in HTML")
+            print("[XProfileFetcher:QueryIDs] HTML preview: \(pageHTML.prefix(2000))")
             return
         }
 
-        print("[XProfileScraper:QueryIDs] Found main bundle: \(bundleURL)")
+        print("[XProfileFetcher:QueryIDs] Found main bundle: \(bundleURL)")
 
         let bundleText: String
         do {
             let (data, _) = try await URLSession.shared.data(for: .sakura(url: bundleURL))
             guard let text = String(data: data, encoding: .utf8) else {
-                print("[XProfileScraper:QueryIDs] ERROR: Could not decode bundle JS")
+                print("[XProfileFetcher:QueryIDs] ERROR: Could not decode bundle JS")
                 return
             }
             bundleText = text
-            print("[XProfileScraper:QueryIDs] Fetched bundle (\(text.count) chars)")
+            print("[XProfileFetcher:QueryIDs] Fetched bundle (\(text.count) chars)")
         } catch {
-            print("[XProfileScraper:QueryIDs] ERROR fetching bundle: \(error)")
+            print("[XProfileFetcher:QueryIDs] ERROR fetching bundle: \(error)")
             return
         }
 
@@ -142,13 +122,13 @@ extension XProfileScraper {
             switch name {
             case "UserByScreenName" where userByScreenNameQueryID == nil:
                 userByScreenNameQueryID = queryID
-                print("[XProfileScraper:QueryIDs] ✓ UserByScreenName: \(queryID)")
+                print("[XProfileFetcher:QueryIDs] ✓ UserByScreenName: \(queryID)")
             case "UserTweets" where userTweetsQueryID == nil:
                 userTweetsQueryID = queryID
-                print("[XProfileScraper:QueryIDs] ✓ UserTweets: \(queryID)")
+                print("[XProfileFetcher:QueryIDs] ✓ UserTweets: \(queryID)")
             case "TweetDetail" where tweetDetailQueryID == nil:
                 tweetDetailQueryID = queryID
-                print("[XProfileScraper:QueryIDs] ✓ TweetDetail: \(queryID)")
+                print("[XProfileFetcher:QueryIDs] ✓ TweetDetail: \(queryID)")
             default:
                 break
             }

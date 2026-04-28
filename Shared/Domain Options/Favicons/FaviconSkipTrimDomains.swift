@@ -1,12 +1,11 @@
 import Foundation
 
 /// Domains whose favicons should not have blank padding trimmed.
-nonisolated enum FaviconSkipTrimDomains {
+nonisolated enum FaviconSkipTrimDomains: DomainExceptions {
 
-    static let allowlistedDomains: Set<String> = []
+    static let exceptionDomains: Set<String> = []
 
     static func shouldSkipTrimming(feedDomain: String) -> Bool {
-        let host = feedDomain.lowercased()
-        return allowlistedDomains.contains(where: { host == $0 || host.hasSuffix(".\($0)") })
+        matches(feedDomain: feedDomain)
     }
 }

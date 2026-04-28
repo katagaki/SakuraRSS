@@ -8,10 +8,10 @@ extension FeedManager {
         forFeedURL feedURL: String
     ) async -> [String: String] {
         guard let url = URL(string: feedURL),
-              let subreddit = RedditCommunityScraper.extractSubredditName(from: url) else {
+              let subreddit = RedditCommunityFetcher.extractSubredditName(from: url) else {
             return [:]
         }
-        let result = await RedditListingScraper.shared.scrapeListing(subreddit: subreddit)
+        let result = await RedditListingFetcher.shared.fetchListing(subreddit: subreddit)
         return result.imagesByPostID
     }
 
@@ -21,7 +21,7 @@ extension FeedManager {
     ) -> String? {
         guard !map.isEmpty,
               let url = URL(string: articleURL),
-              let postID = RedditPostScraper.postID(from: url) else {
+              let postID = RedditPostFetcher.postID(from: url) else {
             return nil
         }
         return map[postID]

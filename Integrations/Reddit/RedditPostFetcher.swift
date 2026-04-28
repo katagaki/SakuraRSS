@@ -6,14 +6,14 @@ enum RedditPostFetchResult: Sendable {
 }
 
 /// Fetches Reddit posts and translates them into `ContentBlock` marker strings.
-final class RedditPostScraper: @unchecked Sendable {
+final class RedditPostFetcher: @unchecked Sendable {
 
-    static let shared = RedditPostScraper()
+    static let shared = RedditPostFetcher()
 
     private let cacheCapacity = 16
     private var cache: [String: RedditPostFetchResult] = [:]
     private var cacheOrder: [String] = []
-    private let cacheQueue = DispatchQueue(label: "RedditPostScraper.cache")
+    private let cacheQueue = DispatchQueue(label: "RedditPostFetcher.cache")
 
     private init() {}
 
@@ -66,7 +66,7 @@ final class RedditPostScraper: @unchecked Sendable {
     func fetchContent(for article: Article) async throws -> RedditPostFetchResult {
         guard let url = URL(string: article.url),
               let postID = Self.postID(from: url) else {
-            throw RedditPostScraperError.invalidURL
+            throw RedditPostFetcherError.invalidURL
         }
 
         if let cached = cachedResult(for: postID) {
@@ -79,7 +79,7 @@ final class RedditPostScraper: @unchecked Sendable {
     }
 }
 
-enum RedditPostScraperError: Error {
+enum RedditPostFetcherError: Error {
     case invalidURL
     case badResponse
     case rateLimited

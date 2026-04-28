@@ -1,6 +1,6 @@
 import Foundation
 
-extension RedditPostScraper {
+extension RedditPostFetcher {
 
     static func extractResult(fromListings listings: [Any]) throws -> RedditPostFetchResult {
         guard let firstListing = listings.first as? [String: Any],
@@ -8,7 +8,7 @@ extension RedditPostScraper {
               let children = data["children"] as? [[String: Any]],
               let postWrapper = children.first,
               let post = postWrapper["data"] as? [String: Any] else {
-            throw RedditPostScraperError.parseFailed
+            throw RedditPostFetcherError.parseFailed
         }
 
         return extractResult(fromPost: post)

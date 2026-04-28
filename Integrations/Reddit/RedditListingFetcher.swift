@@ -1,15 +1,15 @@
 import Foundation
 
 /// Image URLs for a subreddit's recent posts, keyed by Reddit post ID.
-struct RedditListingScrapeResult: Sendable {
+struct RedditListingFetchResult: Sendable {
     let imagesByPostID: [String: String]
 }
 
 /// Fetches `/r/<sub>/new.json` and extracts a best-available image URL
 /// per post so RSS entries without a usable thumbnail can be filled in.
-final class RedditListingScraper: @unchecked Sendable {
+final class RedditListingFetcher: @unchecked Sendable {
 
-    static let shared = RedditListingScraper()
+    static let shared = RedditListingFetcher()
 
     private init() {}
 
@@ -17,9 +17,9 @@ final class RedditListingScraper: @unchecked Sendable {
         URL(string: "https://www.reddit.com/r/\(subreddit)/new.json?raw_json=1&limit=\(limit)")
     }
 
-    func scrapeListing(subreddit: String) async -> RedditListingScrapeResult {
+    func fetchListing(subreddit: String) async -> RedditListingFetchResult {
         guard let url = Self.listingURL(for: subreddit) else {
-            return RedditListingScrapeResult(imagesByPostID: [:])
+            return RedditListingFetchResult(imagesByPostID: [:])
         }
         return await performFetch(url: url)
     }

@@ -3,7 +3,7 @@ import WebKit
 
 /// Manages Substack session cookies in Keychain and the `substack-feed://` URL scheme that marks
 /// custom-domain Substack feeds detected via the RSS `<generator>` element.
-enum SubstackAuth {
+enum SubstackAuth: Authenticated {
 
     /// Keychain-backed persistent cookie jar.
     nonisolated static let cookieStore = KeychainCookieStore(
@@ -14,43 +14,10 @@ enum SubstackAuth {
     /// `https://example.com/feed` is stored as `substack-feed://example.com/feed`.
     nonisolated static let feedURLScheme = "substack-feed"
 
-    // MARK: - Session
+    // MARK: - Authenticated
 
-    static func hasSession() -> Bool {
-        guard let cookies = cookieStore.load() else { return false }
-        return cookies.contains { cookie in
-            let domain = cookie.domain.lowercased()
-            return domain == "substack.com" || domain.hasSuffix(".substack.com")
-        }
-    }
-
-    /// Clears Substack cookies from Keychain and WKWebsiteDataStore.
-    @MainActor
-    static func clearSession() async {
-        cookieStore.clear()
-
-        let store = WKWebsiteDataStore.default()
-        let cookies = await store.httpCookieStore.allCookies()
-        for cookie in cookies where cookie.domain.lowercased().contains("substack.com") {
-            await store.httpCookieStore.deleteCookie(cookie)
-        }
-    }
-
-    /// Exports Substack cookies from WKWebsiteDataStore to Keychain after login.
-    @MainActor
-    static func syncCookiesFromWebKit() async {
-        let store = WKWebsiteDataStore.default()
-        let allCookies = await store.httpCookieStore.allCookies()
-        let substackCookies = allCookies.filter {
-            $0.domain.lowercased().contains("substack.com")
-        }
-        guard !substackCookies.isEmpty else { return }
-        cookieStore.save(substackCookies)
-
-        #if DEBUG
-        print("[SubstackAuth] Synced \(substackCookies.count) "
-              + "cookies from WebKit → Keychain")
-        #endif
+    nonisolated static func cookieDomainMatches(_ domain: String) -> Bool {
+        domain.contains("substack.com")
     }
 
     /// Renders a `Cookie` header value from stored cookies whose domain matches `host`.

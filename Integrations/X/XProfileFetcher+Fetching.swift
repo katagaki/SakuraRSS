@@ -2,7 +2,7 @@ import Foundation
 
 // MARK: - API Fetching
 
-extension XProfileScraper {
+extension XProfileFetcher {
 
     struct UserInfo {
         let id: String
@@ -15,40 +15,40 @@ extension XProfileScraper {
         let authToken: String
     }
 
-    func performFetch(profileURL: URL) async -> XProfileScrapeResult {
-        guard let handle = Self.extractHandle(from: profileURL) else {
+    func performFetch(profileURL: URL) async -> XProfileFetchResult {
+        guard let handle = Self.extractIdentifier(from: profileURL) else {
             #if DEBUG
-            print("[XProfileScraper] Failed to extract handle from URL: \(profileURL)")
+            print("[XProfileFetcher] Failed to extract handle from URL: \(profileURL)")
             #endif
-            return XProfileScrapeResult(tweets: [], profileImageURL: nil, displayName: nil)
+            return XProfileFetchResult(tweets: [], profileImageURL: nil, displayName: nil)
         }
 
         #if DEBUG
-        print("[XProfileScraper] Fetching profile for handle: \(handle)")
+        print("[XProfileFetcher] Fetching profile for handle: \(handle)")
         #endif
 
         guard let cookies = await Self.getXCookies() else {
             #if DEBUG
-            print("[XProfileScraper] No X session cookies found")
+            print("[XProfileFetcher] No X session cookies found")
             #endif
-            return XProfileScrapeResult(tweets: [], profileImageURL: nil, displayName: nil)
+            return XProfileFetchResult(tweets: [], profileImageURL: nil, displayName: nil)
         }
 
         #if DEBUG
-        print("[XProfileScraper] Got cookies - csrf: \(cookies.csrfToken.prefix(20))…")
+        print("[XProfileFetcher] Got cookies - csrf: \(cookies.csrfToken.prefix(20))…")
         #endif
 
         guard let userInfo = await fetchUserInfo(
             screenName: handle, cookies: cookies
         ) else {
             #if DEBUG
-            print("[XProfileScraper] Failed to fetch user info for \(handle)")
+            print("[XProfileFetcher] Failed to fetch user info for \(handle)")
             #endif
-            return XProfileScrapeResult(tweets: [], profileImageURL: nil, displayName: nil)
+            return XProfileFetchResult(tweets: [], profileImageURL: nil, displayName: nil)
         }
 
         #if DEBUG
-        print("[XProfileScraper] User info - id: \(userInfo.id), "
+        print("[XProfileFetcher] User info - id: \(userInfo.id), "
               + "name: \(userInfo.displayName ?? "nil"), "
               + "avatar: \(userInfo.profileImageURL?.prefix(60) ?? "nil")")
         #endif
@@ -58,13 +58,13 @@ extension XProfileScraper {
         )
 
         #if DEBUG
-        print("[XProfileScraper] Fetched \(tweets.count) tweets total")
+        print("[XProfileFetcher] Fetched \(tweets.count) tweets total")
         #endif
 
-        // Persist any cookies X rotated during the scrape.
+        // Persist any cookies X rotated during the fetch.
         Self.persistRotatedCookies()
 
-        return XProfileScrapeResult(
+        return XProfileFetchResult(
             tweets: tweets,
             profileImageURL: userInfo.profileImageURL,
             displayName: userInfo.displayName
@@ -146,7 +146,7 @@ extension XProfileScraper {
             fieldToggles: fieldToggles
         ) else {
             #if DEBUG
-            print("[XProfileScraper] Failed to build UserByScreenName URL")
+            print("[XProfileFetcher] Failed to build UserByScreenName URL")
             #endif
             return nil
         }
@@ -154,8 +154,8 @@ extension XProfileScraper {
         let request = buildRequest(url: url, cookies: cookies)
 
         #if DEBUG
-        print("[XProfileScraper] UserByScreenName request URL: \(url)")
-        print("[XProfileScraper] Request headers: \(request.allHTTPHeaderFields ?? [:])")
+        print("[XProfileFetcher] UserByScreenName request URL: \(url)")
+        print("[XProfileFetcher] Request headers: \(request.allHTTPHeaderFields ?? [:])")
         #endif
 
         let data: Data
@@ -164,7 +164,7 @@ extension XProfileScraper {
             (data, response) = try await URLSession.shared.data(for: request)
         } catch {
             #if DEBUG
-            print("[XProfileScraper] UserByScreenName network error: \(error)")
+            print("[XProfileFetcher] UserByScreenName network error: \(error)")
             #endif
             return nil
         }
@@ -172,9 +172,9 @@ extension XProfileScraper {
         guard let httpResponse = response as? HTTPURLResponse else { return nil }
 
         #if DEBUG
-        print("[XProfileScraper] UserByScreenName status: \(httpResponse.statusCode)")
+        print("[XProfileFetcher] UserByScreenName status: \(httpResponse.statusCode)")
         if let body = String(data: data, encoding: .utf8) {
-            print("[XProfileScraper] UserByScreenName response: \(body.prefix(1000))")
+            print("[XProfileFetcher] UserByScreenName response: \(body.prefix(1000))")
         }
         #endif
 
@@ -185,7 +185,7 @@ extension XProfileScraper {
               let user = dataObj["user"] as? [String: Any],
               let result = user["result"] as? [String: Any] else {
             #if DEBUG
-            print("[XProfileScraper] Failed to parse UserByScreenName JSON structure")
+            print("[XProfileFetcher] Failed to parse UserByScreenName JSON structure")
             #endif
             return nil
         }
@@ -220,7 +220,7 @@ extension XProfileScraper {
     func fetchSingleTweet(tweetID: String) async -> ParsedTweet? {
         guard let cookies = await Self.getXCookies() else {
             #if DEBUG
-            print("[XProfileScraper] No X session cookies for single tweet fetch")
+            print("[XProfileFetcher] No X session cookies for single tweet fetch")
             #endif
             return nil
         }
@@ -245,7 +245,7 @@ extension XProfileScraper {
                 fieldToggles: ["withArticlePlainText": false]
               ) else {
             #if DEBUG
-            print("[XProfileScraper] Failed to build TweetDetail URL")
+            print("[XProfileFetcher] Failed to build TweetDetail URL")
             #endif
             return nil
         }
@@ -258,7 +258,7 @@ extension XProfileScraper {
             (data, response) = try await URLSession.shared.data(for: request)
         } catch {
             #if DEBUG
-            print("[XProfileScraper] TweetDetail network error: \(error)")
+            print("[XProfileFetcher] TweetDetail network error: \(error)")
             #endif
             return nil
         }
@@ -266,7 +266,7 @@ extension XProfileScraper {
         guard let httpResponse = response as? HTTPURLResponse,
               httpResponse.statusCode == 200 else {
             #if DEBUG
-            print("[XProfileScraper] TweetDetail bad status: "
+            print("[XProfileFetcher] TweetDetail bad status: "
                   + "\((response as? HTTPURLResponse)?.statusCode ?? -1)")
             #endif
             return nil
@@ -309,7 +309,7 @@ extension XProfileScraper {
                 fieldToggles: fieldToggles
             ) else {
                 #if DEBUG
-                print("[XProfileScraper] Failed to build UserTweets URL (page \(page))")
+                print("[XProfileFetcher] Failed to build UserTweets URL (page \(page))")
                 #endif
                 break
             }
@@ -317,7 +317,7 @@ extension XProfileScraper {
             let request = buildRequest(url: url, cookies: cookies)
 
             #if DEBUG
-            print("[XProfileScraper] UserTweets request (page \(page)): \(url)")
+            print("[XProfileFetcher] UserTweets request (page \(page)): \(url)")
             #endif
 
             let data: Data
@@ -326,7 +326,7 @@ extension XProfileScraper {
                 (data, response) = try await URLSession.shared.data(for: request)
             } catch {
                 #if DEBUG
-                print("[XProfileScraper] UserTweets network error (page \(page)): \(error)")
+                print("[XProfileFetcher] UserTweets network error (page \(page)): \(error)")
                 #endif
                 break
             }
@@ -334,10 +334,10 @@ extension XProfileScraper {
             guard let httpResponse = response as? HTTPURLResponse else { break }
 
             #if DEBUG
-            print("[XProfileScraper] UserTweets status (page \(page)): "
+            print("[XProfileFetcher] UserTweets status (page \(page)): "
                   + "\(httpResponse.statusCode)")
             if let body = String(data: data, encoding: .utf8) {
-                print("[XProfileScraper] UserTweets response (page \(page)): "
+                print("[XProfileFetcher] UserTweets response (page \(page)): "
                       + "\(body.prefix(2000))")
             }
             #endif
@@ -346,13 +346,13 @@ extension XProfileScraper {
 
             guard let parsed = Self.parseTweetsResponse(data: data) else {
                 #if DEBUG
-                print("[XProfileScraper] Failed to parse UserTweets response (page \(page))")
+                print("[XProfileFetcher] Failed to parse UserTweets response (page \(page))")
                 #endif
                 break
             }
 
             #if DEBUG
-            print("[XProfileScraper] Parsed \(parsed.tweets.count) tweets from page \(page), "
+            print("[XProfileFetcher] Parsed \(parsed.tweets.count) tweets from page \(page), "
                   + "cursor: \(parsed.bottomCursor?.prefix(30) ?? "nil")")
             #endif
 

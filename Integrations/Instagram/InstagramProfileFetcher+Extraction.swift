@@ -2,16 +2,16 @@ import Foundation
 
 // MARK: - Response Parsing
 
-extension InstagramProfileScraper {
+extension InstagramProfileFetcher {
 
     static func parseProfileResponse(
         data: Data, username: String
-    ) -> InstagramProfileScrapeResult? {
+    ) -> InstagramProfileFetchResult? {
         guard let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
               let dataObj = json["data"] as? [String: Any],
               let user = dataObj["user"] as? [String: Any] else {
             #if DEBUG
-            print("[InstagramProfileScraper] Failed to parse profile JSON structure")
+            print("[InstagramProfileFetcher] Failed to parse profile JSON structure")
             #endif
             return nil
         }
@@ -24,7 +24,7 @@ extension InstagramProfileScraper {
         let mediaKeys = user.keys.filter {
             $0.contains("media") || $0.contains("edge") || $0.contains("timeline")
         }
-        print("[InstagramProfileScraper] User keys containing media/edge/timeline: \(mediaKeys)")
+        print("[InstagramProfileFetcher] User keys containing media/edge/timeline: \(mediaKeys)")
         #endif
 
         var posts: [ParsedInstagramPost] = []
@@ -63,10 +63,10 @@ extension InstagramProfileScraper {
         }
 
         #if DEBUG
-        print("[InstagramProfileScraper] Parsed \(posts.count) posts from profile response")
+        print("[InstagramProfileFetcher] Parsed \(posts.count) posts from profile response")
         #endif
 
-        return InstagramProfileScrapeResult(
+        return InstagramProfileFetchResult(
             posts: posts,
             profileImageURL: profileImageURL,
             displayName: displayName
@@ -229,7 +229,7 @@ extension InstagramProfileScraper {
         guard let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
               let items = json["items"] as? [[String: Any]] else {
             #if DEBUG
-            print("[InstagramProfileScraper] Failed to parse feed JSON structure")
+            print("[InstagramProfileFetcher] Failed to parse feed JSON structure")
             #endif
             return []
         }
@@ -243,7 +243,7 @@ extension InstagramProfileScraper {
         }
 
         #if DEBUG
-        print("[InstagramProfileScraper] Parsed \(posts.count) posts from feed response")
+        print("[InstagramProfileFetcher] Parsed \(posts.count) posts from feed response")
         #endif
 
         return posts

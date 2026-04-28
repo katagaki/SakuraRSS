@@ -50,15 +50,15 @@ extension FeedManager {
         loadFromDatabase()
     }
 
-    /// Installs the scraped title + profile photo on the first refresh
+    /// Installs the fetchd title + profile photo on the first refresh
     /// after add.  No-op once `feed.lastFetched != nil`.
-    func applyScraperMetadataRefresh(
+    func applyFetcherMetadataRefresh(
         feed: Feed,
-        scrapedTitle: String,
+        fetchdTitle: String,
         profileImage: UIImage?
     ) async {
         guard feed.lastFetched == nil else { return }
-        let effectiveTitle = feed.isTitleCustomized ? feed.title : scrapedTitle
+        let effectiveTitle = feed.isTitleCustomized ? feed.title : fetchdTitle
         let shouldInstallProfilePhoto = profileImage != nil && feed.customIconURL == nil
         let database = database
         if shouldInstallProfilePhoto, let image = profileImage {

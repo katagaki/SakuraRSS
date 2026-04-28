@@ -1,9 +1,9 @@
 import Foundation
 
 /// Domains that should use the video feed display style by default.
-nonisolated enum DisplayStyleVideoDomains {
+nonisolated enum DisplayStyleVideoDomains: DomainExceptions {
 
-    static let allowlistedDomains: Set<String> = [
+    static let exceptionDomains: Set<String> = [
         "youtube.com",
         "youtu.be",
         "vimeo.com",
@@ -12,7 +12,6 @@ nonisolated enum DisplayStyleVideoDomains {
     ]
 
     static func shouldPreferVideo(feedDomain: String) -> Bool {
-        let host = feedDomain.lowercased()
-        return allowlistedDomains.contains(where: { host == $0 || host.hasSuffix(".\($0)") })
+        matches(feedDomain: feedDomain)
     }
 }

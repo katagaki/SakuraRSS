@@ -1,12 +1,12 @@
 import Foundation
 
-struct NoteProfileScrapeResult: Sendable {
+struct NoteProfileFetchResult: Sendable {
     let profileImageURL: String?
     let displayName: String?
 }
 
 /// Fetches note.com creator metadata via the public v2 creators API.
-final class NoteProfileScraper {
+final class NoteProfileFetcher: FetchesProfile {
 
     nonisolated static let reservedHandles: Set<String> = [
         "api", "search", "magazine", "magazines", "circle", "login", "signup",
@@ -14,34 +14,45 @@ final class NoteProfileScraper {
         "help", "contest", "timeline", "notes", "n"
     ]
 
-    // MARK: - Static Helpers
+    // MARK: - FetchesProfile
 
-    nonisolated static func isNoteProfileURL(_ url: URL) -> Bool {
+    /// `nil` because note feeds use a real `https://note.com/<handle>/rss` URL,
+    /// not a pseudo-scheme. `isFeedURL`/`identifierFromFeedURL` are overridden below.
+    nonisolated static var feedURLScheme: String? { nil }
+
+    nonisolated static func isProfileURL(_ url: URL) -> Bool {
         guard isNoteHost(url.host) else { return false }
         let components = url.pathComponents.filter { $0 != "/" }
         guard components.count == 1 else { return false }
         return isValidHandle(components[0])
     }
 
-    nonisolated static func isNoteFeedURL(_ urlString: String) -> Bool {
-        guard let url = URL(string: urlString) else { return false }
-        guard isNoteHost(url.host) else { return false }
-        let components = url.pathComponents.filter { $0 != "/" }
-        guard components.count == 2,
-              components.last?.lowercased() == "rss" else { return false }
-        return isValidHandle(components[0])
-    }
-
-    nonisolated static func extractHandle(from url: URL) -> String? {
+    nonisolated static func extractIdentifier(from url: URL) -> String? {
         guard isNoteHost(url.host) else { return nil }
         let components = url.pathComponents.filter { $0 != "/" }
         guard let first = components.first else { return nil }
         return isValidHandle(first) ? first : nil
     }
 
-    nonisolated static func feedURL(for handle: String) -> String {
-        "https://note.com/\(handle)/rss"
+    nonisolated static func feedURL(for identifier: String) -> String {
+        "https://note.com/\(identifier)/rss"
     }
+
+    nonisolated static func isFeedURL(_ url: String) -> Bool {
+        guard let parsed = URL(string: url), isNoteHost(parsed.host) else { return false }
+        let components = parsed.pathComponents.filter { $0 != "/" }
+        guard components.count == 2,
+              components.last?.lowercased() == "rss" else { return false }
+        return isValidHandle(components[0])
+    }
+
+    nonisolated static func identifierFromFeedURL(_ url: String) -> String? {
+        guard isFeedURL(url),
+              let parsed = URL(string: url) else { return nil }
+        return parsed.pathComponents.filter { $0 != "/" }.first
+    }
+
+    // MARK: - Static Helpers
 
     nonisolated static func profileURL(for handle: String) -> URL? {
         URL(string: "https://note.com/\(handle)")
@@ -63,9 +74,9 @@ final class NoteProfileScraper {
 
     // MARK: - Public
 
-    func scrapeProfile(handle: String) async -> NoteProfileScrapeResult {
+    func fetchProfile(handle: String) async -> NoteProfileFetchResult {
         guard let url = Self.creatorAPIURL(for: handle) else {
-            return NoteProfileScrapeResult(profileImageURL: nil, displayName: nil)
+            return NoteProfileFetchResult(profileImageURL: nil, displayName: nil)
         }
         return await performFetch(url: url)
     }

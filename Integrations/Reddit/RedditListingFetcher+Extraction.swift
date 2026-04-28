@@ -1,12 +1,12 @@
 import Foundation
 
-extension RedditListingScraper {
+extension RedditListingFetcher {
 
-    static func extractResult(from json: Any) -> RedditListingScrapeResult {
+    static func extractResult(from json: Any) -> RedditListingFetchResult {
         guard let root = json as? [String: Any],
               let data = root["data"] as? [String: Any],
               let children = data["children"] as? [[String: Any]] else {
-            return RedditListingScrapeResult(imagesByPostID: [:])
+            return RedditListingFetchResult(imagesByPostID: [:])
         }
 
         var map: [String: String] = [:]
@@ -19,7 +19,7 @@ extension RedditListingScraper {
                 map[postID] = imageURL
             }
         }
-        return RedditListingScrapeResult(imagesByPostID: map)
+        return RedditListingFetchResult(imagesByPostID: map)
     }
 
     /// Best still image for a post: preview source, then gallery, then

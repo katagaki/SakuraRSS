@@ -28,12 +28,12 @@ nonisolated struct Article: Identifiable, Hashable, Sendable {
 
     var isXPostURL: Bool {
         guard let parsed = URL(string: url) else { return false }
-        return XProfileScraper.isXPostURL(parsed)
+        return XProfileFetcher.isXPostURL(parsed)
     }
 
     var isInstagramPostURL: Bool {
         guard let parsed = URL(string: url) else { return false }
-        return InstagramProfileScraper.isInstagramPostURL(parsed)
+        return InstagramProfileFetcher.isInstagramPostURL(parsed)
     }
 
     var isPodcastEpisode: Bool {
