@@ -22,36 +22,38 @@ struct ScrollExpandedArticleView: View { // swiftlint:disable:this type_body_len
     @State var extractedPublishedDate: Date?
     @State var extractedLeadImageURL: String?
     @State var extractedPageTitle: String?
-    @State private var translatedText: String?
-    @State private var translatedTitle: String?
-    @State private var translatedSummary: String?
-    @State private var isTranslating = false
-    @State private var translationConfig: TranslationSession.Configuration?
-    @State private var showingTranslation = false
-    @State private var hasCachedTranslation = false
-    @State private var summarizedText: String?
-    @State private var isSummarizing = false
-    @State private var hasCachedSummary = false
-    @State private var showingSummary = false
-    @State private var summarizationError: String?
+    @State var translatedText: String?
+    @State var translatedTitle: String?
+    @State var translatedSummary: String?
+    @State var isTranslating = false
+    @State var translationConfig: TranslationSession.Configuration?
+    @State var showingTranslation = false
+    @State var hasCachedTranslation = false
+    @State var summarizedText: String?
+    @State var isSummarizing = false
+    @State var hasCachedSummary = false
+    @State var showingSummary = false
+    @State var summarizationError: String?
     @State private var scrollOffset: CGFloat = 0
     @State private var maxScrollOffset: CGFloat = 0
     @State private var imageViewerURL: URL?
+    @State private var arXivPDFReference: ArXivPDFReference?
     @Namespace private var imageViewerNamespace
+    @Namespace var glassNamespace
     private static let overscrollThreshold: CGFloat = 80
 
-    private var isAppleIntelligenceAvailable: Bool {
+    var isAppleIntelligenceAvailable: Bool {
         SystemLanguageModel.default.availability == .available
     }
 
-    private var hasTranslationForCurrentMode: Bool {
+    var hasTranslationForCurrentMode: Bool {
         if showingSummary {
             return translatedSummary != nil
         }
         return translatedText != nil || hasCachedTranslation
     }
 
-    private var displayText: String? {
+    var displayText: String? {
         if showingSummary, let summarizedText {
             if showingTranslation, let translatedSummary {
                 return translatedSummary
@@ -62,6 +64,24 @@ struct ScrollExpandedArticleView: View { // swiftlint:disable:this type_body_len
             return translatedText
         }
         return extractedText ?? article.summary
+    }
+
+    var actionButtonsRevision: AnyHashable {
+        AnyHashable([
+            "scroll.article.\(article.id)",
+            "ext:\(isExtracting)",
+            "txt:\(displayText != nil)",
+            "tr:\(isTranslating)",
+            "showTr:\(showingTranslation)",
+            "hasTr:\(hasTranslationForCurrentMode)",
+            "su:\(isSummarizing)",
+            "showSu:\(showingSummary)",
+            "hasSu:\(summarizedText != nil)",
+            "cacheSu:\(hasCachedSummary)",
+            "ai:\(isAppleIntelligenceAvailable)",
+            "arxiv:\(includesArXivAction)",
+            "link:\(includesOpenLinkAction)"
+        ])
     }
 
     private var displayTitle: String {
@@ -75,8 +95,6 @@ struct ScrollExpandedArticleView: View { // swiftlint:disable:this type_body_len
         ScrollView(.vertical, showsIndicators: false) {
             VStack(alignment: .leading, spacing: 14) {
                 headerSection
-
-                actionButtons
 
                 if isExtracting && extractedText == nil {
                     ProgressView()
@@ -108,6 +126,9 @@ struct ScrollExpandedArticleView: View { // swiftlint:disable:this type_body_len
             .padding(.top, 20 + contextInsets.top)
             .padding(.bottom, 40 + contextInsets.bottom)
             .frame(maxWidth: .infinity, alignment: .leading)
+        }
+        .overrideFloatingToolbar(id: actionButtonsRevision, alignment: .center) {
+            sharedActionButtons
         }
         .overlay(alignment: .leading) {
             Color.clear
@@ -143,6 +164,9 @@ struct ScrollExpandedArticleView: View { // swiftlint:disable:this type_body_len
         .navigationDestination(item: $imageViewerURL) { url in
             ImageViewerView(url: url)
                 .navigationTransition(.zoom(sourceID: url, in: imageViewerNamespace))
+        }
+        .navigationDestination(item: $arXivPDFReference) { reference in
+            ArXivPDFViewerView(url: reference.url, title: reference.title)
         }
         .task {
             await extractArticleContent()
@@ -211,50 +235,6 @@ struct ScrollExpandedArticleView: View { // swiftlint:disable:this type_body_len
             Divider()
                 .overlay(.white.opacity(0.2))
         }
-    }
-
-    // MARK: - Action buttons
-
-    private var actionButtons: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 8) {
-                if !isExtracting && displayText != nil {
-                    TranslateButton(
-                        hasTranslation: hasTranslationForCurrentMode,
-                        isTranslating: isTranslating,
-                        showingTranslation: $showingTranslation,
-                        onTranslate: { triggerTranslation() }
-                    )
-                    if isAppleIntelligenceAvailable {
-                        SummarizeButton(
-                            summarizedText: summarizedText,
-                            hasCachedSummary: hasCachedSummary,
-                            isSummarizing: isSummarizing,
-                            showingSummary: $showingSummary,
-                            onSummarize: {
-                                await summarizeArticle()
-                                return summarizedText != nil
-                            }
-                        )
-                    }
-                }
-
-                if article.hasLink {
-                    OpenLinkButton(
-                        title: String(localized: "Article.OpenInBrowser", table: "Articles"),
-                        systemImage: article.isYouTubeURL && YouTubeHelper.isAppInstalled
-                            ? "play.rectangle" : "safari",
-                        action: { onOpenArticleURL() }
-                    )
-                }
-            }
-            .buttonStyle(.bordered)
-            .tint(.white.opacity(0.2))
-            .foregroundStyle(.white)
-            .padding(.horizontal, 20)
-        }
-        .padding(.horizontal, -20)
-        .scrollClipDisabled()
     }
 
     // MARK: - Extraction
@@ -346,6 +326,26 @@ struct ScrollExpandedArticleView: View { // swiftlint:disable:this type_body_len
 }
 
 extension ScrollExpandedArticleView: ExtractsArticle {}
+
+extension ScrollExpandedArticleView: ArticleActions {
+
+    func performTranslate() {
+        triggerTranslation()
+    }
+
+    func performSummarize() async {
+        await summarizeArticle()
+    }
+
+    func performOpenArXivPDF() {
+        guard let pdfURL = ArXivHelper.pdfURL(forArticleURL: article.url) else { return }
+        arXivPDFReference = ArXivPDFReference(url: pdfURL, title: article.title)
+    }
+
+    func performOpenLink() {
+        onOpenArticleURL()
+    }
+}
 
 struct ScrollMetrics: Equatable {
     let offset: CGFloat
