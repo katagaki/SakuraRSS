@@ -25,8 +25,9 @@ struct PaywallBannerView: View {
         }
         .buttonStyle(.plain)
         .glassEffect(
-            .regular.tint(.orange.opacity(colorScheme == .dark ? 0.35 : 0.4)).interactive(),
+            .regular.tint(.orange.opacity(colorScheme == .dark ? 0.35 : 0.85)).interactive(),
             in: .capsule
         )
+        .foregroundStyle(.white)
     }
 }
