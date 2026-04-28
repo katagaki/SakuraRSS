@@ -218,6 +218,11 @@ extension ArticleExtractor {
         "[data-testid=StandardAd]",
         "[data-testid=CompanionAd]",
         "[data-testid=inline-message]",
+        // Forbes
+        "[data-testid=article-badge-and-breadcrumb]",
+        "[data-testid=truncation-inner]",
+        ".dp_VC speakable-headline",
+        "time",
         // Affiliate / FTC disclosures
         ".ad-disclaimer",
         ".ad-disclaimer-container",

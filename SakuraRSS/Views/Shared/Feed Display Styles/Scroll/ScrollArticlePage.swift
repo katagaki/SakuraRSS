@@ -175,7 +175,8 @@ struct ScrollArticlePage: View {
                 shareURL: URL(string: article.url)
             )
         }
-        .padding(.horizontal, 20)
+        .padding(.leading, 20)
+        .padding(.trailing, 12)
         .padding(.bottom, 16 + contextInsets.bottom)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
     }

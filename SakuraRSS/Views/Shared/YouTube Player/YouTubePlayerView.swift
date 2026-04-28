@@ -177,7 +177,7 @@ struct YouTubePlayerView: View {
                         .opacity(isAd ? 0.5 : 1.0)
                     }
                     .foregroundStyle(.primary)
-                    .padding(.top, 16)
+                    .padding(.top, 8)
 
                     if isAd, let advertiserURL {
                         Button {
@@ -208,7 +208,7 @@ struct YouTubePlayerView: View {
                             Spacer(minLength: 0)
                         }
                         .padding(.horizontal)
-                        .padding(.top, 20)
+                        .padding(.top, 8)
                     } else if article.isEphemeral, let fetchedAuthor {
                         HStack(alignment: .top, spacing: 12) {
                             Text(fetchedAuthor)
@@ -216,8 +216,11 @@ struct YouTubePlayerView: View {
                             Spacer(minLength: 0)
                         }
                         .padding(.horizontal)
-                        .padding(.top, 20)
+                        .padding(.top, 8)
                     }
+
+                    Divider()
+                        .padding(.horizontal)
 
                     descriptionActionButtons
 

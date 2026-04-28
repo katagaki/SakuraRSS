@@ -140,6 +140,8 @@ struct ArticleDetailView: View {
             .padding(.horizontal)
             .padding(.top)
 
+            Divider()
+
             actionButtons
 
             VStack(alignment: .leading, spacing: 16) {
