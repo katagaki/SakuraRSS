@@ -40,6 +40,7 @@ struct ArticleDetailView: View {
     @State var arXivPDFReference: ArXivPDFReference?
     @State var imageViewerURL: URL?
     @Namespace private var imageViewerNamespace
+    @Namespace var glassNamespace
     @AppStorage("YouTube.OpenMode") var youTubeOpenMode: YouTubeOpenMode = .inAppPlayer
     @AppStorage("Intelligence.ContentInsights.Enabled") var contentInsightsEnabled: Bool = false
     @State var similarArticles: [SimilarArticleItem] = []
@@ -137,12 +138,10 @@ struct ArticleDetailView: View {
 
             }
             .animation(.smooth.speed(2.0), value: translatedTitle)
-            .padding(.horizontal)
-            .padding(.top)
+            .padding([.horizontal, .top])
 
             Divider()
-
-            actionButtons
+                .padding(.horizontal)
 
             VStack(alignment: .leading, spacing: 16) {
                 if !fullTextHasImages,
@@ -177,7 +176,7 @@ struct ArticleDetailView: View {
             .animation(.smooth.speed(2.0), value: showingSummary)
             .animation(.smooth.speed(2.0), value: showingTranslation)
             .animation(.smooth.speed(2.0), value: translatedText)
-            .padding()
+            .padding([.horizontal, .bottom])
 
             insightsSection
                 .animation(.smooth.speed(2.0), value: similarArticles.count)
@@ -189,11 +188,17 @@ struct ArticleDetailView: View {
             await refreshArticleContent()
         }
         .safeAreaInset(edge: .bottom) {
-            if isPaywalled {
-                PaywallBannerView(articleURL: article.url)
-                    .padding(.horizontal, 20)
-                    .padding(.bottom, 20)
+            GlassEffectContainer(spacing: 8) {
+                if isPaywalled {
+                    PaywallBannerView(articleURL: article.url)
+                        .glassEffectID("paywall", in: glassNamespace)
+                } else {
+                    actionButtons
+                }
             }
+            .animation(.smooth.speed(2.0), value: isPaywalled)
+            .padding(.horizontal, 20)
+            .padding(.bottom, 20)
         }
         .sakuraBackground()
         .navigationBarTitleDisplayMode(.inline)

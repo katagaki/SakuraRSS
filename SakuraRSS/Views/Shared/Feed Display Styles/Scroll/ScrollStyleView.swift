@@ -61,7 +61,7 @@ struct ScrollStyleView: View {
                               currentID == .endOfFeed,
                               oldValue < articles.count else { return }
                         let firstNew = articles[oldValue]
-                        withAnimation(.smooth.speed(1.5)) {
+                        withAnimation(.smooth.speed(2.0)) {
                             currentID = .article(firstNew.id)
                         }
                     }
@@ -98,7 +98,7 @@ struct ScrollStyleView: View {
             podcastArticle = article
             return
         }
-        withAnimation(.smooth.speed(1.5)) {
+        withAnimation(.smooth.speed(2.0)) {
             if expandedArticleID == article.id {
                 expandedArticleID = nil
             } else {
@@ -110,7 +110,7 @@ struct ScrollStyleView: View {
 
     private func advance(from article: Article) {
         guard let idx = articles.firstIndex(where: { $0.id == article.id }) else { return }
-        withAnimation(.smooth.speed(1.5)) {
+        withAnimation(.smooth.speed(2.0)) {
             expandedArticleID = nil
             if idx + 1 < articles.count {
                 currentID = .article(articles[idx + 1].id)

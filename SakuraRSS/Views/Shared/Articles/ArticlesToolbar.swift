@@ -6,15 +6,12 @@ struct ArticlesToolbar: View {
     @State private var isShowingMarkAllReadConfirmation = false
 
     var body: some View {
-        Button {
+        ActionButton(
+            systemImage: "envelope.open",
+            accessibilityLabel: String(localized: "MarkAllRead", table: "Articles")
+        ) {
             isShowingMarkAllReadConfirmation = true
-        } label: {
-            Image(systemName: "envelope.open")
-                .font(.system(size: 18.0))
-                .padding(6)
         }
-        .buttonStyle(.glass)
-        .buttonBorderShape(.circle)
         .padding()
         .popover(isPresented: $isShowingMarkAllReadConfirmation) {
             VStack(spacing: 12) {
