@@ -384,22 +384,24 @@ extension IPadSidebarView {
 
     @ViewBuilder
     var detailContent: some View {
-        if let destination = selectedEphemeralDestination {
-            ArticleDestinationView(
-                article: destination.article,
-                overrideMode: destination.mode,
-                overrideTextMode: destination.textMode
-            )
-            .id(destination.article.url)
-        } else if let article = selectedArticle {
-            ArticleDestinationView(article: article)
-                .id(article.id)
-        } else {
-            ContentUnavailableView {
-                Label(String(localized: "Sidebar.SelectArticle", table: "Feeds"),
-                      systemImage: "doc.text")
-            } description: {
-                Text(String(localized: "Sidebar.SelectArticle.Description", table: "Feeds"))
+        NavigationStack {
+            if let destination = selectedEphemeralDestination {
+                ArticleDestinationView(
+                    article: destination.article,
+                    overrideMode: destination.mode,
+                    overrideTextMode: destination.textMode
+                )
+                .id(destination.article.url)
+            } else if let article = selectedArticle {
+                ArticleDestinationView(article: article)
+                    .id(article.id)
+            } else {
+                ContentUnavailableView {
+                    Label(String(localized: "Sidebar.SelectArticle", table: "Feeds"),
+                          systemImage: "doc.text")
+                } description: {
+                    Text(String(localized: "Sidebar.SelectArticle.Description", table: "Feeds"))
+                }
             }
         }
     }
