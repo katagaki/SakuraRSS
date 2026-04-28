@@ -35,7 +35,7 @@ struct SummarizeButton: View {
                         ? String(localized: "Article.ShowOriginal", table: "Articles")
                         : String(localized: "Article.ShowSummary", table: "Articles"),
                     systemImage: showingSummary
-                        ? "doc.plaintext" : "apple.intelligence"
+                        ? "doc.plaintext" : "text.line.2.summary"
                 )
                 .padding(.horizontal, 2)
                 .padding(.vertical, 2)
@@ -53,7 +53,7 @@ struct SummarizeButton: View {
             } label: {
                 Label(
                     String(localized: "Article.Summarize", table: "Articles"),
-                    systemImage: "apple.intelligence"
+                    systemImage: "text.line.2.summary"
                 )
                 .opacity(isSummarizing ? 0 : 1)
                 .overlay {

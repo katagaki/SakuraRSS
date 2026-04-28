@@ -150,7 +150,7 @@ struct ArticlesView: View {
                     Button {
                         onRestoreSummaries?()
                     } label: {
-                        Image(systemName: "apple.intelligence")
+                        Image(systemName: "text.line.2.summary")
                     }
                 }
             }
