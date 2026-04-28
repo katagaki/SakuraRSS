@@ -22,8 +22,6 @@ struct WebArticleViewerToolbar: ToolbarContent {
             Button(action: onReload) {
                 Image(systemName: "arrow.clockwise")
             }
-        }
-        ToolbarItemGroup(placement: .topBarTrailing) {
             ShareLink(item: url) {
                 Image(systemName: "square.and.arrow.up")
             }

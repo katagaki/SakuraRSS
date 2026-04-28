@@ -14,9 +14,6 @@ extension ArticleDetailView {
                         Image(systemName: isBookmarked ? "bookmark.fill" : "bookmark")
                     }
                 }
-            }
-            ToolbarSpacer(.fixed, placement: .topBarTrailing)
-            ToolbarItemGroup(placement: .topBarTrailing) {
                 if let shareURL = URL(string: article.url) {
                     ShareLink(item: shareURL) {
                         Label(String(localized: "Article.Share", table: "Articles"), systemImage: "square.and.arrow.up")
