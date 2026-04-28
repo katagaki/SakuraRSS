@@ -112,9 +112,9 @@ extension ArticleActions {
     private var summarizeButtonSystemImage: String {
         let hasAvailableSummary = (summarizedText != nil || hasCachedSummary) && !isSummarizing
         if hasAvailableSummary {
-            return showingSummary ? "doc.plaintext" : "text.line.2.summary"
+            return showingSummary ? "doc.plaintext" : "text.line.3.summary"
         }
-        return "text.line.2.summary"
+        return "text.line.3.summary"
     }
 
     private var summarizeButtonAccessibilityLabel: String {
