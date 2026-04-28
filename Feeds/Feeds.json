@@ -328,10 +328,6 @@
                             "feedUrl": "https://newsonjapan.com/rss"
                         },
                         {
-                            "title": "nippon.com",
-                            "feedUrl": "https://www.nippon.com/en/feed"
-                        },
-                        {
                             "title": "読売新聞（The Japan News）",
                             "feedUrl": "https://japannews.yomiuri.co.jp/feed/"
                         },

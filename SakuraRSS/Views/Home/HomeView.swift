@@ -8,6 +8,7 @@ struct HomeView: View {
     @AppStorage("Home.ArticleID") private var savedArticleID: Int = -1
     @AppStorage("YouTube.OpenMode") private var youTubeOpenMode: YouTubeOpenMode = .inAppPlayer
     @Binding var pendingArticleID: Int64?
+    @Binding var pendingOpenRequest: OpenArticleRequest?
     @State private var path = NavigationPath()
     @State private var hasRestored = false
     @State private var showYouTubeSafari = false
@@ -76,6 +77,13 @@ struct HomeView: View {
                         .onAppear { savedArticleID = Int(article.id) }
                         .onDisappear { savedArticleID = -1 }
                 }
+                .navigationDestination(for: EphemeralArticleDestination.self) { destination in
+                    ArticleDestinationView(
+                        article: destination.article,
+                        overrideMode: destination.mode,
+                        overrideTextMode: destination.textMode
+                    )
+                }
                 .navigationDestination(for: EntityDestination.self) { destination in
                     EntityArticlesView(destination: destination)
                         .environment(\.zoomNamespace, cardZoom)
@@ -135,6 +143,42 @@ struct HomeView: View {
                     .ignoresSafeArea()
             }
         }
+        .onChange(of: pendingOpenRequest) {
+            if let request = pendingOpenRequest {
+                handlePendingOpenRequest(request)
+            }
+        }
+        .task {
+            // Cold-launch from the Open Article extension sets the request
+            // before this view mounts, so `onChange` would never fire.
+            if let request = pendingOpenRequest {
+                handlePendingOpenRequest(request)
+            }
+        }
+    }
+
+    private func handlePendingOpenRequest(_ request: OpenArticleRequest) {
+        // Suppress saved-state restoration that would otherwise stomp on our
+        // navigation push when launched cold from the extension.
+        hasRestored = true
+        path = NavigationPath()
+        let article = Article.ephemeral(url: request.url, title: request.url)
+        if article.isYouTubeURL {
+            switch youTubeOpenMode {
+            case .inAppPlayer:
+                path.append(article)
+            case .youTubeApp:
+                YouTubeHelper.openInApp(url: article.url)
+            case .browser:
+                pendingYouTubeSafariURL = URL(string: article.url)
+                showYouTubeSafari = true
+            }
+        } else {
+            path.append(EphemeralArticleDestination(
+                article: article, mode: request.mode, textMode: request.textMode
+            ))
+        }
+        pendingOpenRequest = nil
     }
 
     private func performMarkAllRead() {

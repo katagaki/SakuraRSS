@@ -6,11 +6,13 @@ extension ArticleDetailView {
     var articleToolbar: some ToolbarContent {
         Group {
             ToolbarItemGroup(placement: .topBarTrailing) {
-                Button {
-                    isBookmarked.toggle()
-                    feedManager.toggleBookmark(article)
-                } label: {
-                    Image(systemName: isBookmarked ? "bookmark.fill" : "bookmark")
+                if !article.isEphemeral {
+                    Button {
+                        isBookmarked.toggle()
+                        feedManager.toggleBookmark(article)
+                    } label: {
+                        Image(systemName: isBookmarked ? "bookmark.fill" : "bookmark")
+                    }
                 }
             }
             ToolbarSpacer(.fixed, placement: .topBarTrailing)
@@ -26,7 +28,9 @@ extension ArticleDetailView {
 
     func loadArticleMetadata() async {
         isBookmarked = article.isBookmarked
-        feedManager.markRead(article)
+        if !article.isEphemeral {
+            feedManager.markRead(article)
+        }
         if let feed = feedManager.feed(forArticle: article) {
             feedName = feed.title
             if let data = feed.acronymIcon {
@@ -38,14 +42,16 @@ extension ArticleDetailView {
             favicon = await FaviconCache.shared.favicon(for: feed)
         }
         await extractArticleContent()
-        if let cached = try? DatabaseManager.shared.cachedArticleTranslation(for: article.id) {
+        if !article.isEphemeral,
+           let cached = try? DatabaseManager.shared.cachedArticleTranslation(for: article.id) {
             translatedTitle = cached.title
             translatedText = cached.text
             translatedSummary = cached.summary
             hasCachedTranslation = cached.title != nil || cached.text != nil
             showingTranslation = hasCachedTranslation
         }
-        if let cached = try? DatabaseManager.shared.cachedArticleSummary(for: article.id),
+        if !article.isEphemeral,
+           let cached = try? DatabaseManager.shared.cachedArticleSummary(for: article.id),
            !cached.isEmpty {
             hasCachedSummary = true
         }

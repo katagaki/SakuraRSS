@@ -11,6 +11,8 @@
 		AA000001AABB0003006081EF /* SQLite in Frameworks */ = {isa = PBXBuildFile; productRef = AA000001AABB0004006081EF /* SQLite */; };
 		E41D93392F8AA5C100FB2880 /* WhisperKit in Frameworks */ = {isa = PBXBuildFile; productRef = E41D93382F8AA5C100FB2880 /* WhisperKit */; };
 		E41D98A82F8B3B6E00FB2880 /* FluidAudio in Frameworks */ = {isa = PBXBuildFile; productRef = E41D98A72F8B3B6E00FB2880 /* FluidAudio */; };
+		E45EAA172F9FA36900EA7A54 /* UniformTypeIdentifiers.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E47D10362F54980E006081EF /* UniformTypeIdentifiers.framework */; };
+		E45EAA222F9FA36900EA7A54 /* Open Article.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = E45EAA162F9FA36900EA7A54 /* Open Article.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		E47D102E2F5497AC006081EF /* SQLite in Frameworks */ = {isa = PBXBuildFile; productRef = E47D102D2F5497AC006081EF /* SQLite */; };
 		E47D10372F54980E006081EF /* UniformTypeIdentifiers.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E47D10362F54980E006081EF /* UniformTypeIdentifiers.framework */; };
 		E47D10432F54980E006081EF /* Add Feed.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = E47D10342F54980E006081EF /* Add Feed.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -22,6 +24,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		E45EAA202F9FA36900EA7A54 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = E47D10132F549605006081EF /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = E45EAA152F9FA36900EA7A54;
+			remoteInfo = "Open Article";
+		};
 		E47D10412F54980E006081EF /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = E47D10132F549605006081EF /* Project object */;
@@ -46,6 +55,7 @@
 			dstSubfolderSpec = 13;
 			files = (
 				E47D105C2F549822006081EF /* WidgetsExtension.appex in Embed Foundation Extensions */,
+				E45EAA222F9FA36900EA7A54 /* Open Article.appex in Embed Foundation Extensions */,
 				E47D10432F54980E006081EF /* Add Feed.appex in Embed Foundation Extensions */,
 			);
 			name = "Embed Foundation Extensions";
@@ -54,6 +64,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		E45EAA162F9FA36900EA7A54 /* Open Article.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "Open Article.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
 		E47D101B2F549605006081EF /* Sakura.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Sakura.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E47D10342F54980E006081EF /* Add Feed.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "Add Feed.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
 		E47D10362F54980E006081EF /* UniformTypeIdentifiers.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UniformTypeIdentifiers.framework; path = System/Library/Frameworks/UniformTypeIdentifiers.framework; sourceTree = SDKROOT; };
@@ -167,6 +178,20 @@
 			);
 			target = E47D104C2F549821006081EF /* WidgetsExtension */;
 		};
+		E45EAA232F9FA36900EA7A54 /* Exceptions for "Open Article" folder in "Open Article" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = E45EAA152F9FA36900EA7A54 /* Open Article */;
+		};
+		E45EAA462FA0406300EA7A54 /* Exceptions for "Shared" folder in "Open Article" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Assets.xcassets,
+			);
+			target = E45EAA152F9FA36900EA7A54 /* Open Article */;
+		};
 		E47D10442F54980E006081EF /* Exceptions for "Add Feed" folder in "Add Feed" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
@@ -224,6 +249,14 @@
 			path = Feeds;
 			sourceTree = "<group>";
 		};
+		E45EAA182F9FA36900EA7A54 /* Open Article */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				E45EAA232F9FA36900EA7A54 /* Exceptions for "Open Article" folder in "Open Article" target */,
+			);
+			path = "Open Article";
+			sourceTree = "<group>";
+		};
 		E47D101D2F549605006081EF /* SakuraRSS */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
@@ -236,6 +269,7 @@
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
 				E4F2F02C2F839D74006E0EDA /* Exceptions for "Shared" folder in "Add Feed" target */,
+				E45EAA462FA0406300EA7A54 /* Exceptions for "Shared" folder in "Open Article" target */,
 				E4F2F02D2F839D74006E0EDA /* Exceptions for "Shared" folder in "WidgetsExtension" target */,
 			);
 			path = Shared;
@@ -260,6 +294,14 @@
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		E45EAA132F9FA36900EA7A54 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E45EAA172F9FA36900EA7A54 /* UniformTypeIdentifiers.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		E47D10182F549605006081EF /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -304,6 +346,7 @@
 				E426BC392F93A67E00FF1B20 /* Integrations */,
 				E47D101D2F549605006081EF /* SakuraRSS */,
 				E47D10382F54980E006081EF /* Add Feed */,
+				E45EAA182F9FA36900EA7A54 /* Open Article */,
 				E47D10522F549821006081EF /* Widgets */,
 			);
 			sourceTree = "<group>";
@@ -314,6 +357,7 @@
 				E47D101B2F549605006081EF /* Sakura.app */,
 				E47D10342F54980E006081EF /* Add Feed.appex */,
 				E47D104D2F549821006081EF /* WidgetsExtension.appex */,
+				E45EAA162F9FA36900EA7A54 /* Open Article.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -331,6 +375,28 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		E45EAA152F9FA36900EA7A54 /* Open Article */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = E45EAA242F9FA36900EA7A54 /* Build configuration list for PBXNativeTarget "Open Article" */;
+			buildPhases = (
+				E45EAA122F9FA36900EA7A54 /* Sources */,
+				E45EAA132F9FA36900EA7A54 /* Frameworks */,
+				E45EAA142F9FA36900EA7A54 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				E45EAA182F9FA36900EA7A54 /* Open Article */,
+			);
+			name = "Open Article";
+			packageProductDependencies = (
+			);
+			productName = "Open Article";
+			productReference = E45EAA162F9FA36900EA7A54 /* Open Article.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 		E47D101A2F549605006081EF /* Sakura */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = E47D10262F549606006081EF /* Build configuration list for PBXNativeTarget "Sakura" */;
@@ -346,6 +412,7 @@
 			dependencies = (
 				E47D10422F54980E006081EF /* PBXTargetDependency */,
 				E47D105B2F549822006081EF /* PBXTargetDependency */,
+				E45EAA212F9FA36900EA7A54 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				E426BC392F93A67E00FF1B20 /* Integrations */,
@@ -424,9 +491,12 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 2630;
+				LastSwiftUpdateCheck = 2640;
 				LastUpgradeCheck = 2640;
 				TargetAttributes = {
+					E45EAA152F9FA36900EA7A54 = {
+						CreatedOnToolsVersion = 26.4.1;
+					};
 					E47D101A2F549605006081EF = {
 						CreatedOnToolsVersion = 26.3;
 					};
@@ -469,12 +539,20 @@
 			targets = (
 				E47D101A2F549605006081EF /* Sakura */,
 				E47D10332F54980E006081EF /* Add Feed */,
+				E45EAA152F9FA36900EA7A54 /* Open Article */,
 				E47D104C2F549821006081EF /* WidgetsExtension */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		E45EAA142F9FA36900EA7A54 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		E47D10192F549605006081EF /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -520,6 +598,13 @@
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		E45EAA122F9FA36900EA7A54 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		E47D10172F549605006081EF /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -544,6 +629,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		E45EAA212F9FA36900EA7A54 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = E45EAA152F9FA36900EA7A54 /* Open Article */;
+			targetProxy = E45EAA202F9FA36900EA7A54 /* PBXContainerItemProxy */;
+		};
 		E47D10422F54980E006081EF /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = E47D10332F54980E006081EF /* Add Feed */;
@@ -557,6 +647,66 @@
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
+		E45EAA252F9FA36900EA7A54 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = OpenFeedIcon;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = YYM4Z6MU8F;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Open Article/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "Open in Sakura";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.5;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.tsubuzaki.SakuraRSS.Open-Article";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		E45EAA262F9FA36900EA7A54 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = OpenFeedIcon;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = YYM4Z6MU8F;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Open Article/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "Open in Sakura";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.5;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.tsubuzaki.SakuraRSS.Open-Article";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 		E47D10242F549606006081EF /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -777,7 +927,7 @@
 		E47D10462F54980E006081EF /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = ActionExtensionIcon;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AddFeedIcon;
 				CODE_SIGN_ENTITLEMENTS = Shared/Entitlements.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
@@ -813,7 +963,7 @@
 		E47D10472F54980E006081EF /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = ActionExtensionIcon;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AddFeedIcon;
 				CODE_SIGN_ENTITLEMENTS = Shared/Entitlements.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
@@ -923,6 +1073,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		E45EAA242F9FA36900EA7A54 /* Build configuration list for PBXNativeTarget "Open Article" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E45EAA252F9FA36900EA7A54 /* Debug */,
+				E45EAA262F9FA36900EA7A54 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		E47D10162F549605006081EF /* Build configuration list for PBXProject "SakuraRSS" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

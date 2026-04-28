@@ -2,7 +2,7 @@ import SwiftUI
 
 struct BrowsingSettingsView: View {
 
-    @AppStorage("Articles.BatchingMode") private var batchingMode: BatchingMode = .day1
+    @AppStorage("Articles.BatchingMode") private var batchingMode: BatchingMode = .items25
     @AppStorage("Articles.HideViewedContent") private var hideViewedContent: Bool = false
     @AppStorage("Display.ScrollMarkAsRead") private var scrollMarkAsRead: Bool = false
     @AppStorage(DoomscrollingMode.storageKey) private var doomscrollingMode: Bool = false

@@ -119,6 +119,19 @@ extension FeedManager {
         return (try? database.articleCount(forFeedID: feed.id)) ?? 0
     }
 
+    /// Most recent published date across the given feed IDs (e.g. all feeds
+    /// in a section or list). Used to anchor the initial date-based batch
+    /// window on the freshest content rather than wall-clock time.
+    func latestPublishedDate(forFeedIDs feedIDs: Set<Int64>) -> Date? {
+        _ = dataRevision
+        return try? database.latestPublishedDate(forFeedIDs: feedIDs)
+    }
+
+    func latestPublishedDate() -> Date? {
+        _ = dataRevision
+        return try? database.latestPublishedDate()
+    }
+
     func articles(since date: Date) -> [Article] {
         _ = dataRevision
         var all = (try? database.allArticles(since: date, limit: nil)) ?? []

@@ -6,10 +6,11 @@ struct ListSectionView: View {
 
     let list: FeedList
 
-    @AppStorage("Articles.BatchingMode") private var storedBatchingMode: BatchingMode = .day1
+    @AppStorage("Articles.BatchingMode") private var storedBatchingMode: BatchingMode = .items25
     @AppStorage(DoomscrollingMode.storageKey) private var doomscrollingMode: Bool = false
-    @State private var loadedSinceDate: Date = BatchingMode.current().initialSinceDate()
+    @State private var loadedSinceDate: Date = Date(timeIntervalSince1970: 0)
     @State private var loadedCount: Int = BatchingMode.current().initialCount()
+    @State private var hasInitializedSinceDate = false
     @AppStorage("Display.MarkAllReadPosition") private var markAllReadPosition: MarkAllReadPosition = .bottom
     @AppStorage("Articles.HideViewedContent") private var storedHideViewedContent: Bool = false
     @State private var visibility = ArticleVisibilityTracker()
@@ -132,13 +133,27 @@ struct ListSectionView: View {
         .refreshPromptOverlay(isVisible: visibility.hasPendingRefresh) {
             acceptPendingRefresh()
         }
+        .onAppear {
+            if !hasInitializedSinceDate {
+                loadedSinceDate = batchingMode.initialSinceDate(
+                    latestArticleDate: latestArticleDateForList()
+                )
+                hasInitializedSinceDate = true
+            }
+        }
         .onChange(of: batchingMode) { _, newMode in
-            loadedSinceDate = newMode.initialSinceDate()
+            loadedSinceDate = newMode.initialSinceDate(
+                latestArticleDate: latestArticleDateForList()
+            )
             loadedCount = newMode.initialCount()
             visibility.capture(from: rawArticles, isEnabled: hideViewedContent)
         }
         .onChange(of: doomscrollingMode) { _, _ in
             visibility.capture(from: rawArticles, isEnabled: hideViewedContent)
         }
+    }
+
+    private func latestArticleDateForList() -> Date? {
+        feedManager.latestPublishedDate(forFeedIDs: feedManager.feedIDs(for: list))
     }
 }

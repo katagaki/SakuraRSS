@@ -18,6 +18,7 @@ struct MainTabView: View {
     @AppStorage("Display.UnreadBadgeMode") private var unreadBadgeMode: UnreadBadgeMode = .none
     @Binding var pendingFeedURL: String?
     @Binding var pendingArticleID: Int64?
+    @Binding var pendingOpenRequest: OpenArticleRequest?
     @State private var showingAddFeed = false
     @State private var showingOnboarding = false
     @State private var miniPlayerPresentedArticle: Article?
@@ -28,7 +29,8 @@ struct MainTabView: View {
         if UIDevice.current.userInterfaceIdiom == .pad {
             IPadSidebarView(
                 pendingFeedURL: $pendingFeedURL,
-                pendingArticleID: $pendingArticleID
+                pendingArticleID: $pendingArticleID,
+                pendingOpenRequest: $pendingOpenRequest
             )
         } else {
             iPhoneTabView
@@ -38,7 +40,10 @@ struct MainTabView: View {
     private var tabView: some View {
         TabView(selection: $selectedTab) {
             Tab("Tabs.Home", systemImage: "newspaper", value: .home) {
-                HomeView(pendingArticleID: $pendingArticleID)
+                HomeView(
+                    pendingArticleID: $pendingArticleID,
+                    pendingOpenRequest: $pendingOpenRequest
+                )
             }
             .badge(unreadBadgeMode == .homeScreenAndHomeTab || unreadBadgeMode == .homeTabOnly
                 ? feedManager.totalUnreadCount() : 0)
@@ -98,6 +103,11 @@ struct MainTabView: View {
             }
             .onChange(of: pendingArticleID) {
                 if pendingArticleID != nil {
+                    selectedTab = .home
+                }
+            }
+            .onChange(of: pendingOpenRequest) {
+                if pendingOpenRequest != nil {
                     selectedTab = .home
                 }
             }

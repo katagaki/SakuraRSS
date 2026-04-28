@@ -7,10 +7,11 @@ struct ListRowView: View {
 
     var body: some View {
         HStack(spacing: 12) {
-            Image(systemName: list.icon)
-                .font(.title3)
-                .foregroundStyle(.accent)
-                .frame(width: 32, height: 32)
+            BorderedIcon(
+                systemImage: list.icon,
+                color: .accentColor,
+                iconSizeFactor: 0.45
+            )
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(list.name)
@@ -18,7 +19,7 @@ struct ListRowView: View {
                     .lineLimit(1)
                 let count = feedManager.feedCount(for: list)
                 Text(String(localized: "FeedCount \(count)", table: "Lists"))
-                    .font(.subheadline)
+                    .font(.caption)
                     .foregroundStyle(.secondary)
             }
 

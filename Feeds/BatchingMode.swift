@@ -36,11 +36,19 @@ nonisolated enum BatchingMode: String, CaseIterable, Identifiable, Sendable {
     var isCountBased: Bool { batchSize != nil }
 
     /// Start date for the initial date-based batch (epoch for non-date modes).
-    func initialSinceDate() -> Date {
+    /// Anchors on `latestArticleDate` when provided so feeds whose newest
+    /// post is older than the wall-clock window still surface content;
+    /// falls back to "now" if the latest date is unknown or in the future.
+    func initialSinceDate(latestArticleDate: Date? = nil) -> Date {
         guard let days = chunkDays else { return Date(timeIntervalSince1970: 0) }
-        let startOfToday = Calendar.current.startOfDay(for: Date())
-        return Calendar.current.date(byAdding: .day, value: -(days - 1), to: startOfToday)
-            ?? startOfToday
+        let now = Date()
+        let anchor: Date = {
+            guard let latest = latestArticleDate, latest < now else { return now }
+            return latest
+        }()
+        let startOfAnchorDay = Calendar.current.startOfDay(for: anchor)
+        return Calendar.current.date(byAdding: .day, value: -(days - 1), to: startOfAnchorDay)
+            ?? startOfAnchorDay
     }
 
     func initialCount() -> Int { batchSize ?? 0 }
@@ -51,6 +59,6 @@ nonisolated enum BatchingMode: String, CaseIterable, Identifiable, Sendable {
             return .items25
         }
         let raw = UserDefaults.standard.string(forKey: "Articles.BatchingMode")
-        return raw.flatMap(BatchingMode.init(rawValue:)) ?? .day1
+        return raw.flatMap(BatchingMode.init(rawValue:)) ?? .items25
     }
 }

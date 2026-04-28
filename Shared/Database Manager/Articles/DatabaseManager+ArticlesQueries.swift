@@ -80,6 +80,30 @@ nonisolated extension DatabaseManager {
         return Date(timeIntervalSince1970: timestamp)
     }
 
+    /// Most recent published date across the given feed IDs, or `nil` if none
+    /// have a non-null `publishedDate`. Used to anchor date-based batch
+    /// windows on the freshest content rather than wall-clock time.
+    func latestPublishedDate(forFeedIDs feedIDs: Set<Int64>) throws -> Date? {
+        guard !feedIDs.isEmpty else { return nil }
+        let query = articles
+            .filter(feedIDs.contains(articleFeedID) && articlePublishedDate != nil)
+            .order(articlePublishedDate.desc)
+            .limit(1)
+        guard let row = try database.pluck(query),
+              let timestamp = row[articlePublishedDate] else { return nil }
+        return Date(timeIntervalSince1970: timestamp)
+    }
+
+    func latestPublishedDate() throws -> Date? {
+        let query = articles
+            .filter(articlePublishedDate != nil)
+            .order(articlePublishedDate.desc)
+            .limit(1)
+        guard let row = try database.pluck(query),
+              let timestamp = row[articlePublishedDate] else { return nil }
+        return Date(timeIntervalSince1970: timestamp)
+    }
+
     func earliestArticleDate(before date: Date) throws -> Date? {
         let query = articles
             .filter(articlePublishedDate != nil

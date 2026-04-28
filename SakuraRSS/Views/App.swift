@@ -12,6 +12,7 @@ struct SakuraRSSApp: App {
     @State var feedManager = FeedManager()
     @State var pendingFeedURL: String?
     @State var pendingArticleID: Int64?
+    @State var pendingOpenRequest: OpenArticleRequest?
     @State private var lastForegroundWorkAt: Date?
     @AppStorage("ForceWhileYouSlept") var forceWhileYouSlept: Bool = false
     @AppStorage("ForceTodaysSummary") var forceTodaysSummary: Bool = false
@@ -25,7 +26,11 @@ struct SakuraRSSApp: App {
 
     var body: some Scene {
         WindowGroup {
-            MainTabView(pendingFeedURL: $pendingFeedURL, pendingArticleID: $pendingArticleID)
+            MainTabView(
+                pendingFeedURL: $pendingFeedURL,
+                pendingArticleID: $pendingArticleID,
+                pendingOpenRequest: $pendingOpenRequest
+            )
                 .environment(\.defaultMinListRowHeight, 10.0)
                 .environment(feedManager)
                 .modifier(KeepScreenOnDuringPodcastWork())

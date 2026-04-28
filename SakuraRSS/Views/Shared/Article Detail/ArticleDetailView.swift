@@ -7,6 +7,9 @@ struct ArticleDetailView: View {
     @Environment(FeedManager.self) var feedManager
     @Environment(\.openURL) var openURL
     let article: Article
+    /// When non-nil, forces a specific text-extraction mode for ephemeral
+    /// articles (those opened via `sakura://open`).
+    let ephemeralTextMode: OpenArticleRequest.TextMode?
     @State var favicon: UIImage?
     @State var feedName: String?
     @State var acronymIcon: UIImage?
@@ -17,6 +20,7 @@ struct ArticleDetailView: View {
     @State var extractedAuthor: String?
     @State var extractedPublishedDate: Date?
     @State var extractedLeadImageURL: String?
+    @State var extractedPageTitle: String?
     @State var isPaywalled = false
     @State var translatedText: String?
     @State var translatedTitle: String?
@@ -43,6 +47,14 @@ struct ArticleDetailView: View {
     @State var articleTopics: [String] = []
     @State var articlePeople: [String] = []
     @State var isLoadingInsights: Bool = false
+
+    init(
+        article: Article,
+        ephemeralTextMode: OpenArticleRequest.TextMode? = nil
+    ) {
+        self.article = article
+        self.ephemeralTextMode = ephemeralTextMode
+    }
 
     var isAppleIntelligenceAvailable: Bool {
         SystemLanguageModel.default.availability == .available
@@ -76,49 +88,53 @@ struct ArticleDetailView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
                 SelectableText(
-                    (showingTranslation ? translatedTitle : nil) ?? article.title,
+                    (showingTranslation ? translatedTitle : nil)
+                        ?? (article.isEphemeral ? extractedPageTitle : nil)
+                        ?? article.title,
                     font: .preferredFont(forTextStyle: .title2).bold(),
                     textColor: .label
                 )
                 .id(showingTranslation ? translatedTitle : nil)
                 .transition(.blurReplace)
 
-                HStack(spacing: 12) {
-                    if let favicon = favicon {
-                        FaviconImage(favicon, size: 18, cornerRadius: 3,
-                                     circle: isVideoFeed, skipInset: skipFaviconInset)
-                    } else if let acronymIcon {
-                        FaviconImage(acronymIcon, size: 18, cornerRadius: 3,
-                                     circle: isVideoFeed, skipInset: true)
-                    } else if let feedName {
-                        InitialsAvatarView(feedName, size: 18, circle: isVideoFeed, cornerRadius: 3)
-                    }
+                if !article.isEphemeral {
+                    HStack(spacing: 12) {
+                        if let favicon = favicon {
+                            FaviconImage(favicon, size: 18, cornerRadius: 3,
+                                         circle: isVideoFeed, skipInset: skipFaviconInset)
+                        } else if let acronymIcon {
+                            FaviconImage(acronymIcon, size: 18, cornerRadius: 3,
+                                         circle: isVideoFeed, skipInset: true)
+                        } else if let feedName {
+                            InitialsAvatarView(feedName, size: 18, circle: isVideoFeed, cornerRadius: 3)
+                        }
 
-                    if let feed = feedManager.feed(forArticle: article) {
-                        Text(feed.title)
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                            .lineLimit(1)
-                    }
+                        if let feed = feedManager.feed(forArticle: article) {
+                            Text(feed.title)
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                                .lineLimit(1)
+                        }
 
-                    if let author = article.author ?? extractedAuthor {
-                        Text("·")
-                            .foregroundStyle(.tertiary)
-                        Text(author)
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                            .lineLimit(1)
-                    }
+                        if let author = article.author ?? extractedAuthor {
+                            Text("·")
+                                .foregroundStyle(.tertiary)
+                            Text(author)
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                                .lineLimit(1)
+                        }
 
-                    if let date = article.publishedDate ?? extractedPublishedDate {
-                        Text("·")
-                            .foregroundStyle(.tertiary)
-                        RelativeTimeText(date: date)
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
+                        if let date = article.publishedDate ?? extractedPublishedDate {
+                            Text("·")
+                                .foregroundStyle(.tertiary)
+                            RelativeTimeText(date: date)
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
                     }
+                    .lineLimit(1)
                 }
-                .lineLimit(1)
 
             }
             .animation(.smooth.speed(2.0), value: translatedTitle)

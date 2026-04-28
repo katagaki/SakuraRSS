@@ -3,7 +3,8 @@ import FoundationModels
 
 extension ArticleDetailView {
     func summarizeArticle() async {
-        if let cached = try? DatabaseManager.shared.cachedArticleSummary(for: article.id),
+        if !article.isEphemeral,
+           let cached = try? DatabaseManager.shared.cachedArticleSummary(for: article.id),
            !cached.isEmpty {
             summarizedText = cached
             return
@@ -25,7 +26,9 @@ extension ArticleDetailView {
             let session = LanguageModelSession(instructions: instructions)
             let response = try await session.respond(to: source)
             summarizedText = response.content
-            try? DatabaseManager.shared.cacheArticleSummary(response.content, for: article.id)
+            if !article.isEphemeral {
+                try? DatabaseManager.shared.cacheArticleSummary(response.content, for: article.id)
+            }
         } catch {
             summarizationError = error.localizedDescription
         }
