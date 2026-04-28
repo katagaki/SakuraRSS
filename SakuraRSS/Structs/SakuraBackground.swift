@@ -2,19 +2,26 @@ import SwiftUI
 
 struct SakuraBackground: ViewModifier {
 
+    @AppStorage("Display.SakuraBackground") private var sakuraBackgroundEnabled: Bool = true
+
+    @ViewBuilder
     func body(content: Content) -> some View {
-        content
-            .background {
-                LinearGradient(
-                    colors: [
-                        Color("BackgroundGradientTop"),
-                        Color("BackgroundGradientBottom")
-                    ],
-                    startPoint: .top,
-                    endPoint: .bottom
-                )
-                .ignoresSafeArea()
-            }
+        if sakuraBackgroundEnabled {
+            content
+                .background {
+                    LinearGradient(
+                        colors: [
+                            Color("BackgroundGradientTop"),
+                            Color("BackgroundGradientBottom")
+                        ],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                    .ignoresSafeArea()
+                }
+        } else {
+            content
+        }
     }
 }
 
