@@ -10,7 +10,6 @@ struct FeedArticlesView: View {
     @State private var loadedSinceDate: Date = Date(timeIntervalSince1970: 0)
     @State private var loadedCount: Int = BatchingMode.current().initialCount()
     @State private var hasInitializedSinceDate = false
-    @AppStorage("Display.MarkAllReadPosition") private var markAllReadPosition: MarkAllReadPosition = .bottom
     @AppStorage("Instagram.HideReels") private var hideReels: Bool = false
     @AppStorage("Articles.HideViewedContent") private var storedHideViewedContent: Bool = false
     @State private var visibility = ArticleVisibilityTracker()
@@ -116,9 +115,6 @@ struct FeedArticlesView: View {
         )
         .refreshable {
             await performRefresh()
-        }
-        .markAllReadToolbar(show: markAllReadPosition == .bottom) {
-            feedManager.markAllRead(feed: feed)
         }
         .trackArticleVisibility(
             $visibility,

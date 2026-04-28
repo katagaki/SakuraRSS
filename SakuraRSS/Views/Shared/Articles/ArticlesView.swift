@@ -36,7 +36,7 @@ struct ArticlesView: View {
     @Environment(\.hidesMarkAllReadToolbar) private var hidesMarkAllReadToolbar
     @State private var displayStyle: FeedDisplayStyle
     @State private var isShowingMarkAllReadConfirmation = false
-    @AppStorage("Display.MarkAllReadPosition") private var markAllReadPosition: MarkAllReadPosition = .bottom
+    @AppStorage("Display.MarkAllReadPosition") private var markAllReadPosition: MarkAllReadPosition = .top
     private let viewStyleSwitcherTip = ViewStyleSwitcherTip()
 
     private var hasImages: Bool {

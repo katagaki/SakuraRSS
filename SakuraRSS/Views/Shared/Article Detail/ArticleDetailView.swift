@@ -40,7 +40,6 @@ struct ArticleDetailView: View {
     @State var arXivPDFReference: ArXivPDFReference?
     @State var imageViewerURL: URL?
     @Namespace private var imageViewerNamespace
-    @Namespace var glassNamespace
     @AppStorage("YouTube.OpenMode") var youTubeOpenMode: YouTubeOpenMode = .inAppPlayer
     @AppStorage("Intelligence.ContentInsights.Enabled") var contentInsightsEnabled: Bool = false
     @State var similarArticles: [SimilarArticleItem] = []
@@ -193,24 +192,11 @@ struct ArticleDetailView: View {
             await refreshArticleContent()
         }
         .safeAreaInset(edge: .bottom, spacing: 0) {
-            GlassEffectContainer(spacing: 8) {
-                if isPaywalled {
-                    PaywallBannerView(articleURL: article.url)
-                        .glassEffectID("paywall", in: glassNamespace)
-                } else {
-                    actionButtons
-                }
+            if isPaywalled {
+                PaywallBannerView(articleURL: article.url)
+                    .padding()
+                    .animation(.smooth.speed(2.0), value: isPaywalled)
             }
-            .padding()
-            .animation(.smooth.speed(2.0), value: isPaywalled)
-            .animation(.smooth.speed(2.0), value: isExtracting)
-            .animation(.smooth.speed(2.0), value: extractedText)
-            .animation(.smooth.speed(2.0), value: isTranslating)
-            .animation(.smooth.speed(2.0), value: showingTranslation)
-            .animation(.smooth.speed(2.0), value: isSummarizing)
-            .animation(.smooth.speed(2.0), value: showingSummary)
-            .animation(.smooth.speed(2.0), value: hasCachedSummary)
-            .animation(.smooth.speed(2.0), value: summarizedText)
         }
         .sakuraBackground()
         .navigationBarTitleDisplayMode(.inline)

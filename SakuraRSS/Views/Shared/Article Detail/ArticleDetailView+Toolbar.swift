@@ -4,22 +4,17 @@ import SwiftUI
 extension ArticleDetailView {
 
     var articleToolbar: some ToolbarContent {
-        Group {
-            ToolbarItemGroup(placement: .topBarTrailing) {
-                if !article.isEphemeral {
-                    Button {
-                        isBookmarked.toggle()
-                        feedManager.toggleBookmark(article)
-                    } label: {
-                        Image(systemName: isBookmarked ? "bookmark.fill" : "bookmark")
-                    }
-                }
-                if let shareURL = URL(string: article.url) {
-                    ShareLink(item: shareURL) {
-                        Label(String(localized: "Article.Share", table: "Articles"), systemImage: "square.and.arrow.up")
-                    }
+        ToolbarItemGroup(placement: .topBarTrailing) {
+            articleOpenToolbarItems
+            if !article.isEphemeral {
+                Button {
+                    isBookmarked.toggle()
+                    feedManager.toggleBookmark(article)
+                } label: {
+                    Image(systemName: isBookmarked ? "bookmark.fill" : "bookmark")
                 }
             }
+            articleOverflowMenu
         }
     }
 

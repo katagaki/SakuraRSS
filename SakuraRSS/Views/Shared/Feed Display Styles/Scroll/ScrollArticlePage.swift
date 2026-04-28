@@ -57,8 +57,7 @@ struct ScrollArticlePage: View {
                         contextInsets: contextInsets,
                         headerNamespace: headerNamespace,
                         onTapToCollapse: onTapContent,
-                        onAdvance: onAdvance,
-                        onOpenArticleURL: { openArticleURL() }
+                        onAdvance: onAdvance
                     )
                 } else {
                     compactContentLayer

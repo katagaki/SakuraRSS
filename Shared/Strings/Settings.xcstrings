@@ -2420,238 +2420,61 @@
         }
       }
     },
-    "MarkAllReadPosition": {
+    "ShowMarkAllRead": {
       "extractionState": "manual",
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "\"Alle als gelesen markieren\"-Button"
+            "value": "\"Alle als gelesen markieren\"-Button anzeigen"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Mark All as Read Button"
+            "value": "Show Mark All as Read Button"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bouton Tout marquer comme lu"
+            "value": "Afficher le bouton Tout marquer comme lu"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pulsante Segna tutto come letto"
+            "value": "Mostra pulsante Segna tutto come letto"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "すべて既読にするボタン"
+            "value": "すべて既読にするボタンを表示"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "모두 읽음으로 표시 버튼"
+            "value": "모두 읽음으로 표시 버튼 표시"
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nút Đánh dấu tất cả đã đọc"
+            "value": "Hiển thị nút Đánh dấu tất cả đã đọc"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "全部标为已读按钮"
+            "value": "显示全部标为已读按钮"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "全部標為已讀按鈕"
-          }
-        }
-      }
-    },
-    "MarkAllReadPosition.Bottom": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Unten"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Bottom"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "En bas"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "In basso"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "下部"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "하단"
-          }
-        },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Phía dưới"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "底部"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "底部"
-          }
-        }
-      }
-    },
-    "MarkAllReadPosition.None": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Keine"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "None"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Aucun"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Nessuno"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "非表示"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "없음"
-          }
-        },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Không hiển thị"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "隐藏"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "隱藏"
-          }
-        }
-      }
-    },
-    "MarkAllReadPosition.Top": {
-      "extractionState": "manual",
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Oben"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Top"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "En haut"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "In alto"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "上部"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "상단"
-          }
-        },
-        "vi": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Phía trên"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "顶部"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "頂部"
+            "value": "顯示全部標為已讀按鈕"
           }
         }
       }

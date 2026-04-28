@@ -126,7 +126,6 @@ struct AllArticlesView: View {
     @State private var loadedSinceDate: Date = Date(timeIntervalSince1970: 0)
     @State private var loadedCount: Int = BatchingMode.current().initialCount()
     @State private var hasInitializedSinceDate = false
-    @AppStorage("Display.MarkAllReadPosition") private var markAllReadPosition: MarkAllReadPosition = .bottom
     @AppStorage("WhileYouSlept.DismissedDate") private var whileYouSleptDismissedDate: String = ""
     @AppStorage("TodaysSummary.DismissedDate") private var todaysSummaryDismissedDate: String = ""
     @AppStorage("Instagram.HideReels") private var hideInstagramReels: Bool = false
@@ -441,9 +440,6 @@ struct AllArticlesView: View {
         }
         .refreshable {
             startRefreshWithoutBlocking()
-        }
-        .markAllReadToolbar(show: markAllReadPosition == .bottom) {
-            feedManager.markAllRead()
         }
         .trackArticleVisibility(
             $visibility,

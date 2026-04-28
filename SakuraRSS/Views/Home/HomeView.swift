@@ -12,7 +12,7 @@ struct HomeView: View {
     @State private var path = NavigationPath()
     @State private var hasRestored = false
     @State private var showYouTubeSafari = false
-    @AppStorage("Display.MarkAllReadPosition") private var markAllReadPosition: MarkAllReadPosition = .bottom
+    @AppStorage("Display.MarkAllReadPosition") private var markAllReadPosition: MarkAllReadPosition = .top
     @AppStorage("Home.SelectedSection") private var selectedSelection: HomeSelection = .section(.all)
     @State private var isShowingMarkAllReadConfirmation = false
     @State private var pendingYouTubeSafariURL: URL?

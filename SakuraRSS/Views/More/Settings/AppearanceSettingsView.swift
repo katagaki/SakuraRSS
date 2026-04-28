@@ -6,7 +6,7 @@ struct AppearanceSettingsView: View {
     @Environment(FeedManager.self) var feedManager
     @AppStorage("Display.DefaultStyle") private var defaultDisplayStyle: FeedDisplayStyle = .inbox
     @AppStorage("Search.DisplayStyle") private var searchDisplayStyle: FeedDisplayStyle = .inbox
-    @AppStorage("Display.MarkAllReadPosition") private var markAllReadPosition: MarkAllReadPosition = .bottom
+    @AppStorage("Display.MarkAllReadPosition") private var markAllReadPosition: MarkAllReadPosition = .top
     @AppStorage("Display.UnreadBadgeMode") private var unreadBadgeMode: UnreadBadgeMode = .none
     @AppStorage("Display.ZoomTransition") private var zoomTransitionEnabled: Bool = true
     @AppStorage("Display.SakuraBackground") private var sakuraBackgroundEnabled: Bool = true
@@ -54,16 +54,11 @@ struct AppearanceSettingsView: View {
             }
 
             Section {
-                Picker(selection: $markAllReadPosition) {
-                    Text(String(localized: "MarkAllReadPosition.Bottom", table: "Settings"))
-                        .tag(MarkAllReadPosition.bottom)
-                    Text(String(localized: "MarkAllReadPosition.Top", table: "Settings"))
-                        .tag(MarkAllReadPosition.top)
-                    Text(String(localized: "MarkAllReadPosition.None", table: "Settings"))
-                        .tag(MarkAllReadPosition.none)
-                } label: {
-                    Text(String(localized: "MarkAllReadPosition", table: "Settings"))
-                }
+                Toggle(String(localized: "ShowMarkAllRead", table: "Settings"),
+                       isOn: Binding(
+                            get: { markAllReadPosition == .top },
+                            set: { markAllReadPosition = $0 ? .top : .none }
+                       ))
                 Picker(String(localized: "UnreadBadgeMode", table: "Settings"), selection: $unreadBadgeMode) {
                     if UIDevice.current.userInterfaceIdiom == .pad {
                         Text(String(localized: "UnreadBadgeMode.HomeScreenOnly", table: "Settings"))

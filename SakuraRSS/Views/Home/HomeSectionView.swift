@@ -11,7 +11,6 @@ struct HomeSectionView: View {
     @State private var loadedSinceDate: Date = Date(timeIntervalSince1970: 0)
     @State private var loadedCount: Int = BatchingMode.current().initialCount()
     @State private var hasInitializedSinceDate = false
-    @AppStorage("Display.MarkAllReadPosition") private var markAllReadPosition: MarkAllReadPosition = .bottom
     @AppStorage("Instagram.HideReels") private var hideInstagramReels: Bool = false
     @AppStorage("Articles.HideViewedContent") private var storedHideViewedContent: Bool = false
     @State private var visibility = ArticleVisibilityTracker()
@@ -131,9 +130,6 @@ struct HomeSectionView: View {
         )
         .refreshable {
             startRefreshWithoutBlocking()
-        }
-        .markAllReadToolbar(show: markAllReadPosition == .bottom) {
-            feedManager.markAllRead(for: section)
         }
         .trackArticleVisibility(
             $visibility,

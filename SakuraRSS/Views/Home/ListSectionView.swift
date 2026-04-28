@@ -11,7 +11,6 @@ struct ListSectionView: View {
     @State private var loadedSinceDate: Date = Date(timeIntervalSince1970: 0)
     @State private var loadedCount: Int = BatchingMode.current().initialCount()
     @State private var hasInitializedSinceDate = false
-    @AppStorage("Display.MarkAllReadPosition") private var markAllReadPosition: MarkAllReadPosition = .bottom
     @AppStorage("Articles.HideViewedContent") private var storedHideViewedContent: Bool = false
     @State private var visibility = ArticleVisibilityTracker()
     @State private var scrollToTopTick: Int = 0
@@ -113,9 +112,6 @@ struct ListSectionView: View {
         )
         .refreshable {
             startRefreshWithoutBlocking()
-        }
-        .markAllReadToolbar(show: markAllReadPosition == .bottom) {
-            feedManager.markAllRead(for: list)
         }
         .trackArticleVisibility(
             $visibility,
