@@ -44,6 +44,11 @@ nonisolated extension DatabaseManager {
         try database.run(target.update(feedLastFetched <- date.timeIntervalSince1970))
     }
 
+    func updateFeedURL(id: Int64, url: String) throws {
+        let target = feeds.filter(feedID == id)
+        try database.run(target.update(feedURL <- url))
+    }
+
     func updateFeed(id: Int64, title: String, category: String?) throws {
         let target = feeds.filter(feedID == id)
         try database.run(target.update(

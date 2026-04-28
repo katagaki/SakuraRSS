@@ -9,6 +9,7 @@ nonisolated enum FeedSection: String, CaseIterable, Sendable {
     case note
     case pixelfed
     case reddit
+    case substack
     case vimeo
     case x // swiftlint:disable:this identifier_name
     case youtube
@@ -24,6 +25,7 @@ nonisolated enum FeedSection: String, CaseIterable, Sendable {
         case .note: String(localized: "FeedSection.Note", table: "Feeds")
         case .pixelfed: String(localized: "FeedSection.Pixelfed", table: "Feeds")
         case .reddit: String(localized: "FeedSection.Reddit", table: "Feeds")
+        case .substack: String(localized: "FeedSection.Substack", table: "Feeds")
         case .vimeo: String(localized: "FeedSection.Vimeo", table: "Feeds")
         case .x: String(localized: "FeedSection.X", table: "Feeds")
         case .youtube: String(localized: "FeedSection.YouTube", table: "Feeds")

@@ -457,6 +457,7 @@ extension IPadSidebarView {
         case .podcasts: "headphones"
         case .instagram, .pixelfed: "photo.on.rectangle"
         case .bluesky, .mastodon, .note, .reddit, .x: "person.2"
+        case .substack: "envelope"
         case .vimeo, .youtube, .niconico: "play.rectangle"
         }
     }

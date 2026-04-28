@@ -231,7 +231,7 @@ struct FeedEditSheet: View {
                 hasInitialized = true
                 name = feed.title
                 url = (feed.isXFeed || feed.isInstagramFeed || feed.isYouTubePlaylistFeed)
-                    ? feed.siteURL : feed.url
+                    ? feed.siteURL : feed.fetchURL
                 let existingIconURL = feed.customIconURL
                 iconURLInput = (existingIconURL == "photo" || existingIconURL == "none")
                     ? "" : (existingIconURL ?? "")
@@ -304,6 +304,8 @@ struct FeedEditSheet: View {
         let urlToSave: String
         if feed.isXFeed || feed.isInstagramFeed || feed.isYouTubePlaylistFeed {
             urlToSave = feed.url
+        } else if feed.isSubstackFeed {
+            urlToSave = SubstackAuth.wrap(url)
         } else {
             urlToSave = url
         }

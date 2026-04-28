@@ -85,12 +85,23 @@ extension FeedManager {
         skipImagePreload: Bool,
         runNLP: Bool
     ) async throws {
-        guard let url = URL(string: feed.url) else { return }
+        guard let url = URL(string: feed.fetchURL) else { return }
         let fetchURL = RedirectDomains.redirectedURL(url)
 
-        let (data, _) = try await URLSession.shared.data(for: .sakura(url: fetchURL, timeoutInterval: 5))
+        var request = URLRequest.sakura(url: fetchURL, timeoutInterval: 5)
+        if feed.isSubstackFeed, let host = fetchURL.host,
+           let cookieHeader = SubstackAuth.cookieHeader(for: host) {
+            request.setValue(cookieHeader, forHTTPHeaderField: "Cookie")
+        }
+        let (data, _) = try await URLSession.shared.data(for: request)
         let parser = RSSParser()
         guard let parsed = parser.parse(data: data) else { return }
+
+        if let generator = parsed.generator,
+           generator.lowercased().contains("substack"),
+           !SubstackAuth.isWrappedFeedURL(feed.url) {
+            try? database.updateFeedURL(id: feed.id, url: SubstackAuth.wrap(feed.url))
+        }
 
         let feedDomain = feed.domain
         let preparedArticles = parsed.articles.map { article in

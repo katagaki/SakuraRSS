@@ -17,7 +17,18 @@ nonisolated struct Feed: Identifiable, Hashable, Sendable {
     var isTitleCustomized: Bool
 
     var domain: String {
-        URL(string: siteURL)?.host ?? URL(string: url)?.host ?? ""
+        URL(string: siteURL)?.host ?? URL(string: fetchURL)?.host ?? ""
+    }
+
+    /// The URL to fetch RSS from, with any `substack-feed://` marker stripped.
+    var fetchURL: String {
+        SubstackAuth.unwrap(url)
+    }
+
+    var isSubstackFeed: Bool {
+        if SubstackAuth.isWrappedFeedURL(url) { return true }
+        let host = (URL(string: url)?.host ?? "").lowercased()
+        return host.hasSuffix(".substack.com")
     }
 
     var isVideoFeed: Bool {
@@ -135,6 +146,7 @@ nonisolated struct Feed: Identifiable, Hashable, Sendable {
         if isMastodonFeed { return .mastodon }
         if isRedditFeed { return .reddit }
         if isNoteFeed { return .note }
+        if isSubstackFeed { return .substack }
         return .feeds
     }
 

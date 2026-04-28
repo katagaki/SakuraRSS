@@ -17,6 +17,7 @@ nonisolated final class RSSParser: NSObject, XMLParserDelegate, @unchecked Senda
     private var feedTitle = ""
     private var feedLink = ""
     private var feedDescription = ""
+    private var feedGenerator = ""
 
     private var parsedArticles: [ParsedArticle] = []
     private var isInsideItem = false
@@ -30,6 +31,7 @@ nonisolated final class RSSParser: NSObject, XMLParserDelegate, @unchecked Senda
         parser.delegate = self
         resetState()
         guard parser.parse() else { return nil }
+        let trimmedGenerator = feedGenerator.trimmingCharacters(in: .whitespacesAndNewlines)
         return ParsedFeed(
             title: decodeHTMLEntities(feedTitle.trimmingCharacters(in: .whitespacesAndNewlines)),
             siteURL: feedLink.trimmingCharacters(in: .whitespacesAndNewlines),
@@ -38,7 +40,8 @@ nonisolated final class RSSParser: NSObject, XMLParserDelegate, @unchecked Senda
                 baseURL: URL(string: feedLink.trimmingCharacters(in: .whitespacesAndNewlines))
             ) ?? "",
             articles: parsedArticles,
-            hasITunesNamespace: hasITunesNamespace
+            hasITunesNamespace: hasITunesNamespace,
+            generator: trimmedGenerator.isEmpty ? nil : trimmedGenerator
         )
     }
 
@@ -57,6 +60,7 @@ nonisolated final class RSSParser: NSObject, XMLParserDelegate, @unchecked Senda
         feedTitle = ""
         feedLink = ""
         feedDescription = ""
+        feedGenerator = ""
         parsedArticles = []
         isInsideItem = false
         isInsideImage = false
@@ -177,6 +181,7 @@ nonisolated final class RSSParser: NSObject, XMLParserDelegate, @unchecked Senda
         case "title": feedTitle += string
         case "link": if !isAtom { feedLink += string }
         case "description", "subtitle": feedDescription += string
+        case "generator": feedGenerator += string
         default: break
         }
     }

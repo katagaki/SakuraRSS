@@ -33,6 +33,9 @@ struct IntegrationsSettingsView: View {
                 NavigationLink(String(localized: "Instagram", table: "Integrations")) {
                     InstagramSettingsView()
                 }
+                NavigationLink(String(localized: "Substack", table: "Integrations")) {
+                    SubstackSettingsView()
+                }
                 NavigationLink(String(localized: "X", table: "Integrations")) {
                     XSettingsView()
                 }
