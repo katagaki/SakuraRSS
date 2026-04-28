@@ -17,23 +17,33 @@ struct ArticleVisibilityTracker {
     /// the refresh land with IDs above this (sqlite autoincrement); pre-existing
     /// articles surfaced by load-more sit at or below it.
     private var preRefreshMaxID: Int64 = .max
+    /// Pre-refresh article snapshot, kept so count-based queries don't go empty
+    /// when newly inserted articles push the originals out of the top-N window.
+    private var preRefreshSnapshot: [Article] = []
     private var activeRefreshCount: Int = 0
 
     var hasPendingRefresh: Bool { !pendingIDs.isEmpty }
 
     func filter(_ articles: [Article], isEnabled: Bool) -> [Article] {
         var result = articles
+        // Hide arrivals that land before `endRefresh` moves them to `pendingIDs`.
+        // Pre-existing articles (id <= preRefreshMaxID) pass through so load-more
+        // during a refresh still surfaces older content. The snapshot is unioned
+        // back in so count-based queries (e.g. Doomscroll's items25) don't go
+        // empty when new arrivals take over the top-N.
+        if activeRefreshCount > 0 {
+            let liveIDs = Set(result.map(\.id))
+            for snapshot in preRefreshSnapshot where !liveIDs.contains(snapshot.id) {
+                result.append(snapshot)
+            }
+            result = result.filter { $0.id <= preRefreshMaxID }
+            result.sort { ($0.publishedDate ?? .distantPast) > ($1.publishedDate ?? .distantPast) }
+        }
         if isEnabled, let visibleIDs {
             result = result.filter { visibleIDs.contains($0.id) }
         }
         if !pendingIDs.isEmpty {
             result = result.filter { !pendingIDs.contains($0.id) }
-        }
-        // Hide arrivals that land before `endRefresh` moves them to `pendingIDs`.
-        // Pre-existing articles (id <= preRefreshMaxID) pass through so load-more
-        // during a refresh still surfaces older content.
-        if activeRefreshCount > 0 {
-            result = result.filter { $0.id <= preRefreshMaxID }
         }
         return result
     }
@@ -70,6 +80,7 @@ struct ArticleVisibilityTracker {
     mutating func beginRefresh(from articles: [Article], isEnabled: Bool) {
         if activeRefreshCount == 0 {
             hasReachedEnd = false
+            preRefreshSnapshot = articles
             preRefreshIDs = Set(articles.map(\.id)).union(visibleIDs ?? []).union(pendingIDs)
             preRefreshMaxID = preRefreshIDs.max() ?? .max
             if isEnabled {
@@ -94,6 +105,7 @@ struct ArticleVisibilityTracker {
         if activeRefreshCount == 0 {
             preRefreshIDs = []
             preRefreshMaxID = .max
+            preRefreshSnapshot = []
         }
     }
 
