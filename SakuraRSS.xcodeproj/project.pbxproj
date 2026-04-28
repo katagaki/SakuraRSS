@@ -74,7 +74,7 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		E426BC932F93A67F00FF1B20 /* Exceptions for "Integrations" folder in "Add Feed" target */ = {
+		E426BC932F93A67F00FF1B20 /* Exceptions for "Providers" folder in "Add Feed" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Petal/PetalAutoDetect.swift,
@@ -91,7 +91,7 @@
 			);
 			target = E47D10332F54980E006081EF /* Add Feed */;
 		};
-		E426BC942F93A67F00FF1B20 /* Exceptions for "Integrations" folder in "WidgetsExtension" target */ = {
+		E426BC942F93A67F00FF1B20 /* Exceptions for "Providers" folder in "WidgetsExtension" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Petal/PetalAutoDetect.swift,
@@ -231,13 +231,13 @@
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		E426BC392F93A67E00FF1B20 /* Integrations */ = {
+		E426BC392F93A67E00FF1B20 /* Providers */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				E426BC932F93A67F00FF1B20 /* Exceptions for "Integrations" folder in "Add Feed" target */,
-				E426BC942F93A67F00FF1B20 /* Exceptions for "Integrations" folder in "WidgetsExtension" target */,
+				E426BC932F93A67F00FF1B20 /* Exceptions for "Providers" folder in "Add Feed" target */,
+				E426BC942F93A67F00FF1B20 /* Exceptions for "Providers" folder in "WidgetsExtension" target */,
 			);
-			path = Integrations;
+			path = Providers;
 			sourceTree = "<group>";
 		};
 		E426BCBC2F93A86A00FF1B20 /* Feeds */ = {
@@ -343,7 +343,7 @@
 				E47D101C2F549605006081EF /* Products */,
 				E47D10292F549709006081EF /* Shared */,
 				E426BCBC2F93A86A00FF1B20 /* Feeds */,
-				E426BC392F93A67E00FF1B20 /* Integrations */,
+				E426BC392F93A67E00FF1B20 /* Providers */,
 				E47D101D2F549605006081EF /* SakuraRSS */,
 				E47D10382F54980E006081EF /* Add Feed */,
 				E45EAA182F9FA36900EA7A54 /* Open Article */,
@@ -415,7 +415,7 @@
 				E45EAA212F9FA36900EA7A54 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
-				E426BC392F93A67E00FF1B20 /* Integrations */,
+				E426BC392F93A67E00FF1B20 /* Providers */,
 				E426BCBC2F93A86A00FF1B20 /* Feeds */,
 				E47D101D2F549605006081EF /* SakuraRSS */,
 				E47D10292F549709006081EF /* Shared */,
@@ -445,7 +445,7 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				E426BC392F93A67E00FF1B20 /* Integrations */,
+				E426BC392F93A67E00FF1B20 /* Providers */,
 				E426BCBC2F93A86A00FF1B20 /* Feeds */,
 				E47D10292F549709006081EF /* Shared */,
 				E47D10382F54980E006081EF /* Add Feed */,
@@ -471,7 +471,7 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				E426BC392F93A67E00FF1B20 /* Integrations */,
+				E426BC392F93A67E00FF1B20 /* Providers */,
 				E426BCBC2F93A86A00FF1B20 /* Feeds */,
 				E47D10292F549709006081EF /* Shared */,
 				E47D10522F549821006081EF /* Widgets */,
