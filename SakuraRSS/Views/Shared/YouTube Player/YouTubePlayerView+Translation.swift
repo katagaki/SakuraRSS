@@ -21,9 +21,11 @@ extension YouTubePlayerView {
                 let response = try await session.translate(summarizedText)
                 translatedSummary = response.targetText
                 showingTranslation = true
-                try? DatabaseManager.shared.cacheTranslatedSummary(
-                    response.targetText, for: article.id
-                )
+                if !article.isEphemeral {
+                    try? DatabaseManager.shared.cacheTranslatedSummary(
+                        response.targetText, for: article.id
+                    )
+                }
             } catch {
             }
         } else {
@@ -36,9 +38,11 @@ extension YouTubePlayerView {
                 translatedText = result.text
                 hasCachedTranslation = true
                 showingTranslation = true
-                try? DatabaseManager.shared.cacheArticleTranslation(
-                    title: nil, text: result.text, for: article.id
-                )
+                if !article.isEphemeral {
+                    try? DatabaseManager.shared.cacheArticleTranslation(
+                        title: nil, text: result.text, for: article.id
+                    )
+                }
             } catch {
             }
         }

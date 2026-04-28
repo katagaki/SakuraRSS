@@ -25,6 +25,8 @@ struct YouTubePlayerView: View {
     @State var feed: Feed?
     @State var favicon: UIImage?
     @State var acronymIcon: UIImage?
+    @State var fetchedTitle: String?
+    @State var fetchedAuthor: String?
     @State var chapters: [YouTubeChapter] = []
     @State var wantsPlaybackInBackground = false
     @State var playerID = UUID()
@@ -100,7 +102,10 @@ struct YouTubePlayerView: View {
 
             ScrollView(.vertical) {
                 VStack(spacing: 8) {
-                    WordWrappingText(article.title, font: .preferredFont(forTextStyle: .title2, weight: .bold))
+                    WordWrappingText(
+                        (article.isEphemeral ? fetchedTitle : nil) ?? article.title,
+                        font: .preferredFont(forTextStyle: .title2, weight: .bold)
+                    )
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(.horizontal)
                         .padding(.top, 12)
@@ -198,6 +203,14 @@ struct YouTubePlayerView: View {
                                 }
                             }
 
+                            Spacer(minLength: 0)
+                        }
+                        .padding(.horizontal)
+                        .padding(.top, 20)
+                    } else if article.isEphemeral, let fetchedAuthor {
+                        HStack(alignment: .top, spacing: 12) {
+                            Text(fetchedAuthor)
+                                .font(.subheadline.bold())
                             Spacer(minLength: 0)
                         }
                         .padding(.horizontal)
@@ -320,6 +333,10 @@ struct YouTubePlayerView: View {
                 favicon = await FaviconCache.shared.favicon(for: loadedFeed)
             }
 
+            if article.isEphemeral {
+                await fetchYouTubeOEmbed()
+            }
+
             if sponsorBlockEnabled,
                let videoID = SponsorBlockClient.extractVideoID(from: article.url) {
                 let categories = sponsorBlockCategories
@@ -330,11 +347,13 @@ struct YouTubePlayerView: View {
                 )
             }
 
-            if let cached = try? DatabaseManager.shared.cachedArticleTranslation(for: article.id) {
+            if !article.isEphemeral,
+               let cached = try? DatabaseManager.shared.cachedArticleTranslation(for: article.id) {
                 if cached.text != nil { hasCachedTranslation = true }
                 translatedText = cached.text
             }
-            if let cached = try? DatabaseManager.shared.cachedArticleSummary(for: article.id),
+            if !article.isEphemeral,
+               let cached = try? DatabaseManager.shared.cachedArticleSummary(for: article.id),
                !cached.isEmpty {
                 hasCachedSummary = true
             }

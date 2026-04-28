@@ -39,7 +39,7 @@ extension ArticleDetailView {
                     )
                 }
 
-                if article.hasLink {
+                if article.hasLink && !article.isEphemeral {
                     OpenLinkButton(
                         title: String(localized: "Article.OpenInBrowser", table: "Articles"),
                         systemImage: article.isYouTubeURL && YouTubeHelper.isAppInstalled

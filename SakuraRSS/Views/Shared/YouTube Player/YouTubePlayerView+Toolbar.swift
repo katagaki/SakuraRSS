@@ -11,15 +11,17 @@ extension YouTubePlayerView {
             }
             ToolbarSpacer(.fixed, placement: .topBarTrailing)
         }
-        ToolbarItemGroup(placement: .topBarTrailing) {
-            Button {
-                isBookmarked.toggle()
-                feedManager.toggleBookmark(article)
-            } label: {
-                Image(systemName: isBookmarked ? "bookmark.fill" : "bookmark")
+        if !article.isEphemeral {
+            ToolbarItemGroup(placement: .topBarTrailing) {
+                Button {
+                    isBookmarked.toggle()
+                    feedManager.toggleBookmark(article)
+                } label: {
+                    Image(systemName: isBookmarked ? "bookmark.fill" : "bookmark")
+                }
             }
+            ToolbarSpacer(.fixed, placement: .topBarTrailing)
         }
-        ToolbarSpacer(.fixed, placement: .topBarTrailing)
         ToolbarItemGroup(placement: .topBarTrailing) {
             if let shareURL = URL(string: article.url) {
                 ShareLink(item: shareURL) {

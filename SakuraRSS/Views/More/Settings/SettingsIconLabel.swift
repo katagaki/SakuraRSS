@@ -18,11 +18,10 @@ struct SettingsIconLabel: View {
         Label {
             Text(title)
         } icon: {
-            Image(systemName: systemImage)
-                .font(.system(size: size * 0.42, weight: .semibold))
-                .foregroundStyle(.white)
-                .frame(width: size, height: size)
-                .background(color.gradient, in: RoundedRectangle(cornerRadius: size * 0.28))
+            BorderedIcon(
+                systemImage: systemImage,
+                color: color
+            )
         }
     }
 }

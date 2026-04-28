@@ -8,6 +8,8 @@ struct XEmbedBlockView: View {
     @State private var tweet: ParsedTweet?
     @State private var isLoading = false
     @State private var loadFailed = false
+    @State private var imageAspectRatio: CGFloat?
+    @State private var imageSize: CGSize?
 
     private var tweetID: String? {
         XProfileScraper.extractTweetID(from: url)
@@ -42,13 +44,17 @@ struct XEmbedBlockView: View {
                     .textSelection(.enabled)
 
                 if let imageURL = tweet.imageURL, let url = URL(string: imageURL) {
-                    CachedAsyncImage(url: url) {
+                    CachedAsyncImage(url: url, onImageLoaded: { image in
+                        imageAspectRatio = image.size.width / image.size.height
+                        imageSize = image.size
+                    }, placeholder: {
                         Rectangle()
                             .fill(.secondary.opacity(0.1))
-                            .frame(height: 160)
-                    }
-                    .aspectRatio(contentMode: .fit)
+                    })
+                    .aspectRatio(imageAspectRatio ?? (16.0 / 9.0), contentMode: .fit)
+                    .frame(maxWidth: imageSize?.width)
                     .clipShape(RoundedRectangle(cornerRadius: 8))
+                    .frame(maxWidth: .infinity, alignment: .center)
                 }
             } else if isLoading {
                 HStack(spacing: 8) {

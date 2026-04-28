@@ -121,10 +121,11 @@ struct AllArticlesView: View {
     @Environment(FeedManager.self) var feedManager
 
     @AppStorage("Home.SelectedSection") private var selectedSelection: HomeSelection = .section(.all)
-    @AppStorage("Articles.BatchingMode") private var storedBatchingMode: BatchingMode = .day1
+    @AppStorage("Articles.BatchingMode") private var storedBatchingMode: BatchingMode = .items25
     @AppStorage(DoomscrollingMode.storageKey) private var doomscrollingMode: Bool = false
-    @State private var loadedSinceDate: Date = BatchingMode.current().initialSinceDate()
+    @State private var loadedSinceDate: Date = Date(timeIntervalSince1970: 0)
     @State private var loadedCount: Int = BatchingMode.current().initialCount()
+    @State private var hasInitializedSinceDate = false
     @AppStorage("Display.MarkAllReadPosition") private var markAllReadPosition: MarkAllReadPosition = .bottom
     @AppStorage("WhileYouSlept.DismissedDate") private var whileYouSleptDismissedDate: String = ""
     @AppStorage("TodaysSummary.DismissedDate") private var todaysSummaryDismissedDate: String = ""
@@ -268,7 +269,7 @@ struct AllArticlesView: View {
                 sectionButton(for: section)
             }
 
-            if !primarySections.isEmpty || !socialAndVideoSections.isEmpty {
+            if !primarySections.isEmpty || !socialSections.isEmpty || !videoSections.isEmpty {
                 Divider()
             }
 
@@ -276,15 +277,28 @@ struct AllArticlesView: View {
                 sectionButton(for: section)
             }
 
-            if !socialAndVideoSections.isEmpty {
+            if !socialSections.isEmpty {
                 Menu {
-                    ForEach(socialAndVideoSections) { section in
+                    ForEach(socialSections) { section in
                         sectionButton(for: section)
                     }
                 } label: {
                     Label(
-                        String(localized: "FeedSection.SocialAndVideo", table: "Feeds"),
+                        String(localized: "FeedSection.Social", table: "Feeds"),
                         systemImage: "person.2"
+                    )
+                }
+            }
+
+            if !videoSections.isEmpty {
+                Menu {
+                    ForEach(videoSections) { section in
+                        sectionButton(for: section)
+                    }
+                } label: {
+                    Label(
+                        String(localized: "FeedSection.Video", table: "Feeds"),
+                        systemImage: "play.rectangle"
                     )
                 }
             }
@@ -308,14 +322,31 @@ struct AllArticlesView: View {
         .onChange(of: feedManager.lists) {
             validateSelection()
         }
+        .onAppear {
+            if !hasInitializedSinceDate {
+                loadedSinceDate = batchingMode.initialSinceDate(
+                    latestArticleDate: latestArticleDateAcrossFeeds()
+                )
+                hasInitializedSinceDate = true
+            }
+        }
         .onChange(of: batchingMode) { _, newMode in
-            loadedSinceDate = newMode.initialSinceDate()
+            loadedSinceDate = newMode.initialSinceDate(
+                latestArticleDate: latestArticleDateAcrossFeeds()
+            )
             loadedCount = newMode.initialCount()
             visibility.capture(from: rawArticles, isEnabled: hideViewedContent)
         }
         .onChange(of: doomscrollingMode) { _, _ in
             visibility.capture(from: rawArticles, isEnabled: hideViewedContent)
         }
+    }
+
+    /// Most recent published date across all feeds, used to anchor the date
+    /// window so the home tab shows the freshest content even when no feed
+    /// has posted within the wall-clock window.
+    private func latestArticleDateAcrossFeeds() -> Date? {
+        feedManager.latestPublishedDate()
     }
 
     private func validateSelection() {
@@ -346,8 +377,17 @@ struct AllArticlesView: View {
         availableSections.filter { $0 == .feeds || $0 == .podcasts }
     }
 
-    private var socialAndVideoSections: [HomeSection] {
-        availableSections.filter { $0 != .all && $0 != .feeds && $0 != .podcasts }
+    private static let videoSectionSet: Set<HomeSection> = [.youtube, .vimeo, .niconico]
+
+    private var socialSections: [HomeSection] {
+        availableSections.filter {
+            $0 != .all && $0 != .feeds && $0 != .podcasts
+                && !Self.videoSectionSet.contains($0)
+        }
+    }
+
+    private var videoSections: [HomeSection] {
+        availableSections.filter { Self.videoSectionSet.contains($0) }
     }
 
     @ViewBuilder

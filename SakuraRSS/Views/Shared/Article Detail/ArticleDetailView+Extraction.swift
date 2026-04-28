@@ -1,8 +1,42 @@
 import SwiftUI
+import SwiftSoup
 
 extension ArticleDetailView {
 
+    /// Persists extracted content unless the article is ephemeral (opened
+    /// from `sakura://open`), in which case nothing is cached.
+    private func persistCachedContent(_ content: String) {
+        guard !article.isEphemeral else { return }
+        try? DatabaseManager.shared.cacheArticleContent(content, for: article.id)
+    }
+
+    /// Fetches just the page title (`og:title` / `<title>`) for ephemeral
+    /// articles so the URL placeholder is replaced quickly even when body
+    /// extraction takes the JS-rendered or paywalled path.
+    private func fetchEphemeralPageTitle(from url: URL) async {
+        let (html, _) = await fetchHTML(from: url)
+        guard let html, !html.isEmpty,
+              let doc = try? SwiftSoup.parse(html),
+              let pageTitle = ArticleExtractor.pageTitleFromDocument(doc) else { return }
+        if extractedPageTitle == nil {
+            extractedPageTitle = pageTitle
+        }
+    }
+
+    /// Reads cached content unless the article is ephemeral.
+    private func readCachedContent() -> String? {
+        guard !article.isEphemeral else { return nil }
+        return try? DatabaseManager.shared.cachedArticleContent(for: article.id)
+    }
+
     private var articleSource: ArticleSource {
+        if let ephemeralTextMode {
+            switch ephemeralTextMode {
+            case .auto: return .automatic
+            case .fetch: return .fetchText
+            case .extract: return .extractText
+            }
+        }
         let raw = UserDefaults.standard.string(forKey: "articleSource-\(article.feedID)")
         return raw.flatMap(ArticleSource.init(rawValue:)) ?? .automatic
     }
@@ -14,14 +48,23 @@ extension ArticleDetailView {
         extractedAuthor = nil
         extractedPublishedDate = nil
         extractedLeadImageURL = nil
+        extractedPageTitle = nil
         defer { isExtracting = false }
+
+        // Resolve the page title eagerly for ephemeral articles so it shows
+        // even when the body extraction takes the JS-rendered or paywalled
+        // path that skips metadata extraction.
+        if article.isEphemeral, let url = URL(string: article.url) {
+            Task { @MainActor in
+                await fetchEphemeralPageTitle(from: url)
+            }
+        }
 
         #if DEBUG
         debugPrint("Extracting article content: \(article.url)")
         #endif
 
-        if let cached = try? DatabaseManager.shared.cachedArticleContent(for: article.id),
-           !cached.isEmpty {
+        if let cached = readCachedContent(), !cached.isEmpty {
             extractedText = cached
             #if DEBUG
             debugPrint("[Extract] Cache hit (\(cached.count) chars): \(article.url)")
@@ -50,9 +93,7 @@ extension ArticleDetailView {
                 case .markerString(let markerString):
                     if !markerString.isEmpty {
                         extractedText = markerString
-                        try? DatabaseManager.shared.cacheArticleContent(
-                            markerString, for: article.id
-                        )
+                        persistCachedContent(markerString)
                         return
                     }
                 case .linkedArticle(let linkedURL):
@@ -75,7 +116,7 @@ extension ArticleDetailView {
                                                         excludeTitle: articleTitle)
                 extractedText = text
                 if let text, !text.isEmpty {
-                    try? DatabaseManager.shared.cacheArticleContent(text, for: article.id)
+                    persistCachedContent(text)
                 }
             }
             return
@@ -83,10 +124,21 @@ extension ArticleDetailView {
         case .fetchText:
             if let initialURL = URL(string: article.url) {
                 let url = await ArticleExtractor.resolveOneCushionedURL(initialURL)
-                let text = await fetchText(from: url, excludeTitle: articleTitle)
-                extractedText = text
-                if let text, !text.isEmpty {
-                    try? DatabaseManager.shared.cacheArticleContent(text, for: article.id)
+                let (html, _) = await fetchHTML(from: url)
+                if let html {
+                    let text = ArticleExtractor.extractText(
+                        fromHTML: html, baseURL: url, excludeTitle: articleTitle
+                    )
+                    extractedText = text
+                    if article.isEphemeral {
+                        let result = ArticleExtractor.extractArticle(
+                            fromHTML: html, baseURL: url, excludeTitle: articleTitle
+                        )
+                        applyMetadata(result.metadata)
+                    }
+                    if let text, !text.isEmpty {
+                        persistCachedContent(text)
+                    }
                 }
             }
             return
@@ -97,7 +149,16 @@ extension ArticleDetailView {
                 let text = await extractViaWebView(from: url, excludeTitle: articleTitle)
                 extractedText = text
                 if let text, !text.isEmpty {
-                    try? DatabaseManager.shared.cacheArticleContent(text, for: article.id)
+                    persistCachedContent(text)
+                }
+                if article.isEphemeral, extractedPageTitle == nil {
+                    let (html, _) = await fetchHTML(from: url)
+                    if let html {
+                        let result = ArticleExtractor.extractArticle(
+                            fromHTML: html, baseURL: url, excludeTitle: articleTitle
+                        )
+                        applyMetadata(result.metadata)
+                    }
                 }
             }
             return
@@ -110,7 +171,7 @@ extension ArticleDetailView {
         if let url = URL(string: article.url), ArXivHelper.isArXivAbstractURL(url) {
             if let summary = article.summary, !summary.isEmpty {
                 extractedText = summary
-                try? DatabaseManager.shared.cacheArticleContent(summary, for: article.id)
+                persistCachedContent(summary)
             }
             return
         }
@@ -129,7 +190,7 @@ extension ArticleDetailView {
                 }
                 extractedText = text
                 if !text.isEmpty {
-                    try? DatabaseManager.shared.cacheArticleContent(text, for: article.id)
+                    persistCachedContent(text)
                 }
                 return
             }
@@ -142,7 +203,7 @@ extension ArticleDetailView {
             let text = await extractViaWebView(from: url, excludeTitle: articleTitle)
             extractedText = text
             if let text, !text.isEmpty {
-                try? DatabaseManager.shared.cacheArticleContent(text, for: article.id)
+                persistCachedContent(text)
             }
             return
         }
@@ -167,7 +228,7 @@ extension ArticleDetailView {
                 #endif
                 if looksWellStructured {
                     extractedText = text
-                    try? DatabaseManager.shared.cacheArticleContent(text, for: article.id)
+                    persistCachedContent(text)
                     return
                 }
             }
@@ -265,7 +326,7 @@ extension ArticleDetailView {
             isPaywalled = result.paywalled
             extractedText = result.text
             if !result.paywalled, let text = result.text, !text.isEmpty {
-                try? DatabaseManager.shared.cacheArticleContent(text, for: article.id)
+                persistCachedContent(text)
             }
         }
     }
@@ -280,6 +341,9 @@ extension ArticleDetailView {
         }
         if article.imageURL == nil, let lead = metadata.leadImageURL {
             extractedLeadImageURL = lead
+        }
+        if let pageTitle = metadata.pageTitle {
+            extractedPageTitle = pageTitle
         }
     }
 
@@ -354,7 +418,7 @@ extension ArticleDetailView {
             let prevParagraphs = previousText.components(separatedBy: "\n\n").count
             if prevParagraphs > 1 || previousText.count < 500 {
                 extractedText = previousText
-                try? DatabaseManager.shared.cacheArticleContent(previousText, for: article.id)
+                persistCachedContent(previousText)
             }
         }
     }

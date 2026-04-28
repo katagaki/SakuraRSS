@@ -32,7 +32,7 @@ extension YouTubePlayerView {
                         action: { UIApplication.shared.open(youtubeAppURL) }
                     )
                 }
-                if article.hasLink {
+                if article.hasLink && !article.isEphemeral {
                     OpenLinkButton(
                         title: String(localized: "YouTube.OpenInBrowser", table: "Integrations"),
                         systemImage: "safari",

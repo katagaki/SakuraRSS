@@ -27,7 +27,31 @@ extension ArticleExtractor {
             metadata.publishedDate = date
         }
 
+        metadata.pageTitle = pageTitleFromDocument(doc)
+
         return metadata
+    }
+
+    /// Pulls a human-readable page title, preferring `og:title` over the raw
+    /// `<title>` element so we sidestep "Site Name | Article Title" cruft.
+    static func pageTitleFromDocument(_ doc: Document) -> String? {
+        let metaSelectors = [
+            "meta[property=og:title]",
+            "meta[name=twitter:title]",
+            "meta[name=title]"
+        ]
+        for selector in metaSelectors {
+            if let element = try? doc.select(selector).first(),
+               let value = try? element.attr("content") {
+                let trimmed = value.trimmingCharacters(in: .whitespacesAndNewlines)
+                if !trimmed.isEmpty { return trimmed }
+            }
+        }
+        if let title = try? doc.title() {
+            let trimmed = title.trimmingCharacters(in: .whitespacesAndNewlines)
+            if !trimmed.isEmpty { return trimmed }
+        }
+        return nil
     }
 
     // MARK: - JSON-LD

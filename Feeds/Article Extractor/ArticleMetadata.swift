@@ -6,4 +6,5 @@ nonisolated struct ArticleMetadata {
     var author: String?
     var publishedDate: Date?
     var leadImageURL: String?
+    var pageTitle: String?
 }

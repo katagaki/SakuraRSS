@@ -10,6 +10,10 @@ extension SakuraRSSApp {
                    let articleID = Int64(idString) {
                     pendingArticleID = articleID
                 }
+            case "open":
+                if let request = OpenArticleRequest(url: url) {
+                    pendingOpenRequest = request
+                }
             case "justwokeup":
                 forceWhileYouSlept = true
                 UserDefaults.standard.removeObject(forKey: "WhileYouSlept.DismissedDate")

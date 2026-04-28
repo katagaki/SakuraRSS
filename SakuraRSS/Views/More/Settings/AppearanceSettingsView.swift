@@ -5,12 +5,22 @@ struct AppearanceSettingsView: View {
 
     @Environment(FeedManager.self) var feedManager
     @AppStorage("Display.DefaultStyle") private var defaultDisplayStyle: FeedDisplayStyle = .inbox
+    @AppStorage("Search.DisplayStyle") private var searchDisplayStyle: FeedDisplayStyle = .inbox
     @AppStorage("Display.MarkAllReadPosition") private var markAllReadPosition: MarkAllReadPosition = .bottom
     @AppStorage("Display.UnreadBadgeMode") private var unreadBadgeMode: UnreadBadgeMode = .none
     @AppStorage("Display.ZoomTransition") private var zoomTransitionEnabled: Bool = true
+    @AppStorage("Display.SakuraBackground") private var sakuraBackgroundEnabled: Bool = true
 
     var body: some View {
         List {
+            Section {
+                Toggle(String(localized: "SakuraBackground", table: "Settings"),
+                       isOn: $sakuraBackgroundEnabled)
+                .tint(.accent)
+            } header: {
+                Text(String(localized: "Section.Theme", table: "Settings"))
+            }
+
             Section {
                 Picker(selection: $defaultDisplayStyle) {
                     Text(String(localized: "Style.Inbox", table: "Articles"))
@@ -21,6 +31,16 @@ struct AppearanceSettingsView: View {
                         .tag(FeedDisplayStyle.feed)
                 } label: {
                     Text(String(localized: "DefaultDisplayStyle", table: "Settings"))
+                }
+                Picker(selection: $searchDisplayStyle) {
+                    Text(String(localized: "Style.Inbox", table: "Articles"))
+                        .tag(FeedDisplayStyle.inbox)
+                    Text(String(localized: "Style.Compact", table: "Articles"))
+                        .tag(FeedDisplayStyle.compact)
+                    Text(String(localized: "Style.Feed", table: "Articles"))
+                        .tag(FeedDisplayStyle.feed)
+                } label: {
+                    Text(String(localized: "SearchDisplayStyle", table: "Settings"))
                 }
             } header: {
                 Text(String(localized: "Section.DisplayStyles", table: "Settings"))
@@ -79,7 +99,7 @@ struct AppearanceSettingsView: View {
                     }
                 }
             } header: {
-                Text(String(localized: "Section.Customization", table: "Settings"))
+                Text(String(localized: "Section.ReadStatus", table: "Settings"))
             }
         }
         .listStyle(.insetGrouped)

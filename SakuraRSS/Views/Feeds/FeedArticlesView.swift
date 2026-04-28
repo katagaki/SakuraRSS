@@ -5,10 +5,11 @@ struct FeedArticlesView: View {
     @Environment(FeedManager.self) var feedManager
     let feed: Feed
 
-    @AppStorage("Articles.BatchingMode") private var storedBatchingMode: BatchingMode = .day1
+    @AppStorage("Articles.BatchingMode") private var storedBatchingMode: BatchingMode = .items25
     @AppStorage(DoomscrollingMode.storageKey) private var doomscrollingMode: Bool = false
-    @State private var loadedSinceDate: Date = BatchingMode.current().initialSinceDate()
+    @State private var loadedSinceDate: Date = Date(timeIntervalSince1970: 0)
     @State private var loadedCount: Int = BatchingMode.current().initialCount()
+    @State private var hasInitializedSinceDate = false
     @AppStorage("Display.MarkAllReadPosition") private var markAllReadPosition: MarkAllReadPosition = .bottom
     @AppStorage("Instagram.HideReels") private var hideReels: Bool = false
     @AppStorage("Articles.HideViewedContent") private var storedHideViewedContent: Bool = false
@@ -135,13 +136,30 @@ struct FeedArticlesView: View {
         .refreshPromptOverlay(isVisible: visibility.hasPendingRefresh) {
             acceptPendingRefresh()
         }
+        .onAppear {
+            if !hasInitializedSinceDate {
+                loadedSinceDate = batchingMode.initialSinceDate(
+                    latestArticleDate: latestArticleDateForFeed()
+                )
+                hasInitializedSinceDate = true
+            }
+        }
         .onChange(of: batchingMode) { _, newMode in
-            loadedSinceDate = newMode.initialSinceDate()
+            loadedSinceDate = newMode.initialSinceDate(
+                latestArticleDate: latestArticleDateForFeed()
+            )
             loadedCount = newMode.initialCount()
             visibility.capture(from: rawArticles, isEnabled: hideViewedContent)
         }
         .onChange(of: doomscrollingMode) { _, _ in
             visibility.capture(from: rawArticles, isEnabled: hideViewedContent)
         }
+    }
+
+    /// Most recent published date for this feed, used to anchor the initial
+    /// date-based batch so feeds that haven't posted in a while still surface
+    /// their newest content rather than showing an empty state.
+    private func latestArticleDateForFeed() -> Date? {
+        feedManager.latestPublishedDate(forFeedIDs: [feed.id])
     }
 }

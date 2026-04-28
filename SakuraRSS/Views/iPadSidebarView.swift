@@ -15,19 +15,21 @@ struct IPadSidebarView: View {
 
     @Environment(FeedManager.self) var feedManager
     @Environment(\.openURL) private var openURL
-    @AppStorage("YouTube.OpenMode") private var youTubeOpenMode: YouTubeOpenMode = .inAppPlayer
+    @AppStorage("YouTube.OpenMode") var youTubeOpenMode: YouTubeOpenMode = .inAppPlayer
     @Binding var pendingFeedURL: String?
     @Binding var pendingArticleID: Int64?
+    @Binding var pendingOpenRequest: OpenArticleRequest?
 
-    @State private var selectedDestination: SidebarDestination? = .allArticles
-    @State private var selectedArticle: Article?
+    @State var selectedDestination: SidebarDestination? = .allArticles
+    @State var selectedArticle: Article?
+    @State var selectedEphemeralDestination: EphemeralArticleDestination?
     @State private var columnVisibility: NavigationSplitViewVisibility = .all
     @State private var showingAddFeed = false
     @State private var showingNewList = false
     @State private var showingMore = false
     @State private var showingOnboarding = false
-    @State private var showYouTubeSafari = false
-    @State private var pendingYouTubeSafariURL: URL?
+    @State var showYouTubeSafari = false
+    @State var pendingYouTubeSafariURL: URL?
     @State private var searchText = ""
     @AppStorage("Onboarding.Completed") private var onboardingCompleted: Bool = false
     @AppStorage("Intelligence.ContentInsights.Enabled") private var contentInsightsEnabled: Bool = false
@@ -110,6 +112,16 @@ struct IPadSidebarView: View {
         .onChange(of: pendingArticleID) {
             if let articleID = pendingArticleID {
                 handlePendingArticle(articleID)
+            }
+        }
+        .onChange(of: pendingOpenRequest) {
+            if let request = pendingOpenRequest {
+                handlePendingOpenRequest(request)
+            }
+        }
+        .task {
+            if let request = pendingOpenRequest {
+                handlePendingOpenRequest(request)
             }
         }
         .onAppear {
@@ -302,6 +314,7 @@ struct IPadSidebarView: View {
                 selectedDestination = oldValue
             } else {
                 selectedArticle = nil
+                selectedEphemeralDestination = nil
             }
         }
         .sheet(isPresented: $showingMore) {
@@ -350,6 +363,7 @@ struct IPadSidebarView: View {
                     openArticleExternally(article)
                 } else {
                     selectedArticle = article
+                    selectedEphemeralDestination = nil
                     feedManager.markRead(article)
                 }
             }
@@ -370,7 +384,14 @@ extension IPadSidebarView {
 
     @ViewBuilder
     var detailContent: some View {
-        if let article = selectedArticle {
+        if let destination = selectedEphemeralDestination {
+            ArticleDestinationView(
+                article: destination.article,
+                overrideMode: destination.mode,
+                overrideTextMode: destination.textMode
+            )
+            .id(destination.article.url)
+        } else if let article = selectedArticle {
             ArticleDestinationView(article: article)
                 .id(article.id)
         } else {

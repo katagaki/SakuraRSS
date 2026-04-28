@@ -11,11 +11,13 @@ struct WebArticleViewerToolbar: ToolbarContent {
 
     var body: some ToolbarContent {
         ToolbarItemGroup(placement: .topBarTrailing) {
-            Button {
-                isBookmarked.toggle()
-                feedManager.toggleBookmark(article)
-            } label: {
-                Image(systemName: isBookmarked ? "bookmark.fill" : "bookmark")
+            if !article.isEphemeral {
+                Button {
+                    isBookmarked.toggle()
+                    feedManager.toggleBookmark(article)
+                } label: {
+                    Image(systemName: isBookmarked ? "bookmark.fill" : "bookmark")
+                }
             }
             Button(action: onReload) {
                 Image(systemName: "arrow.clockwise")

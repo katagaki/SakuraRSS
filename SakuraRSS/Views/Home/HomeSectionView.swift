@@ -6,10 +6,11 @@ struct HomeSectionView: View {
 
     let section: FeedSection
 
-    @AppStorage("Articles.BatchingMode") private var storedBatchingMode: BatchingMode = .day1
+    @AppStorage("Articles.BatchingMode") private var storedBatchingMode: BatchingMode = .items25
     @AppStorage(DoomscrollingMode.storageKey) private var doomscrollingMode: Bool = false
-    @State private var loadedSinceDate: Date = BatchingMode.current().initialSinceDate()
+    @State private var loadedSinceDate: Date = Date(timeIntervalSince1970: 0)
     @State private var loadedCount: Int = BatchingMode.current().initialCount()
+    @State private var hasInitializedSinceDate = false
     @AppStorage("Display.MarkAllReadPosition") private var markAllReadPosition: MarkAllReadPosition = .bottom
     @AppStorage("Instagram.HideReels") private var hideInstagramReels: Bool = false
     @AppStorage("Articles.HideViewedContent") private var storedHideViewedContent: Bool = false
@@ -150,13 +151,31 @@ struct HomeSectionView: View {
         .refreshPromptOverlay(isVisible: visibility.hasPendingRefresh) {
             acceptPendingRefresh()
         }
+        .onAppear {
+            if !hasInitializedSinceDate {
+                loadedSinceDate = batchingMode.initialSinceDate(
+                    latestArticleDate: latestArticleDateForSection()
+                )
+                hasInitializedSinceDate = true
+            }
+        }
         .onChange(of: batchingMode) { _, newMode in
-            loadedSinceDate = newMode.initialSinceDate()
+            loadedSinceDate = newMode.initialSinceDate(
+                latestArticleDate: latestArticleDateForSection()
+            )
             loadedCount = newMode.initialCount()
             visibility.capture(from: rawArticles, isEnabled: hideViewedContent)
         }
         .onChange(of: doomscrollingMode) { _, _ in
             visibility.capture(from: rawArticles, isEnabled: hideViewedContent)
         }
+    }
+
+    private func latestArticleDateForSection() -> Date? {
+        let sectionFeedIDs = Set(
+            feedManager.feeds.filter { $0.feedSection == section }.map(\.id)
+        )
+        guard !sectionFeedIDs.isEmpty else { return nil }
+        return feedManager.latestPublishedDate(forFeedIDs: sectionFeedIDs)
     }
 }
