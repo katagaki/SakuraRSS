@@ -9,10 +9,7 @@ enum FeedProviderRegistry {
     static let all: [any FeedProvider.Type] = [
         XProfileFetcher.self,
         InstagramProfileFetcher.self,
-        YouTubePlaylistFetcher.self,
-        RedditCommunityFetcher.self,
-        NoteProfileFetcher.self,
-        SubstackPublicationFetcher.self
+        YouTubePlaylistFetcher.self
     ]
 
     /// Providers whose feeds use a custom refresh pipeline.
@@ -42,5 +39,17 @@ enum FeedProviderRegistry {
             }
         }
         return nil
+    }
+
+    /// Migrates WebKit cookies into Keychain for every enabled `Authenticated`
+    /// provider. Called once at app launch.
+    @MainActor
+    static func migrateAuthenticatedCookies() async {
+        await withTaskGroup(of: Void.self) { group in
+            for provider in all where provider.isEnabled {
+                guard let auth = provider as? any Authenticated.Type else { continue }
+                group.addTask { await auth.migrateWebKitCookiesIfNeeded() }
+            }
+        }
     }
 }
