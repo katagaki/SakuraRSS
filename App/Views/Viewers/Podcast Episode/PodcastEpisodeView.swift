@@ -215,8 +215,6 @@ struct PodcastEpisodeView: View {
                         }
                     }
 
-                    actionButtons
-
                     Group {
                         if showingTranscript, let transcript, !transcript.isEmpty {
                             TranscriptView(
@@ -270,17 +268,18 @@ struct PodcastEpisodeView: View {
         .sakuraBackground()
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
+            if let activityLabel = toolbarActivityLabel {
+                ToolbarItem(placement: .principal) {
+                    ToolbarActivityIndicator(label: activityLabel)
+                }
+            }
             ToolbarItemGroup(placement: .topBarTrailing) {
                 Button {
                     feedManager.toggleBookmark(article)
                 } label: {
                     Image(systemName: article.isBookmarked ? "bookmark.fill" : "bookmark")
                 }
-                if let shareURL = URL(string: article.url) {
-                    ShareLink(item: shareURL) {
-                        Label(String(localized: "Article.Share", table: "Articles"), systemImage: "square.and.arrow.up")
-                    }
-                }
+                overflowMenu
             }
         }
         .task {

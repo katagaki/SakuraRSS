@@ -4,6 +4,11 @@ extension YouTubePlayerView {
 
     @ToolbarContentBuilder
     var playerToolbar: some ToolbarContent {
+        if let activityLabel = toolbarActivityLabel {
+            ToolbarItem(placement: .principal) {
+                ToolbarActivityIndicator(label: activityLabel)
+            }
+        }
         if !chapters.isEmpty {
             ToolbarItemGroup(placement: .topBarTrailing) {
                 ChapterMenu(chapters: chapters, onSelect: seek(to:))
@@ -14,20 +19,23 @@ extension YouTubePlayerView {
         ToolbarItemGroup(placement: .topBarTrailing) {
             if !article.isEphemeral {
                 Button {
-                        isBookmarked.toggle()
-                        feedManager.toggleBookmark(article)
-                    } label: {
-                        Image(systemName: isBookmarked ? "bookmark.fill" : "bookmark")
-                    }
-            }
-            if let shareURL = URL(string: article.url) {
-                ShareLink(item: shareURL) {
-                    Label(
-                        String(localized: "Article.Share", table: "Articles"),
-                        systemImage: "square.and.arrow.up"
-                    )
+                    isBookmarked.toggle()
+                    feedManager.toggleBookmark(article)
+                } label: {
+                    Image(systemName: isBookmarked ? "bookmark.fill" : "bookmark")
                 }
             }
+            overflowMenu
         }
+    }
+
+    var toolbarActivityLabel: String? {
+        if isTranslating {
+            return String(localized: "Article.Translating", table: "Articles")
+        }
+        if isSummarizing {
+            return String(localized: "Article.Summarizing", table: "Articles")
+        }
+        return nil
     }
 }

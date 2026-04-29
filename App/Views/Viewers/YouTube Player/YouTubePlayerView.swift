@@ -103,14 +103,12 @@ struct YouTubePlayerView: View {
             }
 
             ScrollView(.vertical) {
-                VStack(spacing: 8) {
+                VStack(spacing: 16) {
                     WordWrappingText(
                         (article.isEphemeral ? fetchedTitle : nil) ?? article.title,
                         font: .preferredFont(forTextStyle: .title2, weight: .bold)
                     )
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.horizontal)
-                        .padding(.top, 12)
+                    .frame(maxWidth: .infinity, alignment: .leading)
 
                     SeekBarView(
                         currentTime: Binding(
@@ -122,8 +120,6 @@ struct YouTubePlayerView: View {
                         segments: sponsorSegments.map { (start: $0.startTime, end: $0.endTime) },
                         onSeek: { seek(to: $0) }
                     )
-                    .padding(.horizontal)
-                    .padding(.top, 16)
 
                     YouTubePlayerControls(
                         isPlaying: isPlaying,
@@ -136,7 +132,6 @@ struct YouTubePlayerView: View {
                         onFastForward: fastForward,
                         onEnterFullscreen: enterFullscreen
                     )
-                    .padding(.top, 8)
 
                     if isAd, let advertiserURL {
                         Button {
@@ -146,42 +141,37 @@ struct YouTubePlayerView: View {
                                 .frame(maxWidth: .infinity)
                         }
                         .buttonStyle(.bordered)
-                        .padding(.horizontal)
-                        .padding(.top, 12)
-                    }
-
-                    if let feed {
-                        HStack(alignment: .top, spacing: 12) {
-                            feedAvatarView
-
-                            VStack(alignment: .leading, spacing: 2) {
-                                Text(feed.title)
-                                    .font(.subheadline.bold())
-                                if let date = article.publishedDate {
-                                    RelativeTimeText(date: date)
-                                        .font(.caption)
-                                        .foregroundStyle(.secondary)
-                                }
-                            }
-
-                            Spacer(minLength: 0)
-                        }
-                        .padding(.horizontal)
-                        .padding(.top, 8)
-                    } else if article.isEphemeral, let fetchedAuthor {
-                        HStack(alignment: .top, spacing: 12) {
-                            Text(fetchedAuthor)
-                                .font(.subheadline.bold())
-                            Spacer(minLength: 0)
-                        }
-                        .padding(.horizontal)
-                        .padding(.top, 8)
                     }
 
                     Divider()
-                        .padding(.horizontal)
 
-                    descriptionActionButtons
+                    Group {
+                        if let feed {
+                            HStack(alignment: .top, spacing: 12) {
+                                feedAvatarView
+
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text(feed.title)
+                                        .font(.subheadline.bold())
+                                    if let date = article.publishedDate {
+                                        RelativeTimeText(date: date)
+                                            .font(.caption)
+                                            .foregroundStyle(.secondary)
+                                    }
+                                }
+
+                                Spacer(minLength: 0)
+                            }
+                        } else if article.isEphemeral, let fetchedAuthor {
+                            HStack(alignment: .top, spacing: 12) {
+                                Text(fetchedAuthor)
+                                    .font(.subheadline.bold())
+                                Spacer(minLength: 0)
+                            }
+                        }
+                    }
+
+                    Divider()
 
                     if let text = displayDescription, !text.isEmpty {
                         VStack(alignment: .leading, spacing: 12) {
@@ -206,13 +196,12 @@ struct YouTubePlayerView: View {
                         .animation(.smooth.speed(2.0), value: showingSummary)
                         .animation(.smooth.speed(2.0), value: showingTranslation)
                         .animation(.smooth.speed(2.0), value: translatedText)
-                        .padding(.horizontal)
-                        .padding(.top, 12)
                     }
 
                     Spacer()
                         .frame(height: 32)
                 }
+                .padding()
             }
             .ignoresSafeArea(.all, edges: [.top])
         }

@@ -2,31 +2,13 @@ import SwiftUI
 
 extension PodcastEpisodeView {
 
-    var actionButtons: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 8) {
-                TranslateButton(
-                    hasTranslation: hasTranslationForCurrentMode,
-                    isTranslating: isTranslating,
-                    showingTranslation: $showingTranslation,
-                    onTranslate: { triggerTranslation() }
-                )
-                if isAppleIntelligenceAvailable {
-                    SummarizeButton(
-                        summarizedText: summarizedText,
-                        hasCachedSummary: hasCachedSummary,
-                        isSummarizing: isSummarizing,
-                        showingSummary: $showingSummary,
-                        onSummarize: {
-                            await summarizeArticle()
-                            return summarizedText != nil
-                        }
-                    )
-                }
-            }
-            .buttonStyle(.bordered)
-            .tint(.primary)
-            .padding(.horizontal)
+    var toolbarActivityLabel: String? {
+        if isTranslating {
+            return String(localized: "Article.Translating", table: "Articles")
         }
+        if isSummarizing {
+            return String(localized: "Article.Summarizing", table: "Articles")
+        }
+        return nil
     }
 }

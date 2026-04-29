@@ -5,6 +5,11 @@ extension ArticleDetailView {
 
     @ToolbarContentBuilder
     var articleToolbar: some ToolbarContent {
+        if let activityLabel = toolbarActivityLabel {
+            ToolbarItem(placement: .principal) {
+                ToolbarActivityIndicator(label: activityLabel)
+            }
+        }
         if UIDevice.current.userInterfaceIdiom == .pad {
             iPadArticleToolbar
         } else {
@@ -21,6 +26,16 @@ extension ArticleDetailView {
                 articleOverflowMenu
             }
         }
+    }
+
+    var toolbarActivityLabel: String? {
+        if isTranslating {
+            return String(localized: "Article.Translating", table: "Articles")
+        }
+        if isSummarizing {
+            return String(localized: "Article.Summarizing", table: "Articles")
+        }
+        return nil
     }
 
     func loadArticleMetadata() async {
