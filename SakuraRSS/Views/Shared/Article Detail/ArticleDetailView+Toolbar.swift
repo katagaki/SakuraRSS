@@ -3,18 +3,23 @@ import SwiftUI
 
 extension ArticleDetailView {
 
+    @ToolbarContentBuilder
     var articleToolbar: some ToolbarContent {
-        ToolbarItemGroup(placement: .topBarTrailing) {
-            articleOpenToolbarItems
-            if !article.isEphemeral {
-                Button {
-                    isBookmarked.toggle()
-                    feedManager.toggleBookmark(article)
-                } label: {
-                    Image(systemName: isBookmarked ? "bookmark.fill" : "bookmark")
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            iPadArticleToolbar
+        } else {
+            ToolbarItemGroup(placement: .topBarTrailing) {
+                articleOpenToolbarItems
+                if !article.isEphemeral {
+                    Button {
+                        isBookmarked.toggle()
+                        feedManager.toggleBookmark(article)
+                    } label: {
+                        Image(systemName: isBookmarked ? "bookmark.fill" : "bookmark")
+                    }
                 }
+                articleOverflowMenu
             }
-            articleOverflowMenu
         }
     }
 
