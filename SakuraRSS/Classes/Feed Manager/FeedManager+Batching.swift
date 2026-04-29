@@ -66,7 +66,20 @@ extension FeedManager {
             .filter { $0.feedSection == section && !muted.contains($0.id) }
             .map(\.id)
         guard !sectionFeedIDs.isEmpty else { return [] }
-        let fetchLimit = max(limit * 4, 100)
+        var fetchLimit = max(limit * 4, 100)
+        let maxIterations = 20
+        for _ in 0..<maxIterations {
+            let raw = (try? database.articles(
+                forFeedIDs: sectionFeedIDs,
+                limit: fetchLimit,
+                requireUnread: requireUnread
+            )) ?? []
+            let pool = applyAllRules(raw)
+            if pool.count >= limit || raw.count < fetchLimit {
+                return Array(pool.prefix(limit))
+            }
+            fetchLimit *= 2
+        }
         let raw = (try? database.articles(
             forFeedIDs: sectionFeedIDs,
             limit: fetchLimit,
