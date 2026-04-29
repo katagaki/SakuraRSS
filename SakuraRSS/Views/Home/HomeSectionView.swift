@@ -11,6 +11,7 @@ struct HomeSectionView: View {
     @State private var loadedSinceDate: Date = Date(timeIntervalSince1970: 0)
     @State private var loadedCount: Int = BatchingMode.current().initialCount()
     @State private var hasInitializedSinceDate = false
+    @State private var preloadedEntries: [ArticleIDEntry] = []
     @AppStorage("Instagram.HideReels") private var hideInstagramReels: Bool = false
     @AppStorage("Articles.HideViewedContent") private var storedHideViewedContent: Bool = false
     @State private var visibility = ArticleVisibilityTracker()
@@ -24,23 +25,33 @@ struct HomeSectionView: View {
         DoomscrollingMode.effectiveHideViewedContent(storedHideViewedContent)
     }
 
+    private var batcher: ArticleIDBatcher {
+        ArticleIDBatcher(entries: preloadedEntries)
+    }
+
     private var rawArticles: [Article] {
-        var articles: [Article]
+        let batcher = self.batcher
+        let slicedIDs: [Int64]
         if batchingMode.isCountBased {
-            articles = feedManager.undatedArticles(for: section)
-                + feedManager.articles(
-                    for: section,
-                    limit: loadedCount,
-                    requireUnread: hideViewedContent
-                )
+            slicedIDs = batcher.ids(limit: loadedCount)
+        } else if batchingMode.isDateBased {
+            slicedIDs = batcher.ids(since: loadedSinceDate)
         } else {
-            articles = feedManager.undatedArticles(for: section)
-                + feedManager.articles(for: section, since: loadedSinceDate)
+            slicedIDs = preloadedEntries.map(\.id)
         }
+        var articles = feedManager.undatedArticles(for: section)
+            + feedManager.articles(withPreloadedIDs: slicedIDs)
         if hideInstagramReels {
             articles = articles.filter { !$0.url.contains("/reel/") }
         }
         return articles
+    }
+
+    private func reloadPreloadedEntries() {
+        preloadedEntries = feedManager.preloadedArticleEntries(
+            for: section,
+            requireUnread: hideViewedContent
+        )
     }
 
     private func performRefresh() async {
@@ -80,24 +91,15 @@ struct HomeSectionView: View {
 
     private var loadMoreAction: (() -> Void)? {
         if hideViewedContent && visibility.hasReachedEnd { return nil }
+        let batcher = self.batcher
         if let days = batchingMode.chunkDays {
-            guard let next = feedManager.nextArticleChunk(
-                for: section,
-                before: loadedSinceDate,
-                chunkDays: days,
-                requireUnread: hideViewedContent
-            ) else {
+            guard let next = batcher.nextChunkStart(before: loadedSinceDate, chunkDays: days) else {
                 return nil
             }
             return { loadedSinceDate = next }
         }
         if let batch = batchingMode.batchSize {
-            guard let next = feedManager.nextLoadedCount(
-                for: section,
-                after: loadedCount,
-                batchSize: batch,
-                requireUnread: hideViewedContent
-            ) else {
+            guard let next = batcher.nextLoadedCount(after: loadedCount, batchSize: batch) else {
                 return nil
             }
             return { loadedCount = next }
@@ -150,12 +152,19 @@ struct HomeSectionView: View {
             acceptPendingRefresh()
         }
         .onAppear {
+            reloadPreloadedEntries()
             if !hasInitializedSinceDate {
                 loadedSinceDate = batchingMode.initialSinceDate(
                     latestArticleDate: latestArticleDateForSection()
                 )
                 hasInitializedSinceDate = true
             }
+        }
+        .onChange(of: feedManager.dataRevision) { _, _ in
+            reloadPreloadedEntries()
+        }
+        .onChange(of: hideViewedContent) { _, _ in
+            reloadPreloadedEntries()
         }
         .onChange(of: batchingMode) { _, newMode in
             loadedSinceDate = newMode.initialSinceDate(

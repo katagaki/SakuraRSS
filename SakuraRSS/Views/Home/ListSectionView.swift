@@ -11,6 +11,7 @@ struct ListSectionView: View {
     @State private var loadedSinceDate: Date = Date(timeIntervalSince1970: 0)
     @State private var loadedCount: Int = BatchingMode.current().initialCount()
     @State private var hasInitializedSinceDate = false
+    @State private var preloadedEntries: [ArticleIDEntry] = []
     @AppStorage("Articles.HideViewedContent") private var storedHideViewedContent: Bool = false
     @State private var visibility = ArticleVisibilityTracker()
     @State private var scrollToTopTick: Int = 0
@@ -23,15 +24,28 @@ struct ListSectionView: View {
         DoomscrollingMode.effectiveHideViewedContent(storedHideViewedContent)
     }
 
+    private var batcher: ArticleIDBatcher {
+        ArticleIDBatcher(entries: preloadedEntries)
+    }
+
     private var rawArticles: [Article] {
+        let batcher = self.batcher
+        let slicedIDs: [Int64]
         if batchingMode.isCountBased {
-            return feedManager.articles(
-                for: list,
-                limit: loadedCount,
-                requireUnread: hideViewedContent
-            )
+            slicedIDs = batcher.ids(limit: loadedCount)
+        } else if batchingMode.isDateBased {
+            slicedIDs = batcher.ids(since: loadedSinceDate)
+        } else {
+            slicedIDs = preloadedEntries.map(\.id)
         }
-        return feedManager.articles(for: list, since: loadedSinceDate)
+        return feedManager.articles(withPreloadedIDs: slicedIDs)
+    }
+
+    private func reloadPreloadedEntries() {
+        preloadedEntries = feedManager.preloadedArticleEntries(
+            for: list,
+            requireUnread: hideViewedContent
+        )
     }
 
     private func performRefresh() async {
@@ -71,24 +85,15 @@ struct ListSectionView: View {
 
     private var loadMoreAction: (() -> Void)? {
         if hideViewedContent && visibility.hasReachedEnd { return nil }
+        let batcher = self.batcher
         if let days = batchingMode.chunkDays {
-            guard let next = feedManager.nextArticleChunk(
-                for: list,
-                before: loadedSinceDate,
-                chunkDays: days,
-                requireUnread: hideViewedContent
-            ) else {
+            guard let next = batcher.nextChunkStart(before: loadedSinceDate, chunkDays: days) else {
                 return nil
             }
             return { loadedSinceDate = next }
         }
         if let batch = batchingMode.batchSize {
-            guard let next = feedManager.nextLoadedCount(
-                for: list,
-                after: loadedCount,
-                batchSize: batch,
-                requireUnread: hideViewedContent
-            ) else {
+            guard let next = batcher.nextLoadedCount(after: loadedCount, batchSize: batch) else {
                 return nil
             }
             return { loadedCount = next }
@@ -130,12 +135,19 @@ struct ListSectionView: View {
             acceptPendingRefresh()
         }
         .onAppear {
+            reloadPreloadedEntries()
             if !hasInitializedSinceDate {
                 loadedSinceDate = batchingMode.initialSinceDate(
                     latestArticleDate: latestArticleDateForList()
                 )
                 hasInitializedSinceDate = true
             }
+        }
+        .onChange(of: feedManager.dataRevision) { _, _ in
+            reloadPreloadedEntries()
+        }
+        .onChange(of: hideViewedContent) { _, _ in
+            reloadPreloadedEntries()
         }
         .onChange(of: batchingMode) { _, newMode in
             loadedSinceDate = newMode.initialSinceDate(
