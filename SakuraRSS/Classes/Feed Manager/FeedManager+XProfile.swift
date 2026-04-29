@@ -14,6 +14,9 @@ extension FeedManager {
         skipImagePreload: Bool = false,
         runNLP: Bool = true
     ) async throws {
+        #if DEBUG
+        print("[XProfile] refresh begin id=\(feed.id) title=\(feed.title)")
+        #endif
         if let lastFetched = feed.lastFetched,
            Date().timeIntervalSince(lastFetched) < Self.xRefreshInterval {
             #if DEBUG
@@ -25,10 +28,23 @@ extension FeedManager {
         }
 
         guard let handle = XProfileFetcher.identifierFromFeedURL(feed.url),
-              let profileURL = XProfileFetcher.profileURL(for: handle) else { return }
+              let profileURL = XProfileFetcher.profileURL(for: handle) else {
+            #if DEBUG
+            print("[XProfile] Could not derive handle/profileURL id=\(feed.id) "
+                  + "url=\(feed.url)")
+            #endif
+            return
+        }
+        #if DEBUG
+        print("[XProfile] fetching @\(handle) id=\(feed.id)")
+        #endif
 
         let fetcher = XProfileFetcher()
         let result = await fetcher.fetchProfile(profileURL: profileURL)
+        #if DEBUG
+        print("[XProfile] fetched @\(handle) tweets=\(result.tweets.count) "
+              + "displayName=\(result.displayName ?? "nil")")
+        #endif
 
         let tweetTuples = result.tweets.map { tweet in
             let title = tweet.text.isEmpty
@@ -58,17 +74,22 @@ extension FeedManager {
         }
 
         let database = database
+        let feedID = feed.id
         try await Task.detached {
             let insertedIDs = (try? database.insertArticles(
-                feedID: feed.id, articles: tweetTuples
+                feedID: feedID, articles: tweetTuples
             )) ?? []
+            #if DEBUG
+            print("[XProfile] inserted id=\(feedID) "
+                  + "new=\(insertedIDs.count)/\(tweetTuples.count)")
+            #endif
             await FeedManager.runPostInsertPipeline(
                 insertedIDs: insertedIDs,
                 feedTitle: feedTitle,
                 skipImagePreload: skipImagePreload,
                 runNLP: runNLP
             )
-            try database.updateFeedLastFetched(id: feed.id, date: Date())
+            try database.updateFeedLastFetched(id: feedID, date: Date())
         }.value
 
         await applyFetcherMetadataRefresh(
@@ -79,6 +100,9 @@ extension FeedManager {
         if reloadData {
             await loadFromDatabaseInBackground(animated: true)
         }
+        #if DEBUG
+        print("[XProfile] refresh end id=\(feed.id)")
+        #endif
     }
 
     var hasXFeeds: Bool {
