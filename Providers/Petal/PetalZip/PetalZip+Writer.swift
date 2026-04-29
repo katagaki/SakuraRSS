@@ -75,6 +75,7 @@ nonisolated extension PetalZip {
         output.append(contentsOf: nameBytes)
     }
 
+    // swiftlint:disable:next function_parameter_count
     private static func appendCentralDirectoryHeader(
         to centralDirectory: inout Data,
         nameBytes: [UInt8],

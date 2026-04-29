@@ -58,7 +58,11 @@ struct HomeSectionView: View {
         guard !feedManager.isLoading else { return }
         feedManager.flushDebouncedReads()
         withAnimation(.smooth.speed(2.0)) {
-            visibility.beginRefresh(from: rawArticles, isEnabled: hideViewedContent)
+            visibility.beginRefresh(
+                from: rawArticles,
+                isEnabled: hideViewedContent,
+                recaptureVisible: true
+            )
         }
         await feedManager.refreshAllFeeds()
         withAnimation(.smooth.speed(2.0)) {
@@ -72,7 +76,11 @@ struct HomeSectionView: View {
         guard !feedManager.isLoading else { return }
         feedManager.flushDebouncedReads()
         withAnimation(.smooth.speed(2.0)) {
-            visibility.beginRefresh(from: rawArticles, isEnabled: hideViewedContent)
+            visibility.beginRefresh(
+                from: rawArticles,
+                isEnabled: hideViewedContent,
+                recaptureVisible: true
+            )
         }
         Task { @MainActor in
             await feedManager.refreshAllFeeds()

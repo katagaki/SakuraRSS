@@ -16,6 +16,7 @@ struct IPadSidebarSheets: ViewModifier {
     @Binding var listToDelete: FeedList?
     @Binding var onboardingCompleted: Bool
 
+    // swiftlint:disable:next function_body_length
     func body(content: Content) -> some View {
         content
             .sheet(isPresented: $showingAddFeed) {

@@ -181,6 +181,7 @@ struct DiscoverView: View {
 
     // MARK: - Data Loading
 
+    // swiftlint:disable:next function_body_length
     private func loadData() async {
         let database = DatabaseManager.shared
         let loadEntities = contentInsightsEnabled

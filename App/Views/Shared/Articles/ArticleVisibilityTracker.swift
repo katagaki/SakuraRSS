@@ -75,16 +75,26 @@ struct ArticleVisibilityTracker {
     }
 
     /// Snapshots the current article IDs so a later `endRefresh` can compute
-    /// what arrived during the refresh. When Hide Viewed Content is on, the
-    /// visible set is also recaptured so newly-read items disappear immediately.
-    mutating func beginRefresh(from articles: [Article], isEnabled: Bool) {
+    /// what arrived during the refresh. When `recaptureVisible` is true and
+    /// Hide Viewed Content is on, the visible set is rebuilt from currently
+    /// unread articles so newly-read items disappear immediately, appropriate
+    /// for an explicit pull-to-refresh. Background refreshes should pass false
+    /// so an in-progress reading session doesn't have its visible items yanked
+    /// away when an unrelated refresh runs.
+    mutating func beginRefresh(
+        from articles: [Article],
+        isEnabled: Bool,
+        recaptureVisible: Bool = false
+    ) {
         if activeRefreshCount == 0 {
             hasReachedEnd = false
             preRefreshSnapshot = articles
             preRefreshIDs = Set(articles.map(\.id)).union(visibleIDs ?? []).union(pendingIDs)
             preRefreshMaxID = preRefreshIDs.max() ?? .max
             if isEnabled {
-                visibleIDs = Set(articles.filter { !$0.isRead }.map(\.id))
+                if recaptureVisible || visibleIDs == nil {
+                    visibleIDs = Set(articles.filter { !$0.isRead }.map(\.id))
+                }
             } else {
                 visibleIDs = nil
             }

@@ -22,7 +22,7 @@ extension FaviconCache {
             }
         }
 
-        if (feed.isXFeed || feed.isInstagramFeed),
+        if feed.isXFeed || feed.isInstagramFeed,
            let siteURL = URL(string: feed.siteURL),
            let provider = FeedProviderRegistry.metadataFetcher(forSiteURL: siteURL),
            let metadata = await provider.fetchMetadata(for: siteURL),
@@ -43,7 +43,6 @@ extension FaviconCache {
         if let pngData = finalImage.pngData() {
             try? pngData.write(to: filePath)
         }
-        // Persist metrics so post-relaunch disk reads match in-session rendering (avoids re-sampling flipping isFilledSquare).
         attachDerivedMetrics(cacheKey: key, to: finalImage)
     }
 

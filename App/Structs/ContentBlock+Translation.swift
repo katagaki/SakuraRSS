@@ -49,7 +49,7 @@ extension ContentBlock {
         return segments
     }
 
-    /// Translates marker-encoded article text, preserving non-text blocks verbatim.
+    // swiftlint:disable:next cyclomatic_complexity
     static func translateArticleContent(
         title: String?, markerText: String, session: TranslationSession
     ) async throws -> (title: String?, text: String) {

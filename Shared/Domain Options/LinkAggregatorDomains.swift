@@ -20,7 +20,7 @@ nonisolated enum LinkAggregatorDomains: DomainExceptions {
     }
 
     /// Returns the first URL in a parsed summary that does not belong to any
-    /// known link-aggregator host — typically the external "Article URL" on
+    /// known link-aggregator host, typically the external "Article URL" on
     /// HN/hnrss-style entries.
     nonisolated static func linkedArticleURL(fromSummary summary: String) -> URL? {
         guard !summary.isEmpty,

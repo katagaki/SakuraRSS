@@ -13,6 +13,7 @@ extension ArticleExtractor {
 
     // MARK: - YouTube
 
+    // swiftlint:disable:next cyclomatic_complexity
     private static func promoteYouTubeEmbeds(in element: Element) {
         if let iframes = try? element.select("iframe[src]") {
             for iframe in iframes {
@@ -106,6 +107,7 @@ extension ArticleExtractor {
 
     // MARK: - X / Twitter
 
+    // swiftlint:disable:next cyclomatic_complexity
     private static func promoteXEmbeds(in element: Element) {
         if let blockquotes = try? element.select("blockquote.twitter-tweet") {
             for blockquote in blockquotes {

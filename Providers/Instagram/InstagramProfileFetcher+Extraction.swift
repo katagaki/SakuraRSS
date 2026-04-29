@@ -4,6 +4,7 @@ import Foundation
 
 extension InstagramProfileFetcher {
 
+    // swiftlint:disable:next cyclomatic_complexity
     static func parseProfileResponse(
         data: Data, username: String
     ) -> InstagramProfileFetchResult? {
@@ -131,6 +132,7 @@ extension InstagramProfileFetcher {
 
     // MARK: - v1 API Item Format
 
+    // swiftlint:disable:next function_body_length
     private static func parseV1Item(
         item: [String: Any], username: String, displayName: String?
     ) -> ParsedInstagramPost? {

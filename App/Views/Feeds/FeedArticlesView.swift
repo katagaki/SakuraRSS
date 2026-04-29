@@ -80,7 +80,11 @@ struct FeedArticlesView: View {
         guard !feedManager.isLoading else { return }
         feedManager.flushDebouncedReads()
         withAnimation(.smooth.speed(2.0)) {
-            visibility.beginRefresh(from: rawArticles, isEnabled: hideViewedContent)
+            visibility.beginRefresh(
+                from: rawArticles,
+                isEnabled: hideViewedContent,
+                recaptureVisible: true
+            )
         }
         try? await feedManager.refreshFeed(feed)
         withAnimation(.smooth.speed(2.0)) {

@@ -93,6 +93,7 @@ extension XProfileFetcher {
         return TweetsPage(tweets: tweets, bottomCursor: bottomCursor)
     }
 
+    // swiftlint:disable:next function_body_length
     private static func parseTweetEntry(
         content: [String: Any], dateFormatter: DateFormatter
     ) -> ParsedTweet? {
@@ -169,6 +170,7 @@ extension XProfileFetcher {
 
     // MARK: - TweetDetail Response Parsing
 
+    // swiftlint:disable:next cyclomatic_complexity
     static func parseTweetDetailResponse(data: Data, tweetID: String) -> ParsedTweet? {
         guard let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
               let dataObj = json["data"] as? [String: Any],
