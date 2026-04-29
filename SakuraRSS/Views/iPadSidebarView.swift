@@ -135,19 +135,6 @@ struct IPadSidebarView: View {
                     .ignoresSafeArea()
             }
         }
-        .sheet(item: $feedToEdit) { feed in
-            FeedEditSheet(feed: $feedToEdit)
-                .id(feed.id)
-                .environment(feedManager)
-                .presentationDetents([.medium, .large])
-                .interactiveDismissDisabled()
-        }
-        .sheet(item: $feedForRules) { _ in
-            FeedRulesSheet(feed: $feedForRules)
-                .environment(feedManager)
-                .presentationDetents([.medium, .large])
-                .interactiveDismissDisabled()
-        }
         .confirmationDialog(
             String(localized: "FeedMenu.Delete.Title", table: "Feeds"),
             isPresented: Binding(
@@ -325,6 +312,14 @@ struct IPadSidebarView: View {
             ListEditSheet(list: nil)
                 .environment(feedManager)
                 .interactiveDismissDisabled()
+        }
+        .navigationDestination(item: $feedToEdit) { feed in
+            FeedEditView(feed: feed)
+                .environment(feedManager)
+        }
+        .navigationDestination(item: $feedForRules) { feed in
+            FeedRulesView(feed: feed)
+                .environment(feedManager)
         }
     }
 
@@ -527,10 +522,7 @@ extension IPadSidebarView {
         }
         Divider()
         Button {
-            feedToEdit = nil
-            DispatchQueue.main.async {
-                feedToEdit = feed
-            }
+            feedToEdit = feed
         } label: {
             Label(String(localized: "FeedMenu.Edit", table: "Feeds"),
                   systemImage: "pencil")

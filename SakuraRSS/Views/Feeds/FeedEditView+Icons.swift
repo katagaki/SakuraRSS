@@ -1,9 +1,8 @@
 import SwiftUI
 
-extension FeedEditSheet {
+extension FeedEditView {
 
     func loadCurrentFavicon() async -> UIImage? {
-        guard let feed else { return nil }
         if let customURL = feed.customIconURL {
             if customURL == "none" {
                 return nil
@@ -29,7 +28,6 @@ extension FeedEditSheet {
     }
 
     func fetchIconFromFeed() async {
-        guard let feed else { return }
         isFetchingIcon = true
         defer { isFetchingIcon = false }
 

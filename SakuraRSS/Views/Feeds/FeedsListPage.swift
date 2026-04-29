@@ -77,19 +77,13 @@ struct FeedsListPage: View {
                 }
             }
         }
-        .sheet(item: $feedToEdit) {_ in 
-            FeedEditSheet(feed: $feedToEdit)
-                .id(feedToEdit?.id)
+        .navigationDestination(item: $feedToEdit) { feed in
+            FeedEditView(feed: feed)
                 .environment(feedManager)
-                .presentationDetents([.medium, .large])
-                .interactiveDismissDisabled()
         }
-        .sheet(item: $feedForRules) {_ in 
-            FeedRulesSheet(feed: $feedForRules)
-                .id(feedToEdit?.id)
+        .navigationDestination(item: $feedForRules) { feed in
+            FeedRulesView(feed: feed)
                 .environment(feedManager)
-                .presentationDetents([.medium, .large])
-                .interactiveDismissDisabled()
         }
         .alert(
             String(localized: "FeedMenu.Delete.Title", table: "Feeds"),
