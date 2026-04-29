@@ -87,6 +87,24 @@ extension FaviconCache {
         return UIImage(data: data)
     }
 
+    /// Fetches a Substack publication's logo by scraping the navbar of its homepage.
+    nonisolated func fetchSubstackNavbarLogo(siteURL: URL, html: String? = nil) async -> UIImage? {
+        let pageHTML: String
+        if let html {
+            pageHTML = html
+        } else {
+            guard let (data, _) = try? await Self.urlSession.data(from: siteURL),
+                  let fetched = String(data: data, encoding: .utf8) else { return nil }
+            pageHTML = fetched
+        }
+        guard let logoURLString = SubstackPublicationFetcher.extractNavbarLogoURL(from: pageHTML),
+              let logoURL = URL(string: logoURLString),
+              let (data, _) = try? await Self.urlSession.data(from: logoURL) else {
+            return nil
+        }
+        return UIImage(data: data)
+    }
+
     /// Fetches a profile avatar by scraping the profile page's og:image meta tag.
     nonisolated func fetchProfileAvatar(from siteURL: String) async -> UIImage? {
         guard let url = URL(string: siteURL) else { return nil }
@@ -100,6 +118,9 @@ extension FaviconCache {
         }
         if SubstackPublicationFetcher.isSubstackPublicationURL(url),
            let host = url.host {
+            if let image = await fetchSubstackNavbarLogo(siteURL: url) {
+                return image
+            }
             return await fetchSubstackPublicationLogo(host: host)
         }
         do {
