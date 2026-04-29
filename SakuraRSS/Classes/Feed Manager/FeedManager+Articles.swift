@@ -244,8 +244,29 @@ extension FeedManager {
     }
 
     func articles(for section: FeedSection, since date: Date) -> [Article] {
-        let sectionFeedIDs = Set(feeds.filter { $0.feedSection == section }.map(\.id))
-        return articles(since: date).filter { sectionFeedIDs.contains($0.feedID) }
+        _ = dataRevision
+        let muted = mutedFeedIDs
+        let sectionFeedIDs = Set(
+            feeds
+                .filter { $0.feedSection == section && !muted.contains($0.id) }
+                .map(\.id)
+        )
+        guard !sectionFeedIDs.isEmpty else { return [] }
+        let pool = (try? database.articles(forFeedIDs: sectionFeedIDs, since: date)) ?? []
+        return applyAllRules(pool)
+    }
+
+    func undatedArticles(for section: FeedSection) -> [Article] {
+        _ = dataRevision
+        let muted = mutedFeedIDs
+        let sectionFeedIDs = Set(
+            feeds
+                .filter { $0.feedSection == section && !muted.contains($0.id) }
+                .map(\.id)
+        )
+        guard !sectionFeedIDs.isEmpty else { return [] }
+        let pool = (try? database.undatedArticles(forFeedIDs: sectionFeedIDs)) ?? []
+        return applyAllRules(pool)
     }
 
     func nextArticleChunk(for section: FeedSection, before date: Date) -> Date? {

@@ -60,30 +60,45 @@ extension FeedManager {
     // MARK: - Count-based Batches (Section)
 
     func articles(for section: FeedSection, limit: Int, requireUnread: Bool = false) -> [Article] {
-        let sectionFeedIDs = Set(feeds.filter { $0.feedSection == section }.map(\.id))
+        _ = dataRevision
+        let sectionFeedIDs = sectionFeedIDsExcludingMuted(section)
         guard !sectionFeedIDs.isEmpty else { return [] }
+        let feedIDList = Array(sectionFeedIDs)
         if !requireUnread {
-            return Array(articles(limit: limit * 3).filter { sectionFeedIDs.contains($0.feedID) }.prefix(limit))
+            let pool = (try? database.articles(forFeedIDs: feedIDList, limit: limit * 4)) ?? []
+            return Array(applyAllRules(pool).prefix(limit))
         }
-        var multiplier = 3
+        var fetchLimit = max(limit * 4, 100)
         let maxIterations = 20
         for _ in 0..<maxIterations {
-            let pool = articles(limit: limit * multiplier)
-            let filtered = pool.filter { sectionFeedIDs.contains($0.feedID) && !$0.isRead }
-            if filtered.count >= limit || pool.count < limit * multiplier {
-                return Array(filtered.prefix(limit))
+            let pool = (try? database.articles(forFeedIDs: feedIDList, limit: fetchLimit)) ?? []
+            let ruled = applyAllRules(pool)
+            let unread = ruled.filter { !$0.isRead }
+            if unread.count >= limit || pool.count < fetchLimit {
+                return Array(unread.prefix(limit))
             }
-            multiplier *= 2
+            fetchLimit *= 2
         }
-        let pool = articles(limit: limit * multiplier)
-        return Array(pool.filter { sectionFeedIDs.contains($0.feedID) && !$0.isRead }.prefix(limit))
+        let pool = (try? database.articles(forFeedIDs: feedIDList, limit: fetchLimit)) ?? []
+        return Array(applyAllRules(pool).filter { !$0.isRead }.prefix(limit))
     }
 
     func hasMoreArticles(for section: FeedSection, beyond count: Int) -> Bool {
-        let sectionFeedIDs = Set(feeds.filter { $0.feedSection == section }.map(\.id))
+        _ = dataRevision
+        let sectionFeedIDs = sectionFeedIDsExcludingMuted(section)
         guard !sectionFeedIDs.isEmpty else { return false }
-        let filtered = articles(limit: (count + 1) * 3).filter { sectionFeedIDs.contains($0.feedID) }
-        return filtered.count > count
+        let feedIDList = Array(sectionFeedIDs)
+        let pool = (try? database.articles(forFeedIDs: feedIDList, limit: count + 1)) ?? []
+        return applyAllRules(pool).count > count
+    }
+
+    private func sectionFeedIDsExcludingMuted(_ section: FeedSection) -> Set<Int64> {
+        let muted = mutedFeedIDs
+        return Set(
+            feeds
+                .filter { $0.feedSection == section && !muted.contains($0.id) }
+                .map(\.id)
+        )
     }
 
     func nextLoadedCount(for section: FeedSection, after count: Int, batchSize: Int, requireUnread: Bool = false) -> Int? {
