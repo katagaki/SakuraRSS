@@ -1,14 +1,8 @@
 import Foundation
 
-/// A provider whose feeds derive from a user-visible profile/community page
-/// (handle, playlist ID, subreddit name).
-///
-/// `FetchesProfile` already supplies `isProfileURL`, `extractIdentifier`,
-/// `feedURL(for:)`, `isFeedURL`, and `identifierFromFeedURL`. Conformers add
-/// only the discovery shape (`discoveredFeed(forProfileURL:)`).
+/// A provider whose feeds derive from a profile/community/playlist URL.
 protocol ProfileFeedProvider: FeedProvider, FetchesProfile {
 
-    /// Builds a `DiscoveredFeed` for a matching profile URL, or `nil`.
     nonisolated static func discoveredFeed(forProfileURL url: URL) -> DiscoveredFeed?
 }
 
