@@ -16,15 +16,10 @@ extension FeedManager {
         skipImagePreload: Bool = false,
         runNLP: Bool = true
     ) async throws {
-        #if DEBUG
-        print("[FeedRefresh] refreshFeed begin id=\(feed.id) title=\(feed.title) "
-              + "url=\(feed.url) reloadData=\(reloadData) skipImageFetch=\(skipImageFetch) "
-              + "skipImagePreload=\(skipImagePreload) runNLP=\(runNLP)")
-        #endif
+        // swiftlint:disable:next line_length
+        log("FeedRefresh", "refreshFeed begin id=\(feed.id) title=\(feed.title) url=\(feed.url) reloadData=\(reloadData) skipImageFetch=\(skipImageFetch) skipImagePreload=\(skipImagePreload) runNLP=\(runNLP)")
         if PetalRecipe.isPetalFeedURL(feed.url) {
-            #if DEBUG
-            print("[FeedRefresh] dispatch -> Petal id=\(feed.id)")
-            #endif
+            log("FeedRefresh", "dispatch -> Petal id=\(feed.id)")
             try await refreshPetalFeed(
                 feed,
                 reloadData: reloadData,
@@ -36,16 +31,10 @@ extension FeedManager {
 
         if let provider = FeedProviderRegistry.refreshableProvider(forFeedURL: feed.url) {
             guard provider.isEnabled else {
-                #if DEBUG
-                print("[FeedRefresh] provider \(String(describing: provider)) "
-                      + "disabled - skipping id=\(feed.id)")
-                #endif
+                log("FeedRefresh", "provider \(String(describing: provider)) disabled - skipping id=\(feed.id)")
                 return
             }
-            #if DEBUG
-            print("[FeedRefresh] dispatch -> provider=\(String(describing: provider)) "
-                  + "id=\(feed.id)")
-            #endif
+            log("FeedRefresh", "dispatch -> provider=\(String(describing: provider)) id=\(feed.id)")
             try await provider.refresh(
                 feed: feed,
                 on: self,
@@ -56,9 +45,7 @@ extension FeedManager {
             return
         }
 
-        #if DEBUG
-        print("[FeedRefresh] dispatch -> standard RSS pipeline id=\(feed.id)")
-        #endif
+        log("FeedRefresh", "dispatch -> standard RSS pipeline id=\(feed.id)")
         let database = database
         try await Task.detached {
             try await FeedManager.runStandardFeedPipeline(
@@ -74,9 +61,7 @@ extension FeedManager {
         if reloadData {
             await loadFromDatabaseInBackground(animated: true)
         }
-        #if DEBUG
-        print("[FeedRefresh] refreshFeed end id=\(feed.id)")
-        #endif
+        log("FeedRefresh", "refreshFeed end id=\(feed.id)")
     }
 
     /// Fetches and parses an RSS feed, resolves images, inserts new articles,
@@ -90,16 +75,11 @@ extension FeedManager {
         runNLP: Bool
     ) async throws {
         guard let url = URL(string: feed.fetchURL) else {
-            #if DEBUG
-            print("[FeedRefresh.RSS] invalid fetch URL id=\(feed.id) "
-                  + "fetchURL=\(feed.fetchURL)")
-            #endif
+            log("FeedRefresh.RSS", "invalid fetch URL id=\(feed.id) fetchURL=\(feed.fetchURL)")
             return
         }
         let fetchURL = RedirectDomains.redirectedURL(url)
-        #if DEBUG
-        print("[FeedRefresh.RSS] fetch begin id=\(feed.id) url=\(fetchURL.absoluteString)")
-        #endif
+        log("FeedRefresh.RSS", "fetch begin id=\(feed.id) url=\(fetchURL.absoluteString)")
 
         var request = URLRequest.sakura(url: fetchURL, timeoutInterval: 5)
         if feed.isSubstackFeed, let host = fetchURL.host,
@@ -110,24 +90,14 @@ extension FeedManager {
         let statusCode = (response as? HTTPURLResponse)?.statusCode ?? 0
         let contentType = (response as? HTTPURLResponse)?
             .value(forHTTPHeaderField: "Content-Type") ?? "unknown"
-        #if DEBUG
-        print("[FeedRefresh.RSS] fetch ok id=\(feed.id) bytes=\(data.count) "
-              + "status=\(statusCode) contentType=\(contentType)")
-        #endif
+        log("FeedRefresh.RSS", "fetch ok id=\(feed.id) bytes=\(data.count) status=\(statusCode) contentType=\(contentType)")
         let parser = RSSParser()
         guard let parsed = parser.parse(data: data) else {
-            #if DEBUG
             let bodyHint = bodyContentHint(data: data)
-            print("[FeedRefresh.RSS] parse failed id=\(feed.id) "
-                  + "status=\(statusCode) contentType=\(contentType) "
-                  + "bytes=\(data.count) hint=\(bodyHint)")
-            #endif
+            log("FeedRefresh.RSS", "parse failed id=\(feed.id) status=\(statusCode) contentType=\(contentType) bytes=\(data.count) hint=\(bodyHint)")
             return
         }
-        #if DEBUG
-        print("[FeedRefresh.RSS] parsed id=\(feed.id) articles=\(parsed.articles.count) "
-              + "title=\(parsed.title) isPodcast=\(parsed.isPodcast)")
-        #endif
+        log("FeedRefresh.RSS", "parsed id=\(feed.id) articles=\(parsed.articles.count) title=\(parsed.title) isPodcast=\(parsed.isPodcast)")
 
         if let generator = parsed.generator,
            generator.lowercased().contains("substack"),
@@ -180,12 +150,7 @@ extension FeedManager {
         let insertedIDs = (try? database.insertArticles(
             feedID: feed.id, articles: articleTuples
         )) ?? []
-        #if DEBUG
-        print("[FeedRefresh.RSS] inserted id=\(feed.id) "
-              + "new=\(insertedIDs.count)/\(articleTuples.count) "
-              + "metadataImages=\(metadataImages.count) "
-              + "redditImages=\(redditImages.count)")
-        #endif
+        log("FeedRefresh.RSS", "inserted id=\(feed.id) new=\(insertedIDs.count)/\(articleTuples.count) metadataImages=\(metadataImages.count) redditImages=\(redditImages.count)")
 
         await FeedManager.runPostInsertPipeline(
             insertedIDs: insertedIDs,
@@ -208,9 +173,7 @@ extension FeedManager {
             }
         }
         try database.updateFeedLastFetched(id: feed.id, date: Date())
-        #if DEBUG
-        print("[FeedRefresh.RSS] pipeline complete id=\(feed.id)")
-        #endif
+        log("FeedRefresh.RSS", "pipeline complete id=\(feed.id)")
     }
 
     /// Spotlight indexing, image preloading, and NLP for the articles a feed
@@ -226,54 +189,34 @@ extension FeedManager {
         let database = DatabaseManager.shared
         let insertedArticles = (try? database.articles(withIDs: insertedIDs)) ?? []
         if insertedArticles.isEmpty { return }
-        #if DEBUG
-        print("[FeedRefresh.PostInsert] begin feedTitle=\(feedTitle) "
-              + "count=\(insertedArticles.count) skipImagePreload=\(skipImagePreload) "
-              + "runNLP=\(runNLP)")
-        #endif
+        log("FeedRefresh.PostInsert", "begin feedTitle=\(feedTitle) count=\(insertedArticles.count) skipImagePreload=\(skipImagePreload) runNLP=\(runNLP)")
 
         if !ProcessInfo.processInfo.isLowPowerModeEnabled {
             SpotlightIndexer.indexArticles(insertedArticles, feedTitle: feedTitle)
-            #if DEBUG
-            print("[FeedRefresh.PostInsert] spotlight indexed feedTitle=\(feedTitle) "
-                  + "count=\(insertedArticles.count)")
-            #endif
+            log("FeedRefresh.PostInsert", "spotlight indexed feedTitle=\(feedTitle) count=\(insertedArticles.count)")
         }
         if Task.isCancelled {
-            #if DEBUG
-            print("[FeedRefresh.PostInsert] cancelled before image preload "
-                  + "feedTitle=\(feedTitle)")
-            #endif
+            log("FeedRefresh.PostInsert", "cancelled before image preload feedTitle=\(feedTitle)")
             return
         }
 
         if !skipImagePreload {
             let imageURLs = insertedArticles.compactMap { $0.imageURL }
             if !imageURLs.isEmpty {
-                #if DEBUG
-                print("[FeedRefresh.PostInsert] preloading images "
-                      + "feedTitle=\(feedTitle) count=\(imageURLs.count)")
-                #endif
+                log("FeedRefresh.PostInsert", "preloading images feedTitle=\(feedTitle) count=\(imageURLs.count)")
                 await FeedManager.preloadImages(urls: imageURLs)
             }
         }
         if Task.isCancelled {
-            #if DEBUG
-            print("[FeedRefresh.PostInsert] cancelled before NLP feedTitle=\(feedTitle)")
-            #endif
+            log("FeedRefresh.PostInsert", "cancelled before NLP feedTitle=\(feedTitle)")
             return
         }
 
         if runNLP {
-            #if DEBUG
-            print("[FeedRefresh.PostInsert] queuing NLP feedTitle=\(feedTitle) "
-                  + "count=\(insertedIDs.count)")
-            #endif
+            log("FeedRefresh.PostInsert", "queuing NLP feedTitle=\(feedTitle) count=\(insertedIDs.count)")
             await NLPProcessingCoordinator.processArticles(ids: insertedIDs)
         }
-        #if DEBUG
-        print("[FeedRefresh.PostInsert] end feedTitle=\(feedTitle)")
-        #endif
+        log("FeedRefresh.PostInsert", "end feedTitle=\(feedTitle)")
     }
 
     nonisolated static func fetchMetadataImages(
@@ -364,13 +307,8 @@ extension FeedManager {
         skipImagePreload: Bool = false,
         runNLPAfter: Bool = false
     ) async {
-        #if DEBUG
-        print("[FeedRefresh.All] begin total=\(feeds.count) "
-              + "skipAuthenticatedFetchers=\(skipAuthenticatedFetchers) "
-              + "respectCooldown=\(respectCooldown) "
-              + "skipImageFetch=\(skipImageFetch) "
-              + "skipImagePreload=\(skipImagePreload) runNLPAfter=\(runNLPAfter)")
-        #endif
+        // swiftlint:disable:next line_length
+        log("FeedRefresh.All", "begin total=\(feeds.count) skipAuthenticatedFetchers=\(skipAuthenticatedFetchers) respectCooldown=\(respectCooldown) skipImageFetch=\(skipImageFetch) skipImagePreload=\(skipImagePreload) runNLPAfter=\(runNLPAfter)")
         let cooldownSeconds: TimeInterval? = {
             guard respectCooldown else { return nil }
             let raw = UserDefaults.standard.string(forKey: "BackgroundRefresh.Cooldown")
@@ -391,19 +329,13 @@ extension FeedManager {
             return true
         }
         guard !feedsToRefresh.isEmpty else {
-            #if DEBUG
-            print("[FeedRefresh.All] no feeds eligible after filter (cooldown="
-                  + "\(cooldownSeconds.map { String(Int($0)) } ?? "off")s)")
-            #endif
+            log("FeedRefresh.All", "no feeds eligible after filter (cooldown=\(cooldownSeconds.map { String(Int($0)) } ?? "off")s)")
             return
         }
 
         let slowFeeds = feedsToRefresh.filter { $0.isSlowRefreshFeed }
         let regularFeeds = feedsToRefresh.filter { !$0.isSlowRefreshFeed }
-        #if DEBUG
-        print("[FeedRefresh.All] eligible=\(feedsToRefresh.count) "
-              + "slow=\(slowFeeds.count) regular=\(regularFeeds.count)")
-        #endif
+        log("FeedRefresh.All", "eligible=\(feedsToRefresh.count) slow=\(slowFeeds.count) regular=\(regularFeeds.count)")
 
         await MainActor.run {
             isLoading = true
@@ -456,9 +388,7 @@ extension FeedManager {
         await MainActor.run { self.refreshTask = work }
         _ = await work.value
         await loadFromDatabaseInBackground(animated: true)
-        #if DEBUG
-        print("[FeedRefresh.All] end completed=\(refreshCompleted)/\(refreshTotal)")
-        #endif
+        log("FeedRefresh.All", "end completed=\(refreshCompleted)/\(refreshTotal)")
     }
 
     fileprivate func runBoundedRefresh(
@@ -469,10 +399,7 @@ extension FeedManager {
         runNLP: Bool
     ) async {
         guard !feeds.isEmpty else { return }
-        #if DEBUG
-        print("[FeedRefresh.Bounded] begin count=\(feeds.count) "
-              + "maxConcurrent=\(maxConcurrent)")
-        #endif
+        log("FeedRefresh.Bounded", "begin count=\(feeds.count) maxConcurrent=\(maxConcurrent)")
         await withTaskGroup(of: Void.self) { group in
             var submitted = 0
             var iterator = feeds.makeIterator()
@@ -514,23 +441,17 @@ extension FeedManager {
                 }
             }
         }
-        #if DEBUG
-        print("[FeedRefresh.Bounded] end count=\(feeds.count)")
-        #endif
+        log("FeedRefresh.Bounded", "end count=\(feeds.count)")
     }
 
     /// Refreshes feeds that have never been fetched.
     func refreshUnfetchedFeeds() async {
         let unfetched = feeds.filter { $0.lastFetched == nil }
         guard !unfetched.isEmpty else {
-            #if DEBUG
-            print("[FeedRefresh.Unfetched] no unfetched feeds")
-            #endif
+            log("FeedRefresh.Unfetched", "no unfetched feeds")
             return
         }
-        #if DEBUG
-        print("[FeedRefresh.Unfetched] begin count=\(unfetched.count)")
-        #endif
+        log("FeedRefresh.Unfetched", "begin count=\(unfetched.count)")
 
         for feed in unfetched {
             generateAcronymIcon(feedID: feed.id, title: feed.title)
@@ -544,16 +465,12 @@ extension FeedManager {
             }
         }
         await loadFromDatabaseInBackground(animated: true)
-        #if DEBUG
-        print("[FeedRefresh.Unfetched] end count=\(unfetched.count)")
-        #endif
+        log("FeedRefresh.Unfetched", "end count=\(unfetched.count)")
     }
 
     func refreshAllFeedsAndFavicons() async {
         let currentFeeds = feeds
-        #if DEBUG
-        print("[FeedRefresh.AllAndFavicons] begin count=\(currentFeeds.count)")
-        #endif
+        log("FeedRefresh.AllAndFavicons", "begin count=\(currentFeeds.count)")
         await MainActor.run {
             isLoading = true
             refreshCompleted = 0
@@ -618,10 +535,7 @@ extension FeedManager {
         await loadFromDatabaseInBackground(animated: true)
         regenerateAllAcronymIcons()
         notifyFaviconChange()
-        #if DEBUG
-        print("[FeedRefresh.AllAndFavicons] end completed=\(refreshCompleted)/"
-              + "\(refreshTotal)")
-        #endif
+        log("FeedRefresh.AllAndFavicons", "end completed=\(refreshCompleted)/\(refreshTotal)")
     }
 
     /// Cancels the in-flight refresh task. Feeds whose RSS fetch has already
@@ -630,10 +544,7 @@ extension FeedManager {
     /// collected up to the cancel point appear immediately.
     @MainActor
     func cancelRefresh() {
-        #if DEBUG
-        print("[FeedRefresh] cancelRefresh hadTask=\(refreshTask != nil) "
-              + "completed=\(refreshCompleted)/\(refreshTotal)")
-        #endif
+        log("FeedRefresh", "cancelRefresh hadTask=\(refreshTask != nil) completed=\(refreshCompleted)/\(refreshTotal)")
         refreshTask?.cancel()
         refreshTask = nil
         isLoading = false

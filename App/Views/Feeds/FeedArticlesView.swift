@@ -76,10 +76,7 @@ struct FeedArticlesView: View {
     }
 
     private func performRefresh() async {
-        #if DEBUG
-        print("[FeedArticlesView] performRefresh id=\(feed.id) title=\(feed.title) "
-              + "isLoading=\(feedManager.isLoading)")
-        #endif
+        log("FeedArticlesView", "performRefresh id=\(feed.id) title=\(feed.title) isLoading=\(feedManager.isLoading)")
         guard !feedManager.isLoading else { return }
         feedManager.flushDebouncedReads()
         withAnimation(.smooth.speed(2.0)) {
@@ -89,9 +86,7 @@ struct FeedArticlesView: View {
         withAnimation(.smooth.speed(2.0)) {
             visibility.endRefresh(from: rawArticles, isEnabled: hideViewedContent)
         }
-        #if DEBUG
-        print("[FeedArticlesView] performRefresh end id=\(feed.id)")
-        #endif
+        log("FeedArticlesView", "performRefresh end id=\(feed.id)")
     }
 
     private func acceptPendingRefresh() {
@@ -123,9 +118,7 @@ struct FeedArticlesView: View {
             scrollToTopTrigger: scrollToTopTick
         )
         .refreshable {
-            #if DEBUG
-            print("[FeedArticlesView] .refreshable triggered id=\(feed.id)")
-            #endif
+            log("FeedArticlesView", ".refreshable triggered id=\(feed.id)")
             await performRefresh()
         }
         .trackArticleVisibility(
@@ -145,10 +138,7 @@ struct FeedArticlesView: View {
             acceptPendingRefresh()
         }
         .onAppear {
-            #if DEBUG
-            print("[FeedArticlesView] onAppear id=\(feed.id) title=\(feed.title) "
-                  + "hasInitializedSinceDate=\(hasInitializedSinceDate)")
-            #endif
+            log("FeedArticlesView", "onAppear id=\(feed.id) title=\(feed.title) hasInitializedSinceDate=\(hasInitializedSinceDate)")
             reloadPreloadedEntries()
             if !hasInitializedSinceDate {
                 loadedSinceDate = batchingMode.initialSinceDate(

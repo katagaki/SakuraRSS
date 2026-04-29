@@ -29,18 +29,16 @@ extension ArticleExtractor {
         try collectBlocks(from: element, into: &paragraphs,
                           baseURL: baseURL, excludeTitle: excludeTitle)
 
-        #if DEBUG
-        debugPrint("[Extract] collectBlocks produced \(paragraphs.count) blocks")
+        log("Extract", "collectBlocks produced \(paragraphs.count) blocks")
         for (index, block) in paragraphs.enumerated() {
             if block.hasPrefix("{{IMG}}") {
-                debugPrint("[Extract]   [\(index)] image: \(block.prefix(120))")
+                log("Extract", "  [\(index)] image: \(block.prefix(120))")
             } else if block.hasPrefix("{{CODE}}") {
-                debugPrint("[Extract]   [\(index)] code (\(block.count) chars)")
+                log("Extract", "  [\(index)] code (\(block.count) chars)")
             } else {
-                debugPrint("[Extract]   [\(index)] text (\(block.count) chars): \(block.prefix(80))")
+                log("Extract", "  [\(index)] text (\(block.count) chars): \(block.prefix(80))")
             }
         }
-        #endif
 
         if paragraphs.isEmpty {
             let text = try textContent(of: element, baseURL: baseURL)
@@ -70,17 +68,13 @@ extension ArticleExtractor {
             return nil
         }
         guard isLikelyContentImage(src) else {
-            #if DEBUG
-            debugPrint("[Image] Skipped non-content <\(tag)>: \(src)")
-            #endif
+            log("Image", "Skipped non-content <\(tag)>: \(src)")
             return nil
         }
         guard let resolved = resolveURL(src, against: baseURL) else {
             return nil
         }
-        #if DEBUG
-        debugPrint("[Image] Extracted <\(tag)>: \(resolved)")
-        #endif
+        log("Image", "Extracted <\(tag)>: \(resolved)")
         return resolved
     }
 
@@ -106,34 +100,24 @@ extension ArticleExtractor {
             }
             if tag == "img" || tag == "picture" || tag == "amp-img" {
                 if let resolved = extractImageSrc(from: child, tag: tag, baseURL: baseURL) {
-                    #if DEBUG
-                    debugPrint("[Block] <\(tag)> → image: \(resolved)")
-                    #endif
+                    log("Block", "<\(tag)> → image: \(resolved)")
                     paragraphs.append("{{IMG}}\(resolved){{/IMG}}")
                 } else {
-                    #if DEBUG
-                    debugPrint("[Block] <\(tag)> → skipped (no valid src)")
-                    #endif
+                    log("Block", "<\(tag)> → skipped (no valid src)")
                 }
             } else if tag == "figure" {
                 if let resolved = extractImageSrc(from: child, tag: tag, baseURL: baseURL) {
                     let linkHref = try? child.select("a[href]").first()?.attr("href")
                     let suffix = linkSuffix(for: linkHref, baseURL: baseURL)
-                    #if DEBUG
-                    debugPrint("[Block] <figure> → image: \(resolved)\(suffix.isEmpty ? "" : " (linked)")")
-                    #endif
+                    log("Block", "<figure> → image: \(resolved)\(suffix.isEmpty ? "" : " (linked)")")
                     paragraphs.append("{{IMG}}\(resolved)\(suffix){{/IMG}}")
                 } else {
-                    #if DEBUG
-                    debugPrint("[Block] <figure> → skipped (no valid image)")
-                    #endif
+                    log("Block", "<figure> → skipped (no valid image)")
                 }
                 if let caption = try? child.select("figcaption").first() {
                     let captionText = try textContent(of: caption, baseURL: baseURL)
                     if !captionText.isEmpty {
-                        #if DEBUG
-                        debugPrint("[Block] <figcaption> → \(captionText.prefix(80))")
-                        #endif
+                        log("Block", "<figcaption> → \(captionText.prefix(80))")
                         paragraphs.append("*\(captionText)*")
                     }
                 }
@@ -146,21 +130,15 @@ extension ArticleExtractor {
                       ) {
                 let linkHref = try? child.attr("href")
                 let suffix = linkSuffix(for: linkHref, baseURL: baseURL)
-                #if DEBUG
-                debugPrint("[Block] <a> → linked image: \(resolved)")
-                #endif
+                log("Block", "<a> → linked image: \(resolved)")
                 paragraphs.append("{{IMG}}\(resolved)\(suffix){{/IMG}}")
             } else if tag == "pre" || isCodeBlockWrapper(child) {
                 let codeText = try codeContent(of: child)
                 if !codeText.isEmpty {
-                    #if DEBUG
-                    debugPrint("[Block] <\(tag)> → code block (\(codeText.count) chars)")
-                    #endif
+                    log("Block", "<\(tag)> → code block (\(codeText.count) chars)")
                     paragraphs.append("{{CODE}}\(codeText){{/CODE}}")
                 } else {
-                    #if DEBUG
-                    debugPrint("[Block] <\(tag)> → empty code block, skipped")
-                    #endif
+                    log("Block", "<\(tag)> → empty code block, skipped")
                 }
             } else if blockElements.contains(tag) || isLeafBlock(child) {
                 // Skip textContent for embed-marker paragraphs so
@@ -176,9 +154,7 @@ extension ArticleExtractor {
                     if headingTags.contains(tag),
                        let excludeTitle,
                        text.caseInsensitiveCompare(excludeTitle) == .orderedSame {
-                        #if DEBUG
-                        debugPrint("[Block] <\(tag)> → skipped (matches article title)")
-                        #endif
+                        log("Block", "<\(tag)> → skipped (matches article title)")
                     } else {
                         switch tag {
                         case "h1": text = "# \(text)"
@@ -187,21 +163,15 @@ extension ArticleExtractor {
                         case "h4", "h5", "h6": text = "**\(text)**"
                         default: break
                         }
-                        #if DEBUG
                         let kind = isLeafBlock(child) && !blockElements.contains(tag) ? "leaf" : tag
-                        debugPrint("[Block] <\(kind)> → text (\(text.count) chars): \(text.prefix(80))")
-                        #endif
+                        log("Block", "<\(kind)> → text (\(text.count) chars): \(text.prefix(80))")
                         paragraphs.append(text)
                     }
                 } else {
-                    #if DEBUG
-                    debugPrint("[Block] <\(tag)> → empty text, skipped")
-                    #endif
+                    log("Block", "<\(tag)> → empty text, skipped")
                 }
             } else {
-                #if DEBUG
-                debugPrint("[Block] <\(tag)> → wrapper, recursing into children")
-                #endif
+                log("Block", "<\(tag)> → wrapper, recursing into children")
                 try collectBlocks(from: child, into: &paragraphs,
                                   baseURL: baseURL, excludeTitle: excludeTitle)
             }

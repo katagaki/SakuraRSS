@@ -8,9 +8,7 @@ extension Notification.Name {
 extension YouTubePlayerView {
 
     func togglePlayPause() {
-        #if DEBUG
-        print("[YT Native] togglePlayPause tapped, webView=\(webView != nil)")
-        #endif
+        log("YT Native", "togglePlayPause tapped, webView=\(webView != nil)")
         let script = """
         (function() {
             var videos = document.querySelectorAll('video');
@@ -32,9 +30,7 @@ extension YouTubePlayerView {
         """
         let startingID = playerID
         webView?.evaluateJavaScript(script) { result, error in
-            #if DEBUG
-            print("[YT Native] toggle result=\(String(describing: result)) error=\(String(describing: error))")
-            #endif
+            log("YT Native", "toggle result=\(String(describing: result)) error=\(String(describing: error))")
             if let playing = result as? Bool {
                 isPlaying = playing
                 if playing {
@@ -103,15 +99,9 @@ extension YouTubePlayerView {
     }
 
     func skipAd() {
-        #if DEBUG
-        print("[YT Native] skipAd invoked isAd=\(isAd) isAdSkippable=\(isAdSkippable) "
-            + "webView=\(webView != nil)")
-        #endif
+        log("YT Native", "skipAd invoked isAd=\(isAd) isAdSkippable=\(isAdSkippable) webView=\(webView != nil)")
         webView?.evaluateJavaScript(YouTubePlayerScripts.skipAd) { result, error in
-            #if DEBUG
-            print("[YT Native] skipAd result=\(String(describing: result)) "
-                + "error=\(String(describing: error))")
-            #endif
+            log("YT Native", "skipAd result=\(String(describing: result)) error=\(String(describing: error))")
         }
     }
 

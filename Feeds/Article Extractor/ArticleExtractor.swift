@@ -102,9 +102,7 @@ struct ArticleExtractor {
         excludeTitle: String? = nil
     ) -> String? {
         guard !html.isEmpty else {
-            #if DEBUG
-            debugPrint("[Extract] extractText: empty HTML, returning nil")
-            #endif
+            log("Extract", "extractText: empty HTML, returning nil")
             return nil
         }
 
@@ -114,9 +112,7 @@ struct ArticleExtractor {
             var trimmed = html.trimmingCharacters(in: .whitespacesAndNewlines)
             trimmed = resolveMarkdownLinks(in: trimmed, baseURL: baseURL)
             trimmed = ArticleMarker.escape(trimmed)
-            #if DEBUG
-            debugPrint("[Extract] extractText: no HTML tags, plain text (\(trimmed.count) chars)")
-            #endif
+            log("Extract", "extractText: no HTML tags, plain text (\(trimmed.count) chars)")
             return trimmed.isEmpty ? nil : trimmed
         }
 
@@ -129,17 +125,13 @@ struct ArticleExtractor {
         let tagCount = html.components(separatedBy: "<").count - 1
         let hasMultipleNewlines = html.contains("\n\n")
         if hasMultipleNewlines && tagCount <= 4 && !stripped.isEmpty {
-            #if DEBUG
-            debugPrint("[Extract] extractText: wrapped plain text/Markdown (\(tagCount) tags, \(stripped.count) chars), using directly")
-            #endif
+            log("Extract", "extractText: wrapped plain text/Markdown (\(tagCount) tags, \(stripped.count) chars), using directly")
             var cleaned = stripRemainingHTMLTags(html)
             cleaned = resolveMarkdownLinks(in: cleaned, baseURL: baseURL)
             return ArticleMarker.escape(cleaned)
         }
 
-        #if DEBUG
-        debugPrint("[Extract] extractText: full HTML (\(tagCount) tags, \(html.count) chars), parsing with SwiftSoup")
-        #endif
+        log("Extract", "extractText: full HTML (\(tagCount) tags, \(html.count) chars), parsing with SwiftSoup")
 
         do {
             let doc = try SwiftSoup.parse(html)
@@ -159,14 +151,10 @@ struct ArticleExtractor {
             var cleaned = stripRemainingHTMLTags(result)
             cleaned = resolveMarkdownLinks(in: cleaned, baseURL: baseURL)
             cleaned = compactWhitespace(in: cleaned)
-            #if DEBUG
-            debugPrint("[Extract] extractText: SwiftSoup produced \(paragraphs.count) paragraphs (\(cleaned.count) chars)")
-            #endif
+            log("Extract", "extractText: SwiftSoup produced \(paragraphs.count) paragraphs (\(cleaned.count) chars)")
             return cleaned.isEmpty ? nil : cleaned
         } catch {
-            #if DEBUG
-            debugPrint("[Extract] extractText: SwiftSoup parse failed: \(error)")
-            #endif
+            log("Extract", "extractText: SwiftSoup parse failed: \(error)")
             return nil
         }
     }
@@ -176,9 +164,7 @@ struct ArticleExtractor {
         excludeTitle: String? = nil
     ) async -> String? {
         if WebViewExtractor.requiresWebView(for: url) {
-            #if DEBUG
-            debugPrint("Extracting text using WebView from \(url)")
-            #endif
+            log("Extract", "Extracting text using WebView from \(url)")
             let extractor = WebViewExtractor()
             if let text = await extractor.extractText(from: url) {
                 return text

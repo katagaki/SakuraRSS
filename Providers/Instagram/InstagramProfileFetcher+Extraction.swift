@@ -10,9 +10,7 @@ extension InstagramProfileFetcher {
         guard let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
               let dataObj = json["data"] as? [String: Any],
               let user = dataObj["user"] as? [String: Any] else {
-            #if DEBUG
-            print("[InstagramProfileFetcher] Failed to parse profile JSON structure")
-            #endif
+            log("InstagramProfileFetcher", "Failed to parse profile JSON structure")
             return nil
         }
 
@@ -20,12 +18,10 @@ extension InstagramProfileFetcher {
         let profileImageURL = user["profile_pic_url_hd"] as? String
             ?? user["profile_pic_url"] as? String
 
-        #if DEBUG
         let mediaKeys = user.keys.filter {
             $0.contains("media") || $0.contains("edge") || $0.contains("timeline")
         }
-        print("[InstagramProfileFetcher] User keys containing media/edge/timeline: \(mediaKeys)")
-        #endif
+        log("InstagramProfileFetcher", "User keys containing media/edge/timeline: \(mediaKeys)")
 
         var posts: [ParsedInstagramPost] = []
 
@@ -62,9 +58,7 @@ extension InstagramProfileFetcher {
             }
         }
 
-        #if DEBUG
-        print("[InstagramProfileFetcher] Parsed \(posts.count) posts from profile response")
-        #endif
+        log("InstagramProfileFetcher", "Parsed \(posts.count) posts from profile response")
 
         return InstagramProfileFetchResult(
             posts: posts,
@@ -228,9 +222,7 @@ extension InstagramProfileFetcher {
     ) -> [ParsedInstagramPost] {
         guard let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
               let items = json["items"] as? [[String: Any]] else {
-            #if DEBUG
-            print("[InstagramProfileFetcher] Failed to parse feed JSON structure")
-            #endif
+            log("InstagramProfileFetcher", "Failed to parse feed JSON structure")
             return []
         }
 
@@ -242,9 +234,7 @@ extension InstagramProfileFetcher {
             }
         }
 
-        #if DEBUG
-        print("[InstagramProfileFetcher] Parsed \(posts.count) posts from feed response")
-        #endif
+        log("InstagramProfileFetcher", "Parsed \(posts.count) posts from feed response")
 
         return posts
     }

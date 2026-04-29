@@ -134,21 +134,15 @@ struct SingleFeedProvider: AppIntentTimelineProvider {
         }
         var rawData: Data?
         if let cached = try? database.cachedImageData(for: urlString) {
-            #if DEBUG
-            debugPrint("[Widget] Image cache hit for \(urlString) (\(cached.count) bytes)")
-            #endif
+            log("Widget", "Image cache hit for \(urlString) (\(cached.count) bytes)")
             rawData = cached
         } else if !articleSetUnchanged {
             if let (data, _) = try? await URLSession.shared.data(for: .sakuraImage(url: imageURL)) {
-                #if DEBUG
-                debugPrint("[Widget] Downloaded image \(urlString) (\(data.count) bytes)")
-                #endif
+                log("Widget", "Downloaded image \(urlString) (\(data.count) bytes)")
                 try? database.cacheImageData(data, for: urlString)
                 rawData = data
             } else {
-                #if DEBUG
-                debugPrint("[Widget] Failed to download image \(urlString)")
-                #endif
+                log("Widget", "Failed to download image \(urlString)")
             }
         }
         guard let rawData else { return nil }
@@ -156,11 +150,9 @@ struct SingleFeedProvider: AppIntentTimelineProvider {
         if let imageData {
             thumbnailCache.storeThumbnail(imageData, for: articleID)
         }
-        #if DEBUG
         if imageData == nil {
-            debugPrint("[Widget] Failed to downsample image \(urlString)")
+            log("Widget", "Failed to downsample image \(urlString)")
         }
-        #endif
         return imageData
     }
 

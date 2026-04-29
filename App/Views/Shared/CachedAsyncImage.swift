@@ -121,29 +121,21 @@ struct CachedAsyncImage<Placeholder: View>: View {
                cachedData, maxPixelSize: maxDisplayPixelSize
            ) ?? UIImage(data: cachedData) {
             memoryCache.setImage(cachedImage, forKey: urlString)
-            #if DEBUG
-            debugPrint("[Image] Cache hit for \(urlString) (\(cachedData.count) bytes)")
-            #endif
+            log("Image", "Cache hit for \(urlString) (\(cachedData.count) bytes)")
             return cachedImage
         }
 
-        #if DEBUG
-        debugPrint("[Image] Cache miss, downloading \(urlString)")
-        #endif
+        log("Image", "Cache miss, downloading \(urlString)")
 
         do {
             let (data, response) = try await URLSession.shared.data(for: .sakuraImage(url: url))
             let statusCode = (response as? HTTPURLResponse)?.statusCode
-            #if DEBUG
-            debugPrint("[Image] Downloaded \(urlString): \(data.count) bytes, HTTP \(statusCode ?? 0)")
-            #endif
+            log("Image", "Downloaded \(urlString): \(data.count) bytes, HTTP \(statusCode ?? 0)")
             let downsampled = ImageDownsampler.downsample(
                 data, maxPixelSize: maxDisplayPixelSize
             ) ?? UIImage(data: data)
             guard let downsampled else {
-                #if DEBUG
-                debugPrint("[Image] Failed to decode image data from \(urlString) (\(data.count) bytes)")
-                #endif
+                log("Image", "Failed to decode image data from \(urlString) (\(data.count) bytes)")
                 return nil
             }
             if memoryCache.image(forKey: urlString) == nil {
@@ -152,9 +144,7 @@ struct CachedAsyncImage<Placeholder: View>: View {
             memoryCache.setImage(downsampled, forKey: urlString)
             return downsampled
         } catch {
-            #if DEBUG
-            debugPrint("[Image] Download failed for \(urlString): \(error.localizedDescription)")
-            #endif
+            log("Image", "Download failed for \(urlString): \(error.localizedDescription)")
             return nil
         }
     }

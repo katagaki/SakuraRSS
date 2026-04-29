@@ -1,12 +1,7 @@
 import Foundation
 import NaturalLanguage
-import os
 
 enum NLPProcessingCoordinator {
-
-    #if DEBUG
-    nonisolated static let logger = Logger(subsystem: "com.tsubuzaki.SakuraRSS", category: "NLPCoordinator")
-    #endif
 
     nonisolated private static let chunkSize = 20
 
@@ -19,33 +14,25 @@ enum NLPProcessingCoordinator {
         let defaults = UserDefaults.standard
         let contentInsightsEnabled = defaults.bool(forKey: "Intelligence.ContentInsights.Enabled")
         guard contentInsightsEnabled else {
-            #if DEBUG
-            logger.debug("processNewArticlesIfEnabled: content insights disabled, skipping")
-            #endif
+            log("NLPCoordinator", "processNewArticlesIfEnabled: content insights disabled, skipping")
             return
         }
 
         if ProcessInfo.processInfo.isLowPowerModeEnabled {
-            #if DEBUG
-            logger.debug("processNewArticlesIfEnabled: Low Power Mode is on, deferring")
-            #endif
+            log("NLPCoordinator", "processNewArticlesIfEnabled: Low Power Mode is on, deferring")
             return
         }
 
         let database = DatabaseManager.shared
         let sevenDaysAgo = Date().addingTimeInterval(-7 * 24 * 3600)
 
-        #if DEBUG
         let startTime = Date()
-        logger.debug("processNewArticlesIfEnabled: starting")
-        #endif
+        log("NLPCoordinator", "processNewArticlesIfEnabled: starting")
 
         await Task.detached(priority: .utility) {
             let toProcess = (try? database.unprocessedNLPArticles(since: sevenDaysAgo, limit: 200)) ?? []
 
-            #if DEBUG
-            logger.debug("processNewArticlesIfEnabled: \(toProcess.count) articles to process")
-            #endif
+            log("NLPCoordinator", "processNewArticlesIfEnabled: \(toProcess.count) articles to process")
 
             await onBegin(toProcess.count)
 
@@ -76,10 +63,8 @@ enum NLPProcessingCoordinator {
                 await onProgress(processedSinceYield)
             }
 
-            #if DEBUG
             let elapsed = Date().timeIntervalSince(startTime)
-            logger.debug("processNewArticlesIfEnabled: finished \(toProcess.count) articles in \(String(format: "%.2f", elapsed))s")
-            #endif
+            log("NLPCoordinator", "processNewArticlesIfEnabled: finished \(toProcess.count) articles in \(String(format: "%.2f", elapsed))s")
         }.value
     }
 
@@ -130,9 +115,7 @@ enum NLPProcessingCoordinator {
             .filter { !$0.isEmpty }
             .joined(separator: " ")
 
-        #if DEBUG
-        logger.debug("processArticleSync: article=\(article.id) title=\"\(article.title.prefix(60))\"")
-        #endif
+        log("NLPCoordinator", "processArticleSync: article=\(article.id) title=\"\(article.title.prefix(60))\"")
 
         if runSentiment {
             let sentiment: Double?

@@ -14,37 +14,24 @@ extension FeedManager {
         skipImagePreload: Bool = false,
         runNLP: Bool = true
     ) async throws {
-        #if DEBUG
-        print("[XProfile] refresh begin id=\(feed.id) title=\(feed.title)")
-        #endif
+        log("XProfile", "refresh begin id=\(feed.id) title=\(feed.title)")
         if let lastFetched = feed.lastFetched,
            Date().timeIntervalSince(lastFetched) < Self.xRefreshInterval {
-            #if DEBUG
             let remaining = Self.xRefreshInterval - Date().timeIntervalSince(lastFetched)
-            print("[XProfile] Skipping refresh for @\(feed.title) - "
-                  + "\(Int(remaining))s until next allowed fetch")
-            #endif
+            log("XProfile", "Skipping refresh for @\(feed.title) - \(Int(remaining))s until next allowed fetch")
             return
         }
 
         guard let handle = XProfileFetcher.identifierFromFeedURL(feed.url),
               let profileURL = XProfileFetcher.profileURL(for: handle) else {
-            #if DEBUG
-            print("[XProfile] Could not derive handle/profileURL id=\(feed.id) "
-                  + "url=\(feed.url)")
-            #endif
+            log("XProfile", "Could not derive handle/profileURL id=\(feed.id) url=\(feed.url)")
             return
         }
-        #if DEBUG
-        print("[XProfile] fetching @\(handle) id=\(feed.id)")
-        #endif
+        log("XProfile", "fetching @\(handle) id=\(feed.id)")
 
         let fetcher = XProfileFetcher()
         let result = await fetcher.fetchProfile(profileURL: profileURL)
-        #if DEBUG
-        print("[XProfile] fetched @\(handle) tweets=\(result.tweets.count) "
-              + "displayName=\(result.displayName ?? "nil")")
-        #endif
+        log("XProfile", "fetched @\(handle) tweets=\(result.tweets.count) displayName=\(result.displayName ?? "nil")")
 
         let tweetTuples = result.tweets.map { tweet in
             let title = tweet.text.isEmpty
@@ -79,10 +66,7 @@ extension FeedManager {
             let insertedIDs = (try? database.insertArticles(
                 feedID: feedID, articles: tweetTuples
             )) ?? []
-            #if DEBUG
-            print("[XProfile] inserted id=\(feedID) "
-                  + "new=\(insertedIDs.count)/\(tweetTuples.count)")
-            #endif
+            log("XProfile", "inserted id=\(feedID) new=\(insertedIDs.count)/\(tweetTuples.count)")
             await FeedManager.runPostInsertPipeline(
                 insertedIDs: insertedIDs,
                 feedTitle: feedTitle,
@@ -100,9 +84,7 @@ extension FeedManager {
         if reloadData {
             await loadFromDatabaseInBackground(animated: true)
         }
-        #if DEBUG
-        print("[XProfile] refresh end id=\(feed.id)")
-        #endif
+        log("XProfile", "refresh end id=\(feed.id)")
     }
 
     var hasXFeeds: Bool {

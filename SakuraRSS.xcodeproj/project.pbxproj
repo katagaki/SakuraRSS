@@ -199,6 +199,7 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Assets.xcassets,
+				Log.swift,
 			);
 			target = E45EAA152F9FA36900EA7A54 /* Open Article */;
 		};
@@ -216,7 +217,7 @@
 			);
 			target = E47D104C2F549821006081EF /* WidgetsExtension */;
 		};
-		E47D13142F549D4D006081EF /* Exceptions for "SakuraRSS" folder in "Sakura" target */ = {
+		E47D13142F549D4D006081EF /* Exceptions for "App" folder in "Sakura" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
@@ -267,12 +268,12 @@
 			path = "Open Article";
 			sourceTree = "<group>";
 		};
-		E47D101D2F549605006081EF /* SakuraRSS */ = {
+		E47D101D2F549605006081EF /* App */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				E47D13142F549D4D006081EF /* Exceptions for "SakuraRSS" folder in "Sakura" target */,
+				E47D13142F549D4D006081EF /* Exceptions for "App" folder in "Sakura" target */,
 			);
-			path = SakuraRSS;
+			path = App;
 			sourceTree = "<group>";
 		};
 		E47D10292F549709006081EF /* Shared */ = {
@@ -351,10 +352,10 @@
 			children = (
 				E47D10352F54980E006081EF /* Frameworks */,
 				E47D101C2F549605006081EF /* Products */,
-				E47D10292F549709006081EF /* Shared */,
+				E47D101D2F549605006081EF /* App */,
 				E426BCBC2F93A86A00FF1B20 /* Feeds */,
 				E426BC392F93A67E00FF1B20 /* Providers */,
-				E47D101D2F549605006081EF /* SakuraRSS */,
+				E47D10292F549709006081EF /* Shared */,
 				E47D10382F54980E006081EF /* Add Feed */,
 				E45EAA182F9FA36900EA7A54 /* Open Article */,
 				E47D10522F549821006081EF /* Widgets */,
@@ -427,7 +428,7 @@
 			fileSystemSynchronizedGroups = (
 				E426BC392F93A67E00FF1B20 /* Providers */,
 				E426BCBC2F93A86A00FF1B20 /* Feeds */,
-				E47D101D2F549605006081EF /* SakuraRSS */,
+				E47D101D2F549605006081EF /* App */,
 				E47D10292F549709006081EF /* Shared */,
 			);
 			name = Sakura;
@@ -660,7 +661,7 @@
 		E45EAA252F9FA36900EA7A54 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = OpenFeedIcon;
+				ASSETCATALOG_COMPILER_APPICON_NAME = OpenArticleIcon;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = YYM4Z6MU8F;
@@ -693,7 +694,7 @@
 		E45EAA262F9FA36900EA7A54 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = OpenFeedIcon;
+				ASSETCATALOG_COMPILER_APPICON_NAME = OpenArticleIcon;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = YYM4Z6MU8F;
@@ -862,7 +863,7 @@
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = SakuraRSS/Info.plist;
+				INFOPLIST_FILE = App/Info.plist;
 				INFOPLIST_KEY_BGTaskSchedulerPermittedIdentifiers = "$(PRODUCT_BUNDLE_IDENTIFIER).refresh";
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.news";
@@ -907,7 +908,7 @@
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = SakuraRSS/Info.plist;
+				INFOPLIST_FILE = App/Info.plist;
 				INFOPLIST_KEY_BGTaskSchedulerPermittedIdentifiers = "$(PRODUCT_BUNDLE_IDENTIFIER).refresh";
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.news";

@@ -17,49 +17,33 @@ extension XProfileFetcher {
 
     func performFetch(profileURL: URL) async -> XProfileFetchResult {
         guard let handle = Self.extractIdentifier(from: profileURL) else {
-            #if DEBUG
-            print("[XProfileFetcher] Failed to extract handle from URL: \(profileURL)")
-            #endif
+            log("XProfileFetcher", "Failed to extract handle from URL: \(profileURL)")
             return XProfileFetchResult(tweets: [], profileImageURL: nil, displayName: nil)
         }
 
-        #if DEBUG
-        print("[XProfileFetcher] Fetching profile for handle: \(handle)")
-        #endif
+        log("XProfileFetcher", "Fetching profile for handle: \(handle)")
 
         guard let cookies = await Self.getXCookies() else {
-            #if DEBUG
-            print("[XProfileFetcher] No X session cookies found")
-            #endif
+            log("XProfileFetcher", "No X session cookies found")
             return XProfileFetchResult(tweets: [], profileImageURL: nil, displayName: nil)
         }
 
-        #if DEBUG
-        print("[XProfileFetcher] Got cookies - csrf: \(cookies.csrfToken.prefix(20))…")
-        #endif
+        log("XProfileFetcher", "Got cookies - csrf: \(cookies.csrfToken.prefix(20))…")
 
         guard let userInfo = await fetchUserInfo(
             screenName: handle, cookies: cookies
         ) else {
-            #if DEBUG
-            print("[XProfileFetcher] Failed to fetch user info for \(handle)")
-            #endif
+            log("XProfileFetcher", "Failed to fetch user info for \(handle)")
             return XProfileFetchResult(tweets: [], profileImageURL: nil, displayName: nil)
         }
 
-        #if DEBUG
-        print("[XProfileFetcher] User info - id: \(userInfo.id), "
-              + "name: \(userInfo.displayName ?? "nil"), "
-              + "avatar: \(userInfo.profileImageURL?.prefix(60) ?? "nil")")
-        #endif
+        log("XProfileFetcher", "User info - id: \(userInfo.id), name: \(userInfo.displayName ?? "nil"), avatar: \(userInfo.profileImageURL?.prefix(60) ?? "nil")")
 
         let tweets = await fetchTweets(
             userId: userInfo.id, cookies: cookies
         )
 
-        #if DEBUG
-        print("[XProfileFetcher] Fetched \(tweets.count) tweets total")
-        #endif
+        log("XProfileFetcher", "Fetched \(tweets.count) tweets total")
 
         // Persist any cookies X rotated during the fetch.
         Self.persistRotatedCookies()
@@ -145,38 +129,30 @@ extension XProfileFetcher {
             features: Self.userByScreenNameFeatures,
             fieldToggles: fieldToggles
         ) else {
-            #if DEBUG
-            print("[XProfileFetcher] Failed to build UserByScreenName URL")
-            #endif
+            log("XProfileFetcher", "Failed to build UserByScreenName URL")
             return nil
         }
 
         let request = buildRequest(url: url, cookies: cookies)
 
-        #if DEBUG
-        print("[XProfileFetcher] UserByScreenName request URL: \(url)")
-        print("[XProfileFetcher] Request headers: \(request.allHTTPHeaderFields ?? [:])")
-        #endif
+        log("XProfileFetcher", "UserByScreenName request URL: \(url)")
+        log("XProfileFetcher", "Request headers: \(request.allHTTPHeaderFields ?? [:])")
 
         let data: Data
         let response: URLResponse
         do {
             (data, response) = try await URLSession.shared.data(for: request)
         } catch {
-            #if DEBUG
-            print("[XProfileFetcher] UserByScreenName network error: \(error)")
-            #endif
+            log("XProfileFetcher", "UserByScreenName network error: \(error)")
             return nil
         }
 
         guard let httpResponse = response as? HTTPURLResponse else { return nil }
 
-        #if DEBUG
-        print("[XProfileFetcher] UserByScreenName status: \(httpResponse.statusCode)")
+        log("XProfileFetcher", "UserByScreenName status: \(httpResponse.statusCode)")
         if let body = String(data: data, encoding: .utf8) {
-            print("[XProfileFetcher] UserByScreenName response: \(body.prefix(1000))")
+            log("XProfileFetcher", "UserByScreenName response: \(body.prefix(1000))")
         }
-        #endif
 
         guard httpResponse.statusCode == 200 else { return nil }
 
@@ -184,9 +160,7 @@ extension XProfileFetcher {
               let dataObj = json["data"] as? [String: Any],
               let user = dataObj["user"] as? [String: Any],
               let result = user["result"] as? [String: Any] else {
-            #if DEBUG
-            print("[XProfileFetcher] Failed to parse UserByScreenName JSON structure")
-            #endif
+            log("XProfileFetcher", "Failed to parse UserByScreenName JSON structure")
             return nil
         }
 
@@ -219,9 +193,7 @@ extension XProfileFetcher {
     /// Fetches a single tweet via the TweetDetail GraphQL endpoint.
     func fetchSingleTweet(tweetID: String) async -> ParsedTweet? {
         guard let cookies = await Self.getXCookies() else {
-            #if DEBUG
-            print("[XProfileFetcher] No X session cookies for single tweet fetch")
-            #endif
+            log("XProfileFetcher", "No X session cookies for single tweet fetch")
             return nil
         }
 
@@ -244,9 +216,7 @@ extension XProfileFetcher {
                 features: Self.userTweetsFeatures,
                 fieldToggles: ["withArticlePlainText": false]
               ) else {
-            #if DEBUG
-            print("[XProfileFetcher] Failed to build TweetDetail URL")
-            #endif
+            log("XProfileFetcher", "Failed to build TweetDetail URL")
             return nil
         }
 
@@ -257,18 +227,13 @@ extension XProfileFetcher {
         do {
             (data, response) = try await URLSession.shared.data(for: request)
         } catch {
-            #if DEBUG
-            print("[XProfileFetcher] TweetDetail network error: \(error)")
-            #endif
+            log("XProfileFetcher", "TweetDetail network error: \(error)")
             return nil
         }
 
         guard let httpResponse = response as? HTTPURLResponse,
               httpResponse.statusCode == 200 else {
-            #if DEBUG
-            print("[XProfileFetcher] TweetDetail bad status: "
-                  + "\((response as? HTTPURLResponse)?.statusCode ?? -1)")
-            #endif
+            log("XProfileFetcher", "TweetDetail bad status: \((response as? HTTPURLResponse)?.statusCode ?? -1)")
             return nil
         }
 
@@ -308,53 +273,38 @@ extension XProfileFetcher {
                 features: Self.userTweetsFeatures,
                 fieldToggles: fieldToggles
             ) else {
-                #if DEBUG
-                print("[XProfileFetcher] Failed to build UserTweets URL (page \(page))")
-                #endif
+                log("XProfileFetcher", "Failed to build UserTweets URL (page \(page))")
                 break
             }
 
             let request = buildRequest(url: url, cookies: cookies)
 
-            #if DEBUG
-            print("[XProfileFetcher] UserTweets request (page \(page)): \(url)")
-            #endif
+            log("XProfileFetcher", "UserTweets request (page \(page)): \(url)")
 
             let data: Data
             let response: URLResponse
             do {
                 (data, response) = try await URLSession.shared.data(for: request)
             } catch {
-                #if DEBUG
-                print("[XProfileFetcher] UserTweets network error (page \(page)): \(error)")
-                #endif
+                log("XProfileFetcher", "UserTweets network error (page \(page)): \(error)")
                 break
             }
 
             guard let httpResponse = response as? HTTPURLResponse else { break }
 
-            #if DEBUG
-            print("[XProfileFetcher] UserTweets status (page \(page)): "
-                  + "\(httpResponse.statusCode)")
+            log("XProfileFetcher", "UserTweets status (page \(page)): \(httpResponse.statusCode)")
             if let body = String(data: data, encoding: .utf8) {
-                print("[XProfileFetcher] UserTweets response (page \(page)): "
-                      + "\(body.prefix(2000))")
+                log("XProfileFetcher", "UserTweets response (page \(page)): \(body.prefix(2000))")
             }
-            #endif
 
             guard httpResponse.statusCode == 200 else { break }
 
             guard let parsed = Self.parseTweetsResponse(data: data) else {
-                #if DEBUG
-                print("[XProfileFetcher] Failed to parse UserTweets response (page \(page))")
-                #endif
+                log("XProfileFetcher", "Failed to parse UserTweets response (page \(page))")
                 break
             }
 
-            #if DEBUG
-            print("[XProfileFetcher] Parsed \(parsed.tweets.count) tweets from page \(page), "
-                  + "cursor: \(parsed.bottomCursor?.prefix(30) ?? "nil")")
-            #endif
+            log("XProfileFetcher", "Parsed \(parsed.tweets.count) tweets from page \(page), cursor: \(parsed.bottomCursor?.prefix(30) ?? "nil")")
 
             var newCount = 0
             for tweet in parsed.tweets where !seenIDs.contains(tweet.id) {

@@ -175,18 +175,14 @@ extension XProfileFetcher {
               let threadedConvo = dataObj["threaded_conversation_with_injections_v2"]
                   as? [String: Any],
               let instructions = threadedConvo["instructions"] as? [[String: Any]] else {
-            #if DEBUG
-            print("[XProfileFetcher] Failed to parse TweetDetail JSON structure")
-            #endif
+            log("XProfileFetcher", "Failed to parse TweetDetail JSON structure")
             return nil
         }
 
         guard let addEntries = instructions.first(
             where: { ($0["type"] as? String) == "TimelineAddEntries" }
         ), let entries = addEntries["entries"] as? [[String: Any]] else {
-            #if DEBUG
-            print("[XProfileFetcher] No TimelineAddEntries in TweetDetail")
-            #endif
+            log("XProfileFetcher", "No TimelineAddEntries in TweetDetail")
             return nil
         }
 
@@ -217,9 +213,7 @@ extension XProfileFetcher {
             }
         }
 
-        #if DEBUG
-        print("[XProfileFetcher] TweetDetail: focal tweet \(tweetID) not found in entries")
-        #endif
+        log("XProfileFetcher", "TweetDetail: focal tweet \(tweetID) not found in entries")
         return nil
     }
 

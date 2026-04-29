@@ -79,10 +79,7 @@ extension Authenticated {
         guard !matching.isEmpty else { return }
         cookieStore.save(matching)
 
-        #if DEBUG
-        print("[\(String(describing: Self.self))] Synced \(matching.count) "
-              + "cookies from WebKit → Keychain")
-        #endif
+        log("\(String(describing: Self.self))", "Synced \(matching.count) cookies from WebKit → Keychain")
     }
 
     @MainActor

@@ -14,29 +14,20 @@ extension InstagramProfileFetcher {
 
     func performFetch(profileURL: URL) async -> InstagramProfileFetchResult {
         guard let handle = Self.extractIdentifier(from: profileURL) else {
-            #if DEBUG
-            print("[InstagramProfileFetcher] Failed to extract handle from URL: \(profileURL)")
-            #endif
+            log("InstagramProfileFetcher", "Failed to extract handle from URL: \(profileURL)")
             return InstagramProfileFetchResult(posts: [], profileImageURL: nil, displayName: nil)
         }
 
-        #if DEBUG
-        print("[InstagramProfileFetcher] Fetching profile for handle: \(handle)")
-        #endif
+        log("InstagramProfileFetcher", "Fetching profile for handle: \(handle)")
 
         await Self.awaitHumanPacing()
 
         guard let cookies = Self.getInstagramCookies() else {
-            #if DEBUG
-            print("[InstagramProfileFetcher] No Instagram session cookies found")
-            #endif
+            log("InstagramProfileFetcher", "No Instagram session cookies found")
             return InstagramProfileFetchResult(posts: [], profileImageURL: nil, displayName: nil)
         }
 
-        #if DEBUG
-        print("[InstagramProfileFetcher] Got cookies - csrf: \(cookies.csrfToken.prefix(20))..., "
-              + "total cookies: \(cookies.allCookies.count)")
-        #endif
+        log("InstagramProfileFetcher", "Got cookies - csrf: \(cookies.csrfToken.prefix(20))..., total cookies: \(cookies.allCookies.count)")
 
         let session = makeSession(cookies: cookies)
 
@@ -48,16 +39,11 @@ extension InstagramProfileFetcher {
         Self.markRequestCompleted()
 
         guard let profileData else {
-            #if DEBUG
-            print("[InstagramProfileFetcher] Failed to fetch profile info for \(handle)")
-            #endif
+            log("InstagramProfileFetcher", "Failed to fetch profile info for \(handle)")
             return InstagramProfileFetchResult(posts: [], profileImageURL: nil, displayName: nil)
         }
 
-        #if DEBUG
-        print("[InstagramProfileFetcher] Fetched \(profileData.posts.count) posts, "
-              + "name: \(profileData.displayName ?? "nil")")
-        #endif
+        log("InstagramProfileFetcher", "Fetched \(profileData.posts.count) posts, name: \(profileData.displayName ?? "nil")")
 
         return profileData
     }
@@ -98,18 +84,14 @@ extension InstagramProfileFetcher {
             }
         }
 
-        #if DEBUG
-        print("[InstagramProfileFetcher] Human-pacing delay: \(String(format: "%.2f", delay))s")
-        #endif
+        log("InstagramProfileFetcher", "Human-pacing delay: \(String(format: "%.2f", delay))s")
         try? await Task.sleep(for: .seconds(delay))
     }
 
     /// Short randomised pause between back-to-back API calls inside a single fetch.
     static func awaitIntraFetchPause() async {
         let delay = TimeInterval.random(in: 0.9...2.6)
-        #if DEBUG
-        print("[InstagramProfileFetcher] Intra-fetch pause: \(String(format: "%.2f", delay))s")
-        #endif
+        log("InstagramProfileFetcher", "Intra-fetch pause: \(String(format: "%.2f", delay))s")
         try? await Task.sleep(for: .seconds(delay))
     }
 
@@ -205,29 +187,23 @@ extension InstagramProfileFetcher {
 
         let request = buildRequest(url: url, cookies: cookies)
 
-        #if DEBUG
-        print("[InstagramProfileFetcher] Profile info request: \(url)")
-        #endif
+        log("InstagramProfileFetcher", "Profile info request: \(url)")
 
         let data: Data
         let response: URLResponse
         do {
             (data, response) = try await session.data(for: request)
         } catch {
-            #if DEBUG
-            print("[InstagramProfileFetcher] Profile info network error: \(error)")
-            #endif
+            log("InstagramProfileFetcher", "Profile info network error: \(error)")
             return nil
         }
 
         guard let httpResponse = response as? HTTPURLResponse else { return nil }
 
-        #if DEBUG
-        print("[InstagramProfileFetcher] Profile info status: \(httpResponse.statusCode)")
+        log("InstagramProfileFetcher", "Profile info status: \(httpResponse.statusCode)")
         if let body = String(data: data, encoding: .utf8) {
-            print("[InstagramProfileFetcher] Profile info response: \(body.prefix(1000))")
+            log("InstagramProfileFetcher", "Profile info response: \(body.prefix(1000))")
         }
-        #endif
 
         guard httpResponse.statusCode == 200 else { return nil }
 
@@ -239,10 +215,7 @@ extension InstagramProfileFetcher {
 
         // web_profile_info often returns empty edges even when posts exist; fall back to feed endpoint.
         if result.posts.isEmpty, let userId = Self.extractUserID(from: data) {
-            #if DEBUG
-            print("[InstagramProfileFetcher] Profile had 0 posts, "
-                  + "fetching feed for user ID: \(userId)")
-            #endif
+            log("InstagramProfileFetcher", "Profile had 0 posts, fetching feed for user ID: \(userId)")
             await Self.awaitIntraFetchPause()
             let feedPosts = await fetchUserFeed(
                 userId: userId, username: username,
@@ -277,35 +250,26 @@ extension InstagramProfileFetcher {
         let profileReferer = "https://www.instagram.com/\(username)/"
         let request = buildRequest(url: url, cookies: cookies, referer: profileReferer)
 
-        #if DEBUG
-        print("[InstagramProfileFetcher] Feed request: \(url)")
-        #endif
+        log("InstagramProfileFetcher", "Feed request: \(url)")
 
         let data: Data
         let response: URLResponse
         do {
             (data, response) = try await session.data(for: request)
         } catch {
-            #if DEBUG
-            print("[InstagramProfileFetcher] Feed network error: \(error)")
-            #endif
+            log("InstagramProfileFetcher", "Feed network error: \(error)")
             return []
         }
 
         guard let httpResponse = response as? HTTPURLResponse,
               httpResponse.statusCode == 200 else {
-            #if DEBUG
-            print("[InstagramProfileFetcher] Feed request failed: "
-                  + "\((response as? HTTPURLResponse)?.statusCode ?? -1)")
-            #endif
+            log("InstagramProfileFetcher", "Feed request failed: \((response as? HTTPURLResponse)?.statusCode ?? -1)")
             return []
         }
 
-        #if DEBUG
         if let body = String(data: data, encoding: .utf8) {
-            print("[InstagramProfileFetcher] Feed response: \(body.prefix(500))")
+            log("InstagramProfileFetcher", "Feed response: \(body.prefix(500))")
         }
-        #endif
 
         return Self.parseFeedResponse(
             data: data, username: username, displayName: displayName

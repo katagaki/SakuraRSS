@@ -43,9 +43,7 @@ extension SubstackPublicationFetcher {
     func fetchPublicProfileLogo(host: String) async -> SubstackPublicProfileLogo? {
         guard let handle = Self.handle(from: host),
               let url = URL(string: "https://\(host)/api/v1/user/\(handle)/public_profile") else {
-            #if DEBUG
-            debugPrint("[SubstackPublication] public_profile: bad host/handle for \(host)")
-            #endif
+            log("SubstackPublication", "public_profile: bad host/handle for \(host)")
             return nil
         }
 
@@ -55,32 +53,24 @@ extension SubstackPublicationFetcher {
 
         do {
             let (data, response) = try await URLSession.shared.data(for: request)
-            #if DEBUG
             let status = (response as? HTTPURLResponse)?.statusCode ?? -1
-            debugPrint("[SubstackPublication] public_profile: \(host) handle=\(handle) HTTP \(status) bytes=\(data.count)")
-            #endif
+            log("SubstackPublication", "public_profile: \(host) handle=\(handle) HTTP \(status) bytes=\(data.count)")
 
             let profile = try JSONDecoder().decode(SubstackPublicProfile.self, from: data)
 
             if let logo = profile.primaryPublication?.logoURL, !logo.isEmpty,
                let url = URL(string: Self.upgradedImageURL(logo)) {
-                #if DEBUG
-                debugPrint("[SubstackPublication] public_profile: using primaryPublication.logo_url for \(host)")
-                #endif
+                log("SubstackPublication", "public_profile: using primaryPublication.logo_url for \(host)")
                 return SubstackPublicProfileLogo(url: url, isAuthorPhoto: false)
             }
 
             if let photo = profile.photoURL, !photo.isEmpty,
                let url = URL(string: Self.squareCroppedPhotoURL(photo)) {
-                #if DEBUG
-                debugPrint("[SubstackPublication] public_profile: using photo_url for \(host)")
-                #endif
+                log("SubstackPublication", "public_profile: using photo_url for \(host)")
                 return SubstackPublicProfileLogo(url: url, isAuthorPhoto: true)
             }
 
-            #if DEBUG
-            debugPrint("[SubstackPublication] public_profile: no logo or photo for \(host)")
-            #endif
+            log("SubstackPublication", "public_profile: no logo or photo for \(host)")
             return nil
         } catch {
             print("[SubstackPublication] public_profile fetch failed - \(error.localizedDescription)")

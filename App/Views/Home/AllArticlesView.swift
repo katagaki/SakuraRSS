@@ -187,9 +187,7 @@ struct AllArticlesView: View {
     }
 
     private func performRefresh() async {
-        #if DEBUG
-        print("[AllArticlesView] performRefresh isLoading=\(feedManager.isLoading)")
-        #endif
+        log("AllArticlesView", "performRefresh isLoading=\(feedManager.isLoading)")
         guard !feedManager.isLoading else { return }
         feedManager.flushDebouncedReads()
         withAnimation(.smooth.speed(2.0)) {
@@ -199,18 +197,13 @@ struct AllArticlesView: View {
         withAnimation(.smooth.speed(2.0)) {
             visibility.endRefresh(from: rawArticles, isEnabled: hideViewedContent)
         }
-        #if DEBUG
-        print("[AllArticlesView] performRefresh end")
-        #endif
+        log("AllArticlesView", "performRefresh end")
     }
 
     /// Kicks off a refresh and returns immediately so SwiftUI dismisses the
     /// pull-to-refresh indicator; in-flight progress shows via the toolbar donut.
     private func startRefreshWithoutBlocking() {
-        #if DEBUG
-        print("[AllArticlesView] startRefreshWithoutBlocking "
-              + "isLoading=\(feedManager.isLoading)")
-        #endif
+        log("AllArticlesView", "startRefreshWithoutBlocking isLoading=\(feedManager.isLoading)")
         guard !feedManager.isLoading else { return }
         feedManager.flushDebouncedReads()
         withAnimation(.smooth.speed(2.0)) {
@@ -221,9 +214,7 @@ struct AllArticlesView: View {
             withAnimation(.smooth.speed(2.0)) {
                 visibility.endRefresh(from: rawArticles, isEnabled: hideViewedContent)
             }
-            #if DEBUG
-            print("[AllArticlesView] startRefreshWithoutBlocking end")
-            #endif
+            log("AllArticlesView", "startRefreshWithoutBlocking end")
         }
     }
 
@@ -340,10 +331,7 @@ struct AllArticlesView: View {
             validateSelection()
         }
         .onAppear {
-            #if DEBUG
-            print("[AllArticlesView] onAppear selection=\(selectedSelection.rawValue) "
-                  + "hasInitializedSinceDate=\(hasInitializedSinceDate)")
-            #endif
+            log("AllArticlesView", "onAppear selection=\(selectedSelection.rawValue) hasInitializedSinceDate=\(hasInitializedSinceDate)")
             reloadPreloadedEntries()
             if !hasInitializedSinceDate {
                 loadedSinceDate = batchingMode.initialSinceDate(
@@ -468,9 +456,7 @@ struct AllArticlesView: View {
             .padding(.bottom, 8)
         }
         .refreshable {
-            #if DEBUG
-            print("[AllArticlesView] .refreshable triggered")
-            #endif
+            log("AllArticlesView", ".refreshable triggered")
             startRefreshWithoutBlocking()
         }
         .trackArticleVisibility(

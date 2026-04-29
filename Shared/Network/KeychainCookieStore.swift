@@ -15,9 +15,7 @@ nonisolated struct KeychainCookieStore {
                 requiringSecureCoding: true
             )
         } catch {
-            #if DEBUG
-            print("[KeychainCookieStore:\(service)] archive failed: \(error)")
-            #endif
+            log("KeychainCookieStore:\(service)", "archive failed: \(error)")
             return
         }
 
@@ -40,15 +38,11 @@ nonisolated struct KeychainCookieStore {
             var addQuery = matchQuery
             for (key, value) in updateAttributes { addQuery[key] = value }
             let addStatus = SecItemAdd(addQuery as CFDictionary, nil)
-            #if DEBUG
             if addStatus != errSecSuccess {
-                print("[KeychainCookieStore:\(service)] add failed: \(addStatus)")
+                log("KeychainCookieStore:\(service)", "add failed: \(addStatus)")
             }
-            #endif
         } else if updateStatus != errSecSuccess {
-            #if DEBUG
-            print("[KeychainCookieStore:\(service)] update failed: \(updateStatus)")
-            #endif
+            log("KeychainCookieStore:\(service)", "update failed: \(updateStatus)")
         }
     }
 
@@ -75,9 +69,7 @@ nonisolated struct KeychainCookieStore {
             )
             return unarchived as? [HTTPCookie]
         } catch {
-            #if DEBUG
-            print("[KeychainCookieStore:\(service)] unarchive failed: \(error)")
-            #endif
+            log("KeychainCookieStore:\(service)", "unarchive failed: \(error)")
             return nil
         }
     }

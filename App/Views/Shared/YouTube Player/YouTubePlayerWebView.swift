@@ -242,12 +242,10 @@ struct YouTubePlayerWebView: UIViewRepresentable {
             _ userContentController: WKUserContentController,
             didReceive message: WKScriptMessage
         ) {
-            #if DEBUG
             if message.name == "ytDebug" {
-                print("[YT JS]", message.body)
+                log("YT JS", "\(message.body)")
                 return
             }
-            #endif
             guard message.name == YouTubePlayerScripts.pipMessageHandlerName,
                   let state = message.body as? String else { return }
             let entered = (state == "enter")

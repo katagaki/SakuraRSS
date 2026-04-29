@@ -14,38 +14,24 @@ extension FeedManager {
         skipImagePreload: Bool = false,
         runNLP: Bool = true
     ) async throws {
-        #if DEBUG
-        print("[YouTubePlaylist] refresh begin id=\(feed.id) title=\(feed.title)")
-        #endif
+        log("YouTubePlaylist", "refresh begin id=\(feed.id) title=\(feed.title)")
         if let lastFetched = feed.lastFetched,
            Date().timeIntervalSince(lastFetched) < Self.youTubePlaylistRefreshInterval {
-            #if DEBUG
             let remaining = Self.youTubePlaylistRefreshInterval
                 - Date().timeIntervalSince(lastFetched)
-            print("[YouTubePlaylist] Skipping refresh for \(feed.title) - "
-                  + "\(Int(remaining))s until next allowed fetch")
-            #endif
+            log("YouTubePlaylist", "Skipping refresh for \(feed.title) - \(Int(remaining))s until next allowed fetch")
             return
         }
 
         guard let playlistID = YouTubePlaylistFetcher.identifierFromFeedURL(feed.url) else {
-            #if DEBUG
-            print("[YouTubePlaylist] Could not derive playlistID id=\(feed.id) "
-                  + "url=\(feed.url)")
-            #endif
+            log("YouTubePlaylist", "Could not derive playlistID id=\(feed.id) url=\(feed.url)")
             return
         }
-        #if DEBUG
-        print("[YouTubePlaylist] fetching playlistID=\(playlistID) id=\(feed.id)")
-        #endif
+        log("YouTubePlaylist", "fetching playlistID=\(playlistID) id=\(feed.id)")
 
         let fetcher = YouTubePlaylistFetcher()
         let result = await fetcher.fetchPlaylist(playlistID: playlistID)
-        #if DEBUG
-        print("[YouTubePlaylist] fetched playlistID=\(playlistID) "
-              + "videos=\(result.videos.count) "
-              + "playlistTitle=\(result.playlistTitle ?? "nil")")
-        #endif
+        log("YouTubePlaylist", "fetched playlistID=\(playlistID) videos=\(result.videos.count) playlistTitle=\(result.playlistTitle ?? "nil")")
 
         let articleTuples = result.videos.map { video in
             ArticleInsertItem(
@@ -74,10 +60,7 @@ extension FeedManager {
             let insertedIDs = (try? database.insertArticles(
                 feedID: feedID, articles: articleTuples
             )) ?? []
-            #if DEBUG
-            print("[YouTubePlaylist] inserted id=\(feedID) "
-                  + "new=\(insertedIDs.count)/\(articleTuples.count)")
-            #endif
+            log("YouTubePlaylist", "inserted id=\(feedID) new=\(insertedIDs.count)/\(articleTuples.count)")
             await FeedManager.runPostInsertPipeline(
                 insertedIDs: insertedIDs,
                 feedTitle: feedTitle,
@@ -95,9 +78,7 @@ extension FeedManager {
         if reloadData {
             await loadFromDatabaseInBackground(animated: true)
         }
-        #if DEBUG
-        print("[YouTubePlaylist] refresh end id=\(feed.id)")
-        #endif
+        log("YouTubePlaylist", "refresh end id=\(feed.id)")
     }
 
     var hasYouTubePlaylistFeeds: Bool {

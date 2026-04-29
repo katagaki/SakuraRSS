@@ -214,9 +214,7 @@ nonisolated extension DatabaseManager {
             ORDER BY a.published_date DESC
             LIMIT ?
             """
-        #if DEBUG
-        debugPrint("[SQLite] articlesForEntity(name:, types:, limit:) - \(sql)")
-        #endif
+        log("SQLite", "articlesForEntity(name:, types:, limit:) - \(sql)")
         var bindings: [Binding?] = [name as Binding?]
         bindings.append(contentsOf: types.map { $0 as Binding? })
         bindings.append(limit)

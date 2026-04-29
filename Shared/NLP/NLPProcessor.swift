@@ -1,12 +1,7 @@
 import Foundation
 import NaturalLanguage
-import os
 
 nonisolated enum NLPProcessor {
-
-    #if DEBUG
-    static let logger = Logger(subsystem: "com.tsubuzaki.SakuraRSS", category: "NLP")
-    #endif
 
     // MARK: - Hybrid Scoring Tunables
 
@@ -61,9 +56,7 @@ nonisolated enum NLPProcessor {
             }
             return true
         }
-        #if DEBUG
-        logger.debug("Extracted \(results.count) entities from text (\(text.count) chars)")
-        #endif
+        log("NLP", "Extracted \(results.count) entities from text (\(text.count) chars)")
         return results
     }
 
@@ -93,15 +86,11 @@ nonisolated enum NLPProcessor {
             return true
         }
         guard !scores.isEmpty else {
-            #if DEBUG
-            logger.debug("Sentiment: no scores extracted from \(text.count)-char text")
-            #endif
+            log("NLP", "Sentiment: no scores extracted from \(text.count)-char text")
             return nil
         }
         let average = scores.reduce(0, +) / Double(scores.count)
-        #if DEBUG
-        logger.debug("Sentiment: \(String(format: "%.3f", average)) (from \(scores.count) paragraphs)")
-        #endif
+        log("NLP", "Sentiment: \(String(format: "%.3f", average)) (from \(scores.count) paragraphs)")
         return average
     }
 
@@ -124,9 +113,7 @@ nonisolated enum NLPProcessor {
         let embedding = NLEmbedding.sentenceEmbedding(for: language)
             ?? NLEmbedding.sentenceEmbedding(for: .english)
         guard let embedding else {
-            #if DEBUG
-            logger.debug("findSimilarArticlesHybrid: no embedding available for language \(language.rawValue)")
-            #endif
+            log("NLP", "findSimilarArticlesHybrid: no embedding available for language \(language.rawValue)")
             return []
         }
 
@@ -134,9 +121,8 @@ nonisolated enum NLPProcessor {
         let embeddingWeight = hasSourceEntities ? hybridEmbeddingWeight : 1.0
         let entityWeight = hasSourceEntities ? hybridEntityWeight : 0.0
 
-        #if DEBUG
-        logger.debug("findSimilarArticlesHybrid: comparing article \(article.id) against \(candidates.count) candidates (lang=\(language.rawValue), sourceEntities=\(sourceEntities.count))")
-        #endif
+        // swiftlint:disable:next line_length
+        log("NLP", "findSimilarArticlesHybrid: comparing article \(article.id) against \(candidates.count) candidates (lang=\(language.rawValue), sourceEntities=\(sourceEntities.count))")
 
         // NLEmbedding is not thread-safe - process serially.
         var scored: [(articleID: Int64, score: Double)] = []
@@ -166,9 +152,8 @@ nonisolated enum NLPProcessor {
 
         let sorted = scored.sorted { $0.score > $1.score }
         let results = Array(sorted.prefix(maxResults))
-        #if DEBUG
-        logger.debug("findSimilarArticlesHybrid: returning \(results.count) matches (best score: \(String(format: "%.3f", results.first?.score ?? -1)))")
-        #endif
+        // swiftlint:disable:next line_length
+        log("NLP", "findSimilarArticlesHybrid: returning \(results.count) matches (best score: \(String(format: "%.3f", results.first?.score ?? -1)))")
         return results
     }
 

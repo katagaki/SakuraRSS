@@ -18,38 +18,25 @@ extension FeedManager {
         skipImagePreload: Bool = false,
         runNLP: Bool = true
     ) async throws {
-        #if DEBUG
-        print("[InstagramProfile] refresh begin id=\(feed.id) title=\(feed.title)")
-        #endif
+        log("InstagramProfile", "refresh begin id=\(feed.id) title=\(feed.title)")
         let effectiveInterval = Self.jitteredRefreshInterval()
         if let lastFetched = feed.lastFetched,
            Date().timeIntervalSince(lastFetched) < effectiveInterval {
-            #if DEBUG
             let remaining = effectiveInterval - Date().timeIntervalSince(lastFetched)
-            print("[InstagramProfile] Skipping refresh for @\(feed.title) - "
-                  + "\(Int(remaining))s until next allowed fetch")
-            #endif
+            log("InstagramProfile", "Skipping refresh for @\(feed.title) - \(Int(remaining))s until next allowed fetch")
             return
         }
 
         guard let handle = InstagramProfileFetcher.identifierFromFeedURL(feed.url),
               let profileURL = InstagramProfileFetcher.profileURL(for: handle) else {
-            #if DEBUG
-            print("[InstagramProfile] Could not derive handle/profileURL id=\(feed.id) "
-                  + "url=\(feed.url)")
-            #endif
+            log("InstagramProfile", "Could not derive handle/profileURL id=\(feed.id) url=\(feed.url)")
             return
         }
-        #if DEBUG
-        print("[InstagramProfile] fetching @\(handle) id=\(feed.id)")
-        #endif
+        log("InstagramProfile", "fetching @\(handle) id=\(feed.id)")
 
         let fetcher = InstagramProfileFetcher()
         let result = await fetcher.fetchProfile(profileURL: profileURL)
-        #if DEBUG
-        print("[InstagramProfile] fetched @\(handle) posts=\(result.posts.count) "
-              + "displayName=\(result.displayName ?? "nil")")
-        #endif
+        log("InstagramProfile", "fetched @\(handle) posts=\(result.posts.count) displayName=\(result.displayName ?? "nil")")
 
         let postTuples = result.posts.map { post in
             let title = post.text.isEmpty
@@ -84,10 +71,7 @@ extension FeedManager {
             let insertedIDs = (try? database.insertArticles(
                 feedID: feedID, articles: postTuples
             )) ?? []
-            #if DEBUG
-            print("[InstagramProfile] inserted id=\(feedID) "
-                  + "new=\(insertedIDs.count)/\(postTuples.count)")
-            #endif
+            log("InstagramProfile", "inserted id=\(feedID) new=\(insertedIDs.count)/\(postTuples.count)")
             await FeedManager.runPostInsertPipeline(
                 insertedIDs: insertedIDs,
                 feedTitle: feedTitle,
@@ -105,9 +89,7 @@ extension FeedManager {
         if reloadData {
             await loadFromDatabaseInBackground(animated: true)
         }
-        #if DEBUG
-        print("[InstagramProfile] refresh end id=\(feed.id)")
-        #endif
+        log("InstagramProfile", "refresh end id=\(feed.id)")
     }
 
     var hasInstagramFeeds: Bool {

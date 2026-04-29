@@ -74,28 +74,20 @@ extension ExtractsArticle {
             }
         }
 
-        #if DEBUG
-        debugPrint("Extracting article content: \(article.url)")
-        #endif
+        log("Extract", "Extracting article content: \(article.url)")
 
         if let cached = readCachedContent(), !cached.isEmpty {
             extractedText = cached
-            #if DEBUG
-            debugPrint("[Extract] Cache hit (\(cached.count) chars): \(article.url)")
-            #endif
+            log("Extract", "Cache hit (\(cached.count) chars): \(article.url)")
             return
         }
 
-        #if DEBUG
-        debugPrint("[Extract] Cache miss: \(article.url)")
-        #endif
+        log("Extract", "Cache miss: \(article.url)")
 
         let articleTitle = article.title
         let source = articleSource
 
-        #if DEBUG
-        debugPrint("[Extract] Source: \(source.rawValue), content length: \(article.content?.count ?? 0): \(article.url)")
-        #endif
+        log("Extract", "Source: \(source.rawValue), content length: \(article.content?.count ?? 0): \(article.url)")
 
         var contentURL: URL? = URL(string: article.url)
         var isRedditLinkedArticle = false
@@ -115,9 +107,7 @@ extension ExtractsArticle {
                     isRedditLinkedArticle = true
                 }
             } catch {
-                #if DEBUG
-                debugPrint("[Extract] Reddit fetch failed, falling through: \(error)")
-                #endif
+                log("Extract", "Reddit fetch failed, falling through: \(error)")
             }
         }
 
@@ -207,9 +197,7 @@ extension ExtractsArticle {
                 }
                 return
             }
-            #if DEBUG
-            debugPrint("[Extract] X post fetch failed, falling through: \(article.url)")
-            #endif
+            log("Extract", "X post fetch failed, falling through: \(article.url)")
         }
 
         if let url = URL(string: article.url), ExtractTextDomains.shouldExtractText(for: url) {
@@ -235,18 +223,14 @@ extension ExtractsArticle {
             if let text, !text.isEmpty {
                 let paragraphCount = text.components(separatedBy: "\n\n").count
                 let looksWellStructured = paragraphCount > 1 || text.count < 500
-                #if DEBUG
-                debugPrint("[Extract] Feed content: \(paragraphCount) paragraphs, \(text.count) chars, wellStructured=\(looksWellStructured): \(article.url)")
-                #endif
+                log("Extract", "Feed content: \(paragraphCount) paragraphs, \(text.count) chars, wellStructured=\(looksWellStructured): \(article.url)")
                 if looksWellStructured {
                     extractedText = text
                     persistCachedContent(text)
                     return
                 }
             }
-            #if DEBUG
-            debugPrint("[Extract] Feed content unsuitable, falling through to URL fetch: \(article.url)")
-            #endif
+            log("Extract", "Feed content unsuitable, falling through to URL fetch: \(article.url)")
         }
 
         if let initialURL = contentURL.map(ArticleExtractor.unwrapGoogleAMPURL) {

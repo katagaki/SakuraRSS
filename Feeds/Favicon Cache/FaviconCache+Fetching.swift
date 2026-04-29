@@ -21,29 +21,21 @@ extension FaviconCache {
         for domain: String, siteURL: String? = nil,
         cacheKey: String, filePath: URL
     ) async -> UIImage? {
-        #if DEBUG
-        debugPrint("[Favicon] Fetching favicon for domain: \(domain), cacheKey: \(cacheKey)")
-        #endif
+        log("Favicon", "Fetching favicon for domain: \(domain), cacheKey: \(cacheKey)")
 
         if Self.isProfileBased(domain: domain, siteURL: siteURL), let siteURL = siteURL,
            let image = await fetchProfileAvatar(from: siteURL) {
-            #if DEBUG
-            debugPrint("[Favicon] Found profile avatar for \(domain)")
-            #endif
+            log("Favicon", "Found profile avatar for \(domain)")
             return await trimAndCache(image, cacheKey: cacheKey, filePath: filePath, domain: domain)
         }
 
         let faviconDomain = FaviconAlternateDomains.faviconDomain(for: domain)
-        #if DEBUG
         if faviconDomain != domain {
-            debugPrint("[Favicon] Mapped domain \(domain) → \(faviconDomain)")
+            log("Favicon", "Mapped domain \(domain) → \(faviconDomain)")
         }
-        #endif
 
         guard let url = URL(string: "https://\(faviconDomain)") else {
-            #if DEBUG
-            debugPrint("[Favicon] Invalid domain URL: \(domain)")
-            #endif
+            log("Favicon", "Invalid domain URL: \(domain)")
             recordFailedLookup(cacheKey)
             return nil
         }
@@ -52,44 +44,32 @@ extension FaviconCache {
            let touchURL = URL(string: "https://\(faviconDomain)/apple-touch-icon.png"),
            let (data, _) = try? await Self.urlSession.data(from: touchURL),
            let image = UIImage(data: data) {
-            #if DEBUG
-            debugPrint("[Favicon] Forced apple-touch-icon for \(domain)")
-            #endif
+            log("Favicon", "Forced apple-touch-icon for \(domain)")
             return await trimAndCache(image, cacheKey: cacheKey, filePath: filePath, domain: domain)
         }
 
         if let image = await fetchPWAIcon(from: url) {
-            #if DEBUG
-            debugPrint("[Favicon] Found PWA/touch icon for \(domain)")
-            #endif
+            log("Favicon", "Found PWA/touch icon for \(domain)")
             return await trimAndCache(image, cacheKey: cacheKey, filePath: filePath, domain: domain)
         }
 
         do {
             let faviconURLs = try await FaviconFinder(url: url).fetchFaviconURLs()
             guard let bestFaviconURL = faviconURLs.first else {
-                #if DEBUG
-                debugPrint("[Favicon] No favicon URLs found for \(domain)")
-                #endif
+                log("Favicon", "No favicon URLs found for \(domain)")
                 recordFailedLookup(cacheKey)
                 return nil
             }
-            #if DEBUG
-            debugPrint("[Favicon] Downloading favicon from \(bestFaviconURL) for \(domain)")
-            #endif
+            log("Favicon", "Downloading favicon from \(bestFaviconURL) for \(domain)")
             let favicon = try await bestFaviconURL.download()
             guard let faviconImage = favicon.image else {
-                #if DEBUG
-                debugPrint("[Favicon] Failed to decode favicon image for \(domain)")
-                #endif
+                log("Favicon", "Failed to decode favicon image for \(domain)")
                 recordFailedLookup(cacheKey)
                 return nil
             }
             return await trimAndCache(faviconImage.image, cacheKey: cacheKey, filePath: filePath, domain: domain)
         } catch {
-            #if DEBUG
-            debugPrint("[Favicon] FaviconFinder failed for \(domain): \(error.localizedDescription)")
-            #endif
+            log("Favicon", "FaviconFinder failed for \(domain): \(error.localizedDescription)")
             recordFailedLookup(cacheKey)
             return nil
         }

@@ -104,7 +104,12 @@ extension FeedManager {
         )
     }
 
-    func nextLoadedCount(for section: FeedSection, after count: Int, batchSize: Int, requireUnread: Bool = false) -> Int? {
+    func nextLoadedCount(
+        for section: FeedSection,
+        after count: Int,
+        batchSize: Int,
+        requireUnread: Bool = false
+    ) -> Int? {
         let newCount = count + batchSize
         let revealedRange = self.articles(for: section, limit: newCount, requireUnread: requireUnread)
         guard revealedRange.count > count else { return nil }
@@ -174,7 +179,12 @@ extension FeedManager {
         return applyListRules(filtered, listID: list.id)
     }
 
-    func nextArticleChunk(for list: FeedList, before date: Date, chunkDays days: Int, requireUnread: Bool = false) -> Date? {
+    func nextArticleChunk(
+        for list: FeedList,
+        before date: Date,
+        chunkDays days: Int,
+        requireUnread: Bool = false
+    ) -> Date? {
         _ = dataRevision
         let listFeedIDs = feedIDs(for: list)
         guard !listFeedIDs.isEmpty else { return nil }
@@ -204,11 +214,11 @@ extension FeedManager {
 
     // MARK: - Date-based Batches (Arbitrary Window)
 
-    /// Walks backwards in `chunkDays` windows until a visible-article window is
-    /// found. When `requireUnread` is set, chunks with only-read articles are
-    /// skipped so callers with Hide Viewed Content on don't dead-end on a
-    /// chunk whose contents would be filtered out anyway.
-    func nextArticleChunk(before date: Date, chunkDays days: Int, requireUnread: Bool = false) -> Date? {
+    func nextArticleChunk(
+        before date: Date,
+        chunkDays days: Int,
+        requireUnread: Bool = false
+    ) -> Date? {
         _ = dataRevision
         let calendar = Calendar.current
         let muted = mutedFeedIDs
@@ -233,7 +243,12 @@ extension FeedManager {
         return nil
     }
 
-    func nextArticleChunk(for section: FeedSection, before date: Date, chunkDays days: Int, requireUnread: Bool = false) -> Date? {
+    func nextArticleChunk(
+        for section: FeedSection,
+        before date: Date,
+        chunkDays days: Int,
+        requireUnread: Bool = false
+    ) -> Date? {
         _ = dataRevision
         let sectionFeedIDs = Set(feeds.filter { $0.feedSection == section }.map(\.id))
         guard !sectionFeedIDs.isEmpty else { return nil }
@@ -260,7 +275,12 @@ extension FeedManager {
         return nil
     }
 
-    func nextArticleChunk(for feed: Feed, before date: Date, chunkDays days: Int, requireUnread: Bool = false) -> Date? {
+    func nextArticleChunk(
+        for feed: Feed,
+        before date: Date,
+        chunkDays days: Int,
+        requireUnread: Bool = false
+    ) -> Date? {
         _ = dataRevision
         let calendar = Calendar.current
         var cursor = date

@@ -7,18 +7,14 @@ extension FaviconCache {
         do {
             let (data, _) = try await Self.urlSession.data(from: siteURL)
             guard let html = String(data: data, encoding: .utf8) else {
-                #if DEBUG
-                debugPrint("[Favicon] PWA: failed to decode HTML from \(siteURL)")
-                #endif
+                log("Favicon", "PWA: failed to decode HTML from \(siteURL)")
                 return nil
             }
 
             if let manifestHref = extractLinkHref(from: html, rel: "manifest"),
                let manifestURL = URL(string: manifestHref, relativeTo: siteURL),
                let icon = await fetchManifestIcon(from: manifestURL.absoluteURL) {
-                #if DEBUG
-                debugPrint("[Favicon] PWA: found manifest icon from \(manifestURL.absoluteURL)")
-                #endif
+                log("Favicon", "PWA: found manifest icon from \(manifestURL.absoluteURL)")
                 return icon
             }
 
@@ -26,24 +22,16 @@ extension FaviconCache {
                let iconURL = URL(string: touchIconHref, relativeTo: siteURL) {
                 let (iconData, _) = try await Self.urlSession.data(from: iconURL.absoluteURL)
                 if let image = UIImage(data: iconData), image.size.width >= 64 {
-                    #if DEBUG
-                    debugPrint("[Favicon] PWA: found apple-touch-icon from \(iconURL.absoluteURL) (\(image.size.width)x\(image.size.height))")
-                    #endif
+                    log("Favicon", "PWA: found apple-touch-icon from \(iconURL.absoluteURL) (\(image.size.width)x\(image.size.height))")
                     return image
                 }
-                #if DEBUG
-                debugPrint("[Favicon] PWA: apple-touch-icon too small or invalid from \(iconURL.absoluteURL)")
-                #endif
+                log("Favicon", "PWA: apple-touch-icon too small or invalid from \(iconURL.absoluteURL)")
             }
 
-            #if DEBUG
-            debugPrint("[Favicon] PWA: no suitable icon found for \(siteURL)")
-            #endif
+            log("Favicon", "PWA: no suitable icon found for \(siteURL)")
             return nil
         } catch {
-            #if DEBUG
-            debugPrint("[Favicon] PWA: fetch failed for \(siteURL): \(error.localizedDescription)")
-            #endif
+            log("Favicon", "PWA: fetch failed for \(siteURL): \(error.localizedDescription)")
             return nil
         }
     }

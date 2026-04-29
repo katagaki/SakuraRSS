@@ -65,9 +65,7 @@ struct PhotosArticleCard: View {
 
                 Menu {
                     Button {
-                        #if DEBUG
-                        print("[PhotosCard] Menu: toggle read for article \(article.id)")
-                        #endif
+                        log("PhotosCard", "Menu: toggle read for article \(article.id)")
                         feedManager.toggleRead(article)
                     } label: {
                         Label(
@@ -180,9 +178,7 @@ struct PhotosArticleCard: View {
 
             HStack(spacing: 16) {
                 Button {
-                    #if DEBUG
-                    print("[PhotosCard] Copy tapped for article \(article.id), photoImage=\(photoImage != nil)")
-                    #endif
+                    log("PhotosCard", "Copy tapped for article \(article.id), photoImage=\(photoImage != nil)")
                     UIImpactFeedbackGenerator(style: .light).impactOccurred()
                     if let photoImage {
                         UIPasteboard.general.image = photoImage
@@ -202,9 +198,7 @@ struct PhotosArticleCard: View {
                 Spacer()
 
                 Button {
-                    #if DEBUG
-                    print("[PhotosCard] Bookmark tapped for article \(article.id)")
-                    #endif
+                    log("PhotosCard", "Bookmark tapped for article \(article.id)")
                     UIImpactFeedbackGenerator(style: .light).impactOccurred()
                     feedManager.toggleBookmark(article)
                 } label: {

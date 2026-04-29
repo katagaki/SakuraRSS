@@ -39,27 +39,19 @@ extension FaviconCache {
             let metadata = await provider.fetchMetadata(for: url)
             if let iconURL = metadata?.iconURL {
                 if let image = await downloadImage(from: iconURL) {
-                    #if DEBUG
-                    debugPrint("[Favicon] profile avatar: downloaded \(iconURL) for \(siteURL)")
-                    #endif
+                    log("Favicon", "profile avatar: downloaded \(iconURL) for \(siteURL)")
                     if metadata?.iconNeedsSquareCrop == true {
                         return image.centerSquareCropped()
                     }
                     return image
                 }
-                #if DEBUG
-                debugPrint("[Favicon] profile avatar: download FAILED for \(iconURL) (\(siteURL))")
-                #endif
+                log("Favicon", "profile avatar: download FAILED for \(iconURL) (\(siteURL))")
             } else {
-                #if DEBUG
-                debugPrint("[Favicon] profile avatar: provider returned no iconURL for \(siteURL)")
-                #endif
+                log("Favicon", "profile avatar: provider returned no iconURL for \(siteURL)")
             }
             if let fallback = provider.fallbackIconURL,
                let image = await downloadImage(from: fallback) {
-                #if DEBUG
-                debugPrint("[Favicon] profile avatar: using brand fallback \(fallback) for \(siteURL)")
-                #endif
+                log("Favicon", "profile avatar: using brand fallback \(fallback) for \(siteURL)")
                 return image
             }
         }

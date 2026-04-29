@@ -104,9 +104,7 @@ nonisolated extension DatabaseManager {
             ORDER BY cnt DESC
             LIMIT ?
             """
-        #if DEBUG
-        debugPrint("[SQLite] topEntities(type:, since:, limit:) - \(sql)")
-        #endif
+        log("SQLite", "topEntities(type:, since:, limit:) - \(sql)")
         var results: [(name: String, count: Int)] = []
         for row in try database.prepare(sql, type, date.timeIntervalSince1970, limit) {
             if let name = row[0] as? String, let count = row[1] as? Int64 {
@@ -129,9 +127,7 @@ nonisolated extension DatabaseManager {
             ORDER BY cnt DESC
             LIMIT ?
             """
-        #if DEBUG
-        debugPrint("[SQLite] topEntities(types:, since:, limit:) - \(sql)")
-        #endif
+        log("SQLite", "topEntities(types:, since:, limit:) - \(sql)")
         var bindings: [Binding?] = types.map { $0 as Binding? }
         bindings.append(date.timeIntervalSince1970)
         bindings.append(limit)
@@ -154,9 +150,7 @@ nonisolated extension DatabaseManager {
             ORDER BY a.published_date DESC
             LIMIT 200
             """
-        #if DEBUG
-        debugPrint("[SQLite] articleIDs(forEntity:, type:) - \(sql)")
-        #endif
+        log("SQLite", "articleIDs(forEntity:, type:) - \(sql)")
         var ids: [Int64] = []
         for row in try database.prepare(sql, name, type) {
             if let id = row[0] as? Int64 {
@@ -178,9 +172,7 @@ nonisolated extension DatabaseManager {
             ORDER BY a.published_date DESC
             LIMIT 200
             """
-        #if DEBUG
-        debugPrint("[SQLite] articleIDs(forEntity:, types:) - \(sql)")
-        #endif
+        log("SQLite", "articleIDs(forEntity:, types:) - \(sql)")
         var bindings: [Binding?] = [name as Binding?]
         bindings.append(contentsOf: types.map { $0 as Binding? })
         var ids: [Int64] = []
@@ -336,9 +328,7 @@ nonisolated extension DatabaseManager {
             ORDER BY cnt
             DESC LIMIT 1
             """
-        #if DEBUG
-        debugPrint("[SQLite] mostReadFeedID() - \(sql)")
-        #endif
+        log("SQLite", "mostReadFeedID() - \(sql)")
         for row in try database.prepare(sql) {
             if let feedID = row[0] as? Int64 {
                 return feedID
