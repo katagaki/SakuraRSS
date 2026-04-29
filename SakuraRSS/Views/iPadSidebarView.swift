@@ -264,7 +264,12 @@ struct IPadSidebarView: View {
                         FeedRowView(feed: feed)
                     }
                     .contextMenu {
-                        feedContextMenu(for: feed)
+                        FeedRowContextMenu(
+                            feed: feed,
+                            feedToEdit: $feedToEdit,
+                            feedForRules: $feedForRules,
+                            feedToDelete: $feedToDelete
+                        )
                     }
                     .id(feed.id)
                 }
@@ -503,38 +508,6 @@ extension IPadSidebarView {
         }
     }
 
-    @ViewBuilder
-    func feedContextMenu(for feed: Feed) -> some View {
-        Button {
-            feedManager.toggleMuted(feed)
-        } label: {
-            Label(
-                feed.isMuted
-                    ? String(localized: "FeedMenu.Unmute", table: "Feeds")
-                    : String(localized: "FeedMenu.Mute", table: "Feeds"),
-                systemImage: feed.isMuted ? "bell" : "bell.slash"
-            )
-        }
-        Button {
-            feedForRules = feed
-        } label: {
-            Label(String(localized: "FeedMenu.Rules", table: "Feeds"),
-                  systemImage: "list.bullet.rectangle")
-        }
-        Divider()
-        Button {
-            feedToEdit = feed
-        } label: {
-            Label(String(localized: "FeedMenu.Edit", table: "Feeds"),
-                  systemImage: "pencil")
-        }
-        Button(role: .destructive) {
-            feedToDelete = feed
-        } label: {
-            Label(String(localized: "FeedMenu.Delete", table: "Feeds"),
-                  systemImage: "trash")
-        }
-    }
 }
 
 // MARK: - iPad Search Results

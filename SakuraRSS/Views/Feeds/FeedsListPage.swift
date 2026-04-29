@@ -149,48 +149,14 @@ struct FeedsListPage: View {
         }
         .buttonStyle(.plain)
         .contextMenu {
-            feedContextMenu(for: feed)
-        }
-        .id(feed.id)
-    }
-
-    @ViewBuilder
-    private func feedContextMenu(for feed: Feed) -> some View {
-        Button {
-            feedManager.toggleMuted(feed)
-        } label: {
-            Label(
-                feed.isMuted
-                    ? String(localized: "FeedMenu.Unmute", table: "Feeds")
-                    : String(localized: "FeedMenu.Mute", table: "Feeds"),
-                systemImage: feed.isMuted
-                    ? "bell" : "bell.slash"
+            FeedGridContextMenu(
+                feed: feed,
+                feedToEdit: $feedToEdit,
+                feedForRules: $feedForRules,
+                feedToDelete: $feedToDelete,
+                feedForListAssignment: $feedForListAssignment
             )
         }
-        Button {
-            feedForRules = feed
-        } label: {
-            Label(String(localized: "FeedMenu.Rules", table: "Feeds"),
-                  systemImage: "list.bullet.rectangle")
-        }
-        Button {
-            feedForListAssignment = feed
-        } label: {
-            Label(String(localized: "FeedMenu.AddToList", table: "Feeds"),
-                  systemImage: "text.badge.plus")
-        }
-        Divider()
-        Button {
-            feedToEdit = feed
-        } label: {
-            Label(String(localized: "FeedMenu.Edit", table: "Feeds"),
-                  systemImage: "pencil")
-        }
-        Button(role: .destructive) {
-            feedToDelete = feed
-        } label: {
-            Label(String(localized: "FeedMenu.Delete", table: "Feeds"),
-                  systemImage: "trash")
-        }
+        .id(feed.id)
     }
 }
