@@ -41,9 +41,8 @@ struct IPadSidebarView: View {
         return (try? DatabaseManager.shared.searchArticles(query: searchText)) ?? []
     }
 
-    @State private var feedToEdit: Feed?
+    @State private var feedForEditSheet: FeedIDIdentifier?
     @State private var feedToDelete: Feed?
-    @State private var feedForRules: Feed?
 
     @State private var listToEdit: FeedList?
     @State private var listForRules: FeedList?
@@ -266,8 +265,7 @@ struct IPadSidebarView: View {
                     .contextMenu {
                         FeedRowContextMenu(
                             feed: feed,
-                            feedToEdit: $feedToEdit,
-                            feedForRules: $feedForRules,
+                            feedForEditSheet: $feedForEditSheet,
                             feedToDelete: $feedToDelete
                         )
                     }
@@ -319,12 +317,8 @@ struct IPadSidebarView: View {
                 .environment(feedManager)
                 .interactiveDismissDisabled()
         }
-        .navigationDestination(item: $feedToEdit) { feed in
-            FeedEditView(feed: feed)
-                .environment(feedManager)
-        }
-        .navigationDestination(item: $feedForRules) { feed in
-            FeedRulesView(feed: feed)
+        .sheet(item: $feedForEditSheet) { wrapper in
+            FeedEditSheet(feedID: wrapper.id)
                 .environment(feedManager)
         }
     }

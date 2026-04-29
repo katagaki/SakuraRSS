@@ -12,16 +12,22 @@ struct FeedRowView: View {
         HStack(spacing: 12) {
             ZStack(alignment: .bottomTrailing) {
                 if let favicon = favicon {
-                    FaviconImage(favicon, size: 32,
-                                 cornerRadius: iconCornerRadius,
-                                 circle: feed.isCircleIcon,
-                                 skipInset: feed.isCircleIcon || feed.isXFeed || feed.isInstagramFeed
-                                    || FaviconNoInsetDomains.shouldUseFullImage(feedDomain: feed.domain))
+                    FaviconImage(
+                        favicon,
+                        size: 32,
+                        cornerRadius: iconCornerRadius,
+                        circle: feed.isCircleIcon,
+                        skipInset: feed.isCircleIcon || feed.isXFeed || feed.isInstagramFeed
+                        || FaviconNoInsetDomains.shouldUseFullImage(feedDomain: feed.domain)
+                    )
                 } else if let data = feed.acronymIcon, let acronym = UIImage(data: data) {
-                    FaviconImage(acronym, size: 32,
-                                 cornerRadius: iconCornerRadius,
-                                 circle: feed.isCircleIcon,
-                                 skipInset: true)
+                    FaviconImage(
+                        acronym,
+                        size: 32,
+                        cornerRadius: iconCornerRadius,
+                        circle: feed.isCircleIcon,
+                        skipInset: true
+                    )
                 } else {
                     InitialsAvatarView(
                         feed.title,

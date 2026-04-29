@@ -4,8 +4,7 @@ struct FeedRowContextMenu: View {
 
     @Environment(FeedManager.self) private var feedManager
     let feed: Feed
-    @Binding var feedToEdit: Feed?
-    @Binding var feedForRules: Feed?
+    @Binding var feedForEditSheet: FeedIDIdentifier?
     @Binding var feedToDelete: Feed?
 
     var body: some View {
@@ -21,18 +20,12 @@ struct FeedRowContextMenu: View {
             )
         }
         Button {
-            feedForRules = target
-        } label: {
-            Label(String(localized: "FeedMenu.Rules", table: "Feeds"),
-                  systemImage: "list.bullet.rectangle")
-        }
-        Divider()
-        Button {
-            feedToEdit = target
+            feedForEditSheet = FeedIDIdentifier(id: target.id)
         } label: {
             Label(String(localized: "FeedMenu.Edit", table: "Feeds"),
                   systemImage: "pencil")
         }
+        Divider()
         Button(role: .destructive) {
             feedToDelete = target
         } label: {
