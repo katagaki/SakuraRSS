@@ -77,6 +77,8 @@
 		E426BC932F93A67F00FF1B20 /* Exceptions for "Providers" folder in "Add Feed" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
+				"FeedProviderRegistry+Refresh.swift",
+				"Instagram/InstagramProfileFetcher+Refresh.swift",
 				Petal/PetalAutoDetect.swift,
 				Petal/PetalEngine/PetalEngine.swift,
 				"Petal/PetalEngine/PetalEngine+Dates.swift",
@@ -87,13 +89,18 @@
 				Podcasts/Transcriber/Engines/FluidTranscriberEngine.swift,
 				Podcasts/Transcriber/PodcastTranscriber.swift,
 				Podcasts/Transcriber/TranscriptionEngine.swift,
+				RefreshableFeedProvider.swift,
+				"X/XProfileFetcher+Refresh.swift",
 				YouTube/SponsorBlock/SponsorBlockClient.swift,
+				"YouTube/YouTubePlaylistFetcher+Refresh.swift",
 			);
 			target = E47D10332F54980E006081EF /* Add Feed */;
 		};
 		E426BC942F93A67F00FF1B20 /* Exceptions for "Providers" folder in "WidgetsExtension" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
+				"FeedProviderRegistry+Refresh.swift",
+				"Instagram/InstagramProfileFetcher+Refresh.swift",
 				Petal/PetalAutoDetect.swift,
 				Petal/PetalEngine/PetalEngine.swift,
 				"Petal/PetalEngine/PetalEngine+Dates.swift",
@@ -104,7 +111,10 @@
 				Podcasts/Transcriber/Engines/FluidTranscriberEngine.swift,
 				Podcasts/Transcriber/PodcastTranscriber.swift,
 				Podcasts/Transcriber/TranscriptionEngine.swift,
+				RefreshableFeedProvider.swift,
+				"X/XProfileFetcher+Refresh.swift",
 				YouTube/SponsorBlock/SponsorBlockClient.swift,
+				"YouTube/YouTubePlaylistFetcher+Refresh.swift",
 			);
 			target = E47D104C2F549821006081EF /* WidgetsExtension */;
 		};

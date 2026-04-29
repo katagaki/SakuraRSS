@@ -1,6 +1,6 @@
 import Foundation
 
-extension InstagramProfileFetcher: ProfileFeedProvider, RefreshableFeedProvider {
+extension InstagramProfileFetcher: ProfileFeedProvider {
 
     nonisolated static var providerID: String { "instagram" }
 
@@ -15,21 +15,6 @@ extension InstagramProfileFetcher: ProfileFeedProvider, RefreshableFeedProvider 
             title: "@\(handle)",
             url: feedURL(for: handle),
             siteURL: "https://www.instagram.com/\(handle)/"
-        )
-    }
-
-    static func refresh(
-        feed: Feed,
-        on manager: FeedManager,
-        reloadData: Bool,
-        skipImagePreload: Bool,
-        runNLP: Bool
-    ) async throws {
-        try await manager.refreshInstagramFeed(
-            feed,
-            reloadData: reloadData,
-            skipImagePreload: skipImagePreload,
-            runNLP: runNLP
         )
     }
 }

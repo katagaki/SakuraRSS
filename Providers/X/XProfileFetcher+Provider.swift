@@ -1,6 +1,6 @@
 import Foundation
 
-extension XProfileFetcher: ProfileFeedProvider, RefreshableFeedProvider {
+extension XProfileFetcher: ProfileFeedProvider {
 
     nonisolated static var providerID: String { "x" }
 
@@ -15,21 +15,6 @@ extension XProfileFetcher: ProfileFeedProvider, RefreshableFeedProvider {
             title: "@\(handle)",
             url: feedURL(for: handle),
             siteURL: "https://x.com/\(handle)"
-        )
-    }
-
-    static func refresh(
-        feed: Feed,
-        on manager: FeedManager,
-        reloadData: Bool,
-        skipImagePreload: Bool,
-        runNLP: Bool
-    ) async throws {
-        try await manager.refreshXFeed(
-            feed,
-            reloadData: reloadData,
-            skipImagePreload: skipImagePreload,
-            runNLP: runNLP
         )
     }
 }

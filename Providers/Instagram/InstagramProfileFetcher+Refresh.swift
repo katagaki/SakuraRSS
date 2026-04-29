@@ -1,0 +1,19 @@
+import Foundation
+
+extension InstagramProfileFetcher: RefreshableFeedProvider {
+
+    static func refresh(
+        feed: Feed,
+        on manager: FeedManager,
+        reloadData: Bool,
+        skipImagePreload: Bool,
+        runNLP: Bool
+    ) async throws {
+        try await manager.refreshInstagramFeed(
+            feed,
+            reloadData: reloadData,
+            skipImagePreload: skipImagePreload,
+            runNLP: runNLP
+        )
+    }
+}

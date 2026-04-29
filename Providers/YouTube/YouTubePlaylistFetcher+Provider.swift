@@ -1,6 +1,6 @@
 import Foundation
 
-extension YouTubePlaylistFetcher: ProfileFeedProvider, RefreshableFeedProvider {
+extension YouTubePlaylistFetcher: ProfileFeedProvider {
 
     nonisolated static var providerID: String { "youtube-playlist" }
 
@@ -13,21 +13,6 @@ extension YouTubePlaylistFetcher: ProfileFeedProvider, RefreshableFeedProvider {
             title: "YouTube Playlist",
             url: feedURL(for: playlistID),
             siteURL: "https://www.youtube.com/playlist?list=\(playlistID)"
-        )
-    }
-
-    static func refresh(
-        feed: Feed,
-        on manager: FeedManager,
-        reloadData: Bool,
-        skipImagePreload: Bool,
-        runNLP: Bool
-    ) async throws {
-        try await manager.refreshYouTubePlaylistFeed(
-            feed,
-            reloadData: reloadData,
-            skipImagePreload: skipImagePreload,
-            runNLP: runNLP
         )
     }
 }
