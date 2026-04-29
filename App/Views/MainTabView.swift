@@ -1,14 +1,6 @@
 import SwiftUI
 import TipKit
 
-enum AppTab: String, CaseIterable {
-    case home
-    case feeds
-    case bookmarks
-    case profile
-    case search
-}
-
 struct MainTabView: View {
 
     @Environment(FeedManager.self) var feedManager
@@ -69,11 +61,11 @@ struct MainTabView: View {
 
     private var iPhoneTabView: some View {
         tabView
-            .modifier(MiniPlayerAccessoryModifier(
+            .miniPlayerAccessory(
                 audioPlayer: audioPlayer,
-                miniPlayerPresentedArticle: $miniPlayerPresentedArticle,
-                miniPlayerTransition: miniPlayerTransition
-            ))
+                presentedArticle: $miniPlayerPresentedArticle,
+                transition: miniPlayerTransition
+            )
             .sheet(item: $miniPlayerPresentedArticle) { article in
                 NavigationStack {
                     PodcastEpisodeView(article: article)
@@ -116,26 +108,5 @@ struct MainTabView: View {
                     showingOnboarding = true
                 }
             }
-    }
-}
-
-private struct MiniPlayerAccessoryModifier: ViewModifier {
-
-    let audioPlayer: AudioPlayer
-    @Binding var miniPlayerPresentedArticle: Article?
-    var miniPlayerTransition: Namespace.ID
-
-    func body(content: Content) -> some View {
-        if audioPlayer.currentArticleID != nil {
-            content
-                .tabViewBottomAccessory {
-                    MiniPlayerView { article in
-                        miniPlayerPresentedArticle = article
-                    }
-                    .matchedTransitionSource(id: "miniPlayer", in: miniPlayerTransition)
-                }
-        } else {
-            content
-        }
     }
 }

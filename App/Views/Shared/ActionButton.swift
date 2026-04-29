@@ -27,7 +27,7 @@ struct ActionButton: View {
         }
         .buttonStyle(.plain)
         .glassEffect(glassEffect, in: .circle)
-        .modifier(OptionalGlassEffectID(id: glassID, namespace: glassNamespace))
+        .optionalGlassEffectID(glassID, in: glassNamespace)
         .disabled(isLoading)
         .accessibilityLabel(accessibilityLabel)
         .animation(.smooth.speed(2.0), value: isLoading)
@@ -39,19 +39,6 @@ struct ActionButton: View {
             return .regular.tint(.accentColor).interactive()
         } else {
             return .regular.interactive()
-        }
-    }
-}
-
-private struct OptionalGlassEffectID: ViewModifier {
-    let id: String?
-    let namespace: Namespace.ID?
-
-    func body(content: Content) -> some View {
-        if let id, let namespace {
-            content.glassEffectID(id, in: namespace)
-        } else {
-            content
         }
     }
 }

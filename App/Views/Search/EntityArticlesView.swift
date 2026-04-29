@@ -1,10 +1,5 @@
 import SwiftUI
 
-struct EntityDestination: Hashable {
-    let name: String
-    let types: [String]
-}
-
 struct EntityArticlesView: View {
 
     let destination: EntityDestination

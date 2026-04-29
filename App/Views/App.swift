@@ -33,7 +33,7 @@ struct SakuraRSSApp: App {
             )
                 .environment(\.defaultMinListRowHeight, 10.0)
                 .environment(feedManager)
-                .modifier(KeepScreenOnDuringPodcastWork())
+                .keepScreenOnDuringPodcastWork()
                 .task {
                     await FeedProviderRegistry.migrateAuthenticatedCookies()
                     if fetchOnStartup {

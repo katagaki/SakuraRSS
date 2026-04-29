@@ -1,14 +1,6 @@
 import SwiftUI
 import FoundationModels
 
-enum OnboardingStep: Int, CaseIterable {
-    case welcome
-    case backgroundRefresh
-    case displayStyle
-    case appleIntelligence
-    case addFeed
-}
-
 struct OnboardingView: View {
 
     @Environment(FeedManager.self) var feedManager

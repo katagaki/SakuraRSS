@@ -268,14 +268,6 @@ struct DiscoverView: View {
 
 // MARK: - Supporting Types
 
-struct DiscoverEntitySection: Identifiable {
-    let name: String
-    let types: [String]
-    let articles: [Article]
-
-    var id: String { name }
-}
-
 private struct FlowLayout: Layout {
 
     var spacing: CGFloat
