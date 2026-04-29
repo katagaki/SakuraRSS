@@ -1,5 +1,13 @@
 import Foundation
 
+private struct SubstackPublicationResponse: Decodable {
+    let logoURL: String?
+
+    enum CodingKeys: String, CodingKey {
+        case logoURL = "logo_url"
+    }
+}
+
 extension SubstackPublicationFetcher {
 
     func performFetch(url: URL) async -> SubstackPublicationFetchResult {
@@ -11,11 +19,8 @@ extension SubstackPublicationFetcher {
 
         do {
             let (data, _) = try await URLSession.shared.data(for: request)
-            guard let root = try JSONSerialization.jsonObject(with: data)
-                    as? [String: Any] else { return empty }
-
-            let logoURL = (root["logo_url"] as? String).flatMap { $0.isEmpty ? nil : $0 }
-
+            let decoded = try JSONDecoder().decode(SubstackPublicationResponse.self, from: data)
+            let logoURL = decoded.logoURL.flatMap { $0.isEmpty ? nil : $0 }
             return SubstackPublicationFetchResult(logoURL: logoURL)
         } catch {
             print("[SubstackPublication] Fetch failed - \(error.localizedDescription)")
