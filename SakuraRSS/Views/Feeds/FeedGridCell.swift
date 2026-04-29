@@ -150,7 +150,7 @@ struct FeedGridCell: View {
                 .background(.thinMaterial, in: .circle)
                 .shadow(color: .black.opacity(0.1), radius: 2, y: 1)
                 .overlay {
-                    Circle().strokeBorder(.separator, lineWidth: 0.5)
+                    Circle().strokeBorder(.primary.opacity(0.1), lineWidth: 0.5)
                 }
                 .overlay {
                     Image(systemName: "minus")
