@@ -280,8 +280,8 @@
                     "title": "Weather",
                     "sites": [
                         {
-                            "title": "National Weather Service (NWS)",
-                            "feedUrl": "https://www.weather.gov/rss/"
+                            "title": "NOAA Storm Prediction Center",
+                            "feedUrl": "https://www.spc.noaa.gov/products/spcrss.xml"
                         }
                     ]
                 },
@@ -302,7 +302,7 @@
                         },
                         {
                             "title": "The Athletic",
-                            "feedUrl": "https://theathletic.com/feed/"
+                            "feedUrl": "https://www.nytimes.com/athletic/rss/news/"
                         },
                         {
                             "title": "Yahoo Sports",
@@ -325,7 +325,7 @@
                         },
                         {
                             "title": "News On Japan",
-                            "feedUrl": "https://newsonjapan.com/rss"
+                            "feedUrl": "https://newsonjapan.com/rss/top.xml"
                         },
                         {
                             "title": "読売新聞（The Japan News）",
@@ -366,10 +366,6 @@
                     "title": "Science",
                     "sites": [
                         {
-                            "title": "The Japan Times - 科学・健康",
-                            "feedUrl": "https://www.japantimes.co.jp/news/japan/science-health/feed/"
-                        },
-                        {
                             "title": "Yahoo!ニュース - 科学",
                             "feedUrl": "https://news.yahoo.co.jp/rss/topics/science.xml"
                         }
@@ -381,10 +377,6 @@
                         {
                             "title": "日経アジア - 政治",
                             "feedUrl": "https://asia.nikkei.com/rss/feed/nar"
-                        },
-                        {
-                            "title": "The Japan Times - 政治",
-                            "feedUrl": "https://www.japantimes.co.jp/news/japan/political-pulse/feed/"
                         },
                         {
                             "title": "Yahoo!ニュース - 国内",
@@ -531,10 +523,6 @@
                         {
                             "title": "The Straits Times - Singapore",
                             "feedUrl": "https://www.straitstimes.com/news/singapore/rss.xml"
-                        },
-                        {
-                            "title": "TR Emeritus",
-                            "feedUrl": "https://tremeritus.net/feed/"
                         }
                     ]
                 },
@@ -547,7 +535,7 @@
                         },
                         {
                             "title": "IBT Singapore",
-                            "feedUrl": "https://www.ibtimes.sg/rss"
+                            "feedUrl": "https://www.ibtimes.sg/rss/feed_20"
                         },
                         {
                             "title": "The Straits Times - Business",

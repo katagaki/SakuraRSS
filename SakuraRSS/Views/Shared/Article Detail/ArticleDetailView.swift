@@ -37,6 +37,7 @@ struct ArticleDetailView: View {
     @State var summarizationError: String?
     @State var showYouTubePlayer = false
     @State var showYouTubeSafari = false
+    @State var linkedArticleURL: URL?
     @State var arXivPDFReference: ArXivPDFReference?
     @State var imageViewerURL: URL?
     @Namespace private var imageViewerNamespace

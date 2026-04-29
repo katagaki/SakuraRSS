@@ -51,12 +51,7 @@ extension ArticleDetailView: ArticleActions {
                               systemImage: "play.rectangle")
                     }
                 }
-                Button {
-                    performOpenInBrowser()
-                } label: {
-                    Label(String(localized: "Article.OpenInBrowser", table: "Articles"),
-                          systemImage: "safari")
-                }
+                openInBrowserMenuItem
             }
 
             if let shareURL = URL(string: article.url) {
@@ -115,12 +110,67 @@ extension ArticleDetailView: ArticleActions {
         article.isYouTubeURL && YouTubeHelper.isAppInstalled
     }
 
+    @ViewBuilder
+    var openInBrowserMenuItem: some View {
+        if let linkedURL = linkedArticleURL,
+           let articleURL = URL(string: article.url),
+           let articleHost = articleURL.host?.lowercased(),
+           let linkedHost = linkedURL.host?.lowercased(),
+           articleHost != linkedHost {
+            Menu {
+                Button {
+                    openURL(articleURL)
+                } label: {
+                    Label(displayHost(articleHost), systemImage: "safari")
+                }
+                Button {
+                    openURL(linkedURL)
+                } label: {
+                    Label(displayHost(linkedHost), systemImage: "safari")
+                }
+            } label: {
+                Label(String(localized: "Article.OpenInBrowser", table: "Articles"),
+                      systemImage: "safari")
+            }
+        } else {
+            Button {
+                performOpenInBrowser()
+            } label: {
+                Label(String(localized: "Article.OpenInBrowser", table: "Articles"),
+                      systemImage: "safari")
+            }
+        }
+    }
+
     func performOpenInBrowser() {
         if article.isYouTubeURL {
             showYouTubeSafari = true
         } else if let url = URL(string: article.url) {
             openURL(url)
         }
+    }
+
+    func resolveLinkedArticleURL() async {
+        guard let feed = feedManager.feed(forArticle: article),
+              LinkAggregatorDomains.isLinkAggregator(feedDomain: feed.domain) else {
+            linkedArticleURL = nil
+            return
+        }
+        if feed.isRedditFeed {
+            if let result = try? await RedditPostFetcher.shared.fetchContent(for: article),
+               case .linkedArticle(let url) = result {
+                linkedArticleURL = url
+            }
+            return
+        }
+        if let summary = article.summary,
+           let url = LinkAggregatorDomains.linkedArticleURL(fromSummary: summary) {
+            linkedArticleURL = url
+        }
+    }
+
+    private func displayHost(_ host: String) -> String {
+        host.hasPrefix("www.") ? String(host.dropFirst(4)) : host
     }
 
     func performOpenInApp() {
