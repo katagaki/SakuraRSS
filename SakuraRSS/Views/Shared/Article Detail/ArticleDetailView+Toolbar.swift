@@ -34,6 +34,7 @@ extension ArticleDetailView {
             favicon = await FaviconCache.shared.favicon(for: feed)
         }
         await extractArticleContent()
+        Task { await resolveLinkedArticleURL() }
         if !article.isEphemeral,
            let cached = try? DatabaseManager.shared.cachedArticleTranslation(for: article.id) {
             translatedTitle = cached.title
