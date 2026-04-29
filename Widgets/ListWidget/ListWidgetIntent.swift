@@ -2,8 +2,8 @@ import AppIntents
 import WidgetKit
 
 struct ListWidgetIntent: WidgetConfigurationIntent {
-    static var title: LocalizedStringResource = LocalizedStringResource("ListWidget.IntentTitle", table: "Widget")
-    static var description: IntentDescription = IntentDescription(
+    static let title: LocalizedStringResource = LocalizedStringResource("ListWidget.IntentTitle", table: "Widget")
+    static let description: IntentDescription = IntentDescription(
         LocalizedStringResource("ListWidget.IntentDescription", table: "Widget")
     )
 
@@ -27,8 +27,8 @@ struct ListWidgetIntent: WidgetConfigurationIntent {
 
 struct ListWidgetPageIntent: AppIntent {
 
-    static var title: LocalizedStringResource = LocalizedStringResource("ListWidget.ChangePage", table: "Widget")
-    static var isDiscoverable: Bool = false
+    static let title: LocalizedStringResource = LocalizedStringResource("ListWidget.ChangePage", table: "Widget")
+    static let isDiscoverable: Bool = false
 
     @Parameter(title: "List ID")
     var listID: Int

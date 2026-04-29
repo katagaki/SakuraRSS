@@ -25,9 +25,9 @@ struct FeedQuery: EntityQuery {
 }
 
 struct FeedEntity: AppEntity {
-    static var typeDisplayRepresentation: TypeDisplayRepresentation =
+    static let typeDisplayRepresentation: TypeDisplayRepresentation =
         TypeDisplayRepresentation(name: LocalizedStringResource("SingleFeedWidget.Feed", table: "Widget"))
-    static var defaultQuery = FeedQuery()
+    static let defaultQuery = FeedQuery()
 
     var id: String
     var feedID: Int64

@@ -3,8 +3,8 @@ import WidgetKit
 
 struct SingleFeedPageIntent: AppIntent {
 
-    static var title: LocalizedStringResource = LocalizedStringResource("SingleFeedWidget.ChangePage", table: "Widget")
-    static var isDiscoverable: Bool = false
+    static let title: LocalizedStringResource = LocalizedStringResource("SingleFeedWidget.ChangePage", table: "Widget")
+    static let isDiscoverable: Bool = false
 
     @Parameter(title: "Feed ID")
     var feedID: Int

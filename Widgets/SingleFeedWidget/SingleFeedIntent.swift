@@ -2,8 +2,8 @@ import AppIntents
 import WidgetKit
 
 struct SingleFeedIntent: WidgetConfigurationIntent {
-    static var title: LocalizedStringResource = LocalizedStringResource("SingleFeedWidget.IntentTitle", table: "Widget")
-    static var description: IntentDescription = IntentDescription(
+    static let title: LocalizedStringResource = LocalizedStringResource("SingleFeedWidget.IntentTitle", table: "Widget")
+    static let description: IntentDescription = IntentDescription(
         LocalizedStringResource("SingleFeedWidget.IntentDescription", table: "Widget")
     )
 

@@ -25,9 +25,9 @@ struct ListQuery: EntityQuery {
 }
 
 struct ListEntity: AppEntity {
-    static var typeDisplayRepresentation: TypeDisplayRepresentation =
+    static let typeDisplayRepresentation: TypeDisplayRepresentation =
         TypeDisplayRepresentation(name: LocalizedStringResource("ListWidget.List", table: "Widget"))
-    static var defaultQuery = ListQuery()
+    static let defaultQuery = ListQuery()
 
     var id: String
     var listID: Int64
