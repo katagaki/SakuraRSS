@@ -3,7 +3,7 @@ import Foundation
 extension FeedProviderRegistry {
 
     /// Providers whose feeds use a custom refresh pipeline.
-    static let refreshable: [any RefreshableFeedProvider.Type] = [
+    nonisolated static let refreshable: [any RefreshableFeedProvider.Type] = [
         XProfileFetcher.self,
         InstagramProfileFetcher.self,
         YouTubePlaylistFetcher.self

@@ -3,7 +3,7 @@ import Foundation
 /// Central registry of `FeedProvider`-conforming services. Used to route
 /// stored feed URLs and profile URLs to the correct provider without
 /// scattering `if-else` chains across the codebase.
-enum FeedProviderRegistry {
+nonisolated enum FeedProviderRegistry {
 
     /// All registered providers, in URL-matching priority order.
     static let all: [any FeedProvider.Type] = [
@@ -30,12 +30,13 @@ enum FeedProviderRegistry {
 
     /// Migrates WebKit cookies into Keychain for every enabled `Authenticated`
     /// provider. Called once at app launch.
-    @MainActor
     static func migrateAuthenticatedCookies() async {
         await withTaskGroup(of: Void.self) { group in
             for provider in all where provider.isEnabled {
                 guard let auth = provider as? any Authenticated.Type else { continue }
-                group.addTask { await auth.migrateWebKitCookiesIfNeeded() }
+                group.addTask { @MainActor in
+                    await auth.migrateWebKitCookiesIfNeeded()
+                }
             }
         }
     }
