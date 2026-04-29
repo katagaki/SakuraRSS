@@ -64,14 +64,29 @@ extension FeedManager {
         skipImagePreload: Bool = false,
         runNLP: Bool = true
     ) async throws {
+        #if DEBUG
+        print("[Petal] refresh begin id=\(feed.id) title=\(feed.title)")
+        #endif
         guard UserDefaults.standard.bool(forKey: "Labs.PetalRecipes") else {
+            #if DEBUG
+            print("[Petal] Labs.PetalRecipes disabled - skipping id=\(feed.id)")
+            #endif
             return
         }
         guard let recipe = PetalStore.shared.recipe(forFeedURL: feed.url) else {
+            #if DEBUG
+            print("[Petal] no recipe found id=\(feed.id) url=\(feed.url)")
+            #endif
             return
         }
+        #if DEBUG
+        print("[Petal] fetching recipeID=\(recipe.id) id=\(feed.id)")
+        #endif
 
         let parsed = await PetalEngine.fetchArticles(for: recipe)
+        #if DEBUG
+        print("[Petal] fetched recipeID=\(recipe.id) articles=\(parsed.count)")
+        #endif
         guard !parsed.isEmpty else {
             try? database.updateFeedLastFetched(id: feed.id, date: Date())
             if reloadData {
@@ -102,6 +117,10 @@ extension FeedManager {
             let insertedIDs = (try? database.insertArticles(
                 feedID: feedID, articles: articleItems
             )) ?? []
+            #if DEBUG
+            print("[Petal] inserted id=\(feedID) "
+                  + "new=\(insertedIDs.count)/\(articleItems.count)")
+            #endif
             await FeedManager.runPostInsertPipeline(
                 insertedIDs: insertedIDs,
                 feedTitle: feedTitle,
@@ -115,5 +134,8 @@ extension FeedManager {
         if reloadData {
             await loadFromDatabaseInBackground(animated: true)
         }
+        #if DEBUG
+        print("[Petal] refresh end id=\(feed.id)")
+        #endif
     }
 }

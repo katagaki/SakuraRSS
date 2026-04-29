@@ -27,13 +27,15 @@ struct HomeSectionView: View {
     private var rawArticles: [Article] {
         var articles: [Article]
         if batchingMode.isCountBased {
-            articles = feedManager.articles(
-                for: section,
-                limit: loadedCount,
-                requireUnread: hideViewedContent
-            )
+            articles = feedManager.undatedArticles(for: section)
+                + feedManager.articles(
+                    for: section,
+                    limit: loadedCount,
+                    requireUnread: hideViewedContent
+                )
         } else {
-            articles = feedManager.articles(for: section, since: loadedSinceDate)
+            articles = feedManager.undatedArticles(for: section)
+                + feedManager.articles(for: section, since: loadedSinceDate)
         }
         if hideInstagramReels {
             articles = articles.filter { !$0.url.contains("/reel/") }

@@ -20,7 +20,7 @@ struct InstagramProfileFetchResult: Sendable {
 }
 
 /// Fetches Instagram profile posts via the web API using Keychain-stored session cookies.
-final class InstagramProfileFetcher: FetchesProfile, Authenticated {
+final class InstagramProfileFetcher: ProfileFetcher, Authenticated {
 
     // `nonisolated(unsafe)` so favicon cache can raise this; only set before network calls.
     nonisolated(unsafe) var requestTimeoutInterval: TimeInterval = 15

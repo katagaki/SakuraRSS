@@ -18,6 +18,9 @@ extension FeedManager {
         skipImagePreload: Bool = false,
         runNLP: Bool = true
     ) async throws {
+        #if DEBUG
+        print("[InstagramProfile] refresh begin id=\(feed.id) title=\(feed.title)")
+        #endif
         let effectiveInterval = Self.jitteredRefreshInterval()
         if let lastFetched = feed.lastFetched,
            Date().timeIntervalSince(lastFetched) < effectiveInterval {
@@ -30,10 +33,23 @@ extension FeedManager {
         }
 
         guard let handle = InstagramProfileFetcher.identifierFromFeedURL(feed.url),
-              let profileURL = InstagramProfileFetcher.profileURL(for: handle) else { return }
+              let profileURL = InstagramProfileFetcher.profileURL(for: handle) else {
+            #if DEBUG
+            print("[InstagramProfile] Could not derive handle/profileURL id=\(feed.id) "
+                  + "url=\(feed.url)")
+            #endif
+            return
+        }
+        #if DEBUG
+        print("[InstagramProfile] fetching @\(handle) id=\(feed.id)")
+        #endif
 
         let fetcher = InstagramProfileFetcher()
         let result = await fetcher.fetchProfile(profileURL: profileURL)
+        #if DEBUG
+        print("[InstagramProfile] fetched @\(handle) posts=\(result.posts.count) "
+              + "displayName=\(result.displayName ?? "nil")")
+        #endif
 
         let postTuples = result.posts.map { post in
             let title = post.text.isEmpty
@@ -63,17 +79,22 @@ extension FeedManager {
         }
 
         let database = database
+        let feedID = feed.id
         try await Task.detached {
             let insertedIDs = (try? database.insertArticles(
-                feedID: feed.id, articles: postTuples
+                feedID: feedID, articles: postTuples
             )) ?? []
+            #if DEBUG
+            print("[InstagramProfile] inserted id=\(feedID) "
+                  + "new=\(insertedIDs.count)/\(postTuples.count)")
+            #endif
             await FeedManager.runPostInsertPipeline(
                 insertedIDs: insertedIDs,
                 feedTitle: feedTitle,
                 skipImagePreload: skipImagePreload,
                 runNLP: runNLP
             )
-            try database.updateFeedLastFetched(id: feed.id, date: Date())
+            try database.updateFeedLastFetched(id: feedID, date: Date())
         }.value
 
         await applyFetcherMetadataRefresh(
@@ -84,6 +105,9 @@ extension FeedManager {
         if reloadData {
             await loadFromDatabaseInBackground(animated: true)
         }
+        #if DEBUG
+        print("[InstagramProfile] refresh end id=\(feed.id)")
+        #endif
     }
 
     var hasInstagramFeeds: Bool {

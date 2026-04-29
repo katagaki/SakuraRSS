@@ -61,16 +61,14 @@ extension FeedManager {
 
     func articles(for section: FeedSection, limit: Int, requireUnread: Bool = false) -> [Article] {
         _ = dataRevision
-        let muted = mutedFeedIDs
-        let sectionFeedIDs = feeds
-            .filter { $0.feedSection == section && !muted.contains($0.id) }
-            .map(\.id)
+        let sectionFeedIDs = sectionFeedIDsExcludingMuted(section)
         guard !sectionFeedIDs.isEmpty else { return [] }
+        let feedIDList = Array(sectionFeedIDs)
         var fetchLimit = max(limit * 4, 100)
         let maxIterations = 20
         for _ in 0..<maxIterations {
             let raw = (try? database.articles(
-                forFeedIDs: sectionFeedIDs,
+                forFeedIDs: feedIDList,
                 limit: fetchLimit,
                 requireUnread: requireUnread
             )) ?? []
@@ -81,7 +79,7 @@ extension FeedManager {
             fetchLimit *= 2
         }
         let raw = (try? database.articles(
-            forFeedIDs: sectionFeedIDs,
+            forFeedIDs: feedIDList,
             limit: fetchLimit,
             requireUnread: requireUnread
         )) ?? []
@@ -90,13 +88,20 @@ extension FeedManager {
 
     func hasMoreArticles(for section: FeedSection, beyond count: Int) -> Bool {
         _ = dataRevision
-        let muted = mutedFeedIDs
-        let sectionFeedIDs = feeds
-            .filter { $0.feedSection == section && !muted.contains($0.id) }
-            .map(\.id)
+        let sectionFeedIDs = sectionFeedIDsExcludingMuted(section)
         guard !sectionFeedIDs.isEmpty else { return false }
-        let raw = (try? database.articles(forFeedIDs: sectionFeedIDs, limit: count + 1)) ?? []
-        return applyAllRules(raw).count > count
+        let feedIDList = Array(sectionFeedIDs)
+        let pool = (try? database.articles(forFeedIDs: feedIDList, limit: count + 1)) ?? []
+        return applyAllRules(pool).count > count
+    }
+
+    private func sectionFeedIDsExcludingMuted(_ section: FeedSection) -> Set<Int64> {
+        let muted = mutedFeedIDs
+        return Set(
+            feeds
+                .filter { $0.feedSection == section && !muted.contains($0.id) }
+                .map(\.id)
+        )
     }
 
     func nextLoadedCount(for section: FeedSection, after count: Int, batchSize: Int, requireUnread: Bool = false) -> Int? {

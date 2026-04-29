@@ -136,13 +136,14 @@ struct IPadSidebarView: View {
             }
         }
         .sheet(item: $feedToEdit) { feed in
-            FeedEditSheet(feed: feed)
+            FeedEditSheet(feed: $feedToEdit)
+                .id(feed.id)
                 .environment(feedManager)
                 .presentationDetents([.medium, .large])
                 .interactiveDismissDisabled()
         }
-        .sheet(item: $feedForRules) { feed in
-            FeedRulesSheet(feed: feed)
+        .sheet(item: $feedForRules) { _ in
+            FeedRulesSheet(feed: $feedForRules)
                 .environment(feedManager)
                 .presentationDetents([.medium, .large])
                 .interactiveDismissDisabled()
@@ -526,7 +527,10 @@ extension IPadSidebarView {
         }
         Divider()
         Button {
-            feedToEdit = feed
+            feedToEdit = nil
+            DispatchQueue.main.async {
+                feedToEdit = feed
+            }
         } label: {
             Label(String(localized: "FeedMenu.Edit", table: "Feeds"),
                   systemImage: "pencil")

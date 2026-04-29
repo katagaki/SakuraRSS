@@ -173,7 +173,7 @@
                         },
                         {
                             "title": "CNN - Top Stories",
-                            "feedUrl": "http://rss.cnn.com/rss/edition.rss"
+                            "feedUrl": "https://rss.cnn.com/rss/edition.rss"
                         },
                         {
                             "title": "NPR News",
@@ -264,7 +264,7 @@
                         },
                         {
                             "title": "CNN Business",
-                            "feedUrl": "http://rss.cnn.com/rss/edition_business.rss"
+                            "feedUrl": "https://rss.cnn.com/rss/edition_business.rss"
                         },
                         {
                             "title": "Fortune",

@@ -6,7 +6,7 @@ import Foundation
 /// Conformers declare the matching pieces (`feedURLScheme`, `isProfileURL`,
 /// `extractIdentifier`, `feedURL(for:)`); the protocol provides the round-trip
 /// helpers (`isFeedURL`, `identifierFromFeedURL`) by default.
-protocol FetchesProfile {
+protocol ProfileFetcher {
 
     /// The pseudo-scheme (without `://`) used in stored feed URLs, e.g.
     /// `"x-profile"`, `"instagram-profile"`, `"youtube-playlist"`. Conformers
@@ -29,7 +29,7 @@ protocol FetchesProfile {
     nonisolated static func identifierFromFeedURL(_ url: String) -> String?
 }
 
-extension FetchesProfile {
+extension ProfileFetcher {
 
     nonisolated static func isFeedURL(_ url: String) -> Bool {
         guard let scheme = feedURLScheme else { return false }

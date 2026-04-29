@@ -22,16 +22,12 @@ extension FaviconCache {
             }
         }
 
-        if feed.isXFeed,
-           let handle = XProfileFetcher.identifierFromFeedURL(feed.url),
-           let image = await fetchXProfileAvatar(handle: handle) {
-            await setCustomFavicon(image, feedID: feed.id, skipTrimming: true)
-            return image
-        }
-
-        if feed.isInstagramFeed,
-           let handle = InstagramProfileFetcher.identifierFromFeedURL(feed.url),
-           let image = await fetchInstagramProfileAvatar(handle: handle) {
+        if (feed.isXFeed || feed.isInstagramFeed),
+           let siteURL = URL(string: feed.siteURL),
+           let provider = FeedProviderRegistry.metadataFetcher(forSiteURL: siteURL),
+           let metadata = await provider.fetchMetadata(for: siteURL),
+           let iconURL = metadata.iconURL,
+           let image = await downloadImage(from: iconURL) {
             await setCustomFavicon(image, feedID: feed.id, skipTrimming: true)
             return image
         }

@@ -35,14 +35,7 @@ struct SakuraRSSApp: App {
                 .environment(feedManager)
                 .modifier(KeepScreenOnDuringPodcastWork())
                 .task {
-                    await withTaskGroup(of: Void.self) { group in
-                        if UserDefaults.standard.bool(forKey: "Labs.XProfileFeeds") {
-                            group.addTask { await XProfileFetcher.migrateWebKitCookiesIfNeeded() }
-                        }
-                        if UserDefaults.standard.bool(forKey: "Labs.InstagramProfileFeeds") {
-                            group.addTask { await InstagramProfileFetcher.migrateWebKitCookiesIfNeeded() }
-                        }
-                    }
+                    await FeedProviderRegistry.migrateAuthenticatedCookies()
                     if fetchOnStartup {
                         await feedManager.refreshAllFeeds(
                             respectCooldown: true,

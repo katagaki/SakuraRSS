@@ -9,16 +9,11 @@ extension FeedDiscovery {
         if let arXivFeed = detectArXivListFeed(url: url) {
             return arXivFeed
         }
-        if UserDefaults.standard.bool(forKey: "Labs.XProfileFeeds"),
-           let xFeed = detectXProfileFeed(url: url) {
-            return xFeed
-        }
-        if UserDefaults.standard.bool(forKey: "Labs.InstagramProfileFeeds"),
-           let instagramFeed = detectInstagramProfileFeed(url: url) {
-            return instagramFeed
-        }
-        if let youTubeFeed = detectYouTubePlaylistFeed(url: url) {
-            return youTubeFeed
+        for provider in FeedProviderRegistry.all where provider.isEnabled {
+            if let profile = provider as? any ProfileFeedProvider.Type,
+               let discovered = profile.discoveredFeed(forProfileURL: url) {
+                return discovered
+            }
         }
         if let youTubeChannelFeed = await detectYouTubeChannelFeed(url: url) {
             return youTubeChannelFeed
@@ -47,48 +42,6 @@ extension FeedDiscovery {
         )
     }
 
-    /// Returns a pseudo-feed for an X/Twitter profile URL (routed via XProfileFetcher).
-    func detectXProfileFeed(url: URL) -> DiscoveredFeed? {
-        guard XProfileFetcher.isProfileURL(url),
-              let handle = XProfileFetcher.extractIdentifier(from: url) else {
-            return nil
-        }
-
-        return DiscoveredFeed(
-            title: "@\(handle)",
-            url: XProfileFetcher.feedURL(for: handle),
-            siteURL: "https://x.com/\(handle)"
-        )
-    }
-
-    /// Returns a pseudo-feed for an Instagram profile URL (routed via InstagramProfileFetcher).
-    func detectInstagramProfileFeed(url: URL) -> DiscoveredFeed? {
-        guard InstagramProfileFetcher.isProfileURL(url),
-              let handle = InstagramProfileFetcher.extractIdentifier(from: url) else {
-            return nil
-        }
-
-        return DiscoveredFeed(
-            title: "@\(handle)",
-            url: InstagramProfileFetcher.feedURL(for: handle),
-            siteURL: "https://www.instagram.com/\(handle)/"
-        )
-    }
-
-    /// Returns a pseudo-feed for a YouTube playlist URL (routed via YouTubePlaylistFetcher).
-    func detectYouTubePlaylistFeed(url: URL) -> DiscoveredFeed? {
-        guard YouTubePlaylistFetcher.isProfileURL(url),
-              let playlistID = YouTubePlaylistFetcher.extractIdentifier(from: url) else {
-            return nil
-        }
-
-        return DiscoveredFeed(
-            title: "YouTube Playlist",
-            url: YouTubePlaylistFetcher.feedURL(for: playlistID),
-            siteURL: "https://www.youtube.com/playlist?list=\(playlistID)"
-        )
-    }
-
     /// Returns a discovered feed pointing at the channel's Atom feed.
     func detectYouTubeChannelFeed(url: URL) async -> DiscoveredFeed? {
         guard let host = url.host?.lowercased(),
@@ -106,7 +59,8 @@ extension FeedDiscovery {
             guard channelID.hasPrefix("UC") else { return nil }
             resolvedChannelID = channelID
             siteURL = "https://www.youtube.com/channel/\(channelID)"
-        } else if path.hasPrefix("/@") || path.hasPrefix("/user/") || path.hasPrefix("/c/") {
+        } else if path.hasPrefix("/@") || path.hasPrefix("/user/") || path.hasPrefix("/c/")
+                    || Self.isYouTubeVanityPath(path) {
             resolvedChannelID = await Self.resolveYouTubeChannelID(from: url)
             siteURL = url.absoluteString
         } else {
@@ -118,6 +72,21 @@ extension FeedDiscovery {
         let feedURL = "https://www.youtube.com/feeds/videos.xml?channel_id=\(channelID)"
         let title = await Self.fetchYouTubeAtomTitle(feedURL: feedURL) ?? "YouTube Channel"
         return DiscoveredFeed(title: title, url: feedURL, siteURL: siteURL)
+    }
+
+    /// True for single-segment YouTube paths like `/Google` that act as
+    /// vanity aliases for a channel (legacy form, no `@` or `c/` prefix).
+    static func isYouTubeVanityPath(_ path: String) -> Bool {
+        let segments = path.split(separator: "/").map(String.init)
+        guard segments.count == 1, let segment = segments.first else { return false }
+        let reserved: Set<String> = [
+            "playlist", "watch", "results", "feed", "shorts", "live",
+            "channel", "user", "c", "embed", "redirect", "hashtag", "post",
+            "about", "account", "ads", "creators", "kids", "premium",
+            "trending", "gaming", "music", "movies", "sports", "news",
+            "learning", "fashion", "supported_browsers", "t", "view_play_list"
+        ]
+        return !reserved.contains(segment.lowercased())
     }
 
     /// Extracts the canonical `UC...` channel ID from a YouTube channel page.

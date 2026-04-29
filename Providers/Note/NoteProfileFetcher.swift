@@ -6,7 +6,7 @@ struct NoteProfileFetchResult: Sendable {
 }
 
 /// Fetches note.com creator metadata via the public v2 creators API.
-final class NoteProfileFetcher: FetchesProfile {
+final class NoteProfileFetcher: ProfileFetcher {
 
     nonisolated static let reservedHandles: Set<String> = [
         "api", "search", "magazine", "magazines", "circle", "login", "signup",
@@ -14,7 +14,7 @@ final class NoteProfileFetcher: FetchesProfile {
         "help", "contest", "timeline", "notes", "n"
     ]
 
-    // MARK: - FetchesProfile
+    // MARK: - ProfileFetcher
 
     /// `nil` because note feeds use a real `https://note.com/<handle>/rss` URL,
     /// not a pseudo-scheme. `isFeedURL`/`identifierFromFeedURL` are overridden below.

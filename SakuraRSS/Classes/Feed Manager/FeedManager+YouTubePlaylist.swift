@@ -14,6 +14,9 @@ extension FeedManager {
         skipImagePreload: Bool = false,
         runNLP: Bool = true
     ) async throws {
+        #if DEBUG
+        print("[YouTubePlaylist] refresh begin id=\(feed.id) title=\(feed.title)")
+        #endif
         if let lastFetched = feed.lastFetched,
            Date().timeIntervalSince(lastFetched) < Self.youTubePlaylistRefreshInterval {
             #if DEBUG
@@ -26,11 +29,23 @@ extension FeedManager {
         }
 
         guard let playlistID = YouTubePlaylistFetcher.identifierFromFeedURL(feed.url) else {
+            #if DEBUG
+            print("[YouTubePlaylist] Could not derive playlistID id=\(feed.id) "
+                  + "url=\(feed.url)")
+            #endif
             return
         }
+        #if DEBUG
+        print("[YouTubePlaylist] fetching playlistID=\(playlistID) id=\(feed.id)")
+        #endif
 
         let fetcher = YouTubePlaylistFetcher()
         let result = await fetcher.fetchPlaylist(playlistID: playlistID)
+        #if DEBUG
+        print("[YouTubePlaylist] fetched playlistID=\(playlistID) "
+              + "videos=\(result.videos.count) "
+              + "playlistTitle=\(result.playlistTitle ?? "nil")")
+        #endif
 
         let articleTuples = result.videos.map { video in
             ArticleInsertItem(
@@ -54,17 +69,22 @@ extension FeedManager {
         }
 
         let database = database
+        let feedID = feed.id
         try await Task.detached {
             let insertedIDs = (try? database.insertArticles(
-                feedID: feed.id, articles: articleTuples
+                feedID: feedID, articles: articleTuples
             )) ?? []
+            #if DEBUG
+            print("[YouTubePlaylist] inserted id=\(feedID) "
+                  + "new=\(insertedIDs.count)/\(articleTuples.count)")
+            #endif
             await FeedManager.runPostInsertPipeline(
                 insertedIDs: insertedIDs,
                 feedTitle: feedTitle,
                 skipImagePreload: skipImagePreload,
                 runNLP: runNLP
             )
-            try database.updateFeedLastFetched(id: feed.id, date: Date())
+            try database.updateFeedLastFetched(id: feedID, date: Date())
         }.value
 
         await applyFetcherMetadataRefresh(
@@ -75,6 +95,9 @@ extension FeedManager {
         if reloadData {
             await loadFromDatabaseInBackground(animated: true)
         }
+        #if DEBUG
+        print("[YouTubePlaylist] refresh end id=\(feed.id)")
+        #endif
     }
 
     var hasYouTubePlaylistFeeds: Bool {

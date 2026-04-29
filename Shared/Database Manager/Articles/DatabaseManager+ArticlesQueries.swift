@@ -24,6 +24,27 @@ nonisolated extension DatabaseManager {
             .map(rowToArticle)
     }
 
+    /// Returns articles for a set of feed IDs published on or after `date`,
+    /// ordered by published date descending.
+    func articles(forFeedIDs feedIDs: Set<Int64>, since date: Date) throws -> [Article] {
+        guard !feedIDs.isEmpty else { return [] }
+        let query = articles
+            .filter(feedIDs.contains(articleFeedID)
+                    && articlePublishedDate >= date.timeIntervalSince1970)
+            .order(articlePublishedDate.desc)
+        return try database.prepare(query).map(rowToArticle)
+    }
+
+    /// Returns articles for a set of feed IDs that have no `publishedDate`,
+    /// ordered by insertion order (id descending).
+    func undatedArticles(forFeedIDs feedIDs: Set<Int64>) throws -> [Article] {
+        guard !feedIDs.isEmpty else { return [] }
+        let query = articles
+            .filter(feedIDs.contains(articleFeedID) && articlePublishedDate == nil)
+            .order(articleID.desc)
+        return try database.prepare(query).map(rowToArticle)
+    }
+
     func article(byID id: Int64) throws -> Article? {
         let query = articles.filter(articleID == id).limit(1)
         return try database.prepare(query).map(rowToArticle).first
@@ -193,6 +214,9 @@ nonisolated extension DatabaseManager {
             ORDER BY a.published_date DESC
             LIMIT ?
             """
+        #if DEBUG
+        debugPrint("[SQLite] articlesForEntity(name:, types:, limit:) - \(sql)")
+        #endif
         var bindings: [Binding?] = [name as Binding?]
         bindings.append(contentsOf: types.map { $0 as Binding? })
         bindings.append(limit)

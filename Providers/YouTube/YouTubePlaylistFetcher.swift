@@ -14,9 +14,9 @@ struct YouTubePlaylistFetchResult: Sendable {
 }
 
 /// Fetchs YouTube playlist page HTML to list public videos.
-final class YouTubePlaylistFetcher: FetchesProfile {
+final class YouTubePlaylistFetcher: ProfileFetcher {
 
-    // MARK: - FetchesProfile
+    // MARK: - ProfileFetcher
 
     nonisolated static var feedURLScheme: String? { "youtube-playlist" }
 
