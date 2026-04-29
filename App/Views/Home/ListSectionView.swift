@@ -164,6 +164,11 @@ struct ListSectionView: View {
         }
         .onChange(of: hideViewedContent) { _, _ in
             reloadPreloadedEntries()
+            loadedSinceDate = batchingMode.initialSinceDate(
+                latestArticleDate: latestArticleDateForList()
+            )
+            loadedCount = batchingMode.initialCount()
+            visibility.capture(from: rawArticles, isEnabled: hideViewedContent)
         }
         .onChange(of: batchingMode) { _, newMode in
             loadedSinceDate = newMode.initialSinceDate(
@@ -177,7 +182,10 @@ struct ListSectionView: View {
         }
     }
 
+    /// Latest published date among the preloaded (already feed-id and
+    /// unread-filtered) entries, so the initial date-based batch is anchored on
+    /// content that will actually appear after filtering.
     private func latestArticleDateForList() -> Date? {
-        feedManager.latestPublishedDate(forFeedIDs: feedManager.feedIDs(for: list))
+        preloadedEntries.compactMap(\.publishedDate).max()
     }
 }
