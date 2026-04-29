@@ -19,7 +19,7 @@ struct XProfileFetchResult: Sendable {
 }
 
 /// Fetches tweets from an X (Twitter) profile using GraphQL API calls.
-final class XProfileFetcher: FetchesProfile, Authenticated {
+final class XProfileFetcher: ProfileFetcher, Authenticated {
 
     nonisolated(unsafe) var requestTimeoutInterval: TimeInterval = 15
 
@@ -117,7 +117,7 @@ final class XProfileFetcher: FetchesProfile, Authenticated {
     }
 }
 
-// MARK: - FetchesProfile
+// MARK: - ProfileFetcher
 
 extension XProfileFetcher {
 
