@@ -61,13 +61,15 @@ extension FeedManager {
 
     // MARK: - List
 
+    /// Lists deliberately ignore the global feed-mute set so muted feeds still
+    /// surface inside any list they belong to. Article-level rules (keywords,
+    /// authors) and per-list rules still apply.
     func preloadedArticleEntries(for list: FeedList, requireUnread: Bool = false) -> [ArticleIDEntry] {
         _ = dataRevision
-        let muted = mutedFeedIDs
-        let allowedFeedIDs = feedIDs(for: list).subtracting(muted)
-        guard !allowedFeedIDs.isEmpty else { return [] }
+        let listFeedIDs = feedIDs(for: list)
+        guard !listFeedIDs.isEmpty else { return [] }
         let raw = (try? database.articles(
-            forFeedIDs: Array(allowedFeedIDs),
+            forFeedIDs: Array(listFeedIDs),
             limit: Int.max,
             requireUnread: requireUnread
         )) ?? []
