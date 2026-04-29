@@ -169,7 +169,7 @@ extension ArticleDetailView: ArticleActions {
         }
     }
 
-    private func displayHost(_ host: String) -> String {
+    func displayHost(_ host: String) -> String {
         host.hasPrefix("www.") ? String(host.dropFirst(4)) : host
     }
 
@@ -199,7 +199,7 @@ extension ArticleDetailView: ArticleActions {
         arXivPDFReference = ArXivPDFReference(url: pdfURL, title: article.title)
     }
 
-    private var translateLabel: String {
+    var translateLabel: String {
         if showingSummary {
             return String(localized: "Article.TranslateSummary", table: "Articles")
         }
@@ -209,7 +209,7 @@ extension ArticleDetailView: ArticleActions {
         return String(localized: "Article.Translate", table: "Articles")
     }
 
-    private var summarizeLabel: String {
+    var summarizeLabel: String {
         if showingTranslation {
             return String(localized: "Article.SummarizeTranslation", table: "Articles")
         }
@@ -220,7 +220,7 @@ extension ArticleDetailView: ArticleActions {
         return String(localized: "Article.Summarize", table: "Articles")
     }
 
-    private func handleToolbarTranslateTap() {
+    func handleToolbarTranslateTap() {
         if hasTranslationForCurrentMode && !isTranslating {
             withAnimation(.smooth.speed(2.0)) {
                 showingTranslation.toggle()
@@ -230,7 +230,7 @@ extension ArticleDetailView: ArticleActions {
         }
     }
 
-    private func handleToolbarSummarizeTap() {
+    func handleToolbarSummarizeTap() {
         let hasAvailableSummary = (summarizedText != nil || hasCachedSummary) && !isSummarizing
         if hasAvailableSummary && summarizedText != nil {
             withAnimation(.smooth.speed(2.0)) {
