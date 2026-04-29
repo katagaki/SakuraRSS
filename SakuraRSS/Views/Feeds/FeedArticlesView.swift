@@ -157,6 +157,14 @@ struct FeedArticlesView: View {
                 hasInitializedSinceDate = true
             }
         }
+        .onChange(of: feed.id) { _, _ in
+            reloadPreloadedEntries()
+            loadedSinceDate = batchingMode.initialSinceDate(
+                latestArticleDate: latestArticleDateForFeed()
+            )
+            loadedCount = batchingMode.initialCount()
+            visibility.capture(from: rawArticles, isEnabled: hideViewedContent)
+        }
         .onChange(of: feedManager.dataRevision) { _, _ in
             reloadPreloadedEntries()
         }

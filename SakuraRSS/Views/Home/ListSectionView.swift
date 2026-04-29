@@ -143,6 +143,14 @@ struct ListSectionView: View {
                 hasInitializedSinceDate = true
             }
         }
+        .onChange(of: list.id) { _, _ in
+            reloadPreloadedEntries()
+            loadedSinceDate = batchingMode.initialSinceDate(
+                latestArticleDate: latestArticleDateForList()
+            )
+            loadedCount = batchingMode.initialCount()
+            visibility.capture(from: rawArticles, isEnabled: hideViewedContent)
+        }
         .onChange(of: feedManager.dataRevision) { _, _ in
             reloadPreloadedEntries()
         }

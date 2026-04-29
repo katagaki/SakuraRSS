@@ -160,6 +160,14 @@ struct HomeSectionView: View {
                 hasInitializedSinceDate = true
             }
         }
+        .onChange(of: section) { _, _ in
+            reloadPreloadedEntries()
+            loadedSinceDate = batchingMode.initialSinceDate(
+                latestArticleDate: latestArticleDateForSection()
+            )
+            loadedCount = batchingMode.initialCount()
+            visibility.capture(from: rawArticles, isEnabled: hideViewedContent)
+        }
         .onChange(of: feedManager.dataRevision) { _, _ in
             reloadPreloadedEntries()
         }
