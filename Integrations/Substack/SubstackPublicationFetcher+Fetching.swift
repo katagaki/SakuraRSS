@@ -15,7 +15,6 @@ extension SubstackPublicationFetcher {
                     as? [String: Any] else { return empty }
 
             let logoURL = (root["logo_url"] as? String).flatMap { $0.isEmpty ? nil : $0 }
-                ?? (root["cover_photo_url"] as? String).flatMap { $0.isEmpty ? nil : $0 }
 
             return SubstackPublicationFetchResult(logoURL: logoURL)
         } catch {

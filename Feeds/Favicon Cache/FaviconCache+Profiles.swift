@@ -99,9 +99,8 @@ extension FaviconCache {
             return await fetchNoteProfileAvatar(handle: handle)
         }
         if SubstackPublicationFetcher.isSubstackPublicationURL(url),
-           let host = url.host,
-           let image = await fetchSubstackPublicationLogo(host: host) {
-            return image
+           let host = url.host {
+            return await fetchSubstackPublicationLogo(host: host)
         }
         do {
             let (data, _) = try await Self.urlSession.data(from: url)
