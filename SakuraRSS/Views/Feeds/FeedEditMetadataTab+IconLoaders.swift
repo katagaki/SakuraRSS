@@ -1,6 +1,6 @@
 import SwiftUI
 
-extension FeedEditSheet {
+extension FeedEditMetadataTab {
 
     func loadCurrentFavicon() async -> UIImage? {
         guard let feed else { return nil }

@@ -5,10 +5,9 @@ struct FeedsListPage: View {
     @Environment(FeedManager.self) var feedManager
     @State private var isShowingAddFeed = false
     @State private var searchText = ""
-    @State private var feedToEdit: Feed?
+    @State private var feedForEditSheet: FeedIDIdentifier?
     @State private var feedToDelete: Feed?
-    @State private var feedForRules: Feed?
-    @State private var feedForListAssignment: Feed?
+    @State private var isEditingFeeds = false
     @Namespace private var addFeedNamespace
 
     var filteredFeeds: [Feed] {
@@ -41,19 +40,33 @@ struct FeedsListPage: View {
                 .padding()
                 .animation(.smooth.speed(2.0), value: feedManager.feeds)
                 .animation(.smooth.speed(2.0), value: searchText)
+                .animation(.smooth.speed(2.0), value: isEditingFeeds)
         }
         .navigationTitle("Shared.Feeds")
-        .toolbarTitleDisplayMode(.inlineLarge)
         .searchable(text: $searchText, prompt: Text(String(localized: "FeedList.SearchPrompt", table: "Feeds")))
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
-                Button {
-                    isShowingAddFeed = true
-                } label: {
-                    Image(systemName: "plus")
+                if isEditingFeeds {
+                    Button(role: .confirm) {
+                        isEditingFeeds = false
+                    }
+                } else {
+                    Button {
+                        isShowingAddFeed = true
+                    } label: {
+                        Image(systemName: "plus")
+                    }
+                    .buttonStyle(.glassProminent)
+                    .matchedTransitionSource(id: "addFeed", in: addFeedNamespace)
                 }
-                .buttonStyle(.glassProminent)
-                .matchedTransitionSource(id: "addFeed", in: addFeedNamespace)
+            }
+            if !isEditingFeeds {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button(String(localized: "FeedList.Edit", table: "Feeds")) {
+                        isEditingFeeds = true
+                    }
+                    .disabled(feedManager.feeds.isEmpty)
+                }
             }
         }
         .sakuraBackground()
@@ -77,19 +90,9 @@ struct FeedsListPage: View {
                 }
             }
         }
-        .sheet(item: $feedToEdit) {_ in 
-            FeedEditSheet(feed: $feedToEdit)
-                .id(feedToEdit?.id)
+        .sheet(item: $feedForEditSheet) { wrapper in
+            FeedEditSheet(feedID: wrapper.id)
                 .environment(feedManager)
-                .presentationDetents([.medium, .large])
-                .interactiveDismissDisabled()
-        }
-        .sheet(item: $feedForRules) {_ in 
-            FeedRulesSheet(feed: $feedForRules)
-                .id(feedToEdit?.id)
-                .environment(feedManager)
-                .presentationDetents([.medium, .large])
-                .interactiveDismissDisabled()
         }
         .alert(
             String(localized: "FeedMenu.Delete.Title", table: "Feeds"),
@@ -114,11 +117,6 @@ struct FeedsListPage: View {
                 Text(String(localized: "FeedMenu.Delete.Message.\(feed.title)", table: "Feeds"))
             }
         }
-        .sheet(item: $feedForListAssignment) { feed in
-            AddFeedToListSheet(feed: feed)
-                .environment(feedManager)
-                .presentationDetents([.medium, .large])
-        }
     }
 
     @ViewBuilder
@@ -135,7 +133,7 @@ struct FeedsListPage: View {
         let feeds = feedsForSection(section)
         if !feeds.isEmpty {
             Section {
-                LazyVGrid(columns: gridColumns, alignment: .leading, spacing: 16) {
+                LazyVGrid(columns: gridColumns, alignment: .leading, spacing: 12) {
                     ForEach(feeds) { feed in
                         feedCell(feed)
                     }
@@ -150,53 +148,20 @@ struct FeedsListPage: View {
 
     @ViewBuilder
     private func feedCell(_ feed: Feed) -> some View {
-        NavigationLink(value: feed) {
-            FeedGridCell(feed: feed)
-        }
-        .id(feed.id)
-        .buttonStyle(.plain)
-        .contextMenu {
-            feedContextMenu(for: feed)
-        }
-    }
-
-    @ViewBuilder
-    private func feedContextMenu(for feed: Feed) -> some View {
-        Button {
-            feedManager.toggleMuted(feed)
-        } label: {
-            Label(
-                feed.isMuted
-                    ? String(localized: "FeedMenu.Unmute", table: "Feeds")
-                    : String(localized: "FeedMenu.Mute", table: "Feeds"),
-                systemImage: feed.isMuted
-                    ? "bell" : "bell.slash"
+        if isEditingFeeds {
+            FeedGridCell(
+                feed: feed,
+                isWiggling: true,
+                onDelete: { feedToDelete = feed },
+                onTap: { feedForEditSheet = FeedIDIdentifier(id: feed.id) }
             )
-        }
-        Button {
-            feedForRules = feed
-        } label: {
-            Label(String(localized: "FeedMenu.Rules", table: "Feeds"),
-                  systemImage: "list.bullet.rectangle")
-        }
-        Button {
-            feedForListAssignment = feed
-        } label: {
-            Label(String(localized: "FeedMenu.AddToList", table: "Feeds"),
-                  systemImage: "text.badge.plus")
-        }
-        Divider()
-        Button {
-            feedToEdit = feed
-        } label: {
-            Label(String(localized: "FeedMenu.Edit", table: "Feeds"),
-                  systemImage: "pencil")
-        }
-        Button(role: .destructive) {
-            feedToDelete = feed
-        } label: {
-            Label(String(localized: "FeedMenu.Delete", table: "Feeds"),
-                  systemImage: "trash")
+            .id(feed.id)
+        } else {
+            NavigationLink(value: feed) {
+                FeedGridCell(feed: feed)
+            }
+            .buttonStyle(.plain)
+            .id(feed.id)
         }
     }
 }

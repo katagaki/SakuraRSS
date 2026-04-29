@@ -31,22 +31,6 @@ struct FaviconImage: View {
         }
     }
 
-    var bgColor: Color {
-        if skipInset {
-            return .clear
-        } else if isNearBlack {
-            return .white
-        } else if isNonSquare || needsWhiteBackground {
-            return .white
-        } else if showInset {
-            return Color(.secondarySystemBackground)
-        } else if showRoundRectInset {
-            return image.nearWhiteAverageColor
-        } else {
-            return .clear
-        }
-    }
-
     init(_ image: UIImage, size: CGFloat = 20, cornerRadius: CGFloat = 3,
          circle: Bool = false, skipInset: Bool = false) {
         self.image = image
@@ -65,7 +49,7 @@ struct FaviconImage: View {
             .aspectRatio(contentMode: isNonSquare ? .fit : .fill)
             .frame(width: iconSize, height: iconSize)
             .frame(width: size, height: size)
-            .background(bgColor)
+            .background(image.nearWhiteAverageColor)
             .clipShape(shape)
             .overlay(shape.stroke(.tertiary, lineWidth: 0.3))
     }

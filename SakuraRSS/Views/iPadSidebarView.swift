@@ -41,9 +41,8 @@ struct IPadSidebarView: View {
         return (try? DatabaseManager.shared.searchArticles(query: searchText)) ?? []
     }
 
-    @State private var feedToEdit: Feed?
+    @State private var feedForEditSheet: FeedIDIdentifier?
     @State private var feedToDelete: Feed?
-    @State private var feedForRules: Feed?
 
     @State private var listToEdit: FeedList?
     @State private var listForRules: FeedList?
@@ -134,19 +133,6 @@ struct IPadSidebarView: View {
                 SafariView(url: url)
                     .ignoresSafeArea()
             }
-        }
-        .sheet(item: $feedToEdit) { feed in
-            FeedEditSheet(feed: $feedToEdit)
-                .id(feed.id)
-                .environment(feedManager)
-                .presentationDetents([.medium, .large])
-                .interactiveDismissDisabled()
-        }
-        .sheet(item: $feedForRules) { _ in
-            FeedRulesSheet(feed: $feedForRules)
-                .environment(feedManager)
-                .presentationDetents([.medium, .large])
-                .interactiveDismissDisabled()
         }
         .confirmationDialog(
             String(localized: "FeedMenu.Delete.Title", table: "Feeds"),
@@ -277,8 +263,13 @@ struct IPadSidebarView: View {
                         FeedRowView(feed: feed)
                     }
                     .contextMenu {
-                        feedContextMenu(for: feed)
+                        FeedRowContextMenu(
+                            feed: feed,
+                            feedForEditSheet: $feedForEditSheet,
+                            feedToDelete: $feedToDelete
+                        )
                     }
+                    .id(feed.id)
                 }
             }
 
@@ -325,6 +316,10 @@ struct IPadSidebarView: View {
             ListEditSheet(list: nil)
                 .environment(feedManager)
                 .interactiveDismissDisabled()
+        }
+        .sheet(item: $feedForEditSheet) { wrapper in
+            FeedEditSheet(feedID: wrapper.id)
+                .environment(feedManager)
         }
     }
 
@@ -507,41 +502,6 @@ extension IPadSidebarView {
         }
     }
 
-    @ViewBuilder
-    func feedContextMenu(for feed: Feed) -> some View {
-        Button {
-            feedManager.toggleMuted(feed)
-        } label: {
-            Label(
-                feed.isMuted
-                    ? String(localized: "FeedMenu.Unmute", table: "Feeds")
-                    : String(localized: "FeedMenu.Mute", table: "Feeds"),
-                systemImage: feed.isMuted ? "bell" : "bell.slash"
-            )
-        }
-        Button {
-            feedForRules = feed
-        } label: {
-            Label(String(localized: "FeedMenu.Rules", table: "Feeds"),
-                  systemImage: "list.bullet.rectangle")
-        }
-        Divider()
-        Button {
-            feedToEdit = nil
-            DispatchQueue.main.async {
-                feedToEdit = feed
-            }
-        } label: {
-            Label(String(localized: "FeedMenu.Edit", table: "Feeds"),
-                  systemImage: "pencil")
-        }
-        Button(role: .destructive) {
-            feedToDelete = feed
-        } label: {
-            Label(String(localized: "FeedMenu.Delete", table: "Feeds"),
-                  systemImage: "trash")
-        }
-    }
 }
 
 // MARK: - iPad Search Results
