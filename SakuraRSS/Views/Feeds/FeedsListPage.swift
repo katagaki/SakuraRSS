@@ -147,11 +147,11 @@ struct FeedsListPage: View {
         NavigationLink(value: feed) {
             FeedGridCell(feed: feed)
         }
-        .id(feed.id)
         .buttonStyle(.plain)
         .contextMenu {
             feedContextMenu(for: feed)
         }
+        .id(feed.id)
     }
 
     @ViewBuilder

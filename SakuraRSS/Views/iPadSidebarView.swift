@@ -266,6 +266,7 @@ struct IPadSidebarView: View {
                     .contextMenu {
                         feedContextMenu(for: feed)
                     }
+                    .id(feed.id)
                 }
             }
 
