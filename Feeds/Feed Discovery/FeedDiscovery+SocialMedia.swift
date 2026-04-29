@@ -59,7 +59,8 @@ extension FeedDiscovery {
             guard channelID.hasPrefix("UC") else { return nil }
             resolvedChannelID = channelID
             siteURL = "https://www.youtube.com/channel/\(channelID)"
-        } else if path.hasPrefix("/@") || path.hasPrefix("/user/") || path.hasPrefix("/c/") {
+        } else if path.hasPrefix("/@") || path.hasPrefix("/user/") || path.hasPrefix("/c/")
+                    || Self.isYouTubeVanityPath(path) {
             resolvedChannelID = await Self.resolveYouTubeChannelID(from: url)
             siteURL = url.absoluteString
         } else {
@@ -71,6 +72,21 @@ extension FeedDiscovery {
         let feedURL = "https://www.youtube.com/feeds/videos.xml?channel_id=\(channelID)"
         let title = await Self.fetchYouTubeAtomTitle(feedURL: feedURL) ?? "YouTube Channel"
         return DiscoveredFeed(title: title, url: feedURL, siteURL: siteURL)
+    }
+
+    /// True for single-segment YouTube paths like `/Google` that act as
+    /// vanity aliases for a channel (legacy form, no `@` or `c/` prefix).
+    static func isYouTubeVanityPath(_ path: String) -> Bool {
+        let segments = path.split(separator: "/").map(String.init)
+        guard segments.count == 1, let segment = segments.first else { return false }
+        let reserved: Set<String> = [
+            "playlist", "watch", "results", "feed", "shorts", "live",
+            "channel", "user", "c", "embed", "redirect", "hashtag", "post",
+            "about", "account", "ads", "creators", "kids", "premium",
+            "trending", "gaming", "music", "movies", "sports", "news",
+            "learning", "fashion", "supported_browsers", "t", "view_play_list"
+        ]
+        return !reserved.contains(segment.lowercased())
     }
 
     /// Extracts the canonical `UC...` channel ID from a YouTube channel page.

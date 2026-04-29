@@ -106,14 +106,21 @@ extension FeedManager {
            let cookieHeader = SubstackAuth.cookieHeader(for: host) {
             request.setValue(cookieHeader, forHTTPHeaderField: "Cookie")
         }
-        let (data, _) = try await URLSession.shared.data(for: request)
+        let (data, response) = try await URLSession.shared.data(for: request)
+        let statusCode = (response as? HTTPURLResponse)?.statusCode ?? 0
+        let contentType = (response as? HTTPURLResponse)?
+            .value(forHTTPHeaderField: "Content-Type") ?? "unknown"
         #if DEBUG
-        print("[FeedRefresh.RSS] fetch ok id=\(feed.id) bytes=\(data.count)")
+        print("[FeedRefresh.RSS] fetch ok id=\(feed.id) bytes=\(data.count) "
+              + "status=\(statusCode) contentType=\(contentType)")
         #endif
         let parser = RSSParser()
         guard let parsed = parser.parse(data: data) else {
             #if DEBUG
-            print("[FeedRefresh.RSS] parse failed id=\(feed.id)")
+            let bodyHint = bodyContentHint(data: data)
+            print("[FeedRefresh.RSS] parse failed id=\(feed.id) "
+                  + "status=\(statusCode) contentType=\(contentType) "
+                  + "bytes=\(data.count) hint=\(bodyHint)")
             #endif
             return
         }
@@ -633,6 +640,31 @@ extension FeedManager {
         refreshCompleted = 0
         refreshTotal = 0
         Task { await self.loadFromDatabaseInBackground(animated: true) }
+    }
+
+    /// Classifies a non-XML response body so parse-failure logs show why
+    /// (e.g. YouTube returning an HTML 500 page instead of an Atom feed).
+    nonisolated static func bodyContentHint(data: Data) -> String {
+        if data.isEmpty { return "empty" }
+        let prefix = data.prefix(512)
+        guard let snippet = String(data: prefix, encoding: .utf8)
+                ?? String(data: prefix, encoding: .isoLatin1) else {
+            return "binary"
+        }
+        let trimmed = snippet
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+            .lowercased()
+        if trimmed.hasPrefix("<!doctype html") || trimmed.hasPrefix("<html") {
+            return "html"
+        }
+        if trimmed.hasPrefix("{") || trimmed.hasPrefix("[") {
+            return "json"
+        }
+        if trimmed.hasPrefix("<?xml") || trimmed.hasPrefix("<rss")
+            || trimmed.hasPrefix("<feed") || trimmed.hasPrefix("<atom") {
+            return "xml-malformed"
+        }
+        return "other:" + String(trimmed.prefix(60))
     }
 
 }

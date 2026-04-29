@@ -1,6 +1,6 @@
 import Foundation
 
-extension InstagramProfileFetcher: RefreshableFeedProvider {
+extension InstagramProfileFetcher: WebFeedProvider {
 
     static func refresh(
         feed: Feed,

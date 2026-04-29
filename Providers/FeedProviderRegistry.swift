@@ -6,8 +6,21 @@ nonisolated enum FeedProviderRegistry {
     static let all: [any FeedProvider.Type] = [
         XProfileFetcher.self,
         InstagramProfileFetcher.self,
-        YouTubePlaylistFetcher.self
+        YouTubePlaylistFetcher.self,
+        SubstackPublicationFetcher.self,
+        NoteProfileFetcher.self,
+        RedditCommunityFetcher.self
     ]
+
+    static func metadataFetcher(forSiteURL url: URL) -> (any MetadataFetchingProvider.Type)? {
+        for provider in all {
+            if let metadata = provider as? any MetadataFetchingProvider.Type,
+               metadata.canFetchMetadata(for: url) {
+                return metadata
+            }
+        }
+        return nil
+    }
 
     static func provider(forFeedURL url: String) -> (any FeedProvider.Type)? {
         all.first { $0.matchesFeedURL(url) }

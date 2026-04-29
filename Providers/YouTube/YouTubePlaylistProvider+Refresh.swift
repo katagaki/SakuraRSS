@@ -1,6 +1,6 @@
 import Foundation
 
-extension YouTubePlaylistFetcher: RefreshableFeedProvider {
+extension YouTubePlaylistFetcher: WebFeedProvider {
 
     static func refresh(
         feed: Feed,

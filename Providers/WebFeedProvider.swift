@@ -1,7 +1,7 @@
 import Foundation
 
 /// A provider whose feeds use a custom (non-RSS) refresh pipeline.
-protocol RefreshableFeedProvider: FeedProvider {
+protocol WebFeedProvider: FeedProvider {
 
     static func refresh(
         feed: Feed,
