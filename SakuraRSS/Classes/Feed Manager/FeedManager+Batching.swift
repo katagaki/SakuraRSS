@@ -66,24 +66,13 @@ extension FeedManager {
             .filter { $0.feedSection == section && !muted.contains($0.id) }
             .map(\.id)
         guard !sectionFeedIDs.isEmpty else { return [] }
-        if !requireUnread {
-            let fetchLimit = max(limit * 4, 100)
-            let raw = (try? database.articles(forFeedIDs: sectionFeedIDs, limit: fetchLimit)) ?? []
-            return Array(applyAllRules(raw).prefix(limit))
-        }
-        var fetchLimit = max(limit * 4, 100)
-        let maxIterations = 20
-        for _ in 0..<maxIterations {
-            let raw = (try? database.articles(forFeedIDs: sectionFeedIDs, limit: fetchLimit)) ?? []
-            let pool = applyAllRules(raw)
-            let unread = pool.filter { !$0.isRead }
-            if unread.count >= limit || raw.count < fetchLimit {
-                return Array(unread.prefix(limit))
-            }
-            fetchLimit *= 2
-        }
-        let raw = (try? database.articles(forFeedIDs: sectionFeedIDs, limit: fetchLimit)) ?? []
-        return Array(applyAllRules(raw).filter { !$0.isRead }.prefix(limit))
+        let fetchLimit = max(limit * 4, 100)
+        let raw = (try? database.articles(
+            forFeedIDs: sectionFeedIDs,
+            limit: fetchLimit,
+            requireUnread: requireUnread
+        )) ?? []
+        return Array(applyAllRules(raw).prefix(limit))
     }
 
     func hasMoreArticles(for section: FeedSection, beyond count: Int) -> Bool {
