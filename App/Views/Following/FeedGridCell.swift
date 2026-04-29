@@ -60,6 +60,7 @@ struct FeedGridCell: View {
                     }
                 }
                 .frame(width: iconSize, height: iconSize)
+                .drawingGroup()
                 .overlay(alignment: .topTrailing) {
                     if feedManager.unreadCount(for: feed) > 0 {
                         unreadDot
@@ -110,10 +111,10 @@ struct FeedGridCell: View {
 
     private var unreadDot: some View {
         Circle()
-            .fill(.blue)
+            .fill(.blue.gradient)
             .frame(width: 12, height: 12)
             .overlay {
-                Circle().strokeBorder(.blue.gradient, lineWidth: 2)
+                Circle().strokeBorder(.blue, lineWidth: 0.5)
             }
     }
 
