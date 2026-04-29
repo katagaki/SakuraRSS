@@ -13,13 +13,15 @@ nonisolated extension DatabaseManager {
     }
 
     /// Returns articles for a set of feed IDs ordered by published date descending.
-    func articles(forFeedIDs feedIDs: [Int64], limit: Int) throws -> [Article] {
+    func articles(forFeedIDs feedIDs: [Int64], limit: Int, requireUnread: Bool = false) throws -> [Article] {
         guard !feedIDs.isEmpty else { return [] }
-        let query = articles
-            .filter(feedIDs.contains(articleFeedID))
-            .order(articlePublishedDate.desc)
-            .limit(limit)
-        return try database.prepare(query).map(rowToArticle)
+        var query = articles.filter(feedIDs.contains(articleFeedID))
+        if requireUnread {
+            query = query.filter(articleIsRead == false)
+        }
+        return try database
+            .prepare(query.order(articlePublishedDate.desc).limit(limit))
+            .map(rowToArticle)
     }
 
     func article(byID id: Int64) throws -> Article? {
