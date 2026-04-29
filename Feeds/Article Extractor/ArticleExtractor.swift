@@ -125,6 +125,7 @@ struct ArticleExtractor {
         let tagCount = html.components(separatedBy: "<").count - 1
         let hasMultipleNewlines = html.contains("\n\n")
         if hasMultipleNewlines && tagCount <= 4 && !stripped.isEmpty {
+            // swiftlint:disable:next line_length
             log("Extract", "extractText: wrapped plain text/Markdown (\(tagCount) tags, \(stripped.count) chars), using directly")
             var cleaned = stripRemainingHTMLTags(html)
             cleaned = resolveMarkdownLinks(in: cleaned, baseURL: baseURL)

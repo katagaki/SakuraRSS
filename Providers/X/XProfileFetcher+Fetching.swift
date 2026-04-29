@@ -37,6 +37,7 @@ extension XProfileFetcher {
             return XProfileFetchResult(tweets: [], profileImageURL: nil, displayName: nil)
         }
 
+        // swiftlint:disable:next line_length
         log("XProfileFetcher", "User info - id: \(userInfo.id), name: \(userInfo.displayName ?? "nil"), avatar: \(userInfo.profileImageURL?.prefix(60) ?? "nil")")
 
         let tweets = await fetchTweets(
@@ -109,6 +110,7 @@ extension XProfileFetcher {
 
     // MARK: - User Info
 
+    // swiftlint:disable:next function_body_length
     func fetchUserInfo(
         screenName: String, cookies: XCookies
     ) async -> UserInfo? {
@@ -304,6 +306,7 @@ extension XProfileFetcher {
                 break
             }
 
+            // swiftlint:disable:next line_length
             log("XProfileFetcher", "Parsed \(parsed.tweets.count) tweets from page \(page), cursor: \(parsed.bottomCursor?.prefix(30) ?? "nil")")
 
             var newCount = 0

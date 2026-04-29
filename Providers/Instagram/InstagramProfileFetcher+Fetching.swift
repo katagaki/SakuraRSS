@@ -27,6 +27,7 @@ extension InstagramProfileFetcher {
             return InstagramProfileFetchResult(posts: [], profileImageURL: nil, displayName: nil)
         }
 
+        // swiftlint:disable:next line_length
         log("InstagramProfileFetcher", "Got cookies - csrf: \(cookies.csrfToken.prefix(20))..., total cookies: \(cookies.allCookies.count)")
 
         let session = makeSession(cookies: cookies)
@@ -43,6 +44,7 @@ extension InstagramProfileFetcher {
             return InstagramProfileFetchResult(posts: [], profileImageURL: nil, displayName: nil)
         }
 
+        // swiftlint:disable:next line_length
         log("InstagramProfileFetcher", "Fetched \(profileData.posts.count) posts, name: \(profileData.displayName ?? "nil")")
 
         return profileData

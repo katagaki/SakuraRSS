@@ -64,6 +64,7 @@ enum NLPProcessingCoordinator {
             }
 
             let elapsed = Date().timeIntervalSince(startTime)
+            // swiftlint:disable:next line_length
             log("NLPCoordinator", "processNewArticlesIfEnabled: finished \(toProcess.count) articles in \(String(format: "%.2f", elapsed))s")
         }.value
     }

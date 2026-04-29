@@ -5,9 +5,7 @@ extension FeedManager {
     // MARK: - Feed Refresh
 
     /// Runs the full per-feed pipeline: fetch -> parse -> metadata images -> insert
-    /// -> spotlight -> image preload -> NLP. Insert always runs once the feed has
-    /// been fetched, so a user-initiated stop only skips post-insert work for
-    /// feeds in flight; feeds that have completed keep their articles.
+    /// -> spotlight -> image preload -> NLP.
     func refreshFeed(
         _ feed: Feed,
         updateTitle: Bool = true,
@@ -90,13 +88,16 @@ extension FeedManager {
         let statusCode = (response as? HTTPURLResponse)?.statusCode ?? 0
         let contentType = (response as? HTTPURLResponse)?
             .value(forHTTPHeaderField: "Content-Type") ?? "unknown"
+        // swiftlint:disable:next line_length
         log("FeedRefresh.RSS", "fetch ok id=\(feed.id) bytes=\(data.count) status=\(statusCode) contentType=\(contentType)")
         let parser = RSSParser()
         guard let parsed = parser.parse(data: data) else {
             let bodyHint = bodyContentHint(data: data)
+            // swiftlint:disable:next line_length
             log("FeedRefresh.RSS", "parse failed id=\(feed.id) status=\(statusCode) contentType=\(contentType) bytes=\(data.count) hint=\(bodyHint)")
             return
         }
+        // swiftlint:disable:next line_length
         log("FeedRefresh.RSS", "parsed id=\(feed.id) articles=\(parsed.articles.count) title=\(parsed.title) isPodcast=\(parsed.isPodcast)")
 
         if let generator = parsed.generator,
@@ -150,6 +151,7 @@ extension FeedManager {
         let insertedIDs = (try? database.insertArticles(
             feedID: feed.id, articles: articleTuples
         )) ?? []
+        // swiftlint:disable:next line_length
         log("FeedRefresh.RSS", "inserted id=\(feed.id) new=\(insertedIDs.count)/\(articleTuples.count) metadataImages=\(metadataImages.count) redditImages=\(redditImages.count)")
 
         await FeedManager.runPostInsertPipeline(
@@ -189,6 +191,7 @@ extension FeedManager {
         let database = DatabaseManager.shared
         let insertedArticles = (try? database.articles(withIDs: insertedIDs)) ?? []
         if insertedArticles.isEmpty { return }
+        // swiftlint:disable:next line_length
         log("FeedRefresh.PostInsert", "begin feedTitle=\(feedTitle) count=\(insertedArticles.count) skipImagePreload=\(skipImagePreload) runNLP=\(runNLP)")
 
         if !ProcessInfo.processInfo.isLowPowerModeEnabled {
@@ -297,9 +300,7 @@ extension FeedManager {
         await loadFromDatabaseInBackground()
     }
 
-    /// Runs each feed's full pipeline concurrently in a bounded queue. Articles for
-    /// completed feeds are visible immediately; if cancellation comes mid-refresh,
-    /// every feed that has already finished its pipeline keeps its inserted articles.
+    // swiftlint:disable:next function_body_length
     func refreshAllFeeds(
         skipAuthenticatedFetchers: Bool = false,
         respectCooldown: Bool = false,
@@ -329,6 +330,7 @@ extension FeedManager {
             return true
         }
         guard !feedsToRefresh.isEmpty else {
+            // swiftlint:disable:next line_length
             log("FeedRefresh.All", "no feeds eligible after filter (cooldown=\(cooldownSeconds.map { String(Int($0)) } ?? "off")s)")
             return
         }
@@ -468,6 +470,7 @@ extension FeedManager {
         log("FeedRefresh.Unfetched", "end count=\(unfetched.count)")
     }
 
+    // swiftlint:disable:next function_body_length
     func refreshAllFeedsAndFavicons() async {
         let currentFeeds = feeds
         log("FeedRefresh.AllAndFavicons", "begin count=\(currentFeeds.count)")

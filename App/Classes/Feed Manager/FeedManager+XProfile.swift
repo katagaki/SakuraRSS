@@ -8,6 +8,7 @@ extension FeedManager {
     /// Minimum interval between X API calls per feed (30 minutes).
     static let xRefreshInterval: TimeInterval = 30 * 60
 
+    // swiftlint:disable:next function_body_length
     func refreshXFeed(
         _ feed: Feed,
         reloadData: Bool = true,

@@ -53,7 +53,10 @@ struct CardsStyleView: View {
                                 isRefreshing = false
                             }
                         } label: {
-                            Label(String(localized: "Cards.StartOver", table: "Articles"), systemImage: "arrow.counterclockwise")
+                            Label(
+                                String(localized: "Cards.StartOver", table: "Articles"),
+                                systemImage: "arrow.counterclockwise"
+                            )
                         }
                         .buttonStyle(.bordered)
                         .disabled(isRefreshing)

@@ -27,10 +27,10 @@ nonisolated enum LinkAggregatorDomains: DomainExceptions {
               let regex = try? NSRegularExpression(pattern: #"\[[^\]]*\]\(([^)\s]+)\)"#) else {
             return nil
         }
-        let ns = summary as NSString
-        let regexMatches = regex.matches(in: summary, range: NSRange(location: 0, length: ns.length))
+        let summaryString = summary as NSString
+        let regexMatches = regex.matches(in: summary, range: NSRange(location: 0, length: summaryString.length))
         for match in regexMatches where match.numberOfRanges >= 2 {
-            let raw = ns.substring(with: match.range(at: 1))
+            let raw = summaryString.substring(with: match.range(at: 1))
             guard let url = URL(string: raw),
                   let scheme = url.scheme?.lowercased(),
                   scheme == "http" || scheme == "https",

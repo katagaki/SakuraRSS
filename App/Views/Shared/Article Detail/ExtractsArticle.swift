@@ -223,6 +223,7 @@ extension ExtractsArticle {
             if let text, !text.isEmpty {
                 let paragraphCount = text.components(separatedBy: "\n\n").count
                 let looksWellStructured = paragraphCount > 1 || text.count < 500
+                // swiftlint:disable:next line_length
                 log("Extract", "Feed content: \(paragraphCount) paragraphs, \(text.count) chars, wellStructured=\(looksWellStructured): \(article.url)")
                 if looksWellStructured {
                     extractedText = text

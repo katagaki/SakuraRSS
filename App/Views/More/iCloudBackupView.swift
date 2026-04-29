@@ -3,7 +3,8 @@ import SwiftUI
 // swiftlint:disable:next type_name
 struct iCloudBackupView: View {
 
-    @AppStorage("iCloudBackup.Interval") private var backupIntervalRaw: Int = iCloudBackupManager.BackupInterval.everyNight.rawValue
+    @AppStorage("iCloudBackup.Interval")
+    private var backupIntervalRaw: Int = iCloudBackupManager.BackupInterval.everyNight.rawValue
     @State private var isBackingUp = false
     @State private var lastBackupDate: Date?
     @State private var showBackupError = false
@@ -53,7 +54,10 @@ struct iCloudBackupView: View {
                 }
 
                 Section {
-                    Picker(String(localized: "iCloudBackup.AutoBackup", table: "DataManagement"), selection: backupInterval) {
+                    Picker(
+                        String(localized: "iCloudBackup.AutoBackup", table: "DataManagement"),
+                        selection: backupInterval
+                    ) {
                         Text(String(localized: "iCloudBackup.Interval.EveryNight", table: "DataManagement"))
                             .tag(iCloudBackupManager.BackupInterval.everyNight)
                         Text(String(localized: "iCloudBackup.Interval.Every12Hours", table: "DataManagement"))
@@ -78,10 +82,16 @@ struct iCloudBackupView: View {
             iCloudAvailable = iCloudBackupManager.shared.isICloudAvailable()
             lastBackupDate = iCloudBackupManager.shared.lastBackupDate
         }
-        .alert(String(localized: "iCloudBackup.BackupSuccess", table: "DataManagement"), isPresented: $showBackupSuccess) {
+        .alert(
+            String(localized: "iCloudBackup.BackupSuccess", table: "DataManagement"),
+            isPresented: $showBackupSuccess
+        ) {
             Button("Shared.OK") {}
         }
-        .alert(String(localized: "iCloudBackup.BackupError", table: "DataManagement"), isPresented: $showBackupError) {
+        .alert(
+            String(localized: "iCloudBackup.BackupError", table: "DataManagement"),
+            isPresented: $showBackupError
+        ) {
             Button("Shared.OK") {}
         }
     }

@@ -34,6 +34,7 @@ struct ListWidgetProvider: AppIntentTimelineProvider {
         return Timeline(entries: [entry], policy: .after(Date().addingTimeInterval(90 * 60)))
     }
 
+    // swiftlint:disable:next function_body_length
     private func loadEntry(for configuration: ListWidgetIntent) async -> ListWidgetEntry {
         let database = DatabaseManager.shared
         let layout = configuration.layout ?? .thumbnails

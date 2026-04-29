@@ -163,7 +163,7 @@ struct ListEditSheet: View {
                 }
             }
         } else {
-            if let _ = try? feedManager.createList(name: trimmedName, icon: selectedIcon) {
+            if (try? feedManager.createList(name: trimmedName, icon: selectedIcon)) != nil {
                 if let newList = feedManager.lists.last {
                     for id in selectedFeedIDs {
                         if let feed = feedManager.feedsByID[id] {

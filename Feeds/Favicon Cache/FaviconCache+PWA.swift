@@ -22,6 +22,7 @@ extension FaviconCache {
                let iconURL = URL(string: touchIconHref, relativeTo: siteURL) {
                 let (iconData, _) = try await Self.urlSession.data(from: iconURL.absoluteURL)
                 if let image = UIImage(data: iconData), image.size.width >= 64 {
+                    // swiftlint:disable:next line_length
                     log("Favicon", "PWA: found apple-touch-icon from \(iconURL.absoluteURL) (\(image.size.width)x\(image.size.height))")
                     return image
                 }

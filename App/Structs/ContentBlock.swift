@@ -117,6 +117,7 @@ enum ContentBlock: Identifiable {
     }
 
     static func parse(_ text: String) -> [ContentBlock] {
+        // swiftlint:disable:next line_length
         let pattern = #"\{\{(IMG|CODE|VIDEO|YOUTUBE|XPOST|EMBED|TABLE|MATH)\}\}(.*?)\{\{/(IMG|CODE|VIDEO|YOUTUBE|XPOST|EMBED|TABLE|MATH)\}\}"#
         guard let regex = try? NSRegularExpression(pattern: pattern, options: .dotMatchesLineSeparators)
         else {

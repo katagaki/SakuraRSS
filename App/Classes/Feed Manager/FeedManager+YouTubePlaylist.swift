@@ -8,6 +8,7 @@ extension FeedManager {
     /// Minimum interval between YouTube playlist fetches per feed (30 minutes).
     private static let youTubePlaylistRefreshInterval: TimeInterval = 30 * 60
 
+    // swiftlint:disable:next function_body_length
     func refreshYouTubePlaylistFeed(
         _ feed: Feed,
         reloadData: Bool = true,
@@ -31,6 +32,7 @@ extension FeedManager {
 
         let fetcher = YouTubePlaylistFetcher()
         let result = await fetcher.fetchPlaylist(playlistID: playlistID)
+        // swiftlint:disable:next line_length
         log("YouTubePlaylist", "fetched playlistID=\(playlistID) videos=\(result.videos.count) playlistTitle=\(result.playlistTitle ?? "nil")")
 
         let articleTuples = result.videos.map { video in

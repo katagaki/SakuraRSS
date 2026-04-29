@@ -1,0 +1,115 @@
+{
+  "groups": [
+    {
+      "name": "General noise",
+      "patterns": [
+        "related", "recommend", "suggested", "popular",
+        "trending", "sidebar", "widget", "promo",
+        "newsletter", "subscribe", "subscription",
+        "signup", "sign-up", "comment", "disqus"
+      ]
+    },
+    {
+      "name": "Social & share",
+      "patterns": [
+        "social-share", "social-shares", "social-bar",
+        "social-buttons", "social-media", "social-follow",
+        "share-bar", "share-buttons", "share-tools",
+        "share-this", "post-share", "entry-share",
+        "article-share", "sharedaddy", "addtoany",
+        "addthis", "sharethis", "rich-share"
+      ]
+    },
+    {
+      "name": "Ads",
+      "patterns": [
+        "ad-slot", "ad-wrap", "ad-unit", "ad-container",
+        "ad-banner", "ad-block", "ad-box", "ad-label",
+        "ad-leaderboard", "ad-sidebar", "ad-inline",
+        "inline-ad", "article-ad", "banner-ad", "text-ad",
+        "google-ad", "adsense", "adsbygoogle", "dfp-ad",
+        "gpt-ad", "amp-ad", "outbrain", "taboola", "mgid",
+        "revcontent", "nativo", "zergnet", "dianomi",
+        "sponsored", "sponsor-message", "partner-content",
+        "paid-content", "paid-post", "promoted"
+      ]
+    },
+    {
+      "name": "Footer / story navigation",
+      "patterns": [
+        "footer-links", "site-footer", "more-stories",
+        "also-like", "dont-miss",
+        "read-next", "up-next", "most-read"
+      ]
+    },
+    {
+      "name": "App-install / CTA widgets",
+      "patterns": [
+        "get-app", "get-the-app", "app-download",
+        "app-install", "app-promo", "app-banner",
+        "app-cta", "app-widget", "download-app",
+        "install-app", "smart-banner", "mobile-app-banner",
+        "whatsapp-group", "whatsapp-signup", "telegram-signup",
+        "subscription-cta", "subscription_cta",
+        "gift-article", "gift-post", "gift-link",
+        "gift-this-article", "share-gift"
+      ]
+    },
+    {
+      "name": "Author cards, bylines & contributor blocks",
+      "patterns": [
+        "author-bio", "author-box", "author-card",
+        "author-block", "author-info", "author-details",
+        "author-profile", "author-meta", "author-section",
+        "author-footer", "author-header", "author-avatar",
+        "author-byline", "post-author", "post-byline",
+        "entry-author", "article-author", "article-byline",
+        "byline", "contributor", "coauthor", "co-authors",
+        "written-by", "about-author", "about-the-author"
+      ]
+    },
+    {
+      "name": "WordPress Gutenberg author blocks",
+      "patterns": [
+        "wp-block-tc23-author", "wp-block-post-author",
+        "wp-block-co-authors"
+      ]
+    },
+    {
+      "name": "Publication dates on dedicated blocks",
+      "patterns": [
+        "published-date", "publish-date", "publication-date",
+        "post-date", "entry-date", "article-date",
+        "date-published", "last-updated"
+      ]
+    },
+    {
+      "name": "Affiliate / FTC disclosures and channel promo",
+      "patterns": [
+        "disclaimer-affiliate", "affiliate-disclaimer",
+        "affiliate-disclosure", "ftc-disclosure",
+        "ad-disclaimer", "after_disclaimer",
+        "visitor-promo", "youtube-video",
+        "youtube-promo", "youtube-cta", "youtube-subscribe",
+        "channel-promo",
+        "ad-text", "ad-header"
+      ]
+    },
+    {
+      "name": "Toolbars, action bars, icon rows, tag/category footers",
+      "patterns": [
+        "toolbar", "action-bar", "action-buttons",
+        "button-bar", "button-group", "button-row",
+        "icon-bar", "icon-row", "iconbar",
+        "meta-bar", "story-tools", "article-tools",
+        "utility-bar", "utility-nav", "floating-bar",
+        "floating-share", "sticky-share", "sticky-social",
+        "sticky-tools", "social-toolbar", "share-toolbar",
+        "post-toolbar", "article-toolbar", "article-actions",
+        "post-actions", "entry-actions", "tag-cloud",
+        "post-categories", "post-tags",
+        "entry-tags", "entry-categories", "category-links"
+      ]
+    }
+  ]
+}

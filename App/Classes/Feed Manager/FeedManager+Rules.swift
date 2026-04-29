@@ -68,6 +68,7 @@ extension FeedManager {
     }
 
     func applyAllRules(_ articles: [Article]) -> [Article] {
+        // swiftlint:disable:next large_tuple
         var rulesByFeed: [Int64: (allowedKeywords: [String], keywords: [String], authors: Set<String>)] = [:]
         var result: [Article] = []
         for article in articles {

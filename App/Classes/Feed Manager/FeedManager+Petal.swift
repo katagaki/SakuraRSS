@@ -57,6 +57,7 @@ extension FeedManager {
         }
     }
 
+    // swiftlint:disable function_body_length
     /// Mirror of `refreshFeed(_:)` that drives `PetalEngine` instead of the RSS path.
     func refreshPetalFeed(
         _ feed: Feed,
@@ -123,4 +124,5 @@ extension FeedManager {
         }
         log("Petal", "refresh end id=\(feed.id)")
     }
+    // swiftlint:enable function_body_length
 }

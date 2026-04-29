@@ -34,6 +34,7 @@ struct SingleFeedProvider: AppIntentTimelineProvider {
         return Timeline(entries: [entry], policy: .after(Date().addingTimeInterval(90 * 60)))
     }
 
+    // swiftlint:disable:next function_body_length
     private func loadEntry(for configuration: SingleFeedIntent) async -> SingleFeedEntry {
         let database = DatabaseManager.shared
         let layout = configuration.layout ?? .thumbnails

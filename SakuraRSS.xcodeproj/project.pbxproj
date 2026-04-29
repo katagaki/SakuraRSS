@@ -137,6 +137,11 @@
 				"Article Extractor/ArticleExtractor+Structured.swift",
 				"Article Extractor/ArticleExtractor+TextContent.swift",
 				"Article Extractor/ArticleExtractor+URLResolution.swift",
+				"Article Extractor/Noise Data/AdvertisementTextPatterns.json",
+				"Article Extractor/Noise Data/NoiseClassPatterns.json",
+				"Article Extractor/Noise Data/NoiseData.swift",
+				"Article Extractor/Noise Data/NoiseSelectors.json",
+				"Article Extractor/Noise Data/UnsafeInsideArticle.json",
 				"Article Extractor/Site Adapters/GitHubAdapter.swift",
 				"Article Extractor/Site Adapters/StackOverflowAdapter.swift",
 				"Article Extractor/Site Adapters/WikipediaAdapter.swift",
@@ -172,6 +177,11 @@
 				"Article Extractor/ArticleExtractor+Structured.swift",
 				"Article Extractor/ArticleExtractor+TextContent.swift",
 				"Article Extractor/ArticleExtractor+URLResolution.swift",
+				"Article Extractor/Noise Data/AdvertisementTextPatterns.json",
+				"Article Extractor/Noise Data/NoiseClassPatterns.json",
+				"Article Extractor/Noise Data/NoiseData.swift",
+				"Article Extractor/Noise Data/NoiseSelectors.json",
+				"Article Extractor/Noise Data/UnsafeInsideArticle.json",
 				"Article Extractor/Site Adapters/GitHubAdapter.swift",
 				"Article Extractor/Site Adapters/StackOverflowAdapter.swift",
 				"Article Extractor/Site Adapters/WikipediaAdapter.swift",
@@ -684,9 +694,10 @@
 				SUPPORTS_MACCATALYST = NO;
 				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -717,9 +728,10 @@
 				SUPPORTS_MACCATALYST = NO;
 				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
@@ -1045,7 +1057,7 @@
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -1082,7 +1094,7 @@
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
-				SWIFT_VERSION = 5.0;
+				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;

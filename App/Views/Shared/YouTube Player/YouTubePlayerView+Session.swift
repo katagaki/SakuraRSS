@@ -11,7 +11,11 @@ private final class WebViewWarmUpDelegate: NSObject, WKNavigationDelegate {
 
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) { finish() }
     func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) { finish() }
-    func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) { finish() }
+    func webView(
+        _ webView: WKWebView,
+        didFailProvisionalNavigation navigation: WKNavigation!,
+        withError error: Error
+    ) { finish() }
 
     private func finish() {
         guard !completed else { return }

@@ -12,6 +12,7 @@ extension FeedManager {
         instagramRefreshInterval + TimeInterval.random(in: 0...(10 * 60))
     }
 
+    // swiftlint:disable:next function_body_length
     func refreshInstagramFeed(
         _ feed: Feed,
         reloadData: Bool = true,
@@ -36,6 +37,7 @@ extension FeedManager {
 
         let fetcher = InstagramProfileFetcher()
         let result = await fetcher.fetchProfile(profileURL: profileURL)
+        // swiftlint:disable:next line_length
         log("InstagramProfile", "fetched @\(handle) posts=\(result.posts.count) displayName=\(result.displayName ?? "nil")")
 
         let postTuples = result.posts.map { post in

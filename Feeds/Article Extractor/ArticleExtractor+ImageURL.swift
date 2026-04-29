@@ -3,6 +3,7 @@ import SwiftSoup
 
 extension ArticleExtractor {
 
+    // swiftlint:disable cyclomatic_complexity
     /// Picks the best available source URL from an image-like element:
     /// `<img>`, `<amp-img>`, or `<picture>`.  Prefers `srcset` descriptors
     /// when present, then falls back through common lazy-loading attributes,
@@ -56,6 +57,7 @@ extension ArticleExtractor {
         }
         return nil
     }
+    // swiftlint:enable cyclomatic_complexity
 
     /// Parses a `srcset` value and returns the URL of the largest candidate.
     /// Candidates take the form `URL[ width][w|x]` and are comma-separated.

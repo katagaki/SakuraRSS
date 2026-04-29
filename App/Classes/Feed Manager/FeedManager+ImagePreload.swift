@@ -42,6 +42,7 @@ extension FeedManager {
                     }
                 }
                 for await _ in group {
+                    // swiftlint:disable:next for_where
                     if Task.isCancelled {
                         group.cancelAll()
                     }

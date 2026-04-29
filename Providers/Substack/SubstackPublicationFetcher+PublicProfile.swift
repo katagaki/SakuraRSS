@@ -7,6 +7,7 @@ private struct SubstackPublicProfile: Decodable {
     struct PrimaryPublication: Decodable {
         let logoURL: String?
 
+        // swiftlint:disable:next nesting
         enum CodingKeys: String, CodingKey {
             case logoURL = "logo_url"
         }

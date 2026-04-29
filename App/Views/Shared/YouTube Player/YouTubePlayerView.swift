@@ -125,58 +125,17 @@ struct YouTubePlayerView: View {
                     .padding(.horizontal)
                     .padding(.top, 16)
 
-                    HStack(spacing: 32) {
-                        Button {
-                            togglePiP()
-                        } label: {
-                            Image(systemName: "pip.enter")
-                                .font(.title2)
-                        }
-                        .disabled(isAd)
-                        .opacity(isAd ? 0.5 : 1.0)
-
-                        Button {
-                            rewind()
-                        } label: {
-                            Image(systemName: "gobackward.10")
-                                .font(.title2)
-                        }
-                        .disabled(isAd)
-                        .opacity(isAd ? 0.5 : 1.0)
-
-                        Button {
-                            togglePlayPause()
-                        } label: {
-                            Image(systemName: isPlaying ? "pause.circle.fill" : "play.circle.fill")
-                                .font(.system(size: 56))
-                        }
-
-                        Button {
-                            if isAd && isAdSkippable {
-                                skipAd()
-                            } else {
-                                fastForward()
-                            }
-                        } label: {
-                            Image(systemName: isAd
-                                ? "forward.end.fill"
-                                : "goforward.10")
-                                .font(.title2)
-                                .contentTransition(.symbolEffect(.replace))
-                        }
-                        .disabled(isAd && !isAdSkippable)
-                        .opacity((isAd && !isAdSkippable) ? 0.5 : 1.0)
-
-                        Button {
-                            enterFullscreen()
-                        } label: {
-                            Image(systemName: "arrow.up.left.and.arrow.down.right")
-                                .font(.title2)
-                        }
-                        .disabled(isAd)
-                        .opacity(isAd ? 0.5 : 1.0)
-                    }
-                    .foregroundStyle(.primary)
+                    YouTubePlayerControls(
+                        isPlaying: isPlaying,
+                        isAd: isAd,
+                        isAdSkippable: isAdSkippable,
+                        onTogglePiP: togglePiP,
+                        onRewind: rewind,
+                        onTogglePlayPause: togglePlayPause,
+                        onSkipAd: skipAd,
+                        onFastForward: fastForward,
+                        onEnterFullscreen: enterFullscreen
+                    )
                     .padding(.top, 8)
 
                     if isAd, let advertiserURL {

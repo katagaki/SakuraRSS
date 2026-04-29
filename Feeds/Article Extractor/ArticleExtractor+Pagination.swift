@@ -48,6 +48,7 @@ extension ArticleExtractor {
         return combined.isEmpty ? nil : combined.joined(separator: "\n\n")
     }
 
+    // swiftlint:disable cyclomatic_complexity
     /// Returns unique next-page URLs from rel=next and common "Next" anchors.
     static func nextPageURLs(from html: String, baseURL: URL) -> [URL] {
         guard let doc = try? SwiftSoup.parse(html, baseURL.absoluteString) else {
@@ -105,4 +106,5 @@ extension ArticleExtractor {
 
         return urls
     }
+    // swiftlint:enable cyclomatic_complexity
 }

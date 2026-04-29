@@ -1,0 +1,22 @@
+{
+  "patterns": [
+    "share-bar", "share-buttons", "share-tools",
+    "share-this", "post-share", "entry-share",
+    "article-share", "sharedaddy", "addtoany",
+    "addthis", "sharethis", "social-share",
+    "social-shares", "social-bar", "social-buttons",
+    "social-media", "social-follow",
+    "newsletter", "subscribe", "subscription",
+    "signup", "sign-up",
+    "post-author", "post-byline", "entry-author",
+    "article-author", "article-byline",
+    "byline", "contributor", "coauthor", "co-authors",
+    "written-by", "about-author", "about-the-author",
+    "published-date", "publish-date", "publication-date",
+    "post-date", "entry-date", "article-date",
+    "date-published", "last-updated",
+    "related", "recommend", "suggested", "popular",
+    "trending", "more-stories", "also-like", "dont-miss",
+    "read-next", "up-next", "most-read"
+  ]
+}

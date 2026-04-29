@@ -331,6 +331,7 @@ struct AllArticlesView: View {
             validateSelection()
         }
         .onAppear {
+            // swiftlint:disable:next line_length
             log("AllArticlesView", "onAppear selection=\(selectedSelection.rawValue) hasInitializedSinceDate=\(hasInitializedSinceDate)")
             reloadPreloadedEntries()
             if !hasInitializedSinceDate {

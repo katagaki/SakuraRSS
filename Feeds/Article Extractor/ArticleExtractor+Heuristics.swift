@@ -13,6 +13,7 @@ extension ArticleExtractor {
             #"<noscript>[^<]*(?:enable|turn on)[^<]*JavaScript"#
         ]
         for marker in skeletonMarkers {
+            // swiftlint:disable:next for_where
             if html.range(
                 of: marker,
                 options: [.regularExpression, .caseInsensitive]

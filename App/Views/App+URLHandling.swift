@@ -2,6 +2,7 @@ import Foundation
 
 extension SakuraRSSApp {
 
+    // swiftlint:disable:next function_body_length cyclomatic_complexity
     func handleOpenURL(_ url: URL) {
         if url.scheme == "sakura" {
             switch url.host {

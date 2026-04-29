@@ -1,5 +1,6 @@
 import Foundation
 
+// swiftlint:disable:next type_body_length
 nonisolated enum YouTubePlayerScripts {
 
     static let pipMessageHandlerName = "ytPiP"

@@ -40,6 +40,7 @@ extension YouTubePlaylistFetcher {
         return json
     }
 
+    // swiftlint:disable:next function_body_length cyclomatic_complexity
     private static func extractSingleQuotedValue(
         from html: String, startIndex: String.Index
     ) -> String? {

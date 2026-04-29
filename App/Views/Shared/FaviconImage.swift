@@ -192,6 +192,7 @@ extension UIImage {
         return Color(red: rgb[0], green: rgb[1], blue: rgb[2])
     }
 
+    // swiftlint:disable:next large_tuple
     fileprivate nonisolated func _rawAverageColorComponents() -> (red: CGFloat, green: CGFloat, blue: CGFloat)? {
         guard let cgImage = cgImage else { return nil }
 
@@ -230,6 +231,7 @@ extension UIImage {
         return (totalR / opaqueCount, totalG / opaqueCount, totalB / opaqueCount)
     }
 
+    // swiftlint:disable:next large_tuple
     var averageColorComponents: (red: CGFloat, green: CGFloat, blue: CGFloat)? {
         guard let rgb = ensureFaviconDerivedMetrics().averageColor, rgb.count >= 3 else {
             return nil

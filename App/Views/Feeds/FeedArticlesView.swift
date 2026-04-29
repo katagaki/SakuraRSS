@@ -138,6 +138,7 @@ struct FeedArticlesView: View {
             acceptPendingRefresh()
         }
         .onAppear {
+            // swiftlint:disable:next line_length
             log("FeedArticlesView", "onAppear id=\(feed.id) title=\(feed.title) hasInitializedSinceDate=\(hasInitializedSinceDate)")
             reloadPreloadedEntries()
             if !hasInitializedSinceDate {
