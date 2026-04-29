@@ -19,10 +19,6 @@ extension FeedManager {
         schedulePendingReadsFlush()
     }
 
-    /// IDs stay in `pendingReadIDs` past the flush so `isRead(_:)` keeps masking them
-    /// without bumping `dataRevision`; cleared on the next `loadFromDatabase`. Bumps
-    /// `readMaskRevision` so views observing `isRead(_:)` update once per debounce
-    /// window instead of once per scroll-driven mark.
     func flushDebouncedReads() {
         pendingReadsFlushWorkItem?.cancel()
         pendingReadsFlushWorkItem = nil
@@ -34,11 +30,11 @@ extension FeedManager {
         updateBadgeCount()
 
         let idArray = Array(pendingReadIDs)
-        try? database.markArticlesRead(ids: idArray, read: true)
         readMaskRevision += 1
 
         let dbm = database
         Task.detached(priority: .utility) {
+            try? dbm.markArticlesRead(ids: idArray, read: true)
             try? dbm.updateLastAccessed(articleIDs: idArray)
         }
     }
