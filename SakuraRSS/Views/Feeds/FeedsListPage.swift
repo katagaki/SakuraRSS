@@ -37,33 +37,10 @@ struct FeedsListPage: View {
 
     var body: some View {
         ScrollView {
-            LazyVStack(alignment: .leading, spacing: 24) {
-                ForEach(FeedSection.allCases, id: \.self) { section in
-                    let feeds = feedsForSection(section)
-                    if !feeds.isEmpty {
-                        Section {
-                            LazyVGrid(columns: gridColumns, alignment: .leading, spacing: 16) {
-                                ForEach(feeds) { feed in
-                                    NavigationLink(value: feed) {
-                                        FeedGridCell(feed: feed)
-                                    }
-                                    .buttonStyle(.plain)
-                                    .contextMenu {
-                                        feedContextMenu(for: feed)
-                                    }
-                                }
-                            }
-                        } header: {
-                            Text(section.localizedTitle)
-                                .font(.title3)
-                                .fontWeight(.bold)
-                        }
-                    }
-                }
-            }
-            .padding()
-            .animation(.smooth.speed(2.0), value: feedManager.feeds)
-            .animation(.smooth.speed(2.0), value: searchText)
+            feedSectionsContent
+                .padding()
+                .animation(.smooth.speed(2.0), value: feedManager.feeds)
+                .animation(.smooth.speed(2.0), value: searchText)
         }
         .navigationTitle("Shared.Feeds")
         .toolbarTitleDisplayMode(.inlineLarge)
@@ -100,14 +77,16 @@ struct FeedsListPage: View {
                 }
             }
         }
-        .sheet(item: $feedToEdit) { feed in
-            FeedEditSheet(feed: feed)
+        .sheet(item: $feedToEdit) {_ in 
+            FeedEditSheet(feed: $feedToEdit)
+                .id(feedToEdit?.id)
                 .environment(feedManager)
                 .presentationDetents([.medium, .large])
                 .interactiveDismissDisabled()
         }
-        .sheet(item: $feedForRules) { feed in
-            FeedRulesSheet(feed: feed)
+        .sheet(item: $feedForRules) {_ in 
+            FeedRulesSheet(feed: $feedForRules)
+                .id(feedToEdit?.id)
                 .environment(feedManager)
                 .presentationDetents([.medium, .large])
                 .interactiveDismissDisabled()
@@ -139,6 +118,45 @@ struct FeedsListPage: View {
             AddFeedToListSheet(feed: feed)
                 .environment(feedManager)
                 .presentationDetents([.medium, .large])
+        }
+    }
+
+    @ViewBuilder
+    private var feedSectionsContent: some View {
+        LazyVStack(alignment: .leading, spacing: 24) {
+            ForEach(FeedSection.allCases, id: \.self) { section in
+                feedSection(section)
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func feedSection(_ section: FeedSection) -> some View {
+        let feeds = feedsForSection(section)
+        if !feeds.isEmpty {
+            Section {
+                LazyVGrid(columns: gridColumns, alignment: .leading, spacing: 16) {
+                    ForEach(feeds) { feed in
+                        feedCell(feed)
+                    }
+                }
+            } header: {
+                Text(section.localizedTitle)
+                    .font(.title3)
+                    .fontWeight(.bold)
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func feedCell(_ feed: Feed) -> some View {
+        NavigationLink(value: feed) {
+            FeedGridCell(feed: feed)
+        }
+        .id(feed.id)
+        .buttonStyle(.plain)
+        .contextMenu {
+            feedContextMenu(for: feed)
         }
     }
 

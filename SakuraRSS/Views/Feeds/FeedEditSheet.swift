@@ -4,15 +4,12 @@ import SwiftUI
 struct FeedEditSheet: View {
 
     @Environment(FeedManager.self) var feedManager
-    @Environment(\.dismiss) var dismiss
-
-    let feed: Feed
+    @Binding var feed: Feed?
 
     @State private var name = ""
     @State private var url = ""
     @State var iconURLInput = ""
     @State var useDefaultIcon = false
-    @State private var hasInitialized = false
     @State private var openMode: FeedOpenMode = .inAppViewer
     @State private var articleSource: ArticleSource = .automatic
     @State var selectedPhoto: PhotosPickerItem?
@@ -24,239 +21,239 @@ struct FeedEditSheet: View {
 
     var body: some View {
         NavigationStack {
-            Form {
-                Section {
-                    HStack {
-                        Text(String(localized: "FeedEdit.Name", table: "Feeds"))
-                        TextField(String(localized: "FeedEdit.Name", table: "Feeds"), text: $name)
-                            .multilineTextAlignment(.trailing)
-                            .frame(maxWidth: .infinity)
-                            .labelsHidden()
-                    }
-                    if feed.isXFeed || feed.isInstagramFeed || feed.isYouTubePlaylistFeed {
+            if let feed {
+                List {
+                    Section {
                         HStack {
-                            Text(String(localized: "FeedEdit.URL", table: "Feeds"))
-                            Spacer()
-                            Text(feed.siteURL)
-                                .foregroundStyle(.secondary)
-                                .lineLimit(1)
+                            Text(String(localized: "FeedEdit.Name", table: "Feeds"))
+                            TextField(String(localized: "FeedEdit.Name", table: "Feeds"), text: $name)
+                                .multilineTextAlignment(.trailing)
+                                .frame(maxWidth: .infinity)
+                                .labelsHidden()
                         }
-                    } else if !PetalRecipe.isPetalFeedURL(feed.url) {
+                        if feed.isXFeed || feed.isInstagramFeed || feed.isYouTubePlaylistFeed {
+                            HStack {
+                                Text(String(localized: "FeedEdit.URL", table: "Feeds"))
+                                Spacer()
+                                Text(feed.siteURL)
+                                    .foregroundStyle(.secondary)
+                                    .lineLimit(1)
+                            }
+                        } else if !PetalRecipe.isPetalFeedURL(feed.url) {
+                            HStack {
+                                Text(String(localized: "FeedEdit.URL", table: "Feeds"))
+                                TextField(String(localized: "FeedEdit.URL", table: "Feeds"), text: $url)
+                                    .multilineTextAlignment(.trailing)
+                                    .frame(maxWidth: .infinity)
+                                    .textContentType(.URL)
+                                    .autocorrectionDisabled()
+                                    .textInputAutocapitalization(.never)
+                                    .labelsHidden()
+                            }
+                        }
+                    }
+
+                    if PetalRecipe.isPetalFeedURL(feed.url) {
+                        Section {
+                            if let recipe = PetalStore.shared.recipe(forFeedURL: feed.url) {
+                                HStack {
+                                    Text(String(localized: "FeedEdit.SourceURL", table: "Petal"))
+                                    Spacer()
+                                    Text(recipe.siteURL)
+                                        .foregroundStyle(.secondary)
+                                        .lineLimit(1)
+                                }
+                            }
+                            Button {
+                                showPetalBuilder = true
+                            } label: {
+                                Label(String(localized: "FeedEdit.EditRecipe", table: "Petal"), systemImage: "wand.and.stars")
+                            }
+                        } header: {
+                            Text(String(localized: "FeedEdit.Header", table: "Petal"))
+                        }
+                    }
+
+                    Section {
+                        if useDefaultIcon {
+                            HStack {
+                                Spacer()
+                                if let data = feed.acronymIcon, let acronym = UIImage(data: data) {
+                                    FaviconImage(acronym, size: 64,
+                                                 cornerRadius: iconCornerRadius(size: 64),
+                                                 circle: feed.isCircleIcon,
+                                                 skipInset: true)
+                                } else {
+                                    InitialsAvatarView(
+                                        name.isEmpty ? feed.title : name,
+                                        size: 64,
+                                        circle: feed.isCircleIcon,
+                                        cornerRadius: iconCornerRadius(size: 64)
+                                    )
+                                }
+                                Spacer()
+                            }
+                        } else if let icon = customIconImage ?? currentFavicon {
+                            HStack {
+                                Spacer()
+                                FaviconImage(
+                                    icon, size: 64,
+                                    cornerRadius: iconCornerRadius(size: 64),
+                                    circle: feed.isCircleIcon,
+                                    skipInset: feed.isCircleIcon || feed.isXFeed || feed.isInstagramFeed
+                                    || FaviconNoInsetDomains.shouldUseFullImage(feedDomain: feed.domain)
+                                )
+                                Spacer()
+                            }
+                        }
+
                         HStack {
-                            Text(String(localized: "FeedEdit.URL", table: "Feeds"))
-                            TextField(String(localized: "FeedEdit.URL", table: "Feeds"), text: $url)
+                            Text(String(localized: "FeedEdit.IconURL", table: "Feeds"))
+                            TextField(String(localized: "FeedEdit.IconURLPlaceholder", table: "Feeds"), text: $iconURLInput)
                                 .multilineTextAlignment(.trailing)
                                 .frame(maxWidth: .infinity)
                                 .textContentType(.URL)
                                 .autocorrectionDisabled()
                                 .textInputAutocapitalization(.never)
                                 .labelsHidden()
-                        }
-                    }
-                }
-
-                if PetalRecipe.isPetalFeedURL(feed.url) {
-                    Section {
-                        if let recipe = PetalStore.shared.recipe(forFeedURL: feed.url) {
-                            HStack {
-                                Text(String(localized: "FeedEdit.SourceURL", table: "Petal"))
-                                Spacer()
-                                Text(recipe.siteURL)
-                                    .foregroundStyle(.secondary)
-                                    .lineLimit(1)
-                            }
-                        }
-                        Button {
-                            showPetalBuilder = true
-                        } label: {
-                            Label(String(localized: "FeedEdit.EditRecipe", table: "Petal"), systemImage: "wand.and.stars")
-                        }
-                    } header: {
-                        Text(String(localized: "FeedEdit.Header", table: "Petal"))
-                    }
-                }
-
-                Section {
-                    if useDefaultIcon {
-                        HStack {
-                            Spacer()
-                            if let data = feed.acronymIcon, let acronym = UIImage(data: data) {
-                                FaviconImage(acronym, size: 64,
-                                             cornerRadius: iconCornerRadius(size: 64),
-                                             circle: feed.isCircleIcon,
-                                             skipInset: true)
-                            } else {
-                                InitialsAvatarView(
-                                    name.isEmpty ? feed.title : name,
-                                    size: 64,
-                                    circle: feed.isCircleIcon,
-                                    cornerRadius: iconCornerRadius(size: 64)
-                                )
-                            }
-                            Spacer()
-                        }
-                    } else if let icon = customIconImage ?? currentFavicon {
-                        HStack {
-                            Spacer()
-                            FaviconImage(
-                                icon, size: 64,
-                                cornerRadius: iconCornerRadius(size: 64),
-                                circle: feed.isCircleIcon,
-                                skipInset: feed.isCircleIcon || feed.isXFeed || feed.isInstagramFeed
-                                    || FaviconNoInsetDomains.shouldUseFullImage(feedDomain: feed.domain)
-                            )
-                            Spacer()
-                        }
-                    }
-
-                    HStack {
-                        Text(String(localized: "FeedEdit.IconURL", table: "Feeds"))
-                        TextField(String(localized: "FeedEdit.IconURLPlaceholder", table: "Feeds"), text: $iconURLInput)
-                            .multilineTextAlignment(.trailing)
-                            .frame(maxWidth: .infinity)
-                            .textContentType(.URL)
-                            .autocorrectionDisabled()
-                            .textInputAutocapitalization(.never)
-                            .labelsHidden()
-                            .onSubmit {
-                                Task {
-                                    await fetchIconFromURL()
+                                .onSubmit {
+                                    Task {
+                                        await fetchIconFromURL()
+                                    }
                                 }
-                            }
-                        if isFetchingIcon {
-                            ProgressView()
-                        }
-                    }
-
-                    PhotosPicker(selection: $selectedPhoto, matching: .images) {
-                        HStack {
-                            Text(String(localized: "FeedEdit.ChooseFromPhotos", table: "Feeds"))
-                            Spacer()
-                            if customIconImage != nil {
-                                Image(systemName: "checkmark.circle.fill")
-                                    .foregroundStyle(.green)
-                            }
-                        }
-                    }
-
-                    Button {
-                        Task {
-                            await fetchIconFromFeed()
-                        }
-                    } label: {
-                        HStack {
-                            Text(String(localized: "FeedEdit.FetchIconFromFeed", table: "Feeds"))
-                            Spacer()
                             if isFetchingIcon {
                                 ProgressView()
                             }
                         }
-                    }
-                    .disabled(isFetchingIcon)
 
-                    if !useDefaultIcon && (feed.customIconURL != nil || currentFavicon != nil) {
-                        Button(role: .destructive) {
-                            useDefaultIcon = true
-                            customIconImage = nil
-                            selectedPhoto = nil
-                            iconURLInput = ""
+                        PhotosPicker(selection: $selectedPhoto, matching: .images) {
+                            HStack {
+                                Text(String(localized: "FeedEdit.ChooseFromPhotos", table: "Feeds"))
+                                Spacer()
+                                if customIconImage != nil {
+                                    Image(systemName: "checkmark.circle.fill")
+                                        .foregroundStyle(.green)
+                                }
+                            }
+                        }
+
+                        Button {
+                            Task {
+                                await fetchIconFromFeed()
+                            }
                         } label: {
-                            Text(String(localized: "FeedEdit.DeleteIcon", table: "Feeds"))
+                            HStack {
+                                Text(String(localized: "FeedEdit.FetchIconFromFeed", table: "Feeds"))
+                                Spacer()
+                                if isFetchingIcon {
+                                    ProgressView()
+                                }
+                            }
                         }
-                    }
-                } header: {
-                    Text(String(localized: "FeedEdit.Icon", table: "Feeds"))
-                }
+                        .disabled(isFetchingIcon)
 
-                if !feed.isXFeed && !feed.isInstagramFeed && !feed.isYouTubePlaylistFeed {
-                    Section {
-                        Picker(String(localized: "FeedEdit.OpenIn", table: "Feeds"), selection: $openMode) {
-                            Text(String(localized: "FeedEdit.OpenIn.InAppViewer", table: "Feeds"))
-                                .tag(FeedOpenMode.inAppViewer)
-                            Divider()
-                            Text(String(localized: "FeedEdit.OpenIn.Browser", table: "Feeds"))
-                                .tag(FeedOpenMode.browser)
-                            Text(String(localized: "FeedEdit.OpenIn.InAppBrowser", table: "Feeds"))
-                                .tag(FeedOpenMode.inAppBrowser)
-                            Text(String(localized: "FeedEdit.OpenIn.InAppBrowserReader", table: "Feeds"))
-                                .tag(FeedOpenMode.inAppBrowserReader)
-                            Divider()
-                            Text(String(localized: "FeedEdit.OpenIn.ClearThisPage", table: "Feeds"))
-                                .tag(FeedOpenMode.clearThisPage)
-                            Text(String(localized: "FeedEdit.OpenIn.Readability", table: "Feeds"))
-                                .tag(FeedOpenMode.readability)
-                            Text(String(localized: "FeedEdit.OpenIn.ArchivePh", table: "Feeds"))
-                                .tag(FeedOpenMode.archivePh)
-                        }
-                        if !feed.isVideoFeed && !feed.isPodcast {
-                            Picker(String(localized: "FeedEdit.ArticleSource", table: "Feeds"), selection: $articleSource) {
-                                Text(String(localized: "FeedEdit.ArticleSource.Automatic", table: "Feeds"))
-                                    .tag(ArticleSource.automatic)
-                                Text(String(localized: "FeedEdit.ArticleSource.FetchText", table: "Feeds"))
-                                    .tag(ArticleSource.fetchText)
-                                Text(String(localized: "FeedEdit.ArticleSource.ExtractText", table: "Feeds"))
-                                    .tag(ArticleSource.extractText)
-                                Text(String(localized: "FeedEdit.ArticleSource.FeedText", table: "Feeds"))
-                                    .tag(ArticleSource.feedText)
+                        if !useDefaultIcon && (feed.customIconURL != nil || currentFavicon != nil) {
+                            Button(role: .destructive) {
+                                useDefaultIcon = true
+                                customIconImage = nil
+                                selectedPhoto = nil
+                                iconURLInput = ""
+                            } label: {
+                                Text(String(localized: "FeedEdit.DeleteIcon", table: "Feeds"))
                             }
                         }
                     } header: {
-                        Text(String(localized: "FeedEdit.Behavior", table: "Feeds"))
+                        Text(String(localized: "FeedEdit.Icon", table: "Feeds"))
+                    }
+
+                    if !feed.isXFeed && !feed.isInstagramFeed && !feed.isYouTubePlaylistFeed {
+                        Section {
+                            Picker(String(localized: "FeedEdit.OpenIn", table: "Feeds"), selection: $openMode) {
+                                Text(String(localized: "FeedEdit.OpenIn.InAppViewer", table: "Feeds"))
+                                    .tag(FeedOpenMode.inAppViewer)
+                                Divider()
+                                Text(String(localized: "FeedEdit.OpenIn.Browser", table: "Feeds"))
+                                    .tag(FeedOpenMode.browser)
+                                Text(String(localized: "FeedEdit.OpenIn.InAppBrowser", table: "Feeds"))
+                                    .tag(FeedOpenMode.inAppBrowser)
+                                Text(String(localized: "FeedEdit.OpenIn.InAppBrowserReader", table: "Feeds"))
+                                    .tag(FeedOpenMode.inAppBrowserReader)
+                                Divider()
+                                Text(String(localized: "FeedEdit.OpenIn.ClearThisPage", table: "Feeds"))
+                                    .tag(FeedOpenMode.clearThisPage)
+                                Text(String(localized: "FeedEdit.OpenIn.Readability", table: "Feeds"))
+                                    .tag(FeedOpenMode.readability)
+                                Text(String(localized: "FeedEdit.OpenIn.ArchivePh", table: "Feeds"))
+                                    .tag(FeedOpenMode.archivePh)
+                            }
+                            if !feed.isVideoFeed && !feed.isPodcast {
+                                Picker(String(localized: "FeedEdit.ArticleSource", table: "Feeds"), selection: $articleSource) {
+                                    Text(String(localized: "FeedEdit.ArticleSource.Automatic", table: "Feeds"))
+                                        .tag(ArticleSource.automatic)
+                                    Text(String(localized: "FeedEdit.ArticleSource.FetchText", table: "Feeds"))
+                                        .tag(ArticleSource.fetchText)
+                                    Text(String(localized: "FeedEdit.ArticleSource.ExtractText", table: "Feeds"))
+                                        .tag(ArticleSource.extractText)
+                                    Text(String(localized: "FeedEdit.ArticleSource.FeedText", table: "Feeds"))
+                                        .tag(ArticleSource.feedText)
+                                }
+                            }
+                        } header: {
+                            Text(String(localized: "FeedEdit.Behavior", table: "Feeds"))
+                        }
                     }
                 }
-            }
-            .navigationTitle(String(localized: "FeedEdit.Title", table: "Feeds"))
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    Button(role: .cancel) {
-                        dismiss()
+                .navigationTitle(String(localized: "FeedEdit.Title", table: "Feeds"))
+                .navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    ToolbarItem(placement: .topBarLeading) {
+                        Button(role: .cancel) {
+                            self.feed = nil
+                        }
+                    }
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button(role: .confirm) {
+                            save()
+                        }
+                        .disabled(name.isEmpty || url.isEmpty)
                     }
                 }
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button(role: .confirm) {
-                        save()
-                    }
-                    .disabled(name.isEmpty || url.isEmpty)
-                }
-            }
-            .onAppear {
-                if let raw = UserDefaults.standard.string(forKey: "openMode-\(feed.id)") {
-                    openMode = FeedOpenMode(rawValue: raw) ?? .inAppViewer
-                }
-                if let raw = UserDefaults.standard.string(forKey: "articleSource-\(feed.id)") {
-                    articleSource = ArticleSource(rawValue: raw) ?? .automatic
-                }
-                guard !hasInitialized else { return }
-                hasInitialized = true
-                name = feed.title
-                url = (feed.isXFeed || feed.isInstagramFeed || feed.isYouTubePlaylistFeed)
+                .onAppear {
+                    name = feed.title
+                    url = (feed.isXFeed || feed.isInstagramFeed || feed.isYouTubePlaylistFeed)
                     ? feed.siteURL : feed.fetchURL
-                let existingIconURL = feed.customIconURL
-                iconURLInput = (existingIconURL == "photo" || existingIconURL == "none")
+                    let existingIconURL = feed.customIconURL
+                    iconURLInput = (existingIconURL == "photo" || existingIconURL == "none")
                     ? "" : (existingIconURL ?? "")
-                useDefaultIcon = existingIconURL == "none"
-            }
-            .task {
-                currentFavicon = await loadCurrentFavicon()
-            }
-            .onChange(of: selectedPhoto) {
-                Task {
-                    if let selectedPhoto,
-                       let data = try? await selectedPhoto.loadTransferable(type: Data.self),
-                       let image = UIImage(data: data) {
-                        customIconImage = image.trimmed()
-                        iconURLInput = ""
-                        useDefaultIcon = false
+                    useDefaultIcon = existingIconURL == "none"
+                    let openModeRaw = UserDefaults.standard.string(forKey: "openMode-\(feed.id)")
+                    openMode = openModeRaw.flatMap(FeedOpenMode.init(rawValue:)) ?? .inAppViewer
+                    let articleSourceRaw = UserDefaults.standard.string(forKey: "articleSource-\(feed.id)")
+                    articleSource = articleSourceRaw.flatMap(ArticleSource.init(rawValue:)) ?? .automatic
+                    customIconImage = nil
+                    selectedPhoto = nil
+                    Task {
+                        currentFavicon = await loadCurrentFavicon()
                     }
                 }
-            }
-            .alert(String(localized: "FeedEdit.IconFetchError", table: "Feeds"), isPresented: $showIconFetchError) {
-                Button("Shared.OK", role: .cancel) { }
+                .onChange(of: selectedPhoto) {
+                    Task {
+                        if let selectedPhoto,
+                           let data = try? await selectedPhoto.loadTransferable(type: Data.self),
+                           let image = UIImage(data: data) {
+                            customIconImage = image.trimmed()
+                            iconURLInput = ""
+                            useDefaultIcon = false
+                        }
+                    }
+                }
+                .alert(String(localized: "FeedEdit.IconFetchError", table: "Feeds"), isPresented: $showIconFetchError) {
+                    Button("Shared.OK", role: .cancel) { }
+                }
             }
         }
         .sheet(isPresented: $showPetalBuilder) {
-            if let recipe = PetalStore.shared.recipe(forFeedURL: feed.url) {
+            if let feed, let recipe = PetalStore.shared.recipe(forFeedURL: feed.url) {
                 PetalBuilderView(mode: .edit(feed: feed, recipe: recipe))
                     .environment(feedManager)
             }
@@ -264,7 +261,7 @@ struct FeedEditSheet: View {
     }
 
     private func save() {
-        let iconURLChanged = !iconURLInput.isEmpty && iconURLInput != feed.customIconURL
+        let iconURLChanged = !iconURLInput.isEmpty && iconURLInput != feed?.customIconURL
         if customIconImage == nil && iconURLChanged {
             Task {
                 if await fetchIconFromURL() {
@@ -279,6 +276,7 @@ struct FeedEditSheet: View {
     }
 
     private func commitSave() async {
+        guard let feed else { return }
         let finalCustomIconURL: String?
 
         if useDefaultIcon {
@@ -317,7 +315,7 @@ struct FeedEditSheet: View {
         } else {
             UserDefaults.standard.set(articleSource.rawValue, forKey: "articleSource-\(feed.id)")
         }
-        dismiss()
+        self.feed = nil
     }
 
 }
