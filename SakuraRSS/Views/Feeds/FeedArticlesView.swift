@@ -10,6 +10,7 @@ struct FeedArticlesView: View {
     @State private var loadedSinceDate: Date = Date(timeIntervalSince1970: 0)
     @State private var loadedCount: Int = BatchingMode.current().initialCount()
     @State private var hasInitializedSinceDate = false
+    @State private var preloadedEntries: [ArticleIDEntry] = []
     @AppStorage("Instagram.HideReels") private var hideReels: Bool = false
     @AppStorage("Articles.HideViewedContent") private var storedHideViewedContent: Bool = false
     @State private var visibility = ArticleVisibilityTracker()
@@ -27,26 +28,21 @@ struct FeedArticlesView: View {
         feedManager.feeds.first(where: { $0.id == feed.id }) ?? feed
     }
 
+    private var batcher: ArticleIDBatcher {
+        ArticleIDBatcher(entries: preloadedEntries)
+    }
+
     private var loadMoreAction: (() -> Void)? {
         if hideViewedContent && visibility.hasReachedEnd { return nil }
+        let batcher = self.batcher
         if let days = batchingMode.chunkDays {
-            guard let next = feedManager.nextArticleChunk(
-                for: feed,
-                before: loadedSinceDate,
-                chunkDays: days,
-                requireUnread: hideViewedContent
-            ) else {
+            guard let next = batcher.nextChunkStart(before: loadedSinceDate, chunkDays: days) else {
                 return nil
             }
             return { loadedSinceDate = next }
         }
         if let batch = batchingMode.batchSize {
-            guard let next = feedManager.nextLoadedCount(
-                for: feed,
-                after: loadedCount,
-                batchSize: batch,
-                requireUnread: hideViewedContent
-            ) else {
+            guard let next = batcher.nextLoadedCount(after: loadedCount, batchSize: batch) else {
                 return nil
             }
             return { loadedCount = next }
@@ -55,22 +51,28 @@ struct FeedArticlesView: View {
     }
 
     private var rawArticles: [Article] {
-        var articles: [Article]
+        let batcher = self.batcher
+        let slicedIDs: [Int64]
         if batchingMode.isCountBased {
-            articles = feedManager.undatedArticles(for: feed)
-                + feedManager.articles(
-                    for: feed,
-                    limit: loadedCount,
-                    requireUnread: hideViewedContent
-                )
+            slicedIDs = batcher.ids(limit: loadedCount)
+        } else if batchingMode.isDateBased {
+            slicedIDs = batcher.ids(since: loadedSinceDate)
         } else {
-            articles = feedManager.undatedArticles(for: feed)
-                + feedManager.articles(for: feed, since: loadedSinceDate)
+            slicedIDs = preloadedEntries.map(\.id)
         }
+        var articles = feedManager.undatedArticles(for: feed)
+            + feedManager.articles(withPreloadedIDs: slicedIDs)
         if hideReels && feed.isInstagramFeed {
             articles = articles.filter { !$0.url.contains("/reel/") }
         }
         return articles
+    }
+
+    private func reloadPreloadedEntries() {
+        preloadedEntries = feedManager.preloadedArticleEntries(
+            for: feed,
+            requireUnread: hideViewedContent
+        )
     }
 
     private func performRefresh() async {
@@ -147,12 +149,27 @@ struct FeedArticlesView: View {
             print("[FeedArticlesView] onAppear id=\(feed.id) title=\(feed.title) "
                   + "hasInitializedSinceDate=\(hasInitializedSinceDate)")
             #endif
+            reloadPreloadedEntries()
             if !hasInitializedSinceDate {
                 loadedSinceDate = batchingMode.initialSinceDate(
                     latestArticleDate: latestArticleDateForFeed()
                 )
                 hasInitializedSinceDate = true
             }
+        }
+        .onChange(of: feed.id) { _, _ in
+            reloadPreloadedEntries()
+            loadedSinceDate = batchingMode.initialSinceDate(
+                latestArticleDate: latestArticleDateForFeed()
+            )
+            loadedCount = batchingMode.initialCount()
+            visibility.capture(from: rawArticles, isEnabled: hideViewedContent)
+        }
+        .onChange(of: feedManager.dataRevision) { _, _ in
+            reloadPreloadedEntries()
+        }
+        .onChange(of: hideViewedContent) { _, _ in
+            reloadPreloadedEntries()
         }
         .onChange(of: batchingMode) { _, newMode in
             loadedSinceDate = newMode.initialSinceDate(
