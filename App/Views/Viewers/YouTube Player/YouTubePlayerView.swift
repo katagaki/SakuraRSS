@@ -276,7 +276,7 @@ struct YouTubePlayerView: View {
             isPlaying = session.isPlaying
             currentTime = session.currentTime
             duration = session.duration
-            if session.isPlaying {
+            if session.isPlaying || session.duration > 0 {
                 hasStartedPlaying = true
             }
             let signedIn = await YouTubePlayerView.hasYouTubeSession()

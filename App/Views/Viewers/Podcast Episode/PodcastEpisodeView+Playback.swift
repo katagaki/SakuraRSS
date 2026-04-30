@@ -2,14 +2,6 @@ import SwiftUI
 
 extension PodcastEpisodeView {
 
-    func formatSpeed(_ speed: Double) -> String {
-        if speed == floor(speed) {
-            return "\(Int(speed))×"
-        }
-        let formatted = String(format: "%g", speed)
-        return "\(formatted)×"
-    }
-
     func startPlayback() {
         let playbackURL: URL
         if let localURL = downloadManager.localFileURL(for: article.id) {
