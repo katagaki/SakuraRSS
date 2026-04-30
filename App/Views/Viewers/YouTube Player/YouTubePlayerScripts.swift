@@ -93,6 +93,126 @@ nonisolated enum YouTubePlayerScripts {
     })();
     """
 
+    /// Prevents YouTube from forcing PiP to close during ads by neutralizing
+    /// any `disablePictureInPicture` writes on `<video>` elements.
+    static let pipDisableOverride = """
+    (function() {
+        try {
+            var proto = HTMLVideoElement.prototype;
+            if (!proto.__ytPiPDisableOverridden) {
+                proto.__ytPiPDisableOverridden = true;
+                Object.defineProperty(proto, 'disablePictureInPicture', {
+                    configurable: true,
+                    get: function() { return false; },
+                    set: function() {}
+                });
+            }
+        } catch (e) {}
+        function strip(video) {
+            if (!video) return;
+            try { video.removeAttribute('disablepictureinpicture'); } catch (e) {}
+            try { video.removeAttribute('disablePictureInPicture'); } catch (e) {}
+        }
+        function scan() { document.querySelectorAll('video').forEach(strip); }
+        scan();
+        var observer = new MutationObserver(scan);
+        if (document.documentElement) {
+            observer.observe(document.documentElement, {
+                childList: true, subtree: true,
+                attributes: true,
+                attributeFilter: ['disablepictureinpicture', 'disablePictureInPicture']
+            });
+        }
+    })();
+    """
+
+    /// Re-routes the system PiP next/previous track controls during ads:
+    /// previous-track is disabled, next-track triggers ad skipping when available.
+    static let pipAdControls = """
+    (function() {
+        if (!('mediaSession' in navigator)) return;
+        var ms = navigator.mediaSession;
+        var origSet = ms.setActionHandler.bind(ms);
+        var stored = { previoustrack: null, nexttrack: null };
+        var lastApplied = { previoustrack: undefined, nexttrack: undefined };
+
+        ms.setActionHandler = function(action, handler) {
+            if (action === 'previoustrack' || action === 'nexttrack') {
+                stored[action] = handler || null;
+                apply();
+                return;
+            }
+            return origSet(action, handler);
+        };
+
+        function findSkipButton() {
+            var selector = '.ytp-skip-ad-button, .ytp-ad-skip-button,'
+                + ' .ytp-ad-skip-button-modern, .ytp-skip-ad-button-text';
+            var btns = document.querySelectorAll(selector);
+            for (var i = 0; i < btns.length; i++) {
+                var b = btns[i];
+                if (b.disabled) continue;
+                var r = b.getBoundingClientRect();
+                if (r.width === 0 && r.height === 0) continue;
+                if (getComputedStyle(b).visibility === 'hidden') continue;
+                return b;
+            }
+            return null;
+        }
+
+        function performSkipAd() {
+            var btn = findSkipButton();
+            if (btn) {
+                var t = btn.closest('button') || btn;
+                try { t.click(); } catch (e) {}
+                try {
+                    ['pointerdown','mousedown','pointerup','mouseup','click'].forEach(function(type) {
+                        var Ctor = (type.indexOf('pointer') === 0 && window.PointerEvent)
+                            ? window.PointerEvent : MouseEvent;
+                        t.dispatchEvent(new Ctor(type, {
+                            bubbles: true, cancelable: true, view: window,
+                            button: 0, buttons: 1
+                        }));
+                    });
+                } catch (e) {}
+            }
+            var p = document.querySelector('.html5-video-player');
+            var v = document.querySelector('video');
+            if (p && p.classList.contains('ad-showing')
+                && v && isFinite(v.duration) && v.duration > 0) {
+                v.currentTime = Math.max(v.duration - 0.05, v.currentTime);
+            }
+        }
+
+        function apply() {
+            var p = document.querySelector('.html5-video-player');
+            var isAd = p ? p.classList.contains('ad-showing') : false;
+            var skippable = isAd && !!findSkipButton();
+
+            var prev, next;
+            if (isAd) {
+                prev = null;
+                next = skippable ? performSkipAd : null;
+            } else {
+                prev = stored.previoustrack;
+                next = stored.nexttrack;
+            }
+
+            if (lastApplied.previoustrack !== prev) {
+                try { origSet('previoustrack', prev); } catch (e) {}
+                lastApplied.previoustrack = prev;
+            }
+            if (lastApplied.nexttrack !== next) {
+                try { origSet('nexttrack', next); } catch (e) {}
+                lastApplied.nexttrack = next;
+            }
+        }
+
+        setInterval(apply, 500);
+        apply();
+    })();
+    """
+
     /// Forwards PiP enter/leave events to native code immediately.
     static let pipEventBridge = """
     (function() {
