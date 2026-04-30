@@ -7,28 +7,21 @@ struct FeedStyleView: View {
     let articles: [Article]
     var variant: FeedStyleVariant = .full
     var onLoadMore: (() -> Void)?
-    @State private var youTubeArticle: Article?
 
     var body: some View {
         List {
             ForEach(articles) { article in
                 ZStack {
-                    ArticleLink(article: article, onShowYouTubePlayer: {
-                        youTubeArticle = $0
-                    }, label: {
+                    ArticleLink(article: article, label: {
                         EmptyView()
                     })
                     .opacity(0)
 
                     Group {
                         if variant == .compact {
-                            CompactFeedArticleRow(article: article, onShowYouTubePlayer: {
-                                youTubeArticle = article
-                            })
+                            CompactFeedArticleRow(article: article)
                         } else {
-                            FeedArticleRow(article: article, onShowYouTubePlayer: {
-                                youTubeArticle = article
-                            })
+                            FeedArticleRow(article: article)
                         }
                     }
                     .zoomSource(id: article.id, namespace: zoomNamespace)
@@ -54,9 +47,5 @@ struct FeedStyleView: View {
         }
         .listStyle(.plain)
         .trackScrollActivity()
-        .navigationDestination(item: $youTubeArticle) { article in
-            YouTubePlayerView(article: article)
-                .zoomTransition(sourceID: article.id, in: zoomNamespace)
-        }
     }
 }

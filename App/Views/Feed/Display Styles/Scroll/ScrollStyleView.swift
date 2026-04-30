@@ -10,8 +10,6 @@ struct ScrollStyleView: View {
 
     @State private var currentID: ScrollPageID?
     @State private var expandedArticleID: Int64?
-    @State private var youTubeArticle: Article?
-    @State private var podcastArticle: Article?
     @State private var contextInsets: EdgeInsets = EdgeInsets()
 
     @AppStorage("YouTube.OpenMode") private var youTubeOpenMode: YouTubeOpenMode = .inAppPlayer
@@ -77,25 +75,17 @@ struct ScrollStyleView: View {
             }
             .background(Color.black.ignoresSafeArea())
             .scrollEdgeEffectHidden(true, for: .all)
-        .navigationDestination(item: $youTubeArticle) { article in
-            YouTubePlayerView(article: article)
-                .zoomTransition(sourceID: article.id, in: zoomNamespace)
-        }
-        .navigationDestination(item: $podcastArticle) { article in
-            PodcastEpisodeView(article: article)
-                .zoomTransition(sourceID: article.id, in: zoomNamespace)
-        }
     }
 
     private func handleTap(on article: Article) {
         if article.isYouTubeURL && youTubeOpenMode == .inAppPlayer {
             feedManager.markRead(article)
-            youTubeArticle = article
+            MediaPresenter.shared.presentYouTube(article)
             return
         }
         if article.isPodcastEpisode {
             feedManager.markRead(article)
-            podcastArticle = article
+            MediaPresenter.shared.presentPodcast(article)
             return
         }
         withAnimation(.smooth.speed(2.0)) {

@@ -35,7 +35,6 @@ struct ArticleDetailView: View {
     @State var showingSummary = false
     @State var isBookmarked = false
     @State var summarizationError: String?
-    @State var showYouTubePlayer = false
     @State var showYouTubeSafari = false
     @State var linkedArticleURL: URL?
     @State var arXivPDFReference: ArXivPDFReference?
@@ -228,9 +227,6 @@ struct ArticleDetailView: View {
             if let summarizationError {
                 Text(summarizationError)
             }
-        }
-        .navigationDestination(isPresented: $showYouTubePlayer) {
-            YouTubePlayerView(article: article)
         }
         .navigationDestination(item: $arXivPDFReference) { reference in
             ArXivPDFViewerView(url: reference.url, title: reference.title)
