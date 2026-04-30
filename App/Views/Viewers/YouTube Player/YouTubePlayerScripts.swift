@@ -121,19 +121,25 @@ nonisolated enum YouTubePlayerScripts {
     """
 
     /// Blocks autoplay until `window.__ytAutoplayBlocked` is cleared by a native play action.
+    /// Sets `__ytUserPaused = true` before pausing so the pause survives `pauseOverride`
+    /// and is not re-played by `pauseGuard`.
     static let autoplayBlocker = """
     (function() {
         window.__ytAutoplayBlocked = true;
+        function block(video) {
+            window.__ytUserPaused = true;
+            video.pause();
+        }
         function attach(video) {
             if (!video || video.__ytAutoplayAttached) return;
             video.__ytAutoplayAttached = true;
             video.addEventListener('play', function() {
                 if (window.__ytAutoplayBlocked) {
-                    video.pause();
+                    block(video);
                 }
             });
             if (!video.paused && window.__ytAutoplayBlocked) {
-                video.pause();
+                block(video);
             }
         }
         function tryAttach() {
