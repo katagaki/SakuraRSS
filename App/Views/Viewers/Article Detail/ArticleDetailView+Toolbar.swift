@@ -5,26 +5,28 @@ extension ArticleDetailView {
 
     @ToolbarContentBuilder
     var articleToolbar: some ToolbarContent {
-        if let activityLabel = toolbarActivityLabel {
+        if !previewMode, let activityLabel = toolbarActivityLabel {
             ToolbarItem(placement: .principal) {
                 ToolbarActivityIndicator(label: activityLabel)
             }
         }
-        if UIDevice.current.userInterfaceIdiom == .pad {
-            iPadArticleToolbar
-        } else {
-            ToolbarItemGroup(placement: .topBarTrailing) {
-                articleOpenToolbarItems
-                if !article.isEphemeral {
-                    Button {
-                        isBookmarked.toggle()
-                        feedManager.toggleBookmark(article)
-                    } label: {
-                        Image(systemName: isBookmarked ? "bookmark.fill" : "bookmark")
+        if !previewMode {
+            if UIDevice.current.userInterfaceIdiom == .pad {
+                iPadArticleToolbar
+            } else {
+                ToolbarItemGroup(placement: .topBarTrailing) {
+                    articleOpenToolbarItems
+                    if !article.isEphemeral {
+                        Button {
+                            isBookmarked.toggle()
+                            feedManager.toggleBookmark(article)
+                        } label: {
+                            Image(systemName: isBookmarked ? "bookmark.fill" : "bookmark")
+                        }
                     }
-                }
-                if !isInsecureArticle {
-                    articleOverflowMenu
+                    if !isInsecureArticle {
+                        articleOverflowMenu
+                    }
                 }
             }
         }
@@ -42,7 +44,7 @@ extension ArticleDetailView {
 
     func loadArticleMetadata() async {
         isBookmarked = article.isBookmarked
-        if !article.isEphemeral {
+        if !article.isEphemeral, !previewMode {
             feedManager.markRead(article)
         }
         if let feed = feedManager.feed(forArticle: article) {

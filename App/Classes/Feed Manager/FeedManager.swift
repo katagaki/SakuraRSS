@@ -36,6 +36,8 @@ final class FeedManager {
     @ObservationIgnored var currentScrollPhase: ScrollPhase = .idle
     @ObservationIgnored var pendingReadsFlushWorkItem: DispatchWorkItem?
 
+    @ObservationIgnored var contentOverrideCache: [Int64: CachedContentOverride] = [:]
+
     let database = DatabaseManager.shared
 
     init() {

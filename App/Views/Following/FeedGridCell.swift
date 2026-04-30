@@ -7,6 +7,7 @@ struct FeedGridCell: View {
     var isWiggling: Bool = false
     var onDelete: (() -> Void)?
     var onTap: (() -> Void)?
+    var editTransitionNamespace: Namespace.ID?
     @State private var favicon: UIImage?
 
     private let iconSize: CGFloat = 56
@@ -61,6 +62,7 @@ struct FeedGridCell: View {
                 }
                 .frame(width: iconSize, height: iconSize)
                 .drawingGroup()
+                .zoomSource(id: feed.id, namespace: editTransitionNamespace)
                 .overlay(alignment: .topTrailing) {
                     if feedManager.unreadCount(for: feed) > 0 {
                         unreadDot

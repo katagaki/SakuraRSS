@@ -107,8 +107,10 @@ extension FeedManager {
         }
 
         let feedDomain = feed.domain
+        let override = self.contentOverride(forFeedID: feed.id)
         let preparedArticles = parsed.articles.map { article in
-            BodyPriorityDomains.applying(to: article, feedDomain: feedDomain)
+            let domainAdjusted = BodyPriorityDomains.applying(to: article, feedDomain: feedDomain)
+            return ContentOverrideApplier.applying(to: domainAdjusted, override: override)
         }
 
         let existingURLs = (try? database.existingArticleURLs(forFeedID: feed.id)) ?? []

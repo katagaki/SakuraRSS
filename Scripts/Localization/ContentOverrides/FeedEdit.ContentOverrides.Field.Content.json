@@ -1,0 +1,14 @@
+{
+  "key": "FeedEdit.ContentOverrides.Field.Content",
+  "localizations": {
+    "de": "Inhalt",
+    "en": "Full Content",
+    "fr": "Contenu complet",
+    "it": "Contenuto completo",
+    "ja": "全文",
+    "ko": "전체 내용",
+    "vi": "Toàn bộ nội dung",
+    "zh-Hans": "完整内容",
+    "zh-Hant": "完整內容"
+  }
+}

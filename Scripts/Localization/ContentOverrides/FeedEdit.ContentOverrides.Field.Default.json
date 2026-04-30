@@ -1,0 +1,14 @@
+{
+  "key": "FeedEdit.ContentOverrides.Field.Default",
+  "localizations": {
+    "de": "Standard",
+    "en": "Default",
+    "fr": "Par défaut",
+    "it": "Predefinito",
+    "ja": "デフォルト",
+    "ko": "기본값",
+    "vi": "Mặc định",
+    "zh-Hans": "默认",
+    "zh-Hant": "預設"
+  }
+}

@@ -9,6 +9,7 @@ struct FeedsListPage: View {
     @State private var feedToDelete: Feed?
     @State private var isEditingFeeds = false
     @Namespace private var addFeedNamespace
+    @Namespace private var feedEditNamespace
 
     var filteredFeeds: [Feed] {
         if searchText.isEmpty {
@@ -94,6 +95,7 @@ struct FeedsListPage: View {
         .sheet(item: $feedForEditSheet) { wrapper in
             FeedEditSheet(feedID: wrapper.id)
                 .environment(feedManager)
+                .zoomTransition(sourceID: wrapper.id, in: feedEditNamespace)
         }
         .alert(
             String(localized: "FeedMenu.Delete.Title", table: "Feeds"),
@@ -154,7 +156,8 @@ struct FeedsListPage: View {
                 feed: feed,
                 isWiggling: true,
                 onDelete: { feedToDelete = feed },
-                onTap: { feedForEditSheet = FeedIDIdentifier(id: feed.id) }
+                onTap: { feedForEditSheet = FeedIDIdentifier(id: feed.id) },
+                editTransitionNamespace: feedEditNamespace
             )
             .id(feed.id)
         } else {
