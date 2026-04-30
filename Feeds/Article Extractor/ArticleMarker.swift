@@ -13,6 +13,8 @@ nonisolated enum ArticleMarker {
         ("{{/CODE}}", "\u{E000}/CODE\u{E001}"),
         ("{{VIDEO}}", "\u{E000}VIDEO\u{E001}"),
         ("{{/VIDEO}}", "\u{E000}/VIDEO\u{E001}"),
+        ("{{AUDIO}}", "\u{E000}AUDIO\u{E001}"),
+        ("{{/AUDIO}}", "\u{E000}/AUDIO\u{E001}"),
         ("{{YOUTUBE}}", "\u{E000}YOUTUBE\u{E001}"),
         ("{{/YOUTUBE}}", "\u{E000}/YOUTUBE\u{E001}"),
         ("{{XPOST}}", "\u{E000}XPOST\u{E001}"),

@@ -5,6 +5,7 @@ enum ContentBlock: Identifiable {
     case image(URL, link: URL? = nil)
     case code(String)
     case video(URL)
+    case audio(URL)
     case youtube(String)
     case xPost(URL)
     case embed(EmbedProvider, URL)
@@ -17,6 +18,7 @@ enum ContentBlock: Identifiable {
         case .image(let url, _): return "image-\(url.absoluteString)"
         case .code(let text): return "code-\(text.hashValue)"
         case .video(let url): return "video-\(url.absoluteString)"
+        case .audio(let url): return "audio-\(url.absoluteString)"
         case .youtube(let videoID): return "youtube-\(videoID)"
         case .xPost(let url): return "xpost-\(url.absoluteString)"
         case .embed(let provider, let url):
@@ -37,6 +39,9 @@ enum ContentBlock: Identifiable {
         )
         .replacingOccurrences(
             of: #"\{\{VIDEO\}\}.+?\{\{/VIDEO\}\}"#, with: "", options: .regularExpression
+        )
+        .replacingOccurrences(
+            of: #"\{\{AUDIO\}\}.+?\{\{/AUDIO\}\}"#, with: "", options: .regularExpression
         )
         .replacingOccurrences(
             of: #"\{\{YOUTUBE\}\}.+?\{\{/YOUTUBE\}\}"#, with: "", options: .regularExpression
@@ -71,6 +76,9 @@ enum ContentBlock: Identifiable {
         )
         result = result.replacingOccurrences(
             of: #"\{\{VIDEO\}\}.+?\{\{/VIDEO\}\}"#, with: "", options: .regularExpression
+        )
+        result = result.replacingOccurrences(
+            of: #"\{\{AUDIO\}\}.+?\{\{/AUDIO\}\}"#, with: "", options: .regularExpression
         )
         result = result.replacingOccurrences(
             of: #"\{\{YOUTUBE\}\}.+?\{\{/YOUTUBE\}\}"#, with: "", options: .regularExpression
@@ -118,7 +126,7 @@ enum ContentBlock: Identifiable {
 
     static func parse(_ text: String) -> [ContentBlock] {
         // swiftlint:disable:next line_length
-        let pattern = #"\{\{(IMG|CODE|VIDEO|YOUTUBE|XPOST|EMBED|TABLE|MATH)\}\}(.*?)\{\{/(IMG|CODE|VIDEO|YOUTUBE|XPOST|EMBED|TABLE|MATH)\}\}"#
+        let pattern = #"\{\{(IMG|CODE|VIDEO|AUDIO|YOUTUBE|XPOST|EMBED|TABLE|MATH)\}\}(.*?)\{\{/(IMG|CODE|VIDEO|AUDIO|YOUTUBE|XPOST|EMBED|TABLE|MATH)\}\}"#
         guard let regex = try? NSRegularExpression(pattern: pattern, options: .dotMatchesLineSeparators)
         else {
             return [.text(ArticleMarker.unescape(text))]
@@ -176,6 +184,9 @@ enum ContentBlock: Identifiable {
             return content.isEmpty ? nil : .code(ArticleMarker.unescape(content))
         case "VIDEO":
             return URL(string: content).map { .video($0) }
+        case "AUDIO":
+            let trimmed = content.trimmingCharacters(in: .whitespacesAndNewlines)
+            return URL(string: trimmed).map { .audio($0) }
         case "YOUTUBE":
             let trimmed = content.trimmingCharacters(in: .whitespacesAndNewlines)
             return trimmed.isEmpty ? nil : .youtube(trimmed)

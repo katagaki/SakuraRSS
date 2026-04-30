@@ -137,6 +137,7 @@
 			membershipExceptions = (
 				"Article Extractor/ArticleExtractor.swift",
 				"Article Extractor/ArticleExtractor+AMP.swift",
+				"Article Extractor/ArticleExtractor+Audio.swift",
 				"Article Extractor/ArticleExtractor+BlockCollection.swift",
 				"Article Extractor/ArticleExtractor+CodeContent.swift",
 				"Article Extractor/ArticleExtractor+Embeds.swift",
@@ -179,6 +180,7 @@
 			membershipExceptions = (
 				"Article Extractor/ArticleExtractor.swift",
 				"Article Extractor/ArticleExtractor+AMP.swift",
+				"Article Extractor/ArticleExtractor+Audio.swift",
 				"Article Extractor/ArticleExtractor+BlockCollection.swift",
 				"Article Extractor/ArticleExtractor+CodeContent.swift",
 				"Article Extractor/ArticleExtractor+Embeds.swift",

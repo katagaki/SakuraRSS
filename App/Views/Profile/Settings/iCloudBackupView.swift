@@ -98,6 +98,7 @@ struct iCloudBackupView: View {
 
     private func performBackup() {
         isBackingUp = true
+        UIApplication.shared.isIdleTimerDisabled = true
         Task {
             do {
                 try await iCloudBackupManager.shared.backupNow()
@@ -106,6 +107,7 @@ struct iCloudBackupView: View {
             } catch {
                 showBackupError = true
             }
+            UIApplication.shared.isIdleTimerDisabled = false
             isBackingUp = false
         }
     }

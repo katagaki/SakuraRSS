@@ -31,6 +31,8 @@ struct ContentBlockStack: View {
                 }
             case .video(let url):
                 VideoBlockView(url: url)
+            case .audio(let url):
+                AudioBlockView(url: url)
             case .youtube(let videoID):
                 YouTubeEmbedBlockView(videoID: videoID)
             case .xPost(let url):

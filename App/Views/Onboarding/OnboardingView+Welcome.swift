@@ -48,6 +48,7 @@ extension OnboardingView {
             .padding(.bottom, 100)
         }
         .safeAreaInset(edge: .bottom) {
+            restoreButton()
             continueButton { advanceStep() }
                 .padding(.bottom, isIPad ? 20 : 0)
         }
@@ -80,30 +81,12 @@ extension OnboardingView {
                         .foregroundStyle(.secondary)
                 }
             }
-            Button {
-                performRestore()
-            } label: {
-                HStack {
-                    if isRestoring {
-                        ProgressView()
-                            .padding(.trailing, 4)
-                        Text(String(localized: "Restore.Restoring", table: "Onboarding"))
-                    } else {
-                        Text(String(localized: "Restore.Button", table: "Onboarding"))
-                    }
-                }
-                .fontWeight(.semibold)
-                .padding(.vertical, 8)
-                .frame(maxWidth: .infinity)
-            }
-            .buttonStyle(.glassProminent)
-            .buttonBorderShape(.capsule)
-            .disabled(isRestoring)
         }
     }
 
     private func performRestore() {
         isRestoring = true
+        UIApplication.shared.isIdleTimerDisabled = true
         Task {
             do {
                 try await iCloudBackupManager.shared.restore()
@@ -113,7 +96,32 @@ extension OnboardingView {
             } catch {
                 showRestoreError = true
             }
+            UIApplication.shared.isIdleTimerDisabled = false
             isRestoring = false
         }
+    }
+
+    private func restoreButton() -> some View {
+        Button {
+            performRestore()
+        } label: {
+            HStack {
+                if isRestoring {
+                    ProgressView()
+                        .padding(.trailing, 4)
+                    Text(String(localized: "Restore.Restoring", table: "Onboarding"))
+                } else {
+                    Text(String(localized: "Restore.Button", table: "Onboarding"))
+                }
+            }
+            .fontWeight(.semibold)
+            .padding(.vertical, 8)
+            .frame(maxWidth: .infinity)
+        }
+        .buttonStyle(.glass)
+        .buttonBorderShape(.capsule)
+        .padding(.horizontal, 20)
+        .padding(.vertical, 8)
+        .disabled(isRestoring)
     }
 }

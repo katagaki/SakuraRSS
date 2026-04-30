@@ -9,6 +9,7 @@ extension ArticleExtractor {
         promoteYouTubeEmbeds(in: doc)
         promoteXEmbeds(in: doc)
         promoteGenericEmbeds(in: doc)
+        promoteAudioEmbeds(in: doc, baseURL: baseURL)
     }
 
     // MARK: - YouTube
@@ -206,7 +207,8 @@ extension ArticleExtractor {
         let patterns = [
             #"^\{\{YOUTUBE\}\}[A-Za-z0-9_\-]+\{\{/YOUTUBE\}\}$"#,
             #"^\{\{XPOST\}\}https?://[^\s]+\{\{/XPOST\}\}$"#,
-            #"^\{\{EMBED\}\}[a-z]+\|[^\s]+\{\{/EMBED\}\}$"#
+            #"^\{\{EMBED\}\}[a-z]+\|[^\s]+\{\{/EMBED\}\}$"#,
+            #"^\{\{AUDIO\}\}https?://[^\s]+\{\{/AUDIO\}\}$"#
         ]
         for pattern in patterns where trimmed.range(
             of: pattern, options: .regularExpression
