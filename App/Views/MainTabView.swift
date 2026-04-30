@@ -74,15 +74,15 @@ struct MainTabView: View {
                 NavigationStack {
                     PodcastEpisodeView(article: article)
                         .environment(feedManager)
+                        .navigationTransition(.zoom(sourceID: "miniPlayer", in: miniPlayerTransition))
                 }
-                .navigationTransition(.zoom(sourceID: "miniPlayer", in: miniPlayerTransition))
             }
             .sheet(item: $presenter.youTubeArticle) { article in
                 NavigationStack {
                     YouTubePlayerView(article: article)
                         .environment(feedManager)
+                        .navigationTransition(.zoom(sourceID: "youTubeMiniPlayer", in: miniPlayerTransition))
                 }
-                .navigationTransition(.zoom(sourceID: "youTubeMiniPlayer", in: miniPlayerTransition))
             }
             .sheet(isPresented: $showingAddFeed) {
                 AddFeedView(initialURL: pendingFeedURL ?? "")
