@@ -15,9 +15,9 @@ struct YouTubeMiniPlayerBar: View {
                     .clipShape(.rect(cornerRadius: 6))
                     .padding(.leading, 4)
 
-                VStack(alignment: .leading, spacing: 2) {
+                VStack(alignment: .leading, spacing: 1) {
                     Text(session.videoTitle ?? article.title)
-                        .font(.subheadline)
+                        .font(.caption)
                         .fontWeight(.semibold)
                         .lineLimit(1)
                         .foregroundStyle(.primary)
