@@ -18,14 +18,20 @@ extension FeedManager {
 
     func saveAllowedKeywords(_ keywords: [String], for feed: Feed) {
         try? database.replaceRules(feedID: feed.id, type: "allowed_keyword", values: keywords)
+        loadFromDatabase()
+        updateBadgeCount()
     }
 
     func saveMutedKeywords(_ keywords: [String], for feed: Feed) {
         try? database.replaceRules(feedID: feed.id, type: "muted_keyword", values: keywords)
+        loadFromDatabase()
+        updateBadgeCount()
     }
 
     func saveMutedAuthors(_ authors: [String], for feed: Feed) {
         try? database.replaceRules(feedID: feed.id, type: "muted_author", values: authors)
+        loadFromDatabase()
+        updateBadgeCount()
     }
 
     func uniqueAuthors(for feed: Feed) -> [String] {
@@ -43,13 +49,17 @@ extension FeedManager {
     // MARK: - Rule Application
 
     func applyRules(_ articles: [Article], feedID: Int64) -> [Article] {
+        Self.applyRules(articles, feedID: feedID, database: database)
+    }
+
+    static func applyRules(_ articles: [Article], feedID: Int64, database: DatabaseManager) -> [Article] {
         let allowedKeywords = (try? database.rules(forFeedID: feedID, type: "allowed_keyword")) ?? []
         let keywords = (try? database.rules(forFeedID: feedID, type: "muted_keyword")) ?? []
         let authors = Set((try? database.rules(forFeedID: feedID, type: "muted_author")) ?? [])
         guard !allowedKeywords.isEmpty || !keywords.isEmpty || !authors.isEmpty else { return articles }
         return articles.filter { article in
             if !allowedKeywords.isEmpty {
-                return articleMatchesKeywords(article, keywords: allowedKeywords)
+                return Self.articleMatchesKeywords(article, keywords: allowedKeywords)
             }
             if let author = article.author, authors.contains(author) {
                 return false
@@ -65,6 +75,19 @@ extension FeedManager {
             }
             return true
         }
+    }
+
+    /// Adjusts raw per-feed unread counts so muted articles (by keyword or
+    /// author rules) are excluded. Only feeds with rules are recomputed.
+    static func applyRulesToUnreadCounts(_ rawCounts: [Int64: Int], database: DatabaseManager) -> [Int64: Int] {
+        let feedsWithRules = (try? database.feedIDsWithRules()) ?? []
+        guard !feedsWithRules.isEmpty else { return rawCounts }
+        var result = rawCounts
+        for feedID in feedsWithRules where (result[feedID] ?? 0) > 0 {
+            let unread = (try? database.unreadArticles(forFeedID: feedID)) ?? []
+            result[feedID] = applyRules(unread, feedID: feedID, database: database).count
+        }
+        return result
     }
 
     func applyAllRules(_ articles: [Article]) -> [Article] {
@@ -112,6 +135,10 @@ extension FeedManager {
     }
 
     private func articleMatchesKeywords(_ article: Article, keywords: [String]) -> Bool {
+        Self.articleMatchesKeywords(article, keywords: keywords)
+    }
+
+    fileprivate static func articleMatchesKeywords(_ article: Article, keywords: [String]) -> Bool {
         for keyword in keywords {
             if article.title.localizedCaseInsensitiveContains(keyword) {
                 return true

@@ -13,6 +13,14 @@ nonisolated extension DatabaseManager {
         ).map { $0[ruleValue] }
     }
 
+    func feedIDsWithRules() throws -> Set<Int64> {
+        var result = Set<Int64>()
+        for row in try database.prepare(feedRules.select(distinct: ruleFeedID)) {
+            result.insert(row[ruleFeedID])
+        }
+        return result
+    }
+
     @discardableResult
     func insertRule(feedID: Int64, type: String, value: String) throws -> Int64 {
         try database.run(feedRules.insert(
