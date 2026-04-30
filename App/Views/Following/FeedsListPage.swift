@@ -43,6 +43,7 @@ struct FeedsListPage: View {
                 .animation(.smooth.speed(2.0), value: isEditingFeeds)
         }
         .navigationTitle("Shared.Feeds")
+        .navigationBarTitleDisplayMode(.inline)
         .searchable(text: $searchText, prompt: Text(String(localized: "FeedList.SearchPrompt", table: "Feeds")))
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
