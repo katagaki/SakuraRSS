@@ -282,7 +282,9 @@ struct YouTubePlayerWebView: UIViewRepresentable {
                 let script = """
                 (function() {
                     var video = document.querySelector('video');
-                    if (!video) return null;
+                    if (!video) {
+                        return { isPiP: !!document.pictureInPictureElement };
+                    }
                     var player = document.querySelector('.html5-video-player');
                     var isAd = player ? player.classList.contains('ad-showing') : false;
                     var advLink = document.querySelector('.ytp-ad-visit-advertiser-button, \
@@ -290,7 +292,7 @@ struct YouTubePlayerWebView: UIViewRepresentable {
                     var advURL = advLink ? (advLink.href || advLink.getAttribute('href') || '') : '';
                     var vw = video.videoWidth || 0;
                     var vh = video.videoHeight || 0;
-                    var inPiP = document.pictureInPictureElement === video;
+                    var inPiP = !!document.pictureInPictureElement;
                     var skipBtn = \(YouTubePlayerScripts.findSkipButtonExpression);
                     return {
                         playing: !video.paused,
