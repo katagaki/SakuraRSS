@@ -52,6 +52,9 @@ struct HomeSectionView: View {
             for: section,
             requireUnread: hideViewedContent
         )
+        if hideViewedContent, visibility.visibleIDs == nil, !preloadedEntries.isEmpty {
+            visibility.capture(from: rawArticles, isEnabled: hideViewedContent)
+        }
     }
 
     private func performRefresh() async {
@@ -181,6 +184,11 @@ struct HomeSectionView: View {
         }
         .onChange(of: hideViewedContent) { _, _ in
             reloadPreloadedEntries()
+            loadedSinceDate = batchingMode.initialSinceDate(
+                latestArticleDate: latestArticleDateForSection()
+            )
+            loadedCount = batchingMode.initialCount()
+            visibility.capture(from: rawArticles, isEnabled: hideViewedContent)
         }
         .onChange(of: batchingMode) { _, newMode in
             loadedSinceDate = newMode.initialSinceDate(
@@ -194,11 +202,8 @@ struct HomeSectionView: View {
         }
     }
 
+    /// Latest preloaded entry date, so the initial batch anchors on visible content.
     private func latestArticleDateForSection() -> Date? {
-        let sectionFeedIDs = Set(
-            feedManager.feeds.filter { $0.feedSection == section }.map(\.id)
-        )
-        guard !sectionFeedIDs.isEmpty else { return nil }
-        return feedManager.latestPublishedDate(forFeedIDs: sectionFeedIDs)
+        preloadedEntries.compactMap(\.publishedDate).max()
     }
 }

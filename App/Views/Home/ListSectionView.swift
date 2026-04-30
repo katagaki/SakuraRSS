@@ -46,6 +46,9 @@ struct ListSectionView: View {
             for: list,
             requireUnread: hideViewedContent
         )
+        if hideViewedContent, visibility.visibleIDs == nil, !preloadedEntries.isEmpty {
+            visibility.capture(from: rawArticles, isEnabled: hideViewedContent)
+        }
     }
 
     private func performRefresh() async {

@@ -78,12 +78,13 @@ extension AllArticlesView {
         preloadedEntries = feedManager.preloadedArticleEntries(
             requireUnread: hideViewedContent
         )
+        if hideViewedContent, visibility.visibleIDs == nil, !preloadedEntries.isEmpty {
+            visibility.capture(from: rawArticles, isEnabled: hideViewedContent)
+        }
     }
 
-    /// Most recent published date across all feeds, used to anchor the date
-    /// window so the home tab shows the freshest content even when no feed
-    /// has posted within the wall-clock window.
+    /// Latest preloaded entry date, so the initial batch anchors on visible content.
     func latestArticleDateAcrossFeeds() -> Date? {
-        feedManager.latestPublishedDate()
+        preloadedEntries.compactMap(\.publishedDate).max()
     }
 }

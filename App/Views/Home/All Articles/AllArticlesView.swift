@@ -64,6 +64,11 @@ struct AllArticlesView: View {
         }
         .onChange(of: hideViewedContent) { _, _ in
             reloadPreloadedEntries()
+            loadedSinceDate = batchingMode.initialSinceDate(
+                latestArticleDate: latestArticleDateAcrossFeeds()
+            )
+            loadedCount = batchingMode.initialCount()
+            visibility.capture(from: rawArticles, isEnabled: hideViewedContent)
         }
         .onChange(of: batchingMode) { _, newMode in
             loadedSinceDate = newMode.initialSinceDate(
