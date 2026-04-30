@@ -6,7 +6,6 @@ struct FeedArticleRow: View {
     @Environment(\.openURL) var openURL
     @Environment(\.navigateToFeed) var navigateToFeed
     let article: Article
-    var onShowYouTubePlayer: (() -> Void)?
     @AppStorage("YouTube.OpenMode") private var youTubeOpenMode: YouTubeOpenMode = .inAppPlayer
     @State private var favicon: UIImage?
     @State private var feedName: String?
@@ -152,7 +151,8 @@ struct FeedArticleRow: View {
                 HStack {
                     Button {
                         if article.isYouTubeURL && youTubeOpenMode == .inAppPlayer {
-                            onShowYouTubePlayer?()
+                            feedManager.markRead(article)
+                            MediaPresenter.shared.presentYouTube(article)
                         } else if article.isYouTubeURL && youTubeOpenMode == .youTubeApp {
                             YouTubeHelper.openInApp(url: article.url)
                         } else if article.isYouTubeURL && youTubeOpenMode == .browser {

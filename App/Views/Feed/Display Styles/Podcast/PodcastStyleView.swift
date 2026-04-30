@@ -21,7 +21,10 @@ struct PodcastStyleView: View {
                         }
                         .opacity(0)
                     } else {
-                        NavigationLink(value: article) {
+                        Button {
+                            feedManager.markRead(article)
+                            MediaPresenter.shared.presentPodcast(article)
+                        } label: {
                             EmptyView()
                         }
                         .opacity(0)

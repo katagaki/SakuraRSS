@@ -10,7 +10,6 @@ struct VideoStyleView: View {
     let articles: [Article]
     var onLoadMore: (() -> Void)?
 
-    @State private var youTubePlayerArticle: Article?
     @State private var showSafari = false
     @State private var safariURL: URL?
 
@@ -23,7 +22,7 @@ struct VideoStyleView: View {
                         if iPadArticleSelection != nil {
                             iPadArticleSelection?.wrappedValue = article
                         } else if article.isYouTubeURL && youTubeOpenMode == .inAppPlayer {
-                            youTubePlayerArticle = article
+                            MediaPresenter.shared.presentYouTube(article)
                         } else if article.isYouTubeURL && youTubeOpenMode == .browser {
                             safariURL = URL(string: article.url)
                             showSafari = true
@@ -82,10 +81,6 @@ struct VideoStyleView: View {
             }
         }
         .trackScrollActivity()
-        .navigationDestination(item: $youTubePlayerArticle) { article in
-            YouTubePlayerView(article: article)
-                .zoomTransition(sourceID: article.id, in: zoomNamespace)
-        }
         .sheet(isPresented: $showSafari) {
             if let safariURL {
                 SafariView(url: safariURL)

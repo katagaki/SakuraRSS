@@ -10,7 +10,6 @@ struct CardsStyleView: View {
     /// Snapshot of unread article IDs; prevents cards vanishing during markRead navigation.
     @State private var deckArticleIDs: Set<Int64>?
     @State private var selectedArticle: Article?
-    @State private var youTubeArticle: Article?
 
     private var deckArticles: [Article] {
         guard let ids = deckArticleIDs else { return [] }
@@ -65,9 +64,7 @@ struct CardsStyleView: View {
             } else {
                 ForEach(Array(visibleCards.prefix(2).enumerated().reversed()),
                         id: \.element.id) { index, article in
-                    ArticleLink(article: article, onShowYouTubePlayer: {
-                        youTubeArticle = $0
-                    }, onNavigate: {
+                    ArticleLink(article: article, onNavigate: {
                         selectedArticle = $0
                     }, label: {
                         CardView(
@@ -93,17 +90,7 @@ struct CardsStyleView: View {
         .padding()
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .navigationDestination(item: $selectedArticle) { article in
-            Group {
-                if article.isPodcastEpisode {
-                    PodcastEpisodeView(article: article)
-                } else {
-                    ArticleDetailView(article: article)
-                }
-            }
-            .zoomTransition(sourceID: article.id, in: zoomNamespace)
-        }
-        .navigationDestination(item: $youTubeArticle) { article in
-            YouTubePlayerView(article: article)
+            ArticleDetailView(article: article)
                 .zoomTransition(sourceID: article.id, in: zoomNamespace)
         }
         .onAppear {

@@ -10,7 +10,6 @@ struct CompactFeedArticleRowActions: View {
 
     let article: Article
     let opensInExternalApp: Bool
-    var onShowYouTubePlayer: (() -> Void)?
     var onShowSafari: () -> Void
 
     var body: some View {
@@ -39,7 +38,8 @@ struct CompactFeedArticleRowActions: View {
     private var openButton: some View {
         Button {
             if article.isYouTubeURL && youTubeOpenMode == .inAppPlayer {
-                onShowYouTubePlayer?()
+                feedManager.markRead(article)
+                MediaPresenter.shared.presentYouTube(article)
             } else if article.isYouTubeURL && youTubeOpenMode == .youTubeApp {
                 YouTubeHelper.openInApp(url: article.url)
             } else if article.isYouTubeURL && youTubeOpenMode == .browser {

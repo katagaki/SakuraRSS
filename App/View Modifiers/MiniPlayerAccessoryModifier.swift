@@ -3,7 +3,9 @@ import SwiftUI
 struct MiniPlayerAccessoryModifier: ViewModifier {
 
     let audioPlayer: AudioPlayer
-    @Binding var miniPlayerPresentedArticle: Article?
+    let youTubeSession: YouTubePlayerSession
+    @Binding var presentedPodcastArticle: Article?
+    @Binding var presentedYouTubeArticle: Article?
     var miniPlayerTransition: Namespace.ID
 
     func body(content: Content) -> some View {
@@ -11,9 +13,17 @@ struct MiniPlayerAccessoryModifier: ViewModifier {
             content
                 .tabViewBottomAccessory {
                     MiniPlayerView { article in
-                        miniPlayerPresentedArticle = article
+                        presentedPodcastArticle = article
                     }
                     .matchedTransitionSource(id: "miniPlayer", in: miniPlayerTransition)
+                }
+        } else if youTubeSession.currentArticle != nil {
+            content
+                .tabViewBottomAccessory {
+                    YouTubeMiniPlayerView { article in
+                        presentedYouTubeArticle = article
+                    }
+                    .matchedTransitionSource(id: "youTubeMiniPlayer", in: miniPlayerTransition)
                 }
         } else {
             content
@@ -24,12 +34,16 @@ struct MiniPlayerAccessoryModifier: ViewModifier {
 extension View {
     func miniPlayerAccessory(
         audioPlayer: AudioPlayer,
-        presentedArticle: Binding<Article?>,
+        youTubeSession: YouTubePlayerSession,
+        presentedPodcastArticle: Binding<Article?>,
+        presentedYouTubeArticle: Binding<Article?>,
         transition: Namespace.ID
     ) -> some View {
         modifier(MiniPlayerAccessoryModifier(
             audioPlayer: audioPlayer,
-            miniPlayerPresentedArticle: presentedArticle,
+            youTubeSession: youTubeSession,
+            presentedPodcastArticle: presentedPodcastArticle,
+            presentedYouTubeArticle: presentedYouTubeArticle,
             miniPlayerTransition: transition
         ))
     }

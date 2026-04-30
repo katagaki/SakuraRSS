@@ -20,9 +20,11 @@ extension YouTubePlayerView {
             ) as? [String: Any] else { return }
             if let title = json["title"] as? String, !title.isEmpty {
                 fetchedTitle = title
+                session.videoTitle = title
             }
             if let author = json["author_name"] as? String, !author.isEmpty {
                 fetchedAuthor = author
+                session.channelTitle = author
             }
         } catch {}
     }

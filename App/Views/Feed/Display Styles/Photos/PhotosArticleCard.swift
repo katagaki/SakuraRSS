@@ -4,7 +4,6 @@ struct PhotosArticleCard: View {
 
     @Environment(FeedManager.self) var feedManager
     let article: Article
-    @Binding var youTubeArticle: Article?
     @State private var favicon: UIImage?
     @State private var feedName: String?
     @State private var acronymIcon: UIImage?
@@ -136,9 +135,7 @@ struct PhotosArticleCard: View {
                     .allowsHitTesting(false)
                     .overlay {
                         if article.url.contains("/reel/") {
-                            ArticleLink(article: article, onShowYouTubePlayer: {
-                                youTubeArticle = $0
-                            }, label: {
+                            ArticleLink(article: article, label: {
                                 Image(systemName: "play.fill")
                                     .font(.title)
                                     .foregroundStyle(.primary)
@@ -153,9 +150,7 @@ struct PhotosArticleCard: View {
                     .transition(.opacity)
             }
 
-            ArticleLink(article: article, onShowYouTubePlayer: {
-                youTubeArticle = $0
-            }, label: {
+            ArticleLink(article: article, label: {
                 let isPhotoFeed = feed?.isInstagramFeed == true || feed?.isPhotoViewDomain == true
                 let captionText = isPhotoFeed ? (article.summary ?? article.title) : article.title
                 Text(captionText)

@@ -122,13 +122,16 @@ struct HomeView: View {
                             feedManager.markRead(article)
                             switch youTubeOpenMode {
                             case .inAppPlayer:
-                                path.append(article)
+                                MediaPresenter.shared.presentYouTube(article)
                             case .youTubeApp:
                                 YouTubeHelper.openInApp(url: article.url)
                             case .browser:
                                 pendingYouTubeSafariURL = URL(string: article.url)
                                 showYouTubeSafari = true
                             }
+                        } else if article.isPodcastEpisode {
+                            feedManager.markRead(article)
+                            MediaPresenter.shared.presentPodcast(article)
                         } else {
                             path.append(article)
                         }
@@ -165,7 +168,7 @@ struct HomeView: View {
         if article.isYouTubeURL {
             switch youTubeOpenMode {
             case .inAppPlayer:
-                path.append(article)
+                MediaPresenter.shared.presentYouTube(article)
             case .youTubeApp:
                 YouTubeHelper.openInApp(url: article.url)
             case .browser:
@@ -204,10 +207,23 @@ struct HomeView: View {
             path.append(feed)
             if savedArticleID >= 0,
                let article = feedManager.article(byID: Int64(savedArticleID)) {
-                path.append(article)
+                appendArticle(article)
             }
         } else if savedArticleID >= 0,
                   let article = feedManager.article(byID: Int64(savedArticleID)) {
+            appendArticle(article)
+        }
+    }
+
+    private func appendArticle(_ article: Article) {
+        if article.isPodcastEpisode {
+            MediaPresenter.shared.presentPodcast(article)
+            savedArticleID = -1
+        } else if article.isYouTubeURL {
+            // Restoration for YouTube articles is skipped since the player
+            // sheet doesn't survive app relaunch.
+            savedArticleID = -1
+        } else {
             path.append(article)
         }
     }

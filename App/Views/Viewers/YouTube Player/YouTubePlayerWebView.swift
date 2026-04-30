@@ -34,6 +34,24 @@ struct YouTubePlayerWebView: UIViewRepresentable {
     func makeUIView(context: Context) -> WKWebView {
         YouTubeAudioSession.prepare()
 
+        if let existing = YouTubePlayerSession.shared.webView,
+           YouTubePlayerSession.shared.currentArticle?.url == urlString {
+            existing.removeFromSuperview()
+            existing.navigationDelegate = context.coordinator
+            existing.isUserInteractionEnabled = false
+            let userContent = existing.configuration.userContentController
+            userContent.removeAllScriptMessageHandlers()
+            userContent.add(context.coordinator, name: YouTubePlayerScripts.pipMessageHandlerName)
+            #if DEBUG
+            userContent.add(context.coordinator, name: "ytDebug")
+            #endif
+            DispatchQueue.main.async {
+                self.webView = existing
+                context.coordinator.startPlaybackObserver(for: existing)
+            }
+            return existing
+        }
+
         let config = WKWebViewConfiguration()
         config.websiteDataStore = .default()
         config.allowsInlineMediaPlayback = true
@@ -95,6 +113,7 @@ struct YouTubePlayerWebView: UIViewRepresentable {
         }
         DispatchQueue.main.async {
             self.webView = webView
+            YouTubePlayerSession.shared.webView = webView
         }
         return webView
     }
@@ -127,6 +146,8 @@ struct YouTubePlayerWebView: UIViewRepresentable {
         #if DEBUG
         uiView.configuration.userContentController.removeScriptMessageHandler(forName: "ytDebug")
         #endif
+        // Leave the WKWebView alive if the session still owns it so audio
+        // continues while collapsed into the tab bar bottom accessory.
     }
 
     @MainActor
@@ -276,7 +297,7 @@ struct YouTubePlayerWebView: UIViewRepresentable {
             webView.evaluateJavaScript(script, completionHandler: nil)
         }
 
-        private func startPlaybackObserver(for webView: WKWebView) {
+        func startPlaybackObserver(for webView: WKWebView) {
             playbackObserver?.invalidate()
             playbackObserver = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { [weak self] _ in
                 let script = """
