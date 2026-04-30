@@ -161,7 +161,6 @@ struct HomeView: View {
         // Suppress saved-state restoration that would otherwise stomp on our
         // navigation push when launched cold from the extension.
         hasRestored = true
-        path = NavigationPath()
         let article = Article.ephemeral(url: request.url, title: request.url)
         if article.isYouTubeURL {
             switch youTubeOpenMode {

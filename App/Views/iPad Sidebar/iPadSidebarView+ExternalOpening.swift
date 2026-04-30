@@ -36,7 +36,7 @@ extension IPadSidebarView {
                     openArticleExternally(article)
                 } else {
                     selectedArticle = article
-                    selectedEphemeralDestination = nil
+                    ephemeralDestinations = []
                     feedManager.markRead(article)
                 }
             }

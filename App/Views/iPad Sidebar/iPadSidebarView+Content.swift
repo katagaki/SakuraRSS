@@ -42,26 +42,52 @@ extension IPadSidebarView {
 
     @ViewBuilder
     var detailContent: some View {
-        NavigationStack {
-            if let destination = selectedEphemeralDestination {
+        if let firstEphemeral = ephemeralDestinations.first {
+            NavigationStack(path: ephemeralPathBinding) {
                 ArticleDestinationView(
-                    article: destination.article,
-                    overrideMode: destination.mode,
-                    overrideTextMode: destination.textMode
+                    article: firstEphemeral.article,
+                    overrideMode: firstEphemeral.mode,
+                    overrideTextMode: firstEphemeral.textMode
                 )
-                .id(destination.article.url)
-            } else if let article = selectedArticle {
-                ArticleDestinationView(article: article)
-                    .id(article.id)
-            } else {
-                ContentUnavailableView {
-                    Label(String(localized: "Sidebar.SelectArticle", table: "Feeds"),
-                          systemImage: "doc.text")
-                } description: {
-                    Text(String(localized: "Sidebar.SelectArticle.Description", table: "Feeds"))
+                .id(firstEphemeral.article.url)
+                .navigationDestination(for: EphemeralArticleDestination.self) { destination in
+                    ArticleDestinationView(
+                        article: destination.article,
+                        overrideMode: destination.mode,
+                        overrideTextMode: destination.textMode
+                    )
+                    .id(destination.article.url)
+                }
+            }
+        } else {
+            NavigationStack {
+                if let article = selectedArticle {
+                    ArticleDestinationView(article: article)
+                        .id(article.id)
+                } else {
+                    ContentUnavailableView {
+                        Label(String(localized: "Sidebar.SelectArticle", table: "Feeds"),
+                              systemImage: "doc.text")
+                    } description: {
+                        Text(String(localized: "Sidebar.SelectArticle.Description", table: "Feeds"))
+                    }
                 }
             }
         }
+    }
+
+    private var ephemeralPathBinding: Binding<[EphemeralArticleDestination]> {
+        let bound = $ephemeralDestinations
+        return Binding(
+            get: { Array(bound.wrappedValue.dropFirst()) },
+            set: { newPath in
+                if let first = bound.wrappedValue.first {
+                    bound.wrappedValue = [first] + newPath
+                } else {
+                    bound.wrappedValue = newPath
+                }
+            }
+        )
     }
 
     @ViewBuilder

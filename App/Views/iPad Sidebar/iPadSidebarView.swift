@@ -13,7 +13,7 @@ struct IPadSidebarView: View {
 
     @State var selectedDestination: SidebarDestination? = .allArticles
     @State var selectedArticle: Article?
-    @State var selectedEphemeralDestination: EphemeralArticleDestination?
+    @State var ephemeralDestinations: [EphemeralArticleDestination] = []
     @State private var columnVisibility: NavigationSplitViewVisibility = .all
     @State var showingAddFeed = false
     @State var showingNewList = false
@@ -48,7 +48,7 @@ struct IPadSidebarView: View {
                 sectionIcon: sectionIcon,
                 onDestinationChanged: {
                     selectedArticle = nil
-                    selectedEphemeralDestination = nil
+                    ephemeralDestinations = []
                 }
             )
             .environment(feedManager)

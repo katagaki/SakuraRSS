@@ -10,7 +10,7 @@ extension IPadSidebarView {
             switch youTubeOpenMode {
             case .inAppPlayer:
                 selectedArticle = article
-                selectedEphemeralDestination = nil
+                ephemeralDestinations = []
             case .youTubeApp:
                 YouTubeHelper.openInApp(url: article.url)
             case .browser:
@@ -19,9 +19,9 @@ extension IPadSidebarView {
             }
         } else {
             selectedArticle = nil
-            selectedEphemeralDestination = EphemeralArticleDestination(
+            ephemeralDestinations.append(EphemeralArticleDestination(
                 article: article, mode: request.mode, textMode: request.textMode
-            )
+            ))
         }
         pendingOpenRequest = nil
     }
