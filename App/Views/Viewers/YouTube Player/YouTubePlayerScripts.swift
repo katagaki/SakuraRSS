@@ -93,6 +93,39 @@ nonisolated enum YouTubePlayerScripts {
     })();
     """
 
+    /// Prevents YouTube from forcing PiP to close during ads by neutralizing
+    /// any `disablePictureInPicture` writes on `<video>` elements.
+    static let pipDisableOverride = """
+    (function() {
+        try {
+            var proto = HTMLVideoElement.prototype;
+            if (!proto.__ytPiPDisableOverridden) {
+                proto.__ytPiPDisableOverridden = true;
+                Object.defineProperty(proto, 'disablePictureInPicture', {
+                    configurable: true,
+                    get: function() { return false; },
+                    set: function() {}
+                });
+            }
+        } catch (e) {}
+        function strip(video) {
+            if (!video) return;
+            try { video.removeAttribute('disablepictureinpicture'); } catch (e) {}
+            try { video.removeAttribute('disablePictureInPicture'); } catch (e) {}
+        }
+        function scan() { document.querySelectorAll('video').forEach(strip); }
+        scan();
+        var observer = new MutationObserver(scan);
+        if (document.documentElement) {
+            observer.observe(document.documentElement, {
+                childList: true, subtree: true,
+                attributes: true,
+                attributeFilter: ['disablepictureinpicture', 'disablePictureInPicture']
+            });
+        }
+    })();
+    """
+
     /// Re-routes the system PiP next/previous track controls during ads:
     /// previous-track is disabled, next-track triggers ad skipping when available.
     static let pipAdControls = """

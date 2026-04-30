@@ -67,6 +67,11 @@ struct YouTubePlayerWebView: UIViewRepresentable {
             forMainFrameOnly: true
         ))
         controller.addUserScript(WKUserScript(
+            source: YouTubePlayerScripts.pipDisableOverride,
+            injectionTime: .atDocumentStart,
+            forMainFrameOnly: true
+        ))
+        controller.addUserScript(WKUserScript(
             source: YouTubePlayerScripts.pipAdControls,
             injectionTime: .atDocumentStart,
             forMainFrameOnly: true
