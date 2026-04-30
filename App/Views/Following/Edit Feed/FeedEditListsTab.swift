@@ -34,7 +34,7 @@ struct FeedEditListsTab: View {
 
     @ViewBuilder
     private func listsList(for feed: Feed) -> some View {
-        List {
+        Form {
             if feedManager.lists.isEmpty {
                 Section {
                     Text(String(localized: "AddToList.NoLists", table: "Lists"))

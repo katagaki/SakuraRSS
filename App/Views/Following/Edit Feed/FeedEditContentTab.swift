@@ -36,7 +36,7 @@ struct FeedEditContentTab: View {
 
     @ViewBuilder
     private func contentList(for feed: Feed) -> some View {
-        List {
+        Form {
             if !feed.isXFeed && !feed.isInstagramFeed && !feed.isYouTubePlaylistFeed {
                 Section {
                     openModePicker

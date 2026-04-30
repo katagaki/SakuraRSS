@@ -30,7 +30,7 @@ struct ListEditSheet: View {
 
     var body: some View {
         NavigationStack {
-            Form {
+            List {
                 Section {
                     TextField(String(localized: "ListEdit.NamePlaceholder", table: "Lists"), text: $name)
                     if nameAlreadyExists {
