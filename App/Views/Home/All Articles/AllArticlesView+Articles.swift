@@ -78,12 +78,18 @@ extension AllArticlesView {
         preloadedEntries = feedManager.preloadedArticleEntries(
             requireUnread: hideViewedContent
         )
+        // Capture visibility once data is actually available, so the
+        // freeze-on-read behavior kicks in even when the initial preload
+        // loses the race against the view's `.task` capture.
+        if hideViewedContent, visibility.visibleIDs == nil, !preloadedEntries.isEmpty {
+            visibility.capture(from: rawArticles, isEnabled: hideViewedContent)
+        }
     }
 
-    /// Most recent published date across all feeds, used to anchor the date
-    /// window so the home tab shows the freshest content even when no feed
-    /// has posted within the wall-clock window.
+    /// Latest published date among the preloaded (already rule and unread
+    /// filtered) entries, so the initial date-based batch is anchored on
+    /// content that will actually appear after filtering.
     func latestArticleDateAcrossFeeds() -> Date? {
-        feedManager.latestPublishedDate()
+        preloadedEntries.compactMap(\.publishedDate).max()
     }
 }
