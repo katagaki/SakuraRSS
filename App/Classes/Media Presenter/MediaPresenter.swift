@@ -19,8 +19,8 @@ final class MediaPresenter {
         if session.currentArticle?.id != article.id {
             session.clear()
         }
-        // Adopt synchronously so the bottom accessory is in the window before
-        // the sheet's matched zoom transition tries to anchor against it.
+        // Adopt synchronously so the bottom accessory's source view is in the
+        // window before the sheet's matched zoom transition fires.
         session.adopt(article: article)
         if session.videoTitle == nil {
             session.videoTitle = article.title
@@ -30,29 +30,11 @@ final class MediaPresenter {
             session.artworkURL = imageURL
         }
         podcastArticle = nil
-        // Defer the sheet present so the accessory is added to the window in
-        // a prior view update; otherwise the matched zoom transition starts
-        // from a nil source and falls back.
-        if youTubeArticle == nil {
-            DispatchQueue.main.async { [weak self] in
-                self?.youTubeArticle = article
-            }
-        } else {
-            youTubeArticle = article
-        }
+        youTubeArticle = article
     }
 
     func presentPodcast(_ article: Article) {
         youTubeArticle = nil
-        // Same deferral as `presentYouTube`: when the audio mini player isn't
-        // yet showing, give the accessory one update tick to land in the
-        // window before the sheet's matched zoom transition fires.
-        if podcastArticle == nil, AudioPlayer.shared.currentArticleID == nil {
-            DispatchQueue.main.async { [weak self] in
-                self?.podcastArticle = article
-            }
-        } else {
-            podcastArticle = article
-        }
+        podcastArticle = article
     }
 }
