@@ -29,18 +29,53 @@ extension ArticleExtractor {
     private static func extractTableRows(
         from table: Element, baseURL: URL?
     ) throws -> [[String]] {
-        let rowElements = try table.select("tr")
-        var rows: [[String]] = []
-        for row in rowElements {
-            let cells = try row.select("th, td")
-            guard !cells.isEmpty() else { continue }
-            var rowCells: [String] = []
-            for cell in cells {
-                let text = (try? textContent(of: cell, baseURL: baseURL)) ?? ""
-                rowCells.append(text)
+        let rowElements = directRows(of: table)
+        // Expand colspan/rowspan into a 2D grid so columns stay aligned.
+        var grid: [[String]] = []
+        for (rowIndex, row) in rowElements.enumerated() {
+            let cells = row.children().array().filter {
+                let tag = $0.tagName().lowercased()
+                return tag == "th" || tag == "td"
             }
-            if !rowCells.allSatisfy(\.isEmpty) {
-                rows.append(rowCells)
+            if cells.isEmpty { continue }
+            while grid.count <= rowIndex { grid.append([]) }
+            var col = 0
+            for cell in cells {
+                while col < grid[rowIndex].count && !grid[rowIndex][col].isEmpty {
+                    col += 1
+                }
+                let text = (try? textContent(of: cell, baseURL: baseURL)) ?? ""
+                let colspan = max(1, Int((try? cell.attr("colspan")) ?? "") ?? 1)
+                let rowspan = max(1, Int((try? cell.attr("rowspan")) ?? "") ?? 1)
+                for rowOffset in 0..<rowspan {
+                    let targetRow = rowIndex + rowOffset
+                    while grid.count <= targetRow { grid.append([]) }
+                    for colOffset in 0..<colspan {
+                        let targetCol = col + colOffset
+                        while grid[targetRow].count <= targetCol {
+                            grid[targetRow].append("")
+                        }
+                        grid[targetRow][targetCol] = text
+                    }
+                }
+                col += colspan
+            }
+        }
+        return grid.filter { !$0.allSatisfy(\.isEmpty) }
+    }
+
+    /// Returns `<tr>` elements that belong directly to this table, skipping
+    /// rows from any nested tables. Handles optional `<thead>`/`<tbody>`/`<tfoot>` wrappers.
+    private static func directRows(of table: Element) -> [Element] {
+        var rows: [Element] = []
+        for child in table.children() {
+            let tag = child.tagName().lowercased()
+            if tag == "tr" {
+                rows.append(child)
+            } else if tag == "thead" || tag == "tbody" || tag == "tfoot" {
+                for grandchild in child.children() where grandchild.tagName().lowercased() == "tr" {
+                    rows.append(grandchild)
+                }
             }
         }
         return rows

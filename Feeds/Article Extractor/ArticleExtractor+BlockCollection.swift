@@ -202,11 +202,17 @@ extension ArticleExtractor {
     }
 
     /// True when a wrapper has no block-level or structural children and should be a paragraph.
+    /// `<table>` and `<pre>` always trigger non-leaf behavior so they are not flattened
+    /// into their wrapper's text content.
     static func isLeafBlock(_ element: Element) -> Bool {
         let structuralTags: Set<String> = ["div", "section", "article", "main", "aside"]
+        let specialTags: Set<String> = ["table", "pre"]
         for child in element.children() {
             let tag = child.tagName().lowercased()
-            if blockElements.contains(tag) || structuralTags.contains(tag) {
+            if blockElements.contains(tag)
+                || structuralTags.contains(tag)
+                || specialTags.contains(tag)
+                || isCodeBlockWrapper(child) {
                 return false
             }
         }
