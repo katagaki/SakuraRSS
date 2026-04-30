@@ -9,7 +9,7 @@ struct MiniPlayerAccessoryModifier: ViewModifier {
     var miniPlayerTransition: Namespace.ID
 
     func body(content: Content) -> some View {
-        if audioPlayer.currentArticleID != nil, presentedPodcastArticle == nil {
+        if audioPlayer.currentArticleID != nil {
             content
                 .tabViewBottomAccessory {
                     MiniPlayerView { article in
@@ -17,7 +17,7 @@ struct MiniPlayerAccessoryModifier: ViewModifier {
                     }
                     .matchedTransitionSource(id: "miniPlayer", in: miniPlayerTransition)
                 }
-        } else if youTubeSession.currentArticle != nil, presentedYouTubeArticle == nil {
+        } else if youTubeSession.currentArticle != nil {
             content
                 .tabViewBottomAccessory {
                     YouTubeMiniPlayerView { article in
