@@ -75,7 +75,14 @@ struct ArticleDetailView: View {
         extractedText?.contains("{{IMG}}") == true
     }
 
+    var isInsecureArticle: Bool {
+        URL(string: article.url)?.scheme?.lowercased() == "http"
+    }
+
     var displayText: String? {
+        if isInsecureArticle {
+            return String(localized: "Article.Insecure.Content", table: "Articles")
+        }
         if showingSummary, let summarizedText {
             if showingTranslation, let translatedSummary {
                 return translatedSummary
@@ -92,9 +99,11 @@ struct ArticleDetailView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
                 SelectableText(
-                    (showingTranslation ? translatedTitle : nil)
-                        ?? (article.isEphemeral ? extractedPageTitle : nil)
-                        ?? article.title,
+                    isInsecureArticle
+                        ? String(localized: "Article.Insecure.Title", table: "Articles")
+                        : ((showingTranslation ? translatedTitle : nil)
+                            ?? (article.isEphemeral ? extractedPageTitle : nil)
+                            ?? article.title),
                     font: .preferredFont(forTextStyle: .title2).bold(),
                     textColor: .label
                 )
@@ -193,7 +202,10 @@ struct ArticleDetailView: View {
             await refreshArticleContent()
         }
         .safeAreaInset(edge: .bottom, spacing: 0) {
-            if isPaywalled {
+            if isInsecureArticle {
+                InsecureBannerView(articleURL: article.url)
+                    .padding()
+            } else if isPaywalled {
                 PaywallBannerView(articleURL: article.url)
                     .padding()
                     .animation(.smooth.speed(2.0), value: isPaywalled)
@@ -205,6 +217,7 @@ struct ArticleDetailView: View {
             articleToolbar
         }
         .task {
+            guard !isInsecureArticle else { return }
             await loadArticleMetadata()
         }
         .alert(String(localized: "Article.Summarize.Error", table: "Articles"), isPresented: Binding(

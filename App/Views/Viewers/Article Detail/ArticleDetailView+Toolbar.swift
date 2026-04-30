@@ -23,7 +23,9 @@ extension ArticleDetailView {
                         Image(systemName: isBookmarked ? "bookmark.fill" : "bookmark")
                     }
                 }
-                articleOverflowMenu
+                if !isInsecureArticle {
+                    articleOverflowMenu
+                }
             }
         }
     }
