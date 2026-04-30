@@ -5,7 +5,9 @@ import FoundationModels
 struct PodcastEpisodeView: View {
 
     @Environment(FeedManager.self) var feedManager
+    @Environment(\.dismiss) private var dismiss
     let article: Article
+    var showsDismissButton: Bool = false
     let audioPlayer = AudioPlayer.shared
 
     @State var favicon: UIImage?
@@ -268,6 +270,16 @@ struct PodcastEpisodeView: View {
         .sakuraBackground()
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
+            if showsDismissButton {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button {
+                        dismiss()
+                    } label: {
+                        Image(systemName: "chevron.down")
+                    }
+                    .accessibilityLabel(String(localized: "Article.Dismiss", table: "Articles"))
+                }
+            }
             if let activityLabel = toolbarActivityLabel {
                 ToolbarItem(placement: .principal) {
                     ToolbarActivityIndicator(label: activityLabel)

@@ -11,8 +11,8 @@ struct YouTubeMiniPlayerBar: View {
         if let article = session.currentArticle {
             HStack(spacing: 12) {
                 artwork
-                    .frame(width: 32, height: 32)
-                    .clipShape(RoundedRectangle(cornerRadius: 6))
+                    .frame(width: 32, height: 56)
+                    .clipShape(.rect(cornerRadius: 6))
                     .padding(.leading, 4)
 
                 VStack(alignment: .leading, spacing: 2) {

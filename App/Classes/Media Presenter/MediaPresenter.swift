@@ -1,16 +1,20 @@
 import SwiftUI
 
-/// Routes podcast and YouTube article taps to a sheet at the root tab view.
-/// Views deep in the navigation hierarchy mutate this presenter; `MainTabView`
-/// observes it and shows the corresponding sheet.
+/// Routes podcast and YouTube article taps to a single player sheet at the
+/// root tab view. Views deep in the navigation hierarchy mutate this
+/// presenter; `MainTabView` observes it and shows the player sheet.
 @MainActor
 @Observable
 final class MediaPresenter {
 
     static let shared = MediaPresenter()
 
-    var youTubeArticle: Article?
-    var podcastArticle: Article?
+    /// Drives the deep-link sheet (article opened from a feed list, deep
+    /// link, etc.). The accessory bar's matched-zoom sheet is governed
+    /// separately by a `@State` `isSheetPresented` on the modifier — that
+    /// state is button-only, so deep-link entries flow through this sheet
+    /// instead.
+    var presentedItem: NowPlayingItem?
 
     private init() {}
 
@@ -29,12 +33,10 @@ final class MediaPresenter {
            let imageURL = article.imageURL.flatMap(URL.init(string:)) {
             session.artworkURL = imageURL
         }
-        podcastArticle = nil
-        youTubeArticle = article
+        presentedItem = .youTube(article)
     }
 
     func presentPodcast(_ article: Article) {
-        youTubeArticle = nil
-        podcastArticle = article
+        presentedItem = .podcast(article)
     }
 }

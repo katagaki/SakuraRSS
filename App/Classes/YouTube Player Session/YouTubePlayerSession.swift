@@ -18,6 +18,11 @@ final class YouTubePlayerSession {
     var channelTitle: String?
     var artworkURL: URL?
 
+    /// Cached aspect ratio for the current video so reopening the player
+    /// sheet doesn't have to wait for the JS observer to remeasure.
+    @ObservationIgnored
+    var videoAspectRatio: CGFloat = 16 / 9
+
     /// The persistent WKWebView. Owned by the session so playback survives
     /// the player view being dismissed.
     @ObservationIgnored
@@ -26,6 +31,9 @@ final class YouTubePlayerSession {
     private init() {}
 
     func adopt(article: Article) {
+        if AudioPlayer.shared.currentArticleID != nil {
+            AudioPlayer.shared.stop()
+        }
         if let current = currentArticle, current.id != article.id || current.url != article.url {
             tearDownWebView()
         }
@@ -77,5 +85,6 @@ final class YouTubePlayerSession {
         webView?.evaluateJavaScript(pauseScript, completionHandler: nil)
         webView?.stopLoading()
         webView = nil
+        videoAspectRatio = 16 / 9
     }
 }

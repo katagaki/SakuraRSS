@@ -8,7 +8,9 @@ struct YouTubePlayerView: View {
     @Environment(FeedManager.self) var feedManager
     @Environment(\.openURL) var openURL
     @Environment(\.scenePhase) private var scenePhase
+    @Environment(\.dismiss) var dismissSheet
     let article: Article
+    let showsDismissButton: Bool
     let session = YouTubePlayerSession.shared
 
     @State var isBookmarked = false
@@ -22,7 +24,7 @@ struct YouTubePlayerView: View {
     @State private var advertiserURL: URL?
     @State private var hasStartedPlaying = false
     @State private var isPiP = false
-    @State private var videoAspectRatio: CGFloat = 16 / 9
+    @State private var videoAspectRatio: CGFloat
     @State var feed: Feed?
     @State var favicon: UIImage?
     @State var acronymIcon: UIImage?
@@ -51,6 +53,12 @@ struct YouTubePlayerView: View {
     @State var summarizationError: String?
     @State private var imageViewerURL: URL?
     @Namespace private var imageViewerNamespace
+
+    init(article: Article, showsDismissButton: Bool = false) {
+        self.article = article
+        self.showsDismissButton = showsDismissButton
+        _videoAspectRatio = State(initialValue: YouTubePlayerSession.shared.videoAspectRatio)
+    }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -238,6 +246,9 @@ struct YouTubePlayerView: View {
         }
         .onChange(of: duration) { _, newDuration in
             session.duration = newDuration
+        }
+        .onChange(of: videoAspectRatio) { _, newRatio in
+            session.videoAspectRatio = newRatio
         }
         .onChange(of: scenePhase) { _, newPhase in
             handleScenePhaseChange(newPhase)

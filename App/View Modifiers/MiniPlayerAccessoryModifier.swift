@@ -6,63 +6,84 @@ struct MiniPlayerAccessoryModifier: ViewModifier {
     let audioPlayer: AudioPlayer
     let youTubeSession: YouTubePlayerSession
     let mediaPresenter: MediaPresenter
-    @Namespace private var namespace
+
+    /// `@State` ownership of the sheet binding is required for the matched
+    /// zoom transition to anchor; an `@Observable` binding from the presenter
+    /// breaks the transition. This must only be mutated by the accessory
+    /// button itself. Any other writer (`.onChange`, presenter callback,
+    /// etc.) breaks the matched transition.
+    @State var isSheetPresented = false
+    @Namespace var namespace
+
+    /// What's currently playing. Drives the bottom accessory and is the
+    /// source of content for the matched-zoom sheet that the accessory
+    /// button presents.
+    private var nowPlayingItem: NowPlayingItem? {
+        if let articleID = audioPlayer.currentArticleID,
+           let article = feedManager.article(byID: articleID) {
+            return .podcast(article)
+        }
+        if let article = youTubeSession.currentArticle {
+            return .youTube(article)
+        }
+        return nil
+    }
 
     func body(content: Content) -> some View {
         @Bindable var presenter = mediaPresenter
-        let podcastSheetPresented = Binding<Bool>(
-            get: { presenter.podcastArticle != nil },
-            set: { if !$0 { presenter.podcastArticle = nil } }
-        )
-        let youTubeSheetPresented = Binding<Bool>(
-            get: { presenter.youTubeArticle != nil },
-            set: { if !$0 { presenter.youTubeArticle = nil } }
-        )
         return content
-            .tabViewBottomAccessory {
-                if audioPlayer.currentArticleID != nil {
-                    Button {
-                        if let articleID = audioPlayer.currentArticleID,
-                           let article = feedManager.article(byID: articleID) {
-                            presenter.podcastArticle = article
-                        }
-                    } label: {
-                        MiniPlayerBar()
-                            .matchedTransitionSource(id: "miniPlayer", in: namespace)
-                            .contentShape(.rect)
-                    }
-                    .buttonStyle(.plain)
-                } else if youTubeSession.currentArticle != nil {
-                    Button {
-                        if let article = youTubeSession.currentArticle {
-                            presenter.youTubeArticle = article
-                        }
-                    } label: {
-                        YouTubeMiniPlayerBar()
-                            .matchedTransitionSource(id: "youTubeMiniPlayer", in: namespace)
-                            .contentShape(.rect)
-                    }
-                    .buttonStyle(.plain)
+            .tabViewBottomAccessory(isEnabled: nowPlayingItem != nil) {
+                Button {
+                    // MUST be this exactly, or SwiftUI goes bonkers
+                    isSheetPresented = true
+                } label: {
+                    accessoryContent
+                        .matchedTransitionSource(id: "NowPlayingBar", in: namespace)
+                        .contentShape(.rect)
                 }
+                .buttonStyle(.plain)
             }
-            .sheet(isPresented: podcastSheetPresented) {
-                if let article = presenter.podcastArticle {
-                    NavigationStack {
-                        PodcastEpisodeView(article: article)
-                            .environment(feedManager)
+            // Sheet for Now Playing bar - MUST use isSheetPresented
+            .sheet(isPresented: $isSheetPresented) {
+                NavigationStack {
+                    if let item = nowPlayingItem {
+                        sheetContent(for: item)
                     }
-                    .navigationTransition(.zoom(sourceID: "miniPlayer", in: namespace))
                 }
+                .presentationDragIndicator(.visible)
+                .navigationTransition(
+                    .zoom(sourceID: "NowPlayingBar", in: namespace)
+                )
             }
-            .sheet(isPresented: youTubeSheetPresented) {
-                if let article = presenter.youTubeArticle {
-                    NavigationStack {
-                        YouTubePlayerView(article: article)
-                            .environment(feedManager)
-                    }
-                    .navigationTransition(.zoom(sourceID: "youTubeMiniPlayer", in: namespace))
+            // Sheet for Now Playing triggered from other views
+            .sheet(item: $presenter.presentedItem) { item in
+                NavigationStack {
+                    sheetContent(for: item)
                 }
+                .presentationDragIndicator(.visible)
             }
+    }
+
+    @ViewBuilder
+    private var accessoryContent: some View {
+        if let item = nowPlayingItem {
+            switch item {
+            case .podcast: MiniPlayerBar()
+            case .youTube: YouTubeMiniPlayerBar()
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func sheetContent(for item: NowPlayingItem) -> some View {
+        switch item {
+        case .podcast(let article):
+            PodcastEpisodeView(article: article, showsDismissButton: true)
+                .environment(feedManager)
+        case .youTube(let article):
+            YouTubePlayerView(article: article, showsDismissButton: true)
+                .environment(feedManager)
+        }
     }
 }
 

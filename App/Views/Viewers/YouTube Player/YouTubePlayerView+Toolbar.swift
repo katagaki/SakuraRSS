@@ -4,6 +4,16 @@ extension YouTubePlayerView {
 
     @ToolbarContentBuilder
     var playerToolbar: some ToolbarContent {
+        if showsDismissButton {
+            ToolbarItem(placement: .topBarLeading) {
+                Button {
+                    dismissSheet()
+                } label: {
+                    Image(systemName: "chevron.down")
+                }
+                .accessibilityLabel(String(localized: "Article.Dismiss", table: "Articles"))
+            }
+        }
         if let activityLabel = toolbarActivityLabel {
             ToolbarItem(placement: .principal) {
                 ToolbarActivityIndicator(label: activityLabel)
