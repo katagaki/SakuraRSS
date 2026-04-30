@@ -66,6 +66,11 @@ struct YouTubePlayerWebView: UIViewRepresentable {
             injectionTime: .atDocumentEnd,
             forMainFrameOnly: true
         ))
+        controller.addUserScript(WKUserScript(
+            source: YouTubePlayerScripts.pipAdControls,
+            injectionTime: .atDocumentStart,
+            forMainFrameOnly: true
+        ))
         if !autoplay {
             controller.addUserScript(WKUserScript(
                 source: YouTubePlayerScripts.autoplayBlocker,
