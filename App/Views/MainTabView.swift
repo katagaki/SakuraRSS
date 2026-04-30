@@ -62,6 +62,14 @@ struct MainTabView: View {
 
     private var iPhoneTabView: some View {
         @Bindable var presenter = mediaPresenter
+        let podcastSheetPresented = Binding(
+            get: { presenter.podcastArticle != nil },
+            set: { if !$0 { presenter.podcastArticle = nil } }
+        )
+        let youTubeSheetPresented = Binding(
+            get: { presenter.youTubeArticle != nil },
+            set: { if !$0 { presenter.youTubeArticle = nil } }
+        )
         return tabView
             .miniPlayerAccessory(
                 audioPlayer: audioPlayer,
@@ -70,19 +78,23 @@ struct MainTabView: View {
                 presentedYouTubeArticle: $presenter.youTubeArticle,
                 transition: miniPlayerTransition
             )
-            .sheet(item: $presenter.podcastArticle) { article in
-                NavigationStack {
-                    PodcastEpisodeView(article: article)
-                        .environment(feedManager)
+            .sheet(isPresented: podcastSheetPresented) {
+                if let article = presenter.podcastArticle {
+                    NavigationStack {
+                        PodcastEpisodeView(article: article)
+                            .environment(feedManager)
+                    }
+                    .navigationTransition(.zoom(sourceID: "miniPlayer", in: miniPlayerTransition))
                 }
-                .navigationTransition(.zoom(sourceID: "miniPlayer", in: miniPlayerTransition))
             }
-            .sheet(item: $presenter.youTubeArticle) { article in
-                NavigationStack {
-                    YouTubePlayerView(article: article)
-                        .environment(feedManager)
+            .sheet(isPresented: youTubeSheetPresented) {
+                if let article = presenter.youTubeArticle {
+                    NavigationStack {
+                        YouTubePlayerView(article: article)
+                            .environment(feedManager)
+                    }
+                    .navigationTransition(.zoom(sourceID: "youTubeMiniPlayer", in: miniPlayerTransition))
                 }
-                .navigationTransition(.zoom(sourceID: "youTubeMiniPlayer", in: miniPlayerTransition))
             }
             .sheet(isPresented: $showingAddFeed) {
                 AddFeedView(initialURL: pendingFeedURL ?? "")
