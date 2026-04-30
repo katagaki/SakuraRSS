@@ -9,17 +9,17 @@ struct MiniPlayerAccessoryModifier: ViewModifier {
     var miniPlayerTransition: Namespace.ID
 
     func body(content: Content) -> some View {
-        if audioPlayer.currentArticleID != nil {
+        if audioPlayer.currentArticleID != nil, presentedPodcastArticle == nil {
             content
-                .tabViewBottomAccessory(isEnabled: presentedPodcastArticle == nil) {
+                .tabViewBottomAccessory {
                     MiniPlayerView { article in
                         presentedPodcastArticle = article
                     }
                     .matchedTransitionSource(id: "miniPlayer", in: miniPlayerTransition)
                 }
-        } else if youTubeSession.currentArticle != nil {
+        } else if youTubeSession.currentArticle != nil, presentedYouTubeArticle == nil {
             content
-                .tabViewBottomAccessory(isEnabled: presentedYouTubeArticle == nil) {
+                .tabViewBottomAccessory {
                     YouTubeMiniPlayerView { article in
                         presentedYouTubeArticle = article
                     }
