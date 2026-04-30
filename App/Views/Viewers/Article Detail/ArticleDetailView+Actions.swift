@@ -177,7 +177,7 @@ extension ArticleDetailView: ArticleActions {
         if article.isYouTubeURL {
             switch youTubeOpenMode {
             case .inAppPlayer:
-                showYouTubePlayer = true
+                MediaPresenter.shared.presentYouTube(article)
             case .youTubeApp:
                 YouTubeHelper.openInApp(url: article.url)
             case .browser:

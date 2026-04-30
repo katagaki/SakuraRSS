@@ -6,13 +6,12 @@ struct PhotosStyleView: View {
     @Environment(\.zoomNamespace) private var zoomNamespace
     let articles: [Article]
     var onLoadMore: (() -> Void)?
-    @State private var youTubeArticle: Article?
 
     var body: some View {
         ScrollView(.vertical) {
             LazyVStack(spacing: 0) {
                 ForEach(articles) { article in
-                    PhotosArticleCard(article: article, youTubeArticle: $youTubeArticle)
+                    PhotosArticleCard(article: article)
                         .zoomSource(id: article.id, namespace: zoomNamespace)
                         .markReadOnScroll(article: article)
                 }
@@ -24,9 +23,5 @@ struct PhotosStyleView: View {
             }
         }
         .trackScrollActivity()
-        .navigationDestination(item: $youTubeArticle) { article in
-            YouTubePlayerView(article: article)
-                .zoomTransition(sourceID: article.id, in: zoomNamespace)
-        }
     }
 }

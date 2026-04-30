@@ -5,7 +5,9 @@ import FoundationModels
 struct PodcastEpisodeView: View {
 
     @Environment(FeedManager.self) var feedManager
+    @Environment(\.dismiss) private var dismiss
     let article: Article
+    var showsDismissButton: Bool = false
     let audioPlayer = AudioPlayer.shared
 
     @State var favicon: UIImage?
@@ -92,7 +94,7 @@ struct PodcastEpisodeView: View {
                         }
                         .aspectRatio(contentMode: .fit)
                         .frame(maxWidth: 300, maxHeight: 300)
-                        .clipShape(RoundedRectangle(cornerRadius: 16))
+                        .clipShape(.rect(cornerRadius: 16))
                         .overlay(
                             RoundedRectangle(cornerRadius: 16)
                                 .stroke(.quaternary, lineWidth: 0.5)
@@ -104,7 +106,7 @@ struct PodcastEpisodeView: View {
                             .resizable()
                             .aspectRatio(contentMode: .fit)
                             .frame(maxWidth: 300, maxHeight: 300)
-                            .clipShape(RoundedRectangle(cornerRadius: 16))
+                            .clipShape(.rect(cornerRadius: 16))
                             .overlay(
                                 RoundedRectangle(cornerRadius: 16)
                                     .stroke(.quaternary, lineWidth: 0.5)
@@ -143,10 +145,9 @@ struct PodcastEpisodeView: View {
                             }
                         }
                     }
-                    .padding(.horizontal)
 
                     if isThisEpisode {
-                        VStack(spacing: 12) {
+                        VStack(spacing: 16) {
                             SeekBarView(
                                 currentTime: Binding(
                                     get: { audioPlayer.currentTime },
@@ -156,35 +157,14 @@ struct PodcastEpisodeView: View {
                                 onSeek: { audioPlayer.seek(to: $0) }
                             )
 
-                            HStack {
-                                transcriptToggle
-                                    .frame(maxWidth: .infinity, alignment: .leading)
-
-                                HStack(spacing: 40) {
-                                    Button { audioPlayer.skipBackward() } label: {
-                                        Image(systemName: "gobackward.15")
-                                            .font(.title2)
-                                    }
-
-                                    Button { audioPlayer.togglePlayPause() } label: {
-                                        Image(systemName: audioPlayer.isPlaying
-                                              ? "pause.circle.fill"
-                                              : "play.circle.fill")
-                                            .font(.system(size: 72))
-                                    }
-
-                                    Button { audioPlayer.skipForward() } label: {
-                                        Image(systemName: "goforward.30")
-                                            .font(.title2)
-                                    }
-                                }
-
-                                playbackSpeedMenu
-                                    .frame(maxWidth: .infinity, alignment: .trailing)
-                            }
-                            .foregroundStyle(.primary)
+                            PodcastPlayerControls(
+                                audioPlayer: audioPlayer,
+                                hasTranscript: transcript != nil,
+                                showingTranscript: $showingTranscript,
+                                playbackSpeed: $playbackSpeed,
+                                playbackSpeedPresets: playbackSpeedPresets
+                            )
                         }
-                        .padding(.horizontal)
                     } else {
                         HStack(spacing: 12) {
                             Button {
@@ -250,9 +230,8 @@ struct PodcastEpisodeView: View {
                     .animation(.smooth.speed(2.0), value: showingTranslation)
                     .animation(.smooth.speed(2.0), value: showingTranscript)
                     .animation(.smooth.speed(2.0), value: translatedText)
-                    .padding(.horizontal)
                 }
-                .padding(.vertical)
+                .padding()
             }
             .onScrollPhaseChange { _, newPhase in
                 if showingTranscript, isTranscriptAutoScrolling,
@@ -268,6 +247,16 @@ struct PodcastEpisodeView: View {
         .sakuraBackground()
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
+            if showsDismissButton {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button {
+                        dismiss()
+                    } label: {
+                        Image(systemName: "chevron.down")
+                    }
+                    .accessibilityLabel(String(localized: "Article.Dismiss", table: "Articles"))
+                }
+            }
             if let activityLabel = toolbarActivityLabel {
                 ToolbarItem(placement: .principal) {
                     ToolbarActivityIndicator(label: activityLabel)

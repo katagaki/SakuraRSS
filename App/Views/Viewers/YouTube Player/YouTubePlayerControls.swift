@@ -18,16 +18,18 @@ struct YouTubePlayerControls: View {
                 onTogglePiP()
             } label: {
                 Image(systemName: "pip.enter")
-                    .font(.title2)
+                    .font(.system(size: 22))
             }
             .disabled(isAd)
             .opacity(isAd ? 0.5 : 1.0)
+
+            Spacer(minLength: 0)
 
             Button {
                 onRewind()
             } label: {
                 Image(systemName: "gobackward.10")
-                    .font(.title2)
+                    .font(.system(size: 22))
             }
             .disabled(isAd)
             .opacity(isAd ? 0.5 : 1.0)
@@ -36,7 +38,7 @@ struct YouTubePlayerControls: View {
                 onTogglePlayPause()
             } label: {
                 Image(systemName: isPlaying ? "pause.circle.fill" : "play.circle.fill")
-                    .font(.system(size: 56))
+                    .font(.system(size: 62))
             }
 
             Button {
@@ -49,17 +51,19 @@ struct YouTubePlayerControls: View {
                 Image(systemName: isAd
                     ? "forward.end.fill"
                     : "goforward.10")
-                    .font(.title2)
+                    .font(.system(size: 22))
                     .contentTransition(.symbolEffect(.replace))
             }
             .disabled(isAd && !isAdSkippable)
             .opacity((isAd && !isAdSkippable) ? 0.5 : 1.0)
 
+            Spacer(minLength: 0)
+
             Button {
                 onEnterFullscreen()
             } label: {
                 Image(systemName: "arrow.up.left.and.arrow.down.right")
-                    .font(.title2)
+                    .font(.system(size: 22))
             }
             .disabled(isAd)
             .opacity(isAd ? 0.5 : 1.0)
