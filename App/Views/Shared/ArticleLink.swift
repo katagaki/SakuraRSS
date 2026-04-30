@@ -7,13 +7,13 @@ struct ArticleLink<Label: View>: View {
     @Environment(\.openURL) var openURL
     @Environment(\.iPadArticleSelection) private var iPadArticleSelection
     let article: Article
-    var onShowYouTubePlayer: ((Article) -> Void)?
     var onNavigate: ((Article) -> Void)?
     @ViewBuilder let label: () -> Label
 
     @AppStorage("YouTube.OpenMode") private var youTubeOpenMode: YouTubeOpenMode = .inAppPlayer
     @State private var showSafari = false
     @State private var showSafariReader = false
+    private let mediaPresenter = MediaPresenter.shared
 
     private var feedOpenMode: FeedOpenMode {
         guard let feed = feedManager.feed(forArticle: article),
@@ -46,10 +46,13 @@ struct ArticleLink<Label: View>: View {
             if article.isPodcastEpisode {
                 if usesIPadDetailColumn {
                     Button { selectForIPadDetail() } label: { label() }
-                } else if let onNavigate {
-                    Button { onNavigate(article) } label: { label() }
                 } else {
-                    NavigationLink(value: article) { label() }
+                    Button {
+                        feedManager.markRead(article)
+                        mediaPresenter.presentPodcast(article)
+                    } label: {
+                        label()
+                    }
                 }
             } else if isXFeedArticle || isInstagramFeedArticle {
                 Button {
@@ -66,7 +69,7 @@ struct ArticleLink<Label: View>: View {
                 } else {
                     Button {
                         feedManager.markRead(article)
-                        onShowYouTubePlayer?(article)
+                        mediaPresenter.presentYouTube(article)
                     } label: {
                         label()
                     }

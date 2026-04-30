@@ -13,9 +13,9 @@ struct MainTabView: View {
     @Binding var pendingOpenRequest: OpenArticleRequest?
     @State private var showingAddFeed = false
     @State private var showingOnboarding = false
-    @State private var miniPlayerPresentedArticle: Article?
-    @Namespace private var miniPlayerTransition
     private let audioPlayer = AudioPlayer.shared
+    private let youTubeSession = YouTubePlayerSession.shared
+    private let mediaPresenter = MediaPresenter.shared
 
     var body: some View {
         if UIDevice.current.userInterfaceIdiom == .pad {
@@ -63,16 +63,9 @@ struct MainTabView: View {
         tabView
             .miniPlayerAccessory(
                 audioPlayer: audioPlayer,
-                presentedArticle: $miniPlayerPresentedArticle,
-                transition: miniPlayerTransition
+                youTubeSession: youTubeSession,
+                mediaPresenter: mediaPresenter
             )
-            .sheet(item: $miniPlayerPresentedArticle) { article in
-                NavigationStack {
-                    PodcastEpisodeView(article: article)
-                        .environment(feedManager)
-                }
-                .navigationTransition(.zoom(sourceID: "miniPlayer", in: miniPlayerTransition))
-            }
             .sheet(isPresented: $showingAddFeed) {
                 AddFeedView(initialURL: pendingFeedURL ?? "")
                     .environment(feedManager)

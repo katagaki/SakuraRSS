@@ -6,7 +6,6 @@ struct GridStyleView: View {
     @Environment(\.zoomNamespace) private var zoomNamespace
     let articles: [Article]
     var onLoadMore: (() -> Void)?
-    @State private var youTubeArticle: Article?
 
     private var articlesWithImages: [Article] {
         articles.filter { $0.imageURL != nil }
@@ -22,9 +21,7 @@ struct GridStyleView: View {
         ScrollView(.vertical) {
             LazyVGrid(columns: columns, spacing: 2) {
                 ForEach(articlesWithImages) { article in
-                    ArticleLink(article: article, onShowYouTubePlayer: {
-                        youTubeArticle = $0
-                    }, label: {
+                    ArticleLink(article: article, label: {
                         GridArticleCell(article: article)
                             .zoomSource(id: article.id, namespace: zoomNamespace)
                             .markReadOnScroll(article: article)
@@ -59,9 +56,5 @@ struct GridStyleView: View {
             }
         }
         .trackScrollActivity()
-        .navigationDestination(item: $youTubeArticle) { article in
-            YouTubePlayerView(article: article)
-                .zoomTransition(sourceID: article.id, in: zoomNamespace)
-        }
     }
 }

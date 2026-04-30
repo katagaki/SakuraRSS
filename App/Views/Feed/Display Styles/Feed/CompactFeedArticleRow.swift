@@ -5,7 +5,6 @@ struct CompactFeedArticleRow: View {
     @Environment(FeedManager.self) var feedManager
     @Environment(\.navigateToFeed) var navigateToFeed
     let article: Article
-    var onShowYouTubePlayer: (() -> Void)?
     @State private var favicon: UIImage?
     @State private var feedName: String?
     @State private var acronymIcon: UIImage?
@@ -126,7 +125,6 @@ struct CompactFeedArticleRow: View {
                     CompactFeedArticleRowActions(
                         article: article,
                         opensInExternalApp: opensInExternalApp,
-                        onShowYouTubePlayer: onShowYouTubePlayer,
                         onShowSafari: { showSafari = true }
                     )
                 }

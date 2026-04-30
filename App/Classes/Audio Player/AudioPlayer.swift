@@ -58,6 +58,9 @@ final class AudioPlayer {
         episodeDuration: Int?
     ) {
         stop()
+        Task { @MainActor in
+            YouTubePlayerSession.shared.clear()
+        }
 
         activateAudioSession()
         isLoading = true

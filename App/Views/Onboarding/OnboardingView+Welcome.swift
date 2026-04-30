@@ -48,9 +48,13 @@ extension OnboardingView {
             .padding(.bottom, 100)
         }
         .safeAreaInset(edge: .bottom) {
-            restoreButton()
-            continueButton { advanceStep() }
-                .padding(.bottom, isIPad ? 20 : 0)
+            VStack {
+                if backupMetadata != nil {
+                    restoreButton()
+                }
+                continueButton { advanceStep() }
+            }
+            .padding(.bottom, isIPad ? 20 : 0)
         }
         .task {
             backupMetadata = await iCloudBackupManager.shared.backupMetadata()

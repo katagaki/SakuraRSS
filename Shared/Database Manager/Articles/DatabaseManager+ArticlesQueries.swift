@@ -60,6 +60,13 @@ nonisolated extension DatabaseManager {
         return try database.prepare(query).map(rowToArticle)
     }
 
+    func unreadArticles(forFeedID fid: Int64) throws -> [Article] {
+        let query = articles
+            .filter(articleFeedID == fid && articleIsRead == false)
+            .order(articlePublishedDate.desc)
+        return try database.prepare(query).map(rowToArticle)
+    }
+
     func articleCount(forFeedID fid: Int64) throws -> Int {
         try database.scalar(articles.filter(articleFeedID == fid).count)
     }

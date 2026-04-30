@@ -73,6 +73,9 @@ struct FeedArticlesView: View {
             for: feed,
             requireUnread: hideViewedContent
         )
+        if hideViewedContent, visibility.visibleIDs == nil, !preloadedEntries.isEmpty {
+            visibility.capture(from: rawArticles, isEnabled: hideViewedContent)
+        }
     }
 
     private func performRefresh() async {

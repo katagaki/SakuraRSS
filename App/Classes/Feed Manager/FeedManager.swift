@@ -49,7 +49,8 @@ final class FeedManager {
             feeds = try database.allFeeds()
             feedsByID = Dictionary(uniqueKeysWithValues: feeds.map { ($0.id, $0) })
             articles = try database.allArticles(limit: 200)
-            unreadCounts = (try? database.allUnreadCounts()) ?? [:]
+            let rawUnreadCounts = (try? database.allUnreadCounts()) ?? [:]
+            unreadCounts = FeedManager.applyRulesToUnreadCounts(rawUnreadCounts, database: database)
             lists = (try? database.allLists()) ?? []
             pendingReadIDs.removeAll()
             pendingReadDecrements.removeAll()
@@ -66,7 +67,8 @@ final class FeedManager {
             let (loadedFeeds, loadedArticles, loadedUnreadCounts, loadedLists) = try await Task.detached {
                 let feeds = try dbm.allFeeds()
                 let articles = try dbm.allArticles(limit: 200)
-                let unreadCounts = (try? dbm.allUnreadCounts()) ?? [:]
+                let rawUnreadCounts = (try? dbm.allUnreadCounts()) ?? [:]
+                let unreadCounts = FeedManager.applyRulesToUnreadCounts(rawUnreadCounts, database: dbm)
                 let lists = (try? dbm.allLists()) ?? []
                 return (feeds, articles, unreadCounts, lists)
             }.value

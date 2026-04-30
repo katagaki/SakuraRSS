@@ -8,7 +8,10 @@ struct YouTubePlayerView: View {
     @Environment(FeedManager.self) var feedManager
     @Environment(\.openURL) var openURL
     @Environment(\.scenePhase) private var scenePhase
+    @Environment(\.dismiss) var dismissSheet
     let article: Article
+    let showsDismissButton: Bool
+    let session = YouTubePlayerSession.shared
 
     @State var isBookmarked = false
     @State var isPlaying = false
@@ -21,7 +24,7 @@ struct YouTubePlayerView: View {
     @State private var advertiserURL: URL?
     @State private var hasStartedPlaying = false
     @State private var isPiP = false
-    @State private var videoAspectRatio: CGFloat = 16 / 9
+    @State private var videoAspectRatio: CGFloat
     @State var feed: Feed?
     @State var favicon: UIImage?
     @State var acronymIcon: UIImage?
@@ -50,6 +53,12 @@ struct YouTubePlayerView: View {
     @State var summarizationError: String?
     @State private var imageViewerURL: URL?
     @Namespace private var imageViewerNamespace
+
+    init(article: Article, showsDismissButton: Bool = false) {
+        self.article = article
+        self.showsDismissButton = showsDismissButton
+        _videoAspectRatio = State(initialValue: YouTubePlayerSession.shared.videoAspectRatio)
+    }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -217,6 +226,7 @@ struct YouTubePlayerView: View {
             }
         }
         .onChange(of: isPlaying) { _, newValue in
+            session.isPlaying = newValue
             if newValue && !hasStartedPlaying {
                 withAnimation(.smooth.speed(2.0)) {
                     hasStartedPlaying = true
@@ -231,7 +241,14 @@ struct YouTubePlayerView: View {
             webView?.isUserInteractionEnabled = newValue
         }
         .onChange(of: currentTime) { _, newTime in
+            session.currentTime = newTime
             checkSponsorSegments(at: newTime)
+        }
+        .onChange(of: duration) { _, newDuration in
+            session.duration = newDuration
+        }
+        .onChange(of: videoAspectRatio) { _, newRatio in
+            session.videoAspectRatio = newRatio
         }
         .onChange(of: scenePhase) { _, newPhase in
             handleScenePhaseChange(newPhase)
@@ -242,24 +259,41 @@ struct YouTubePlayerView: View {
             wantsPlaybackInBackground = false
         }
         .onDisappear {
-            if !isPiP {
+            // On iPhone, keep the session alive so audio continues in the
+            // background and the tab bar bottom accessory acts as a stand-in.
+            // On iPad there's no accessory, so tear the session down (unless
+            // the player is in PiP).
+            if UIDevice.current.userInterfaceIdiom == .pad, !isPiP {
                 pauseForOtherPlayer()
                 YouTubeAudioSession.deactivate()
+                session.clear()
             }
         }
         .task {
             activateBackgroundAudioSession()
             isBookmarked = article.isBookmarked
+            session.adopt(article: article)
+            isPlaying = session.isPlaying
+            currentTime = session.currentTime
+            duration = session.duration
+            if session.isPlaying || session.duration > 0 {
+                hasStartedPlaying = true
+            }
             let signedIn = await YouTubePlayerView.hasYouTubeSession()
             let premium = signedIn ? await YouTubePlayerView.hasYouTubePremium() : false
             isPiPEligible = signedIn && premium
 
             if let loadedFeed = feedManager.feed(forArticle: article) {
                 feed = loadedFeed
+                session.channelTitle = loadedFeed.title
                 if let data = loadedFeed.acronymIcon {
                     acronymIcon = UIImage(data: data)
                 }
                 favicon = await FaviconCache.shared.favicon(for: loadedFeed)
+            }
+            session.videoTitle = article.title
+            if let imageURL = article.imageURL.flatMap(URL.init(string:)) {
+                session.artworkURL = imageURL
             }
 
             if article.isEphemeral {
