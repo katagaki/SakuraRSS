@@ -120,20 +120,50 @@ struct IPadSidebarList: View {
 
     @ViewBuilder
     private var followingSection: some View {
-        Section(String(localized: "Sidebar.Following", table: "Feeds")) {
-            ForEach(feedManager.feeds) { feed in
-                NavigationLink(value: SidebarDestination.feed(feed)) {
-                    FeedRowView(feed: feed)
+        ForEach(FeedSection.allCases, id: \.self) { section in
+            let feeds = feedsForSection(section)
+            if !feeds.isEmpty {
+                Section {
+                    ForEach(feeds) { feed in
+                        NavigationLink(value: SidebarDestination.feed(feed)) {
+                            FeedRowView(feed: feed)
+                        }
+                        .contextMenu {
+                            FeedRowContextMenu(
+                                feed: feed,
+                                feedForEditSheet: $feedForEditSheet,
+                                feedToDelete: $feedToDelete
+                            )
+                        }
+                        .id(feed.id)
+                    }
+                } header: {
+                    HStack {
+                        Text(section.localizedTitle)
+                        Spacer()
+                        Button {
+                            selectedDestination = .section(section)
+                        } label: {
+                            Text(String(localized: "Sidebar.SeeAll", table: "Feeds"))
+                                .textCase(nil)
+                        }
+                        .buttonStyle(.plain)
+                        .foregroundStyle(.tint)
+                    }
                 }
-                .contextMenu {
-                    FeedRowContextMenu(
-                        feed: feed,
-                        feedForEditSheet: $feedForEditSheet,
-                        feedToDelete: $feedToDelete
-                    )
-                }
-                .id(feed.id)
             }
+        }
+    }
+
+    private func feedsForSection(_ section: FeedSection) -> [Feed] {
+        let feeds = feedManager.feeds.filter { $0.feedSection == section }
+        if section == .feeds {
+            return feeds
+        }
+        return feeds.sorted {
+            let domainCompare = $0.domain.localizedStandardCompare($1.domain)
+            if domainCompare != .orderedSame { return domainCompare == .orderedAscending }
+            return $0.title.localizedStandardCompare($1.title) == .orderedAscending
         }
     }
 

@@ -3,7 +3,8 @@ import SwiftUI
 extension IPadSidebarView {
 
     var availableSections: [FeedSection] {
-        FeedSection.allCases.filter { $0 != .feeds && feedManager.hasFeeds(for: $0) }
+        let excluded: Set<FeedSection> = [.feeds, .podcasts, .youtube]
+        return FeedSection.allCases.filter { !excluded.contains($0) && feedManager.hasFeeds(for: $0) }
     }
 
     var searchResults: [Article] {
