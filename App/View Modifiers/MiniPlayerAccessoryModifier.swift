@@ -12,18 +12,22 @@ struct MiniPlayerAccessoryModifier: ViewModifier {
         if audioPlayer.currentArticleID != nil {
             content
                 .tabViewBottomAccessory {
-                    MiniPlayerView { article in
+                    MiniPlayerView(
+                        transitionID: "miniPlayer",
+                        transitionNamespace: miniPlayerTransition
+                    ) { article in
                         presentedPodcastArticle = article
                     }
-                    .matchedTransitionSource(id: "miniPlayer", in: miniPlayerTransition)
                 }
         } else if youTubeSession.currentArticle != nil {
             content
                 .tabViewBottomAccessory {
-                    YouTubeMiniPlayerView { article in
+                    YouTubeMiniPlayerView(
+                        transitionID: "youTubeMiniPlayer",
+                        transitionNamespace: miniPlayerTransition
+                    ) { article in
                         presentedYouTubeArticle = article
                     }
-                    .matchedTransitionSource(id: "youTubeMiniPlayer", in: miniPlayerTransition)
                 }
         } else {
             content

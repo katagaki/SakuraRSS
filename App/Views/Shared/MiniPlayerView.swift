@@ -4,6 +4,8 @@ struct MiniPlayerView: View {
 
     @Environment(FeedManager.self) var feedManager
     private let audioPlayer = AudioPlayer.shared
+    let transitionID: String
+    let transitionNamespace: Namespace.ID
     let onTap: (Article) -> Void
 
     var body: some View {
@@ -58,6 +60,7 @@ struct MiniPlayerView: View {
                 }
                 .padding(.horizontal, 12)
                 .contentShape(Rectangle())
+                .matchedTransitionSource(id: transitionID, in: transitionNamespace)
             }
             .buttonStyle(.plain)
         }

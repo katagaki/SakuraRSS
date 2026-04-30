@@ -3,6 +3,8 @@ import SwiftUI
 struct YouTubeMiniPlayerView: View {
 
     let session = YouTubePlayerSession.shared
+    let transitionID: String
+    let transitionNamespace: Namespace.ID
     let onTap: (Article) -> Void
 
     var body: some View {
@@ -56,6 +58,7 @@ struct YouTubeMiniPlayerView: View {
                 }
                 .padding(.horizontal, 12)
                 .contentShape(Rectangle())
+                .matchedTransitionSource(id: transitionID, in: transitionNamespace)
             }
             .buttonStyle(.plain)
         }
