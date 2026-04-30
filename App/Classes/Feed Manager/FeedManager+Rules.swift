@@ -52,7 +52,7 @@ extension FeedManager {
         Self.applyRules(articles, feedID: feedID, database: database)
     }
 
-    static func applyRules(_ articles: [Article], feedID: Int64, database: DatabaseManager) -> [Article] {
+    nonisolated static func applyRules(_ articles: [Article], feedID: Int64, database: DatabaseManager) -> [Article] {
         let allowedKeywords = (try? database.rules(forFeedID: feedID, type: "allowed_keyword")) ?? []
         let keywords = (try? database.rules(forFeedID: feedID, type: "muted_keyword")) ?? []
         let authors = Set((try? database.rules(forFeedID: feedID, type: "muted_author")) ?? [])
@@ -79,7 +79,7 @@ extension FeedManager {
 
     /// Adjusts raw per-feed unread counts so muted articles (by keyword or
     /// author rules) are excluded. Only feeds with rules are recomputed.
-    static func applyRulesToUnreadCounts(_ rawCounts: [Int64: Int], database: DatabaseManager) -> [Int64: Int] {
+    nonisolated static func applyRulesToUnreadCounts(_ rawCounts: [Int64: Int], database: DatabaseManager) -> [Int64: Int] {
         let feedsWithRules = (try? database.feedIDsWithRules()) ?? []
         guard !feedsWithRules.isEmpty else { return rawCounts }
         var result = rawCounts
@@ -138,7 +138,7 @@ extension FeedManager {
         Self.articleMatchesKeywords(article, keywords: keywords)
     }
 
-    fileprivate static func articleMatchesKeywords(_ article: Article, keywords: [String]) -> Bool {
+    nonisolated fileprivate static func articleMatchesKeywords(_ article: Article, keywords: [String]) -> Bool {
         for keyword in keywords {
             if article.title.localizedCaseInsensitiveContains(keyword) {
                 return true
