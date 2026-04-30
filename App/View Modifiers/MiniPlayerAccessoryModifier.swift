@@ -11,7 +11,7 @@ struct MiniPlayerAccessoryModifier: ViewModifier {
     func body(content: Content) -> some View {
         if audioPlayer.currentArticleID != nil {
             content
-                .tabViewBottomAccessory {
+                .tabViewBottomAccessory(isEnabled: presentedPodcastArticle == nil) {
                     MiniPlayerView { article in
                         presentedPodcastArticle = article
                     }
@@ -19,7 +19,7 @@ struct MiniPlayerAccessoryModifier: ViewModifier {
                 }
         } else if youTubeSession.currentArticle != nil {
             content
-                .tabViewBottomAccessory {
+                .tabViewBottomAccessory(isEnabled: presentedYouTubeArticle == nil) {
                     YouTubeMiniPlayerView { article in
                         presentedYouTubeArticle = article
                     }
