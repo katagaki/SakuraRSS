@@ -52,9 +52,6 @@ struct HomeSectionView: View {
             for: section,
             requireUnread: hideViewedContent
         )
-        // Capture visibility once data is actually available, so the
-        // freeze-on-read behavior kicks in even when the initial preload
-        // loses the race against the view's `.task` capture.
         if hideViewedContent, visibility.visibleIDs == nil, !preloadedEntries.isEmpty {
             visibility.capture(from: rawArticles, isEnabled: hideViewedContent)
         }
@@ -205,9 +202,7 @@ struct HomeSectionView: View {
         }
     }
 
-    /// Latest published date among the preloaded (already feed-id and
-    /// unread-filtered) entries, so the initial date-based batch is anchored
-    /// on content that will actually appear after filtering.
+    /// Latest preloaded entry date, so the initial batch anchors on visible content.
     private func latestArticleDateForSection() -> Date? {
         preloadedEntries.compactMap(\.publishedDate).max()
     }

@@ -54,9 +54,7 @@ struct ArticleVisibilityTracker {
             visibleIDs = nil
             return
         }
-        // Skip when the input is empty so a capture that races with the
-        // initial preload doesn't freeze visibleIDs at an empty set and
-        // hide every article that arrives later.
+        // Don't freeze visibleIDs at an empty set when data isn't loaded yet.
         guard !articles.isEmpty else { return }
         visibleIDs = Set(articles.filter { !$0.isRead }.map(\.id))
     }
@@ -96,9 +94,7 @@ struct ArticleVisibilityTracker {
             preRefreshIDs = Set(articles.map(\.id)).union(visibleIDs ?? []).union(pendingIDs)
             preRefreshMaxID = preRefreshIDs.max() ?? .max
             if isEnabled {
-                // Skip the capture when the input is empty so a refresh
-                // that races with the initial preload doesn't strand
-                // visibleIDs at an empty set.
+                // Don't strand visibleIDs at an empty set when data isn't loaded yet.
                 if (recaptureVisible || visibleIDs == nil), !articles.isEmpty {
                     visibleIDs = Set(articles.filter { !$0.isRead }.map(\.id))
                 }

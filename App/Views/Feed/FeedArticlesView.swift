@@ -73,9 +73,6 @@ struct FeedArticlesView: View {
             for: feed,
             requireUnread: hideViewedContent
         )
-        // Capture visibility once data is actually available, so the
-        // freeze-on-read behavior kicks in even when the initial preload
-        // loses the race against the view's `.task` capture.
         if hideViewedContent, visibility.visibleIDs == nil, !preloadedEntries.isEmpty {
             visibility.capture(from: rawArticles, isEnabled: hideViewedContent)
         }
