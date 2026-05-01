@@ -98,4 +98,10 @@ extension FeedManager {
         notifyFaviconChange()
     }
 
+    func updateFeedDescription(_ feed: Feed, description: String) {
+        guard description != feed.feedDescription else { return }
+        try? database.updateFeedDescription(id: feed.id, description: description)
+        Task { await loadFromDatabaseInBackground() }
+    }
+
 }

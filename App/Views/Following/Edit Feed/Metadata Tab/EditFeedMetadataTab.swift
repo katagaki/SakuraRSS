@@ -8,6 +8,7 @@ struct EditFeedMetadataTab: View {
 
     @State var name: String = ""
     @State var url: String = ""
+    @State var feedDescription: String = ""
     @State var iconURLInput: String = ""
     @State var useDefaultIcon: Bool = false
     @State var selectedPhoto: PhotosPickerItem?
@@ -62,6 +63,7 @@ struct EditFeedMetadataTab: View {
     private func metadataList(for feed: Feed) -> some View {
         Form {
             nameSection(for: feed)
+            descriptionSection(for: feed)
             petalSection(for: feed)
             iconSection(for: feed)
         }
@@ -73,10 +75,16 @@ struct EditFeedMetadataTab: View {
         name = feed.title
         url = (feed.isXFeed || feed.isInstagramFeed || feed.isYouTubePlaylistFeed)
             ? feed.siteURL : feed.fetchURL
+        feedDescription = feed.feedDescription
         let existingIconURL = feed.customIconURL
         iconURLInput = (existingIconURL == "photo" || existingIconURL == "none")
             ? "" : (existingIconURL ?? "")
         useDefaultIcon = existingIconURL == "none"
+    }
+
+    func commitDescription() {
+        guard hasInitialized, let feed else { return }
+        feedManager.updateFeedDescription(feed, description: feedDescription)
     }
 
     func commitNameAndIcon() {
