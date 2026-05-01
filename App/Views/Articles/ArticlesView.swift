@@ -175,7 +175,6 @@ struct ArticlesView: View {
                 ToolbarItemGroup(placement: .topBarLeading) {
                     additionalLeadingToolbar
                 }
-                .sharedBackgroundVisibility(.hidden)
             }
             if anySummaryHidden {
                 ToolbarItemGroup(placement: .topBarTrailing) {

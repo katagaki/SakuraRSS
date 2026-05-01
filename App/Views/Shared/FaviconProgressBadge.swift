@@ -16,9 +16,9 @@ struct FaviconProgressBadge: View {
             if let progress = cooldownProgress(now: context.date) {
                 ZStack {
                     shape
-                        .fill(Color.black.opacity(0.55))
+                        .fill(Color.clear)
                     PieSliceShape(progress: 1 - progress)
-                        .fill(Color.white.opacity(0.85))
+                        .fill(Color.black.opacity(0.4))
                         .clipShape(shape)
                 }
                 .frame(width: size, height: size)
