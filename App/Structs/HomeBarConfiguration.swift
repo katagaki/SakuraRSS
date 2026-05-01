@@ -29,7 +29,7 @@ struct HomeBarConfiguration: Codable, Equatable, Hashable, Sendable {
 
     func save() {
         guard let data = try? JSONEncoder().encode(self) else { return }
-        UserDefaults.standard.set(data, forKey: storageKey)
+        UserDefaults.standard.set(data, forKey: Self.storageKey)
     }
 
     /// Ensures every kind appears exactly once in the ordered list, appending
