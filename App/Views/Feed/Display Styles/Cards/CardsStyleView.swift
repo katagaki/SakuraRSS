@@ -90,7 +90,8 @@ struct CardsStyleView: View {
         .padding()
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .navigationDestination(item: $selectedArticle) { article in
-            ArticleDetailView(article: article)
+            let raw = feedManager.article(byID: article.id) ?? article
+            ArticleDetailView(article: raw)
                 .zoomTransition(sourceID: article.id, in: zoomNamespace)
         }
         .onAppear {

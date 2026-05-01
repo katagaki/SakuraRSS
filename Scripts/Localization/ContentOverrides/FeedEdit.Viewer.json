@@ -1,0 +1,14 @@
+{
+  "key": "FeedEdit.Viewer",
+  "localizations": {
+    "de": "Viewer",
+    "en": "Viewer",
+    "fr": "Visionneuse",
+    "it": "Visualizzatore",
+    "ja": "ビューワー",
+    "ko": "뷰어",
+    "vi": "Trình xem",
+    "zh-Hans": "阅读器",
+    "zh-Hant": "閱讀器"
+  }
+}

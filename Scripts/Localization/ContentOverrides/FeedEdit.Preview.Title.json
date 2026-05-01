@@ -1,0 +1,14 @@
+{
+  "key": "FeedEdit.Preview.Title",
+  "localizations": {
+    "de": "Vorschau",
+    "en": "Preview",
+    "fr": "Aperçu",
+    "it": "Anteprima",
+    "ja": "プレビュー",
+    "ko": "미리보기",
+    "vi": "Xem trước",
+    "zh-Hans": "预览",
+    "zh-Hant": "預覽"
+  }
+}

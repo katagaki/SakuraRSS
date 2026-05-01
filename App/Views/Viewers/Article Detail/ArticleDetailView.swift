@@ -10,6 +10,9 @@ struct ArticleDetailView: View {
     /// When non-nil, forces a specific text-extraction mode for ephemeral
     /// articles (those opened via `sakura://open`).
     let ephemeralTextMode: OpenArticleRequest.TextMode?
+    /// When true, suppresses the standard toolbar and skips mark-as-read so the host
+    /// (e.g. the feed-edit viewer preview) can supply its own toolbar.
+    let previewMode: Bool
     @State var favicon: UIImage?
     @State var feedName: String?
     @State var acronymIcon: UIImage?
@@ -49,10 +52,12 @@ struct ArticleDetailView: View {
 
     init(
         article: Article,
-        ephemeralTextMode: OpenArticleRequest.TextMode? = nil
+        ephemeralTextMode: OpenArticleRequest.TextMode? = nil,
+        previewMode: Bool = false
     ) {
         self.article = article
         self.ephemeralTextMode = ephemeralTextMode
+        self.previewMode = previewMode
     }
 
     var isAppleIntelligenceAvailable: Bool {

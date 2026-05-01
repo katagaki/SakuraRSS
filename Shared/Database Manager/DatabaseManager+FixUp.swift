@@ -104,5 +104,18 @@ nonisolated extension DatabaseManager {
             table.primaryKey(similarSourceID, similarTargetID)
         })
         _ = try? database.run(similarArticles.createIndex(similarSourceID, ifNotExists: true))
+
+        // content_overrides table
+        _ = try? database.run(contentOverrides.create(ifNotExists: true) { table in
+            table.column(coFeedID, primaryKey: true, references: feeds, feedID)
+            table.column(coEnabled, defaultValue: false)
+            table.column(coTitleField, defaultValue: "default")
+            table.column(coBodyField, defaultValue: "default")
+            table.column(coAuthorField, defaultValue: "default")
+        })
+        _ = try? database.run(contentOverrides.addColumn(coEnabled, defaultValue: false))
+        _ = try? database.run(contentOverrides.addColumn(coTitleField, defaultValue: "default"))
+        _ = try? database.run(contentOverrides.addColumn(coBodyField, defaultValue: "default"))
+        _ = try? database.run(contentOverrides.addColumn(coAuthorField, defaultValue: "default"))
     }
 }

@@ -1,0 +1,14 @@
+{
+  "key": "FeedEdit.ContentOverrides.Author",
+  "localizations": {
+    "de": "Autor",
+    "en": "Author",
+    "fr": "Auteur",
+    "it": "Autore",
+    "ja": "著者",
+    "ko": "작성자",
+    "vi": "Tác giả",
+    "zh-Hans": "作者",
+    "zh-Hant": "作者"
+  }
+}

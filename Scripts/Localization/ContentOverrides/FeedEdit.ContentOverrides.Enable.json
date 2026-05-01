@@ -1,0 +1,14 @@
+{
+  "key": "FeedEdit.ContentOverrides.Enable",
+  "localizations": {
+    "de": "Aktivieren",
+    "en": "Enable Content Overrides",
+    "fr": "Activer les substitutions",
+    "it": "Abilita sostituzioni",
+    "ja": "上書きを有効にする",
+    "ko": "재정의 활성화",
+    "vi": "Bật ghi đè",
+    "zh-Hans": "启用内容覆盖",
+    "zh-Hant": "啟用內容覆寫"
+  }
+}

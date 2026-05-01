@@ -1,0 +1,14 @@
+{
+  "key": "FeedEdit.ContentOverrides.Body",
+  "localizations": {
+    "de": "Text",
+    "en": "Body",
+    "fr": "Corps",
+    "it": "Corpo",
+    "ja": "本文",
+    "ko": "본문",
+    "vi": "Nội dung",
+    "zh-Hans": "正文",
+    "zh-Hant": "內文"
+  }
+}

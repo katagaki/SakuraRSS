@@ -105,6 +105,13 @@ nonisolated final class DatabaseManager: @unchecked Sendable {
     let listRuleType = SQLite.Expression<String>("type")
     let listRuleValue = SQLite.Expression<String>("value")
 
+    let contentOverrides = Table("content_overrides")
+    let coFeedID = SQLite.Expression<Int64>("feed_id")
+    let coEnabled = SQLite.Expression<Bool>("enabled")
+    let coTitleField = SQLite.Expression<String>("title_field")
+    let coBodyField = SQLite.Expression<String>("body_field")
+    let coAuthorField = SQLite.Expression<String>("author_field")
+
     // MARK: - Init
 
     private init() {
@@ -281,6 +288,14 @@ nonisolated final class DatabaseManager: @unchecked Sendable {
             table.column(listRuleListID)
             table.column(listRuleType)
             table.column(listRuleValue)
+        })
+
+        try database.run(contentOverrides.create(ifNotExists: true) { table in
+            table.column(coFeedID, primaryKey: true, references: feeds, feedID)
+            table.column(coEnabled, defaultValue: false)
+            table.column(coTitleField, defaultValue: "default")
+            table.column(coBodyField, defaultValue: "default")
+            table.column(coAuthorField, defaultValue: "default")
         })
     }
 

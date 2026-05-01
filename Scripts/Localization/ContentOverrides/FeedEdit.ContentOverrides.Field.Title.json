@@ -1,0 +1,14 @@
+{
+  "key": "FeedEdit.ContentOverrides.Field.Title",
+  "localizations": {
+    "de": "Titel",
+    "en": "Title",
+    "fr": "Titre",
+    "it": "Titolo",
+    "ja": "タイトル",
+    "ko": "제목",
+    "vi": "Tiêu đề",
+    "zh-Hans": "标题",
+    "zh-Hant": "標題"
+  }
+}

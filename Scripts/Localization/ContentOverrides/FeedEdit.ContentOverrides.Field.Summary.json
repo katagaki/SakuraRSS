@@ -1,0 +1,14 @@
+{
+  "key": "FeedEdit.ContentOverrides.Field.Summary",
+  "localizations": {
+    "de": "Beschreibung",
+    "en": "Description",
+    "fr": "Description",
+    "it": "Descrizione",
+    "ja": "説明",
+    "ko": "설명",
+    "vi": "Mô tả",
+    "zh-Hans": "描述",
+    "zh-Hant": "描述"
+  }
+}

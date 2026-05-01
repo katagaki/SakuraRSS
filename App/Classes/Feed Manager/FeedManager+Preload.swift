@@ -89,6 +89,7 @@ extension FeedManager {
         _ = dataRevision
         let fetched = (try? database.articles(withIDs: ids)) ?? []
         let byID = Dictionary(uniqueKeysWithValues: fetched.map { ($0.id, $0) })
-        return ids.compactMap { byID[$0] }
+        let ordered = ids.compactMap { byID[$0] }
+        return applyContentOverrides(ordered)
     }
 }

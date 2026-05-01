@@ -1,0 +1,14 @@
+{
+  "key": "FeedEdit.ContentOverrides",
+  "localizations": {
+    "de": "Inhalt-Überschreibungen",
+    "en": "Content Overrides",
+    "fr": "Substitutions de contenu",
+    "it": "Sostituzioni contenuto",
+    "ja": "表示のカスタマイズ",
+    "ko": "콘텐츠 재정의",
+    "vi": "Ghi đè nội dung",
+    "zh-Hans": "内容覆盖",
+    "zh-Hant": "內容覆寫"
+  }
+}
