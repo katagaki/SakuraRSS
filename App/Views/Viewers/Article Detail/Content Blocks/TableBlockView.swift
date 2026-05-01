@@ -4,10 +4,23 @@ struct TableBlockView: View {
 
     let header: [String]
     let rows: [[String]]
+    let textStyle: ContentBlockStack.TextStyle
+    let imageNamespace: Namespace.ID
+    let onImageTap: (URL) -> Void
+    var onLinkTap: ((URL) -> Void)?
 
     private var columnCount: Int {
         let rowMax = rows.map(\.count).max() ?? 0
         return max(header.count, rowMax)
+    }
+
+    private var headerFont: UIFont {
+        let base = UIFont.preferredFont(forTextStyle: .callout)
+        return base.bold()
+    }
+
+    private var bodyFont: UIFont {
+        UIFont.preferredFont(forTextStyle: .callout)
     }
 
     var body: some View {
@@ -40,13 +53,20 @@ struct TableBlockView: View {
         GridRow {
             ForEach(0..<columnCount, id: \.self) { index in
                 let cell = index < cells.count ? cells[index] : ""
-                Text(cell)
-                    .font(isHeader ? .callout.bold() : .callout)
-                    .foregroundStyle(.primary)
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 8)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-                    .background(background)
+                VStack(alignment: .leading, spacing: 8) {
+                    ContentBlockStack(
+                        text: cell,
+                        textStyle: textStyle,
+                        font: isHeader ? headerFont : bodyFont,
+                        imageNamespace: imageNamespace,
+                        onImageTap: onImageTap,
+                        onLinkTap: onLinkTap
+                    )
+                }
+                .padding(.horizontal, 12)
+                .padding(.vertical, 8)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+                .background(background)
             }
         }
     }
