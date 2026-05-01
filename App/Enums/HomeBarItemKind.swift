@@ -21,8 +21,8 @@ enum HomeBarItemKind: String, Codable, CaseIterable, Identifiable, Hashable, Sen
     var systemImage: String {
         switch self {
         case .following: "square.stack"
-        case .feedSections: "rectangle.stack"
-        case .lists: "list.bullet.rectangle"
+        case .feedSections: "dot.radiowaves.up.forward"
+        case .lists: "list.bullet"
         case .topics: "tag"
         }
     }

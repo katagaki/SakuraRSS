@@ -81,6 +81,5 @@ private struct HomeBarItemRow: View {
         Toggle(isOn: $isEnabled) {
             Label(kind.localizedTitle, systemImage: kind.systemImage)
         }
-        .tint(.accent)
     }
 }
