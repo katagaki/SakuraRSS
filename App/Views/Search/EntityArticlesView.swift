@@ -55,7 +55,6 @@ struct EntityArticlesView: View {
                         displayStyle: $searchDisplayStyle,
                         hasImages: hasImages,
                         showTimeline: false,
-                        showVideo: false,
                         showPodcast: false
                     )
                 } label: {

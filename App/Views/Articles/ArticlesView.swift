@@ -192,7 +192,6 @@ struct ArticlesView: View {
                         displayStyle: $displayStyle,
                         hasImages: hasImages,
                         showTimeline: feedKey != "all",
-                        showVideo: isVideoFeed,
                         showPodcast: isPodcastFeed || hasAudioArticles
                     )
                 } label: {

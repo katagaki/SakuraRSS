@@ -8,6 +8,9 @@ struct ArticleLink<Label: View>: View {
     @Environment(\.iPadArticleSelection) private var iPadArticleSelection
     let article: Article
     var onNavigate: ((Article) -> Void)?
+    /// When false, opening the article does not mark it as read.
+    /// Used by the Cards style where the swipe gesture is the canonical read trigger.
+    var marksRead: Bool = true
     @ViewBuilder let label: () -> Label
 
     @AppStorage("YouTube.OpenMode") private var youTubeOpenMode: YouTubeOpenMode = .inAppPlayer
@@ -36,8 +39,13 @@ struct ArticleLink<Label: View>: View {
         iPadArticleSelection != nil
     }
 
-    private func selectForIPadDetail() {
+    private func markReadIfEnabled() {
+        guard marksRead else { return }
         feedManager.markRead(article)
+    }
+
+    private func selectForIPadDetail() {
+        markReadIfEnabled()
         iPadArticleSelection?.wrappedValue = article
     }
 
@@ -48,7 +56,7 @@ struct ArticleLink<Label: View>: View {
                     Button { selectForIPadDetail() } label: { label() }
                 } else {
                     Button {
-                        feedManager.markRead(article)
+                        markReadIfEnabled()
                         mediaPresenter.presentPodcast(article)
                     } label: {
                         label()
@@ -56,7 +64,7 @@ struct ArticleLink<Label: View>: View {
                 }
             } else if isXFeedArticle || isInstagramFeedArticle {
                 Button {
-                    feedManager.markRead(article)
+                    markReadIfEnabled()
                     if let url = URL(string: article.url) {
                         openURL(url)
                     }
@@ -68,7 +76,7 @@ struct ArticleLink<Label: View>: View {
                     Button { selectForIPadDetail() } label: { label() }
                 } else {
                     Button {
-                        feedManager.markRead(article)
+                        markReadIfEnabled()
                         mediaPresenter.presentYouTube(article)
                     } label: {
                         label()
@@ -76,21 +84,21 @@ struct ArticleLink<Label: View>: View {
                 }
             } else if article.isYouTubeURL && youTubeOpenMode == .youTubeApp {
                 Button {
-                    feedManager.markRead(article)
+                    markReadIfEnabled()
                     YouTubeHelper.openInApp(url: article.url)
                 } label: {
                     label()
                 }
             } else if article.isYouTubeURL && youTubeOpenMode == .browser {
                 Button {
-                    feedManager.markRead(article)
+                    markReadIfEnabled()
                     showSafari = true
                 } label: {
                     label()
                 }
             } else if feedOpenMode == .browser {
                 Button {
-                    feedManager.markRead(article)
+                    markReadIfEnabled()
                     if let url = URL(string: article.url) {
                         openURL(url)
                     }
@@ -99,14 +107,14 @@ struct ArticleLink<Label: View>: View {
                 }
             } else if feedOpenMode == .inAppBrowser {
                 Button {
-                    feedManager.markRead(article)
+                    markReadIfEnabled()
                     showSafari = true
                 } label: {
                     label()
                 }
             } else if feedOpenMode == .inAppBrowserReader {
                 Button {
-                    feedManager.markRead(article)
+                    markReadIfEnabled()
                     showSafariReader = true
                 } label: {
                     label()

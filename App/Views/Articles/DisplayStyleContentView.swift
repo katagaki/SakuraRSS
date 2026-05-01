@@ -20,6 +20,8 @@ struct DisplayStyleContentView: View {
                           onLoadMore: onLoadMore, headerView: headerView)
         case .magazine:
             MagazineStyleView(articles: articles, onLoadMore: onLoadMore, headerView: headerView)
+        case .masonry:
+            MasonryStyleView(articles: articles, onLoadMore: onLoadMore, headerView: headerView)
         case .compact:
             CompactStyleView(articles: articles, onLoadMore: onLoadMore, headerView: headerView)
         case .video:

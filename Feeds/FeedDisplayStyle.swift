@@ -5,6 +5,7 @@ nonisolated enum FeedDisplayStyle: String, CaseIterable, Sendable {
     case feed
     case feedCompact
     case magazine
+    case masonry
     case compact
     case video
     case photos
@@ -20,6 +21,7 @@ nonisolated enum FeedDisplayStyle: String, CaseIterable, Sendable {
         case .feed: String(localized: "Style.Feed", table: "Articles")
         case .feedCompact: String(localized: "Style.FeedCompact", table: "Articles")
         case .magazine: String(localized: "Style.Magazine", table: "Articles")
+        case .masonry: String(localized: "Style.Masonry", table: "Articles")
         case .compact: String(localized: "Style.Compact", table: "Articles")
         case .video: String(localized: "Style.Video", table: "Articles")
         case .photos: String(localized: "Style.Photos", table: "Articles")
@@ -33,7 +35,7 @@ nonisolated enum FeedDisplayStyle: String, CaseIterable, Sendable {
 
     var requiresImages: Bool {
         switch self {
-        case .magazine, .photos, .cards, .grid: true
+        case .magazine, .masonry, .photos, .cards, .grid: true
         default: false
         }
     }

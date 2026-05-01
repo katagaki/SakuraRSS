@@ -13,6 +13,9 @@ struct ArticleDetailView: View {
     /// When true, suppresses the standard toolbar and skips mark-as-read so the host
     /// (e.g. the feed-edit viewer preview) can supply its own toolbar.
     let previewMode: Bool
+    /// When false, opening this view will not auto-mark the article as read.
+    /// Used by the Cards style where swipe is the canonical read trigger.
+    let marksReadOnAppear: Bool
     @State var favicon: UIImage?
     @State var feedName: String?
     @State var acronymIcon: UIImage?
@@ -55,11 +58,13 @@ struct ArticleDetailView: View {
     init(
         article: Article,
         ephemeralTextMode: OpenArticleRequest.TextMode? = nil,
-        previewMode: Bool = false
+        previewMode: Bool = false,
+        marksReadOnAppear: Bool = true
     ) {
         self.article = article
         self.ephemeralTextMode = ephemeralTextMode
         self.previewMode = previewMode
+        self.marksReadOnAppear = marksReadOnAppear
     }
 
     var isAppleIntelligenceAvailable: Bool {

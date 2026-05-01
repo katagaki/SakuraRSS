@@ -66,7 +66,7 @@ struct CardsStyleView: View {
                         id: \.element.id) { index, article in
                     ArticleLink(article: article, onNavigate: {
                         selectedArticle = $0
-                    }, label: {
+                    }, marksRead: false, label: {
                         CardView(
                             article: article,
                             onSwipedLeft: {
@@ -91,7 +91,7 @@ struct CardsStyleView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .navigationDestination(item: $selectedArticle) { article in
             let raw = feedManager.article(byID: article.id) ?? article
-            ArticleDetailView(article: raw)
+            ArticleDetailView(article: raw, marksReadOnAppear: false)
                 .zoomTransition(sourceID: article.id, in: zoomNamespace)
         }
         .onAppear {
