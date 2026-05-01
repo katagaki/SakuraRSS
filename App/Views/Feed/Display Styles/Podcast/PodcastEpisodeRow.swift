@@ -32,7 +32,7 @@ struct PodcastEpisodeRow: View {
                         .fill(.secondary.opacity(0.15))
                 }
                 .frame(width: 60, height: 60)
-                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .clipShape(.rect(cornerRadius: 8))
                 .overlay {
                     RoundedRectangle(cornerRadius: 8)
                         .stroke(.secondary.opacity(0.25), lineWidth: 1)

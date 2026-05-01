@@ -9,6 +9,7 @@ struct VideoStyleView: View {
     @AppStorage("YouTube.OpenMode") private var youTubeOpenMode: YouTubeOpenMode = .inAppPlayer
     let articles: [Article]
     var onLoadMore: (() -> Void)?
+    var headerView: AnyView?
 
     @State private var showSafari = false
     @State private var safariURL: URL?
@@ -16,6 +17,9 @@ struct VideoStyleView: View {
     var body: some View {
         ScrollView(.vertical) {
             LazyVStack(spacing: 24) {
+                if let headerView {
+                    headerView
+                }
                 ForEach(articles) { article in
                     Button {
                         feedManager.markRead(article)

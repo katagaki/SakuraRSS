@@ -124,7 +124,7 @@ extension IPadSidebarView {
     @ViewBuilder
     func iPadListContent(list: FeedList) -> some View {
         iPadArticleListWrapper {
-            ListSectionView(list: list)
+            HomeSectionView(list: list)
                 .navigationTitle(list.name)
                 .toolbarTitleDisplayMode(.inline)
         }

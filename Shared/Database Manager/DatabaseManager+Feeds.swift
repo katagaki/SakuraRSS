@@ -62,6 +62,11 @@ nonisolated extension DatabaseManager {
         try database.run(target.update(feedIsMuted <- isMuted))
     }
 
+    func updateFeedDescription(id: Int64, description: String) throws {
+        let target = feeds.filter(feedID == id)
+        try database.run(target.update(feedDescription <- description))
+    }
+
     func updateFeedDetails(id: Int64, title: String, url: String,
                            customIconURL: String?,
                            isTitleCustomized: Bool) throws {

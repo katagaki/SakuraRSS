@@ -37,4 +37,14 @@ nonisolated enum FeedDisplayStyle: String, CaseIterable, Sendable {
         default: false
         }
     }
+
+    /// Styles whose scroll container can host the in-content rich feed header.
+    /// Cards/Scroll layouts manage their own immersive scrolling, so they
+    /// surface the feed identity through the navigation bar instead.
+    var supportsRichHeader: Bool {
+        switch self {
+        case .cards, .scroll: false
+        default: true
+        }
+    }
 }

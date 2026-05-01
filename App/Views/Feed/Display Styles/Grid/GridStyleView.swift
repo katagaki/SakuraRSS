@@ -6,6 +6,7 @@ struct GridStyleView: View {
     @Environment(\.zoomNamespace) private var zoomNamespace
     let articles: [Article]
     var onLoadMore: (() -> Void)?
+    var headerView: AnyView?
 
     private var articlesWithImages: [Article] {
         articles.filter { $0.imageURL != nil }
@@ -19,6 +20,9 @@ struct GridStyleView: View {
 
     var body: some View {
         ScrollView(.vertical) {
+            if let headerView {
+                headerView
+            }
             LazyVGrid(columns: columns, spacing: 2) {
                 ForEach(articlesWithImages) { article in
                     ArticleLink(article: article, label: {

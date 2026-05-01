@@ -6,9 +6,16 @@ struct InboxStyleView: View {
     @Environment(\.zoomNamespace) private var zoomNamespace
     let articles: [Article]
     var onLoadMore: (() -> Void)?
+    var headerView: AnyView?
 
     var body: some View {
         List {
+            if let headerView {
+                headerView
+                    .listRowBackground(Color.clear)
+                    .listRowSeparator(.hidden)
+                    .listRowInsets(EdgeInsets())
+            }
             ForEach(articles) { article in
                 ArticleLink(article: article, label: {
                     InboxArticleRow(article: article)

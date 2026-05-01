@@ -4,12 +4,23 @@ import SwiftUI
 @Observable
 final class FeedManager {
 
+    static let lastRefreshedAtDefaultsKey = "FeedManager.LastRefreshedAt"
+
     var feeds: [Feed] = []
     var articles: [Article] = []
     var lists: [FeedList] = []
     var isLoading = false
     var refreshTotal: Int = 0
     var refreshCompleted: Int = 0
+    var lastRefreshedAt: Date? = UserDefaults.standard
+        .object(forKey: FeedManager.lastRefreshedAtDefaultsKey) as? Date {
+        didSet {
+            UserDefaults.standard.set(
+                lastRefreshedAt,
+                forKey: FeedManager.lastRefreshedAtDefaultsKey
+            )
+        }
+    }
 
     var refreshProgress: Double {
         guard refreshTotal > 0 else { return 0 }

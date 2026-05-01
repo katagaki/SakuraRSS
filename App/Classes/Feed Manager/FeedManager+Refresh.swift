@@ -174,6 +174,9 @@ extension FeedManager {
                 )
             }
         }
+        if parsed.description != feed.feedDescription {
+            try? database.updateFeedDescription(id: feed.id, description: parsed.description)
+        }
         try database.updateFeedLastFetched(id: feed.id, date: Date())
         log("FeedRefresh.RSS", "pipeline complete id=\(feed.id)")
     }
@@ -350,6 +353,7 @@ extension FeedManager {
                 self.refreshCompleted = 0
                 self.refreshTotal = 0
                 self.refreshTask = nil
+                self.lastRefreshedAt = Date()
             }
         }
 
@@ -485,6 +489,7 @@ extension FeedManager {
                 self.refreshCompleted = 0
                 self.refreshTotal = 0
                 self.refreshTask = nil
+                self.lastRefreshedAt = Date()
             }
         }
 

@@ -7,9 +7,16 @@ struct PodcastStyleView: View {
     @Environment(\.iPadArticleSelection) private var iPadArticleSelection
     let articles: [Article]
     var onLoadMore: (() -> Void)?
+    var headerView: AnyView?
 
     var body: some View {
         List {
+            if let headerView {
+                headerView
+                    .listRowBackground(Color.clear)
+                    .listRowSeparator(.hidden)
+                    .listRowInsets(EdgeInsets())
+            }
             ForEach(articles) { article in
                 ZStack {
                     if let iPadArticleSelection {
@@ -36,6 +43,8 @@ struct PodcastStyleView: View {
                 }
                 .listRowBackground(Color.clear)
                 .listRowInsets(EdgeInsets(top: 8, leading: 12, bottom: 8, trailing: 16))
+                .listRowSeparator(.hidden, edges: .top)
+                .listRowSeparator(.visible, edges: .bottom)
                 .swipeActions(edge: .leading) {
                     Button {
                         withAnimation(.smooth.speed(2.0)) {

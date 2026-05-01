@@ -64,18 +64,6 @@ struct EditFeedMetadataTab: View {
             nameSection(for: feed)
             petalSection(for: feed)
             iconSection(for: feed)
-            muteSection(for: feed)
-        }
-    }
-
-    @ViewBuilder
-    private func muteSection(for feed: Feed) -> some View {
-        Section {
-            Toggle(String(localized: "FeedMenu.Mute", table: "Feeds"),
-                   isOn: Binding(
-                    get: { feed.isMuted },
-                    set: { _ in feedManager.toggleMuted(feed) }
-                   ))
         }
     }
 

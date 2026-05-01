@@ -5,91 +5,52 @@ struct AllArticlesView: View {
     @Environment(FeedManager.self) var feedManager
 
     @AppStorage("Home.SelectedSection") var selectedSelection: HomeSelection = .section(.all)
-    @AppStorage("Articles.BatchingMode") var storedBatchingMode: BatchingMode = .items25
-    @AppStorage(DoomscrollingMode.storageKey) var doomscrollingMode: Bool = false
-    @State var loadedSinceDate: Date = Date(timeIntervalSince1970: 0)
-    @State var loadedCount: Int = BatchingMode.current().initialCount()
-    @State var hasInitializedSinceDate = false
-    @State var preloadedEntries: [ArticleIDEntry] = []
-    @AppStorage("WhileYouSlept.DismissedDate") var whileYouSleptDismissedDate: String = ""
-    @AppStorage("TodaysSummary.DismissedDate") var todaysSummaryDismissedDate: String = ""
-    @AppStorage("Instagram.HideReels") var hideInstagramReels: Bool = false
-    @AppStorage("Articles.HideViewedContent") var storedHideViewedContent: Bool = false
-    @State var visibility = ArticleVisibilityTracker()
-    @State var scrollToTopTick: Int = 0
-    @State var whileYouSleptAvailable = false
-    @State var todaysSummaryAvailable = false
 
     var body: some View {
-        Group {
-            switch selectedSelection {
-            case .section(let section):
-                if let feedSection = section.feedSection {
-                    HomeSectionView(section: feedSection)
-                } else {
-                    feedTabContent
-                }
-            case .list(let id):
-                if let list = feedManager.lists.first(where: { $0.id == id }) {
-                    ListSectionView(list: list)
-                } else {
-                    feedTabContent
-                }
-            }
-        }
-        .navigationTitle(currentTitle)
-        .toolbarTitleDisplayMode(.inline)
-        .applyTitleMenuIfNeeded { titleMenuContent }
+        HomeSectionView(source: contentSource)
+        .applyNavigationTitleIfNeeded(currentTitle)
         .onChange(of: availableSections) {
             validateSelection()
         }
         .onChange(of: feedManager.lists) {
             validateSelection()
         }
-        .onAppear {
-            // swiftlint:disable:next line_length
-            log("AllArticlesView", "onAppear selection=\(selectedSelection.rawValue) hasInitializedSinceDate=\(hasInitializedSinceDate)")
-            reloadPreloadedEntries()
-            if !hasInitializedSinceDate {
-                loadedSinceDate = batchingMode.initialSinceDate(
-                    latestArticleDate: latestArticleDateAcrossFeeds()
-                )
-                hasInitializedSinceDate = true
+    }
+
+    var currentTitle: String {
+        switch selectedSelection {
+        case .section(let section):
+            return section.localizedTitle
+        case .list(let id):
+            return feedManager.lists.first { $0.id == id }?.name
+                ?? String(localized: "Shared.AllArticles")
+        }
+    }
+
+    var contentSource: HomeContentSource {
+        switch selectedSelection {
+        case .section(let section):
+            return .section(section.feedSection)
+        case .list(let id):
+            if let list = feedManager.lists.first(where: { $0.id == id }) {
+                return .list(list)
             }
-        }
-        .onChange(of: feedManager.dataRevision) { _, _ in
-            reloadPreloadedEntries()
-        }
-        .onChange(of: hideViewedContent) { _, _ in
-            reloadPreloadedEntries()
-            loadedSinceDate = batchingMode.initialSinceDate(
-                latestArticleDate: latestArticleDateAcrossFeeds()
-            )
-            loadedCount = batchingMode.initialCount()
-            visibility.capture(from: rawArticles, isEnabled: hideViewedContent)
-        }
-        .onChange(of: batchingMode) { _, newMode in
-            loadedSinceDate = newMode.initialSinceDate(
-                latestArticleDate: latestArticleDateAcrossFeeds()
-            )
-            loadedCount = newMode.initialCount()
-            visibility.capture(from: rawArticles, isEnabled: hideViewedContent)
-        }
-        .onChange(of: doomscrollingMode) { _, _ in
-            visibility.capture(from: rawArticles, isEnabled: hideViewedContent)
+            return .section(nil)
         }
     }
 }
 
 private extension View {
+    /// Apply a navigation title only on iPad. iPhone uses a custom Today top bar
+    /// that supplies its own title and section tabs, so the system nav bar is hidden.
     @ViewBuilder
-    func applyTitleMenuIfNeeded<MenuContent: View>(
-        @ViewBuilder content: @escaping () -> MenuContent
-    ) -> some View {
+    func applyNavigationTitleIfNeeded(_ title: String) -> some View {
         if UIDevice.current.userInterfaceIdiom == .pad {
             self
+                .navigationTitle(title)
+                .toolbarTitleDisplayMode(.inline)
         } else {
-            self.toolbarTitleMenu(content: content)
+            self
         }
     }
 }

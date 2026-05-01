@@ -12,10 +12,11 @@ struct HomeView: View {
     @State private var path = NavigationPath()
     @State private var hasRestored = false
     @State private var showYouTubeSafari = false
-    @AppStorage("Display.MarkAllReadPosition") private var markAllReadPosition: MarkAllReadPosition = .top
     @AppStorage("Home.SelectedSection") private var selectedSelection: HomeSelection = .section(.all)
-    @State private var isShowingMarkAllReadConfirmation = false
+    @AppStorage("Display.MarkAllReadPosition") private var markAllReadPosition: MarkAllReadPosition = .top
     @State private var pendingYouTubeSafariURL: URL?
+    @State private var isShowingMarkAllReadConfirmation = false
+    @State private var tabFrames: [String: CGRect] = [:]
     @Namespace private var cardZoom
 
     var body: some View {
@@ -24,7 +25,20 @@ struct HomeView: View {
                 .environment(\.zoomNamespace, cardZoom)
                 .environment(\.navigateToFeed, { feed in path.append(feed) })
                 .environment(\.hidesMarkAllReadToolbar, true)
+                .toolbarTitleDisplayMode(.inline)
+                .safeAreaInset(edge: .top, spacing: 0) {
+                    TodayTopBarView(
+                        selection: $selectedSelection,
+                        tabs: tabItems,
+                        tabFrames: $tabFrames
+                    )
+                }
                 .toolbar {
+                    ToolbarItem(placement: .principal) {
+                        Text(formattedDate)
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
                     if markAllReadPosition == .top {
                         ToolbarItemGroup(placement: .topBarLeading) {
                             Button {
@@ -147,17 +161,61 @@ struct HomeView: View {
             }
         }
         .onChange(of: pendingOpenRequest) {
-            if let request = pendingOpenRequest {
-                handlePendingOpenRequest(request)
+            if pendingOpenRequest != nil {
+                handlePendingOpenRequestIfNeeded()
             }
         }
         .task {
             // Cold-launch from the Open Article extension sets the request
             // before this view mounts, so `onChange` would never fire.
-            if let request = pendingOpenRequest {
-                handlePendingOpenRequest(request)
+            handlePendingOpenRequestIfNeeded()
+        }
+    }
+
+    private var formattedDate: String {
+        let relative: String
+        if let lastRefreshedAt = feedManager.lastRefreshedAt {
+            relative = lastRefreshedAt.formatted(.relative(presentation: .named))
+        } else {
+            relative = Date().formatted(
+                .dateTime
+                    .weekday(.wide)
+                    .month(.abbreviated)
+                    .day()
+            )
+        }
+        return String(localized: "Home.LastUpdated \(relative)", table: "Home")
+    }
+
+    private func performMarkAllRead() {
+        switch selectedSelection {
+        case .section(let section):
+            if let feedSection = section.feedSection {
+                feedManager.markAllRead(for: feedSection)
+            } else {
+                feedManager.markAllRead()
+            }
+        case .list(let id):
+            if let list = feedManager.lists.first(where: { $0.id == id }) {
+                feedManager.markAllRead(for: list)
             }
         }
+    }
+
+    private var availableSections: [HomeSection] {
+        HomeSection.allCases.filter { section in
+            guard let feedSection = section.feedSection else { return true }
+            return feedManager.hasFeeds(for: feedSection)
+        }
+    }
+
+    private var tabItems: [TodayTabItem] {
+        TodayTabItem.items(sections: availableSections, lists: feedManager.lists)
+    }
+
+    private func handlePendingOpenRequestIfNeeded() {
+        guard let request = pendingOpenRequest else { return }
+        handlePendingOpenRequest(request)
     }
 
     private func handlePendingOpenRequest(_ request: OpenArticleRequest) {
@@ -181,21 +239,6 @@ struct HomeView: View {
             ))
         }
         pendingOpenRequest = nil
-    }
-
-    private func performMarkAllRead() {
-        switch selectedSelection {
-        case .section(let section):
-            if let feedSection = section.feedSection {
-                feedManager.markAllRead(for: feedSection)
-            } else {
-                feedManager.markAllRead()
-            }
-        case .list(let id):
-            if let list = feedManager.lists.first(where: { $0.id == id }) {
-                feedManager.markAllRead(for: list)
-            }
-        }
     }
 
     private func restorePath() {

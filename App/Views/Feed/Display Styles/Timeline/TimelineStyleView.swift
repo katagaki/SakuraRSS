@@ -6,9 +6,16 @@ struct TimelineStyleView: View {
     @Environment(\.zoomNamespace) private var zoomNamespace
     let articles: [Article]
     var onLoadMore: (() -> Void)?
+    var headerView: AnyView?
 
     var body: some View {
         List {
+            if let headerView {
+                headerView
+                    .listRowBackground(Color.clear)
+                    .listRowSeparator(.hidden)
+                    .listRowInsets(EdgeInsets())
+            }
             let groups = groupedArticles(from: articles)
 
             ForEach(Array(groups.enumerated()), id: \.element.key) { groupIndex, group in

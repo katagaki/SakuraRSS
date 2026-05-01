@@ -6,10 +6,14 @@ struct PhotosStyleView: View {
     @Environment(\.zoomNamespace) private var zoomNamespace
     let articles: [Article]
     var onLoadMore: (() -> Void)?
+    var headerView: AnyView?
 
     var body: some View {
         ScrollView(.vertical) {
             LazyVStack(spacing: 0) {
+                if let headerView {
+                    headerView
+                }
                 ForEach(articles) { article in
                     PhotosArticleCard(article: article)
                         .zoomSource(id: article.id, namespace: zoomNamespace)

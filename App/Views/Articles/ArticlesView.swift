@@ -32,6 +32,8 @@ struct ArticlesView: View {
     var onRefresh: (() async -> Void)?
     var onMarkAllRead: (() -> Void)?
     var scrollToTopTrigger: Int
+    var headerView: AnyView?
+    var effectiveStyleBinding: Binding<FeedDisplayStyle?>?
 
     @Environment(\.hidesMarkAllReadToolbar) private var hidesMarkAllReadToolbar
     @State private var displayStyle: FeedDisplayStyle
@@ -58,7 +60,9 @@ struct ArticlesView: View {
          onLoadMore: (() -> Void)? = nil,
          onRefresh: (() async -> Void)? = nil,
          onMarkAllRead: (() -> Void)? = nil,
-         scrollToTopTrigger: Int = 0) {
+         scrollToTopTrigger: Int = 0,
+         headerView: AnyView? = nil,
+         effectiveStyleBinding: Binding<FeedDisplayStyle?>? = nil) {
         self.articles = articles
         self.title = title
         self.subtitle = subtitle
@@ -76,6 +80,8 @@ struct ArticlesView: View {
         self.onRefresh = onRefresh
         self.onMarkAllRead = onMarkAllRead
         self.scrollToTopTrigger = scrollToTopTrigger
+        self.headerView = headerView
+        self.effectiveStyleBinding = effectiveStyleBinding
         let raw = UserDefaults.standard.string(forKey: "Display.Style.\(feedKey)")
         let defaultRaw = UserDefaults.standard.string(forKey: "Display.DefaultStyle") ?? FeedDisplayStyle.inbox.rawValue
         let fallback: FeedDisplayStyle
@@ -104,7 +110,8 @@ struct ArticlesView: View {
                 style: effectiveStyle,
                 articles: articles,
                 onLoadMore: onLoadMore,
-                onRefresh: onRefresh
+                onRefresh: onRefresh,
+                headerView: headerView
             )
             .onChange(of: scrollToTopTrigger) { _, _ in
                 guard let firstID = articles.first?.id else { return }
@@ -171,6 +178,9 @@ struct ArticlesView: View {
             }
         }
         .animation(.smooth.speed(2.0), value: displayStyle)
+        .task(id: effectiveStyle) {
+            effectiveStyleBinding?.wrappedValue = effectiveStyle
+        }
         .onChange(of: displayStyle) { _, newValue in
             UserDefaults.standard.set(newValue.rawValue, forKey: "Display.Style.\(feedKey)")
         }

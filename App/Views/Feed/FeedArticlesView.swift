@@ -15,6 +15,8 @@ struct FeedArticlesView: View {
     @AppStorage("Articles.HideViewedContent") private var storedHideViewedContent: Bool = false
     @State private var visibility = ArticleVisibilityTracker()
     @State private var scrollToTopTick: Int = 0
+    @State private var hasScrolledPastTitle: Bool = false
+    @State private var effectiveDisplayStyle: FeedDisplayStyle?
 
     private var batchingMode: BatchingMode {
         DoomscrollingMode.effectiveBatchingMode(storedBatchingMode)
@@ -103,11 +105,32 @@ struct FeedArticlesView: View {
         scrollToTopTick &+= 1
     }
 
+    private var styleSupportsRichHeader: Bool {
+        effectiveDisplayStyle?.supportsRichHeader ?? true
+    }
+
+    private var showsPrincipalTitle: Bool {
+        !styleSupportsRichHeader || hasScrolledPastTitle
+    }
+
+    /// Combined title + domain rendered as a single AttributedString so iOS 26's
+    /// nav bar can't apply its automatic staggered title/subtitle animation
+    /// (which made the domain appear after the title).
+    private var principalTitleAttributed: AttributedString {
+        var title = AttributedString(currentFeed.title)
+        title.font = .headline
+        guard !currentFeed.domain.isEmpty else { return title }
+        var domain = AttributedString("\n\(currentFeed.domain)")
+        domain.font = .caption2
+        domain.foregroundColor = .secondary
+        return title + domain
+    }
+
     var body: some View {
         ArticlesView(
             articles: visibility.filter(rawArticles, isEnabled: hideViewedContent),
-            title: currentFeed.title,
-            subtitle: currentFeed.domain,
+            title: "",
+            subtitle: nil,
             feedKey: String(feed.id),
             isVideoFeed: feed.isVideoFeed,
             isPodcastFeed: feed.isPodcast,
@@ -122,8 +145,33 @@ struct FeedArticlesView: View {
             onMarkAllRead: {
                 feedManager.markAllRead(feed: feed)
             },
-            scrollToTopTrigger: scrollToTopTick
+            scrollToTopTrigger: scrollToTopTick,
+            headerView: AnyView(
+                FeedHeaderView(feed: currentFeed)
+                    .environment(feedManager)
+            ),
+            effectiveStyleBinding: $effectiveDisplayStyle
         )
+        .toolbar {
+            ToolbarItem(placement: .principal) {
+                Text(principalTitleAttributed)
+                    .multilineTextAlignment(.center)
+                    .lineLimit(2)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .opacity(showsPrincipalTitle ? 1 : 0)
+                    .allowsHitTesting(showsPrincipalTitle)
+                    .animation(.smooth.speed(2.0), value: showsPrincipalTitle)
+            }
+        }
+        .onScrollGeometryChange(for: Bool.self) { geo in
+            geo.contentOffset.y > 90
+        } action: { _, scrolled in
+            guard scrolled != hasScrolledPastTitle else { return }
+            withAnimation(.smooth.speed(2.0)) {
+                hasScrolledPastTitle = scrolled
+            }
+        }
+        .animation(.smooth.speed(2.0), value: styleSupportsRichHeader)
         .refreshable {
             log("FeedArticlesView", ".refreshable triggered id=\(feed.id)")
             await performRefresh()

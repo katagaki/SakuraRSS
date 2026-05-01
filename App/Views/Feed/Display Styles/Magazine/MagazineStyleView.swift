@@ -6,6 +6,7 @@ struct MagazineStyleView: View {
     @Environment(\.zoomNamespace) private var zoomNamespace
     let articles: [Article]
     var onLoadMore: (() -> Void)?
+    var headerView: AnyView?
 
     private let columns = [
         GridItem(.flexible(), spacing: 12),
@@ -15,6 +16,9 @@ struct MagazineStyleView: View {
     var body: some View {
         ScrollView(.vertical) {
             LazyVStack(spacing: 12) {
+                if let headerView {
+                    headerView
+                }
                 LazyVGrid(columns: columns, spacing: 12) {
                     ForEach(articles) { article in
                         ArticleLink(article: article, label: {

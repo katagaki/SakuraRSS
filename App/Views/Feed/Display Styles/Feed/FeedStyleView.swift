@@ -7,9 +7,16 @@ struct FeedStyleView: View {
     let articles: [Article]
     var variant: FeedStyleVariant = .full
     var onLoadMore: (() -> Void)?
+    var headerView: AnyView?
 
     var body: some View {
         List {
+            if let headerView {
+                headerView
+                    .listRowBackground(Color.clear)
+                    .listRowSeparator(.hidden)
+                    .listRowInsets(EdgeInsets())
+            }
             ForEach(articles) { article in
                 ZStack {
                     ArticleLink(article: article, label: {

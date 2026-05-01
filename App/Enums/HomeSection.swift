@@ -46,6 +46,19 @@ enum HomeSection: String, CaseIterable, Identifiable {
         }
     }
 
+    /// Brand-tinted accent used for the Today top tab bar's selected indicator.
+    var tabAccentColor: Color {
+        switch self {
+        case .podcasts: .indigo
+        case .instagram: .brown
+        case .note: .gray
+        case .reddit, .substack: .orange
+        case .x: .blue
+        case .youtube: .red
+        default: .accentColor
+        }
+    }
+
     var feedSection: FeedSection? {
         switch self {
         case .all: nil

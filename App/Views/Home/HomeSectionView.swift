@@ -1,10 +1,30 @@
 import SwiftUI
 
+/// Source of articles for `HomeSectionView`. Modeling section and list together
+/// keeps the view type stable across selection changes so safeAreaInset content
+/// (the Today tab bar) doesn't get torn down when switching modes.
+enum HomeContentSource: Hashable {
+    case section(FeedSection?)
+    case list(FeedList)
+}
+
 struct HomeSectionView: View {
 
     @Environment(FeedManager.self) var feedManager
 
-    let section: FeedSection
+    let source: HomeContentSource
+
+    init(source: HomeContentSource) {
+        self.source = source
+    }
+
+    init(section: FeedSection?) {
+        self.source = .section(section)
+    }
+
+    init(list: FeedList) {
+        self.source = .list(list)
+    }
 
     @AppStorage("Articles.BatchingMode") private var storedBatchingMode: BatchingMode = .items25
     @AppStorage(DoomscrollingMode.storageKey) private var doomscrollingMode: Bool = false
@@ -16,6 +36,11 @@ struct HomeSectionView: View {
     @AppStorage("Articles.HideViewedContent") private var storedHideViewedContent: Bool = false
     @State private var visibility = ArticleVisibilityTracker()
     @State private var scrollToTopTick: Int = 0
+
+    @AppStorage("WhileYouSlept.DismissedDate") private var whileYouSleptDismissedDate: String = ""
+    @AppStorage("TodaysSummary.DismissedDate") private var todaysSummaryDismissedDate: String = ""
+    @State private var whileYouSleptAvailable = false
+    @State private var todaysSummaryAvailable = false
 
     private var batchingMode: BatchingMode {
         DoomscrollingMode.effectiveBatchingMode(storedBatchingMode)
@@ -29,6 +54,21 @@ struct HomeSectionView: View {
         ArticleIDBatcher(entries: preloadedEntries)
     }
 
+    private var section: FeedSection? {
+        if case .section(let section) = source { return section }
+        return nil
+    }
+
+    private var list: FeedList? {
+        if case .list(let list) = source { return list }
+        return nil
+    }
+
+    private var isAllFollowing: Bool {
+        if case .section(nil) = source { return true }
+        return false
+    }
+
     private var rawArticles: [Article] {
         let batcher = self.batcher
         let slicedIDs: [Int64]
@@ -39,8 +79,13 @@ struct HomeSectionView: View {
         } else {
             slicedIDs = preloadedEntries.map(\.id)
         }
-        var articles = feedManager.undatedArticles(for: section)
-            + feedManager.articles(withPreloadedIDs: slicedIDs)
+        var articles: [Article]
+        if let section {
+            articles = feedManager.undatedArticles(for: section)
+                + feedManager.articles(withPreloadedIDs: slicedIDs)
+        } else {
+            articles = feedManager.articles(withPreloadedIDs: slicedIDs)
+        }
         if hideInstagramReels {
             articles = articles.filter { !$0.url.contains("/reel/") }
         }
@@ -48,10 +93,24 @@ struct HomeSectionView: View {
     }
 
     private func reloadPreloadedEntries() {
-        preloadedEntries = feedManager.preloadedArticleEntries(
-            for: section,
-            requireUnread: hideViewedContent
-        )
+        switch source {
+        case .section(let section):
+            if let section {
+                preloadedEntries = feedManager.preloadedArticleEntries(
+                    for: section,
+                    requireUnread: hideViewedContent
+                )
+            } else {
+                preloadedEntries = feedManager.preloadedArticleEntries(
+                    requireUnread: hideViewedContent
+                )
+            }
+        case .list(let list):
+            preloadedEntries = feedManager.preloadedArticleEntries(
+                for: list,
+                requireUnread: hideViewedContent
+            )
+        }
         if hideViewedContent, visibility.visibleIDs == nil, !preloadedEntries.isEmpty {
             visibility.capture(from: rawArticles, isEnabled: hideViewedContent)
         }
@@ -126,23 +185,85 @@ struct HomeSectionView: View {
         section == .x || section == .mastodon || section == .bluesky
     }
 
+    private var isPodcastSection: Bool {
+        section == .podcasts
+    }
+
+    private var title: String {
+        switch source {
+        case .section(let section):
+            return section?.localizedTitle ?? HomeSection.all.localizedTitle
+        case .list(let list):
+            return list.name
+        }
+    }
+
+    private var feedKey: String {
+        switch source {
+        case .section(let section):
+            if let section { return "home.\(section.rawValue)" }
+            return "all"
+        case .list(let list):
+            return "list.\(list.id)"
+        }
+    }
+
+    private var todayDateKey: String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd"
+        return formatter.string(from: Date())
+    }
+
+    private var anySummaryHidden: Bool {
+        guard isAllFollowing else { return false }
+        return (whileYouSleptDismissedDate == todayDateKey && whileYouSleptAvailable)
+            || (todaysSummaryDismissedDate == todayDateKey && todaysSummaryAvailable)
+    }
+
+    private func performMarkAllRead() {
+        switch source {
+        case .section(let section):
+            if let section {
+                feedManager.markAllRead(for: section)
+            } else {
+                feedManager.markAllRead()
+            }
+        case .list(let list):
+            feedManager.markAllRead(for: list)
+        }
+    }
+
     var body: some View {
         ArticlesView(
             articles: visibility.filter(rawArticles, isEnabled: hideViewedContent),
-            title: section.localizedTitle,
-            feedKey: "home.\(section.rawValue)",
+            title: title,
+            feedKey: feedKey,
             isVideoFeed: isVideoSection,
-            isPodcastFeed: section == .podcasts,
+            isPodcastFeed: isPodcastSection,
             isFeedViewDomain: isFeedViewSection,
+            anySummaryHidden: anySummaryHidden,
+            onRestoreSummaries: isAllFollowing ? {
+                withAnimation(.smooth.speed(2.0)) {
+                    whileYouSleptDismissedDate = ""
+                    todaysSummaryDismissedDate = ""
+                }
+            } : nil,
             onLoadMore: loadMoreAction,
-            onRefresh: {
-                await performRefresh()
-            },
-            onMarkAllRead: {
-                feedManager.markAllRead(for: section)
-            },
+            onRefresh: { await performRefresh() },
+            onMarkAllRead: performMarkAllRead,
             scrollToTopTrigger: scrollToTopTick
         )
+        .safeAreaInset(edge: .top, spacing: 0) {
+            if isAllFollowing {
+                VStack(spacing: 0) {
+                    WhileYouSleptView(hasSummary: $whileYouSleptAvailable)
+                    TodaysSummaryView(hasSummary: $todaysSummaryAvailable)
+                }
+                .animation(.smooth.speed(2.0), value: whileYouSleptDismissedDate)
+                .animation(.smooth.speed(2.0), value: todaysSummaryDismissedDate)
+                .padding(.bottom, 8)
+            }
+        }
         .refreshable {
             startRefreshWithoutBlocking()
         }
@@ -166,15 +287,15 @@ struct HomeSectionView: View {
             reloadPreloadedEntries()
             if !hasInitializedSinceDate {
                 loadedSinceDate = batchingMode.initialSinceDate(
-                    latestArticleDate: latestArticleDateForSection()
+                    latestArticleDate: latestArticleDate()
                 )
                 hasInitializedSinceDate = true
             }
         }
-        .onChange(of: section) { _, _ in
+        .onChange(of: source) { _, _ in
             reloadPreloadedEntries()
             loadedSinceDate = batchingMode.initialSinceDate(
-                latestArticleDate: latestArticleDateForSection()
+                latestArticleDate: latestArticleDate()
             )
             loadedCount = batchingMode.initialCount()
             visibility.capture(from: rawArticles, isEnabled: hideViewedContent)
@@ -185,14 +306,14 @@ struct HomeSectionView: View {
         .onChange(of: hideViewedContent) { _, _ in
             reloadPreloadedEntries()
             loadedSinceDate = batchingMode.initialSinceDate(
-                latestArticleDate: latestArticleDateForSection()
+                latestArticleDate: latestArticleDate()
             )
             loadedCount = batchingMode.initialCount()
             visibility.capture(from: rawArticles, isEnabled: hideViewedContent)
         }
         .onChange(of: batchingMode) { _, newMode in
             loadedSinceDate = newMode.initialSinceDate(
-                latestArticleDate: latestArticleDateForSection()
+                latestArticleDate: latestArticleDate()
             )
             loadedCount = newMode.initialCount()
             visibility.capture(from: rawArticles, isEnabled: hideViewedContent)
@@ -203,7 +324,7 @@ struct HomeSectionView: View {
     }
 
     /// Latest preloaded entry date, so the initial batch anchors on visible content.
-    private func latestArticleDateForSection() -> Date? {
+    private func latestArticleDate() -> Date? {
         preloadedEntries.compactMap(\.publishedDate).max()
     }
 }

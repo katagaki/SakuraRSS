@@ -6,6 +6,7 @@ struct CompactStyleView: View {
     @Environment(\.zoomNamespace) private var zoomNamespace
     let articles: [Article]
     var onLoadMore: (() -> Void)?
+    var headerView: AnyView?
 
     private func articleLabel(for article: Article) -> some View {
         HStack {
@@ -27,6 +28,12 @@ struct CompactStyleView: View {
 
     var body: some View {
         List {
+            if let headerView {
+                headerView
+                    .listRowBackground(Color.clear)
+                    .listRowSeparator(.hidden)
+                    .listRowInsets(EdgeInsets())
+            }
             ForEach(articles) { article in
                 ArticleLink(article: article, label: {
                     articleLabel(for: article)
