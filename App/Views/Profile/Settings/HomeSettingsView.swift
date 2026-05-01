@@ -2,13 +2,14 @@ import SwiftUI
 
 struct HomeSettingsView: View {
 
+    @Environment(FeedManager.self) var feedManager
     @State private var configuration: HomeBarConfiguration = .load()
     @State private var editMode: EditMode = .active
 
     var body: some View {
         List {
             Section {
-                ForEach(configuration.orderedItems, id: \.self) { kind in
+                ForEach(visibleItems, id: \.self) { kind in
                     HomeBarItemRow(
                         kind: kind,
                         isEnabled: enabledBinding(for: kind)
@@ -47,8 +48,31 @@ struct HomeSettingsView: View {
         }
     }
 
+    /// Filters out per-section items the user has no feeds for, while
+    /// preserving order so hidden items keep their saved positions.
+    private var visibleItems: [HomeBarItemKind] {
+        configuration.orderedItems.filter(isVisible)
+    }
+
+    private func isVisible(_ kind: HomeBarItemKind) -> Bool {
+        guard let feedSection = kind.feedSection else { return true }
+        return feedManager.hasFeeds(for: feedSection)
+    }
+
     private func move(from source: IndexSet, to destination: Int) {
-        configuration.orderedItems.move(fromOffsets: source, toOffset: destination)
+        var newVisible = visibleItems
+        newVisible.move(fromOffsets: source, toOffset: destination)
+
+        var visibleIndices: [Int] = []
+        for (index, kind) in configuration.orderedItems.enumerated() where isVisible(kind) {
+            visibleIndices.append(index)
+        }
+
+        var newOrdered = configuration.orderedItems
+        for (visibleIndex, absoluteIndex) in visibleIndices.enumerated() {
+            newOrdered[absoluteIndex] = newVisible[visibleIndex]
+        }
+        configuration.orderedItems = newOrdered
     }
 
     private func enabledBinding(for kind: HomeBarItemKind) -> Binding<Bool> {
@@ -79,7 +103,7 @@ private struct HomeBarItemRow: View {
 
     var body: some View {
         Toggle(isOn: $isEnabled) {
-            Label(kind.localizedTitle, systemImage: kind.systemImage)
+            Text(kind.localizedTitle)
         }
     }
 }

@@ -9,32 +9,25 @@ extension TodayTabItem {
         configuration: HomeBarConfiguration
     ) -> [TodayTabItem] {
         var items: [TodayTabItem] = []
+
+        if sections.contains(.all) {
+            items.append(item(for: .all))
+        }
+
         for kind in configuration.orderedItems where configuration.enabledItems.contains(kind) {
             switch kind {
-            case .following:
-                if sections.contains(.all) {
-                    items.append(item(for: .all))
-                }
-            case .feedSections:
-                items.append(contentsOf: feedSectionItems(from: sections))
             case .lists:
                 items.append(contentsOf: lists.map(item(for:)))
             case .topics:
                 items.append(contentsOf: topics.map(topicItem(name:)))
+            default:
+                if let homeSection = HomeSection(rawValue: kind.rawValue),
+                   sections.contains(homeSection) {
+                    items.append(item(for: homeSection))
+                }
             }
         }
         return items
-    }
-
-    private static func feedSectionItems(from sections: [HomeSection]) -> [TodayTabItem] {
-        let primaryOrder: [HomeSection] = [.feeds, .podcasts]
-        let primary = primaryOrder.filter { sections.contains($0) }
-        let others = sections
-            .filter { $0 != .all && !primaryOrder.contains($0) }
-            .sorted { lhs, rhs in
-                lhs.localizedTitle.localizedCompare(rhs.localizedTitle) == .orderedAscending
-            }
-        return (primary + others).map(item(for:))
     }
 
     private static func item(for section: HomeSection) -> TodayTabItem {

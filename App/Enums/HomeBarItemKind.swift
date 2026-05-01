@@ -2,28 +2,61 @@ import Foundation
 
 /// The categories of items that can appear in the home section selection bar.
 enum HomeBarItemKind: String, Codable, CaseIterable, Identifiable, Hashable, Sendable {
-    case following
-    case feedSections
+    case feeds
+    case podcasts
+    case bluesky
+    case instagram
+    case mastodon
+    case note
+    case pixelfed
+    case reddit
+    case substack
+    case vimeo
+    case x // swiftlint:disable:this identifier_name
+    case youtube
+    case niconico
     case lists
     case topics
 
     var id: String { rawValue }
 
+    var feedSection: FeedSection? {
+        switch self {
+        case .feeds: .feeds
+        case .podcasts: .podcasts
+        case .bluesky: .bluesky
+        case .instagram: .instagram
+        case .mastodon: .mastodon
+        case .note: .note
+        case .pixelfed: .pixelfed
+        case .reddit: .reddit
+        case .substack: .substack
+        case .vimeo: .vimeo
+        case .x: .x
+        case .youtube: .youtube
+        case .niconico: .niconico
+        case .lists, .topics: nil
+        }
+    }
+
     var localizedTitle: String {
         switch self {
-        case .following: String(localized: "Home.BarItem.Following", table: "Settings")
-        case .feedSections: String(localized: "Home.BarItem.FeedSections", table: "Settings")
         case .lists: String(localized: "Home.BarItem.Lists", table: "Settings")
         case .topics: String(localized: "Home.BarItem.Topics", table: "Settings")
+        default: feedSection?.localizedTitle ?? ""
         }
     }
 
     var systemImage: String {
         switch self {
-        case .following: "square.stack"
-        case .feedSections: "dot.radiowaves.up.forward"
         case .lists: "list.bullet"
         case .topics: "tag"
+        case .feeds: "newspaper"
+        case .podcasts: "headphones"
+        case .instagram, .pixelfed: "photo.on.rectangle"
+        case .bluesky, .mastodon, .note, .reddit, .x: "person.2"
+        case .substack: "envelope"
+        case .vimeo, .youtube, .niconico: "play.rectangle"
         }
     }
 }

@@ -6727,124 +6727,6 @@
         }
       }
     },
-    "Home.BarItem.FeedSections" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Feed-Bereiche"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Feed Sections"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sections de flux"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sezioni feed"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "フィードセクション"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "피드 섹션"
-          }
-        },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Phần nguồn"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Feed 分区"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Feed 分區"
-          }
-        }
-      }
-    },
-    "Home.BarItem.Following" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Folge ich"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Following"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Abonnements"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Seguiti"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "フォロー中"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "팔로잉"
-          }
-        },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Đang theo dõi"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "关注"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "追蹤"
-          }
-        }
-      }
-    },
     "Home.BarItem.Lists" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -7028,55 +6910,55 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Auswahlleiste"
+            "value" : "Anordnung"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Section Bar"
+            "value" : "Reorder"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Barre des sections"
+            "value" : "Réorganiser"
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Barra delle sezioni"
+            "value" : "Riordina"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "セクションバー"
+            "value" : "並べ替え"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "섹션 바"
+            "value" : "정렬"
           }
         },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Thanh phần"
+            "value" : "Sắp xếp"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "分区栏"
+            "value" : "重新排序"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "分區欄"
+            "value" : "重新排序"
           }
         }
       }
@@ -7087,55 +6969,55 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Top-Themen"
+            "value" : "Angezeigte Themen"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Top Topics"
+            "value" : "Displayed Topics"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sujets principaux"
+            "value" : "Sujets affichés"
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Argomenti principali"
+            "value" : "Argomenti mostrati"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "トップトピック"
+            "value" : "表示されるトピック"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "인기 주제"
+            "value" : "표시되는 주제"
           }
         },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Chủ đề hàng đầu"
+            "value" : "Chủ đề hiển thị"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "热门话题"
+            "value" : "显示的话题"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "熱門話題"
+            "value" : "顯示的話題"
           }
         }
       }
