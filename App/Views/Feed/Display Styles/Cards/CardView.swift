@@ -49,6 +49,7 @@ struct CardView: View {
                             Image(uiImage: cardImage)
                                 .resizable()
                                 .aspectRatio(contentMode: .fill)
+                                .debugLayout()
                         }
                         .frame(width: geometry.size.width, height: geometry.size.height)
                         .clipped()

@@ -21,6 +21,7 @@ struct CarouselImageView: View {
                     .resizable()
                     .aspectRatio(contentMode: .fit)
                     .frame(height: height)
+                    .debugLayout()
             } else {
                 Color.secondary.opacity(0.1)
                     .frame(width: 200, height: height)

@@ -127,6 +127,7 @@ struct FeedArticleRow: View {
                             Image(uiImage: loadedImage)
                                 .resizable()
                                 .aspectRatio(contentMode: .fill)
+                                .debugLayout()
                         }
                         .clipped()
                         .clipShape(.rect(cornerRadius: 12))

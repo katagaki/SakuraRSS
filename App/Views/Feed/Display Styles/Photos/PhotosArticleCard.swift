@@ -129,6 +129,7 @@ struct PhotosArticleCard: View {
                         Image(uiImage: photoImage)
                             .resizable()
                             .aspectRatio(contentMode: .fill)
+                            .debugLayout()
                     }
                     .frame(maxWidth: .infinity)
                     .clipped()

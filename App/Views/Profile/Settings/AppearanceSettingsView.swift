@@ -10,6 +10,7 @@ struct AppearanceSettingsView: View {
     @AppStorage("Display.UnreadBadgeMode") private var unreadBadgeMode: UnreadBadgeMode = .none
     @AppStorage("Display.ZoomTransition") private var zoomTransitionEnabled: Bool = true
     @AppStorage("Display.SakuraBackground") private var sakuraBackgroundEnabled: Bool = true
+    @AppStorage("Display.FeedBackground") private var feedBackgroundEnabled: Bool = true
 
     var body: some View {
         List {
@@ -17,6 +18,8 @@ struct AppearanceSettingsView: View {
                 Toggle(String(localized: "SakuraBackground", table: "Settings"),
                        isOn: $sakuraBackgroundEnabled)
                 .tint(.accent)
+                Toggle(String(localized: "FeedBackground", table: "Settings"),
+                       isOn: $feedBackgroundEnabled)
             } header: {
                 Text(String(localized: "Section.Theme", table: "Settings"))
             }

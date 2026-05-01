@@ -14,15 +14,16 @@ extension EnvironmentValues {
 struct SakuraBackground: ViewModifier {
 
     @AppStorage("Display.SakuraBackground") private var sakuraBackgroundEnabled: Bool = true
+    @AppStorage("Display.FeedBackground") private var feedBackgroundEnabled: Bool = true
     @Environment(\.feedBackgroundColors) private var feedColors
 
     @ViewBuilder
     func body(content: Content) -> some View {
-        if sakuraBackgroundEnabled {
-            content
-                .scrollContentBackground(.hidden)
-                .background(alignment: .top) {
-                    ZStack(alignment: .top) {
+        content
+            .scrollContentBackground(sakuraBackgroundEnabled ? .hidden : .automatic)
+            .background(alignment: .top) {
+                ZStack(alignment: .top) {
+                    if sakuraBackgroundEnabled {
                         LinearGradient(
                             colors: [
                                 Color("BackgroundGradientTop"),
@@ -31,23 +32,14 @@ struct SakuraBackground: ViewModifier {
                             startPoint: .top,
                             endPoint: .bottom
                         )
-                        if !feedColors.isEmpty {
-                            FeedHeaderGradientView(colors: feedColors)
-                                .frame(height: 360)
-                        }
                     }
-                    .ignoresSafeArea()
-                }
-        } else {
-            content
-                .background(alignment: .top) {
-                    if !feedColors.isEmpty {
+                    if feedBackgroundEnabled, !feedColors.isEmpty {
                         FeedHeaderGradientView(colors: feedColors)
                             .frame(height: 360)
-                            .ignoresSafeArea(edges: [.top, .horizontal])
                     }
                 }
-        }
+                .ignoresSafeArea()
+            }
     }
 }
 

@@ -107,6 +107,7 @@ struct ScrollArticlePage: View {
                     .resizable()
                     .aspectRatio(contentMode: .fill)
                     .transition(.opacity)
+                    .debugLayout()
             }
         }
     }
