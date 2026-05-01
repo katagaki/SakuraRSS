@@ -3,13 +3,10 @@ import SwiftUI
 struct EditFeedListsTab: View {
 
     @Environment(FeedManager.self) var feedManager
+    @Binding var feed: Feed?
     let feedID: Int64
 
     @State private var isShowingNewList = false
-
-    var feed: Feed? {
-        feedManager.feedsByID[feedID]
-    }
 
     private var assignedListIDs: Set<Int64> {
         guard let feed else { return [] }
@@ -26,7 +23,6 @@ struct EditFeedListsTab: View {
         }
         .sheet(isPresented: $isShowingNewList) {
             ListEditSheet(list: nil)
-                .environment(feedManager)
                 .presentationDetents([.medium, .large])
                 .interactiveDismissDisabled()
         }

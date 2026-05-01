@@ -12,7 +12,6 @@ extension EditFeedContentTab {
                 }
                 NavigationLink {
                     ArticleViewerPreviewView(feedID: feedID)
-                        .environment(feedManager)
                 } label: {
                     Text(String(localized: "FeedEdit.Viewer.Preview", table: "Feeds"))
                 }

@@ -3,6 +3,7 @@ import SwiftUI
 struct EditFeedContentTab: View {
 
     @Environment(FeedManager.self) var feedManager
+    @Binding var feed: Feed?
     let feedID: Int64
 
     @State var openMode: FeedOpenMode = .inAppViewer
@@ -14,10 +15,6 @@ struct EditFeedContentTab: View {
     @State var authorField: ContentOverrideField = .default
 
     @State var hasInitialized = false
-
-    var feed: Feed? {
-        feedManager.feedsByID[feedID]
-    }
 
     var body: some View {
         Group {

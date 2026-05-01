@@ -49,12 +49,10 @@ struct IPadSidebarList: View {
         }
         .sheet(isPresented: $showingNewList) {
             ListEditSheet(list: nil)
-                .environment(feedManager)
                 .interactiveDismissDisabled()
         }
         .sheet(item: $feedForEditSheet) { wrapper in
             EditFeedSheet(feedID: wrapper.id)
-                .environment(feedManager)
         }
     }
 

@@ -63,13 +63,11 @@ struct ListDetailView: View {
         }
         .sheet(item: $listToEdit) { list in
             ListEditSheet(list: list)
-                .environment(feedManager)
                 .presentationDetents([.medium, .large])
                 .interactiveDismissDisabled()
         }
         .sheet(item: $listForRules) { list in
             ListRulesSheet(list: list)
-                .environment(feedManager)
                 .presentationDetents([.medium, .large])
                 .interactiveDismissDisabled()
         }

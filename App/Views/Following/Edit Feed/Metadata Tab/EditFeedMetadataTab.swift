@@ -4,6 +4,7 @@ import SwiftUI
 struct EditFeedMetadataTab: View {
 
     @Environment(FeedManager.self) var feedManager
+    @Binding var feed: Feed?
     let feedID: Int64
 
     @State var name: String = ""
@@ -18,10 +19,6 @@ struct EditFeedMetadataTab: View {
     @State var showIconFetchError = false
     @State var showPetalBuilder = false
     @State private var hasInitialized = false
-
-    var feed: Feed? {
-        feedManager.feedsByID[feedID]
-    }
 
     var body: some View {
         Group {
@@ -54,7 +51,6 @@ struct EditFeedMetadataTab: View {
         .sheet(isPresented: $showPetalBuilder) {
             if let feed, let recipe = PetalStore.shared.recipe(forFeedURL: feed.url) {
                 PetalBuilderView(mode: .edit(feed: feed, recipe: recipe))
-                    .environment(feedManager)
             }
         }
     }

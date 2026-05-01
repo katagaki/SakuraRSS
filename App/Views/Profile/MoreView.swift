@@ -145,19 +145,16 @@ struct MoreView: View {
             }
             .sheet(isPresented: $isShowingNewList) {
                 ListEditSheet(list: nil)
-                    .environment(feedManager)
                     .presentationDetents([.medium, .large])
                     .interactiveDismissDisabled()
             }
             .sheet(item: $listToEdit) { list in
                 ListEditSheet(list: list)
-                    .environment(feedManager)
                     .presentationDetents([.medium, .large])
                     .interactiveDismissDisabled()
             }
             .sheet(item: $listForRules) { list in
                 ListRulesSheet(list: list)
-                    .environment(feedManager)
                     .presentationDetents([.medium, .large])
                     .interactiveDismissDisabled()
             }

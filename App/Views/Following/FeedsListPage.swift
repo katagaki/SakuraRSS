@@ -4,7 +4,9 @@ struct FeedsListPage: View {
 
     @Environment(FeedManager.self) var feedManager
     @State private var searchText = ""
-    @State private var selectedFeed: SelectedFeed?
+    @State private var isPresentingAddFeedSheet = false
+    @State private var isPresentingEditFeedSheet = false
+    @State private var feedToEdit: Feed?
     @State private var feedToDelete: Feed?
     @State private var isEditingFeeds = false
     @Namespace private var addFeedNamespace
@@ -61,7 +63,7 @@ struct FeedsListPage: View {
                     }
                 } else {
                     Button {
-                        selectedFeed = .add
+                        isPresentingAddFeedSheet = true
                     } label: {
                         Image(systemName: "plus")
                     }
@@ -80,23 +82,20 @@ struct FeedsListPage: View {
                     Text(String(localized: "FeedList.Empty.Description", table: "Feeds"))
                 } actions: {
                     Button(String(localized: "FeedList.Empty.AddFeed", table: "Feeds")) {
-                        selectedFeed = .add
+                        isPresentingAddFeedSheet = true
                     }
                     .buttonStyle(.borderedProminent)
                 }
             }
         }
-        .sheet(item: $selectedFeed) { selectedFeed in
-            switch selectedFeed {
-            case .add:
-                AddFeedView()
-                    .presentationDetents([.medium, .large])
-                    .navigationTransition(.zoom(sourceID: "addFeed", in: addFeedNamespace))
-            case .edit(let feedID):
-                EditFeedSheet(feedID: feedID)
-                    .environment(feedManager)
-                    .zoomTransition(sourceID: feedID, in: feedEditNamespace)
-            }
+        .sheet(isPresented: $isPresentingAddFeedSheet) {
+            AddFeedView()
+                .presentationDetents([.large])
+                .navigationTransition(.zoom(sourceID: "addFeed", in: addFeedNamespace))
+        }
+        .sheet(item: $feedToEdit) { feed in
+            EditFeedSheet(feedID: feed.id)
+                .navigationTransition(.zoom(sourceID: feed.id, in: feedEditNamespace))
         }
         .alert(
             String(localized: "FeedMenu.Delete.Title", table: "Feeds"),
@@ -157,7 +156,10 @@ struct FeedsListPage: View {
                 feed: feed,
                 isWiggling: true,
                 onDelete: { feedToDelete = feed },
-                onTap: { selectedFeed = .edit(feed.id) },
+                onTap: {
+                    feedToEdit = feed
+                    isPresentingEditFeedSheet = true
+                },
                 editTransitionNamespace: feedEditNamespace
             )
             .id(feed.id)

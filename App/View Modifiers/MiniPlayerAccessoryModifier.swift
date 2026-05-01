@@ -79,10 +79,8 @@ struct MiniPlayerAccessoryModifier: ViewModifier {
         switch item {
         case .podcast(let article):
             PodcastEpisodeView(article: article, showsDismissButton: true)
-                .environment(feedManager)
         case .youTube(let article):
             YouTubePlayerView(article: article, showsDismissButton: true)
-                .environment(feedManager)
         }
     }
 }

@@ -28,7 +28,6 @@ extension EditFeedContentTab {
                     feedID: feedID,
                     pendingOverride: overridesEnabled ? pendingOverride : nil
                 )
-                .environment(feedManager)
             } label: {
                 Text(String(localized: "FeedEdit.ContentOverrides.Preview", table: "Feeds"))
             }

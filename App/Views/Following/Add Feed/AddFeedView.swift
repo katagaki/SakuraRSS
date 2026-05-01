@@ -103,7 +103,6 @@ struct AddFeedView: View {
         }
         .sheet(isPresented: $showPetalBuilder) {
             PetalBuilderView(mode: .create(initialURL: petalSeedURL))
-                .environment(feedManager)
         }
     }
 

@@ -148,7 +148,6 @@ struct FeedArticlesView: View {
             scrollToTopTrigger: scrollToTopTick,
             headerView: AnyView(
                 FeedHeaderView(feed: currentFeed)
-                    .environment(feedManager)
             ),
             additionalLeadingToolbar: AnyView(
                 Group {

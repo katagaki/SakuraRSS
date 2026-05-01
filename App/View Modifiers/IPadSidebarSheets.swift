@@ -23,7 +23,6 @@ struct IPadSidebarSheets: ViewModifier {
                 pendingFeedURL = nil
             } content: {
                 AddFeedView(initialURL: pendingFeedURL ?? "")
-                    .environment(feedManager)
             }
             .sheet(isPresented: $showingOnboarding) {
                 OnboardingView {
@@ -31,7 +30,6 @@ struct IPadSidebarSheets: ViewModifier {
                     ViewStyleSwitcherTip.hasCompletedOnboarding = true
                     showingOnboarding = false
                 }
-                .environment(feedManager)
             }
             .sheet(isPresented: $showYouTubeSafari) {
                 if let url = pendingYouTubeSafariURL {
@@ -63,12 +61,10 @@ struct IPadSidebarSheets: ViewModifier {
             }
             .sheet(item: $listToEdit) { list in
                 ListEditSheet(list: list)
-                    .environment(feedManager)
                     .interactiveDismissDisabled()
             }
             .sheet(item: $listForRules) { list in
                 ListRulesSheet(list: list)
-                    .environment(feedManager)
                     .interactiveDismissDisabled()
             }
             .confirmationDialog(

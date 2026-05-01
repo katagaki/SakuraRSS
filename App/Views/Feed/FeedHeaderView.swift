@@ -71,7 +71,6 @@ struct FeedHeaderView: View {
         }
         .sheet(isPresented: $isEditingFeed) {
             EditFeedSheet(feedID: feed.id)
-                .environment(feedManager)
                 .navigationTransition(.zoom(sourceID: feed.id, in: editNamespace))
         }
     }

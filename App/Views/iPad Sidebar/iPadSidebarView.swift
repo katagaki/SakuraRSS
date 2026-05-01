@@ -51,7 +51,6 @@ struct IPadSidebarView: View {
                     ephemeralDestinations = []
                 }
             )
-            .environment(feedManager)
         } content: {
             contentColumn
         } detail: {

@@ -3,6 +3,7 @@ import SwiftUI
 struct EditFeedRulesTab: View {
 
     @Environment(FeedManager.self) var feedManager
+    @Binding var feed: Feed?
     let feedID: Int64
 
     @State private var allowedKeywords: [String] = []
@@ -16,10 +17,6 @@ struct EditFeedRulesTab: View {
     @FocusState private var isAllowedKeywordFieldFocused: Bool
     @FocusState private var isKeywordFieldFocused: Bool
     @FocusState private var isAuthorFieldFocused: Bool
-
-    var feed: Feed? {
-        feedManager.feedsByID[feedID]
-    }
 
     var suggestedAuthors: [String] {
         let existing = Set(mutedAuthors)

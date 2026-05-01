@@ -68,7 +68,6 @@ struct MainTabView: View {
             )
             .sheet(isPresented: $showingAddFeed) {
                 AddFeedView(initialURL: pendingFeedURL ?? "")
-                    .environment(feedManager)
                     .onDisappear {
                         pendingFeedURL = nil
                     }
@@ -79,7 +78,6 @@ struct MainTabView: View {
                     ViewStyleSwitcherTip.hasCompletedOnboarding = true
                     showingOnboarding = false
                 }
-                .environment(feedManager)
             }
             .onChange(of: pendingFeedURL) {
                 if pendingFeedURL != nil {
