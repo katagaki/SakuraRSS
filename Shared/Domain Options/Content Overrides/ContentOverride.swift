@@ -18,7 +18,11 @@ nonisolated struct ContentOverride: Sendable, Hashable {
         )
     }
 
+    var hasCustomization: Bool {
+        titleField != .default || bodyField != .default || authorField != .default
+    }
+
     var isActive: Bool {
-        enabled && (titleField != .default || bodyField != .default || authorField != .default)
+        enabled && hasCustomization
     }
 }

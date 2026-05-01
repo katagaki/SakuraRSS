@@ -60,7 +60,7 @@ struct ArticleViewerPreviewView: View {
     private func loadSampleIfNeeded() {
         guard sample.isEmpty, let feed else { return }
         let pool = feedManager.articles(for: feed)
-        sample = Array(pool.shuffled().prefix(3))
+        sample = pool.shuffled().prefix(3).map { feedManager.article(byID: $0.id) ?? $0 }
         currentIndex = 0
     }
 }

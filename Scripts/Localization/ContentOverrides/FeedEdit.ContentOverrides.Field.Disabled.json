@@ -1,0 +1,14 @@
+{
+  "key": "FeedEdit.ContentOverrides.Field.Disabled",
+  "localizations": {
+    "de": "Deaktiviert",
+    "en": "Disabled",
+    "fr": "Désactivé",
+    "it": "Disattivato",
+    "ja": "無効",
+    "ko": "비활성화",
+    "vi": "Tắt",
+    "zh-Hans": "禁用",
+    "zh-Hant": "停用"
+  }
+}
