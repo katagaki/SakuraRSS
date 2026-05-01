@@ -76,13 +76,13 @@ struct VideoStyleView: View {
                         }
                     }
                 }
+                if let onLoadMore {
+                    LoadPreviousArticlesButton(action: onLoadMore, articleCount: articles.count)
+                        .padding(.horizontal, 16)
+                }
             }
+            .padding(.top, headerView == nil ? 12 : 0)
             .padding(.bottom)
-            if let onLoadMore {
-                LoadPreviousArticlesButton(action: onLoadMore, articleCount: articles.count)
-                    .padding(.horizontal, 16)
-                    .padding(.bottom)
-            }
         }
         .trackScrollActivity()
         .sheet(isPresented: $showSafari) {

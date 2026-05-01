@@ -1,0 +1,14 @@
+{
+  "key": "Home.BarItem.Topics",
+  "localizations": {
+    "de": "Themen",
+    "en": "Topics",
+    "fr": "Sujets",
+    "it": "Argomenti",
+    "ja": "トピック",
+    "ko": "주제",
+    "vi": "Chủ đề",
+    "zh-Hans": "话题",
+    "zh-Hant": "話題"
+  }
+}

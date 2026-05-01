@@ -1,0 +1,14 @@
+{
+  "key": "Home.BarItem.Following",
+  "localizations": {
+    "de": "Folge ich",
+    "en": "Following",
+    "fr": "Abonnements",
+    "it": "Seguiti",
+    "ja": "フォロー中",
+    "ko": "팔로잉",
+    "vi": "Đang theo dõi",
+    "zh-Hans": "关注",
+    "zh-Hant": "追蹤"
+  }
+}

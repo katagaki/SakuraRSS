@@ -1,15 +1,17 @@
 import SwiftUI
 
 /// Represents the selected view in the Home tab title menu.
-/// Can be a static section or a user-created list.
+/// Can be a static section, a user-created list, or a top topic.
 enum HomeSelection: Hashable, RawRepresentable {
     case section(HomeSection)
     case list(Int64)
+    case topic(String)
 
     var rawValue: String {
         switch self {
         case .section(let section): "section.\(section.rawValue)"
         case .list(let id): "list.\(id)"
+        case .topic(let name): "topic.\(name)"
         }
     }
 
@@ -26,6 +28,12 @@ enum HomeSelection: Hashable, RawRepresentable {
                 self = .list(id)
                 return
             }
+        } else if rawValue.hasPrefix("topic.") {
+            let name = String(rawValue.dropFirst("topic.".count))
+            if !name.isEmpty {
+                self = .topic(name)
+                return
+            }
         }
         // Legacy: bare section names from before the HomeSelection wrapper.
         if let section = HomeSection(rawValue: rawValue) {
@@ -39,6 +47,7 @@ enum HomeSelection: Hashable, RawRepresentable {
         switch self {
         case .section(let section): section.localizedTitle
         case .list: ""
+        case .topic(let name): name
         }
     }
 
@@ -46,6 +55,7 @@ enum HomeSelection: Hashable, RawRepresentable {
         switch self {
         case .section(let section): section.systemImage
         case .list: nil
+        case .topic: "tag"
         }
     }
 }

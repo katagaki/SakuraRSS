@@ -1,0 +1,14 @@
+{
+  "key": "Home.SectionBar.Title",
+  "localizations": {
+    "de": "Auswahlleiste",
+    "en": "Section Bar",
+    "fr": "Barre des sections",
+    "it": "Barra delle sezioni",
+    "ja": "セクションバー",
+    "ko": "섹션 바",
+    "vi": "Thanh phần",
+    "zh-Hans": "分区栏",
+    "zh-Hant": "分區欄"
+  }
+}

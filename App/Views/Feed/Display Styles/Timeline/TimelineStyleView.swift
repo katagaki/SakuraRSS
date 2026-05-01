@@ -57,6 +57,8 @@ struct TimelineStyleView: View {
             }
         }
         .listStyle(.plain)
+        .listSectionSpacing(.compact)
+        .environment(\.defaultMinListHeaderHeight, 0)
         .trackScrollActivity()
     }
 

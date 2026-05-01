@@ -14,6 +14,7 @@ struct TodayTabBar: View {
         switch selection {
         case .section(let section): section.tabAccentColor
         case .list: .accentColor
+        case .topic: .accentColor
         }
     }
 

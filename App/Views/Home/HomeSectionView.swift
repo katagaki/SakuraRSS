@@ -1,11 +1,12 @@
 import SwiftUI
 
-/// Source of articles for `HomeSectionView`. Modeling section and list together
-/// keeps the view type stable across selection changes so safeAreaInset content
-/// (the Today tab bar) doesn't get torn down when switching modes.
+/// Source of articles for `HomeSectionView`. Modeling section, list, and topic
+/// together keeps the view type stable across selection changes so safeAreaInset
+/// content (the Today tab bar) doesn't get torn down when switching modes.
 enum HomeContentSource: Hashable {
     case section(FeedSection?)
     case list(FeedList)
+    case topic(String)
 }
 
 struct HomeSectionView: View {
@@ -24,6 +25,10 @@ struct HomeSectionView: View {
 
     init(list: FeedList) {
         self.source = .list(list)
+    }
+
+    init(topic: String) {
+        self.source = .topic(topic)
     }
 
     @AppStorage("Articles.BatchingMode") private var storedBatchingMode: BatchingMode = .items25
@@ -108,6 +113,11 @@ struct HomeSectionView: View {
         case .list(let list):
             preloadedEntries = feedManager.preloadedArticleEntries(
                 for: list,
+                requireUnread: hideViewedContent
+            )
+        case .topic(let name):
+            preloadedEntries = feedManager.preloadedArticleEntries(
+                forTopic: name,
                 requireUnread: hideViewedContent
             )
         }
@@ -197,6 +207,8 @@ struct HomeSectionView: View {
             return section?.localizedTitle ?? HomeSection.all.localizedTitle
         case .list(let list):
             return list.name
+        case .topic(let name):
+            return name
         }
     }
 
@@ -207,6 +219,8 @@ struct HomeSectionView: View {
             return "all"
         case .list(let list):
             return "list.\(list.id)"
+        case .topic(let name):
+            return "topic.\(name)"
         }
     }
 
@@ -217,6 +231,8 @@ struct HomeSectionView: View {
             return "section.all"
         case .list(let list):
             return "list.\(list.id)"
+        case .topic(let name):
+            return "topic.\(name)"
         }
     }
 
@@ -227,6 +243,8 @@ struct HomeSectionView: View {
             return feedManager.feeds.filter { $0.feedSection == section }
         case .list(let list):
             return feedManager.feeds(for: list)
+        case .topic:
+            return feedManager.feeds
         }
     }
 
@@ -256,6 +274,10 @@ struct HomeSectionView: View {
             }
         case .list(let list):
             feedManager.markAllRead(for: list)
+        case .topic:
+            for article in rawArticles where !feedManager.isRead(article) {
+                feedManager.markRead(article)
+            }
         }
     }
 
