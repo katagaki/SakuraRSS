@@ -363,6 +363,23 @@ nonisolated enum YouTubePlayerScripts {
                     dbg('seek fallback skipped');
                 }
             } catch (e) { dbg('seek err: ' + e.message); }
+            if (acted) {
+                window.__ytUserPaused = false;
+                window.__ytAutoplayBlocked = false;
+                var attempts = 0;
+                var resume = function() {
+                    var v = document.querySelector('video');
+                    if (v && v.paused && !v.ended && v.readyState >= 2) {
+                        try {
+                            var p = v.play();
+                            if (p && typeof p.catch === 'function') p.catch(function(){});
+                            dbg('resume play attempt=' + attempts);
+                        } catch (e) { dbg('resume err: ' + e.message); }
+                    }
+                    if (++attempts < 20) { setTimeout(resume, 250); }
+                };
+                setTimeout(resume, 100);
+            }
             dbg('done acted=' + acted);
             return acted;
         })();

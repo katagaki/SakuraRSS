@@ -10,25 +10,37 @@ extension AudioPlayer {
 
         commandCenter.playCommand.addTarget { [weak self] _ in
             Task { @MainActor in
-                self?.player?.play()
-                self?.isPlaying = true
-                self?.postNowPlayingUpdate()
+                if YouTubePlayerSession.shared.isActive {
+                    YouTubePlayerSession.shared.play()
+                } else {
+                    self?.player?.play()
+                    self?.isPlaying = true
+                    self?.postNowPlayingUpdate()
+                }
             }
             return .success
         }
 
         commandCenter.pauseCommand.addTarget { [weak self] _ in
             Task { @MainActor in
-                self?.player?.pause()
-                self?.isPlaying = false
-                self?.postNowPlayingUpdate()
+                if YouTubePlayerSession.shared.isActive {
+                    YouTubePlayerSession.shared.pause()
+                } else {
+                    self?.player?.pause()
+                    self?.isPlaying = false
+                    self?.postNowPlayingUpdate()
+                }
             }
             return .success
         }
 
         commandCenter.togglePlayPauseCommand.addTarget { [weak self] _ in
             Task { @MainActor in
-                self?.togglePlayPause()
+                if YouTubePlayerSession.shared.isActive {
+                    YouTubePlayerSession.shared.togglePlayPause()
+                } else {
+                    self?.togglePlayPause()
+                }
             }
             return .success
         }

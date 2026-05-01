@@ -51,6 +51,8 @@ final class YouTubePlayerSession {
         artworkURL = nil
     }
 
+    var isActive: Bool { webView != nil }
+
     func togglePlayPause() {
         let script = """
         (function() {
@@ -58,11 +60,52 @@ final class YouTubePlayerSession {
             if (!video) { return null; }
             if (video.paused) {
                 window.__ytUserPaused = false;
+                window.__ytAutoplayBlocked = false;
                 video.play();
             } else {
                 window.__ytUserPaused = true;
                 video.pause();
             }
+            return !video.paused;
+        })();
+        """
+        webView?.evaluateJavaScript(script) { result, _ in
+            if let playing = result as? Bool {
+                Task { @MainActor in
+                    YouTubePlayerSession.shared.isPlaying = playing
+                }
+            }
+        }
+    }
+
+    func play() {
+        let script = """
+        (function() {
+            var video = document.querySelector('video');
+            if (!video) { return null; }
+            window.__ytUserPaused = false;
+            window.__ytAutoplayBlocked = false;
+            var p = video.play();
+            if (p && typeof p.catch === 'function') { p.catch(function(){}); }
+            return !video.paused;
+        })();
+        """
+        webView?.evaluateJavaScript(script) { result, _ in
+            if let playing = result as? Bool {
+                Task { @MainActor in
+                    YouTubePlayerSession.shared.isPlaying = playing
+                }
+            }
+        }
+    }
+
+    func pause() {
+        let script = """
+        (function() {
+            var video = document.querySelector('video');
+            if (!video) { return null; }
+            window.__ytUserPaused = true;
+            video.pause();
             return !video.paused;
         })();
         """
