@@ -42,10 +42,15 @@ struct SelectableText: UIViewRepresentable {
     }
 
     func sizeThatFits(_ proposal: ProposedViewSize, uiView: UITextView, context _: Context) -> CGSize? {
-        let fallbackWidth = uiView.window?.windowScene?.screen.bounds.width ?? 390
-        let width = proposal.width ?? fallbackWidth
-        let size = uiView.sizeThatFits(CGSize(width: width, height: CGFloat.greatestFiniteMagnitude))
-        return CGSize(width: width, height: size.height)
+        if let proposedWidth = proposal.width, proposedWidth.isFinite, proposedWidth > 0 {
+            let size = uiView.sizeThatFits(
+                CGSize(width: proposedWidth, height: CGFloat.greatestFiniteMagnitude)
+            )
+            return CGSize(width: proposedWidth, height: size.height)
+        }
+        return uiView.sizeThatFits(
+            CGSize(width: CGFloat.greatestFiniteMagnitude, height: CGFloat.greatestFiniteMagnitude)
+        )
     }
 
     final class Coordinator: NSObject, UITextViewDelegate {
