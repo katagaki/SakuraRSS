@@ -1,7 +1,7 @@
 import PhotosUI
 import SwiftUI
 
-struct FeedEditMetadataTab: View {
+struct EditFeedMetadataTab: View {
 
     @Environment(FeedManager.self) var feedManager
     let feedID: Int64

@@ -106,7 +106,7 @@ struct MoreView: View {
             .listStyle(.insetGrouped)
             .sakuraBackground()
             .navigationTitle("Tabs.Profile")
-            .toolbarTitleDisplayMode(.inline)
+            .toolbarTitleDisplayMode(.inlineLarge)
             .toolbar {
                 if showsCloseButton {
                     ToolbarItem(placement: .topBarTrailing) {

@@ -1,7 +1,7 @@
 import PhotosUI
 import SwiftUI
 
-extension FeedEditMetadataTab {
+extension EditFeedMetadataTab {
 
     @ViewBuilder
     func iconSection(for feed: Feed) -> some View {

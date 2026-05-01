@@ -37,6 +37,7 @@ struct SearchView: View {
             .navigationTitle(searchText.isEmpty
                 ? String(localized: "Discover.Title", table: "Feeds")
                 : String(localized: "Results.Title", table: "Search"))
+            .toolbarTitleDisplayMode(.inlineLarge)
             .navigationDestination(for: Article.self) { article in
                 ArticleDestinationView(article: article)
                     .environment(\.zoomNamespace, cardZoom)

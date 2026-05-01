@@ -1,6 +1,6 @@
 import SwiftUI
 
-extension FeedEditMetadataTab {
+extension EditFeedMetadataTab {
 
     @ViewBuilder
     func petalSection(for feed: Feed) -> some View {

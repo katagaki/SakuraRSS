@@ -53,7 +53,7 @@ struct IPadSidebarList: View {
                 .interactiveDismissDisabled()
         }
         .sheet(item: $feedForEditSheet) { wrapper in
-            FeedEditSheet(feedID: wrapper.id)
+            EditFeedSheet(feedID: wrapper.id)
                 .environment(feedManager)
         }
     }

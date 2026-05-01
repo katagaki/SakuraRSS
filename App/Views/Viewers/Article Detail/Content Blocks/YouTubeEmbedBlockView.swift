@@ -6,7 +6,7 @@ struct YouTubeEmbedBlockView: View {
 
     let videoID: String
 
-    @Environment(\.openURL) private var openURL
+    @AppStorage("YouTube.OpenMode") private var youTubeOpenMode: YouTubeOpenMode = .inAppPlayer
     @State private var isPlaying = false
     @State private var currentTime: TimeInterval = 0
     @State private var duration: TimeInterval = 0
@@ -18,10 +18,7 @@ struct YouTubeEmbedBlockView: View {
     @State private var isPiP = false
     @State private var hasStartedPlaying = false
     @State private var showFullPlayer = false
-
-    private var watchURL: URL? {
-        URL(string: "https://www.youtube.com/watch?v=\(videoID)")
-    }
+    @State private var showSafari = false
 
     private var embedURL: String {
         "https://www.youtube.com/watch?v=\(videoID)"
@@ -68,6 +65,12 @@ struct YouTubeEmbedBlockView: View {
                 }
             }
         }
+        .sheet(isPresented: $showSafari) {
+            if let url = URL(string: embedURL) {
+                SafariView(url: url)
+                    .ignoresSafeArea()
+            }
+        }
     }
 
     @ViewBuilder
@@ -108,20 +111,46 @@ struct YouTubeEmbedBlockView: View {
 
             Spacer(minLength: 0)
 
-            if let watchURL {
-                Button {
-                    openURL(watchURL)
-                } label: {
-                    Image(systemName: "arrow.up.right.square")
-                        .font(.callout)
-                }
-                .buttonStyle(.plain)
-                .accessibilityLabel(Text(
-                    String(localized: "Article.Embed.OpenInYouTube", table: "Articles")
-                ))
+            Button {
+                openInPlayer()
+            } label: {
+                Image(systemName: "arrow.up.right.square")
+                    .font(.callout)
             }
+            .buttonStyle(.plain)
+            .accessibilityLabel(Text(
+                String(localized: "Article.Embed.OpenInYouTube", table: "Articles")
+            ))
         }
         .foregroundStyle(.primary)
+    }
+
+    private func openInPlayer() {
+        pauseEmbed()
+        switch youTubeOpenMode {
+        case .inAppPlayer:
+            let article = Article.ephemeral(
+                url: embedURL,
+                title: ""
+            )
+            MediaPresenter.shared.presentYouTube(article)
+        case .youTubeApp:
+            YouTubeHelper.openInApp(url: embedURL)
+        case .browser:
+            showSafari = true
+        }
+    }
+
+    private func pauseEmbed() {
+        let script = """
+        (function() {
+            var v = document.querySelector('video');
+            if (!v) return;
+            window.__ytUserPaused = true;
+            v.pause();
+        })();
+        """
+        webView?.evaluateJavaScript(script, completionHandler: nil)
     }
 
     private var timeLabel: String {

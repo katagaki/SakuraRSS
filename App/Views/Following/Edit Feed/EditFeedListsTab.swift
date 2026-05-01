@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct FeedEditListsTab: View {
+struct EditFeedListsTab: View {
 
     @Environment(FeedManager.self) var feedManager
     let feedID: Int64

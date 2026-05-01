@@ -1,6 +1,6 @@
 import SwiftUI
 
-extension FeedEditContentTab {
+extension EditFeedContentTab {
 
     @ViewBuilder
     func overridesSection(for feed: Feed) -> some View {

@@ -39,7 +39,7 @@ struct BookmarksContentView: View {
             }
         }
         .navigationTitle("Tabs.Bookmarks")
-        .toolbarTitleDisplayMode(.inline)
+        .toolbarTitleDisplayMode(.inlineLarge)
         .sakuraBackground()
         .toolbar {
             if !bookmarkedArticles.isEmpty {

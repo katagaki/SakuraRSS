@@ -3,9 +3,8 @@ import SwiftUI
 struct FeedsListPage: View {
 
     @Environment(FeedManager.self) var feedManager
-    @State private var isShowingAddFeed = false
     @State private var searchText = ""
-    @State private var feedForEditSheet: FeedIDIdentifier?
+    @State private var selectedFeed: SelectedFeed?
     @State private var feedToDelete: Feed?
     @State private var isEditingFeeds = false
     @Namespace private var addFeedNamespace
@@ -44,17 +43,25 @@ struct FeedsListPage: View {
                 .animation(.smooth.speed(2.0), value: isEditingFeeds)
         }
         .navigationTitle("Shared.Feeds")
-        .navigationBarTitleDisplayMode(.inline)
+        .toolbarTitleDisplayMode(.inlineLarge)
         .searchable(text: $searchText, prompt: Text(String(localized: "FeedList.SearchPrompt", table: "Feeds")))
         .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
+            if !isEditingFeeds {
+                ToolbarItemGroup(placement: .topBarTrailing) {
+                    Button(String(localized: "FeedList.Edit", table: "Feeds")) {
+                        isEditingFeeds = true
+                    }
+                    .disabled(feedManager.feeds.isEmpty)
+                }
+            }
+            ToolbarItemGroup(placement: .topBarTrailing) {
                 if isEditingFeeds {
                     Button(role: .confirm) {
                         isEditingFeeds = false
                     }
                 } else {
                     Button {
-                        isShowingAddFeed = true
+                        selectedFeed = .add
                     } label: {
                         Image(systemName: "plus")
                     }
@@ -62,21 +69,8 @@ struct FeedsListPage: View {
                     .matchedTransitionSource(id: "addFeed", in: addFeedNamespace)
                 }
             }
-            if !isEditingFeeds {
-                ToolbarItem(placement: .topBarLeading) {
-                    Button(String(localized: "FeedList.Edit", table: "Feeds")) {
-                        isEditingFeeds = true
-                    }
-                    .disabled(feedManager.feeds.isEmpty)
-                }
-            }
         }
         .sakuraBackground()
-        .sheet(isPresented: $isShowingAddFeed) {
-            AddFeedView()
-                .presentationDetents([.medium, .large])
-                .navigationTransition(.zoom(sourceID: "addFeed", in: addFeedNamespace))
-        }
         .overlay {
             if feedManager.feeds.isEmpty {
                 ContentUnavailableView {
@@ -86,16 +80,23 @@ struct FeedsListPage: View {
                     Text(String(localized: "FeedList.Empty.Description", table: "Feeds"))
                 } actions: {
                     Button(String(localized: "FeedList.Empty.AddFeed", table: "Feeds")) {
-                        isShowingAddFeed = true
+                        selectedFeed = .add
                     }
                     .buttonStyle(.borderedProminent)
                 }
             }
         }
-        .sheet(item: $feedForEditSheet) { wrapper in
-            FeedEditSheet(feedID: wrapper.id)
-                .environment(feedManager)
-                .zoomTransition(sourceID: wrapper.id, in: feedEditNamespace)
+        .sheet(item: $selectedFeed) { selectedFeed in
+            switch selectedFeed {
+            case .add:
+                AddFeedView()
+                    .presentationDetents([.medium, .large])
+                    .navigationTransition(.zoom(sourceID: "addFeed", in: addFeedNamespace))
+            case .edit(let feedID):
+                EditFeedSheet(feedID: feedID)
+                    .environment(feedManager)
+                    .zoomTransition(sourceID: feedID, in: feedEditNamespace)
+            }
         }
         .alert(
             String(localized: "FeedMenu.Delete.Title", table: "Feeds"),
@@ -156,7 +157,7 @@ struct FeedsListPage: View {
                 feed: feed,
                 isWiggling: true,
                 onDelete: { feedToDelete = feed },
-                onTap: { feedForEditSheet = FeedIDIdentifier(id: feed.id) },
+                onTap: { selectedFeed = .edit(feed.id) },
                 editTransitionNamespace: feedEditNamespace
             )
             .id(feed.id)

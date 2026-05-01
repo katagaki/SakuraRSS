@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct FeedEditSheet: View {
+struct EditFeedSheet: View {
 
     @Environment(FeedManager.self) var feedManager
     @Environment(\.dismiss) private var dismiss
@@ -52,16 +52,16 @@ struct FeedEditSheet: View {
         if feed != nil {
             switch selectedTab {
             case .metadata:
-                FeedEditMetadataTab(feedID: feedID)
+                EditFeedMetadataTab(feedID: feedID)
                     .environment(feedManager)
             case .content:
-                FeedEditContentTab(feedID: feedID)
+                EditFeedContentTab(feedID: feedID)
                     .environment(feedManager)
             case .rules:
-                FeedEditRulesTab(feedID: feedID)
+                EditFeedRulesTab(feedID: feedID)
                     .environment(feedManager)
             case .lists:
-                FeedEditListsTab(feedID: feedID)
+                EditFeedListsTab(feedID: feedID)
                     .environment(feedManager)
             }
         } else {

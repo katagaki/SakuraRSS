@@ -1,6 +1,6 @@
 import Foundation
 
-extension FeedEditContentTab {
+extension EditFeedContentTab {
 
     func initializeStateIfNeeded() {
         guard !hasInitialized else { return }
