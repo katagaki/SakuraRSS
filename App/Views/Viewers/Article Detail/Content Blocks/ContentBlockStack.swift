@@ -12,6 +12,7 @@ struct ContentBlockStack: View {
     var textStyle: TextStyle = .primary
     let imageNamespace: Namespace.ID
     let onImageTap: (URL) -> Void
+    var onLinkTap: ((URL) -> Void)?
 
     var body: some View {
         let blocks = ContentBlock.parse(text)
@@ -51,9 +52,9 @@ struct ContentBlockStack: View {
     private func textView(_ content: String) -> some View {
         switch textStyle {
         case .primary:
-            SelectableText(content)
+            SelectableText(content, onLinkTap: onLinkTap)
         case .white:
-            SelectableText(content, textColor: .white)
+            SelectableText(content, textColor: .white, onLinkTap: onLinkTap)
                 .frame(maxWidth: .infinity, alignment: .leading)
         }
     }

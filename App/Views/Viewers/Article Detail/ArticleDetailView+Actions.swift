@@ -199,6 +199,15 @@ extension ArticleDetailView: ArticleActions {
         arXivPDFReference = ArXivPDFReference(url: pdfURL, title: article.title)
     }
 
+    func handleLinkTap(_ url: URL) {
+        switch linkOpenMode {
+        case .browser:
+            openURL(url)
+        case .inAppViewer:
+            inAppLinkURL = url
+        }
+    }
+
     var translateLabel: String {
         if showingSummary {
             return String(localized: "Article.TranslateSummary", table: "Articles")
