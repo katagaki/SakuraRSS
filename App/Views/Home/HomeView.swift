@@ -35,9 +35,11 @@ struct HomeView: View {
                 }
                 .toolbar {
                     ToolbarItem(placement: .principal) {
-                        Text(formattedDate)
+                        Text(principalText)
                             .font(.caption)
                             .foregroundStyle(.secondary)
+                            .contentTransition(.numericText())
+                            .animation(.smooth, value: principalText)
                     }
                     if markAllReadPosition == .top {
                         ToolbarItemGroup(placement: .topBarLeading) {
@@ -66,15 +68,6 @@ struct HomeView: View {
                             }
                         }
                     }
-                    ToolbarItemGroup(placement: .topBarLeading) {
-                        if feedManager.isLoading && feedManager.hasActiveRefreshProgress {
-                            FeedRefreshProgressDonut(
-                                progress: feedManager.refreshProgress,
-                                onStop: { feedManager.cancelRefresh() }
-                            )
-                        }
-                    }
-                    .sharedBackgroundVisibility(.hidden)
                 }
                 .navigationDestination(for: Feed.self) { feed in
                     FeedArticlesView(feed: feed)
@@ -172,10 +165,40 @@ struct HomeView: View {
         }
     }
 
+    private var principalText: String {
+        let scopedState = feedManager.scopedRefreshes[currentScopeKey]
+        if let scopedState, scopedState.hasActiveProgress {
+            return String(
+                localized: "Home.Refreshing \(scopedState.completed) \(scopedState.total)",
+                table: "Home"
+            )
+        }
+        if feedManager.isLoading && feedManager.hasActiveRefreshProgress {
+            return String(
+                localized: "Home.Refreshing \(feedManager.refreshCompleted) \(feedManager.refreshTotal)",
+                table: "Home"
+            )
+        }
+        return formattedDate
+    }
+
+    private var currentScopeKey: String {
+        switch selectedSelection {
+        case .section(let section):
+            if let feedSection = section.feedSection {
+                return "section.\(feedSection.rawValue)"
+            }
+            return "section.all"
+        case .list(let id):
+            return "list.\(id)"
+        }
+    }
+
     private var formattedDate: String {
         let relative: String
-        if let lastRefreshedAt = feedManager.lastRefreshedAt {
-            relative = lastRefreshedAt.formatted(.relative(presentation: .named))
+        let scopedDate = feedManager.scopedLastRefreshedAt[currentScopeKey]
+        if let date = scopedDate ?? feedManager.lastRefreshedAt {
+            relative = date.formatted(.relative(presentation: .named))
         } else {
             relative = Date().formatted(
                 .dateTime

@@ -32,6 +32,12 @@ struct FeedArticlesView: View {
         feedManager.feeds.first(where: { $0.id == feed.id }) ?? feed
     }
 
+    private var scopeKey: String { "feed.\(feed.id)" }
+
+    private var scopedRefreshState: ScopedRefreshState {
+        feedManager.scopedRefreshes[scopeKey] ?? ScopedRefreshState()
+    }
+
     private var batcher: ArticleIDBatcher {
         ArticleIDBatcher(entries: preloadedEntries)
     }
@@ -83,8 +89,9 @@ struct FeedArticlesView: View {
     }
 
     private func performRefresh() async {
-        log("FeedArticlesView", "performRefresh id=\(feed.id) title=\(feed.title) isLoading=\(feedManager.isLoading)")
-        guard !feedManager.isLoading else { return }
+        // swiftlint:disable:next line_length
+        log("FeedArticlesView", "performRefresh id=\(feed.id) title=\(feed.title) scopeActive=\(scopedRefreshState.hasActiveProgress)")
+        guard !scopedRefreshState.hasActiveProgress else { return }
         feedManager.flushDebouncedReads()
         withAnimation(.smooth.speed(2.0)) {
             visibility.beginRefresh(
@@ -93,7 +100,12 @@ struct FeedArticlesView: View {
                 recaptureVisible: true
             )
         }
-        try? await feedManager.refreshFeed(feed)
+        await feedManager.refreshFeeds(
+            scope: scopeKey,
+            feeds: [feed],
+            skipImagePreload: false,
+            runNLP: true
+        )
         withAnimation(.smooth.speed(2.0)) {
             visibility.endRefresh(from: rawArticles, isEnabled: hideViewedContent)
         }
@@ -138,6 +150,17 @@ struct FeedArticlesView: View {
             headerView: AnyView(
                 FeedHeaderView(feed: currentFeed)
                     .environment(feedManager)
+            ),
+            additionalLeadingToolbar: AnyView(
+                Group {
+                    if scopedRefreshState.hasActiveProgress {
+                        let scope = scopeKey
+                        FeedRefreshProgressDonut(
+                            progress: scopedRefreshState.progress,
+                            onStop: { feedManager.cancelScopedRefresh(scope: scope) }
+                        )
+                    }
+                }
             ),
             effectiveStyleBinding: $effectiveDisplayStyle
         )

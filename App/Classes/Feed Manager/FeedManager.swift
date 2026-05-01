@@ -5,6 +5,7 @@ import SwiftUI
 final class FeedManager {
 
     static let lastRefreshedAtDefaultsKey = "FeedManager.LastRefreshedAt"
+    static let scopedLastRefreshedAtDefaultsKey = "FeedManager.ScopedLastRefreshedAt"
 
     var feeds: [Feed] = []
     var articles: [Article] = []
@@ -22,6 +23,25 @@ final class FeedManager {
         }
     }
 
+    /// Per-scope last-refresh timestamps so the Home "Last updated" string can
+    /// follow the active section/list/feed instead of the global counter.
+    /// Stored as `[scope: epochSeconds]` in UserDefaults.
+    var scopedLastRefreshedAt: [String: Date] = FeedManager.loadScopedLastRefreshedAt() {
+        didSet {
+            UserDefaults.standard.set(
+                scopedLastRefreshedAt.mapValues { $0.timeIntervalSince1970 },
+                forKey: FeedManager.scopedLastRefreshedAtDefaultsKey
+            )
+        }
+    }
+
+    private static func loadScopedLastRefreshedAt() -> [String: Date] {
+        let raw = UserDefaults.standard.dictionary(
+            forKey: FeedManager.scopedLastRefreshedAtDefaultsKey
+        ) as? [String: TimeInterval] ?? [:]
+        return raw.mapValues { Date(timeIntervalSince1970: $0) }
+    }
+
     var refreshProgress: Double {
         guard refreshTotal > 0 else { return 0 }
         let fraction = Double(refreshCompleted) / Double(refreshTotal)
@@ -31,6 +51,13 @@ final class FeedManager {
     var hasActiveRefreshProgress: Bool {
         refreshTotal > 0
     }
+
+    /// Per-scope refresh state keyed by scope identifier (e.g. `section.youtube`,
+    /// `list.42`, `feed.123`). Each scope tracks its own total/completed so a
+    /// pull-to-refresh in one section doesn't muddle the donut for another.
+    var scopedRefreshes: [String: ScopedRefreshState] = [:]
+    @ObservationIgnored var scopedRefreshTasks: [String: Task<Void, Never>] = [:]
+
     private(set) var dataRevision: Int = 0
     private(set) var faviconRevision: Int = 0
     private(set) var unreadCounts: [Int64: Int] = [:]
@@ -132,6 +159,18 @@ final class FeedManager {
         dataRevision += 1
     }
 
+}
+
+struct ScopedRefreshState: Hashable, Sendable {
+    var total: Int = 0
+    var completed: Int = 0
+
+    var progress: Double {
+        guard total > 0 else { return 0 }
+        return min(max(Double(completed) / Double(total), 0), 1)
+    }
+
+    var hasActiveProgress: Bool { total > 0 }
 }
 
 enum FeedError: LocalizedError {

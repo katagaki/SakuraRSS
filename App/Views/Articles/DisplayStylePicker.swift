@@ -49,13 +49,17 @@ struct DisplayStylePicker: View {
                     Label(String(localized: "Style.Timeline", table: "Articles"), systemImage: "clock")
                         .tag(FeedDisplayStyle.timeline)
                 }
-                if showVideo {
-                    Label(String(localized: "Style.Video", table: "Articles"), systemImage: "play.rectangle")
-                        .tag(FeedDisplayStyle.video)
-                }
-                if showPodcast {
-                    Label(String(localized: "Style.Podcast", table: "Articles"), systemImage: "headphones")
-                        .tag(FeedDisplayStyle.podcast)
+            }
+            if showVideo || showPodcast {
+                Picker(String(localized: "StyleSection.Media", table: "Articles"), selection: $displayStyle) {
+                    if showVideo {
+                        Label(String(localized: "Style.Video", table: "Articles"), systemImage: "play.rectangle")
+                            .tag(FeedDisplayStyle.video)
+                    }
+                    if showPodcast {
+                        Label(String(localized: "Style.Podcast", table: "Articles"), systemImage: "headphones")
+                            .tag(FeedDisplayStyle.podcast)
+                    }
                 }
             }
         }

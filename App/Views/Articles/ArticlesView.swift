@@ -33,6 +33,7 @@ struct ArticlesView: View {
     var onMarkAllRead: (() -> Void)?
     var scrollToTopTrigger: Int
     var headerView: AnyView?
+    var additionalLeadingToolbar: AnyView?
     var effectiveStyleBinding: Binding<FeedDisplayStyle?>?
 
     @Environment(\.hidesMarkAllReadToolbar) private var hidesMarkAllReadToolbar
@@ -62,6 +63,7 @@ struct ArticlesView: View {
          onMarkAllRead: (() -> Void)? = nil,
          scrollToTopTrigger: Int = 0,
          headerView: AnyView? = nil,
+         additionalLeadingToolbar: AnyView? = nil,
          effectiveStyleBinding: Binding<FeedDisplayStyle?>? = nil) {
         self.articles = articles
         self.title = title
@@ -81,6 +83,7 @@ struct ArticlesView: View {
         self.onMarkAllRead = onMarkAllRead
         self.scrollToTopTrigger = scrollToTopTrigger
         self.headerView = headerView
+        self.additionalLeadingToolbar = additionalLeadingToolbar
         self.effectiveStyleBinding = effectiveStyleBinding
         let raw = UserDefaults.standard.string(forKey: "Display.Style.\(feedKey)")
         let defaultRaw = UserDefaults.standard.string(forKey: "Display.DefaultStyle") ?? FeedDisplayStyle.inbox.rawValue
@@ -167,6 +170,12 @@ struct ArticlesView: View {
                         .presentationCompactAdaptation(.popover)
                     }
                 }
+            }
+            if let additionalLeadingToolbar {
+                ToolbarItemGroup(placement: .topBarLeading) {
+                    additionalLeadingToolbar
+                }
+                .sharedBackgroundVisibility(.hidden)
             }
             if anySummaryHidden {
                 ToolbarItemGroup(placement: .topBarTrailing) {

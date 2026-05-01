@@ -117,7 +117,7 @@ struct HomeSectionView: View {
     }
 
     private func performRefresh() async {
-        guard !feedManager.isLoading else { return }
+        guard !scopedRefreshState.hasActiveProgress else { return }
         feedManager.flushDebouncedReads()
         withAnimation(.smooth.speed(2.0)) {
             visibility.beginRefresh(
@@ -126,7 +126,7 @@ struct HomeSectionView: View {
                 recaptureVisible: true
             )
         }
-        await feedManager.refreshAllFeeds()
+        await feedManager.refreshFeeds(scope: scopeKey, feeds: scopedFeeds)
         withAnimation(.smooth.speed(2.0)) {
             visibility.endRefresh(from: rawArticles, isEnabled: hideViewedContent)
         }
@@ -135,7 +135,7 @@ struct HomeSectionView: View {
     /// Kicks off a refresh and returns immediately so SwiftUI dismisses the
     /// pull-to-refresh indicator; in-flight progress shows via the toolbar donut.
     private func startRefreshWithoutBlocking() {
-        guard !feedManager.isLoading else { return }
+        guard !scopedRefreshState.hasActiveProgress else { return }
         feedManager.flushDebouncedReads()
         withAnimation(.smooth.speed(2.0)) {
             visibility.beginRefresh(
@@ -144,8 +144,10 @@ struct HomeSectionView: View {
                 recaptureVisible: true
             )
         }
+        let scope = scopeKey
+        let feeds = scopedFeeds
         Task { @MainActor in
-            await feedManager.refreshAllFeeds()
+            await feedManager.refreshFeeds(scope: scope, feeds: feeds)
             withAnimation(.smooth.speed(2.0)) {
                 visibility.endRefresh(from: rawArticles, isEnabled: hideViewedContent)
             }
@@ -208,6 +210,30 @@ struct HomeSectionView: View {
         }
     }
 
+    private var scopeKey: String {
+        switch source {
+        case .section(let section):
+            if let section { return "section.\(section.rawValue)" }
+            return "section.all"
+        case .list(let list):
+            return "list.\(list.id)"
+        }
+    }
+
+    private var scopedFeeds: [Feed] {
+        switch source {
+        case .section(let section):
+            guard let section else { return feedManager.feeds }
+            return feedManager.feeds.filter { $0.feedSection == section }
+        case .list(let list):
+            return feedManager.feeds(for: list)
+        }
+    }
+
+    private var scopedRefreshState: ScopedRefreshState {
+        feedManager.scopedRefreshes[scopeKey] ?? ScopedRefreshState()
+    }
+
     private var todayDateKey: String {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd"
@@ -251,7 +277,18 @@ struct HomeSectionView: View {
             onLoadMore: loadMoreAction,
             onRefresh: { await performRefresh() },
             onMarkAllRead: performMarkAllRead,
-            scrollToTopTrigger: scrollToTopTick
+            scrollToTopTrigger: scrollToTopTick,
+            additionalLeadingToolbar: AnyView(
+                Group {
+                    if scopedRefreshState.hasActiveProgress {
+                        let scope = scopeKey
+                        FeedRefreshProgressDonut(
+                            progress: scopedRefreshState.progress,
+                            onStop: { feedManager.cancelScopedRefresh(scope: scope) }
+                        )
+                    }
+                }
+            )
         )
         .safeAreaInset(edge: .top, spacing: 0) {
             if isAllFollowing {
