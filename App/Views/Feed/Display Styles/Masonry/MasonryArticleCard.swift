@@ -78,12 +78,6 @@ struct MasonryArticleCard: View {
 
                 Spacer(minLength: 0)
             }
-
-            if let date = article.publishedDate {
-                RelativeTimeText(date: date)
-                    .font(.caption2)
-                    .foregroundStyle(.tertiary)
-            }
         }
         .contentShape(.rect)
         .shadow(color: .black.opacity(0.05), radius: 2, y: 1)

@@ -29,21 +29,21 @@ struct MoreView: View {
 
                 Section {
                     NavigationLink {
-                        HomeSettingsView()
-                    } label: {
-                        SettingsIconLabel(
-                            String(localized: "Section.Home", table: "Settings"),
-                            systemImage: "newspaper",
-                            color: .red
-                        )
-                    }
-                    NavigationLink {
                         AppearanceSettingsView()
                     } label: {
                         SettingsIconLabel(
                             String(localized: "Section.Appearance", table: "Settings"),
                             systemImage: "paintpalette.fill",
                             color: .orange
+                        )
+                    }
+                    NavigationLink {
+                        HomeSettingsView()
+                    } label: {
+                        SettingsIconLabel(
+                            String(localized: "Section.Home", table: "Settings"),
+                            systemImage: "newspaper.fill",
+                            color: .red
                         )
                     }
                     NavigationLink {

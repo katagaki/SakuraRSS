@@ -168,7 +168,8 @@ struct FeedArticlesView: View {
             ToolbarItem(placement: .principal) {
                 VStack(spacing: 0) {
                     Text(currentFeed.title)
-                        .font(.headline)
+                        .font(.subheadline)
+                        .fontWeight(.semibold)
                     if !currentFeed.domain.isEmpty {
                         Text(currentFeed.domain)
                             .font(.caption2)

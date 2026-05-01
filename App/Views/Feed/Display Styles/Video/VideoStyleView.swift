@@ -16,7 +16,7 @@ struct VideoStyleView: View {
 
     var body: some View {
         ScrollView(.vertical) {
-            LazyVStack(spacing: 24) {
+            LazyVStack(spacing: 12) {
                 if let headerView {
                     headerView
                 }
@@ -39,6 +39,7 @@ struct VideoStyleView: View {
                             .markReadOnScroll(article: article)
                     }
                     .buttonStyle(.plain)
+                    .contentShape(.rect)
                     .contextMenu {
                         Button {
                             feedManager.toggleRead(article)
