@@ -30,8 +30,10 @@ struct ArticleVisibilityTracker {
         // Pre-existing articles (id <= preRefreshMaxID) pass through so load-more
         // during a refresh still surfaces older content. The snapshot is unioned
         // back in so count-based queries (e.g. Doomscroll's items25) don't go
-        // empty when new arrivals take over the top-N.
-        if activeRefreshCount > 0 {
+        // empty when new arrivals take over the top-N. The merge also runs while
+        // pending content awaits acceptance, so the list doesn't go empty between
+        // `endRefresh` and the user tapping the refresh prompt.
+        if activeRefreshCount > 0 || !pendingIDs.isEmpty {
             let liveIDs = Set(result.map(\.id))
             for snapshot in preRefreshSnapshot where !liveIDs.contains(snapshot.id) {
                 result.append(snapshot)
@@ -112,13 +114,20 @@ struct ArticleVisibilityTracker {
         activeRefreshCount -= 1
         let currentIDs = Set(articles.map(\.id))
         let newIDs = currentIDs.subtracting(preRefreshIDs)
-        if !newIDs.isEmpty {
+        // First-load refreshes (no prior content) reveal arrivals immediately;
+        // staging them all as pending would leave the view empty behind the prompt.
+        let hadPriorContent = !preRefreshIDs.isEmpty || !pendingIDs.isEmpty
+        if !newIDs.isEmpty, hadPriorContent {
             pendingIDs.formUnion(newIDs)
         }
         if activeRefreshCount == 0 {
             preRefreshIDs = []
-            preRefreshMaxID = .max
-            preRefreshSnapshot = []
+            // Keep snapshot/maxID until pending drains so `filter` can backfill
+            // old content while new arrivals wait for user acceptance.
+            if pendingIDs.isEmpty {
+                preRefreshMaxID = .max
+                preRefreshSnapshot = []
+            }
         }
     }
 
@@ -129,5 +138,9 @@ struct ArticleVisibilityTracker {
             visibleIDs = (visibleIDs ?? []).union(pendingIDs)
         }
         pendingIDs = []
+        if activeRefreshCount == 0 {
+            preRefreshMaxID = .max
+            preRefreshSnapshot = []
+        }
     }
 }

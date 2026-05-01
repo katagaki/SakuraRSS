@@ -15,22 +15,6 @@ struct EditFeedSheet: View {
     var body: some View {
         NavigationStack {
             tabContent
-                .safeAreaInset(edge: .top) {
-                    Picker("", selection: $selectedTab) {
-                        Text(String(localized: "FeedEditSheet.Tab.Metadata", table: "Feeds"))
-                            .tag(FeedEditTab.metadata)
-                        Text(String(localized: "FeedEditSheet.Tab.Content", table: "Feeds"))
-                            .tag(FeedEditTab.content)
-                        Text(String(localized: "FeedEditSheet.Tab.Rules", table: "Feeds"))
-                            .tag(FeedEditTab.rules)
-                        Text(String(localized: "FeedEditSheet.Tab.Lists", table: "Feeds"))
-                            .tag(FeedEditTab.lists)
-                    }
-                    .pickerStyle(.segmented)
-                    .padding(.horizontal)
-                    .padding(.top, 8)
-                    .padding(.bottom, 4)
-                }
                 .navigationTitle(navigationTitle)
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
@@ -38,6 +22,19 @@ struct EditFeedSheet: View {
                         Button(role: .cancel) {
                             dismiss()
                         }
+                    }
+                    ToolbarItem(placement: .principal) {
+                        Picker("", selection: $selectedTab) {
+                            Text(String(localized: "FeedEditSheet.Tab.Metadata", table: "Feeds"))
+                                .tag(FeedEditTab.metadata)
+                            Text(String(localized: "FeedEditSheet.Tab.Content", table: "Feeds"))
+                                .tag(FeedEditTab.content)
+                            Text(String(localized: "FeedEditSheet.Tab.Rules", table: "Feeds"))
+                                .tag(FeedEditTab.rules)
+                            Text(String(localized: "FeedEditSheet.Tab.Lists", table: "Feeds"))
+                                .tag(FeedEditTab.lists)
+                        }
+                        .pickerStyle(.segmented)
                     }
                 }
         }

@@ -7,6 +7,7 @@ struct FeedHeaderView: View {
 
     @State private var favicon: UIImage?
     @State private var isEditingFeed: Bool = false
+    @State private var isDescriptionExpanded: Bool = false
 
     private let iconSize: CGFloat = 64
     private let iconCornerRadius: CGFloat = 14
@@ -46,9 +47,13 @@ struct FeedHeaderView: View {
                 Text(trimmedDescription)
                     .font(.subheadline)
                     .multilineTextAlignment(.center)
-                    .lineLimit(3)
+                    .lineLimit(isDescriptionExpanded ? nil : 3)
                     .padding(.horizontal, 4)
                     .padding(.top, 4)
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        isDescriptionExpanded.toggle()
+                    }
             }
 
             actionButtons

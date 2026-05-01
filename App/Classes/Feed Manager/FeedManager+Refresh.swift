@@ -173,9 +173,9 @@ extension FeedManager {
                     id: feed.id, title: parsed.title, category: feed.category
                 )
             }
-        }
-        if parsed.description != feed.feedDescription {
-            try? database.updateFeedDescription(id: feed.id, description: parsed.description)
+            if parsed.description != feed.feedDescription {
+                try? database.updateFeedDescription(id: feed.id, description: parsed.description)
+            }
         }
         try database.updateFeedLastFetched(id: feed.id, date: Date())
         log("FeedRefresh.RSS", "pipeline complete id=\(feed.id)")
