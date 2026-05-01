@@ -1,30 +1,39 @@
 import SwiftUI
 
-/// Pie badge overlaid on a favicon to visualise rate-limit cooldown progress.
+/// Full-icon overlay that visualises a feed's rate-limit cooldown.
+/// Dims the underlying favicon and fills clockwise as the cooldown elapses.
 struct FaviconProgressBadge: View {
 
     let lastFetched: Date?
     let cooldown: TimeInterval
 
-    var size: CGFloat = 12
+    var size: CGFloat = 56
+    var isCircle: Bool = true
+    var cornerRadius: CGFloat = 12
 
     var body: some View {
         TimelineView(.periodic(from: .now, by: 1)) { context in
             if let progress = cooldownProgress(now: context.date) {
                 ZStack {
-                    Circle()
-                        .fill(Color.black.opacity(0.6))
-                    Circle()
-                        .strokeBorder(Color.white.opacity(0.9), lineWidth: 0.8)
-                    PieSliceShape(progress: progress)
-                        .fill(Color.white)
-                        .padding(2)
+                    shape
+                        .fill(Color.black.opacity(0.55))
+                    PieSliceShape(progress: 1 - progress)
+                        .fill(Color.white.opacity(0.85))
+                        .clipShape(shape)
                 }
                 .frame(width: size, height: size)
-                .shadow(color: .black.opacity(0.3), radius: 0.5, x: 0, y: 0.5)
+                .allowsHitTesting(false)
             } else {
                 Color.clear.frame(width: size, height: size)
             }
+        }
+    }
+
+    private var shape: AnyShape {
+        if isCircle {
+            AnyShape(Circle())
+        } else {
+            AnyShape(RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
         }
     }
 
@@ -49,7 +58,7 @@ struct PieSliceShape: Shape {
     func path(in rect: CGRect) -> Path {
         var path = Path()
         let center = CGPoint(x: rect.midX, y: rect.midY)
-        let radius = min(rect.width, rect.height) / 2
+        let radius = max(rect.width, rect.height)
         let clamped = min(max(progress, 0), 1)
         guard clamped > 0 else { return path }
         path.move(to: center)
