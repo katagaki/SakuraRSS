@@ -92,7 +92,7 @@ private struct TodayTabButton: View {
     var body: some View {
         Button(action: action) {
             Text(tab.title)
-                .font(.subheadline.weight(isSelected ? .semibold : .regular))
+                .font(.body.weight(isSelected ? .semibold : .regular))
                 .foregroundStyle(isSelected ? Color.white : Color.primary)
                 .lineLimit(1)
                 .padding(.horizontal, 14)
