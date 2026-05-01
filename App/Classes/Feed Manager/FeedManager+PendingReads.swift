@@ -2,7 +2,7 @@ import Foundation
 
 extension FeedManager {
 
-    static let pendingReadsDebounceInterval: DispatchTimeInterval = .milliseconds(250)
+    static let pendingReadsDebounceInterval: DispatchTimeInterval = .milliseconds(1000)
 
     /// True if persisted as read or queued for the next flush. Reads
     /// `readMaskRevision` so views refresh when the queue flushes, while
@@ -39,9 +39,10 @@ extension FeedManager {
         }
     }
 
-    /// Coalesces rapid scroll-driven mark-read events into one DB write per debounce window.
+    /// Debounces scroll-driven mark-read events; resets the timer on each new mark
+    /// so rapid scrolling defers DB work entirely until the user pauses.
     private func schedulePendingReadsFlush() {
-        guard pendingReadsFlushWorkItem == nil else { return }
+        pendingReadsFlushWorkItem?.cancel()
         let workItem = DispatchWorkItem { [weak self] in
             guard let self else { return }
             self.flushDebouncedReads()

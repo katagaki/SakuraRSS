@@ -17,6 +17,8 @@ struct FeedArticlesView: View {
     @State private var scrollToTopTick: Int = 0
     @State private var hasScrolledPastTitle: Bool = false
     @State private var effectiveDisplayStyle: FeedDisplayStyle?
+    @State private var prominentColors: [Color] = []
+    @State private var scrollOffset: CGFloat = 0
 
     private var batchingMode: BatchingMode {
         DoomscrollingMode.effectiveBatchingMode(storedBatchingMode)
@@ -139,6 +141,8 @@ struct FeedArticlesView: View {
             ),
             effectiveStyleBinding: $effectiveDisplayStyle
         )
+        .environment(\.feedBackgroundColors, prominentColors)
+        .environment(\.feedBackgroundScrollOffset, scrollOffset)
         .toolbar {
             ToolbarItem(placement: .principal) {
                 VStack(spacing: 0) {
@@ -154,17 +158,23 @@ struct FeedArticlesView: View {
                 .lineLimit(1)
                 .truncationMode(.middle)
                 .fixedSize(horizontal: false, vertical: true)
-                .allowsHitTesting(showsPrincipalTitle)
                 .frame(height: 42)
                 .padding(.horizontal, 18)
-                .glassEffect(.regular, in: .capsule)
+                .glassEffect(.regular.interactive(), in: .capsule)
+                .contentShape(.capsule)
+                .onTapGesture {
+                    scrollToTopTick &+= 1
+                }
+                .allowsHitTesting(showsPrincipalTitle)
                 .opacity(showsPrincipalTitle ? 1 : 0)
                 .animation(.smooth.speed(2.0), value: showsPrincipalTitle)
             }
         }
-        .onScrollGeometryChange(for: Bool.self) { geo in
-            geo.contentOffset.y > 90
-        } action: { _, scrolled in
+        .onScrollGeometryChange(for: CGFloat.self) { geo in
+            geo.contentOffset.y
+        } action: { _, newValue in
+            scrollOffset = newValue
+            let scrolled = newValue > 90
             guard scrolled != hasScrolledPastTitle else { return }
             withAnimation(.smooth.speed(2.0)) {
                 hasScrolledPastTitle = scrolled
@@ -202,6 +212,12 @@ struct FeedArticlesView: View {
                 hasInitializedSinceDate = true
             }
         }
+        .task(id: feed.id) {
+            await loadProminentColors()
+        }
+        .onChange(of: feedManager.faviconRevision) {
+            Task { await loadProminentColors() }
+        }
         .onChange(of: feed.id) { _, _ in
             reloadPreloadedEntries()
             loadedSinceDate = batchingMode.initialSinceDate(
@@ -233,5 +249,11 @@ struct FeedArticlesView: View {
     /// their newest content rather than showing an empty state.
     private func latestArticleDateForFeed() -> Date? {
         feedManager.latestPublishedDate(forFeedIDs: [feed.id])
+    }
+
+    private func loadProminentColors() async {
+        let image = await FaviconCache.shared.favicon(for: currentFeed)
+        let source: UIImage? = image ?? currentFeed.acronymIcon.flatMap { UIImage(data: $0) }
+        prominentColors = source?.prominentColors ?? []
     }
 }

@@ -120,6 +120,14 @@ actor FaviconCache {
         let url = metricsSidecarURL(for: cacheKey)
         if let data = try? Data(contentsOf: url),
            let metrics = try? JSONDecoder().decode(FaviconDerivedMetrics.self, from: data) {
+            if metrics.prominentColors == nil {
+                image.faviconDerivedMetrics = nil
+                let upgraded = image.ensureFaviconDerivedMetrics()
+                if let encoded = try? JSONEncoder().encode(upgraded) {
+                    try? encoded.write(to: url)
+                }
+                return
+            }
             image.faviconDerivedMetrics = metrics
             return
         }

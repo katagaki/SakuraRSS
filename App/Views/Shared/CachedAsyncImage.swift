@@ -61,7 +61,7 @@ struct CachedAsyncImage<Placeholder: View>: View {
             placeholder()
                 .opacity(image == nil ? 1 : 0)
             if let image {
-                Color.blue.opacity(0.4)
+                Color.clear
                     .overlay(alignment: alignment) {
                         Image(uiImage: image)
                             .resizable()

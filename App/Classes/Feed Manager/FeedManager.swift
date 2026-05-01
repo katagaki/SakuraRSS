@@ -46,6 +46,7 @@ final class FeedManager {
 
     @ObservationIgnored var currentScrollPhase: ScrollPhase = .idle
     @ObservationIgnored var pendingReadsFlushWorkItem: DispatchWorkItem?
+    @ObservationIgnored var badgeUpdateWorkItem: DispatchWorkItem?
 
     @ObservationIgnored var contentOverrideCache: [Int64: CachedContentOverride] = [:]
 
