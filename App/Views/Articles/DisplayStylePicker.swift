@@ -43,7 +43,7 @@ struct DisplayStylePicker: View {
                         .tag(FeedDisplayStyle.magazine)
                 }
                 if hasImages {
-                    Label(String(localized: "Style.Masonry", table: "Articles"), systemImage: "square.grid.3x1.below.line.grid.1x2")
+                    Label(String(localized: "Style.Masonry", table: "Articles"), systemImage: "rectangle.3.group")
                         .tag(FeedDisplayStyle.masonry)
                 }
                 if hasImages {
