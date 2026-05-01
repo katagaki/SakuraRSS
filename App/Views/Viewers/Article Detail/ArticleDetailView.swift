@@ -42,8 +42,10 @@ struct ArticleDetailView: View {
     @State var linkedArticleURL: URL?
     @State var arXivPDFReference: ArXivPDFReference?
     @State var imageViewerURL: URL?
+    @State var inAppLinkURL: URL?
     @Namespace private var imageViewerNamespace
     @AppStorage("YouTube.OpenMode") var youTubeOpenMode: YouTubeOpenMode = .inAppPlayer
+    @AppStorage(LinkOpenMode.storageKey) var linkOpenMode: LinkOpenMode = .browser
     @AppStorage("Intelligence.ContentInsights.Enabled") var contentInsightsEnabled: Bool = false
     @State var similarArticles: [SimilarArticleItem] = []
     @State var articleTopics: [String] = []
@@ -184,7 +186,8 @@ struct ArticleDetailView: View {
                     ContentBlockStack(
                         text: text,
                         imageNamespace: imageViewerNamespace,
-                        onImageTap: { url in imageViewerURL = url }
+                        onImageTap: { url in imageViewerURL = url },
+                        onLinkTap: { url in handleLinkTap(url) }
                     )
                     .id("\(showingSummary)-\(showingTranslation)")
                     .transition(.blurReplace)
@@ -245,6 +248,13 @@ struct ArticleDetailView: View {
         .navigationDestination(item: $imageViewerURL) { url in
             ImageViewerView(url: url)
                 .navigationTransition(.zoom(sourceID: url, in: imageViewerNamespace))
+        }
+        .navigationDestination(item: $inAppLinkURL) { url in
+            ArticleDestinationView(
+                article: Article.ephemeral(url: url.absoluteString, title: url.absoluteString),
+                overrideMode: .viewer,
+                overrideTextMode: .auto
+            )
         }
         .translationTask(translationConfig) { session in
             await handleTranslation(session: session)

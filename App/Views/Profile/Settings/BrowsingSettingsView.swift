@@ -5,6 +5,7 @@ struct BrowsingSettingsView: View {
     @AppStorage("Articles.BatchingMode") private var batchingMode: BatchingMode = .items25
     @AppStorage("Articles.HideViewedContent") private var hideViewedContent: Bool = false
     @AppStorage("Display.ScrollMarkAsRead") private var scrollMarkAsRead: Bool = false
+    @AppStorage(LinkOpenMode.storageKey) private var linkOpenMode: LinkOpenMode = .browser
     @AppStorage(DoomscrollingMode.storageKey) private var doomscrollingMode: Bool = false
 
     private var hideViewedContentBinding: Binding<Bool> {
@@ -95,6 +96,19 @@ struct BrowsingSettingsView: View {
                     .tint(.red)
             } header: {
                 Text(String(localized: "Section.Doomscrolling", table: "Settings"))
+            }
+
+            Section {
+                Picker(selection: $linkOpenMode) {
+                    Text(String(localized: "LinkOpenMode.Browser", table: "Settings"))
+                        .tag(LinkOpenMode.browser)
+                    Text(String(localized: "LinkOpenMode.InAppViewer", table: "Settings"))
+                        .tag(LinkOpenMode.inAppViewer)
+                } label: {
+                    Text(String(localized: "LinkOpenMode", table: "Settings"))
+                }
+            } header: {
+                Text(String(localized: "Section.InAppViewer", table: "Settings"))
             }
         }
         .listStyle(.insetGrouped)

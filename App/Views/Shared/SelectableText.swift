@@ -6,15 +6,22 @@ struct SelectableText: UIViewRepresentable {
     let text: String
     let font: UIFont
     let textColor: UIColor
+    var onLinkTap: ((URL) -> Void)?
 
     init(_ text: String, font: UIFont = .preferredFont(forTextStyle: .body),
-         textColor: UIColor = .label) {
+         textColor: UIColor = .label,
+         onLinkTap: ((URL) -> Void)? = nil) {
         self.text = text
         self.font = font
         self.textColor = textColor
+        self.onLinkTap = onLinkTap
     }
 
-    func makeUIView(context _: Context) -> UITextView {
+    func makeCoordinator() -> Coordinator {
+        Coordinator(onLinkTap: onLinkTap)
+    }
+
+    func makeUIView(context: Context) -> UITextView {
         let textView = UITextView()
         textView.isEditable = false
         textView.isSelectable = true
@@ -24,10 +31,12 @@ struct SelectableText: UIViewRepresentable {
         textView.textContainer.lineFragmentPadding = 0
         textView.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
         textView.dataDetectorTypes = []
+        textView.delegate = context.coordinator
         return textView
     }
 
-    func updateUIView(_ textView: UITextView, context _: Context) {
+    func updateUIView(_ textView: UITextView, context: Context) {
+        context.coordinator.onLinkTap = onLinkTap
         textView.attributedText = buildAttributedString()
         textView.invalidateIntrinsicContentSize()
     }
@@ -37,6 +46,25 @@ struct SelectableText: UIViewRepresentable {
         let width = proposal.width ?? fallbackWidth
         let size = uiView.sizeThatFits(CGSize(width: width, height: CGFloat.greatestFiniteMagnitude))
         return CGSize(width: width, height: size.height)
+    }
+
+    final class Coordinator: NSObject, UITextViewDelegate {
+        var onLinkTap: ((URL) -> Void)?
+
+        init(onLinkTap: ((URL) -> Void)?) {
+            self.onLinkTap = onLinkTap
+        }
+
+        func textView(
+            _ textView: UITextView,
+            primaryActionFor textItem: UITextItem,
+            defaultAction: UIAction
+        ) -> UIAction? {
+            guard let onLinkTap, case .link(let url) = textItem.content else {
+                return defaultAction
+            }
+            return UIAction { _ in onLinkTap(url) }
+        }
     }
 
     private func buildAttributedString() -> NSAttributedString {

@@ -7,6 +7,7 @@ struct TableBlockView: View {
     let textStyle: ContentBlockStack.TextStyle
     let imageNamespace: Namespace.ID
     let onImageTap: (URL) -> Void
+    var onLinkTap: ((URL) -> Void)?
 
     private var columnCount: Int {
         let rowMax = rows.map(\.count).max() ?? 0
@@ -58,7 +59,8 @@ struct TableBlockView: View {
                         textStyle: textStyle,
                         font: isHeader ? headerFont : bodyFont,
                         imageNamespace: imageNamespace,
-                        onImageTap: onImageTap
+                        onImageTap: onImageTap,
+                        onLinkTap: onLinkTap
                     )
                 }
                 .padding(.horizontal, 12)
