@@ -105,13 +105,29 @@ struct ArticlesView: View {
 
     var body: some View {
         let effectiveStyle = effectiveDisplayStyle
+        let showsInlineEmpty = effectiveStyle.supportsRichHeader && headerView != nil && articles.isEmpty
+        let composedHeaderView: AnyView? = {
+            guard let headerView else { return nil }
+            guard showsInlineEmpty else { return headerView }
+            return AnyView(
+                VStack(spacing: 0) {
+                    headerView
+                    ContentUnavailableView {
+                        Label(String(localized: "Empty.Title", table: "Articles"),
+                              systemImage: "doc.text")
+                    } description: {
+                        Text(String(localized: "Empty.Description", table: "Articles"))
+                    }
+                }
+            )
+        }()
         ScrollViewReader { proxy in
             DisplayStyleContentView(
                 style: effectiveStyle,
                 articles: articles,
                 onLoadMore: onLoadMore,
                 onRefresh: onRefresh,
-                headerView: headerView
+                headerView: composedHeaderView
             )
             .onChange(of: scrollToTopTrigger) { _, _ in
                 guard let firstID = articles.first?.id else { return }
@@ -208,7 +224,7 @@ struct ArticlesView: View {
             displayStyle = raw.flatMap(FeedDisplayStyle.init(rawValue:)) ?? fallback
         }
         .overlay {
-            if effectiveStyle != .scroll, articles.isEmpty {
+            if effectiveStyle != .scroll, !showsInlineEmpty, articles.isEmpty {
                 ContentUnavailableView {
                     Label(String(localized: "Empty.Title", table: "Articles"),
                           systemImage: "doc.text")
