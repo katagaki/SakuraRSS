@@ -10,6 +10,7 @@ struct ContentBlockStack: View {
 
     let text: String
     var textStyle: TextStyle = .primary
+    var font: UIFont = .preferredFont(forTextStyle: .body)
     let imageNamespace: Namespace.ID
     let onImageTap: (URL) -> Void
 
@@ -40,7 +41,13 @@ struct ContentBlockStack: View {
             case .embed(let provider, let url):
                 EmbedBlockView(provider: provider, url: url)
             case .table(let header, let rows):
-                TableBlockView(header: header, rows: rows)
+                TableBlockView(
+                    header: header,
+                    rows: rows,
+                    textStyle: textStyle,
+                    imageNamespace: imageNamespace,
+                    onImageTap: onImageTap
+                )
             case .math(let latex):
                 MathBlockView(latex: latex)
             }
@@ -51,9 +58,9 @@ struct ContentBlockStack: View {
     private func textView(_ content: String) -> some View {
         switch textStyle {
         case .primary:
-            SelectableText(content)
+            SelectableText(content, font: font)
         case .white:
-            SelectableText(content, textColor: .white)
+            SelectableText(content, font: font, textColor: .white)
                 .frame(maxWidth: .infinity, alignment: .leading)
         }
     }
