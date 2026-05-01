@@ -67,10 +67,9 @@ struct YouTubeMiniPlayerBar: View {
             .aspectRatio(contentMode: .fill)
         } else {
             RoundedRectangle(cornerRadius: 6)
-                .fill(.secondary.opacity(0.15))
+                .fill(.secondary.opacity(0.5))
                 .overlay {
-                    Image(systemName: "play.rectangle.fill")
-                        .foregroundStyle(.secondary)
+                    Image(systemName: "play.fill")
                 }
         }
     }
