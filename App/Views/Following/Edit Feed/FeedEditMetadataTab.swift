@@ -60,7 +60,7 @@ struct FeedEditMetadataTab: View {
 
     @ViewBuilder
     private func metadataList(for feed: Feed) -> some View {
-        List {
+        Form {
             nameSection(for: feed)
             petalSection(for: feed)
             iconSection(for: feed)

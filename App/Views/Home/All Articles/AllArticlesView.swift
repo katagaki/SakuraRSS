@@ -38,10 +38,8 @@ struct AllArticlesView: View {
             }
         }
         .navigationTitle(currentTitle)
-        .toolbarTitleDisplayMode(.inlineLarge)
-        .toolbarTitleMenu {
-            titleMenuContent
-        }
+        .toolbarTitleDisplayMode(.inline)
+        .applyTitleMenuIfNeeded { titleMenuContent }
         .onChange(of: availableSections) {
             validateSelection()
         }
@@ -79,6 +77,19 @@ struct AllArticlesView: View {
         }
         .onChange(of: doomscrollingMode) { _, _ in
             visibility.capture(from: rawArticles, isEnabled: hideViewedContent)
+        }
+    }
+}
+
+private extension View {
+    @ViewBuilder
+    func applyTitleMenuIfNeeded<MenuContent: View>(
+        @ViewBuilder content: @escaping () -> MenuContent
+    ) -> some View {
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            self
+        } else {
+            self.toolbarTitleMenu(content: content)
         }
     }
 }

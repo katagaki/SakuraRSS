@@ -53,7 +53,7 @@ struct FeedEditRulesTab: View {
 
     @ViewBuilder
     private var rulesList: some View {
-        List {
+        Form {
             allowedKeywordsSection
             mutedKeywordsSection
             mutedAuthorsSection

@@ -29,10 +29,11 @@ extension FeedManager {
             category: category, isPodcast: isPodcast
         )
         generateAcronymIcon(feedID: feedID, title: title)
-        loadFromDatabase()
-        if let feed = feedsByID[feedID] {
+        let newFeed = try? database.feed(byID: feedID)
+        Task { await loadFromDatabaseInBackground() }
+        if let newFeed {
             Task {
-                try? await refreshFeed(feed)
+                try? await refreshFeed(newFeed)
             }
         }
     }
@@ -42,12 +43,12 @@ extension FeedManager {
         try database.deleteFeed(id: feed.id)
         PodcastDownloadManager.cleanupOrphanedDownloads()
         SpotlightIndexer.removeArticles(feedID: feed.id, articleIDs: articleIDs)
-        loadFromDatabase()
+        Task { await loadFromDatabaseInBackground() }
     }
 
     func toggleMuted(_ feed: Feed) {
         try? database.updateFeedMuted(id: feed.id, isMuted: !feed.isMuted)
-        loadFromDatabase()
+        Task { await loadFromDatabaseInBackground() }
     }
 
     /// Installs the fetchd title + profile photo on the first refresh
@@ -93,7 +94,7 @@ extension FeedManager {
         if title != feed.title {
             generateAcronymIcon(feedID: feed.id, title: title)
         }
-        loadFromDatabase()
+        Task { await loadFromDatabaseInBackground() }
         notifyFaviconChange()
     }
 

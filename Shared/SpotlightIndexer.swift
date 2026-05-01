@@ -29,7 +29,7 @@ nonisolated enum SpotlightIndexer {
             )
         }
 
-        Task { @MainActor in
+        Task.detached(priority: .utility) {
             let items = entries.map { entry -> CSSearchableItem in
                 let attributes = CSSearchableItemAttributeSet(contentType: .text)
                 attributes.title = entry.title
@@ -59,7 +59,7 @@ nonisolated enum SpotlightIndexer {
 
     static func removeArticle(id: Int64) {
         let identifiers = [uniqueIdentifier(for: id)]
-        Task { @MainActor in
+        Task.detached(priority: .utility) {
             try? await CSSearchableIndex.default().deleteSearchableItems(withIdentifiers: identifiers)
         }
     }
@@ -67,13 +67,13 @@ nonisolated enum SpotlightIndexer {
     static func removeArticles(feedID: Int64, articleIDs: [Int64]) {
         guard !articleIDs.isEmpty else { return }
         let identifiers = articleIDs.map { uniqueIdentifier(for: $0) }
-        Task { @MainActor in
+        Task.detached(priority: .utility) {
             try? await CSSearchableIndex.default().deleteSearchableItems(withIdentifiers: identifiers)
         }
     }
 
     static func removeAllArticles() {
-        Task { @MainActor in
+        Task.detached(priority: .utility) {
             try? await CSSearchableIndex.default().deleteSearchableItems(
                 withDomainIdentifiers: [domainIdentifier]
             )

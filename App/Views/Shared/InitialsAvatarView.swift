@@ -42,7 +42,7 @@ struct InitialsAvatarView: View {
 
     // MARK: - Shared Helpers
 
-    static func initials(for name: String) -> String {
+    nonisolated static func initials(for name: String) -> String {
         let words = name.split(whereSeparator: { $0.isWhitespace || $0 == "-" || $0 == "_" })
         let letters = words.prefix(2).compactMap(\.first).map(String.init)
         let result = letters.joined().uppercased()
@@ -52,7 +52,7 @@ struct InitialsAvatarView: View {
         return result
     }
 
-    static func isGlyphBased(_ name: String) -> Bool {
+    nonisolated static func isGlyphBased(_ name: String) -> Bool {
         let letters = name.unicodeScalars.filter { CharacterSet.letters.contains($0) }
         guard !letters.isEmpty else { return false }
         let allowed = CharacterSet.alphanumerics
@@ -70,7 +70,7 @@ struct InitialsAvatarView: View {
 
     // MARK: - UIImage Rendering
 
-    static func renderToImage(name: String, size: CGFloat = 128) -> UIImage? {
+    nonisolated static func renderToImage(name: String, size: CGFloat = 128) -> UIImage? {
         let hash = name.utf8.reduce(0) { ($0 &* 31) &+ Int($1) }
         let hue = CGFloat(abs(hash) % 360) / 360.0
         let bgColor = UIColor(hue: hue, saturation: 0.45, brightness: 0.75, alpha: 1.0)

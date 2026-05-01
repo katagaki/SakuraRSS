@@ -25,7 +25,7 @@ struct PetalBuilderView: View {
 
     var body: some View {
         NavigationStack {
-            List {
+            Form {
                 PetalBuilderSourceSection(
                     name: $recipe.name,
                     siteURL: $recipe.siteURL,
