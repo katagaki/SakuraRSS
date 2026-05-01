@@ -49,7 +49,8 @@ extension FeedManager {
     // MARK: - Rule Application
 
     func applyRules(_ articles: [Article], feedID: Int64) -> [Article] {
-        Self.applyRules(articles, feedID: feedID, database: database)
+        let filtered = Self.applyRules(articles, feedID: feedID, database: database)
+        return applyContentOverrides(filtered, feedID: feedID)
     }
 
     nonisolated static func applyRules(_ articles: [Article], feedID: Int64, database: DatabaseManager) -> [Article] {
@@ -131,7 +132,7 @@ extension FeedManager {
                 result.append(article)
             }
         }
-        return result
+        return applyContentOverrides(result)
     }
 
     private func articleMatchesKeywords(_ article: Article, keywords: [String]) -> Bool {

@@ -1,14 +1,14 @@
 {
   "key": "FeedEdit.ContentOverrides.Field.Author",
   "localizations": {
-    "de": "Autor-Element",
-    "en": "Author Element",
-    "fr": "Élément auteur",
-    "it": "Elemento autore",
-    "ja": "著者要素",
-    "ko": "작성자 요소",
-    "vi": "Phần tử tác giả",
-    "zh-Hans": "作者元素",
-    "zh-Hant": "作者元素"
+    "de": "Autor",
+    "en": "Author",
+    "fr": "Auteur",
+    "it": "Autore",
+    "ja": "著者",
+    "ko": "작성자",
+    "vi": "Tác giả",
+    "zh-Hans": "作者",
+    "zh-Hant": "作者"
   }
 }

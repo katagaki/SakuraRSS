@@ -2213,7 +2213,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "コンテンツの上書き"
+            "value" : "表示のカスタマイズ"
           }
         },
         "ko" : {
@@ -2425,55 +2425,55 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Autor-Element"
+            "value" : "Autor"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Author Element"
+            "value" : "Author"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Élément auteur"
+            "value" : "Auteur"
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Elemento autore"
+            "value" : "Autore"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "著者要素"
+            "value" : "著者"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "작성자 요소"
+            "value" : "작성자"
           }
         },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Phần tử tác giả"
+            "value" : "Tác giả"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "作者元素"
+            "value" : "作者"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "作者元素"
+            "value" : "作者"
           }
         }
       }
@@ -2490,19 +2490,19 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Full Content"
+            "value" : "Content"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Contenu complet"
+            "value" : "Contenu"
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Contenuto completo"
+            "value" : "Contenuto"
           }
         },
         "ja" : {
@@ -2514,25 +2514,25 @@
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "전체 내용"
+            "value" : "내용"
           }
         },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Toàn bộ nội dung"
+            "value" : "Nội dung"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "完整内容"
+            "value" : "内容"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "完整內容"
+            "value" : "內容"
           }
         }
       }
@@ -2592,6 +2592,65 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "預設"
+          }
+        }
+      }
+    },
+    "FeedEdit.ContentOverrides.Field.Disabled" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deaktiviert"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Disabled"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Désactivé"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Disattivato"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "無効"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "비활성화"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tắt"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "禁用"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "停用"
           }
         }
       }
@@ -2661,55 +2720,114 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Titel-Element"
+            "value" : "Titel"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Title Element"
+            "value" : "Title"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Élément titre"
+            "value" : "Titre"
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Elemento titolo"
+            "value" : "Titolo"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "タイトル要素"
+            "value" : "タイトル"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "제목 요소"
+            "value" : "제목"
           }
         },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Phần tử tiêu đề"
+            "value" : "Tiêu đề"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "标题元素"
+            "value" : "标题"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "標題元素"
+            "value" : "標題"
+          }
+        }
+      }
+    },
+    "FeedEdit.ContentOverrides.Footer" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Passe an, wie Titel, Inhalt und Autor des Inhalts dieses Feeds angezeigt werden."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Customize how the title, body, and author of this feed's content are displayed."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Personnalisez l'affichage du titre, du corps et de l'auteur du contenu de ce flux."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Personalizza come vengono mostrati titolo, corpo e autore del contenuto di questo feed."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "このフィードのコンテンツのタイトル、本文、著者の表示方法をカスタマイズできます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 피드 콘텐츠의 제목, 본문, 작성자가 표시되는 방식을 사용자 지정합니다."
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tùy chỉnh cách hiển thị tiêu đề, nội dung và tác giả của nội dung trong nguồn cấp này."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "自定义此订阅源内容的标题、正文和作者的显示方式。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "自訂此訂閱源內容的標題、內文和作者的顯示方式。"
           }
         }
       }

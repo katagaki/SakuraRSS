@@ -21,6 +21,13 @@ struct ArticleDestinationView: View {
         self.overrideTextMode = overrideTextMode
     }
 
+    /// The article without Content Overrides applied. Lists override the display, but the
+    /// viewer always reads the original RSS fields straight from the DB.
+    private var rawArticle: Article {
+        guard !article.isEphemeral else { return article }
+        return feedManager.article(byID: article.id) ?? article
+    }
+
     private var effectiveOpenMode: FeedOpenMode {
         if let overrideMode {
             switch overrideMode {
@@ -39,6 +46,7 @@ struct ArticleDestinationView: View {
     }
 
     var body: some View {
+        let article = rawArticle
         if article.isPodcastEpisode {
             PodcastEpisodeView(article: article)
         } else if article.isYouTubeURL {

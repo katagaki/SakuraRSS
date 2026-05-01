@@ -49,7 +49,7 @@ struct ScrollArticlePage: View {
             Group {
                 if isExpanded {
                     ScrollExpandedArticleView(
-                        article: article,
+                        article: feedManager.article(byID: article.id) ?? article,
                         feedName: feedName,
                         favicon: favicon,
                         acronymIcon: acronymIcon,

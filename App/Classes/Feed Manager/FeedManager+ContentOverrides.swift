@@ -22,6 +22,32 @@ extension FeedManager {
             try? database.deleteContentOverride(forFeedID: feedID)
             contentOverrideCache[feedID] = .init(override: nil)
         }
+        bumpDataRevision()
+    }
+
+    /// Applies the feed's override to each article. No-op when the override is missing or inactive.
+    func applyContentOverrides(_ articles: [Article], feedID: Int64) -> [Article] {
+        guard let override = contentOverride(forFeedID: feedID), override.isActive else {
+            return articles
+        }
+        return articles.map { ContentOverrideApplier.applying(to: $0, override: override) }
+    }
+
+    /// Multi-feed variant; looks up each article's feed override on demand using the local cache.
+    func applyContentOverrides(_ articles: [Article]) -> [Article] {
+        var perFeed: [Int64: ContentOverride?] = [:]
+        return articles.map { article in
+            let override: ContentOverride?
+            if let cached = perFeed[article.feedID] {
+                override = cached
+            } else {
+                let resolved = contentOverride(forFeedID: article.feedID)
+                perFeed[article.feedID] = resolved
+                override = resolved
+            }
+            guard let override, override.isActive else { return article }
+            return ContentOverrideApplier.applying(to: article, override: override)
+        }
     }
 }
 
