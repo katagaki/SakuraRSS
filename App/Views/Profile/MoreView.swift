@@ -33,7 +33,7 @@ struct MoreView: View {
                     } label: {
                         SettingsIconLabel(
                             String(localized: "Section.Home", table: "Settings"),
-                            systemImage: "house.fill",
+                            systemImage: "newspaper",
                             color: .red
                         )
                     }
