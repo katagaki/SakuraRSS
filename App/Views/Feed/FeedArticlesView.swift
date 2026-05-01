@@ -113,19 +113,6 @@ struct FeedArticlesView: View {
         !styleSupportsRichHeader || hasScrolledPastTitle
     }
 
-    /// Combined title + domain rendered as a single AttributedString so iOS 26's
-    /// nav bar can't apply its automatic staggered title/subtitle animation
-    /// (which made the domain appear after the title).
-    private var principalTitleAttributed: AttributedString {
-        var title = AttributedString(currentFeed.title)
-        title.font = .headline
-        guard !currentFeed.domain.isEmpty else { return title }
-        var domain = AttributedString("\n\(currentFeed.domain)")
-        domain.font = .caption2
-        domain.foregroundColor = .secondary
-        return title + domain
-    }
-
     var body: some View {
         ArticlesView(
             articles: visibility.filter(rawArticles, isEnabled: hideViewedContent),
@@ -154,13 +141,25 @@ struct FeedArticlesView: View {
         )
         .toolbar {
             ToolbarItem(placement: .principal) {
-                Text(principalTitleAttributed)
-                    .multilineTextAlignment(.center)
-                    .lineLimit(2)
-                    .fixedSize(horizontal: false, vertical: true)
-                    .opacity(showsPrincipalTitle ? 1 : 0)
-                    .allowsHitTesting(showsPrincipalTitle)
-                    .animation(.smooth.speed(2.0), value: showsPrincipalTitle)
+                VStack(spacing: 0) {
+                    Text(currentFeed.title)
+                        .font(.headline)
+                    if !currentFeed.domain.isEmpty {
+                        Text(currentFeed.domain)
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+                .multilineTextAlignment(.center)
+                .lineLimit(1)
+                .truncationMode(.middle)
+                .fixedSize(horizontal: false, vertical: true)
+                .allowsHitTesting(showsPrincipalTitle)
+                .frame(height: 42)
+                .padding(.horizontal, 18)
+                .glassEffect(.regular, in: .capsule)
+                .opacity(showsPrincipalTitle ? 1 : 0)
+                .animation(.smooth.speed(2.0), value: showsPrincipalTitle)
             }
         }
         .onScrollGeometryChange(for: Bool.self) { geo in
