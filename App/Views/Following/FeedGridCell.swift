@@ -48,16 +48,18 @@ struct FeedGridCell: View {
                         FaviconProgressBadge(
                             lastFetched: feed.lastFetched,
                             cooldown: FeedManager.xRefreshInterval,
-                            size: 15
+                            size: iconSize,
+                            isCircle: feed.isCircleIcon,
+                            cornerRadius: iconCornerRadius
                         )
-                        .offset(x: 3, y: 3)
                     } else if feed.isInstagramFeed {
                         FaviconProgressBadge(
                             lastFetched: feed.lastFetched,
                             cooldown: FeedManager.instagramRefreshInterval,
-                            size: 15
+                            size: iconSize,
+                            isCircle: feed.isCircleIcon,
+                            cornerRadius: iconCornerRadius
                         )
-                        .offset(x: 3, y: 3)
                     }
                 }
                 .frame(width: iconSize, height: iconSize)

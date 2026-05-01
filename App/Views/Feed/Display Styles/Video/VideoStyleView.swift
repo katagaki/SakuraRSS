@@ -16,7 +16,7 @@ struct VideoStyleView: View {
 
     var body: some View {
         ScrollView(.vertical) {
-            LazyVStack(spacing: 24) {
+            LazyVStack(spacing: 12) {
                 if let headerView {
                     headerView
                 }
@@ -39,6 +39,7 @@ struct VideoStyleView: View {
                             .markReadOnScroll(article: article)
                     }
                     .buttonStyle(.plain)
+                    .contentShape(.rect)
                     .contextMenu {
                         Button {
                             feedManager.toggleRead(article)
@@ -76,13 +77,13 @@ struct VideoStyleView: View {
                         }
                     }
                 }
+                if let onLoadMore {
+                    LoadPreviousArticlesButton(action: onLoadMore, articleCount: articles.count)
+                        .padding(.horizontal, 16)
+                }
             }
+            .padding(.top, headerView == nil ? 12 : 0)
             .padding(.bottom)
-            if let onLoadMore {
-                LoadPreviousArticlesButton(action: onLoadMore, articleCount: articles.count)
-                    .padding(.horizontal, 16)
-                    .padding(.bottom)
-            }
         }
         .trackScrollActivity()
         .sheet(isPresented: $showSafari) {

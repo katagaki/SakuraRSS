@@ -80,6 +80,32 @@ extension FeedManager {
         }
     }
 
+    // MARK: - Topic
+
+    /// Preloads articles tagged with the given NLP entity name (a topic).
+    /// Topics span all feeds, but global feed-mute and article-level rules
+    /// still apply.
+    func preloadedArticleEntries(forTopic topic: String, requireUnread: Bool = false) -> [ArticleIDEntry] {
+        _ = dataRevision
+        let muted = mutedFeedIDs
+        let ids = (try? database.articleIDs(
+            forEntity: topic,
+            types: ["organization", "place"]
+        )) ?? []
+        let raw = (try? database.articles(withIDs: ids)) ?? []
+        var pool = applyAllRules(raw)
+        if !muted.isEmpty {
+            pool = pool.filter { !muted.contains($0.feedID) }
+        }
+        if requireUnread {
+            pool = pool.filter { !$0.isRead }
+        }
+        return pool.compactMap { article in
+            guard let date = article.publishedDate else { return nil }
+            return ArticleIDEntry(id: article.id, publishedDate: date)
+        }
+    }
+
     // MARK: - Materialization
 
     /// Materializes articles for the given preloaded IDs, preserving the

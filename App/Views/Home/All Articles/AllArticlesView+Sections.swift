@@ -19,6 +19,9 @@ extension AllArticlesView {
             if !feedManager.lists.contains(where: { $0.id == id }) {
                 selectedSelection = .section(.all)
             }
+        case .topic:
+            // Validated against the dynamic top-N list at the HomeView level.
+            break
         }
     }
 }

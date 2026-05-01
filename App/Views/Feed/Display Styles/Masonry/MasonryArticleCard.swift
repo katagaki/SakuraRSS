@@ -43,6 +43,10 @@ struct MasonryArticleCard: View {
                         }
                         .clipped()
                         .clipShape(.rect(cornerRadius: 12))
+                        .overlay {
+                            RoundedRectangle(cornerRadius: 12)
+                                .stroke(.quaternary, lineWidth: 0.5)
+                        }
                 } else {
                     masonryFallbackBackground
                 }
@@ -73,12 +77,6 @@ struct MasonryArticleCard: View {
                     .foregroundStyle(feedManager.isRead(article) ? .secondary : .primary)
 
                 Spacer(minLength: 0)
-            }
-
-            if let date = article.publishedDate {
-                RelativeTimeText(date: date)
-                    .font(.caption2)
-                    .foregroundStyle(.tertiary)
             }
         }
         .contentShape(.rect)

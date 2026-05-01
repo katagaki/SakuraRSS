@@ -38,6 +38,15 @@ struct MoreView: View {
                         )
                     }
                     NavigationLink {
+                        HomeSettingsView()
+                    } label: {
+                        SettingsIconLabel(
+                            String(localized: "Section.Home", table: "Settings"),
+                            systemImage: "newspaper.fill",
+                            color: .red
+                        )
+                    }
+                    NavigationLink {
                         BrowsingSettingsView()
                     } label: {
                         SettingsIconLabel(

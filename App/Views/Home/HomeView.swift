@@ -17,6 +17,8 @@ struct HomeView: View {
     @State private var pendingYouTubeSafariURL: URL?
     @State private var isShowingMarkAllReadConfirmation = false
     @State private var tabFrames: [String: CGRect] = [:]
+    @State private var topTopics: [String] = []
+    @State private var barConfiguration: HomeBarConfiguration = .load()
     @Namespace private var cardZoom
 
     var body: some View {
@@ -38,8 +40,6 @@ struct HomeView: View {
                         Text(principalText)
                             .font(.caption)
                             .foregroundStyle(.secondary)
-                            .contentTransition(.numericText())
-                            .animation(.smooth, value: principalText)
                     }
                     if markAllReadPosition == .top {
                         ToolbarItemGroup(placement: .topBarLeading) {
@@ -163,6 +163,15 @@ struct HomeView: View {
             // before this view mounts, so `onChange` would never fire.
             handlePendingOpenRequestIfNeeded()
         }
+        .task(id: barConfiguration) {
+            await loadTopTopicsIfNeeded()
+        }
+        .onChange(of: feedManager.dataRevision) {
+            Task { await loadTopTopicsIfNeeded() }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .homeBarConfigurationDidChange)) { _ in
+            reloadBarConfiguration()
+        }
     }
 
     private var principalText: String {
@@ -191,6 +200,8 @@ struct HomeView: View {
             return "section.all"
         case .list(let id):
             return "list.\(id)"
+        case .topic(let name):
+            return "topic.\(name)"
         }
     }
 
@@ -222,6 +233,12 @@ struct HomeView: View {
             if let list = feedManager.lists.first(where: { $0.id == id }) {
                 feedManager.markAllRead(for: list)
             }
+        case .topic(let name):
+            let entries = feedManager.preloadedArticleEntries(forTopic: name)
+            let articles = feedManager.articles(withPreloadedIDs: entries.map(\.id))
+            for article in articles where !feedManager.isRead(article) {
+                feedManager.markRead(article)
+            }
         }
     }
 
@@ -233,7 +250,43 @@ struct HomeView: View {
     }
 
     private var tabItems: [TodayTabItem] {
-        TodayTabItem.items(sections: availableSections, lists: feedManager.lists)
+        TodayTabItem.items(
+            sections: availableSections,
+            lists: feedManager.lists,
+            topics: topTopics,
+            configuration: barConfiguration
+        )
+    }
+
+    private func reloadBarConfiguration() {
+        barConfiguration = .load()
+    }
+
+    private func loadTopTopicsIfNeeded() async {
+        guard barConfiguration.enabledItems.contains(.topics) else {
+            topTopics = []
+            validateTopicSelection()
+            return
+        }
+        let limit = barConfiguration.topicCount.rawValue
+        let database = DatabaseManager.shared
+        let topics: [String] = await Task.detached {
+            let sevenDaysAgo = Date().addingTimeInterval(-7 * 24 * 3600)
+            let results = (try? database.topEntities(
+                types: ["organization", "place"],
+                since: sevenDaysAgo,
+                limit: limit
+            )) ?? []
+            return results.map(\.name)
+        }.value
+        topTopics = topics
+        validateTopicSelection()
+    }
+
+    private func validateTopicSelection() {
+        if case .topic(let name) = selectedSelection, !topTopics.contains(name) {
+            selectedSelection = .section(.all)
+        }
     }
 
     private func handlePendingOpenRequestIfNeeded() {

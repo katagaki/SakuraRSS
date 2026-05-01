@@ -65,6 +65,7 @@ struct MasonryStyleView: View {
                     }
                 }
                 .padding(.horizontal, 16)
+                .padding(.top, headerView == nil ? 12 : 0)
                 if let onLoadMore {
                     LoadPreviousArticlesButton(action: onLoadMore, articleCount: articles.count)
                         .padding(.horizontal, 16)

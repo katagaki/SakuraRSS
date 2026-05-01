@@ -1,0 +1,14 @@
+{
+  "key": "Home.Topics.Count",
+  "localizations": {
+    "de": "Top-Themen",
+    "en": "Top Topics",
+    "fr": "Sujets principaux",
+    "it": "Argomenti principali",
+    "ja": "トップトピック",
+    "ko": "인기 주제",
+    "vi": "Chủ đề hàng đầu",
+    "zh-Hans": "热门话题",
+    "zh-Hant": "熱門話題"
+  }
+}

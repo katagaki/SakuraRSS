@@ -24,6 +24,8 @@ struct AllArticlesView: View {
         case .list(let id):
             return feedManager.lists.first { $0.id == id }?.name
                 ?? String(localized: "Shared.AllArticles")
+        case .topic(let name):
+            return name
         }
     }
 
@@ -36,6 +38,8 @@ struct AllArticlesView: View {
                 return .list(list)
             }
             return .section(nil)
+        case .topic(let name):
+            return .topic(name)
         }
     }
 }

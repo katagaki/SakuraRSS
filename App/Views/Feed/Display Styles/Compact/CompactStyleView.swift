@@ -43,6 +43,8 @@ struct CompactStyleView: View {
                 .listRowBackground(Color.clear)
                 .listRowInsets(EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16))
                 .listRowSpacing(0.0)
+                .listRowSeparator(.hidden, edges: .top)
+                .listRowSeparator(.visible, edges: .bottom)
                 .contextMenu {
                     Button {
                         feedManager.toggleRead(article)

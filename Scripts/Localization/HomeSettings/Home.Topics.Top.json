@@ -1,0 +1,14 @@
+{
+  "key": "Home.Topics.Top %lld",
+  "localizations": {
+    "de": "Top %lld",
+    "en": "Top %lld",
+    "fr": "Top %lld",
+    "it": "Top %lld",
+    "ja": "上位%lld件",
+    "ko": "상위 %lld개",
+    "vi": "Top %lld",
+    "zh-Hans": "前 %lld",
+    "zh-Hant": "前 %lld"
+  }
+}

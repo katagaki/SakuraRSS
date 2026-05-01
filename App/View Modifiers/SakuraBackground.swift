@@ -4,18 +4,10 @@ private struct FeedBackgroundColorsKey: EnvironmentKey {
     static let defaultValue: [Color] = []
 }
 
-private struct FeedBackgroundScrollOffsetKey: EnvironmentKey {
-    static let defaultValue: CGFloat = 0
-}
-
 extension EnvironmentValues {
     var feedBackgroundColors: [Color] {
         get { self[FeedBackgroundColorsKey.self] }
         set { self[FeedBackgroundColorsKey.self] = newValue }
-    }
-    var feedBackgroundScrollOffset: CGFloat {
-        get { self[FeedBackgroundScrollOffsetKey.self] }
-        set { self[FeedBackgroundScrollOffsetKey.self] = newValue }
     }
 }
 
@@ -23,7 +15,6 @@ struct SakuraBackground: ViewModifier {
 
     @AppStorage("Display.SakuraBackground") private var sakuraBackgroundEnabled: Bool = true
     @Environment(\.feedBackgroundColors) private var feedColors
-    @Environment(\.feedBackgroundScrollOffset) private var feedScrollOffset
 
     @ViewBuilder
     func body(content: Content) -> some View {
@@ -43,7 +34,6 @@ struct SakuraBackground: ViewModifier {
                         if !feedColors.isEmpty {
                             FeedHeaderGradientView(colors: feedColors)
                                 .frame(height: 360)
-                                .offset(y: -max(0, feedScrollOffset))
                         }
                     }
                     .ignoresSafeArea()
@@ -54,7 +44,6 @@ struct SakuraBackground: ViewModifier {
                     if !feedColors.isEmpty {
                         FeedHeaderGradientView(colors: feedColors)
                             .frame(height: 360)
-                            .offset(y: -max(0, feedScrollOffset))
                             .ignoresSafeArea(edges: [.top, .horizontal])
                     }
                 }

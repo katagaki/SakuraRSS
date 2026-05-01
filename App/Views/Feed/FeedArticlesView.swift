@@ -18,7 +18,6 @@ struct FeedArticlesView: View {
     @State private var hasScrolledPastTitle: Bool = false
     @State private var effectiveDisplayStyle: FeedDisplayStyle?
     @State private var prominentColors: [Color] = []
-    @State private var scrollOffset: CGFloat = 0
 
     private var batchingMode: BatchingMode {
         DoomscrollingMode.effectiveBatchingMode(storedBatchingMode)
@@ -165,12 +164,12 @@ struct FeedArticlesView: View {
             effectiveStyleBinding: $effectiveDisplayStyle
         )
         .environment(\.feedBackgroundColors, prominentColors)
-        .environment(\.feedBackgroundScrollOffset, scrollOffset)
         .toolbar {
             ToolbarItem(placement: .principal) {
                 VStack(spacing: 0) {
                     Text(currentFeed.title)
-                        .font(.headline)
+                        .font(.subheadline)
+                        .fontWeight(.semibold)
                     if !currentFeed.domain.isEmpty {
                         Text(currentFeed.domain)
                             .font(.caption2)
@@ -193,11 +192,9 @@ struct FeedArticlesView: View {
                 .animation(.smooth.speed(2.0), value: showsPrincipalTitle)
             }
         }
-        .onScrollGeometryChange(for: CGFloat.self) { geo in
-            geo.contentOffset.y
-        } action: { _, newValue in
-            scrollOffset = newValue
-            let scrolled = newValue > 90
+        .onScrollGeometryChange(for: Bool.self) { geo in
+            geo.contentOffset.y > 90
+        } action: { _, scrolled in
             guard scrolled != hasScrolledPastTitle else { return }
             withAnimation(.smooth.speed(2.0)) {
                 hasScrolledPastTitle = scrolled
