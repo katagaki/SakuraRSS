@@ -202,7 +202,7 @@ struct ScrollArticlePage: View {
     }
 
     private func openArticleURL() {
-        feedManager.markRead(article)
+        feedManager.markReadOnScroll(article)
         if article.isYouTubeURL {
             switch youTubeOpenMode {
             case .inAppPlayer, .youTubeApp:

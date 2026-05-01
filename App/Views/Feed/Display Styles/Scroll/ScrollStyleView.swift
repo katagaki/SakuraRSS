@@ -51,7 +51,7 @@ struct ScrollStyleView: View {
                     .onChange(of: currentID) { oldValue, _ in
                         if case .article(let id) = oldValue,
                            let prev = articles.first(where: { $0.id == id }) {
-                            feedManager.markRead(prev)
+                            feedManager.markReadOnScroll(prev)
                         }
                     }
                     .onChange(of: articles.count) { oldValue, newValue in
@@ -79,12 +79,12 @@ struct ScrollStyleView: View {
 
     private func handleTap(on article: Article) {
         if article.isYouTubeURL && youTubeOpenMode == .inAppPlayer {
-            feedManager.markRead(article)
+            feedManager.markReadOnScroll(article)
             MediaPresenter.shared.presentYouTube(article)
             return
         }
         if article.isPodcastEpisode {
-            feedManager.markRead(article)
+            feedManager.markReadOnScroll(article)
             MediaPresenter.shared.presentPodcast(article)
             return
         }
@@ -92,7 +92,7 @@ struct ScrollStyleView: View {
             if expandedArticleID == article.id {
                 expandedArticleID = nil
             } else {
-                feedManager.markRead(article)
+                feedManager.markReadOnScroll(article)
                 expandedArticleID = article.id
             }
         }
