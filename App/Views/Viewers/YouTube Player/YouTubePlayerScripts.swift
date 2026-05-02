@@ -316,6 +316,58 @@ nonisolated enum YouTubePlayerScripts {
     })();
     """
 
+    /// Bridges system Now Playing play/pause taps (Lock Screen, Control Center,
+    /// PiP overlay, headset clicker) to the `__yt.userPaused` flag so the pause
+    /// guard knows the pause was user-initiated and shouldn't be auto-resumed.
+    static let mediaSessionUserActionBridge = """
+    (function() {
+        if (!('mediaSession' in navigator)) return;
+        var ms = navigator.mediaSession;
+        var origSet = ms.setActionHandler.bind(ms);
+        var pageHandlers = { play: null, pause: null };
+
+        function wrapper(action) {
+            return function() {
+                if (action === 'pause') {
+                    window.__yt.userPaused = true;
+                } else {
+                    window.__yt.userPaused = false;
+                    window.__yt.autoplayBlocked = false;
+                    window.__yt.exitedPiPRecently = false;
+                }
+                var h = pageHandlers[action];
+                if (typeof h === 'function') {
+                    try { h(); return; } catch (e) {}
+                }
+                var v = document.querySelector('video');
+                if (!v) return;
+                if (action === 'pause') {
+                    v.pause();
+                } else {
+                    var p = v.play();
+                    if (p && typeof p.catch === 'function') p.catch(function(){});
+                }
+            };
+        }
+
+        function install(action) {
+            try { origSet(action, wrapper(action)); } catch (e) {}
+        }
+
+        ms.setActionHandler = function(action, handler) {
+            if (action === 'play' || action === 'pause') {
+                pageHandlers[action] = handler || null;
+                install(action);
+                return;
+            }
+            return origSet(action, handler);
+        };
+
+        install('play');
+        install('pause');
+    })();
+    """
+
     /// Re-routes the system PiP next/previous track controls during ads:
     /// previous-track is disabled, next-track triggers ad skipping when available.
     static let pipAdControls = """

@@ -48,17 +48,13 @@ struct CompactFeedArticleRowActions: View {
                 openURL(url)
             }
         } label: {
-            HStack(spacing: 6) {
-                Image(systemName: openButtonSystemName)
-                Text(openButtonTitle)
-                    .lineLimit(1)
-            }
-            .font(.footnote.weight(.semibold))
-            .padding(.horizontal, 12)
-            .frame(height: 30)
-            .background(.secondary.opacity(0.15), in: .capsule)
+            Image(systemName: openButtonSystemName)
+                .font(.subheadline.weight(.semibold))
+                .frame(minWidth: 36, minHeight: 36)
+                .background(.secondary.opacity(0.15), in: .capsule)
         }
         .buttonStyle(.plain)
+        .buttonBorderShape(.circle)
         .foregroundStyle(.primary)
     }
 
@@ -68,22 +64,14 @@ struct CompactFeedArticleRowActions: View {
             UIImpactFeedbackGenerator(style: .light).impactOccurred()
             feedManager.toggleRead(article)
         } label: {
-            HStack(spacing: 6) {
-                Image(systemName: feedManager.isRead(article) ? "envelope" : "envelope.open")
-                    .offset(y: feedManager.isRead(article) ? 0 : -1)
-                Text(
-                    feedManager.isRead(article)
-                        ? String(localized: "Article.MarkUnread", table: "Articles")
-                        : String(localized: "Article.MarkRead", table: "Articles")
-                )
-                .lineLimit(1)
-            }
-            .font(.footnote.weight(.semibold))
-            .padding(.horizontal, 12)
-            .frame(height: 30)
-            .background(.secondary.opacity(0.15), in: .capsule)
+            Image(systemName: feedManager.isRead(article) ? "envelope" : "envelope.open")
+                .offset(y: feedManager.isRead(article) ? 0 : -1)
+                .font(.subheadline.weight(.semibold))
+                .frame(minWidth: 36, minHeight: 36)
+                .background(.secondary.opacity(0.15), in: .capsule)
         }
         .buttonStyle(.plain)
+        .buttonBorderShape(.circle)
         .foregroundStyle(.primary)
     }
 }

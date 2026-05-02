@@ -29,7 +29,7 @@ struct XEmbedBlockView: View {
             )
             .overlay {
                 RoundedRectangle(cornerRadius: 12)
-                    .strokeBorder(.primary.opacity(0.5), lineWidth: 0.5)
+                    .strokeBorder(.primary.opacity(0.2), lineWidth: 0.5)
             }
             .contentShape(.rect(cornerRadius: 12))
             .onTapGesture {

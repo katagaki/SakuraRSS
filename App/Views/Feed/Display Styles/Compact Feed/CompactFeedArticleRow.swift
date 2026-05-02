@@ -91,7 +91,7 @@ struct CompactFeedArticleRow: View {
             .clipShape(.rect(cornerRadius: 10))
             .overlay {
                 RoundedRectangle(cornerRadius: 10)
-                    .strokeBorder(.primary.opacity(0.5), lineWidth: 0.5)
+                    .strokeBorder(.primary.opacity(0.2), lineWidth: 0.5)
             }
             .overlay {
                 if feed?.isVideoFeed == true || feed?.isPodcast == true {
