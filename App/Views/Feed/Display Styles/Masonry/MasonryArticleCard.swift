@@ -25,47 +25,53 @@ struct MasonryArticleCard: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
             ZStack(alignment: .bottomLeading) {
-                if let imageURL = article.imageURL, let url = URL(string: imageURL) {
-                    Color.clear
-                        .aspectRatio(effectiveAspectRatio, contentMode: .fit)
-                        .overlay {
-                            CachedAsyncImage(
-                                url: url,
-                                onImageLoaded: { image in
-                                    guard image.size.height > 0 else { return }
-                                    imageAspectRatio = image.size.width / image.size.height
-                                },
-                                placeholder: {
-                                    Rectangle()
-                                        .fill(.secondary.opacity(0.15))
-                                }
-                            )
-                        }
-                        .clipped()
-                        .clipShape(.rect(cornerRadius: 12))
-                        .overlay {
-                            RoundedRectangle(cornerRadius: 12)
-                                .strokeBorder(.primary.opacity(0.2), lineWidth: 0.5)
-                        }
-                } else {
-                    masonryFallbackBackground
+                Group {
+                    if let imageURL = article.imageURL, let url = URL(string: imageURL) {
+                        Color.clear
+                            .aspectRatio(effectiveAspectRatio, contentMode: .fit)
+                            .overlay {
+                                CachedAsyncImage(
+                                    url: url,
+                                    onImageLoaded: { image in
+                                        guard image.size.height > 0 else { return }
+                                        imageAspectRatio = image.size.width / image.size.height
+                                    },
+                                    placeholder: {
+                                        Rectangle()
+                                            .fill(.secondary.opacity(0.15))
+                                    }
+                                )
+                            }
+                            .clipped()
+                            .clipShape(.rect(cornerRadius: 12))
+                            .overlay {
+                                RoundedRectangle(cornerRadius: 12)
+                                    .strokeBorder(.primary.opacity(0.2), lineWidth: 0.5)
+                            }
+                    } else {
+                        masonryFallbackBackground
+                    }
                 }
+                .feedMatchedGeometry("Thumb.\(article.id)")
 
-                if let icon = icon {
-                    IconImage(icon, size: 20, cornerRadius: 4,
-                                 circle: isVideoFeed, skipInset: skipIconInset)
-                        .shadow(color: .black.opacity(0.3), radius: 2, y: 1)
-                        .padding(6)
-                } else if let acronymIcon {
-                    IconImage(acronymIcon, size: 20, cornerRadius: 4,
-                                 circle: isVideoFeed, skipInset: true)
-                        .shadow(color: .black.opacity(0.3), radius: 2, y: 1)
-                        .padding(6)
-                } else if let feedName {
-                    InitialsAvatarView(feedName, size: 20, circle: isVideoFeed, cornerRadius: 4)
-                        .shadow(color: .black.opacity(0.3), radius: 2, y: 1)
-                        .padding(6)
+                Group {
+                    if let icon = icon {
+                        IconImage(icon, size: 20, cornerRadius: 4,
+                                     circle: isVideoFeed, skipInset: skipIconInset)
+                            .shadow(color: .black.opacity(0.3), radius: 2, y: 1)
+                            .padding(6)
+                    } else if let acronymIcon {
+                        IconImage(acronymIcon, size: 20, cornerRadius: 4,
+                                     circle: isVideoFeed, skipInset: true)
+                            .shadow(color: .black.opacity(0.3), radius: 2, y: 1)
+                            .padding(6)
+                    } else if let feedName {
+                        InitialsAvatarView(feedName, size: 20, circle: isVideoFeed, cornerRadius: 4)
+                            .shadow(color: .black.opacity(0.3), radius: 2, y: 1)
+                            .padding(6)
+                    }
                 }
+                .feedMatchedGeometry("Icon.\(article.id)")
             }
 
             HStack(spacing: 4) {
@@ -74,6 +80,7 @@ struct MasonryArticleCard: View {
                     .fontWeight(feedManager.isRead(article) ? .regular : .semibold)
                     .multilineTextAlignment(.leading)
                     .foregroundStyle(feedManager.isRead(article) ? .secondary : .primary)
+                    .feedMatchedGeometry("Title.\(article.id)")
 
                 Spacer(minLength: 0)
             }

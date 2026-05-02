@@ -102,12 +102,14 @@ struct ScrollArticlePage: View {
     private var backgroundLayer: some View {
         ZStack {
             iconBackground
+                .feedMatchedGeometry("Icon.\(article.id)")
             if let backgroundImage {
                 Image(uiImage: backgroundImage)
                     .resizable()
                     .aspectRatio(contentMode: .fill)
                     .transition(.opacity)
                     .debugLayout()
+                    .feedMatchedGeometry("Thumb.\(article.id)")
             }
         }
     }
@@ -190,6 +192,7 @@ struct ScrollArticlePage: View {
                 .multilineTextAlignment(.leading)
                 .shadow(color: .black.opacity(0.6), radius: 4, y: 1)
                 .matchedGeometryEffect(id: "headerTitle", in: headerNamespace)
+                .feedMatchedGeometry("Title.\(article.id)")
 
             if let summary = article.summary, !summary.isEmpty {
                 SummaryText(summary: summary)
@@ -198,6 +201,7 @@ struct ScrollArticlePage: View {
                     .lineLimit(5)
                     .multilineTextAlignment(.leading)
                     .shadow(color: .black.opacity(0.6), radius: 4, y: 1)
+                    .feedMatchedGeometry("Subtitle.\(article.id)")
             }
         }
     }

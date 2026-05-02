@@ -15,6 +15,7 @@ struct CompactStyleView: View {
                 .fontWeight(feedManager.isRead(article) ? .regular : .medium)
                 .foregroundStyle(feedManager.isRead(article) ? .secondary : .primary)
                 .lineLimit(1)
+                .feedMatchedGeometry("Title.\(article.id)")
 
             Spacer()
 

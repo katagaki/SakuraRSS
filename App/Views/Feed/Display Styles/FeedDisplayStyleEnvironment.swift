@@ -26,6 +26,39 @@ extension EnvironmentValues {
     }
 }
 
+// MARK: - Feed Item Matched Geometry Namespace
+
+private struct FeedItemNamespaceKey: EnvironmentKey {
+    static let defaultValue: Namespace.ID? = nil
+}
+
+extension EnvironmentValues {
+    var feedItemNamespace: Namespace.ID? {
+        get { self[FeedItemNamespaceKey.self] }
+        set { self[FeedItemNamespaceKey.self] = newValue }
+    }
+}
+
+extension View {
+    func feedMatchedGeometry(_ id: String) -> some View {
+        FeedMatchedGeometryModifier(id: id, wrappedView: self)
+    }
+}
+
+private struct FeedMatchedGeometryModifier<WrappedView: View>: View {
+    @Environment(\.feedItemNamespace) private var namespace
+    let id: String
+    let wrappedView: WrappedView
+
+    var body: some View {
+        if let namespace {
+            wrappedView.matchedGeometryEffect(id: id, in: namespace)
+        } else {
+            wrappedView
+        }
+    }
+}
+
 // MARK: - Zoom Transition Modifiers
 
 extension View {

@@ -31,5 +31,6 @@ struct GridArticleCell: View {
                     .padding(6)
             }
         }
+        .feedMatchedGeometry("Thumb.\(article.id)")
     }
 }

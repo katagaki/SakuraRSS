@@ -45,12 +45,15 @@ struct FeedArticleRow: View {
 
     var body: some View {
         HStack(alignment: .top, spacing: 10) {
-            if let feed, let navigateToFeed {
-                Button { navigateToFeed(feed) } label: { feedAvatarView }
-                    .buttonStyle(.plain)
-            } else {
-                feedAvatarView
+            Group {
+                if let feed, let navigateToFeed {
+                    Button { navigateToFeed(feed) } label: { feedAvatarView }
+                        .buttonStyle(.plain)
+                } else {
+                    feedAvatarView
+                }
             }
+            .feedMatchedGeometry("Icon.\(article.id)")
 
             VStack(alignment: .leading, spacing: 6) {
                 HStack(spacing: 4) {
@@ -90,9 +93,11 @@ struct FeedArticleRow: View {
                 Group {
                     if article.hasMeaningfulSummary, let summary = article.summary {
                         SummaryText(summary: summary)
+                            .feedMatchedGeometry("Subtitle.\(article.id)")
                     } else {
                         Text(article.title
                             .trimmingCharacters(in: .whitespacesAndNewlines))
+                            .feedMatchedGeometry("Title.\(article.id)")
                     }
                 }
                 .font(.subheadline)
@@ -145,6 +150,7 @@ struct FeedArticleRow: View {
                         }
                         .padding(.top, 4)
                         .transition(.opacity)
+                        .feedMatchedGeometry("Thumb.\(article.id)")
                 }
 
                 HStack {

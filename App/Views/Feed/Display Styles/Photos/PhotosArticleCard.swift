@@ -35,6 +35,7 @@ struct PhotosArticleCard: View {
                     NavigationLink(value: feed) {
                         HStack(spacing: 10) {
                             feedAvatarView
+                                .feedMatchedGeometry("Icon.\(article.id)")
                             if let feedName {
                                 Text(feedName)
                                     .font(.subheadline)
@@ -47,6 +48,7 @@ struct PhotosArticleCard: View {
                     .buttonStyle(.plain)
                 } else {
                     feedAvatarView
+                        .feedMatchedGeometry("Icon.\(article.id)")
                     if let feedName {
                         Text(feedName)
                             .font(.subheadline)
@@ -120,6 +122,7 @@ struct PhotosArticleCard: View {
                         }
                     }
                     .padding(.bottom, 10)
+                    .feedMatchedGeometry("Thumb.\(article.id)")
                 }
             } else if let photoImage, article.imageURL != nil {
                 let effectiveRatio = max(imageAspectRatio ?? 4.0/5.0, 4.0/5.0)
@@ -149,6 +152,7 @@ struct PhotosArticleCard: View {
                     }
                     .padding(.bottom, 10)
                     .transition(.opacity)
+                    .feedMatchedGeometry("Thumb.\(article.id)")
             }
 
             ArticleLink(article: article, label: {
@@ -161,6 +165,7 @@ struct PhotosArticleCard: View {
                     .multilineTextAlignment(.leading)
                     .padding(.horizontal, 12)
                     .padding(.bottom, 10)
+                    .feedMatchedGeometry("Title.\(article.id)")
             })
             .buttonStyle(.plain)
 

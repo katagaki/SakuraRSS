@@ -27,29 +27,35 @@ struct VideoArticleCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            if let imageURL = article.imageURL, let url = URL(string: imageURL) {
-                Color.clear
-                    .aspectRatio(16 / 9, contentMode: .fit)
-                    .overlay {
-                        CachedAsyncImage(url: url) {
-                            Rectangle()
-                                .fill(.secondary.opacity(0.15))
+            Group {
+                if let imageURL = article.imageURL, let url = URL(string: imageURL) {
+                    Color.clear
+                        .aspectRatio(16 / 9, contentMode: .fit)
+                        .overlay {
+                            CachedAsyncImage(url: url) {
+                                Rectangle()
+                                    .fill(.secondary.opacity(0.15))
+                            }
                         }
-                    }
-                    .clipped()
-            } else {
-                Rectangle()
-                    .fill(.secondary.opacity(0.15))
-                    .aspectRatio(16 / 9, contentMode: .fit)
+                        .clipped()
+                } else {
+                    Rectangle()
+                        .fill(.secondary.opacity(0.15))
+                        .aspectRatio(16 / 9, contentMode: .fit)
+                }
             }
+            .feedMatchedGeometry("Thumb.\(article.id)")
 
             HStack(alignment: .top, spacing: 12) {
-                if let feed, let navigateToFeed {
-                    Button { navigateToFeed(feed) } label: { feedAvatarView }
-                        .buttonStyle(.plain)
-                } else {
-                    feedAvatarView
+                Group {
+                    if let feed, let navigateToFeed {
+                        Button { navigateToFeed(feed) } label: { feedAvatarView }
+                            .buttonStyle(.plain)
+                    } else {
+                        feedAvatarView
+                    }
                 }
+                .feedMatchedGeometry("Icon.\(article.id)")
 
                 VStack(alignment: .leading, spacing: 4) {
                     Text(article.title)
@@ -58,6 +64,7 @@ struct VideoArticleCard: View {
                         .foregroundStyle(feedManager.isRead(article) ? .secondary : .primary)
                         .lineLimit(2)
                         .multilineTextAlignment(.leading)
+                        .feedMatchedGeometry("Title.\(article.id)")
 
                     HStack(spacing: 4) {
                         if let feed, let feedName, let navigateToFeed {

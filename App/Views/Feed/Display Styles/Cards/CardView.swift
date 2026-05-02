@@ -42,6 +42,7 @@ struct CardView: View {
         GeometryReader { geometry in
             ZStack(alignment: .bottomLeading) {
                 iconCardBackground(geometry: geometry)
+                    .feedMatchedGeometry("Icon.\(article.id)")
 
                 if let cardImage {
                     Color.clear
@@ -54,6 +55,7 @@ struct CardView: View {
                         .frame(width: geometry.size.width, height: geometry.size.height)
                         .clipped()
                         .transition(.opacity)
+                        .feedMatchedGeometry("Thumb.\(article.id)")
 
                     ProgressiveBlurView()
                         .frame(height: geometry.size.height * 0.5)
@@ -71,12 +73,14 @@ struct CardView: View {
                         .foregroundStyle(cardTextColor)
                         .lineLimit(4)
                         .multilineTextAlignment(.leading)
+                        .feedMatchedGeometry("Title.\(article.id)")
 
                     if let summary = article.summary, !summary.isEmpty {
                         SummaryText(summary: summary)
                             .font(.subheadline)
                             .foregroundStyle(cardTextColor.secondary)
                             .lineLimit(2)
+                            .feedMatchedGeometry("Subtitle.\(article.id)")
                     }
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)

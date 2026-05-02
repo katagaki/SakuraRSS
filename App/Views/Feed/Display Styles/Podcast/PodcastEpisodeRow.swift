@@ -26,22 +26,25 @@ struct PodcastEpisodeRow: View {
 
     var body: some View {
         HStack(spacing: 12) {
-            if let imageURL = article.imageURL, let url = URL(string: imageURL) {
-                CachedAsyncImage(url: url) {
+            Group {
+                if let imageURL = article.imageURL, let url = URL(string: imageURL) {
+                    CachedAsyncImage(url: url) {
+                        RoundedRectangle(cornerRadius: 8)
+                            .fill(.secondary.opacity(0.15))
+                    }
+                    .frame(width: 60, height: 60)
+                    .clipShape(.rect(cornerRadius: 8))
+                    .overlay {
+                        RoundedRectangle(cornerRadius: 8)
+                            .strokeBorder(.primary.opacity(0.2), lineWidth: 0.5)
+                    }
+                } else {
                     RoundedRectangle(cornerRadius: 8)
                         .fill(.secondary.opacity(0.15))
+                        .frame(width: 60, height: 60)
                 }
-                .frame(width: 60, height: 60)
-                .clipShape(.rect(cornerRadius: 8))
-                .overlay {
-                    RoundedRectangle(cornerRadius: 8)
-                        .strokeBorder(.primary.opacity(0.2), lineWidth: 0.5)
-                }
-            } else {
-                RoundedRectangle(cornerRadius: 8)
-                    .fill(.secondary.opacity(0.15))
-                    .frame(width: 60, height: 60)
             }
+            .feedMatchedGeometry("Thumb.\(article.id)")
 
             VStack(alignment: .leading, spacing: 4) {
                 if let date = article.publishedDate {
@@ -56,6 +59,7 @@ struct PodcastEpisodeRow: View {
                     .fontWeight(feedManager.isRead(article) ? .regular : .semibold)
                     .foregroundStyle(feedManager.isRead(article) ? .secondary : .primary)
                     .lineLimit(2)
+                    .feedMatchedGeometry("Title.\(article.id)")
 
                 if let duration = article.duration {
                     Text(formatDuration(duration))

@@ -28,6 +28,7 @@ struct InboxArticleRow: View {
                 }
                 .frame(width: 48, height: 48)
                 .clipShape(.rect(cornerRadius: 8))
+                .feedMatchedGeometry("Thumb.\(article.id)")
             } else {
                 FeedIconPlaceholder(
                     icon: icon,
@@ -38,6 +39,7 @@ struct InboxArticleRow: View {
                     cornerRadius: 8
                 )
                 .frame(width: 48, height: 48)
+                .feedMatchedGeometry("Icon.\(article.id)")
             }
 
             VStack(alignment: .leading, spacing: 4) {
@@ -52,18 +54,21 @@ struct InboxArticleRow: View {
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                         .lineLimit(2)
+                        .feedMatchedGeometry("Title.\(article.id)")
                 } else {
                     Text(article.title)
                         .font(.body)
                         .fontWeight(feedManager.isRead(article) ? .regular : .semibold)
                         .lineLimit(1)
                         .foregroundStyle(feedManager.isRead(article) ? .secondary : .primary)
+                        .feedMatchedGeometry("Title.\(article.id)")
 
                     if article.hasMeaningfulSummary, let summary = article.summary {
                         SummaryText(summary: summary)
                             .font(.subheadline)
                             .foregroundStyle(.secondary)
                             .lineLimit(2)
+                            .feedMatchedGeometry("Subtitle.\(article.id)")
                     }
                 }
 

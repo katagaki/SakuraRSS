@@ -134,6 +134,7 @@ struct TimelineStyleView: View {
                 .lineLimit(isFeatured ? 3 : 2)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.vertical, 12)
+                .feedMatchedGeometry("Title.\(article.id)")
         }
     }
 }

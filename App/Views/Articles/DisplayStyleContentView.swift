@@ -2,6 +2,8 @@ import SwiftUI
 
 struct DisplayStyleContentView: View {
 
+    @Namespace private var feedItemNamespace
+
     let style: FeedDisplayStyle
     let articles: [Article]
     var onLoadMore: (() -> Void)?
@@ -9,6 +11,12 @@ struct DisplayStyleContentView: View {
     var headerView: AnyView?
 
     var body: some View {
+        styleContent
+            .environment(\.feedItemNamespace, feedItemNamespace)
+    }
+
+    @ViewBuilder
+    private var styleContent: some View {
         switch style {
         case .inbox:
             InboxStyleView(articles: articles, onLoadMore: onLoadMore, headerView: headerView)

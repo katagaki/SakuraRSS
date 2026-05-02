@@ -40,6 +40,7 @@ struct CompactFeedArticleRow: View {
                 Button { navigateToFeed(feed) } label: {
                     HStack(spacing: 6) {
                         feedAvatarView
+                            .feedMatchedGeometry("Icon.\(article.id)")
                         if let feedName {
                             Text(feedName)
                                 .font(.footnote)
@@ -52,6 +53,7 @@ struct CompactFeedArticleRow: View {
                 .buttonStyle(.plain)
             } else {
                 feedAvatarView
+                    .feedMatchedGeometry("Icon.\(article.id)")
                 if let feedName {
                     Text(feedName)
                         .font(.footnote)
@@ -102,6 +104,7 @@ struct CompactFeedArticleRow: View {
                         .background(.ultraThinMaterial, in: .circle)
                 }
             }
+            .feedMatchedGeometry("Thumb.\(article.id)")
         }
     }
 
@@ -118,6 +121,7 @@ struct CompactFeedArticleRow: View {
                         .truncationMode(.tail)
                         .fixedSize(horizontal: false, vertical: true)
                         .frame(maxWidth: .infinity, alignment: .leading)
+                        .feedMatchedGeometry("Title.\(article.id)")
 
                     Spacer(minLength: 0)
 
