@@ -72,7 +72,6 @@ struct MasonryArticleCard: View {
                 Text(article.title)
                     .font(.subheadline)
                     .fontWeight(feedManager.isRead(article) ? .regular : .semibold)
-                    .lineLimit(3)
                     .multilineTextAlignment(.leading)
                     .foregroundStyle(feedManager.isRead(article) ? .secondary : .primary)
 

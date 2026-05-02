@@ -11,13 +11,15 @@ struct RefreshPromptButton: View {
         Button {
             action()
         } label: {
-            Text(String(localized: "Refresh.NewContent", table: "Articles"))
-                .font(.subheadline.weight(.semibold))
-                .padding(.horizontal, 10)
-                .padding(.vertical, 4)
+            Label(
+                String(localized: "Refresh.NewContent", table: "Articles"),
+                systemImage: "arrow.clockwise"
+            )
+            .font(.subheadline)
+            .padding(.horizontal, 10)
+            .padding(.vertical, 4)
         }
-        .buttonStyle(.glass)
+        .buttonStyle(.glassProminent)
         .buttonBorderShape(.capsule)
-        .shadow(color: Color.black.opacity(0.15), radius: 8, x: 0, y: 2)
     }
 }

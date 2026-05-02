@@ -34,7 +34,7 @@ struct DiscoverArticleCard: View {
                         .font(.subheadline)
                         .fontWeight(.semibold)
                         .foregroundStyle(.primary)
-                        .lineLimit(3)
+                        .lineLimit(2)
                         .multilineTextAlignment(.leading)
 
                     Text(feedName)
