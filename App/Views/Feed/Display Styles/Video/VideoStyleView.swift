@@ -76,6 +76,7 @@ struct VideoStyleView: View {
                             }
                         }
                     }
+                    .padding(.bottom, 8)
                 }
                 if let onLoadMore {
                     LoadPreviousArticlesButton(action: onLoadMore, articleCount: articles.count)
