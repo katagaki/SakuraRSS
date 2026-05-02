@@ -194,20 +194,62 @@ extension XProfileFetcher {
 
     /// Fetches a single tweet via the TweetDetail GraphQL endpoint.
     func fetchSingleTweet(tweetID: String) async -> ParsedTweet? {
+        guard let data = await fetchTweetDetailData(tweetID: tweetID) else { return nil }
+        return Self.parseTweetDetailResponse(data: data, tweetID: tweetID)
+    }
+
+    /// Fetches the focal tweet plus any consecutive same-author tweets that
+    /// share its TimelineTimelineModule (self-thread). Per-tweet images and
+    /// quote-tweet URLs are returned in display order.
+    func fetchTweetContent(tweetID: String) async -> ParsedTweetContent? {
+        guard let data = await fetchTweetDetailData(tweetID: tweetID) else { return nil }
+        return Self.parseTweetDetailContent(data: data, tweetID: tweetID)
+    }
+
+    /// Fetches the raw TweetDetail GraphQL response so callers can run
+    /// their own parsing (e.g. extracting replies vs. the focal tweet).
+    /// On a stale-query-ID failure (missing ID, non-200 response, or
+    /// missing instructions), re-extracts query IDs from the current x.com
+    /// bundle once and retries.  This is the same recovery path as the in-app
+    /// "Refresh Authentication" button.
+    func fetchTweetDetailData(tweetID: String) async -> Data? {
+        if let data = await performTweetDetailFetch(tweetID: tweetID),
+           Self.tweetDetailHasInstructions(data) {
+            return data
+        }
+        log("XProfileFetcher", "TweetDetail failed; refreshing query IDs and retrying tweet=\(tweetID)")
+        await MainActor.run { Self.queryIDsFetched = false }
+        await Self.fetchQueryIDsIfNeeded()
+        return await performTweetDetailFetch(tweetID: tweetID)
+    }
+
+    private func performTweetDetailFetch(tweetID: String) async -> Data? {
         guard let cookies = await Self.getXCookies() else {
-            log("XProfileFetcher", "No X session cookies for single tweet fetch")
+            log("XProfileFetcher", "No X session cookies for TweetDetail fetch")
             return nil
         }
 
+        // Mirrors the variables/features/fieldToggles the x.com web client
+        // currently sends for the relevance-ranked TweetDetail call.
         let variables: [String: Any] = [
             "focalTweetId": tweetID,
+            "referrer": "tweet",
             "with_rux_injections": false,
             "rankingMode": "Relevance",
-            "includePromotedContent": false,
+            "includePromotedContent": true,
             "withCommunity": true,
             "withQuickPromoteEligibilityTweetFields": true,
             "withBirdwatchNotes": true,
             "withVoice": true
+        ]
+
+        let fieldToggles: [String: Any] = [
+            "withArticleRichContentState": true,
+            "withArticlePlainText": false,
+            "withArticleSummaryText": true,
+            "withArticleVoiceOver": true,
+            "withGrokAnalyze": false,
+            "withDisallowedReplyControls": false
         ]
 
         guard let queryID = Self.tweetDetailQueryID,
@@ -215,8 +257,8 @@ extension XProfileFetcher {
                 queryID: queryID,
                 operationName: "TweetDetail",
                 variables: variables,
-                features: Self.userTweetsFeatures,
-                fieldToggles: ["withArticlePlainText": false]
+                features: Self.tweetDetailFeatures,
+                fieldToggles: fieldToggles
               ) else {
             log("XProfileFetcher", "Failed to build TweetDetail URL")
             return nil
@@ -239,7 +281,21 @@ extension XProfileFetcher {
             return nil
         }
 
-        return Self.parseTweetDetailResponse(data: data, tweetID: tweetID)
+        return data
+    }
+
+    /// Returns true if the response actually contains the threaded
+    /// conversation. A 200 with `errors` (e.g. "Operation not found" when
+    /// the query ID has rotated) lacks this object.
+    private static func tweetDetailHasInstructions(_ data: Data) -> Bool {
+        guard let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+              let dataObj = json["data"] as? [String: Any],
+              let threaded = dataObj["threaded_conversation_with_injections_v2"]
+                  as? [String: Any],
+              threaded["instructions"] is [[String: Any]] else {
+            return false
+        }
+        return true
     }
 
     // MARK: - Tweets

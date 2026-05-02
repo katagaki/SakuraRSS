@@ -122,13 +122,13 @@ extension XProfileFetcher {
             switch name {
             case "UserByScreenName" where userByScreenNameQueryID == nil:
                 userByScreenNameQueryID = queryID
-                print("[XProfileFetcher:QueryIDs] ✓ UserByScreenName: \(queryID)")
+                print("[XProfileFetcher:QueryIDs] OK: UserByScreenName: \(queryID)")
             case "UserTweets" where userTweetsQueryID == nil:
                 userTweetsQueryID = queryID
-                print("[XProfileFetcher:QueryIDs] ✓ UserTweets: \(queryID)")
+                print("[XProfileFetcher:QueryIDs] OK: UserTweets: \(queryID)")
             case "TweetDetail" where tweetDetailQueryID == nil:
                 tweetDetailQueryID = queryID
-                print("[XProfileFetcher:QueryIDs] ✓ TweetDetail: \(queryID)")
+                print("[XProfileFetcher:QueryIDs] OK: TweetDetail: \(queryID)")
             default:
                 break
             }

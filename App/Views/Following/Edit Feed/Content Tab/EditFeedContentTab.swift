@@ -44,7 +44,9 @@ struct EditFeedContentTab: View {
     @ViewBuilder
     private func contentList(for feed: Feed) -> some View {
         Form {
-            if !feed.isXFeed && !feed.isInstagramFeed && !feed.isYouTubePlaylistFeed {
+            if feed.isXFeed {
+                viewerSection(for: feed)
+            } else if !feed.isInstagramFeed && !feed.isYouTubePlaylistFeed {
                 viewerSection(for: feed)
                 overridesSection(for: feed)
             } else {

@@ -4,6 +4,10 @@ import SwiftUI
 struct XEmbedBlockView: View {
 
     let url: URL
+    /// Routes the tap so the parent can honour the user's
+    /// `Reading.LinkOpenMode` (browser vs in-app viewer). Falls back to the
+    /// system browser when no handler is supplied.
+    var onTap: ((URL) -> Void)?
 
     @State private var tweet: ParsedTweet?
     @State private var isLoading = false
@@ -19,10 +23,21 @@ struct XEmbedBlockView: View {
         content
             .padding(12)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 12))
+            .background(
+                Color(uiColor: .secondarySystemBackground),
+                in: RoundedRectangle(cornerRadius: 12)
+            )
+            .overlay {
+                RoundedRectangle(cornerRadius: 12)
+                    .strokeBorder(.secondary, lineWidth: 0.5)
+            }
             .contentShape(.rect(cornerRadius: 12))
             .onTapGesture {
-                UIApplication.shared.open(url)
+                if let onTap {
+                    onTap(url)
+                } else {
+                    UIApplication.shared.open(url)
+                }
             }
             .task { await loadTweet() }
     }
@@ -84,22 +99,22 @@ struct XEmbedBlockView: View {
         HStack(spacing: 6) {
             if let tweet {
                 Text(tweet.author)
-                    .font(.caption.bold())
+                    .font(.subheadline.bold())
                     .foregroundStyle(.primary)
                     .lineLimit(1)
                 Text("@\(tweet.authorHandle)")
-                    .font(.caption)
+                    .font(.subheadline)
                     .foregroundStyle(.secondary)
                     .lineLimit(1)
             } else {
                 Text(String(localized: "Article.Embed.XPost", table: "Articles"))
-                    .font(.caption.bold())
+                    .font(.subheadline.bold())
                     .foregroundStyle(.secondary)
             }
             Spacer(minLength: 0)
             if let date = tweet?.publishedDate {
                 RelativeTimeText(date: date)
-                    .font(.caption2)
+                    .font(.subheadline)
                     .foregroundStyle(.tertiary)
             }
         }

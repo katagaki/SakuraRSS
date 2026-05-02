@@ -97,7 +97,7 @@ struct PodcastEpisodeView: View {
                         .clipShape(.rect(cornerRadius: 16))
                         .overlay(
                             RoundedRectangle(cornerRadius: 16)
-                                .stroke(.quaternary, lineWidth: 0.5)
+                                .strokeBorder(.secondary, lineWidth: 0.5)
                         )
                         .shadow(radius: 8, y: 4)
                         .padding(.horizontal, 40)
@@ -109,7 +109,7 @@ struct PodcastEpisodeView: View {
                             .clipShape(.rect(cornerRadius: 16))
                             .overlay(
                                 RoundedRectangle(cornerRadius: 16)
-                                    .stroke(.quaternary, lineWidth: 0.5)
+                                    .strokeBorder(.secondary, lineWidth: 0.5)
                             )
                             .shadow(radius: 8, y: 4)
                             .padding(.horizontal, 40)

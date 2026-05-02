@@ -37,7 +37,7 @@ struct ImageBlockView: View {
         .clipShape(.rect(cornerRadius: 12))
         .overlay {
             RoundedRectangle(cornerRadius: 12)
-                .strokeBorder(.quaternary, lineWidth: 0.5)
+                .strokeBorder(.secondary, lineWidth: 0.5)
         }
         .clipped()
         .overlay(alignment: .bottomTrailing) {

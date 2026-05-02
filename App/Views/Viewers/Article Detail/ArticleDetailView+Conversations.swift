@@ -54,17 +54,14 @@ extension ArticleDetailView {
     }
 
     private var shouldShowConversationsSection: Bool {
-        guard !article.isEphemeral else { return false }
         if isLoadingConversation { return true }
         return !conversationComments.isEmpty
     }
 
     /// Loads cached comments first, then fetches fresh comments on first open.
+    /// Ephemeral articles bypass the cache: their `id == 0` would collide in
+    /// the per-article comment table.
     func loadConversationInBackground() {
-        guard !article.isEphemeral else {
-            log("Comments", "skip ephemeral article id=\(article.id)")
-            return
-        }
         let feed = feedManager.feed(forArticle: article)
         guard let source = CommentSourceRegistry.source(for: article, in: feed) else {
             log("Comments", "no source for article id=\(article.id) feed=\(feed?.title ?? "nil")")
@@ -76,23 +73,26 @@ extension ArticleDetailView {
 
         let database = DatabaseManager.shared
         let articleID = article.id
+        let useCache = !article.isEphemeral
 
-        if let cached = try? database.cachedComments(forArticleID: articleID),
-           !cached.isEmpty {
-            log("Comments", "cache hit article id=\(articleID) count=\(cached.count)")
-            conversationComments = cached
-            return
-        }
+        if useCache {
+            if let cached = try? database.cachedComments(forArticleID: articleID),
+               !cached.isEmpty {
+                log("Comments", "cache hit article id=\(articleID) count=\(cached.count)")
+                conversationComments = cached
+                return
+            }
 
-        if (try? database.hasFetchedComments(forArticleID: articleID)) == true {
-            log("Comments", "cache empty (already fetched, no comments) article id=\(articleID)")
-            return
+            if (try? database.hasFetchedComments(forArticleID: articleID)) == true {
+                log("Comments", "cache empty (already fetched, no comments) article id=\(articleID)")
+                return
+            }
         }
 
         let articleValue = article
         let limit = Self.topConversationCount
         isLoadingConversation = true
-        log("Comments", "fetch begin article id=\(articleID) limit=\(limit)")
+        log("Comments", "fetch begin article id=\(articleID) limit=\(limit) ephemeral=\(!useCache)")
         Task { [feed] in
             defer {
                 isLoadingConversation = false
@@ -105,14 +105,20 @@ extension ArticleDetailView {
                 )
                 let elapsed = String(format: "%.2fs", Date().timeIntervalSince(started))
                 log("Comments", "fetch ok article id=\(articleID) count=\(fetched.count) in \(elapsed)")
-                do {
-                    try database.replaceComments(fetched, forArticleID: articleID)
-                    log("Comments", "cache write article id=\(articleID) count=\(fetched.count)")
-                } catch {
-                    log("Comments", "cache write failed article id=\(articleID) error=\(error)")
-                }
-                if let stored = try? database.cachedComments(forArticleID: articleID) {
-                    conversationComments = stored
+                if useCache {
+                    do {
+                        try database.replaceComments(fetched, forArticleID: articleID)
+                        log("Comments", "cache write article id=\(articleID) count=\(fetched.count)")
+                    } catch {
+                        log("Comments", "cache write failed article id=\(articleID) error=\(error)")
+                    }
+                    if let stored = try? database.cachedComments(forArticleID: articleID) {
+                        conversationComments = stored
+                    }
+                } else {
+                    conversationComments = fetched.enumerated().map { index, item in
+                        Comment.fromFetched(item, rank: index)
+                    }
                 }
             } catch {
                 log("Comments", "fetch failed article id=\(articleID) error=\(error)")

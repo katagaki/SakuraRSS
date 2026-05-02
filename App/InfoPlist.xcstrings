@@ -61,13 +61,73 @@
         }
       }
     },
+    "NSPhotoLibraryAddUsageDescription" : {
+      "comment" : "Privacy - Photo Library Additions Usage Description",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sakura kann Bilder aus Feed-Artikeln in deiner Fotomediathek speichern."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Sakura can save images in feed articles to your Photo Library."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sakura peut enregistrer des images d’articles de flux dans votre photothèque."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sakura può salvare le immagini degli articoli dei feed nella tua libreria foto."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "サクラは記事の画像を写真ライブラリに保存できます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sakura는 피드 기사의 이미지를 사진 보관함에 저장할 수 있습니다."
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sakura có thể lưu hình ảnh từ các bài viết nguồn cấp vào Thư viện ảnh của bạn."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sakura 可以将订阅源文章中的图片保存到您的照片图库。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sakura 可以將訂閱來源文章中的圖片儲存到你的照片圖庫。"
+          }
+        }
+      }
+    },
     "NSSpeechRecognitionUsageDescription" : {
       "comment" : "Privacy - Speech Recognition Usage Description",
       "extractionState" : "extracted_with_value",
       "localizations" : {
         "de" : {
           "stringUnit" : {
-            "state" : "needs_review",
+            "state" : "translated",
             "value" : "Sakura verwendet die geräteinterne Spracherkennung, um heruntergeladene Podcast-Episoden zu transkribieren. Die Audioverarbeitung erfolgt lokal und verlässt Ihr Gerät nicht."
           }
         },
@@ -79,13 +139,13 @@
         },
         "fr" : {
           "stringUnit" : {
-            "state" : "needs_review",
+            "state" : "translated",
             "value" : "Sakura utilise la reconnaissance vocale sur l'appareil pour transcrire les épisodes de podcast que vous téléchargez. L'audio est traité localement et ne quitte jamais votre appareil."
           }
         },
         "it" : {
           "stringUnit" : {
-            "state" : "needs_review",
+            "state" : "translated",
             "value" : "Sakura utilizza il riconoscimento vocale sul dispositivo per trascrivere gli episodi podcast scaricati. L'audio viene elaborato localmente e non lascia mai il dispositivo."
           }
         },
@@ -97,25 +157,25 @@
         },
         "ko" : {
           "stringUnit" : {
-            "state" : "needs_review",
+            "state" : "translated",
             "value" : "Sakura는 다운로드한 팟캐스트 에피소드를 전사하기 위해 기기 내 음성 인식을 사용합니다. 오디오는 로컬에서 처리되며 기기를 떠나지 않습니다."
           }
         },
         "vi" : {
           "stringUnit" : {
-            "state" : "needs_review",
+            "state" : "translated",
             "value" : "Sakura sử dụng nhận dạng giọng nói trên thiết bị để chép lời các tập podcast bạn tải xuống. Âm thanh được xử lý cục bộ và không bao giờ rời khỏi thiết bị của bạn."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
-            "state" : "needs_review",
+            "state" : "translated",
             "value" : "Sakura 使用设备端语音识别来转录您下载的播客单集。音频在本地处理，不会离开您的设备。"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
-            "state" : "needs_review",
+            "state" : "translated",
             "value" : "Sakura 使用裝置端語音辨識來轉錄您下載的Podcast單集。音訊在本機處理，不會離開您的裝置。"
           }
         }
@@ -181,7 +241,62 @@
       }
     },
     "Sakura Web Feed" : {
-
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sakura Web-Feed"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sakura Web Feed"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Flux web Sakura"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Feed web Sakura"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sakura Webフィード"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sakura 웹 피드"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nguồn cấp web Sakura"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sakura 网页订阅源"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sakura 網頁訂閱源"
+          }
+        }
+      }
     }
   },
   "version" : "1.1"

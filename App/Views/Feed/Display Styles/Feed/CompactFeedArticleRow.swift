@@ -14,7 +14,6 @@ struct CompactFeedArticleRow: View {
 
     var opensInExternalApp: Bool {
         if feed?.isRedditFeed == true { return RedditHelper.isAppInstalled }
-        if feed?.isXFeed == true { return XHelper.isAppInstalled }
         if feed?.isInstagramFeed == true { return InstagramHelper.isAppInstalled }
         return false
     }
@@ -92,7 +91,7 @@ struct CompactFeedArticleRow: View {
             .clipShape(.rect(cornerRadius: 10))
             .overlay {
                 RoundedRectangle(cornerRadius: 10)
-                    .stroke(.quaternary, lineWidth: 0.5)
+                    .strokeBorder(.secondary, lineWidth: 0.5)
             }
             .overlay {
                 if feed?.isVideoFeed == true || feed?.isPodcast == true {

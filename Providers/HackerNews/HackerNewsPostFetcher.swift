@@ -8,7 +8,7 @@ enum HackerNewsPostFetchError: Error {
 
 /// Fetches a Hacker News self-post (Ask HN, Show HN with body, etc.) via the
 /// Firebase API and returns the raw HTML body. Posts whose RSS link is an
-/// external URL (regular link posts) are not handled here — the standard
+/// external URL (regular link posts) are not handled here: the standard
 /// extractor handles those.
 nonisolated enum HackerNewsPostFetcher {
 

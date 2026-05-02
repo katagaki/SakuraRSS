@@ -7,7 +7,7 @@ extension EditFeedContentTab {
         Section {
             openModePicker
             if openMode == .inAppViewer {
-                if !feed.isVideoFeed && !feed.isPodcast {
+                if !feed.isVideoFeed && !feed.isPodcast && !feed.isXFeed {
                     articleSourcePicker
                 }
                 NavigationLink {

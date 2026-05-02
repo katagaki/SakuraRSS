@@ -27,10 +27,6 @@ struct ArticleLink<Label: View>: View {
         return mode
     }
 
-    private var isXFeedArticle: Bool {
-        feedManager.feed(forArticle: article)?.isXFeed == true
-    }
-
     private var isInstagramFeedArticle: Bool {
         feedManager.feed(forArticle: article)?.isInstagramFeed == true
     }
@@ -62,7 +58,7 @@ struct ArticleLink<Label: View>: View {
                         label()
                     }
                 }
-            } else if isXFeedArticle || isInstagramFeedArticle {
+            } else if isInstagramFeedArticle {
                 Button {
                     markReadIfEnabled()
                     if let url = URL(string: article.url) {

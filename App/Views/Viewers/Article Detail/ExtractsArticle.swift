@@ -92,7 +92,9 @@ extension ExtractsArticle {
         var contentURL: URL? = URL(string: article.url)
         var isRedditLinkedArticle = false
 
-        if feedManager.feed(forArticle: article)?.isRedditFeed == true {
+        let isRedditCandidate = feedManager.feed(forArticle: article)?.isRedditFeed == true
+            || (article.isEphemeral && URL(string: article.url).map(Self.isRedditPostURL) == true)
+        if isRedditCandidate {
             do {
                 let result = try await RedditPostFetcher.shared.fetchContent(for: article)
                 switch result {
@@ -111,7 +113,9 @@ extension ExtractsArticle {
             }
         }
 
-        if feedManager.feed(forArticle: article)?.isHackerNewsFeed == true,
+        let isHackerNewsCandidate = feedManager.feed(forArticle: article)?.isHackerNewsFeed == true
+            || article.isEphemeral
+        if isHackerNewsCandidate,
            let url = URL(string: article.url),
            HackerNewsPostFetcher.isSelfPostURL(url) {
             do {
@@ -200,19 +204,26 @@ extension ExtractsArticle {
             return
         }
 
-        let isFromXFeed = feedManager.feed(forArticle: article)?.isXFeed == true
-        if article.isXPostURL, !isFromXFeed,
+        if article.isXPostURL,
            UserDefaults.standard.bool(forKey: "Labs.XProfileFeeds"),
            let url = URL(string: article.url),
            let tweetID = XProfileFetcher.extractTweetID(from: url),
            XProfileFetcher.hasSession() {
             let fetcher = XProfileFetcher()
-            if let tweet = await fetcher.fetchSingleTweet(tweetID: tweetID) {
-                var text = ArticleMarker.escape(tweet.text)
-                if let imageURL = tweet.imageURL {
-                    text += "\n\n{{IMG}}\(imageURL){{/IMG}}"
-                }
+            if let content = await fetcher.fetchTweetContent(tweetID: tweetID) {
+                let text = renderXTweetContent(content)
                 extractedText = text
+                if extractedAuthor == nil {
+                    let displayName = content.focal.author.isEmpty
+                        ? "@\(content.focal.authorHandle)"
+                        : content.focal.author
+                    if !displayName.isEmpty {
+                        extractedAuthor = displayName
+                    }
+                }
+                if extractedPublishedDate == nil, let date = content.focal.publishedDate {
+                    extractedPublishedDate = date
+                }
                 if !text.isEmpty {
                     persistCachedContent(text)
                 }
@@ -378,5 +389,32 @@ extension ExtractsArticle {
     fileprivate func extractViaWebView(from url: URL, excludeTitle: String?) async -> String? {
         let extractor = WebViewExtractor()
         return await extractor.extractText(from: url)
+    }
+
+    /// Detects a Reddit comments URL — used to enable Reddit content
+    /// extraction for ephemeral articles (no feed lookup available).
+    static func isRedditPostURL(_ url: URL) -> Bool {
+        guard let host = url.host?.lowercased(),
+              host == "reddit.com" || host.hasSuffix(".reddit.com") else { return false }
+        return RedditPostFetcher.postID(from: url) != nil
+    }
+
+    /// Serialises a tweet (or self-thread) into the marker-based text format
+    /// that `ContentBlockStack` understands: each tweet becomes its own text
+    /// block, followed by `{{IMG}}` markers for its photos, then `{{XPOST}}`
+    /// for any quoted tweet — separated from the next tweet by a blank line.
+    func renderXTweetContent(_ content: ParsedTweetContent) -> String {
+        var sections: [String] = []
+        for item in content.threadItems {
+            var section = ArticleMarker.escape(item.text)
+            for imageURL in item.imageURLs {
+                section += "\n\n{{IMG}}\(imageURL){{/IMG}}"
+            }
+            if let quoted = item.quotedTweetURL {
+                section += "\n\n{{XPOST}}\(quoted){{/XPOST}}"
+            }
+            sections.append(section)
+        }
+        return sections.joined(separator: "\n\n")
     }
 }

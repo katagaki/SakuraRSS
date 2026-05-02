@@ -110,15 +110,56 @@ struct ArticleDetailView: View {
         return extractedText ?? article.summary
     }
 
+    /// Author + relative-time row for ephemeral X posts (share-extension
+     /// opens). Mirrors the non-ephemeral row but skips the feed icon/title
+     /// since there's no feed lookup, and avoids leading separators.
+    @ViewBuilder
+    var ephemeralXMetadataRow: some View {
+        let author = article.author ?? extractedAuthor
+        let date = article.publishedDate ?? extractedPublishedDate
+        if author != nil || date != nil {
+            HStack(spacing: 12) {
+                if let author {
+                    Text(author)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
+                }
+                if author != nil, date != nil {
+                    Text("·")
+                        .foregroundStyle(.tertiary)
+                }
+                if let date {
+                    RelativeTimeText(date: date)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+            }
+            .lineLimit(1)
+        }
+    }
+
+    var displayTitle: String {
+        if isInsecureArticle {
+            return String(localized: "Article.Insecure.Title", table: "Articles")
+        }
+        if let translated = showingTranslation ? translatedTitle : nil {
+            return translated
+        }
+        if article.isXPostURL {
+            return String(localized: "Article.XPost.Title", table: "Articles")
+        }
+        if article.isEphemeral, let extractedPageTitle {
+            return extractedPageTitle
+        }
+        return article.title
+    }
+
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
                 SelectableText(
-                    isInsecureArticle
-                        ? String(localized: "Article.Insecure.Title", table: "Articles")
-                        : ((showingTranslation ? translatedTitle : nil)
-                            ?? (article.isEphemeral ? extractedPageTitle : nil)
-                            ?? article.title),
+                    displayTitle,
                     font: .preferredFont(forTextStyle: .title2).bold(),
                     textColor: .label
                 )
@@ -162,6 +203,8 @@ struct ArticleDetailView: View {
                         }
                     }
                     .lineLimit(1)
+                } else if article.isXPostURL {
+                    ephemeralXMetadataRow
                 }
 
             }
@@ -173,7 +216,7 @@ struct ArticleDetailView: View {
                 .padding(.vertical, 4)
 
             VStack(alignment: .leading, spacing: 16) {
-                if !fullTextHasImages,
+                if !fullTextHasImages, !article.isXPostURL,
                    let imageURL = article.imageURL ?? extractedLeadImageURL,
                    let url = URL(string: imageURL) {
                     ImageBlockView(url: url, namespace: imageViewerNamespace) {

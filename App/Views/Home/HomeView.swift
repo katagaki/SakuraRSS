@@ -119,8 +119,7 @@ struct HomeView: View {
                     try? await Task.sleep(for: .milliseconds(300))
                     guard pendingArticleID == articleID else { return }
                     if let article = feedManager.article(byID: articleID) {
-                        if feedManager.feed(forArticle: article)?.isXFeed == true
-                            || feedManager.feed(forArticle: article)?.isInstagramFeed == true {
+                        if feedManager.feed(forArticle: article)?.isInstagramFeed == true {
                             if let url = URL(string: article.url) {
                                 feedManager.markRead(article)
                                 openURL(url)

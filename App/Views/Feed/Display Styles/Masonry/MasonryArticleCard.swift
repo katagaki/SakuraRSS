@@ -45,7 +45,7 @@ struct MasonryArticleCard: View {
                         .clipShape(.rect(cornerRadius: 12))
                         .overlay {
                             RoundedRectangle(cornerRadius: 12)
-                                .stroke(.quaternary, lineWidth: 0.5)
+                                .strokeBorder(.secondary, lineWidth: 0.5)
                         }
                 } else {
                     masonryFallbackBackground

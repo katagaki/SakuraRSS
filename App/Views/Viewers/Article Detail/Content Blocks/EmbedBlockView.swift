@@ -4,11 +4,18 @@ struct EmbedBlockView: View {
 
     let provider: EmbedProvider
     let url: URL
+    /// Routes the tap so the parent can honour the user's
+    /// `Reading.LinkOpenMode`. Falls back to the system browser when nil.
+    var onTap: ((URL) -> Void)?
     @Environment(\.openURL) private var openURL
 
     var body: some View {
         Button {
-            openURL(url)
+            if let onTap {
+                onTap(url)
+            } else {
+                openURL(url)
+            }
         } label: {
             HStack(spacing: 12) {
                 Image(systemName: provider.symbolName)

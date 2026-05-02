@@ -104,7 +104,7 @@ extension RedditCommentsFetcher {
     }()
 
     /// Reddit emits microsecond precision (e.g. `2026-05-01T16:41:21.212000+0000`)
-    /// which `ISO8601DateFormatter` rejects — trim the fractional component to
+    /// which `ISO8601DateFormatter` rejects. Trim the fractional component to
     /// 3 digits before parsing.
     static func parseISO8601(_ value: String) -> Date? {
         let normalized = value.replacingOccurrences(

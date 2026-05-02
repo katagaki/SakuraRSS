@@ -38,9 +38,9 @@ struct ContentBlockStack: View {
             case .youtube(let videoID):
                 YouTubeEmbedBlockView(videoID: videoID)
             case .xPost(let url):
-                XEmbedBlockView(url: url)
+                XEmbedBlockView(url: url, onTap: onLinkTap)
             case .embed(let provider, let url):
-                EmbedBlockView(provider: provider, url: url)
+                EmbedBlockView(provider: provider, url: url, onTap: onLinkTap)
             case .table(let header, let rows):
                 TableBlockView(
                     header: header,

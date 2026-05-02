@@ -17,7 +17,7 @@ struct TimelineConnector: View {
                     path.move(to: CGPoint(x: midX, y: 0))
                     path.addLine(to: CGPoint(x: midX, y: dotY - dotSize / 2))
                 }
-                .stroke(Color.secondary.opacity(0.3), lineWidth: 2)
+                .stroke(.secondary.opacity(0.3), lineWidth: 2)
             }
 
             if !isLast {
@@ -25,7 +25,7 @@ struct TimelineConnector: View {
                     path.move(to: CGPoint(x: midX, y: dotY + dotSize / 2))
                     path.addLine(to: CGPoint(x: midX, y: geometry.size.height))
                 }
-                .stroke(Color.secondary.opacity(0.3), lineWidth: 2)
+                .stroke(.secondary.opacity(0.3), lineWidth: 2)
             }
 
             Circle()

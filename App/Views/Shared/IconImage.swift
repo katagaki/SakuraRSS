@@ -51,7 +51,7 @@ struct IconImage: View {
             .frame(width: size, height: size)
             .background(image.nearWhiteAverageColor)
             .clipShape(shape)
-            .overlay(shape.stroke(.tertiary, lineWidth: 0.3))
+            .overlay(shape.stroke(.secondary, lineWidth: 0.5))
     }
 }
 

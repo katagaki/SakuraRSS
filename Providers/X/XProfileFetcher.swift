@@ -12,6 +12,33 @@ struct ParsedTweet: Sendable {
     let publishedDate: Date?
 }
 
+struct ParsedReply: Sendable {
+    let id: String
+    let text: String
+    let author: String
+    let authorHandle: String
+    let url: String
+    let publishedDate: Date?
+}
+
+/// One tweet within a self-thread, used to build the article body. Carries
+/// already-cleaned text (with leading thread mentions stripped), the post's
+/// images in order, and the URL of any quoted tweet.
+struct ParsedThreadItem: Sendable {
+    let id: String
+    let text: String
+    let imageURLs: [String]
+    let quotedTweetURL: String?
+}
+
+/// Combined output of `XProfileFetcher.fetchTweetContent`. `focal` provides
+/// the article header metadata; `threadItems` is the body in display order
+/// — a single element for standalone tweets, multiple for self-threads.
+struct ParsedTweetContent: Sendable {
+    let focal: ParsedTweet
+    let threadItems: [ParsedThreadItem]
+}
+
 struct XProfileFetchResult: Sendable {
     let tweets: [ParsedTweet]
     let profileImageURL: String?

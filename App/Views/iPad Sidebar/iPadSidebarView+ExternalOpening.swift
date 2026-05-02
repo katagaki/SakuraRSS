@@ -3,8 +3,7 @@ import SwiftUI
 extension IPadSidebarView {
 
     func shouldOpenExternally(_ article: Article) -> Bool {
-        if feedManager.feed(forArticle: article)?.isXFeed == true
-            || feedManager.feed(forArticle: article)?.isInstagramFeed == true {
+        if feedManager.feed(forArticle: article)?.isInstagramFeed == true {
             return true
         }
         if article.isYouTubeURL && youTubeOpenMode == .youTubeApp {
@@ -15,8 +14,7 @@ extension IPadSidebarView {
 
     func openArticleExternally(_ article: Article) {
         feedManager.markRead(article)
-        if feedManager.feed(forArticle: article)?.isXFeed == true
-            || feedManager.feed(forArticle: article)?.isInstagramFeed == true {
+        if feedManager.feed(forArticle: article)?.isInstagramFeed == true {
             if let url = URL(string: article.url) {
                 openURL(url)
             }
