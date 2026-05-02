@@ -469,6 +469,7 @@ extension XProfileFetcher {
         itemContent: [String: Any], dateFormatter: DateFormatter
     ) -> ParsedReply? {
         guard let inner = itemContent["itemContent"] as? [String: Any],
+              inner["promotedMetadata"] == nil,
               let tweetResults = inner["tweet_results"] as? [String: Any],
               let result = tweetResults["result"] as? [String: Any] else { return nil }
 
@@ -482,8 +483,6 @@ extension XProfileFetcher {
 
         guard let legacy = actualResult["legacy"] as? [String: Any],
               let idStr = legacy["id_str"] as? String, !idStr.isEmpty else { return nil }
-
-        if legacy["conversation_control"] != nil { return nil }
 
         let core = (actualResult["core"] as? [String: Any])?["user_results"] as? [String: Any]
         let userResult = core?["result"] as? [String: Any]
