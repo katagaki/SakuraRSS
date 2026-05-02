@@ -9,6 +9,7 @@
    - Generate the object for each string in a separate file, then use Python to set the object as the value for localization keys in the xcstrings file.
    - Do not make large edits.
    - Do not generate localization strings as part of Python scripts.
+   - Remember to clean up these working files after you're done.
 
 # Copywriting
 

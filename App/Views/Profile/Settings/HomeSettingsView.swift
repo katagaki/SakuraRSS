@@ -5,6 +5,7 @@ struct HomeSettingsView: View {
     @Environment(FeedManager.self) var feedManager
     @State private var configuration: HomeBarConfiguration = .load()
     @State private var editMode: EditMode = .active
+    @State private var showResetConfirmation: Bool = false
 
     var body: some View {
         List {
@@ -42,6 +43,24 @@ struct HomeSettingsView: View {
         .environment(\.editMode, $editMode)
         .navigationTitle(String(localized: "Section.Home", table: "Settings"))
         .toolbarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button(String(localized: "Home.Reset", table: "Settings")) {
+                    showResetConfirmation = true
+                }
+            }
+        }
+        .alert(
+            String(localized: "Home.Reset.ConfirmTitle", table: "Settings"),
+            isPresented: $showResetConfirmation
+        ) {
+            Button(String(localized: "Home.Reset", table: "Settings"), role: .destructive) {
+                configuration = .default
+            }
+            Button("Shared.Cancel", role: .cancel) {}
+        } message: {
+            Text(String(localized: "Home.Reset.ConfirmMessage", table: "Settings"))
+        }
         .onChange(of: configuration) { _, newValue in
             newValue.save()
             NotificationCenter.default.post(name: .homeBarConfigurationDidChange, object: nil)

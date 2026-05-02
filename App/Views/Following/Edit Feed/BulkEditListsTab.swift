@@ -4,8 +4,10 @@ struct BulkEditListsTab: View {
 
     @Environment(FeedManager.self) var feedManager
     let feedIDs: Set<Int64>
+    var onApplied: () -> Void
 
     @State private var assignedListIDs: Set<Int64> = []
+    @State private var initialAssignedListIDs: Set<Int64> = []
     @State private var hasInitialized = false
 
     var body: some View {
@@ -25,11 +27,18 @@ struct BulkEditListsTab: View {
                         }
                         .buttonStyle(.plain)
                     }
-                } footer: {
-                    Text(String(
-                        localized: "FeedList.BulkEdit.Lists.Footer.\(feedIDs.count)",
-                        table: "Feeds"
-                    ))
+                }
+
+                Section {
+                    Button {
+                        applyToAll()
+                    } label: {
+                        Text(String(
+                            localized: "FeedList.BulkEdit.Lists.Apply.\(feedIDs.count)",
+                            table: "Feeds"
+                        ))
+                    }
+                    .disabled(feedIDs.isEmpty)
                 }
             }
         }
@@ -66,23 +75,34 @@ struct BulkEditListsTab: View {
                 common = ids
             }
         }
-        assignedListIDs = common ?? []
+        let initial = common ?? []
+        assignedListIDs = initial
+        initialAssignedListIDs = initial
     }
 
     private func toggleAssignment(_ list: FeedList) {
-        let isAssigning = !assignedListIDs.contains(list.id)
+        if assignedListIDs.contains(list.id) {
+            assignedListIDs.remove(list.id)
+        } else {
+            assignedListIDs.insert(list.id)
+        }
+    }
+
+    private func applyToAll() {
+        let toAdd = assignedListIDs.subtracting(initialAssignedListIDs)
+        let toRemove = initialAssignedListIDs.subtracting(assignedListIDs)
+        let listsByID = Dictionary(uniqueKeysWithValues: feedManager.lists.map { ($0.id, $0) })
         for feedID in feedIDs {
             guard let feed = feedManager.feedsByID[feedID] else { continue }
-            if isAssigning {
+            for listID in toAdd {
+                guard let list = listsByID[listID] else { continue }
                 feedManager.addFeedToList(list, feed: feed)
-            } else {
+            }
+            for listID in toRemove {
+                guard let list = listsByID[listID] else { continue }
                 feedManager.removeFeedFromList(list, feed: feed)
             }
         }
-        if isAssigning {
-            assignedListIDs.insert(list.id)
-        } else {
-            assignedListIDs.remove(list.id)
-        }
+        onApplied()
     }
 }
