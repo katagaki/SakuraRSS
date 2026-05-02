@@ -42,7 +42,7 @@
                         },
                         {
                             "title": "Hacker News",
-                            "feedUrl": "https://hnrss.org/frontpage"
+                            "feedUrl": "https://news.ycombinator.com/rss"
                         },
                         {
                             "title": "MacRumors",

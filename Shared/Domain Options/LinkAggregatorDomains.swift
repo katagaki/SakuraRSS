@@ -7,7 +7,6 @@ nonisolated enum LinkAggregatorDomains: DomainExceptions {
 
     static let exceptionDomains: Set<String> = [
         "reddit.com",
-        "hnrss.org",
         "news.ycombinator.com"
     ]
 
