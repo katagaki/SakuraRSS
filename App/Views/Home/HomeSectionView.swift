@@ -84,13 +84,7 @@ struct HomeSectionView: View {
         } else {
             slicedIDs = preloadedEntries.map(\.id)
         }
-        var articles: [Article]
-        if let section {
-            articles = feedManager.undatedArticles(for: section)
-                + feedManager.articles(withPreloadedIDs: slicedIDs)
-        } else {
-            articles = feedManager.articles(withPreloadedIDs: slicedIDs)
-        }
+        var articles = feedManager.articles(withPreloadedIDs: slicedIDs)
         if hideInstagramReels {
             articles = articles.filter { !$0.url.contains("/reel/") }
         }
