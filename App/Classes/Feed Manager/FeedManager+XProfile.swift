@@ -5,9 +5,6 @@ extension FeedManager {
 
     // MARK: - X Profile Feeds
 
-    /// Minimum interval between X API calls per feed (30 minutes).
-    static let xRefreshInterval: TimeInterval = 30 * 60
-
     // swiftlint:disable:next function_body_length
     func refreshXFeed(
         _ feed: Feed,
@@ -17,8 +14,9 @@ extension FeedManager {
     ) async throws {
         log("XProfile", "refresh begin id=\(feed.id) title=\(feed.title)")
         if let lastFetched = feed.lastFetched,
-           Date().timeIntervalSince(lastFetched) < Self.xRefreshInterval {
-            let remaining = Self.xRefreshInterval - Date().timeIntervalSince(lastFetched)
+           let interval = RefreshTimeoutDomains.refreshTimeout(for: feed.domain),
+           Date().timeIntervalSince(lastFetched) < interval {
+            let remaining = interval - Date().timeIntervalSince(lastFetched)
             log("XProfile", "Skipping refresh for @\(feed.title) - \(Int(remaining))s until next allowed fetch")
             return
         }

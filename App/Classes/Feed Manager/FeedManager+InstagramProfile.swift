@@ -5,13 +5,6 @@ extension FeedManager {
 
     // MARK: - Instagram Profile Feeds
 
-    static let instagramRefreshInterval: TimeInterval = 30 * 60
-
-    /// Adds up to 10 minutes of jitter to avoid a fixed-schedule automation signature.
-    private static func jitteredRefreshInterval() -> TimeInterval {
-        instagramRefreshInterval + TimeInterval.random(in: 0...(10 * 60))
-    }
-
     // swiftlint:disable:next function_body_length
     func refreshInstagramFeed(
         _ feed: Feed,
@@ -20,10 +13,10 @@ extension FeedManager {
         runNLP: Bool = true
     ) async throws {
         log("InstagramProfile", "refresh begin id=\(feed.id) title=\(feed.title)")
-        let effectiveInterval = Self.jitteredRefreshInterval()
         if let lastFetched = feed.lastFetched,
-           Date().timeIntervalSince(lastFetched) < effectiveInterval {
-            let remaining = effectiveInterval - Date().timeIntervalSince(lastFetched)
+           let interval = RefreshTimeoutDomains.refreshTimeout(for: feed.domain),
+           Date().timeIntervalSince(lastFetched) < interval {
+            let remaining = interval - Date().timeIntervalSince(lastFetched)
             log("InstagramProfile", "Skipping refresh for @\(feed.title) - \(Int(remaining))s until next allowed fetch")
             return
         }

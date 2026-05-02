@@ -37,18 +37,12 @@ struct FeedRowView: View {
                     )
                 }
 
-                if feed.isXFeed {
+                if let cooldown = RefreshTimeoutDomains.refreshTimeout(
+                    for: feed.domain, jittered: false
+                ) {
                     FaviconProgressBadge(
                         lastFetched: feed.lastFetched,
-                        cooldown: FeedManager.xRefreshInterval,
-                        size: 32,
-                        isCircle: feed.isCircleIcon,
-                        cornerRadius: iconCornerRadius
-                    )
-                } else if feed.isInstagramFeed {
-                    FaviconProgressBadge(
-                        lastFetched: feed.lastFetched,
-                        cooldown: FeedManager.instagramRefreshInterval,
+                        cooldown: cooldown,
                         size: 32,
                         isCircle: feed.isCircleIcon,
                         cornerRadius: iconCornerRadius

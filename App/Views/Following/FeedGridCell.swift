@@ -44,18 +44,13 @@ struct FeedGridCell: View {
                         )
                     }
 
-                    if feed.isXFeed {
+                    if !isWiggling,
+                       let cooldown = RefreshTimeoutDomains.refreshTimeout(
+                           for: feed.domain, jittered: false
+                       ) {
                         FaviconProgressBadge(
                             lastFetched: feed.lastFetched,
-                            cooldown: FeedManager.xRefreshInterval,
-                            size: iconSize,
-                            isCircle: feed.isCircleIcon,
-                            cornerRadius: iconCornerRadius
-                        )
-                    } else if feed.isInstagramFeed {
-                        FaviconProgressBadge(
-                            lastFetched: feed.lastFetched,
-                            cooldown: FeedManager.instagramRefreshInterval,
+                            cooldown: cooldown,
                             size: iconSize,
                             isCircle: feed.isCircleIcon,
                             cornerRadius: iconCornerRadius
@@ -66,7 +61,7 @@ struct FeedGridCell: View {
                 .drawingGroup()
                 .zoomSource(id: feed.id, namespace: editTransitionNamespace)
                 .overlay(alignment: .topTrailing) {
-                    if feedManager.unreadCount(for: feed) > 0 {
+                    if !isWiggling, feedManager.unreadCount(for: feed) > 0 {
                         unreadDot
                             .offset(
                                 x: feed.isCircleIcon ? 0 : 4,

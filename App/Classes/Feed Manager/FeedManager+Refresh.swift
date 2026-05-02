@@ -325,9 +325,11 @@ extension FeedManager {
             if skipAuthenticatedFetchers, feed.isXFeed || feed.isInstagramFeed {
                 return false
             }
-            if let cooldownSeconds,
+            let domainTimeout = RefreshTimeoutDomains.refreshTimeout(for: feed.domain)
+            let effectiveCooldown = domainTimeout ?? cooldownSeconds
+            if let effectiveCooldown,
                let lastFetched = feed.lastFetched,
-               now.timeIntervalSince(lastFetched) < cooldownSeconds {
+               now.timeIntervalSince(lastFetched) < effectiveCooldown {
                 return false
             }
             return true
