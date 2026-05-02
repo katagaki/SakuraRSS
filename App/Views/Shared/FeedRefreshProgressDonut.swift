@@ -4,8 +4,8 @@ import SwiftUI
 struct FeedRefreshProgressDonut: View {
 
     let progress: Double
-    var size: CGFloat = 24
-    var lineWidth: CGFloat = 2.75
+    var size: CGFloat = 22
+    var lineWidth: CGFloat = 2
     var onStop: (() -> Void)?
 
     private var clampedProgress: Double {
@@ -50,11 +50,12 @@ struct FeedRefreshProgressDonut: View {
                 .rotationEffect(.degrees(-90))
                 .animation(.smooth, value: clampedProgress)
             if onStop != nil {
-                RoundedRectangle(cornerRadius: 1, style: .continuous)
+                RoundedRectangle(cornerRadius: 2, style: .continuous)
                     .fill(Color.accentColor)
                     .frame(width: size * 0.32, height: size * 0.32)
             }
         }
         .frame(width: size, height: size)
+        .padding(lineWidth / 2)
     }
 }
