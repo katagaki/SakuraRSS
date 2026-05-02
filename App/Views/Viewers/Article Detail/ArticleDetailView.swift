@@ -57,6 +57,7 @@ struct ArticleDetailView: View {
     @State var conversationComments: [Comment] = []
     @State var conversationURL: URL?
     @State var isLoadingConversation: Bool = false
+    @State var loadedMetadataForArticleID: Int64?
 
     init(
         article: Article,
@@ -229,8 +230,10 @@ struct ArticleDetailView: View {
         .toolbar {
             articleToolbar
         }
-        .task {
+        .task(id: article.id) {
             guard !isInsecureArticle else { return }
+            guard loadedMetadataForArticleID != article.id else { return }
+            loadedMetadataForArticleID = article.id
             await loadArticleMetadata()
         }
         .alert(String(localized: "Article.Summarize.Error", table: "Articles"), isPresented: Binding(

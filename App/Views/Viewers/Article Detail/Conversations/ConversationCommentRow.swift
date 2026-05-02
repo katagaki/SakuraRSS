@@ -2,6 +2,8 @@ import SwiftUI
 
 struct ConversationCommentRow: View {
 
+    @Environment(\.openURL) private var openURL
+
     let comment: Comment
 
     var body: some View {
@@ -24,12 +26,12 @@ struct ConversationCommentRow: View {
                 .lineLimit(1)
             }
 
-            Text(comment.body)
-                .font(.subheadline)
-                .foregroundStyle(.primary)
-                .multilineTextAlignment(.leading)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .fixedSize(horizontal: false, vertical: true)
+            SelectableText(
+                comment.body,
+                font: .preferredFont(forTextStyle: .subheadline),
+                onLinkTap: { openURL($0) }
+            )
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
     }
 }

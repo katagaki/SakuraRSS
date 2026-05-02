@@ -7,7 +7,7 @@ struct SummaryText: View {
 
     var body: some View {
         Text(cached)
-            .task(id: summary) {
+            .task {
                 cached = ContentBlock.stripMarkdown(summary)
             }
     }
