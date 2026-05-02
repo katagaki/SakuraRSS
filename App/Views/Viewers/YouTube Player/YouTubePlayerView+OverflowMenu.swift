@@ -41,7 +41,7 @@ extension YouTubePlayerView {
                         )
                     }
                 }
-                if article.hasLink && !article.isEphemeral {
+                if article.hasLink {
                     Button {
                         if let url = URL(string: article.url) {
                             openURL(url)
@@ -119,7 +119,7 @@ extension YouTubePlayerView {
 
     private var hasOpenActions: Bool {
         let hasYouTubeApp = youtubeAppURL.flatMap { UIApplication.shared.canOpenURL($0) } ?? false
-        let hasBrowserLink = article.hasLink && !article.isEphemeral
+        let hasBrowserLink = article.hasLink
         return hasYouTubeApp || hasBrowserLink
     }
 

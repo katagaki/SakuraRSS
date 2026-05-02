@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 enum HomeSection: String, CaseIterable, Identifiable {
     case all
@@ -45,15 +46,31 @@ enum HomeSection: String, CaseIterable, Identifiable {
     }
 
     /// Brand-tinted accent used for the Today top tab bar's selected indicator.
-    var tabAccentColor: Color {
+    var tabAccentStyle: AnyShapeStyle {
         switch self {
-        case .podcasts: .indigo
-        case .instagram: .brown
-        case .note: .gray
-        case .reddit, .substack: .orange
-        case .x: .blue
-        case .youtube: .red
-        default: .accentColor
+        case .podcasts: AnyShapeStyle(Color.indigo)
+        case .bluesky: AnyShapeStyle(Color.blue)
+        case .fediverse: AnyShapeStyle(LinearGradient(
+            colors: [.red, .yellow, .green, .blue, .indigo],
+            startPoint: .leading,
+            endPoint: .trailing
+        ))
+        case .instagram: AnyShapeStyle(Color.brown)
+        case .note: AnyShapeStyle(Color.gray)
+        case .reddit, .substack: AnyShapeStyle(Color.orange)
+        case .x: AnyShapeStyle(Color(uiColor: .label))
+        case .youtube: AnyShapeStyle(Color.red)
+        default: AnyShapeStyle(Color.accentColor)
+        }
+    }
+
+    /// Foreground color for the selected tab's text in the Today tab bar.
+    /// Sections with colored capsules use white; X uses `Color.primary` for
+    /// the capsule (black/white per appearance) so its text must invert.
+    var tabSelectedTextColor: Color {
+        switch self {
+        case .fediverse, .x: Color(uiColor: .systemBackground)
+        default: .white
         }
     }
 

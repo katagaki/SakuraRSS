@@ -50,6 +50,7 @@ extension IPadSidebarView {
                     overrideTextMode: firstEphemeral.textMode
                 )
                 .id(firstEphemeral.article.url)
+                .environment(\.navigateToEphemeralArticle, ephemeralAppender)
                 .navigationDestination(for: EphemeralArticleDestination.self) { destination in
                     ArticleDestinationView(
                         article: destination.article,
@@ -57,6 +58,7 @@ extension IPadSidebarView {
                         overrideTextMode: destination.textMode
                     )
                     .id(destination.article.url)
+                    .environment(\.navigateToEphemeralArticle, ephemeralAppender)
                 }
             }
         } else {
@@ -74,6 +76,10 @@ extension IPadSidebarView {
                 }
             }
         }
+    }
+
+    private var ephemeralAppender: (EphemeralArticleDestination) -> Void {
+        { destination in ephemeralDestinations.append(destination) }
     }
 
     private var ephemeralPathBinding: Binding<[EphemeralArticleDestination]> {

@@ -67,8 +67,8 @@
       "localizations" : {
         "de" : {
           "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sakura kann Bilder aus Feed-Artikeln in deiner Fotomediathek speichern."
+            "state" : "needs_review",
+            "value" : "Sakura kann Bilder in deiner Fotomediathek speichern."
           }
         },
         "en" : {
@@ -79,44 +79,44 @@
         },
         "fr" : {
           "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sakura peut enregistrer des images d’articles de flux dans votre photothèque."
+            "state" : "needs_review",
+            "value" : "Sakura peut enregistrer des images dans votre photothèque."
           }
         },
         "it" : {
           "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sakura può salvare le immagini degli articoli dei feed nella tua libreria foto."
+            "state" : "needs_review",
+            "value" : "Sakura può salvare immagini nella tua libreria foto."
           }
         },
         "ja" : {
           "stringUnit" : {
-            "state" : "translated",
-            "value" : "サクラは記事の画像を写真ライブラリに保存できます。"
+            "state" : "needs_review",
+            "value" : "サクラは画像を写真ライブラリに保存できます。"
           }
         },
         "ko" : {
           "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sakura는 피드 기사의 이미지를 사진 보관함에 저장할 수 있습니다."
+            "state" : "needs_review",
+            "value" : "Sakura는 이미지를 사진 보관함에 저장할 수 있습니다."
           }
         },
         "vi" : {
           "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sakura có thể lưu hình ảnh từ các bài viết nguồn cấp vào Thư viện ảnh của bạn."
+            "state" : "needs_review",
+            "value" : "Sakura có thể lưu hình ảnh vào Thư viện ảnh của bạn."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sakura 可以将订阅源文章中的图片保存到您的照片图库。"
+            "state" : "needs_review",
+            "value" : "Sakura 可以将图片保存到您的照片图库。"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sakura 可以將訂閱來源文章中的圖片儲存到你的照片圖庫。"
+            "state" : "needs_review",
+            "value" : "Sakura 可以將圖片儲存到你的照片圖庫。"
           }
         }
       }

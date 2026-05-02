@@ -32,7 +32,7 @@ extension ArticleActions {
     }
 
     var includesOpenLinkAction: Bool {
-        article.hasLink && !article.isEphemeral
+        article.hasLink
     }
 
     func performOpenArXivPDF() {}

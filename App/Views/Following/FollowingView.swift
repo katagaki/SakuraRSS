@@ -13,9 +13,11 @@ struct FollowingView: View {
         NavigationStack(path: $path) {
             FollowingPage()
                 .environment(\.navigateToFeed, { feed in path.append(feed) })
+                .environment(\.navigateToEphemeralArticle, ephemeralAppender)
                 .navigationDestination(for: Feed.self) { feed in
                     FeedArticlesView(feed: feed)
                         .environment(\.zoomNamespace, cardZoom)
+                        .environment(\.navigateToEphemeralArticle, ephemeralAppender)
                         .onAppear { savedFeedID = Int(feed.id) }
                         .onDisappear {
                             if path.count < 1 { savedFeedID = -1 }
@@ -24,13 +26,24 @@ struct FollowingView: View {
                 .navigationDestination(for: Article.self) { article in
                     ArticleDestinationView(article: article)
                         .environment(\.zoomNamespace, cardZoom)
+                        .environment(\.navigateToEphemeralArticle, ephemeralAppender)
                         .zoomTransition(sourceID: article.id, in: cardZoom)
                         .onAppear { savedArticleID = Int(article.id) }
                         .onDisappear { savedArticleID = -1 }
                 }
+                .navigationDestination(for: EphemeralArticleDestination.self) { destination in
+                    ArticleDestinationView(
+                        article: destination.article,
+                        overrideMode: destination.mode,
+                        overrideTextMode: destination.textMode
+                    )
+                    .environment(\.zoomNamespace, cardZoom)
+                    .environment(\.navigateToEphemeralArticle, ephemeralAppender)
+                }
                 .navigationDestination(for: EntityDestination.self) { destination in
                     EntityArticlesView(destination: destination)
                         .environment(\.zoomNamespace, cardZoom)
+                        .environment(\.navigateToEphemeralArticle, ephemeralAppender)
                 }
         }
         .onChange(of: path.count) {
@@ -49,6 +62,10 @@ struct FollowingView: View {
                 restorePath()
             }
         }
+    }
+
+    private var ephemeralAppender: (EphemeralArticleDestination) -> Void {
+        { destination in path.append(destination) }
     }
 
     private func restorePath() {

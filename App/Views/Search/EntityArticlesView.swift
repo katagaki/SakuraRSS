@@ -4,6 +4,7 @@ struct EntityArticlesView: View {
 
     let destination: EntityDestination
     @Environment(FeedManager.self) var feedManager
+    @Environment(\.navigateToEphemeralArticle) private var navigateToEphemeralArticle
     @AppStorage("Search.DisplayStyle") private var searchDisplayStyle: FeedDisplayStyle = .inbox
     @State private var articles: [Article] = []
     @Namespace private var cardZoom
@@ -40,11 +41,13 @@ struct EntityArticlesView: View {
         .navigationDestination(for: Article.self) { article in
             ArticleDestinationView(article: article)
                 .environment(\.zoomNamespace, cardZoom)
+                .environment(\.navigateToEphemeralArticle, navigateToEphemeralArticle)
                 .zoomTransition(sourceID: article.id, in: cardZoom)
         }
         .navigationDestination(for: EntityDestination.self) { destination in
             EntityArticlesView(destination: destination)
                 .environment(\.zoomNamespace, cardZoom)
+                .environment(\.navigateToEphemeralArticle, navigateToEphemeralArticle)
         }
         .navigationTitle(destination.name)
         .toolbarTitleDisplayMode(.inline)
