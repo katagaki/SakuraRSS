@@ -300,17 +300,12 @@ struct HomeSectionView: View {
             onRefresh: { await performRefresh() },
             onMarkAllRead: performMarkAllRead,
             scrollToTopTrigger: scrollToTopTick,
-            additionalLeadingToolbar: AnyView(
-                Group {
-                    if scopedRefreshState.hasActiveProgress {
-                        let scope = scopeKey
-                        FeedRefreshProgressDonut(
-                            progress: scopedRefreshState.progress,
-                            onStop: { feedManager.cancelScopedRefresh(scope: scope) }
-                        )
-                    }
-                }
-            )
+            additionalLeadingToolbar: scopedRefreshState.hasActiveProgress ? AnyView(
+                FeedRefreshProgressDonut(
+                    progress: scopedRefreshState.progress,
+                    onStop: { [scope = scopeKey] in feedManager.cancelScopedRefresh(scope: scope) }
+                )
+            ) : nil
         )
         .safeAreaInset(edge: .top, spacing: 0) {
             if isAllFollowing {

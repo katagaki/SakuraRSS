@@ -5,86 +5,276 @@ nonisolated enum YouTubePlayerScripts {
 
     static let pipMessageHandlerName = "ytPiP"
 
-    /// Suppresses YouTube's visibility-based auto-pause so audio continues when backgrounded.
-    static let backgroundPlaybackOverride = """
+    /// Hides background/PiP/page-lifecycle signals from page scripts so YouTube
+    /// has no reason to pause the video, while preserving native access via
+    /// `window.__yt.*` (saved originals before the patches were applied).
+    ///
+    /// This replaces a more invasive approach that overrode `HTMLMediaElement.pause`.
+    /// Blocking detection at the source means there is no pause attempt to undo,
+    /// which is friendlier to YouTube's internal state machine and to ad transitions.
+    static let mediaIsolationBootstrap = """
     (function() {
-        try {
-            Object.defineProperty(Document.prototype, 'hidden', {
-                configurable: true, get: function() { return false; }
-            });
-            Object.defineProperty(Document.prototype, 'visibilityState', {
-                configurable: true, get: function() { return 'visible'; }
-            });
-            Object.defineProperty(Document.prototype, 'webkitHidden', {
-                configurable: true, get: function() { return false; }
-            });
-            Object.defineProperty(Document.prototype, 'webkitVisibilityState', {
-                configurable: true, get: function() { return 'visible'; }
-            });
-        } catch (e) {}
+        if (window.__yt) return;
 
         var origAdd = EventTarget.prototype.addEventListener;
+        var origRemove = EventTarget.prototype.removeEventListener;
+        var origDispatch = EventTarget.prototype.dispatchEvent;
+        var pipDescriptor = Object.getOwnPropertyDescriptor(
+            Document.prototype, 'pictureInPictureElement'
+        );
+        // Save the real PiP entry/exit methods *before* we install no-op
+        // overrides on the prototypes. YouTube's player code can only see
+        // the patched methods, but our app keeps native control via
+        // `__yt.enterPiP` / `__yt.exitPiP` below.
+        var origExitPiP = Document.prototype.exitPictureInPicture;
+        var origRequestPiP = HTMLVideoElement.prototype.requestPictureInPicture;
+        var origWebkitSetPM = HTMLVideoElement.prototype.webkitSetPresentationMode;
+
+        window.__yt = {
+            autoplayBlocked: false,
+            userPaused: false,
+            // Set to true by the PiP bridge when we exit PiP without Swift
+            // having flagged the exit as deliberate (i.e., iOS tore PiP down
+            // during background). Suppresses the pause-guard auto-resume so
+            // audio doesn't keep playing without the visual PiP context.
+            // Cleared when Swift initiates a play.
+            exitedPiPRecently: false,
+            // Swift sets this before calling `exitPictureInPicture()` /
+            // `webkitSetPresentationMode('inline')` so the PiP bridge knows
+            // the exit is user-initiated and not a system tear-down.
+            expectingPiPExit: false,
+            addListener: function(target, type, handler, options) {
+                return origAdd.call(target, type, handler, options);
+            },
+            removeListener: function(target, type, handler, options) {
+                return origRemove.call(target, type, handler, options);
+            },
+            // True if any video is in PiP. Checks the iOS-specific
+            // `webkitPresentationMode` first since `pictureInPictureElement`
+            // is unreliable in WKWebView's native PiP path.
+            isInPiP: function() {
+                var videos = document.querySelectorAll('video');
+                for (var i = 0; i < videos.length; i++) {
+                    if (videos[i].webkitPresentationMode === 'picture-in-picture') {
+                        return true;
+                    }
+                }
+                var el = (pipDescriptor && pipDescriptor.get)
+                    ? pipDescriptor.get.call(document) : null;
+                return !!el;
+            },
+            // Native PiP entry, bypassing our prototype overrides. Prefers the
+            // W3C API (which routes through AVPictureInPictureController on iOS)
+            // and falls back to the iOS-only setter.
+            enterPiP: function(video) {
+                if (!video) return;
+                if (origRequestPiP) {
+                    var p = origRequestPiP.call(video);
+                    if (p && typeof p.catch === 'function') p.catch(function(){});
+                } else if (origWebkitSetPM) {
+                    origWebkitSetPM.call(video, 'picture-in-picture');
+                }
+            },
+            // Native PiP exit, bypassing our prototype overrides.
+            exitPiP: function(video) {
+                if (origExitPiP) {
+                    var p = origExitPiP.call(document);
+                    if (p && typeof p.catch === 'function') p.catch(function(){});
+                } else if (video && origWebkitSetPM) {
+                    origWebkitSetPM.call(video, 'inline');
+                }
+            },
+            // Diagnostic log to the native `ytDebug` message handler. The
+            // handler is registered only in DEBUG builds; in Release these
+            // calls silently no-op via the try/catch.
+            log: function(msg) {
+                try {
+                    if (window.webkit && window.webkit.messageHandlers
+                        && window.webkit.messageHandlers.ytDebug) {
+                        window.webkit.messageHandlers.ytDebug.postMessage(
+                            '[BG ' + Date.now() + '] ' + msg
+                        );
+                    }
+                } catch (e) {}
+            }
+        };
+
+        var BLOCKED = {
+            visibilitychange: 1, webkitvisibilitychange: 1,
+            enterpictureinpicture: 1, leavepictureinpicture: 1,
+            webkitpresentationmodechanged: 1,
+            pagehide: 1, pageshow: 1, freeze: 1, resume: 1
+        };
+
+        // Window-level `blur`/`focus` is a background-detection signal on
+        // iOS WKWebView — `blur` fires when the app deactivates. Element-
+        // level `focus`/`blur` (form inputs etc.) must still work, so we
+        // only filter when registered on window/document/body.
+        function isWindowLevel(target) {
+            return target === window
+                || target === document
+                || target === document.documentElement
+                || target === document.body;
+        }
+
         EventTarget.prototype.addEventListener = function(type, listener, options) {
-            if (type === 'visibilitychange' || type === 'webkitvisibilitychange') {
+            if (BLOCKED[type]) return;
+            if ((type === 'blur' || type === 'focus') && isWindowLevel(this)) {
                 return;
             }
             return origAdd.call(this, type, listener, options);
         };
 
-        try {
-            Object.defineProperty(Document.prototype, 'onvisibilitychange', {
-                configurable: true, get: function() { return null; }, set: function() {}
-            });
-        } catch (e) {}
-
-        var origDispatch = EventTarget.prototype.dispatchEvent;
         EventTarget.prototype.dispatchEvent = function(event) {
-            if (event && (event.type === 'visibilitychange' || event.type === 'webkitvisibilitychange')) {
-                return true;
-            }
+            if (event && BLOCKED[event.type]) return true;
             return origDispatch.call(this, event);
         };
-    })();
-    """
 
-    /// Blocks YouTube's internal `video.pause()` calls (e.g. on visibility change or
-    /// PiP transitions) so there is no pause to fade out of. Pauses are only honored
-    /// when Swift first sets `window.__ytUserPaused = true` or when the video has ended.
-    static let pauseOverride = """
-    (function() {
-        var proto = HTMLMediaElement.prototype;
-        if (proto.__ytPauseOverridden) return;
-        proto.__ytPauseOverridden = true;
-        var originalPause = proto.pause;
-        proto.pause = function() {
-            if (window.__ytUserPaused === true || this.ended) {
-                return originalPause.apply(this, arguments);
+        function defineConst(target, name, value) {
+            try {
+                Object.defineProperty(target, name, {
+                    configurable: true,
+                    get: function() { return value; }
+                });
+            } catch (e) {}
+        }
+        defineConst(Document.prototype, 'hidden', false);
+        defineConst(Document.prototype, 'webkitHidden', false);
+        defineConst(Document.prototype, 'visibilityState', 'visible');
+        defineConst(Document.prototype, 'webkitVisibilityState', 'visible');
+        defineConst(Document.prototype, 'pictureInPictureElement', null);
+
+        function neuterOn(target, names) {
+            names.forEach(function(name) {
+                try {
+                    Object.defineProperty(target, name, {
+                        configurable: true,
+                        get: function() { return null; },
+                        set: function() {}
+                    });
+                } catch (e) {}
+            });
+        }
+        neuterOn(Document.prototype, ['onvisibilitychange']);
+        neuterOn(HTMLVideoElement.prototype, [
+            'onenterpictureinpicture',
+            'onleavepictureinpicture',
+            'onwebkitpresentationmodechanged'
+        ]);
+        neuterOn(Window.prototype, [
+            'onpagehide', 'onpageshow', 'onfreeze', 'onresume',
+            'onblur', 'onfocus'
+        ]);
+
+        // Hard-block YouTube's only PiP-control code path. The single toggle
+        // method in the player JS calls these prototype methods; no other
+        // path in the player uses PiP APIs. Our app retains native control
+        // through `__yt.enterPiP` / `__yt.exitPiP` (saved originals above).
+        function rejectedPromise() {
+            return Promise && Promise.reject
+                ? Promise.reject(new Error('blocked'))
+                : undefined;
+        }
+        try {
+            Document.prototype.exitPictureInPicture = function() {
+                window.__yt.log('PAGE call: exitPictureInPicture (blocked)');
+                return rejectedPromise();
+            };
+        } catch (e) {}
+        try {
+            HTMLVideoElement.prototype.requestPictureInPicture = function() {
+                window.__yt.log('PAGE call: requestPictureInPicture (blocked)');
+                return rejectedPromise();
+            };
+        } catch (e) {}
+        try {
+            if (origWebkitSetPM) {
+                HTMLVideoElement.prototype.webkitSetPresentationMode =
+                    function(mode) {
+                        window.__yt.log(
+                            'PAGE call: webkitSetPresentationMode("'
+                            + mode + '") (blocked)'
+                        );
+                    };
             }
-        };
+        } catch (e) {}
+
+        // Attach passive listeners on every event we filter, plus key video
+        // events, so we can see exactly what fires on iOS during background
+        // transitions. Uses saved `origAdd` so listeners aren't filtered.
+        function watch(target, type, label) {
+            origAdd.call(target, type, function(e) {
+                window.__yt.log(label + ' (vis=' + document.visibilityState + ')');
+            }, true);
+        }
+        ['visibilitychange', 'webkitvisibilitychange'].forEach(function(t) {
+            watch(document, t, 'document.' + t);
+        });
+        ['blur', 'focus', 'pagehide', 'pageshow', 'freeze', 'resume'].forEach(
+            function(t) { watch(window, t, 'window.' + t); }
+        );
+
+        var VIDEO_EVENTS = [
+            'enterpictureinpicture', 'leavepictureinpicture',
+            'webkitpresentationmodechanged',
+            'pause', 'play', 'ended', 'waiting', 'stalled',
+            'suspend', 'emptied', 'abort'
+        ];
+        function attachVideoLog(video) {
+            if (video.__ytEventLogAttached) return;
+            video.__ytEventLogAttached = true;
+            VIDEO_EVENTS.forEach(function(type) {
+                origAdd.call(video, type, function() {
+                    window.__yt.log(
+                        'video.' + type
+                        + ' paused=' + video.paused
+                        + ' mode=' + (video.webkitPresentationMode || 'n/a')
+                        + ' t=' + (isFinite(video.currentTime)
+                            ? video.currentTime.toFixed(2) : '?')
+                    );
+                }, true);
+            });
+        }
+        function scanVideos() {
+            document.querySelectorAll('video').forEach(attachVideoLog);
+        }
+        scanVideos();
+        var videoObserver = new MutationObserver(scanVideos);
+        if (document.documentElement) {
+            videoObserver.observe(document.documentElement,
+                { childList: true, subtree: true });
+        }
     })();
     """
 
-    /// Safety net for native pauses that bypass the JS pause override (e.g. WebKit
-    /// suspending media directly). Resumes immediately in the same event loop.
+    /// Resumes the video when something pauses it that isn't the user. Defaults
+    /// to "resume on any pause" — Swift sets `__yt.userPaused = true` before
+    /// deliberate pauses, and `__yt.autoplayBlocked` defers to the autoplay
+    /// blocker. End-of-video and within-tail pauses are left alone.
+    ///
+    /// This catches:
+    ///   - WebKit suspending WKWebView media on app background (no JS pause to
+    ///     intercept; we only see the resulting `pause` event)
+    ///   - any YouTube pause path our isolation bootstrap didn't anticipate
     static let pauseGuard = """
     (function() {
         function attach(video) {
             if (!video || video.__ytPauseGuardAttached) return;
             video.__ytPauseGuardAttached = true;
-            video.addEventListener('pause', function() {
-                if (window.__ytUserPaused === true) return;
+            window.__yt.addListener(video, 'pause', function() {
+                if (window.__yt.userPaused === true) return;
+                if (window.__yt.autoplayBlocked === true) return;
+                // System tore down PiP — don't resume audio "headlessly"
+                // when the user has no visual PiP indicator anymore.
+                if (window.__yt.exitedPiPRecently === true) return;
                 if (video.ended) return;
-                if (video.currentTime > 0 && video.duration > 0
+                if (video.duration > 0
                     && video.currentTime >= video.duration - 0.25) return;
-                var promise = video.play();
-                if (promise && typeof promise.catch === 'function') {
-                    promise.catch(function(){});
-                }
+                var p = video.play();
+                if (p && typeof p.catch === 'function') { p.catch(function(){}); }
             }, true);
         }
-        function scan() {
-            document.querySelectorAll('video').forEach(attach);
-        }
+        function scan() { document.querySelectorAll('video').forEach(attach); }
         scan();
         var observer = new MutationObserver(scan);
         if (document.documentElement) {
@@ -213,7 +403,13 @@ nonisolated enum YouTubePlayerScripts {
     })();
     """
 
-    /// Forwards PiP enter/leave events to native code immediately.
+    /// Forwards PiP enter/leave events to native code immediately. Uses the
+    /// saved `addEventListener` from the isolation bootstrap so listeners are
+    /// not filtered by the page-side block on PiP events.
+    ///
+    /// On iOS WKWebView the W3C `enterpictureinpicture`/`leavepictureinpicture`
+    /// events are unreliable — the canonical signal is
+    /// `webkitpresentationmodechanged`, read via `video.webkitPresentationMode`.
     static let pipEventBridge = """
     (function() {
         function send(state) {
@@ -224,8 +420,20 @@ nonisolated enum YouTubePlayerScripts {
         function attach(video) {
             if (!video || video.__ytPiPAttached) return;
             video.__ytPiPAttached = true;
-            video.addEventListener('enterpictureinpicture', function() { send('enter'); });
-            video.addEventListener('leavepictureinpicture', function() { send('leave'); });
+            window.__yt.addListener(video, 'enterpictureinpicture',
+                function() { send('enter'); });
+            window.__yt.addListener(video, 'leavepictureinpicture',
+                function() { send('leave'); });
+            window.__yt.addListener(video, 'webkitpresentationmodechanged',
+                function() {
+                    var nowInPiP =
+                        video.webkitPresentationMode === 'picture-in-picture';
+                    if (!nowInPiP && !window.__yt.expectingPiPExit) {
+                        window.__yt.exitedPiPRecently = true;
+                    }
+                    window.__yt.expectingPiPExit = false;
+                    send(nowInPiP ? 'enter' : 'leave');
+                });
         }
         function tryAttach() {
             var videos = document.querySelectorAll('video');
@@ -240,27 +448,17 @@ nonisolated enum YouTubePlayerScripts {
     })();
     """
 
-    /// Blocks autoplay until `window.__ytAutoplayBlocked` is cleared by a native play action.
-    /// Sets `__ytUserPaused = true` before pausing so the pause survives `pauseOverride`
-    /// and is not re-played by `pauseGuard`.
+    /// Blocks autoplay until `window.__yt.autoplayBlocked` is cleared by a native play action.
     static let autoplayBlocker = """
     (function() {
-        window.__ytAutoplayBlocked = true;
-        function block(video) {
-            window.__ytUserPaused = true;
-            video.pause();
-        }
+        window.__yt.autoplayBlocked = true;
         function attach(video) {
             if (!video || video.__ytAutoplayAttached) return;
             video.__ytAutoplayAttached = true;
             video.addEventListener('play', function() {
-                if (window.__ytAutoplayBlocked) {
-                    block(video);
-                }
+                if (window.__yt.autoplayBlocked) { video.pause(); }
             });
-            if (!video.paused && window.__ytAutoplayBlocked) {
-                block(video);
-            }
+            if (!video.paused && window.__yt.autoplayBlocked) { video.pause(); }
         }
         function tryAttach() {
             document.querySelectorAll('video').forEach(attach);
@@ -364,8 +562,9 @@ nonisolated enum YouTubePlayerScripts {
                 }
             } catch (e) { dbg('seek err: ' + e.message); }
             if (acted) {
-                window.__ytUserPaused = false;
-                window.__ytAutoplayBlocked = false;
+                window.__yt.autoplayBlocked = false;
+                window.__yt.userPaused = false;
+                window.__yt.exitedPiPRecently = false;
                 var attempts = 0;
                 var resume = function() {
                     var v = document.querySelector('video');

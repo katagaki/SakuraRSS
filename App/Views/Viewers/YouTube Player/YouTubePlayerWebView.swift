@@ -60,12 +60,7 @@ struct YouTubePlayerWebView: UIViewRepresentable {
 
         let controller = WKUserContentController()
         controller.addUserScript(WKUserScript(
-            source: YouTubePlayerScripts.pauseOverride,
-            injectionTime: .atDocumentStart,
-            forMainFrameOnly: false
-        ))
-        controller.addUserScript(WKUserScript(
-            source: YouTubePlayerScripts.backgroundPlaybackOverride,
+            source: YouTubePlayerScripts.mediaIsolationBootstrap,
             injectionTime: .atDocumentStart,
             forMainFrameOnly: false
         ))
@@ -314,7 +309,7 @@ struct YouTubePlayerWebView: UIViewRepresentable {
                 (function() {
                     var video = document.querySelector('video');
                     if (!video) {
-                        return { isPiP: !!document.pictureInPictureElement };
+                        return { isPiP: window.__yt.isInPiP() };
                     }
                     var player = document.querySelector('.html5-video-player');
                     var isAd = player ? player.classList.contains('ad-showing') : false;
@@ -323,7 +318,7 @@ struct YouTubePlayerWebView: UIViewRepresentable {
                     var advURL = advLink ? (advLink.href || advLink.getAttribute('href') || '') : '';
                     var vw = video.videoWidth || 0;
                     var vh = video.videoHeight || 0;
-                    var inPiP = !!document.pictureInPictureElement;
+                    var inPiP = window.__yt.isInPiP();
                     var skipBtn = \(YouTubePlayerScripts.findSkipButtonExpression);
                     return {
                         playing: !video.paused,

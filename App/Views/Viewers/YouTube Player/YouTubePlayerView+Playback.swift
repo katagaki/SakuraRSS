@@ -17,10 +17,14 @@ extension YouTubePlayerView {
             if (video) {
                 try { window.webkit.messageHandlers.ytDebug.postMessage('toggle: paused=' + video.paused); } catch(e) {}
                 if (video.paused) {
-                    window.__ytUserPaused = false;
+                    if (window.__yt) {
+                        window.__yt.autoplayBlocked = false;
+                        window.__yt.userPaused = false;
+                        window.__yt.exitedPiPRecently = false;
+                    }
                     video.play();
                 } else {
-                    window.__ytUserPaused = true;
+                    if (window.__yt) { window.__yt.userPaused = true; }
                     video.pause();
                 }
                 return !video.paused;
@@ -48,7 +52,7 @@ extension YouTubePlayerView {
         (function() {
             var video = document.querySelector('video');
             if (video && !video.paused) {
-                window.__ytUserPaused = true;
+                if (window.__yt) { window.__yt.userPaused = true; }
                 video.pause();
             }
         })();
@@ -106,15 +110,23 @@ extension YouTubePlayerView {
     }
 
     func togglePiP() {
+        // Goes through `__yt.enterPiP` / `__yt.exitPiP` which call the
+        // *saved-original* PiP methods. The page-visible prototype methods
+        // are no-ops (see the isolation bootstrap), so YouTube's player JS
+        // can't fight us — only our toggle controls PiP entry/exit.
+        //
+        // `expectingPiPExit` tells the PiP bridge that this exit is
+        // user-initiated, so it doesn't mistake it for a system teardown
+        // and suppress the pause guard.
         let script = """
         (function() {
             var video = document.querySelector('video');
-            if (video) {
-                if (document.pictureInPictureElement) {
-                    document.exitPictureInPicture();
-                } else if (video.requestPictureInPicture) {
-                    video.requestPictureInPicture();
-                }
+            if (!video) { return; }
+            if (window.__yt.isInPiP()) {
+                window.__yt.expectingPiPExit = true;
+                window.__yt.exitPiP(video);
+            } else {
+                window.__yt.enterPiP(video);
             }
         })();
         """

@@ -146,7 +146,7 @@ struct YouTubeEmbedBlockView: View {
         (function() {
             var v = document.querySelector('video');
             if (!v) return;
-            window.__ytUserPaused = true;
+            if (window.__yt) { window.__yt.userPaused = true; }
             v.pause();
         })();
         """
@@ -171,11 +171,13 @@ struct YouTubeEmbedBlockView: View {
             var v = document.querySelector('video');
             if (!v) return;
             if (v.paused) {
-                window.__ytAutoplayBlocked = false;
-                window.__ytUserPaused = false;
+                if (window.__yt) {
+                    window.__yt.autoplayBlocked = false;
+                    window.__yt.userPaused = false;
+                }
                 v.play();
             } else {
-                window.__ytUserPaused = true;
+                if (window.__yt) { window.__yt.userPaused = true; }
                 v.pause();
             }
         })();

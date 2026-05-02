@@ -172,6 +172,7 @@ struct ArticlesView: View {
                 }
             }
             if let additionalLeadingToolbar {
+                ToolbarSpacer(.fixed, placement: .topBarLeading)
                 ToolbarItemGroup(placement: .topBarLeading) {
                     additionalLeadingToolbar
                 }

@@ -149,17 +149,12 @@ struct FeedArticlesView: View {
             headerView: AnyView(
                 FeedHeaderView(feed: currentFeed)
             ),
-            additionalLeadingToolbar: AnyView(
-                Group {
-                    if scopedRefreshState.hasActiveProgress {
-                        let scope = scopeKey
-                        FeedRefreshProgressDonut(
-                            progress: scopedRefreshState.progress,
-                            onStop: { feedManager.cancelScopedRefresh(scope: scope) }
-                        )
-                    }
-                }
-            ),
+            additionalLeadingToolbar: scopedRefreshState.hasActiveProgress ? AnyView(
+                FeedRefreshProgressDonut(
+                    progress: scopedRefreshState.progress,
+                    onStop: { [scope = scopeKey] in feedManager.cancelScopedRefresh(scope: scope) }
+                )
+            ) : nil,
             effectiveStyleBinding: $effectiveDisplayStyle
         )
         .environment(\.feedBackgroundColors, prominentColors)

@@ -59,11 +59,14 @@ final class YouTubePlayerSession {
             var video = document.querySelector('video');
             if (!video) { return null; }
             if (video.paused) {
-                window.__ytUserPaused = false;
-                window.__ytAutoplayBlocked = false;
+                if (window.__yt) {
+                    window.__yt.autoplayBlocked = false;
+                    window.__yt.userPaused = false;
+                    window.__yt.exitedPiPRecently = false;
+                }
                 video.play();
             } else {
-                window.__ytUserPaused = true;
+                if (window.__yt) { window.__yt.userPaused = true; }
                 video.pause();
             }
             return !video.paused;
@@ -83,8 +86,11 @@ final class YouTubePlayerSession {
         (function() {
             var video = document.querySelector('video');
             if (!video) { return null; }
-            window.__ytUserPaused = false;
-            window.__ytAutoplayBlocked = false;
+            if (window.__yt) {
+                window.__yt.autoplayBlocked = false;
+                window.__yt.userPaused = false;
+                window.__yt.exitedPiPRecently = false;
+            }
             var p = video.play();
             if (p && typeof p.catch === 'function') { p.catch(function(){}); }
             return !video.paused;
@@ -104,7 +110,7 @@ final class YouTubePlayerSession {
         (function() {
             var video = document.querySelector('video');
             if (!video) { return null; }
-            window.__ytUserPaused = true;
+            if (window.__yt) { window.__yt.userPaused = true; }
             video.pause();
             return !video.paused;
         })();

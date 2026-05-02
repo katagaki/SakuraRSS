@@ -14,20 +14,44 @@ extension YouTubePlayerView {
         case .background, .inactive:
             wantsPlaybackInBackground = isPlaying
         case .active:
-            if wantsPlaybackInBackground {
+            if wantsPlaybackInBackground && !isPlaying {
                 resumePlaybackIfNeeded()
-                wantsPlaybackInBackground = false
             }
+            wantsPlaybackInBackground = false
+            // iOS may tear down PiP during background without firing a
+            // `webkitpresentationmodechanged` event the page can observe.
+            // Force-resync from the canonical iOS-side property so the
+            // overlay matches reality on return.
+            resyncPiPState()
         @unknown default:
             break
         }
     }
 
+    func resyncPiPState() {
+        let script = """
+        (function() {
+            var v = document.querySelector('video');
+            if (!v) { return false; }
+            return v.webkitPresentationMode === 'picture-in-picture';
+        })();
+        """
+        webView?.evaluateJavaScript(script) { result, _ in
+            let actuallyInPiP = (result as? Bool) ?? false
+            if isPiP != actuallyInPiP {
+                isPiP = actuallyInPiP
+            }
+        }
+    }
+
+    /// Safety net for the rare case the audio session lost the route while we
+    /// were backgrounded. With detection isolation in place YouTube no longer
+    /// pauses on visibility changes, so this is normally a no-op.
     func resumePlaybackIfNeeded() {
         let script = """
         (function() {
             var v = document.querySelector('video');
-            if (v && v.paused && !v.ended && window.__ytUserPaused !== true) {
+            if (v && v.paused && !v.ended) {
                 var p = v.play();
                 if (p && typeof p.catch === 'function') { p.catch(function(){}); }
             }
