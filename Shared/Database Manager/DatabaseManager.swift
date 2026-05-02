@@ -64,6 +64,16 @@ nonisolated final class DatabaseManager: @unchecked Sendable {
     let articleLastAccessed = SQLite.Expression<Double?>("last_accessed")
     let articleDownloadPath = SQLite.Expression<String?>("download_path")
     let articleTranscriptJSON = SQLite.Expression<String?>("transcript_json")
+    let articleCommentsFetchedAt = SQLite.Expression<Double?>("comments_fetched_at")
+
+    let comments = Table("comments")
+    let commentID = SQLite.Expression<Int64>("id")
+    let commentArticleID = SQLite.Expression<Int64>("article_id")
+    let commentRank = SQLite.Expression<Int>("rank")
+    let commentAuthor = SQLite.Expression<String>("author")
+    let commentBody = SQLite.Expression<String>("body")
+    let commentCreatedDate = SQLite.Expression<Double?>("created_date")
+    let commentSourceURL = SQLite.Expression<String?>("source_url")
 
     let nlpEntities = Table("nlp_entities")
     let nlpEntityID = SQLite.Expression<Int64>("id")
@@ -241,11 +251,23 @@ nonisolated final class DatabaseManager: @unchecked Sendable {
             table.column(articleSimilarComputed, defaultValue: false)
             table.column(articleDownloadPath)
             table.column(articleTranscriptJSON)
+            table.column(articleCommentsFetchedAt)
         })
 
         try database.run(articles.createIndex(articleFeedID, ifNotExists: true))
         try database.run(articles.createIndex(articlePublishedDate, ifNotExists: true))
         try database.run(articles.createIndex(articleFeedID, articleIsRead, ifNotExists: true))
+
+        try database.run(comments.create(ifNotExists: true) { table in
+            table.column(commentID, primaryKey: .autoincrement)
+            table.column(commentArticleID, references: articles, articleID)
+            table.column(commentRank, defaultValue: 0)
+            table.column(commentAuthor, defaultValue: "")
+            table.column(commentBody, defaultValue: "")
+            table.column(commentCreatedDate)
+            table.column(commentSourceURL)
+        })
+        try database.run(comments.createIndex(commentArticleID, ifNotExists: true))
     }
 
     private func createAuxiliaryTables() throws {

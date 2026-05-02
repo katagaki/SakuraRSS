@@ -85,6 +85,21 @@ nonisolated extension DatabaseManager {
         _ = try? database.run(articles.addColumn(articleDownloadPath))
         _ = try? database.run(articles.addColumn(articleTranscriptJSON))
 
+        // Comments cache marker on articles
+        _ = try? database.run(articles.addColumn(articleCommentsFetchedAt))
+
+        // comments table
+        _ = try? database.run(comments.create(ifNotExists: true) { table in
+            table.column(commentID, primaryKey: .autoincrement)
+            table.column(commentArticleID, defaultValue: 0)
+            table.column(commentRank, defaultValue: 0)
+            table.column(commentAuthor, defaultValue: "")
+            table.column(commentBody, defaultValue: "")
+            table.column(commentCreatedDate)
+            table.column(commentSourceURL)
+        })
+        _ = try? database.run(comments.createIndex(commentArticleID, ifNotExists: true))
+
         // nlp_entities table
         _ = try? database.run(nlpEntities.create(ifNotExists: true) { table in
             table.column(nlpEntityID, primaryKey: .autoincrement)

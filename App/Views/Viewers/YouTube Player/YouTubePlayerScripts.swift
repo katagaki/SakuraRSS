@@ -107,7 +107,7 @@ nonisolated enum YouTubePlayerScripts {
         };
 
         // Window-level `blur`/`focus` is a background-detection signal on
-        // iOS WKWebView — `blur` fires when the app deactivates. Element-
+        // iOS WKWebView - `blur` fires when the app deactivates. Element-
         // level `focus`/`blur` (form inputs etc.) must still work, so we
         // only filter when registered on window/document/body.
         function isWindowLevel(target) {
@@ -248,7 +248,7 @@ nonisolated enum YouTubePlayerScripts {
     """
 
     /// Resumes the video when something pauses it that isn't the user. Defaults
-    /// to "resume on any pause" — Swift sets `__yt.userPaused = true` before
+    /// to "resume on any pause". Swift sets `__yt.userPaused = true` before
     /// deliberate pauses, and `__yt.autoplayBlocked` defers to the autoplay
     /// blocker. End-of-video and within-tail pauses are left alone.
     ///
@@ -264,7 +264,7 @@ nonisolated enum YouTubePlayerScripts {
             window.__yt.addListener(video, 'pause', function() {
                 if (window.__yt.userPaused === true) return;
                 if (window.__yt.autoplayBlocked === true) return;
-                // System tore down PiP — don't resume audio "headlessly"
+                // System tore down PiP, don't resume audio "headlessly"
                 // when the user has no visual PiP indicator anymore.
                 if (window.__yt.exitedPiPRecently === true) return;
                 if (video.ended) return;
@@ -408,8 +408,8 @@ nonisolated enum YouTubePlayerScripts {
     /// not filtered by the page-side block on PiP events.
     ///
     /// On iOS WKWebView the W3C `enterpictureinpicture`/`leavepictureinpicture`
-    /// events are unreliable — the canonical signal is
-    /// `webkitpresentationmodechanged`, read via `video.webkitPresentationMode`.
+    /// events are unreliable, the canonical signal is `webkitpresentationmodechanged`,
+    /// read via `video.webkitPresentationMode`.
     static let pipEventBridge = """
     (function() {
         function send(state) {

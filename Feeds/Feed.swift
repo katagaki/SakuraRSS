@@ -65,6 +65,11 @@ nonisolated struct Feed: Identifiable, Hashable, Sendable {
         return host == "reddit.com" || host.hasSuffix(".reddit.com")
     }
 
+    var isHackerNewsFeed: Bool {
+        let host = domain.lowercased()
+        return host == HackerNewsProvider.host || host.hasSuffix(".\(HackerNewsProvider.host)")
+    }
+
     var isNoteFeed: Bool {
         let host = domain.lowercased()
         return host == "note.com" || host.hasSuffix(".note.com")

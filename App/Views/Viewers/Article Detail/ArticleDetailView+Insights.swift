@@ -9,10 +9,13 @@ extension ArticleDetailView {
                 Divider()
                     .padding(.horizontal)
 
-                Label(String(localized: "Insights.Title", table: "Settings"), systemImage: "sparkles")
-                    .font(.title3)
-                    .fontWeight(.bold)
-                    .padding(.horizontal)
+                Label(
+                    String(localized: "Insights.Title", table: "Settings"),
+                    systemImage: "sparkles"
+                )
+                .font(.title3)
+                .fontWeight(.bold)
+                .padding(.horizontal)
 
                 if isLoadingInsights {
                     ProgressView()

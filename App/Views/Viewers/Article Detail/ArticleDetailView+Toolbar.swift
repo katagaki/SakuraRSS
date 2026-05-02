@@ -73,6 +73,7 @@ extension ArticleDetailView {
             hasCachedSummary = true
         }
         loadInsightsInBackground()
+        loadConversationInBackground()
     }
 
 }

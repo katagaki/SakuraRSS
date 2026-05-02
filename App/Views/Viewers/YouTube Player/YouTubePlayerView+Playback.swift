@@ -111,10 +111,7 @@ extension YouTubePlayerView {
 
     func togglePiP() {
         // Goes through `__yt.enterPiP` / `__yt.exitPiP` which call the
-        // *saved-original* PiP methods. The page-visible prototype methods
-        // are no-ops (see the isolation bootstrap), so YouTube's player JS
-        // can't fight us — only our toggle controls PiP entry/exit.
-        //
+        // *saved-original* PiP methods.
         // `expectingPiPExit` tells the PiP bridge that this exit is
         // user-initiated, so it doesn't mistake it for a system teardown
         // and suppress the pause guard.

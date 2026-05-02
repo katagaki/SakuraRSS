@@ -54,6 +54,9 @@ struct ArticleDetailView: View {
     @State var articleTopics: [String] = []
     @State var articlePeople: [String] = []
     @State var isLoadingInsights: Bool = false
+    @State var conversationComments: [Comment] = []
+    @State var conversationURL: URL?
+    @State var isLoadingConversation: Bool = false
 
     init(
         article: Article,
@@ -203,6 +206,10 @@ struct ArticleDetailView: View {
             .animation(.smooth.speed(2.0), value: showingTranslation)
             .animation(.smooth.speed(2.0), value: translatedText)
             .padding([.horizontal, .bottom])
+
+            conversationsSection
+                .animation(.smooth.speed(2.0), value: conversationComments.count)
+                .animation(.smooth.speed(2.0), value: isLoadingConversation)
 
             insightsSection
                 .animation(.smooth.speed(2.0), value: similarArticles.count)

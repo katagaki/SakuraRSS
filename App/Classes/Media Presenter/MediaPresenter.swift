@@ -9,11 +9,6 @@ final class MediaPresenter {
 
     static let shared = MediaPresenter()
 
-    /// Drives the deep-link sheet (article opened from a feed list, deep
-    /// link, etc.). The accessory bar's matched-zoom sheet is governed
-    /// separately by a `@State` `isSheetPresented` on the modifier — that
-    /// state is button-only, so deep-link entries flow through this sheet
-    /// instead.
     var presentedItem: NowPlayingItem?
 
     private init() {}

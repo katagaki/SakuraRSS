@@ -24,6 +24,7 @@ extension ArticleDetailView: ExtractsArticle {
         try? DatabaseManager.shared.clearCachedArticleContent(for: article.id)
         try? DatabaseManager.shared.clearCachedArticleSummary(for: article.id)
         try? DatabaseManager.shared.clearCachedArticleTranslation(for: article.id)
+        try? DatabaseManager.shared.clearCachedComments(forArticleID: article.id)
         translatedText = nil
         translatedTitle = nil
         translatedSummary = nil
@@ -32,6 +33,7 @@ extension ArticleDetailView: ExtractsArticle {
         summarizedText = nil
         hasCachedSummary = false
         showingSummary = false
+        conversationComments = []
 
         let previousText = extractedText
         extractedText = nil
@@ -47,5 +49,7 @@ extension ArticleDetailView: ExtractsArticle {
                 }
             }
         }
+
+        loadConversationInBackground()
     }
 }

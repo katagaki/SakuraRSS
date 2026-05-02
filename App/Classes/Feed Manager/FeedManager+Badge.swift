@@ -7,7 +7,7 @@ extension FeedManager {
 
     static let badgeUpdateDebounceInterval: DispatchTimeInterval = .milliseconds(1000)
 
-    /// Debounced — coalesces rapid badge requests (e.g. mark-read-on-scroll flushes)
+    /// Coalesces rapid badge requests (e.g. mark-read-on-scroll flushes)
     /// into one update so MainActor work doesn't pile up during scrolling.
     nonisolated func updateBadgeCount() {
         Task { @MainActor [weak self] in
