@@ -13,10 +13,7 @@ struct DisplayStyleContentView: View {
     var body: some View {
         styleContent
             .environment(\.feedItemNamespace, feedItemNamespace)
-            .geometryGroup()
-            .transaction(value: style) { transaction in
-                transaction.animation = .smooth(duration: 0.45)
-            }
+            .animation(.smooth(duration: 0.45), value: style)
     }
 
     @ViewBuilder
