@@ -6,7 +6,8 @@ nonisolated enum CommentSourceRegistry {
     static let all: [any CommentSource.Type] = [
         HackerNewsCommentsFetcher.self,
         RedditCommentsFetcher.self,
-        XCommentsFetcher.self
+        XCommentsFetcher.self,
+        InstagramCommentsFetcher.self
     ]
 
     static func source(

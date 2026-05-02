@@ -108,23 +108,23 @@ extension ArticleDetailView {
                 Button {
                     openURL(articleURL)
                 } label: {
-                    Label(displayHost(articleHost), systemImage: "safari")
+                    Label(displayHost(articleHost), systemImage: "arrow.up.forward.square")
                 }
                 Button {
                     openURL(linkedURL)
                 } label: {
-                    Label(displayHost(linkedHost), systemImage: "safari")
+                    Label(displayHost(linkedHost), systemImage: "arrow.up.forward.square")
                 }
             } label: {
                 Label(String(localized: "Article.OpenInBrowser", table: "Articles"),
-                      systemImage: "safari")
+                      systemImage: "arrow.up.forward.square")
             }
         } else {
             Button {
                 performOpenInBrowser()
             } label: {
                 Label(String(localized: "Article.OpenInBrowser", table: "Articles"),
-                      systemImage: "safari")
+                      systemImage: "arrow.up.forward.square")
             }
         }
     }

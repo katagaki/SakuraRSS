@@ -25,7 +25,7 @@ struct CompactFeedArticleRowActions: View {
         if article.isYouTubeURL && YouTubeHelper.isAppInstalled {
             return "play.rectangle"
         }
-        return opensInExternalApp ? "arrow.up.forward.app" : "safari"
+        return opensInExternalApp ? "arrow.up.forward.app" : "arrow.up.forward.square"
     }
 
     private var openButtonTitle: String {

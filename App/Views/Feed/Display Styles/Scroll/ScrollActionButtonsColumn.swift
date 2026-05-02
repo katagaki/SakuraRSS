@@ -35,7 +35,7 @@ struct ScrollActionButtonsColumn: View {
 
             Button(action: onOpen) {
                 labeledIcon(
-                    systemName: article.isYouTubeURL ? "play.rectangle.fill" : "safari.fill",
+                    systemName: article.isYouTubeURL ? "play.rectangle.fill" : "arrow.up.forward.square.fill",
                     label: Text(String(localized: "Article.OpenInBrowser", table: "Articles"))
                 )
             }

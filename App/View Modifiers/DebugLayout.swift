@@ -8,6 +8,7 @@ struct DebugLayout: ViewModifier {
             .overlay(
                 Rectangle()
                     .stroke(Color.red.opacity(0.5), lineWidth: 3)
+                    .padding(3)
             )
             .overlay(
                 Ellipse()

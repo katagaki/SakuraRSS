@@ -29,7 +29,7 @@ struct XEmbedBlockView: View {
             )
             .overlay {
                 RoundedRectangle(cornerRadius: 12)
-                    .strokeBorder(.secondary, lineWidth: 0.5)
+                    .strokeBorder(.primary.opacity(0.5), lineWidth: 0.5)
             }
             .contentShape(.rect(cornerRadius: 12))
             .onTapGesture {
@@ -87,7 +87,7 @@ struct XEmbedBlockView: View {
                     .lineLimit(1)
                     .truncationMode(.middle)
                 Spacer(minLength: 0)
-                Image(systemName: "safari")
+                Image(systemName: "arrow.up.forward.square")
                     .font(.caption2)
                     .foregroundStyle(.tertiary)
             }

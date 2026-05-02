@@ -149,6 +149,9 @@ struct ArticleDetailView: View {
         if article.isXPostURL {
             return String(localized: "Article.XPost.Title", table: "Articles")
         }
+        if article.isInstagramPostURL {
+            return String(localized: "Article.InstagramPost.Title", table: "Articles")
+        }
         if article.isEphemeral, let extractedPageTitle {
             return extractedPageTitle
         }
@@ -218,7 +221,7 @@ struct ArticleDetailView: View {
                 .padding(.vertical, 4)
 
             VStack(alignment: .leading, spacing: 16) {
-                if !fullTextHasImages, !article.isXPostURL,
+                if !fullTextHasImages, !article.isXPostURL, !article.isInstagramPostURL,
                    let imageURL = article.imageURL ?? extractedLeadImageURL,
                    let url = URL(string: imageURL) {
                     ImageBlockView(url: url, namespace: imageViewerNamespace) {

@@ -28,7 +28,7 @@ struct MagazineArticleCard: View {
                         .clipShape(.rect(cornerRadius: 12))
                         .overlay {
                             RoundedRectangle(cornerRadius: 12)
-                                .strokeBorder(.secondary, lineWidth: 0.5)
+                                .strokeBorder(.primary.opacity(0.5), lineWidth: 0.5)
                         }
                 } else {
                     magazineFallbackBackground

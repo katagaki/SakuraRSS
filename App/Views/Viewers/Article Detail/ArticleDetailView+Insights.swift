@@ -333,7 +333,7 @@ private struct SimilarArticleCard: View {
                 .clipShape(.rect(cornerRadius: 14))
                 .overlay(
                     RoundedRectangle(cornerRadius: 14)
-                        .strokeBorder(.secondary, lineWidth: 0.5)
+                        .strokeBorder(.primary.opacity(0.5), lineWidth: 0.5)
                 )
                 .shadow(color: .black.opacity(0.08), radius: 4, y: 2)
                 .zoomSource(id: item.article.id, namespace: zoomNamespace)

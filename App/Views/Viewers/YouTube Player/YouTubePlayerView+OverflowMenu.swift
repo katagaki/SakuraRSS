@@ -49,7 +49,7 @@ extension YouTubePlayerView {
                     } label: {
                         Label(
                             String(localized: "YouTube.OpenInBrowser", table: "Integrations"),
-                            systemImage: "safari"
+                            systemImage: "arrow.up.forward.square"
                         )
                     }
                 }

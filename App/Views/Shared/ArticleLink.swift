@@ -27,10 +27,6 @@ struct ArticleLink<Label: View>: View {
         return mode
     }
 
-    private var isInstagramFeedArticle: Bool {
-        feedManager.feed(forArticle: article)?.isInstagramFeed == true
-    }
-
     private var usesIPadDetailColumn: Bool {
         iPadArticleSelection != nil
     }
@@ -57,15 +53,6 @@ struct ArticleLink<Label: View>: View {
                     } label: {
                         label()
                     }
-                }
-            } else if isInstagramFeedArticle {
-                Button {
-                    markReadIfEnabled()
-                    if let url = URL(string: article.url) {
-                        openURL(url)
-                    }
-                } label: {
-                    label()
                 }
             } else if article.isYouTubeURL && youTubeOpenMode == .inAppPlayer {
                 if usesIPadDetailColumn {
