@@ -15,6 +15,9 @@ nonisolated struct Feed: Identifiable, Hashable, Sendable {
     var acronymIcon: Data?
     /// `true` when the user has manually edited the feed's title; refreshes must not overwrite it.
     var isTitleCustomized: Bool
+    /// Cached result of probing the feed's host for Fediverse `.well-known`
+    /// endpoints. `nil` means the probe has not run yet.
+    var isFediverse: Bool?
 
     var domain: String {
         URL(string: siteURL)?.host ?? URL(string: fetchURL)?.host ?? ""
@@ -49,7 +52,9 @@ nonisolated struct Feed: Identifiable, Hashable, Sendable {
 
     var isFeedViewDomain: Bool {
         isXFeed || isInstagramFeed
-            || DisplayStyleSetDomains.style(for: domain) == .feed || hasMastodonFeedURL
+            || DisplayStyleSetDomains.style(for: domain) == .feed
+            || hasMastodonFeedURL
+            || isFediverseFeed
     }
 
     var isFeedCompactViewDomain: Bool {
@@ -92,21 +97,18 @@ nonisolated struct Feed: Identifiable, Hashable, Sendable {
         return host == "nicovideo.jp" || host.hasSuffix(".nicovideo.jp")
     }
 
-    var isPixelfedFeed: Bool {
-        let host = domain.lowercased()
-        return host == "pixelfed.social" || host.hasSuffix(".pixelfed.social")
-            || host == "pixelfed.tokyo" || host.hasSuffix(".pixelfed.tokyo")
-    }
-
     var isBlueskyFeed: Bool {
         let host = domain.lowercased()
         return host == "bsky.app" || host.hasSuffix(".bsky.app")
     }
 
-    var isMastodonFeed: Bool {
+    /// Hosts that are known to belong to the Fediverse without needing a probe,
+    /// used as the fast-path before the cached `isFediverse` flag and any
+    /// network detection.
+    var isKnownFediverseHost: Bool {
         if hasMastodonFeedURL { return true }
         let host = domain.lowercased()
-        let mastodonHosts: Set<String> = [
+        let knownHosts: Set<String> = [
             "mastodon.social",
             "mastodon.online",
             "mastodon.world",
@@ -116,9 +118,17 @@ nonisolated struct Feed: Identifiable, Hashable, Sendable {
             "hachyderm.io",
             "infosec.exchange",
             "techhub.social",
-            "mas.to"
+            "mas.to",
+            "pixelfed.social",
+            "pixelfed.tokyo",
+            "pixelfed.art"
         ]
-        return mastodonHosts.contains(where: { host == $0 || host.hasSuffix(".\($0)") })
+        return knownHosts.contains(where: { host == $0 || host.hasSuffix(".\($0)") })
+    }
+
+    var isFediverseFeed: Bool {
+        if isKnownFediverseHost { return true }
+        return isFediverse == true
     }
 
     var isCircleIcon: Bool {
@@ -144,11 +154,10 @@ nonisolated struct Feed: Identifiable, Hashable, Sendable {
         if isXFeed { return .x }
         if isYouTubeFeed { return .youtube }
         if isInstagramFeed { return .instagram }
-        if isPixelfedFeed { return .pixelfed }
         if isVimeoFeed { return .vimeo }
         if isNiconicoFeed { return .niconico }
         if isBlueskyFeed { return .bluesky }
-        if isMastodonFeed { return .mastodon }
+        if isFediverseFeed { return .fediverse }
         if isRedditFeed { return .reddit }
         if isNoteFeed { return .note }
         if isSubstackFeed { return .substack }

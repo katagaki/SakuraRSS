@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct FeedRowView: View {
+struct FollowingFeedRow: View {
 
     @Environment(FeedManager.self) var feedManager
     let feed: Feed

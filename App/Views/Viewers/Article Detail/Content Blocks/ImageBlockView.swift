@@ -19,7 +19,7 @@ struct ImageBlockView: View {
     }
 
     private var effectiveAspectRatio: CGFloat {
-        max(aspectRatio ?? (16.0 / 9.0), 16.0 / 9.0)
+        aspectRatio ?? (16.0 / 9.0)
     }
 
     @ViewBuilder
@@ -32,14 +32,13 @@ struct ImageBlockView: View {
             Rectangle()
                 .fill(.secondary.opacity(0.1))
         })
-        .aspectRatio(effectiveAspectRatio, contentMode: .fill)
-        .frame(maxWidth: imageSize?.width)
+        .aspectRatio(effectiveAspectRatio, contentMode: .fit)
+        .frame(maxWidth: .infinity)
         .clipShape(.rect(cornerRadius: 12))
         .overlay {
             RoundedRectangle(cornerRadius: 12)
                 .strokeBorder(.primary.opacity(0.2), lineWidth: 0.5)
         }
-        .clipped()
         .overlay(alignment: .bottomTrailing) {
             linkBadge
         }

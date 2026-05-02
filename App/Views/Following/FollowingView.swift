@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct FeedListView: View {
+struct FollowingView: View {
 
     @Environment(FeedManager.self) var feedManager
     @AppStorage("FeedsList.FeedID") private var savedFeedID: Int = -1
@@ -11,7 +11,7 @@ struct FeedListView: View {
 
     var body: some View {
         NavigationStack(path: $path) {
-            FeedsListPage()
+            FollowingPage()
                 .environment(\.navigateToFeed, { feed in path.append(feed) })
                 .navigationDestination(for: Feed.self) { feed in
                     FeedArticlesView(feed: feed)

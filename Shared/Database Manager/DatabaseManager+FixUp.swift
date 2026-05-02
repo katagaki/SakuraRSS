@@ -18,6 +18,7 @@ nonisolated extension DatabaseManager {
         _ = try? database.run(feeds.addColumn(feedCustomIconURL))
         _ = try? database.run(feeds.addColumn(feedAcronymIcon))
         _ = try? database.run(feeds.addColumn(feedIsTitleCustomized, defaultValue: false))
+        _ = try? database.run(feeds.addColumn(feedIsFediverse))
 
         // articles table
         _ = try? database.run(articles.addColumn(articleFeedID, defaultValue: 0))

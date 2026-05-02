@@ -10,6 +10,7 @@ extension IconCache {
         if host == "reddit.com" || host.hasSuffix(".reddit.com") { return true }
         if host == "note.com" || host.hasSuffix(".note.com") { return true }
         if SubstackPublicationFetcher.isSubstackPublicationHost(host) { return true }
+        if PixelfedProfileFetcher.isPixelfedHost(host) { return true }
         if DisplayStyleSetDomains.style(for: host) == .feed { return true }
         return false
     }
@@ -33,9 +34,13 @@ extension IconCache {
     /// `MetadataFetchingProvider` registry, falling back to a generic
     /// `og:image` scrape.
     nonisolated func fetchProfileAvatar(from siteURL: String) async -> UIImage? {
-        guard let url = URL(string: siteURL) else { return nil }
+        guard let url = URL(string: siteURL) else {
+            log("Icon", "profile avatar: bad siteURL \(siteURL)")
+            return nil
+        }
 
         if let provider = FeedProviderRegistry.metadataFetcher(forSiteURL: url) {
+            log("Icon", "profile avatar: provider=\(provider.providerID) siteURL=\(siteURL)")
             let metadata = await provider.fetchMetadata(for: url)
             if let iconURL = metadata?.iconURL {
                 if let image = await downloadImage(from: iconURL) {
@@ -54,17 +59,27 @@ extension IconCache {
                 log("Icon", "profile avatar: using brand fallback \(fallback) for \(siteURL)")
                 return image
             }
+        } else {
+            log("Icon", "profile avatar: no provider matched siteURL=\(siteURL); falling through to og:image")
         }
 
         do {
             let (data, _) = try await Self.urlSession.data(from: url)
-            guard let html = String(data: data, encoding: .utf8) else { return nil }
+            guard let html = String(data: data, encoding: .utf8) else {
+                log("Icon", "profile avatar: og:image fallback non-utf8 body for \(siteURL)")
+                return nil
+            }
 
             guard let imageURL = extractMetaContent(from: html, property: "og:image"),
-                  let avatarURL = URL(string: imageURL) else { return nil }
+                  let avatarURL = URL(string: imageURL) else {
+                log("Icon", "profile avatar: og:image fallback found no meta for \(siteURL)")
+                return nil
+            }
 
+            log("Icon", "profile avatar: og:image fallback \(avatarURL) for \(siteURL)")
             return await downloadImage(from: avatarURL)
         } catch {
+            log("Icon", "profile avatar: og:image fallback fetch error \(error.localizedDescription) for \(siteURL)")
             return nil
         }
     }

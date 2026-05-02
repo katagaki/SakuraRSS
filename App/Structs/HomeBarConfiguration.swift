@@ -16,8 +16,8 @@ struct HomeBarConfiguration: Equatable, Hashable, Sendable {
     var topicCount: HomeBarTopicCount
 
     static let defaultOrderedItems: [HomeBarItemKind] = [
-        .feeds, .podcasts, .bluesky, .instagram, .mastodon, .note,
-        .pixelfed, .reddit, .substack, .vimeo, .x, .youtube, .niconico, .lists, .topics
+        .feeds, .podcasts, .bluesky, .fediverse, .instagram, .note,
+        .reddit, .substack, .vimeo, .x, .youtube, .niconico, .lists, .topics
     ]
 
     static let `default` = HomeBarConfiguration(
@@ -69,11 +69,15 @@ extension HomeBarConfiguration: Codable {
     private static let legacyFeedSectionsRaw = "feedSections"
     /// Pre-existing rawValue for the legacy "following" item, now implicit.
     private static let legacyFollowingRaw = "following"
+    /// Pre-existing rawValues for the legacy `mastodon` and `pixelfed` items,
+    /// now folded into the unified Fediverse section.
+    private static let legacyMastodonRaw = "mastodon"
+    private static let legacyPixelfedRaw = "pixelfed"
     /// Order to insert per-section items when migrating a legacy
     /// `feedSections` placeholder.
     private static let legacyFeedSectionExpansion: [HomeBarItemKind] = [
-        .feeds, .podcasts, .bluesky, .instagram, .mastodon, .note,
-        .pixelfed, .reddit, .substack, .vimeo, .x, .youtube, .niconico
+        .feeds, .podcasts, .bluesky, .fediverse, .instagram, .note,
+        .reddit, .substack, .vimeo, .x, .youtube, .niconico
     ]
 
     init(from decoder: Decoder) throws {
@@ -93,6 +97,11 @@ extension HomeBarConfiguration: Codable {
                     ordered.append(kind)
                     seenOrdered.insert(kind)
                 }
+            case Self.legacyMastodonRaw, Self.legacyPixelfedRaw:
+                if !seenOrdered.contains(.fediverse) {
+                    ordered.append(.fediverse)
+                    seenOrdered.insert(.fediverse)
+                }
             default:
                 if let kind = HomeBarItemKind(rawValue: raw), !seenOrdered.contains(kind) {
                     ordered.append(kind)
@@ -108,6 +117,8 @@ extension HomeBarConfiguration: Codable {
                 continue
             case Self.legacyFeedSectionsRaw:
                 Self.legacyFeedSectionExpansion.forEach { enabled.insert($0) }
+            case Self.legacyMastodonRaw, Self.legacyPixelfedRaw:
+                enabled.insert(.fediverse)
             default:
                 if let kind = HomeBarItemKind(rawValue: raw) {
                     enabled.insert(kind)

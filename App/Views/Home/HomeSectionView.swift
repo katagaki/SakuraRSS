@@ -188,7 +188,7 @@ struct HomeSectionView: View {
     }
 
     private var isFeedViewSection: Bool {
-        section == .x || section == .mastodon || section == .bluesky
+        section == .x || section == .fediverse || section == .bluesky
     }
 
     private var isPodcastSection: Bool {

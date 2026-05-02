@@ -1,0 +1,34 @@
+import Foundation
+
+extension PixelfedProfileFetcher: RSSFeedProvider {
+
+    nonisolated static var providerID: String { "pixelfed" }
+
+    nonisolated static func matchesFeedURL(_ feedURL: String) -> Bool {
+        isFeedURL(feedURL)
+    }
+}
+
+extension PixelfedProfileFetcher: MetadataFetchingProvider {
+
+    nonisolated static func canFetchMetadata(for url: URL) -> Bool {
+        isProfileURL(url)
+    }
+
+    static func fetchMetadata(for url: URL) async -> FetchedFeedMetadata? {
+        guard let host = url.host?.lowercased(),
+              let username = extractIdentifier(from: url) else {
+            log("PixelfedProvider", "fetchMetadata skip url=\(url.absoluteString) reason=unrecognized")
+            return nil
+        }
+        log("PixelfedProvider", "fetchMetadata begin host=\(host) username=\(username)")
+        let result = await PixelfedProfileFetcher().fetchProfile(host: host, username: username)
+        let iconURL = result.profileImageURL.flatMap(URL.init(string:))
+        log("PixelfedProvider", "fetchMetadata end host=\(host) username=\(username) iconURL=\(iconURL?.absoluteString ?? "nil")")
+        return FetchedFeedMetadata(
+            displayName: nil,
+            iconURL: iconURL,
+            iconNeedsSquareCrop: true
+        )
+    }
+}

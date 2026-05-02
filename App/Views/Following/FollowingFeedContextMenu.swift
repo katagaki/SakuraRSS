@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct FeedRowContextMenu: View {
+struct FollowingFeedContextMenu: View {
 
     @Environment(FeedManager.self) private var feedManager
     let feed: Feed

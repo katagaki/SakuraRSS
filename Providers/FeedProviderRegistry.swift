@@ -11,7 +11,8 @@ nonisolated enum FeedProviderRegistry {
         NoteProfileFetcher.self,
         BlueskyProfileFetcher.self,
         RedditCommunityFetcher.self,
-        HackerNewsProvider.self
+        HackerNewsProvider.self,
+        PixelfedProfileFetcher.self
     ]
 
     static func metadataFetcher(forSiteURL url: URL) -> (any MetadataFetchingProvider.Type)? {

@@ -16,7 +16,7 @@ struct ListDetailView: View {
         List {
             ForEach(feedsInList) { feed in
                 NavigationLink(value: feed) {
-                    FeedRowView(feed: feed)
+                    FollowingFeedRow(feed: feed)
                 }
                 .swipeActions(edge: .trailing, allowsFullSwipe: false) {
                     Button(role: .destructive) {

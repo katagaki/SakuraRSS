@@ -41,7 +41,7 @@ struct MainTabView: View {
                 ? feedManager.totalUnreadCount() : 0)
 
             Tab("Tabs.Feeds", systemImage: "dot.radiowaves.up.forward", value: .feeds) {
-                FeedListView()
+                FollowingView()
             }
 
             Tab("Tabs.Bookmarks", systemImage: "bookmark", value: .bookmarks) {

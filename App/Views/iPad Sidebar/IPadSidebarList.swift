@@ -124,10 +124,10 @@ struct IPadSidebarList: View {
                 Section {
                     ForEach(feeds) { feed in
                         NavigationLink(value: SidebarDestination.feed(feed)) {
-                            FeedRowView(feed: feed)
+                            FollowingFeedRow(feed: feed)
                         }
                         .contextMenu {
-                            FeedRowContextMenu(
+                            FollowingFeedContextMenu(
                                 feed: feed,
                                 feedForEditSheet: $feedForEditSheet,
                                 feedToDelete: $feedToDelete

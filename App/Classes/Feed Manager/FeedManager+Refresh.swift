@@ -173,7 +173,56 @@ extension FeedManager {
             }
         }
         try database.updateFeedLastFetched(id: feed.id, date: Date())
+        FeedManager.scheduleFediverseProbeIfNeeded(for: feed, database: database)
         log("FeedRefresh.RSS", "pipeline complete id=\(feed.id)")
+    }
+
+    /// Probes the feed's host for Fediverse `.well-known` endpoints once and
+    /// persists the result. Skips feeds whose source is already known to live
+    /// outside the Fediverse and feeds that have already been classified.
+    nonisolated static func scheduleFediverseProbeIfNeeded(
+        for feed: Feed,
+        database: DatabaseManager
+    ) {
+        if feed.isFediverse != nil {
+            log("FediverseDetector", "skip id=\(feed.id) reason=cached value=\(feed.isFediverse == true)")
+            return
+        }
+        if feed.isKnownFediverseHost {
+            log("FediverseDetector", "skip id=\(feed.id) reason=known-host domain=\(feed.domain)")
+            return
+        }
+        if let exclusion = nonFediverseExclusion(for: feed) {
+            log("FediverseDetector", "skip id=\(feed.id) reason=\(exclusion) domain=\(feed.domain)")
+            return
+        }
+        log("FediverseDetector", "schedule id=\(feed.id) domain=\(feed.domain)")
+        Task.detached(priority: .background) {
+            guard let result = await FediverseDetector.detect(for: feed) else { return }
+            do {
+                try database.updateFeedIsFediverse(id: feed.id, isFediverse: result)
+                log("FediverseDetector", "persist id=\(feed.id) isFediverse=\(result)")
+            } catch {
+                log("FediverseDetector", "persist failed id=\(feed.id) error=\(error.localizedDescription)")
+            }
+        }
+    }
+
+    /// Names the source family that disqualifies a feed from a Fediverse probe,
+    /// used purely so the skip log line tells you *why* the probe didn't run.
+    nonisolated private static func nonFediverseExclusion(for feed: Feed) -> String? {
+        if feed.isPodcast { return "podcast" }
+        if feed.isXFeed { return "x" }
+        if feed.isYouTubeFeed { return "youtube" }
+        if feed.isInstagramFeed { return "instagram" }
+        if feed.isVimeoFeed { return "vimeo" }
+        if feed.isNiconicoFeed { return "niconico" }
+        if feed.isBlueskyFeed { return "bluesky" }
+        if feed.isRedditFeed { return "reddit" }
+        if feed.isHackerNewsFeed { return "hackernews" }
+        if feed.isNoteFeed { return "note" }
+        if feed.isSubstackFeed { return "substack" }
+        return nil
     }
 
     /// Spotlight indexing, image preloading, and NLP for the articles a feed

@@ -30,6 +30,7 @@ nonisolated final class DatabaseManager: @unchecked Sendable {
     let feedCustomIconURL = SQLite.Expression<String?>("custom_icon_url")
     let feedAcronymIcon = SQLite.Expression<Data?>("acronym_icon")
     let feedIsTitleCustomized = SQLite.Expression<Bool>("is_title_customized")
+    let feedIsFediverse = SQLite.Expression<Bool?>("is_fediverse")
 
     let imageCache = Table("image_cache")
     let imageCacheURL = SQLite.Expression<String>("url")
@@ -222,6 +223,7 @@ nonisolated final class DatabaseManager: @unchecked Sendable {
             table.column(feedCustomIconURL)
             table.column(feedAcronymIcon)
             table.column(feedIsTitleCustomized, defaultValue: false)
+            table.column(feedIsFediverse)
         })
 
         try database.run(articles.create(ifNotExists: true) { table in

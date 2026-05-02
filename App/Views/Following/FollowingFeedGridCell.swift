@@ -1,10 +1,12 @@
 import SwiftUI
 
-struct FeedGridCell: View {
+struct FollowingFeedGridCell: View {
 
     @Environment(FeedManager.self) var feedManager
     let feed: Feed
     var isWiggling: Bool = false
+    var isSelectMode: Bool = false
+    var isSelected: Bool = false
     var onDelete: (() -> Void)?
     var onTap: (() -> Void)?
     var editTransitionNamespace: Namespace.ID?
@@ -69,7 +71,11 @@ struct FeedGridCell: View {
                     }
                 }
                 .overlay(alignment: .topLeading) {
-                    if isWiggling, onDelete != nil {
+                    if isSelectMode {
+                        selectionBadge
+                            .offset(x: -10, y: -10)
+                            .transition(.scale.combined(with: .opacity))
+                    } else if isWiggling, onDelete != nil {
                         deleteBadge
                             .offset(x: -10, y: -10)
                             .transition(.scale.combined(with: .opacity))
@@ -146,5 +152,29 @@ struct FeedGridCell: View {
         }
         .buttonStyle(.plain)
         .accessibilityLabel(String(localized: "FeedEditSheet.DeleteFeed", table: "Feeds"))
+    }
+
+    private var selectionBadge: some View {
+        ZStack {
+            Circle()
+                .fill(.thinMaterial)
+                .overlay {
+                    Circle().strokeBorder(.primary.opacity(0.1), lineWidth: 0.5)
+                }
+                .shadow(color: .black.opacity(0.1), radius: 2, y: 1)
+            if isSelected {
+                Image(systemName: "checkmark.circle.fill")
+                    .resizable()
+                    .symbolRenderingMode(.palette)
+                    .foregroundStyle(.white, Color.accentColor.gradient)
+                    .transition(.scale.combined(with: .opacity))
+            }
+        }
+        .frame(width: 24, height: 24)
+        .accessibilityLabel(
+            isSelected
+            ? String(localized: "FeedList.Selection.Deselect", table: "Feeds")
+            : String(localized: "FeedList.Selection.Select", table: "Feeds")
+        )
     }
 }

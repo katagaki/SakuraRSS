@@ -5,10 +5,9 @@ enum HomeSection: String, CaseIterable, Identifiable {
     case feeds
     case podcasts
     case bluesky
+    case fediverse
     case instagram
-    case mastodon
     case note
-    case pixelfed
     case reddit
     case substack
     case vimeo
@@ -24,10 +23,9 @@ enum HomeSection: String, CaseIterable, Identifiable {
         case .feeds: String(localized: "FeedSection.Feeds", table: "Feeds")
         case .podcasts: String(localized: "FeedSection.Podcasts", table: "Feeds")
         case .bluesky: String(localized: "FeedSection.Bluesky", table: "Feeds")
+        case .fediverse: String(localized: "FeedSection.Fediverse", table: "Feeds")
         case .instagram: String(localized: "FeedSection.Instagram", table: "Feeds")
-        case .mastodon: String(localized: "FeedSection.Mastodon", table: "Feeds")
         case .note: String(localized: "FeedSection.Note", table: "Feeds")
-        case .pixelfed: String(localized: "FeedSection.Pixelfed", table: "Feeds")
         case .reddit: String(localized: "FeedSection.Reddit", table: "Feeds")
         case .substack: String(localized: "FeedSection.Substack", table: "Feeds")
         case .vimeo: String(localized: "FeedSection.Vimeo", table: "Feeds")
@@ -65,10 +63,9 @@ enum HomeSection: String, CaseIterable, Identifiable {
         case .feeds: .feeds
         case .podcasts: .podcasts
         case .bluesky: .bluesky
+        case .fediverse: .fediverse
         case .instagram: .instagram
-        case .mastodon: .mastodon
         case .note: .note
-        case .pixelfed: .pixelfed
         case .reddit: .reddit
         case .substack: .substack
         case .vimeo: .vimeo

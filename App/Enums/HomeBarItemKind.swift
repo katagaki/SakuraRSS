@@ -5,10 +5,9 @@ enum HomeBarItemKind: String, Codable, CaseIterable, Identifiable, Hashable, Sen
     case feeds
     case podcasts
     case bluesky
+    case fediverse
     case instagram
-    case mastodon
     case note
-    case pixelfed
     case reddit
     case substack
     case vimeo
@@ -25,10 +24,9 @@ enum HomeBarItemKind: String, Codable, CaseIterable, Identifiable, Hashable, Sen
         case .feeds: .feeds
         case .podcasts: .podcasts
         case .bluesky: .bluesky
+        case .fediverse: .fediverse
         case .instagram: .instagram
-        case .mastodon: .mastodon
         case .note: .note
-        case .pixelfed: .pixelfed
         case .reddit: .reddit
         case .substack: .substack
         case .vimeo: .vimeo
@@ -53,8 +51,8 @@ enum HomeBarItemKind: String, Codable, CaseIterable, Identifiable, Hashable, Sen
         case .topics: "tag"
         case .feeds: "newspaper"
         case .podcasts: "headphones"
-        case .instagram, .pixelfed: "photo.on.rectangle"
-        case .bluesky, .mastodon, .note, .reddit, .x: "person.2"
+        case .instagram: "photo.on.rectangle"
+        case .bluesky, .fediverse, .note, .reddit, .x: "person.2"
         case .substack: "envelope"
         case .vimeo, .youtube, .niconico: "play.rectangle"
         }
