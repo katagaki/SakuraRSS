@@ -1,6 +1,6 @@
 import Foundation
 
-enum FeedStyleVariant {
+enum FeedStyleVariant: Hashable {
     case full
     case compact
 }

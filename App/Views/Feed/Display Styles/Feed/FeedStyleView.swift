@@ -31,6 +31,7 @@ struct FeedStyleView: View {
                             FeedArticleRow(article: article)
                         }
                     }
+                    .id(variant)
                     .zoomSource(id: article.id, namespace: zoomNamespace)
                     .markReadOnScroll(article: article)
                 }
