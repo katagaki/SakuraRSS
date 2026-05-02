@@ -241,10 +241,8 @@ struct FeedArticleRow: View {
             let pixelHeight = image.size.height * image.scale
             guard pixelWidth > 100 || pixelHeight > 100 else { return }
             let aspect = image.size.height / image.size.width
-            withAnimation(.easeOut(duration: 0.2)) {
-                imageAspectRatio = aspect
-                loadedImage = image
-            }
+            imageAspectRatio = aspect
+            loadedImage = image
         }
         .sheet(isPresented: $showSafari) {
             if let url = URL(string: article.url) {
