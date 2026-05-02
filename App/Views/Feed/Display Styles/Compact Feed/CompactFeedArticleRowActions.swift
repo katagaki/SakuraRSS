@@ -13,7 +13,7 @@ struct CompactFeedArticleRowActions: View {
     var onShowSafari: () -> Void
 
     var body: some View {
-        HStack(spacing: 8) {
+        HStack(spacing: 12) {
             openButton
                 .disabled(!article.hasLink)
             markReadButton
