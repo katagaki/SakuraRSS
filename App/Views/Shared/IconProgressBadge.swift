@@ -1,8 +1,8 @@
 import SwiftUI
 
 /// Full-icon overlay that visualises a feed's rate-limit cooldown.
-/// Dims the underlying favicon and fills clockwise as the cooldown elapses.
-struct FaviconProgressBadge: View {
+/// Dims the underlying icon and fills clockwise as the cooldown elapses.
+struct IconProgressBadge: View {
 
     let lastFetched: Date?
     let cooldown: TimeInterval

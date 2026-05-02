@@ -1,6 +1,6 @@
 import Foundation
 
-extension FaviconCache {
+extension IconCache {
 
     /// Extracts the href attribute from a link tag with the given rel value.
     nonisolated func extractLinkHref(from html: String, rel: String) -> String? {

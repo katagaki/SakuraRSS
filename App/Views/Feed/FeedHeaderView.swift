@@ -5,7 +5,7 @@ struct FeedHeaderView: View {
     @Environment(FeedManager.self) var feedManager
     let feed: Feed
 
-    @State private var favicon: UIImage?
+    @State private var icon: UIImage?
     @State private var isEditingFeed: Bool = false
     @State private var isDescriptionExpanded: Bool = false
 
@@ -64,10 +64,10 @@ struct FeedHeaderView: View {
         .padding(.top, 4)
         .padding(.bottom, 16)
         .task(id: feed.id) {
-            favicon = await FaviconCache.shared.favicon(for: feed)
+            icon = await IconCache.shared.icon(for: feed)
         }
-        .onChange(of: feedManager.faviconRevision) {
-            Task { favicon = await FaviconCache.shared.favicon(for: feed) }
+        .onChange(of: feedManager.iconRevision) {
+            Task { icon = await IconCache.shared.icon(for: feed) }
         }
         .sheet(isPresented: $isEditingFeed) {
             EditFeedSheet(feedID: feed.id)
@@ -78,17 +78,16 @@ struct FeedHeaderView: View {
     @ViewBuilder
     private var iconView: some View {
         Group {
-            if let favicon {
-                FaviconImage(
-                    favicon,
+            if let icon {
+                IconImage(
+                    icon,
                     size: iconSize,
                     cornerRadius: iconCornerRadius,
                     circle: feed.isCircleIcon,
                     skipInset: feed.isCircleIcon || feed.isXFeed || feed.isInstagramFeed
-                        || FaviconNoInsetDomains.shouldUseFullImage(feedDomain: feed.domain)
                 )
             } else if let data = feed.acronymIcon, let image = UIImage(data: data) {
-                FaviconImage(
+                IconImage(
                     image,
                     size: iconSize,
                     cornerRadius: iconCornerRadius,

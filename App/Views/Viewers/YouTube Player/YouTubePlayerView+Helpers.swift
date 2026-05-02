@@ -47,10 +47,10 @@ extension YouTubePlayerView {
 
     @ViewBuilder
     var feedAvatarView: some View {
-        if let favicon {
-            FaviconImage(favicon, size: 36, circle: true, skipInset: true)
+        if let icon {
+            IconImage(icon, size: 36, circle: true, skipInset: true)
         } else if let acronymIcon {
-            FaviconImage(acronymIcon, size: 36, circle: true, skipInset: true)
+            IconImage(acronymIcon, size: 36, circle: true, skipInset: true)
         } else if let feed {
             InitialsAvatarView(feed.title, size: 36, circle: true)
         } else {

@@ -173,6 +173,7 @@ enum ContentBlock: Identifiable {
         return blocks
     }
 
+    // swiftlint:disable:next cyclomatic_complexity
     private static func block(
         forTag tag: String,
         content: String,

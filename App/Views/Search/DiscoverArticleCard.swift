@@ -5,7 +5,7 @@ struct DiscoverArticleCard: View {
     @Environment(FeedManager.self) var feedManager
     @Environment(\.zoomNamespace) private var zoomNamespace
     let article: Article
-    @State private var favicon: UIImage?
+    @State private var icon: UIImage?
     @State private var isSocialFeed = false
     @State private var shouldCenterImage = false
 
@@ -50,7 +50,7 @@ struct DiscoverArticleCard: View {
             guard let feed = feedManager.feedsByID[article.feedID] else { return }
             isSocialFeed = feed.isSocialFeed
             shouldCenterImage = CenteredImageDomains.shouldCenterImage(feedDomain: feed.domain)
-            favicon = await FaviconCache.shared.favicon(for: feed)
+            icon = await IconCache.shared.icon(for: feed)
         }
     }
 
@@ -67,7 +67,7 @@ struct DiscoverArticleCard: View {
 
     private var thumbnailBackground: some View {
         FeedIconPlaceholder(
-            favicon: favicon,
+            icon: icon,
             acronymIcon: nil,
             feedName: feedName,
             isSocialFeed: isSocialFeed,

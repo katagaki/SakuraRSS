@@ -59,7 +59,7 @@ final class FeedManager {
     @ObservationIgnored var scopedRefreshTasks: [String: Task<Void, Never>] = [:]
 
     private(set) var dataRevision: Int = 0
-    private(set) var faviconRevision: Int = 0
+    private(set) var iconRevision: Int = 0
     private(set) var unreadCounts: [Int64: Int] = [:]
     private(set) var feedsByID: [Int64: Feed] = [:]
 
@@ -134,8 +134,8 @@ final class FeedManager {
         }
     }
 
-    func notifyFaviconChange() {
-        faviconRevision += 1
+    func notifyIconChange() {
+        iconRevision += 1
     }
 
     func decrementUnreadCount(feedID: Int64) {

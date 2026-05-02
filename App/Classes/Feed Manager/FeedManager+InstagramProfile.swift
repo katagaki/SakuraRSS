@@ -56,7 +56,7 @@ extension FeedManager {
         if feed.lastFetched == nil,
            let imageURLString = result.profileImageURL,
            let imageURL = URL(string: imageURLString),
-           let (imageData, _) = try? await FaviconCache.urlSession.data(from: imageURL) {
+           let (imageData, _) = try? await IconCache.urlSession.data(from: imageURL) {
             profileImage = UIImage(data: imageData)
         }
 

@@ -16,10 +16,10 @@ struct ArticleDetailView: View {
     /// When false, opening this view will not auto-mark the article as read.
     /// Used by the Cards style where swipe is the canonical read trigger.
     let marksReadOnAppear: Bool
-    @State var favicon: UIImage?
+    @State var icon: UIImage?
     @State var feedName: String?
     @State var acronymIcon: UIImage?
-    @State var skipFaviconInset = false
+    @State var skipIconInset = false
     @State var isVideoFeed = false
     @State var extractedText: String?
     @State var isExtracting = false
@@ -126,11 +126,11 @@ struct ArticleDetailView: View {
 
                 if !article.isEphemeral {
                     HStack(spacing: 12) {
-                        if let favicon = favicon {
-                            FaviconImage(favicon, size: 18, cornerRadius: 3,
-                                         circle: isVideoFeed, skipInset: skipFaviconInset)
+                        if let icon = icon {
+                            IconImage(icon, size: 18, cornerRadius: 3,
+                                         circle: isVideoFeed, skipInset: skipIconInset)
                         } else if let acronymIcon {
-                            FaviconImage(acronymIcon, size: 18, cornerRadius: 3,
+                            IconImage(acronymIcon, size: 18, cornerRadius: 3,
                                          circle: isVideoFeed, skipInset: true)
                         } else if let feedName {
                             InitialsAvatarView(feedName, size: 18, circle: isVideoFeed, cornerRadius: 3)

@@ -1,8 +1,8 @@
 import UIKit
 
-extension FaviconCache {
+extension IconCache {
 
-    /// Checks whether the domain's feeds represent unique profiles that use og:image as favicon.
+    /// Checks whether the domain's feeds represent unique profiles that use og:image as icon.
     static func isProfileBasedDomain(_ domain: String) -> Bool {
         let host = domain.lowercased()
         if host.contains("youtube.com") || host.contains("youtu.be") { return true }
@@ -10,7 +10,7 @@ extension FaviconCache {
         if host == "reddit.com" || host.hasSuffix(".reddit.com") { return true }
         if host == "note.com" || host.hasSuffix(".note.com") { return true }
         if SubstackPublicationFetcher.isSubstackPublicationHost(host) { return true }
-        if DisplayStyleFeedDomains.shouldPreferFeedView(feedDomain: host) { return true }
+        if DisplayStyleSetDomains.style(for: host) == .feed { return true }
         return false
     }
 
@@ -23,7 +23,7 @@ extension FaviconCache {
         return false
     }
 
-    /// Downloads an image at `url` via the favicon cache's URL session.
+    /// Downloads an image at `url` via the icon cache's URL session.
     nonisolated func downloadImage(from url: URL) async -> UIImage? {
         guard let (data, _) = try? await Self.urlSession.data(from: url) else { return nil }
         return UIImage(data: data)
@@ -39,19 +39,19 @@ extension FaviconCache {
             let metadata = await provider.fetchMetadata(for: url)
             if let iconURL = metadata?.iconURL {
                 if let image = await downloadImage(from: iconURL) {
-                    log("Favicon", "profile avatar: downloaded \(iconURL) for \(siteURL)")
+                    log("Icon", "profile avatar: downloaded \(iconURL) for \(siteURL)")
                     if metadata?.iconNeedsSquareCrop == true {
                         return image.centerSquareCropped()
                     }
                     return image
                 }
-                log("Favicon", "profile avatar: download FAILED for \(iconURL) (\(siteURL))")
+                log("Icon", "profile avatar: download FAILED for \(iconURL) (\(siteURL))")
             } else {
-                log("Favicon", "profile avatar: provider returned no iconURL for \(siteURL)")
+                log("Icon", "profile avatar: provider returned no iconURL for \(siteURL)")
             }
             if let fallback = provider.fallbackIconURL,
                let image = await downloadImage(from: fallback) {
-                log("Favicon", "profile avatar: using brand fallback \(fallback) for \(siteURL)")
+                log("Icon", "profile avatar: using brand fallback \(fallback) for \(siteURL)")
                 return image
             }
         }

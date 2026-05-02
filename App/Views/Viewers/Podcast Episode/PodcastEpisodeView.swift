@@ -10,7 +10,7 @@ struct PodcastEpisodeView: View {
     var showsDismissButton: Bool = false
     let audioPlayer = AudioPlayer.shared
 
-    @State var favicon: UIImage?
+    @State var icon: UIImage?
     @State var feedName: String?
     @State var acronymIcon: UIImage?
 
@@ -101,7 +101,7 @@ struct PodcastEpisodeView: View {
                         )
                         .shadow(radius: 8, y: 4)
                         .padding(.horizontal, 40)
-                    } else if let feedIcon = favicon ?? acronymIcon {
+                    } else if let feedIcon = icon ?? acronymIcon {
                         Image(uiImage: feedIcon)
                             .resizable()
                             .aspectRatio(contentMode: .fit)
@@ -122,10 +122,10 @@ struct PodcastEpisodeView: View {
                             .multilineTextAlignment(.center)
 
                         HStack(spacing: 8) {
-                            if let favicon {
-                                FaviconImage(favicon, size: 18, cornerRadius: 4, skipInset: true)
+                            if let icon {
+                                IconImage(icon, size: 18, cornerRadius: 4, skipInset: true)
                             } else if let acronymIcon {
-                                FaviconImage(acronymIcon, size: 18, cornerRadius: 4, skipInset: true)
+                                IconImage(acronymIcon, size: 18, cornerRadius: 4, skipInset: true)
                             } else if let feedName {
                                 InitialsAvatarView(feedName, size: 18, cornerRadius: 4)
                             }
@@ -278,7 +278,7 @@ struct PodcastEpisodeView: View {
                 if let data = feed.acronymIcon {
                     acronymIcon = UIImage(data: data)
                 }
-                favicon = await FaviconCache.shared.favicon(for: feed)
+                icon = await IconCache.shared.icon(for: feed)
             }
             if let cached = try? DatabaseManager.shared.cachedArticleSummary(for: article.id),
                !cached.isEmpty {

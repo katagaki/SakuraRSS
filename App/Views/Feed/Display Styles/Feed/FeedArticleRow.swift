@@ -7,11 +7,10 @@ struct FeedArticleRow: View {
     @Environment(\.navigateToFeed) var navigateToFeed
     let article: Article
     @AppStorage("YouTube.OpenMode") private var youTubeOpenMode: YouTubeOpenMode = .inAppPlayer
-    @State private var favicon: UIImage?
+    @State private var icon: UIImage?
     @State private var feedName: String?
     @State private var acronymIcon: UIImage?
-    @State private var skipFaviconInset = false
-    @State private var preferTitle = false
+    @State private var skipIconInset = false
     @State private var feed: Feed?
     @State private var showSafari = false
     @State private var imageAspectRatio: CGFloat?
@@ -31,10 +30,10 @@ struct FeedArticleRow: View {
 
     @ViewBuilder
     private var feedAvatarView: some View {
-        if let favicon = favicon {
-            FaviconImage(favicon, size: 40, circle: true, skipInset: skipFaviconInset)
+        if let icon = icon {
+            IconImage(icon, size: 40, circle: true, skipInset: skipIconInset)
         } else if let acronymIcon {
-            FaviconImage(acronymIcon, size: 40, circle: true, skipInset: true)
+            IconImage(acronymIcon, size: 40, circle: true, skipInset: true)
         } else if let feedName {
             InitialsAvatarView(feedName, size: 40, circle: true)
         } else {
@@ -89,7 +88,7 @@ struct FeedArticleRow: View {
                 }
 
                 Group {
-                    if !preferTitle, article.hasMeaningfulSummary, let summary = article.summary {
+                    if article.hasMeaningfulSummary, let summary = article.summary {
                         Text(ContentBlock.stripMarkdown(summary)
                             .trimmingCharacters(in: .whitespacesAndNewlines))
                     } else {
@@ -223,10 +222,8 @@ struct FeedArticleRow: View {
                 if let data = loadedFeed.acronymIcon {
                     acronymIcon = UIImage(data: data)
                 }
-                skipFaviconInset = loadedFeed.isVideoFeed || loadedFeed.isXFeed || loadedFeed.isInstagramFeed
-                    || FaviconNoInsetDomains.shouldUseFullImage(feedDomain: loadedFeed.domain)
-                preferTitle = TitleOnlyDomains.shouldPreferTitle(feedDomain: loadedFeed.domain)
-                favicon = await FaviconCache.shared.favicon(for: loadedFeed)
+                skipIconInset = loadedFeed.isVideoFeed || loadedFeed.isXFeed || loadedFeed.isInstagramFeed
+                icon = await IconCache.shared.icon(for: loadedFeed)
             }
         }
         .task(id: article.imageURL) {

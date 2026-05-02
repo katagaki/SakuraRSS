@@ -4,7 +4,7 @@ struct InboxArticleRow: View {
 
     @Environment(FeedManager.self) var feedManager
     let article: Article
-    @State private var favicon: UIImage?
+    @State private var icon: UIImage?
     @State private var acronymIcon: UIImage?
     @State private var feedName: String?
     @State private var isSocialFeed = false
@@ -18,7 +18,7 @@ struct InboxArticleRow: View {
             if let imageURL = article.imageURL, let url = URL(string: imageURL) {
                 CachedAsyncImage(url: url) {
                     FeedIconPlaceholder(
-                        favicon: favicon,
+                        icon: icon,
                         acronymIcon: acronymIcon,
                         feedName: feedName,
                         isSocialFeed: isSocialFeed,
@@ -30,7 +30,7 @@ struct InboxArticleRow: View {
                 .clipShape(RoundedRectangle(cornerRadius: 8))
             } else {
                 FeedIconPlaceholder(
-                    favicon: favicon,
+                    icon: icon,
                     acronymIcon: acronymIcon,
                     feedName: feedName,
                     isSocialFeed: isSocialFeed,
@@ -89,7 +89,7 @@ struct InboxArticleRow: View {
                 if let data = feed.acronymIcon {
                     acronymIcon = UIImage(data: data)
                 }
-                favicon = await FaviconCache.shared.favicon(for: feed)
+                icon = await IconCache.shared.icon(for: feed)
             }
         }
     }

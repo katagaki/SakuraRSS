@@ -8,7 +8,7 @@ struct FeedGridCell: View {
     var onDelete: (() -> Void)?
     var onTap: (() -> Void)?
     var editTransitionNamespace: Namespace.ID?
-    @State private var favicon: UIImage?
+    @State private var icon: UIImage?
 
     private let iconSize: CGFloat = 56
 
@@ -18,17 +18,16 @@ struct FeedGridCell: View {
         VStack(alignment: .center, spacing: 6) {
             VStack(alignment: .center, spacing: 6) {
                 ZStack(alignment: .bottomTrailing) {
-                    if let favicon = favicon {
-                        FaviconImage(
-                            favicon,
+                    if let icon = icon {
+                        IconImage(
+                            icon,
                             size: iconSize,
                             cornerRadius: iconCornerRadius,
                             circle: feed.isCircleIcon,
                             skipInset: feed.isCircleIcon || feed.isXFeed || feed.isInstagramFeed
-                            || FaviconNoInsetDomains.shouldUseFullImage(feedDomain: feed.domain)
                         )
                     } else if let data = feed.acronymIcon, let acronym = UIImage(data: data) {
-                        FaviconImage(
+                        IconImage(
                             acronym,
                             size: iconSize,
                             cornerRadius: iconCornerRadius,
@@ -48,7 +47,7 @@ struct FeedGridCell: View {
                        let cooldown = RefreshTimeoutDomains.refreshTimeout(
                            for: feed.domain, jittered: false
                        ) {
-                        FaviconProgressBadge(
+                        IconProgressBadge(
                             lastFetched: feed.lastFetched,
                             cooldown: cooldown,
                             size: iconSize,
@@ -94,18 +93,18 @@ struct FeedGridCell: View {
         .frame(maxWidth: .infinity)
         .feedGridCellTap(onTap)
         .task {
-            favicon = await loadFavicon()
+            icon = await loadIcon()
         }
-        .onChange(of: feedManager.faviconRevision) {
+        .onChange(of: feedManager.iconRevision) {
             Task {
-                favicon = await loadFavicon()
+                icon = await loadIcon()
             }
         }
     }
 
-    private func loadFavicon() async -> UIImage? {
+    private func loadIcon() async -> UIImage? {
         let currentFeed = feedManager.feedsByID[feed.id] ?? feed
-        return await FaviconCache.shared.favicon(for: currentFeed)
+        return await IconCache.shared.icon(for: currentFeed)
     }
 
     private var unreadDot: some View {

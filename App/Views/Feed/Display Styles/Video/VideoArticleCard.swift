@@ -5,17 +5,17 @@ struct VideoArticleCard: View {
     @Environment(FeedManager.self) var feedManager
     @Environment(\.navigateToFeed) var navigateToFeed
     let article: Article
-    @State private var favicon: UIImage?
+    @State private var icon: UIImage?
     @State private var feedName: String?
     @State private var acronymIcon: UIImage?
     @State private var feed: Feed?
 
     @ViewBuilder
     private var feedAvatarView: some View {
-        if let favicon = favicon {
-            FaviconImage(favicon, size: 36, circle: true, skipInset: true)
+        if let icon = icon {
+            IconImage(icon, size: 36, circle: true, skipInset: true)
         } else if let acronymIcon {
-            FaviconImage(acronymIcon, size: 36, circle: true, skipInset: true)
+            IconImage(acronymIcon, size: 36, circle: true, skipInset: true)
         } else if let feedName {
             InitialsAvatarView(feedName, size: 36, circle: true)
         } else {
@@ -133,7 +133,7 @@ struct VideoArticleCard: View {
                 if let data = loadedFeed.acronymIcon {
                     acronymIcon = UIImage(data: data)
                 }
-                favicon = await FaviconCache.shared.favicon(for: loadedFeed)
+                icon = await IconCache.shared.icon(for: loadedFeed)
             }
         }
     }

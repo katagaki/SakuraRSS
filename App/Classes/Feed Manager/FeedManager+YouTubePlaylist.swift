@@ -52,7 +52,7 @@ extension FeedManager {
         if feed.lastFetched == nil,
            let avatarURLString = result.channelAvatarURL,
            let avatarURL = URL(string: avatarURLString),
-           let (imageData, _) = try? await FaviconCache.urlSession.data(from: avatarURL) {
+           let (imageData, _) = try? await IconCache.urlSession.data(from: avatarURL) {
             avatarImage = UIImage(data: imageData)
         }
 

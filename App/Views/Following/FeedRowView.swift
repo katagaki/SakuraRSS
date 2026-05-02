@@ -4,24 +4,23 @@ struct FeedRowView: View {
 
     @Environment(FeedManager.self) var feedManager
     let feed: Feed
-    @State private var favicon: UIImage?
+    @State private var icon: UIImage?
 
     private var iconCornerRadius: CGFloat { 4 }
 
     var body: some View {
         HStack(spacing: 12) {
             ZStack(alignment: .bottomTrailing) {
-                if let favicon = favicon {
-                    FaviconImage(
-                        favicon,
+                if let icon = icon {
+                    IconImage(
+                        icon,
                         size: 32,
                         cornerRadius: iconCornerRadius,
                         circle: feed.isCircleIcon,
                         skipInset: feed.isCircleIcon || feed.isXFeed || feed.isInstagramFeed
-                        || FaviconNoInsetDomains.shouldUseFullImage(feedDomain: feed.domain)
                     )
                 } else if let data = feed.acronymIcon, let acronym = UIImage(data: data) {
-                    FaviconImage(
+                    IconImage(
                         acronym,
                         size: 32,
                         cornerRadius: iconCornerRadius,
@@ -40,7 +39,7 @@ struct FeedRowView: View {
                 if let cooldown = RefreshTimeoutDomains.refreshTimeout(
                     for: feed.domain, jittered: false
                 ) {
-                    FaviconProgressBadge(
+                    IconProgressBadge(
                         lastFetched: feed.lastFetched,
                         cooldown: cooldown,
                         size: 32,
@@ -83,17 +82,17 @@ struct FeedRowView: View {
             }
         }
         .task {
-            favicon = await loadFavicon()
+            icon = await loadIcon()
         }
-        .onChange(of: feedManager.faviconRevision) {
+        .onChange(of: feedManager.iconRevision) {
             Task {
-                favicon = await loadFavicon()
+                icon = await loadIcon()
             }
         }
     }
 
-    private func loadFavicon() async -> UIImage? {
+    private func loadIcon() async -> UIImage? {
         let currentFeed = feedManager.feedsByID[feed.id] ?? feed
-        return await FaviconCache.shared.favicon(for: currentFeed)
+        return await IconCache.shared.icon(for: currentFeed)
     }
 }

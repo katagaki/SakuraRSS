@@ -25,10 +25,10 @@ extension FeedManager {
 
         if let feed, let iconData, let image = UIImage(data: iconData) {
             Task {
-                await FaviconCache.shared.setCustomFavicon(
+                await IconCache.shared.setCustomIcon(
                     image, feedID: feed.id, skipTrimming: true
                 )
-                await MainActor.run { self.notifyFaviconChange() }
+                await MainActor.run { self.notifyIconChange() }
             }
         }
         return feed

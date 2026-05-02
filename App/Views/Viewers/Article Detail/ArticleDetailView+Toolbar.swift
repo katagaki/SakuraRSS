@@ -53,9 +53,8 @@ extension ArticleDetailView {
                 acronymIcon = UIImage(data: data)
             }
             isVideoFeed = feed.isVideoFeed || feed.isXFeed || feed.isInstagramFeed
-            skipFaviconInset = feed.isVideoFeed || feed.isXFeed || feed.isInstagramFeed
-                || FaviconNoInsetDomains.shouldUseFullImage(feedDomain: feed.domain)
-            favicon = await FaviconCache.shared.favicon(for: feed)
+            skipIconInset = feed.isVideoFeed || feed.isXFeed || feed.isInstagramFeed
+            icon = await IconCache.shared.icon(for: feed)
         }
         await extractArticleContent()
         Task { await resolveLinkedArticleURL() }

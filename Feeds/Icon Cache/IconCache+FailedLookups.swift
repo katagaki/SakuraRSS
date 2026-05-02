@@ -1,6 +1,6 @@
 import Foundation
 
-extension FaviconCache {
+extension IconCache {
 
     static let failedLookupTTL: TimeInterval = 24 * 60 * 60
     static let failedLookupsFileName = "failedLookups.json"

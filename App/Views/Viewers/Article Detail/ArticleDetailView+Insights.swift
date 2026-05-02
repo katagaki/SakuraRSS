@@ -201,11 +201,11 @@ extension ArticleDetailView {
         return await withTaskGroup(of: (Int, SimilarArticleItem).self) { group in
             for (index, match) in rawMatches.enumerated() {
                 group.addTask {
-                    let favicon: UIImage?
+                    let icon: UIImage?
                     if let feed = match.feed {
-                        favicon = await FaviconCache.shared.favicon(for: feed)
+                        icon = await IconCache.shared.icon(for: feed)
                     } else {
-                        favicon = nil
+                        icon = nil
                     }
                     return (index, SimilarArticleItem(
                         id: match.article.id,
@@ -213,7 +213,7 @@ extension ArticleDetailView {
                         feedName: match.feedName,
                         isSocialFeed: match.feed?.isSocialFeed ?? false,
                         sentiment: match.sentiment,
-                        favicon: favicon
+                        icon: icon
                     ))
                 }
             }
@@ -373,7 +373,7 @@ private struct SimilarArticleCard: View {
 
     private var thumbnailBackground: some View {
         FeedIconPlaceholder(
-            favicon: item.favicon,
+            icon: item.icon,
             acronymIcon: nil,
             feedName: item.feedName,
             isSocialFeed: item.isSocialFeed,

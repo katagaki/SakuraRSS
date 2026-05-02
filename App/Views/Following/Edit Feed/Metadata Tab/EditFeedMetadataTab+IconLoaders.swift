@@ -2,26 +2,26 @@ import SwiftUI
 
 extension EditFeedMetadataTab {
 
-    func loadCurrentFavicon() async -> UIImage? {
+    func loadCurrentIcon() async -> UIImage? {
         guard let feed else { return nil }
         if let customURL = feed.customIconURL {
             if customURL == "none" {
                 return nil
             }
             if customURL == "photo" {
-                return await FaviconCache.shared.customFavicon(feedID: feed.id)
+                return await IconCache.shared.customIcon(feedID: feed.id)
             }
-            if let cached = await FaviconCache.shared.customFavicon(feedID: feed.id) {
+            if let cached = await IconCache.shared.customIcon(feedID: feed.id) {
                 return cached
             }
             if let url = URL(string: customURL),
                let (data, _) = try? await URLSession.shared.data(for: .sakuraImage(url: url)),
                let image = UIImage(data: data) {
-                await FaviconCache.shared.setCustomFavicon(image, feedID: feed.id)
+                await IconCache.shared.setCustomIcon(image, feedID: feed.id)
                 return image
             }
         }
-        return await FaviconCache.shared.favicon(for: feed.domain, siteURL: feed.siteURL)
+        return await IconCache.shared.icon(for: feed.domain, siteURL: feed.siteURL)
     }
 
     func iconCornerRadius(size: CGFloat) -> CGFloat {
@@ -43,7 +43,7 @@ extension EditFeedMetadataTab {
                let (data, _) = try? await URLSession.shared.data(for: .sakuraImage(url: imageURL)),
                let image = UIImage(data: data) {
                 customIconImage = image
-                currentFavicon = image
+                currentIcon = image
                 selectedPhoto = nil
                 iconURLInput = ""
                 useDefaultIcon = false
@@ -61,7 +61,7 @@ extension EditFeedMetadataTab {
                let (data, _) = try? await URLSession.shared.data(for: .sakuraImage(url: imageURL)),
                let image = UIImage(data: data) {
                 customIconImage = image
-                currentFavicon = image
+                currentIcon = image
                 selectedPhoto = nil
                 iconURLInput = ""
                 useDefaultIcon = false
@@ -69,10 +69,10 @@ extension EditFeedMetadataTab {
             }
         }
 
-        await FaviconCache.shared.refreshFavicons(for: [(domain: feed.domain, siteURL: feed.siteURL)])
-        if let image = await FaviconCache.shared.favicon(for: feed.domain, siteURL: feed.siteURL) {
+        await IconCache.shared.refreshIcons(for: [(domain: feed.domain, siteURL: feed.siteURL)])
+        if let image = await IconCache.shared.icon(for: feed.domain, siteURL: feed.siteURL) {
             customIconImage = image
-            currentFavicon = image
+            currentIcon = image
             selectedPhoto = nil
             iconURLInput = ""
             useDefaultIcon = false

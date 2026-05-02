@@ -5,10 +5,10 @@ struct CompactFeedArticleRow: View {
     @Environment(FeedManager.self) var feedManager
     @Environment(\.navigateToFeed) var navigateToFeed
     let article: Article
-    @State private var favicon: UIImage?
+    @State private var icon: UIImage?
     @State private var feedName: String?
     @State private var acronymIcon: UIImage?
-    @State private var skipFaviconInset = false
+    @State private var skipIconInset = false
     @State private var feed: Feed?
     @State private var showSafari = false
 
@@ -21,10 +21,10 @@ struct CompactFeedArticleRow: View {
 
     @ViewBuilder
     private var feedAvatarView: some View {
-        if let favicon = favicon {
-            FaviconImage(favicon, size: 20, circle: true, skipInset: skipFaviconInset)
+        if let icon = icon {
+            IconImage(icon, size: 20, circle: true, skipInset: skipIconInset)
         } else if let acronymIcon {
-            FaviconImage(acronymIcon, size: 20, circle: true, skipInset: true)
+            IconImage(acronymIcon, size: 20, circle: true, skipInset: true)
         } else if let feedName {
             InitialsAvatarView(feedName, size: 20, circle: true)
         } else {
@@ -140,9 +140,8 @@ struct CompactFeedArticleRow: View {
                 if let data = loadedFeed.acronymIcon {
                     acronymIcon = UIImage(data: data)
                 }
-                skipFaviconInset = loadedFeed.isVideoFeed || loadedFeed.isXFeed || loadedFeed.isInstagramFeed
-                    || FaviconNoInsetDomains.shouldUseFullImage(feedDomain: loadedFeed.domain)
-                favicon = await FaviconCache.shared.favicon(for: loadedFeed)
+                skipIconInset = loadedFeed.isVideoFeed || loadedFeed.isXFeed || loadedFeed.isInstagramFeed
+                icon = await IconCache.shared.icon(for: loadedFeed)
             }
         }
         .sheet(isPresented: $showSafari) {

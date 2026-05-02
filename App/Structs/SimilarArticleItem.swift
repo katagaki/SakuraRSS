@@ -6,5 +6,5 @@ struct SimilarArticleItem: Identifiable {
     let feedName: String
     let isSocialFeed: Bool
     let sentiment: Double?
-    let favicon: UIImage?
+    let icon: UIImage?
 }

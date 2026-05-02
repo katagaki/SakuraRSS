@@ -6,7 +6,7 @@ nonisolated struct Feed: Identifiable, Hashable, Sendable {
     var url: String
     var siteURL: String
     var feedDescription: String
-    var faviconURL: String?
+    var iconURL: String?
     var lastFetched: Date?
     var category: String?
     var isPodcast: Bool
@@ -32,7 +32,7 @@ nonisolated struct Feed: Identifiable, Hashable, Sendable {
     }
 
     var isVideoFeed: Bool {
-        DisplayStyleVideoDomains.shouldPreferVideo(feedDomain: domain)
+        DisplayStyleSetDomains.style(for: domain) == .video
     }
 
     var isXFeed: Bool {
@@ -49,15 +49,15 @@ nonisolated struct Feed: Identifiable, Hashable, Sendable {
 
     var isFeedViewDomain: Bool {
         isXFeed || isInstagramFeed
-            || DisplayStyleFeedDomains.shouldPreferFeedView(feedDomain: domain) || hasMastodonFeedURL
+            || DisplayStyleSetDomains.style(for: domain) == .feed || hasMastodonFeedURL
     }
 
     var isFeedCompactViewDomain: Bool {
-        DisplayStyleFeedCompactDomains.shouldPreferFeedCompactView(feedDomain: domain)
+        DisplayStyleSetDomains.style(for: domain) == .feedCompact
     }
 
     var isTimelineViewDomain: Bool {
-        DisplayStyleTimelineDomains.shouldPreferTimeline(feedDomain: domain)
+        DisplayStyleSetDomains.style(for: domain) == .timeline
     }
 
     var isRedditFeed: Bool {
@@ -122,11 +122,11 @@ nonisolated struct Feed: Identifiable, Hashable, Sendable {
     }
 
     var isCircleIcon: Bool {
-        FaviconCircularDomains.shouldUseCircleIcon(feedDomain: domain)
+        FeedIconCircleDomains.shouldUseCircleIcon(feedDomain: domain)
     }
 
     var isPhotoViewDomain: Bool {
-        DisplayStylePhotosDomains.shouldPreferPhotoView(feedDomain: domain)
+        DisplayStyleSetDomains.style(for: domain) == .photos
     }
 
     var isSocialFeed: Bool {

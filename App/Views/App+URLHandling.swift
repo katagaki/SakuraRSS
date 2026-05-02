@@ -45,7 +45,7 @@ extension SakuraRSSApp {
                         await XProfileFetcher.fetchQueryIDsIfNeeded()
                     }
                     let entries = feedManager.feeds.map { ($0.domain, $0.siteURL as String?) }
-                    await FaviconCache.shared.refreshFavicons(for: entries)
+                    await IconCache.shared.refreshIcons(for: entries)
                 }
             case "forgetit":
                 let defaults = UserDefaults.standard

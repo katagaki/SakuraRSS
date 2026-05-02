@@ -1,11 +1,11 @@
 import Foundation
 import UIKit
 
-actor FaviconCache {
+actor IconCache {
 
-    static let shared = FaviconCache()
+    static let shared = IconCache()
 
-    /// Dedicated short-timeout URLSession for favicon fetches.
+    /// Dedicated short-timeout URLSession for icon fetches.
     nonisolated static let urlSession: URLSession = {
         let config = URLSessionConfiguration.default
         config.timeoutIntervalForRequest = 3
@@ -29,7 +29,7 @@ actor FaviconCache {
         failedLookups = Self.loadFailedLookupsFromDisk(at: failedLookupsURL)
     }
 
-    func favicon(for domain: String, siteURL: String? = nil) async -> UIImage? {
+    func icon(for domain: String, siteURL: String? = nil) async -> UIImage? {
         let cacheKey = Self.cacheKey(domain: domain, siteURL: siteURL)
 
         if isWithinFailureTTL(cacheKey) {
@@ -43,19 +43,18 @@ actor FaviconCache {
         let filePath = cacheDirectory.appendingPathComponent(sanitizedFileName(cacheKey))
         if let data = try? Data(contentsOf: filePath),
            let image = UIImage(data: data) {
-            let skipTrim = FaviconSkipTrimDomains.shouldSkipTrimming(feedDomain: domain)
-                || FaviconCircularDomains.shouldUseCircleIcon(feedDomain: domain)
+            let skipTrim = FeedIconCircleDomains.shouldUseCircleIcon(feedDomain: domain)
             let result = skipTrim ? image : await image.trimmed()
             attachDerivedMetrics(cacheKey: cacheKey, to: result)
             memoryCache[cacheKey] = result
             return result
         }
 
-        return await fetchAndCacheFavicon(for: domain, siteURL: siteURL, cacheKey: cacheKey, filePath: filePath)
+        return await fetchAndCacheIcon(for: domain, siteURL: siteURL, cacheKey: cacheKey, filePath: filePath)
     }
 
-    /// Clears caches for the given domains and re-fetches their favicons.
-    func refreshFavicons(for entries: [(domain: String, siteURL: String?)]) async {
+    /// Clears caches for the given domains and re-fetches their icons.
+    func refreshIcons(for entries: [(domain: String, siteURL: String?)]) async {
         for entry in entries {
             let cacheKey = Self.cacheKey(domain: entry.domain, siteURL: entry.siteURL)
             memoryCache[cacheKey] = nil
@@ -69,7 +68,7 @@ actor FaviconCache {
                 let cacheKey = Self.cacheKey(domain: entry.domain, siteURL: entry.siteURL)
                 let filePath = cacheDirectory.appendingPathComponent(sanitizedFileName(cacheKey))
                 group.addTask {
-                    _ = await self.fetchAndCacheFavicon(
+                    _ = await self.fetchAndCacheIcon(
                         for: entry.domain, siteURL: entry.siteURL,
                         cacheKey: cacheKey, filePath: filePath
                     )
@@ -110,7 +109,7 @@ actor FaviconCache {
 
     // MARK: - Derived Metrics Sidecar
 
-    /// Returns the JSON sidecar URL for a cached favicon's derived metrics.
+    /// Returns the JSON sidecar URL for a cached icon's derived metrics.
     func metricsSidecarURL(for cacheKey: String) -> URL {
         cacheDirectory.appendingPathComponent(sanitizedFileName(cacheKey) + ".meta.json")
     }
@@ -119,19 +118,19 @@ actor FaviconCache {
     func attachDerivedMetrics(cacheKey: String, to image: UIImage) {
         let url = metricsSidecarURL(for: cacheKey)
         if let data = try? Data(contentsOf: url),
-           let metrics = try? JSONDecoder().decode(FaviconDerivedMetrics.self, from: data) {
+           let metrics = try? JSONDecoder().decode(IconDerivedMetrics.self, from: data) {
             if metrics.prominentColors == nil {
-                image.faviconDerivedMetrics = nil
-                let upgraded = image.ensureFaviconDerivedMetrics()
+                image.iconDerivedMetrics = nil
+                let upgraded = image.ensureIconDerivedMetrics()
                 if let encoded = try? JSONEncoder().encode(upgraded) {
                     try? encoded.write(to: url)
                 }
                 return
             }
-            image.faviconDerivedMetrics = metrics
+            image.iconDerivedMetrics = metrics
             return
         }
-        let metrics = image.ensureFaviconDerivedMetrics()
+        let metrics = image.ensureIconDerivedMetrics()
         if let data = try? JSONEncoder().encode(metrics) {
             try? data.write(to: url)
         }

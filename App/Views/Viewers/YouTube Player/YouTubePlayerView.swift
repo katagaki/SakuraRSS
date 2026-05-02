@@ -26,7 +26,7 @@ struct YouTubePlayerView: View {
     @State var isPiP = false
     @State private var videoAspectRatio: CGFloat
     @State var feed: Feed?
-    @State var favicon: UIImage?
+    @State var icon: UIImage?
     @State var acronymIcon: UIImage?
     @State var fetchedTitle: String?
     @State var fetchedAuthor: String?
@@ -289,7 +289,7 @@ struct YouTubePlayerView: View {
                 if let data = loadedFeed.acronymIcon {
                     acronymIcon = UIImage(data: data)
                 }
-                favicon = await FaviconCache.shared.favicon(for: loadedFeed)
+                icon = await IconCache.shared.icon(for: loadedFeed)
             }
             session.videoTitle = article.title
             if let imageURL = article.imageURL.flatMap(URL.init(string:)) {

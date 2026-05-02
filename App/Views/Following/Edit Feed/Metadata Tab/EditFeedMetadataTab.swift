@@ -14,7 +14,7 @@ struct EditFeedMetadataTab: View {
     @State var useDefaultIcon: Bool = false
     @State var selectedPhoto: PhotosPickerItem?
     @State var customIconImage: UIImage?
-    @State var currentFavicon: UIImage?
+    @State var currentIcon: UIImage?
     @State var isFetchingIcon = false
     @State var showIconFetchError = false
     @State var showPetalBuilder = false
@@ -30,7 +30,7 @@ struct EditFeedMetadataTab: View {
         }
         .onAppear { initializeStateIfNeeded() }
         .task(id: feedID) {
-            currentFavicon = await loadCurrentFavicon()
+            currentIcon = await loadCurrentIcon()
         }
         .onChange(of: selectedPhoto) {
             Task {
@@ -98,11 +98,11 @@ struct EditFeedMetadataTab: View {
 
         Task {
             if let customIconImage, !useDefaultIcon {
-                await FaviconCache.shared.setCustomFavicon(
+                await IconCache.shared.setCustomIcon(
                     customIconImage, feedID: feed.id, skipTrimming: true
                 )
             } else if useDefaultIcon && feed.customIconURL != nil && feed.customIconURL != "none" {
-                await FaviconCache.shared.removeCustomFavicon(feedID: feed.id)
+                await IconCache.shared.removeCustomIcon(feedID: feed.id)
             }
             await MainActor.run {
                 feedManager.updateFeedDetails(

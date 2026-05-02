@@ -4,10 +4,10 @@ struct MagazineArticleCard: View {
 
     @Environment(FeedManager.self) var feedManager
     let article: Article
-    @State private var favicon: UIImage?
+    @State private var icon: UIImage?
     @State private var feedName: String?
     @State private var acronymIcon: UIImage?
-    @State private var skipFaviconInset = false
+    @State private var skipIconInset = false
     @State private var isVideoFeed = false
     @State private var isSocialFeed = false
     @State private var shouldCenterImage = false
@@ -34,13 +34,13 @@ struct MagazineArticleCard: View {
                     magazineFallbackBackground
                 }
 
-                if let favicon = favicon {
-                    FaviconImage(favicon, size: 20, cornerRadius: 4,
-                                 circle: isVideoFeed, skipInset: skipFaviconInset)
+                if let icon = icon {
+                    IconImage(icon, size: 20, cornerRadius: 4,
+                                 circle: isVideoFeed, skipInset: skipIconInset)
                         .shadow(color: .black.opacity(0.3), radius: 2, y: 1)
                         .padding(6)
                 } else if let acronymIcon {
-                    FaviconImage(acronymIcon, size: 20, cornerRadius: 4,
+                    IconImage(acronymIcon, size: 20, cornerRadius: 4,
                                  circle: isVideoFeed, skipInset: true)
                         .shadow(color: .black.opacity(0.3), radius: 2, y: 1)
                         .padding(6)
@@ -80,17 +80,16 @@ struct MagazineArticleCard: View {
                 }
                 isVideoFeed = feed.isVideoFeed || feed.isXFeed || feed.isInstagramFeed
                 isSocialFeed = feed.isSocialFeed
-                skipFaviconInset = feed.isVideoFeed || feed.isXFeed || feed.isInstagramFeed
-                    || FaviconNoInsetDomains.shouldUseFullImage(feedDomain: feed.domain)
+                skipIconInset = feed.isVideoFeed || feed.isXFeed || feed.isInstagramFeed
                 shouldCenterImage = CenteredImageDomains.shouldCenterImage(feedDomain: feed.domain)
-                favicon = await FaviconCache.shared.favicon(for: feed)
+                icon = await IconCache.shared.icon(for: feed)
             }
         }
     }
 
     private var magazineFallbackBackground: some View {
         FeedIconPlaceholder(
-            favicon: favicon,
+            icon: icon,
             acronymIcon: acronymIcon,
             feedName: feedName,
             isSocialFeed: isSocialFeed,

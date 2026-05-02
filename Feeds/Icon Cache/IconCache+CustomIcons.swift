@@ -1,23 +1,23 @@
 import UIKit
 
-extension FaviconCache {
+extension IconCache {
 
-    /// Resolves the favicon for a feed, checking custom icons first.
-    func favicon(for feed: Feed) async -> UIImage? {
+    /// Resolves the icon for a feed, checking custom icons first.
+    func icon(for feed: Feed) async -> UIImage? {
         if let customURL = feed.customIconURL {
             if customURL == "none" {
                 return nil
             }
             if customURL == "photo" {
-                return customFavicon(feedID: feed.id)
+                return customIcon(feedID: feed.id)
             }
-            if let cached = customFavicon(feedID: feed.id) {
+            if let cached = customIcon(feedID: feed.id) {
                 return cached
             }
             if let url = URL(string: customURL),
                let (data, _) = try? await Self.urlSession.data(from: url),
                let image = UIImage(data: data) {
-                await setCustomFavicon(image, feedID: feed.id)
+                await setCustomIcon(image, feedID: feed.id)
                 return image
             }
         }
@@ -28,14 +28,14 @@ extension FaviconCache {
            let metadata = await provider.fetchMetadata(for: siteURL),
            let iconURL = metadata.iconURL,
            let image = await downloadImage(from: iconURL) {
-            await setCustomFavicon(image, feedID: feed.id, skipTrimming: true)
+            await setCustomIcon(image, feedID: feed.id, skipTrimming: true)
             return image
         }
 
-        return await favicon(for: feed.domain, siteURL: feed.siteURL)
+        return await icon(for: feed.domain, siteURL: feed.siteURL)
     }
 
-    func setCustomFavicon(_ image: UIImage, feedID: Int64, skipTrimming: Bool = false) async {
+    func setCustomIcon(_ image: UIImage, feedID: Int64, skipTrimming: Bool = false) async {
         let finalImage = skipTrimming ? image : await image.trimmed()
         let key = "custom-feed-\(feedID)"
         memoryCache[key] = finalImage
@@ -46,7 +46,7 @@ extension FaviconCache {
         attachDerivedMetrics(cacheKey: key, to: finalImage)
     }
 
-    func customFavicon(feedID: Int64) -> UIImage? {
+    func customIcon(feedID: Int64) -> UIImage? {
         let key = "custom-feed-\(feedID)"
         if let cached = memoryCache[key] {
             return cached
@@ -61,7 +61,7 @@ extension FaviconCache {
         return nil
     }
 
-    func removeCustomFavicon(feedID: Int64) {
+    func removeCustomIcon(feedID: Int64) {
         let key = "custom-feed-\(feedID)"
         memoryCache[key] = nil
         let filePath = cacheDirectory.appendingPathComponent(sanitizedFileName(key))

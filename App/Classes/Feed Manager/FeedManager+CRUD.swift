@@ -6,7 +6,7 @@ extension FeedManager {
     // MARK: - Feed CRUD
 
     func addFeed(url: String, title: String, siteURL: String,
-                 description: String = "", faviconURL: String? = nil,
+                 description: String = "", iconURL: String? = nil,
                  category: String? = nil, isPodcast: Bool = false) throws {
         guard !database.feedExists(url: url) else {
             throw FeedError.alreadyExists
@@ -25,7 +25,7 @@ extension FeedManager {
         }
         let feedID = try database.insertFeed(
             title: title, url: url, siteURL: siteURL,
-            description: description, faviconURL: faviconURL,
+            description: description, iconURL: iconURL,
             category: category, isPodcast: isPodcast
         )
         generateAcronymIcon(feedID: feedID, title: title)
@@ -63,7 +63,7 @@ extension FeedManager {
         let shouldInstallProfilePhoto = profileImage != nil && feed.customIconURL == nil
         let database = database
         if shouldInstallProfilePhoto, let image = profileImage {
-            await FaviconCache.shared.setCustomFavicon(
+            await IconCache.shared.setCustomIcon(
                 image, feedID: feed.id, skipTrimming: true
             )
             try? await Task.detached {
@@ -73,7 +73,7 @@ extension FeedManager {
                     isTitleCustomized: feed.isTitleCustomized
                 )
             }.value
-            await MainActor.run { self.notifyFaviconChange() }
+            await MainActor.run { self.notifyIconChange() }
         } else if feed.title != effectiveTitle {
             try? await Task.detached {
                 try database.updateFeedDetails(
@@ -95,7 +95,7 @@ extension FeedManager {
             generateAcronymIcon(feedID: feed.id, title: title)
         }
         Task { await loadFromDatabaseInBackground() }
-        notifyFaviconChange()
+        notifyIconChange()
     }
 
     func updateFeedDescription(_ feed: Feed, description: String) {

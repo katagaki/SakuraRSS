@@ -189,7 +189,7 @@ struct FeedIconView: View {
 
     let feed: Feed
     var size: CGFloat = 28
-    @State private var favicon: UIImage?
+    @State private var icon: UIImage?
 
     private var cornerRadius: CGFloat { 4 }
 
@@ -199,15 +199,14 @@ struct FeedIconView: View {
 
     var body: some View {
         Group {
-            if let favicon {
-                FaviconImage(favicon, size: size,
+            if let icon {
+                IconImage(icon, size: size,
                              cornerRadius: cornerRadius,
                              circle: isCircle,
                              skipInset: feed.isVideoFeed || feed.isPodcast || feed.isXFeed
-                                || feed.isInstagramFeed
-                                || FaviconNoInsetDomains.shouldUseFullImage(feedDomain: feed.domain))
+                                || feed.isInstagramFeed)
             } else if let data = feed.acronymIcon, let acronym = UIImage(data: data) {
-                FaviconImage(acronym, size: size,
+                IconImage(acronym, size: size,
                              cornerRadius: cornerRadius,
                              circle: isCircle,
                              skipInset: true)
@@ -221,7 +220,7 @@ struct FeedIconView: View {
             }
         }
         .task {
-            favicon = await FaviconCache.shared.favicon(for: feed)
+            icon = await IconCache.shared.icon(for: feed)
         }
     }
 }

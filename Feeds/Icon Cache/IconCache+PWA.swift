@@ -1,38 +1,39 @@
 import UIKit
 
-extension FaviconCache {
+extension IconCache {
 
     /// Fetches a high-quality icon from a web app manifest or apple-touch-icon.
-    nonisolated func fetchPWAIcon(from siteURL: URL) async -> UIImage? {
+    /// Returns the image alongside a flag indicating whether it came from an apple-touch-icon.
+    nonisolated func fetchPWAIcon(from siteURL: URL) async -> (image: UIImage, isAppleTouchIcon: Bool)? {
         do {
             let (data, _) = try await Self.urlSession.data(from: siteURL)
             guard let html = String(data: data, encoding: .utf8) else {
-                log("Favicon", "PWA: failed to decode HTML from \(siteURL)")
+                log("Icon", "PWA: failed to decode HTML from \(siteURL)")
                 return nil
             }
 
             if let manifestHref = extractLinkHref(from: html, rel: "manifest"),
                let manifestURL = URL(string: manifestHref, relativeTo: siteURL),
                let icon = await fetchManifestIcon(from: manifestURL.absoluteURL) {
-                log("Favicon", "PWA: found manifest icon from \(manifestURL.absoluteURL)")
-                return icon
+                log("Icon", "PWA: found manifest icon from \(manifestURL.absoluteURL)")
+                return (icon, false)
             }
 
             if let touchIconHref = extractLinkHref(from: html, rel: "apple-touch-icon"),
                let iconURL = URL(string: touchIconHref, relativeTo: siteURL) {
                 let (iconData, _) = try await Self.urlSession.data(from: iconURL.absoluteURL)
-                if let image = UIImage(data: iconData), image.size.width >= 64 {
+                if let image = UIImage(data: iconData), image.size.width >= 48 {
                     // swiftlint:disable:next line_length
-                    log("Favicon", "PWA: found apple-touch-icon from \(iconURL.absoluteURL) (\(image.size.width)x\(image.size.height))")
-                    return image
+                    log("Icon", "PWA: found apple-touch-icon from \(iconURL.absoluteURL) (\(image.size.width)x\(image.size.height))")
+                    return (image, true)
                 }
-                log("Favicon", "PWA: apple-touch-icon too small or invalid from \(iconURL.absoluteURL)")
+                log("Icon", "PWA: apple-touch-icon too small or invalid from \(iconURL.absoluteURL)")
             }
 
-            log("Favicon", "PWA: no suitable icon found for \(siteURL)")
+            log("Icon", "PWA: no suitable icon found for \(siteURL)")
             return nil
         } catch {
-            log("Favicon", "PWA: fetch failed for \(siteURL): \(error.localizedDescription)")
+            log("Icon", "PWA: fetch failed for \(siteURL): \(error.localizedDescription)")
             return nil
         }
     }
@@ -61,6 +62,22 @@ extension FaviconCache {
                 return image
             }
             return nil
+        } catch {
+            return nil
+        }
+    }
+
+    /// Fetches the apple-touch-icon referenced by the homepage's `<link rel="apple-touch-icon">` tag.
+    nonisolated func fetchAppleTouchIcon(from siteURL: URL) async -> UIImage? {
+        do {
+            let (data, _) = try await Self.urlSession.data(from: siteURL)
+            guard let html = String(data: data, encoding: .utf8),
+                  let touchIconHref = extractLinkHref(from: html, rel: "apple-touch-icon"),
+                  let iconURL = URL(string: touchIconHref, relativeTo: siteURL) else {
+                return nil
+            }
+            let (iconData, _) = try await Self.urlSession.data(from: iconURL.absoluteURL)
+            return UIImage(data: iconData)
         } catch {
             return nil
         }

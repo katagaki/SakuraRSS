@@ -11,7 +11,7 @@ struct CardView: View {
     @State private var offset: CGSize = .zero
     @State private var hasPassedThreshold = false
     @State private var isDismissing = false
-    @State private var favicon: UIImage?
+    @State private var icon: UIImage?
     @State private var cardImage: UIImage?
     @State private var shouldCenterImage = false
     @State private var isSocialFeed = false
@@ -41,7 +41,7 @@ struct CardView: View {
     var body: some View {
         GeometryReader { geometry in
             ZStack(alignment: .bottomLeading) {
-                faviconCardBackground(geometry: geometry)
+                iconCardBackground(geometry: geometry)
 
                 if let cardImage {
                     Color.clear
@@ -107,7 +107,7 @@ struct CardView: View {
             if let feed = feedManager.feed(forArticle: article) {
                 shouldCenterImage = CenteredImageDomains.shouldCenterImage(feedDomain: feed.domain)
                 isSocialFeed = feed.isSocialFeed
-                favicon = await FaviconCache.shared.favicon(for: feed)
+                icon = await IconCache.shared.icon(for: feed)
             }
         }
         .task(id: article.imageURL) {
@@ -124,17 +124,17 @@ struct CardView: View {
     }
 
     @ViewBuilder
-    private func faviconCardBackground(geometry: GeometryProxy) -> some View {
+    private func iconCardBackground(geometry: GeometryProxy) -> some View {
         let isDark = colorScheme == .dark
-        let bgColor = favicon?.cardBackgroundColor(isDarkMode: isDark)
+        let bgColor = icon?.cardBackgroundColor(isDarkMode: isDark)
             ?? (isDark ? Color(white: 0.15) : Color(white: 0.9))
 
         ZStack {
             Rectangle()
                 .fill(bgColor)
 
-            if let favicon {
-                let iconImage = Image(uiImage: favicon)
+            if let icon {
+                let iconImage = Image(uiImage: icon)
                     .resizable()
                     .aspectRatio(contentMode: isSocialFeed ? .fill : .fit)
                     .frame(width: geometry.size.width * 0.4,

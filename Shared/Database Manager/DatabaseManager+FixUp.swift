@@ -10,7 +10,7 @@ nonisolated extension DatabaseManager {
         _ = try? database.run(feeds.addColumn(feedURL, defaultValue: ""))
         _ = try? database.run(feeds.addColumn(feedSiteURL, defaultValue: ""))
         _ = try? database.run(feeds.addColumn(feedDescription, defaultValue: ""))
-        _ = try? database.run(feeds.addColumn(feedFaviconURL))
+        _ = try? database.run(feeds.addColumn(feedIconURL))
         _ = try? database.run(feeds.addColumn(feedLastFetched))
         _ = try? database.run(feeds.addColumn(feedCategory))
         _ = try? database.run(feeds.addColumn(feedIsPodcast, defaultValue: false))

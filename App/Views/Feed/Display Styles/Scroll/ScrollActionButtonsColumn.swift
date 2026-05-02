@@ -3,7 +3,7 @@ import SwiftUI
 struct ScrollActionButtonsColumn: View {
 
     let article: Article
-    let favicon: UIImage?
+    let icon: UIImage?
     let acronymIcon: UIImage?
     let feedName: String?
     let isVideoFeed: Bool
@@ -17,10 +17,10 @@ struct ScrollActionButtonsColumn: View {
         VStack(spacing: 20) {
             Button(action: onOpenFeed) {
                 Group {
-                    if let favicon {
-                        FaviconImage(favicon, size: 48, cornerRadius: 8, circle: isVideoFeed)
+                    if let icon {
+                        IconImage(icon, size: 48, cornerRadius: 8, circle: isVideoFeed)
                     } else if let acronymIcon {
-                        FaviconImage(acronymIcon, size: 48, cornerRadius: 8,
+                        IconImage(acronymIcon, size: 48, cornerRadius: 8,
                                      circle: isVideoFeed, skipInset: true)
                     } else if let feedName {
                         InitialsAvatarView(feedName, size: 48, circle: isVideoFeed, cornerRadius: 8)

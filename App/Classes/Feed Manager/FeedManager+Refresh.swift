@@ -106,18 +106,13 @@ extension FeedManager {
             try? database.updateFeedURL(id: feed.id, url: SubstackAuth.wrap(feed.url))
         }
 
-        let feedDomain = feed.domain
-        let preparedArticles = parsed.articles.map { article in
-            BodyPriorityDomains.applying(to: article, feedDomain: feedDomain)
-        }
-
         let existingURLs = (try? database.existingArticleURLs(forFeedID: feed.id)) ?? []
         let metadataImages: [String: String]
         if skipImageFetch {
             metadataImages = [:]
         } else {
             metadataImages = await FeedManager.fetchMetadataImages(
-                for: preparedArticles, skippingURLs: existingURLs
+                for: parsed.articles, skippingURLs: existingURLs
             )
         }
 
@@ -125,7 +120,7 @@ extension FeedManager {
             ? await FeedManager.fetchRedditImages(forFeedURL: feed.url)
             : [:]
 
-        let articleTuples = preparedArticles.map { article in
+        let articleTuples = parsed.articles.map { article in
             let redditImage = FeedManager.redditImageURL(
                 for: article.url, in: redditImages
             )
@@ -477,9 +472,9 @@ extension FeedManager {
     }
 
     // swiftlint:disable:next function_body_length
-    func refreshAllFeedsAndFavicons() async {
+    func refreshAllFeedsAndIcons() async {
         let currentFeeds = feeds
-        log("FeedRefresh.AllAndFavicons", "begin count=\(currentFeeds.count)")
+        log("FeedRefresh.AllAndIcons", "begin count=\(currentFeeds.count)")
         await MainActor.run {
             isLoading = true
             refreshCompleted = 0
@@ -535,17 +530,17 @@ extension FeedManager {
                     }
                 }
             }
-            async let faviconRefresh: Void = FaviconCache.shared.refreshFavicons(
+            async let iconRefresh: Void = IconCache.shared.refreshIcons(
                 for: currentFeeds.map { ($0.domain, $0.siteURL as String?) }
             )
-            _ = await (feedRefresh, faviconRefresh)
+            _ = await (feedRefresh, iconRefresh)
         }
         await MainActor.run { self.refreshTask = work }
         _ = await work.value
         await loadFromDatabaseInBackground(animated: true)
         regenerateAllAcronymIcons()
-        notifyFaviconChange()
-        log("FeedRefresh.AllAndFavicons", "end completed=\(refreshCompleted)/\(refreshTotal)")
+        notifyIconChange()
+        log("FeedRefresh.AllAndIcons", "end completed=\(refreshCompleted)/\(refreshTotal)")
     }
 
     /// Cancels the in-flight refresh task. Feeds whose RSS fetch has already

@@ -50,12 +50,8 @@ struct DisplayStylePreviewView: View {
             fallback = .video
         } else if feed.isInstagramFeed {
             fallback = .photos
-        } else if DisplayStyleTimelineDomains.shouldPreferTimeline(feedDomain: feed.domain) {
-            fallback = .timeline
-        } else if DisplayStyleFeedCompactDomains.shouldPreferFeedCompactView(feedDomain: feed.domain) {
-            fallback = .feedCompact
-        } else if DisplayStyleFeedDomains.shouldPreferFeedView(feedDomain: feed.domain) {
-            fallback = .feed
+        } else if let domainStyle = DisplayStyleSetDomains.style(for: feed.domain) {
+            fallback = domainStyle
         } else {
             fallback = FeedDisplayStyle(rawValue: defaultRaw) ?? .inbox
         }

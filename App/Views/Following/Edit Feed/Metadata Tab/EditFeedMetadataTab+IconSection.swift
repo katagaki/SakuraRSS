@@ -22,7 +22,7 @@ extension EditFeedMetadataTab {
             HStack {
                 Spacer()
                 if let data = feed.acronymIcon, let acronym = UIImage(data: data) {
-                    FaviconImage(acronym, size: 64,
+                    IconImage(acronym, size: 64,
                                  cornerRadius: iconCornerRadius(size: 64),
                                  circle: feed.isCircleIcon,
                                  skipInset: true)
@@ -36,15 +36,14 @@ extension EditFeedMetadataTab {
                 }
                 Spacer()
             }
-        } else if let icon = customIconImage ?? currentFavicon {
+        } else if let icon = customIconImage ?? currentIcon {
             HStack {
                 Spacer()
-                FaviconImage(
+                IconImage(
                     icon, size: 64,
                     cornerRadius: iconCornerRadius(size: 64),
                     circle: feed.isCircleIcon,
                     skipInset: feed.isCircleIcon || feed.isXFeed || feed.isInstagramFeed
-                    || FaviconNoInsetDomains.shouldUseFullImage(feedDomain: feed.domain)
                 )
                 Spacer()
             }
@@ -54,7 +53,7 @@ extension EditFeedMetadataTab {
     private var iconURLField: some View {
         HStack {
             Text(String(localized: "FeedEdit.IconURL", table: "Feeds"))
-            TextField(String(localized: "FeedEdit.IconURLPlaceholder", table: "Feeds"), text: $iconURLInput)
+            TextField(String("https://example.com/icon.png"), text: $iconURLInput)
                 .multilineTextAlignment(.trailing)
                 .frame(maxWidth: .infinity)
                 .textContentType(.URL)
@@ -107,7 +106,7 @@ extension EditFeedMetadataTab {
 
     @ViewBuilder
     private func deleteIconButton(for feed: Feed) -> some View {
-        if !useDefaultIcon && (feed.customIconURL != nil || currentFavicon != nil) {
+        if !useDefaultIcon && (feed.customIconURL != nil || currentIcon != nil) {
             Button(role: .destructive) {
                 useDefaultIcon = true
                 customIconImage = nil

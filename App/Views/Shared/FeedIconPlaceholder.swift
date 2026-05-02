@@ -10,7 +10,7 @@ struct FeedIconPlaceholder: View {
 
     @Environment(\.colorScheme) private var colorScheme
 
-    let favicon: UIImage?
+    let icon: UIImage?
     let acronymIcon: UIImage?
     let feedName: String?
     let isSocialFeed: Bool
@@ -20,7 +20,7 @@ struct FeedIconPlaceholder: View {
 
     var body: some View {
         let isDark = colorScheme == .dark
-        let bgColor = favicon?.cardBackgroundColor(isDarkMode: isDark)
+        let bgColor = icon?.cardBackgroundColor(isDarkMode: isDark)
             ?? (isDark ? Color(white: 0.15) : Color(white: 0.9))
 
         ZStack {
@@ -36,14 +36,14 @@ struct FeedIconPlaceholder: View {
 
     @ViewBuilder
     private var iconView: some View {
-        if let favicon {
+        if let icon {
             if isSocialFeed {
-                Image(uiImage: favicon)
+                Image(uiImage: icon)
                     .resizable()
                     .aspectRatio(contentMode: .fill)
                     .clipShape(Circle())
             } else {
-                Image(uiImage: favicon)
+                Image(uiImage: icon)
                     .resizable()
                     .aspectRatio(contentMode: .fit)
             }

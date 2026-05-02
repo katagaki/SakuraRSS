@@ -7,14 +7,14 @@ nonisolated extension DatabaseManager {
 
     @discardableResult
     func insertFeed(title: String, url: String, siteURL: String,
-                    description: String = "", faviconURL: String? = nil,
+                    description: String = "", iconURL: String? = nil,
                     category: String? = nil, isPodcast: Bool = false) throws -> Int64 {
         try database.run(feeds.insert(
             feedTitle <- title,
             feedURL <- url,
             feedSiteURL <- siteURL,
             feedDescription <- description,
-            feedFaviconURL <- faviconURL,
+            feedIconURL <- iconURL,
             feedCategory <- category,
             feedIsPodcast <- isPodcast
         ))
@@ -108,7 +108,7 @@ nonisolated extension DatabaseManager {
             url: row[feedURL],
             siteURL: row[feedSiteURL],
             feedDescription: row[feedDescription],
-            faviconURL: row[feedFaviconURL],
+            iconURL: row[feedIconURL],
             lastFetched: row[feedLastFetched].map { Date(timeIntervalSince1970: $0) },
             category: row[feedCategory],
             isPodcast: (try? row.get(feedIsPodcast)) ?? false,

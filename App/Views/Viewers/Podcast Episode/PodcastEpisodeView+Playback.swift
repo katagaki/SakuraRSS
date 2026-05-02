@@ -20,7 +20,7 @@ extension PodcastEpisodeView {
             episodeTitle: article.title,
             feedTitle: feed?.title ?? "",
             artworkURL: article.imageURL,
-            feedIconURL: feed?.faviconURL,
+            feedIconURL: feed?.iconURL,
             episodeDuration: article.duration
         )
     }

@@ -2,6 +2,7 @@ import Foundation
 
 extension FeedManager {
 
+    // swiftlint:disable function_body_length
     /// Refreshes the supplied feeds and tracks progress under `scope` so each
     /// home section, list, or feed view can show its own donut without
     /// stepping on the global refresh counters used by background refresh.
@@ -72,6 +73,7 @@ extension FeedManager {
         await loadFromDatabaseInBackground(animated: true)
         log("FeedRefresh.Scoped", "end scope=\(scope)")
     }
+    // swiftlint:enable function_body_length
 
     @MainActor
     func cancelScopedRefresh(scope: String) {

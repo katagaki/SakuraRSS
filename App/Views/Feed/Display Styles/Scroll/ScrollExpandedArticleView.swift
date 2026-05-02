@@ -4,7 +4,7 @@ struct ScrollExpandedArticleView: View {
     @Environment(FeedManager.self) var feedManager
     let article: Article
     let feedName: String?
-    let favicon: UIImage?
+    let icon: UIImage?
     let acronymIcon: UIImage?
     let isVideoFeed: Bool
     let contextInsets: EdgeInsets
@@ -104,10 +104,10 @@ struct ScrollExpandedArticleView: View {
         VStack(alignment: .leading, spacing: 12) {
             HStack(spacing: 8) {
                 Group {
-                    if let favicon {
-                        FaviconImage(favicon, size: 24, cornerRadius: 4, circle: isVideoFeed)
+                    if let icon {
+                        IconImage(icon, size: 24, cornerRadius: 4, circle: isVideoFeed)
                     } else if let acronymIcon {
-                        FaviconImage(acronymIcon, size: 24, cornerRadius: 4,
+                        IconImage(acronymIcon, size: 24, cornerRadius: 4,
                                      circle: isVideoFeed, skipInset: true)
                     } else if let feedName {
                         InitialsAvatarView(feedName, size: 24, circle: isVideoFeed, cornerRadius: 4)

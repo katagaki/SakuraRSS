@@ -17,7 +17,7 @@ struct ScrollArticlePage: View {
     let onAdvance: () -> Void
 
     @State private var feed: Feed?
-    @State private var favicon: UIImage?
+    @State private var icon: UIImage?
     @State private var acronymIcon: UIImage?
     @State private var feedName: String?
     @State private var isVideoFeed = false
@@ -51,7 +51,7 @@ struct ScrollArticlePage: View {
                     ScrollExpandedArticleView(
                         article: feedManager.article(byID: article.id) ?? article,
                         feedName: feedName,
-                        favicon: favicon,
+                        icon: icon,
                         acronymIcon: acronymIcon,
                         isVideoFeed: isVideoFeed,
                         contextInsets: contextInsets,
@@ -80,7 +80,7 @@ struct ScrollArticlePage: View {
                 if let data = loadedFeed.acronymIcon {
                     acronymIcon = UIImage(data: data)
                 }
-                favicon = await FaviconCache.shared.favicon(for: loadedFeed)
+                icon = await IconCache.shared.icon(for: loadedFeed)
             }
         }
         .task(id: article.imageURL) {
@@ -101,7 +101,7 @@ struct ScrollArticlePage: View {
     @ViewBuilder
     private var backgroundLayer: some View {
         ZStack {
-            faviconBackground
+            iconBackground
             if let backgroundImage {
                 Image(uiImage: backgroundImage)
                     .resizable()
@@ -112,15 +112,15 @@ struct ScrollArticlePage: View {
         }
     }
 
-    private var faviconBackground: some View {
+    private var iconBackground: some View {
         let isDark = colorScheme == .dark
-        let bgColor = favicon?.cardBackgroundColor(isDarkMode: isDark)
+        let bgColor = icon?.cardBackgroundColor(isDarkMode: isDark)
             ?? (isDark ? Color(white: 0.15) : Color(white: 0.9))
         return ZStack {
             Rectangle()
                 .fill(bgColor)
-            if let favicon {
-                let iconImage = Image(uiImage: favicon)
+            if let icon {
+                let iconImage = Image(uiImage: icon)
                     .resizable()
                     .aspectRatio(contentMode: isSocialFeed ? .fill : .fit)
                     .frame(width: pageSize.width * 0.5, height: pageSize.width * 0.5)
@@ -153,7 +153,7 @@ struct ScrollArticlePage: View {
 
             ScrollActionButtonsColumn(
                 article: article,
-                favicon: favicon,
+                icon: icon,
                 acronymIcon: acronymIcon,
                 feedName: feedName,
                 isVideoFeed: isVideoFeed,

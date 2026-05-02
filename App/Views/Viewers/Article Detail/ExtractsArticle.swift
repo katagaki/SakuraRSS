@@ -111,6 +111,27 @@ extension ExtractsArticle {
             }
         }
 
+        if feedManager.feed(forArticle: article)?.isHackerNewsFeed == true,
+           let url = URL(string: article.url),
+           HackerNewsPostFetcher.isSelfPostURL(url) {
+            do {
+                if let html = try await HackerNewsPostFetcher.fetchPostText(for: url) {
+                    let text = ArticleExtractor.extractText(
+                        fromHTML: html,
+                        baseURL: url,
+                        excludeTitle: articleTitle
+                    )
+                    if let text, !text.isEmpty {
+                        extractedText = text
+                        persistCachedContent(text)
+                        return
+                    }
+                }
+            } catch {
+                log("Extract", "HN post fetch failed, falling through: \(error)")
+            }
+        }
+
         switch source {
         case .feedText:
             if let content = article.content, !content.isEmpty {

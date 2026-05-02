@@ -229,7 +229,7 @@ struct FeedArticlesView: View {
         .task(id: feed.id) {
             await loadProminentColors()
         }
-        .onChange(of: feedManager.faviconRevision) {
+        .onChange(of: feedManager.iconRevision) {
             Task { await loadProminentColors() }
         }
         .onChange(of: feed.id) { _, _ in
@@ -266,7 +266,7 @@ struct FeedArticlesView: View {
     }
 
     private func loadProminentColors() async {
-        let image = await FaviconCache.shared.favicon(for: currentFeed)
+        let image = await IconCache.shared.icon(for: currentFeed)
         let source: UIImage? = image ?? currentFeed.acronymIcon.flatMap { UIImage(data: $0) }
         prominentColors = source?.prominentColors ?? []
     }

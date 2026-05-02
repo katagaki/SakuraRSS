@@ -9,6 +9,7 @@ nonisolated enum FeedProviderRegistry {
         YouTubePlaylistFetcher.self,
         SubstackPublicationFetcher.self,
         NoteProfileFetcher.self,
+        BlueskyProfileFetcher.self,
         RedditCommunityFetcher.self,
         HackerNewsProvider.self
     ]

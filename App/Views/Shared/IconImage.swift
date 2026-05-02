@@ -1,7 +1,7 @@
 import SwiftUI
 import ObjectiveC
 
-struct FaviconImage: View {
+struct IconImage: View {
 
     let image: UIImage
     let size: CGFloat
@@ -57,7 +57,7 @@ struct FaviconImage: View {
 
 // MARK: - Derived Metrics (memoized)
 
-nonisolated struct FaviconDerivedMetrics: Codable, Sendable {
+nonisolated struct IconDerivedMetrics: Codable, Sendable {
     let cornerAlphas: [UInt8]
     let centerAlpha: UInt8
     let cornerSampleUnavailable: Bool
@@ -67,24 +67,24 @@ nonisolated struct FaviconDerivedMetrics: Codable, Sendable {
     let prominentColors: [[Double]]?
 }
 
-private nonisolated final class FaviconDerivedMetricsBox: NSObject, @unchecked Sendable {
-    let metrics: FaviconDerivedMetrics
-    init(_ metrics: FaviconDerivedMetrics) { self.metrics = metrics }
+private nonisolated final class IconDerivedMetricsBox: NSObject, @unchecked Sendable {
+    let metrics: IconDerivedMetrics
+    init(_ metrics: IconDerivedMetrics) { self.metrics = metrics }
 }
 
-private nonisolated(unsafe) var faviconDerivedMetricsKey: UInt8 = 0
+private nonisolated(unsafe) var iconDerivedMetricsKey: UInt8 = 0
 
 extension UIImage {
 
-    nonisolated var faviconDerivedMetrics: FaviconDerivedMetrics? {
+    nonisolated var iconDerivedMetrics: IconDerivedMetrics? {
         get {
-            (objc_getAssociatedObject(self, &faviconDerivedMetricsKey) as? FaviconDerivedMetricsBox)?.metrics
+            (objc_getAssociatedObject(self, &iconDerivedMetricsKey) as? IconDerivedMetricsBox)?.metrics
         }
         set {
-            let box = newValue.map { FaviconDerivedMetricsBox($0) }
+            let box = newValue.map { IconDerivedMetricsBox($0) }
             objc_setAssociatedObject(
                 self,
-                &faviconDerivedMetricsKey,
+                &iconDerivedMetricsKey,
                 box,
                 .OBJC_ASSOCIATION_RETAIN_NONATOMIC
             )
@@ -92,14 +92,14 @@ extension UIImage {
     }
 
     @discardableResult
-    nonisolated func ensureFaviconDerivedMetrics() -> FaviconDerivedMetrics {
-        if let existing = faviconDerivedMetrics, existing.prominentColors != nil { return existing }
+    nonisolated func ensureIconDerivedMetrics() -> IconDerivedMetrics {
+        if let existing = iconDerivedMetrics, existing.prominentColors != nil { return existing }
         let cornerSample = _rawSampleCornerAlphas()
         let averageRGB = _rawAverageColorComponents()
         let luminance = _rawAverageLuminance()
         let nearBlack = _rawIsNearBlack()
         let prominent = _rawProminentColors()
-        let metrics = FaviconDerivedMetrics(
+        let metrics = IconDerivedMetrics(
             cornerAlphas: cornerSample?.corners ?? [],
             centerAlpha: cornerSample?.centerAlpha ?? 0,
             cornerSampleUnavailable: cornerSample == nil,
@@ -108,7 +108,7 @@ extension UIImage {
             isNearBlack: nearBlack,
             prominentColors: prominent
         )
-        faviconDerivedMetrics = metrics
+        iconDerivedMetrics = metrics
         return metrics
     }
 }
@@ -164,14 +164,14 @@ extension UIImage {
 
     /// True when corners are transparent and centre is opaque (already circular/rounded).
     var isCircular: Bool {
-        let metrics = ensureFaviconDerivedMetrics()
+        let metrics = ensureIconDerivedMetrics()
         guard !metrics.cornerSampleUnavailable else { return false }
         return metrics.cornerAlphas.allSatisfy { $0 <= 25 } && metrics.centerAlpha >= 200
     }
 
     /// True when all corners are opaque; the image fills the square edge-to-edge.
     var isFilledSquare: Bool {
-        let metrics = ensureFaviconDerivedMetrics()
+        let metrics = ensureIconDerivedMetrics()
         guard !metrics.cornerSampleUnavailable else { return false }
         return metrics.cornerAlphas.allSatisfy { $0 >= 200 }
     }
@@ -181,7 +181,7 @@ extension UIImage {
 
 extension UIImage {
     var isDark: Bool {
-        ensureFaviconDerivedMetrics().averageLuminance < 0.3
+        ensureIconDerivedMetrics().averageLuminance < 0.3
     }
 
     var hasTransparentPixels: Bool {
@@ -189,7 +189,7 @@ extension UIImage {
     }
 
     var averageColor: Color {
-        guard let rgb = ensureFaviconDerivedMetrics().averageColor, rgb.count >= 3 else {
+        guard let rgb = ensureIconDerivedMetrics().averageColor, rgb.count >= 3 else {
             return .gray
         }
         return Color(red: rgb[0], green: rgb[1], blue: rgb[2])
@@ -236,13 +236,13 @@ extension UIImage {
 
     // swiftlint:disable:next large_tuple
     var averageColorComponents: (red: CGFloat, green: CGFloat, blue: CGFloat)? {
-        guard let rgb = ensureFaviconDerivedMetrics().averageColor, rgb.count >= 3 else {
+        guard let rgb = ensureIconDerivedMetrics().averageColor, rgb.count >= 3 else {
             return nil
         }
         return (CGFloat(rgb[0]), CGFloat(rgb[1]), CGFloat(rgb[2]))
     }
 
-    /// Background colour derived from the favicon's average colour for card backgrounds.
+    /// Background colour derived from the icon's average colour for card backgrounds.
     func cardBackgroundColor(isDarkMode: Bool) -> Color {
         guard let avg = averageColorComponents else {
             return isDarkMode ? Color(white: 0.15) : Color(white: 0.9)
@@ -265,9 +265,9 @@ extension UIImage {
         }
     }
 
-    /// Near-white tint derived from the average colour for backgrounds behind transparent favicons.
+    /// Near-white tint derived from the average colour for backgrounds behind transparent icons.
     var nearWhiteAverageColor: Color {
-        guard let rgb = ensureFaviconDerivedMetrics().averageColor, rgb.count >= 3 else {
+        guard let rgb = ensureIconDerivedMetrics().averageColor, rgb.count >= 3 else {
             return Color(.secondarySystemBackground)
         }
         let avgR = rgb[0]
@@ -284,7 +284,7 @@ extension UIImage {
 
     /// True when virtually all opaque pixels are near-black.
     var isNearBlack: Bool {
-        ensureFaviconDerivedMetrics().isNearBlack
+        ensureIconDerivedMetrics().isNearBlack
     }
 
     fileprivate nonisolated func _rawIsNearBlack() -> Bool {
@@ -372,7 +372,7 @@ extension UIImage {
 
     /// Up to four most prominent SwiftUI colors, computed once and cached.
     var prominentColors: [Color] {
-        let metrics = ensureFaviconDerivedMetrics()
+        let metrics = ensureIconDerivedMetrics()
         guard let stored = metrics.prominentColors, !stored.isEmpty else {
             return [averageColor]
         }
