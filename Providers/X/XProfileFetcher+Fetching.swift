@@ -192,18 +192,126 @@ extension XProfileFetcher {
 
     // MARK: - Single Tweet
 
-    /// Fetches a single tweet via the TweetDetail GraphQL endpoint.
+    /// Fetches a single tweet via the TweetResultByRestId GraphQL endpoint.
+    /// Preferred over TweetDetail for embeds because the response preserves
+    /// note_tweet text for longform posts (TweetDetail returns the truncated
+    /// legacy.full_text instead).
     func fetchSingleTweet(tweetID: String) async -> ParsedTweet? {
-        guard let data = await fetchTweetDetailData(tweetID: tweetID) else { return nil }
-        return Self.parseTweetDetailResponse(data: data, tweetID: tweetID)
+        await fetchTweetResultByRestId(tweetID: tweetID)
+    }
+
+    /// Fetches a single tweet via the TweetResultByRestId GraphQL endpoint.
+    /// On a stale-query-ID failure, re-extracts query IDs from the current
+    /// x.com bundle once and retries.
+    func fetchTweetResultByRestId(tweetID: String) async -> ParsedTweet? {
+        if let data = await performTweetResultByRestIdFetch(tweetID: tweetID),
+           Self.tweetResultByRestIdHasResult(data) {
+            return Self.parseTweetResultByRestIdResponse(data: data)
+        }
+        log("XProfileFetcher", "TweetResultByRestId failed; refreshing query IDs and retrying tweet=\(tweetID)")
+        await MainActor.run { Self.queryIDsFetched = false }
+        await Self.fetchQueryIDsIfNeeded()
+        guard let data = await performTweetResultByRestIdFetch(tweetID: tweetID) else {
+            return nil
+        }
+        return Self.parseTweetResultByRestIdResponse(data: data)
+    }
+
+    private func performTweetResultByRestIdFetch(tweetID: String) async -> Data? {
+        guard let cookies = await Self.getXCookies() else {
+            log("XProfileFetcher", "No X session cookies for TweetResultByRestId fetch")
+            return nil
+        }
+
+        let variables: [String: Any] = [
+            "tweetId": tweetID,
+            "includePromotedContent": true,
+            "withBirdwatchNotes": true,
+            "withVoice": true,
+            "withCommunity": true
+        ]
+
+        let fieldToggles: [String: Any] = [
+            "withArticleRichContentState": true,
+            "withArticlePlainText": false,
+            "withArticleSummaryText": true,
+            "withArticleVoiceOver": true
+        ]
+
+        guard let queryID = Self.tweetResultByRestIdQueryID,
+              let url = Self.buildGraphQLURL(
+                queryID: queryID,
+                operationName: "TweetResultByRestId",
+                variables: variables,
+                features: Self.tweetResultByRestIdFeatures,
+                fieldToggles: fieldToggles
+              ) else {
+            log("XProfileFetcher", "Failed to build TweetResultByRestId URL")
+            return nil
+        }
+
+        let request = buildRequest(url: url, cookies: cookies)
+
+        let data: Data
+        let response: URLResponse
+        do {
+            (data, response) = try await URLSession.shared.data(for: request)
+        } catch {
+            log("XProfileFetcher", "TweetResultByRestId network error: \(error)")
+            return nil
+        }
+
+        guard let httpResponse = response as? HTTPURLResponse,
+              httpResponse.statusCode == 200 else {
+            log("XProfileFetcher", "TweetResultByRestId bad status: \((response as? HTTPURLResponse)?.statusCode ?? -1)")
+            return nil
+        }
+
+        return data
+    }
+
+    /// Returns true if the response actually contains the tweet payload.
+    /// A 200 with `errors` (e.g. when the query ID has rotated) lacks this.
+    private static func tweetResultByRestIdHasResult(_ data: Data) -> Bool {
+        guard let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+              let dataObj = json["data"] as? [String: Any],
+              let tweetResult = dataObj["tweetResult"] as? [String: Any],
+              tweetResult["result"] is [String: Any] else {
+            return false
+        }
+        return true
     }
 
     /// Fetches the focal tweet plus any consecutive same-author tweets that
     /// share its TimelineTimelineModule (self-thread). Per-tweet images and
-    /// quote-tweet URLs are returned in display order.
+    /// quote-tweet URLs are returned in display order. The focal tweet's body
+    /// is overridden with the longform note_tweet text from TweetResultByRestId
+    /// when available, since TweetDetail returns the truncated legacy.full_text.
     func fetchTweetContent(tweetID: String) async -> ParsedTweetContent? {
-        guard let data = await fetchTweetDetailData(tweetID: tweetID) else { return nil }
-        return Self.parseTweetDetailContent(data: data, tweetID: tweetID)
+        async let detailDataTask = fetchTweetDetailData(tweetID: tweetID)
+        async let longformTask = fetchTweetResultByRestId(tweetID: tweetID)
+
+        guard let data = await detailDataTask,
+              let content = Self.parseTweetDetailContent(data: data, tweetID: tweetID)
+        else { return nil }
+
+        guard let longform = await longformTask,
+              longform.id == tweetID,
+              let focalIdx = content.threadItems.firstIndex(where: { $0.id == tweetID }),
+              longform.text.count > content.threadItems[focalIdx].text.count
+        else {
+            return content
+        }
+
+        var items = content.threadItems
+        let original = items[focalIdx]
+        items[focalIdx] = ParsedThreadItem(
+            id: original.id,
+            text: longform.text,
+            imageURLs: original.imageURLs,
+            quotedTweetURL: original.quotedTweetURL
+        )
+        return ParsedTweetContent(focal: content.focal, threadItems: items)
     }
 
     /// Fetches the raw TweetDetail GraphQL response so callers can run

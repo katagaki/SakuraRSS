@@ -178,14 +178,16 @@ struct ArticleDetailView: View {
                             InitialsAvatarView(feedName, size: 18, circle: isVideoFeed, cornerRadius: 3)
                         }
 
-                        if let feed = feedManager.feed(forArticle: article) {
-                            Text(feed.title)
+                        let feedTitle = feedManager.feed(forArticle: article)?.title
+                        if let feedTitle {
+                            Text(feedTitle)
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
                                 .lineLimit(1)
                         }
 
-                        if let author = article.author ?? extractedAuthor {
+                        if let author = article.author ?? extractedAuthor,
+                           author.caseInsensitiveCompare(feedTitle ?? "") != .orderedSame {
                             Text("·")
                                 .foregroundStyle(.tertiary)
                             Text(author)

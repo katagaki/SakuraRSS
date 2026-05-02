@@ -21,11 +21,12 @@ extension XProfileFetcher {
         await fetchQueryIDsFromBundle(cookies: cookies)
 
         if userByScreenNameQueryID == nil || userTweetsQueryID == nil
-            || tweetDetailQueryID == nil {
+            || tweetDetailQueryID == nil || tweetResultByRestIdQueryID == nil {
             print("[XProfileFetcher:QueryIDs] WARNING: Not all query IDs extracted. "
                   + "UserByScreenName=\(userByScreenNameQueryID ?? "nil"), "
                   + "UserTweets=\(userTweetsQueryID ?? "nil"), "
-                  + "TweetDetail=\(tweetDetailQueryID ?? "nil")")
+                  + "TweetDetail=\(tweetDetailQueryID ?? "nil"), "
+                  + "TweetResultByRestId=\(tweetResultByRestIdQueryID ?? "nil")")
         } else {
             print("[XProfileFetcher:QueryIDs] All query IDs extracted successfully")
         }
@@ -104,7 +105,7 @@ extension XProfileFetcher {
     }
 
     private static func extractQueryIDs(from bundleText: String) {
-        let pattern = #"queryId:"([^"]+)",operationName:"(UserByScreenName|UserTweets|TweetDetail)""#
+        let pattern = #"queryId:"([^"]+)",operationName:"(UserByScreenName|UserTweets|TweetDetail|TweetResultByRestId)""#
         guard let regex = try? NSRegularExpression(pattern: pattern) else { return }
 
         let matches = regex.matches(
@@ -129,6 +130,9 @@ extension XProfileFetcher {
             case "TweetDetail" where tweetDetailQueryID == nil:
                 tweetDetailQueryID = queryID
                 print("[XProfileFetcher:QueryIDs] OK: TweetDetail: \(queryID)")
+            case "TweetResultByRestId" where tweetResultByRestIdQueryID == nil:
+                tweetResultByRestIdQueryID = queryID
+                print("[XProfileFetcher:QueryIDs] OK: TweetResultByRestId: \(queryID)")
             default:
                 break
             }

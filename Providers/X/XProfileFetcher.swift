@@ -55,6 +55,7 @@ final class XProfileFetcher: ProfileFetcher, Authenticated {
     static var userByScreenNameQueryID: String?
     static var userTweetsQueryID: String?
     static var tweetDetailQueryID: String?
+    static var tweetResultByRestIdQueryID: String?
 
     static let userByScreenNameFeatures: [String: Bool] = [
         "hidden_profile_subscriptions_enabled": true,
@@ -139,6 +140,7 @@ final class XProfileFetcher: ProfileFetcher, Authenticated {
         userByScreenNameQueryID = nil
         userTweetsQueryID = nil
         tweetDetailQueryID = nil
+        tweetResultByRestIdQueryID = nil
         queryIDsFetched = false
     }
 }
