@@ -283,12 +283,79 @@ extension YouTubePlaylistFetcher {
                 thumbnailURL = "https://i.ytimg.com/vi/\(videoId)/hqdefault.jpg"
             }
 
+            let relativeDate = parseRelativeDate(fromRenderer: renderer)
+
             videos.append(ParsedPlaylistVideo(
-                videoId: videoId, title: title, thumbnailURL: thumbnailURL
+                videoId: videoId,
+                title: title,
+                thumbnailURL: thumbnailURL,
+                publishedDate: relativeDate
             ))
         }
 
         return videos
+    }
+
+    /// Parses the "N units ago" string in `videoInfo.runs` into an approximate Date.
+    /// Used as a fallback for videos not present in the playlist's Atom feed (which caps at ~15 entries).
+    private static func parseRelativeDate(fromRenderer renderer: [String: Any]) -> Date? {
+        guard let videoInfo = renderer["videoInfo"] as? [String: Any],
+              let runs = videoInfo["runs"] as? [[String: Any]] else {
+            return nil
+        }
+        for run in runs {
+            guard let text = run["text"] as? String else { continue }
+            if let date = relativeDate(fromText: text) {
+                return date
+            }
+        }
+        return nil
+    }
+
+    /// Parses the precise upload date from a YouTube watch page's embedded JSON.
+    /// Looks for `"publishDate":"YYYY-MM-DD"` from `playerMicroformatRenderer`.
+    static func parseVideoPublishDate(fromHTML html: String) -> Date? {
+        let pattern = #""publishDate"\s*:\s*"(\d{4}-\d{2}-\d{2})"#
+        guard let regex = try? NSRegularExpression(pattern: pattern) else { return nil }
+        let range = NSRange(html.startIndex..., in: html)
+        guard let match = regex.firstMatch(in: html, range: range),
+              match.numberOfRanges >= 2,
+              let dateRange = Range(match.range(at: 1), in: html) else {
+            return nil
+        }
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd"
+        formatter.timeZone = TimeZone(identifier: "UTC")
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        return formatter.date(from: String(html[dateRange]))
+    }
+
+    static func relativeDate(fromText text: String) -> Date? {
+        let pattern = #"(\d+)\s+(second|minute|hour|day|week|month|year)s?\s+ago"#
+        guard let regex = try? NSRegularExpression(pattern: pattern, options: .caseInsensitive) else {
+            return nil
+        }
+        let range = NSRange(text.startIndex..., in: text)
+        guard let match = regex.firstMatch(in: text, range: range),
+              match.numberOfRanges >= 3,
+              let amountRange = Range(match.range(at: 1), in: text),
+              let unitRange = Range(match.range(at: 2), in: text),
+              let amount = Int(text[amountRange]) else {
+            return nil
+        }
+        let unit = text[unitRange].lowercased()
+        let component: Calendar.Component
+        switch unit {
+        case "second": component = .second
+        case "minute": component = .minute
+        case "hour": component = .hour
+        case "day": component = .day
+        case "week": component = .weekOfYear
+        case "month": component = .month
+        case "year": component = .year
+        default: return nil
+        }
+        return Calendar.current.date(byAdding: component, value: -amount, to: Date())
     }
 
     private static func extractVideoEntries(

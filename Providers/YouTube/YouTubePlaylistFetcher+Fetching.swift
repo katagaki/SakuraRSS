@@ -2,8 +2,10 @@ import Foundation
 
 extension YouTubePlaylistFetcher {
 
-    /// Fetches the playlist page and enriches each video with the Atom feed's publish date.
-    /// Atom feed caps at ~15 entries, so older videos may lack a publish date.
+    /// Concurrent fetch ceiling for per-video date lookups. Tuned to enrich a
+    /// playlist quickly without tripping YouTube's anti-scraping heuristics.
+    private static let videoDateConcurrency = 8
+
     func performFetch(url: URL, playlistID: String) async -> YouTubePlaylistFetchResult {
         var request = URLRequest(url: url)
         request.setValue(sakuraUserAgent, forHTTPHeaderField: "User-Agent")
@@ -36,8 +38,28 @@ extension YouTubePlaylistFetcher {
             if !dates.isEmpty {
                 videos = videos.map { video in
                     var copy = video
-                    copy.publishedDate = dates[video.videoId]
+                    if let atomDate = dates[video.videoId] {
+                        copy.publishedDate = atomDate
+                    }
                     return copy
+                }
+            }
+
+            let videoIDsNeedingPreciseDate = videos
+                .filter { dates[$0.videoId] == nil }
+                .map(\.videoId)
+            if !videoIDsNeedingPreciseDate.isEmpty {
+                let preciseDates = await fetchVideoPagePublishDates(
+                    videoIDs: videoIDsNeedingPreciseDate
+                )
+                if !preciseDates.isEmpty {
+                    videos = videos.map { video in
+                        var copy = video
+                        if let date = preciseDates[video.videoId] {
+                            copy.publishedDate = date
+                        }
+                        return copy
+                    }
                 }
             }
 
@@ -47,6 +69,47 @@ extension YouTubePlaylistFetcher {
         } catch {
             print("[YouTubePlaylist] Network request failed - \(error.localizedDescription)")
             return empty
+        }
+    }
+
+    private func fetchVideoPagePublishDates(videoIDs: [String]) async -> [String: Date] {
+        await withTaskGroup(of: (String, Date?).self) { group in
+            var results: [String: Date] = [:]
+            var iterator = videoIDs.makeIterator()
+            var inFlight = 0
+
+            while inFlight < Self.videoDateConcurrency, let next = iterator.next() {
+                group.addTask { (next, await self.fetchVideoPagePublishDate(videoID: next)) }
+                inFlight += 1
+            }
+
+            while let (videoID, date) = await group.next() {
+                if let date { results[videoID] = date }
+                inFlight -= 1
+                if let next = iterator.next() {
+                    group.addTask { (next, await self.fetchVideoPagePublishDate(videoID: next)) }
+                    inFlight += 1
+                }
+            }
+
+            return results
+        }
+    }
+
+    private func fetchVideoPagePublishDate(videoID: String) async -> Date? {
+        guard let url = URL(string: "https://www.youtube.com/watch?v=\(videoID)") else {
+            return nil
+        }
+        var request = URLRequest(url: url)
+        request.setValue(sakuraUserAgent, forHTTPHeaderField: "User-Agent")
+        request.setValue("en-US,en;q=0.9", forHTTPHeaderField: "Accept-Language")
+
+        do {
+            let (data, _) = try await URLSession.shared.data(for: request)
+            guard let html = String(data: data, encoding: .utf8) else { return nil }
+            return Self.parseVideoPublishDate(fromHTML: html)
+        } catch {
+            return nil
         }
     }
 
