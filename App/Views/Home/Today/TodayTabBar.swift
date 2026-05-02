@@ -98,7 +98,7 @@ private struct TodayTabButton: View {
                 .padding(.horizontal, 14)
                 .padding(.vertical, 8)
                 .fixedSize(horizontal: true, vertical: false)
-                .contentShape(Capsule())
+                .contentShape(.capsule)
         }
         .buttonStyle(.plain)
     }

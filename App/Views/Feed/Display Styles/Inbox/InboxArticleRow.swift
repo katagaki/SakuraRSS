@@ -27,7 +27,7 @@ struct InboxArticleRow: View {
                     )
                 }
                 .frame(width: 48, height: 48)
-                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .clipShape(.rect(cornerRadius: 8))
             } else {
                 FeedIconPlaceholder(
                     icon: icon,
@@ -60,7 +60,7 @@ struct InboxArticleRow: View {
                         .foregroundStyle(feedManager.isRead(article) ? .secondary : .primary)
 
                     if article.hasMeaningfulSummary, let summary = article.summary {
-                        Text(ContentBlock.stripMarkdown(summary))
+                        SummaryText(summary: summary)
                             .font(.subheadline)
                             .foregroundStyle(.secondary)
                             .lineLimit(2)

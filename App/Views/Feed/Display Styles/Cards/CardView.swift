@@ -73,7 +73,7 @@ struct CardView: View {
                         .multilineTextAlignment(.leading)
 
                     if let summary = article.summary, !summary.isEmpty {
-                        Text(ContentBlock.stripMarkdown(summary))
+                        SummaryText(summary: summary)
                             .font(.subheadline)
                             .foregroundStyle(cardTextColor.secondary)
                             .lineLimit(2)

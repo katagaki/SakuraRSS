@@ -7,22 +7,21 @@ struct ConversationCommentRow: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
             HStack(spacing: 6) {
-                Image(systemName: "person.crop.circle.fill")
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-                Text(comment.author.isEmpty
-                     ? String(localized: "Conversations.UnknownAuthor", table: "Articles")
-                     : comment.author)
-                    .font(.subheadline)
+                Group {
+                    Text(comment.author.isEmpty
+                         ? String(localized: "Conversations.UnknownAuthor", table: "Articles")
+                         : comment.author)
                     .fontWeight(.semibold)
-                    .lineLimit(1)
-                if let date = comment.createdDate {
-                    Text("·")
-                        .foregroundStyle(.tertiary)
-                    RelativeTimeText(date: date)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                    if let date = comment.createdDate {
+                        Text("·")
+                            .foregroundStyle(.secondary)
+                        RelativeTimeText(date: date)
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
                 }
+                .font(.subheadline)
+                .lineLimit(1)
             }
 
             Text(comment.body)

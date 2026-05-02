@@ -21,7 +21,7 @@ struct DiscoverArticleCard: View {
             VStack(alignment: .leading, spacing: 8) {
                 cardVisual
                     .frame(width: cardWidth, height: imageHeight)
-                    .clipShape(RoundedRectangle(cornerRadius: 14))
+                    .clipShape(.rect(cornerRadius: 14))
                     .overlay(
                         RoundedRectangle(cornerRadius: 14)
                             .strokeBorder(.quaternary, lineWidth: 0.5)

@@ -152,19 +152,12 @@ extension ArticleDetailView: ArticleActions {
 
     func resolveLinkedArticleURL() async {
         guard let feed = feedManager.feed(forArticle: article),
-              LinkAggregatorDomains.isLinkAggregator(feedDomain: feed.domain) else {
+              feed.isRedditFeed else {
             linkedArticleURL = nil
             return
         }
-        if feed.isRedditFeed {
-            if let result = try? await RedditPostFetcher.shared.fetchContent(for: article),
-               case .linkedArticle(let url) = result {
-                linkedArticleURL = url
-            }
-            return
-        }
-        if let summary = article.summary,
-           let url = LinkAggregatorDomains.linkedArticleURL(fromSummary: summary) {
+        if let result = try? await RedditPostFetcher.shared.fetchContent(for: article),
+           case .linkedArticle(let url) = result {
             linkedArticleURL = url
         }
     }

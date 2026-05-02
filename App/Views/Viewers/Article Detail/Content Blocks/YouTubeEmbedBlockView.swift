@@ -57,7 +57,7 @@ struct YouTubeEmbedBlockView: View {
                 .padding(.vertical, 6)
                 .background(.thinMaterial)
         }
-        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .clipShape(.rect(cornerRadius: 12))
         .onChange(of: duration) { _, newDuration in
             if newDuration > 0 && !hasStartedPlaying {
                 withAnimation(.smooth.speed(2.0)) {

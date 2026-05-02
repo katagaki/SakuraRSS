@@ -173,7 +173,7 @@ struct WhileYouSleptView: View {
                 appleIntelligenceGradient
             }
         }
-        .clipShape(RoundedRectangle(cornerRadius: 16))
+        .clipShape(.rect(cornerRadius: 16))
         .shadow(color: Color(red: 0.85, green: 0.40, blue: 0.60).opacity(0.15), radius: 4, y: 2)
         .shadow(color: Color(red: 0.55, green: 0.35, blue: 0.80).opacity(0.1), radius: 8, y: 4)
         .padding(.horizontal)

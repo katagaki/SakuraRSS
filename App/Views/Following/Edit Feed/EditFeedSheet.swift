@@ -7,7 +7,7 @@ struct EditFeedSheet: View {
     let feedID: Int64
 
     @State private var feed: Feed?
-    @State private var selectedTab: FeedEditTab = .metadata
+    @State private var selectedTab: FeedEditTab = .about
 
     var body: some View {
         NavigationStack {
@@ -17,15 +17,15 @@ struct EditFeedSheet: View {
             .navigationTitle(feed?.title ?? String(localized: "FeedEdit.Title", table: "Feeds"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    Button(role: .cancel) {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button(role: .confirm) {
                         dismiss()
                     }
                 }
                 ToolbarItem(placement: .principal) {
                     Picker("", selection: $selectedTab) {
-                        Text(String(localized: "FeedEditSheet.Tab.Metadata", table: "Feeds"))
-                            .tag(FeedEditTab.metadata)
+                        Text(String(localized: "FeedEditSheet.Tab.About", table: "Feeds"))
+                            .tag(FeedEditTab.about)
                         Text(String(localized: "FeedEditSheet.Tab.Content", table: "Feeds"))
                             .tag(FeedEditTab.content)
                         Text(String(localized: "FeedEditSheet.Tab.Rules", table: "Feeds"))
@@ -49,7 +49,7 @@ struct EditFeedSheet: View {
     private func tabContent(hasFeed: Bool) -> some View {
         if hasFeed {
             switch selectedTab {
-            case .metadata:
+            case .about:
                 EditFeedMetadataTab(feed: $feed, feedID: feedID)
             case .content:
                 EditFeedContentTab(feed: $feed, feedID: feedID)

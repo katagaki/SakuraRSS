@@ -50,7 +50,7 @@ struct FeedHeaderView: View {
                     .lineLimit(isDescriptionExpanded ? nil : 3)
                     .padding(.horizontal, 4)
                     .padding(.top, 4)
-                    .contentShape(Rectangle())
+                    .contentShape(.rect)
                     .onTapGesture {
                         isDescriptionExpanded.toggle()
                     }

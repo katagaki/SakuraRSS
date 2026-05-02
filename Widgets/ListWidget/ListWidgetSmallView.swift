@@ -27,7 +27,7 @@ struct ListWidgetSmallView: View {
                             }
                     }
                 }
-                .clipShape(RoundedRectangle(cornerRadius: 10))
+                .clipShape(.rect(cornerRadius: 10))
 
                 VStack(alignment: .leading, spacing: 2) {
                     Text(article.title)

@@ -63,7 +63,7 @@ struct ScrollExpandedArticleView: View {
         .overlay(alignment: .leading) {
             Color.clear
                 .frame(width: 20)
-                .contentShape(Rectangle())
+                .contentShape(.rect)
                 .gesture(
                     DragGesture(minimumDistance: 10, coordinateSpace: .local)
                         .onEnded { value in

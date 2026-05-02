@@ -1,7 +1,7 @@
 import Foundation
 
 enum FeedEditTab: Hashable {
-    case metadata
+    case about
     case content
     case rules
     case lists

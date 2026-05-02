@@ -71,6 +71,9 @@ struct CachedAsyncImage<Placeholder: View>: View {
                     .clipped()
             }
         }
+        .background {
+            image?.averageColor ?? Color(uiColor: .systemBackground)
+        }
         .contentShape(.rect)
         .transaction { transaction in
             transaction.animation = nil

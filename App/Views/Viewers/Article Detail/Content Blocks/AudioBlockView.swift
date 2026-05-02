@@ -21,7 +21,7 @@ struct AudioBlockView: View {
             .padding(.horizontal, 12)
             .padding(.vertical, 10)
             .background(.thinMaterial)
-            .clipShape(RoundedRectangle(cornerRadius: 12))
+            .clipShape(.rect(cornerRadius: 12))
             .onAppear(perform: setupPlayer)
             .onDisappear(perform: teardownPlayer)
     }

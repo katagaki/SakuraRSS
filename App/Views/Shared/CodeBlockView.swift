@@ -15,6 +15,6 @@ struct CodeBlockView: View {
         .padding(12)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(.fill.tertiary)
-        .clipShape(RoundedRectangle(cornerRadius: 8))
+        .clipShape(.rect(cornerRadius: 8))
     }
 }

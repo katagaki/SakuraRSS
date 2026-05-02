@@ -208,14 +208,8 @@ struct ArticleDetailView: View {
             .padding([.horizontal, .bottom])
 
             conversationsSection
-                .animation(.smooth.speed(2.0), value: conversationComments.count)
-                .animation(.smooth.speed(2.0), value: isLoadingConversation)
 
             insightsSection
-                .animation(.smooth.speed(2.0), value: similarArticles.count)
-                .animation(.smooth.speed(2.0), value: articleTopics.count)
-                .animation(.smooth.speed(2.0), value: articlePeople.count)
-                .animation(.smooth.speed(2.0), value: isLoadingInsights)
         }
         .refreshable {
             await refreshArticleContent()

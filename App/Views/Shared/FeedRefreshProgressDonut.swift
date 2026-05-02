@@ -18,7 +18,7 @@ struct FeedRefreshProgressDonut: View {
                 donut
             }
             .buttonStyle(.plain)
-            .contentShape(Rectangle())
+            .contentShape(.rect)
             .accessibilityLabel(
                 Text(String(localized: "Refresh.Stop", table: "Home"))
             )

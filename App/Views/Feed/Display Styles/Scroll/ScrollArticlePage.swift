@@ -148,7 +148,7 @@ struct ScrollArticlePage: View {
         HStack(alignment: .bottom, spacing: 12) {
             compactTextBlock
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .contentShape(Rectangle())
+                .contentShape(.rect)
                 .onTapGesture { onTapContent() }
 
             ScrollActionButtonsColumn(
@@ -192,7 +192,7 @@ struct ScrollArticlePage: View {
                 .matchedGeometryEffect(id: "headerTitle", in: headerNamespace)
 
             if let summary = article.summary, !summary.isEmpty {
-                Text(ContentBlock.stripMarkdown(summary))
+                SummaryText(summary: summary)
                     .font(.body)
                     .foregroundStyle(.white.opacity(0.9))
                     .lineLimit(5)

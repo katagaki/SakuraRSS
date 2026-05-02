@@ -14,7 +14,7 @@ struct MiniPlayerBar: View {
             HStack(spacing: 12) {
                 artwork(for: article)
                     .frame(width: 32, height: 32)
-                    .clipShape(RoundedRectangle(cornerRadius: 6))
+                    .clipShape(.rect(cornerRadius: 6))
                     .padding(.leading, 4)
 
                 VStack(alignment: .leading, spacing: 1) {
@@ -41,7 +41,7 @@ struct MiniPlayerBar: View {
                           : "play.fill")
                         .font(.title3)
                         .frame(width: 32, height: 32)
-                        .contentShape(Rectangle())
+                        .contentShape(.rect)
                 }
                 .buttonStyle(.plain)
 
@@ -51,7 +51,7 @@ struct MiniPlayerBar: View {
                     Image(systemName: "stop.fill")
                         .font(.title3)
                         .frame(width: 32, height: 32)
-                        .contentShape(Rectangle())
+                        .contentShape(.rect)
                 }
                 .buttonStyle(.plain)
             }

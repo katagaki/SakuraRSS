@@ -39,7 +39,7 @@ struct YouTubeMiniPlayerBar: View {
                           : "play.fill")
                         .font(.title3)
                         .frame(width: 32, height: 32)
-                        .contentShape(Rectangle())
+                        .contentShape(.rect)
                 }
                 .buttonStyle(.plain)
 
@@ -49,7 +49,7 @@ struct YouTubeMiniPlayerBar: View {
                     Image(systemName: "stop.fill")
                         .font(.title3)
                         .frame(width: 32, height: 32)
-                        .contentShape(Rectangle())
+                        .contentShape(.rect)
                 }
                 .buttonStyle(.plain)
             }

@@ -28,7 +28,7 @@ struct ListThumbnailCell: View {
                             }
                     }
                 }
-                .clipShape(RoundedRectangle(cornerRadius: 12))
+                .clipShape(.rect(cornerRadius: 12))
 
                 Text(article.title)
                     .font(.system(size: 12, weight: .semibold, design: .default).width(.condensed))

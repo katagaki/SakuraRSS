@@ -9,13 +9,29 @@ extension ArticleDetailView {
                 Divider()
                     .padding(.horizontal)
 
-                Label(
-                    String(localized: "Conversations.Title", table: "Articles"),
-                    systemImage: "bubble.left.and.bubble.right"
-                )
-                .font(.title3)
-                .fontWeight(.bold)
-                .padding(.horizontal)
+                Button {
+                    if let conversationURL {
+                        openURL(conversationURL)
+                    }
+                } label: {
+                    HStack {
+                        Label(
+                            String(localized: "Conversations.Title", table: "Articles"),
+                            systemImage: "bubble.left.and.bubble.right"
+                        )
+                        .font(.title3)
+                        .fontWeight(.bold)
+                        if conversationURL != nil {
+                            Spacer()
+                            Image(systemName: "chevron.right")
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                    .padding(.horizontal)
+                    .contentShape(.rect)
+                }
+                .buttonStyle(.plain)
+                .disabled(conversationURL == nil)
 
                 if isLoadingConversation && conversationComments.isEmpty {
                     ProgressView()
@@ -23,7 +39,7 @@ extension ArticleDetailView {
                         .padding(.vertical, 8)
                         .transition(.blurReplace)
                 } else {
-                    VStack(alignment: .leading, spacing: 12) {
+                    VStack(alignment: .leading, spacing: 8) {
                         ForEach(Array(conversationComments.enumerated()), id: \.element.id) { index, comment in
                             if index > 0 {
                                 Divider()
@@ -32,28 +48,8 @@ extension ArticleDetailView {
                         }
                     }
                     .padding(.horizontal)
-
-                    if let conversationURL {
-                        Button {
-                            openURL(conversationURL)
-                        } label: {
-                            Text(String(localized: "Conversations.JoinButton",
-                                        table: "Articles"))
-                                .font(.subheadline)
-                                .fontWeight(.semibold)
-                                .padding(.horizontal, 18)
-                                .padding(.vertical, 10)
-                        }
-                        .buttonStyle(.plain)
-                        .glassEffect(.regular.interactive(), in: .capsule)
-                        .frame(maxWidth: .infinity, alignment: .center)
-                        .padding(.horizontal)
-                        .padding(.top, 4)
-                    }
                 }
             }
-            .padding(.top, 16)
-            .padding(.bottom, 24)
         }
     }
 

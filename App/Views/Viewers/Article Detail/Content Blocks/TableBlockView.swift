@@ -44,7 +44,7 @@ struct TableBlockView: View {
                 RoundedRectangle(cornerRadius: 8)
                     .stroke(.secondary.opacity(0.55), lineWidth: 1.5)
             )
-            .clipShape(RoundedRectangle(cornerRadius: 8))
+            .clipShape(.rect(cornerRadius: 8))
         }
     }
 

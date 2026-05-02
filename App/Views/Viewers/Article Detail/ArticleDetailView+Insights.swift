@@ -5,7 +5,7 @@ extension ArticleDetailView {
     @ViewBuilder
     var insightsSection: some View {
         if shouldShowInsightsSection {
-            VStack(alignment: .leading, spacing: 20) {
+            VStack(alignment: .leading, spacing: 16) {
                 Divider()
                     .padding(.horizontal)
 
@@ -30,7 +30,6 @@ extension ArticleDetailView {
                     if !articleTopics.isEmpty {
                         entityChipsSubsection(
                             titleKey: String(localized: "SimilarContent.Topics", table: "Articles"),
-                            systemImage: "number",
                             types: ["organization", "place"],
                             names: articleTopics
                         )
@@ -39,15 +38,12 @@ extension ArticleDetailView {
                     if !articlePeople.isEmpty {
                         entityChipsSubsection(
                             titleKey: String(localized: "SimilarContent.People", table: "Articles"),
-                            systemImage: "person.2",
                             types: ["person"],
                             names: articlePeople
                         )
                     }
                 }
             }
-            .padding(.top, 16)
-            .padding(.bottom, 24)
         }
     }
 
@@ -63,7 +59,7 @@ extension ArticleDetailView {
     @ViewBuilder
     private var similarContentSubsection: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Label(String(localized: "SimilarContent.Title", table: "Articles"), systemImage: "square.stack.3d.up")
+            Text(String(localized: "SimilarContent.Title", table: "Articles"))
                 .font(.subheadline)
                 .fontWeight(.semibold)
                 .foregroundStyle(.secondary)
@@ -86,12 +82,11 @@ extension ArticleDetailView {
     @ViewBuilder
     private func entityChipsSubsection(
         titleKey: String,
-        systemImage: String,
         types: [String],
         names: [String]
     ) -> some View {
         VStack(alignment: .leading, spacing: 10) {
-            Label(titleKey, systemImage: systemImage)
+            Text(titleKey)
                 .font(.subheadline)
                 .fontWeight(.semibold)
                 .foregroundStyle(.secondary)
@@ -335,7 +330,7 @@ private struct SimilarArticleCard: View {
         VStack(alignment: .leading, spacing: 8) {
             cardVisual
                 .frame(width: cardWidth, height: imageHeight)
-                .clipShape(RoundedRectangle(cornerRadius: 14))
+                .clipShape(.rect(cornerRadius: 14))
                 .overlay(
                     RoundedRectangle(cornerRadius: 14)
                         .stroke(.quaternary, lineWidth: 0.5)

@@ -28,7 +28,7 @@ struct ScrollActionButtonsColumn: View {
                         Circle().fill(.white.opacity(0.2)).frame(width: 48, height: 48)
                     }
                 }
-                .contentShape(Rectangle())
+                .contentShape(.rect)
             }
             .buttonStyle(.plain)
             .accessibilityLabel(Text(feedName ?? ""))

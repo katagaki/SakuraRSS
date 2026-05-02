@@ -57,7 +57,7 @@ struct TranscriptView: View {
             .fontWeight(isActive ? .semibold : .regular)
             .foregroundStyle(isActive ? Color.primary : Color.primary.opacity(0.55))
             .frame(maxWidth: .infinity, alignment: .leading)
-            .contentShape(Rectangle())
+            .contentShape(.rect)
             .onTapGesture {
                 onSeek(segment.start)
             }

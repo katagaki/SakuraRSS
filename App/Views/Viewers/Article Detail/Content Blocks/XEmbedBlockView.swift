@@ -49,7 +49,7 @@ struct XEmbedBlockView: View {
                     })
                     .aspectRatio(imageAspectRatio ?? (16.0 / 9.0), contentMode: .fit)
                     .frame(maxWidth: imageSize?.width)
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                    .clipShape(.rect(cornerRadius: 8))
                     .frame(maxWidth: .infinity, alignment: .center)
                 }
             } else if isLoading {
