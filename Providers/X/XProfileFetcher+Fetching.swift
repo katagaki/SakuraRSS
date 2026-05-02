@@ -281,6 +281,10 @@ extension XProfileFetcher {
             return nil
         }
 
+        if let json = String(data: data, encoding: .utf8) {
+            log("XProfileFetcher", "TweetDetail JSON tweet=\(tweetID): \(json)")
+        }
+
         return data
     }
 

@@ -391,18 +391,12 @@ extension ExtractsArticle {
         return await extractor.extractText(from: url)
     }
 
-    /// Detects a Reddit comments URL — used to enable Reddit content
-    /// extraction for ephemeral articles (no feed lookup available).
     static func isRedditPostURL(_ url: URL) -> Bool {
         guard let host = url.host?.lowercased(),
               host == "reddit.com" || host.hasSuffix(".reddit.com") else { return false }
         return RedditPostFetcher.postID(from: url) != nil
     }
 
-    /// Serialises a tweet (or self-thread) into the marker-based text format
-    /// that `ContentBlockStack` understands: each tweet becomes its own text
-    /// block, followed by `{{IMG}}` markers for its photos, then `{{XPOST}}`
-    /// for any quoted tweet — separated from the next tweet by a blank line.
     func renderXTweetContent(_ content: ParsedTweetContent) -> String {
         var sections: [String] = []
         for item in content.threadItems {

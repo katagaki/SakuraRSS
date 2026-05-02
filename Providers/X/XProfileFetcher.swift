@@ -33,7 +33,6 @@ struct ParsedThreadItem: Sendable {
 
 /// Combined output of `XProfileFetcher.fetchTweetContent`. `focal` provides
 /// the article header metadata; `threadItems` is the body in display order
-/// — a single element for standalone tweets, multiple for self-threads.
 struct ParsedTweetContent: Sendable {
     let focal: ParsedTweet
     let threadItems: [ParsedThreadItem]

@@ -11,10 +11,24 @@ nonisolated enum XCommentText {
     ) -> String {
         let preferred = sliceByDisplayTextRange(fullText, range: displayTextRange)
             ?? stripLeadingMentionsFallback(fullText)
-        return preferred.trimmingCharacters(in: .whitespacesAndNewlines)
+        return decodeHTMLEntities(preferred.trimmingCharacters(in: .whitespacesAndNewlines))
     }
 
-    /// Slices `fullText` using UTF-16 offsets — X's `display_text_range`
+    /// X's API returns `full_text` with HTML-encoded `&`, `<`, `>`, so the
+    /// raw string contains tokens like `&amp;` that need decoding before
+    /// display.
+    static func decodeHTMLEntities(_ text: String) -> String {
+        guard text.contains("&") else { return text }
+        return text
+            .replacingOccurrences(of: "&lt;", with: "<")
+            .replacingOccurrences(of: "&gt;", with: ">")
+            .replacingOccurrences(of: "&quot;", with: "\"")
+            .replacingOccurrences(of: "&#39;", with: "'")
+            .replacingOccurrences(of: "&apos;", with: "'")
+            .replacingOccurrences(of: "&amp;", with: "&")
+    }
+
+    /// Slices `fullText` using UTF-16 offsets  X's `display_text_range`
     /// indices count UTF-16 code units.
     private static func sliceByDisplayTextRange(
         _ text: String, range: [Int]?

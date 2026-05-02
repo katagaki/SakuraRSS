@@ -199,6 +199,7 @@ extension XProfileFetcher {
             with: "",
             options: .regularExpression
         )
+        cleanText = XCommentText.decodeHTMLEntities(cleanText)
 
         return ParsedTweet(
             id: idStr,
@@ -481,6 +482,8 @@ extension XProfileFetcher {
 
         guard let legacy = actualResult["legacy"] as? [String: Any],
               let idStr = legacy["id_str"] as? String, !idStr.isEmpty else { return nil }
+
+        if legacy["conversation_control"] != nil { return nil }
 
         let core = (actualResult["core"] as? [String: Any])?["user_results"] as? [String: Any]
         let userResult = core?["result"] as? [String: Any]
