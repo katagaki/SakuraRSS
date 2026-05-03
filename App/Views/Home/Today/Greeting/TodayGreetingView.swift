@@ -3,6 +3,7 @@ import SwiftUI
 struct TodayGreetingView: View {
 
     @Bindable var weatherService: TodayWeatherService = .shared
+    @AppStorage("Onboarding.Completed") private var onboardingCompleted: Bool = false
     private let deloreanClock = DeloreanClock.shared
     @State private var greeting: TodayGreeting = .from(date: Date())
     @State private var showingLocationPicker = false
@@ -34,7 +35,14 @@ struct TodayGreetingView: View {
         }
         .onAppear {
             applyClockState()
-            Task { await weatherService.refreshIfNeeded() }
+            if onboardingCompleted {
+                Task { await weatherService.refreshIfNeeded() }
+            }
+        }
+        .onChange(of: onboardingCompleted) { _, completed in
+            if completed {
+                Task { await weatherService.refreshIfNeeded() }
+            }
         }
         .onChange(of: deloreanClock.virtualMinutes) { _, _ in
             applyClockState()

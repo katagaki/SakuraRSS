@@ -21,6 +21,7 @@ struct TodayView: View {
     @State private var recentArticles: [Article] = []
     @State private var unreadPodcastEpisodes: [Article] = []
     @State private var unreadVideoEpisodes: [Article] = []
+    @State private var hasLoadedInitially = false
     @State private var refreshID: Int = 0
 
     var body: some View {
@@ -30,7 +31,7 @@ struct TodayView: View {
                     .padding(.horizontal)
                     .padding(.top, 8)
 
-                if !anySummaryVisible, !contentSections.isEmpty {
+                if !anySummaryVisible, !contentSections.isEmpty || showEmptyState {
                     sectionDivider
                 }
 
@@ -47,10 +48,14 @@ struct TodayView: View {
                     isVisible: $todayVisible
                 )
 
-                ForEach(Array(contentSections.enumerated()), id: \.element) { index, section in
-                    sectionView(section)
-                    if index < contentSections.count - 1 {
-                        sectionDivider
+                if showEmptyState {
+                    emptyContentView
+                } else {
+                    ForEach(Array(contentSections.enumerated()), id: \.element) { index, section in
+                        sectionView(section)
+                        if index < contentSections.count - 1 {
+                            sectionDivider
+                        }
                     }
                 }
 
@@ -86,6 +91,20 @@ struct TodayView: View {
 
     private var anySummaryVisible: Bool {
         sleptVisible || afternoonVisible || todayVisible
+    }
+
+    private var showEmptyState: Bool {
+        hasLoadedInitially && !anySummaryVisible && contentSections.isEmpty
+    }
+
+    @ViewBuilder
+    private var emptyContentView: some View {
+        ContentUnavailableView {
+            Label(String(localized: "Today.Empty.Title", table: "Home"), systemImage: "checkmark.circle")
+        } description: {
+            Text(String(localized: "Today.Empty.Description", table: "Home"))
+        }
+        .padding(.vertical, 32)
     }
 
     private var contentSections: [ContentSection] {
@@ -313,6 +332,7 @@ struct TodayView: View {
                 entitySections = sections
                 allTopics = topics
                 allPeople = people
+                hasLoadedInitially = true
             }
         }.value
     }

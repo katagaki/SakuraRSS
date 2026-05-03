@@ -90,6 +90,11 @@ struct SakuraRSSApp: App {
     init() {
         let defaults = UserDefaults.standard
 
+        defaults.register(defaults: [
+            "Intelligence.ContentInsights.Enabled": true
+        ])
+        Self.enableHomeTopicsByDefaultIfNeeded(defaults: defaults)
+
         if defaults.bool(forKey: "App.StartupInProgress") {
             Self.resetSavedNavigationState(defaults: defaults)
         }
@@ -98,5 +103,16 @@ struct SakuraRSSApp: App {
         defaults.set(defaults.integer(forKey: "App.LaunchCount") + 1, forKey: "App.LaunchCount")
         registerBackgroundTask()
         try? Tips.configure()
+    }
+
+    private static func enableHomeTopicsByDefaultIfNeeded(defaults: UserDefaults) {
+        let key = "Home.BarConfiguration.TopicsDefaultEnabled.Migrated"
+        guard !defaults.bool(forKey: key) else { return }
+        var config = HomeBarConfiguration.load()
+        if !config.enabledItems.contains(.topics) {
+            config.enabledItems.insert(.topics)
+            config.save()
+        }
+        defaults.set(true, forKey: key)
     }
 }

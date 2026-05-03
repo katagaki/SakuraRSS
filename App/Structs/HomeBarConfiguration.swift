@@ -23,7 +23,7 @@ struct HomeBarConfiguration: Equatable, Hashable, Sendable {
 
     static let `default` = HomeBarConfiguration(
         orderedItems: defaultOrderedItems,
-        enabledItems: Set(defaultOrderedItems.filter { $0 != .topics }),
+        enabledItems: Set(defaultOrderedItems),
         topicCount: .top3
     )
 
