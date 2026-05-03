@@ -63,12 +63,12 @@ struct ListDetailView: View {
         }
         .sheet(item: $listToEdit) { list in
             ListEditSheet(list: list)
-                .presentationDetents([.medium, .large])
+                .presentationDetents([.large])
                 .interactiveDismissDisabled()
         }
         .sheet(item: $listForRules) { list in
             ListRulesSheet(list: list)
-                .presentationDetents([.medium, .large])
+                .presentationDetents([.large])
                 .interactiveDismissDisabled()
         }
     }
