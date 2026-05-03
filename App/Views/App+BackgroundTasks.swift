@@ -173,14 +173,14 @@ extension SakuraRSSApp {
 /// or duplicated completion call and a watchdog termination.
 final class BackgroundTaskCompletion: @unchecked Sendable {
     private let lock = NSLock()
-    private var didComplete = false
+    nonisolated(unsafe) private var didComplete = false
     private let task: BGTask
 
-    init(task: BGTask) {
+    nonisolated init(task: BGTask) {
         self.task = task
     }
 
-    func complete(success: Bool) {
+    nonisolated func complete(success: Bool) {
         lock.lock()
         if didComplete {
             lock.unlock()
