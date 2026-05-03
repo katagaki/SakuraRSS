@@ -12,6 +12,7 @@ struct AddFeedView: View {
     @State var isSearching = false
     @State var errorMessage: String?
     @State var addedURLs: Set<String> = []
+    @State var addingURLs: Set<String> = []
     @State var listMembership: [Int64: Set<Int64>] = [:]
     @State var showXLogin = false
     @State var pendingXFeed: DiscoveredFeed?
@@ -41,6 +42,7 @@ struct AddFeedView: View {
                     AddFeedSuggestedTopicsSection(
                         topics: suggestedTopics,
                         addedURLs: addedURLs,
+                        addingURLs: addingURLs,
                         onAdd: addSuggestedFeed
                     )
 
@@ -59,6 +61,7 @@ struct AddFeedView: View {
                     AddFeedDiscoveredSection(
                         feeds: discoveredFeeds,
                         addedURLs: addedURLs,
+                        addingURLs: addingURLs,
                         onAdd: addFeed
                     )
                 }
@@ -82,6 +85,7 @@ struct AddFeedView: View {
                         hasInitialized = false
                         dismiss()
                     }
+                    .disabled(!addingURLs.isEmpty)
                 }
             }
             .onAppear(perform: handleAppear)

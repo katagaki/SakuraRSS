@@ -129,7 +129,7 @@ struct FeedArticlesView: View {
     var body: some View {
         ArticlesView(
             articles: visibility.filter(rawArticles, isEnabled: hideViewedContent),
-            title: "",
+            title: currentFeed.title,
             subtitle: nil,
             feedKey: String(feed.id),
             isVideoFeed: feed.isVideoFeed,

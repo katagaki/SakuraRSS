@@ -34,6 +34,7 @@ struct SearchView: View {
             }
             .sakuraBackground()
             .environment(\.zoomNamespace, cardZoom)
+            .environment(\.navigateToEphemeralArticle, ephemeralAppender)
             .navigationTitle(searchText.isEmpty
                 ? String(localized: "Discover.Title", table: "Feeds")
                 : String(localized: "Results.Title", table: "Search"))
@@ -41,11 +42,22 @@ struct SearchView: View {
             .navigationDestination(for: Article.self) { article in
                 ArticleDestinationView(article: article)
                     .environment(\.zoomNamespace, cardZoom)
+                    .environment(\.navigateToEphemeralArticle, ephemeralAppender)
                     .zoomTransition(sourceID: article.id, in: cardZoom)
+            }
+            .navigationDestination(for: EphemeralArticleDestination.self) { destination in
+                ArticleDestinationView(
+                    article: destination.article,
+                    overrideMode: destination.mode,
+                    overrideTextMode: destination.textMode
+                )
+                .environment(\.zoomNamespace, cardZoom)
+                .environment(\.navigateToEphemeralArticle, ephemeralAppender)
             }
             .navigationDestination(for: EntityDestination.self) { destination in
                 EntityArticlesView(destination: destination)
                     .environment(\.zoomNamespace, cardZoom)
+                    .environment(\.navigateToEphemeralArticle, ephemeralAppender)
             }
             .toolbar {
                 if !searchText.isEmpty {
@@ -82,6 +94,10 @@ struct SearchView: View {
                 }
             }
         }
+    }
+
+    private var ephemeralAppender: (EphemeralArticleDestination) -> Void {
+        { destination in path.append(destination) }
     }
 
     @ViewBuilder

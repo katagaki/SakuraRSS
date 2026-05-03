@@ -3,16 +3,10 @@ import SwiftUI
 struct VideoStyleView: View {
 
     @Environment(FeedManager.self) var feedManager
-    @Environment(\.openURL) var openURL
-    @Environment(\.iPadArticleSelection) private var iPadArticleSelection
     @Environment(\.zoomNamespace) private var zoomNamespace
-    @AppStorage("YouTube.OpenMode") private var youTubeOpenMode: YouTubeOpenMode = .inAppPlayer
     let articles: [Article]
     var onLoadMore: (() -> Void)?
     var headerView: AnyView?
-
-    @State private var showSafari = false
-    @State private var safariURL: URL?
 
     var body: some View {
         ScrollView(.vertical) {
@@ -21,23 +15,11 @@ struct VideoStyleView: View {
                     headerView
                 }
                 ForEach(articles) { article in
-                    Button {
-                        feedManager.markRead(article)
-                        if iPadArticleSelection != nil {
-                            iPadArticleSelection?.wrappedValue = article
-                        } else if article.isYouTubeURL && youTubeOpenMode == .inAppPlayer {
-                            MediaPresenter.shared.presentYouTube(article)
-                        } else if article.isYouTubeURL && youTubeOpenMode == .browser {
-                            safariURL = URL(string: article.url)
-                            showSafari = true
-                        } else {
-                            YouTubeHelper.openInApp(url: article.url)
-                        }
-                    } label: {
+                    ArticleLink(article: article, label: {
                         VideoArticleCard(article: article)
                             .zoomSource(id: article.id, namespace: zoomNamespace)
                             .markReadOnScroll(article: article)
-                    }
+                    })
                     .buttonStyle(.plain)
                     .contentShape(.rect)
                     .contextMenu {
@@ -87,11 +69,5 @@ struct VideoStyleView: View {
             .padding(.bottom)
         }
         .trackScrollActivity()
-        .sheet(isPresented: $showSafari) {
-            if let safariURL {
-                SafariView(url: safariURL)
-                    .ignoresSafeArea()
-            }
-        }
     }
 }

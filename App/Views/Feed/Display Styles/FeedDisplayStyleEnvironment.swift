@@ -26,6 +26,23 @@ extension EnvironmentValues {
     }
 }
 
+// MARK: - Ephemeral Article Navigation Environment
+
+private struct EphemeralArticleNavigationActionKey: EnvironmentKey {
+    static let defaultValue: ((EphemeralArticleDestination) -> Void)? = nil
+}
+
+extension EnvironmentValues {
+    /// Pushes an ephemeral article onto the host's navigation path. Provided by
+    /// hosts whose `NavigationStack` is wired to handle `EphemeralArticleDestination`,
+    /// so in-article link taps land in the same path as other pushes (and
+    /// subsequent navigations stack on top correctly).
+    var navigateToEphemeralArticle: ((EphemeralArticleDestination) -> Void)? {
+        get { self[EphemeralArticleNavigationActionKey.self] }
+        set { self[EphemeralArticleNavigationActionKey.self] = newValue }
+    }
+}
+
 // MARK: - Feed Item Matched Geometry Namespace
 
 private struct FeedItemNamespaceKey: EnvironmentKey {

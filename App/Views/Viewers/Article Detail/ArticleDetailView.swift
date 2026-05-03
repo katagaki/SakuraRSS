@@ -6,6 +6,7 @@ struct ArticleDetailView: View {
 
     @Environment(FeedManager.self) var feedManager
     @Environment(\.openURL) var openURL
+    @Environment(\.navigateToEphemeralArticle) var navigateToEphemeralArticle
     let article: Article
     /// When non-nil, forces a specific text-extraction mode for ephemeral
     /// articles (those opened via `sakura://open`).
@@ -110,6 +111,54 @@ struct ArticleDetailView: View {
         return extractedText ?? article.summary
     }
 
+    /// Domain host extracted from the article URL, used as a fallback
+    /// metadata label when the article is ephemeral (e.g. opened via an
+    /// in-article link tap) and no feed/author info is available.
+    var ephemeralDomainName: String? {
+        guard let host = URL(string: article.url)?.host else { return nil }
+        return host.hasPrefix("www.") ? String(host.dropFirst(4)) : host
+    }
+
+    /// Domain + author + relative-time row for ephemeral articles opened
+    /// from in-article links. Shows the link's domain name in place of the
+    /// missing feed/author info.
+    @ViewBuilder
+    var ephemeralLinkMetadataRow: some View {
+        let domain = ephemeralDomainName
+        let author = article.author ?? extractedAuthor
+        let date = article.publishedDate ?? extractedPublishedDate
+        if domain != nil || author != nil || date != nil {
+            HStack(spacing: 12) {
+                if let domain {
+                    Text(domain)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
+                }
+                if domain != nil, author != nil {
+                    Text("·")
+                        .foregroundStyle(.tertiary)
+                }
+                if let author {
+                    Text(author)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
+                }
+                if (domain != nil || author != nil), date != nil {
+                    Text("·")
+                        .foregroundStyle(.tertiary)
+                }
+                if let date {
+                    RelativeTimeText(date: date)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+            }
+            .lineLimit(1)
+        }
+    }
+
     /// Author + relative-time row for ephemeral X posts (share-extension
      /// opens). Mirrors the non-ephemeral row but skips the feed icon/title
      /// since there's no feed lookup, and avoids leading separators.
@@ -152,8 +201,11 @@ struct ArticleDetailView: View {
         if article.isInstagramPostURL {
             return String(localized: "Article.InstagramPost.Title", table: "Articles")
         }
-        if article.isEphemeral, let extractedPageTitle {
-            return extractedPageTitle
+        if article.isEphemeral {
+            if let extractedPageTitle {
+                return extractedPageTitle
+            }
+            return String(localized: "Article.LoadingContent", table: "Articles")
         }
         return article.title
     }
@@ -210,6 +262,8 @@ struct ArticleDetailView: View {
                     .lineLimit(1)
                 } else if article.isXPostURL {
                     ephemeralXMetadataRow
+                } else {
+                    ephemeralLinkMetadataRow
                 }
 
             }
@@ -274,6 +328,7 @@ struct ArticleDetailView: View {
             }
         }
         .sakuraBackground()
+        .navigationTitle(displayTitle)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             articleToolbar

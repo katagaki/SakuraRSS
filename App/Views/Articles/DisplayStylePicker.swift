@@ -21,6 +21,8 @@ struct DisplayStylePicker: View {
                         .tag(FeedDisplayStyle.timeline)
                 }
             }
+            .pickerStyle(.inline)
+            .labelsVisibility(.visible)
             Picker(String(localized: "StyleSection.MediaFocused", table: "Articles"), selection: $displayStyle) {
                 Label(String(localized: "Style.Feed", table: "Articles"), systemImage: "text.rectangle.page")
                     .tag(FeedDisplayStyle.feed)
@@ -37,6 +39,8 @@ struct DisplayStylePicker: View {
                         .tag(FeedDisplayStyle.podcast)
                 }
             }
+            .pickerStyle(.inline)
+            .labelsVisibility(.visible)
             Picker(String(localized: "StyleSection.Grids", table: "Articles"), selection: $displayStyle) {
                 if hasImages {
                     Label(String(localized: "Style.Magazine", table: "Articles"), systemImage: "rectangle.grid.2x2")
@@ -51,6 +55,8 @@ struct DisplayStylePicker: View {
                         .tag(FeedDisplayStyle.grid)
                 }
             }
+            .pickerStyle(.inline)
+            .labelsVisibility(.visible)
             Picker(String(localized: "StyleSection.Immersive", table: "Articles"), selection: $displayStyle) {
                 if hasImages && showCards {
                     Label(String(localized: "Style.Cards", table: "Articles"), systemImage: "square.stack.3d.up")
@@ -61,8 +67,9 @@ struct DisplayStylePicker: View {
                         .tag(FeedDisplayStyle.scroll)
                 }
             }
+            .pickerStyle(.inline)
+            .labelsVisibility(.visible)
         }
-        .pickerStyle(.inline)
         .menuActionDismissBehavior(.disabled)
     }
 }

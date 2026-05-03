@@ -5,9 +5,13 @@ extension ArticleDetailView {
 
     @ToolbarContentBuilder
     var articleToolbar: some ToolbarContent {
-        if !previewMode, let activityLabel = toolbarActivityLabel {
+        if !previewMode {
             ToolbarItem(placement: .principal) {
-                ToolbarActivityIndicator(label: activityLabel)
+                if let activityLabel = toolbarActivityLabel {
+                    ToolbarActivityIndicator(label: activityLabel)
+                } else {
+                    Spacer()
+                }
             }
         }
         if !previewMode {

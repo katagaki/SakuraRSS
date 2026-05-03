@@ -10,11 +10,18 @@ struct TodayTabBar: View {
         tabFrames[selection.rawValue] ?? .zero
     }
 
-    private var indicatorColor: Color {
+    private var indicatorStyle: AnyShapeStyle {
         switch selection {
-        case .section(let section): section.tabAccentColor
-        case .list: .accentColor
-        case .topic: .accentColor
+        case .section(let section): section.tabAccentStyle
+        case .list: AnyShapeStyle(Color.accentColor)
+        case .topic: AnyShapeStyle(Color.accentColor)
+        }
+    }
+
+    private func selectedTextColor(for tab: TodayTabItem) -> Color {
+        switch tab.selection {
+        case .section(let section): section.tabSelectedTextColor
+        case .list, .topic: .white
         }
     }
 
@@ -25,7 +32,8 @@ struct TodayTabBar: View {
                     ForEach(tabs) { tab in
                         TodayTabButton(
                             tab: tab,
-                            isSelected: tab.matches(selection)
+                            isSelected: tab.matches(selection),
+                            selectedTextColor: selectedTextColor(for: tab)
                         ) {
                             selection = tab.selection
                             withAnimation(.smooth.speed(2.0)) {
@@ -47,7 +55,7 @@ struct TodayTabBar: View {
                 .coordinateSpace(name: Self.coordinateSpaceID)
                 .background(alignment: .topLeading) {
                     Capsule()
-                        .fill(indicatorColor)
+                        .fill(indicatorStyle)
                         .frame(
                             width: indicatorFrame.width,
                             height: indicatorFrame.height
@@ -58,7 +66,7 @@ struct TodayTabBar: View {
                         )
                         .opacity(indicatorFrame.width > 0 ? 1 : 0)
                         .animation(.smooth.speed(2.0), value: indicatorFrame)
-                        .animation(.smooth.speed(2.0), value: indicatorColor)
+                        .animation(.smooth.speed(2.0), value: selection)
                 }
                 .onPreferenceChange(TodayTabFrameKey.self) { newFrames in
                     tabFrames.merge(newFrames, uniquingKeysWith: { _, new in new })
@@ -87,13 +95,14 @@ private struct TodayTabButton: View {
 
     let tab: TodayTabItem
     let isSelected: Bool
+    let selectedTextColor: Color
     let action: () -> Void
 
     var body: some View {
         Button(action: action) {
             Text(tab.title)
                 .font(.body.weight(isSelected ? .semibold : .regular))
-                .foregroundStyle(isSelected ? Color.white : Color.primary)
+                .foregroundStyle(isSelected ? selectedTextColor : Color.primary)
                 .lineLimit(1)
                 .padding(.horizontal, 14)
                 .padding(.vertical, 8)

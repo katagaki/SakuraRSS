@@ -197,7 +197,14 @@ extension ArticleDetailView: ArticleActions {
         case .browser:
             openURL(url)
         case .inAppViewer:
-            inAppLinkURL = url
+            if let navigateToEphemeralArticle {
+                let ephemeral = Article.ephemeral(url: url.absoluteString, title: url.absoluteString)
+                navigateToEphemeralArticle(EphemeralArticleDestination(
+                    article: ephemeral, mode: .viewer, textMode: .auto
+                ))
+            } else {
+                inAppLinkURL = url
+            }
         }
     }
 

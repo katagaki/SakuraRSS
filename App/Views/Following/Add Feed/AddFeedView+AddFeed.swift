@@ -16,7 +16,7 @@ extension AddFeedView {
             Task {
                 let hasSession = XProfileFetcher.hasSession()
                 if hasSession {
-                    addFeedDirectly(discovered)
+                    await addFeedDirectly(discovered)
                 } else {
                     showXLogin = true
                 }
@@ -29,19 +29,23 @@ extension AddFeedView {
             Task {
                 let hasSession = InstagramProfileFetcher.hasSession()
                 if hasSession {
-                    addFeedDirectly(discovered)
+                    await addFeedDirectly(discovered)
                 } else {
                     showInstagramLogin = true
                 }
             }
             return
         }
-        addFeedDirectly(discovered)
+        Task { await addFeedDirectly(discovered) }
     }
 
-    func addFeedDirectly(_ discovered: DiscoveredFeed) {
+    func addFeedDirectly(_ discovered: DiscoveredFeed) async {
+        guard !addingURLs.contains(discovered.url),
+              !addedURLs.contains(discovered.url) else { return }
+        addingURLs.insert(discovered.url)
+        defer { addingURLs.remove(discovered.url) }
         do {
-            try feedManager.addFeed(
+            _ = try await feedManager.addFeedFetchingMetadata(
                 url: discovered.url,
                 title: discovered.title,
                 siteURL: discovered.siteURL
@@ -56,7 +60,7 @@ extension AddFeedView {
         Task {
             let hasSession = XProfileFetcher.hasSession()
             if hasSession {
-                addFeedDirectly(discovered)
+                await addFeedDirectly(discovered)
             }
             pendingXFeed = nil
         }
@@ -66,7 +70,7 @@ extension AddFeedView {
         Task {
             let hasSession = InstagramProfileFetcher.hasSession()
             if hasSession {
-                addFeedDirectly(discovered)
+                await addFeedDirectly(discovered)
             }
             pendingInstagramFeed = nil
         }
