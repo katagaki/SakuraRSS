@@ -19,6 +19,8 @@ struct TodayView: View {
     @State private var allPeople: [(name: String, count: Int)] = []
     @State private var bookmarkedArticles: [Article] = []
     @State private var recentArticles: [Article] = []
+    @State private var unreadPodcastEpisodes: [Article] = []
+    @State private var unreadVideoEpisodes: [Article] = []
     @State private var refreshID: Int = 0
 
     var body: some View {
@@ -74,6 +76,8 @@ struct TodayView: View {
     // MARK: - Sections
 
     private enum ContentSection: Hashable {
+        case listenNow
+        case watchNow
         case topThree
         case topicsAndPeople
         case bookmarks
@@ -86,6 +90,12 @@ struct TodayView: View {
 
     private var contentSections: [ContentSection] {
         var sections: [ContentSection] = []
+        if !unreadPodcastEpisodes.isEmpty {
+            sections.append(.listenNow)
+        }
+        if !unreadVideoEpisodes.isEmpty {
+            sections.append(.watchNow)
+        }
         if contentInsightsEnabled, entitySections.prefix(3).contains(where: { !$0.articles.isEmpty }) {
             sections.append(.topThree)
         }
@@ -109,11 +119,33 @@ struct TodayView: View {
     @ViewBuilder
     private func sectionView(_ section: ContentSection) -> some View {
         switch section {
+        case .listenNow: listenNowSection
+        case .watchNow: watchNowSection
         case .topThree: topThreeTopicsSection
         case .topicsAndPeople: topicsAndPeopleSection
         case .bookmarks: bookmarksSection
         case .recentlyViewed: recentlyViewedSection
         }
+    }
+
+    @ViewBuilder
+    private var listenNowSection: some View {
+        TodayCardCarousel(
+            title: String(localized: "Today.ListenNow", table: "Home"),
+            destination: nil,
+            articles: unreadPodcastEpisodes
+        ) { article in
+            TodayPodcastCard(article: article)
+        }
+    }
+
+    @ViewBuilder
+    private var watchNowSection: some View {
+        TodayCardCarousel(
+            title: String(localized: "Today.WatchNow", table: "Home"),
+            destination: nil,
+            articles: unreadVideoEpisodes
+        )
     }
 
     @ViewBuilder
@@ -169,7 +201,7 @@ struct TodayView: View {
     private var attributionFooter: some View {
         let prefix = String(localized: "Today.WeatherAttribution.Prefix", table: "Home")
         let linkLabel = String(localized: "Today.WeatherAttribution.Link", table: "Home")
-        VStack {
+        VStack(spacing: 16) {
             Divider()
             // swiftlint:disable:next line_length
             Text(LocalizedStringKey("\(prefix) [\(linkLabel)](https://developer.apple.com/weatherkit/data-source-attribution/)"))
@@ -178,7 +210,6 @@ struct TodayView: View {
                 .multilineTextAlignment(.center)
                 .frame(maxWidth: .infinity)
         }
-        .padding(.top, 16)
         .padding(.horizontal)
     }
 
@@ -216,10 +247,24 @@ struct TodayView: View {
     private func loadData() async {
         let database = DatabaseManager.shared
         let loadEntities = contentInsightsEnabled
+        let podcastFeedIDs = feedManager.feeds.filter { $0.isPodcast }.map { $0.id }
+        let videoFeedIDs = feedManager.feeds
+            .filter { $0.isYouTubeFeed || $0.isVimeoFeed }
+            .map { $0.id }
 
         await Task.detached {
             let recent = (try? database.recentlyAccessedArticles()) ?? []
             let bookmarks = (try? database.bookmarkedArticles()) ?? []
+            let podcastEpisodes = (try? database.articles(
+                forFeedIDs: podcastFeedIDs,
+                limit: 20,
+                requireUnread: true
+            )) ?? []
+            let videoEpisodes = (try? database.articles(
+                forFeedIDs: videoFeedIDs,
+                limit: 20,
+                requireUnread: true
+            )) ?? []
 
             var sections: [DiscoverEntitySection] = []
             var topics: [(name: String, count: Int)] = []
@@ -263,6 +308,8 @@ struct TodayView: View {
             await MainActor.run {
                 recentArticles = recent
                 bookmarkedArticles = bookmarks
+                unreadPodcastEpisodes = podcastEpisodes
+                unreadVideoEpisodes = videoEpisodes
                 entitySections = sections
                 allTopics = topics
                 allPeople = people

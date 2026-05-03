@@ -1,12 +1,14 @@
 import SwiftUI
 
 /// Horizontally scrolling card carousel matching the Insights / Discover
-/// layout, used by all Today section rows.
-struct TodayCardCarousel: View {
+/// layout, used by all Today section rows. The card builder is generic so
+/// the same layout can host 16:9 article cards or square podcast cards.
+struct TodayCardCarousel<Card: View>: View {
 
     let title: String
     let destination: EntityDestination?
     let articles: [Article]
+    @ViewBuilder let card: (Article) -> Card
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
@@ -16,7 +18,7 @@ struct TodayCardCarousel: View {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(alignment: .top, spacing: 12) {
                     ForEach(articles) { article in
-                        DiscoverArticleCard(article: article)
+                        card(article)
                     }
                 }
                 .padding(.horizontal)
@@ -45,6 +47,14 @@ struct TodayCardCarousel: View {
                 .font(.title3)
                 .fontWeight(.bold)
                 .foregroundStyle(.primary)
+        }
+    }
+}
+
+extension TodayCardCarousel where Card == DiscoverArticleCard {
+    init(title: String, destination: EntityDestination?, articles: [Article]) {
+        self.init(title: title, destination: destination, articles: articles) { article in
+            DiscoverArticleCard(article: article)
         }
     }
 }
