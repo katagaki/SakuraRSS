@@ -20,8 +20,13 @@ struct YouTubePlayerControls: View {
                 Image(systemName: "pip.enter")
                     .font(.system(size: 22))
             }
+            #if os(visionOS)
+            .disabled(true)
+            .opacity(0)
+            #else
             .disabled(isAd)
             .opacity(isAd ? 0.5 : 1.0)
+            #endif
 
             Spacer(minLength: 0)
 
@@ -69,5 +74,8 @@ struct YouTubePlayerControls: View {
             .opacity(isAd ? 0.5 : 1.0)
         }
         .foregroundStyle(.primary)
+        #if os(visionOS)
+        .buttonStyle(.plain)
+        #endif
     }
 }

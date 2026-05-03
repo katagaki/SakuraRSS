@@ -120,6 +120,9 @@ struct MoreView: View {
             .sakuraBackground()
             .navigationTitle("Tabs.Profile")
             .toolbarTitleDisplayMode(UIDevice.current.userInterfaceIdiom == .pad ? .inline : .inlineLarge)
+            #if targetEnvironment(macCatalyst)
+            .toolbar(.hidden, for: .navigationBar)
+            #endif
             .toolbar {
                 if showsCloseButton {
                     ToolbarItem(placement: .topBarTrailing) {
@@ -149,16 +152,19 @@ struct MoreView: View {
             }
             .sheet(isPresented: $isShowingNewList) {
                 ListEditSheet(list: nil)
+                    .environment(feedManager)
                     .presentationDetents([.large])
                     .interactiveDismissDisabled()
             }
             .sheet(item: $listToEdit) { list in
                 ListEditSheet(list: list)
+                    .environment(feedManager)
                     .presentationDetents([.large])
                     .interactiveDismissDisabled()
             }
             .sheet(item: $listForRules) { list in
                 ListRulesSheet(list: list)
+                    .environment(feedManager)
                     .presentationDetents([.large])
                     .interactiveDismissDisabled()
             }

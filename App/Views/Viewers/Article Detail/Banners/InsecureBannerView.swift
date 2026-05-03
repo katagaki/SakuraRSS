@@ -24,9 +24,10 @@ struct InsecureBannerView: View {
             .frame(alignment: .leading)
         }
         .buttonStyle(.plain)
-        .glassEffect(
-            .regular.tint(.red.opacity(colorScheme == .dark ? 0.35 : 0.85)).interactive(),
-            in: .capsule
+        .compatibleGlassEffect(
+            in: .capsule,
+            tint: .red.opacity(colorScheme == .dark ? 0.35 : 0.85),
+            interactive: true
         )
         .foregroundStyle(.white)
     }

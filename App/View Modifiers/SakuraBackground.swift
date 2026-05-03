@@ -20,6 +20,7 @@ extension EnvironmentValues {
     }
 }
 
+#if !os(visionOS) && !targetEnvironment(macCatalyst)
 struct SakuraBackground: ViewModifier {
 
     @AppStorage("Display.SakuraBackground") private var sakuraBackgroundEnabled: Bool = true
@@ -54,9 +55,15 @@ struct SakuraBackground: ViewModifier {
             }
     }
 }
+#endif
 
 extension View {
+    @ViewBuilder
     func sakuraBackground() -> some View {
+        #if os(visionOS) || targetEnvironment(macCatalyst)
+        self
+        #else
         modifier(SakuraBackground())
+        #endif
     }
 }

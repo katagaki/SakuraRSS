@@ -142,7 +142,7 @@ struct PhotosArticleCard: View {
                                     .foregroundStyle(.primary)
                                     .padding(16)
                                     .background(.ultraThinMaterial, in: .circle)
-                                    .glassEffect(.regular.interactive(), in: .circle)
+                                    .compatibleGlassEffect(in: .circle, interactive: true)
                             })
                             .buttonStyle(.plain)
                         }
@@ -175,7 +175,7 @@ struct PhotosArticleCard: View {
             HStack(spacing: 16) {
                 Button {
                     log("PhotosCard", "Copy tapped for article \(article.id), photoImage=\(photoImage != nil)")
-                    UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                    Haptics.impact(.light)
                     if let photoImage {
                         UIPasteboard.general.image = photoImage
                     }
@@ -195,7 +195,7 @@ struct PhotosArticleCard: View {
 
                 Button {
                     log("PhotosCard", "Bookmark tapped for article \(article.id)")
-                    UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                    Haptics.impact(.light)
                     feedManager.toggleBookmark(article)
                 } label: {
                     Label(

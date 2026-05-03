@@ -24,9 +24,10 @@ struct PaywallBannerView: View {
             .frame(alignment: .leading)
         }
         .buttonStyle(.plain)
-        .glassEffect(
-            .regular.tint(.orange.opacity(colorScheme == .dark ? 0.35 : 0.85)).interactive(),
-            in: .capsule
+        .compatibleGlassEffect(
+            in: .capsule,
+            tint: .orange.opacity(colorScheme == .dark ? 0.35 : 0.85),
+            interactive: true
         )
         .foregroundStyle(.white)
     }

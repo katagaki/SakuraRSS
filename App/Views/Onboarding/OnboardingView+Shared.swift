@@ -52,7 +52,7 @@ extension OnboardingView {
                 .padding(.vertical, 8)
                 .frame(maxWidth: .infinity)
         }
-        .buttonStyle(.glassProminent)
+        .compatibleGlassProminentButtonStyle()
         .buttonBorderShape(.capsule)
         .padding(.horizontal, 20)
         .padding(.vertical, 8)

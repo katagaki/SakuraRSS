@@ -5,6 +5,9 @@ struct MainTabView: View {
 
     @Environment(FeedManager.self) var feedManager
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+    #if os(visionOS)
+    @Environment(\.openWindow) private var openWindow
+    #endif
     @AppStorage("App.SelectedTab") private var selectedTab: AppTab = .home
     @AppStorage("Onboarding.Completed") private var onboardingCompleted: Bool = false
     @AppStorage("Display.UnreadBadgeMode") private var unreadBadgeMode: UnreadBadgeMode = .none
@@ -18,15 +21,29 @@ struct MainTabView: View {
     private let mediaPresenter = MediaPresenter.shared
 
     var body: some View {
-        if UIDevice.current.userInterfaceIdiom == .pad {
-            IPadSidebarView(
-                pendingFeedURL: $pendingFeedURL,
-                pendingArticleID: $pendingArticleID,
-                pendingOpenRequest: $pendingOpenRequest
-            )
-        } else {
-            iPhoneTabView
+        Group {
+            if UIDevice.current.userInterfaceIdiom == .pad {
+                IPadSidebarView(
+                    pendingFeedURL: $pendingFeedURL,
+                    pendingArticleID: $pendingArticleID,
+                    pendingOpenRequest: $pendingOpenRequest
+                )
+            } else {
+                iPhoneTabView
+            }
         }
+        #if os(visionOS)
+        .onAppear {
+            mediaPresenter.detachedHandler = { item in
+                switch item {
+                case .youTube(let article):
+                    openWindow(id: "YouTubePlayerWindow", value: article.id)
+                case .podcast(let article):
+                    openWindow(id: "PodcastPlayerWindow", value: article.id)
+                }
+            }
+        }
+        #endif
     }
 
     private var tabView: some View {
@@ -56,7 +73,9 @@ struct MainTabView: View {
                 SearchView()
             }
         }
+        #if !os(visionOS)
         .tabBarMinimizeBehavior(.onScrollDown)
+        #endif
     }
 
     private var iPhoneTabView: some View {
@@ -68,6 +87,7 @@ struct MainTabView: View {
             )
             .sheet(isPresented: $showingAddFeed) {
                 AddFeedView(initialURL: pendingFeedURL ?? "")
+                    .environment(feedManager)
                     .onDisappear {
                         pendingFeedURL = nil
                     }
@@ -78,6 +98,7 @@ struct MainTabView: View {
                     ViewStyleSwitcherTip.hasCompletedOnboarding = true
                     showingOnboarding = false
                 }
+                .environment(feedManager)
             }
             .onChange(of: pendingFeedURL) {
                 if pendingFeedURL != nil {

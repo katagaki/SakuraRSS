@@ -1,7 +1,9 @@
 import SwiftUI
 import WebKit
 import FoundationModels
+#if !os(visionOS)
 @preconcurrency import Translation
+#endif
 
 struct YouTubePlayerView: View {
 
@@ -43,7 +45,9 @@ struct YouTubePlayerView: View {
     @State var translatedText: String?
     @State var translatedSummary: String?
     @State var isTranslating = false
+    #if !os(visionOS)
     @State var translationConfig: TranslationSession.Configuration?
+    #endif
     @State var showingTranslation = false
     @State var hasCachedTranslation = false
     @State var summarizedText: String?
@@ -217,6 +221,7 @@ struct YouTubePlayerView: View {
         .sakuraBackground()
         .navigationBarTitleDisplayMode(.inline)
         .toolbar { playerToolbar }
+        #if !os(visionOS)
         .onReceive(
             NotificationCenter.default.publisher(for: UIDevice.orientationDidChangeNotification)
         ) { _ in
@@ -225,6 +230,7 @@ struct YouTubePlayerView: View {
                 enterFullscreen()
             }
         }
+        #endif
         .onChange(of: isPlaying) { _, newValue in
             session.isPlaying = newValue
             if newValue && !hasStartedPlaying {
@@ -330,9 +336,11 @@ struct YouTubePlayerView: View {
                 Text(summarizationError)
             }
         }
+        #if !os(visionOS)
         .translationTask(translationConfig) { session in
             await handleTranslation(session: session)
         }
+        #endif
         .navigationDestination(item: $imageViewerURL) { url in
             ImageViewerView(url: url)
                 .navigationTransition(.zoom(sourceID: url, in: imageViewerNamespace))

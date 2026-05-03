@@ -200,7 +200,7 @@ final class iCloudBackupManager: @unchecked Sendable {
         let feedCount = try database.totalFeedCount()
         let articleCount = try database.database.scalar(database.articles.count)
         let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? ""
-        #if os(iOS)
+        #if canImport(UIKit)
         let deviceName = UIDevice.current.name
         #else
         let deviceName = Host.current().localizedName ?? "Mac"

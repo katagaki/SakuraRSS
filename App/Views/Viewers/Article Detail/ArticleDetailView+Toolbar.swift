@@ -1,5 +1,7 @@
 import SwiftUI
+#if !os(visionOS)
 @preconcurrency import Translation
+#endif
 
 extension ArticleDetailView {
 

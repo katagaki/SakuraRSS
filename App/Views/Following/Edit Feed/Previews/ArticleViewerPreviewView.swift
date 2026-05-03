@@ -34,7 +34,9 @@ struct ArticleViewerPreviewView: View {
                 }
                 .disabled(currentIndex <= 0)
             }
+            #if !os(visionOS)
             ToolbarSpacer(.fixed, placement: .topBarTrailing)
+            #endif
             ToolbarItem(placement: .topBarTrailing) {
                 Button {
                     if currentIndex < sample.count - 1 { currentIndex += 1 }

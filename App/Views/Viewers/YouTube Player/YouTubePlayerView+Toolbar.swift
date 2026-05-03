@@ -24,7 +24,9 @@ extension YouTubePlayerView {
                 ChapterMenu(chapters: chapters, onSelect: seek(to:))
                     .equatable()
             }
+            #if !os(visionOS)
             ToolbarSpacer(.fixed, placement: .topBarTrailing)
+            #endif
         }
         ToolbarItemGroup(placement: .topBarTrailing) {
             if !article.isEphemeral {

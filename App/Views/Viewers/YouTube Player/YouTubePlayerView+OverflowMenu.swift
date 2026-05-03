@@ -6,6 +6,7 @@ extension YouTubePlayerView {
     var overflowMenu: some View {
         Menu {
             if hasDescription {
+                #if !os(visionOS)
                 if !showingTranslation {
                     Button {
                         handleToolbarTranslateTap()
@@ -14,6 +15,7 @@ extension YouTubePlayerView {
                     }
                     .disabled(isTranslating)
                 }
+                #endif
 
                 if isAppleIntelligenceAvailable, !showingSummary {
                     Button {
@@ -150,7 +152,9 @@ extension YouTubePlayerView {
                 showingTranslation.toggle()
             }
         } else if !isTranslating {
+            #if !os(visionOS)
             triggerTranslation()
+            #endif
         }
     }
 

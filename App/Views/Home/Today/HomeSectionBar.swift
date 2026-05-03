@@ -78,7 +78,11 @@ struct HomeSectionBar: View {
                 }
             }
             .clipShape(.capsule)
-            .glassEffect(.regular.interactive(), in: .capsule)
+            #if os(visionOS)
+            .background(.regularMaterial, in: .capsule)
+            #else
+            .compatibleGlassEffect(in: .capsule, interactive: true)
+            #endif
             .onAppear {
                 guard let selected = tabs.first(where: { $0.matches(selection) }) else { return }
                 proxy.scrollTo(selected.id, anchor: .center)

@@ -135,7 +135,9 @@ struct ArticlesView: View {
         }
         .sakuraBackground()
         .navigationTitle(title)
+        #if !os(visionOS)
         .navigationSubtitle(subtitle ?? "")
+        #endif
         .toolbarTitleDisplayMode(titleDisplayMode)
         .toolbar {
             if !hidesMarkAllReadToolbar, markAllReadPosition == .top, let onMarkAllRead {
@@ -166,12 +168,23 @@ struct ArticlesView: View {
                 }
             }
             if let additionalLeadingToolbar {
+                #if !os(visionOS)
                 ToolbarSpacer(.fixed, placement: .topBarLeading)
+                #endif
                 ToolbarItemGroup(placement: .topBarLeading) {
                     additionalLeadingToolbar
                 }
             }
             ToolbarItemGroup(placement: .topBarTrailing) {
+                #if os(visionOS)
+                if let onRefresh {
+                    Button {
+                        Task { await onRefresh() }
+                    } label: {
+                        Image(systemName: "arrow.clockwise")
+                    }
+                }
+                #endif
                 Menu {
                     DisplayStylePicker(
                         displayStyle: $displayStyle,

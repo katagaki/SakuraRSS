@@ -21,9 +21,13 @@ struct FeedArticleRow: View {
             return 200
         }
         guard let imageAspectRatio else { return 180 }
+        #if os(visionOS)
+        let estimatedWidth: CGFloat = 375 - 86
+        #else
         let estimatedWidth = (UIApplication.shared.connectedScenes
             .compactMap { $0 as? UIWindowScene }
             .first?.screen.bounds.width ?? 375) - 86
+        #endif
         let naturalHeight = estimatedWidth * imageAspectRatio
         return min(max(naturalHeight, 180), 420)
     }
@@ -140,7 +144,7 @@ struct FeedArticleRow: View {
                                     .foregroundStyle(.primary)
                                     .padding(16)
                                     .background(.ultraThinMaterial, in: .circle)
-                                    .glassEffect(.regular.interactive(), in: .circle)
+                                    .compatibleGlassEffect(in: .circle, interactive: true)
                             }
                         }
                         .padding(.top, 4)
@@ -171,7 +175,7 @@ struct FeedArticleRow: View {
                     Spacer()
 
                     Button {
-                        UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                        Haptics.impact(.light)
                         UIPasteboard.general.string = article.url
                     } label: {
                         Image(systemName: "square.on.square")
@@ -181,7 +185,7 @@ struct FeedArticleRow: View {
                     Spacer()
 
                     Button {
-                        UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                        Haptics.impact(.light)
                         feedManager.toggleRead(article)
                     } label: {
                         Image(
@@ -194,7 +198,7 @@ struct FeedArticleRow: View {
                     Spacer()
 
                     Button {
-                        UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                        Haptics.impact(.light)
                         feedManager.toggleBookmark(article)
                     } label: {
                         Image(systemName: article.isBookmarked ? "bookmark.fill" : "bookmark")

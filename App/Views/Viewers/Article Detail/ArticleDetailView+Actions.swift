@@ -18,6 +18,7 @@ extension ArticleDetailView: ArticleActions {
     var articleOverflowMenu: some View {
         Menu {
             if !isExtracting && displayText != nil {
+                #if !os(visionOS)
                 if !showingTranslation {
                     Button {
                         handleToolbarTranslateTap()
@@ -26,6 +27,7 @@ extension ArticleDetailView: ArticleActions {
                     }
                     .disabled(isTranslating)
                 }
+                #endif
 
                 if isAppleIntelligenceAvailable, !showingSummary {
                     Button {
@@ -180,7 +182,9 @@ extension ArticleDetailView: ArticleActions {
     }
 
     func performTranslate() {
+        #if !os(visionOS)
         triggerTranslation()
+        #endif
     }
 
     func performSummarize() async {

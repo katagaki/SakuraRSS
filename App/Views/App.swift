@@ -85,6 +85,38 @@ struct SakuraRSSApp: App {
                     }
                 }
         }
+        #if os(visionOS)
+        .defaultSize(width: 600, height: 900)
+        #endif
+        #if targetEnvironment(macCatalyst)
+        .commands {
+            CommandGroup(replacing: .appSettings) {
+                OpenProfileSettingsButton()
+            }
+        }
+        #endif
+
+        #if os(visionOS)
+        WindowGroup(id: "YouTubePlayerWindow", for: Int64.self) { $articleID in
+            DetachedYouTubePlayerWindow(articleID: articleID)
+                .environment(feedManager)
+        }
+        .defaultSize(width: 900, height: 600)
+        WindowGroup(id: "PodcastPlayerWindow", for: Int64.self) { $articleID in
+            DetachedPodcastPlayerWindow(articleID: articleID)
+                .environment(feedManager)
+        }
+        .defaultSize(width: 600, height: 900)
+        #endif
+
+        #if targetEnvironment(macCatalyst)
+        WindowGroup(id: "ProfileWindow") {
+            MoreView(showsCloseButton: false)
+                .environment(feedManager)
+        }
+        .defaultSize(width: 700, height: 700)
+        .commandsRemoved()
+        #endif
     }
 
     init() {

@@ -79,6 +79,7 @@ struct PetalSettingsView: View {
         }
         .sheet(item: $selectedRecipe) { selection in
             PetalBuilderView(mode: .edit(feed: selection.feed, recipe: selection.recipe))
+                .environment(feedManager)
         }
         .sheet(item: $shareItem) { item in
             ShareSheet(items: [item.url])

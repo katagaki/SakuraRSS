@@ -69,6 +69,17 @@ struct TodayView: View {
         .refreshable {
             startRefreshWithoutBlocking()
         }
+        #if os(visionOS)
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    startRefreshWithoutBlocking()
+                } label: {
+                    Image(systemName: "arrow.clockwise")
+                }
+            }
+        }
+        #endif
         .task(id: refreshID) {
             await loadData()
         }

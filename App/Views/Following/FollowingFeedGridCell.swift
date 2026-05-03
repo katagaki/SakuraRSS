@@ -60,6 +60,13 @@ struct FollowingFeedGridCell: View {
                 }
                 .frame(width: iconSize, height: iconSize)
                 .drawingGroup()
+                .contentShape(
+                    .hoverEffect,
+                    feed.isCircleIcon
+                        ? AnyShape(Circle())
+                        : AnyShape(RoundedRectangle(cornerRadius: iconCornerRadius))
+                )
+                .hoverEffect(.highlight)
                 .zoomSource(id: feed.id, namespace: editTransitionNamespace)
                 .overlay(alignment: .topTrailing) {
                     if !isWiggling, feedManager.unreadCount(for: feed) > 0 {

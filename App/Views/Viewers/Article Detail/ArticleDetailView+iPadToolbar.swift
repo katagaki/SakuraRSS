@@ -8,13 +8,17 @@ extension ArticleDetailView {
             ToolbarItemGroup(placement: .topBarTrailing) {
                 iPadIntelligenceActions
             }
+            #if !os(visionOS)
             ToolbarSpacer(.fixed, placement: .topBarTrailing)
+            #endif
         }
         if hasIPadOpenActions {
             ToolbarItemGroup(placement: .topBarTrailing) {
                 iPadOpenActions
             }
+            #if !os(visionOS)
             ToolbarSpacer(.fixed, placement: .topBarTrailing)
+            #endif
         }
         ToolbarItemGroup(placement: .topBarTrailing) {
             iPadShareActions
@@ -31,6 +35,7 @@ extension ArticleDetailView {
 
     @ViewBuilder
     private var iPadIntelligenceActions: some View {
+        #if !os(visionOS)
         if showingTranslation {
             Button {
                 withAnimation(.smooth.speed(2.0)) {
@@ -50,6 +55,7 @@ extension ArticleDetailView {
             }
             .disabled(isTranslating)
         }
+        #endif
 
         if isAppleIntelligenceAvailable {
             if showingSummary {

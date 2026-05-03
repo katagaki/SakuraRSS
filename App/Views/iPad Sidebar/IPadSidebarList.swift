@@ -29,6 +29,9 @@ struct IPadSidebarList: View {
             profileSection
         }
         .listStyle(.sidebar)
+        #if targetEnvironment(macCatalyst)
+        .environment(\.defaultMinListRowHeight, 32.0)
+        #endif
         .searchable(text: $searchText, placement: .sidebar, prompt: Text(String(localized: "Prompt", table: "Search")))
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
@@ -45,14 +48,17 @@ struct IPadSidebarList: View {
         }
         .sheet(isPresented: $showingMore) {
             MoreView()
+                .environment(feedManager)
                 .environment(\.isSakuraBackgroundDisabled, true)
         }
         .sheet(isPresented: $showingNewList) {
             ListEditSheet(list: nil)
+                .environment(feedManager)
                 .interactiveDismissDisabled()
         }
         .sheet(item: $feedForEditSheet) { wrapper in
             EditFeedSheet(feedID: wrapper.id)
+                .environment(feedManager)
         }
     }
 
@@ -171,10 +177,12 @@ struct IPadSidebarList: View {
 
     @ViewBuilder
     private var profileSection: some View {
+        #if !targetEnvironment(macCatalyst)
         Section {
             Label("Tabs.Profile", systemImage: "person.crop.circle")
                 .tag(SidebarDestination.more)
         }
+        #endif
     }
 
     @ViewBuilder

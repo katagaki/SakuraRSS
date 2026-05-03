@@ -64,15 +64,18 @@ struct FollowingPage: View {
         .overlay { emptyStateOverlay }
         .sheet(isPresented: $isPresentingAddFeedSheet) {
             AddFeedView()
+                .environment(feedManager)
                 .presentationDetents([.large])
                 .navigationTransition(.zoom(sourceID: "addFeed", in: addFeedNamespace))
         }
         .sheet(item: $feedToEdit) { feed in
             EditFeedSheet(feedID: feed.id)
+                .environment(feedManager)
                 .navigationTransition(.zoom(sourceID: feed.id, in: feedEditNamespace))
         }
         .sheet(isPresented: $isPresentingBulkEditSheet) {
             BulkEditFeedSheet(feedIDs: selectedFeedIDs)
+                .environment(feedManager)
         }
         .alert(
             String(localized: "FeedMenu.Delete.Title", table: "Feeds"),
@@ -140,7 +143,9 @@ struct FollowingPage: View {
                 }
                 .accessibilityLabel(String(localized: "FeedList.Selection.Edit", table: "Feeds"))
             }
+            #if !os(visionOS)
             ToolbarSpacer(.fixed, placement: .topBarTrailing)
+            #endif
         }
         ToolbarItemGroup(placement: .topBarTrailing) {
             if isEditingFeeds {
@@ -164,7 +169,7 @@ struct FollowingPage: View {
                 } label: {
                     Image(systemName: "plus")
                 }
-                .buttonStyle(.glassProminent)
+                .compatibleGlassProminentButtonStyle()
                 .matchedTransitionSource(id: "addFeed", in: addFeedNamespace)
             }
         }
