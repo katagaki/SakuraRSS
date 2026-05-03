@@ -187,7 +187,7 @@ struct SummaryCard: View {
                         .contentShape(.rect)
                 }
                 .buttonStyle(.plain)
-                .padding(.trailing, -8)
+                .padding(.trailing, -16)
             }
         }
     }

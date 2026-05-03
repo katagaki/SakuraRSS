@@ -41,6 +41,14 @@ struct HomeView: View {
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
+                    if isTodaySelected, todayRefreshState.hasActiveProgress {
+                        ToolbarItemGroup(placement: .topBarLeading) {
+                            FeedRefreshProgressDonut(
+                                progress: todayRefreshState.progress,
+                                onStop: { feedManager.cancelScopedRefresh(scope: "section.all") }
+                            )
+                        }
+                    }
                     if markAllReadPosition == .top, !isTodaySelected {
                         ToolbarItemGroup(placement: .topBarLeading) {
                             Button {
@@ -264,6 +272,10 @@ struct HomeView: View {
     private var isTodaySelected: Bool {
         if case .section(.today) = selectedSelection { return true }
         return false
+    }
+
+    private var todayRefreshState: ScopedRefreshState {
+        feedManager.scopedRefreshes["section.all"] ?? ScopedRefreshState()
     }
 
     private func reloadBarConfiguration() {

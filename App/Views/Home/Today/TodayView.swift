@@ -58,8 +58,7 @@ struct TodayView: View {
         }
         .sakuraBackground()
         .refreshable {
-            await TodayWeatherService.shared.refresh(force: true)
-            await loadData()
+            startRefreshWithoutBlocking()
         }
         .task(id: refreshID) {
             await loadData()
@@ -181,6 +180,22 @@ struct TodayView: View {
         }
         .padding(.top, 16)
         .padding(.horizontal)
+    }
+
+    // MARK: - Refresh
+
+    private var scopedRefreshState: ScopedRefreshState {
+        feedManager.scopedRefreshes["section.all"] ?? ScopedRefreshState()
+    }
+
+    private func startRefreshWithoutBlocking() {
+        guard !scopedRefreshState.hasActiveProgress else { return }
+        feedManager.flushDebouncedReads()
+        let feeds = feedManager.feeds
+        Task { @MainActor in
+            await feedManager.refreshFeeds(scope: "section.all", feeds: feeds)
+            await loadData()
+        }
     }
 
     // MARK: - Data
