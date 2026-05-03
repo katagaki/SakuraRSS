@@ -7,7 +7,8 @@ nonisolated enum FeedIconAlternateDomains: DomainExceptions {
         "feeds.bbci.co.uk": "bbc.co.uk",
         "news.ycombinator.com": "hnrss.org",
         "rssfeed.azure.status.microsoft": "microsoft.com",
-        "status.azure.com": "microsoft.com"
+        "status.azure.com": "microsoft.com",
+        "githubstatus.com": "github.com"
     ]
 
     static var exceptionDomains: Set<String> { Set(mappings.keys) }

@@ -20,15 +20,21 @@ extension AddFeedView {
     }
 
     func addSuggestedFeed(_ site: SuggestedSite) {
-        do {
-            try feedManager.addFeed(
-                url: site.feedUrl,
-                title: site.title,
-                siteURL: ""
-            )
-            addedURLs.insert(site.feedUrl)
-        } catch {
-            errorMessage = error.localizedDescription
+        guard !addingURLs.contains(site.feedUrl),
+              !addedURLs.contains(site.feedUrl) else { return }
+        Task {
+            addingURLs.insert(site.feedUrl)
+            defer { addingURLs.remove(site.feedUrl) }
+            do {
+                _ = try await feedManager.addFeedFetchingMetadata(
+                    url: site.feedUrl,
+                    title: site.title,
+                    siteURL: ""
+                )
+                addedURLs.insert(site.feedUrl)
+            } catch {
+                errorMessage = error.localizedDescription
+            }
         }
     }
 }

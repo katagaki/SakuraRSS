@@ -1,27 +1,28 @@
 import Foundation
 
-/// Probes a host for Fediverse signals by issuing HEAD requests against the
-/// canonical `.well-known` paths. The probe stops at the first success, so we
-/// only pay for additional round-trips when the cheaper checks fail.
+/// Probes a host for Fediverse signals via NodeInfo discovery: GET
+/// `/.well-known/nodeinfo`, follow the freshest schema link, and confirm
+/// the document exposes a non-empty `software.name`. The two-step parse
+/// rejects catch-all 200 responses that would fool a HEAD probe.
 nonisolated enum FediverseDetector {
 
-    /// `.well-known` paths probed in order. Webfinger comes first because
-    /// every well-formed Fediverse instance must serve it.
-    private static let wellKnownPaths: [String] = [
-        "/.well-known/webfinger",
-        "/.well-known/host-meta",
-        "/.well-known/nodeinfo"
-    ]
-
-    /// In-process cache so repeated probes for the same host (multiple feeds
-    /// on one instance) don't re-issue the same HEAD requests.
     private static let cache = HostCache()
-
     private static let probeTimeout: TimeInterval = 4
 
-    /// Returns `true` if any of the probe paths responds with HTTP 200.
-    /// `nil` means the host could not be derived from `feed.siteURL` /
-    /// `feed.fetchURL`; the caller should leave the cached flag untouched.
+    /// NodeInfo schema rels in newest → oldest order, so the freshest link a
+    /// host advertises wins.
+    private static let nodeInfoRels: [String] = [
+        "http://nodeinfo.diaspora.software/ns/schema/2.1",
+        "http://nodeinfo.diaspora.software/ns/schema/2.0",
+        "http://nodeinfo.diaspora.software/ns/schema/1.1",
+        "http://nodeinfo.diaspora.software/ns/schema/1.0"
+    ]
+
+    /// Returns `true` if the host exposes a NodeInfo document with a non-empty
+    /// `software.name`, `false` if the host responded cleanly without a
+    /// Fediverse signal, or `nil` if the probe was inconclusive (host could
+    /// not be derived, transport error, 5xx, rate-limit). The caller must
+    /// leave the cached flag untouched on `nil` so the next refresh re-probes.
     static func detect(for feed: Feed) async -> Bool? {
         guard let host = probeHost(for: feed) else {
             log("FediverseDetector", "skip id=\(feed.id) reason=no-host siteURL=\(feed.siteURL) fetchURL=\(feed.fetchURL)")
@@ -32,10 +33,24 @@ nonisolated enum FediverseDetector {
             return cached
         }
         log("FediverseDetector", "probe begin id=\(feed.id) host=\(host)")
-        let result = await probe(host: host, feedID: feed.id)
-        await cache.set(result, for: host)
-        log("FediverseDetector", "probe end id=\(feed.id) host=\(host) result=\(result)")
-        return result
+        let started = Date()
+        let outcome = await nodeInfoOutcome(forHost: host, feedID: feed.id)
+        let elapsedMs = Int(Date().timeIntervalSince(started) * 1000)
+        switch outcome {
+        case .found(let software):
+            // swiftlint:disable:next line_length
+            log("FediverseDetector", "probe end id=\(feed.id) host=\(host) result=true software=\(software) elapsedMs=\(elapsedMs)")
+            await cache.set(true, for: host)
+            return true
+        case .missing:
+            log("FediverseDetector", "probe end id=\(feed.id) host=\(host) result=false elapsedMs=\(elapsedMs)")
+            await cache.set(false, for: host)
+            return false
+        case .inconclusive:
+            // swiftlint:disable:next line_length
+            log("FediverseDetector", "probe end id=\(feed.id) host=\(host) result=inconclusive elapsedMs=\(elapsedMs)")
+            return nil
+        }
     }
 
     private static func probeHost(for feed: Feed) -> String? {
@@ -45,33 +60,121 @@ nonisolated enum FediverseDetector {
         return host
     }
 
-    private static func probe(host: String, feedID: Int64) async -> Bool {
-        for path in wellKnownPaths {
-            guard let url = URL(string: "https://\(host)\(path)") else {
-                log("FediverseDetector", "probe path bad-url id=\(feedID) host=\(host) path=\(path)")
-                continue
-            }
-            let started = Date()
-            let (status, hit) = await statusCode(for: url)
-            let elapsedMs = Int(Date().timeIntervalSince(started) * 1000)
-            // swiftlint:disable:next line_length
-            log("FediverseDetector", "probe path id=\(feedID) host=\(host) path=\(path) status=\(status) elapsedMs=\(elapsedMs) hit=\(hit)")
-            if hit { return true }
+    /// Resolves the host's NodeInfo discovery + document into a tri-state
+    /// outcome. Transport errors, 5xx, and rate-limit replies stay
+    /// inconclusive so the caller can re-probe later instead of caching a
+    /// sticky `false`.
+    private static func nodeInfoOutcome(
+        forHost host: String,
+        feedID: Int64
+    ) async -> NodeInfoOutcome {
+        guard let discoveryURL = URL(string: "https://\(host)/.well-known/nodeinfo") else {
+            log("FediverseDetector", "discovery bad-url id=\(feedID) host=\(host)")
+            return .missing
         }
-        return false
+        switch await fetchJSON(NodeInfoDiscovery.self, from: discoveryURL) {
+        case .inconclusive(let reason):
+            log("FediverseDetector", "discovery inconclusive id=\(feedID) host=\(host) reason=\(reason)")
+            return .inconclusive
+        case .miss(let reason):
+            log("FediverseDetector", "discovery miss id=\(feedID) host=\(host) reason=\(reason)")
+            return .missing
+        case .decoded(let discovery):
+            guard let nodeInfoURL = pickNodeInfoURL(from: discovery.links, host: host) else {
+                log("FediverseDetector", "discovery no-rel id=\(feedID) host=\(host) links=\(discovery.links.count)")
+                return .missing
+            }
+            switch await fetchJSON(NodeInfoDocument.self, from: nodeInfoURL) {
+            case .inconclusive(let reason):
+                // swiftlint:disable:next line_length
+                log("FediverseDetector", "document inconclusive id=\(feedID) host=\(host) url=\(nodeInfoURL.absoluteString) reason=\(reason)")
+                return .inconclusive
+            case .miss(let reason):
+                // swiftlint:disable:next line_length
+                log("FediverseDetector", "document miss id=\(feedID) host=\(host) url=\(nodeInfoURL.absoluteString) reason=\(reason)")
+                return .missing
+            case .decoded(let document):
+                let name = document.software.name.trimmingCharacters(in: .whitespacesAndNewlines)
+                return name.isEmpty ? .missing : .found(name.lowercased())
+            }
+        }
     }
 
-    private static func statusCode(for url: URL) async -> (status: Int, isHit: Bool) {
-        var request = URLRequest.sakura(url: url, timeoutInterval: probeTimeout)
-        request.httpMethod = "HEAD"
-        do {
-            let (_, response) = try await URLSession.shared.data(for: request)
-            let code = (response as? HTTPURLResponse)?.statusCode ?? -1
-            return (code, code == 200)
-        } catch {
-            log("FediverseDetector", "probe error url=\(url.absoluteString) error=\(error.localizedDescription)")
-            return (-1, false)
+    /// Picks the freshest supported NodeInfo URL whose `href` lives on the
+    /// discovery host. The host check guards against malformed `.well-known`
+    /// payloads pointing the probe at an unrelated origin.
+    private static func pickNodeInfoURL(
+        from links: [NodeInfoDiscovery.Link],
+        host: String
+    ) -> URL? {
+        for rel in nodeInfoRels {
+            guard let match = links.first(where: { $0.rel == rel }),
+                  let url = URL(string: match.href),
+                  url.host?.lowercased() == host else { continue }
+            return url
         }
+        return nil
+    }
+
+    /// Tri-state fetch so transport failures (`inconclusive`) don't get
+    /// confused with clean HTTP responses that simply aren't NodeInfo
+    /// (`miss`).
+    private static func fetchJSON<T: Decodable>(
+        _ type: T.Type,
+        from url: URL
+    ) async -> FetchResult<T> {
+        var request = URLRequest.sakura(url: url, timeoutInterval: probeTimeout)
+        request.httpMethod = "GET"
+        request.setValue("application/json", forHTTPHeaderField: "Accept")
+        do {
+            let (data, response) = try await URLSession.shared.data(for: request)
+            guard let http = response as? HTTPURLResponse else {
+                return .inconclusive(reason: "no-http-response")
+            }
+            let status = http.statusCode
+            if status == 429 || status >= 500 {
+                return .inconclusive(reason: "status=\(status)")
+            }
+            if status != 200 {
+                return .miss(reason: "status=\(status)")
+            }
+            do {
+                return .decoded(try JSONDecoder().decode(T.self, from: data))
+            } catch {
+                return .miss(reason: "decode-error")
+            }
+        } catch let error as URLError where error.code == .cancelled {
+            return .inconclusive(reason: "cancelled")
+        } catch {
+            return .inconclusive(reason: "transport-error")
+        }
+    }
+
+    private enum NodeInfoOutcome {
+        case found(String)
+        case missing
+        case inconclusive
+    }
+
+    private enum FetchResult<T> {
+        case decoded(T)
+        case miss(reason: String)
+        case inconclusive(reason: String)
+    }
+
+    private struct NodeInfoDiscovery: Decodable {
+        struct Link: Decodable {
+            let rel: String
+            let href: String
+        }
+        let links: [Link]
+    }
+
+    private struct NodeInfoDocument: Decodable {
+        struct Software: Decodable {
+            let name: String
+        }
+        let software: Software
     }
 
     private actor HostCache {

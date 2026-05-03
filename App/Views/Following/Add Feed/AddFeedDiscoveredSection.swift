@@ -4,6 +4,7 @@ struct AddFeedDiscoveredSection: View {
 
     let feeds: [DiscoveredFeed]
     let addedURLs: Set<String>
+    let addingURLs: Set<String>
     let onAdd: (DiscoveredFeed) -> Void
 
     var body: some View {
@@ -12,6 +13,7 @@ struct AddFeedDiscoveredSection: View {
                 AddFeedDiscoveredRow(
                     feed: feed,
                     isAdded: addedURLs.contains(feed.url),
+                    isAdding: addingURLs.contains(feed.url),
                     onAdd: { onAdd(feed) }
                 )
             }
@@ -25,6 +27,7 @@ private struct AddFeedDiscoveredRow: View {
 
     let feed: DiscoveredFeed
     let isAdded: Bool
+    let isAdding: Bool
     let onAdd: () -> Void
 
     var body: some View {
@@ -44,6 +47,8 @@ private struct AddFeedDiscoveredRow: View {
                 Image(systemName: "checkmark.circle.fill")
                     .font(.title2)
                     .foregroundStyle(.green)
+            } else if isAdding {
+                ProgressView()
             } else {
                 Button {
                     onAdd()

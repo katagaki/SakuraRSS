@@ -4,6 +4,7 @@ struct AddFeedSuggestedTopicsSection: View {
 
     let topics: [SuggestedTopic]
     let addedURLs: Set<String>
+    let addingURLs: Set<String>
     let onAdd: (SuggestedSite) -> Void
 
     var body: some View {
@@ -13,6 +14,7 @@ struct AddFeedSuggestedTopicsSection: View {
                     AddFeedSuggestedSiteRow(
                         site: site,
                         isAdded: addedURLs.contains(site.feedUrl),
+                        isAdding: addingURLs.contains(site.feedUrl),
                         onAdd: { onAdd(site) }
                     )
                 }
@@ -41,6 +43,7 @@ private struct AddFeedSuggestedSiteRow: View {
 
     let site: SuggestedSite
     let isAdded: Bool
+    let isAdding: Bool
     let onAdd: () -> Void
 
     var body: some View {
@@ -60,6 +63,8 @@ private struct AddFeedSuggestedSiteRow: View {
                 Image(systemName: "checkmark.circle.fill")
                     .font(.title2)
                     .foregroundStyle(.green)
+            } else if isAdding {
+                ProgressView()
             } else {
                 Button {
                     onAdd()
