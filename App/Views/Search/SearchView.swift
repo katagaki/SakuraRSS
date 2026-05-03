@@ -27,7 +27,7 @@ struct SearchView: View {
         NavigationStack(path: $path) {
             Group {
                 if searchText.isEmpty {
-                    DiscoverView()
+                    DiscoverView(searchText: $searchText)
                 } else {
                     searchResultsContent
                 }
@@ -92,6 +92,14 @@ struct SearchView: View {
                 withAnimation(.smooth.speed(2.0)) {
                     searchResults = results
                 }
+            }
+            .task(id: searchText) {
+                let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
+                guard !query.isEmpty else { return }
+                try? await Task.sleep(for: .seconds(3))
+                guard !Task.isCancelled,
+                      searchText.trimmingCharacters(in: .whitespacesAndNewlines) == query else { return }
+                RecentSearchStore.shared.add(query)
             }
         }
     }

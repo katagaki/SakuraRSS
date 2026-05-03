@@ -5,6 +5,9 @@ struct DiscoverView: View {
     @Environment(FeedManager.self) var feedManager
     @AppStorage("Intelligence.ContentInsights.Enabled") private var contentInsightsEnabled: Bool = false
 
+    @Binding var searchText: String
+
+    @State private var recentSearchStore = RecentSearchStore.shared
     @State private var recentArticles: [Article] = []
     @State private var entitySections: [DiscoverEntitySection] = []
     @State private var allTopics: [(name: String, count: Int)] = []
@@ -13,7 +16,8 @@ struct DiscoverView: View {
     @State private var refreshID = 0
 
     private var hasContent: Bool {
-        !recentArticles.isEmpty
+        !recentSearchStore.searches.isEmpty
+            || !recentArticles.isEmpty
             || !entitySections.isEmpty
             || !filteredTopics.isEmpty
             || !filteredPeople.isEmpty
@@ -24,6 +28,14 @@ struct DiscoverView: View {
             if hasContent {
                 ScrollView {
                     VStack(alignment: .leading, spacing: 24) {
+                        if !recentSearchStore.searches.isEmpty {
+                            RecentSearchesSection(
+                                searches: recentSearchStore.searches,
+                                onSelect: { term in searchText = term },
+                                onClear: { recentSearchStore.clear() }
+                            )
+                        }
+
                         if !recentArticles.isEmpty {
                             recentlyAccessedSection
                         }
