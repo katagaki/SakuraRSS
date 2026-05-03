@@ -4,6 +4,7 @@ struct FollowingFeedRow: View {
 
     @Environment(FeedManager.self) var feedManager
     let feed: Feed
+    var showsDomain: Bool = true
     @State private var icon: UIImage?
 
     private var iconCornerRadius: CGFloat { 4 }
@@ -61,10 +62,12 @@ struct FollowingFeedRow: View {
                             .foregroundStyle(.secondary)
                     }
                 }
-                Text(feed.domain.hasPrefix("www.") ? String(feed.domain.dropFirst(4)) : feed.domain)
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-                    .lineLimit(1)
+                if showsDomain {
+                    Text(feed.domain.hasPrefix("www.") ? String(feed.domain.dropFirst(4)) : feed.domain)
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
+                }
             }
 
             Spacer()

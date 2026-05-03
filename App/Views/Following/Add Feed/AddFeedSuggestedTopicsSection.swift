@@ -5,6 +5,7 @@ struct AddFeedSuggestedTopicsSection: View {
     let topics: [SuggestedTopic]
     let addedURLs: Set<String>
     let addingURLs: Set<String>
+    let subscribedURLs: Set<String>
     let onAdd: (SuggestedSite) -> Void
 
     var body: some View {
@@ -13,7 +14,8 @@ struct AddFeedSuggestedTopicsSection: View {
                 ForEach(topic.sites, id: \.feedUrl) { site in
                     AddFeedSuggestedSiteRow(
                         site: site,
-                        isAdded: addedURLs.contains(site.feedUrl),
+                        isAdded: addedURLs.contains(site.feedUrl)
+                            || subscribedURLs.contains(site.feedUrl),
                         isAdding: addingURLs.contains(site.feedUrl),
                         onAdd: { onAdd(site) }
                     )

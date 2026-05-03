@@ -17,7 +17,7 @@ struct TodayGreetingView: View {
                     .foregroundStyle(.secondary)
 
                 styledGreeting
-                    .font(.largeTitle)
+                    .font(UIDevice.current.userInterfaceIdiom == .pad ? .title3 : .largeTitle)
                     .fontWeight(.bold)
             }
             .frame(maxWidth: .infinity, alignment: .leading)

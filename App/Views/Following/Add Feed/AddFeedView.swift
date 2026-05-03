@@ -28,6 +28,10 @@ struct AddFeedView: View {
         return trimmed.isEmpty ? "" : normalizeURL(trimmed)
     }
 
+    private var subscribedFeedURLs: Set<String> {
+        Set(feedManager.feeds.map(\.url))
+    }
+
     var body: some View {
         NavigationStack {
             Form {
@@ -43,6 +47,7 @@ struct AddFeedView: View {
                         topics: suggestedTopics,
                         addedURLs: addedURLs,
                         addingURLs: addingURLs,
+                        subscribedURLs: subscribedFeedURLs,
                         onAdd: addSuggestedFeed
                     )
 
@@ -62,6 +67,7 @@ struct AddFeedView: View {
                         feeds: discoveredFeeds,
                         addedURLs: addedURLs,
                         addingURLs: addingURLs,
+                        subscribedURLs: subscribedFeedURLs,
                         onAdd: addFeed
                     )
                 }

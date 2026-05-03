@@ -8,9 +8,15 @@ struct MoreListsSection: View {
     @Binding var listToDelete: FeedList?
     @Binding var isShowingNewList: Bool
 
+    private var sortedLists: [FeedList] {
+        feedManager.lists.sorted {
+            $0.name.localizedStandardCompare($1.name) == .orderedAscending
+        }
+    }
+
     var body: some View {
         Section {
-            ForEach(feedManager.lists) { list in
+            ForEach(sortedLists) { list in
                 NavigationLink(value: list) {
                     ListRowView(list: list)
                 }

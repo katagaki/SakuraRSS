@@ -31,7 +31,7 @@ struct TodayView: View {
                     .padding(.horizontal)
                     .padding(.top, 8)
 
-                if !anySummaryVisible, !contentSections.isEmpty || showEmptyState {
+                if !anySummaryVisible, !hasLoadedInitially || !contentSections.isEmpty || showEmptyState {
                     sectionDivider
                 }
 
@@ -48,7 +48,9 @@ struct TodayView: View {
                     isVisible: $todayVisible
                 )
 
-                if showEmptyState {
+                if !hasLoadedInitially {
+                    loadingIndicator
+                } else if showEmptyState {
                     emptyContentView
                 } else {
                     ForEach(Array(contentSections.enumerated()), id: \.element) { index, section in
@@ -105,6 +107,18 @@ struct TodayView: View {
             Text(String(localized: "Today.Empty.Description", table: "Home"))
         }
         .padding(.vertical, 32)
+    }
+
+    @ViewBuilder
+    private var loadingIndicator: some View {
+        VStack(spacing: 12) {
+            ProgressView()
+            Text(String(localized: "Today.Loading", table: "Home"))
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 48)
     }
 
     private var contentSections: [ContentSection] {
@@ -325,14 +339,16 @@ struct TodayView: View {
             }
 
             await MainActor.run {
-                recentArticles = recent
-                bookmarkedArticles = bookmarks
-                unreadPodcastEpisodes = podcastEpisodes
-                unreadVideoEpisodes = videoEpisodes
-                entitySections = sections
-                allTopics = topics
-                allPeople = people
-                hasLoadedInitially = true
+                withAnimation(.smooth.speed(2.0)) {
+                    recentArticles = recent
+                    bookmarkedArticles = bookmarks
+                    unreadPodcastEpisodes = podcastEpisodes
+                    unreadVideoEpisodes = videoEpisodes
+                    entitySections = sections
+                    allTopics = topics
+                    allPeople = people
+                    hasLoadedInitially = true
+                }
             }
         }.value
     }

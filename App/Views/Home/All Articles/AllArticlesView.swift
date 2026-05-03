@@ -8,7 +8,7 @@ struct AllArticlesView: View {
 
     var body: some View {
         ZStack {
-            if case .section(.today) = selectedSelection {
+            if isShowingToday {
                 TodayView()
                     .transition(.opacity)
             } else {
@@ -26,12 +26,19 @@ struct AllArticlesView: View {
         }
     }
 
+    /// On iPad, Today is its own sidebar destination; the "Following" entry
+    /// here must always render the article list, not honor the iPhone section
+    /// bar's saved selection.
     private var isShowingToday: Bool {
+        if UIDevice.current.userInterfaceIdiom == .pad { return false }
         if case .section(.today) = selectedSelection { return true }
         return false
     }
 
     var currentTitle: String {
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            return String(localized: "Sidebar.Following", table: "Feeds")
+        }
         switch selectedSelection {
         case .section(let section):
             return section.localizedTitle

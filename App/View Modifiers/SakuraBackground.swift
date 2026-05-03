@@ -4,10 +4,19 @@ private struct FeedBackgroundColorsKey: EnvironmentKey {
     static let defaultValue: [Color] = []
 }
 
+private struct SakuraBackgroundDisabledKey: EnvironmentKey {
+    static let defaultValue: Bool = false
+}
+
 extension EnvironmentValues {
     var feedBackgroundColors: [Color] {
         get { self[FeedBackgroundColorsKey.self] }
         set { self[FeedBackgroundColorsKey.self] = newValue }
+    }
+
+    var isSakuraBackgroundDisabled: Bool {
+        get { self[SakuraBackgroundDisabledKey.self] }
+        set { self[SakuraBackgroundDisabledKey.self] = newValue }
     }
 }
 
@@ -16,14 +25,17 @@ struct SakuraBackground: ViewModifier {
     @AppStorage("Display.SakuraBackground") private var sakuraBackgroundEnabled: Bool = true
     @AppStorage("Display.FeedBackground") private var feedBackgroundEnabled: Bool = true
     @Environment(\.feedBackgroundColors) private var feedColors
+    @Environment(\.isSakuraBackgroundDisabled) private var isDisabled
+
+    private var isActive: Bool { sakuraBackgroundEnabled && !isDisabled }
 
     @ViewBuilder
     func body(content: Content) -> some View {
         content
-            .scrollContentBackground(sakuraBackgroundEnabled ? .hidden : .automatic)
+            .scrollContentBackground(isActive ? .hidden : .automatic)
             .background(alignment: .top) {
                 ZStack(alignment: .top) {
-                    if sakuraBackgroundEnabled {
+                    if isActive {
                         LinearGradient(
                             colors: [
                                 Color("BackgroundGradientTop"),
@@ -33,7 +45,7 @@ struct SakuraBackground: ViewModifier {
                             endPoint: .bottom
                         )
                     }
-                    if feedBackgroundEnabled, !feedColors.isEmpty {
+                    if feedBackgroundEnabled, !isDisabled, !feedColors.isEmpty {
                         FeedHeaderGradientView(colors: feedColors)
                             .frame(height: 360)
                     }

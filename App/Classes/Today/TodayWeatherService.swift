@@ -199,10 +199,7 @@ final class TodayWeatherService {
         switch manager.authorizationStatus {
         case .notDetermined:
             manager.requestWhenInUseAuthorization()
-            // Don't issue requestLocation yet — it no-ops while auth is
-            // pending. The auth-change handler drives the request once the
-            // user resolves the prompt (and resolves the continuation as
-            // failed if denied).
+            // Don't issue requestLocation yet
             return await withCheckedContinuation { continuation in
                 self.pendingResolution = continuation
             }
@@ -216,9 +213,6 @@ final class TodayWeatherService {
         }
     }
 
-    /// Refreshes the cached authorization status. Safe to call from the UI.
-    /// Instantiating `CLLocationManager` doesn't prompt the user — it only
-    /// reads the existing system state.
     func refreshAuthorizationStatus() {
         let manager = ensureLocationManager()
         locationAuthorizationStatus = manager.authorizationStatus

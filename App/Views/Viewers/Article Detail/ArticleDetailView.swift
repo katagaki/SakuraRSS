@@ -49,7 +49,7 @@ struct ArticleDetailView: View {
     @State var inAppLinkURL: URL?
     @Namespace private var imageViewerNamespace
     @AppStorage("YouTube.OpenMode") var youTubeOpenMode: YouTubeOpenMode = .inAppPlayer
-    @AppStorage(LinkOpenMode.storageKey) var linkOpenMode: LinkOpenMode = .browser
+    @AppStorage(LinkOpenMode.storageKey) var linkOpenMode: LinkOpenMode = .inAppViewer
     @AppStorage("Intelligence.ContentInsights.Enabled") var contentInsightsEnabled: Bool = false
     @State var similarArticles: [SimilarArticleItem] = []
     @State var articleTopics: [String] = []
