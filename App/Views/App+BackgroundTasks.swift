@@ -47,9 +47,13 @@ extension SakuraRSSApp {
 
     nonisolated func handleAppRefresh(task: BGAppRefreshTask) {
         scheduleAppRefresh()
+        log("BackgroundRefresh", "handleAppRefresh begin")
+
+        let completion = BackgroundTaskCompletion(task: task)
 
         if ProcessInfo.processInfo.isLowPowerModeEnabled {
-            task.setTaskCompleted(success: true)
+            log("BackgroundRefresh", "skipping: Low Power Mode is on")
+            completion.complete(success: true)
             return
         }
 
@@ -80,23 +84,29 @@ extension SakuraRSSApp {
             let skipImagePreload = pathExpensive || !pluggedIn
 
             let manager = await MainActor.run { FeedManager() }
+            // BGAppRefreshTask gets a ~30s budget; defer NLP to the foreground
+            // pass so heavy work doesn't trip the watchdog mid-refresh.
             await manager.refreshAllFeeds(
                 skipAuthenticatedFetchers: true,
                 respectCooldown: true,
                 skipImageFetch: skipImageFetch,
                 skipImagePreload: skipImagePreload,
-                runNLPAfter: true
+                runNLPAfter: false
             )
+            if Task.isCancelled { return }
             manager.updateBadgeCount()
         }
 
         task.expirationHandler = {
+            log("BackgroundRefresh", "handleAppRefresh expired")
             refreshTask.cancel()
+            completion.complete(success: false)
         }
 
         Task {
             _ = await refreshTask.value
-            task.setTaskCompleted(success: true)
+            log("BackgroundRefresh", "handleAppRefresh end cancelled=\(refreshTask.isCancelled)")
+            completion.complete(success: !refreshTask.isCancelled)
         }
     }
 
@@ -139,17 +149,45 @@ extension SakuraRSSApp {
     nonisolated func handleiCloudBackup(task: BGProcessingTask) {
         scheduleiCloudBackup()
 
+        let completion = BackgroundTaskCompletion(task: task)
+
         let backupTask = Task {
             await iCloudBackupManager.shared.backupIfScheduled()
         }
 
         task.expirationHandler = {
             backupTask.cancel()
+            completion.complete(success: false)
         }
 
         Task {
             _ = await backupTask.value
-            task.setTaskCompleted(success: true)
+            completion.complete(success: !backupTask.isCancelled)
         }
+    }
+}
+
+/// Ensures `BGTask.setTaskCompleted(success:)` runs exactly once across the
+/// completion path and the system's expiration handler. Without this, the
+/// expiration handler can race with the trailing await, leading to a missed
+/// or duplicated completion call and a watchdog termination.
+final class BackgroundTaskCompletion: @unchecked Sendable {
+    private let lock = NSLock()
+    private var didComplete = false
+    private let task: BGTask
+
+    init(task: BGTask) {
+        self.task = task
+    }
+
+    func complete(success: Bool) {
+        lock.lock()
+        if didComplete {
+            lock.unlock()
+            return
+        }
+        didComplete = true
+        lock.unlock()
+        task.setTaskCompleted(success: success)
     }
 }
