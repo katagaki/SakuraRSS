@@ -1,6 +1,6 @@
 import Foundation
 
-struct TodayTabItem: Identifiable, Hashable {
+struct HomeSectionBarItem: Identifiable, Hashable {
     let id: String
     let title: String
     let selection: HomeSelection

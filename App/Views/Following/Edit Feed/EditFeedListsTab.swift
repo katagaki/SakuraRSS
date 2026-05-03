@@ -23,7 +23,7 @@ struct EditFeedListsTab: View {
         }
         .sheet(isPresented: $isShowingNewList) {
             ListEditSheet(list: nil)
-                .presentationDetents([.medium, .large])
+                .presentationDetents([.large])
                 .interactiveDismissDisabled()
         }
     }

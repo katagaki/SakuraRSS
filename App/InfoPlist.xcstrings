@@ -61,6 +61,65 @@
         }
       }
     },
+    "NSLocationWhenInUseUsageDescription" : {
+      "comment" : "Privacy - Location When In Use Usage Description",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sakura verwendet deinen Standort, um auf dem Heute-Tab das lokale Wetter anzuzeigen. Der Standort wird ausschließlich an Apple Wetter gesendet und nicht auf unseren Servern gespeichert."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sakura uses your location to show local weather on the Today tab. The location is sent only to Apple Weather and is never stored on our servers."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sakura utilise votre position pour afficher la météo locale dans l’onglet Aujourd’hui. Elle est uniquement envoyée à Apple Météo et n’est jamais conservée sur nos serveurs."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sakura usa la tua posizione per mostrare il meteo locale nella scheda Oggi. La posizione viene inviata solo ad Apple Meteo e non viene mai memorizzata sui nostri server."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "サクラは「Today」タブにローカルの天気を表示するために位置情報を使用します。位置情報はApple天気にのみ送信され、当社のサーバーには保存されません。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sakura는 Today 탭에 현지 날씨를 표시하기 위해 위치 정보를 사용합니다. 위치 정보는 Apple 날씨에만 전송되며, 자체 서버에는 저장되지 않습니다."
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sakura sử dụng vị trí của bạn để hiển thị thời tiết tại địa phương trong tab Today. Vị trí chỉ được gửi đến Apple Weather và không bao giờ được lưu trên máy chủ của chúng tôi."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sakura 使用您的位置，在「Today」标签页中显示本地天气。位置仅会发送至 Apple 天气，绝不会存储在我们的服务器上。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sakura 使用您的位置，在「Today」分頁中顯示本地天氣。位置僅會傳送至 Apple 天氣，絕不會儲存在我們的伺服器上。"
+          }
+        }
+      }
+    },
     "NSPhotoLibraryAddUsageDescription" : {
       "comment" : "Privacy - Photo Library Additions Usage Description",
       "extractionState" : "extracted_with_value",

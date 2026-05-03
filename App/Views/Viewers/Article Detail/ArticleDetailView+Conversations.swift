@@ -14,7 +14,7 @@ extension ArticleDetailView {
                         openURL(conversationURL)
                     }
                 } label: {
-                    HStack {
+                    HStack(spacing: 4) {
                         Label(
                             String(localized: "Conversations.Title", table: "Articles"),
                             systemImage: "bubble.left.and.bubble.right"
@@ -22,7 +22,6 @@ extension ArticleDetailView {
                         .font(.title3)
                         .fontWeight(.bold)
                         if conversationURL != nil {
-                            Spacer()
                             Image(systemName: "chevron.right")
                                 .foregroundStyle(.secondary)
                         }

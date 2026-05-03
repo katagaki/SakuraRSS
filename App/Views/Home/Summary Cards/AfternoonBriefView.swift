@@ -1,16 +1,14 @@
 import SwiftUI
 
-struct TodaysSummaryView: View {
+struct AfternoonBriefView: View {
 
     @Binding var hasSummary: Bool
-    var flatStyle: Bool = false
     var isVisible: Binding<Bool>?
 
     var body: some View {
         SummaryCard(
-            kind: .todaysSummary,
+            kind: .afternoonBrief,
             hasSummary: $hasSummary,
-            flatStyle: flatStyle,
             isVisible: isVisible
         )
     }

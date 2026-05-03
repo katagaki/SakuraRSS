@@ -4,9 +4,10 @@ extension Notification.Name {
     static let homeBarConfigurationDidChange = Notification.Name("HomeBarConfigurationDidChange")
 }
 
-/// User-configurable layout of the home section selection bar. The Following
-/// tab is always emitted as the first item by `TodayTabItem.items`, so it does
-/// not appear in `orderedItems` or `enabledItems`.
+/// User-configurable layout of the home section selection bar. The Today and
+/// Following tabs are always emitted at the front by `HomeSectionBarItem.items`
+/// (Today first when enabled, then Following), so Following does not appear in
+/// `orderedItems` or `enabledItems`.
 struct HomeBarConfiguration: Equatable, Hashable, Sendable {
 
     static let storageKey = "Home.BarConfiguration"
@@ -16,7 +17,7 @@ struct HomeBarConfiguration: Equatable, Hashable, Sendable {
     var topicCount: HomeBarTopicCount
 
     static let defaultOrderedItems: [HomeBarItemKind] = [
-        .feeds, .podcasts, .bluesky, .fediverse, .instagram, .note,
+        .today, .feeds, .podcasts, .bluesky, .fediverse, .instagram, .note,
         .reddit, .substack, .vimeo, .x, .youtube, .niconico, .lists, .topics
     ]
 
@@ -124,6 +125,17 @@ extension HomeBarConfiguration: Codable {
                     enabled.insert(kind)
                 }
             }
+        }
+
+        // Today was introduced after the bar config shipped. Existing users get
+        // it inserted at the front of their order and enabled by default so the
+        // tab is discoverable without resetting customization.
+        let hasTodayInRawOrder = rawOrdered.contains(HomeBarItemKind.today.rawValue)
+        if !seenOrdered.contains(.today) {
+            ordered.insert(.today, at: 0)
+        }
+        if !hasTodayInRawOrder {
+            enabled.insert(.today)
         }
 
         self.orderedItems = ordered

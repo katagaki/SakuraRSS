@@ -49,7 +49,7 @@ struct IconImage: View {
             .aspectRatio(contentMode: isNonSquare ? .fit : .fill)
             .frame(width: iconSize, height: iconSize)
             .frame(width: size, height: size)
-            .background(image.nearWhiteAverageColor)
+            .background(image.nearWhiteAverageGradient)
             .clipShape(shape)
             .overlay(shape.stroke(.secondary, lineWidth: 0.5))
     }
@@ -272,21 +272,35 @@ extension UIImage {
         }
     }
 
-    /// Near-white tint derived from the average colour for backgrounds behind transparent icons.
-    var nearWhiteAverageColor: Color {
+    /// Near-white gradient derived from the average colour for backgrounds behind transparent icons.
+    var nearWhiteAverageGradient: LinearGradient {
         guard let rgb = ensureIconDerivedMetrics().averageColor, rgb.count >= 3 else {
-            return Color(.secondarySystemBackground)
+            return LinearGradient(
+                colors: [Color(.secondarySystemBackground)],
+                startPoint: .top,
+                endPoint: .bottom
+            )
         }
-        let avgR = rgb[0]
-        let avgG = rgb[1]
-        let avgB = rgb[2]
 
-        let whiteBlend: Double = 0.85
-        return Color(
-            red: whiteBlend + (1 - whiteBlend) * avgR,
-            green: whiteBlend + (1 - whiteBlend) * avgG,
-            blue: whiteBlend + (1 - whiteBlend) * avgB
+        let mean = (rgb[0] + rgb[1] + rgb[2]) / 3.0
+        let saturationBoost: Double = 1.5
+        let boostedR = max(0, min(1, mean + (rgb[0] - mean) * saturationBoost))
+        let boostedG = max(0, min(1, mean + (rgb[1] - mean) * saturationBoost))
+        let boostedB = max(0, min(1, mean + (rgb[2] - mean) * saturationBoost))
+
+        let topBlend: Double = 0.7
+        let bottomBlend: Double = 0.55
+        let top = Color(
+            red: topBlend + (1 - topBlend) * boostedR,
+            green: topBlend + (1 - topBlend) * boostedG,
+            blue: topBlend + (1 - topBlend) * boostedB
         )
+        let bottom = Color(
+            red: bottomBlend + (1 - bottomBlend) * boostedR,
+            green: bottomBlend + (1 - bottomBlend) * boostedG,
+            blue: bottomBlend + (1 - bottomBlend) * boostedB
+        )
+        return LinearGradient(colors: [top, bottom], startPoint: .top, endPoint: .bottom)
     }
 
     /// True when virtually all opaque pixels are near-black.

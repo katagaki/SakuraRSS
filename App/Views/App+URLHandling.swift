@@ -15,6 +15,8 @@ extension SakuraRSSApp {
                 if let request = OpenArticleRequest(url: url) {
                     pendingOpenRequest = request
                 }
+            case "delorean":
+                DeloreanClock.shared.toggle()
             case "justwokeup":
                 forceWhileYouSlept = true
                 UserDefaults.standard.removeObject(forKey: "WhileYouSlept.DismissedDate")

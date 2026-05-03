@@ -7,6 +7,7 @@ nonisolated extension DatabaseManager {
 
     enum SummaryCacheType: String {
         case whileYouSlept
+        case afternoonBrief
         case todaysSummary
     }
 

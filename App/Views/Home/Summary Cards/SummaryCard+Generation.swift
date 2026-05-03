@@ -1,19 +1,19 @@
 import SwiftUI
 
-extension TodaysSummaryView {
+extension SummaryCard {
 
     static let batchCharLimit = 3000
     static let snippetCharLimit = 150
 
     func generateSummary(for date: Date) async {
-        let articles = feedManager.todaySummaryArticles().filter { article in
+        let articles = kind.articles(in: feedManager).filter { article in
             BatchSummarizer.hasUsefulContent(title: article.title, summary: article.summary)
         }
         guard !articles.isEmpty else { return }
 
         if articles.count < 5 {
             withAnimation(.smooth.speed(2.0)) {
-                summary = String(localized: "TodaysSummary.TooFew", table: "Home")
+                summary = String(localized: kind.tooFew)
             }
             hasSummary = true
             return
@@ -49,7 +49,7 @@ extension TodaysSummaryView {
                 summary = finalContent
             }
             hasSummary = true
-            try? DatabaseManager.shared.cacheSummary(finalContent, ofType: .todaysSummary, for: date)
+            try? DatabaseManager.shared.cacheSummary(finalContent, ofType: kind.cacheType, for: date)
         } catch {
             generationFailed = true
             generationError = error.localizedDescription

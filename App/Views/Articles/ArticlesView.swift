@@ -26,8 +26,6 @@ struct ArticlesView: View {
     let isFeedCompactViewDomain: Bool
     let isTimelineViewDomain: Bool
     let titleDisplayMode: ToolbarTitleDisplayMode
-    var anySummaryHidden: Bool
-    var onRestoreSummaries: (() -> Void)?
     var onLoadMore: (() -> Void)?
     var onRefresh: (() async -> Void)?
     var onMarkAllRead: (() -> Void)?
@@ -56,8 +54,6 @@ struct ArticlesView: View {
          isFeedViewDomain: Bool = false, isFeedCompactViewDomain: Bool = false,
          isTimelineViewDomain: Bool = false,
          titleDisplayMode: ToolbarTitleDisplayMode = .inline,
-         anySummaryHidden: Bool = false,
-         onRestoreSummaries: (() -> Void)? = nil,
          onLoadMore: (() -> Void)? = nil,
          onRefresh: (() async -> Void)? = nil,
          onMarkAllRead: (() -> Void)? = nil,
@@ -76,8 +72,6 @@ struct ArticlesView: View {
         self.isFeedCompactViewDomain = isFeedCompactViewDomain
         self.isTimelineViewDomain = isTimelineViewDomain
         self.titleDisplayMode = titleDisplayMode
-        self.anySummaryHidden = anySummaryHidden
-        self.onRestoreSummaries = onRestoreSummaries
         self.onLoadMore = onLoadMore
         self.onRefresh = onRefresh
         self.onMarkAllRead = onMarkAllRead
@@ -175,15 +169,6 @@ struct ArticlesView: View {
                 ToolbarSpacer(.fixed, placement: .topBarLeading)
                 ToolbarItemGroup(placement: .topBarLeading) {
                     additionalLeadingToolbar
-                }
-            }
-            if anySummaryHidden {
-                ToolbarItemGroup(placement: .topBarTrailing) {
-                    Button {
-                        onRestoreSummaries?()
-                    } label: {
-                        Image(systemName: "text.line.3.summary")
-                    }
                 }
             }
             ToolbarItemGroup(placement: .topBarTrailing) {

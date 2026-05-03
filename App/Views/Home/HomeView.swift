@@ -11,7 +11,7 @@ struct HomeView: View {
     @State private var path = NavigationPath()
     @State private var hasRestored = false
     @State private var showYouTubeSafari = false
-    @AppStorage("Home.SelectedSection") private var selectedSelection: HomeSelection = .section(.all)
+    @AppStorage("Home.SelectedSection") private var selectedSelection: HomeSelection = .section(.today)
     @AppStorage("Display.MarkAllReadPosition") private var markAllReadPosition: MarkAllReadPosition = .top
     @State private var pendingYouTubeSafariURL: URL?
     @State private var isShowingMarkAllReadConfirmation = false
@@ -29,7 +29,7 @@ struct HomeView: View {
                 .environment(\.hidesMarkAllReadToolbar, true)
                 .toolbarTitleDisplayMode(.inline)
                 .safeAreaInset(edge: .top, spacing: 0) {
-                    TodayTopBarView(
+                    HomeSectionBarHostView(
                         selection: $selectedSelection,
                         tabs: tabItems,
                         tabFrames: $tabFrames
@@ -41,7 +41,15 @@ struct HomeView: View {
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
-                    if markAllReadPosition == .top {
+                    if isTodaySelected, todayRefreshState.hasActiveProgress {
+                        ToolbarItemGroup(placement: .topBarLeading) {
+                            FeedRefreshProgressDonut(
+                                progress: todayRefreshState.progress,
+                                onStop: { feedManager.cancelScopedRefresh(scope: "section.all") }
+                            )
+                        }
+                    }
+                    if markAllReadPosition == .top, !isTodaySelected {
                         ToolbarItemGroup(placement: .topBarLeading) {
                             Button {
                                 isShowingMarkAllReadConfirmation = true
@@ -252,13 +260,22 @@ struct HomeView: View {
         }
     }
 
-    private var tabItems: [TodayTabItem] {
-        TodayTabItem.items(
+    private var tabItems: [HomeSectionBarItem] {
+        HomeSectionBarItem.items(
             sections: availableSections,
             lists: feedManager.lists,
             topics: topTopics,
             configuration: barConfiguration
         )
+    }
+
+    private var isTodaySelected: Bool {
+        if case .section(.today) = selectedSelection { return true }
+        return false
+    }
+
+    private var todayRefreshState: ScopedRefreshState {
+        feedManager.scopedRefreshes["section.all"] ?? ScopedRefreshState()
     }
 
     private func reloadBarConfiguration() {

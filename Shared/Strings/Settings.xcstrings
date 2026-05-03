@@ -1,6 +1,65 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "AfternoonBrief" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nachmittagsbriefing"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Afternoon Brief"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Briefing de l’après-midi"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Riepilogo del pomeriggio"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "午後のまとめ"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "오후 브리핑"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tóm tắt buổi chiều"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "下午简报"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "下午簡報"
+          }
+        }
+      }
+    },
     "Analytics.ArticlesRead" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -243,55 +302,55 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Apple Intelligence fasst Ihre Feed-Schlagzeilen in einer morgendlichen und abendlichen Zusammenfassung zusammen."
+            "value" : "Apple Intelligence fasst Ihre Feed-Schlagzeilen in einer morgendlichen und abendlichen Zusammenfassung zusammen. Zusammenfassungen werden nur generiert, wenn der Today-Tab aktiviert ist."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Apple Intelligence summarizes your feed headlines into a morning and evening digest."
+            "value" : "Apple Intelligence summarizes your feed headlines into a morning and evening digest. Summaries are only generated when the Today tab is enabled."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Apple Intelligence résume les titres de vos flux en un récapitulatif matinal et vespéral."
+            "value" : "Apple Intelligence résume les titres de vos flux en un récapitulatif matinal et vespéral. Les récapitulatifs ne sont générés que lorsque l'onglet Today est activé."
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Apple Intelligence riassume i titoli dei tuoi feed in un digest mattutino e serale."
+            "value" : "Apple Intelligence riassume i titoli dei tuoi feed in un digest mattutino e serale. I riassunti vengono generati solo quando la scheda Today è attiva."
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Apple Intelligenceがフィードの見出しを朝と夜のダイジェストにまとめます。"
+            "value" : "Apple Intelligenceがフィードの見出しを朝と夜のダイジェストにまとめます。サマリーはTodayタブが有効な場合にのみ生成されます。"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Apple Intelligence가 피드 헤드라인을 아침 및 저녁 요약으로 정리합니다."
+            "value" : "Apple Intelligence가 피드 헤드라인을 아침 및 저녁 요약으로 정리합니다. 요약은 Today 탭이 활성화된 경우에만 생성됩니다."
           }
         },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Apple Intelligence tóm tắt tiêu đề nguồn cấp của bạn thành bản tóm lược buổi sáng và buổi tối."
+            "value" : "Apple Intelligence tóm tắt tiêu đề nguồn cấp của bạn thành bản tóm lược buổi sáng và buổi tối. Bản tóm tắt chỉ được tạo khi tab Today được bật."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Apple Intelligence 将你的订阅源标题汇总为早间和晚间摘要。"
+            "value" : "Apple Intelligence 将你的订阅源标题汇总为早间和晚间摘要。仅当启用 Today 标签页时才会生成摘要。"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Apple Intelligence 將你的訂閱源標題彙整為早間和晚間摘要。"
+            "value" : "Apple Intelligence 將你的訂閱源標題彙整為早間和晚間摘要。僅當啟用 Today 分頁時才會產生摘要。"
           }
         }
       }
@@ -2479,6 +2538,65 @@
         }
       }
     },
+    "Home.BarItem.Today" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Today"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Today"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Today"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Today"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Today"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Today"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Today"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Today"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Today"
+          }
+        }
+      }
+    },
     "Home.BarItem.Topics" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -2534,6 +2652,65 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "話題"
+          }
+        }
+      }
+    },
+    "Home.Lists.Footer" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ziehe, um die in der Startleiste angezeigten Listen neu zu ordnen."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Drag to reorder the lists shown on Home."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Glissez pour réorganiser les listes affichées sur l'accueil."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trascina per riordinare le liste mostrate nella Home."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ホームに表示されるリストをドラッグして並べ替えられます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "홈에 표시되는 리스트를 끌어서 순서를 변경합니다."
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kéo để sắp xếp lại các danh sách hiển thị trên Trang chủ."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "拖动以重新排列首页显示的列表。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "拖動以重新排列首頁顯示的列表。"
           }
         }
       }

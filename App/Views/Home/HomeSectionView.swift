@@ -42,11 +42,6 @@ struct HomeSectionView: View {
     @State private var visibility = ArticleVisibilityTracker()
     @State private var scrollToTopTick: Int = 0
 
-    @AppStorage("WhileYouSlept.DismissedDate") private var whileYouSleptDismissedDate: String = ""
-    @AppStorage("TodaysSummary.DismissedDate") private var todaysSummaryDismissedDate: String = ""
-    @State private var whileYouSleptAvailable = false
-    @State private var todaysSummaryAvailable = false
-
     private var batchingMode: BatchingMode {
         DoomscrollingMode.effectiveBatchingMode(storedBatchingMode)
     }
@@ -67,11 +62,6 @@ struct HomeSectionView: View {
     private var list: FeedList? {
         if case .list(let list) = source { return list }
         return nil
-    }
-
-    private var isAllFollowing: Bool {
-        if case .section(nil) = source { return true }
-        return false
     }
 
     private var rawArticles: [Article] {
@@ -246,18 +236,6 @@ struct HomeSectionView: View {
         feedManager.scopedRefreshes[scopeKey] ?? ScopedRefreshState()
     }
 
-    private var todayDateKey: String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd"
-        return formatter.string(from: Date())
-    }
-
-    private var anySummaryHidden: Bool {
-        guard isAllFollowing else { return false }
-        return (whileYouSleptDismissedDate == todayDateKey && whileYouSleptAvailable)
-            || (todaysSummaryDismissedDate == todayDateKey && todaysSummaryAvailable)
-    }
-
     private func performMarkAllRead() {
         switch source {
         case .section(let section):
@@ -283,13 +261,6 @@ struct HomeSectionView: View {
             isVideoFeed: isVideoSection,
             isPodcastFeed: isPodcastSection,
             isFeedViewDomain: isFeedViewSection,
-            anySummaryHidden: anySummaryHidden,
-            onRestoreSummaries: isAllFollowing ? {
-                withAnimation(.smooth.speed(2.0)) {
-                    whileYouSleptDismissedDate = ""
-                    todaysSummaryDismissedDate = ""
-                }
-            } : nil,
             onLoadMore: loadMoreAction,
             onRefresh: { await performRefresh() },
             onMarkAllRead: performMarkAllRead,
@@ -301,17 +272,6 @@ struct HomeSectionView: View {
                 )
             ) : nil
         )
-        .safeAreaInset(edge: .top, spacing: 0) {
-            if isAllFollowing {
-                VStack(spacing: 0) {
-                    WhileYouSleptView(hasSummary: $whileYouSleptAvailable)
-                    TodaysSummaryView(hasSummary: $todaysSummaryAvailable)
-                }
-                .animation(.smooth.speed(2.0), value: whileYouSleptDismissedDate)
-                .animation(.smooth.speed(2.0), value: todaysSummaryDismissedDate)
-                .padding(.bottom, 8)
-            }
-        }
         .refreshable {
             startRefreshWithoutBlocking()
         }

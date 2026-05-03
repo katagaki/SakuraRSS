@@ -5,6 +5,8 @@ struct DiscoverView: View {
     @Environment(FeedManager.self) var feedManager
     @AppStorage("Intelligence.ContentInsights.Enabled") private var contentInsightsEnabled: Bool = false
 
+    @Binding var searchText: String
+
     @State private var recentArticles: [Article] = []
     @State private var entitySections: [DiscoverEntitySection] = []
     @State private var allTopics: [(name: String, count: Int)] = []
@@ -13,7 +15,8 @@ struct DiscoverView: View {
     @State private var refreshID = 0
 
     private var hasContent: Bool {
-        !recentArticles.isEmpty
+        !feedManager.searchHistory.isEmpty
+            || !recentArticles.isEmpty
             || !entitySections.isEmpty
             || !filteredTopics.isEmpty
             || !filteredPeople.isEmpty
@@ -24,6 +27,10 @@ struct DiscoverView: View {
             if hasContent {
                 ScrollView {
                     VStack(alignment: .leading, spacing: 24) {
+                        if !feedManager.searchHistory.isEmpty {
+                            recentSearchesSection
+                        }
+
                         if !recentArticles.isEmpty {
                             recentlyAccessedSection
                         }
@@ -67,6 +74,51 @@ struct DiscoverView: View {
             }
         } message: {
             Text(String(localized: "Discover.ClearHistory.Message", table: "Feeds"))
+        }
+    }
+
+    // MARK: - Recent Searches
+
+    @ViewBuilder
+    private var recentSearchesSection: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack {
+                Text(String(localized: "Discover.RecentSearches", table: "Feeds"))
+                    .font(.title3)
+                    .fontWeight(.bold)
+                Spacer()
+                Button(String(localized: "Discover.ClearHistory", table: "Feeds")) {
+                    withAnimation(.smooth.speed(2.0)) {
+                        feedManager.clearSearchHistory()
+                    }
+                }
+                .font(.title3)
+            }
+            .padding(.horizontal)
+
+            VStack(alignment: .leading, spacing: 0) {
+                ForEach(feedManager.searchHistory, id: \.self) { term in
+                    Button {
+                        searchText = term
+                    } label: {
+                        HStack(spacing: 12) {
+                            Image(systemName: "magnifyingglass")
+                            Text(term)
+                            Spacer()
+                        }
+                        .font(.body)
+                        .foregroundStyle(Color.accentColor)
+                        .padding(.vertical, 16)
+                        .padding(.horizontal)
+                        .contentShape(.rect)
+                    }
+                    .buttonStyle(.plain)
+                    if term != feedManager.searchHistory.last {
+                        Divider()
+                            .padding(.horizontal)
+                    }
+                }
+            }
         }
     }
 

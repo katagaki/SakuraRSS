@@ -23,6 +23,19 @@ struct HomeSettingsView: View {
                 Text(String(localized: "Home.SectionBar.Footer", table: "Settings"))
             }
 
+            if configuration.enabledItems.contains(.lists) && !feedManager.lists.isEmpty {
+                Section {
+                    ForEach(feedManager.lists) { list in
+                        HomeBarListRow(list: list)
+                    }
+                    .onMove(perform: moveLists)
+                } header: {
+                    Text(String(localized: "Home.BarItem.Lists", table: "Settings"))
+                } footer: {
+                    Text(String(localized: "Home.Lists.Footer", table: "Settings"))
+                }
+            }
+
             if configuration.enabledItems.contains(.topics) {
                 Section {
                     Picker(
@@ -94,6 +107,12 @@ struct HomeSettingsView: View {
         configuration.orderedItems = newOrdered
     }
 
+    private func moveLists(from source: IndexSet, to destination: Int) {
+        var reordered = feedManager.lists
+        reordered.move(fromOffsets: source, toOffset: destination)
+        feedManager.reorderLists(reordered)
+    }
+
     private func enabledBinding(for kind: HomeBarItemKind) -> Binding<Bool> {
         Binding(
             get: { configuration.enabledItems.contains(kind) },
@@ -123,6 +142,22 @@ private struct HomeBarItemRow: View {
     var body: some View {
         Toggle(isOn: $isEnabled) {
             Text(kind.localizedTitle)
+        }
+    }
+}
+
+private struct HomeBarListRow: View {
+
+    let list: FeedList
+
+    var body: some View {
+        HStack(spacing: 12) {
+            Image(systemName: list.icon)
+                .frame(width: 22)
+                .foregroundStyle(.tint)
+            Text(list.name)
+                .lineLimit(1)
+            Spacer()
         }
     }
 }

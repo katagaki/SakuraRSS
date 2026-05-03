@@ -9,7 +9,6 @@
 /* Begin PBXBuildFile section */
 		AA000001AABB0001006081EF /* SQLite in Frameworks */ = {isa = PBXBuildFile; productRef = AA000001AABB0002006081EF /* SQLite */; };
 		AA000001AABB0003006081EF /* SQLite in Frameworks */ = {isa = PBXBuildFile; productRef = AA000001AABB0004006081EF /* SQLite */; };
-		E41D93392F8AA5C100FB2880 /* WhisperKit in Frameworks */ = {isa = PBXBuildFile; productRef = E41D93382F8AA5C100FB2880 /* WhisperKit */; };
 		E41D98A82F8B3B6E00FB2880 /* FluidAudio in Frameworks */ = {isa = PBXBuildFile; productRef = E41D98A72F8B3B6E00FB2880 /* FluidAudio */; };
 		E45EAA172F9FA36900EA7A54 /* UniformTypeIdentifiers.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E47D10362F54980E006081EF /* UniformTypeIdentifiers.framework */; };
 		E45EAA222F9FA36900EA7A54 /* Open Article.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = E45EAA162F9FA36900EA7A54 /* Open Article.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -165,13 +164,13 @@
 				"Article Extractor/SiteAdapter.swift",
 				"Article Extractor/WebViewExtractor.swift",
 				"Icon Cache/IconCache.swift",
+				"Icon Cache/IconCache+Cropping.swift",
 				"Icon Cache/IconCache+CustomIcons.swift",
 				"Icon Cache/IconCache+FailedLookups.swift",
 				"Icon Cache/IconCache+Fetching.swift",
 				"Icon Cache/IconCache+HTMLParsing.swift",
 				"Icon Cache/IconCache+Profiles.swift",
 				"Icon Cache/IconCache+PWA.swift",
-				"Icon Cache/IconCache+Cropping.swift",
 			);
 			target = E47D10332F54980E006081EF /* Add Feed */;
 		};
@@ -208,13 +207,13 @@
 				"Article Extractor/SiteAdapter.swift",
 				"Article Extractor/WebViewExtractor.swift",
 				"Icon Cache/IconCache.swift",
+				"Icon Cache/IconCache+Cropping.swift",
 				"Icon Cache/IconCache+CustomIcons.swift",
 				"Icon Cache/IconCache+FailedLookups.swift",
 				"Icon Cache/IconCache+Fetching.swift",
 				"Icon Cache/IconCache+HTMLParsing.swift",
 				"Icon Cache/IconCache+Profiles.swift",
 				"Icon Cache/IconCache+PWA.swift",
-				"Icon Cache/IconCache+Cropping.swift",
 			);
 			target = E47D104C2F549821006081EF /* WidgetsExtension */;
 		};
@@ -349,7 +348,6 @@
 			files = (
 				E47D102E2F5497AC006081EF /* SQLite in Frameworks */,
 				E47D10632F54986D006081EF /* FaviconFinder in Frameworks */,
-				E41D93392F8AA5C100FB2880 /* WhisperKit in Frameworks */,
 				E41D98A82F8B3B6E00FB2880 /* FluidAudio in Frameworks */,
 				E47D13182F549F92006081EF /* SwiftSoup in Frameworks */,
 			);
@@ -466,7 +464,6 @@
 				E47D102D2F5497AC006081EF /* SQLite */,
 				E47D10622F54986D006081EF /* FaviconFinder */,
 				E47D13172F549F92006081EF /* SwiftSoup */,
-				E41D93382F8AA5C100FB2880 /* WhisperKit */,
 				E41D98A72F8B3B6E00FB2880 /* FluidAudio */,
 			);
 			productName = SakuraRSS;
@@ -570,7 +567,6 @@
 				E47D102C2F5497AC006081EF /* XCRemoteSwiftPackageReference "SQLite.swift" */,
 				E47D10612F54986D006081EF /* XCRemoteSwiftPackageReference "FaviconFinder" */,
 				E47D13162F549F92006081EF /* XCRemoteSwiftPackageReference "SwiftSoup" */,
-				E41D93372F8AA5C100FB2880 /* XCRemoteSwiftPackageReference "WhisperKit" */,
 				E41D98A62F8B3B6E00FB2880 /* XCRemoteSwiftPackageReference "FluidAudio" */,
 			);
 			preferredProjectObjectVersion = 77;
@@ -896,7 +892,6 @@
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = App/Info.plist;
-				INFOPLIST_KEY_BGTaskSchedulerPermittedIdentifiers = "$(PRODUCT_BUNDLE_IDENTIFIER).refresh";
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.news";
 				INFOPLIST_KEY_LSSupportsOpeningDocumentsInPlace = NO;
@@ -904,7 +899,6 @@
 				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "Sakura uses on-device speech recognition to transcribe podcast episodes you download. Audio is processed locally and never leaves your device.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UIBackgroundModes = fetch;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
@@ -942,7 +936,6 @@
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = App/Info.plist;
-				INFOPLIST_KEY_BGTaskSchedulerPermittedIdentifiers = "$(PRODUCT_BUNDLE_IDENTIFIER).refresh";
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.news";
 				INFOPLIST_KEY_LSSupportsOpeningDocumentsInPlace = NO;
@@ -950,7 +943,6 @@
 				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "Sakura uses on-device speech recognition to transcribe podcast episodes you download. Audio is processed locally and never leaves your device.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UIBackgroundModes = fetch;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
@@ -1172,14 +1164,6 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		E41D93372F8AA5C100FB2880 /* XCRemoteSwiftPackageReference "WhisperKit" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/argmaxinc/WhisperKit.git";
-			requirement = {
-				branch = main;
-				kind = branch;
-			};
-		};
 		E41D98A62F8B3B6E00FB2880 /* XCRemoteSwiftPackageReference "FluidAudio" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/FluidInference/FluidAudio";
@@ -1224,11 +1208,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = E47D102C2F5497AC006081EF /* XCRemoteSwiftPackageReference "SQLite.swift" */;
 			productName = SQLite;
-		};
-		E41D93382F8AA5C100FB2880 /* WhisperKit */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = E41D93372F8AA5C100FB2880 /* XCRemoteSwiftPackageReference "WhisperKit" */;
-			productName = WhisperKit;
 		};
 		E41D98A72F8B3B6E00FB2880 /* FluidAudio */ = {
 			isa = XCSwiftPackageProductDependency;
