@@ -167,10 +167,6 @@ extension SakuraRSSApp {
     }
 }
 
-/// Ensures `BGTask.setTaskCompleted(success:)` runs exactly once across the
-/// completion path and the system's expiration handler. Without this, the
-/// expiration handler can race with the trailing await, leading to a missed
-/// or duplicated completion call and a watchdog termination.
 final class BackgroundTaskCompletion: @unchecked Sendable {
     private let lock = NSLock()
     nonisolated(unsafe) private var didComplete = false
