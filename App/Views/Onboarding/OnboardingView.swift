@@ -45,7 +45,7 @@ struct OnboardingView: View {
                                 .font(.title2.weight(.semibold))
                                 .padding(4.0)
                         }
-                        .buttonStyle(.glass)
+                        .compatibleGlassButtonStyle()
                         .buttonBorderShape(.circle)
                         .padding()
                     }

@@ -50,7 +50,9 @@ struct BookmarksContentView: View {
                         Image(systemName: "bookmark.slash")
                     }
                 }
+                #if !os(visionOS)
                 ToolbarSpacer(.fixed, placement: .topBarTrailing)
+                #endif
                 ToolbarItemGroup(placement: .topBarTrailing) {
                     Menu {
                         DisplayStylePicker(

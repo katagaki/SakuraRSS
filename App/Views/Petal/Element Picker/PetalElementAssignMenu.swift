@@ -22,7 +22,7 @@ struct PetalElementAssignMenu: View {
             .padding(.vertical, 10)
             .frame(maxHeight: .infinity)
             .compositingGroup()
-            .glassEffect(.regular.interactive(), in: .capsule)
+            .compatibleGlassEffect(in: .capsule, interactive: true)
         }
         .tint(.primary)
         .disabled(picked == nil)

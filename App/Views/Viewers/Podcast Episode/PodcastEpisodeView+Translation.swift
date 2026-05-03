@@ -1,4 +1,5 @@
 import SwiftUI
+#if !os(visionOS)
 @preconcurrency import Translation
 
 extension PodcastEpisodeView {
@@ -42,3 +43,4 @@ extension PodcastEpisodeView {
         }
     }
 }
+#endif

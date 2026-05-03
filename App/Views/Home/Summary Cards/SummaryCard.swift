@@ -30,6 +30,10 @@ struct SummaryCard: View {
     @State var generationError: String?
     /// Auto-generation skipped under Low Power Mode; user must tap refresh.
     @State private var deferredForLowPowerMode = false
+    /// Cached article count refreshed off the main thread when the feed data
+    /// revision changes; lets `shouldShow` avoid a synchronous DB query on
+    /// every body render.
+    @State private var articleCount: Int = 0
 
     init(
         kind: SummaryCardKind,
@@ -81,17 +85,13 @@ struct SummaryCard: View {
     private var shouldShow: Bool {
         if flatStyle || !kind.supportsDismiss {
             return forceVisible
-                || (isEnabled && isSupported && kind.isInTimeWindow(Date()) && !articles.isEmpty)
+                || (isEnabled && isSupported && kind.isInTimeWindow(Date()) && articleCount > 0)
         }
         if forceVisible {
             return !isHidden
         }
         return isEnabled && isSupported && kind.isInTimeWindow(Date())
-            && !articles.isEmpty && !isHidden
-    }
-
-    private var articles: [Article] {
-        kind.articles(in: feedManager)
+            && articleCount > 0 && !isHidden
     }
 
     var body: some View {
@@ -109,6 +109,12 @@ struct SummaryCard: View {
                             await loadOrGenerateSummary()
                         }
                     }
+            }
+        }
+        .task(id: feedManager.dataRevision) {
+            let count = kind.articles(in: feedManager).count
+            withAnimation(.smooth.speed(2.0)) {
+                articleCount = count
             }
         }
         .onAppear { isVisible?.wrappedValue = shouldShow }

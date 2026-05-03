@@ -22,6 +22,8 @@ struct DiscoverArticleCard: View {
                 cardVisual
                     .frame(width: cardWidth, height: imageHeight)
                     .clipShape(.rect(cornerRadius: 14))
+                    .contentShape(.hoverEffect, .rect(cornerRadius: 14))
+                    .hoverEffect(.highlight)
                     .overlay(
                         RoundedRectangle(cornerRadius: 14)
                             .strokeBorder(.quaternary, lineWidth: 0.5)

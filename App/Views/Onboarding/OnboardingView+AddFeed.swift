@@ -29,14 +29,21 @@ extension OnboardingView {
                     } label: {
                         HStack {
                             Text(String(localized: "AddFeed.Search", table: "Feeds"))
+                                #if !os(visionOS)
+                                .foregroundStyle(.accent)
+                                #endif
+                            Spacer()
                             if isSearching {
-                                Spacer()
                                 ProgressView()
                             }
                         }
+                        .contentShape(.rect)
                         .padding(.horizontal)
                         .padding(.vertical, 12)
                     }
+                    #if os(visionOS)
+                    .buttonStyle(.plain)
+                    #endif
                     .disabled(urlInput.isEmpty || isSearching)
                 }
                 .background(.regularMaterial, in: .rect(cornerRadius: 20))
@@ -115,7 +122,7 @@ extension OnboardingView {
                             .padding(.vertical, 8)
                             .frame(maxWidth: .infinity)
                     }
-                    .buttonStyle(.glassProminent)
+                    .compatibleGlassProminentButtonStyle()
                     .buttonBorderShape(.capsule)
                     .padding(.horizontal, 20)
                     .padding(.vertical, 8)
@@ -128,13 +135,13 @@ extension OnboardingView {
                             .padding(.vertical, 8)
                             .frame(maxWidth: .infinity)
                     }
-                    .buttonStyle(.glass)
+                    .compatibleGlassButtonStyle()
                     .buttonBorderShape(.capsule)
                     .padding(.horizontal, 20)
                     .padding(.bottom, 8)
                 }
             }
-            .padding(.bottom, isIPad ? 20 : 0)
+            .padding(.bottom, isIPad ? 20 : 8)
         }
         .onAppear {
             isURLFieldFocused = true

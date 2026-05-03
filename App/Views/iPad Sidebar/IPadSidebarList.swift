@@ -22,14 +22,16 @@ struct IPadSidebarList: View {
 
     var body: some View {
         List(selection: $selectedDestination) {
-            sectionsAndAllArticles
-            bookmarksSection
-            insightsSection
+            primarySection
+            sectionsList
             listsSection
             followingSection
             profileSection
         }
         .listStyle(.sidebar)
+        #if targetEnvironment(macCatalyst)
+        .environment(\.defaultMinListRowHeight, 32.0)
+        #endif
         .searchable(text: $searchText, placement: .sidebar, prompt: Text(String(localized: "Prompt", table: "Search")))
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
@@ -46,44 +48,30 @@ struct IPadSidebarList: View {
         }
         .sheet(isPresented: $showingMore) {
             MoreView()
+                .environment(feedManager)
+                .environment(\.isSakuraBackgroundDisabled, true)
         }
         .sheet(isPresented: $showingNewList) {
             ListEditSheet(list: nil)
+                .environment(feedManager)
                 .interactiveDismissDisabled()
         }
         .sheet(item: $feedForEditSheet) { wrapper in
             EditFeedSheet(feedID: wrapper.id)
+                .environment(feedManager)
         }
     }
 
     @ViewBuilder
-    private var sectionsAndAllArticles: some View {
+    private var primarySection: some View {
         Section {
-            Label("Shared.AllArticles", systemImage: "square.stack")
+            Label(String(localized: "HomeSection.Today", table: "Home"), systemImage: "newspaper")
+                .tag(SidebarDestination.today)
+            Label(String(localized: "Sidebar.Following", table: "Feeds"), systemImage: "dot.radiowaves.up.forward")
                 .tag(SidebarDestination.allArticles)
-            ForEach(availableSections, id: \.self) { section in
-                HStack {
-                    Label(section.localizedTitle, systemImage: sectionIcon(section))
-                    Spacer()
-                    SidebarUnreadBadge(count: feedManager.unreadCount(for: section))
-                }
-                .tag(SidebarDestination.section(section))
-            }
-        }
-    }
-
-    @ViewBuilder
-    private var bookmarksSection: some View {
-        Section {
             Label("Tabs.Bookmarks", systemImage: "bookmark")
                 .tag(SidebarDestination.bookmarks)
-        }
-    }
-
-    @ViewBuilder
-    private var insightsSection: some View {
-        if contentInsightsEnabled {
-            Section {
+            if contentInsightsEnabled {
                 Label(String(localized: "Topics.Title", table: "Articles"), systemImage: "number")
                     .tag(SidebarDestination.topics)
                 Label(String(localized: "People.Title", table: "Articles"), systemImage: "person.2")
@@ -93,10 +81,26 @@ struct IPadSidebarList: View {
     }
 
     @ViewBuilder
+    private var sectionsList: some View {
+        if !availableSections.isEmpty {
+            Section {
+                ForEach(availableSections, id: \.self) { section in
+                    HStack {
+                        Label(section.localizedTitle, systemImage: sectionIcon(section))
+                        Spacer()
+                        SidebarUnreadBadge(count: feedManager.unreadCount(for: section))
+                    }
+                    .tag(SidebarDestination.section(section))
+                }
+            }
+        }
+    }
+
+    @ViewBuilder
     private var listsSection: some View {
         if !feedManager.lists.isEmpty {
             Section("Tabs.Lists") {
-                ForEach(feedManager.lists) { list in
+                ForEach(sortedLists) { list in
                     HStack {
                         Label(list.name, systemImage: list.icon)
                         Spacer()
@@ -124,7 +128,7 @@ struct IPadSidebarList: View {
                 Section {
                     ForEach(feeds) { feed in
                         NavigationLink(value: SidebarDestination.feed(feed)) {
-                            FollowingFeedRow(feed: feed)
+                            FollowingFeedRow(feed: feed, showsDomain: false)
                         }
                         .contextMenu {
                             FollowingFeedContextMenu(
@@ -153,6 +157,12 @@ struct IPadSidebarList: View {
         }
     }
 
+    private var sortedLists: [FeedList] {
+        feedManager.lists.sorted {
+            $0.name.localizedStandardCompare($1.name) == .orderedAscending
+        }
+    }
+
     private func feedsForSection(_ section: FeedSection) -> [Feed] {
         let feeds = feedManager.feeds.filter { $0.feedSection == section }
         if section == .feeds {
@@ -167,10 +177,12 @@ struct IPadSidebarList: View {
 
     @ViewBuilder
     private var profileSection: some View {
+        #if !targetEnvironment(macCatalyst)
         Section {
             Label("Tabs.Profile", systemImage: "person.crop.circle")
                 .tag(SidebarDestination.more)
         }
+        #endif
     }
 
     @ViewBuilder

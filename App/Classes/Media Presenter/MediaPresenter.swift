@@ -11,6 +11,12 @@ final class MediaPresenter {
 
     var presentedItem: NowPlayingItem?
 
+    /// When set, `presentYouTube`/`presentPodcast` route to this handler
+    /// instead of mutating `presentedItem`. visionOS uses this to open a
+    /// detached window per playback request.
+    @ObservationIgnored
+    var detachedHandler: ((NowPlayingItem) -> Void)?
+
     private init() {}
 
     func presentYouTube(_ article: Article) {
@@ -28,10 +34,18 @@ final class MediaPresenter {
            let imageURL = article.imageURL.flatMap(URL.init(string:)) {
             session.artworkURL = imageURL
         }
-        presentedItem = .youTube(article)
+        if let detachedHandler {
+            detachedHandler(.youTube(article))
+        } else {
+            presentedItem = .youTube(article)
+        }
     }
 
     func presentPodcast(_ article: Article) {
-        presentedItem = .podcast(article)
+        if let detachedHandler {
+            detachedHandler(.podcast(article))
+        } else {
+            presentedItem = .podcast(article)
+        }
     }
 }

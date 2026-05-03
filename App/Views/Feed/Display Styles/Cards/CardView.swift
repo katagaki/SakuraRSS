@@ -87,6 +87,8 @@ struct CardView: View {
                 .padding(24)
             }
             .clipShape(.rect(cornerRadius: 24))
+            .contentShape(.hoverEffect, .rect(cornerRadius: 24))
+            .hoverEffect(.highlight)
             .shadow(color: .black.opacity(0.2), radius: 8, y: 4)
             .offset(x: offset.width, y: offset.height * 0.3)
             .rotationEffect(.degrees(rotation))
@@ -98,7 +100,7 @@ struct CardView: View {
                         let pastThreshold = abs(value.translation.width) >= 80
                         if pastThreshold != hasPassedThreshold {
                             hasPassedThreshold = pastThreshold
-                            UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                            Haptics.impact(.light)
                         }
                     }
                     .onEnded { value in

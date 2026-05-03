@@ -538,13 +538,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Mehrere Ansichtsstile"
+            "value" : "Mehrere Anzeigestile"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Multiple View Styles"
+            "value" : "Multiple Display Styles"
           }
         },
         "fr" : {
@@ -568,7 +568,7 @@
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "다양한 보기 스타일"
+            "value" : "다양한 표시 스타일"
           }
         },
         "vi" : {
@@ -2308,13 +2308,13 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ansichtsstil wechseln"
+            "value" : "Anzeigestil wechseln"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Switch View Styles"
+            "value" : "Switch Display Styles"
           }
         },
         "fr" : {
@@ -2338,7 +2338,7 @@
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "보기 스타일 전환"
+            "value" : "표시 스타일 전환"
           }
         },
         "vi" : {

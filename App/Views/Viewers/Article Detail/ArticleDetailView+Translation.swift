@@ -1,4 +1,5 @@
 import SwiftUI
+#if !os(visionOS)
 @preconcurrency import Translation
 
 extension ArticleDetailView {
@@ -48,3 +49,4 @@ extension ArticleDetailView {
         }
     }
 }
+#endif

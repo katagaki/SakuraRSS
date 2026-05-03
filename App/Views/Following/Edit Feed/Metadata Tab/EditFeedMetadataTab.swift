@@ -51,6 +51,7 @@ struct EditFeedMetadataTab: View {
         .sheet(isPresented: $showPetalBuilder) {
             if let feed, let recipe = PetalStore.shared.recipe(forFeedURL: feed.url) {
                 PetalBuilderView(mode: .edit(feed: feed, recipe: recipe))
+                    .environment(feedManager)
             }
         }
     }

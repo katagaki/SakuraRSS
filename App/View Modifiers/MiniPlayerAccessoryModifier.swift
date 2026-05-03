@@ -32,17 +32,10 @@ struct MiniPlayerAccessoryModifier: ViewModifier {
     func body(content: Content) -> some View {
         @Bindable var presenter = mediaPresenter
         return content
-            .tabViewBottomAccessory(isEnabled: nowPlayingItem != nil) {
-                Button {
-                    // MUST be this exactly, or SwiftUI goes bonkers
-                    isSheetPresented = true
-                } label: {
-                    accessoryContent
-                        .matchedTransitionSource(id: "NowPlayingBar", in: namespace)
-                        .contentShape(.rect)
-                }
-                .buttonStyle(.plain)
-            }
+            .modifier(BottomAccessoryModifier(
+                isEnabled: nowPlayingItem != nil,
+                accessory: { accessoryButton }
+            ))
             // Sheet for Now Playing bar - MUST use isSheetPresented
             .sheet(isPresented: $isSheetPresented) {
                 NavigationStack {
@@ -55,13 +48,30 @@ struct MiniPlayerAccessoryModifier: ViewModifier {
                     .zoom(sourceID: "NowPlayingBar", in: namespace)
                 )
             }
-            // Sheet for Now Playing triggered from other views
+            // Sheet for Now Playing triggered from other views.
+            // On visionOS, MediaPresenter routes to a detached window
+            // instead, so this sheet stays inert.
+            #if !os(visionOS)
             .sheet(item: $presenter.presentedItem) { item in
                 NavigationStack {
                     sheetContent(for: item)
                 }
                 .presentationDragIndicator(.visible)
             }
+            #endif
+    }
+
+    @ViewBuilder
+    private var accessoryButton: some View {
+        Button {
+            // MUST be this exactly, or SwiftUI goes bonkers
+            isSheetPresented = true
+        } label: {
+            accessoryContent
+                .matchedTransitionSource(id: "NowPlayingBar", in: namespace)
+                .contentShape(.rect)
+        }
+        .buttonStyle(.plain)
     }
 
     @ViewBuilder
@@ -96,5 +106,20 @@ extension View {
             youTubeSession: youTubeSession,
             mediaPresenter: mediaPresenter
         ))
+    }
+}
+
+private struct BottomAccessoryModifier<Accessory: View>: ViewModifier {
+    let isEnabled: Bool
+    @ViewBuilder let accessory: () -> Accessory
+
+    func body(content: Content) -> some View {
+        #if os(visionOS)
+        content
+        #else
+        content.tabViewBottomAccessory(isEnabled: isEnabled) {
+            accessory()
+        }
+        #endif
     }
 }

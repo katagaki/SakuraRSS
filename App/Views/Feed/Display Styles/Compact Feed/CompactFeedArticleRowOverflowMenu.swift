@@ -9,7 +9,7 @@ struct CompactFeedArticleRowOverflowMenu: View {
     var body: some View {
         Menu {
             Button {
-                UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                Haptics.impact(.light)
                 feedManager.toggleBookmark(article)
             } label: {
                 Label(

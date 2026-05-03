@@ -12,6 +12,7 @@ struct ListEditSheet: View {
     @State private var selectedDisplayStyle: String?
     @State private var selectedFeedIDs: Set<Int64> = []
     @State private var hasInitialized = false
+    @FocusState private var isNameFieldFocused: Bool
 
     private var isEditing: Bool { list != nil }
 
@@ -33,6 +34,7 @@ struct ListEditSheet: View {
             List {
                 Section {
                     TextField(String(localized: "ListEdit.NamePlaceholder", table: "Lists"), text: $name)
+                        .focused($isNameFieldFocused)
                     if nameAlreadyExists {
                         Text(String(localized: "ListEdit.NameExists", table: "Lists"))
                             .font(.caption)
@@ -141,6 +143,8 @@ struct ListEditSheet: View {
                     selectedIcon = list.icon
                     selectedDisplayStyle = list.displayStyle
                     selectedFeedIDs = feedManager.feedIDs(for: list)
+                } else {
+                    isNameFieldFocused = true
                 }
             }
         }

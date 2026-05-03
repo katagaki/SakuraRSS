@@ -74,7 +74,7 @@ struct ScrollStyleView: View {
                 }
             }
             .background(Color.black.ignoresSafeArea())
-            .scrollEdgeEffectHidden(true, for: .all)
+            .compatibleScrollEdgeEffectHidden()
     }
 
     private func handleTap(on article: Article) {

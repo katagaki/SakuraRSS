@@ -1,6 +1,9 @@
 import Foundation
+#if !os(visionOS)
 @preconcurrency import Translation
+#endif
 
+#if !os(visionOS)
 extension ContentBlock {
 
     enum TranslationSegment {
@@ -116,3 +119,4 @@ extension ContentBlock {
         return Int(identifier.dropFirst(segmentIdentifierPrefix.count))
     }
 }
+#endif

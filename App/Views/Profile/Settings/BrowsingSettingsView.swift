@@ -5,7 +5,7 @@ struct BrowsingSettingsView: View {
     @AppStorage("Articles.BatchingMode") private var batchingMode: BatchingMode = .items25
     @AppStorage("Articles.HideViewedContent") private var hideViewedContent: Bool = false
     @AppStorage("Display.ScrollMarkAsRead") private var scrollMarkAsRead: Bool = false
-    @AppStorage(LinkOpenMode.storageKey) private var linkOpenMode: LinkOpenMode = .browser
+    @AppStorage(LinkOpenMode.storageKey) private var linkOpenMode: LinkOpenMode = .inAppViewer
     @AppStorage(DoomscrollingMode.storageKey) private var doomscrollingMode: Bool = false
 
     private var hideViewedContentBinding: Binding<Bool> {

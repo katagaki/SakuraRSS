@@ -20,7 +20,7 @@ struct PetalElementPickerBottomBar: View {
                 )
                 .padding(.vertical, 6)
                 .compositingGroup()
-                .glassEffect(.regular, in: .capsule)
+                .compatibleGlassEffect(in: .capsule)
             }
             HStack(alignment: .center, spacing: 12) {
                 Group {
@@ -48,7 +48,7 @@ struct PetalElementPickerBottomBar: View {
                 .padding(.vertical, 10)
                 .fixedSize(horizontal: false, vertical: true)
                 .compositingGroup()
-                .glassEffect(.regular, in: .capsule)
+                .compatibleGlassEffect(in: .capsule)
                 PetalElementAssignMenu(recipe: $recipe, picked: picked)
             }
             .fixedSize(horizontal: false, vertical: true)

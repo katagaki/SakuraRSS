@@ -61,7 +61,7 @@ struct CompactFeedArticleRowActions: View {
     @ViewBuilder
     private var markReadButton: some View {
         Button {
-            UIImpactFeedbackGenerator(style: .light).impactOccurred()
+            Haptics.impact(.light)
             feedManager.toggleRead(article)
         } label: {
             Image(systemName: feedManager.isRead(article) ? "envelope" : "envelope.open")

@@ -161,17 +161,17 @@ struct ScrollArticlePage: View {
                 isVideoFeed: isVideoFeed,
                 onOpenFeed: {
                     if let feed, let navigateToFeed {
-                        UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                        Haptics.impact(.light)
                         navigateToFeed(feed)
                     }
                 },
                 onOpen: { openArticleURL() },
                 onCopy: {
-                    UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                    Haptics.impact(.light)
                     UIPasteboard.general.string = article.url
                 },
                 onToggleBookmark: {
-                    UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                    Haptics.impact(.light)
                     feedManager.toggleBookmark(article)
                 },
                 shareURL: URL(string: article.url)

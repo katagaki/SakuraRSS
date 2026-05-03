@@ -30,7 +30,7 @@ extension PodcastEpisodeView {
                     .padding(.horizontal, 14)
                     .padding(.vertical, 8)
             }
-            .buttonStyle(.glass)
+            .compatibleGlassButtonStyle()
             .padding(.bottom, 12)
         }
     }

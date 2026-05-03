@@ -1,6 +1,8 @@
 import SwiftUI
 import FoundationModels
+#if !os(visionOS)
 @preconcurrency import Translation
+#endif
 
 struct PodcastEpisodeView: View {
 
@@ -44,7 +46,9 @@ struct PodcastEpisodeView: View {
     @State var translatedText: String?
     @State var translatedSummary: String?
     @State var isTranslating = false
+    #if !os(visionOS)
     @State var translationConfig: TranslationSession.Configuration?
+    #endif
     @State var showingTranslation = false
 
     @State var summarizedText: String?
@@ -312,8 +316,10 @@ struct PodcastEpisodeView: View {
                 Text(summarizationError)
             }
         }
+        #if !os(visionOS)
         .translationTask(translationConfig) { session in
             await handleTranslation(session: session)
         }
+        #endif
     }
 }

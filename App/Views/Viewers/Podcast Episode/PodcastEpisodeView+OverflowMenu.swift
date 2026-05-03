@@ -6,6 +6,7 @@ extension PodcastEpisodeView {
     var overflowMenu: some View {
         Menu {
             if hasSummary {
+                #if !os(visionOS)
                 if !showingTranslation {
                     Button {
                         handleToolbarTranslateTap()
@@ -14,6 +15,7 @@ extension PodcastEpisodeView {
                     }
                     .disabled(isTranslating)
                 }
+                #endif
 
                 if isAppleIntelligenceAvailable, !showingSummary {
                     Button {
@@ -123,7 +125,9 @@ extension PodcastEpisodeView {
                 showingTranslation.toggle()
             }
         } else if !isTranslating {
+            #if !os(visionOS)
             triggerTranslation()
+            #endif
         }
     }
 

@@ -11,6 +11,8 @@ extension IPadSidebarView {
                 }
             } else {
                 switch selectedDestination {
+                case .today:
+                    iPadTodayContent()
                 case .allArticles:
                     iPadAllArticlesContent()
                 case .section(let section):
@@ -97,6 +99,15 @@ extension IPadSidebarView {
     }
 
     @ViewBuilder
+    func iPadTodayContent() -> some View {
+        iPadArticleListWrapper {
+            TodayView()
+                .navigationTitle(String(localized: "HomeSection.Today", table: "Home"))
+                .toolbarTitleDisplayMode(.inline)
+        }
+    }
+
+    @ViewBuilder
     func iPadAllArticlesContent() -> some View {
         iPadArticleListWrapper {
             AllArticlesView()
@@ -145,6 +156,7 @@ extension IPadSidebarView {
                     selectedDestination = .feed(feed)
                 })
                 .environment(\.zoomNamespace, cardZoom)
+                .toolbarTitleDisplayMode(.inlineLarge)
                 .navigationDestination(for: Feed.self) { feed in
                     FeedArticlesView(feed: feed)
                         .environment(\.iPadArticleSelection, $selectedArticle)

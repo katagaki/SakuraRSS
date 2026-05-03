@@ -36,6 +36,9 @@ struct PodcastPlayerControls: View {
             playbackSpeedMenu
         }
         .foregroundStyle(.primary)
+        #if os(visionOS)
+        .buttonStyle(.plain)
+        #endif
     }
 
     private var transcriptToggle: some View {

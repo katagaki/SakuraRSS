@@ -26,19 +26,11 @@ struct ActionButton: View {
             .contentShape(.circle)
         }
         .buttonStyle(.plain)
-        .glassEffect(glassEffect, in: .circle)
+        .compatibleGlassEffect(in: .circle, tint: isTinted ? .accentColor : nil, interactive: true)
         .optionalGlassEffectID(glassID, in: glassNamespace)
         .disabled(isLoading)
         .accessibilityLabel(accessibilityLabel)
         .animation(.smooth.speed(2.0), value: isLoading)
         .animation(.smooth.speed(2.0), value: isTinted)
-    }
-
-    private var glassEffect: Glass {
-        if isTinted {
-            return .regular.tint(.accentColor).interactive()
-        } else {
-            return .regular.interactive()
-        }
     }
 }

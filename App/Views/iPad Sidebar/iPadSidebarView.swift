@@ -11,9 +11,13 @@ struct IPadSidebarView: View {
     @Binding var pendingArticleID: Int64?
     @Binding var pendingOpenRequest: OpenArticleRequest?
 
-    @State var selectedDestination: SidebarDestination? = .allArticles
+    @SceneStorage("IPadSidebar.SelectedDestinationToken")
+    private var selectedDestinationToken: String = SidebarDestination.today.persistenceToken
+
+    @State var selectedDestination: SidebarDestination? = .today
     @State var selectedArticle: Article?
     @State var ephemeralDestinations: [EphemeralArticleDestination] = []
+    @State private var hasRestoredSelectedDestination: Bool = false
     @State private var columnVisibility: NavigationSplitViewVisibility = .all
     @State var showingAddFeed = false
     @State var showingNewList = false
@@ -89,9 +93,23 @@ struct IPadSidebarView: View {
             }
         }
         .onAppear {
+            if !hasRestoredSelectedDestination {
+                hasRestoredSelectedDestination = true
+                if let restored = SidebarDestination.resolve(
+                    token: selectedDestinationToken,
+                    feedManager: feedManager
+                ), restored != selectedDestination {
+                    selectedDestination = restored
+                }
+            }
             if !onboardingCompleted {
                 showingOnboarding = true
             }
+        }
+        .onChange(of: selectedDestination) { _, newValue in
+            guard hasRestoredSelectedDestination,
+                  let newValue, newValue != .more else { return }
+            selectedDestinationToken = newValue.persistenceToken
         }
     }
 }

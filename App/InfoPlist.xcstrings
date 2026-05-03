@@ -67,55 +67,55 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sakura verwendet deinen Standort, um auf dem Heute-Tab das lokale Wetter anzuzeigen. Der Standort wird ausschließlich an Apple Wetter gesendet und nicht auf unseren Servern gespeichert."
+            "value" : "Sakura verwendet deinen Standort, um auf dem Heute-Tab das lokale Wetter anzuzeigen."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sakura uses your location to show local weather on the Today tab. The location is sent only to Apple Weather and is never stored on our servers."
+            "value" : "Sakura uses your location to show local weather on the Today tab."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sakura utilise votre position pour afficher la météo locale dans l’onglet Aujourd’hui. Elle est uniquement envoyée à Apple Météo et n’est jamais conservée sur nos serveurs."
+            "value" : "Sakura utilise votre position pour afficher la météo locale dans l’onglet Aujourd’hui."
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sakura usa la tua posizione per mostrare il meteo locale nella scheda Oggi. La posizione viene inviata solo ad Apple Meteo e non viene mai memorizzata sui nostri server."
+            "value" : "Sakura usa la tua posizione per mostrare il meteo locale nella scheda Oggi."
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "サクラは「Today」タブにローカルの天気を表示するために位置情報を使用します。位置情報はApple天気にのみ送信され、当社のサーバーには保存されません。"
+            "value" : "サクラは「Today」タブにローカルの天気を表示するために位置情報を使用します。"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sakura는 Today 탭에 현지 날씨를 표시하기 위해 위치 정보를 사용합니다. 위치 정보는 Apple 날씨에만 전송되며, 자체 서버에는 저장되지 않습니다."
+            "value" : "Sakura는 Today 탭에 현지 날씨를 표시하기 위해 위치 정보를 사용합니다."
           }
         },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sakura sử dụng vị trí của bạn để hiển thị thời tiết tại địa phương trong tab Today. Vị trí chỉ được gửi đến Apple Weather và không bao giờ được lưu trên máy chủ của chúng tôi."
+            "value" : "Sakura sử dụng vị trí của bạn để hiển thị thời tiết tại địa phương trong tab Today."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sakura 使用您的位置，在「Today」标签页中显示本地天气。位置仅会发送至 Apple 天气，绝不会存储在我们的服务器上。"
+            "value" : "Sakura 使用您的位置，在「Today」标签页中显示本地天气。"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sakura 使用您的位置，在「Today」分頁中顯示本地天氣。位置僅會傳送至 Apple 天氣，絕不會儲存在我們的伺服器上。"
+            "value" : "Sakura 使用您的位置，在「Today」分頁中顯示本地天氣。"
           }
         }
       }
@@ -126,7 +126,7 @@
       "localizations" : {
         "de" : {
           "stringUnit" : {
-            "state" : "needs_review",
+            "state" : "translated",
             "value" : "Sakura kann Bilder in deiner Fotomediathek speichern."
           }
         },
@@ -138,43 +138,43 @@
         },
         "fr" : {
           "stringUnit" : {
-            "state" : "needs_review",
+            "state" : "translated",
             "value" : "Sakura peut enregistrer des images dans votre photothèque."
           }
         },
         "it" : {
           "stringUnit" : {
-            "state" : "needs_review",
+            "state" : "translated",
             "value" : "Sakura può salvare immagini nella tua libreria foto."
           }
         },
         "ja" : {
           "stringUnit" : {
-            "state" : "needs_review",
+            "state" : "translated",
             "value" : "サクラは画像を写真ライブラリに保存できます。"
           }
         },
         "ko" : {
           "stringUnit" : {
-            "state" : "needs_review",
+            "state" : "translated",
             "value" : "Sakura는 이미지를 사진 보관함에 저장할 수 있습니다."
           }
         },
         "vi" : {
           "stringUnit" : {
-            "state" : "needs_review",
+            "state" : "translated",
             "value" : "Sakura có thể lưu hình ảnh vào Thư viện ảnh của bạn."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
-            "state" : "needs_review",
+            "state" : "translated",
             "value" : "Sakura 可以将图片保存到您的照片图库。"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
-            "state" : "needs_review",
+            "state" : "translated",
             "value" : "Sakura 可以將圖片儲存到你的照片圖庫。"
           }
         }
@@ -328,7 +328,7 @@
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sakura Webフィード"
+            "value" : "サクラWebフィード"
           }
         },
         "ko" : {

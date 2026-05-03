@@ -71,6 +71,7 @@ struct FeedHeaderView: View {
         }
         .sheet(isPresented: $isEditingFeed) {
             EditFeedSheet(feedID: feed.id)
+                .environment(feedManager)
                 .navigationTransition(.zoom(sourceID: feed.id, in: editNamespace))
         }
     }
@@ -108,7 +109,7 @@ struct FeedHeaderView: View {
 
     @ViewBuilder
     private var actionButtons: some View {
-        GlassEffectContainer(spacing: 8) {
+        CompatibleGlassEffectContainer(spacing: 8) {
             HStack(spacing: 8) {
                 Spacer(minLength: 0)
 
@@ -125,9 +126,9 @@ struct FeedHeaderView: View {
                         .padding(.horizontal, 14)
                         .padding(.vertical, 4)
                 }
-                .buttonStyle(.glass)
+                .compatibleGlassButtonStyle()
                 .buttonBorderShape(.capsule)
-                .glassEffectID("MuteToggle", in: namespace)
+                .compatibleGlassEffectID("MuteToggle", in: namespace)
 
                 Button {
                     isEditingFeed = true
@@ -137,10 +138,10 @@ struct FeedHeaderView: View {
                         .frame(minHeight: 36)
                         .matchedTransitionSource(id: feed.id, in: editNamespace)
                 }
-                .buttonStyle(.glass)
+                .compatibleGlassButtonStyle()
                 .buttonBorderShape(.circle)
                 .accessibilityLabel(String(localized: "FeedHeader.Edit", table: "Feeds"))
-                .glassEffectID("Edit", in: namespace)
+                .compatibleGlassEffectID("Edit", in: namespace)
 
                 if let shareURL {
                     ShareLink(item: shareURL) {
@@ -148,10 +149,10 @@ struct FeedHeaderView: View {
                             .font(.subheadline.weight(.semibold))
                             .frame(minHeight: 36)
                     }
-                    .buttonStyle(.glass)
+                    .compatibleGlassButtonStyle()
                     .buttonBorderShape(.circle)
                     .accessibilityLabel(String(localized: "FeedHeader.Share", table: "Feeds"))
-                    .glassEffectID("Share", in: namespace)
+                    .compatibleGlassEffectID("Share", in: namespace)
                 }
 
                 Spacer(minLength: 0)

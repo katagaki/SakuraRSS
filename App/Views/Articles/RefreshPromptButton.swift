@@ -19,7 +19,7 @@ struct RefreshPromptButton: View {
             .padding(.horizontal, 10)
             .padding(.vertical, 4)
         }
-        .buttonStyle(.glassProminent)
+        .compatibleGlassProminentButtonStyle()
         .buttonBorderShape(.capsule)
     }
 }

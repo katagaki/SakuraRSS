@@ -1,6 +1,8 @@
 import SwiftUI
 import FoundationModels
+#if !os(visionOS)
 @preconcurrency import Translation
+#endif
 
 struct ArticleDetailView: View {
 
@@ -33,7 +35,9 @@ struct ArticleDetailView: View {
     @State var translatedTitle: String?
     @State var translatedSummary: String?
     @State var isTranslating = false
+    #if !os(visionOS)
     @State var translationConfig: TranslationSession.Configuration?
+    #endif
     @State var showingTranslation = false
     @State var hasCachedTranslation = false
     @State var summarizedText: String?
@@ -49,7 +53,7 @@ struct ArticleDetailView: View {
     @State var inAppLinkURL: URL?
     @Namespace private var imageViewerNamespace
     @AppStorage("YouTube.OpenMode") var youTubeOpenMode: YouTubeOpenMode = .inAppPlayer
-    @AppStorage(LinkOpenMode.storageKey) var linkOpenMode: LinkOpenMode = .browser
+    @AppStorage(LinkOpenMode.storageKey) var linkOpenMode: LinkOpenMode = .inAppViewer
     @AppStorage("Intelligence.ContentInsights.Enabled") var contentInsightsEnabled: Bool = false
     @State var similarArticles: [SimilarArticleItem] = []
     @State var articleTopics: [String] = []
@@ -368,8 +372,10 @@ struct ArticleDetailView: View {
                 overrideTextMode: .auto
             )
         }
+        #if !os(visionOS)
         .translationTask(translationConfig) { session in
             await handleTranslation(session: session)
         }
+        #endif
     }
 }

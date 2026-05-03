@@ -160,6 +160,30 @@ struct FeedArticlesView: View {
         .environment(\.feedBackgroundColors, prominentColors)
         .toolbar {
             ToolbarItem(placement: .principal) {
+                #if os(visionOS)
+                VStack(alignment: .leading, spacing: 0) {
+                    Text(currentFeed.title)
+                        .font(.subheadline)
+                        .fontWeight(.semibold)
+                    if !currentFeed.domain.isEmpty {
+                        Text(currentFeed.domain)
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+                .multilineTextAlignment(.leading)
+                .lineLimit(1)
+                .truncationMode(.middle)
+                .fixedSize(horizontal: false, vertical: true)
+                .frame(height: 42)
+                .contentShape(.rect)
+                .onTapGesture {
+                    scrollToTopTick &+= 1
+                }
+                .allowsHitTesting(showsPrincipalTitle)
+                .opacity(showsPrincipalTitle ? 1 : 0)
+                .animation(.smooth.speed(2.0), value: showsPrincipalTitle)
+                #else
                 VStack(spacing: 0) {
                     Text(currentFeed.title)
                         .font(.subheadline)
@@ -176,7 +200,7 @@ struct FeedArticlesView: View {
                 .fixedSize(horizontal: false, vertical: true)
                 .frame(height: 42)
                 .padding(.horizontal, 18)
-                .glassEffect(.regular.interactive(), in: .capsule)
+                .compatibleGlassEffect(in: .capsule, interactive: true)
                 .contentShape(.capsule)
                 .onTapGesture {
                     scrollToTopTick &+= 1
@@ -184,6 +208,7 @@ struct FeedArticlesView: View {
                 .allowsHitTesting(showsPrincipalTitle)
                 .opacity(showsPrincipalTitle ? 1 : 0)
                 .animation(.smooth.speed(2.0), value: showsPrincipalTitle)
+                #endif
             }
         }
         .onScrollGeometryChange(for: Bool.self) { geo in

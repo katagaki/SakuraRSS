@@ -44,12 +44,12 @@ extension OnboardingView {
                         .padding(.vertical, 8)
                         .frame(maxWidth: .infinity)
                 }
-                .buttonStyle(.glass)
+                .compatibleGlassButtonStyle()
                 .buttonBorderShape(.capsule)
                 .padding(.horizontal, 20)
                 .padding(.bottom, 8)
             }
-            .padding(.bottom, isIPad ? 20 : 0)
+            .padding(.bottom, isIPad ? 20 : 8)
         }
     }
 }

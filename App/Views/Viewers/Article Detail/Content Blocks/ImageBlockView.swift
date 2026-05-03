@@ -67,7 +67,7 @@ struct ImageBlockView: View {
         if let loadedImage {
             Button {
                 UIPasteboard.general.image = loadedImage
-                UINotificationFeedbackGenerator().notificationOccurred(.success)
+                Haptics.notify(.success)
             } label: {
                 Label(
                     String(localized: "ContentBlock.Image.Copy", table: "Articles"),

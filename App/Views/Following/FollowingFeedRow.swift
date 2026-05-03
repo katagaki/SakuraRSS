@@ -4,9 +4,17 @@ struct FollowingFeedRow: View {
 
     @Environment(FeedManager.self) var feedManager
     let feed: Feed
+    var showsDomain: Bool = true
     @State private var icon: UIImage?
 
     private var iconCornerRadius: CGFloat { 4 }
+    private var iconSize: CGFloat {
+        #if targetEnvironment(macCatalyst)
+        return 28
+        #else
+        return 32
+        #endif
+    }
 
     var body: some View {
         HStack(spacing: 12) {
@@ -14,7 +22,7 @@ struct FollowingFeedRow: View {
                 if let icon = icon {
                     IconImage(
                         icon,
-                        size: 32,
+                        size: iconSize,
                         cornerRadius: iconCornerRadius,
                         circle: feed.isCircleIcon,
                         skipInset: feed.isCircleIcon || feed.isXFeed || feed.isInstagramFeed
@@ -22,7 +30,7 @@ struct FollowingFeedRow: View {
                 } else if let data = feed.acronymIcon, let acronym = UIImage(data: data) {
                     IconImage(
                         acronym,
-                        size: 32,
+                        size: iconSize,
                         cornerRadius: iconCornerRadius,
                         circle: feed.isCircleIcon,
                         skipInset: true
@@ -30,7 +38,7 @@ struct FollowingFeedRow: View {
                 } else {
                     InitialsAvatarView(
                         feed.title,
-                        size: 32,
+                        size: iconSize,
                         circle: feed.isCircleIcon,
                         cornerRadius: iconCornerRadius
                     )
@@ -42,13 +50,13 @@ struct FollowingFeedRow: View {
                     IconProgressBadge(
                         lastFetched: feed.lastFetched,
                         cooldown: cooldown,
-                        size: 32,
+                        size: iconSize,
                         isCircle: feed.isCircleIcon,
                         cornerRadius: iconCornerRadius
                     )
                 }
             }
-            .frame(width: 32, height: 32)
+            .frame(width: iconSize, height: iconSize)
 
             VStack(alignment: .leading, spacing: 2) {
                 HStack(spacing: 4) {
@@ -61,10 +69,12 @@ struct FollowingFeedRow: View {
                             .foregroundStyle(.secondary)
                     }
                 }
-                Text(feed.domain.hasPrefix("www.") ? String(feed.domain.dropFirst(4)) : feed.domain)
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-                    .lineLimit(1)
+                if showsDomain {
+                    Text(feed.domain.hasPrefix("www.") ? String(feed.domain.dropFirst(4)) : feed.domain)
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
+                }
             }
 
             Spacer()
