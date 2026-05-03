@@ -31,8 +31,7 @@ struct TodayWeatherLocationSheet: View {
                             Text(String(localized: "TodayWeather.Location.Current", table: "Home"))
                         } icon: {
                             Image(systemName: "location.fill")
-                                .symbolRenderingMode(disabled ? .monochrome : .multicolor)
-                                .foregroundStyle(disabled ? AnyShapeStyle(.secondary) : AnyShapeStyle(.tint))
+                                .foregroundStyle(disabled ? AnyShapeStyle(.secondary) : AnyShapeStyle(.accent))
                         }
                         .foregroundStyle(disabled ? AnyShapeStyle(.secondary) : AnyShapeStyle(.primary))
                     }
