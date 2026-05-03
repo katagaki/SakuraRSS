@@ -48,6 +48,20 @@ extension FeedManager {
         return filterExcludingPodcastsAndVideos(allToday)
     }
 
+    /// Articles published between local 12:00 and now, used for the
+    /// Afternoon Brief summary card on the Today tab.
+    func afternoonBriefArticles() -> [Article] {
+        _ = dataRevision
+        let calendar = Calendar.current
+        let now = Date()
+        let midnight = calendar.startOfDay(for: now)
+        guard let noon = calendar.date(byAdding: .hour, value: 12, to: midnight) else {
+            return []
+        }
+        let articles = (try? database.allArticles(from: noon, to: now)) ?? []
+        return filterExcludingPodcastsAndVideos(articles)
+    }
+
     func olderArticles(limit: Int = 200) -> [Article] {
         _ = dataRevision
         let startOfToday = Calendar.current.startOfDay(for: Date())

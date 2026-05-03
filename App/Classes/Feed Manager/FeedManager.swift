@@ -42,6 +42,15 @@ final class FeedManager {
         return raw.mapValues { Date(timeIntervalSince1970: $0) }
     }
 
+    var searchHistory: [String] = FeedManager.loadSearchHistory() {
+        didSet {
+            UserDefaults.standard.set(
+                searchHistory,
+                forKey: FeedManager.searchHistoryDefaultsKey
+            )
+        }
+    }
+
     var refreshProgress: Double {
         guard refreshTotal > 0 else { return 0 }
         let fraction = Double(refreshCompleted) / Double(refreshTotal)

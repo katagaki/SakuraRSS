@@ -164,13 +164,13 @@
 				"Article Extractor/SiteAdapter.swift",
 				"Article Extractor/WebViewExtractor.swift",
 				"Icon Cache/IconCache.swift",
+				"Icon Cache/IconCache+Cropping.swift",
 				"Icon Cache/IconCache+CustomIcons.swift",
 				"Icon Cache/IconCache+FailedLookups.swift",
 				"Icon Cache/IconCache+Fetching.swift",
 				"Icon Cache/IconCache+HTMLParsing.swift",
 				"Icon Cache/IconCache+Profiles.swift",
 				"Icon Cache/IconCache+PWA.swift",
-				"Icon Cache/IconCache+Cropping.swift",
 			);
 			target = E47D10332F54980E006081EF /* Add Feed */;
 		};
@@ -207,13 +207,13 @@
 				"Article Extractor/SiteAdapter.swift",
 				"Article Extractor/WebViewExtractor.swift",
 				"Icon Cache/IconCache.swift",
+				"Icon Cache/IconCache+Cropping.swift",
 				"Icon Cache/IconCache+CustomIcons.swift",
 				"Icon Cache/IconCache+FailedLookups.swift",
 				"Icon Cache/IconCache+Fetching.swift",
 				"Icon Cache/IconCache+HTMLParsing.swift",
 				"Icon Cache/IconCache+Profiles.swift",
 				"Icon Cache/IconCache+PWA.swift",
-				"Icon Cache/IconCache+Cropping.swift",
 			);
 			target = E47D104C2F549821006081EF /* WidgetsExtension */;
 		};

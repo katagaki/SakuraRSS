@@ -1,24 +1,29 @@
 import SwiftUI
 
-struct TodayTabBar: View {
+struct HomeSectionBar: View {
 
-    let tabs: [TodayTabItem]
+    let tabs: [HomeSectionBarItem]
     @Binding var selection: HomeSelection
     @Binding var tabFrames: [String: CGRect]
+
+    private let deloreanClock = DeloreanClock.shared
 
     private var indicatorFrame: CGRect {
         tabFrames[selection.rawValue] ?? .zero
     }
 
     private var indicatorStyle: AnyShapeStyle {
+        if case .section(.today) = selection {
+            return AnyShapeStyle(TodayGreeting.periodGradient(at: deloreanClock.currentDate))
+        }
         switch selection {
-        case .section(let section): section.tabAccentStyle
-        case .list: AnyShapeStyle(Color.accentColor)
-        case .topic: AnyShapeStyle(Color.accentColor)
+        case .section(let section): return section.tabAccentStyle
+        case .list: return AnyShapeStyle(Color.accentColor)
+        case .topic: return AnyShapeStyle(Color.accentColor)
         }
     }
 
-    private func selectedTextColor(for tab: TodayTabItem) -> Color {
+    private func selectedTextColor(for tab: HomeSectionBarItem) -> Color {
         switch tab.selection {
         case .section(let section): section.tabSelectedTextColor
         case .list, .topic: .white
@@ -30,7 +35,7 @@ struct TodayTabBar: View {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 4) {
                     ForEach(tabs) { tab in
-                        TodayTabButton(
+                        HomeSectionBarButton(
                             tab: tab,
                             isSelected: tab.matches(selection),
                             selectedTextColor: selectedTextColor(for: tab)
@@ -44,7 +49,7 @@ struct TodayTabBar: View {
                         .background {
                             GeometryReader { geo in
                                 Color.clear.preference(
-                                    key: TodayTabFrameKey.self,
+                                    key: HomeSectionBarFrameKey.self,
                                     value: [tab.id: geo.frame(in: .named(Self.coordinateSpaceID))]
                                 )
                             }
@@ -68,7 +73,7 @@ struct TodayTabBar: View {
                         .animation(.smooth.speed(2.0), value: indicatorFrame)
                         .animation(.smooth.speed(2.0), value: selection)
                 }
-                .onPreferenceChange(TodayTabFrameKey.self) { newFrames in
+                .onPreferenceChange(HomeSectionBarFrameKey.self) { newFrames in
                     tabFrames.merge(newFrames, uniquingKeysWith: { _, new in new })
                 }
             }
@@ -81,19 +86,19 @@ struct TodayTabBar: View {
         }
     }
 
-    private static let coordinateSpaceID = "TodayTabBar"
+    private static let coordinateSpaceID = "HomeSectionBar"
 }
 
-private struct TodayTabFrameKey: PreferenceKey {
+private struct HomeSectionBarFrameKey: PreferenceKey {
     static let defaultValue: [String: CGRect] = [:]
     static func reduce(value: inout [String: CGRect], nextValue: () -> [String: CGRect]) {
         value.merge(nextValue(), uniquingKeysWith: { _, new in new })
     }
 }
 
-private struct TodayTabButton: View {
+private struct HomeSectionBarButton: View {
 
-    let tab: TodayTabItem
+    let tab: HomeSectionBarItem
     let isSelected: Bool
     let selectedTextColor: Color
     let action: () -> Void

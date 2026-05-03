@@ -4,6 +4,7 @@ import FoundationModels
 struct OnDeviceIntelligenceSettingsView: View {
 
     @AppStorage("TodaysSummary.Enabled") private var todaysSummaryEnabled: Bool = false
+    @AppStorage("AfternoonBrief.Enabled") private var afternoonBriefEnabled: Bool = false
     @AppStorage("WhileYouSlept.Enabled") private var whileYouSleptEnabled: Bool = false
     @AppStorage("Intelligence.ContentInsights.Enabled") private var contentInsightsEnabled: Bool = false
 
@@ -16,6 +17,7 @@ struct OnDeviceIntelligenceSettingsView: View {
             if isAppleIntelligenceAvailable {
                 Section {
                     Toggle(String(localized: "WhileYouSlept", table: "Settings"), isOn: $whileYouSleptEnabled)
+                    Toggle(String(localized: "AfternoonBrief", table: "Settings"), isOn: $afternoonBriefEnabled)
                     Toggle(String(localized: "TodaysSummary", table: "Settings"), isOn: $todaysSummaryEnabled)
                 } header: {
                     Text(String(localized: "Section.AppleIntelligence", table: "Settings"))

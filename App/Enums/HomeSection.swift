@@ -2,6 +2,7 @@ import SwiftUI
 import UIKit
 
 enum HomeSection: String, CaseIterable, Identifiable {
+    case today
     case all
     case feeds
     case podcasts
@@ -20,6 +21,7 @@ enum HomeSection: String, CaseIterable, Identifiable {
 
     var localizedTitle: String {
         switch self {
+        case .today: String(localized: "HomeSection.Today", table: "Home")
         case .all: String(localized: "Shared.AllArticles")
         case .feeds: String(localized: "FeedSection.Feeds", table: "Feeds")
         case .podcasts: String(localized: "FeedSection.Podcasts", table: "Feeds")
@@ -38,6 +40,7 @@ enum HomeSection: String, CaseIterable, Identifiable {
 
     var systemImage: String? {
         switch self {
+        case .today: "sun.max"
         case .all: "square.stack"
         case .feeds: "newspaper"
         case .podcasts: "headphones"
@@ -48,6 +51,7 @@ enum HomeSection: String, CaseIterable, Identifiable {
     /// Brand-tinted accent used for the Today top tab bar's selected indicator.
     var tabAccentStyle: AnyShapeStyle {
         switch self {
+        case .today: AnyShapeStyle(Color.accentColor)
         case .podcasts: AnyShapeStyle(Color.indigo)
         case .bluesky: AnyShapeStyle(Color.blue)
         case .fediverse: AnyShapeStyle(LinearGradient(
@@ -76,7 +80,7 @@ enum HomeSection: String, CaseIterable, Identifiable {
 
     var feedSection: FeedSection? {
         switch self {
-        case .all: nil
+        case .today, .all: nil
         case .feeds: .feeds
         case .podcasts: .podcasts
         case .bluesky: .bluesky

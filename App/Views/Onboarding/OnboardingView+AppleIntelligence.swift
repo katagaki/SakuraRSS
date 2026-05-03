@@ -13,10 +13,11 @@ extension OnboardingView {
 
                 VStack(spacing: 0) {
                     Toggle(String(localized: "Setting.AISummaries", table: "Onboarding"), isOn: Binding(
-                        get: { todaysSummaryEnabled && whileYouSleptEnabled },
+                        get: { todaysSummaryEnabled && whileYouSleptEnabled && afternoonBriefEnabled },
                         set: { newValue in
                             todaysSummaryEnabled = newValue
                             whileYouSleptEnabled = newValue
+                            afternoonBriefEnabled = newValue
                         }
                     ))
                     .padding(.horizontal)
@@ -33,6 +34,7 @@ extension OnboardingView {
                 Button {
                     todaysSummaryEnabled = false
                     whileYouSleptEnabled = false
+                    afternoonBriefEnabled = false
                     withAnimation(.smooth.speed(2.0)) {
                         currentStep = .addFeed
                     }

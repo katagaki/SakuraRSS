@@ -8,6 +8,7 @@ struct OnboardingView: View {
     @AppStorage("Search.DisplayStyle") var searchDisplayStyle: FeedDisplayStyle = .inbox
     @AppStorage("BackgroundRefresh.Enabled") var backgroundRefreshEnabled: Bool = true
     @AppStorage("TodaysSummary.Enabled") var todaysSummaryEnabled: Bool = false
+    @AppStorage("AfternoonBrief.Enabled") var afternoonBriefEnabled: Bool = false
     @AppStorage("WhileYouSlept.Enabled") var whileYouSleptEnabled: Bool = false
 
     @State var currentStep: OnboardingStep = .welcome

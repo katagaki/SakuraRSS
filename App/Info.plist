@@ -55,6 +55,8 @@
 			</array>
 		</dict>
 	</array>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Location is used to show local weather on the Today tab.</string>
 	<key>LSApplicationQueriesSchemes</key>
 	<array>
 		<string>youtube</string>
