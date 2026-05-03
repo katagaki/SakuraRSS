@@ -31,10 +31,19 @@ struct TodayGreetingView: View {
                 }
                 .buttonStyle(.plain)
                 .fixedSize(horizontal: true, vertical: false)
+            } else if onboardingCompleted, !weatherService.isFetching {
+                Button {
+                    showingLocationPicker = true
+                } label: {
+                    setLocationPrompt
+                }
+                .buttonStyle(.plain)
+                .fixedSize(horizontal: true, vertical: false)
             }
         }
         .onAppear {
             applyClockState()
+            weatherService.refreshAuthorizationStatus()
             if onboardingCompleted {
                 Task { await weatherService.refreshIfNeeded() }
             }
@@ -74,6 +83,22 @@ struct TodayGreetingView: View {
                 .month(.wide)
                 .day()
         )
+    }
+
+    @ViewBuilder
+    private var setLocationPrompt: some View {
+        VStack(alignment: .trailing, spacing: 4) {
+            Image(systemName: "location.slash")
+                .symbolRenderingMode(.hierarchical)
+                .font(.title3)
+                .foregroundStyle(.secondary)
+            Text(String(localized: "TodayWeather.Location.SetPrompt", table: "Home"))
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.trailing)
+                .lineLimit(2)
+                .fixedSize(horizontal: true, vertical: false)
+        }
     }
 
     @ViewBuilder

@@ -36,6 +36,19 @@ final class TodayWeatherService {
     var weather: TodayWeather?
     var isFetching: Bool = false
     var lastError: String?
+    var locationAuthorizationStatus: CLAuthorizationStatus = .notDetermined
+
+    /// Whether the current authorization permits resolving the device location.
+    /// `.denied` and `.restricted` (which also covers system-wide Location Services off)
+    /// mean the Current Location flow is unavailable to this app.
+    var isCurrentLocationAvailable: Bool {
+        switch locationAuthorizationStatus {
+        case .authorizedAlways, .authorizedWhenInUse, .notDetermined:
+            return true
+        default:
+            return false
+        }
+    }
 
     private let weatherService = WeatherService.shared
     private let locationDelegate = LocationDelegate()
@@ -186,7 +199,13 @@ final class TodayWeatherService {
         switch manager.authorizationStatus {
         case .notDetermined:
             manager.requestWhenInUseAuthorization()
-            return await waitForLocation(using: manager)
+            // Don't issue requestLocation yet — it no-ops while auth is
+            // pending. The auth-change handler drives the request once the
+            // user resolves the prompt (and resolves the continuation as
+            // failed if denied).
+            return await withCheckedContinuation { continuation in
+                self.pendingResolution = continuation
+            }
         case .authorizedAlways, .authorizedWhenInUse:
             if let location = manager.location {
                 return location
@@ -195,6 +214,14 @@ final class TodayWeatherService {
         default:
             return nil
         }
+    }
+
+    /// Refreshes the cached authorization status. Safe to call from the UI.
+    /// Instantiating `CLLocationManager` doesn't prompt the user — it only
+    /// reads the existing system state.
+    func refreshAuthorizationStatus() {
+        let manager = ensureLocationManager()
+        locationAuthorizationStatus = manager.authorizationStatus
     }
 
     private func ensureLocationManager() -> CLLocationManager {
@@ -212,7 +239,27 @@ final class TodayWeatherService {
                 self?.deliver(location: nil)
             }
         }
+        locationDelegate.didChangeAuthorization = { [weak self] status in
+            Task { @MainActor in
+                guard let self else { return }
+                self.locationAuthorizationStatus = status
+                switch status {
+                case .authorizedAlways, .authorizedWhenInUse:
+                    if self.pendingResolution != nil,
+                       let manager = self.locationManager {
+                        manager.requestLocation()
+                    } else if self.weather == nil, !self.isFetching {
+                        await self.refresh(force: true)
+                    }
+                case .denied, .restricted:
+                    self.deliver(location: nil)
+                default:
+                    break
+                }
+            }
+        }
         locationManager = manager
+        locationAuthorizationStatus = manager.authorizationStatus
         return manager
     }
 
@@ -265,6 +312,7 @@ final class TodayWeatherService {
 private final class LocationDelegate: NSObject, CLLocationManagerDelegate, @unchecked Sendable {
     var didUpdate: ((CLLocation) -> Void)?
     var didFail: (() -> Void)?
+    var didChangeAuthorization: ((CLAuthorizationStatus) -> Void)?
 
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         guard let location = locations.last else { return }
@@ -276,13 +324,6 @@ private final class LocationDelegate: NSObject, CLLocationManagerDelegate, @unch
     }
 
     func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
-        switch manager.authorizationStatus {
-        case .authorizedWhenInUse, .authorizedAlways:
-            manager.requestLocation()
-        case .denied, .restricted:
-            didFail?()
-        default:
-            break
-        }
+        didChangeAuthorization?(manager.authorizationStatus)
     }
 }

@@ -16,6 +16,7 @@ struct TodayWeatherLocationSheet: View {
         NavigationStack {
             List {
                 Section {
+                    let disabled = !service.isCurrentLocationAvailable
                     Button {
                         Task {
                             await service.setLocation(TodayWeatherLocation(
@@ -30,7 +31,16 @@ struct TodayWeatherLocationSheet: View {
                             Text(String(localized: "TodayWeather.Location.Current", table: "Home"))
                         } icon: {
                             Image(systemName: "location.fill")
+                                .symbolRenderingMode(disabled ? .monochrome : .multicolor)
+                                .foregroundStyle(disabled ? AnyShapeStyle(.secondary) : AnyShapeStyle(.tint))
                         }
+                        .foregroundStyle(disabled ? AnyShapeStyle(.secondary) : AnyShapeStyle(.primary))
+                    }
+                    .disabled(disabled)
+                    .opacity(disabled ? 0.3 : 1)
+                } footer: {
+                    if !service.isCurrentLocationAvailable {
+                        Text(String(localized: "TodayWeather.Location.ServicesDisabled", table: "Home"))
                     }
                 }
 
@@ -74,6 +84,7 @@ struct TodayWeatherLocationSheet: View {
                 }
             }
             .onAppear {
+                service.refreshAuthorizationStatus()
                 completer.resultTypes = [.address, .pointOfInterest]
                 completer.delegate = completerDelegate
                 completerDelegate.didUpdate = { suggestions in
