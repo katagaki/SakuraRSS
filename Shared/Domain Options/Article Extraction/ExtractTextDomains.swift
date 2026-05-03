@@ -4,7 +4,8 @@ import Foundation
 nonisolated enum ExtractTextDomains: DomainExceptions {
 
     static let exceptionDomains: Set<String> = [
-        "apple.com"
+        "apple.com",
+        "france24.com"
     ]
 
     static func shouldExtractText(feedDomain: String) -> Bool {
