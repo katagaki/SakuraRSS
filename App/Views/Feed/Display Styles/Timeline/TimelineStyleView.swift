@@ -9,56 +9,49 @@ struct TimelineStyleView: View {
     var headerView: AnyView?
 
     var body: some View {
-        List {
-            if let headerView {
-                headerView
-                    .listRowBackground(Color.clear)
-                    .listRowSeparator(.hidden)
-                    .listRowInsets(EdgeInsets())
-            }
-            let groups = groupedArticles(from: articles)
+        ScrollView(.vertical) {
+            LazyVStack(spacing: 0) {
+                if let headerView {
+                    headerView
+                }
+                let groups = groupedArticles(from: articles)
 
-            ForEach(Array(groups.enumerated()), id: \.element.key) { groupIndex, group in
-                Section {
-                    ForEach(Array(group.articles.enumerated()), id: \.element.id) { index, article in
-                        ZStack {
+                ForEach(Array(groups.enumerated()), id: \.element.key) { groupIndex, group in
+                    Section {
+                        ForEach(Array(group.articles.enumerated()), id: \.element.id) { index, article in
                             ArticleLink(article: article, label: {
-                                EmptyView()
+                                timelineRow(
+                                    article: article,
+                                    isFirst: index == 0,
+                                    isLast: index == group.articles.count - 1,
+                                    isFeatured: groupIndex == 0 && index == 0
+                                )
+                                .padding(.horizontal, 16)
+                                .contentShape(.rect)
+                                .zoomSource(id: article.id, namespace: zoomNamespace)
+                                .markReadOnScroll(article: article)
                             })
-                            .opacity(0)
-
-                            timelineRow(
-                                article: article,
-                                isFirst: index == 0,
-                                isLast: index == group.articles.count - 1,
-                                isFeatured: groupIndex == 0 && index == 0
-                            )
-                            .zoomSource(id: article.id, namespace: zoomNamespace)
-                            .markReadOnScroll(article: article)
+                            .buttonStyle(.plain)
                         }
-                        .listRowBackground(Color.clear)
-                        .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16))
-                        .listRowSeparator(.hidden)
-                        .listRowSpacing(0)
+                    } header: {
+                        HStack {
+                            Text(group.key)
+                                .font(.subheadline)
+                                .fontWeight(.semibold)
+                                .foregroundStyle(.secondary)
+                            Spacer()
+                        }
+                        .padding(.horizontal, 16)
+                        .padding(.top, 8)
+                        .padding(.bottom, 4)
                     }
-                } header: {
-                    Text(group.key)
-                        .font(.subheadline)
-                        .fontWeight(.semibold)
-                        .foregroundStyle(.secondary)
-                        .textCase(nil)
+                }
+
+                if let onLoadMore {
+                    LoadPreviousArticlesButton(action: onLoadMore, articleCount: articles.count)
                 }
             }
-
-            if let onLoadMore {
-                LoadPreviousArticlesButton(action: onLoadMore, articleCount: articles.count)
-                    .listRowBackground(Color.clear)
-                    .listRowSeparator(.hidden)
-            }
         }
-        .listStyle(.plain)
-        .listSectionSpacing(.compact)
-        .environment(\.defaultMinListHeaderHeight, 0)
         .trackScrollActivity()
     }
 
