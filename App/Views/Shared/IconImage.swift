@@ -11,9 +11,9 @@ struct IconImage: View {
 
     var isNonSquare: Bool { !image.isSquare }
     var isFilledSquare: Bool { image.isFilledSquare }
-    var showInset: Bool { !skipInset && isCircle && !image.isCircular && !isFilledSquare }
-    var needsWhiteBackground: Bool { !skipInset && image.isDark && !isFilledSquare }
-    var isNearBlack: Bool { image.isNearBlack && !isFilledSquare }
+    var showInset: Bool { !skipInset && isCircle && !image.isCircular && image.hasTransparentPixels }
+    var needsWhiteBackground: Bool { !skipInset && image.isDark && image.hasTransparentPixels }
+    var isNearBlack: Bool { image.isNearBlack && image.hasTransparentPixels }
     var showRoundRectInset: Bool { !skipInset && !isCircle && image.isSquare && image.hasTransparentPixels }
 
     var iconSize: CGFloat {
@@ -65,6 +65,7 @@ nonisolated struct IconDerivedMetrics: Codable, Sendable {
     let averageLuminance: Double
     let isNearBlack: Bool
     let prominentColors: [[Double]]?
+    let hasAnyTransparentPixel: Bool?
 }
 
 private nonisolated final class IconDerivedMetricsBox: NSObject, @unchecked Sendable {
@@ -93,12 +94,17 @@ extension UIImage {
 
     @discardableResult
     nonisolated func ensureIconDerivedMetrics() -> IconDerivedMetrics {
-        if let existing = iconDerivedMetrics, existing.prominentColors != nil { return existing }
+        if let existing = iconDerivedMetrics,
+           existing.prominentColors != nil,
+           existing.hasAnyTransparentPixel != nil {
+            return existing
+        }
         let cornerSample = _rawSampleCornerAlphas()
         let averageRGB = _rawAverageColorComponents()
         let luminance = _rawAverageLuminance()
         let nearBlack = _rawIsNearBlack()
         let prominent = _rawProminentColors()
+        let anyTransparent = _rawHasAnyTransparentPixel()
         let metrics = IconDerivedMetrics(
             cornerAlphas: cornerSample?.corners ?? [],
             centerAlpha: cornerSample?.centerAlpha ?? 0,
@@ -106,7 +112,8 @@ extension UIImage {
             averageColor: averageRGB.map { [Double($0.red), Double($0.green), Double($0.blue)] },
             averageLuminance: Double(luminance),
             isNearBlack: nearBlack,
-            prominentColors: prominent
+            prominentColors: prominent,
+            hasAnyTransparentPixel: anyTransparent
         )
         iconDerivedMetrics = metrics
         return metrics
@@ -185,7 +192,7 @@ extension UIImage {
     }
 
     var hasTransparentPixels: Bool {
-        !isFilledSquare
+        ensureIconDerivedMetrics().hasAnyTransparentPixel ?? !isFilledSquare
     }
 
     var averageColor: Color {
@@ -285,6 +292,33 @@ extension UIImage {
     /// True when virtually all opaque pixels are near-black.
     var isNearBlack: Bool {
         ensureIconDerivedMetrics().isNearBlack
+    }
+
+    fileprivate nonisolated func _rawHasAnyTransparentPixel() -> Bool {
+        guard let cgImage = cgImage else { return false }
+
+        let sampleSize = 64
+        let colorSpace = CGColorSpaceCreateDeviceRGB()
+        var pixelData = [UInt8](repeating: 0, count: sampleSize * sampleSize * 4)
+
+        guard let context = CGContext(
+            data: &pixelData,
+            width: sampleSize,
+            height: sampleSize,
+            bitsPerComponent: 8,
+            bytesPerRow: sampleSize * 4,
+            space: colorSpace,
+            bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
+        ) else { return false }
+
+        context.draw(cgImage, in: CGRect(x: 0, y: 0, width: sampleSize, height: sampleSize))
+
+        for index in 0..<(sampleSize * sampleSize) {
+            if pixelData[index * 4 + 3] < 200 {
+                return true
+            }
+        }
+        return false
     }
 
     fileprivate nonisolated func _rawIsNearBlack() -> Bool {

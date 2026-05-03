@@ -43,11 +43,9 @@ actor IconCache {
         let filePath = cacheDirectory.appendingPathComponent(sanitizedFileName(cacheKey))
         if let data = try? Data(contentsOf: filePath),
            let image = UIImage(data: data) {
-            let skipTrim = FeedIconCircleDomains.shouldUseCircleIcon(feedDomain: domain)
-            let result = skipTrim ? image : await image.trimmed()
-            attachDerivedMetrics(cacheKey: cacheKey, to: result)
-            memoryCache[cacheKey] = result
-            return result
+            attachDerivedMetrics(cacheKey: cacheKey, to: image)
+            memoryCache[cacheKey] = image
+            return image
         }
 
         return await fetchAndCacheIcon(for: domain, siteURL: siteURL, cacheKey: cacheKey, filePath: filePath)
@@ -119,7 +117,7 @@ actor IconCache {
         let url = metricsSidecarURL(for: cacheKey)
         if let data = try? Data(contentsOf: url),
            let metrics = try? JSONDecoder().decode(IconDerivedMetrics.self, from: data) {
-            if metrics.prominentColors == nil {
+            if metrics.prominentColors == nil || metrics.hasAnyTransparentPixel == nil {
                 image.iconDerivedMetrics = nil
                 let upgraded = image.ensureIconDerivedMetrics()
                 if let encoded = try? JSONEncoder().encode(upgraded) {

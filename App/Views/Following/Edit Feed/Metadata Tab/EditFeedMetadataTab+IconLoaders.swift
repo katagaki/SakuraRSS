@@ -91,7 +91,7 @@ extension EditFeedMetadataTab {
         do {
             let (data, _) = try await URLSession.shared.data(for: .sakuraImage(url: url))
             if let image = UIImage(data: data) {
-                customIconImage = image.trimmed()
+                customIconImage = image
                 selectedPhoto = nil
                 useDefaultIcon = false
                 return true

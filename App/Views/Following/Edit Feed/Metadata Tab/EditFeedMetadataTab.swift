@@ -37,7 +37,7 @@ struct EditFeedMetadataTab: View {
                 if let selectedPhoto,
                    let data = try? await selectedPhoto.loadTransferable(type: Data.self),
                    let image = UIImage(data: data) {
-                    customIconImage = image.trimmed()
+                    customIconImage = image
                     iconURLInput = ""
                     useDefaultIcon = false
                     commitNameAndIcon()
@@ -98,9 +98,7 @@ struct EditFeedMetadataTab: View {
 
         Task {
             if let customIconImage, !useDefaultIcon {
-                await IconCache.shared.setCustomIcon(
-                    customIconImage, feedID: feed.id, skipTrimming: true
-                )
+                await IconCache.shared.setCustomIcon(customIconImage, feedID: feed.id)
             } else if useDefaultIcon && feed.customIconURL != nil && feed.customIconURL != "none" {
                 await IconCache.shared.removeCustomIcon(feedID: feed.id)
             }

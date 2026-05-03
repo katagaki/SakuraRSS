@@ -3,8 +3,7 @@ import UIKit
 extension IconCache {
 
     /// Fetches a high-quality icon from a web app manifest or apple-touch-icon.
-    /// Returns the image alongside a flag indicating whether it came from an apple-touch-icon.
-    nonisolated func fetchPWAIcon(from siteURL: URL) async -> (image: UIImage, isAppleTouchIcon: Bool)? {
+    nonisolated func fetchPWAIcon(from siteURL: URL) async -> UIImage? {
         do {
             let (data, _) = try await Self.urlSession.data(from: siteURL)
             guard let html = String(data: data, encoding: .utf8) else {
@@ -16,7 +15,7 @@ extension IconCache {
                let manifestURL = URL(string: manifestHref, relativeTo: siteURL),
                let icon = await fetchManifestIcon(from: manifestURL.absoluteURL) {
                 log("Icon", "PWA: found manifest icon from \(manifestURL.absoluteURL)")
-                return (icon, false)
+                return icon
             }
 
             if let touchIconHref = extractLinkHref(from: html, rel: "apple-touch-icon"),
@@ -25,7 +24,7 @@ extension IconCache {
                 if let image = UIImage(data: iconData), image.size.width >= 48 {
                     // swiftlint:disable:next line_length
                     log("Icon", "PWA: found apple-touch-icon from \(iconURL.absoluteURL) (\(image.size.width)x\(image.size.height))")
-                    return (image, true)
+                    return image
                 }
                 log("Icon", "PWA: apple-touch-icon too small or invalid from \(iconURL.absoluteURL)")
             }

@@ -25,9 +25,7 @@ extension FeedManager {
 
         if let feed, let iconData, let image = UIImage(data: iconData) {
             Task {
-                await IconCache.shared.setCustomIcon(
-                    image, feedID: feed.id, skipTrimming: true
-                )
+                await IconCache.shared.setCustomIcon(image, feedID: feed.id)
                 await MainActor.run { self.notifyIconChange() }
             }
         }
