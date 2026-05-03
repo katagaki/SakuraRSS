@@ -3,20 +3,13 @@ import FaviconFinder
 
 extension IconCache {
 
-    func trimAndCache(
-        _ image: UIImage, cacheKey: String, filePath: URL,
-        domain: String? = nil, skipTrim: Bool = false
-    ) async -> UIImage {
-        let shouldSkipTrim = skipTrim || (domain.map {
-            FeedIconCircleDomains.shouldUseCircleIcon(feedDomain: $0)
-        } ?? false)
-        let result = shouldSkipTrim ? image : await image.trimmed()
-        if let pngData = result.pngData() {
+    func cache(_ image: UIImage, cacheKey: String, filePath: URL) -> UIImage {
+        if let pngData = image.pngData() {
             try? pngData.write(to: filePath)
         }
-        attachDerivedMetrics(cacheKey: cacheKey, to: result)
-        memoryCache[cacheKey] = result
-        return result
+        attachDerivedMetrics(cacheKey: cacheKey, to: image)
+        memoryCache[cacheKey] = image
+        return image
     }
 
     func fetchAndCacheIcon(
@@ -28,7 +21,7 @@ extension IconCache {
         if Self.isProfileBased(domain: domain, siteURL: siteURL), let siteURL = siteURL,
            let image = await fetchProfileAvatar(from: siteURL) {
             log("Icon", "Found profile avatar for \(domain)")
-            return await trimAndCache(image, cacheKey: cacheKey, filePath: filePath, domain: domain)
+            return cache(image, cacheKey: cacheKey, filePath: filePath)
         }
 
         let iconDomain = FeedIconAlternateDomains.iconDomain(for: domain)
@@ -44,26 +37,19 @@ extension IconCache {
 
         if let image = await fetchAppleTouchIcon(from: url) {
             log("Icon", "Found HTML apple-touch-icon for \(domain)")
-            return await trimAndCache(
-                image, cacheKey: cacheKey, filePath: filePath, domain: domain, skipTrim: true
-            )
+            return cache(image, cacheKey: cacheKey, filePath: filePath)
         }
 
         if let touchURL = URL(string: "https://\(iconDomain)/apple-touch-icon.png"),
            let (data, _) = try? await Self.urlSession.data(from: touchURL),
            let image = UIImage(data: data) {
             log("Icon", "Direct apple-touch-icon for \(domain)")
-            return await trimAndCache(
-                image, cacheKey: cacheKey, filePath: filePath, domain: domain, skipTrim: true
-            )
+            return cache(image, cacheKey: cacheKey, filePath: filePath)
         }
 
-        if let result = await fetchPWAIcon(from: url) {
+        if let image = await fetchPWAIcon(from: url) {
             log("Icon", "Found PWA/touch icon for \(domain)")
-            return await trimAndCache(
-                result.image, cacheKey: cacheKey, filePath: filePath,
-                domain: domain, skipTrim: result.isAppleTouchIcon
-            )
+            return cache(image, cacheKey: cacheKey, filePath: filePath)
         }
 
         do {
@@ -80,7 +66,7 @@ extension IconCache {
                 recordFailedLookup(cacheKey)
                 return nil
             }
-            return await trimAndCache(iconImage.image, cacheKey: cacheKey, filePath: filePath, domain: domain)
+            return cache(iconImage.image, cacheKey: cacheKey, filePath: filePath)
         } catch {
             log("Icon", "FaviconFinder failed for \(domain): \(error.localizedDescription)")
             recordFailedLookup(cacheKey)

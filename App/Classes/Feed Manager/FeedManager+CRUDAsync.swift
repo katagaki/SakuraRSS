@@ -48,9 +48,7 @@ extension FeedManager {
         )
 
         if let image = prefetched.iconImage {
-            await IconCache.shared.setCustomIcon(
-                image, feedID: feedID, skipTrimming: true
-            )
+            await IconCache.shared.setCustomIcon(image, feedID: feedID)
             try? database.updateFeedDetails(
                 id: feedID, title: resolvedTitle, url: url,
                 customIconURL: "photo",

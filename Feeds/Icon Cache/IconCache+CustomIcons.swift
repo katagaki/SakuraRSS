@@ -28,22 +28,21 @@ extension IconCache {
            let metadata = await provider.fetchMetadata(for: siteURL),
            let iconURL = metadata.iconURL,
            let image = await downloadImage(from: iconURL) {
-            await setCustomIcon(image, feedID: feed.id, skipTrimming: true)
+            setCustomIcon(image, feedID: feed.id)
             return image
         }
 
         return await icon(for: feed.domain, siteURL: feed.siteURL)
     }
 
-    func setCustomIcon(_ image: UIImage, feedID: Int64, skipTrimming: Bool = false) async {
-        let finalImage = skipTrimming ? image : await image.trimmed()
+    func setCustomIcon(_ image: UIImage, feedID: Int64) {
         let key = "custom-feed-\(feedID)"
-        memoryCache[key] = finalImage
+        memoryCache[key] = image
         let filePath = cacheDirectory.appendingPathComponent(sanitizedFileName(key))
-        if let pngData = finalImage.pngData() {
+        if let pngData = image.pngData() {
             try? pngData.write(to: filePath)
         }
-        attachDerivedMetrics(cacheKey: key, to: finalImage)
+        attachDerivedMetrics(cacheKey: key, to: image)
     }
 
     func customIcon(feedID: Int64) -> UIImage? {

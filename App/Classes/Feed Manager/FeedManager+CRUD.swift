@@ -63,9 +63,7 @@ extension FeedManager {
         let shouldInstallProfilePhoto = profileImage != nil && feed.customIconURL == nil
         let database = database
         if shouldInstallProfilePhoto, let image = profileImage {
-            await IconCache.shared.setCustomIcon(
-                image, feedID: feed.id, skipTrimming: true
-            )
+            await IconCache.shared.setCustomIcon(image, feedID: feed.id)
             try? await Task.detached {
                 try database.updateFeedDetails(
                     id: feed.id, title: effectiveTitle, url: feed.url,
