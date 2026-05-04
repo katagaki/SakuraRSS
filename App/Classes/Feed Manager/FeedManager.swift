@@ -13,6 +13,8 @@ final class FeedManager {
     var isLoading = false
     var refreshTotal: Int = 0
     var refreshCompleted: Int = 0
+    var refreshingFeedIDs: Set<Int64> = []
+    var pendingRefreshFeedIDs: [Int64] = []
     var lastRefreshedAt: Date? = UserDefaults.standard
         .object(forKey: FeedManager.lastRefreshedAtDefaultsKey) as? Date {
         didSet {
@@ -173,6 +175,8 @@ final class FeedManager {
 struct ScopedRefreshState: Hashable, Sendable {
     var total: Int = 0
     var completed: Int = 0
+    var refreshingFeedIDs: Set<Int64> = []
+    var pendingFeedIDs: [Int64] = []
 
     var progress: Double {
         guard total > 0 else { return 0 }

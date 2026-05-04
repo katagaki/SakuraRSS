@@ -15,6 +15,7 @@ struct HomeView: View {
     @AppStorage("Display.MarkAllReadPosition") private var markAllReadPosition: MarkAllReadPosition = .top
     @State private var pendingYouTubeSafariURL: URL?
     @State private var isShowingMarkAllReadConfirmation = false
+    @State private var isShowingRefreshingFeedsPopover = false
     @State private var tabFrames: [String: CGRect] = [:]
     @State private var topTopics: [String] = []
     @State private var barConfiguration: HomeBarConfiguration = .load()
@@ -37,9 +38,7 @@ struct HomeView: View {
                 }
                 .toolbar {
                     ToolbarItem(placement: .principal) {
-                        Text(principalText)
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
+                        principalToolbarLabel
                     }
                     if isTodaySelected, todayRefreshState.hasActiveProgress {
                         ToolbarItemGroup(placement: .topBarLeading) {
@@ -183,6 +182,61 @@ struct HomeView: View {
 
     private var ephemeralAppender: (EphemeralArticleDestination) -> Void {
         { destination in path.append(destination) }
+    }
+
+    @ViewBuilder
+    private var principalToolbarLabel: some View {
+        if isShowingRefreshProgress {
+            Button {
+                isShowingRefreshingFeedsPopover = true
+            } label: {
+                principalLabelText
+            }
+            .buttonStyle(.plain)
+            .contentShape(.rect)
+            .arrowlessPopover(isPresented: $isShowingRefreshingFeedsPopover) {
+                RefreshingFeedsPopoverView(
+                    refreshingFeedIDs: activeRefreshingFeedIDs,
+                    pendingFeedIDs: activePendingFeedIDs
+                )
+                .environment(feedManager)
+            }
+            .onChange(of: isShowingRefreshProgress) { _, isShowing in
+                if !isShowing { isShowingRefreshingFeedsPopover = false }
+            }
+        } else {
+            principalLabelText
+        }
+    }
+
+    private var principalLabelText: some View {
+        Text(principalText)
+            .font(.caption)
+            .foregroundStyle(.secondary)
+    }
+
+    private var isShowingRefreshProgress: Bool {
+        if let scopedState = feedManager.scopedRefreshes[currentScopeKey],
+           scopedState.hasActiveProgress {
+            return true
+        }
+        return feedManager.isLoading && feedManager.hasActiveRefreshProgress
+    }
+
+    private var activeRefreshingFeedIDs: Set<Int64> {
+        if let scopedState = feedManager.scopedRefreshes[currentScopeKey],
+           scopedState.hasActiveProgress {
+            return scopedState.refreshingFeedIDs
+        }
+        return feedManager.refreshingFeedIDs
+    }
+
+    private var activePendingFeedIDs: [Int64] {
+        if let scopedState = feedManager.scopedRefreshes[currentScopeKey],
+           scopedState.hasActiveProgress {
+            return scopedState.pendingFeedIDs
+        }
+        return feedManager.pendingRefreshFeedIDs
     }
 
     private var principalText: String {
