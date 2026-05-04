@@ -51,7 +51,15 @@ struct IconImage: View {
             .frame(width: size, height: size)
             .background(image.nearWhiteAverageGradient)
             .clipShape(shape)
-            .overlay(shape.stroke(.secondary, lineWidth: 0.5))
+            .overlay {
+                if isCircle {
+                    Circle()
+                        .strokeBorder(.primary.opacity(0.2), lineWidth: 0.5)
+                } else {
+                    RoundedRectangle(cornerRadius: cornerRadius)
+                        .strokeBorder(.primary.opacity(0.2), lineWidth: 0.5)
+                }
+            }
     }
 }
 
