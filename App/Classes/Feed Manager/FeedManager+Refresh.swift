@@ -393,15 +393,6 @@ extension FeedManager {
             refreshCompleted = 0
             refreshTotal = feedsToRefresh.count
         }
-        defer {
-            Task { @MainActor in
-                self.isLoading = false
-                self.refreshCompleted = 0
-                self.refreshTotal = 0
-                self.refreshTask = nil
-                self.lastRefreshedAt = Date()
-            }
-        }
 
         let preloadModeRaw = UserDefaults.standard.string(
             forKey: "FeedRefresh.PreloadArticleImagesMode"
@@ -440,7 +431,16 @@ extension FeedManager {
         await MainActor.run { self.refreshTask = work }
         _ = await work.value
         await loadFromDatabaseInBackground(animated: true)
-        log("FeedRefresh.All", "end completed=\(refreshCompleted)/\(refreshTotal)")
+        let finalCompleted = await MainActor.run { () -> Int in
+            let completed = self.refreshCompleted
+            self.lastRefreshedAt = Date()
+            self.isLoading = false
+            self.refreshCompleted = 0
+            self.refreshTotal = 0
+            self.refreshTask = nil
+            return completed
+        }
+        log("FeedRefresh.All", "end completed=\(finalCompleted)/\(feedsToRefresh.count)")
     }
 
     fileprivate func runBoundedRefresh(
