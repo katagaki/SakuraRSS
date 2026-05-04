@@ -41,25 +41,28 @@ struct IconImage: View {
     }
 
     var body: some View {
-        let shape: AnyShape = isCircle
-            ? AnyShape(Circle())
-            : AnyShape(RoundedRectangle(cornerRadius: cornerRadius))
-        Image(uiImage: image)
+        let baseImage = Image(uiImage: image)
             .resizable()
             .aspectRatio(contentMode: isNonSquare ? .fit : .fill)
             .frame(width: iconSize, height: iconSize)
             .frame(width: size, height: size)
             .background(image.nearWhiteAverageGradient)
-            .clipShape(shape)
-            .overlay {
-                if isCircle {
+
+        if isCircle {
+            baseImage
+                .clipShape(Circle())
+                .overlay {
                     Circle()
                         .strokeBorder(.primary.opacity(0.2), lineWidth: 0.5)
-                } else {
+                }
+        } else {
+            baseImage
+                .clipShape(RoundedRectangle(cornerRadius: cornerRadius))
+                .overlay {
                     RoundedRectangle(cornerRadius: cornerRadius)
                         .strokeBorder(.primary.opacity(0.2), lineWidth: 0.5)
                 }
-            }
+        }
     }
 }
 
