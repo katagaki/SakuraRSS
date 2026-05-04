@@ -368,13 +368,9 @@ nonisolated enum YouTubePlayerScripts {
     })();
     """
 
-    /// Re-routes the system PiP next/previous track controls during ads:
-    /// previous-track is disabled, next-track invisibly triggers the YouTube
-    /// skip-ad button. The handler is bound for the whole ad (not gated by the
-    /// skip button being visible yet) so a tap that lands during the
-    /// unskippable head of an ad still works once the skip becomes available.
-    /// All skipping goes through `<video>.currentTime` rather than a synthetic
-    /// click, so it works without the click event being a trusted user gesture.
+    /// Re-routes the system next/previous track controls during ads so
+    /// next-track invisibly skips the ad. Skips via `<video>.currentTime`
+    /// so it does not depend on the click being a trusted gesture.
     static let pipAdControls = """
     (function() {
         if (!('mediaSession' in navigator)) return;
@@ -462,9 +458,6 @@ nonisolated enum YouTubePlayerScripts {
                 resumePlayback();
                 return;
             }
-            // Skip button isn't visible yet (unskippable head of the ad).
-            // Wait briefly for it to appear, then click + seek. Always attempt
-            // a final seek in case the skip never becomes available.
             var attempts = 0;
             (function tick() {
                 if (!isShowingAd()) { resumePlayback(); return; }
@@ -490,9 +483,6 @@ nonisolated enum YouTubePlayerScripts {
             var prev, next;
             if (isAd) {
                 prev = null;
-                // Always bind during an ad, even before the skip button shows.
-                // performSkipAd retries internally so a tap during the
-                // unskippable head still works.
                 next = performSkipAd;
             } else {
                 prev = stored.previoustrack;
@@ -510,8 +500,6 @@ nonisolated enum YouTubePlayerScripts {
         }
 
         setInterval(apply, 500);
-        // React to ad transitions immediately rather than waiting for the
-        // 500ms tick (which iOS throttles when backgrounded).
         var classObserver = new MutationObserver(apply);
         function watchPlayer() {
             var p = document.querySelector('.html5-video-player');
