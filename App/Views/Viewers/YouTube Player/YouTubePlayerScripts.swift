@@ -369,7 +369,12 @@ nonisolated enum YouTubePlayerScripts {
     """
 
     /// Re-routes the system PiP next/previous track controls during ads:
-    /// previous-track is disabled, next-track triggers ad skipping when available.
+    /// previous-track is disabled, next-track invisibly triggers the YouTube
+    /// skip-ad button. The handler is bound for the whole ad (not gated by the
+    /// skip button being visible yet) so a tap that lands during the
+    /// unskippable head of an ad still works once the skip becomes available.
+    /// All skipping goes through `<video>.currentTime` rather than a synthetic
+    /// click, so it works without the click event being a trusted user gesture.
     static let pipAdControls = """
     (function() {
         if (!('mediaSession' in navigator)) return;
@@ -402,39 +407,93 @@ nonisolated enum YouTubePlayerScripts {
             return null;
         }
 
+        function isShowingAd() {
+            var p = document.querySelector('.html5-video-player');
+            return !!(p && p.classList.contains('ad-showing'));
+        }
+
+        function clickSkipButton(btn) {
+            if (!btn) return;
+            var t = btn.closest('button') || btn;
+            try { t.click(); } catch (e) {}
+            try {
+                ['pointerdown','mousedown','pointerup','mouseup','click'].forEach(function(type) {
+                    var Ctor = (type.indexOf('pointer') === 0 && window.PointerEvent)
+                        ? window.PointerEvent : MouseEvent;
+                    t.dispatchEvent(new Ctor(type, {
+                        bubbles: true, cancelable: true, view: window,
+                        button: 0, buttons: 1
+                    }));
+                });
+            } catch (e) {}
+        }
+
+        function seekAdToEnd() {
+            var v = document.querySelector('video');
+            if (!isShowingAd()) return false;
+            if (!v || !isFinite(v.duration) || v.duration <= 0) return false;
+            v.currentTime = Math.max(v.duration - 0.05, v.currentTime);
+            return true;
+        }
+
+        function resumePlayback() {
+            window.__yt.autoplayBlocked = false;
+            window.__yt.userPaused = false;
+            window.__yt.exitedPiPRecently = false;
+            var attempts = 0;
+            (function tick() {
+                var v = document.querySelector('video');
+                if (v && v.paused && !v.ended && v.readyState >= 2) {
+                    try {
+                        var p = v.play();
+                        if (p && typeof p.catch === 'function') p.catch(function(){});
+                    } catch (e) {}
+                }
+                if (++attempts < 20) { setTimeout(tick, 250); }
+            })();
+        }
+
         function performSkipAd() {
+            if (!isShowingAd()) return;
             var btn = findSkipButton();
             if (btn) {
-                var t = btn.closest('button') || btn;
-                try { t.click(); } catch (e) {}
-                try {
-                    ['pointerdown','mousedown','pointerup','mouseup','click'].forEach(function(type) {
-                        var Ctor = (type.indexOf('pointer') === 0 && window.PointerEvent)
-                            ? window.PointerEvent : MouseEvent;
-                        t.dispatchEvent(new Ctor(type, {
-                            bubbles: true, cancelable: true, view: window,
-                            button: 0, buttons: 1
-                        }));
-                    });
-                } catch (e) {}
+                clickSkipButton(btn);
+                seekAdToEnd();
+                resumePlayback();
+                return;
             }
-            var p = document.querySelector('.html5-video-player');
-            var v = document.querySelector('video');
-            if (p && p.classList.contains('ad-showing')
-                && v && isFinite(v.duration) && v.duration > 0) {
-                v.currentTime = Math.max(v.duration - 0.05, v.currentTime);
-            }
+            // Skip button isn't visible yet (unskippable head of the ad).
+            // Wait briefly for it to appear, then click + seek. Always attempt
+            // a final seek in case the skip never becomes available.
+            var attempts = 0;
+            (function tick() {
+                if (!isShowingAd()) { resumePlayback(); return; }
+                var b = findSkipButton();
+                if (b) {
+                    clickSkipButton(b);
+                    seekAdToEnd();
+                    resumePlayback();
+                    return;
+                }
+                if (++attempts < 24) {
+                    setTimeout(tick, 250);
+                } else {
+                    seekAdToEnd();
+                    resumePlayback();
+                }
+            })();
         }
 
         function apply() {
-            var p = document.querySelector('.html5-video-player');
-            var isAd = p ? p.classList.contains('ad-showing') : false;
-            var skippable = isAd && !!findSkipButton();
+            var isAd = isShowingAd();
 
             var prev, next;
             if (isAd) {
                 prev = null;
-                next = skippable ? performSkipAd : null;
+                // Always bind during an ad, even before the skip button shows.
+                // performSkipAd retries internally so a tap during the
+                // unskippable head still works.
+                next = performSkipAd;
             } else {
                 prev = stored.previoustrack;
                 next = stored.nexttrack;
@@ -451,6 +510,24 @@ nonisolated enum YouTubePlayerScripts {
         }
 
         setInterval(apply, 500);
+        // React to ad transitions immediately rather than waiting for the
+        // 500ms tick (which iOS throttles when backgrounded).
+        var classObserver = new MutationObserver(apply);
+        function watchPlayer() {
+            var p = document.querySelector('.html5-video-player');
+            if (p && !p.__ytAdControlsObserved) {
+                p.__ytAdControlsObserved = true;
+                classObserver.observe(p, {
+                    attributes: true, attributeFilter: ['class']
+                });
+            }
+        }
+        watchPlayer();
+        var rootObserver = new MutationObserver(watchPlayer);
+        if (document.documentElement) {
+            rootObserver.observe(document.documentElement,
+                { childList: true, subtree: true });
+        }
         apply();
     })();
     """
