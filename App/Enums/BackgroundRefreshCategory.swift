@@ -1,6 +1,6 @@
 import Foundation
 
-enum BackgroundRefreshCategory: String, CaseIterable, Sendable {
+nonisolated enum BackgroundRefreshCategory: String, CaseIterable, Sendable {
     case rss
     case reddit
     case youtube

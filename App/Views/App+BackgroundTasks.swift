@@ -172,16 +172,16 @@ extension SakuraRSSApp {
     }
 }
 
-final class BackgroundTaskCompletion: @unchecked Sendable {
+nonisolated final class BackgroundTaskCompletion: @unchecked Sendable {
     private let lock = NSLock()
-    nonisolated(unsafe) private var didComplete = false
+    private var didComplete = false
     private let task: BGTask
 
-    nonisolated init(task: BGTask) {
+    init(task: BGTask) {
         self.task = task
     }
 
-    nonisolated func complete(success: Bool) {
+    func complete(success: Bool) {
         lock.lock()
         if didComplete {
             lock.unlock()
