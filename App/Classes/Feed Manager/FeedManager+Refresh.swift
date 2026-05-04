@@ -12,10 +12,11 @@ extension FeedManager {
         reloadData: Bool = true,
         skipImageFetch: Bool = false,
         skipImagePreload: Bool = false,
-        runNLP: Bool = true
+        runNLP: Bool = true,
+        contentOnly: Bool = false
     ) async throws {
         // swiftlint:disable:next line_length
-        log("FeedRefresh", "refreshFeed begin id=\(feed.id) title=\(feed.title) url=\(feed.url) reloadData=\(reloadData) skipImageFetch=\(skipImageFetch) skipImagePreload=\(skipImagePreload) runNLP=\(runNLP)")
+        log("FeedRefresh", "refreshFeed begin id=\(feed.id) title=\(feed.title) url=\(feed.url) reloadData=\(reloadData) skipImageFetch=\(skipImageFetch) skipImagePreload=\(skipImagePreload) runNLP=\(runNLP) contentOnly=\(contentOnly)")
         if PetalRecipe.isPetalFeedURL(feed.url) {
             log("FeedRefresh", "dispatch -> Petal id=\(feed.id)")
             try await refreshPetalFeed(
@@ -38,7 +39,8 @@ extension FeedManager {
                 on: self,
                 reloadData: reloadData,
                 skipImagePreload: skipImagePreload,
-                runNLP: runNLP
+                runNLP: runNLP,
+                contentOnly: contentOnly
             )
             return
         }
@@ -52,7 +54,8 @@ extension FeedManager {
                 updateTitle: updateTitle,
                 skipImageFetch: skipImageFetch,
                 skipImagePreload: skipImagePreload,
-                runNLP: runNLP
+                runNLP: runNLP,
+                contentOnly: contentOnly
             )
         }.value
         await MainActor.run { self.bumpDataRevision() }
@@ -70,7 +73,8 @@ extension FeedManager {
         updateTitle: Bool,
         skipImageFetch: Bool,
         skipImagePreload: Bool,
-        runNLP: Bool
+        runNLP: Bool,
+        contentOnly: Bool = false
     ) async throws {
         guard let url = URL(string: feed.fetchURL) else {
             log("FeedRefresh.RSS", "invalid fetch URL id=\(feed.id) fetchURL=\(feed.fetchURL)")
@@ -100,7 +104,8 @@ extension FeedManager {
         // swiftlint:disable:next line_length
         log("FeedRefresh.RSS", "parsed id=\(feed.id) articles=\(parsed.articles.count) title=\(parsed.title) isPodcast=\(parsed.isPodcast)")
 
-        if let generator = parsed.generator,
+        if !contentOnly,
+           let generator = parsed.generator,
            generator.lowercased().contains("substack"),
            !SubstackAuth.isWrappedFeedURL(feed.url) {
             try? database.updateFeedURL(id: feed.id, url: SubstackAuth.wrap(feed.url))
@@ -156,7 +161,7 @@ extension FeedManager {
             runNLP: runNLP
         )
 
-        if feed.lastFetched == nil {
+        if !contentOnly, feed.lastFetched == nil {
             if parsed.isPodcast && !feed.isPodcast {
                 try database.updateFeedIsPodcast(id: feed.id, isPodcast: true)
             } else if !parsed.isPodcast && feed.isPodcast {
@@ -173,7 +178,9 @@ extension FeedManager {
             }
         }
         try database.updateFeedLastFetched(id: feed.id, date: Date())
-        FeedManager.scheduleFediverseProbeIfNeeded(for: feed, database: database)
+        if !contentOnly {
+            FeedManager.scheduleFediverseProbeIfNeeded(for: feed, database: database)
+        }
         log("FeedRefresh.RSS", "pipeline complete id=\(feed.id)")
     }
 
@@ -494,6 +501,65 @@ extension FeedManager {
             }
         }
         log("FeedRefresh.Bounded", "end count=\(feeds.count)")
+    }
+
+    /// Refreshes only the feeds matching the given background category.
+    /// `contentOnly: true` suppresses all meta updates (title, description,
+    /// podcast detection, Substack URL wrap, Fediverse probe, fetcher metadata
+    /// refresh) so the work fits inside a `BGAppRefreshTask` budget.
+    func refreshFeeds(
+        in category: BackgroundRefreshCategory,
+        skipImageFetch: Bool,
+        skipImagePreload: Bool
+    ) async {
+        let eligible = feeds.filter(category.includes)
+        guard !eligible.isEmpty else {
+            log("FeedRefresh.Category", "category=\(category.rawValue) no feeds eligible")
+            return
+        }
+        log("FeedRefresh.Category", "category=\(category.rawValue) begin count=\(eligible.count)")
+        let maxConcurrent = category == .x || category == .instagram ? 2 : 6
+        await withTaskGroup(of: Void.self) { group in
+            var submitted = 0
+            var iterator = eligible.makeIterator()
+            while submitted < maxConcurrent, !Task.isCancelled, let feed = iterator.next() {
+                group.addTask { [weak self] in
+                    guard let self, !Task.isCancelled else { return }
+                    try? await self.refreshFeed(
+                        feed,
+                        updateTitle: false,
+                        reloadData: false,
+                        skipImageFetch: skipImageFetch,
+                        skipImagePreload: skipImagePreload,
+                        runNLP: false,
+                        contentOnly: true
+                    )
+                }
+                submitted += 1
+            }
+            while await group.next() != nil {
+                if Task.isCancelled {
+                    group.cancelAll()
+                    continue
+                }
+                if let feed = iterator.next() {
+                    group.addTask { [weak self] in
+                        guard let self, !Task.isCancelled else { return }
+                        try? await self.refreshFeed(
+                            feed,
+                            updateTitle: false,
+                            reloadData: false,
+                            skipImageFetch: skipImageFetch,
+                            skipImagePreload: skipImagePreload,
+                            runNLP: false,
+                            contentOnly: true
+                        )
+                    }
+                }
+            }
+        }
+        await MainActor.run { self.lastRefreshedAt = Date() }
+        log("FeedRefresh.Category", "category=\(category.rawValue) end count=\(eligible.count)")
     }
 
     /// Refreshes feeds that have never been fetched.

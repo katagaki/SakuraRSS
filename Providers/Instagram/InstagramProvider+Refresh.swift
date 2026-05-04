@@ -7,13 +7,15 @@ extension InstagramProfileFetcher: WebFeedProvider {
         on manager: FeedManager,
         reloadData: Bool,
         skipImagePreload: Bool,
-        runNLP: Bool
+        runNLP: Bool,
+        contentOnly: Bool
     ) async throws {
         try await manager.refreshInstagramFeed(
             feed,
             reloadData: reloadData,
             skipImagePreload: skipImagePreload,
-            runNLP: runNLP
+            runNLP: runNLP,
+            contentOnly: contentOnly
         )
     }
 }

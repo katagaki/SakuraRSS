@@ -15,7 +15,10 @@ extension XProfileFetcher {
         let authToken: String
     }
 
-    func performFetch(profileURL: URL) async -> XProfileFetchResult {
+    func performFetch(
+        profileURL: URL,
+        autoRepairQueryIDs: Bool = true
+    ) async -> XProfileFetchResult {
         guard let handle = Self.extractIdentifier(from: profileURL) else {
             log("XProfileFetcher", "Failed to extract handle from URL: \(profileURL)")
             return XProfileFetchResult(tweets: [], profileImageURL: nil, displayName: nil)
@@ -23,7 +26,7 @@ extension XProfileFetcher {
 
         log("XProfileFetcher", "Fetching profile for handle: \(handle)")
 
-        guard let cookies = await Self.getXCookies() else {
+        guard let cookies = await Self.getXCookies(autoRepair: autoRepairQueryIDs) else {
             log("XProfileFetcher", "No X session cookies found")
             return XProfileFetchResult(tweets: [], profileImageURL: nil, displayName: nil)
         }
@@ -59,9 +62,13 @@ extension XProfileFetcher {
     // MARK: - Cookies
 
     /// Reads the current X session and ensures GraphQL query IDs are loaded.
+    /// Pass `autoRepair: false` from background contexts where fetching x.com
+    /// to discover query IDs would blow the BG task budget.
     @MainActor
-    static func getXCookies() async -> XCookies? {
-        await fetchQueryIDsIfNeeded()
+    static func getXCookies(autoRepair: Bool = true) async -> XCookies? {
+        if autoRepair {
+            await fetchQueryIDsIfNeeded()
+        }
         return readXCookiesFromKeychain()
     }
 
