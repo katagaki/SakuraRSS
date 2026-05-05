@@ -81,7 +81,10 @@ struct TodayView: View {
         }
         #endif
         .task(id: refreshID) {
-            await loadData()
+            await loadData(
+                feeds: feedManager.feeds,
+                loadEntities: contentInsightsEnabled
+            )
         }
         .onAppear {
             refreshID += 1
@@ -267,9 +270,13 @@ struct TodayView: View {
         guard !scopedRefreshState.hasActiveProgress else { return }
         feedManager.flushDebouncedReads()
         let feeds = feedManager.feeds
+        let loadEntities = contentInsightsEnabled
         Task { @MainActor in
             await feedManager.refreshFeeds(scope: "section.all", feeds: feeds)
-            await loadData()
+            await loadData(
+                feeds: feedManager.feeds,
+                loadEntities: loadEntities
+            )
         }
     }
 
@@ -288,79 +295,79 @@ struct TodayView: View {
     }
 
     // swiftlint:disable:next function_body_length
-    private func loadData() async {
+    private nonisolated func loadData(
+        feeds: [Feed],
+        loadEntities: Bool
+    ) async {
         let database = DatabaseManager.shared
-        let loadEntities = contentInsightsEnabled
-        let podcastFeedIDs = feedManager.feeds.filter { $0.isPodcast }.map { $0.id }
-        let videoFeedIDs = feedManager.feeds
+        let podcastFeedIDs = feeds.filter { $0.isPodcast }.map { $0.id }
+        let videoFeedIDs = feeds
             .filter { $0.isYouTubeFeed || $0.isVimeoFeed }
             .map { $0.id }
 
-        await Task.detached {
-            let recent = (try? database.recentlyAccessedArticles()) ?? []
-            let bookmarks = (try? database.bookmarkedArticles()) ?? []
-            let podcastEpisodes = (try? database.articles(
-                forFeedIDs: podcastFeedIDs,
-                limit: 20,
-                requireUnread: true
+        let recent = (try? database.recentlyAccessedArticles()) ?? []
+        let bookmarks = (try? database.bookmarkedArticles()) ?? []
+        let podcastEpisodes = (try? database.articles(
+            forFeedIDs: podcastFeedIDs,
+            limit: 20,
+            requireUnread: true
+        )) ?? []
+        let videoEpisodes = (try? database.articles(
+            forFeedIDs: videoFeedIDs,
+            limit: 20,
+            requireUnread: true
+        )) ?? []
+
+        var sections: [DiscoverEntitySection] = []
+        var topics: [(name: String, count: Int)] = []
+        var people: [(name: String, count: Int)] = []
+
+        if loadEntities {
+            let sevenDaysAgo = Date().addingTimeInterval(-7 * 24 * 3600)
+            let topTopics = (try? database.topEntities(
+                types: ["organization", "place"],
+                since: sevenDaysAgo,
+                limit: 50
             )) ?? []
-            let videoEpisodes = (try? database.articles(
-                forFeedIDs: videoFeedIDs,
-                limit: 20,
-                requireUnread: true
+            let topPeople = (try? database.topEntities(
+                type: "person",
+                since: sevenDaysAgo,
+                limit: 50
             )) ?? []
 
-            var sections: [DiscoverEntitySection] = []
-            var topics: [(name: String, count: Int)] = []
-            var people: [(name: String, count: Int)] = []
+            topics = topTopics
+            people = topPeople
 
-            if loadEntities {
-                let sevenDaysAgo = Date().addingTimeInterval(-7 * 24 * 3600)
-                let topTopics = (try? database.topEntities(
+            var sectionItems: [DiscoverEntitySection] = []
+            for topic in topTopics.prefix(3) {
+                let articles = (try? database.articlesForEntity(
+                    name: topic.name,
                     types: ["organization", "place"],
-                    since: sevenDaysAgo,
-                    limit: 50
+                    limit: 10
                 )) ?? []
-                let topPeople = (try? database.topEntities(
-                    type: "person",
-                    since: sevenDaysAgo,
-                    limit: 50
-                )) ?? []
-
-                topics = topTopics
-                people = topPeople
-
-                var sectionItems: [DiscoverEntitySection] = []
-                for topic in topTopics.prefix(3) {
-                    let articles = (try? database.articlesForEntity(
+                if !articles.isEmpty {
+                    sectionItems.append(DiscoverEntitySection(
                         name: topic.name,
                         types: ["organization", "place"],
-                        limit: 10
-                    )) ?? []
-                    if !articles.isEmpty {
-                        sectionItems.append(DiscoverEntitySection(
-                            name: topic.name,
-                            types: ["organization", "place"],
-                            articles: articles
-                        ))
-                    }
-                }
-
-                sections = sectionItems
-            }
-
-            await MainActor.run {
-                withAnimation(.smooth.speed(2.0)) {
-                    recentArticles = recent
-                    bookmarkedArticles = bookmarks
-                    unreadPodcastEpisodes = podcastEpisodes
-                    unreadVideoEpisodes = videoEpisodes
-                    entitySections = sections
-                    allTopics = topics
-                    allPeople = people
-                    hasLoadedInitially = true
+                        articles: articles
+                    ))
                 }
             }
-        }.value
+
+            sections = sectionItems
+        }
+
+        await MainActor.run {
+            withAnimation(.smooth.speed(2.0)) {
+                recentArticles = recent
+                bookmarkedArticles = bookmarks
+                unreadPodcastEpisodes = podcastEpisodes
+                unreadVideoEpisodes = videoEpisodes
+                entitySections = sections
+                allTopics = topics
+                allPeople = people
+                hasLoadedInitially = true
+            }
+        }
     }
 }

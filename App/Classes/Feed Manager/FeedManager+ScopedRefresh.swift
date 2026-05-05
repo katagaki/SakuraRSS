@@ -21,7 +21,12 @@ extension FeedManager {
 
         log("FeedRefresh.Scoped", "begin scope=\(scope) count=\(feeds.count)")
         await MainActor.run {
-            scopedRefreshes[scope] = ScopedRefreshState(total: feeds.count, completed: 0)
+            scopedRefreshes[scope] = ScopedRefreshState(
+                total: feeds.count,
+                completed: 0,
+                refreshingFeedIDs: [],
+                pendingFeedIDs: feeds.map { $0.id }
+            )
         }
 
         let effectiveSkipPreload: Bool
@@ -98,15 +103,18 @@ extension FeedManager {
             while submitted < maxConcurrent, !Task.isCancelled, let feed = iterator.next() {
                 group.addTask { [weak self] in
                     guard let self, !Task.isCancelled else { return }
+                    await self.markScopedRefreshStarted(scope: scope, feedID: feed.id)
                     try? await self.refreshFeed(
                         feed,
                         reloadData: false,
                         skipImagePreload: skipImagePreload,
                         runNLP: runNLP
                     )
-                    if !Task.isCancelled {
-                        await self.bumpScopedCompleted(scope: scope)
-                    }
+                    await self.markScopedRefreshFinished(
+                        scope: scope,
+                        feedID: feed.id,
+                        cancelled: Task.isCancelled
+                    )
                 }
                 submitted += 1
             }
@@ -118,15 +126,18 @@ extension FeedManager {
                 if let feed = iterator.next() {
                     group.addTask { [weak self] in
                         guard let self, !Task.isCancelled else { return }
+                        await self.markScopedRefreshStarted(scope: scope, feedID: feed.id)
                         try? await self.refreshFeed(
                             feed,
                             reloadData: false,
                             skipImagePreload: skipImagePreload,
                             runNLP: runNLP
                         )
-                        if !Task.isCancelled {
-                            await self.bumpScopedCompleted(scope: scope)
-                        }
+                        await self.markScopedRefreshFinished(
+                            scope: scope,
+                            feedID: feed.id,
+                            cancelled: Task.isCancelled
+                        )
                     }
                 }
             }
@@ -134,9 +145,24 @@ extension FeedManager {
     }
 
     @MainActor
-    private func bumpScopedCompleted(scope: String) {
+    private func markScopedRefreshStarted(scope: String, feedID: Int64) {
         guard var state = scopedRefreshes[scope] else { return }
-        state.completed += 1
+        state.pendingFeedIDs.removeAll { $0 == feedID }
+        state.refreshingFeedIDs.insert(feedID)
+        scopedRefreshes[scope] = state
+    }
+
+    @MainActor
+    private func markScopedRefreshFinished(
+        scope: String,
+        feedID: Int64,
+        cancelled: Bool
+    ) {
+        guard var state = scopedRefreshes[scope] else { return }
+        state.refreshingFeedIDs.remove(feedID)
+        if !cancelled {
+            state.completed += 1
+        }
         scopedRefreshes[scope] = state
     }
 }
