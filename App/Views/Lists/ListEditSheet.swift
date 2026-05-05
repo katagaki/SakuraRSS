@@ -100,7 +100,7 @@ struct ListEditSheet: View {
                                 }
                             } label: {
                                 HStack(spacing: 12) {
-                                    FeedIconView(feed: feed, size: 28)
+                                    FeedIcon(feed: feed, size: 28, cornerRadius: 6)
                                     Text(feed.title)
                                         .font(.body)
                                         .lineLimit(1)
@@ -186,45 +186,5 @@ struct ListEditSheet: View {
             }
         }
         dismiss()
-    }
-}
-
-struct FeedIconView: View {
-
-    let feed: Feed
-    var size: CGFloat = 28
-    @State private var icon: UIImage?
-
-    private var cornerRadius: CGFloat { 4 }
-
-    private var isCircle: Bool {
-        feed.isCircleIcon
-    }
-
-    var body: some View {
-        Group {
-            if let icon {
-                IconImage(icon, size: size,
-                             cornerRadius: cornerRadius,
-                             circle: isCircle,
-                             skipInset: feed.isVideoFeed || feed.isPodcast || feed.isXFeed
-                                || feed.isInstagramFeed)
-            } else if let data = feed.acronymIcon, let acronym = UIImage(data: data) {
-                IconImage(acronym, size: size,
-                             cornerRadius: cornerRadius,
-                             circle: isCircle,
-                             skipInset: true)
-            } else {
-                InitialsAvatarView(
-                    feed.title,
-                    size: size,
-                    circle: isCircle,
-                    cornerRadius: cornerRadius
-                )
-            }
-        }
-        .task {
-            icon = await IconCache.shared.icon(for: feed)
-        }
     }
 }

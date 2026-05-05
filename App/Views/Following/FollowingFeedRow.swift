@@ -5,9 +5,7 @@ struct FollowingFeedRow: View {
     @Environment(FeedManager.self) var feedManager
     let feed: Feed
     var showsDomain: Bool = true
-    @State private var icon: UIImage?
 
-    private var iconCornerRadius: CGFloat { 4 }
     private var iconSize: CGFloat {
         #if targetEnvironment(macCatalyst)
         return 28
@@ -18,45 +16,7 @@ struct FollowingFeedRow: View {
 
     var body: some View {
         HStack(spacing: 12) {
-            ZStack(alignment: .bottomTrailing) {
-                if let icon = icon {
-                    IconImage(
-                        icon,
-                        size: iconSize,
-                        cornerRadius: iconCornerRadius,
-                        circle: feed.isCircleIcon,
-                        skipInset: feed.isCircleIcon || feed.isXFeed || feed.isInstagramFeed
-                    )
-                } else if let data = feed.acronymIcon, let acronym = UIImage(data: data) {
-                    IconImage(
-                        acronym,
-                        size: iconSize,
-                        cornerRadius: iconCornerRadius,
-                        circle: feed.isCircleIcon,
-                        skipInset: true
-                    )
-                } else {
-                    InitialsAvatarView(
-                        feed.title,
-                        size: iconSize,
-                        circle: feed.isCircleIcon,
-                        cornerRadius: iconCornerRadius
-                    )
-                }
-
-                if let cooldown = RefreshTimeoutDomains.refreshTimeout(
-                    for: feed.domain, jittered: false
-                ) {
-                    IconProgressBadge(
-                        lastFetched: feed.lastFetched,
-                        cooldown: cooldown,
-                        size: iconSize,
-                        isCircle: feed.isCircleIcon,
-                        cornerRadius: iconCornerRadius
-                    )
-                }
-            }
-            .frame(width: iconSize, height: iconSize)
+            FeedIcon(feed: feed, size: iconSize, showsRefreshProgress: true)
 
             VStack(alignment: .leading, spacing: 2) {
                 HStack(spacing: 4) {
@@ -91,18 +51,5 @@ struct FollowingFeedRow: View {
                     .clipShape(Capsule())
             }
         }
-        .task {
-            icon = await loadIcon()
-        }
-        .onChange(of: feedManager.iconRevision) {
-            Task {
-                icon = await loadIcon()
-            }
-        }
-    }
-
-    private func loadIcon() async -> UIImage? {
-        let currentFeed = feedManager.feedsByID[feed.id] ?? feed
-        return await IconCache.shared.icon(for: currentFeed)
     }
 }

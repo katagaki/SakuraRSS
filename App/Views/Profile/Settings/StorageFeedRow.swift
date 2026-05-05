@@ -7,7 +7,7 @@ struct StorageFeedRow: View {
 
     var body: some View {
         HStack(spacing: 12) {
-            FeedIconView(feed: feed, size: 28)
+            FeedIcon(feed: feed, size: 28, cornerRadius: 6)
             VStack(alignment: .leading, spacing: 2) {
                 Text(feed.title)
                     .font(.body)

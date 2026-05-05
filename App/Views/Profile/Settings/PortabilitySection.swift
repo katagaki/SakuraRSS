@@ -25,6 +25,7 @@ struct PortabilitySection: View {
                     }
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 12)
+                    .contentShape(.rect)
                 }
                 .buttonStyle(.plain)
                 Divider()
@@ -39,6 +40,7 @@ struct PortabilitySection: View {
                     }
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 12)
+                    .contentShape(.rect)
                 }
                 .buttonStyle(.plain)
             }
