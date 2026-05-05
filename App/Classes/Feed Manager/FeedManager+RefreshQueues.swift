@@ -11,7 +11,7 @@ enum FeedRefreshQueueLimits {
 struct FeedRefreshQueues: Sendable {
     let regular: [Feed]
     let slow: [Feed]
-    let x: [Feed]
+    let x: [Feed] // swiftlint:disable:this identifier_name
     let instagram: [Feed]
 }
 
@@ -27,7 +27,7 @@ extension FeedManager {
 
         var regular: [Feed] = []
         var slow: [Feed] = []
-        var x: [Feed] = []
+        var x: [Feed] = [] // swiftlint:disable:this identifier_name
         var instagram: [Feed] = []
 
         for feed in feeds {
