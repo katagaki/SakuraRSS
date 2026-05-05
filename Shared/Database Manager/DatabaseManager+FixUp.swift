@@ -133,5 +133,14 @@ nonisolated extension DatabaseManager {
         _ = try? database.run(contentOverrides.addColumn(coTitleField, defaultValue: "default"))
         _ = try? database.run(contentOverrides.addColumn(coBodyField, defaultValue: "default"))
         _ = try? database.run(contentOverrides.addColumn(coAuthorField, defaultValue: "default"))
+
+        // feed_refresh_metrics table
+        _ = try? database.run(feedRefreshMetrics.create(ifNotExists: true) { table in
+            table.column(metricFeedID, primaryKey: true, references: feeds, feedID)
+            table.column(metricLastDurationMs, defaultValue: 0)
+            table.column(metricAverageDurationMs, defaultValue: 0.0)
+            table.column(metricSampleCount, defaultValue: 0)
+            table.column(metricLastRecordedAt, defaultValue: 0.0)
+        })
     }
 }

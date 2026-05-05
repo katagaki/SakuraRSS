@@ -17,8 +17,26 @@ extension FeedManager {
     ) async throws {
         // swiftlint:disable:next line_length
         log("FeedRefresh", "refreshFeed begin id=\(feed.id) title=\(feed.title) url=\(feed.url) reloadData=\(reloadData) skipImageFetch=\(skipImageFetch) skipImagePreload=\(skipImagePreload) runNLP=\(runNLP) contentOnly=\(contentOnly)")
+        let started = Date()
+        var didPerformWork = false
+        defer {
+            if didPerformWork {
+                let durationMs = max(0, Int(Date().timeIntervalSince(started) * 1000))
+                let database = self.database
+                let feedID = feed.id
+                Task.detached(priority: .utility) {
+                    do {
+                        try database.recordFeedRefreshMetric(feedID: feedID, durationMs: durationMs)
+                        log("FeedRefresh", "metric recorded id=\(feedID) durationMs=\(durationMs)")
+                    } catch {
+                        log("FeedRefresh", "metric record failed id=\(feedID) error=\(error.localizedDescription)")
+                    }
+                }
+            }
+        }
         if PetalRecipe.isPetalFeedURL(feed.url) {
             log("FeedRefresh", "dispatch -> Petal id=\(feed.id)")
+            didPerformWork = true
             try await refreshPetalFeed(
                 feed,
                 reloadData: reloadData,
@@ -34,6 +52,7 @@ extension FeedManager {
                 return
             }
             log("FeedRefresh", "dispatch -> provider=\(String(describing: provider)) id=\(feed.id)")
+            didPerformWork = true
             try await provider.refresh(
                 feed: feed,
                 on: self,
@@ -47,6 +66,7 @@ extension FeedManager {
 
         log("FeedRefresh", "dispatch -> standard RSS pipeline id=\(feed.id)")
         let database = database
+        didPerformWork = true
         try await Task.detached {
             try await FeedManager.runStandardFeedPipeline(
                 feed: feed,
@@ -391,9 +411,9 @@ extension FeedManager {
             return
         }
 
-        let slowFeeds = feedsToRefresh.filter { $0.isSlowRefreshFeed }
-        let regularFeeds = feedsToRefresh.filter { !$0.isSlowRefreshFeed }
-        log("FeedRefresh.All", "eligible=\(feedsToRefresh.count) slow=\(slowFeeds.count) regular=\(regularFeeds.count)")
+        let queues = partitionRefreshQueues(feedsToRefresh)
+        // swiftlint:disable:next line_length
+        log("FeedRefresh.All", "eligible=\(feedsToRefresh.count) regular=\(queues.regular.count) slow=\(queues.slow.count) x=\(queues.x.count) instagram=\(queues.instagram.count)")
 
         await MainActor.run {
             isLoading = true
@@ -421,21 +441,35 @@ extension FeedManager {
 
         let work = Task { [weak self] in
             guard let self else { return }
-            async let slow: Void = self.runBoundedRefresh(
-                slowFeeds,
-                maxConcurrent: 2,
-                skipImageFetch: skipImageFetch,
-                skipImagePreload: effectiveSkipPreload,
-                runNLP: runNLPAfter
-            )
             async let regular: Void = self.runBoundedRefresh(
-                regularFeeds,
-                maxConcurrent: 8,
+                queues.regular,
+                maxConcurrent: FeedRefreshQueueLimits.maxConcurrentPerQueue,
                 skipImageFetch: skipImageFetch,
                 skipImagePreload: effectiveSkipPreload,
                 runNLP: runNLPAfter
             )
-            _ = await (slow, regular)
+            async let slow: Void = self.runBoundedRefresh(
+                queues.slow,
+                maxConcurrent: FeedRefreshQueueLimits.maxConcurrentPerQueue,
+                skipImageFetch: skipImageFetch,
+                skipImagePreload: effectiveSkipPreload,
+                runNLP: runNLPAfter
+            )
+            async let xRefresh: Void = self.runBoundedRefresh(
+                queues.x,
+                maxConcurrent: FeedRefreshQueueLimits.maxConcurrentPerQueue,
+                skipImageFetch: skipImageFetch,
+                skipImagePreload: effectiveSkipPreload,
+                runNLP: runNLPAfter
+            )
+            async let instagramRefresh: Void = self.runBoundedRefresh(
+                queues.instagram,
+                maxConcurrent: FeedRefreshQueueLimits.maxConcurrentPerQueue,
+                skipImageFetch: skipImageFetch,
+                skipImagePreload: effectiveSkipPreload,
+                runNLP: runNLPAfter
+            )
+            _ = await (regular, slow, xRefresh, instagramRefresh)
         }
         await MainActor.run { self.refreshTask = work }
         _ = await work.value
@@ -453,6 +487,54 @@ extension FeedManager {
             return completed
         }
         log("FeedRefresh.All", "end completed=\(finalCompleted)/\(feedsToRefresh.count)")
+    }
+
+    fileprivate func runTitleSafeBoundedRefresh(
+        _ feeds: [Feed],
+        maxConcurrent: Int
+    ) async {
+        guard !feeds.isEmpty else { return }
+        await withTaskGroup(of: Void.self) { group in
+            var submitted = 0
+            var iterator = feeds.makeIterator()
+            while submitted < maxConcurrent, !Task.isCancelled, let feed = iterator.next() {
+                group.addTask { [weak self] in
+                    guard let self, !Task.isCancelled else { return }
+                    await self.markRefreshStarted(feedID: feed.id)
+                    try? await self.refreshFeed(
+                        feed,
+                        updateTitle: false,
+                        reloadData: false
+                    )
+                    await self.markRefreshFinished(
+                        feedID: feed.id,
+                        cancelled: Task.isCancelled
+                    )
+                }
+                submitted += 1
+            }
+            while await group.next() != nil {
+                if Task.isCancelled {
+                    group.cancelAll()
+                    continue
+                }
+                if let feed = iterator.next() {
+                    group.addTask { [weak self] in
+                        guard let self, !Task.isCancelled else { return }
+                        await self.markRefreshStarted(feedID: feed.id)
+                        try? await self.refreshFeed(
+                            feed,
+                            updateTitle: false,
+                            reloadData: false
+                        )
+                        await self.markRefreshFinished(
+                            feedID: feed.id,
+                            cancelled: Task.isCancelled
+                        )
+                    }
+                }
+            }
+        }
     }
 
     fileprivate func runBoundedRefresh(
@@ -621,54 +703,26 @@ extension FeedManager {
             refreshingFeedIDs = []
         }
 
-        let maxConcurrent = 8
+        let queues = partitionRefreshQueues(currentFeeds)
+        let maxConcurrent = FeedRefreshQueueLimits.maxConcurrentPerQueue
         let work = Task { [weak self] in
             guard let self else { return }
-            async let feedRefresh: Void = withTaskGroup(of: Void.self) { group in
-                var submitted = 0
-                var iterator = currentFeeds.makeIterator()
-                while submitted < maxConcurrent, !Task.isCancelled, let feed = iterator.next() {
-                    group.addTask {
-                        guard !Task.isCancelled else { return }
-                        await self.markRefreshStarted(feedID: feed.id)
-                        try? await self.refreshFeed(
-                            feed,
-                            updateTitle: false,
-                            reloadData: false
-                        )
-                        await self.markRefreshFinished(
-                            feedID: feed.id,
-                            cancelled: Task.isCancelled
-                        )
-                    }
-                    submitted += 1
-                }
-                while await group.next() != nil {
-                    if Task.isCancelled {
-                        group.cancelAll()
-                        continue
-                    }
-                    if let feed = iterator.next() {
-                        group.addTask {
-                            guard !Task.isCancelled else { return }
-                            await self.markRefreshStarted(feedID: feed.id)
-                            try? await self.refreshFeed(
-                                feed,
-                                updateTitle: false,
-                                reloadData: false
-                            )
-                            await self.markRefreshFinished(
-                                feedID: feed.id,
-                                cancelled: Task.isCancelled
-                            )
-                        }
-                    }
-                }
-            }
+            async let regular: Void = self.runTitleSafeBoundedRefresh(
+                queues.regular, maxConcurrent: maxConcurrent
+            )
+            async let slow: Void = self.runTitleSafeBoundedRefresh(
+                queues.slow, maxConcurrent: maxConcurrent
+            )
+            async let xRefresh: Void = self.runTitleSafeBoundedRefresh(
+                queues.x, maxConcurrent: maxConcurrent
+            )
+            async let instagramRefresh: Void = self.runTitleSafeBoundedRefresh(
+                queues.instagram, maxConcurrent: maxConcurrent
+            )
             async let iconRefresh: Void = IconCache.shared.refreshIcons(
                 for: currentFeeds.map { ($0.domain, $0.siteURL as String?) }
             )
-            _ = await (feedRefresh, iconRefresh)
+            _ = await (regular, slow, xRefresh, instagramRefresh, iconRefresh)
         }
         await MainActor.run { self.refreshTask = work }
         _ = await work.value
