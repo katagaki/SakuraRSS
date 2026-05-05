@@ -89,9 +89,6 @@ struct HomeSectionView: View {
         return articles
     }
 
-    /// Loads preloaded entries off the main thread so switching sections doesn't
-    /// block the UI on DB queries and rule application. Honors cancellation so a
-    /// rapid sequence of taps doesn't apply stale results.
     private func reloadPreloadedEntries() async {
         let entries: [ArticleIDEntry]
         switch source {

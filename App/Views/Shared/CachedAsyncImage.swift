@@ -116,6 +116,7 @@ struct CachedAsyncImage<Placeholder: View>: View {
 
         let memoryCache = ImageMemoryCache.shared
         if let cached = memoryCache.image(forKey: urlString) {
+            _ = cached.ensureIconDerivedMetrics()
             return cached
         }
 
@@ -125,6 +126,7 @@ struct CachedAsyncImage<Placeholder: View>: View {
            let cachedImage = ImageDownsampler.downsample(
                cachedData, maxPixelSize: maxDisplayPixelSize
            ) ?? UIImage(data: cachedData) {
+            _ = cachedImage.ensureIconDerivedMetrics()
             memoryCache.setImage(cachedImage, forKey: urlString)
             log("Image", "Cache hit for \(urlString) (\(cachedData.count) bytes)")
             return cachedImage
@@ -143,6 +145,7 @@ struct CachedAsyncImage<Placeholder: View>: View {
                 log("Image", "Failed to decode image data from \(urlString) (\(data.count) bytes)")
                 return nil
             }
+            _ = downsampled.ensureIconDerivedMetrics()
             if memoryCache.image(forKey: urlString) == nil {
                 try? database.cacheImageData(data, for: urlString)
             }

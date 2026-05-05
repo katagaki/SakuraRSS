@@ -121,10 +121,6 @@ extension FeedManager {
 
     // MARK: - Async Preload (Background)
 
-    /// Section/list switches in the Home tab kicked off the synchronous variants
-    /// on the main thread, blocking the UI for the duration of the DB query and
-    /// rule application. The async variants snapshot the main-actor state we
-    /// need, then run the heavy DB and rule work on a detached task.
     func preloadedArticleEntriesAsync(requireUnread: Bool = false) async -> [ArticleIDEntry] {
         let database = self.database
         let muted = mutedFeedIDs

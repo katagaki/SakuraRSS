@@ -96,9 +96,6 @@ extension FeedManager {
         return applyContentOverrides(filtered)
     }
 
-    /// Background-safe variant. Skips Content Override application since callers
-    /// that need it (e.g. preload pipelines for `ArticleIDEntry`) only consume
-    /// `id`/`publishedDate`, neither of which overrides can mutate.
     nonisolated static func applyAllRules(_ articles: [Article], database: DatabaseManager) -> [Article] {
         // swiftlint:disable:next large_tuple
         var rulesByFeed: [Int64: (allowedKeywords: [String], keywords: [String], authors: Set<String>)] = [:]
