@@ -302,55 +302,55 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Apple Intelligence fasst Ihre Feed-Schlagzeilen in einer morgendlichen und abendlichen Zusammenfassung zusammen. Zusammenfassungen werden nur generiert, wenn der Today-Tab aktiviert ist."
+            "value" : "Apple Intelligence fasst Ihre Feed-Schlagzeilen in einer morgendlichen, nachmittäglichen und abendlichen Zusammenfassung zusammen. Zusammenfassungen werden nur generiert, wenn der Today-Tab aktiviert ist."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Apple Intelligence summarizes your feed headlines into a morning and evening digest. Summaries are only generated when the Today tab is enabled."
+            "value" : "Apple Intelligence summarizes your feed headlines into morning, afternoon, and evening digests. Summaries are only generated when the Today tab is enabled."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Apple Intelligence résume les titres de vos flux en un récapitulatif matinal et vespéral. Les récapitulatifs ne sont générés que lorsque l'onglet Today est activé."
+            "value" : "Apple Intelligence résume les titres de vos flux en récapitulatifs matinal, d'après-midi et vespéral. Les récapitulatifs ne sont générés que lorsque l'onglet Today est activé."
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Apple Intelligence riassume i titoli dei tuoi feed in un digest mattutino e serale. I riassunti vengono generati solo quando la scheda Today è attiva."
+            "value" : "Apple Intelligence riassume i titoli dei tuoi feed in digest mattutino, pomeridiano e serale. I riassunti vengono generati solo quando la scheda Today è attiva."
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Apple Intelligenceがフィードの見出しを朝と夜のダイジェストにまとめます。サマリーはTodayタブが有効な場合にのみ生成されます。"
+            "value" : "Apple Intelligenceがフィードの見出しを朝、昼、夜のダイジェストにまとめます。サマリーはTodayタブが有効な場合にのみ生成されます。"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Apple Intelligence가 피드 헤드라인을 아침 및 저녁 요약으로 정리합니다. 요약은 Today 탭이 활성화된 경우에만 생성됩니다."
+            "value" : "Apple Intelligence가 피드 헤드라인을 아침, 오후, 저녁 요약으로 정리합니다. 요약은 Today 탭이 활성화된 경우에만 생성됩니다."
           }
         },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Apple Intelligence tóm tắt tiêu đề nguồn cấp của bạn thành bản tóm lược buổi sáng và buổi tối. Bản tóm tắt chỉ được tạo khi tab Today được bật."
+            "value" : "Apple Intelligence tóm tắt tiêu đề nguồn cấp của bạn thành bản tóm lược buổi sáng, buổi chiều và buổi tối. Bản tóm tắt chỉ được tạo khi tab Today được bật."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Apple Intelligence 将你的订阅源标题汇总为早间和晚间摘要。仅当启用 Today 标签页时才会生成摘要。"
+            "value" : "Apple Intelligence 将你的订阅源标题汇总为早间、午间和晚间摘要。仅当启用 Today 标签页时才会生成摘要。"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Apple Intelligence 將你的訂閱源標題彙整為早間和晚間摘要。僅當啟用 Today 分頁時才會產生摘要。"
+            "value" : "Apple Intelligence 將你的訂閱源標題彙整為早間、午間和晚間摘要。僅當啟用 Today 分頁時才會產生摘要。"
           }
         }
       }
