@@ -6,6 +6,8 @@ struct HomeSectionBar: View {
     @Binding var selection: HomeSelection
     @Binding var tabFrames: [String: CGRect]
 
+    @State private var hasPerformedInitialScroll = false
+
     private let deloreanClock = DeloreanClock.shared
 
     private var indicatorFrame: CGRect {
@@ -83,8 +85,11 @@ struct HomeSectionBar: View {
             #else
             .compatibleGlassEffect(in: .capsule, interactive: true)
             #endif
-            .onAppear {
-                guard let selected = tabs.first(where: { $0.matches(selection) }) else { return }
+            .onChange(of: tabFrames, initial: true) {
+                guard !hasPerformedInitialScroll,
+                      let selected = tabs.first(where: { $0.matches(selection) }),
+                      tabFrames[selected.id] != nil else { return }
+                hasPerformedInitialScroll = true
                 proxy.scrollTo(selected.id, anchor: .center)
             }
         }
