@@ -2,7 +2,7 @@ import WebKit
 
 /// Sendable representation of a single message from the YouTube WebView's
 /// playback event bridge.
-struct PlaybackEvent: Sendable {
+nonisolated struct PlaybackEvent: Sendable {
 
     enum Kind: String, Sendable {
         case play
