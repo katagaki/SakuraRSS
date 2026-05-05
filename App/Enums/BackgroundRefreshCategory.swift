@@ -5,7 +5,7 @@ nonisolated enum BackgroundRefreshCategory: String, CaseIterable, Sendable {
     case reddit
     case youtube
     case rssSocial
-    case x
+    case x // swiftlint:disable:this identifier_name
     case instagram
 
     var taskID: String {
