@@ -25,8 +25,9 @@ struct RefreshingFeedsPopoverView: View {
                     }
                 }
             }
-            .padding(12)
+            .padding(18)
         }
+        .frame(width: 300)
         .frame(maxHeight: 250)
     }
 

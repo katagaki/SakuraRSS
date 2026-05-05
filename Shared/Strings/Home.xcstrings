@@ -597,55 +597,55 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Keine Feeds in der Warteschlange"
+            "value" : "Alles erledigt!"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "No feeds in queue"
+            "value" : "All done!"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Aucun flux en file d'attente"
+            "value" : "Tout est fait !"
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Nessun feed in coda"
+            "value" : "Tutto fatto!"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "キューにフィードはありません"
+            "value" : "すべて完了しました！"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "대기 중인 피드 없음"
+            "value" : "모두 완료!"
           }
         },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Không có nguồn cấp trong hàng đợi"
+            "value" : "Đã xong!"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "队列中没有订阅源"
+            "value" : "全部完成！"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "佇列中沒有訂閱源"
+            "value" : "全部完成！"
           }
         }
       }
