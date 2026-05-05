@@ -2,7 +2,7 @@ import SwiftUI
 
 struct SeekBarView: View {
 
-    @Binding var currentTime: TimeInterval
+    let currentTime: TimeInterval
     let duration: TimeInterval
     var isDisabled: Bool = false
     var segments: [(start: Double, end: Double)] = []
@@ -70,7 +70,6 @@ struct SeekBarView: View {
                         .onEnded { _ in
                             guard !isDisabled else { return }
                             onSeek(dragTime)
-                            currentTime = dragTime
                             isDragging = false
                         }
                 )
