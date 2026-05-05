@@ -135,40 +135,6 @@ extension FeedManager {
     // MARK: - List Rule Application
 
     func applyListRules(_ articles: [Article], listID: Int64) -> [Article] {
-        let allowedKeywords = (try? database.listRules(forListID: listID, type: "allowed_keyword")) ?? []
-        let keywords = (try? database.listRules(forListID: listID, type: "muted_keyword")) ?? []
-        let authors = Set((try? database.listRules(forListID: listID, type: "muted_author")) ?? [])
-        guard !allowedKeywords.isEmpty || !keywords.isEmpty || !authors.isEmpty else { return articles }
-        return articles.filter { article in
-            if !allowedKeywords.isEmpty {
-                return articleMatchesAnyKeyword(article, keywords: allowedKeywords)
-            }
-            if let author = article.author, authors.contains(author) {
-                return false
-            }
-            for keyword in keywords {
-                if article.title.localizedCaseInsensitiveContains(keyword) {
-                    return false
-                }
-                if let summary = article.summary,
-                   summary.localizedCaseInsensitiveContains(keyword) {
-                    return false
-                }
-            }
-            return true
-        }
-    }
-
-    private func articleMatchesAnyKeyword(_ article: Article, keywords: [String]) -> Bool {
-        for keyword in keywords {
-            if article.title.localizedCaseInsensitiveContains(keyword) {
-                return true
-            }
-            if let summary = article.summary,
-               summary.localizedCaseInsensitiveContains(keyword) {
-                return true
-            }
-        }
-        return false
+        Self.applyListRules(articles, listID: listID, database: database)
     }
 }
