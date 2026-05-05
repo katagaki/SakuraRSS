@@ -283,6 +283,70 @@ nonisolated enum YouTubePlayerScripts {
     })();
     """
 
+    /// Event-driven autoplay helper. Native code calls `__yt.armAutoplay(ms)`
+    /// after an action that should start the next item (e.g. skipping an ad).
+    /// Once armed, any `<video>` becoming ready (`canplay` / `loadeddata` /
+    /// `loadedmetadata` / `playing`) is played immediately. A long fallback
+    /// poll covers the case where no event fires before the arm window expires.
+    ///
+    /// This replaces a short inline poll that gave up before the next ad or
+    /// the main video had time to load.
+    static let autoplayArmer = """
+    (function() {
+        if (!window.__yt) return;
+        if (window.__yt.armAutoplay) return;
+        window.__yt.autoplayArmedUntil = 0;
+
+        function armed() {
+            return Date.now() < (window.__yt.autoplayArmedUntil || 0);
+        }
+
+        function tryPlay(v) {
+            if (!v || !v.paused || v.ended) return;
+            if (window.__yt.userPaused === true) return;
+            if (window.__yt.autoplayBlocked === true) return;
+            if (window.__yt.exitedPiPRecently === true) return;
+            try {
+                var p = v.play();
+                if (p && typeof p.catch === 'function') p.catch(function(){});
+            } catch (e) {}
+        }
+
+        function attach(v) {
+            if (!v || v.__ytAutoplayArmAttached) return;
+            v.__ytAutoplayArmAttached = true;
+            ['canplay', 'loadeddata', 'loadedmetadata', 'playing'].forEach(function(evt) {
+                window.__yt.addListener(v, evt, function() {
+                    if (armed()) tryPlay(v);
+                }, true);
+            });
+        }
+
+        function scan() { document.querySelectorAll('video').forEach(attach); }
+        scan();
+        var observer = new MutationObserver(scan);
+        if (document.documentElement) {
+            observer.observe(document.documentElement,
+                { childList: true, subtree: true });
+        }
+
+        window.__yt.armAutoplay = function(durationMs) {
+            var dur = (typeof durationMs === 'number' && durationMs > 0)
+                ? durationMs : 12000;
+            window.__yt.autoplayArmedUntil = Date.now() + dur;
+            window.__yt.autoplayBlocked = false;
+            window.__yt.userPaused = false;
+            window.__yt.exitedPiPRecently = false;
+            scan();
+            (function tick() {
+                if (!armed()) return;
+                document.querySelectorAll('video').forEach(tryPlay);
+                setTimeout(tick, 200);
+            })();
+        };
+    })();
+    """
+
     /// Prevents YouTube from forcing PiP to close during ads by neutralizing
     /// any `disablePictureInPicture` writes on `<video>` elements.
     static let pipDisableOverride = """
@@ -433,20 +497,13 @@ nonisolated enum YouTubePlayerScripts {
         }
 
         function resumePlayback() {
+            if (window.__yt && typeof window.__yt.armAutoplay === 'function') {
+                window.__yt.armAutoplay(12000);
+                return;
+            }
             window.__yt.autoplayBlocked = false;
             window.__yt.userPaused = false;
             window.__yt.exitedPiPRecently = false;
-            var attempts = 0;
-            (function tick() {
-                var v = document.querySelector('video');
-                if (v && v.paused && !v.ended && v.readyState >= 2) {
-                    try {
-                        var p = v.play();
-                        if (p && typeof p.catch === 'function') p.catch(function(){});
-                    } catch (e) {}
-                }
-                if (++attempts < 20) { setTimeout(tick, 250); }
-            })();
         }
 
         function performSkipAd() {
@@ -679,22 +736,15 @@ nonisolated enum YouTubePlayerScripts {
                 }
             } catch (e) { dbg('seek err: ' + e.message); }
             if (acted) {
-                window.__yt.autoplayBlocked = false;
-                window.__yt.userPaused = false;
-                window.__yt.exitedPiPRecently = false;
-                var attempts = 0;
-                var resume = function() {
-                    var v = document.querySelector('video');
-                    if (v && v.paused && !v.ended && v.readyState >= 2) {
-                        try {
-                            var p = v.play();
-                            if (p && typeof p.catch === 'function') p.catch(function(){});
-                            dbg('resume play attempt=' + attempts);
-                        } catch (e) { dbg('resume err: ' + e.message); }
-                    }
-                    if (++attempts < 20) { setTimeout(resume, 250); }
-                };
-                setTimeout(resume, 100);
+                if (window.__yt && typeof window.__yt.armAutoplay === 'function') {
+                    window.__yt.armAutoplay(12000);
+                    dbg('armAutoplay(12000) called');
+                } else {
+                    window.__yt.autoplayBlocked = false;
+                    window.__yt.userPaused = false;
+                    window.__yt.exitedPiPRecently = false;
+                    dbg('armAutoplay missing, flags cleared');
+                }
             }
             dbg('done acted=' + acted);
             return acted;

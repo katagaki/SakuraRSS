@@ -75,6 +75,11 @@ struct YouTubePlayerWebView: UIViewRepresentable {
             forMainFrameOnly: false
         ))
         controller.addUserScript(WKUserScript(
+            source: YouTubePlayerScripts.autoplayArmer,
+            injectionTime: .atDocumentEnd,
+            forMainFrameOnly: true
+        ))
+        controller.addUserScript(WKUserScript(
             source: YouTubePlayerScripts.pipEventBridge,
             injectionTime: .atDocumentEnd,
             forMainFrameOnly: true
