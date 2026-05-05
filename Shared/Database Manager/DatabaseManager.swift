@@ -123,6 +123,13 @@ nonisolated final class DatabaseManager: @unchecked Sendable {
     let coBodyField = SQLite.Expression<String>("body_field")
     let coAuthorField = SQLite.Expression<String>("author_field")
 
+    let feedRefreshMetrics = Table("feed_refresh_metrics")
+    let metricFeedID = SQLite.Expression<Int64>("feed_id")
+    let metricLastDurationMs = SQLite.Expression<Int>("last_duration_ms")
+    let metricAverageDurationMs = SQLite.Expression<Double>("avg_duration_ms")
+    let metricSampleCount = SQLite.Expression<Int>("sample_count")
+    let metricLastRecordedAt = SQLite.Expression<Double>("last_recorded_at")
+
     // MARK: - Init
 
     private init() {
@@ -320,6 +327,14 @@ nonisolated final class DatabaseManager: @unchecked Sendable {
             table.column(coTitleField, defaultValue: "default")
             table.column(coBodyField, defaultValue: "default")
             table.column(coAuthorField, defaultValue: "default")
+        })
+
+        try database.run(feedRefreshMetrics.create(ifNotExists: true) { table in
+            table.column(metricFeedID, primaryKey: true, references: feeds, feedID)
+            table.column(metricLastDurationMs, defaultValue: 0)
+            table.column(metricAverageDurationMs, defaultValue: 0.0)
+            table.column(metricSampleCount, defaultValue: 0)
+            table.column(metricLastRecordedAt, defaultValue: 0.0)
         })
     }
 

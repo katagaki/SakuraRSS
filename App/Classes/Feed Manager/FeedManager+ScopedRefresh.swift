@@ -45,26 +45,39 @@ extension FeedManager {
             }
         }
 
-        let slowFeeds = feeds.filter { $0.isSlowRefreshFeed }
-        let regularFeeds = feeds.filter { !$0.isSlowRefreshFeed }
+        let queues = partitionRefreshQueues(feeds)
 
         let work = Task { [weak self] in
             guard let self else { return }
-            async let slow: Void = self.runScopedBoundedRefresh(
-                slowFeeds,
-                scope: scope,
-                maxConcurrent: 2,
-                skipImagePreload: effectiveSkipPreload,
-                runNLP: runNLP
-            )
             async let regular: Void = self.runScopedBoundedRefresh(
-                regularFeeds,
+                queues.regular,
                 scope: scope,
-                maxConcurrent: 8,
+                maxConcurrent: FeedRefreshQueueLimits.maxConcurrentPerQueue,
                 skipImagePreload: effectiveSkipPreload,
                 runNLP: runNLP
             )
-            _ = await (slow, regular)
+            async let slow: Void = self.runScopedBoundedRefresh(
+                queues.slow,
+                scope: scope,
+                maxConcurrent: FeedRefreshQueueLimits.maxConcurrentPerQueue,
+                skipImagePreload: effectiveSkipPreload,
+                runNLP: runNLP
+            )
+            async let xRefresh: Void = self.runScopedBoundedRefresh(
+                queues.x,
+                scope: scope,
+                maxConcurrent: FeedRefreshQueueLimits.maxConcurrentPerQueue,
+                skipImagePreload: effectiveSkipPreload,
+                runNLP: runNLP
+            )
+            async let instagramRefresh: Void = self.runScopedBoundedRefresh(
+                queues.instagram,
+                scope: scope,
+                maxConcurrent: FeedRefreshQueueLimits.maxConcurrentPerQueue,
+                skipImagePreload: effectiveSkipPreload,
+                runNLP: runNLP
+            )
+            _ = await (regular, slow, xRefresh, instagramRefresh)
         }
         await MainActor.run { self.scopedRefreshTasks[scope] = work }
         _ = await work.value
