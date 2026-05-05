@@ -283,14 +283,7 @@ nonisolated enum YouTubePlayerScripts {
     })();
     """
 
-    /// Event-driven autoplay helper. Native code calls `__yt.armAutoplay(ms)`
-    /// after an action that should start the next item (e.g. skipping an ad).
-    /// Once armed, any `<video>` becoming ready (`canplay` / `loadeddata` /
-    /// `loadedmetadata` / `playing`) is played immediately. A long fallback
-    /// poll covers the case where no event fires before the arm window expires.
-    ///
-    /// This replaces a short inline poll that gave up before the next ad or
-    /// the main video had time to load.
+    /// Plays the next ready `<video>` after `__yt.armAutoplay(ms)` is called.
     static let autoplayArmer = """
     (function() {
         if (!window.__yt) return;
