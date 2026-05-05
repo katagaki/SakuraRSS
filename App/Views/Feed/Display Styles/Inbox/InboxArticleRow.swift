@@ -28,6 +28,10 @@ struct InboxArticleRow: View {
                 }
                 .frame(width: 48, height: 48)
                 .clipShape(.rect(cornerRadius: 8))
+                .overlay {
+                    RoundedRectangle(cornerRadius: 8)
+                        .strokeBorder(.primary.opacity(0.2), lineWidth: 0.5)
+                }
             } else {
                 FeedIconPlaceholder(
                     icon: icon,
@@ -38,6 +42,10 @@ struct InboxArticleRow: View {
                     cornerRadius: 8
                 )
                 .frame(width: 48, height: 48)
+                .overlay {
+                    RoundedRectangle(cornerRadius: 8)
+                        .strokeBorder(.primary.opacity(0.2), lineWidth: 0.5)
+                }
             }
 
             VStack(alignment: .leading, spacing: 4) {

@@ -399,12 +399,16 @@ extension FeedManager {
             isLoading = true
             refreshCompleted = 0
             refreshTotal = feedsToRefresh.count
+            pendingRefreshFeedIDs = feedsToRefresh.map { $0.id }
+            refreshingFeedIDs = []
         }
         defer {
             Task { @MainActor in
                 self.isLoading = false
                 self.refreshCompleted = 0
                 self.refreshTotal = 0
+                self.pendingRefreshFeedIDs = []
+                self.refreshingFeedIDs = []
                 self.refreshTask = nil
                 self.lastRefreshedAt = Date()
             }
@@ -465,6 +469,7 @@ extension FeedManager {
             while submitted < maxConcurrent, !Task.isCancelled, let feed = iterator.next() {
                 group.addTask { [weak self] in
                     guard let self, !Task.isCancelled else { return }
+                    await self.markRefreshStarted(feedID: feed.id)
                     try? await self.refreshFeed(
                         feed,
                         reloadData: false,
@@ -472,9 +477,10 @@ extension FeedManager {
                         skipImagePreload: skipImagePreload,
                         runNLP: runNLP
                     )
-                    if !Task.isCancelled {
-                        await MainActor.run { self.refreshCompleted += 1 }
-                    }
+                    await self.markRefreshFinished(
+                        feedID: feed.id,
+                        cancelled: Task.isCancelled
+                    )
                 }
                 submitted += 1
             }
@@ -486,6 +492,7 @@ extension FeedManager {
                 if let feed = iterator.next() {
                     group.addTask { [weak self] in
                         guard let self, !Task.isCancelled else { return }
+                        await self.markRefreshStarted(feedID: feed.id)
                         try? await self.refreshFeed(
                             feed,
                             reloadData: false,
@@ -493,9 +500,10 @@ extension FeedManager {
                             skipImagePreload: skipImagePreload,
                             runNLP: runNLP
                         )
-                        if !Task.isCancelled {
-                            await MainActor.run { self.refreshCompleted += 1 }
-                        }
+                        await self.markRefreshFinished(
+                            feedID: feed.id,
+                            cancelled: Task.isCancelled
+                        )
                     }
                 }
             }
@@ -562,6 +570,20 @@ extension FeedManager {
         log("FeedRefresh.Category", "category=\(category.rawValue) end count=\(eligible.count)")
     }
 
+    @MainActor
+    fileprivate func markRefreshStarted(feedID: Int64) {
+        pendingRefreshFeedIDs.removeAll { $0 == feedID }
+        refreshingFeedIDs.insert(feedID)
+    }
+
+    @MainActor
+    fileprivate func markRefreshFinished(feedID: Int64, cancelled: Bool) {
+        refreshingFeedIDs.remove(feedID)
+        if !cancelled {
+            refreshCompleted += 1
+        }
+    }
+
     /// Refreshes feeds that have never been fetched.
     func refreshUnfetchedFeeds() async {
         let unfetched = feeds.filter { $0.lastFetched == nil }
@@ -594,12 +616,16 @@ extension FeedManager {
             isLoading = true
             refreshCompleted = 0
             refreshTotal = currentFeeds.count
+            pendingRefreshFeedIDs = currentFeeds.map { $0.id }
+            refreshingFeedIDs = []
         }
         defer {
             Task { @MainActor in
                 self.isLoading = false
                 self.refreshCompleted = 0
                 self.refreshTotal = 0
+                self.pendingRefreshFeedIDs = []
+                self.refreshingFeedIDs = []
                 self.refreshTask = nil
                 self.lastRefreshedAt = Date()
             }
@@ -614,14 +640,16 @@ extension FeedManager {
                 while submitted < maxConcurrent, !Task.isCancelled, let feed = iterator.next() {
                     group.addTask {
                         guard !Task.isCancelled else { return }
+                        await self.markRefreshStarted(feedID: feed.id)
                         try? await self.refreshFeed(
                             feed,
                             updateTitle: false,
                             reloadData: false
                         )
-                        if !Task.isCancelled {
-                            await MainActor.run { self.refreshCompleted += 1 }
-                        }
+                        await self.markRefreshFinished(
+                            feedID: feed.id,
+                            cancelled: Task.isCancelled
+                        )
                     }
                     submitted += 1
                 }
@@ -633,14 +661,16 @@ extension FeedManager {
                     if let feed = iterator.next() {
                         group.addTask {
                             guard !Task.isCancelled else { return }
+                            await self.markRefreshStarted(feedID: feed.id)
                             try? await self.refreshFeed(
                                 feed,
                                 updateTitle: false,
                                 reloadData: false
                             )
-                            if !Task.isCancelled {
-                                await MainActor.run { self.refreshCompleted += 1 }
-                            }
+                            await self.markRefreshFinished(
+                                feedID: feed.id,
+                                cancelled: Task.isCancelled
+                            )
                         }
                     }
                 }
@@ -670,6 +700,8 @@ extension FeedManager {
         isLoading = false
         refreshCompleted = 0
         refreshTotal = 0
+        pendingRefreshFeedIDs = []
+        refreshingFeedIDs = []
         Task { await self.loadFromDatabaseInBackground(animated: true) }
     }
 
