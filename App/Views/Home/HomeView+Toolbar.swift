@@ -2,6 +2,47 @@ import SwiftUI
 
 extension HomeView {
 
+    @ViewBuilder
+    var weatherToolbarButton: some View {
+        if let weather = weatherService.weather {
+            Button {
+                showingWeatherLocationPicker = true
+            } label: {
+                HStack(spacing: 4) {
+                    Image(systemName: weather.symbolName)
+                        .symbolRenderingMode(.multicolor)
+                    Text(temperatureText(weather.temperatureCelsius))
+                        .fontWeight(.semibold)
+                        .contentTransition(.numericText())
+                }
+                .fixedSize()
+            }
+            .buttonStyle(.plain)
+        } else if onboardingCompleted, !weatherService.isFetching {
+            Button {
+                showingWeatherLocationPicker = true
+            } label: {
+                Image(systemName: "location.slash")
+                    .symbolRenderingMode(.hierarchical)
+                    .foregroundStyle(.secondary)
+                    .accessibilityLabel(Text("TodayWeather.Location.SetPrompt"))
+            }
+            .buttonStyle(.plain)
+        }
+    }
+
+    func temperatureText(_ celsius: Double) -> String {
+        let rounded = celsius.rounded()
+        let measurement = Measurement(value: rounded, unit: UnitTemperature.celsius)
+        return measurement.formatted(
+            .measurement(
+                width: .narrow,
+                usage: .weather,
+                numberFormatStyle: .number.precision(.fractionLength(0))
+            )
+        )
+    }
+
     var principalToolbarLabel: some View {
         Button {
             if isShowingRefreshProgress {

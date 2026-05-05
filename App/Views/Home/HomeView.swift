@@ -19,6 +19,9 @@ struct HomeView: View {
     @State private var tabFrames: [String: CGRect] = [:]
     @State var topTopics: [String] = []
     @State var barConfiguration: HomeBarConfiguration = .load()
+    @Bindable var weatherService: TodayWeatherService = .shared
+    @AppStorage("Onboarding.Completed") var onboardingCompleted: Bool = false
+    @State var showingWeatherLocationPicker = false
     @Namespace private var cardZoom
 
     var body: some View {
@@ -47,6 +50,12 @@ struct HomeView: View {
                                 onStop: { feedManager.cancelScopedRefresh(scope: "section.all") }
                             )
                         }
+                    }
+                    if isTodaySelected {
+                        ToolbarItem(placement: .topBarTrailing) {
+                            weatherToolbarButton
+                        }
+                        .sharedBackgroundVisibility(.hidden)
                     }
                     if markAllReadPosition == .top, !isTodaySelected {
                         ToolbarItemGroup(placement: .topBarLeading) {
@@ -158,6 +167,10 @@ struct HomeView: View {
                 SafariView(url: url)
                     .ignoresSafeArea()
             }
+        }
+        .sheet(isPresented: $showingWeatherLocationPicker) {
+            TodayWeatherLocationSheet()
+                .presentationDetents([.large])
         }
         .onChange(of: pendingOpenRequest) {
             if pendingOpenRequest != nil {
