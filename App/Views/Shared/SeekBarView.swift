@@ -2,7 +2,7 @@ import SwiftUI
 
 struct SeekBarView: View {
 
-    @Binding var currentTime: TimeInterval
+    let currentTime: TimeInterval
     let duration: TimeInterval
     var isDisabled: Bool = false
     var segments: [(start: Double, end: Double)] = []
@@ -10,9 +10,14 @@ struct SeekBarView: View {
 
     @State private var isDragging = false
     @State private var dragTime: TimeInterval = 0
+    /// Holds the seek target between drag-end and the parent's `currentTime`
+    /// catching up, so the bar doesn't snap back to the pre-seek position.
+    @State private var pendingSeekTarget: TimeInterval?
 
     private var displayTime: TimeInterval {
-        isDragging ? dragTime : currentTime
+        if isDragging { return dragTime }
+        if let pendingSeekTarget { return pendingSeekTarget }
+        return currentTime
     }
 
     private var progress: CGFloat {
@@ -69,8 +74,10 @@ struct SeekBarView: View {
                         }
                         .onEnded { _ in
                             guard !isDisabled else { return }
+                            if abs(dragTime - currentTime) >= 0.5 {
+                                pendingSeekTarget = dragTime
+                            }
                             onSeek(dragTime)
-                            currentTime = dragTime
                             isDragging = false
                         }
                 )
@@ -89,6 +96,11 @@ struct SeekBarView: View {
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .monospacedDigit()
+            }
+        }
+        .onChange(of: currentTime) { _, newTime in
+            if let target = pendingSeekTarget, abs(newTime - target) < 0.75 {
+                pendingSeekTarget = nil
             }
         }
     }

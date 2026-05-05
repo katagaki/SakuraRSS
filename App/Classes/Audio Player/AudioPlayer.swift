@@ -11,7 +11,6 @@ final class AudioPlayer {
     // MARK: - State
 
     var isPlaying = false
-    var currentTime: TimeInterval = 0
     var duration: TimeInterval = 0
     var isLoading = false
 
@@ -27,8 +26,15 @@ final class AudioPlayer {
     // MARK: - Internal
 
     var player: AVPlayer?
-    var timeObserver: Any?
     var cancellables: Set<AnyCancellable> = []
+
+    /// Live read of playback position. Views drive their refresh cadence via
+    /// `TimelineView` so updates only happen while the seek bar is visible.
+    func currentTime() -> TimeInterval {
+        guard let player else { return 0 }
+        let seconds = player.currentTime().seconds
+        return seconds.isFinite ? seconds : 0
+    }
 
     private init() {
         let storedRate = UserDefaults.standard.float(forKey: "Podcast.PlaybackSpeed")
@@ -89,18 +95,6 @@ final class AudioPlayer {
                 self.postNowPlayingUpdate()
             }
             .store(in: &cancellables)
-
-        timeObserver = player?.addPeriodicTimeObserver(
-            forInterval: CMTime(seconds: 0.5, preferredTimescale: 600),
-            queue: .main
-        ) { [weak self] time in
-            guard let self else { return }
-            let seconds = time.seconds
-            Task { @MainActor in
-                self.currentTime = seconds
-                self.updateNowPlayingElapsedTime(seconds)
-            }
-        }
     }
     // swiftlint:enable function_parameter_count
 
@@ -127,27 +121,21 @@ final class AudioPlayer {
 
     func seek(to time: TimeInterval) {
         player?.seek(to: CMTime(seconds: time, preferredTimescale: 600))
-        currentTime = time
         updateNowPlayingElapsedTime(time)
     }
 
     func skipForward(_ seconds: TimeInterval = 30) {
-        seek(to: min(currentTime + seconds, duration))
+        seek(to: min(currentTime() + seconds, duration))
     }
 
     func skipBackward(_ seconds: TimeInterval = 15) {
-        seek(to: max(currentTime - seconds, 0))
+        seek(to: max(currentTime() - seconds, 0))
     }
 
     func stop() {
-        if let timeObserver {
-            player?.removeTimeObserver(timeObserver)
-        }
-        timeObserver = nil
         player?.pause()
         player = nil
         isPlaying = false
-        currentTime = 0
         duration = 0
         isLoading = false
         currentArticleID = nil

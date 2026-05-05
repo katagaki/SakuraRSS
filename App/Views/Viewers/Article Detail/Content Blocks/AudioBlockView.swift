@@ -10,11 +10,15 @@ struct AudioBlockView: View {
 
     @State private var player: AVPlayer?
     @State private var isPlaying = false
-    @State private var currentTime: TimeInterval = 0
     @State private var duration: TimeInterval = 0
-    @State private var timeObserver: Any?
     @State private var statusObserver: AnyCancellable?
     @State private var endObserver: AnyCancellable?
+
+    private func currentTime() -> TimeInterval {
+        guard let player else { return 0 }
+        let seconds = player.currentTime().seconds
+        return seconds.isFinite ? seconds : 0
+    }
 
     var body: some View {
         controls
@@ -52,10 +56,12 @@ struct AudioBlockView: View {
             }
             .buttonStyle(.plain)
 
-            Text(timeLabel)
-                .font(.caption.monospacedDigit())
-                .foregroundStyle(.secondary)
-                .lineLimit(1)
+            TimelineView(.periodic(from: .now, by: 1.0)) { _ in
+                Text(timeLabel)
+                    .font(.caption.monospacedDigit())
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
+            }
 
             Spacer(minLength: 0)
         }
@@ -63,7 +69,7 @@ struct AudioBlockView: View {
     }
 
     private var timeLabel: String {
-        let current = Int(max(0, currentTime))
+        let current = Int(max(0, currentTime()))
         let total = Int(max(0, duration))
         return "\(formatTime(current)) / \(formatTime(total))"
     }
@@ -77,13 +83,6 @@ struct AudioBlockView: View {
     private func setupPlayer() {
         let player = AVPlayer(url: url)
         self.player = player
-
-        let interval = CMTime(seconds: 0.5, preferredTimescale: CMTimeScale(NSEC_PER_SEC))
-        timeObserver = player.addPeriodicTimeObserver(
-            forInterval: interval, queue: .main
-        ) { time in
-            currentTime = time.seconds
-        }
 
         statusObserver = player.publisher(for: \.currentItem?.duration)
             .receive(on: DispatchQueue.main)
@@ -103,10 +102,6 @@ struct AudioBlockView: View {
     }
 
     private func teardownPlayer() {
-        if let observer = timeObserver {
-            player?.removeTimeObserver(observer)
-        }
-        timeObserver = nil
         statusObserver?.cancel()
         statusObserver = nil
         endObserver?.cancel()
@@ -130,8 +125,7 @@ struct AudioBlockView: View {
 
     private func seek(by delta: TimeInterval) {
         guard let player else { return }
-        let target = max(0, min(duration, currentTime + delta))
+        let target = max(0, min(duration, currentTime() + delta))
         player.seek(to: CMTime(seconds: target, preferredTimescale: 600))
-        currentTime = target
     }
 }
