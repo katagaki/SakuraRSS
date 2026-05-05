@@ -28,13 +28,6 @@ extension FeedManager {
                 pendingFeedIDs: feeds.map { $0.id }
             )
         }
-        defer {
-            Task { @MainActor in
-                self.scopedRefreshes[scope] = nil
-                self.scopedRefreshTasks[scope] = nil
-                self.scopedLastRefreshedAt[scope] = Date()
-            }
-        }
 
         let effectiveSkipPreload: Bool
         if let skipImagePreload {
@@ -76,6 +69,13 @@ extension FeedManager {
         await MainActor.run { self.scopedRefreshTasks[scope] = work }
         _ = await work.value
         await loadFromDatabaseInBackground(animated: true)
+        await MainActor.run {
+            var updatedTimestamps = self.scopedLastRefreshedAt
+            updatedTimestamps[scope] = Date()
+            self.scopedLastRefreshedAt = updatedTimestamps
+            self.scopedRefreshes[scope] = nil
+            self.scopedRefreshTasks[scope] = nil
+        }
         log("FeedRefresh.Scoped", "end scope=\(scope)")
     }
     // swiftlint:enable function_body_length

@@ -395,17 +395,6 @@ extension FeedManager {
             pendingRefreshFeedIDs = feedsToRefresh.map { $0.id }
             refreshingFeedIDs = []
         }
-        defer {
-            Task { @MainActor in
-                self.isLoading = false
-                self.refreshCompleted = 0
-                self.refreshTotal = 0
-                self.pendingRefreshFeedIDs = []
-                self.refreshingFeedIDs = []
-                self.refreshTask = nil
-                self.lastRefreshedAt = Date()
-            }
-        }
 
         let preloadModeRaw = UserDefaults.standard.string(
             forKey: "FeedRefresh.PreloadArticleImagesMode"
@@ -444,7 +433,19 @@ extension FeedManager {
         await MainActor.run { self.refreshTask = work }
         _ = await work.value
         await loadFromDatabaseInBackground(animated: true)
-        log("FeedRefresh.All", "end completed=\(refreshCompleted)/\(refreshTotal)")
+        let finalCompleted = await MainActor.run { () -> Int in
+            let completed = self.refreshCompleted
+            self.lastRefreshedAt = Date()
+            self.scopedLastRefreshedAt = [:]
+            self.isLoading = false
+            self.refreshCompleted = 0
+            self.refreshTotal = 0
+            self.pendingRefreshFeedIDs = []
+            self.refreshingFeedIDs = []
+            self.refreshTask = nil
+            return completed
+        }
+        log("FeedRefresh.All", "end completed=\(finalCompleted)/\(feedsToRefresh.count)")
     }
 
     fileprivate func runBoundedRefresh(
@@ -553,17 +554,6 @@ extension FeedManager {
             pendingRefreshFeedIDs = currentFeeds.map { $0.id }
             refreshingFeedIDs = []
         }
-        defer {
-            Task { @MainActor in
-                self.isLoading = false
-                self.refreshCompleted = 0
-                self.refreshTotal = 0
-                self.pendingRefreshFeedIDs = []
-                self.refreshingFeedIDs = []
-                self.refreshTask = nil
-                self.lastRefreshedAt = Date()
-            }
-        }
 
         let maxConcurrent = 8
         let work = Task { [weak self] in
@@ -619,7 +609,19 @@ extension FeedManager {
         await loadFromDatabaseInBackground(animated: true)
         regenerateAllAcronymIcons()
         notifyIconChange()
-        log("FeedRefresh.AllAndIcons", "end completed=\(refreshCompleted)/\(refreshTotal)")
+        let finalCompleted = await MainActor.run { () -> Int in
+            let completed = self.refreshCompleted
+            self.lastRefreshedAt = Date()
+            self.scopedLastRefreshedAt = [:]
+            self.isLoading = false
+            self.refreshCompleted = 0
+            self.refreshTotal = 0
+            self.pendingRefreshFeedIDs = []
+            self.refreshingFeedIDs = []
+            self.refreshTask = nil
+            return completed
+        }
+        log("FeedRefresh.AllAndIcons", "end completed=\(finalCompleted)/\(currentFeeds.count)")
     }
 
     /// Cancels the in-flight refresh task. Feeds whose RSS fetch has already
