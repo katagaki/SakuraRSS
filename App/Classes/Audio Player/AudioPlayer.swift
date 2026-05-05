@@ -90,16 +90,13 @@ final class AudioPlayer {
             }
             .store(in: &cancellables)
 
+        // Lock Screen / Control Center extrapolate elapsed time from
+        // `MPNowPlayingInfoPropertyPlaybackRate`; no per-tick update needed.
         timeObserver = player?.addPeriodicTimeObserver(
-            forInterval: CMTime(seconds: 0.5, preferredTimescale: 600),
+            forInterval: CMTime(seconds: 1.0, preferredTimescale: 600),
             queue: .main
         ) { [weak self] time in
-            guard let self else { return }
-            let seconds = time.seconds
-            Task { @MainActor in
-                self.currentTime = seconds
-                self.updateNowPlayingElapsedTime(seconds)
-            }
+            self?.currentTime = time.seconds
         }
     }
     // swiftlint:enable function_parameter_count

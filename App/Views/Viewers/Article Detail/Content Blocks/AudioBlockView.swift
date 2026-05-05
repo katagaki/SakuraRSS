@@ -78,7 +78,7 @@ struct AudioBlockView: View {
         let player = AVPlayer(url: url)
         self.player = player
 
-        let interval = CMTime(seconds: 0.5, preferredTimescale: CMTimeScale(NSEC_PER_SEC))
+        let interval = CMTime(seconds: 1.0, preferredTimescale: CMTimeScale(NSEC_PER_SEC))
         timeObserver = player.addPeriodicTimeObserver(
             forInterval: interval, queue: .main
         ) { time in
