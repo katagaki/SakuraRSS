@@ -124,10 +124,7 @@ struct YouTubePlayerView: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
 
                     SeekBarView(
-                        currentTime: Binding(
-                            get: { currentTime },
-                            set: { currentTime = $0 }
-                        ),
+                        currentTime: currentTime,
                         duration: duration,
                         isDisabled: isAd,
                         segments: sponsorSegments.map { (start: $0.startTime, end: $0.endTime) },
