@@ -5,13 +5,14 @@ extension FeedManager {
     // MARK: - OPML Export
 
     func exportOPML() -> String {
-        OPMLManager.shared.generateOPML(from: feeds)
+        OPMLManager.shared.generateOPML(from: feeds.filter { $0.isOPMLPortable })
     }
 
     // MARK: - OPML Import
 
     func importOPML(data: Data, overwrite: Bool) throws -> Int {
         let opmlFeeds = OPMLManager.shared.parseOPML(data: data)
+            .filter { Feed.isOPMLPortableURL($0.xmlURL) }
         guard !opmlFeeds.isEmpty else { return 0 }
 
         if overwrite {

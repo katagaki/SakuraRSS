@@ -105,6 +105,7 @@ extension XProfileFetcher {
     }
 
     private static func extractQueryIDs(from bundleText: String) {
+        // swiftlint:disable:next line_length
         let pattern = #"queryId:"([^"]+)",operationName:"(UserByScreenName|UserTweets|TweetDetail|TweetResultByRestId)""#
         guard let regex = try? NSRegularExpression(pattern: pattern) else { return }
 

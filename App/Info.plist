@@ -11,6 +11,7 @@
 		<string>com.tsubuzaki.SakuraRSS.RefreshFeeds.x</string>
 		<string>com.tsubuzaki.SakuraRSS.RefreshFeeds.instagram</string>
 		<string>com.tsubuzaki.SakuraRSS.iCloudBackup</string>
+		<string>com.tsubuzaki.SakuraRSS.AutomaticCleanup</string>
 	</array>
 	<key>CFBundleDocumentTypes</key>
 	<array>

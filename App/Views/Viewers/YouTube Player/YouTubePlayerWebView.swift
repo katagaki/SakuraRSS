@@ -34,25 +34,7 @@ struct YouTubePlayerWebView: UIViewRepresentable {
     func makeUIView(context: Context) -> WKWebView {
         YouTubeAudioSession.prepare()
 
-        if let existing = YouTubePlayerSession.shared.webView,
-           YouTubePlayerSession.shared.currentArticle?.url == urlString {
-            existing.removeFromSuperview()
-            existing.navigationDelegate = context.coordinator
-            existing.isUserInteractionEnabled = false
-            let userContent = existing.configuration.userContentController
-            userContent.removeAllScriptMessageHandlers()
-            userContent.add(context.coordinator, name: YouTubePlayerScripts.pipMessageHandlerName)
-            userContent.add(context.coordinator, name: YouTubePlayerScripts.playbackMessageHandlerName)
-            #if DEBUG
-            userContent.add(context.coordinator, name: "ytDebug")
-            #endif
-            DispatchQueue.main.async {
-                self.webView = existing
-                existing.evaluateJavaScript(
-                    "window.__ytPrimePlayback && window.__ytPrimePlayback();",
-                    completionHandler: nil
-                )
-            }
+        if let existing = reuseExistingWebViewIfMatching(coordinator: context.coordinator) {
             return existing
         }
 
@@ -61,66 +43,7 @@ struct YouTubePlayerWebView: UIViewRepresentable {
         config.allowsInlineMediaPlayback = true
         config.mediaTypesRequiringUserActionForPlayback = []
         config.allowsPictureInPictureMediaPlayback = true
-
-        let controller = WKUserContentController()
-        controller.addUserScript(WKUserScript(
-            source: YouTubePlayerScripts.mediaIsolationBootstrap,
-            injectionTime: .atDocumentStart,
-            forMainFrameOnly: false
-        ))
-        controller.addUserScript(WKUserScript(
-            source: YouTubePlayerStyles.injectionScript(css: YouTubePlayerStyles.css),
-            injectionTime: .atDocumentStart,
-            forMainFrameOnly: true
-        ))
-        controller.addUserScript(WKUserScript(
-            source: YouTubePlayerScripts.pauseGuard,
-            injectionTime: .atDocumentEnd,
-            forMainFrameOnly: false
-        ))
-        controller.addUserScript(WKUserScript(
-            source: YouTubePlayerScripts.autoplayArmer,
-            injectionTime: .atDocumentEnd,
-            forMainFrameOnly: true
-        ))
-        controller.addUserScript(WKUserScript(
-            source: YouTubePlayerScripts.pipEventBridge,
-            injectionTime: .atDocumentEnd,
-            forMainFrameOnly: true
-        ))
-        controller.addUserScript(WKUserScript(
-            source: YouTubePlayerScripts.pipDisableOverride,
-            injectionTime: .atDocumentStart,
-            forMainFrameOnly: true
-        ))
-        controller.addUserScript(WKUserScript(
-            source: YouTubePlayerScripts.mediaSessionUserActionBridge,
-            injectionTime: .atDocumentStart,
-            forMainFrameOnly: true
-        ))
-        controller.addUserScript(WKUserScript(
-            source: YouTubePlayerScripts.pipAdControls,
-            injectionTime: .atDocumentStart,
-            forMainFrameOnly: true
-        ))
-        controller.addUserScript(WKUserScript(
-            source: YouTubePlayerScripts.playbackEventBridge,
-            injectionTime: .atDocumentEnd,
-            forMainFrameOnly: true
-        ))
-        if !autoplay {
-            controller.addUserScript(WKUserScript(
-                source: YouTubePlayerScripts.autoplayBlocker,
-                injectionTime: .atDocumentEnd,
-                forMainFrameOnly: true
-            ))
-        }
-        controller.add(context.coordinator, name: YouTubePlayerScripts.pipMessageHandlerName)
-        controller.add(context.coordinator, name: YouTubePlayerScripts.playbackMessageHandlerName)
-        #if DEBUG
-        controller.add(context.coordinator, name: "ytDebug")
-        #endif
-        config.userContentController = controller
+        config.userContentController = makeUserContentController(coordinator: context.coordinator)
 
         let webView = WKWebView(frame: .zero, configuration: config)
         #if DEBUG
@@ -141,6 +64,66 @@ struct YouTubePlayerWebView: UIViewRepresentable {
             YouTubePlayerSession.shared.webView = webView
         }
         return webView
+    }
+
+    private func reuseExistingWebViewIfMatching(coordinator: Coordinator) -> WKWebView? {
+        guard let existing = YouTubePlayerSession.shared.webView,
+              YouTubePlayerSession.shared.currentArticle?.url == urlString else {
+            return nil
+        }
+        existing.removeFromSuperview()
+        existing.navigationDelegate = coordinator
+        existing.isUserInteractionEnabled = false
+        let userContent = existing.configuration.userContentController
+        userContent.removeAllScriptMessageHandlers()
+        userContent.add(coordinator, name: YouTubePlayerScripts.pipMessageHandlerName)
+        userContent.add(coordinator, name: YouTubePlayerScripts.playbackMessageHandlerName)
+        #if DEBUG
+        userContent.add(coordinator, name: "ytDebug")
+        #endif
+        DispatchQueue.main.async {
+            self.webView = existing
+            existing.evaluateJavaScript(
+                "window.__ytPrimePlayback && window.__ytPrimePlayback();",
+                completionHandler: nil
+            )
+        }
+        return existing
+    }
+
+    private func makeUserContentController(coordinator: Coordinator) -> WKUserContentController {
+        let controller = WKUserContentController()
+        let scripts: [(String, WKUserScriptInjectionTime, Bool)] = [
+            (YouTubePlayerScripts.mediaIsolationBootstrap, .atDocumentStart, false),
+            (YouTubePlayerStyles.injectionScript(css: YouTubePlayerStyles.css), .atDocumentStart, true),
+            (YouTubePlayerScripts.pauseGuard, .atDocumentEnd, false),
+            (YouTubePlayerScripts.autoplayArmer, .atDocumentEnd, true),
+            (YouTubePlayerScripts.pipEventBridge, .atDocumentEnd, true),
+            (YouTubePlayerScripts.pipDisableOverride, .atDocumentStart, true),
+            (YouTubePlayerScripts.mediaSessionUserActionBridge, .atDocumentStart, true),
+            (YouTubePlayerScripts.pipAdControls, .atDocumentStart, true),
+            (YouTubePlayerScripts.playbackEventBridge, .atDocumentEnd, true)
+        ]
+        for (source, time, mainFrameOnly) in scripts {
+            controller.addUserScript(WKUserScript(
+                source: source,
+                injectionTime: time,
+                forMainFrameOnly: mainFrameOnly
+            ))
+        }
+        if !autoplay {
+            controller.addUserScript(WKUserScript(
+                source: YouTubePlayerScripts.autoplayBlocker,
+                injectionTime: .atDocumentEnd,
+                forMainFrameOnly: true
+            ))
+        }
+        controller.add(coordinator, name: YouTubePlayerScripts.pipMessageHandlerName)
+        controller.add(coordinator, name: YouTubePlayerScripts.playbackMessageHandlerName)
+        #if DEBUG
+        controller.add(coordinator, name: "ytDebug")
+        #endif
+        return controller
     }
 
     func updateUIView(_ uiView: WKWebView, context: Context) {}

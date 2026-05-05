@@ -149,6 +149,17 @@ nonisolated struct Feed: Identifiable, Hashable, Sendable {
         isXFeed || isInstagramFeed || isYouTubePlaylistFeed || PetalRecipe.isPetalFeedURL(url)
     }
 
+    var isOPMLPortable: Bool {
+        Feed.isOPMLPortableURL(url)
+    }
+
+    static func isOPMLPortableURL(_ url: String) -> Bool {
+        if XProfileFetcher.isFeedURL(url) { return false }
+        if InstagramProfileFetcher.isFeedURL(url) { return false }
+        if PetalRecipe.isPetalFeedURL(url) { return false }
+        return true
+    }
+
     var feedSection: FeedSection {
         if isPodcast { return .podcasts }
         if isXFeed { return .x }

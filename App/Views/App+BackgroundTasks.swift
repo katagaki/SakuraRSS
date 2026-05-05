@@ -7,6 +7,7 @@ extension SakuraRSSApp {
         registerLaunchHandlers(cloudBackupTaskID: iCloudBackupTaskID)
         scheduleAppRefresh()
         scheduleiCloudBackup()
+        AutomaticCleanupScheduler.scheduleNextCleanup()
     }
 
     nonisolated private func registerLaunchHandlers(cloudBackupTaskID: String) {
@@ -25,6 +26,13 @@ extension SakuraRSSApp {
         ) { task in
             guard let task = task as? BGProcessingTask else { return }
             self.handleiCloudBackup(task: task)
+        }
+        BGTaskScheduler.shared.register(
+            forTaskWithIdentifier: AutomaticCleanupScheduler.taskIdentifier,
+            using: nil
+        ) { task in
+            guard let task = task as? BGProcessingTask else { return }
+            self.handleAutomaticCleanup(task: task)
         }
     }
 
@@ -168,6 +176,29 @@ extension SakuraRSSApp {
         Task {
             _ = await backupTask.value
             completion.complete(success: !backupTask.isCancelled)
+        }
+    }
+
+    nonisolated func handleAutomaticCleanup(task: BGProcessingTask) {
+        AutomaticCleanupScheduler.scheduleNextCleanup()
+        log("AutomaticCleanup", "handleAutomaticCleanup begin")
+
+        let completion = BackgroundTaskCompletion(task: task)
+
+        let cleanupTask = Task {
+            await AutomaticCleanupScheduler.runCleanup(isCancelled: { Task.isCancelled })
+        }
+
+        task.expirationHandler = {
+            log("AutomaticCleanup", "handleAutomaticCleanup expired")
+            cleanupTask.cancel()
+            completion.complete(success: false)
+        }
+
+        Task {
+            let success = await cleanupTask.value
+            log("AutomaticCleanup", "handleAutomaticCleanup end success=\(success)")
+            completion.complete(success: success)
         }
     }
 }

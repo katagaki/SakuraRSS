@@ -339,6 +339,7 @@ extension UIImage {
         context.draw(cgImage, in: CGRect(x: 0, y: 0, width: sampleSize, height: sampleSize))
 
         for index in 0..<(sampleSize * sampleSize) {
+            // swiftlint:disable:next for_where
             if pixelData[index * 4 + 3] < 200 {
                 return true
             }
@@ -441,6 +442,7 @@ extension UIImage {
         }
     }
 
+    // swiftlint:disable:next cyclomatic_complexity
     fileprivate nonisolated func _rawProminentColors() -> [[Double]]? {
         guard let cgImage = cgImage else { return nil }
 
@@ -479,9 +481,9 @@ extension UIImage {
             let red = pixelData[offset]
             let green = pixelData[offset + 1]
             let blue = pixelData[offset + 2]
-            let qr = Int(red) >> shift
-            let qg = Int(green) >> shift
-            let qb = Int(blue) >> shift
+            let qr = Int(red) >> shift // swiftlint:disable:this identifier_name
+            let qg = Int(green) >> shift // swiftlint:disable:this identifier_name
+            let qb = Int(blue) >> shift // swiftlint:disable:this identifier_name
             let key = (qr * levels + qg) * levels + qb
             var bucket = buckets[key, default: Bucket()]
             bucket.totalR += Int(red)
@@ -494,6 +496,7 @@ extension UIImage {
         guard !buckets.isEmpty else { return nil }
 
         let sorted = buckets.values.sorted { $0.count > $1.count }
+        // swiftlint:disable:next large_tuple
         var picked: [(red: Double, green: Double, blue: Double)] = []
         let minDistance: Double = 0.18
 

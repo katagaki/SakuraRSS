@@ -164,11 +164,8 @@ struct FeedArticleRow: View {
                             openURL(url)
                         }
                     } label: {
-                        Image(
-                            systemName: (
-                                article.isYouTubeURL && YouTubeHelper.isAppInstalled ? "play.rectangle" : "arrow.up.forward.square"
-                            )
-                        )
+                        // swiftlint:disable:next line_length
+                        Image(systemName: article.isYouTubeURL && YouTubeHelper.isAppInstalled ? "play.rectangle" : "arrow.up.forward.square")
                     }
                     .buttonStyle(.plain)
 

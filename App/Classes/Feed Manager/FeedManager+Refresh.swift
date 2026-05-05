@@ -355,16 +355,16 @@ extension FeedManager {
         }
     }
 
-    func deleteArticlesAndVacuum(olderThan date: Date?) async {
+    func deleteArticlesAndVacuum(olderThan date: Date?, includeBookmarks: Bool = false) async {
         let cutoff = date ?? Date()
         UserDefaults.standard.set(cutoff.timeIntervalSince1970, forKey: "Content.CutoffDate")
         let database = database
         _ = try? await Task.detached {
             if let date {
-                try database.deleteArticles(olderThan: date)
+                try database.deleteArticles(olderThan: date, includeBookmarks: includeBookmarks)
                 try database.clearImageCache(olderThan: date)
             } else {
-                try database.deleteAllArticlesOnly()
+                try database.deleteAllArticlesOnly(includeBookmarks: includeBookmarks)
                 try database.clearImageCache()
             }
             try database.vacuum()
