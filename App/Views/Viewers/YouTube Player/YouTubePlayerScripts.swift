@@ -440,11 +440,21 @@ nonisolated enum YouTubePlayerScripts {
         if (!('mediaSession' in navigator)) return;
         var ms = navigator.mediaSession;
         var origSet = ms.setActionHandler.bind(ms);
-        var stored = { previoustrack: null, nexttrack: null };
-        var lastApplied = { previoustrack: undefined, nexttrack: undefined };
+        var MANAGED = {
+            previoustrack: 1, nexttrack: 1,
+            seekbackward: 1, seekforward: 1
+        };
+        var stored = {
+            previoustrack: null, nexttrack: null,
+            seekbackward: null, seekforward: null
+        };
+        var lastApplied = {
+            previoustrack: undefined, nexttrack: undefined,
+            seekbackward: undefined, seekforward: undefined
+        };
 
         ms.setActionHandler = function(action, handler) {
-            if (action === 'previoustrack' || action === 'nexttrack') {
+            if (MANAGED[action]) {
                 stored[action] = handler || null;
                 apply();
                 return;
@@ -537,23 +547,31 @@ nonisolated enum YouTubePlayerScripts {
         function apply() {
             var isAd = isShowingAd();
 
-            var prev, next;
+            var desired;
             if (isAd) {
-                prev = null;
-                next = performSkipAd;
+                // Null out seek handlers so iOS shows previous/next-track
+                // controls (mapped to skip-ad) instead of seek controls.
+                desired = {
+                    previoustrack: null,
+                    nexttrack: performSkipAd,
+                    seekbackward: null,
+                    seekforward: null
+                };
             } else {
-                prev = stored.previoustrack;
-                next = stored.nexttrack;
+                desired = {
+                    previoustrack: stored.previoustrack,
+                    nexttrack: stored.nexttrack,
+                    seekbackward: stored.seekbackward,
+                    seekforward: stored.seekforward
+                };
             }
 
-            if (lastApplied.previoustrack !== prev) {
-                try { origSet('previoustrack', prev); } catch (e) {}
-                lastApplied.previoustrack = prev;
-            }
-            if (lastApplied.nexttrack !== next) {
-                try { origSet('nexttrack', next); } catch (e) {}
-                lastApplied.nexttrack = next;
-            }
+            Object.keys(desired).forEach(function(action) {
+                if (lastApplied[action] !== desired[action]) {
+                    try { origSet(action, desired[action]); } catch (e) {}
+                    lastApplied[action] = desired[action];
+                }
+            });
         }
 
         setInterval(apply, 500);
