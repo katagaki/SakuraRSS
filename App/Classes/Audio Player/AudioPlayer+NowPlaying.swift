@@ -10,7 +10,7 @@ extension AudioPlayer {
             MPMediaItemPropertyTitle: currentEpisodeTitle ?? "",
             MPMediaItemPropertyArtist: currentFeedTitle ?? "",
             MPMediaItemPropertyPlaybackDuration: duration,
-            MPNowPlayingInfoPropertyElapsedPlaybackTime: currentTime,
+            MPNowPlayingInfoPropertyElapsedPlaybackTime: currentTime(),
             MPNowPlayingInfoPropertyPlaybackRate: isPlaying ? Double(playbackRate) : 0.0
         ]
         if let cachedArtwork {

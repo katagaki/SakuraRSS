@@ -152,14 +152,13 @@ struct PodcastEpisodeView: View {
 
                     if isThisEpisode {
                         VStack(spacing: 16) {
-                            SeekBarView(
-                                currentTime: Binding(
-                                    get: { audioPlayer.currentTime },
-                                    set: { audioPlayer.currentTime = $0 }
-                                ),
-                                duration: audioPlayer.duration,
-                                onSeek: { audioPlayer.seek(to: $0) }
-                            )
+                            TimelineView(.periodic(from: .now, by: 1.0)) { _ in
+                                SeekBarView(
+                                    currentTime: audioPlayer.currentTime(),
+                                    duration: audioPlayer.duration,
+                                    onSeek: { audioPlayer.seek(to: $0) }
+                                )
+                            }
 
                             PodcastPlayerControls(
                                 audioPlayer: audioPlayer,
@@ -201,14 +200,16 @@ struct PodcastEpisodeView: View {
 
                     Group {
                         if showingTranscript, let transcript, !transcript.isEmpty {
-                            TranscriptView(
-                                segments: transcript,
-                                currentTime: audioPlayer.currentTime,
-                                isPlaying: audioPlayer.isPlaying,
-                                onSeek: { audioPlayer.seek(to: $0) },
-                                scrollProxy: scrollProxy,
-                                isAutoScrolling: $isTranscriptAutoScrolling
-                            )
+                            TimelineView(.periodic(from: .now, by: 1.0)) { _ in
+                                TranscriptView(
+                                    segments: transcript,
+                                    currentTime: audioPlayer.currentTime(),
+                                    isPlaying: audioPlayer.isPlaying,
+                                    onSeek: { audioPlayer.seek(to: $0) },
+                                    scrollProxy: scrollProxy,
+                                    isAutoScrolling: $isTranscriptAutoScrolling
+                                )
+                            }
                             .transition(.blurReplace)
                         } else {
                             VStack(alignment: .leading, spacing: 8) {

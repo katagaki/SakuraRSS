@@ -42,12 +42,16 @@ struct YouTubePlayerWebView: UIViewRepresentable {
             let userContent = existing.configuration.userContentController
             userContent.removeAllScriptMessageHandlers()
             userContent.add(context.coordinator, name: YouTubePlayerScripts.pipMessageHandlerName)
+            userContent.add(context.coordinator, name: YouTubePlayerScripts.playbackMessageHandlerName)
             #if DEBUG
             userContent.add(context.coordinator, name: "ytDebug")
             #endif
             DispatchQueue.main.async {
                 self.webView = existing
-                context.coordinator.startPlaybackObserver(for: existing)
+                existing.evaluateJavaScript(
+                    "window.__ytPrimePlayback && window.__ytPrimePlayback();",
+                    completionHandler: nil
+                )
             }
             return existing
         }
@@ -99,6 +103,11 @@ struct YouTubePlayerWebView: UIViewRepresentable {
             injectionTime: .atDocumentStart,
             forMainFrameOnly: true
         ))
+        controller.addUserScript(WKUserScript(
+            source: YouTubePlayerScripts.playbackEventBridge,
+            injectionTime: .atDocumentEnd,
+            forMainFrameOnly: true
+        ))
         if !autoplay {
             controller.addUserScript(WKUserScript(
                 source: YouTubePlayerScripts.autoplayBlocker,
@@ -107,6 +116,7 @@ struct YouTubePlayerWebView: UIViewRepresentable {
             ))
         }
         controller.add(context.coordinator, name: YouTubePlayerScripts.pipMessageHandlerName)
+        controller.add(context.coordinator, name: YouTubePlayerScripts.playbackMessageHandlerName)
         #if DEBUG
         controller.add(context.coordinator, name: "ytDebug")
         #endif
@@ -154,9 +164,11 @@ struct YouTubePlayerWebView: UIViewRepresentable {
     }
 
     static func dismantleUIView(_ uiView: WKWebView, coordinator: Coordinator) {
-        coordinator.invalidateObserver()
         uiView.configuration.userContentController.removeScriptMessageHandler(
             forName: YouTubePlayerScripts.pipMessageHandlerName
+        )
+        uiView.configuration.userContentController.removeScriptMessageHandler(
+            forName: YouTubePlayerScripts.playbackMessageHandlerName
         )
         #if DEBUG
         uiView.configuration.userContentController.removeScriptMessageHandler(forName: "ytDebug")
