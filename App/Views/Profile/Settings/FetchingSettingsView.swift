@@ -45,15 +45,22 @@ struct FetchingSettingsView: View {
             } header: {
                 Text(String(localized: "Section.WhenAppOpen", table: "Settings"))
             } footer: {
-                VStack(alignment: .leading, spacing: 8) {
-                    Text(String(localized: "RefreshCooldown.Footer", table: "Settings"))
-                    Text(String(localized: "FetchImages.Foreground.Footer", table: "Settings"))
-                }
+                Text(String(localized: "RefreshCooldown.Footer", table: "Settings"))
             }
 
             Section {
                 Toggle(String(localized: "FetchContentPeriodically", table: "Settings"),
                        isOn: $backgroundRefreshEnabled)
+                Picker(selection: $backgroundImagesMode) {
+                    Text(String(localized: "FetchImages.Always", table: "Settings"))
+                        .tag(FetchImagesMode.always)
+                    Text(String(localized: "FetchImages.WiFiOnly", table: "Settings"))
+                        .tag(FetchImagesMode.wifiOnly)
+                    Text(String(localized: "FetchImages.Off", table: "Settings"))
+                        .tag(FetchImagesMode.off)
+                } label: {
+                    Text(String(localized: "FetchImages", table: "Settings"))
+                }
                 if backgroundRefreshEnabled {
                     Picker(selection: $fetchInterval) {
                         Text(String(localized: "Refresh.15min", table: "Settings")).tag(15)
@@ -67,20 +74,8 @@ struct FetchingSettingsView: View {
                         Text(String(localized: "FetchInterval", table: "Settings"))
                     }
                 }
-                Picker(selection: $backgroundImagesMode) {
-                    Text(String(localized: "FetchImages.Always", table: "Settings"))
-                        .tag(FetchImagesMode.always)
-                    Text(String(localized: "FetchImages.WiFiOnly", table: "Settings"))
-                        .tag(FetchImagesMode.wifiOnly)
-                    Text(String(localized: "FetchImages.Off", table: "Settings"))
-                        .tag(FetchImagesMode.off)
-                } label: {
-                    Text(String(localized: "FetchImages", table: "Settings"))
-                }
             } header: {
                 Text(String(localized: "Section.WhenAppClosed", table: "Settings"))
-            } footer: {
-                Text(String(localized: "FetchImages.Background.Footer", table: "Settings"))
             }
         }
         .animation(.smooth.speed(2.0), value: backgroundRefreshEnabled)

@@ -434,6 +434,7 @@ extension FeedManager {
         let finalCompleted = await MainActor.run { () -> Int in
             let completed = self.refreshCompleted
             self.lastRefreshedAt = Date()
+            self.scopedLastRefreshedAt = [:]
             self.isLoading = false
             self.refreshCompleted = 0
             self.refreshTotal = 0
