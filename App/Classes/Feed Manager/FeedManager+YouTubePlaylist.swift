@@ -13,9 +13,10 @@ extension FeedManager {
         _ feed: Feed,
         reloadData: Bool = true,
         skipImagePreload: Bool = false,
-        runNLP: Bool = true
+        runNLP: Bool = true,
+        contentOnly: Bool = false
     ) async throws {
-        log("YouTubePlaylist", "refresh begin id=\(feed.id) title=\(feed.title)")
+        log("YouTubePlaylist", "refresh begin id=\(feed.id) title=\(feed.title) contentOnly=\(contentOnly)")
         if let lastFetched = feed.lastFetched,
            Date().timeIntervalSince(lastFetched) < Self.youTubePlaylistRefreshInterval {
             let remaining = Self.youTubePlaylistRefreshInterval
@@ -49,7 +50,7 @@ extension FeedManager {
         let feedTitle = result.playlistTitle ?? feed.title
 
         var avatarImage: UIImage?
-        if feed.lastFetched == nil,
+        if !contentOnly, feed.lastFetched == nil,
            let avatarURLString = result.channelAvatarURL,
            let avatarURL = URL(string: avatarURLString),
            let (imageData, _) = try? await IconCache.urlSession.data(from: avatarURL) {
@@ -72,9 +73,11 @@ extension FeedManager {
             try database.updateFeedLastFetched(id: feedID, date: Date())
         }.value
 
-        await applyFetcherMetadataRefresh(
-            feed: feed, fetchdTitle: feedTitle, profileImage: avatarImage
-        )
+        if !contentOnly {
+            await applyFetcherMetadataRefresh(
+                feed: feed, fetchdTitle: feedTitle, profileImage: avatarImage
+            )
+        }
 
         await MainActor.run { self.bumpDataRevision() }
         if reloadData {

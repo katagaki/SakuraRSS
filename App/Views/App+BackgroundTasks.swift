@@ -4,24 +4,20 @@ import UIKit
 extension SakuraRSSApp {
 
     func registerBackgroundTask() {
-        registerLaunchHandlers(
-            appRefreshTaskID: backgroundTaskID,
-            cloudBackupTaskID: iCloudBackupTaskID
-        )
+        registerLaunchHandlers(cloudBackupTaskID: iCloudBackupTaskID)
         scheduleAppRefresh()
         scheduleiCloudBackup()
     }
 
-    nonisolated private func registerLaunchHandlers(
-        appRefreshTaskID: String,
-        cloudBackupTaskID: String
-    ) {
-        BGTaskScheduler.shared.register(
-            forTaskWithIdentifier: appRefreshTaskID,
-            using: nil
-        ) { task in
-            guard let task = task as? BGAppRefreshTask else { return }
-            self.handleAppRefresh(task: task)
+    nonisolated private func registerLaunchHandlers(cloudBackupTaskID: String) {
+        for category in BackgroundRefreshCategory.allCases {
+            BGTaskScheduler.shared.register(
+                forTaskWithIdentifier: category.taskID,
+                using: nil
+            ) { task in
+                guard let task = task as? BGAppRefreshTask else { return }
+                self.handleAppRefresh(category: category, task: task)
+            }
         }
         BGTaskScheduler.shared.register(
             forTaskWithIdentifier: cloudBackupTaskID,
@@ -32,24 +28,38 @@ extension SakuraRSSApp {
         }
     }
 
+    /// Submits a `BGAppRefreshTaskRequest` per category so each one gets its
+    /// own ~30s budget. All categories share the same user-configured interval.
     nonisolated func scheduleAppRefresh() {
         let isEnabled = UserDefaults.standard.object(forKey: "BackgroundRefresh.Enabled") as? Bool ?? true
         guard isEnabled else {
-            BGTaskScheduler.shared.cancel(taskRequestWithIdentifier: backgroundTaskID)
+            for category in BackgroundRefreshCategory.allCases {
+                BGTaskScheduler.shared.cancel(taskRequestWithIdentifier: category.taskID)
+            }
             return
         }
-        let request = BGAppRefreshTaskRequest(identifier: backgroundTaskID)
         let refreshInterval = UserDefaults.standard.integer(forKey: "BackgroundRefresh.Interval")
         let minutes = refreshInterval > 0 ? refreshInterval : 240
-        request.earliestBeginDate = Date(timeIntervalSinceNow: TimeInterval(minutes * 60))
-        try? BGTaskScheduler.shared.submit(request)
+        let earliest = Date(timeIntervalSinceNow: TimeInterval(minutes * 60))
+        for category in BackgroundRefreshCategory.allCases {
+            let request = BGAppRefreshTaskRequest(identifier: category.taskID)
+            request.earliestBeginDate = earliest
+            try? BGTaskScheduler.shared.submit(request)
+        }
     }
 
-    nonisolated func handleAppRefresh(task: BGAppRefreshTask) {
+    nonisolated func handleAppRefresh(
+        category: BackgroundRefreshCategory,
+        task: BGAppRefreshTask
+    ) {
         scheduleAppRefresh()
+        log("BackgroundRefresh", "handleAppRefresh begin category=\(category.rawValue)")
+
+        let completion = BackgroundTaskCompletion(task: task)
 
         if ProcessInfo.processInfo.isLowPowerModeEnabled {
-            task.setTaskCompleted(success: true)
+            log("BackgroundRefresh", "skipping category=\(category.rawValue): Low Power Mode is on")
+            completion.complete(success: true)
             return
         }
 
@@ -80,23 +90,28 @@ extension SakuraRSSApp {
             let skipImagePreload = pathExpensive || !pluggedIn
 
             let manager = await MainActor.run { FeedManager() }
-            await manager.refreshAllFeeds(
-                skipAuthenticatedFetchers: true,
-                respectCooldown: true,
+            await manager.refreshFeeds(
+                in: category,
                 skipImageFetch: skipImageFetch,
-                skipImagePreload: skipImagePreload,
-                runNLPAfter: true
+                skipImagePreload: skipImagePreload
             )
+            if Task.isCancelled { return }
             manager.updateBadgeCount()
         }
 
         task.expirationHandler = {
+            log("BackgroundRefresh", "handleAppRefresh expired category=\(category.rawValue)")
             refreshTask.cancel()
+            completion.complete(success: false)
         }
 
         Task {
             _ = await refreshTask.value
-            task.setTaskCompleted(success: true)
+            log(
+                "BackgroundRefresh",
+                "handleAppRefresh end category=\(category.rawValue) cancelled=\(refreshTask.isCancelled)"
+            )
+            completion.complete(success: !refreshTask.isCancelled)
         }
     }
 
@@ -139,17 +154,41 @@ extension SakuraRSSApp {
     nonisolated func handleiCloudBackup(task: BGProcessingTask) {
         scheduleiCloudBackup()
 
+        let completion = BackgroundTaskCompletion(task: task)
+
         let backupTask = Task {
             await iCloudBackupManager.shared.backupIfScheduled()
         }
 
         task.expirationHandler = {
             backupTask.cancel()
+            completion.complete(success: false)
         }
 
         Task {
             _ = await backupTask.value
-            task.setTaskCompleted(success: true)
+            completion.complete(success: !backupTask.isCancelled)
         }
+    }
+}
+
+nonisolated final class BackgroundTaskCompletion: @unchecked Sendable {
+    private let lock = NSLock()
+    private var didComplete = false
+    private let task: BGTask
+
+    init(task: BGTask) {
+        self.task = task
+    }
+
+    func complete(success: Bool) {
+        lock.lock()
+        if didComplete {
+            lock.unlock()
+            return
+        }
+        didComplete = true
+        lock.unlock()
+        task.setTaskCompleted(success: success)
     }
 }

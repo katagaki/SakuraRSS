@@ -8,6 +8,7 @@ protocol WebFeedProvider: FeedProvider {
         on manager: FeedManager,
         reloadData: Bool,
         skipImagePreload: Bool,
-        runNLP: Bool
+        runNLP: Bool,
+        contentOnly: Bool
     ) async throws
 }

@@ -89,13 +89,19 @@ final class XProfileFetcher: ProfileFetcher, Authenticated {
 
     /// Fetches recent tweets (no retweets), profile photo and display name.
     /// Serialised: only one fetch runs at a time.
-    func fetchProfile(profileURL: URL) async -> XProfileFetchResult {
+    func fetchProfile(
+        profileURL: URL,
+        autoRepairQueryIDs: Bool = true
+    ) async -> XProfileFetchResult {
         if let existing = Self.activeFetch {
             _ = await existing.value
         }
 
         let task = Task {
-            await self.performFetch(profileURL: profileURL)
+            await self.performFetch(
+                profileURL: profileURL,
+                autoRepairQueryIDs: autoRepairQueryIDs
+            )
         }
         Self.activeFetch = task
         let result = await task.value

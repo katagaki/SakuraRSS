@@ -10,9 +10,10 @@ extension FeedManager {
         _ feed: Feed,
         reloadData: Bool = true,
         skipImagePreload: Bool = false,
-        runNLP: Bool = true
+        runNLP: Bool = true,
+        contentOnly: Bool = false
     ) async throws {
-        log("XProfile", "refresh begin id=\(feed.id) title=\(feed.title)")
+        log("XProfile", "refresh begin id=\(feed.id) title=\(feed.title) contentOnly=\(contentOnly)")
         if let lastFetched = feed.lastFetched,
            let interval = RefreshTimeoutDomains.refreshTimeout(for: feed.domain),
            Date().timeIntervalSince(lastFetched) < interval {
@@ -29,7 +30,10 @@ extension FeedManager {
         log("XProfile", "fetching @\(handle) id=\(feed.id)")
 
         let fetcher = XProfileFetcher()
-        let result = await fetcher.fetchProfile(profileURL: profileURL)
+        let result = await fetcher.fetchProfile(
+            profileURL: profileURL,
+            autoRepairQueryIDs: !contentOnly
+        )
         log("XProfile", "fetched @\(handle) tweets=\(result.tweets.count) displayName=\(result.displayName ?? "nil")")
 
         let tweetTuples = result.tweets.map { tweet in
@@ -52,7 +56,7 @@ extension FeedManager {
         let feedTitle = result.displayName ?? feed.title
 
         var profileImage: UIImage?
-        if feed.lastFetched == nil,
+        if !contentOnly, feed.lastFetched == nil,
            let imageURLString = result.profileImageURL,
            let imageURL = URL(string: imageURLString),
            let (imageData, _) = try? await IconCache.urlSession.data(from: imageURL) {
@@ -75,9 +79,11 @@ extension FeedManager {
             try database.updateFeedLastFetched(id: feedID, date: Date())
         }.value
 
-        await applyFetcherMetadataRefresh(
-            feed: feed, fetchdTitle: feedTitle, profileImage: profileImage
-        )
+        if !contentOnly {
+            await applyFetcherMetadataRefresh(
+                feed: feed, fetchdTitle: feedTitle, profileImage: profileImage
+            )
+        }
 
         await MainActor.run { self.bumpDataRevision() }
         if reloadData {
