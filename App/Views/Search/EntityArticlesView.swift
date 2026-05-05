@@ -70,6 +70,9 @@ struct EntityArticlesView: View {
         .task {
             await loadArticles()
         }
+        .onChange(of: feedManager.dataRevision) { _, _ in
+            Task { await loadArticles() }
+        }
     }
 
     private func loadArticles() async {
