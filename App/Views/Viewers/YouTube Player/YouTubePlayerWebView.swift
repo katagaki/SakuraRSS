@@ -295,26 +295,26 @@ struct YouTubePlayerWebView: UIViewRepresentable {
             switch event.kind {
             case .play, .playing:
                 isPlaying = true
-                if let t = event.currentTime { currentTime = t }
-                if let d = event.duration, d > 0 { duration = d }
+                if let time = event.currentTime { currentTime = time }
+                if let eventDuration = event.duration, eventDuration > 0 { duration = eventDuration }
             case .pause:
                 isPlaying = false
-                if let t = event.currentTime { currentTime = t }
+                if let time = event.currentTime { currentTime = time }
             case .buffering:
-                if let t = event.currentTime { currentTime = t }
+                if let time = event.currentTime { currentTime = time }
             case .ended:
                 isPlaying = false
             case .seek, .time:
-                if let t = event.currentTime { currentTime = t }
+                if let time = event.currentTime { currentTime = time }
             case .duration:
-                if let d = event.duration, d > 0 { duration = d }
+                if let eventDuration = event.duration, eventDuration > 0 { duration = eventDuration }
             case .rate:
                 break
             case .meta:
-                if let d = event.duration, d > 0 { duration = d }
-                if let w = event.videoWidth, let h = event.videoHeight,
-                   w > 0, h > 0 {
-                    let ratio = CGFloat(w / h)
+                if let eventDuration = event.duration, eventDuration > 0 { duration = eventDuration }
+                if let width = event.videoWidth, let height = event.videoHeight,
+                   width > 0, height > 0 {
+                    let ratio = CGFloat(width / height)
                     if abs(ratio - videoAspectRatio) > 0.01 {
                         videoAspectRatio = ratio
                     }
