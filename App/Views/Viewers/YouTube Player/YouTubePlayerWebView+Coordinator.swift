@@ -1,0 +1,229 @@
+import AVFoundation
+import SwiftUI
+import WebKit
+
+extension YouTubePlayerWebView {
+
+    @MainActor
+    final class Coordinator: NSObject, WKNavigationDelegate, WKScriptMessageHandler {
+        @Binding var isPlaying: Bool
+        @Binding var currentTime: TimeInterval
+        @Binding var duration: TimeInterval
+        @Binding var isAd: Bool
+        @Binding var isAdSkippable: Bool
+        @Binding var advertiserURL: URL?
+        @Binding var videoAspectRatio: CGFloat
+        @Binding var isPiP: Bool
+        let chapters: Binding<[YouTubeChapter]>?
+        nonisolated(unsafe) private var playbackObserver: Timer?
+        private var chapterRetryCount = 0
+        private var chaptersLoaded = false
+
+        init(
+            isPlaying: Binding<Bool>,
+            currentTime: Binding<TimeInterval>,
+            duration: Binding<TimeInterval>,
+            isAd: Binding<Bool>,
+            isAdSkippable: Binding<Bool>,
+            advertiserURL: Binding<URL?>,
+            videoAspectRatio: Binding<CGFloat>,
+            isPiP: Binding<Bool>,
+            chapters: Binding<[YouTubeChapter]>?
+        ) {
+            _isPlaying = isPlaying
+            _currentTime = currentTime
+            _duration = duration
+            _isAd = isAd
+            _isAdSkippable = isAdSkippable
+            _advertiserURL = advertiserURL
+            _videoAspectRatio = videoAspectRatio
+            _isPiP = isPiP
+            self.chapters = chapters
+        }
+
+        deinit {
+            playbackObserver?.invalidate()
+        }
+
+        func invalidateObserver() {
+            playbackObserver?.invalidate()
+            playbackObserver = nil
+        }
+
+        func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+            injectStyles(into: webView)
+            unmuteVideo(in: webView)
+            startPlaybackObserver(for: webView)
+            if !chaptersLoaded {
+                extractChapters(from: webView)
+            }
+        }
+
+        private func extractChapters(from webView: WKWebView) {
+            guard chapters != nil, !chaptersLoaded else { return }
+            webView.evaluateJavaScript(YouTubePlayerScripts.extractChapters) { [weak self] result, _ in
+                guard let self else { return }
+                let parsed = Self.parseChapters(from: result)
+                DispatchQueue.main.async {
+                    guard !self.chaptersLoaded else { return }
+                    if !parsed.isEmpty {
+                        self.chaptersLoaded = true
+                        self.chapters?.wrappedValue = parsed
+                    } else if self.chapterRetryCount < 3 {
+                        self.chapterRetryCount += 1
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { [weak self] in
+                            self?.extractChapters(from: webView)
+                        }
+                    }
+                }
+            }
+        }
+
+        private static func parseChapters(from result: Any?) -> [YouTubeChapter] {
+            guard let array = result as? [[String: Any]] else { return [] }
+            return array.enumerated().compactMap { index, entry in
+                guard let title = entry["title"] as? String, !title.isEmpty,
+                      let start = entry["startSeconds"] as? Double else { return nil }
+                return YouTubeChapter(id: index, title: title, startTime: start)
+            }
+        }
+
+        func webView(
+            _ webView: WKWebView,
+            decidePolicyFor navigationAction: WKNavigationAction
+        ) async -> WKNavigationActionPolicy {
+            guard let url = navigationAction.request.url else { return .allow }
+            let host = url.host?.lowercased() ?? ""
+
+            if host.contains("youtube.com") || host.contains("youtu.be")
+                || host.contains("google.com") || host.contains("accounts.google.com")
+                || host.contains("consent.youtube.com") {
+                if url.path.hasPrefix("/shorts/") {
+                    let normalized = YouTubePlayerWebView.normalizedURL(url)
+                    if normalized != url {
+                        DispatchQueue.main.async {
+                            webView.load(URLRequest(url: normalized))
+                        }
+                        return .cancel
+                    }
+                }
+                return .allow
+            }
+
+            return .cancel
+        }
+
+        nonisolated func userContentController(
+            _ userContentController: WKUserContentController,
+            didReceive message: WKScriptMessage
+        ) {
+            if message.name == "ytDebug" {
+                log("YT JS", "\(message.body)")
+                return
+            }
+            guard message.name == YouTubePlayerScripts.pipMessageHandlerName,
+                  let state = message.body as? String else { return }
+            let entered = (state == "enter")
+            Task { @MainActor in
+                self.isPiP = entered
+            }
+        }
+
+        private func unmuteVideo(in webView: WKWebView) {
+            let script = """
+            (function() {
+                function unmute() {
+                    var video = document.querySelector('video');
+                    if (video) { video.muted = false; }
+                }
+                unmute();
+                var observer = new MutationObserver(function() { unmute(); });
+                observer.observe(document.body, { childList: true, subtree: true });
+                setTimeout(function() { observer.disconnect(); }, 5000);
+            })();
+            """
+            webView.evaluateJavaScript(script, completionHandler: nil)
+        }
+
+        private func injectStyles(into webView: WKWebView) {
+            let css = YouTubePlayerStyles.css
+            let script = YouTubePlayerStyles.injectionScript(css: css)
+            webView.evaluateJavaScript(script, completionHandler: nil)
+        }
+
+        func startPlaybackObserver(for webView: WKWebView) {
+            playbackObserver?.invalidate()
+            playbackObserver = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { [weak self] _ in
+                let script = """
+                (function() {
+                    var video = document.querySelector('video');
+                    if (!video) {
+                        return { isPiP: window.__yt.isInPiP() };
+                    }
+                    var player = document.querySelector('.html5-video-player');
+                    var isAd = player ? player.classList.contains('ad-showing') : false;
+                    var advLink = document.querySelector('.ytp-ad-visit-advertiser-button, \
+                .ytp-ad-button, a[class*="visit-advertiser"], .ytp-ad-overlay-link');
+                    var advURL = advLink ? (advLink.href || advLink.getAttribute('href') || '') : '';
+                    var vw = video.videoWidth || 0;
+                    var vh = video.videoHeight || 0;
+                    var inPiP = window.__yt.isInPiP();
+                    var skipBtn = \(YouTubePlayerScripts.findSkipButtonExpression);
+                    return {
+                        playing: !video.paused,
+                        currentTime: video.currentTime,
+                        duration: video.duration || 0,
+                        isAd: isAd,
+                        adSkippable: isAd && !!skipBtn,
+                        advertiserURL: advURL,
+                        videoWidth: vw,
+                        videoHeight: vh,
+                        isPiP: inPiP
+                    };
+                })();
+                """
+                webView.evaluateJavaScript(script) { result, _ in
+                    if let dict = result as? [String: Any] {
+                        DispatchQueue.main.async {
+                            if let playing = dict["playing"] as? Bool {
+                                self?.isPlaying = playing
+                            }
+                            if let time = dict["currentTime"] as? Double {
+                                self?.currentTime = time
+                            }
+                            if let dur = dict["duration"] as? Double, dur > 0 {
+                                self?.duration = dur
+                            }
+                            // swiftlint:disable identifier_name
+                            if let ad = dict["isAd"] as? Bool {
+                                self?.isAd = ad
+                            }
+                            // swiftlint:enable identifier_name
+                            if let skippable = dict["adSkippable"] as? Bool {
+                                self?.isAdSkippable = skippable
+                            }
+                            if let urlStr = dict["advertiserURL"] as? String, !urlStr.isEmpty {
+                                self?.advertiserURL = URL(string: urlStr)
+                            } else {
+                                self?.advertiserURL = nil
+                            }
+                            if let width = dict["videoWidth"] as? Double,
+                               let height = dict["videoHeight"] as? Double,
+                               width > 0, height > 0 {
+                                let ratio = CGFloat(width / height)
+                                if abs(ratio - (self?.videoAspectRatio ?? 0)) > 0.01 {
+                                    withAnimation(.smooth(duration: 0.3)) {
+                                        self?.videoAspectRatio = ratio
+                                    }
+                                }
+                            }
+                            if let pip = dict["isPiP"] as? Bool {
+                                self?.isPiP = pip
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
