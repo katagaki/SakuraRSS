@@ -59,6 +59,7 @@ struct FollowingFeedGridCell: View {
                     }
                 }
                 .frame(width: iconSize, height: iconSize)
+                .zoomSource(id: feed.id, namespace: editTransitionNamespace)
                 .drawingGroup()
                 .contentShape(
                     .hoverEffect,
@@ -67,7 +68,6 @@ struct FollowingFeedGridCell: View {
                         : AnyShape(RoundedRectangle(cornerRadius: iconCornerRadius))
                 )
                 .hoverEffect(.highlight)
-                .zoomSource(id: feed.id, namespace: editTransitionNamespace)
                 .overlay(alignment: .topTrailing) {
                     if !isWiggling, feedManager.unreadCount(for: feed) > 0 {
                         unreadDot
