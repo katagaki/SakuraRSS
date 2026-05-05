@@ -41,6 +41,14 @@ struct HomeSectionView: View {
     @AppStorage("Articles.HideViewedContent") private var storedHideViewedContent: Bool = false
     @State private var visibility = ArticleVisibilityTracker()
     @State private var scrollToTopTick: Int = 0
+    @State private var lastLoadedSource: HomeContentSource?
+    @State private var lastLoadedHideViewed: Bool?
+
+    private struct PreloadKey: Hashable {
+        let source: HomeContentSource
+        let revision: Int
+        let hideViewed: Bool
+    }
 
     private var batchingMode: BatchingMode {
         DoomscrollingMode.effectiveBatchingMode(storedBatchingMode)
@@ -81,30 +89,33 @@ struct HomeSectionView: View {
         return articles
     }
 
-    private func reloadPreloadedEntries() {
+    private func reloadPreloadedEntries() async {
+        let entries: [ArticleIDEntry]
         switch source {
         case .section(let section):
             if let section {
-                preloadedEntries = feedManager.preloadedArticleEntries(
+                entries = await feedManager.preloadedArticleEntriesAsync(
                     for: section,
                     requireUnread: hideViewedContent
                 )
             } else {
-                preloadedEntries = feedManager.preloadedArticleEntries(
+                entries = await feedManager.preloadedArticleEntriesAsync(
                     requireUnread: hideViewedContent
                 )
             }
         case .list(let list):
-            preloadedEntries = feedManager.preloadedArticleEntries(
+            entries = await feedManager.preloadedArticleEntriesAsync(
                 for: list,
                 requireUnread: hideViewedContent
             )
         case .topic(let name):
-            preloadedEntries = feedManager.preloadedArticleEntries(
+            entries = await feedManager.preloadedArticleEntriesAsync(
                 forTopic: name,
                 requireUnread: hideViewedContent
             )
         }
+        if Task.isCancelled { return }
+        preloadedEntries = entries
         if hideViewedContent, visibility.visibleIDs == nil, !preloadedEntries.isEmpty {
             visibility.capture(from: rawArticles, isEnabled: hideViewedContent)
         }
@@ -291,33 +302,27 @@ struct HomeSectionView: View {
         .refreshPromptOverlay(isVisible: visibility.hasPendingRefresh) {
             acceptPendingRefresh()
         }
-        .onAppear {
-            reloadPreloadedEntries()
-            if !hasInitializedSinceDate {
+        .task(id: PreloadKey(
+            source: source,
+            revision: feedManager.dataRevision,
+            hideViewed: hideViewedContent
+        )) {
+            let priorSource = lastLoadedSource
+            let priorHideViewed = lastLoadedHideViewed
+            await reloadPreloadedEntries()
+            if Task.isCancelled { return }
+            let sourceChanged = priorSource != source
+            let hideViewedChanged = priorHideViewed != hideViewedContent
+            if sourceChanged || hideViewedChanged || !hasInitializedSinceDate {
                 loadedSinceDate = batchingMode.initialSinceDate(
                     latestArticleDate: latestArticleDate()
                 )
+                loadedCount = batchingMode.initialCount()
+                visibility.capture(from: rawArticles, isEnabled: hideViewedContent)
                 hasInitializedSinceDate = true
             }
-        }
-        .onChange(of: source) { _, _ in
-            reloadPreloadedEntries()
-            loadedSinceDate = batchingMode.initialSinceDate(
-                latestArticleDate: latestArticleDate()
-            )
-            loadedCount = batchingMode.initialCount()
-            visibility.capture(from: rawArticles, isEnabled: hideViewedContent)
-        }
-        .onChange(of: feedManager.dataRevision) { _, _ in
-            reloadPreloadedEntries()
-        }
-        .onChange(of: hideViewedContent) { _, _ in
-            reloadPreloadedEntries()
-            loadedSinceDate = batchingMode.initialSinceDate(
-                latestArticleDate: latestArticleDate()
-            )
-            loadedCount = batchingMode.initialCount()
-            visibility.capture(from: rawArticles, isEnabled: hideViewedContent)
+            lastLoadedSource = source
+            lastLoadedHideViewed = hideViewedContent
         }
         .onChange(of: batchingMode) { _, newMode in
             loadedSinceDate = newMode.initialSinceDate(

@@ -16,7 +16,7 @@ struct TodayCardCarousel<Card: View>: View {
                 .padding(.horizontal)
 
             ScrollView(.horizontal, showsIndicators: false) {
-                HStack(alignment: .top, spacing: 12) {
+                LazyHStack(alignment: .top, spacing: 12) {
                     ForEach(articles) { article in
                         card(article)
                     }

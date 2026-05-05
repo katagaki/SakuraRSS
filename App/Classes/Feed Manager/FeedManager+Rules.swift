@@ -92,6 +92,11 @@ extension FeedManager {
     }
 
     func applyAllRules(_ articles: [Article]) -> [Article] {
+        let filtered = Self.applyAllRules(articles, database: database)
+        return applyContentOverrides(filtered)
+    }
+
+    nonisolated static func applyAllRules(_ articles: [Article], database: DatabaseManager) -> [Article] {
         // swiftlint:disable:next large_tuple
         var rulesByFeed: [Int64: (allowedKeywords: [String], keywords: [String], authors: Set<String>)] = [:]
         var result: [Article] = []
@@ -132,14 +137,39 @@ extension FeedManager {
                 result.append(article)
             }
         }
-        return applyContentOverrides(result)
+        return result
+    }
+
+    nonisolated static func applyListRules(_ articles: [Article], listID: Int64, database: DatabaseManager) -> [Article] {
+        let allowedKeywords = (try? database.listRules(forListID: listID, type: "allowed_keyword")) ?? []
+        let keywords = (try? database.listRules(forListID: listID, type: "muted_keyword")) ?? []
+        let authors = Set((try? database.listRules(forListID: listID, type: "muted_author")) ?? [])
+        guard !allowedKeywords.isEmpty || !keywords.isEmpty || !authors.isEmpty else { return articles }
+        return articles.filter { article in
+            if !allowedKeywords.isEmpty {
+                return articleMatchesKeywords(article, keywords: allowedKeywords)
+            }
+            if let author = article.author, authors.contains(author) {
+                return false
+            }
+            for keyword in keywords {
+                if article.title.localizedCaseInsensitiveContains(keyword) {
+                    return false
+                }
+                if let summary = article.summary,
+                   summary.localizedCaseInsensitiveContains(keyword) {
+                    return false
+                }
+            }
+            return true
+        }
     }
 
     private func articleMatchesKeywords(_ article: Article, keywords: [String]) -> Bool {
         Self.articleMatchesKeywords(article, keywords: keywords)
     }
 
-    nonisolated fileprivate static func articleMatchesKeywords(_ article: Article, keywords: [String]) -> Bool {
+    nonisolated static func articleMatchesKeywords(_ article: Article, keywords: [String]) -> Bool {
         for keyword in keywords {
             if article.title.localizedCaseInsensitiveContains(keyword) {
                 return true
