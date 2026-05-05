@@ -45,7 +45,18 @@ extension HomeView {
     }
 
     var todayRefreshState: ScopedRefreshState {
-        feedManager.scopedRefreshes["section.all"] ?? ScopedRefreshState()
+        if let scoped = feedManager.scopedRefreshes["section.all"] {
+            return scoped
+        }
+        if feedManager.hasActiveRefreshProgress {
+            return ScopedRefreshState(
+                total: feedManager.refreshTotal,
+                completed: feedManager.refreshCompleted,
+                refreshingFeedIDs: feedManager.refreshingFeedIDs,
+                pendingFeedIDs: feedManager.pendingRefreshFeedIDs
+            )
+        }
+        return ScopedRefreshState()
     }
 
     func reloadBarConfiguration() {
