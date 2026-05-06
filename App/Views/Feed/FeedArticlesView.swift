@@ -69,8 +69,10 @@ struct FeedArticlesView: View {
         } else {
             slicedIDs = preloadedEntries.map(\.id)
         }
-        var articles = feedManager.undatedArticles(for: feed)
-            + feedManager.articles(withPreloadedIDs: slicedIDs)
+        var articles = feedManager.articles(withPreloadedIDs: slicedIDs)
+        if loadMoreAction == nil {
+            articles += feedManager.undatedArticles(for: feed)
+        }
         if hideReels && feed.isInstagramFeed {
             articles = articles.filter { !$0.url.contains("/reel/") }
         }
