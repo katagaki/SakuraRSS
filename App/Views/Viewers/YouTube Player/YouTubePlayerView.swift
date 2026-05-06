@@ -157,7 +157,7 @@ struct YouTubePlayerView: View {
 
                     Group {
                         if let feed {
-                            HStack(alignment: .top, spacing: 12) {
+                            HStack(alignment: .center, spacing: 12) {
                                 feedAvatarView
 
                                 VStack(alignment: .leading, spacing: 2) {
@@ -173,7 +173,7 @@ struct YouTubePlayerView: View {
                                 Spacer(minLength: 0)
                             }
                         } else if article.isEphemeral, let fetchedAuthor {
-                            HStack(alignment: .top, spacing: 12) {
+                            HStack(alignment: .center, spacing: 12) {
                                 Text(fetchedAuthor)
                                     .font(.subheadline.bold())
                                 Spacer(minLength: 0)
