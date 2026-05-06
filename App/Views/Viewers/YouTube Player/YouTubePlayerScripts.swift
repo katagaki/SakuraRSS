@@ -543,10 +543,6 @@ nonisolated enum YouTubePlayerScripts {
 
             var desired;
             if (isAd) {
-                // Bind every forward-style PiP control to skip-ad so the
-                // ad ends regardless of which button iOS exposes (seek
-                // forward vs. next track). Backward controls stay unbound
-                // since rewinding during an ad has no useful behavior.
                 desired = {
                     previoustrack: null,
                     nexttrack: performSkipAd,
