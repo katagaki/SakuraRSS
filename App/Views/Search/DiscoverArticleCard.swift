@@ -9,8 +9,8 @@ struct DiscoverArticleCard: View {
     @State private var isSocialFeed = false
     @State private var shouldCenterImage = false
 
-    private let cardWidth: CGFloat = 200
-    private let imageHeight: CGFloat = 112
+    private let cardWidth: CGFloat = 220
+    private let imageHeight: CGFloat = 124
 
     private var feedName: String {
         feedManager.feedsByID[article.feedID]?.title ?? ""
