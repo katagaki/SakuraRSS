@@ -10,6 +10,7 @@ struct SakuraRSSApp: App {
 
     @Environment(\.requestReview) var requestReview
     @State var feedManager = FeedManager()
+    @State var todayManager = TodayManager()
     @State var pendingFeedURL: String?
     @State var pendingArticleID: Int64?
     @State var pendingOpenRequest: OpenArticleRequest?
@@ -33,6 +34,7 @@ struct SakuraRSSApp: App {
             )
                 .environment(\.defaultMinListRowHeight, 10.0)
                 .environment(feedManager)
+                .environment(todayManager)
                 .keepScreenOnDuringPodcastWork()
                 .task {
                     await FeedProviderRegistry.migrateAuthenticatedCookies()

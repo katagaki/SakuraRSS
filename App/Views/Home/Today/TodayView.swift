@@ -5,6 +5,7 @@ import SwiftUI
 struct TodayView: View {
 
     @Environment(FeedManager.self) var feedManager
+    @Environment(TodayManager.self) var todayManager
     @AppStorage("Intelligence.ContentInsights.Enabled") private var contentInsightsEnabled: Bool = false
 
     @State private var sleptHasSummary = false
@@ -14,15 +15,6 @@ struct TodayView: View {
     @State private var afternoonVisible = false
     @State private var todayVisible = false
 
-    @State private var entitySections: [DiscoverEntitySection] = []
-    @State private var allTopics: [(name: String, count: Int)] = []
-    @State private var allPeople: [(name: String, count: Int)] = []
-    @State private var bookmarkedArticles: [Article] = []
-    @State private var recentArticles: [Article] = []
-    @State private var unreadPodcastEpisodes: [Article] = []
-    @State private var unreadVideoEpisodes: [Article] = []
-    @State private var hasLoadedInitially = false
-    @State private var refreshID: Int = 0
     @State private var summaryRefreshTrigger: Int = 0
 
     var body: some View {
@@ -32,7 +24,8 @@ struct TodayView: View {
                     .padding(.horizontal)
                     .padding(.top, 8)
 
-                if !anySummaryVisible, !hasLoadedInitially || !contentSections.isEmpty || showEmptyState {
+                if !anySummaryVisible,
+                   !todayManager.hasLoadedInitially || !contentSections.isEmpty || showEmptyState {
                     sectionDivider
                 }
 
@@ -53,11 +46,11 @@ struct TodayView: View {
                 )
 
                 if anySummaryVisible,
-                   !hasLoadedInitially || !contentSections.isEmpty || showEmptyState {
+                   !todayManager.hasLoadedInitially || !contentSections.isEmpty || showEmptyState {
                     sectionDivider
                 }
 
-                if !hasLoadedInitially {
+                if !todayManager.hasLoadedInitially {
                     loadingIndicator
                 } else if showEmptyState {
                     emptyContentView
@@ -89,17 +82,12 @@ struct TodayView: View {
             }
         }
         #endif
-        .task(id: refreshID) {
-            await loadData(
+        .task(id: feedManager.dataRevision) {
+            todayManager.loadIfStale(
                 feeds: feedManager.feeds,
+                dataRevision: feedManager.dataRevision,
                 loadEntities: contentInsightsEnabled
             )
-        }
-        .onAppear {
-            refreshID += 1
-        }
-        .onChange(of: feedManager.dataRevision) {
-            refreshID += 1
         }
     }
 
@@ -119,7 +107,7 @@ struct TodayView: View {
     }
 
     private var showEmptyState: Bool {
-        hasLoadedInitially && !anySummaryVisible && contentSections.isEmpty
+        todayManager.hasLoadedInitially && !anySummaryVisible && contentSections.isEmpty
     }
 
     @ViewBuilder
@@ -146,22 +134,23 @@ struct TodayView: View {
 
     private var contentSections: [ContentSection] {
         var sections: [ContentSection] = []
-        if !unreadPodcastEpisodes.isEmpty {
+        if !todayManager.unreadPodcastEpisodes.isEmpty {
             sections.append(.listenNow)
         }
-        if !unreadVideoEpisodes.isEmpty {
+        if !todayManager.unreadVideoEpisodes.isEmpty {
             sections.append(.watchNow)
         }
-        if contentInsightsEnabled, entitySections.prefix(3).contains(where: { !$0.articles.isEmpty }) {
+        if contentInsightsEnabled,
+           todayManager.entitySections.prefix(3).contains(where: { !$0.articles.isEmpty }) {
             sections.append(.topThree)
         }
         if contentInsightsEnabled, !filteredTopics.isEmpty || !filteredPeople.isEmpty {
             sections.append(.topicsAndPeople)
         }
-        if !bookmarkedArticles.isEmpty {
+        if !todayManager.bookmarkedArticles.isEmpty {
             sections.append(.bookmarks)
         }
-        if !recentArticles.isEmpty {
+        if !todayManager.recentArticles.isEmpty {
             sections.append(.recentlyViewed)
         }
         return sections
@@ -189,7 +178,7 @@ struct TodayView: View {
         TodayCardCarousel(
             title: String(localized: "Today.ListenNow", table: "Home"),
             destination: nil,
-            articles: unreadPodcastEpisodes
+            articles: todayManager.unreadPodcastEpisodes
         ) { article in
             TodayPodcastCard(article: article)
         }
@@ -200,14 +189,14 @@ struct TodayView: View {
         TodayCardCarousel(
             title: String(localized: "Today.WatchNow", table: "Home"),
             destination: nil,
-            articles: unreadVideoEpisodes
+            articles: todayManager.unreadVideoEpisodes
         )
     }
 
     @ViewBuilder
     private var topThreeTopicsSection: some View {
         VStack(alignment: .leading, spacing: 16) {
-            ForEach(entitySections.prefix(3)) { section in
+            ForEach(todayManager.entitySections.prefix(3)) { section in
                 if !section.articles.isEmpty {
                     TodayCardCarousel(
                         title: section.name,
@@ -240,7 +229,7 @@ struct TodayView: View {
         TodayCardCarousel(
             title: String(localized: "Today.Bookmarks", table: "Home"),
             destination: nil,
-            articles: bookmarkedArticles
+            articles: todayManager.bookmarkedArticles
         )
     }
 
@@ -249,7 +238,7 @@ struct TodayView: View {
         TodayCardCarousel(
             title: String(localized: "Discover.RecentlyAccessed", table: "Feeds"),
             destination: nil,
-            articles: recentArticles
+            articles: todayManager.recentArticles
         )
     }
 
@@ -283,8 +272,9 @@ struct TodayView: View {
         let loadEntities = contentInsightsEnabled
         Task { @MainActor in
             await feedManager.refreshFeeds(scope: "section.all", feeds: feeds)
-            await loadData(
+            todayManager.load(
                 feeds: feedManager.feeds,
+                dataRevision: feedManager.dataRevision,
                 loadEntities: loadEntities
             )
         }
@@ -293,91 +283,15 @@ struct TodayView: View {
     // MARK: - Data
 
     private var filteredTopics: [(name: String, count: Int)] {
-        let topics = allTopics.filter { $0.count > 1 }
-        let topicCap = max(0, min(topics.count, 20 - min(allPeople.filter { $0.count > 1 }.count, 10)))
+        let topics = todayManager.allTopics.filter { $0.count > 1 }
+        let peopleCount = todayManager.allPeople.filter { $0.count > 1 }.count
+        let topicCap = max(0, min(topics.count, 20 - min(peopleCount, 10)))
         return Array(topics.prefix(topicCap))
     }
 
     private var filteredPeople: [(name: String, count: Int)] {
-        let people = allPeople.filter { $0.count > 1 }
+        let people = todayManager.allPeople.filter { $0.count > 1 }
         let remaining = max(0, 20 - filteredTopics.count)
         return Array(people.prefix(remaining))
-    }
-
-    // swiftlint:disable:next function_body_length
-    private nonisolated func loadData(
-        feeds: [Feed],
-        loadEntities: Bool
-    ) async {
-        let database = DatabaseManager.shared
-        let podcastFeedIDs = feeds.filter { $0.isPodcast }.map { $0.id }
-        let videoFeedIDs = feeds
-            .filter { $0.isYouTubeFeed || $0.isVimeoFeed }
-            .map { $0.id }
-
-        let recent = (try? database.recentlyAccessedArticles()) ?? []
-        let bookmarks = (try? database.bookmarkedArticles()) ?? []
-        let podcastEpisodes = (try? database.articles(
-            forFeedIDs: podcastFeedIDs,
-            limit: 20,
-            requireUnread: true
-        )) ?? []
-        let videoEpisodes = (try? database.articles(
-            forFeedIDs: videoFeedIDs,
-            limit: 20,
-            requireUnread: true
-        )) ?? []
-
-        var sections: [DiscoverEntitySection] = []
-        var topics: [(name: String, count: Int)] = []
-        var people: [(name: String, count: Int)] = []
-
-        if loadEntities {
-            let sevenDaysAgo = Date().addingTimeInterval(-7 * 24 * 3600)
-            let topTopics = (try? database.topEntities(
-                types: ["organization", "place"],
-                since: sevenDaysAgo,
-                limit: 50
-            )) ?? []
-            let topPeople = (try? database.topEntities(
-                type: "person",
-                since: sevenDaysAgo,
-                limit: 50
-            )) ?? []
-
-            topics = topTopics
-            people = topPeople
-
-            var sectionItems: [DiscoverEntitySection] = []
-            for topic in topTopics.prefix(3) {
-                let articles = (try? database.articlesForEntity(
-                    name: topic.name,
-                    types: ["organization", "place"],
-                    limit: 10
-                )) ?? []
-                if !articles.isEmpty {
-                    sectionItems.append(DiscoverEntitySection(
-                        name: topic.name,
-                        types: ["organization", "place"],
-                        articles: articles
-                    ))
-                }
-            }
-
-            sections = sectionItems
-        }
-
-        await MainActor.run {
-            withAnimation(.smooth.speed(2.0)) {
-                recentArticles = recent
-                bookmarkedArticles = bookmarks
-                unreadPodcastEpisodes = podcastEpisodes
-                unreadVideoEpisodes = videoEpisodes
-                entitySections = sections
-                allTopics = topics
-                allPeople = people
-                hasLoadedInitially = true
-            }
-        }
     }
 }

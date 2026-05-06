@@ -32,6 +32,10 @@ struct EditFeedMetadataTab: View {
         .task(id: feedID) {
             currentIcon = await loadCurrentIcon()
         }
+        .onChange(of: name) {
+            commitNameAndIcon()
+            refreshAcronymPreview()
+        }
         .onChange(of: selectedPhoto) {
             Task {
                 if let selectedPhoto,
@@ -78,6 +82,18 @@ struct EditFeedMetadataTab: View {
         iconURLInput = (existingIconURL == "photo" || existingIconURL == "none")
             ? "" : (existingIconURL ?? "")
         useDefaultIcon = existingIconURL == "none"
+    }
+
+    func refreshAcronymPreview() {
+        guard hasInitialized, let feed else { return }
+        guard !useDefaultIcon, customIconImage == nil else { return }
+        let hasCustomIcon = (feed.customIconURL != nil && feed.customIconURL != "none")
+            || !iconURLInput.isEmpty
+        guard !hasCustomIcon else { return }
+        let renderName = name.trimmingCharacters(in: .whitespaces).isEmpty ? feed.title : name
+        if let image = InitialsAvatarView.renderToImage(name: renderName) {
+            currentIcon = image
+        }
     }
 
     func commitDescription() {
