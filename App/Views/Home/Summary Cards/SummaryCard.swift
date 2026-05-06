@@ -71,15 +71,31 @@ struct SummaryCard: View {
             if index > 0 {
                 result.append(AttributedString("\n"))
             }
-            if let parsed = try? AttributedString(markdown: String(line), options: .init(
+            let processed = convertBulletMarker(in: String(line))
+            if let parsed = try? AttributedString(markdown: processed, options: .init(
                 interpretedSyntax: .inlineOnlyPreservingWhitespace
             )) {
                 result.append(parsed)
             } else {
-                result.append(AttributedString(String(line)))
+                result.append(AttributedString(processed))
             }
         }
         return result
+    }
+
+    private func convertBulletMarker(in line: String) -> String {
+        var cursor = line.startIndex
+        while cursor < line.endIndex, line[cursor] == " " || line[cursor] == "\t" {
+            cursor = line.index(after: cursor)
+        }
+        guard cursor < line.endIndex else { return line }
+        let marker = line[cursor]
+        guard marker == "*" || marker == "-" || marker == "+" else { return line }
+        let afterMarker = line.index(after: cursor)
+        guard afterMarker < line.endIndex else { return line }
+        let next = line[afterMarker]
+        guard next == " " || next == "\t" else { return line }
+        return "\(line[..<cursor])•\(line[afterMarker...])"
     }
 
     private var shouldShow: Bool {
@@ -227,7 +243,7 @@ struct SummaryCard: View {
             Text(markdownAttributedString)
                 .font(.subheadline)
                 .lineLimit(isExpanded ? nil : 4)
-                .contentTransition(.numericText())
+                .contentTransition(.interpolate)
 
             Button {
                 withAnimation(.smooth.speed(2.0)) {
