@@ -114,6 +114,18 @@ struct YouTubePlayerView: View {
                         }
                 }
             }
+            .overlay(alignment: .bottomLeading) {
+                if isAd && !isPiP && hasStartedPlaying {
+                    Text(String(localized: "YouTube.Ad.Label", table: "Integrations"))
+                        .font(.caption.bold())
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 4)
+                        .compatibleGlassEffect(in: .capsule)
+                        .padding(8)
+                        .transition(.opacity)
+                }
+            }
+            .animation(.smooth.speed(2.0), value: isAd && !isPiP && hasStartedPlaying)
 
             ScrollView(.vertical) {
                 VStack(spacing: 16) {
