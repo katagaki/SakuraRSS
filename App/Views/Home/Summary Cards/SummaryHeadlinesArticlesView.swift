@@ -1,11 +1,15 @@
 import SwiftUI
 
-struct EntityArticlesView: View {
+/// Article list shown after tapping a summary headline card. Display style
+/// is shared across all summary headline lists via its own AppStorage key.
+struct SummaryHeadlinesArticlesView: View {
 
-    let destination: EntityDestination
+    let destination: SummaryHeadlineDestination
+
     @Environment(FeedManager.self) var feedManager
     @Environment(\.navigateToEphemeralArticle) private var navigateToEphemeralArticle
-    @AppStorage("Search.DisplayStyle") private var searchDisplayStyle: FeedDisplayStyle = .inbox
+    @AppStorage("SummaryHeadlines.DisplayStyle")
+    private var displayStyle: FeedDisplayStyle = .inbox
     @State private var articles: [Article] = []
     @Namespace private var cardZoom
 
@@ -14,13 +18,13 @@ struct EntityArticlesView: View {
     }
 
     private var effectiveStyle: FeedDisplayStyle {
-        if !hasImages && searchDisplayStyle.requiresImages {
+        if !hasImages && displayStyle.requiresImages {
             return .inbox
         }
-        if searchDisplayStyle == .podcast {
+        if displayStyle == .podcast {
             return .inbox
         }
-        return searchDisplayStyle
+        return displayStyle
     }
 
     var body: some View {
@@ -31,20 +35,22 @@ struct EntityArticlesView: View {
         .overlay {
             if articles.isEmpty {
                 ContentUnavailableView {
-                    Label(String(localized: "NoResults.Title", table: "Search"),
-                          systemImage: "magnifyingglass")
+                    Label(
+                        String(localized: "NoResults.Title", table: "Search"),
+                        systemImage: "newspaper"
+                    )
                 }
             }
         }
         .sakuraBackground()
         .environment(\.zoomNamespace, cardZoom)
-        .navigationTitle(destination.name)
+        .navigationTitle(destination.title)
         .toolbarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItemGroup(placement: .topBarTrailing) {
                 Menu {
                     DisplayStylePicker(
-                        displayStyle: $searchDisplayStyle,
+                        displayStyle: $displayStyle,
                         hasImages: hasImages,
                         showTimeline: false,
                         showPodcast: false
@@ -55,7 +61,7 @@ struct EntityArticlesView: View {
                 .menuActionDismissBehavior(.disabled)
             }
         }
-        .animation(.smooth.speed(2.0), value: searchDisplayStyle)
+        .animation(.smooth.speed(2.0), value: displayStyle)
         .task {
             await loadArticles()
         }
@@ -66,15 +72,8 @@ struct EntityArticlesView: View {
 
     private func loadArticles() async {
         let database = DatabaseManager.shared
-        let name = destination.name
-        let types = destination.types
+        let ids = destination.articleIDs
         await Task.detached {
-            let ids: [Int64]
-            if types.count == 1 {
-                ids = (try? database.articleIDs(forEntity: name, type: types[0])) ?? []
-            } else {
-                ids = (try? database.articleIDs(forEntity: name, types: types)) ?? []
-            }
             let loaded = ids.compactMap { try? database.article(byID: $0) }
             await MainActor.run {
                 articles = loaded

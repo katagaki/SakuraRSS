@@ -52,28 +52,28 @@ extension FeedManager {
             async let regular: Void = self.runScopedBoundedRefresh(
                 queues.regular,
                 scope: scope,
-                maxConcurrent: FeedRefreshQueueLimits.maxConcurrentPerQueue,
+                maxConcurrent: FeedRefreshQueueLimits.default,
                 skipImagePreload: effectiveSkipPreload,
                 runNLP: runNLP
             )
             async let slow: Void = self.runScopedBoundedRefresh(
                 queues.slow,
                 scope: scope,
-                maxConcurrent: FeedRefreshQueueLimits.maxConcurrentPerQueue,
+                maxConcurrent: FeedRefreshQueueLimits.default,
                 skipImagePreload: effectiveSkipPreload,
                 runNLP: runNLP
             )
             async let xRefresh: Void = self.runScopedBoundedRefresh(
                 queues.x,
                 scope: scope,
-                maxConcurrent: FeedRefreshQueueLimits.maxConcurrentPerQueue,
+                maxConcurrent: FeedRefreshQueueLimits.throttled,
                 skipImagePreload: effectiveSkipPreload,
                 runNLP: runNLP
             )
             async let instagramRefresh: Void = self.runScopedBoundedRefresh(
                 queues.instagram,
                 scope: scope,
-                maxConcurrent: FeedRefreshQueueLimits.maxConcurrentPerQueue,
+                maxConcurrent: FeedRefreshQueueLimits.throttled,
                 skipImagePreload: effectiveSkipPreload,
                 runNLP: runNLP
             )

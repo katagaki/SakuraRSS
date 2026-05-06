@@ -157,6 +157,7 @@ struct ListRulesSheet: View {
                     Text(String(localized: "ListRules.MutedAuthors.Footer", table: "Lists"))
                 }
             }
+            .formStyle(.grouped)
             .navigationTitle(String(localized: "ListRules.Title", table: "Lists"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

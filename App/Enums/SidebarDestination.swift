@@ -9,6 +9,7 @@ enum SidebarDestination: Hashable {
     case people
     case list(FeedList)
     case feed(Feed)
+    case summaryHeadline(SummaryHeadlineDestination)
     case more
 }
 
@@ -25,6 +26,7 @@ extension SidebarDestination {
         case .section(let section): "section:\(section.rawValue)"
         case .list(let list): "list:\(list.id)"
         case .feed(let feed): "feed:\(feed.id)"
+        case .summaryHeadline: "today" // Not persisted across launches.
         }
     }
 

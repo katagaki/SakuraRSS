@@ -19,10 +19,10 @@ extension SakuraRSSApp {
                 DeloreanClock.shared.toggle()
             case "justwokeup":
                 forceWhileYouSlept = true
-                UserDefaults.standard.removeObject(forKey: "WhileYouSlept.DismissedDate")
+            case "justhadlunch":
+                forceAfternoonBrief = true
             case "justgothome":
                 forceTodaysSummary = true
-                UserDefaults.standard.removeObject(forKey: "TodaysSummary.DismissedDate")
             case "reonboard":
                 UserDefaults.standard.set(false, forKey: "Onboarding.Completed")
             case "fixup":
@@ -59,9 +59,8 @@ extension SakuraRSSApp {
                 defaults.removeObject(forKey: "Display.DefaultStyle")
                 defaults.removeObject(forKey: "Search.DisplayStyle")
                 defaults.removeObject(forKey: "Display.DefaultBookmarksStyle")
-                defaults.removeObject(forKey: "TodaysSummary.DismissedDate")
-                defaults.removeObject(forKey: "WhileYouSlept.DismissedDate")
                 defaults.removeObject(forKey: "ForceWhileYouSlept")
+                defaults.removeObject(forKey: "ForceAfternoonBrief")
                 defaults.removeObject(forKey: "ForceTodaysSummary")
                 for key in defaults.dictionaryRepresentation().keys {
                     if key.hasPrefix("Display.Style.") || key.hasPrefix("openMode-")

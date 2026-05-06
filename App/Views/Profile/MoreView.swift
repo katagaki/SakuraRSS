@@ -133,7 +133,7 @@ struct MoreView: View {
                 }
             }
             .navigationDestination(for: FeedList.self) { list in
-                HomeSectionView(list: list)
+                ListArticlesView(list: list)
                     .environment(\.zoomNamespace, cardZoom)
                     .environment(\.navigateToFeed, { _ in })
             }

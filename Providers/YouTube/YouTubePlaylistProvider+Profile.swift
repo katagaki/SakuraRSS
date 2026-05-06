@@ -8,8 +8,6 @@ extension YouTubePlaylistProvider: ProfileFeedProvider {
 
     nonisolated static var feedURLScheme: String? { "youtube-playlist" }
 
-    /// Stricter than `matchesHost` — playlist pages are only served on
-    /// bare/`www.`/`m.` subdomains.
     nonisolated static func isProfileURL(_ url: URL) -> Bool {
         guard let host = url.host?.lowercased() else { return false }
         let isYouTubeDomain = host == "youtube.com" || host == "www.youtube.com"

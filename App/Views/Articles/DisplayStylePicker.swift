@@ -5,6 +5,7 @@ struct DisplayStylePicker: View {
     @Binding var displayStyle: FeedDisplayStyle
     let hasImages: Bool
     var showTimeline: Bool = true
+    var showVideo: Bool = true
     var showPodcast: Bool = false
     var showCards: Bool = true
     var showScroll: Bool = true
@@ -32,8 +33,10 @@ struct DisplayStylePicker: View {
                     Label(String(localized: "Style.Photos", table: "Articles"), systemImage: "photo.stack")
                         .tag(FeedDisplayStyle.photos)
                 }
-                Label(String(localized: "Style.Video", table: "Articles"), systemImage: "play.rectangle")
-                    .tag(FeedDisplayStyle.video)
+                if showVideo {
+                    Label(String(localized: "Style.Video", table: "Articles"), systemImage: "play.rectangle")
+                        .tag(FeedDisplayStyle.video)
+                }
                 if showPodcast {
                     Label(String(localized: "Style.Podcast", table: "Articles"), systemImage: "headphones")
                         .tag(FeedDisplayStyle.podcast)

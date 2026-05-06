@@ -5,11 +5,19 @@ struct ListRowView: View {
     @Environment(FeedManager.self) var feedManager
     let list: FeedList
 
+    private var iconGradient: AnyShapeStyle {
+        if let icon = ListIcon(rawValue: list.icon) {
+            AnyShapeStyle(icon.gradient)
+        } else {
+            AnyShapeStyle(Color.accentColor.gradient)
+        }
+    }
+
     var body: some View {
         HStack(spacing: 12) {
             BorderedIcon(
                 systemImage: list.icon,
-                color: .accentColor,
+                background: iconGradient,
                 iconSizeFactor: 0.45
             )
 

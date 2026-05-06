@@ -2,7 +2,7 @@ import Foundation
 
 /// Identifies one of the three Apple Intelligence summary cards on Home.
 /// Centralizes localization keys, AppStorage keys, time windows, article
-/// providers, and cache types so `SummaryCard` can render any of them.
+/// providers, and cache types so `SummarySection` can render any of them.
 enum SummaryCardKind {
     case todaysSummary
     case whileYouSlept
@@ -31,17 +31,6 @@ enum SummaryCardKind {
         case .afternoonBrief: "ForceAfternoonBrief"
         }
     }
-
-    /// Returns nil for kinds that don't support a per-day dismiss action.
-    var dismissedDateStorageKey: String? {
-        switch self {
-        case .todaysSummary: "TodaysSummary.DismissedDate"
-        case .whileYouSlept: "WhileYouSlept.DismissedDate"
-        case .afternoonBrief: nil
-        }
-    }
-
-    var supportsDismiss: Bool { dismissedDateStorageKey != nil }
 
     func isInTimeWindow(_ date: Date) -> Bool {
         let hour = Calendar.current.component(.hour, from: date)
@@ -115,4 +104,18 @@ enum SummaryCardKind {
         case .afternoonBrief: LocalizedStringResource("AfternoonBrief.TooFew", table: "Home")
         }
     }
+
+    /// Time-window phrase substituted into `SummaryHeadlines.SharedPrompt`
+    /// at instruction-composition time.
+    var timeWindowPhrase: LocalizedStringResource {
+        switch self {
+        case .todaysSummary:
+            LocalizedStringResource("SummaryHeadlines.TimeWindow.Today", table: "Home")
+        case .whileYouSlept:
+            LocalizedStringResource("SummaryHeadlines.TimeWindow.Overnight", table: "Home")
+        case .afternoonBrief:
+            LocalizedStringResource("SummaryHeadlines.TimeWindow.ThisAfternoon", table: "Home")
+        }
+    }
+
 }

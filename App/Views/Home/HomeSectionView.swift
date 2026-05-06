@@ -14,21 +14,46 @@ struct HomeSectionView: View {
     @Environment(FeedManager.self) var feedManager
 
     let source: HomeContentSource
+    let showsListHeader: Bool
+    let effectiveStyleBinding: Binding<FeedDisplayStyle?>?
+    let externalScrollToTopTrigger: Int
 
-    init(source: HomeContentSource) {
+    init(
+        source: HomeContentSource,
+        showsListHeader: Bool = false,
+        effectiveStyleBinding: Binding<FeedDisplayStyle?>? = nil,
+        externalScrollToTopTrigger: Int = 0
+    ) {
         self.source = source
+        self.showsListHeader = showsListHeader
+        self.effectiveStyleBinding = effectiveStyleBinding
+        self.externalScrollToTopTrigger = externalScrollToTopTrigger
     }
 
     init(section: FeedSection?) {
         self.source = .section(section)
+        self.showsListHeader = false
+        self.effectiveStyleBinding = nil
+        self.externalScrollToTopTrigger = 0
     }
 
-    init(list: FeedList) {
+    init(
+        list: FeedList,
+        showsListHeader: Bool = false,
+        effectiveStyleBinding: Binding<FeedDisplayStyle?>? = nil,
+        externalScrollToTopTrigger: Int = 0
+    ) {
         self.source = .list(list)
+        self.showsListHeader = showsListHeader
+        self.effectiveStyleBinding = effectiveStyleBinding
+        self.externalScrollToTopTrigger = externalScrollToTopTrigger
     }
 
     init(topic: String) {
         self.source = .topic(topic)
+        self.showsListHeader = false
+        self.effectiveStyleBinding = nil
+        self.externalScrollToTopTrigger = 0
     }
 
     @AppStorage("Articles.BatchingMode") private var storedBatchingMode: BatchingMode = .items25
@@ -264,6 +289,11 @@ struct HomeSectionView: View {
         }
     }
 
+    private var headerView: AnyView? {
+        guard showsListHeader, case .list(let list) = source else { return nil }
+        return AnyView(ListHeaderView(list: list).environment(feedManager))
+    }
+
     var body: some View {
         ArticlesView(
             articles: visibility.filter(rawArticles, isEnabled: hideViewedContent),
@@ -275,13 +305,15 @@ struct HomeSectionView: View {
             onLoadMore: loadMoreAction,
             onRefresh: { await performRefresh() },
             onMarkAllRead: performMarkAllRead,
-            scrollToTopTrigger: scrollToTopTick,
+            scrollToTopTrigger: scrollToTopTick &+ externalScrollToTopTrigger,
+            headerView: headerView,
             additionalLeadingToolbar: scopedRefreshState.hasActiveProgress ? AnyView(
                 FeedRefreshProgressDonut(
                     progress: scopedRefreshState.progress,
                     onStop: { [scope = scopeKey] in feedManager.cancelScopedRefresh(scope: scope) }
                 )
-            ) : nil
+            ) : nil,
+            effectiveStyleBinding: effectiveStyleBinding
         )
         .refreshable {
             startRefreshWithoutBlocking()

@@ -59,8 +59,8 @@ struct FollowingFeedGridCell: View {
                     }
                 }
                 .frame(width: iconSize, height: iconSize)
-                .zoomSource(id: feed.id, namespace: editTransitionNamespace)
                 .drawingGroup()
+                .zoomSource(id: feed.id, namespace: editTransitionNamespace)
                 .contentShape(
                     .hoverEffect,
                     feed.isCircleIcon

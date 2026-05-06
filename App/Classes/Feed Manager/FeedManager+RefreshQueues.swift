@@ -1,10 +1,9 @@
 import Foundation
 
-/// Hard ceiling on concurrent refresh tasks per queue. Each refresh runs four
-/// independent queues (regular RSS, slow RSS, X, Instagram), so the total
-/// concurrent in-flight refresh count tops out at 4 * `maxConcurrentPerQueue`.
+/// Hard ceiling on concurrent refresh tasks per queue.
 enum FeedRefreshQueueLimits {
-    static let maxConcurrentPerQueue = 4
+    static let `default` = 8
+    static let throttled = 2
 }
 
 /// Bucketed feeds for the four-queue refresh pipeline.

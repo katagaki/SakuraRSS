@@ -31,6 +31,10 @@ extension IPadSidebarView {
                     iPadListContent(list: list)
                 case .feed(let feed):
                     iPadFeedContent(feed: feed)
+                case .summaryHeadline(let destination):
+                    iPadArticleListWrapper {
+                        SummaryHeadlinesArticlesView(destination: destination)
+                    }
                 case .more, .none:
                     ContentUnavailableView {
                         Label(String(localized: "Sidebar.SelectSection", table: "Feeds"),
@@ -155,6 +159,9 @@ extension IPadSidebarView {
                 .environment(\.navigateToFeed, { feed in
                     selectedDestination = .feed(feed)
                 })
+                .environment(\.navigateToSummaryHeadline, { destination in
+                    selectedDestination = .summaryHeadline(destination)
+                })
                 .environment(\.zoomNamespace, cardZoom)
                 .toolbarTitleDisplayMode(.inlineLarge)
                 .navigationDestination(for: Feed.self) { feed in
@@ -166,6 +173,12 @@ extension IPadSidebarView {
                     EntityArticlesView(destination: destination)
                         .environment(\.iPadArticleSelection, $selectedArticle)
                         .environment(\.zoomNamespace, cardZoom)
+                }
+                .navigationDestination(for: SummaryHeadlineDestination.self) { destination in
+                    SummaryHeadlinesArticlesView(destination: destination)
+                        .environment(\.iPadArticleSelection, $selectedArticle)
+                        .environment(\.zoomNamespace, cardZoom)
+                        .zoomTransition(sourceID: destination.zoomTransitionID, in: cardZoom)
                 }
                 .environment(\.iPadArticleSelection, $selectedArticle)
         }

@@ -48,6 +48,13 @@ nonisolated extension DatabaseManager {
         // summary_cache table
         _ = try? database.run(summaryCache.addColumn(summaryCacheContent, defaultValue: ""))
 
+        // summary_headlines table is created in createTables. Wipe rows on
+        // version-change fixup so a fresh schema/prompt change starts clean.
+        _ = try? database.run(summaryHeadlines.delete())
+
+        // Drop the legacy plain-text summary cache; the carousel replaces it.
+        _ = try? database.run(summaryCache.delete())
+
         // feed_rules table
         _ = try? database.run(feedRules.addColumn(ruleFeedID, defaultValue: 0))
         _ = try? database.run(feedRules.addColumn(ruleType, defaultValue: ""))

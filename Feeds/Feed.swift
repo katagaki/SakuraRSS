@@ -131,6 +131,13 @@ nonisolated struct Feed: Identifiable, Hashable, Sendable {
         return isFediverse == true
     }
 
+    /// True when this feed is served by a `ResearchFeedProvider` (e.g. arXiv).
+    /// Used to exclude paper feeds from the headline summary pool.
+    var isResearchFeed: Bool {
+        guard let provider = FeedProviderRegistry.provider(forFeedURL: url) else { return false }
+        return provider is any ResearchFeedProvider.Type
+    }
+
     var isCircleIcon: Bool {
         FeedIconCircleDomains.shouldUseCircleIcon(feedDomain: domain)
     }

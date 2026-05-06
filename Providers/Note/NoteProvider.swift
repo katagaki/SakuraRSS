@@ -21,8 +21,6 @@ final class NoteProvider {
         URL(string: "https://note.com/api/v2/creators/\(handle)")
     }
 
-    /// Stricter than `matchesHost` — note.com only serves on bare and `www.`
-    /// subdomains.
     nonisolated static func isNoteHost(_ host: String?) -> Bool {
         guard let host = host?.lowercased() else { return false }
         return host == "note.com" || host == "www.note.com"

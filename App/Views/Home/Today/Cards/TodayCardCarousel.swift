@@ -19,6 +19,9 @@ struct TodayCardCarousel<Card: View>: View {
                 LazyHStack(alignment: .top, spacing: 12) {
                     ForEach(articles) { article in
                         card(article)
+                            .contextMenu {
+                                TodayCardContextMenu(article: article)
+                            }
                     }
                 }
                 .padding(.horizontal)

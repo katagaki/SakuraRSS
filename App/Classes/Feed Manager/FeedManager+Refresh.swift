@@ -443,28 +443,28 @@ extension FeedManager {
             guard let self else { return }
             async let regular: Void = self.runBoundedRefresh(
                 queues.regular,
-                maxConcurrent: FeedRefreshQueueLimits.maxConcurrentPerQueue,
+                maxConcurrent: FeedRefreshQueueLimits.default,
                 skipImageFetch: skipImageFetch,
                 skipImagePreload: effectiveSkipPreload,
                 runNLP: runNLPAfter
             )
             async let slow: Void = self.runBoundedRefresh(
                 queues.slow,
-                maxConcurrent: FeedRefreshQueueLimits.maxConcurrentPerQueue,
+                maxConcurrent: FeedRefreshQueueLimits.default,
                 skipImageFetch: skipImageFetch,
                 skipImagePreload: effectiveSkipPreload,
                 runNLP: runNLPAfter
             )
             async let xRefresh: Void = self.runBoundedRefresh(
                 queues.x,
-                maxConcurrent: FeedRefreshQueueLimits.maxConcurrentPerQueue,
+                maxConcurrent: FeedRefreshQueueLimits.throttled,
                 skipImageFetch: skipImageFetch,
                 skipImagePreload: effectiveSkipPreload,
                 runNLP: runNLPAfter
             )
             async let instagramRefresh: Void = self.runBoundedRefresh(
                 queues.instagram,
-                maxConcurrent: FeedRefreshQueueLimits.maxConcurrentPerQueue,
+                maxConcurrent: FeedRefreshQueueLimits.throttled,
                 skipImageFetch: skipImageFetch,
                 skipImagePreload: effectiveSkipPreload,
                 runNLP: runNLPAfter
@@ -703,7 +703,7 @@ extension FeedManager {
         }
 
         let queues = partitionRefreshQueues(currentFeeds)
-        let maxConcurrent = FeedRefreshQueueLimits.maxConcurrentPerQueue
+        let maxConcurrent = FeedRefreshQueueLimits.default
         let work = Task { [weak self] in
             guard let self else { return }
             async let regular: Void = self.runTitleSafeBoundedRefresh(

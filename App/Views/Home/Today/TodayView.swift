@@ -23,6 +23,7 @@ struct TodayView: View {
     @State private var unreadVideoEpisodes: [Article] = []
     @State private var hasLoadedInitially = false
     @State private var refreshID: Int = 0
+    @State private var summaryRefreshTrigger: Int = 0
 
     var body: some View {
         ScrollView {
@@ -37,16 +38,24 @@ struct TodayView: View {
 
                 WhileYouSleptView(
                     hasSummary: $sleptHasSummary, flatStyle: true,
-                    isVisible: $sleptVisible
+                    isVisible: $sleptVisible,
+                    refreshTrigger: summaryRefreshTrigger
                 )
                 AfternoonBriefView(
                     hasSummary: $afternoonHasSummary,
-                    isVisible: $afternoonVisible
+                    isVisible: $afternoonVisible,
+                    refreshTrigger: summaryRefreshTrigger
                 )
                 TodaysSummaryView(
                     hasSummary: $todayHasSummary, flatStyle: true,
-                    isVisible: $todayVisible
+                    isVisible: $todayVisible,
+                    refreshTrigger: summaryRefreshTrigger
                 )
+
+                if anySummaryVisible,
+                   !hasLoadedInitially || !contentSections.isEmpty || showEmptyState {
+                    sectionDivider
+                }
 
                 if !hasLoadedInitially {
                     loadingIndicator
@@ -269,6 +278,7 @@ struct TodayView: View {
     private func startRefreshWithoutBlocking() {
         guard !scopedRefreshState.hasActiveProgress else { return }
         feedManager.flushDebouncedReads()
+        summaryRefreshTrigger += 1
         let feeds = feedManager.feeds
         let loadEntities = contentInsightsEnabled
         Task { @MainActor in

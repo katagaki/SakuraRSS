@@ -150,7 +150,13 @@ final class FeedManager {
     func loadFromDatabaseInBackground(animated: Bool = false) async {
         let dbm = database
         do {
-            let (loadedFeeds, loadedArticles, loadedUnreadCounts, loadedReelsCounts, loadedLists) = try await Task.detached {
+            let (
+                loadedFeeds,
+                loadedArticles,
+                loadedUnreadCounts,
+                loadedReelsCounts,
+                loadedLists
+            ) = try await Task.detached {
                 let feeds = try dbm.allFeeds()
                 let articles = try dbm.allArticles(limit: 200)
                 let rawUnreadCounts = (try? dbm.allUnreadCounts()) ?? [:]

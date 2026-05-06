@@ -46,7 +46,8 @@ extension HomeSectionBarItem {
         HomeSectionBarItem(
             id: HomeSelection.list(list.id).rawValue,
             title: list.name,
-            selection: .list(list.id)
+            selection: .list(list.id),
+            listIconName: list.icon
         )
     }
 

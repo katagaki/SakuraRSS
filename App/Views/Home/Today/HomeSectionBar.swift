@@ -20,7 +20,12 @@ struct HomeSectionBar: View {
         }
         switch selection {
         case .section(let section): return section.tabAccentStyle
-        case .list: return AnyShapeStyle(Color.accentColor)
+        case .list:
+            let iconName = tabs.first(where: { $0.matches(selection) })?.listIconName
+            if let iconName, let icon = ListIcon(rawValue: iconName) {
+                return AnyShapeStyle(icon.gradient)
+            }
+            return AnyShapeStyle(Color.accentColor)
         case .topic: return AnyShapeStyle(Color.accentColor)
         }
     }

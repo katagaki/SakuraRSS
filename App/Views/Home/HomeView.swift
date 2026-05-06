@@ -30,6 +30,7 @@ struct HomeView: View {
                 .environment(\.zoomNamespace, cardZoom)
                 .environment(\.navigateToFeed, { feed in path.append(feed) })
                 .environment(\.navigateToEphemeralArticle, ephemeralAppender)
+                .environment(\.navigateToSummaryHeadline, { destination in path.append(destination) })
                 .environment(\.hidesMarkAllReadToolbar, true)
                 .toolbarTitleDisplayMode(.inline)
                 .safeAreaInset(edge: .top, spacing: 0) {
@@ -115,6 +116,12 @@ struct HomeView: View {
                     EntityArticlesView(destination: destination)
                         .environment(\.zoomNamespace, cardZoom)
                         .environment(\.navigateToEphemeralArticle, ephemeralAppender)
+                }
+                .navigationDestination(for: SummaryHeadlineDestination.self) { destination in
+                    SummaryHeadlinesArticlesView(destination: destination)
+                        .environment(\.zoomNamespace, cardZoom)
+                        .environment(\.navigateToEphemeralArticle, ephemeralAppender)
+                        .zoomTransition(sourceID: destination.zoomTransitionID, in: cardZoom)
                 }
         }
         .onChange(of: path.count) {

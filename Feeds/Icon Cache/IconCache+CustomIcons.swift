@@ -17,7 +17,7 @@ extension IconCache {
             if let url = URL(string: customURL),
                let (data, _) = try? await Self.urlSession.data(from: url),
                let image = UIImage(data: data) {
-                await setCustomIcon(image, feedID: feed.id)
+                setCustomIcon(image, feedID: feed.id)
                 return image
             }
         }

@@ -9,10 +9,15 @@ struct ListEditSheet: View {
 
     @State private var name = ""
     @State private var selectedIcon = ListIcon.newspaper.rawValue
-    @State private var selectedDisplayStyle: String?
+    @State private var useDefaultDisplayStyle: Bool = true
+    @State private var selectedStyle: FeedDisplayStyle = .inbox
     @State private var selectedFeedIDs: Set<Int64> = []
     @State private var hasInitialized = false
     @FocusState private var isNameFieldFocused: Bool
+
+    private var resolvedDisplayStyle: String? {
+        useDefaultDisplayStyle ? nil : selectedStyle.rawValue
+    }
 
     private var isEditing: Bool { list != nil }
 
@@ -73,15 +78,18 @@ struct ListEditSheet: View {
                 }
 
                 Section(String(localized: "ListEdit.DisplayStyle", table: "Lists")) {
-                    Picker(String(localized: "ListEdit.DisplayStyle", table: "Lists"),
-                           selection: $selectedDisplayStyle) {
-                        Text(String(localized: "ListEdit.DisplayStyle.Default", table: "Lists"))
-                            .tag(nil as String?)
-                        ForEach(FeedDisplayStyle.allCases.filter {
-                            $0 != .video && $0 != .podcast
-                        }, id: \.self) { style in
-                            Text(style.localizedName)
-                                .tag(style.rawValue as String?)
+                    Toggle(String(localized: "ListEdit.DisplayStyle.UseDefault", table: "Lists"),
+                           isOn: $useDefaultDisplayStyle)
+                    if !useDefaultDisplayStyle {
+                        Picker(
+                            String(localized: "ListEdit.DisplayStyle", table: "Lists"),
+                            selection: $selectedStyle
+                        ) {
+                            ForEach(FeedDisplayStyle.allCases.filter {
+                                $0 != .video && $0 != .podcast
+                            }, id: \.self) { style in
+                                Text(style.localizedName).tag(style)
+                            }
                         }
                     }
                 }
@@ -118,6 +126,7 @@ struct ListEditSheet: View {
                     }
                 }
             }
+            .listStyle(.insetGrouped)
             .navigationTitle(isEditing
                              ? String(localized: "ListEdit.Title.Edit", table: "Lists")
                              : String(localized: "ListEdit.Title.New", table: "Lists"))
@@ -141,7 +150,13 @@ struct ListEditSheet: View {
                 if let list {
                     name = list.name
                     selectedIcon = list.icon
-                    selectedDisplayStyle = list.displayStyle
+                    if let savedStyle = list.displayStyle,
+                       let style = FeedDisplayStyle(rawValue: savedStyle) {
+                        useDefaultDisplayStyle = false
+                        selectedStyle = style
+                    } else {
+                        useDefaultDisplayStyle = true
+                    }
                     selectedFeedIDs = feedManager.feedIDs(for: list)
                 } else {
                     isNameFieldFocused = true
@@ -154,7 +169,7 @@ struct ListEditSheet: View {
         let trimmedName = name.trimmingCharacters(in: .whitespaces)
         if let list {
             feedManager.updateList(list, name: trimmedName, icon: selectedIcon,
-                                   displayStyle: selectedDisplayStyle)
+                                   displayStyle: resolvedDisplayStyle)
             let currentIDs = feedManager.feedIDs(for: list)
             for id in selectedFeedIDs where !currentIDs.contains(id) {
                 if let feed = feedManager.feedsByID[id] {
@@ -174,7 +189,7 @@ struct ListEditSheet: View {
                             feedManager.addFeedToList(newList, feed: feed)
                         }
                     }
-                    if let displayStyle = selectedDisplayStyle {
+                    if let displayStyle = resolvedDisplayStyle {
                         feedManager.updateList(
                             newList,
                             name: trimmedName,

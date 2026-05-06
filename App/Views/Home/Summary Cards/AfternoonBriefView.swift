@@ -4,12 +4,14 @@ struct AfternoonBriefView: View {
 
     @Binding var hasSummary: Bool
     var isVisible: Binding<Bool>?
+    var refreshTrigger: Int = 0
 
     var body: some View {
-        SummaryCard(
+        SummarySection(
             kind: .afternoonBrief,
             hasSummary: $hasSummary,
-            isVisible: isVisible
+            isVisible: isVisible,
+            refreshTrigger: refreshTrigger
         )
     }
 }

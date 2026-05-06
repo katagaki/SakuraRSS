@@ -93,6 +93,15 @@ nonisolated final class DatabaseManager: @unchecked Sendable {
     let summaryCacheDate = SQLite.Expression<String>("date")
     let summaryCacheContent = SQLite.Expression<String>("content")
 
+    let summaryHeadlines = Table("summary_headlines")
+    let summaryHeadlineType = SQLite.Expression<String>("type")
+    let summaryHeadlineDate = SQLite.Expression<String>("date")
+    let summaryHeadlineOrdinal = SQLite.Expression<Int>("ordinal")
+    let summaryHeadlineText = SQLite.Expression<String>("headline")
+    let summaryHeadlineArticleIDs = SQLite.Expression<String>("article_ids")
+    let summaryHeadlineFeedIDs = SQLite.Expression<String>("feed_ids")
+    let summaryHeadlineThumbnailURL = SQLite.Expression<String?>("thumbnail_url")
+
     let feedRules = Table("feed_rules")
     let ruleID = SQLite.Expression<Int64>("id")
     let ruleFeedID = SQLite.Expression<Int64>("feed_id")
@@ -291,6 +300,17 @@ nonisolated final class DatabaseManager: @unchecked Sendable {
             table.column(summaryCacheDate)
             table.column(summaryCacheContent)
             table.primaryKey(summaryCacheType, summaryCacheDate)
+        })
+
+        try database.run(summaryHeadlines.create(ifNotExists: true) { table in
+            table.column(summaryHeadlineType)
+            table.column(summaryHeadlineDate)
+            table.column(summaryHeadlineOrdinal)
+            table.column(summaryHeadlineText)
+            table.column(summaryHeadlineArticleIDs)
+            table.column(summaryHeadlineFeedIDs)
+            table.column(summaryHeadlineThumbnailURL)
+            table.primaryKey(summaryHeadlineType, summaryHeadlineDate, summaryHeadlineOrdinal)
         })
 
         try database.run(feedRules.create(ifNotExists: true) { table in

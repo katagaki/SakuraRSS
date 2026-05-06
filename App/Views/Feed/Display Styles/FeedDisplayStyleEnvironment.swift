@@ -43,6 +43,19 @@ extension EnvironmentValues {
     }
 }
 
+// MARK: - Summary Headline Navigation Environment
+
+private struct SummaryHeadlineNavigationActionKey: EnvironmentKey {
+    static let defaultValue: ((SummaryHeadlineDestination) -> Void)? = nil
+}
+
+extension EnvironmentValues {
+    var navigateToSummaryHeadline: ((SummaryHeadlineDestination) -> Void)? {
+        get { self[SummaryHeadlineNavigationActionKey.self] }
+        set { self[SummaryHeadlineNavigationActionKey.self] = newValue }
+    }
+}
+
 // MARK: - Zoom Transition Modifiers
 
 extension View {

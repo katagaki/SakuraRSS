@@ -130,7 +130,10 @@ nonisolated extension DatabaseManager {
             bytesByArticleID[articleID] = directoryFilesSize(at: dir)
         }
         guard !bytesByArticleID.isEmpty else { return [:] }
-        let sql = "SELECT id, feed_id FROM articles WHERE id IN (\(bytesByArticleID.keys.map { "\($0)" }.joined(separator: ",")))"
+        let sql = """
+            SELECT id, feed_id FROM articles
+            WHERE id IN (\(bytesByArticleID.keys.map { "\($0)" }.joined(separator: ",")))
+            """
         var perFeed: [Int64: Int64] = [:]
         if let rows = try? database.prepare(sql) {
             for row in rows {
@@ -177,8 +180,7 @@ nonisolated extension DatabaseManager {
         return total
     }
 
-    /// Sum of bytes stored in the `image_cache` table — the in-database BLOB
-    /// portion of the on-disk image footprint.
+    /// Sum of bytes stored in the `image_cache` table.
     func imageCacheTableSize() -> Int64 {
         let sql = "SELECT COALESCE(SUM(LENGTH(data)), 0) FROM image_cache"
         guard let row = try? database.prepare(sql).makeIterator().next() else { return 0 }

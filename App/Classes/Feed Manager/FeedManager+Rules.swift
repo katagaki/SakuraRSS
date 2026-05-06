@@ -80,7 +80,10 @@ extension FeedManager {
 
     /// Adjusts raw per-feed unread counts so muted articles (by keyword or
     /// author rules) are excluded. Only feeds with rules are recomputed.
-    nonisolated static func applyRulesToUnreadCounts(_ rawCounts: [Int64: Int], database: DatabaseManager) -> [Int64: Int] {
+    nonisolated static func applyRulesToUnreadCounts(
+        _ rawCounts: [Int64: Int],
+        database: DatabaseManager
+    ) -> [Int64: Int] {
         let feedsWithRules = (try? database.feedIDsWithRules()) ?? []
         guard !feedsWithRules.isEmpty else { return rawCounts }
         var result = rawCounts
@@ -140,7 +143,11 @@ extension FeedManager {
         return result
     }
 
-    nonisolated static func applyListRules(_ articles: [Article], listID: Int64, database: DatabaseManager) -> [Article] {
+    nonisolated static func applyListRules(
+        _ articles: [Article],
+        listID: Int64,
+        database: DatabaseManager
+    ) -> [Article] {
         let allowedKeywords = (try? database.listRules(forListID: listID, type: "allowed_keyword")) ?? []
         let keywords = (try? database.listRules(forListID: listID, type: "muted_keyword")) ?? []
         let authors = Set((try? database.listRules(forListID: listID, type: "muted_author")) ?? [])

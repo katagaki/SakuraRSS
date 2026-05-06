@@ -15,6 +15,7 @@ struct SakuraRSSApp: App {
     @State var pendingOpenRequest: OpenArticleRequest?
     @State private var lastForegroundWorkAt: Date?
     @AppStorage("ForceWhileYouSlept") var forceWhileYouSlept: Bool = false
+    @AppStorage("ForceAfternoonBrief") var forceAfternoonBrief: Bool = false
     @AppStorage("ForceTodaysSummary") var forceTodaysSummary: Bool = false
     @AppStorage("BackgroundRefresh.Enabled") private var backgroundRefreshEnabled: Bool = true
     @AppStorage("BackgroundRefresh.Interval") private var refreshInterval: Int = 240

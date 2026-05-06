@@ -35,8 +35,6 @@ final class InstagramProvider: Authenticated {
 
     // MARK: - Static Helpers
 
-    /// Stricter than `matchesHost` — Instagram only serves on bare and
-    /// `www.` subdomains.
     nonisolated static func isInstagramHost(_ host: String?) -> Bool {
         guard let host = host?.lowercased() else { return false }
         return host == "instagram.com" || host == "www.instagram.com"
