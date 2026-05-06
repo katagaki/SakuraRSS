@@ -1,40 +1,79 @@
 import Foundation
 
-extension SubstackPublicationFetcher: RSSFeedProvider {
+/// Fetches Substack publication metadata via the public `/api/v1/publication` endpoint.
+final class SubstackProvider {
 
-    nonisolated static var providerID: String { "substack" }
+    // MARK: - Static Helpers
 
-    nonisolated static func matchesFeedURL(_ feedURL: String) -> Bool {
-        isSubstackFeedURL(feedURL)
-    }
-}
-
-extension SubstackPublicationFetcher: MetadataFetchingProvider {
-
-    nonisolated static func canFetchMetadata(for url: URL) -> Bool {
-        isSubstackPublicationURL(url)
+    nonisolated static func isSubstackHost(_ host: String?) -> Bool {
+        matchesHost(host)
     }
 
-    nonisolated static var fallbackIconURL: URL? {
-        URL(string: "https://substackcdn.com/icons/substack/apple-touch-icon.png")
+    nonisolated static func isSubstackPublicationHost(_ host: String?) -> Bool {
+        guard let host = host?.lowercased(),
+              host.hasSuffix(".substack.com"),
+              host != "www.substack.com",
+              host != "on.substack.com",
+              host != "open.substack.com" else { return false }
+        return true
     }
 
-    /// Tries the public profile API (publication logo, then author photo),
-    /// falling back to the publication API's `logo_url`.
-    static func fetchMetadata(for url: URL) async -> FetchedFeedMetadata? {
-        guard let host = url.host else { return nil }
-        let fetcher = SubstackPublicationFetcher()
+    nonisolated static func isSubstackPublicationURL(_ url: URL) -> Bool {
+        isSubstackPublicationHost(url.host)
+    }
 
-        if let logo = await fetcher.fetchPublicProfileLogo(host: host) {
-            return FetchedFeedMetadata(displayName: nil, iconURL: logo.url,
-                                       iconNeedsSquareCrop: logo.isAuthorPhoto)
+    nonisolated static func isSubstackFeedURL(_ urlString: String) -> Bool {
+        guard let url = URL(string: urlString),
+              isSubstackPublicationHost(url.host) else { return false }
+        return url.path.hasSuffix("/feed")
+    }
+
+    nonisolated static func publicationAPIURL(for host: String) -> URL? {
+        URL(string: "https://\(host)/api/v1/publication")
+    }
+
+    /// If the URL is a Substack CDN fetch wrapper, returns the underlying full-resolution URL.
+    nonisolated static func upgradedImageURL(_ urlString: String) -> String {
+        guard urlString.lowercased().contains("substackcdn.com/image/fetch/") else { return urlString }
+        let prefixes = ["https%3A%2F%2F", "https%3a%2f%2f", "http%3A%2F%2F", "http%3a%2f%2f"]
+        for prefix in prefixes {
+            if let range = urlString.range(of: prefix) {
+                let encoded = String(urlString[range.lowerBound...])
+                if let decoded = encoded.removingPercentEncoding {
+                    return decoded
+                }
+            }
         }
+        return urlString
+    }
 
-        let result = await fetcher.fetchPublication(host: host)
-        if let logoURL = result.logoURL.flatMap(URL.init(string:)) {
-            return FetchedFeedMetadata(displayName: nil, iconURL: logoURL)
+    /// If the URL is a Substack CDN fetch wrapper, injects a center-aligned
+    /// square crop. Uses `c_lfill` so the source isn't upscaled: for sources
+    /// larger than 512px the result is 512x512; smaller sources keep their
+    /// largest centered square at native resolution. Returns the input
+    /// unchanged for non-wrapped URLs.
+    nonisolated static func squareCroppedPhotoURL(_ urlString: String) -> String {
+        let marker = "/image/fetch/"
+        guard urlString.lowercased().contains("substackcdn.com\(marker)"),
+              let markerRange = urlString.range(of: marker),
+              let nextSlash = urlString[markerRange.upperBound...].firstIndex(of: "/") else {
+            return urlString
         }
+        let transforms = String(urlString[markerRange.upperBound..<nextSlash])
+        let crop = "w_512,h_512,c_lfill,g_center"
+        guard !transforms.contains("c_lfill"), !transforms.contains("c_fill") else { return urlString }
+        let newTransforms = transforms.isEmpty ? crop : "\(transforms),\(crop)"
+        return urlString.replacingCharacters(
+            in: markerRange.upperBound..<nextSlash, with: newTransforms
+        )
+    }
 
-        return nil
+    // MARK: - Public
+
+    func fetchPublication(host: String) async -> SubstackPublicationFetchResult {
+        guard let url = Self.publicationAPIURL(for: host) else {
+            return SubstackPublicationFetchResult(logoURL: nil)
+        }
+        return await performFetch(url: url)
     }
 }

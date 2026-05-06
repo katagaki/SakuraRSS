@@ -11,33 +11,28 @@ extension FeedDiscovery {
         }
         for provider in FeedProviderRegistry.all where provider.isEnabled {
             if let profile = provider as? any ProfileFeedProvider.Type,
-               let discovered = profile.discoveredFeed(forProfileURL: url) {
+               profile.isProfileURL(url),
+               let discovered = await profile.discoveredFeed(forProfileURL: url) {
                 return discovered
             }
         }
         if let youTubeChannelFeed = await detectYouTubeChannelFeed(url: url) {
             return youTubeChannelFeed
         }
-        if let blueskyFeed = await detectBlueskyFeed(url: url) {
-            return blueskyFeed
-        }
         if let mastodonFeed = await detectMastodonFeed(url: url) {
             return mastodonFeed
-        }
-        if let noteFeed = await detectNoteFeed(url: url) {
-            return noteFeed
         }
         return nil
     }
 
     /// Rewrites arXiv subject listing URLs to their matching RSS feed.
     func detectArXivListFeed(url: URL) -> DiscoveredFeed? {
-        guard let category = ArXivHelper.extractCategoryFromListURL(url) else {
+        guard let category = ArXivProvider.extractCategoryFromListURL(url) else {
             return nil
         }
         return DiscoveredFeed(
             title: "arXiv \(category)",
-            url: ArXivHelper.feedURL(forCategory: category),
+            url: ArXivProvider.feedURL(forCategory: category),
             siteURL: "https://arxiv.org/list/\(category)/recent"
         )
     }
@@ -147,33 +142,9 @@ extension FeedDiscovery {
         return nil
     }
 
-    /// Constructs a Bluesky profile RSS feed URL.
-    func detectBlueskyFeed(url: URL) async -> DiscoveredFeed? {
-        guard let host = url.host?.lowercased(),
-              host == "bsky.app" || host.hasSuffix(".bsky.app") else {
-            return nil
-        }
-
-        let path = url.path
-        guard path.hasPrefix("/profile/") else { return nil }
-
-        let afterProfile = String(path.dropFirst("/profile/".count))
-        guard let handle = afterProfile.split(separator: "/").first,
-              !handle.isEmpty else { return nil }
-
-        return await probeFeedAt(domain: "bsky.app", path: "/profile/\(handle)/rss")
-    }
-
-    /// Constructs a note.com creator profile RSS feed URL.
-    func detectNoteFeed(url: URL) async -> DiscoveredFeed? {
-        guard NoteProfileFetcher.isProfileURL(url),
-              let handle = NoteProfileFetcher.extractIdentifier(from: url) else {
-            return nil
-        }
-        return await probeFeedAt(domain: "note.com", path: "/\(handle)/rss")
-    }
-
-    /// Constructs a Mastodon profile RSS feed URL.
+    /// Constructs a Mastodon profile RSS feed URL. Mastodon isn't a single
+    /// provider (any compatible host counts), so detection lives here rather
+    /// than on a `ProfileFeedProvider`.
     func detectMastodonFeed(url: URL) async -> DiscoveredFeed? {
         guard let host = url.host?.lowercased() else { return nil }
 
@@ -184,6 +155,6 @@ extension FeedDiscovery {
         guard let username = afterAt.split(separator: "/").first,
               !username.isEmpty else { return nil }
 
-        return await probeFeedAt(domain: host, path: "/@\(username).rss")
+        return await Self.probeFeedAt(domain: host, path: "/@\(username).rss")
     }
 }

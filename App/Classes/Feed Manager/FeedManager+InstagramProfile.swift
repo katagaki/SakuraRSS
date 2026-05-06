@@ -22,14 +22,14 @@ extension FeedManager {
             return
         }
 
-        guard let handle = InstagramProfileFetcher.identifierFromFeedURL(feed.url),
-              let profileURL = InstagramProfileFetcher.profileURL(for: handle) else {
+        guard let handle = InstagramProvider.identifierFromFeedURL(feed.url),
+              let profileURL = InstagramProvider.profileURL(for: handle) else {
             log("InstagramProfile", "Could not derive handle/profileURL id=\(feed.id) url=\(feed.url)")
             return
         }
         log("InstagramProfile", "fetching @\(handle) id=\(feed.id)")
 
-        let fetcher = InstagramProfileFetcher()
+        let fetcher = InstagramProvider()
         let result = await fetcher.fetchProfile(profileURL: profileURL)
         // swiftlint:disable:next line_length
         log("InstagramProfile", "fetched @\(handle) posts=\(result.posts.count) displayName=\(result.displayName ?? "nil")")
@@ -91,6 +91,6 @@ extension FeedManager {
     }
 
     var hasInstagramFeeds: Bool {
-        feeds.contains { InstagramProfileFetcher.isFeedURL($0.url) }
+        feeds.contains { InstagramProvider.isFeedURL($0.url) }
     }
 }

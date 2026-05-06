@@ -1,7 +1,7 @@
 import Foundation
 
 /// Domains that require WebView-based text extraction because content is dynamically loaded.
-nonisolated enum ExtractTextDomains: DomainExceptions {
+nonisolated enum ExtractTextDomains: DomainDefaults {
 
     static let exceptionDomains: Set<String> = [
         "apple.com",

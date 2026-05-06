@@ -25,6 +25,7 @@ nonisolated enum FediverseDetector {
     /// leave the cached flag untouched on `nil` so the next refresh re-probes.
     static func detect(for feed: Feed) async -> Bool? {
         guard let host = probeHost(for: feed) else {
+            // swiftlint:disable:next line_length
             log("FediverseDetector", "skip id=\(feed.id) reason=no-host siteURL=\(feed.siteURL) fetchURL=\(feed.fetchURL)")
             return nil
         }

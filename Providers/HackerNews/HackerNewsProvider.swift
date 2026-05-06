@@ -8,10 +8,11 @@ nonisolated enum HackerNewsProvider: RSSFeedProvider {
 
     static var providerID: String { "hacker_news" }
 
+    static let domains: Set<String> = [host]
+
     static func matchesFeedURL(_ feedURL: String) -> Bool {
-        guard let url = URL(string: feedURL),
-              let host = url.host?.lowercased() else { return false }
-        return host == Self.host || host.hasSuffix(".\(Self.host)")
+        guard let url = URL(string: feedURL) else { return false }
+        return matchesHost(url.host)
     }
 
     /// Returns the HN thread URL embedded in `summary` (the markdown link
@@ -28,8 +29,7 @@ nonisolated enum HackerNewsProvider: RSSFeedProvider {
         for match in matches where match.numberOfRanges >= 2 {
             let raw = summaryString.substring(with: match.range(at: 1))
             guard let url = URL(string: raw),
-                  let host = url.host?.lowercased(),
-                  host == Self.host || host.hasSuffix(".\(Self.host)"),
+                  matchesHost(url.host),
                   threadID(from: url) != nil else { continue }
             return url
         }

@@ -44,7 +44,7 @@ extension SakuraRSSApp {
                 Task {
                     // X/Instagram cookies in Keychain survive the wipe; X must re-extract GraphQL IDs.
                     if UserDefaults.standard.bool(forKey: "Labs.XProfileFeeds") {
-                        await XProfileFetcher.fetchQueryIDsIfNeeded()
+                        await XProvider.fetchQueryIDsIfNeeded()
                     }
                     let entries = feedManager.feeds.map { ($0.domain, $0.siteURL as String?) }
                     await IconCache.shared.refreshIcons(for: entries)

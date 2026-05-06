@@ -9,8 +9,8 @@ extension IconCache {
         if host == "bsky.app" || host.hasSuffix(".bsky.app") { return true }
         if host == "reddit.com" || host.hasSuffix(".reddit.com") { return true }
         if host == "note.com" || host.hasSuffix(".note.com") { return true }
-        if SubstackPublicationFetcher.isSubstackPublicationHost(host) { return true }
-        if PixelfedProfileFetcher.isPixelfedHost(host) { return true }
+        if SubstackProvider.isSubstackPublicationHost(host) { return true }
+        if PixelfedProvider.isPixelfedHost(host) { return true }
         if DisplayStyleSetDomains.style(for: host) == .feed { return true }
         return false
     }
@@ -30,8 +30,7 @@ extension IconCache {
         return UIImage(data: data)
     }
 
-    /// Resolves a profile/publication avatar by dispatching through the
-    /// `MetadataFetchingProvider` registry, falling back to a generic
+    /// Resolves a profile/publication avatar, falling back to a generic
     /// `og:image` scrape.
     nonisolated func fetchProfileAvatar(from siteURL: String) async -> UIImage? {
         guard let url = URL(string: siteURL) else {

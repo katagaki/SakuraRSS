@@ -158,7 +158,7 @@ extension ArticleDetailView: ArticleActions {
             linkedArticleURL = nil
             return
         }
-        if let result = try? await RedditPostFetcher.shared.fetchContent(for: article),
+        if let result = try? await RedditProvider.shared.fetchContent(for: article),
            case .linkedArticle(let url) = result {
             linkedArticleURL = url
         }
@@ -192,7 +192,7 @@ extension ArticleDetailView: ArticleActions {
     }
 
     func performOpenArXivPDF() {
-        guard let pdfURL = ArXivHelper.pdfURL(forArticleURL: article.url) else { return }
+        guard let pdfURL = ArXivProvider.pdfURL(forArticleURL: article.url) else { return }
         arXivPDFReference = ArXivPDFReference(url: pdfURL, title: article.title)
     }
 

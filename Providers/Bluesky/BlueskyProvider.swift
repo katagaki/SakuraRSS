@@ -1,27 +1,30 @@
 import Foundation
 
-extension BlueskyProfileFetcher: RSSFeedProvider {
+/// Fetches Bluesky profile metadata by scraping the public profile page.
+final class BlueskyProvider {
 
-    nonisolated static var providerID: String { "bluesky" }
+    nonisolated static let host = "bsky.app"
 
-    nonisolated static func matchesFeedURL(_ feedURL: String) -> Bool {
-        isFeedURL(feedURL)
+    nonisolated static let reservedHandles: Set<String> = [
+        "search", "notifications", "settings", "feeds", "lists",
+        "messages", "starter-pack", "starter-pack-short",
+        "hashtag", "support", "intent"
+    ]
+
+    // MARK: - Static Helpers
+
+    nonisolated static func profileURL(for handle: String) -> URL? {
+        URL(string: "https://bsky.app/profile/\(handle)")
     }
-}
 
-extension BlueskyProfileFetcher: MetadataFetchingProvider {
-
-    nonisolated static func canFetchMetadata(for url: URL) -> Bool {
-        isProfileURL(url)
+    nonisolated static func isValidHandle(_ handle: String) -> Bool {
+        guard !handle.isEmpty else { return false }
+        return !reservedHandles.contains(handle.lowercased())
     }
 
-    static func fetchMetadata(for url: URL) async -> FetchedFeedMetadata? {
-        guard let handle = extractIdentifier(from: url) else { return nil }
-        let fetcher = BlueskyProfileFetcher()
-        let result = await fetcher.fetchProfile(handle: handle)
-        return FetchedFeedMetadata(
-            displayName: result.displayName,
-            iconURL: result.profileImageURL.flatMap(URL.init(string:))
-        )
+    // MARK: - Public
+
+    func fetchProfile(handle: String) async -> BlueskyProfileFetchResult {
+        await performFetch(handle: handle)
     }
 }

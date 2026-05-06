@@ -28,7 +28,7 @@ protocol ArticleActions {
 extension ArticleActions {
 
     var includesArXivAction: Bool {
-        ArXivHelper.pdfURL(forArticleURL: article.url) != nil
+        ArXivProvider.pdfURL(forArticleURL: article.url) != nil
     }
 
     var includesOpenLinkAction: Bool {

@@ -21,7 +21,7 @@ struct InstagramSettingsView: View {
                     } else if isInstagramSignedIn {
                         Button(String(localized: "InstagramProfileFeeds.SignOut", table: "Integrations")) {
                             Task {
-                                await InstagramProfileFetcher.clearSession()
+                                await InstagramProvider.clearSession()
                                 isInstagramSignedIn = false
                             }
                         }
@@ -50,14 +50,14 @@ struct InstagramSettingsView: View {
         .sheet(isPresented: $showInstagramLogin) {
             Task {
                 isCheckingLogin = true
-                isInstagramSignedIn = InstagramProfileFetcher.hasSession()
+                isInstagramSignedIn = InstagramProvider.hasSession()
                 isCheckingLogin = false
             }
         } content: {
             InstagramLoginView()
         }
         .task {
-            isInstagramSignedIn = InstagramProfileFetcher.hasSession()
+            isInstagramSignedIn = InstagramProvider.hasSession()
             isCheckingLogin = false
         }
     }

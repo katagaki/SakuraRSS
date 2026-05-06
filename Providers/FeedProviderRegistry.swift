@@ -4,20 +4,23 @@ import Foundation
 nonisolated enum FeedProviderRegistry {
 
     static let all: [any FeedProvider.Type] = [
-        XProfileFetcher.self,
-        InstagramProfileFetcher.self,
-        YouTubePlaylistFetcher.self,
-        SubstackPublicationFetcher.self,
-        NoteProfileFetcher.self,
-        BlueskyProfileFetcher.self,
-        RedditCommunityFetcher.self,
+        XProvider.self,
+        InstagramProvider.self,
+        YouTubePlaylistProvider.self,
+        SubstackProvider.self,
+        NoteProvider.self,
+        BlueskyProvider.self,
+        RedditProvider.self,
         HackerNewsProvider.self,
-        PixelfedProfileFetcher.self
+        PixelfedProvider.self,
+        ArXivProvider.self
     ]
 
-    static func metadataFetcher(forSiteURL url: URL) -> (any MetadataFetchingProvider.Type)? {
+    // MARK: - Convenience Fetchers
+
+    static func metadataFetcher(forSiteURL url: URL) -> (any MetadataProvider.Type)? {
         for provider in all {
-            if let metadata = provider as? any MetadataFetchingProvider.Type,
+            if let metadata = provider as? any MetadataProvider.Type,
                metadata.canFetchMetadata(for: url) {
                 return metadata
             }
@@ -38,6 +41,22 @@ nonisolated enum FeedProviderRegistry {
         }
         return nil
     }
+
+    /// Returns the `CommentsProvider` that can supply comments for `article`
+    /// in `feed`, or `nil` if no provider matches.
+    static func commentsProvider(
+        for article: Article, in feed: Feed?
+    ) -> (any CommentsProvider.Type)? {
+        for provider in all {
+            if let comments = provider as? any CommentsProvider.Type,
+               comments.canProvideComments(for: article, in: feed) {
+                return comments
+            }
+        }
+        return nil
+    }
+
+    // MARK: - Legacy Auth Cookies
 
     /// Migrates WebKit cookies to Keychain for every enabled `Authenticated` provider.
     static func migrateAuthenticatedCookies() async {

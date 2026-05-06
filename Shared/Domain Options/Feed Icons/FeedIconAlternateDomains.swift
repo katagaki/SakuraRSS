@@ -1,7 +1,7 @@
 import Foundation
 
 /// Maps feed domains to alternative domains for icon fetching.
-nonisolated enum FeedIconAlternateDomains: DomainExceptions {
+nonisolated enum FeedIconAlternateDomains: DomainDefaults {
 
     static let mappings: [String: String] = [
         "feeds.bbci.co.uk": "bbc.co.uk",

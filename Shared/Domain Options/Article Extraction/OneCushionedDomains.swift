@@ -2,7 +2,7 @@ import Foundation
 
 /// Domains whose feed URLs gate the real article behind a "read more"
 /// anchor, mapped to the CSS selector that locates that anchor.
-nonisolated enum OneCushionedDomains: DomainExceptions {
+nonisolated enum OneCushionedDomains: DomainDefaults {
 
     static let selectors: [String: String] = [
         "news.yahoo.co.jp": "a[data-ual-gotocontent=true]"

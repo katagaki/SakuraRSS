@@ -34,9 +34,9 @@ extension EditFeedMetadataTab {
         defer { isFetchingIcon = false }
 
         if feed.isXFeed,
-           let handle = XProfileFetcher.identifierFromFeedURL(feed.url),
-           let cookies = await XProfileFetcher.getXCookies() {
-            let fetcher = XProfileFetcher()
+           let handle = XProvider.identifierFromFeedURL(feed.url),
+           let cookies = await XProvider.getXCookies() {
+            let fetcher = XProvider()
             if let userInfo = await fetcher.fetchUserInfo(screenName: handle, cookies: cookies),
                let imageURLString = userInfo.profileImageURL,
                let imageURL = URL(string: imageURLString),
@@ -52,9 +52,9 @@ extension EditFeedMetadataTab {
         }
 
         if feed.isInstagramFeed,
-           let handle = InstagramProfileFetcher.identifierFromFeedURL(feed.url),
-           let profileURL = InstagramProfileFetcher.profileURL(for: handle) {
-            let fetcher = InstagramProfileFetcher()
+           let handle = InstagramProvider.identifierFromFeedURL(feed.url),
+           let profileURL = InstagramProvider.profileURL(for: handle) {
+            let fetcher = InstagramProvider()
             let result = await fetcher.fetchProfile(profileURL: profileURL)
             if let imageURLString = result.profileImageURL,
                let imageURL = URL(string: imageURLString),

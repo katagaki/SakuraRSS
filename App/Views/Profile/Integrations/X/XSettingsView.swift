@@ -20,14 +20,14 @@ struct XSettingsView: View {
                         Button(String(localized: "XProfileFeeds.RefreshAuth", table: "Integrations")) {
                             Task {
                                 await MainActor.run {
-                                    XProfileFetcher.queryIDsFetched = false
+                                    XProvider.queryIDsFetched = false
                                 }
-                                await XProfileFetcher.fetchQueryIDsIfNeeded()
+                                await XProvider.fetchQueryIDsIfNeeded()
                             }
                         }
                         Button(String(localized: "XProfileFeeds.SignOut", table: "Integrations")) {
                             Task {
-                                await XProfileFetcher.clearSession()
+                                await XProvider.clearSession()
                                 isXSignedIn = false
                             }
                         }
@@ -48,14 +48,14 @@ struct XSettingsView: View {
         .sheet(isPresented: $showXLogin) {
             Task {
                 isCheckingLogin = true
-                isXSignedIn = XProfileFetcher.hasSession()
+                isXSignedIn = XProvider.hasSession()
                 isCheckingLogin = false
             }
         } content: {
             XLoginView()
         }
         .task {
-            isXSignedIn = XProfileFetcher.hasSession()
+            isXSignedIn = XProvider.hasSession()
             isCheckingLogin = false
         }
     }

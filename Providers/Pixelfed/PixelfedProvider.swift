@@ -1,34 +1,38 @@
 import Foundation
 
-extension PixelfedProfileFetcher: RSSFeedProvider {
+/// Fetches Pixelfed profile metadata by scraping the public profile page's
+/// `og:image` tag. Pixelfed profile URLs follow `https://<host>/<username>`.
+final class PixelfedProvider {
 
-    nonisolated static var providerID: String { "pixelfed" }
+    nonisolated static let knownHosts: Set<String> = [
+        "pixelfed.social",
+        "pixelfed.tokyo",
+        "pixelfed.art"
+    ]
 
-    nonisolated static func matchesFeedURL(_ feedURL: String) -> Bool {
-        isFeedURL(feedURL)
+    nonisolated static func isPixelfedHost(_ host: String?) -> Bool {
+        matchesHost(host)
     }
-}
 
-extension PixelfedProfileFetcher: MetadataFetchingProvider {
-
-    nonisolated static func canFetchMetadata(for url: URL) -> Bool {
-        isProfileURL(url)
+    /// Profile pages live at the bare `<host>/<username>` path on Pixelfed,
+    /// not the `@username` form Mastodon uses.
+    nonisolated static func profileURL(host: String, username: String) -> URL? {
+        URL(string: "https://\(host)/\(username)")
     }
 
-    static func fetchMetadata(for url: URL) async -> FetchedFeedMetadata? {
-        guard let host = url.host?.lowercased(),
-              let username = extractIdentifier(from: url) else {
-            log("PixelfedProvider", "fetchMetadata skip url=\(url.absoluteString) reason=unrecognized")
-            return nil
+    // MARK: - Public
+
+    func fetchProfile(host: String, username: String) async -> PixelfedProfileFetchResult {
+        guard let url = Self.profileURL(host: host, username: username) else {
+            log("PixelfedProfile", "fetch skip host=\(host) username=\(username) reason=bad-url")
+            return PixelfedProfileFetchResult(profileImageURL: nil)
         }
-        log("PixelfedProvider", "fetchMetadata begin host=\(host) username=\(username)")
-        let result = await PixelfedProfileFetcher().fetchProfile(host: host, username: username)
-        let iconURL = result.profileImageURL.flatMap(URL.init(string:))
-        log("PixelfedProvider", "fetchMetadata end host=\(host) username=\(username) iconURL=\(iconURL?.absoluteString ?? "nil")")
-        return FetchedFeedMetadata(
-            displayName: nil,
-            iconURL: iconURL,
-            iconNeedsSquareCrop: true
-        )
+        log("PixelfedProfile", "fetch begin url=\(url.absoluteString)")
+        let started = Date()
+        let imageURL = await HTMLMetadataImage.fetchImageURL(for: url)
+        let elapsedMs = Int(Date().timeIntervalSince(started) * 1000)
+        // swiftlint:disable:next line_length
+        log("PixelfedProfile", "fetch end url=\(url.absoluteString) elapsedMs=\(elapsedMs) imageURL=\(imageURL ?? "nil")")
+        return PixelfedProfileFetchResult(profileImageURL: imageURL)
     }
 }

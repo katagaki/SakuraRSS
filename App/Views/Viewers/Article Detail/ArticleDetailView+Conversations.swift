@@ -62,7 +62,7 @@ extension ArticleDetailView {
     /// the per-article comment table.
     func loadConversationInBackground() {
         let feed = feedManager.feed(forArticle: article)
-        guard let source = CommentSourceRegistry.source(for: article, in: feed) else {
+        guard let source = FeedProviderRegistry.commentsProvider(for: article, in: feed) else {
             log("Comments", "no source for article id=\(article.id) feed=\(feed?.title ?? "nil")")
             return
         }

@@ -22,14 +22,14 @@ extension FeedManager {
             return
         }
 
-        guard let handle = XProfileFetcher.identifierFromFeedURL(feed.url),
-              let profileURL = XProfileFetcher.profileURL(for: handle) else {
+        guard let handle = XProvider.identifierFromFeedURL(feed.url),
+              let profileURL = XProvider.profileURL(for: handle) else {
             log("XProfile", "Could not derive handle/profileURL id=\(feed.id) url=\(feed.url)")
             return
         }
         log("XProfile", "fetching @\(handle) id=\(feed.id)")
 
-        let fetcher = XProfileFetcher()
+        let fetcher = XProvider()
         let result = await fetcher.fetchProfile(
             profileURL: profileURL,
             autoRepairQueryIDs: !contentOnly
@@ -93,6 +93,6 @@ extension FeedManager {
     }
 
     var hasXFeeds: Bool {
-        feeds.contains { XProfileFetcher.isFeedURL($0.url) }
+        feeds.contains { XProvider.isFeedURL($0.url) }
     }
 }

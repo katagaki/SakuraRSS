@@ -1,7 +1,7 @@
 import Foundation
 
 /// Domains whose article thumbnail images should be aligned center instead of top.
-nonisolated enum CenteredImageDomains: DomainExceptions {
+nonisolated enum CenteredImageDomains: DomainDefaults {
 
     static let exceptionDomains: Set<String> = [
         "youtube.com",

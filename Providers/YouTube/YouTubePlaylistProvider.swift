@@ -1,18 +1,22 @@
 import Foundation
 
-extension YouTubePlaylistFetcher: ProfileFeedProvider {
+/// Fetchs YouTube playlist page HTML to list public videos.
+final class YouTubePlaylistProvider {
 
-    nonisolated static var providerID: String { "youtube-playlist" }
+    // MARK: - Static Helpers
 
-    nonisolated static func discoveredFeed(forProfileURL url: URL) -> DiscoveredFeed? {
-        guard isProfileURL(url),
-              let playlistID = extractIdentifier(from: url) else {
-            return nil
+    nonisolated static func playlistURL(for playlistID: String) -> URL? {
+        URL(string: "https://www.youtube.com/playlist?list=\(playlistID)")
+    }
+
+    // MARK: - Public
+
+    func fetchPlaylist(playlistID: String) async -> YouTubePlaylistFetchResult {
+        guard let url = Self.playlistURL(for: playlistID) else {
+            return YouTubePlaylistFetchResult(
+                videos: [], playlistTitle: nil, channelAvatarURL: nil
+            )
         }
-        return DiscoveredFeed(
-            title: "YouTube Playlist",
-            url: feedURL(for: playlistID),
-            siteURL: "https://www.youtube.com/playlist?list=\(playlistID)"
-        )
+        return await performFetch(url: url, playlistID: playlistID)
     }
 }

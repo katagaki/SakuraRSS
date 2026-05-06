@@ -1,7 +1,7 @@
 import Foundation
 
 /// Per-domain minimum interval between automatic refreshes, overriding the global cooldown.
-nonisolated enum RefreshTimeoutDomains: DomainExceptions {
+nonisolated enum RefreshTimeoutDomains: DomainDefaults {
 
     static let timeouts: [String: TimeInterval] = [
         "x.com": 5 * 60,

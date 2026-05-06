@@ -96,7 +96,7 @@ extension ExtractsArticle {
             || (article.isEphemeral && URL(string: article.url).map(Self.isRedditPostURL) == true)
         if isRedditCandidate {
             do {
-                let result = try await RedditPostFetcher.shared.fetchContent(for: article)
+                let result = try await RedditProvider.shared.fetchContent(for: article)
                 switch result {
                 case .markerString(let markerString):
                     if !markerString.isEmpty {
@@ -196,7 +196,7 @@ extension ExtractsArticle {
             break
         }
 
-        if let url = URL(string: article.url), ArXivHelper.isArXivAbstractURL(url) {
+        if let url = URL(string: article.url), ArXivProvider.isAbstractURL(url) {
             if let summary = article.summary, !summary.isEmpty {
                 extractedText = summary
                 persistCachedContent(summary)
@@ -216,9 +216,9 @@ extension ExtractsArticle {
         if article.isXPostURL,
            UserDefaults.standard.bool(forKey: "Labs.XProfileFeeds"),
            let url = URL(string: article.url),
-           let tweetID = XProfileFetcher.extractTweetID(from: url),
-           XProfileFetcher.hasSession() {
-            let fetcher = XProfileFetcher()
+           let tweetID = XProvider.extractTweetID(from: url),
+           XProvider.hasSession() {
+            let fetcher = XProvider()
             if let content = await fetcher.fetchTweetContent(tweetID: tweetID) {
                 let text = renderXTweetContent(content)
                 extractedText = text
@@ -403,7 +403,7 @@ extension ExtractsArticle {
     static func isRedditPostURL(_ url: URL) -> Bool {
         guard let host = url.host?.lowercased(),
               host == "reddit.com" || host.hasSuffix(".reddit.com") else { return false }
-        return RedditPostFetcher.postID(from: url) != nil
+        return RedditProvider.postID(from: url) != nil
     }
 
     /// Builds the article body for an Instagram post: every carousel image

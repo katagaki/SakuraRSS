@@ -16,7 +16,7 @@ struct XEmbedBlockView: View {
     @State private var imageSize: CGSize?
 
     private var tweetID: String? {
-        XProfileFetcher.extractTweetID(from: url)
+        XProvider.extractTweetID(from: url)
     }
 
     var body: some View {
@@ -126,10 +126,10 @@ struct XEmbedBlockView: View {
               UserDefaults.standard.bool(forKey: "Labs.XProfileFeeds") else {
             return
         }
-        guard XProfileFetcher.hasSession() else { return }
+        guard XProvider.hasSession() else { return }
         isLoading = true
         defer { isLoading = false }
-        let fetcher = XProfileFetcher()
+        let fetcher = XProvider()
         if let parsed = await fetcher.fetchSingleTweet(tweetID: tweetID) {
             tweet = parsed
         } else {

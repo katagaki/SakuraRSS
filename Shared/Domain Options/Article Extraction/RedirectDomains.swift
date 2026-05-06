@@ -1,7 +1,7 @@
 import Foundation
 
 /// Domains whose feed URLs should be rewritten to an alternative host before fetching.
-nonisolated enum RedirectDomains: DomainExceptions {
+nonisolated enum RedirectDomains: DomainDefaults {
 
     static let redirects: [String: String] = [
         "twitter.com": "x.com",

@@ -80,11 +80,13 @@ struct InboxArticleRow: View {
                         Text(author)
                             .font(.caption2)
                             .foregroundStyle(.tertiary)
+                            .lineLimit(1)
                     }
                     if let date = article.publishedDate {
                         RelativeTimeText(date: date)
                             .font(.caption2)
                             .foregroundStyle(.tertiary)
+                            .lineLimit(1)
                     }
                 }
             }

@@ -4,7 +4,7 @@ extension FeedDiscovery {
 
     // MARK: - RSS Suffix Probing
 
-    /// Tries appending `.rss` to non-root URL paths (e.g. Reddit).
+    /// Tries appending `.rss` to non-root URL paths.
     func probeRSSSuffix(for url: URL) async -> DiscoveredFeed? {
         let path = url.path
         guard !path.isEmpty,
@@ -18,7 +18,7 @@ extension FeedDiscovery {
         let trimmedPath = path.hasSuffix("/") ? String(path.dropLast()) : path
         guard let domain = url.host else { return nil }
 
-        return await probeFeedAt(domain: domain, path: "\(trimmedPath).rss")
+        return await Self.probeFeedAt(domain: domain, path: "\(trimmedPath).rss")
     }
 
     // MARK: - Common Path Probing
@@ -29,7 +29,7 @@ extension FeedDiscovery {
         await withTaskGroup(of: DiscoveredFeed?.self) { group in
             for path in commonPaths {
                 group.addTask {
-                    await self.probeFeedAt(domain: domain, path: path)
+                    await Self.probeFeedAt(domain: domain, path: path)
                 }
             }
 
@@ -43,7 +43,7 @@ extension FeedDiscovery {
         return results
     }
 
-    func probeFeedAt(domain: String, path: String) async -> DiscoveredFeed? {
+    nonisolated static func probeFeedAt(domain: String, path: String) async -> DiscoveredFeed? {
         guard let url = URL(string: "https://\(domain)\(path)") else { return nil }
 
         do {

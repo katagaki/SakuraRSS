@@ -76,7 +76,7 @@
 		E426BC932F93A67F00FF1B20 /* Exceptions for "Providers" folder in "Add Feed" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				"FeedProviderRegistry+Refresh.swift",
+				"FeedProviderRegistry+Refreshing.swift",
 				"Instagram/InstagramProvider+Refresh.swift",
 				Petal/PetalAutoDetect.swift,
 				Petal/PetalEngine/PetalEngine.swift,
@@ -84,7 +84,9 @@
 				"Petal/PetalEngine/PetalEngine+Fetching.swift",
 				"Petal/PetalEngine/PetalEngine+Parsing.swift",
 				Petal/PetalWebViewLoader.swift,
-				Podcasts/Downloads/DownloadModels.swift,
+				Podcasts/Downloads/DownloadProgress.swift,
+				Podcasts/Downloads/DownloadState.swift,
+				Podcasts/Downloads/PodcastDownloadError.swift,
 				Podcasts/Downloads/PodcastDownloadManager.swift,
 				"Podcasts/Downloads/PodcastDownloadManager+Download.swift",
 				"Podcasts/Downloads/PodcastDownloadManager+Lifecycle.swift",
@@ -95,9 +97,8 @@
 				Podcasts/Transcriber/Engines/FluidTranscriberEngine.swift,
 				Podcasts/Transcriber/PodcastTranscriber.swift,
 				Podcasts/Transcriber/TranscriptionEngine.swift,
-				WebFeedProvider.swift,
+				Protocols/WebFeedProvider.swift,
 				"X/XProvider+Refresh.swift",
-				YouTube/SponsorBlock/SponsorBlockClient.swift,
 				"YouTube/YouTubePlaylistProvider+Refresh.swift",
 			);
 			target = E47D10332F54980E006081EF /* Add Feed */;
@@ -105,7 +106,7 @@
 		E426BC942F93A67F00FF1B20 /* Exceptions for "Providers" folder in "WidgetsExtension" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				"FeedProviderRegistry+Refresh.swift",
+				"FeedProviderRegistry+Refreshing.swift",
 				"Instagram/InstagramProvider+Refresh.swift",
 				Petal/PetalAutoDetect.swift,
 				Petal/PetalEngine/PetalEngine.swift,
@@ -113,7 +114,9 @@
 				"Petal/PetalEngine/PetalEngine+Fetching.swift",
 				"Petal/PetalEngine/PetalEngine+Parsing.swift",
 				Petal/PetalWebViewLoader.swift,
-				Podcasts/Downloads/DownloadModels.swift,
+				Podcasts/Downloads/DownloadProgress.swift,
+				Podcasts/Downloads/DownloadState.swift,
+				Podcasts/Downloads/PodcastDownloadError.swift,
 				Podcasts/Downloads/PodcastDownloadManager.swift,
 				"Podcasts/Downloads/PodcastDownloadManager+Download.swift",
 				"Podcasts/Downloads/PodcastDownloadManager+Lifecycle.swift",
@@ -124,9 +127,8 @@
 				Podcasts/Transcriber/Engines/FluidTranscriberEngine.swift,
 				Podcasts/Transcriber/PodcastTranscriber.swift,
 				Podcasts/Transcriber/TranscriptionEngine.swift,
-				WebFeedProvider.swift,
+				Protocols/WebFeedProvider.swift,
 				"X/XProvider+Refresh.swift",
-				YouTube/SponsorBlock/SponsorBlockClient.swift,
 				"YouTube/YouTubePlaylistProvider+Refresh.swift",
 			);
 			target = E47D104C2F549821006081EF /* WidgetsExtension */;
@@ -258,6 +260,7 @@
 			membershipExceptions = (
 				Network/ImageDownsampler.swift,
 				Network/NetworkMonitor.swift,
+				SponsorBlock/SponsorBlockClient.swift,
 			);
 			target = E47D10332F54980E006081EF /* Add Feed */;
 		};
@@ -265,6 +268,7 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Network/NetworkMonitor.swift,
+				SponsorBlock/SponsorBlockClient.swift,
 			);
 			target = E47D104C2F549821006081EF /* WidgetsExtension */;
 		};

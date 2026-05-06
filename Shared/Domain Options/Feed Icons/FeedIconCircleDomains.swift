@@ -1,7 +1,7 @@
 import Foundation
 
 /// Domains whose feed icons should be displayed as circles (also skips trimming).
-nonisolated enum FeedIconCircleDomains: DomainExceptions {
+nonisolated enum FeedIconCircleDomains: DomainDefaults {
 
     static let exceptionDomains: Set<String> = [
         "x.com",

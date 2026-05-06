@@ -1,7 +1,7 @@
 import Foundation
 
 /// Domains that opt into a specific display style by default.
-nonisolated enum DisplayStyleSetDomains: DomainExceptions {
+nonisolated enum DisplayStyleSetDomains: DomainDefaults {
 
     static let domainStyles: [String: FeedDisplayStyle] = [
         "x.com": .feed,
@@ -18,6 +18,7 @@ nonisolated enum DisplayStyleSetDomains: DomainExceptions {
         "techhub.social": .feed,
         "mas.to": .feed,
         "reddit.com": .feedCompact,
+        "note.com": .cards,
         "instagram.com": .photos,
         "pixelfed.social": .photos,
         "pixelfed.tokyo": .photos,

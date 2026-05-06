@@ -1,7 +1,7 @@
 import Foundation
 
 /// Caps how many feeds a user can follow on specific hosts to avoid bot-detection.
-nonisolated enum FollowLimitSetDomains: DomainExceptions {
+nonisolated enum FollowLimitSetDomains: DomainDefaults {
 
     static let limits: [String: Int] = [
         "x.com": 30,

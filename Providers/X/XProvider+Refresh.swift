@@ -1,6 +1,6 @@
 import Foundation
 
-extension XProfileFetcher: WebFeedProvider {
+extension XProvider: WebFeedProvider {
 
     static func refresh(
         feed: Feed,

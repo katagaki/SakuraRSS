@@ -3,18 +3,18 @@ import SwiftUI
 extension AddFeedView {
 
     func addFeed(_ discovered: DiscoveredFeed) {
-        guard !XProfileFetcher.isFeedURL(discovered.url)
+        guard !XProvider.isFeedURL(discovered.url)
                 || UserDefaults.standard.bool(forKey: "Labs.XProfileFeeds") else {
             return
         }
-        guard !InstagramProfileFetcher.isFeedURL(discovered.url)
+        guard !InstagramProvider.isFeedURL(discovered.url)
                 || UserDefaults.standard.bool(forKey: "Labs.InstagramProfileFeeds") else {
             return
         }
-        if XProfileFetcher.isFeedURL(discovered.url) && !feedManager.hasXFeeds {
+        if XProvider.isFeedURL(discovered.url) && !feedManager.hasXFeeds {
             pendingXFeed = discovered
             Task {
-                let hasSession = XProfileFetcher.hasSession()
+                let hasSession = XProvider.hasSession()
                 if hasSession {
                     await addFeedDirectly(discovered)
                 } else {
@@ -23,11 +23,11 @@ extension AddFeedView {
             }
             return
         }
-        if InstagramProfileFetcher.isFeedURL(discovered.url)
+        if InstagramProvider.isFeedURL(discovered.url)
             && !feedManager.hasInstagramFeeds {
             pendingInstagramFeed = discovered
             Task {
-                let hasSession = InstagramProfileFetcher.hasSession()
+                let hasSession = InstagramProvider.hasSession()
                 if hasSession {
                     await addFeedDirectly(discovered)
                 } else {
@@ -58,7 +58,7 @@ extension AddFeedView {
 
     func addFeedAfterXLogin(_ discovered: DiscoveredFeed) {
         Task {
-            let hasSession = XProfileFetcher.hasSession()
+            let hasSession = XProvider.hasSession()
             if hasSession {
                 await addFeedDirectly(discovered)
             }
@@ -68,7 +68,7 @@ extension AddFeedView {
 
     func addFeedAfterInstagramLogin(_ discovered: DiscoveredFeed) {
         Task {
-            let hasSession = InstagramProfileFetcher.hasSession()
+            let hasSession = InstagramProvider.hasSession()
             if hasSession {
                 await addFeedDirectly(discovered)
             }

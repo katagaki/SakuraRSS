@@ -25,13 +25,13 @@ extension FeedManager {
             return
         }
 
-        guard let playlistID = YouTubePlaylistFetcher.identifierFromFeedURL(feed.url) else {
+        guard let playlistID = YouTubePlaylistProvider.identifierFromFeedURL(feed.url) else {
             log("YouTubePlaylist", "Could not derive playlistID id=\(feed.id) url=\(feed.url)")
             return
         }
         log("YouTubePlaylist", "fetching playlistID=\(playlistID) id=\(feed.id)")
 
-        let fetcher = YouTubePlaylistFetcher()
+        let fetcher = YouTubePlaylistProvider()
         let result = await fetcher.fetchPlaylist(playlistID: playlistID)
         // swiftlint:disable:next line_length
         log("YouTubePlaylist", "fetched playlistID=\(playlistID) videos=\(result.videos.count) playlistTitle=\(result.playlistTitle ?? "nil")")
@@ -87,6 +87,6 @@ extension FeedManager {
     }
 
     var hasYouTubePlaylistFeeds: Bool {
-        feeds.contains { YouTubePlaylistFetcher.isFeedURL($0.url) }
+        feeds.contains { YouTubePlaylistProvider.isFeedURL($0.url) }
     }
 }
