@@ -9,8 +9,11 @@ struct ListHeaderView: View {
     @State private var isShowingRules: Bool = false
 
     private let iconSize: CGFloat = 64
+    private let iconCornerRadius: CGFloat = 14
 
     @Namespace private var namespace
+    @Namespace private var editNamespace
+    @Namespace private var rulesNamespace
 
     private var iconGradient: AnyShapeStyle {
         if let icon = ListIcon(rawValue: list.icon) {
@@ -26,7 +29,8 @@ struct ListHeaderView: View {
                 systemImage: list.icon,
                 background: iconGradient,
                 size: iconSize,
-                iconSizeFactor: 0.45
+                iconSizeFactor: 0.45,
+                cornerRadius: iconCornerRadius
             )
             .padding(.bottom, 4)
 
@@ -47,12 +51,14 @@ struct ListHeaderView: View {
                 .environment(feedManager)
                 .presentationDetents([.large])
                 .interactiveDismissDisabled()
+                .navigationTransition(.zoom(sourceID: list.id, in: editNamespace))
         }
         .sheet(isPresented: $isShowingRules) {
             ListRulesSheet(list: list)
                 .environment(feedManager)
                 .presentationDetents([.large])
                 .interactiveDismissDisabled()
+                .navigationTransition(.zoom(sourceID: list.id, in: rulesNamespace))
         }
     }
 
@@ -69,6 +75,7 @@ struct ListHeaderView: View {
                         .font(.subheadline.weight(.semibold))
                         .padding(.horizontal, 14)
                         .padding(.vertical, 4)
+                        .matchedTransitionSource(id: list.id, in: editNamespace)
                 }
                 .compatibleGlassButtonStyle()
                 .buttonBorderShape(.capsule)
@@ -81,6 +88,7 @@ struct ListHeaderView: View {
                         .font(.subheadline.weight(.semibold))
                         .padding(.horizontal, 14)
                         .padding(.vertical, 4)
+                        .matchedTransitionSource(id: list.id, in: rulesNamespace)
                 }
                 .compatibleGlassButtonStyle()
                 .buttonBorderShape(.capsule)
