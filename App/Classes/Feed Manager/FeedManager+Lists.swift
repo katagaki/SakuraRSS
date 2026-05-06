@@ -87,7 +87,9 @@ extension FeedManager {
     func unreadCount(for list: FeedList) -> Int {
         _ = dataRevision
         let ids = feedIDs(for: list)
-        return unreadCounts.filter { ids.contains($0.key) }.values.reduce(0, +)
+        return ids.reduce(0) { partial, feedID in
+            partial + effectiveUnreadCount(forFeedID: feedID)
+        }
     }
 
     // MARK: - List Rules

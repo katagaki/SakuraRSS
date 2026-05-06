@@ -41,6 +41,7 @@ private let secondaryShade: Color = .primary.opacity(0.18)
 struct ArticlePreviewContent: View {
 
     let deviceWidth: CGFloat
+    var topSafeArea: CGFloat = 0
 
     var body: some View {
         VStack(alignment: .leading, spacing: deviceWidth * 0.025) {
@@ -60,7 +61,7 @@ struct ArticlePreviewContent: View {
             }
         }
         .padding(.horizontal, deviceWidth * 0.04)
-        .padding(.top, deviceWidth * 0.08)
+        .padding(.top, deviceWidth * 0.08 + topSafeArea)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .allowsHitTesting(false)
     }

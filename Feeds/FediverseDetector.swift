@@ -47,7 +47,6 @@ nonisolated enum FediverseDetector {
             await cache.set(false, for: host)
             return false
         case .inconclusive:
-            // swiftlint:disable:next line_length
             log("FediverseDetector", "probe end id=\(feed.id) host=\(host) result=inconclusive elapsedMs=\(elapsedMs)")
             return nil
         }

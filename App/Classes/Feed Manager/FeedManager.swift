@@ -72,6 +72,9 @@ final class FeedManager {
     private(set) var dataRevision: Int = 0
     private(set) var iconRevision: Int = 0
     private(set) var unreadCounts: [Int64: Int] = [:]
+    /// Per-Instagram-feed count of unread articles that are reels.
+    /// Subtracted from `unreadCounts` when the user has hidden reels.
+    private(set) var unreadReelsCounts: [Int64: Int] = [:]
     private(set) var feedsByID: [Int64: Feed] = [:]
 
     /// Queued mark-read IDs; flushed every 250ms while scrolling, on idle, or on backgrounding.
@@ -80,6 +83,7 @@ final class FeedManager {
     @ObservationIgnored var pendingReadIDs: Set<Int64> = []
     var readMaskRevision: Int = 0
     @ObservationIgnored var pendingReadDecrements: [Int64: Int] = [:]
+    @ObservationIgnored var pendingReadReelsDecrements: [Int64: Int] = [:]
     @ObservationIgnored var refreshTask: Task<Void, Never>?
 
     @ObservationIgnored var currentScrollPhase: ScrollPhase = .idle
@@ -88,10 +92,39 @@ final class FeedManager {
 
     @ObservationIgnored var contentOverrideCache: [Int64: CachedContentOverride] = [:]
 
+    @ObservationIgnored nonisolated(unsafe) private var hideReelsObserver: NSObjectProtocol?
+    @ObservationIgnored private var lastObservedHideReels: Bool =
+        UserDefaults.standard.bool(forKey: FeedManager.hideInstagramReelsDefaultsKey)
+
+    static let hideInstagramReelsDefaultsKey = "Instagram.HideReels"
+
     let database = DatabaseManager.shared
 
     init() {
         loadFromDatabase()
+        hideReelsObserver = NotificationCenter.default.addObserver(
+            forName: UserDefaults.didChangeNotification,
+            object: UserDefaults.standard,
+            queue: nil
+        ) { [weak self] _ in
+            Task { @MainActor [weak self] in
+                self?.handleHideReelsChangeIfNeeded()
+            }
+        }
+    }
+
+    deinit {
+        if let hideReelsObserver {
+            NotificationCenter.default.removeObserver(hideReelsObserver)
+        }
+    }
+
+    private func handleHideReelsChangeIfNeeded() {
+        let current = UserDefaults.standard.bool(forKey: FeedManager.hideInstagramReelsDefaultsKey)
+        guard current != lastObservedHideReels else { return }
+        lastObservedHideReels = current
+        bumpDataRevision()
+        updateBadgeCount()
     }
 
     func loadFromDatabase() {
@@ -101,9 +134,12 @@ final class FeedManager {
             articles = try database.allArticles(limit: 200)
             let rawUnreadCounts = (try? database.allUnreadCounts()) ?? [:]
             unreadCounts = FeedManager.applyRulesToUnreadCounts(rawUnreadCounts, database: database)
+            let instagramFeedIDs = Set(feeds.filter { $0.isInstagramFeed }.map(\.id))
+            unreadReelsCounts = (try? database.unreadReelsCounts(forFeedIDs: instagramFeedIDs)) ?? [:]
             lists = (try? database.allLists()) ?? []
             pendingReadIDs.removeAll()
             pendingReadDecrements.removeAll()
+            pendingReadReelsDecrements.removeAll()
             readMaskRevision += 1
             dataRevision += 1
         } catch {
@@ -114,13 +150,15 @@ final class FeedManager {
     func loadFromDatabaseInBackground(animated: Bool = false) async {
         let dbm = database
         do {
-            let (loadedFeeds, loadedArticles, loadedUnreadCounts, loadedLists) = try await Task.detached {
+            let (loadedFeeds, loadedArticles, loadedUnreadCounts, loadedReelsCounts, loadedLists) = try await Task.detached {
                 let feeds = try dbm.allFeeds()
                 let articles = try dbm.allArticles(limit: 200)
                 let rawUnreadCounts = (try? dbm.allUnreadCounts()) ?? [:]
                 let unreadCounts = FeedManager.applyRulesToUnreadCounts(rawUnreadCounts, database: dbm)
+                let instagramFeedIDs = Set(feeds.filter { $0.isInstagramFeed }.map(\.id))
+                let reelsCounts = (try? dbm.unreadReelsCounts(forFeedIDs: instagramFeedIDs)) ?? [:]
                 let lists = (try? dbm.allLists()) ?? []
-                return (feeds, articles, unreadCounts, lists)
+                return (feeds, articles, unreadCounts, reelsCounts, lists)
             }.value
             await MainActor.run {
                 let apply = {
@@ -128,9 +166,11 @@ final class FeedManager {
                     self.feedsByID = Dictionary(uniqueKeysWithValues: loadedFeeds.map { ($0.id, $0) })
                     self.articles = loadedArticles
                     self.unreadCounts = loadedUnreadCounts
+                    self.unreadReelsCounts = loadedReelsCounts
                     self.lists = loadedLists
                     self.pendingReadIDs.removeAll()
                     self.pendingReadDecrements.removeAll()
+                    self.pendingReadReelsDecrements.removeAll()
                     self.readMaskRevision += 1
                     self.dataRevision += 1
                 }
@@ -156,7 +196,9 @@ final class FeedManager {
     }
 
     /// Applies per-feed decrement deltas in a single mutation.
-    func applyUnreadDecrements(_ decrements: [Int64: Int]) {
+    /// `reelsDecrements` is the subset of `decrements` attributable to Instagram reels,
+    /// so the parallel `unreadReelsCounts` total stays aligned with `unreadCounts`.
+    func applyUnreadDecrements(_ decrements: [Int64: Int], reelsDecrements: [Int64: Int] = [:]) {
         guard !decrements.isEmpty else { return }
         var newCounts = unreadCounts
         for (feedID, delta) in decrements {
@@ -164,10 +206,27 @@ final class FeedManager {
             newCounts[feedID] = max(0, current - delta)
         }
         unreadCounts = newCounts
+        if !reelsDecrements.isEmpty {
+            var newReelsCounts = unreadReelsCounts
+            for (feedID, delta) in reelsDecrements {
+                guard let current = newReelsCounts[feedID], current > 0 else { continue }
+                newReelsCounts[feedID] = max(0, current - delta)
+            }
+            unreadReelsCounts = newReelsCounts
+        }
     }
 
     func bumpDataRevision() {
         dataRevision += 1
+    }
+
+    /// Effective unread count for `feedID` after subtracting reels when the user
+    /// has the "Hide reels" Instagram setting enabled.
+    func effectiveUnreadCount(forFeedID feedID: Int64) -> Int {
+        let raw = unreadCounts[feedID] ?? 0
+        guard raw > 0, lastObservedHideReels else { return raw }
+        let reels = unreadReelsCounts[feedID] ?? 0
+        return max(0, raw - reels)
     }
 
 }

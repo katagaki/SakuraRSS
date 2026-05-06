@@ -222,16 +222,16 @@ extension FeedManager {
 
     func unreadCount(for feed: Feed) -> Int {
         _ = dataRevision
-        return unreadCounts[feed.id] ?? 0
+        return effectiveUnreadCount(forFeedID: feed.id)
     }
 
     func totalUnreadCount() -> Int {
         _ = dataRevision
         let muted = mutedFeedIDs
-        if muted.isEmpty {
-            return unreadCounts.values.reduce(0, +)
+        return unreadCounts.keys.reduce(0) { partial, feedID in
+            guard !muted.contains(feedID) else { return partial }
+            return partial + effectiveUnreadCount(forFeedID: feedID)
         }
-        return unreadCounts.filter { !muted.contains($0.key) }.values.reduce(0, +)
     }
 
     // MARK: - Recently Accessed
@@ -317,7 +317,9 @@ extension FeedManager {
     func unreadCount(for section: FeedSection) -> Int {
         _ = dataRevision
         let sectionFeedIDs = Set(feeds.filter { $0.feedSection == section && !$0.isMuted }.map(\.id))
-        return unreadCounts.filter { sectionFeedIDs.contains($0.key) }.values.reduce(0, +)
+        return sectionFeedIDs.reduce(0) { partial, feedID in
+            partial + effectiveUnreadCount(forFeedID: feedID)
+        }
     }
 
     func hasFeeds(for section: FeedSection) -> Bool {

@@ -52,11 +52,13 @@ struct AppearanceSettingsView: View {
                 Text(String(localized: "Section.DisplayStyles", table: "Settings"))
             }
 
-            Section {
-                Toggle(String(localized: "ZoomTransition", table: "Settings"),
-                       isOn: $zoomTransitionEnabled)
-            } header: {
-                Text(String(localized: "Section.Navigation", table: "Settings"))
+            if UIDevice.current.userInterfaceIdiom != .pad {
+                Section {
+                    Toggle(String(localized: "ZoomTransition", table: "Settings"),
+                           isOn: $zoomTransitionEnabled)
+                } header: {
+                    Text(String(localized: "Section.Navigation", table: "Settings"))
+                }
             }
 
             Section {

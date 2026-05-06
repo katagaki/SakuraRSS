@@ -16,6 +16,9 @@ extension FeedManager {
         guard !article.isRead,
               pendingReadIDs.insert(article.id).inserted else { return }
         pendingReadDecrements[article.feedID, default: 0] += 1
+        if article.url.contains("/reel/") {
+            pendingReadReelsDecrements[article.feedID, default: 0] += 1
+        }
         schedulePendingReadsFlush()
     }
 
@@ -24,9 +27,11 @@ extension FeedManager {
         pendingReadsFlushWorkItem = nil
         guard !pendingReadIDs.isEmpty else { return }
         let decrements = pendingReadDecrements
+        let reelsDecrements = pendingReadReelsDecrements
         pendingReadDecrements.removeAll()
+        pendingReadReelsDecrements.removeAll()
 
-        applyUnreadDecrements(decrements)
+        applyUnreadDecrements(decrements, reelsDecrements: reelsDecrements)
         updateBadgeCount()
 
         let idArray = Array(pendingReadIDs)

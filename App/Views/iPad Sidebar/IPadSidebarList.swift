@@ -26,7 +26,6 @@ struct IPadSidebarList: View {
             sectionsList
             listsSection
             followingSection
-            profileSection
         }
         .listStyle(.sidebar)
         #if targetEnvironment(macCatalyst)
@@ -37,14 +36,14 @@ struct IPadSidebarList: View {
             ToolbarItem(placement: .topBarTrailing) {
                 addMenu
             }
-        }
-        .onChange(of: selectedDestination) { oldValue, newValue in
-            if newValue == .more {
-                showingMore = true
-                selectedDestination = oldValue
-            } else {
-                onDestinationChanged()
+            #if !targetEnvironment(macCatalyst)
+            ToolbarItem(placement: .topBarTrailing) {
+                profileButton
             }
+            #endif
+        }
+        .onChange(of: selectedDestination) { _, _ in
+            onDestinationChanged()
         }
         .sheet(isPresented: $showingMore) {
             MoreView()
@@ -176,13 +175,12 @@ struct IPadSidebarList: View {
     }
 
     @ViewBuilder
-    private var profileSection: some View {
-        #if !targetEnvironment(macCatalyst)
-        Section {
+    private var profileButton: some View {
+        Button {
+            showingMore = true
+        } label: {
             Label("Tabs.Profile", systemImage: "person.crop.circle")
-                .tag(SidebarDestination.more)
         }
-        #endif
     }
 
     @ViewBuilder

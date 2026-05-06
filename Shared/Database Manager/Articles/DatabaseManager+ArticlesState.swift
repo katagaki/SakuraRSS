@@ -59,4 +59,23 @@ nonisolated extension DatabaseManager {
         }
         return counts
     }
+
+    /// Per-feed count of unread articles whose URL marks them as Instagram reels.
+    /// Used to subtract reels from the displayed unread count when the user hides them.
+    func unreadReelsCounts(forFeedIDs feedIDs: Set<Int64>) throws -> [Int64: Int] {
+        guard !feedIDs.isEmpty else { return [:] }
+        let inClause = feedIDs.map { String($0) }.joined(separator: ",")
+        let query = """
+            SELECT feed_id, COUNT(*) FROM articles \
+            WHERE is_read = 0 AND feed_id IN (\(inClause)) AND url LIKE '%/reel/%' \
+            GROUP BY feed_id
+            """
+        var counts: [Int64: Int] = [:]
+        for row in try database.prepare(query) {
+            if let feedID = row[0] as? Int64, let count = row[1] as? Int64 {
+                counts[feedID] = Int(count)
+            }
+        }
+        return counts
+    }
 }

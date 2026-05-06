@@ -691,7 +691,6 @@ extension FeedManager {
         log("FeedRefresh.Unfetched", "end count=\(unfetched.count)")
     }
 
-    // swiftlint:disable:next function_body_length
     func refreshAllFeedsAndIcons() async {
         let currentFeeds = feeds
         log("FeedRefresh.AllAndIcons", "begin count=\(currentFeeds.count)")
