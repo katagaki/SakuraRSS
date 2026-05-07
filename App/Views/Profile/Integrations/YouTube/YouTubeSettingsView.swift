@@ -10,6 +10,8 @@ struct YouTubeSettingsView: View {
     @State private var showYouTubeLogin = false
     @State private var isCheckingSession = true
 
+    @State private var newYouTubePlayerToggle = NewYouTubePlayerToggleStore.shared
+
     var body: some View {
         List {
             Section {
@@ -84,6 +86,18 @@ struct YouTubeSettingsView: View {
                     } header: {
                         Text(String(localized: "YouTube.SponsorBlock.Categories", table: "Settings"))
                     }
+                }
+
+                Section {
+                    Toggle(
+                        String(localized: "YouTube.NewPlayer", table: "Settings"),
+                        isOn: Binding(
+                            get: { newYouTubePlayerToggle.isEnabled },
+                            set: { newYouTubePlayerToggle.isEnabled = $0 }
+                        )
+                    )
+                } footer: {
+                    Text(String(localized: "YouTube.NewPlayer.Footer", table: "Settings"))
                 }
             }
         }

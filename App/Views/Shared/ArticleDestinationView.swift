@@ -50,7 +50,11 @@ struct ArticleDestinationView: View {
         if article.isPodcastEpisode {
             PodcastEpisodeView(article: article)
         } else if article.isYouTubeURL {
-            YouTubePlayerView(article: article)
+            if NewYouTubePlayerToggleStore.shared.isEnabled {
+                NewYouTubePlayerView(article: article)
+            } else {
+                YouTubePlayerView(article: article)
+            }
         } else if effectiveOpenMode == .clearThisPage,
                   let url = URL(string: article.url) {
             ClearThisPageView(article: article, url: url)
