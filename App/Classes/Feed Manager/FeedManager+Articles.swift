@@ -184,7 +184,7 @@ extension FeedManager {
     // MARK: - Read / Bookmark State
 
     func markRead(_ article: Article) {
-        manualReadOverrides[article.id] = true
+        stagedReadChanges[article.id] = true
         try? database.markArticleRead(id: article.id, read: true)
         try? database.updateLastAccessed(articleID: article.id)
         loadFromDatabase()
@@ -194,7 +194,7 @@ extension FeedManager {
     func toggleRead(_ article: Article) {
         let currentReadState = isRead(article)
         let newState = !currentReadState
-        manualReadOverrides[article.id] = newState
+        stagedReadChanges[article.id] = newState
         try? database.markArticleRead(id: article.id, read: newState)
         loadFromDatabase()
         updateBadgeCount()
@@ -206,21 +206,21 @@ extension FeedManager {
     }
 
     func markAllRead(feed: Feed) {
-        manualReadOverrides.removeAll()
+        stagedReadChanges.removeAll()
         try? database.markAllRead(feedID: feed.id)
         loadFromDatabase()
         updateBadgeCount()
     }
 
     func markAllRead() {
-        manualReadOverrides.removeAll()
+        stagedReadChanges.removeAll()
         try? database.markAllRead()
         loadFromDatabase()
         updateBadgeCount()
     }
 
     func markAllUnread() {
-        manualReadOverrides.removeAll()
+        stagedReadChanges.removeAll()
         try? database.markAllUnread()
         loadFromDatabase()
         updateBadgeCount()
@@ -312,7 +312,7 @@ extension FeedManager {
     }
 
     func markAllRead(for section: FeedSection) {
-        manualReadOverrides.removeAll()
+        stagedReadChanges.removeAll()
         let sectionFeeds = feeds.filter { $0.feedSection == section }
         for feed in sectionFeeds {
             try? database.markAllRead(feedID: feed.id)

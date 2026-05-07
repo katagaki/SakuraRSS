@@ -83,7 +83,7 @@ final class FeedManager {
     @ObservationIgnored var pendingReadIDs: Set<Int64> = []
     /// Read-state overrides for explicit toggles, so `isRead` stays correct for cached
     /// `Article` snapshots held outside `articles` (e.g. TodayManager) until they refresh.
-    @ObservationIgnored var manualReadOverrides: [Int64: Bool] = [:]
+    @ObservationIgnored var stagedReadChanges: [Int64: Bool] = [:]
     var readMaskRevision: Int = 0
     @ObservationIgnored var pendingReadDecrements: [Int64: Int] = [:]
     @ObservationIgnored var pendingReadReelsDecrements: [Int64: Int] = [:]
@@ -144,7 +144,7 @@ final class FeedManager {
             pendingReadDecrements.removeAll()
             pendingReadReelsDecrements.removeAll()
             let freshArticleIDs = Set(articles.map(\.id))
-            manualReadOverrides = manualReadOverrides.filter { !freshArticleIDs.contains($0.key) }
+            stagedReadChanges = stagedReadChanges.filter { !freshArticleIDs.contains($0.key) }
             readMaskRevision += 1
             dataRevision += 1
         } catch {
@@ -183,7 +183,7 @@ final class FeedManager {
                     self.pendingReadDecrements.removeAll()
                     self.pendingReadReelsDecrements.removeAll()
                     let freshArticleIDs = Set(loadedArticles.map(\.id))
-                    self.manualReadOverrides = self.manualReadOverrides.filter { !freshArticleIDs.contains($0.key) }
+                    self.stagedReadChanges = self.stagedReadChanges.filter { !freshArticleIDs.contains($0.key) }
                     self.readMaskRevision += 1
                     self.dataRevision += 1
                 }
