@@ -81,6 +81,11 @@ final class FeedManager {
     /// Kept out of observation so scroll-driven mutations don't cascade body re-evaluations
     /// across every visible article row; views observe `readMaskRevision` instead.
     @ObservationIgnored var pendingReadIDs: Set<Int64> = []
+    /// Read-state overrides for explicit toggles, so `isRead` stays correct for cached
+    /// `Article` snapshots held outside `articles` (e.g. TodayManager) until they refresh.
+    @ObservationIgnored var stagedReadChanges: [Int64: Bool] = [:]
+    /// Same staging mechanism for bookmark state, consulted by `isBookmarked`.
+    @ObservationIgnored var stagedBookmarkChanges: [Int64: Bool] = [:]
     var readMaskRevision: Int = 0
     @ObservationIgnored var pendingReadDecrements: [Int64: Int] = [:]
     @ObservationIgnored var pendingReadReelsDecrements: [Int64: Int] = [:]
@@ -140,6 +145,9 @@ final class FeedManager {
             pendingReadIDs.removeAll()
             pendingReadDecrements.removeAll()
             pendingReadReelsDecrements.removeAll()
+            let freshArticleIDs = Set(articles.map(\.id))
+            stagedReadChanges = stagedReadChanges.filter { !freshArticleIDs.contains($0.key) }
+            stagedBookmarkChanges = stagedBookmarkChanges.filter { !freshArticleIDs.contains($0.key) }
             readMaskRevision += 1
             dataRevision += 1
         } catch {
@@ -177,6 +185,9 @@ final class FeedManager {
                     self.pendingReadIDs.removeAll()
                     self.pendingReadDecrements.removeAll()
                     self.pendingReadReelsDecrements.removeAll()
+                    let freshArticleIDs = Set(loadedArticles.map(\.id))
+                    self.stagedReadChanges = self.stagedReadChanges.filter { !freshArticleIDs.contains($0.key) }
+                    self.stagedBookmarkChanges = self.stagedBookmarkChanges.filter { !freshArticleIDs.contains($0.key) }
                     self.readMaskRevision += 1
                     self.dataRevision += 1
                 }
@@ -198,6 +209,18 @@ final class FeedManager {
     func decrementUnreadCount(feedID: Int64) {
         if let count = unreadCounts[feedID], count > 0 {
             unreadCounts[feedID] = count - 1
+        }
+    }
+
+    /// Adjusts `unreadCounts` (and `unreadReelsCounts` for Instagram reels) by `delta`,
+    /// clamping at zero. Lets `markRead`/`toggleRead` skip a full reload.
+    func adjustUnreadCount(for article: Article, delta: Int) {
+        guard delta != 0 else { return }
+        let current = unreadCounts[article.feedID] ?? 0
+        unreadCounts[article.feedID] = max(0, current + delta)
+        if article.url.contains("/reel/") {
+            let currentReels = unreadReelsCounts[article.feedID] ?? 0
+            unreadReelsCounts[article.feedID] = max(0, currentReels + delta)
         }
     }
 

@@ -15,14 +15,15 @@ struct TodayCardContextMenu: View {
         } label: {
             Label(markActionTitle(isRead: isRead), systemImage: markActionIcon(isRead: isRead))
         }
+        let isBookmarked = feedManager.isBookmarked(article)
         Button {
             feedManager.toggleBookmark(article)
         } label: {
             Label(
-                article.isBookmarked
+                isBookmarked
                     ? String(localized: "Article.RemoveBookmark", table: "Articles")
                     : String(localized: "Article.Bookmark", table: "Articles"),
-                systemImage: article.isBookmarked ? "bookmark.fill" : "bookmark"
+                systemImage: isBookmarked ? "bookmark.fill" : "bookmark"
             )
         }
     }

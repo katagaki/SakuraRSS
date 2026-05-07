@@ -271,7 +271,7 @@ struct PodcastEpisodeView: View {
                 Button {
                     feedManager.toggleBookmark(article)
                 } label: {
-                    Image(systemName: article.isBookmarked ? "bookmark.fill" : "bookmark")
+                    Image(systemName: feedManager.isBookmarked(article) ? "bookmark.fill" : "bookmark")
                 }
                 overflowMenu
             }

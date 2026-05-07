@@ -134,10 +134,10 @@ struct TodayView: View {
 
     private var contentSections: [ContentSection] {
         var sections: [ContentSection] = []
-        if !todayManager.unreadPodcastEpisodes.isEmpty {
+        if !visibleUnreadPodcastEpisodes.isEmpty {
             sections.append(.listenNow)
         }
-        if !todayManager.unreadVideoEpisodes.isEmpty {
+        if !visibleUnreadVideoEpisodes.isEmpty {
             sections.append(.watchNow)
         }
         if contentInsightsEnabled,
@@ -154,6 +154,16 @@ struct TodayView: View {
             sections.append(.recentlyViewed)
         }
         return sections
+    }
+
+    /// Re-filters TodayManager's pre-fetched unread lists with the live read state so
+    /// items mark-read'd in this session disappear without waiting for a full reload.
+    private var visibleUnreadPodcastEpisodes: [Article] {
+        todayManager.unreadPodcastEpisodes.filter { !feedManager.isRead($0) }
+    }
+
+    private var visibleUnreadVideoEpisodes: [Article] {
+        todayManager.unreadVideoEpisodes.filter { !feedManager.isRead($0) }
     }
 
     private var sectionDivider: some View {
@@ -178,7 +188,7 @@ struct TodayView: View {
         TodayCardCarousel(
             title: String(localized: "Today.ListenNow", table: "Home"),
             destination: nil,
-            articles: todayManager.unreadPodcastEpisodes
+            articles: visibleUnreadPodcastEpisodes
         ) { article in
             TodayPodcastCard(article: article)
         }
@@ -189,7 +199,7 @@ struct TodayView: View {
         TodayCardCarousel(
             title: String(localized: "Today.WatchNow", table: "Home"),
             destination: nil,
-            articles: todayManager.unreadVideoEpisodes
+            articles: visibleUnreadVideoEpisodes
         )
     }
 
