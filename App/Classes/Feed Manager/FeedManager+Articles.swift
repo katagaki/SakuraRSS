@@ -32,12 +32,16 @@ extension FeedManager {
         return applyAllRules(all)
     }
 
+    /// Articles published between local 00:00 and 09:00, used for the
+    /// While You Slept summary card on the Today tab.
     func overnightArticles() -> [Article] {
         _ = dataRevision
         let calendar = Calendar.current
-        let now = Date()
-        let midnight = calendar.startOfDay(for: now)
-        let allOvernight = (try? database.allArticles(from: midnight, to: now)) ?? []
+        let midnight = calendar.startOfDay(for: Date())
+        guard let nineAM = calendar.date(byAdding: .hour, value: 9, to: midnight) else {
+            return []
+        }
+        let allOvernight = (try? database.allArticles(from: midnight, to: nineAM)) ?? []
         return filterExcludingPodcastsAndVideos(allOvernight)
     }
 
@@ -48,17 +52,17 @@ extension FeedManager {
         return filterExcludingPodcastsAndVideos(allToday)
     }
 
-    /// Articles published between local 12:00 and now, used for the
+    /// Articles published between local 09:00 and now, used for the
     /// Afternoon Brief summary card on the Today tab.
     func afternoonBriefArticles() -> [Article] {
         _ = dataRevision
         let calendar = Calendar.current
         let now = Date()
         let midnight = calendar.startOfDay(for: now)
-        guard let noon = calendar.date(byAdding: .hour, value: 12, to: midnight) else {
+        guard let nineAM = calendar.date(byAdding: .hour, value: 9, to: midnight) else {
             return []
         }
-        let articles = (try? database.allArticles(from: noon, to: now)) ?? []
+        let articles = (try? database.allArticles(from: nineAM, to: now)) ?? []
         return filterExcludingPodcastsAndVideos(articles)
     }
 
