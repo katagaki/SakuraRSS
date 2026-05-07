@@ -30,12 +30,20 @@ struct TodayPodcastCard: View {
                     .zoomSource(id: article.id, namespace: zoomNamespace)
 
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(article.title)
-                        .font(.subheadline)
-                        .fontWeight(.semibold)
-                        .foregroundStyle(.primary)
-                        .lineLimit(2)
-                        .multilineTextAlignment(.leading)
+                    HStack(alignment: .top, spacing: 6) {
+                        Text(article.title)
+                            .font(.subheadline)
+                            .fontWeight(.semibold)
+                            .foregroundStyle(.primary)
+                            .lineLimit(2)
+                            .multilineTextAlignment(.leading)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+
+                        if !feedManager.isRead(article) {
+                            UnreadDotView(isRead: false)
+                                .padding(.top, 6)
+                        }
+                    }
 
                     Text(feedName)
                         .font(.caption2)
