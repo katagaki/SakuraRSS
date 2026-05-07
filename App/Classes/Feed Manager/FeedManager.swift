@@ -212,6 +212,18 @@ final class FeedManager {
         }
     }
 
+    /// Adjusts `unreadCounts` (and `unreadReelsCounts` for Instagram reels) by `delta`,
+    /// clamping at zero. Lets `markRead`/`toggleRead` skip a full reload.
+    func adjustUnreadCount(for article: Article, delta: Int) {
+        guard delta != 0 else { return }
+        let current = unreadCounts[article.feedID] ?? 0
+        unreadCounts[article.feedID] = max(0, current + delta)
+        if article.url.contains("/reel/") {
+            let currentReels = unreadReelsCounts[article.feedID] ?? 0
+            unreadReelsCounts[article.feedID] = max(0, currentReels + delta)
+        }
+    }
+
     /// Applies per-feed decrement deltas in a single mutation.
     /// `reelsDecrements` is the subset of `decrements` attributable to Instagram reels,
     /// so the parallel `unreadReelsCounts` total stays aligned with `unreadCounts`.

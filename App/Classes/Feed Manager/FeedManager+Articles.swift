@@ -218,18 +218,6 @@ extension FeedManager {
         bumpDataRevision()
     }
 
-    /// Adjusts `unreadCounts` (and `unreadReelsCounts` for Instagram reels) by `delta`,
-    /// clamping at zero. Lets `markRead`/`toggleRead` skip a full reload.
-    private func adjustUnreadCount(for article: Article, delta: Int) {
-        guard delta != 0 else { return }
-        let current = unreadCounts[article.feedID] ?? 0
-        unreadCounts[article.feedID] = max(0, current + delta)
-        if article.url.contains("/reel/") {
-            let currentReels = unreadReelsCounts[article.feedID] ?? 0
-            unreadReelsCounts[article.feedID] = max(0, currentReels + delta)
-        }
-    }
-
     private func applyReadChangeToCachedArticle(id: Int64, isRead: Bool) {
         guard let index = articles.firstIndex(where: { $0.id == id }) else { return }
         articles[index].isRead = isRead
