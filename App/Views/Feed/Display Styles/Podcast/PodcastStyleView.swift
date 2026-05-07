@@ -71,10 +71,10 @@ struct PodcastStyleView: View {
                         feedManager.toggleBookmark(article)
                     } label: {
                         Label(
-                            article.isBookmarked
+                            feedManager.isBookmarked(article)
                                 ? String(localized: "Article.RemoveBookmark", table: "Articles")
                                 : String(localized: "Article.Bookmark", table: "Articles"),
-                            systemImage: article.isBookmarked ? "bookmark.fill" : "bookmark"
+                            systemImage: feedManager.isBookmarked(article) ? "bookmark.fill" : "bookmark"
                         )
                     }
                     Button {

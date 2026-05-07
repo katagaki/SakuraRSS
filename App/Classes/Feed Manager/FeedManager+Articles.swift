@@ -184,25 +184,74 @@ extension FeedManager {
     // MARK: - Read / Bookmark State
 
     func markRead(_ article: Article) {
+        let wasRead = isRead(article)
         stagedReadChanges[article.id] = true
+        cancelPendingScrollRead(for: article)
         try? database.markArticleRead(id: article.id, read: true)
         try? database.updateLastAccessed(articleID: article.id)
-        loadFromDatabase()
+        if !wasRead {
+            adjustUnreadCount(for: article, delta: -1)
+        }
+        applyReadChangeToCachedArticle(id: article.id, isRead: true)
+        readMaskRevision += 1
+        bumpDataRevision()
         updateBadgeCount()
     }
 
     func toggleRead(_ article: Article) {
-        let currentReadState = isRead(article)
-        let newState = !currentReadState
+        let newState = !isRead(article)
         stagedReadChanges[article.id] = newState
+        cancelPendingScrollRead(for: article)
         try? database.markArticleRead(id: article.id, read: newState)
-        loadFromDatabase()
+        adjustUnreadCount(for: article, delta: newState ? -1 : 1)
+        applyReadChangeToCachedArticle(id: article.id, isRead: newState)
+        readMaskRevision += 1
         updateBadgeCount()
     }
 
     func toggleBookmark(_ article: Article) {
+        let newState = !isBookmarked(article)
+        stagedBookmarkChanges[article.id] = newState
         try? database.toggleBookmark(id: article.id)
-        loadFromDatabase()
+        applyBookmarkChangeToCachedArticle(id: article.id, isBookmarked: newState)
+        readMaskRevision += 1
+        bumpDataRevision()
+    }
+
+    /// Adjusts `unreadCounts` (and `unreadReelsCounts` for Instagram reels) by `delta`,
+    /// clamping at zero. Lets `markRead`/`toggleRead` skip a full reload.
+    private func adjustUnreadCount(for article: Article, delta: Int) {
+        guard delta != 0 else { return }
+        let current = unreadCounts[article.feedID] ?? 0
+        unreadCounts[article.feedID] = max(0, current + delta)
+        if article.url.contains("/reel/") {
+            let currentReels = unreadReelsCounts[article.feedID] ?? 0
+            unreadReelsCounts[article.feedID] = max(0, currentReels + delta)
+        }
+    }
+
+    private func applyReadChangeToCachedArticle(id: Int64, isRead: Bool) {
+        guard let index = articles.firstIndex(where: { $0.id == id }) else { return }
+        articles[index].isRead = isRead
+    }
+
+    private func applyBookmarkChangeToCachedArticle(id: Int64, isBookmarked: Bool) {
+        guard let index = articles.firstIndex(where: { $0.id == id }) else { return }
+        articles[index].isBookmarked = isBookmarked
+    }
+
+    /// Drops a queued scroll-mark-read for `article` so the next debounced flush
+    /// doesn't write a now-superseded value back to the DB. Symmetric to
+    /// `markReadOnScroll`'s pending-decrement bookkeeping.
+    private func cancelPendingScrollRead(for article: Article) {
+        guard pendingReadIDs.remove(article.id) != nil else { return }
+        if let count = pendingReadDecrements[article.feedID], count > 0 {
+            pendingReadDecrements[article.feedID] = count - 1
+        }
+        if article.url.contains("/reel/"),
+           let count = pendingReadReelsDecrements[article.feedID], count > 0 {
+            pendingReadReelsDecrements[article.feedID] = count - 1
+        }
     }
 
     func markAllRead(feed: Feed) {

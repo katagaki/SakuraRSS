@@ -84,6 +84,8 @@ final class FeedManager {
     /// Read-state overrides for explicit toggles, so `isRead` stays correct for cached
     /// `Article` snapshots held outside `articles` (e.g. TodayManager) until they refresh.
     @ObservationIgnored var stagedReadChanges: [Int64: Bool] = [:]
+    /// Same staging mechanism for bookmark state, consulted by `isBookmarked`.
+    @ObservationIgnored var stagedBookmarkChanges: [Int64: Bool] = [:]
     var readMaskRevision: Int = 0
     @ObservationIgnored var pendingReadDecrements: [Int64: Int] = [:]
     @ObservationIgnored var pendingReadReelsDecrements: [Int64: Int] = [:]
@@ -145,6 +147,7 @@ final class FeedManager {
             pendingReadReelsDecrements.removeAll()
             let freshArticleIDs = Set(articles.map(\.id))
             stagedReadChanges = stagedReadChanges.filter { !freshArticleIDs.contains($0.key) }
+            stagedBookmarkChanges = stagedBookmarkChanges.filter { !freshArticleIDs.contains($0.key) }
             readMaskRevision += 1
             dataRevision += 1
         } catch {
@@ -184,6 +187,7 @@ final class FeedManager {
                     self.pendingReadReelsDecrements.removeAll()
                     let freshArticleIDs = Set(loadedArticles.map(\.id))
                     self.stagedReadChanges = self.stagedReadChanges.filter { !freshArticleIDs.contains($0.key) }
+                    self.stagedBookmarkChanges = self.stagedBookmarkChanges.filter { !freshArticleIDs.contains($0.key) }
                     self.readMaskRevision += 1
                     self.dataRevision += 1
                 }

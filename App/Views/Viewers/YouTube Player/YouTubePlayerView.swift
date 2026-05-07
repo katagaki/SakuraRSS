@@ -286,7 +286,7 @@ struct YouTubePlayerView: View {
         }
         .task {
             activateBackgroundAudioSession()
-            isBookmarked = article.isBookmarked
+            isBookmarked = feedManager.isBookmarked(article)
             session.adopt(article: article)
             isPlaying = session.isPlaying
             currentTime = session.currentTime
