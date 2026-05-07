@@ -81,6 +81,9 @@ final class FeedManager {
     /// Kept out of observation so scroll-driven mutations don't cascade body re-evaluations
     /// across every visible article row; views observe `readMaskRevision` instead.
     @ObservationIgnored var pendingReadIDs: Set<Int64> = []
+    /// Read-state overrides for explicit toggles, so `isRead` stays correct for cached
+    /// `Article` snapshots held outside `articles` (e.g. TodayManager) until they refresh.
+    @ObservationIgnored var manualReadOverrides: [Int64: Bool] = [:]
     var readMaskRevision: Int = 0
     @ObservationIgnored var pendingReadDecrements: [Int64: Int] = [:]
     @ObservationIgnored var pendingReadReelsDecrements: [Int64: Int] = [:]
@@ -140,6 +143,8 @@ final class FeedManager {
             pendingReadIDs.removeAll()
             pendingReadDecrements.removeAll()
             pendingReadReelsDecrements.removeAll()
+            let freshArticleIDs = Set(articles.map(\.id))
+            manualReadOverrides = manualReadOverrides.filter { !freshArticleIDs.contains($0.key) }
             readMaskRevision += 1
             dataRevision += 1
         } catch {
@@ -177,6 +182,8 @@ final class FeedManager {
                     self.pendingReadIDs.removeAll()
                     self.pendingReadDecrements.removeAll()
                     self.pendingReadReelsDecrements.removeAll()
+                    let freshArticleIDs = Set(loadedArticles.map(\.id))
+                    self.manualReadOverrides = self.manualReadOverrides.filter { !freshArticleIDs.contains($0.key) }
                     self.readMaskRevision += 1
                     self.dataRevision += 1
                 }

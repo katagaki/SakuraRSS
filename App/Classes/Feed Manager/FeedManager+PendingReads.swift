@@ -9,6 +9,9 @@ extension FeedManager {
     /// individual scroll-driven inserts stay outside observation.
     func isRead(_ article: Article) -> Bool {
         _ = readMaskRevision
+        if let override = manualReadOverrides[article.id] {
+            return override
+        }
         return article.isRead || pendingReadIDs.contains(article.id)
     }
 
