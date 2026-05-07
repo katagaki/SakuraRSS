@@ -12,7 +12,7 @@ enum ContentBlock: Identifiable {
     case table(header: [String], rows: [[String]])
     case math(String)
 
-    var id: String {
+    nonisolated var id: String {
         switch self {
         case .text(let text): return "text-\(text.hashValue)"
         case .image(let url, _): return "image-\(url.absoluteString)"
@@ -30,7 +30,7 @@ enum ContentBlock: Identifiable {
     }
 
     /// Strips block markers, returning plain text suitable for translation/summarization.
-    static func plainText(from text: String) -> String {
+    nonisolated static func plainText(from text: String) -> String {
         let stripped = text.replacingOccurrences(
             of: #"\{\{IMG\}\}.+?\{\{/IMG\}\}"#, with: "", options: .regularExpression
         )
@@ -66,7 +66,7 @@ enum ContentBlock: Identifiable {
     }
 
     /// Strips Markdown formatting, returning plain text for content previews.
-    static func stripMarkdown(_ text: String) -> String {
+    nonisolated static func stripMarkdown(_ text: String) -> String {
         var result = text
         result = result.replacingOccurrences(
             of: #"\{\{IMG\}\}.+?\{\{/IMG\}\}"#, with: "", options: .regularExpression
@@ -124,7 +124,7 @@ enum ContentBlock: Identifiable {
         return result.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
-    static func parse(_ text: String) -> [ContentBlock] {
+    nonisolated static func parse(_ text: String) -> [ContentBlock] {
         let pattern = #"\{\{(IMG|CODE|VIDEO|AUDIO|YOUTUBE|XPOST|EMBED|TABLE|MATH)\}\}(.*?)\{\{/\1\}\}"#
         guard let regex = try? NSRegularExpression(pattern: pattern, options: .dotMatchesLineSeparators)
         else {
@@ -174,7 +174,7 @@ enum ContentBlock: Identifiable {
     }
 
     // swiftlint:disable:next cyclomatic_complexity
-    private static func block(
+    nonisolated private static func block(
         forTag tag: String,
         content: String,
         linkRegex: NSRegularExpression?
@@ -220,7 +220,7 @@ enum ContentBlock: Identifiable {
     }
 
     /// Parses `{{TABLE}}` payload `header1|header2\nrow1col1|row1col2\n…` into header + rows.
-    private static func parseTableMarker(_ content: String) -> ContentBlock? {
+    nonisolated private static func parseTableMarker(_ content: String) -> ContentBlock? {
         let lines = content
             .split(separator: "\n", omittingEmptySubsequences: false)
             .map { String($0) }
