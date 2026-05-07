@@ -12,7 +12,7 @@ enum ContentBlock: Identifiable {
     case table(header: [String], rows: [[String]])
     case math(String)
 
-    var id: String {
+    nonisolated var id: String {
         switch self {
         case .text(let text): return "text-\(text.hashValue)"
         case .image(let url, _): return "image-\(url.absoluteString)"
