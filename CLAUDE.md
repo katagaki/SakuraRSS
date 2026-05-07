@@ -11,6 +11,7 @@
    - Do not make large edits.
    - Do not generate localization strings as part of Python scripts.
    - Remember to clean up these working files after you're done.
+5. Ensure that you properly mark out MainActor or nonisolated functions to comply with Swift 6 concurrency checking.
 
 # Copywriting
 
