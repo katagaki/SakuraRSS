@@ -114,6 +114,18 @@ struct YouTubePlayerView: View {
                         }
                 }
             }
+            .overlay(alignment: .bottomLeading) {
+                if isAd && !isPiP && hasStartedPlaying {
+                    Text(String(localized: "YouTube.Ad.Label", table: "Integrations"))
+                        .font(.caption.bold())
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 4)
+                        .compatibleGlassEffect(in: .capsule)
+                        .padding(8)
+                        .transition(.opacity)
+                }
+            }
+            .animation(.smooth.speed(2.0), value: isAd && !isPiP && hasStartedPlaying)
 
             ScrollView(.vertical) {
                 VStack(spacing: 16) {
@@ -157,7 +169,7 @@ struct YouTubePlayerView: View {
 
                     Group {
                         if let feed {
-                            HStack(alignment: .top, spacing: 12) {
+                            HStack(alignment: .center, spacing: 12) {
                                 feedAvatarView
 
                                 VStack(alignment: .leading, spacing: 2) {
@@ -173,7 +185,7 @@ struct YouTubePlayerView: View {
                                 Spacer(minLength: 0)
                             }
                         } else if article.isEphemeral, let fetchedAuthor {
-                            HStack(alignment: .top, spacing: 12) {
+                            HStack(alignment: .center, spacing: 12) {
                                 Text(fetchedAuthor)
                                     .font(.subheadline.bold())
                                 Spacer(minLength: 0)

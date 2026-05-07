@@ -543,13 +543,11 @@ nonisolated enum YouTubePlayerScripts {
 
             var desired;
             if (isAd) {
-                // Null out seek handlers so iOS shows previous/next-track
-                // controls (mapped to skip-ad) instead of seek controls.
                 desired = {
                     previoustrack: null,
                     nexttrack: performSkipAd,
                     seekbackward: null,
-                    seekforward: null
+                    seekforward: performSkipAd
                 };
             } else {
                 desired = {
