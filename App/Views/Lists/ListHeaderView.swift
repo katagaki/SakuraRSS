@@ -6,13 +6,16 @@ struct ListHeaderView: View {
     let list: FeedList
 
     @State private var isEditingList: Bool = false
+    @State private var isShowingFeeds: Bool = false
     @State private var isShowingRules: Bool = false
+    @State private var isShowingDeleteAlert: Bool = false
 
     private let iconSize: CGFloat = 64
     private let iconCornerRadius: CGFloat = 14
 
     @Namespace private var namespace
     @Namespace private var editNamespace
+    @Namespace private var feedsNamespace
     @Namespace private var rulesNamespace
 
     private var iconGradient: AnyShapeStyle {
@@ -53,12 +56,31 @@ struct ListHeaderView: View {
                 .interactiveDismissDisabled()
                 .navigationTransition(.zoom(sourceID: list.id, in: editNamespace))
         }
+        .sheet(isPresented: $isShowingFeeds) {
+            ListFeedSelectionSheet(list: list)
+                .environment(feedManager)
+                .presentationDetents([.large])
+                .interactiveDismissDisabled()
+                .navigationTransition(.zoom(sourceID: list.id, in: feedsNamespace))
+        }
         .sheet(isPresented: $isShowingRules) {
             ListRulesSheet(list: list)
                 .environment(feedManager)
                 .presentationDetents([.large])
                 .interactiveDismissDisabled()
                 .navigationTransition(.zoom(sourceID: list.id, in: rulesNamespace))
+        }
+        .alert(
+            String(localized: "ListMenu.Delete.Title", table: "Lists"),
+            isPresented: $isShowingDeleteAlert
+        ) {
+            Button(String(localized: "ListMenu.Delete.Confirm", table: "Lists"),
+                   role: .destructive) {
+                feedManager.deleteList(list)
+            }
+            Button("Shared.Cancel", role: .cancel) { }
+        } message: {
+            Text(String(localized: "ListMenu.Delete.Message.\(list.name)", table: "Lists"))
         }
     }
 
@@ -69,17 +91,17 @@ struct ListHeaderView: View {
                 Spacer(minLength: 0)
 
                 Button {
-                    isEditingList = true
+                    isShowingFeeds = true
                 } label: {
-                    Text(String(localized: "ListMenu.Edit", table: "Lists"))
+                    Text(String(localized: "ListMenu.Feeds", table: "Lists"))
                         .font(.subheadline.weight(.semibold))
                         .padding(.horizontal, 14)
                         .padding(.vertical, 4)
-                        .matchedTransitionSource(id: list.id, in: editNamespace)
+                        .matchedTransitionSource(id: list.id, in: feedsNamespace)
                 }
                 .compatibleGlassButtonStyle()
                 .buttonBorderShape(.capsule)
-                .compatibleGlassEffectID("ListEdit", in: namespace)
+                .compatibleGlassEffectID("ListFeeds", in: namespace)
 
                 Button {
                     isShowingRules = true
@@ -93,6 +115,32 @@ struct ListHeaderView: View {
                 .compatibleGlassButtonStyle()
                 .buttonBorderShape(.capsule)
                 .compatibleGlassEffectID("ListRules", in: namespace)
+
+                Button {
+                    isEditingList = true
+                } label: {
+                    Image(systemName: "pencil")
+                        .font(.subheadline.weight(.semibold))
+                        .frame(minHeight: 36)
+                        .matchedTransitionSource(id: list.id, in: editNamespace)
+                }
+                .compatibleGlassButtonStyle()
+                .buttonBorderShape(.circle)
+                .accessibilityLabel(String(localized: "ListHeader.Edit", table: "Lists"))
+                .compatibleGlassEffectID("ListEdit", in: namespace)
+
+                Button(role: .destructive) {
+                    isShowingDeleteAlert = true
+                } label: {
+                    Image(systemName: "trash")
+                        .font(.subheadline.weight(.semibold))
+                        .frame(minHeight: 36)
+                }
+                .compatibleGlassButtonStyle()
+                .buttonBorderShape(.circle)
+                .tint(.red)
+                .accessibilityLabel(String(localized: "ListMenu.Delete", table: "Lists"))
+                .compatibleGlassEffectID("ListDelete", in: namespace)
 
                 Spacer(minLength: 0)
             }

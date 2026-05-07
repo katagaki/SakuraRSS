@@ -7,7 +7,7 @@ extension ListIcon {
     /// cool tones for tech, etc.) while leaving enough contrast for white glyphs.
     var gradientColors: (Color, Color) {
         switch self {
-        case .newspaper: (.gray.darken(by: 0.4), .black)
+        case .newspaper: (.accent.lighten(), .accent)
         case .bookClosed: (.brown, .brown.darken())
         case .globe: (.blue, .green)
         case .megaphone: (.red, .pink)

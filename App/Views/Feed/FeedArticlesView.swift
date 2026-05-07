@@ -3,6 +3,7 @@ import SwiftUI
 struct FeedArticlesView: View {
 
     @Environment(FeedManager.self) var feedManager
+    @Environment(\.dismiss) var dismiss
     let feed: Feed
 
     @AppStorage("Articles.BatchingMode") private var storedBatchingMode: BatchingMode = .items25
@@ -29,6 +30,10 @@ struct FeedArticlesView: View {
 
     private var currentFeed: Feed {
         feedManager.feeds.first(where: { $0.id == feed.id }) ?? feed
+    }
+
+    private var feedExists: Bool {
+        feedManager.feeds.contains(where: { $0.id == feed.id })
     }
 
     private var scopeKey: String { "feed.\(feed.id)" }
@@ -282,6 +287,9 @@ struct FeedArticlesView: View {
         }
         .onChange(of: doomscrollingMode) { _, _ in
             visibility.capture(from: rawArticles, isEnabled: hideViewedContent)
+        }
+        .onChange(of: feedExists) { _, exists in
+            if !exists { dismiss() }
         }
     }
 

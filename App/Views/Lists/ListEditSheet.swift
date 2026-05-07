@@ -77,51 +77,53 @@ struct ListEditSheet: View {
                     .listRowInsets(EdgeInsets())
                 }
 
-                Section(String(localized: "ListEdit.DisplayStyle", table: "Lists")) {
-                    Toggle(String(localized: "ListEdit.DisplayStyle.UseDefault", table: "Lists"),
-                           isOn: $useDefaultDisplayStyle)
-                    if !useDefaultDisplayStyle {
-                        Picker(
-                            String(localized: "ListEdit.DisplayStyle", table: "Lists"),
-                            selection: $selectedStyle
-                        ) {
-                            ForEach(FeedDisplayStyle.allCases.filter {
-                                $0 != .video && $0 != .podcast
-                            }, id: \.self) { style in
-                                Text(style.localizedName).tag(style)
+                if !isEditing {
+                    Section(String(localized: "ListEdit.DisplayStyle", table: "Lists")) {
+                        Toggle(String(localized: "ListEdit.DisplayStyle.UseDefault", table: "Lists"),
+                               isOn: $useDefaultDisplayStyle)
+                        if !useDefaultDisplayStyle {
+                            Picker(
+                                String(localized: "ListEdit.DisplayStyle", table: "Lists"),
+                                selection: $selectedStyle
+                            ) {
+                                ForEach(FeedDisplayStyle.allCases.filter {
+                                    $0 != .video && $0 != .podcast
+                                }, id: \.self) { style in
+                                    Text(style.localizedName).tag(style)
+                                }
                             }
                         }
                     }
-                }
 
-                Section(String(localized: "ListEdit.Feeds", table: "Lists")) {
-                    if feedManager.feeds.isEmpty {
-                        Text(String(localized: "ListEdit.Feeds.Empty", table: "Lists"))
-                            .foregroundStyle(.secondary)
-                    } else {
-                        ForEach(feedManager.feeds) { feed in
-                            Button {
-                                if selectedFeedIDs.contains(feed.id) {
-                                    selectedFeedIDs.remove(feed.id)
-                                } else {
-                                    selectedFeedIDs.insert(feed.id)
-                                }
-                            } label: {
-                                HStack(spacing: 12) {
-                                    FeedIcon(feed: feed, size: 28, cornerRadius: 6)
-                                    Text(feed.title)
-                                        .font(.body)
-                                        .lineLimit(1)
-                                        .foregroundStyle(.primary)
-                                    Spacer()
+                    Section(String(localized: "ListEdit.Feeds", table: "Lists")) {
+                        if feedManager.feeds.isEmpty {
+                            Text(String(localized: "ListEdit.Feeds.Empty", table: "Lists"))
+                                .foregroundStyle(.secondary)
+                        } else {
+                            ForEach(feedManager.feeds) { feed in
+                                Button {
                                     if selectedFeedIDs.contains(feed.id) {
-                                        Image(systemName: "checkmark")
-                                            .foregroundStyle(.accent)
+                                        selectedFeedIDs.remove(feed.id)
+                                    } else {
+                                        selectedFeedIDs.insert(feed.id)
                                     }
+                                } label: {
+                                    HStack(spacing: 12) {
+                                        FeedIcon(feed: feed, size: 28, cornerRadius: 6)
+                                        Text(feed.title)
+                                            .font(.body)
+                                            .lineLimit(1)
+                                            .foregroundStyle(.primary)
+                                        Spacer()
+                                        if selectedFeedIDs.contains(feed.id) {
+                                            Image(systemName: "checkmark")
+                                                .foregroundStyle(.accent)
+                                        }
+                                    }
+                                    .contentShape(.rect)
                                 }
-                                .contentShape(.rect)
+                                .buttonStyle(.plain)
                             }
-                            .buttonStyle(.plain)
                         }
                     }
                 }
@@ -169,18 +171,7 @@ struct ListEditSheet: View {
         let trimmedName = name.trimmingCharacters(in: .whitespaces)
         if let list {
             feedManager.updateList(list, name: trimmedName, icon: selectedIcon,
-                                   displayStyle: resolvedDisplayStyle)
-            let currentIDs = feedManager.feedIDs(for: list)
-            for id in selectedFeedIDs where !currentIDs.contains(id) {
-                if let feed = feedManager.feedsByID[id] {
-                    feedManager.addFeedToList(list, feed: feed)
-                }
-            }
-            for id in currentIDs where !selectedFeedIDs.contains(id) {
-                if let feed = feedManager.feedsByID[id] {
-                    feedManager.removeFeedFromList(list, feed: feed)
-                }
-            }
+                                   displayStyle: list.displayStyle)
         } else {
             if (try? feedManager.createList(name: trimmedName, icon: selectedIcon)) != nil {
                 if let newList = feedManager.lists.last {

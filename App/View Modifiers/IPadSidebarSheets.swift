@@ -40,14 +40,14 @@ struct IPadSidebarSheets: ViewModifier {
                 }
             }
             .confirmationDialog(
-                String(localized: "FeedMenu.Delete.Title", table: "Feeds"),
+                String(localized: "FeedMenu.Unfollow.Title", table: "Feeds"),
                 isPresented: Binding(
                     get: { feedToDelete != nil },
                     set: { if !$0 { feedToDelete = nil } }
                 ),
                 titleVisibility: .visible
             ) {
-                Button(String(localized: "FeedMenu.Delete.Confirm", table: "Feeds"), role: .destructive) {
+                Button(String(localized: "FeedMenu.Unfollow.Confirm", table: "Feeds"), role: .destructive) {
                     if let feed = feedToDelete {
                         try? feedManager.deleteFeed(feed)
                         feedToDelete = nil
@@ -58,7 +58,7 @@ struct IPadSidebarSheets: ViewModifier {
                 }
             } message: {
                 if let feed = feedToDelete {
-                    Text(String(localized: "FeedMenu.Delete.Message.\(feed.title)", table: "Feeds"))
+                    Text(String(localized: "FeedMenu.Unfollow.Message.\(feed.title)", table: "Feeds"))
                 }
             }
             .sheet(item: $listToEdit) { list in
