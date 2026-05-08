@@ -80,6 +80,15 @@ extension View {
             self
         }
     }
+
+    @ViewBuilder
+    func matchedSource(id: Int64, in namespace: Namespace.ID?) -> some View {
+        if let namespace {
+            self.matchedTransitionSource(id: id, in: namespace)
+        } else {
+            self
+        }
+    }
 }
 
 private struct ZoomTransitionModifier<WrappedView: View>: View {
