@@ -50,7 +50,7 @@ nonisolated struct YouTubeStreamFetcher: Sendable {
         let masterURL = try await hlsMasterURL(videoId: videoId)
         let masterText = try await fetchText(
             url: masterURL,
-            headers: ["User-Agent": YouTubeInnerTube.iosUserAgent]
+            headers: ["User-Agent": inner.iosUserAgent]
         )
         let parsed = YouTubeHLSPlaylist.parseMaster(masterText)
         guard
