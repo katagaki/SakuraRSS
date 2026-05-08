@@ -7148,31 +7148,31 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "YouTube öffnen mit"
+            "value" : "YouTube-Videos öffnen in"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Open YouTube Videos"
+            "value" : "Open YouTube Videos In"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ouvrir les vidéos YouTube"
+            "value" : "Ouvrir les vidéos YouTube dans"
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Apri video YouTube"
+            "value" : "Apri video YouTube in"
           }
         },
         "ja" : {
           "stringUnit" : {
-            "state" : "translated",
-            "value" : "YouTube動画を開く"
+            "state" : "needs_review",
+            "value" : "YouTube動画の開く方法"
           }
         },
         "ko" : {
@@ -7184,19 +7184,19 @@
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Mở video YouTube"
+            "value" : "Mở video YouTube trong"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "打开YouTube视频"
+            "value" : "打开 YouTube 视频方式"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "開啟YouTube影片"
+            "value" : "開啟 YouTube 影片方式"
           }
         }
       }
