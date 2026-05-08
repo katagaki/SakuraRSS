@@ -29,14 +29,27 @@ final class TodayWeatherService {
 
     static let shared = TodayWeatherService()
 
+    static let dailyLocationChangeLimit: Int = 3
+
     private static let cacheKey = "Today.Weather.Cache"
     private static let locationKey = "Today.Weather.Location"
+    private static let changeCountKey = "Today.Weather.LocationChangeCount"
+    private static let changeResetDateKey = "Today.Weather.LocationChangeResetDate"
     private static let cacheLifetime: TimeInterval = 60 * 60
 
     var weather: TodayWeather?
     var isFetching: Bool = false
     var lastError: String?
     var locationAuthorizationStatus: CLAuthorizationStatus = .notDetermined
+    private(set) var locationChangesToday: Int = 0
+
+    var remainingLocationChanges: Int {
+        max(0, Self.dailyLocationChangeLimit - locationChangesToday)
+    }
+
+    var canChangeLocation: Bool {
+        locationChangesToday < Self.dailyLocationChangeLimit
+    }
 
     /// Whether the current authorization permits resolving the device location.
     /// `.denied` and `.restricted` (which also covers system-wide Location Services off)
@@ -57,6 +70,7 @@ final class TodayWeatherService {
 
     private init() {
         weather = Self.loadCache()
+        loadLocationChangeCount()
         if let weather {
             let age = Int(Date().timeIntervalSince(weather.fetchedAt))
             log("Weather", "loaded cached snapshot (\(weather.regionName)) aged \(age)s on init")
@@ -86,11 +100,24 @@ final class TodayWeatherService {
 
     // MARK: - Public Actions
 
-    func setLocation(_ location: TodayWeatherLocation) async {
+    @discardableResult
+    func setLocation(_ location: TodayWeatherLocation) async -> Bool {
+        if let saved = savedLocation, saved == location {
+            log("Weather", "setLocation: \(location.name) unchanged, skipping")
+            return false
+        }
+        loadLocationChangeCount()
+        guard canChangeLocation else {
+            log("Weather", "setLocation: \(location.name) blocked, daily limit reached "
+                + "(\(locationChangesToday)/\(Self.dailyLocationChangeLimit))")
+            return false
+        }
         log("Weather", "setLocation: \(location.name) (current=\(location.isCurrent)); invalidating cache")
         savedLocation = location
+        recordLocationChange()
         invalidateCache()
         await refresh(force: true)
+        return true
     }
 
     /// Refreshes if the cached weather is older than the per-hour budget.
@@ -289,6 +316,32 @@ final class TodayWeatherService {
     private func invalidateCache() {
         weather = nil
         UserDefaults.standard.removeObject(forKey: Self.cacheKey)
+    }
+
+    // MARK: - Daily Change Limit
+
+    private func loadLocationChangeCount() {
+        let now = Date()
+        if let stored = UserDefaults.standard.object(forKey: Self.changeResetDateKey) as? Date,
+           Calendar.current.isDate(stored, inSameDayAs: now) {
+            locationChangesToday = UserDefaults.standard.integer(forKey: Self.changeCountKey)
+        } else {
+            locationChangesToday = 0
+            UserDefaults.standard.removeObject(forKey: Self.changeCountKey)
+            UserDefaults.standard.removeObject(forKey: Self.changeResetDateKey)
+        }
+    }
+
+    private func recordLocationChange() {
+        let now = Date()
+        if let stored = UserDefaults.standard.object(forKey: Self.changeResetDateKey) as? Date,
+           Calendar.current.isDate(stored, inSameDayAs: now) {
+            locationChangesToday += 1
+        } else {
+            locationChangesToday = 1
+            UserDefaults.standard.set(now, forKey: Self.changeResetDateKey)
+        }
+        UserDefaults.standard.set(locationChangesToday, forKey: Self.changeCountKey)
     }
 }
 
