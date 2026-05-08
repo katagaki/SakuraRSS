@@ -32,10 +32,6 @@ extension FeedManager {
         return applyAllRules(all)
     }
 
-    /// Articles published between local 00:00 and now, used for the
-    /// While You Slept summary card on the Today tab. The card itself only
-    /// displays in the 6am-noon window, so the upper bound naturally caps
-    /// at noon when the user is on Today.
     func overnightArticles() -> [Article] {
         _ = dataRevision
         let now = Date()
