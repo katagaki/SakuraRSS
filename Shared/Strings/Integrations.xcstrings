@@ -2013,55 +2013,55 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Videostream konnte nicht geladen werden."
+            "value": "Video konnte nicht geladen werden."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Couldn't load video stream."
+            "value": "Failed to load video."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Impossible de charger le flux vidéo."
+            "value": "Impossible de charger la vidéo."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Impossibile caricare il flusso video."
+            "value": "Impossibile caricare il video."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "動画ストリームを読み込めませんでした。"
+            "value": "動画が読み込めませんでした。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "동영상 스트림을 불러오지 못했습니다."
+            "value": "동영상을 불러오지 못했습니다."
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Không thể tải luồng video."
+            "value": "Không thể tải video."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "无法加载视频流。"
+            "value": "无法加载视频。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "無法載入影片串流。"
+            "value": "無法載入影片。"
           }
         }
       }

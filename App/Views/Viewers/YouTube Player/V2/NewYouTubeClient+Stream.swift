@@ -20,6 +20,13 @@ extension NewYouTubeClient {
                     return trimmed
                 }
             }
+            let segments = components.path.split(separator: "/", omittingEmptySubsequences: true)
+            if segments.count >= 2, segments[0] == "shorts" {
+                let candidate = String(segments[1])
+                if candidate.count == 11, candidate.allSatisfy(isValid) {
+                    return candidate
+                }
+            }
         }
         return nil
     }
