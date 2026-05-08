@@ -21,6 +21,17 @@ nonisolated extension DatabaseManager {
         try database.run(articles.filter(articleID == id).update(articleIsBookmarked <- !current))
     }
 
+    /// Idempotent bookmark setter used by App Intents.
+    /// Returns `true` when the stored value actually changed.
+    @discardableResult
+    func setBookmarked(id: Int64, bookmarked: Bool) throws -> Bool {
+        guard let row = try database.pluck(articles.filter(articleID == id)) else { return false }
+        let current = row[articleIsBookmarked]
+        guard current != bookmarked else { return false }
+        try database.run(articles.filter(articleID == id).update(articleIsBookmarked <- bookmarked))
+        return true
+    }
+
     func removeReadBookmarks() throws {
         let target = articles.filter(articleIsBookmarked == true && articleIsRead == true)
         try database.run(target.update(articleIsBookmarked <- false))

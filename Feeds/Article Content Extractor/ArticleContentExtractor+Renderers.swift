@@ -1,11 +1,11 @@
 import Foundation
 
-extension ExtractsArticle {
+extension ArticleContentExtractor {
 
     /// Builds the article body for an Instagram post: every carousel image
     /// stacked above the caption. Falls back to `article.imageURL` when the
     /// post is single-image (carousel array is empty in that case).
-    func renderInstagramPostContent(article: Article) -> String {
+    func renderInstagramPostContent() -> String {
         let imageURLs = !article.carouselImageURLs.isEmpty
             ? article.carouselImageURLs
             : (article.imageURL.map { [$0] } ?? [])

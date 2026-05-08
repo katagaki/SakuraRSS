@@ -256,10 +256,11 @@ struct TodayView: View {
     private var attributionFooter: some View {
         let prefix = String(localized: "Today.WeatherAttribution.Prefix", table: "Home")
         let linkLabel = String(localized: "Today.WeatherAttribution.Link", table: "Home")
+        let markdown = "\(prefix) [\(linkLabel)](https://developer.apple.com/weatherkit/data-source-attribution/)"
+        let attributed = (try? AttributedString(markdown: markdown)) ?? AttributedString(markdown)
         VStack(spacing: 16) {
             Divider()
-            // swiftlint:disable:next line_length
-            Text(LocalizedStringKey("\(prefix) [\(linkLabel)](https://developer.apple.com/weatherkit/data-source-attribution/)"))
+            Text(attributed)
                 .font(.caption)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)

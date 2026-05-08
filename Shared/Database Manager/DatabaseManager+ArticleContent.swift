@@ -9,7 +9,7 @@ nonisolated extension DatabaseManager {
         let query = articles.filter(
             articleID == articleId
                 && articleHasFullText == true
-                && articleParserVersion == ParserVersion.articleExtractor
+                && articleParserVersion == ArticleContentExtractor.parserVersion
         )
         guard let row = try database.pluck(query) else { return nil }
         return row[articleContent]
@@ -20,7 +20,7 @@ nonisolated extension DatabaseManager {
         try database.run(target.update(
             articleContent <- content,
             articleHasFullText <- true,
-            articleParserVersion <- ParserVersion.articleExtractor
+            articleParserVersion <- ArticleContentExtractor.parserVersion
         ))
     }
 
