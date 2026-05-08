@@ -7,7 +7,6 @@ struct EntityArticlesView: View {
     @Environment(\.navigateToEphemeralArticle) private var navigateToEphemeralArticle
     @AppStorage("Search.DisplayStyle") private var searchDisplayStyle: FeedDisplayStyle = .inbox
     @State private var articles: [Article] = []
-    @Namespace private var cardZoom
 
     private var hasImages: Bool {
         articles.contains { $0.imageURL != nil }
@@ -37,7 +36,6 @@ struct EntityArticlesView: View {
             }
         }
         .sakuraBackground()
-        .environment(\.zoomNamespace, cardZoom)
         .navigationTitle(destination.name)
         .toolbarTitleDisplayMode(.inline)
         .toolbar {

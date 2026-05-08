@@ -11,7 +11,6 @@ struct SummaryHeadlinesArticlesView: View {
     @AppStorage("SummaryHeadlines.DisplayStyle")
     private var displayStyle: FeedDisplayStyle = .inbox
     @State private var articles: [Article] = []
-    @Namespace private var cardZoom
 
     private var hasImages: Bool {
         articles.contains { $0.imageURL != nil }
@@ -43,7 +42,6 @@ struct SummaryHeadlinesArticlesView: View {
             }
         }
         .sakuraBackground()
-        .environment(\.zoomNamespace, cardZoom)
         .navigationTitle(destination.title)
         .toolbarTitleDisplayMode(.inline)
         .toolbar {
