@@ -8,7 +8,7 @@ assignees: ''
 ---
 
 NOTE: If your bug report does not contain one or more of the following fields, it may be closed with no prior notice. Please do NOT submit feature requests using this template.
-NOTE: If this bug report is related to a feed or article, please use the 'In-app viewer bug report' template.
+NOTE: If this bug report is related to a feed or article, please use the 'Bug Report (In-App Viewer)' template.
 
 **Describe the bug**
 A clear and concise description of what the bug is.
