@@ -7,7 +7,7 @@ struct YouTubeMiniPlayerBar: View {
 
     let session = YouTubePlayerSession.shared
     let newPlayback = NewYouTubePlaybackController.shared
-    let toggleStore = NewYouTubePlayerToggleStore.shared
+    let featureFlags = FeatureFlagStore.shared
 
     var body: some View {
         if let article = session.currentArticle {
@@ -60,7 +60,7 @@ struct YouTubeMiniPlayerBar: View {
     }
 
     private var isUsingNewPlayer: Bool {
-        toggleStore.isEnabled
+        featureFlags.isEnabled(.nextgenYouTubePlayer)
     }
 
     private var isPlaying: Bool {

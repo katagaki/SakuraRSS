@@ -9,7 +9,7 @@ extension YouTubePlaylistProvider {
     static func extractYTInitialData(from html: String) -> [String: Any]? {
         let marker = "var ytInitialData = "
         guard let markerRange = html.range(of: marker) else {
-            print("[YouTubePlaylist] Could not find ytInitialData in page HTML.")
+            log("YouTubePlaylist", "Could not find ytInitialData in page HTML.")
             return nil
         }
 
@@ -21,20 +21,20 @@ extension YouTubePlaylistProvider {
         let jsonString: String
         if firstChar == "'" {
             guard let parsed = extractSingleQuotedValue(from: html, startIndex: startIndex) else {
-                print("[YouTubePlaylist] Failed to extract single-quoted ytInitialData.")
+                log("YouTubePlaylist", "Failed to extract single-quoted ytInitialData.")
                 return nil
             }
             jsonString = parsed
         } else if firstChar == "{" {
             jsonString = extractBraceBalancedJSON(from: html, startIndex: startIndex)
         } else {
-            print("[YouTubePlaylist] Unexpected ytInitialData format.")
+            log("YouTubePlaylist", "Unexpected ytInitialData format.")
             return nil
         }
 
         guard let data = jsonString.data(using: .utf8),
               let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else {
-            print("[YouTubePlaylist] Failed to parse ytInitialData JSON.")
+            log("YouTubePlaylist", "Failed to parse ytInitialData JSON.")
             return nil
         }
         return json
@@ -250,7 +250,7 @@ extension YouTubePlaylistProvider {
         } else if let twoCol = contents["twoColumnBrowseResultsRenderer"] as? [String: Any] {
             videoEntries = extractVideoEntries(fromBrowseRenderer: twoCol) ?? []
         } else {
-            print("[YouTubePlaylist] Could not find browse results renderer.")
+            log("YouTubePlaylist", "Could not find browse results renderer.")
             return []
         }
 

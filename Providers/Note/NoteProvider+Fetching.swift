@@ -27,7 +27,7 @@ extension NoteProvider {
                 displayName: cleanedName
             )
         } catch {
-            print("[NoteProfile] Fetch failed - \(error.localizedDescription)")
+            log("NoteProfile", "Fetch failed - \(error.localizedDescription)")
             return empty
         }
     }

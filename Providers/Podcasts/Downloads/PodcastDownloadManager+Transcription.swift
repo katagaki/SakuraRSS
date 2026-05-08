@@ -11,7 +11,7 @@ extension PodcastDownloadManager {
             let segments = try await PodcastTranscriber.transcribe(audioFileURL: fileURL, title: title)
             try DatabaseManager.shared.cacheTranscript(segments, for: articleID)
         } catch {
-            print("Transcription failed for article \(articleID): \(error)")
+            log("PodcastDownload", "Transcription failed for article \(articleID): \(error)")
         }
     }
 

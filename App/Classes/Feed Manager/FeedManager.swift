@@ -151,7 +151,7 @@ final class FeedManager {
             readMaskRevision += 1
             dataRevision += 1
         } catch {
-            print("Failed to load from database: \(error)")
+            log("FeedManager", "Failed to load from database: \(error)")
         }
     }
 
@@ -198,7 +198,7 @@ final class FeedManager {
                 }
             }
         } catch {
-            print("Failed to load from database: \(error)")
+            log("FeedManager", "Failed to load from database: \(error)")
         }
     }
 

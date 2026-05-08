@@ -90,7 +90,7 @@ struct MiniPlayerAccessoryModifier: ViewModifier {
         case .podcast(let article):
             PodcastEpisodeView(article: article, showsDismissButton: true)
         case .youTube(let article):
-            if NewYouTubePlayerToggleStore.shared.isEnabled {
+            if FeatureFlagStore.shared.isEnabled(.nextgenYouTubePlayer) {
                 NewYouTubePlayerView(article: article, showsDismissButton: true)
             } else {
                 YouTubePlayerView(article: article, showsDismissButton: true)

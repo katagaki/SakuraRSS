@@ -27,7 +27,7 @@ extension RedditProvider {
                 communityIconURL: Self.stripQuery(from: rawIcon)
             )
         } catch {
-            print("[RedditCommunity] Fetch failed - \(error.localizedDescription)")
+            log("RedditCommunity", "Fetch failed - \(error.localizedDescription)")
             return empty
         }
     }

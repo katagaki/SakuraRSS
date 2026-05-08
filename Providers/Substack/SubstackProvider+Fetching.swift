@@ -15,7 +15,7 @@ extension SubstackProvider {
             let logoURL = decoded.logoURL.flatMap { $0.isEmpty ? nil : $0 }
             return SubstackPublicationFetchResult(logoURL: logoURL)
         } catch {
-            print("[SubstackPublication] Fetch failed - \(error.localizedDescription)")
+            log("SubstackPublication", "Fetch failed - \(error.localizedDescription)")
             return empty
         }
     }

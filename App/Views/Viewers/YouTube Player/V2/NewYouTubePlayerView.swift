@@ -267,6 +267,11 @@ struct NewYouTubePlayerView: View {
         }
 
         if playback.currentVideoID == videoId, playback.player != nil {
+            playback.updateMetadata(
+                title: article.title,
+                artist: feed?.title,
+                artworkURLString: article.imageURL
+            )
             loadState = .ready
             return
         }
@@ -274,7 +279,13 @@ struct NewYouTubePlayerView: View {
         do {
             let client = try await NewYouTubeClient.bootstrap()
             let masterURL = try await client.hlsMasterURL(videoId: videoId)
-            playback.load(url: masterURL, videoID: videoId)
+            playback.load(
+                url: masterURL,
+                videoID: videoId,
+                title: article.title,
+                artist: feed?.title,
+                artworkURLString: article.imageURL
+            )
             loadState = .ready
         } catch {
             log("YT NewPlayer", "Failed to resolve stream: \(error)")

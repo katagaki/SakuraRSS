@@ -20,7 +20,7 @@ extension YouTubePlaylistProvider {
 
             let (data, _) = try await URLSession.shared.data(for: request)
             guard let html = String(data: data, encoding: .utf8) else {
-                print("[YouTubePlaylist] Could not decode response as UTF-8.")
+                log("YouTubePlaylist", "Could not decode response as UTF-8.")
                 _ = await atomDates
                 return empty
             }
@@ -67,7 +67,7 @@ extension YouTubePlaylistProvider {
                 videos: videos, playlistTitle: title, channelAvatarURL: avatarURL
             )
         } catch {
-            print("[YouTubePlaylist] Network request failed - \(error.localizedDescription)")
+            log("YouTubePlaylist", "Network request failed - \(error.localizedDescription)")
             return empty
         }
     }
@@ -126,7 +126,7 @@ extension YouTubePlaylistProvider {
             guard let xml = String(data: data, encoding: .utf8) else { return [:] }
             return Self.parseAtomPublishDates(xml: xml)
         } catch {
-            print("[YouTubePlaylist] Atom feed fetch failed - \(error.localizedDescription)")
+            log("YouTubePlaylist", "Atom feed fetch failed - \(error.localizedDescription)")
             return [:]
         }
     }

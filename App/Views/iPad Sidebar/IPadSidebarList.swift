@@ -32,6 +32,7 @@ struct IPadSidebarList: View {
         .environment(\.defaultMinListRowHeight, 32.0)
         #endif
         .searchable(text: $searchText, placement: .sidebar, prompt: Text(String(localized: "Prompt", table: "Search")))
+        .handleFeatureCommands(searchText: $searchText)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 addMenu
