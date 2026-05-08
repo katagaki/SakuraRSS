@@ -3,7 +3,7 @@ import Foundation
 extension ArticleContentExtractor {
 
     /// Last-resort path: full web fetch with paywall, bot-challenge, AMP,
-    /// WebView, and paginated-extras handling — mirrors the article viewer.
+    /// WebView, and paginated-extras handling (mirrors the article viewer).
     func performWebExtraction(initialURL: URL?) async {
         guard let unwrappedInitial = initialURL.map(ArticleExtractor.unwrapGoogleAMPURL) else { return }
         var url = unwrappedInitial
