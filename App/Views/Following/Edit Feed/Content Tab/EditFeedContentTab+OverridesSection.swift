@@ -10,15 +10,15 @@ extension EditFeedContentTab {
 
             if overridesEnabled {
                 contentOverrideFieldPicker(
-                    titleKey: "FeedEdit.ContentOverrides.Title",
+                    title: String(localized: "FeedEdit.ContentOverrides.Title", table: "Feeds"),
                     selection: $titleField
                 )
                 contentOverrideFieldPicker(
-                    titleKey: "FeedEdit.ContentOverrides.Body",
+                    title: String(localized: "FeedEdit.ContentOverrides.Body", table: "Feeds"),
                     selection: $bodyField
                 )
                 contentOverrideFieldPicker(
-                    titleKey: "FeedEdit.ContentOverrides.Author",
+                    title: String(localized: "FeedEdit.ContentOverrides.Author", table: "Feeds"),
                     selection: $authorField
                 )
             }
@@ -39,10 +39,10 @@ extension EditFeedContentTab {
     }
 
     private func contentOverrideFieldPicker(
-        titleKey: String.LocalizationValue,
+        title: String,
         selection: Binding<ContentOverrideField>
     ) -> some View {
-        Picker(String(localized: titleKey, table: "Feeds"), selection: selection) {
+        Picker(title, selection: selection) {
             Section {
                 Text(ContentOverrideField.default.localizedName).tag(ContentOverrideField.default)
                 Text(ContentOverrideField.disabled.localizedName).tag(ContentOverrideField.disabled)

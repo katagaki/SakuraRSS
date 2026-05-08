@@ -20,19 +20,14 @@ extension ExtractsArticle {
 
     var ephemeralTextMode: OpenArticleRequest.TextMode? { nil }
 
-    /// Persists extracted content unless the article is ephemeral (opened
-    /// from `sakura://open`), in which case nothing is cached.
-    func persistCachedContent(_ content: String) {
-        guard !article.isEphemeral else { return }
-        try? DatabaseManager.shared.cacheArticleContent(content, for: article.id)
-    }
-
     /// Fetches just the page title (`og:title` / `<title>`) for ephemeral
     /// articles so the URL placeholder is replaced quickly even when body
     /// extraction takes the JS-rendered or paywalled path.
     func fetchEphemeralPageTitle(from url: URL) async {
-        let (html, _) = await fetchHTML(from: url)
-        guard let html, !html.isEmpty,
+        let request = URLRequest.sakura(url: url)
+        guard let (data, response) = try? await URLSession.shared.data(for: request),
+              let html = HTMLDataDecoder.decode(data, response: response),
+              !html.isEmpty,
               let doc = try? SwiftSoup.parse(html),
               let pageTitle = ArticleExtractor.pageTitleFromDocument(doc) else { return }
         if extractedPageTitle == nil {
@@ -40,24 +35,9 @@ extension ExtractsArticle {
         }
     }
 
-    /// Reads cached content unless the article is ephemeral.
-    func readCachedContent() -> String? {
-        guard !article.isEphemeral else { return nil }
-        return try? DatabaseManager.shared.cachedArticleContent(for: article.id)
-    }
-
-    var articleSource: ArticleSource {
-        if let ephemeralTextMode {
-            switch ephemeralTextMode {
-            case .auto: return .automatic
-            case .fetch: return .fetchText
-            case .extract: return .extractText
-            }
-        }
-        let raw = UserDefaults.standard.string(forKey: "articleSource-\(article.feedID)")
-        return raw.flatMap(ArticleSource.init(rawValue:)) ?? .automatic
-    }
-
+    /// Drives the shared `ArticleContentExtractor` and surfaces its result
+    /// onto the view's bindings. Side-effects (caching, feed-source
+    /// preference, provider routing) all live in the extractor.
     func extractArticleContent() async {
         isExtracting = true
         isPaywalled = false
@@ -73,41 +53,45 @@ extension ExtractsArticle {
             }
         }
 
-        log("Extract", "Extracting article content: \(article.url)")
+        let extractor = ArticleContentExtractor(
+            article: article,
+            feed: feedManager.feed(forArticle: article),
+            articleSourceOverride: ephemeralTextMode.map(ArticleSource.init(textMode:))
+        )
+        let extracted = await extractor.extract()
 
-        if let cached = readCachedContent(), !cached.isEmpty {
-            extractedText = cached
-            log("Extract", "Cache hit (\(cached.count) chars): \(article.url)")
-            return
-        }
-
-        log("Extract", "Cache miss: \(article.url)")
-
-        let articleTitle = article.title
-        let source = articleSource
-        let contentLength = article.content?.count ?? 0
-        log("Extract", "Source: \(source.rawValue), content length: \(contentLength): \(article.url)")
-
-        var contentURL: URL? = URL(string: article.url)
-        var isRedditLinkedArticle = false
-
-        switch await tryRedditExtraction() {
-        case .handled:
-            return
-        case .linkedArticle(let linkedURL):
-            contentURL = linkedURL
-            isRedditLinkedArticle = true
-        case .none:
-            break
-        }
-
-        if await tryHackerNewsExtraction(articleTitle: articleTitle) { return }
-        if await extractFromSpecificSource(source, articleTitle: articleTitle) { return }
-        if await tryProviderExtraction(articleTitle: articleTitle) { return }
-        if tryFeedContentFallback(articleTitle: articleTitle,
-                                  isRedditLinkedArticle: isRedditLinkedArticle) { return }
-
-        await performWebExtraction(initialURL: contentURL, articleTitle: articleTitle)
+        applyExtractedMetadata(extracted.metadata)
+        isPaywalled = extracted.paywalled
+        extractedText = extracted.text
     }
 
+    /// Writes extracted metadata to view bindings, leaving feed-supplied
+    /// fields alone so the UI continues to favor the original byline /
+    /// timestamp / hero image when they exist.
+    private func applyExtractedMetadata(_ metadata: ArticleMetadata) {
+        if article.author == nil, let author = metadata.author {
+            extractedAuthor = author
+        }
+        if article.publishedDate == nil, let date = metadata.publishedDate {
+            extractedPublishedDate = date
+        }
+        if article.imageURL == nil, let lead = metadata.leadImageURL {
+            extractedLeadImageURL = lead
+        }
+        if let pageTitle = metadata.pageTitle {
+            extractedPageTitle = pageTitle
+        }
+    }
+}
+
+extension ArticleSource {
+    /// Translates the `sakura://open` text-mode override into the same
+    /// `ArticleSource` enum used by the per-feed UserDefaults setting.
+    init(textMode: OpenArticleRequest.TextMode) {
+        switch textMode {
+        case .auto: self = .automatic
+        case .fetch: self = .fetchText
+        case .extract: self = .extractText
+        }
+    }
 }

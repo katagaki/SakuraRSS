@@ -136,6 +136,12 @@
 		E426BCBD2F93A87200FF1B20 /* Exceptions for "Feeds" folder in "Add Feed" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
+				"Article Content Extractor/ArticleContentExtractor+Helpers.swift",
+				"Article Content Extractor/ArticleContentExtractor+Pipeline.swift",
+				"Article Content Extractor/ArticleContentExtractor+Providers.swift",
+				"Article Content Extractor/ArticleContentExtractor+Renderers.swift",
+				"Article Content Extractor/ArticleContentExtractor+Sources.swift",
+				"Article Content Extractor/ArticleContentExtractor+Web.swift",
 				"Article Extractor/ArticleExtractor.swift",
 				"Article Extractor/ArticleExtractor+AMP.swift",
 				"Article Extractor/ArticleExtractor+Audio.swift",
@@ -180,6 +186,12 @@
 		E426BCBE2F93A87200FF1B20 /* Exceptions for "Feeds" folder in "WidgetsExtension" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
+				"Article Content Extractor/ArticleContentExtractor+Helpers.swift",
+				"Article Content Extractor/ArticleContentExtractor+Pipeline.swift",
+				"Article Content Extractor/ArticleContentExtractor+Providers.swift",
+				"Article Content Extractor/ArticleContentExtractor+Renderers.swift",
+				"Article Content Extractor/ArticleContentExtractor+Sources.swift",
+				"Article Content Extractor/ArticleContentExtractor+Web.swift",
 				"Article Extractor/ArticleExtractor.swift",
 				"Article Extractor/ArticleExtractor+AMP.swift",
 				"Article Extractor/ArticleExtractor+Audio.swift",

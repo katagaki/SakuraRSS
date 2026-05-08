@@ -35,7 +35,7 @@ struct GetLatestContentIntent: AppIntent {
 
     func perform() async throws -> some IntentResult & ReturnsValue<ArticleEntity?> {
         let database = DatabaseManager.shared
-        let article = try await Task.detached { () -> Article? in
+        let article = await Task.detached { () -> Article? in
             if let feedID = self.feed?.feedID {
                 return (try? database.articles(forFeedID: feedID, limit: 1))?.first
             }

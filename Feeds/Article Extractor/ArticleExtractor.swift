@@ -1,8 +1,9 @@
 import Foundation
 import SwiftSoup
 
-/// When changing extraction logic, bump `ParserVersion.articleExtractor`
-/// to invalidate cached article content on next launch.
+/// HTML-to-text article body extraction. When changing extraction logic,
+/// bump `ArticleContentExtractor.parserVersion` to invalidate cached article
+/// content on next launch.
 struct ArticleExtractor {
 
     static let contentSelectors = [

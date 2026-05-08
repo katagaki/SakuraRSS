@@ -1,7 +1,8 @@
 # Rules
 
 1. Do not add verbose comments.
-   - You may write simple summarized docstrings.
+   - You may write doc comments, but only when the comments are absolutely necessary to explain the inner workings of a class, struct, enum, or function.
+   - If the name of a class/struct/enum/function is self explanatory, do not add any comments.
 2. Do not create large .swift files.
    - Separate large classes/enums/structs using extensions, grouped into its own folder.
    - Avoid view builders if they are long. Separate the views and create their own .swift files.

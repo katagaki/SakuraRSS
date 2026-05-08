@@ -28,7 +28,10 @@ struct WeatherToolbarButton: View {
                 Image(systemName: "location.slash")
                     .symbolRenderingMode(.hierarchical)
                     .foregroundStyle(.secondary)
-                    .accessibilityLabel(Text("TodayWeather.Location.SetPrompt"))
+                    .accessibilityLabel(Text(String(
+                        localized: "TodayWeather.Location.SetPrompt",
+                        table: "Home"
+                    )))
             }
             .buttonStyle(.plain)
         }

@@ -47,9 +47,9 @@ nonisolated final class DatabaseManager: @unchecked Sendable {
     private func invalidateStaleParserCache() {
         let key = "App.ParserVersion.ArticleExtractor"
         let stored = UserDefaults.standard.integer(forKey: key)
-        if stored < ParserVersion.articleExtractor {
+        if stored < ArticleContentExtractor.parserVersion {
             try? invalidateAllCachedArticleContent()
-            UserDefaults.standard.set(ParserVersion.articleExtractor, forKey: key)
+            UserDefaults.standard.set(ArticleContentExtractor.parserVersion, forKey: key)
         }
     }
 

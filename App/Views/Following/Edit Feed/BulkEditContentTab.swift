@@ -39,11 +39,11 @@ struct BulkEditContentTab: View {
                 Toggle(String(localized: "FeedList.BulkEdit.ContentOverrides.Change", table: "Feeds"),
                        isOn: $overridesEnabled)
                 if overridesEnabled {
-                    fieldPicker(titleKey: "FeedEdit.ContentOverrides.Title",
+                    fieldPicker(title: String(localized: "FeedEdit.ContentOverrides.Title", table: "Feeds"),
                                 selection: $titleField)
-                    fieldPicker(titleKey: "FeedEdit.ContentOverrides.Body",
+                    fieldPicker(title: String(localized: "FeedEdit.ContentOverrides.Body", table: "Feeds"),
                                 selection: $bodyField)
-                    fieldPicker(titleKey: "FeedEdit.ContentOverrides.Author",
+                    fieldPicker(title: String(localized: "FeedEdit.ContentOverrides.Author", table: "Feeds"),
                                 selection: $authorField)
                 }
             } header: {
@@ -104,10 +104,10 @@ struct BulkEditContentTab: View {
     }
 
     private func fieldPicker(
-        titleKey: String.LocalizationValue,
+        title: String,
         selection: Binding<ContentOverrideField>
     ) -> some View {
-        Picker(String(localized: titleKey, table: "Feeds"), selection: selection) {
+        Picker(title, selection: selection) {
             Section {
                 Text(ContentOverrideField.default.localizedName).tag(ContentOverrideField.default)
                 Text(ContentOverrideField.disabled.localizedName).tag(ContentOverrideField.disabled)
