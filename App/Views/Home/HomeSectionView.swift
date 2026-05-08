@@ -87,17 +87,17 @@ struct HomeSectionView: View {
         ArticleIDBatcher(entries: preloadedEntries)
     }
 
-    private var section: FeedSection? {
+    var section: FeedSection? {
         if case .section(let section) = source { return section }
         return nil
     }
 
-    private var list: FeedList? {
+    var list: FeedList? {
         if case .list(let list) = source { return list }
         return nil
     }
 
-    private var rawArticles: [Article] {
+    var rawArticles: [Article] {
         let batcher = self.batcher
         let slicedIDs: [Int64]
         if batchingMode.isCountBased {
@@ -209,91 +209,6 @@ struct HomeSectionView: View {
         return nil
     }
 
-    private var isVideoSection: Bool {
-        section == .youtube || section == .vimeo || section == .niconico
-    }
-
-    private var isFeedViewSection: Bool {
-        section == .x || section == .fediverse || section == .bluesky
-    }
-
-    private var isPodcastSection: Bool {
-        section == .podcasts
-    }
-
-    private var title: String {
-        switch source {
-        case .section(let section):
-            return section?.localizedTitle ?? HomeSection.all.localizedTitle
-        case .list(let list):
-            return list.name
-        case .topic(let name):
-            return name
-        }
-    }
-
-    private var feedKey: String {
-        switch source {
-        case .section(let section):
-            if let section { return "home.\(section.rawValue)" }
-            return "all"
-        case .list(let list):
-            return "list.\(list.id)"
-        case .topic(let name):
-            return "topic.\(name)"
-        }
-    }
-
-    private var scopeKey: String {
-        switch source {
-        case .section(let section):
-            if let section { return "section.\(section.rawValue)" }
-            return "section.all"
-        case .list(let list):
-            return "list.\(list.id)"
-        case .topic(let name):
-            return "topic.\(name)"
-        }
-    }
-
-    private var scopedFeeds: [Feed] {
-        switch source {
-        case .section(let section):
-            guard let section else { return feedManager.feeds }
-            return feedManager.feeds.filter { $0.feedSection == section }
-        case .list(let list):
-            return feedManager.feeds(for: list)
-        case .topic:
-            return feedManager.feeds
-        }
-    }
-
-    private var scopedRefreshState: ScopedRefreshState {
-        feedManager.scopedRefreshes[scopeKey] ?? ScopedRefreshState()
-    }
-
-    private func performMarkAllRead() {
-        switch source {
-        case .section(let section):
-            if let section {
-                feedManager.markAllRead(for: section)
-            } else {
-                feedManager.markAllRead()
-            }
-        case .list(let list):
-            feedManager.markAllRead(for: list)
-        case .topic:
-            for article in rawArticles where !feedManager.isRead(article) {
-                feedManager.markRead(article)
-            }
-        }
-    }
-
-    private var headerView: AnyView? {
-        guard showsListHeader, case .list(let list) = source else { return nil }
-        return AnyView(ListHeaderView(list: list).environment(feedManager))
-    }
-
     var body: some View {
         ArticlesView(
             articles: visibility.filter(rawArticles, isEnabled: hideViewedContent),
@@ -368,8 +283,11 @@ struct HomeSectionView: View {
         }
     }
 
+}
+
+extension HomeSectionView {
     /// Latest preloaded entry date, so the initial batch anchors on visible content.
-    private func latestArticleDate() -> Date? {
+    func latestArticleDate() -> Date? {
         preloadedEntries.compactMap(\.publishedDate).max()
     }
 }

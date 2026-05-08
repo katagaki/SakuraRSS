@@ -1,9 +1,8 @@
-
 import Foundation
 
 extension FeedProviderRegistry {
 
-    nonisolated static let refreshable: [any WebFeedProvider.Type] = [
+    nonisolated(unsafe) static let refreshable: [any WebFeedProvider.Type] = [
         XProvider.self,
         InstagramProvider.self,
         YouTubePlaylistProvider.self

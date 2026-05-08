@@ -5,7 +5,6 @@ extension FeedManager {
 
     // MARK: - X Profile Feeds
 
-    // swiftlint:disable:next function_body_length
     func refreshXFeed(
         _ feed: Feed,
         reloadData: Bool = true,
@@ -36,32 +35,11 @@ extension FeedManager {
         )
         log("XProfile", "fetched @\(handle) tweets=\(result.tweets.count) displayName=\(result.displayName ?? "nil")")
 
-        let tweetTuples = result.tweets.map { tweet in
-            let title = tweet.text.isEmpty
-                ? "Post by @\(tweet.authorHandle)"
-                : String(tweet.text.prefix(200))
-            return ArticleInsertItem(
-                title: title,
-                url: tweet.url,
-                data: ArticleInsertData(
-                    author: tweet.author.isEmpty ? "@\(tweet.authorHandle)" : tweet.author,
-                    summary: tweet.text.isEmpty ? nil : tweet.text,
-                    imageURL: tweet.imageURL,
-                    carouselImageURLs: tweet.carouselImageURLs,
-                    publishedDate: tweet.publishedDate
-                )
-            )
-        }
-
+        let tweetTuples = Self.makeXArticleItems(from: result.tweets)
         let feedTitle = result.displayName ?? feed.title
-
-        var profileImage: UIImage?
-        if !contentOnly, feed.lastFetched == nil,
-           let imageURLString = result.profileImageURL,
-           let imageURL = URL(string: imageURLString),
-           let (imageData, _) = try? await IconCache.urlSession.data(from: imageURL) {
-            profileImage = UIImage(data: imageData)
-        }
+        let profileImage = await loadXProfileImage(
+            result: result, feed: feed, contentOnly: contentOnly
+        )
 
         let database = database
         let feedID = feed.id
@@ -89,6 +67,37 @@ extension FeedManager {
             await loadFromDatabaseInBackground(animated: true)
         }
         log("XProfile", "refresh end id=\(feed.id)")
+    }
+
+    private static func makeXArticleItems(from tweets: [ParsedTweet]) -> [ArticleInsertItem] {
+        tweets.map { tweet in
+            let title = tweet.text.isEmpty
+                ? "Post by @\(tweet.authorHandle)"
+                : String(tweet.text.prefix(200))
+            return ArticleInsertItem(
+                title: title,
+                url: tweet.url,
+                data: ArticleInsertData(
+                    author: tweet.author.isEmpty ? "@\(tweet.authorHandle)" : tweet.author,
+                    summary: tweet.text.isEmpty ? nil : tweet.text,
+                    imageURL: tweet.imageURL,
+                    carouselImageURLs: tweet.carouselImageURLs,
+                    publishedDate: tweet.publishedDate
+                )
+            )
+        }
+    }
+
+    private func loadXProfileImage(
+        result: XProfileFetchResult, feed: Feed, contentOnly: Bool
+    ) async -> UIImage? {
+        guard !contentOnly, feed.lastFetched == nil,
+              let imageURLString = result.profileImageURL,
+              let imageURL = URL(string: imageURLString),
+              let (imageData, _) = try? await IconCache.urlSession.data(from: imageURL) else {
+            return nil
+        }
+        return UIImage(data: imageData)
     }
 
     var hasXFeeds: Bool {

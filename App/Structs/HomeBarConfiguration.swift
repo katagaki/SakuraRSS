@@ -87,45 +87,8 @@ extension HomeBarConfiguration: Codable {
         let rawEnabled = (try? container.decode([String].self, forKey: .enabledItems)) ?? []
         let topicCount = (try? container.decode(HomeBarTopicCount.self, forKey: .topicCount)) ?? .top3
 
-        var ordered: [HomeBarItemKind] = []
-        var seenOrdered = Set<HomeBarItemKind>()
-        for raw in rawOrdered {
-            switch raw {
-            case Self.legacyFollowingRaw:
-                continue
-            case Self.legacyFeedSectionsRaw:
-                for kind in Self.legacyFeedSectionExpansion where !seenOrdered.contains(kind) {
-                    ordered.append(kind)
-                    seenOrdered.insert(kind)
-                }
-            case Self.legacyMastodonRaw, Self.legacyPixelfedRaw:
-                if !seenOrdered.contains(.fediverse) {
-                    ordered.append(.fediverse)
-                    seenOrdered.insert(.fediverse)
-                }
-            default:
-                if let kind = HomeBarItemKind(rawValue: raw), !seenOrdered.contains(kind) {
-                    ordered.append(kind)
-                    seenOrdered.insert(kind)
-                }
-            }
-        }
-
-        var enabled = Set<HomeBarItemKind>()
-        for raw in rawEnabled {
-            switch raw {
-            case Self.legacyFollowingRaw:
-                continue
-            case Self.legacyFeedSectionsRaw:
-                Self.legacyFeedSectionExpansion.forEach { enabled.insert($0) }
-            case Self.legacyMastodonRaw, Self.legacyPixelfedRaw:
-                enabled.insert(.fediverse)
-            default:
-                if let kind = HomeBarItemKind(rawValue: raw) {
-                    enabled.insert(kind)
-                }
-            }
-        }
+        var (ordered, seenOrdered) = Self.decodeOrderedItems(rawOrdered: rawOrdered)
+        var enabled = Self.decodeEnabledItems(rawEnabled: rawEnabled)
 
         // Today was introduced after the bar config shipped. Existing users get
         // it inserted at the front of their order and enabled by default so the
@@ -141,6 +104,54 @@ extension HomeBarConfiguration: Codable {
         self.orderedItems = ordered
         self.enabledItems = enabled
         self.topicCount = topicCount
+    }
+
+    private static func decodeOrderedItems(
+        rawOrdered: [String]
+    ) -> (ordered: [HomeBarItemKind], seen: Set<HomeBarItemKind>) {
+        var ordered: [HomeBarItemKind] = []
+        var seen = Set<HomeBarItemKind>()
+        for raw in rawOrdered {
+            switch raw {
+            case Self.legacyFollowingRaw:
+                continue
+            case Self.legacyFeedSectionsRaw:
+                for kind in Self.legacyFeedSectionExpansion where !seen.contains(kind) {
+                    ordered.append(kind)
+                    seen.insert(kind)
+                }
+            case Self.legacyMastodonRaw, Self.legacyPixelfedRaw:
+                if !seen.contains(.fediverse) {
+                    ordered.append(.fediverse)
+                    seen.insert(.fediverse)
+                }
+            default:
+                if let kind = HomeBarItemKind(rawValue: raw), !seen.contains(kind) {
+                    ordered.append(kind)
+                    seen.insert(kind)
+                }
+            }
+        }
+        return (ordered, seen)
+    }
+
+    private static func decodeEnabledItems(rawEnabled: [String]) -> Set<HomeBarItemKind> {
+        var enabled = Set<HomeBarItemKind>()
+        for raw in rawEnabled {
+            switch raw {
+            case Self.legacyFollowingRaw:
+                continue
+            case Self.legacyFeedSectionsRaw:
+                Self.legacyFeedSectionExpansion.forEach { enabled.insert($0) }
+            case Self.legacyMastodonRaw, Self.legacyPixelfedRaw:
+                enabled.insert(.fediverse)
+            default:
+                if let kind = HomeBarItemKind(rawValue: raw) {
+                    enabled.insert(kind)
+                }
+            }
+        }
+        return enabled
     }
 
     func encode(to encoder: Encoder) throws {

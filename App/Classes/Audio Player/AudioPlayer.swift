@@ -52,7 +52,7 @@ final class AudioPlayer {
 
     // MARK: - Playback
 
-    // swiftlint:disable function_parameter_count
+    // swiftlint:disable:next function_parameter_count
     func play(
         url: URL,
         articleID: Int64,
@@ -96,7 +96,6 @@ final class AudioPlayer {
             }
             .store(in: &cancellables)
     }
-    // swiftlint:enable function_parameter_count
 
     func togglePlayPause() {
         guard player != nil else { return }

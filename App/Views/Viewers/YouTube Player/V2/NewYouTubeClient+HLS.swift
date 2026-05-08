@@ -2,8 +2,8 @@ import Foundation
 
 extension NewYouTubeClient {
 
-    /// Parses an HLS master playlist into its variant and audio media entries.
-    static func parseHLSMaster(
+    /// Parses an HLS multivariant playlist into its variant and audio media entries.
+    static func parseHLSMultivariant(
         _ text: String
     ) -> (variants: [YouTubeHLSVariant], audios: [YouTubeHLSAudioMedia]) {
         let lines = text.split(separator: "\n", omittingEmptySubsequences: false).map(String.init)

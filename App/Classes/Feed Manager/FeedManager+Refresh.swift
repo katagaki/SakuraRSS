@@ -4,8 +4,6 @@ extension FeedManager {
 
     // MARK: - Feed Refresh
 
-    /// Runs the full per-feed pipeline: fetch -> parse -> metadata images -> insert
-    /// -> spotlight -> image preload -> NLP.
     func refreshFeed(
         _ feed: Feed,
         updateTitle: Bool = true,
@@ -19,21 +17,8 @@ extension FeedManager {
         log("FeedRefresh", "refreshFeed begin id=\(feed.id) title=\(feed.title) url=\(feed.url) reloadData=\(reloadData) skipImageFetch=\(skipImageFetch) skipImagePreload=\(skipImagePreload) runNLP=\(runNLP) contentOnly=\(contentOnly)")
         let started = Date()
         var didPerformWork = false
-        defer {
-            if didPerformWork {
-                let durationMs = max(0, Int(Date().timeIntervalSince(started) * 1000))
-                let database = self.database
-                let feedID = feed.id
-                Task.detached(priority: .utility) {
-                    do {
-                        try database.recordFeedRefreshMetric(feedID: feedID, durationMs: durationMs)
-                        log("FeedRefresh", "metric recorded id=\(feedID) durationMs=\(durationMs)")
-                    } catch {
-                        log("FeedRefresh", "metric record failed id=\(feedID) error=\(error.localizedDescription)")
-                    }
-                }
-            }
-        }
+        defer { recordRefreshMetricIfPerformed(performed: didPerformWork, feedID: feed.id, started: started) }
+
         if PetalRecipe.isPetalFeedURL(feed.url) {
             log("FeedRefresh", "dispatch -> Petal id=\(feed.id)")
             didPerformWork = true
@@ -56,282 +41,62 @@ extension FeedManager {
             try await provider.refresh(
                 feed: feed,
                 on: self,
-                reloadData: reloadData,
-                skipImagePreload: skipImagePreload,
-                runNLP: runNLP,
-                contentOnly: contentOnly
+                options: FeedRefreshOptions(
+                    reloadData: reloadData,
+                    skipImagePreload: skipImagePreload,
+                    runNLP: runNLP,
+                    contentOnly: contentOnly
+                )
             )
             return
         }
 
-        log("FeedRefresh", "dispatch -> standard RSS pipeline id=\(feed.id)")
-        let database = database
         didPerformWork = true
-        try await Task.detached {
-            try await FeedManager.runStandardFeedPipeline(
-                feed: feed,
-                database: database,
+        try await runStandardRSSRefresh(
+            feed: feed,
+            options: StandardFeedPipelineOptions(
                 updateTitle: updateTitle,
                 skipImageFetch: skipImageFetch,
                 skipImagePreload: skipImagePreload,
                 runNLP: runNLP,
                 contentOnly: contentOnly
+            ),
+            reloadData: reloadData
+        )
+        log("FeedRefresh", "refreshFeed end id=\(feed.id)")
+    }
+
+    private func runStandardRSSRefresh(
+        feed: Feed,
+        options: StandardFeedPipelineOptions,
+        reloadData: Bool
+    ) async throws {
+        log("FeedRefresh", "dispatch -> standard RSS pipeline id=\(feed.id)")
+        let database = database
+        try await Task.detached {
+            try await FeedManager.runStandardFeedPipeline(
+                feed: feed,
+                database: database,
+                options: options
             )
         }.value
         if reloadData {
             await loadFromDatabaseInBackground(animated: true)
         }
-        log("FeedRefresh", "refreshFeed end id=\(feed.id)")
     }
 
-    /// Fetches and parses an RSS feed, resolves images, inserts new articles,
-    /// runs the post-insert pipeline, and updates feed metadata.
-    nonisolated static func runStandardFeedPipeline( // swiftlint:disable:this function_body_length
-        feed: Feed,
-        database: DatabaseManager,
-        updateTitle: Bool,
-        skipImageFetch: Bool,
-        skipImagePreload: Bool,
-        runNLP: Bool,
-        contentOnly: Bool = false
-    ) async throws {
-        guard let url = URL(string: feed.fetchURL) else {
-            log("FeedRefresh.RSS", "invalid fetch URL id=\(feed.id) fetchURL=\(feed.fetchURL)")
-            return
-        }
-        let fetchURL = RedirectDomains.redirectedURL(url)
-        log("FeedRefresh.RSS", "fetch begin id=\(feed.id) url=\(fetchURL.absoluteString)")
-
-        var request = URLRequest.sakura(url: fetchURL, timeoutInterval: 5)
-        if feed.isSubstackFeed, let host = fetchURL.host,
-           let cookieHeader = SubstackAuth.cookieHeader(for: host) {
-            request.setValue(cookieHeader, forHTTPHeaderField: "Cookie")
-        }
-        let (data, response) = try await URLSession.shared.data(for: request)
-        let statusCode = (response as? HTTPURLResponse)?.statusCode ?? 0
-        let contentType = (response as? HTTPURLResponse)?
-            .value(forHTTPHeaderField: "Content-Type") ?? "unknown"
-        // swiftlint:disable:next line_length
-        log("FeedRefresh.RSS", "fetch ok id=\(feed.id) bytes=\(data.count) status=\(statusCode) contentType=\(contentType)")
-        let parser = RSSParser()
-        guard let parsed = parser.parse(data: data) else {
-            let bodyHint = bodyContentHint(data: data)
-            // swiftlint:disable:next line_length
-            log("FeedRefresh.RSS", "parse failed id=\(feed.id) status=\(statusCode) contentType=\(contentType) bytes=\(data.count) hint=\(bodyHint)")
-            return
-        }
-        // swiftlint:disable:next line_length
-        log("FeedRefresh.RSS", "parsed id=\(feed.id) articles=\(parsed.articles.count) title=\(parsed.title) isPodcast=\(parsed.isPodcast)")
-
-        if !contentOnly,
-           let generator = parsed.generator,
-           generator.lowercased().contains("substack"),
-           !SubstackAuth.isWrappedFeedURL(feed.url) {
-            try? database.updateFeedURL(id: feed.id, url: SubstackAuth.wrap(feed.url))
-        }
-
-        let existingURLs = (try? database.existingArticleURLs(forFeedID: feed.id)) ?? []
-        let metadataImages: [String: String]
-        if skipImageFetch {
-            metadataImages = [:]
-        } else {
-            metadataImages = await FeedManager.fetchMetadataImages(
-                for: parsed.articles, skippingURLs: existingURLs
-            )
-        }
-
-        let redditImages: [String: String] = (!skipImageFetch && feed.isRedditFeed)
-            ? await FeedManager.fetchRedditImages(forFeedURL: feed.url)
-            : [:]
-
-        let articleTuples = parsed.articles.map { article in
-            let redditImage = FeedManager.redditImageURL(
-                for: article.url, in: redditImages
-            )
-            let resolvedImageURL = redditImage
-                ?? article.imageURL
-                ?? metadataImages[article.url]
-            return ArticleInsertItem(
-                title: article.title,
-                url: article.url,
-                data: ArticleInsertData(
-                    author: article.author,
-                    summary: article.summary,
-                    content: article.content,
-                    imageURL: resolvedImageURL,
-                    publishedDate: article.publishedDate,
-                    audioURL: article.audioURL,
-                    duration: article.duration
-                )
-            )
-        }
-
-        let feedTitleForIndex = parsed.title.isEmpty ? feed.title : parsed.title
-        let insertedIDs = (try? database.insertArticles(
-            feedID: feed.id, articles: articleTuples
-        )) ?? []
-        // swiftlint:disable:next line_length
-        log("FeedRefresh.RSS", "inserted id=\(feed.id) new=\(insertedIDs.count)/\(articleTuples.count) metadataImages=\(metadataImages.count) redditImages=\(redditImages.count)")
-
-        await FeedManager.runPostInsertPipeline(
-            insertedIDs: insertedIDs,
-            feedTitle: feedTitleForIndex,
-            skipImagePreload: skipImagePreload,
-            runNLP: runNLP
-        )
-
-        if !contentOnly, feed.lastFetched == nil {
-            if parsed.isPodcast && !feed.isPodcast {
-                try database.updateFeedIsPodcast(id: feed.id, isPodcast: true)
-            } else if !parsed.isPodcast && feed.isPodcast {
-                try database.updateFeedIsPodcast(id: feed.id, isPodcast: false)
-            }
-            if updateTitle, !feed.isTitleCustomized,
-               !parsed.title.isEmpty, parsed.title != feed.title {
-                try database.updateFeed(
-                    id: feed.id, title: parsed.title, category: feed.category
-                )
-            }
-            if parsed.description != feed.feedDescription {
-                try? database.updateFeedDescription(id: feed.id, description: parsed.description)
-            }
-        }
-        try database.updateFeedLastFetched(id: feed.id, date: Date())
-        if !contentOnly {
-            FeedManager.scheduleFediverseProbeIfNeeded(for: feed, database: database)
-        }
-        log("FeedRefresh.RSS", "pipeline complete id=\(feed.id)")
-    }
-
-    /// Probes the feed's host for Fediverse `.well-known` endpoints once and
-    /// persists the result. Skips feeds whose source is already known to live
-    /// outside the Fediverse and feeds that have already been classified.
-    nonisolated static func scheduleFediverseProbeIfNeeded(
-        for feed: Feed,
-        database: DatabaseManager
-    ) {
-        if feed.isFediverse != nil {
-            log("FediverseDetector", "skip id=\(feed.id) reason=cached value=\(feed.isFediverse == true)")
-            return
-        }
-        if feed.isKnownFediverseHost {
-            log("FediverseDetector", "skip id=\(feed.id) reason=known-host domain=\(feed.domain)")
-            return
-        }
-        if let exclusion = nonFediverseExclusion(for: feed) {
-            log("FediverseDetector", "skip id=\(feed.id) reason=\(exclusion) domain=\(feed.domain)")
-            return
-        }
-        log("FediverseDetector", "schedule id=\(feed.id) domain=\(feed.domain)")
-        Task.detached(priority: .background) {
-            guard let result = await FediverseDetector.detect(for: feed) else { return }
+    private func recordRefreshMetricIfPerformed(performed: Bool, feedID: Int64, started: Date) {
+        guard performed else { return }
+        let durationMs = max(0, Int(Date().timeIntervalSince(started) * 1000))
+        let database = self.database
+        Task.detached(priority: .utility) {
             do {
-                try database.updateFeedIsFediverse(id: feed.id, isFediverse: result)
-                log("FediverseDetector", "persist id=\(feed.id) isFediverse=\(result)")
+                try database.recordFeedRefreshMetric(feedID: feedID, durationMs: durationMs)
+                log("FeedRefresh", "metric recorded id=\(feedID) durationMs=\(durationMs)")
             } catch {
-                log("FediverseDetector", "persist failed id=\(feed.id) error=\(error.localizedDescription)")
+                log("FeedRefresh", "metric record failed id=\(feedID) error=\(error.localizedDescription)")
             }
         }
-    }
-
-    /// Names the source family that disqualifies a feed from a Fediverse probe,
-    /// used purely so the skip log line tells you *why* the probe didn't run.
-    nonisolated private static func nonFediverseExclusion(for feed: Feed) -> String? {
-        if feed.isPodcast { return "podcast" }
-        if feed.isXFeed { return "x" }
-        if feed.isYouTubeFeed { return "youtube" }
-        if feed.isInstagramFeed { return "instagram" }
-        if feed.isVimeoFeed { return "vimeo" }
-        if feed.isNiconicoFeed { return "niconico" }
-        if feed.isBlueskyFeed { return "bluesky" }
-        if feed.isRedditFeed { return "reddit" }
-        if feed.isHackerNewsFeed { return "hackernews" }
-        if feed.isNoteFeed { return "note" }
-        if feed.isSubstackFeed { return "substack" }
-        return nil
-    }
-
-    /// Spotlight indexing, image preloading, and NLP for the articles a feed
-    /// just inserted. Runs as the tail of the per-feed pipeline so each feed
-    /// finishes its work end-to-end before the next stage of the queue starts.
-    nonisolated static func runPostInsertPipeline(
-        insertedIDs: [Int64],
-        feedTitle: String,
-        skipImagePreload: Bool,
-        runNLP: Bool
-    ) async {
-        guard !insertedIDs.isEmpty else { return }
-        let database = DatabaseManager.shared
-        let insertedArticles = (try? database.articles(withIDs: insertedIDs)) ?? []
-        if insertedArticles.isEmpty { return }
-        // swiftlint:disable:next line_length
-        log("FeedRefresh.PostInsert", "begin feedTitle=\(feedTitle) count=\(insertedArticles.count) skipImagePreload=\(skipImagePreload) runNLP=\(runNLP)")
-
-        if !ProcessInfo.processInfo.isLowPowerModeEnabled {
-            SpotlightIndexer.indexArticles(insertedArticles, feedTitle: feedTitle)
-            log("FeedRefresh.PostInsert", "spotlight indexed feedTitle=\(feedTitle) count=\(insertedArticles.count)")
-        }
-        if Task.isCancelled {
-            log("FeedRefresh.PostInsert", "cancelled before image preload feedTitle=\(feedTitle)")
-            return
-        }
-
-        if !skipImagePreload {
-            let imageURLs = insertedArticles.compactMap { $0.imageURL }
-            if !imageURLs.isEmpty {
-                log("FeedRefresh.PostInsert", "preloading images feedTitle=\(feedTitle) count=\(imageURLs.count)")
-                await FeedManager.preloadImages(urls: imageURLs)
-            }
-        }
-        if Task.isCancelled {
-            log("FeedRefresh.PostInsert", "cancelled before NLP feedTitle=\(feedTitle)")
-            return
-        }
-
-        if runNLP {
-            log("FeedRefresh.PostInsert", "queuing NLP feedTitle=\(feedTitle) count=\(insertedIDs.count)")
-            await NLPProcessingCoordinator.processArticles(ids: insertedIDs)
-        }
-        log("FeedRefresh.PostInsert", "end feedTitle=\(feedTitle)")
-    }
-
-    nonisolated static func fetchMetadataImages(
-        for articles: [ParsedArticle],
-        skippingURLs existingURLs: Set<String>
-    ) async -> [String: String] {
-        let candidates: [(articleURL: String, requestURL: URL)] = articles.compactMap { article in
-            guard article.imageURL == nil,
-                  !existingURLs.contains(article.url),
-                  let url = URL(string: article.url),
-                  let scheme = url.scheme?.lowercased(),
-                  scheme == "http" || scheme == "https" else {
-                return nil
-            }
-            return (article.url, url)
-        }
-        guard !candidates.isEmpty else { return [:] }
-
-        let maxConcurrent = 4
-        var results: [String: String] = [:]
-        var index = 0
-        while index < candidates.count {
-            let batch = candidates[index..<min(index + maxConcurrent, candidates.count)]
-            index += maxConcurrent
-            await withTaskGroup(of: (String, String?).self) { group in
-                for candidate in batch {
-                    group.addTask {
-                        let imageURL = await HTMLMetadataImage.fetchImageURL(
-                            for: candidate.requestURL
-                        )
-                        return (candidate.articleURL, imageURL)
-                    }
-                }
-                for await (articleURL, imageURL) in group {
-                    if let imageURL { results[articleURL] = imageURL }
-                }
-            }
-        }
-        return results
     }
 
     func deleteAllArticlesAndRefresh() async {
@@ -373,7 +138,6 @@ extension FeedManager {
         await loadFromDatabaseInBackground()
     }
 
-    // swiftlint:disable:next function_body_length
     func refreshAllFeeds(
         skipAuthenticatedFetchers: Bool = false,
         respectCooldown: Bool = false,
@@ -383,27 +147,12 @@ extension FeedManager {
     ) async {
         // swiftlint:disable:next line_length
         log("FeedRefresh.All", "begin total=\(feeds.count) skipAuthenticatedFetchers=\(skipAuthenticatedFetchers) respectCooldown=\(respectCooldown) skipImageFetch=\(skipImageFetch) skipImagePreload=\(skipImagePreload) runNLPAfter=\(runNLPAfter)")
-        let cooldownSeconds: TimeInterval? = {
-            guard respectCooldown else { return nil }
-            let raw = UserDefaults.standard.string(forKey: "BackgroundRefresh.Cooldown")
-            let cooldown = raw.flatMap(FeedRefreshCooldown.init(rawValue:)) ?? .fiveMinutes
-            return cooldown.seconds
-        }()
-        let now = Date()
-        let currentFeeds = feeds
-        let feedsToRefresh = currentFeeds.filter { feed in
-            if skipAuthenticatedFetchers, feed.isXFeed || feed.isInstagramFeed {
-                return false
-            }
-            let domainTimeout = RefreshTimeoutDomains.refreshTimeout(for: feed.domain)
-            let effectiveCooldown = domainTimeout ?? cooldownSeconds
-            if let effectiveCooldown,
-               let lastFetched = feed.lastFetched,
-               now.timeIntervalSince(lastFetched) < effectiveCooldown {
-                return false
-            }
-            return true
-        }
+        let cooldownSeconds = computeRefreshCooldownSeconds(respectCooldown: respectCooldown)
+        let feedsToRefresh = filterFeedsForRefresh(
+            feeds: feeds,
+            skipAuthenticatedFetchers: skipAuthenticatedFetchers,
+            cooldownSeconds: cooldownSeconds
+        )
         guard !feedsToRefresh.isEmpty else {
             // swiftlint:disable:next line_length
             log("FeedRefresh.All", "no feeds eligible after filter (cooldown=\(cooldownSeconds.map { String(Int($0)) } ?? "off")s)")
@@ -422,23 +171,68 @@ extension FeedManager {
             refreshingFeedIDs = []
         }
 
+        let effectiveSkipPreload = await resolveEffectiveSkipPreload(skipImagePreload: skipImagePreload)
+        let work = makeRefreshAllTask(
+            queues: queues,
+            skipImageFetch: skipImageFetch,
+            effectiveSkipPreload: effectiveSkipPreload,
+            runNLPAfter: runNLPAfter
+        )
+        await MainActor.run { self.refreshTask = work }
+        _ = await work.value
+        await loadFromDatabaseInBackground(animated: true)
+        let finalCompleted = await finalizeRefreshAll()
+        log("FeedRefresh.All", "end completed=\(finalCompleted)/\(feedsToRefresh.count)")
+    }
+
+    private func computeRefreshCooldownSeconds(respectCooldown: Bool) -> TimeInterval? {
+        guard respectCooldown else { return nil }
+        let raw = UserDefaults.standard.string(forKey: "BackgroundRefresh.Cooldown")
+        let cooldown = raw.flatMap(FeedRefreshCooldown.init(rawValue:)) ?? .fiveMinutes
+        return cooldown.seconds
+    }
+
+    private func filterFeedsForRefresh(
+        feeds: [Feed],
+        skipAuthenticatedFetchers: Bool,
+        cooldownSeconds: TimeInterval?
+    ) -> [Feed] {
+        let now = Date()
+        return feeds.filter { feed in
+            if skipAuthenticatedFetchers, feed.isXFeed || feed.isInstagramFeed {
+                return false
+            }
+            let domainTimeout = RefreshTimeoutDomains.refreshTimeout(for: feed.domain)
+            let effectiveCooldown = domainTimeout ?? cooldownSeconds
+            if let effectiveCooldown,
+               let lastFetched = feed.lastFetched,
+               now.timeIntervalSince(lastFetched) < effectiveCooldown {
+                return false
+            }
+            return true
+        }
+    }
+
+    private func resolveEffectiveSkipPreload(skipImagePreload: Bool) async -> Bool {
+        if skipImagePreload { return true }
         let preloadModeRaw = UserDefaults.standard.string(
             forKey: "FeedRefresh.PreloadArticleImagesMode"
         )
-        let preloadMode = preloadModeRaw
-            .flatMap(FetchImagesMode.init(rawValue:)) ?? .wifiOnly
-        let effectiveSkipPreload: Bool
-        if skipImagePreload {
-            effectiveSkipPreload = true
-        } else {
-            switch preloadMode {
-            case .always: effectiveSkipPreload = false
-            case .wifiOnly: effectiveSkipPreload = await NetworkMonitor.currentPathIsExpensive() ?? true
-            case .off: effectiveSkipPreload = true
-            }
+        let preloadMode = preloadModeRaw.flatMap(FetchImagesMode.init(rawValue:)) ?? .wifiOnly
+        switch preloadMode {
+        case .always: return false
+        case .wifiOnly: return await NetworkMonitor.currentPathIsExpensive() ?? true
+        case .off: return true
         }
+    }
 
-        let work = Task { [weak self] in
+    private func makeRefreshAllTask(
+        queues: FeedRefreshQueues,
+        skipImageFetch: Bool,
+        effectiveSkipPreload: Bool,
+        runNLPAfter: Bool
+    ) -> Task<Void, Never> {
+        Task { [weak self] in
             guard let self else { return }
             async let regular: Void = self.runBoundedRefresh(
                 queues.regular,
@@ -470,10 +264,10 @@ extension FeedManager {
             )
             _ = await (regular, slow, xRefresh, instagramRefresh)
         }
-        await MainActor.run { self.refreshTask = work }
-        _ = await work.value
-        await loadFromDatabaseInBackground(animated: true)
-        let finalCompleted = await MainActor.run { () -> Int in
+    }
+
+    private func finalizeRefreshAll() async -> Int {
+        await MainActor.run { () -> Int in
             let completed = self.refreshCompleted
             self.lastRefreshedAt = Date()
             self.scopedLastRefreshedAt = [:]
@@ -485,188 +279,8 @@ extension FeedManager {
             self.refreshTask = nil
             return completed
         }
-        log("FeedRefresh.All", "end completed=\(finalCompleted)/\(feedsToRefresh.count)")
     }
 
-    fileprivate func runTitleSafeBoundedRefresh(
-        _ feeds: [Feed],
-        maxConcurrent: Int
-    ) async {
-        guard !feeds.isEmpty else { return }
-        await withTaskGroup(of: Void.self) { group in
-            var submitted = 0
-            var iterator = feeds.makeIterator()
-            while submitted < maxConcurrent, !Task.isCancelled, let feed = iterator.next() {
-                group.addTask { [weak self] in
-                    guard let self, !Task.isCancelled else { return }
-                    await self.markRefreshStarted(feedID: feed.id)
-                    try? await self.refreshFeed(
-                        feed,
-                        updateTitle: false,
-                        reloadData: false
-                    )
-                    await self.markRefreshFinished(
-                        feedID: feed.id,
-                        cancelled: Task.isCancelled
-                    )
-                }
-                submitted += 1
-            }
-            while await group.next() != nil {
-                if Task.isCancelled {
-                    group.cancelAll()
-                    continue
-                }
-                if let feed = iterator.next() {
-                    group.addTask { [weak self] in
-                        guard let self, !Task.isCancelled else { return }
-                        await self.markRefreshStarted(feedID: feed.id)
-                        try? await self.refreshFeed(
-                            feed,
-                            updateTitle: false,
-                            reloadData: false
-                        )
-                        await self.markRefreshFinished(
-                            feedID: feed.id,
-                            cancelled: Task.isCancelled
-                        )
-                    }
-                }
-            }
-        }
-    }
-
-    fileprivate func runBoundedRefresh(
-        _ feeds: [Feed],
-        maxConcurrent: Int,
-        skipImageFetch: Bool,
-        skipImagePreload: Bool,
-        runNLP: Bool
-    ) async {
-        guard !feeds.isEmpty else { return }
-        log("FeedRefresh.Bounded", "begin count=\(feeds.count) maxConcurrent=\(maxConcurrent)")
-        await withTaskGroup(of: Void.self) { group in
-            var submitted = 0
-            var iterator = feeds.makeIterator()
-            while submitted < maxConcurrent, !Task.isCancelled, let feed = iterator.next() {
-                group.addTask { [weak self] in
-                    guard let self, !Task.isCancelled else { return }
-                    await self.markRefreshStarted(feedID: feed.id)
-                    try? await self.refreshFeed(
-                        feed,
-                        reloadData: false,
-                        skipImageFetch: skipImageFetch,
-                        skipImagePreload: skipImagePreload,
-                        runNLP: runNLP
-                    )
-                    await self.markRefreshFinished(
-                        feedID: feed.id,
-                        cancelled: Task.isCancelled
-                    )
-                }
-                submitted += 1
-            }
-            while await group.next() != nil {
-                if Task.isCancelled {
-                    group.cancelAll()
-                    continue
-                }
-                if let feed = iterator.next() {
-                    group.addTask { [weak self] in
-                        guard let self, !Task.isCancelled else { return }
-                        await self.markRefreshStarted(feedID: feed.id)
-                        try? await self.refreshFeed(
-                            feed,
-                            reloadData: false,
-                            skipImageFetch: skipImageFetch,
-                            skipImagePreload: skipImagePreload,
-                            runNLP: runNLP
-                        )
-                        await self.markRefreshFinished(
-                            feedID: feed.id,
-                            cancelled: Task.isCancelled
-                        )
-                    }
-                }
-            }
-        }
-        log("FeedRefresh.Bounded", "end count=\(feeds.count)")
-    }
-
-    /// Refreshes only the feeds matching the given background category.
-    /// `contentOnly: true` suppresses all meta updates (title, description,
-    /// podcast detection, Substack URL wrap, Fediverse probe, fetcher metadata
-    /// refresh) so the work fits inside a `BGAppRefreshTask` budget.
-    func refreshFeeds(
-        in category: BackgroundRefreshCategory,
-        skipImageFetch: Bool,
-        skipImagePreload: Bool
-    ) async {
-        let eligible = feeds.filter(category.includes)
-        guard !eligible.isEmpty else {
-            log("FeedRefresh.Category", "category=\(category.rawValue) no feeds eligible")
-            return
-        }
-        log("FeedRefresh.Category", "category=\(category.rawValue) begin count=\(eligible.count)")
-        let maxConcurrent = category == .x || category == .instagram ? 2 : 6
-        await withTaskGroup(of: Void.self) { group in
-            var submitted = 0
-            var iterator = eligible.makeIterator()
-            while submitted < maxConcurrent, !Task.isCancelled, let feed = iterator.next() {
-                group.addTask { [weak self] in
-                    guard let self, !Task.isCancelled else { return }
-                    try? await self.refreshFeed(
-                        feed,
-                        updateTitle: false,
-                        reloadData: false,
-                        skipImageFetch: skipImageFetch,
-                        skipImagePreload: skipImagePreload,
-                        runNLP: false,
-                        contentOnly: true
-                    )
-                }
-                submitted += 1
-            }
-            while await group.next() != nil {
-                if Task.isCancelled {
-                    group.cancelAll()
-                    continue
-                }
-                if let feed = iterator.next() {
-                    group.addTask { [weak self] in
-                        guard let self, !Task.isCancelled else { return }
-                        try? await self.refreshFeed(
-                            feed,
-                            updateTitle: false,
-                            reloadData: false,
-                            skipImageFetch: skipImageFetch,
-                            skipImagePreload: skipImagePreload,
-                            runNLP: false,
-                            contentOnly: true
-                        )
-                    }
-                }
-            }
-        }
-        await MainActor.run { self.lastRefreshedAt = Date() }
-        log("FeedRefresh.Category", "category=\(category.rawValue) end count=\(eligible.count)")
-    }
-
-    @MainActor
-    fileprivate func markRefreshStarted(feedID: Int64) {
-        pendingRefreshFeedIDs.removeAll { $0 == feedID }
-        refreshingFeedIDs.insert(feedID)
-    }
-
-    @MainActor
-    fileprivate func markRefreshFinished(feedID: Int64, cancelled: Bool) {
-        refreshingFeedIDs.remove(feedID)
-        if !cancelled {
-            refreshCompleted += 1
-        }
-    }
-
-    /// Refreshes feeds that have never been fetched.
     func refreshUnfetchedFeeds() async {
         let unfetched = feeds.filter { $0.lastFetched == nil }
         guard !unfetched.isEmpty else {
@@ -757,31 +371,6 @@ extension FeedManager {
         pendingRefreshFeedIDs = []
         refreshingFeedIDs = []
         Task { await self.loadFromDatabaseInBackground(animated: true) }
-    }
-
-    /// Classifies a non-XML response body so parse-failure logs show why
-    /// (e.g. YouTube returning an HTML 500 page instead of an Atom feed).
-    nonisolated static func bodyContentHint(data: Data) -> String {
-        if data.isEmpty { return "empty" }
-        let prefix = data.prefix(512)
-        guard let snippet = String(data: prefix, encoding: .utf8)
-                ?? String(data: prefix, encoding: .isoLatin1) else {
-            return "binary"
-        }
-        let trimmed = snippet
-            .trimmingCharacters(in: .whitespacesAndNewlines)
-            .lowercased()
-        if trimmed.hasPrefix("<!doctype html") || trimmed.hasPrefix("<html") {
-            return "html"
-        }
-        if trimmed.hasPrefix("{") || trimmed.hasPrefix("[") {
-            return "json"
-        }
-        if trimmed.hasPrefix("<?xml") || trimmed.hasPrefix("<rss")
-            || trimmed.hasPrefix("<feed") || trimmed.hasPrefix("<atom") {
-            return "xml-malformed"
-        }
-        return "other:" + String(trimmed.prefix(60))
     }
 
 }

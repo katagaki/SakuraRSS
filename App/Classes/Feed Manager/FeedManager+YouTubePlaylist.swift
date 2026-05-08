@@ -5,10 +5,8 @@ extension FeedManager {
 
     // MARK: - YouTube Playlist Feeds
 
-    /// Minimum interval between YouTube playlist fetches per feed (30 minutes).
     private static let youTubePlaylistRefreshInterval: TimeInterval = 30 * 60
 
-    // swiftlint:disable:next function_body_length
     func refreshYouTubePlaylistFeed(
         _ feed: Feed,
         reloadData: Bool = true,
@@ -36,26 +34,11 @@ extension FeedManager {
         // swiftlint:disable:next line_length
         log("YouTubePlaylist", "fetched playlistID=\(playlistID) videos=\(result.videos.count) playlistTitle=\(result.playlistTitle ?? "nil")")
 
-        let articleTuples = result.videos.map { video in
-            ArticleInsertItem(
-                title: video.title,
-                url: "https://www.youtube.com/watch?v=\(video.videoId)",
-                data: ArticleInsertData(
-                    imageURL: video.thumbnailURL,
-                    publishedDate: video.publishedDate
-                )
-            )
-        }
-
+        let articleTuples = Self.makeYouTubePlaylistArticleItems(from: result.videos)
         let feedTitle = result.playlistTitle ?? feed.title
-
-        var avatarImage: UIImage?
-        if !contentOnly, feed.lastFetched == nil,
-           let avatarURLString = result.channelAvatarURL,
-           let avatarURL = URL(string: avatarURLString),
-           let (imageData, _) = try? await IconCache.urlSession.data(from: avatarURL) {
-            avatarImage = UIImage(data: imageData)
-        }
+        let avatarImage = await loadYouTubeChannelAvatar(
+            result: result, feed: feed, contentOnly: contentOnly
+        )
 
         let database = database
         let feedID = feed.id
@@ -83,6 +66,33 @@ extension FeedManager {
             await loadFromDatabaseInBackground(animated: true)
         }
         log("YouTubePlaylist", "refresh end id=\(feed.id)")
+    }
+
+    private static func makeYouTubePlaylistArticleItems(
+        from videos: [ParsedPlaylistVideo]
+    ) -> [ArticleInsertItem] {
+        videos.map { video in
+            ArticleInsertItem(
+                title: video.title,
+                url: "https://www.youtube.com/watch?v=\(video.videoId)",
+                data: ArticleInsertData(
+                    imageURL: video.thumbnailURL,
+                    publishedDate: video.publishedDate
+                )
+            )
+        }
+    }
+
+    private func loadYouTubeChannelAvatar(
+        result: YouTubePlaylistFetchResult, feed: Feed, contentOnly: Bool
+    ) async -> UIImage? {
+        guard !contentOnly, feed.lastFetched == nil,
+              let avatarURLString = result.channelAvatarURL,
+              let avatarURL = URL(string: avatarURLString),
+              let (imageData, _) = try? await IconCache.urlSession.data(from: avatarURL) else {
+            return nil
+        }
+        return UIImage(data: imageData)
     }
 
     var hasYouTubePlaylistFeeds: Bool {

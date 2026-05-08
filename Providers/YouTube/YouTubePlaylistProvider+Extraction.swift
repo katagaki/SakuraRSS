@@ -40,7 +40,6 @@ extension YouTubePlaylistProvider {
         return json
     }
 
-    // swiftlint:disable:next function_body_length cyclomatic_complexity
     private static func extractSingleQuotedValue(
         from html: String, startIndex: String.Index
     ) -> String? {
@@ -64,60 +63,82 @@ extension YouTubePlaylistProvider {
                     index = next
                     continue
                 }
-                switch escaped[next] {
-                case "x":
-                    let hexStart = escaped.index(after: next)
-                    if let hexEnd = escaped.index(
-                        hexStart, offsetBy: 2, limitedBy: escaped.endIndex
-                    ),
-                       let byte = UInt8(String(escaped[hexStart..<hexEnd]), radix: 16) {
-                        result.append(Character(UnicodeScalar(byte)))
-                        index = hexEnd
-                    } else {
-                        result.append(escaped[index])
-                        index = next
-                    }
-                case "u":
-                    let hexStart = escaped.index(after: next)
-                    if let hexEnd = escaped.index(
-                        hexStart, offsetBy: 4, limitedBy: escaped.endIndex
-                    ),
-                       let codePoint = UInt32(String(escaped[hexStart..<hexEnd]), radix: 16),
-                       let scalar = Unicode.Scalar(codePoint) {
-                        result.append(Character(scalar))
-                        index = hexEnd
-                    } else {
-                        result.append(escaped[index])
-                        index = next
-                    }
-                case "\\":
-                    result.append("\\")
-                    index = escaped.index(after: next)
-                case "/":
-                    result.append("/")
-                    index = escaped.index(after: next)
-                case "n":
-                    result.append("\n")
-                    index = escaped.index(after: next)
-                case "r":
-                    result.append("\r")
-                    index = escaped.index(after: next)
-                case "t":
-                    result.append("\t")
-                    index = escaped.index(after: next)
-                case "'":
-                    result.append("'")
-                    index = escaped.index(after: next)
-                default:
-                    result.append(escaped[index])
-                    index = next
-                }
+                let advance = appendUnescapedSequence(
+                    escaped: escaped, escapeIndex: index, charIndex: next, into: &result
+                )
+                index = advance
                 continue
             }
             result.append(escaped[index])
             index = escaped.index(after: index)
         }
         return result
+    }
+
+    /// Decodes a single JS escape sequence at `charIndex` and returns the index
+    /// immediately after it, so the caller can advance its scan.
+    private static func appendUnescapedSequence(
+        escaped: String,
+        escapeIndex: String.Index,
+        charIndex: String.Index,
+        into result: inout String
+    ) -> String.Index {
+        switch escaped[charIndex] {
+        case "x":
+            return appendHexEscape(escaped: escaped, escapeIndex: escapeIndex, charIndex: charIndex,
+                                   digits: 2, into: &result)
+        case "u":
+            return appendHexEscape(escaped: escaped, escapeIndex: escapeIndex, charIndex: charIndex,
+                                   digits: 4, into: &result)
+        case "\\":
+            result.append("\\")
+            return escaped.index(after: charIndex)
+        case "/":
+            result.append("/")
+            return escaped.index(after: charIndex)
+        case "n":
+            result.append("\n")
+            return escaped.index(after: charIndex)
+        case "r":
+            result.append("\r")
+            return escaped.index(after: charIndex)
+        case "t":
+            result.append("\t")
+            return escaped.index(after: charIndex)
+        case "'":
+            result.append("'")
+            return escaped.index(after: charIndex)
+        default:
+            result.append(escaped[escapeIndex])
+            return charIndex
+        }
+    }
+
+    private static func appendHexEscape(
+        escaped: String,
+        escapeIndex: String.Index,
+        charIndex: String.Index,
+        digits: Int,
+        into result: inout String
+    ) -> String.Index {
+        let hexStart = escaped.index(after: charIndex)
+        guard let hexEnd = escaped.index(hexStart, offsetBy: digits, limitedBy: escaped.endIndex) else {
+            result.append(escaped[escapeIndex])
+            return charIndex
+        }
+        let hexString = String(escaped[hexStart..<hexEnd])
+        if digits == 2, let byte = UInt8(hexString, radix: 16) {
+            result.append(Character(UnicodeScalar(byte)))
+            return hexEnd
+        }
+        if digits == 4,
+           let codePoint = UInt32(hexString, radix: 16),
+           let scalar = Unicode.Scalar(codePoint) {
+            result.append(Character(scalar))
+            return hexEnd
+        }
+        result.append(escaped[escapeIndex])
+        return charIndex
     }
 
     private static func extractBraceBalancedJSON(
@@ -358,23 +379,4 @@ extension YouTubePlaylistProvider {
         return Calendar.current.date(byAdding: component, value: -amount, to: Date())
     }
 
-    private static func extractVideoEntries(
-        fromBrowseRenderer renderer: [String: Any]
-    ) -> [[String: Any]]? {
-        guard let tabs = renderer["tabs"] as? [[String: Any]],
-              let firstTab = tabs.first,
-              let tabRenderer = firstTab["tabRenderer"] as? [String: Any],
-              let tabContent = tabRenderer["content"] as? [String: Any],
-              let sectionList = tabContent["sectionListRenderer"] as? [String: Any],
-              let sectionContents = sectionList["contents"] as? [[String: Any]],
-              let firstSection = sectionContents.first,
-              let itemSection = firstSection["itemSectionRenderer"] as? [String: Any],
-              let itemContents = itemSection["contents"] as? [[String: Any]],
-              let firstItem = itemContents.first,
-              let playlistVideoList = firstItem["playlistVideoListRenderer"] as? [String: Any],
-              let videoEntries = playlistVideoList["contents"] as? [[String: Any]] else {
-            return nil
-        }
-        return videoEntries
-    }
 }

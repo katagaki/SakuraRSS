@@ -15,7 +15,7 @@ nonisolated struct PlaybackEvent: Sendable {
         case duration
         case rate
         case meta
-        case ad
+        case advertisement = "ad"
     }
 
     let kind: Kind
@@ -27,6 +27,7 @@ nonisolated struct PlaybackEvent: Sendable {
     let adSkippable: Bool?
     let advertiserURL: String?
 
+    @MainActor
     init?(message: WKScriptMessage) {
         guard let dict = message.body as? [String: Any],
               let raw = dict["event"] as? String,

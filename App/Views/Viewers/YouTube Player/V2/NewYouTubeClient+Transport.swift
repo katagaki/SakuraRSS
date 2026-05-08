@@ -35,7 +35,11 @@ extension NewYouTubeClient {
         guard let url = URL(string: "\(Self.host)/youtubei/v1/\(endpoint)?prettyPrint=false") else {
             throw YouTubeBrowseError.invalidURL
         }
-        log("YouTube", "POST \(endpoint): web clientVersion: \(clientVersion), iosClientVersion: \(iosClientVersion), userAgent: \(iosUserAgent)")
+        log(
+            "YouTube",
+            "POST \(endpoint): web clientVersion: \(clientVersion), " +
+            "iosClientVersion: \(iosClientVersion), userAgent: \(iosUserAgent)"
+        )
         let jsonData = try JSONSerialization.data(withJSONObject: body, options: [])
         let payload = try Self.gzip(jsonData)
 

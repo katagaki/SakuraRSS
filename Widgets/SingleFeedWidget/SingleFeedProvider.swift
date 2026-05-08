@@ -34,23 +34,13 @@ struct SingleFeedProvider: AppIntentTimelineProvider {
         return Timeline(entries: [entry], policy: .after(Date().addingTimeInterval(90 * 60)))
     }
 
-    // swiftlint:disable:next function_body_length
     private func loadEntry(for configuration: SingleFeedIntent) async -> SingleFeedEntry {
         let database = DatabaseManager.shared
         let layout = configuration.layout ?? .thumbnails
         let columns = (configuration.columns ?? .three).rawValue
 
         guard let feed = configuration.feed else {
-            return SingleFeedEntry(
-                date: Date(),
-                feedID: 0,
-                feedTitle: "",
-                articles: [],
-                layout: layout,
-                columns: columns,
-                currentPage: 0,
-                totalPages: 1
-            )
+            return Self.emptySingleFeedEntry(layout: layout, columns: columns)
         }
 
         let feedID = feed.feedID
@@ -63,40 +53,20 @@ struct SingleFeedProvider: AppIntentTimelineProvider {
             let maxPages = 3
             let totalLimit = perPage * maxPages
             let dbArticles = try database.articles(forFeedID: feedID, limit: totalLimit)
-
             let totalPages = max(1, Int(ceil(Double(dbArticles.count) / Double(perPage))))
             let currentPage = min(storedPage, totalPages - 1)
             let pageStart = currentPage * perPage
             let pageArticles = Array(dbArticles.dropFirst(pageStart).prefix(perPage))
 
-            // Skip network fetches when article set is unchanged, to avoid retrying failed downloads each wake.
-            let articleIDsMarker = pageArticles.map(\.id).map(String.init).joined(separator: ",")
-            let markerKey = "singleFeedMarker_\(feedID)_\(layout.rawValue)_\(columns)_\(currentPage)"
-            let previousMarker = defaults?.string(forKey: markerKey)
-            let articleSetUnchanged = previousMarker == articleIDsMarker
-            defaults?.set(articleIDsMarker, forKey: markerKey)
-
-            let thumbnailCache = WidgetThumbnailCache(
-                scope: "single_\(feedID)_\(layout.rawValue)_\(columns)"
+            let widgetArticles = await loadWidgetArticles(
+                pageArticles: pageArticles,
+                feedID: feedID,
+                layout: layout,
+                columns: columns,
+                currentPage: currentPage,
+                defaults: defaults,
+                database: database
             )
-
-            var widgetArticles: [SingleFeedArticle] = []
-            for article in pageArticles {
-                let imageData = await resolveImageData(
-                    urlString: article.imageURL,
-                    articleID: article.id,
-                    articleSetUnchanged: articleSetUnchanged,
-                    thumbnailCache: thumbnailCache,
-                    database: database
-                )
-                widgetArticles.append(SingleFeedArticle(
-                    id: article.id,
-                    title: article.title,
-                    imageData: imageData,
-                    publishedDate: article.publishedDate
-                ))
-            }
-            thumbnailCache.prune(keeping: pageArticles.map(\.id))
 
             return SingleFeedEntry(
                 date: Date(),
@@ -120,6 +90,62 @@ struct SingleFeedProvider: AppIntentTimelineProvider {
                 totalPages: 1
             )
         }
+    }
+
+    private static func emptySingleFeedEntry(
+        layout: SingleFeedWidgetLayout, columns: Int
+    ) -> SingleFeedEntry {
+        SingleFeedEntry(
+            date: Date(),
+            feedID: 0,
+            feedTitle: "",
+            articles: [],
+            layout: layout,
+            columns: columns,
+            currentPage: 0,
+            totalPages: 1
+        )
+    }
+
+    // swiftlint:disable:next function_parameter_count
+    private func loadWidgetArticles(
+        pageArticles: [Article],
+        feedID: Int64,
+        layout: SingleFeedWidgetLayout,
+        columns: Int,
+        currentPage: Int,
+        defaults: UserDefaults?,
+        database: DatabaseManager
+    ) async -> [SingleFeedArticle] {
+        // Skip network fetches when article set is unchanged, to avoid retrying failed downloads each wake.
+        let articleIDsMarker = pageArticles.map(\.id).map(String.init).joined(separator: ",")
+        let markerKey = "singleFeedMarker_\(feedID)_\(layout.rawValue)_\(columns)_\(currentPage)"
+        let previousMarker = defaults?.string(forKey: markerKey)
+        let articleSetUnchanged = previousMarker == articleIDsMarker
+        defaults?.set(articleIDsMarker, forKey: markerKey)
+
+        let thumbnailCache = WidgetThumbnailCache(
+            scope: "single_\(feedID)_\(layout.rawValue)_\(columns)"
+        )
+
+        var widgetArticles: [SingleFeedArticle] = []
+        for article in pageArticles {
+            let imageData = await resolveImageData(
+                urlString: article.imageURL,
+                articleID: article.id,
+                articleSetUnchanged: articleSetUnchanged,
+                thumbnailCache: thumbnailCache,
+                database: database
+            )
+            widgetArticles.append(SingleFeedArticle(
+                id: article.id,
+                title: article.title,
+                imageData: imageData,
+                publishedDate: article.publishedDate
+            ))
+        }
+        thumbnailCache.prune(keeping: pageArticles.map(\.id))
+        return widgetArticles
     }
 
     private func resolveImageData(

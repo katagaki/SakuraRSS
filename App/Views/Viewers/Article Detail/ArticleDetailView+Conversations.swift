@@ -74,18 +74,8 @@ extension ArticleDetailView {
         let articleID = article.id
         let useCache = !article.isEphemeral
 
-        if useCache {
-            if let cached = try? database.cachedComments(forArticleID: articleID),
-               !cached.isEmpty {
-                log("Comments", "cache hit article id=\(articleID) count=\(cached.count)")
-                conversationComments = cached
-                return
-            }
-
-            if (try? database.hasFetchedComments(forArticleID: articleID)) == true {
-                log("Comments", "cache empty (already fetched, no comments) article id=\(articleID)")
-                return
-            }
+        if useCache, loadCachedConversation(database: database, articleID: articleID) {
+            return
         }
 
         let articleValue = article
@@ -104,23 +94,48 @@ extension ArticleDetailView {
                 )
                 let elapsed = String(format: "%.2fs", Date().timeIntervalSince(started))
                 log("Comments", "fetch ok article id=\(articleID) count=\(fetched.count) in \(elapsed)")
-                if useCache {
-                    do {
-                        try database.replaceComments(fetched, forArticleID: articleID)
-                        log("Comments", "cache write article id=\(articleID) count=\(fetched.count)")
-                    } catch {
-                        log("Comments", "cache write failed article id=\(articleID) error=\(error)")
-                    }
-                    if let stored = try? database.cachedComments(forArticleID: articleID) {
-                        conversationComments = stored
-                    }
-                } else {
-                    conversationComments = fetched.enumerated().map { index, item in
-                        Comment.fromFetched(item, rank: index)
-                    }
-                }
+                applyFetchedConversation(
+                    fetched, useCache: useCache, database: database, articleID: articleID
+                )
             } catch {
                 log("Comments", "fetch failed article id=\(articleID) error=\(error)")
+            }
+        }
+    }
+
+    private func loadCachedConversation(database: DatabaseManager, articleID: Int64) -> Bool {
+        if let cached = try? database.cachedComments(forArticleID: articleID),
+           !cached.isEmpty {
+            log("Comments", "cache hit article id=\(articleID) count=\(cached.count)")
+            conversationComments = cached
+            return true
+        }
+        if (try? database.hasFetchedComments(forArticleID: articleID)) == true {
+            log("Comments", "cache empty (already fetched, no comments) article id=\(articleID)")
+            return true
+        }
+        return false
+    }
+
+    private func applyFetchedConversation(
+        _ fetched: [FetchedComment],
+        useCache: Bool,
+        database: DatabaseManager,
+        articleID: Int64
+    ) {
+        if useCache {
+            do {
+                try database.replaceComments(fetched, forArticleID: articleID)
+                log("Comments", "cache write article id=\(articleID) count=\(fetched.count)")
+            } catch {
+                log("Comments", "cache write failed article id=\(articleID) error=\(error)")
+            }
+            if let stored = try? database.cachedComments(forArticleID: articleID) {
+                conversationComments = stored
+            }
+        } else {
+            conversationComments = fetched.enumerated().map { index, item in
+                Comment.fromFetched(item, rank: index)
             }
         }
     }

@@ -121,7 +121,7 @@ struct InitialsAvatarView: View {
 }
 
 private extension UIFont {
-    var rounded: UIFont {
+    nonisolated var rounded: UIFont {
         guard let descriptor = fontDescriptor.withDesign(.rounded) else { return self }
         return UIFont(descriptor: descriptor, size: pointSize)
     }

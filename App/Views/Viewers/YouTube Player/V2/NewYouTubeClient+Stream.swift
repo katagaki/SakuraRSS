@@ -31,28 +31,28 @@ extension NewYouTubeClient {
         return nil
     }
 
-    /// Returns the HLS master URL for a given video. `AVPlayer` can play this
+    /// Returns the HLS playlist URL for a given video. `AVPlayer` can play this
     /// URL directly without further parsing.
-    func hlsMasterURL(videoId: String) async throws -> URL {
+    func hlsPlaylistURL(videoId: String) async throws -> URL {
         let manifest = try await fetchPlayerResponse(videoId: videoId)
         guard
             let streamingData = manifest["streamingData"] as? [String: Any],
-            let masterString = streamingData["hlsManifestUrl"] as? String,
-            let masterURL = URL(string: masterString)
+            let manifestString = streamingData["hlsManifestUrl"] as? String,
+            let manifestURL = URL(string: manifestString)
         else { throw YouTubeBrowseError.missingData }
-        return masterURL
+        return manifestURL
     }
 
-    /// Fetches the HLS master playlist and picks the best video variant plus a
-    /// matching audio media entry, useful when the caller wants to play video
-    /// and audio on separate tracks.
+    /// Fetches the HLS multivariant playlist and picks the best video variant
+    /// plus a matching audio media entry, useful when the caller wants to play
+    /// video and audio on separate tracks.
     func resolveStreams(videoId: String) async throws -> YouTubeStreamSelection {
-        let masterURL = try await hlsMasterURL(videoId: videoId)
-        let masterText = try await fetchText(
-            url: masterURL,
+        let manifestURL = try await hlsPlaylistURL(videoId: videoId)
+        let manifestText = try await fetchText(
+            url: manifestURL,
             headers: ["User-Agent": iosUserAgent]
         )
-        let parsed = Self.parseHLSMaster(masterText)
+        let parsed = Self.parseHLSMultivariant(manifestText)
         guard
             let video = Self.selectBestVideo(from: parsed.variants),
             let videoURL = URL(string: video.url)

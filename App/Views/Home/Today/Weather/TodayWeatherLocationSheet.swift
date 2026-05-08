@@ -122,7 +122,7 @@ struct TodayWeatherLocationSheet: View {
         let search = MKLocalSearch(request: request)
         guard let response = try? await search.start(),
               let item = response.mapItems.first else { return }
-        let coordinate = item.placemark.coordinate
+        let coordinate = item.location.coordinate
         let name = result.title.isEmpty ? (item.name ?? "") : result.title
         await service.setLocation(TodayWeatherLocation(
             name: name,

@@ -93,7 +93,7 @@ extension ExtractsArticle {
         var isRedditLinkedArticle = false
 
         let isRedditCandidate = feedManager.feed(forArticle: article)?.isRedditFeed == true
-            || (article.isEphemeral && URL(string: article.url).map(Self.isRedditPostURL) == true)
+            || (article.isEphemeral && URL(string: article.url).map { Self.isRedditPostURL($0) } == true)
         if isRedditCandidate {
             do {
                 let result = try await RedditProvider.shared.fetchContent(for: article)
@@ -368,73 +368,4 @@ extension ExtractsArticle {
         }
     }
 
-    /// Applies extracted metadata without clobbering values already supplied by the feed.
-    func applyMetadata(_ metadata: ArticleMetadata) {
-        if article.author == nil, let author = metadata.author {
-            extractedAuthor = author
-        }
-        if article.publishedDate == nil, let date = metadata.publishedDate {
-            extractedPublishedDate = date
-        }
-        if article.imageURL == nil, let lead = metadata.leadImageURL {
-            extractedLeadImageURL = lead
-        }
-        if let pageTitle = metadata.pageTitle {
-            extractedPageTitle = pageTitle
-        }
-    }
-
-    /// Raw HTTP fetch returning decoded HTML and the response for header signals.
-    func fetchHTML(from url: URL) async -> (String?, URLResponse?) {
-        do {
-            let request = URLRequest.sakura(url: url)
-            let (data, response) = try await URLSession.shared.data(for: request)
-            return (HTMLDataDecoder.decode(data, response: response), response)
-        } catch {
-            return (nil, nil)
-        }
-    }
-
-    fileprivate func extractViaWebView(from url: URL, excludeTitle: String?) async -> String? {
-        let extractor = WebViewExtractor()
-        return await extractor.extractText(from: url)
-    }
-
-    static func isRedditPostURL(_ url: URL) -> Bool {
-        guard let host = url.host?.lowercased(),
-              host == "reddit.com" || host.hasSuffix(".reddit.com") else { return false }
-        return RedditProvider.postID(from: url) != nil
-    }
-
-    /// Builds the article body for an Instagram post: every carousel image
-    /// stacked above the caption. Falls back to `article.imageURL` when the
-    /// post is single-image (carousel array is empty in that case).
-    func renderInstagramPostContent(article: Article) -> String {
-        let imageURLs = !article.carouselImageURLs.isEmpty
-            ? article.carouselImageURLs
-            : (article.imageURL.map { [$0] } ?? [])
-
-        var sections: [String] = imageURLs.map { "{{IMG}}\($0){{/IMG}}" }
-        let caption = (article.summary ?? "")
-            .trimmingCharacters(in: .whitespacesAndNewlines)
-        if !caption.isEmpty {
-            sections.append(ArticleMarker.escape(caption))
-        }
-        return sections.joined(separator: "\n\n")
-    }
-
-    func renderXTweetContent(_ content: ParsedTweetContent) -> String {
-        var sections: [String] = []
-        for item in content.threadItems {
-            var section = ArticleMarker.escape(item.text)
-            for imageURL in item.imageURLs {
-                section += "\n\n{{IMG}}\(imageURL){{/IMG}}"
-            }
-            if let quoted = item.quotedTweetURL {
-                section += "\n\n{{XPOST}}\(quoted){{/XPOST}}"
-            }
-            sections.append(section)
-        }
-        return sections.joined(separator: "\n\n")
-    }
 }

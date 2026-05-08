@@ -2,7 +2,7 @@ import Foundation
 
 /// A provider that knows how to fetch its own display metadata
 /// (feed name, feed icon) from a custom source.
-protocol MetadataProvider: FeedProvider {
+protocol MetadataProvider: FeedProvider, Sendable {
 
     /// True if this provider can fetch metadata for the given site URL.
     /// Distinct from `matchesFeedURL`, which matches the stored feed URL.

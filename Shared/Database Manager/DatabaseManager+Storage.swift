@@ -8,110 +8,80 @@ nonisolated extension DatabaseManager {
     /// rows in `image_cache` keyed by article image URL.
     func storageSizeByFeed() throws -> [Int64: Int64] {
         var sizes: [Int64: Int64] = [:]
-
-        let articleSQL = """
-            SELECT feed_id,
-                   SUM(
-                       COALESCE(LENGTH(title), 0) +
-                       COALESCE(LENGTH(url), 0) +
-                       COALESCE(LENGTH(author), 0) +
-                       COALESCE(LENGTH(summary), 0) +
-                       COALESCE(LENGTH(content), 0) +
-                       COALESCE(LENGTH(image_url), 0) +
-                       COALESCE(LENGTH(carousel_urls), 0) +
-                       COALESCE(LENGTH(audio_url), 0) +
-                       COALESCE(LENGTH(ai_summary), 0) +
-                       COALESCE(LENGTH(translated_title), 0) +
-                       COALESCE(LENGTH(translated_text), 0) +
-                       COALESCE(LENGTH(translated_summary), 0) +
-                       COALESCE(LENGTH(transcript_json), 0) +
-                       COALESCE(LENGTH(download_path), 0)
-                   ) AS bytes
-            FROM articles
-            GROUP BY feed_id
-            """
-
-        for row in try database.prepare(articleSQL) {
-            guard let feedID = row[0] as? Int64 else { continue }
-            let bytes = (row[1] as? Int64) ?? Int64((row[1] as? Double) ?? 0)
-            sizes[feedID, default: 0] += bytes
+        for sql in Self.storageSizeQueries {
+            try accumulateBytesByFeed(sql: sql, into: &sizes)
         }
-
-        let imageSQL = """
-            SELECT a.feed_id, SUM(LENGTH(ic.data)) AS bytes
-            FROM articles a
-            INNER JOIN image_cache ic ON ic.url = a.image_url
-            GROUP BY a.feed_id
-            """
-
-        for row in try database.prepare(imageSQL) {
-            guard let feedID = row[0] as? Int64 else { continue }
-            let bytes = (row[1] as? Int64) ?? Int64((row[1] as? Double) ?? 0)
-            sizes[feedID, default: 0] += bytes
-        }
-
-        let iconSQL = """
-            SELECT f.id, LENGTH(ic.data) AS bytes
-            FROM feeds f
-            INNER JOIN image_cache ic ON ic.url = f.favicon_url
-            """
-
-        for row in try database.prepare(iconSQL) {
-            guard let feedID = row[0] as? Int64 else { continue }
-            let bytes = (row[1] as? Int64) ?? Int64((row[1] as? Double) ?? 0)
-            sizes[feedID, default: 0] += bytes
-        }
-
-        let commentsSQL = """
-            SELECT a.feed_id,
-                   SUM(COALESCE(LENGTH(c.author), 0)
-                       + COALESCE(LENGTH(c.body), 0)
-                       + COALESCE(LENGTH(c.source_url), 0)) AS bytes
-            FROM comments c
-            INNER JOIN articles a ON a.id = c.article_id
-            GROUP BY a.feed_id
-            """
-
-        for row in try database.prepare(commentsSQL) {
-            guard let feedID = row[0] as? Int64 else { continue }
-            let bytes = (row[1] as? Int64) ?? Int64((row[1] as? Double) ?? 0)
-            sizes[feedID, default: 0] += bytes
-        }
-
-        let entitiesSQL = """
-            SELECT a.feed_id,
-                   SUM(COALESCE(LENGTH(ne.name), 0)
-                       + COALESCE(LENGTH(ne.type), 0)) AS bytes
-            FROM nlp_entities ne
-            INNER JOIN articles a ON a.id = ne.article_id
-            GROUP BY a.feed_id
-            """
-
-        for row in try database.prepare(entitiesSQL) {
-            guard let feedID = row[0] as? Int64 else { continue }
-            let bytes = (row[1] as? Int64) ?? Int64((row[1] as? Double) ?? 0)
-            sizes[feedID, default: 0] += bytes
-        }
-
-        let similarSQL = """
-            SELECT a.feed_id, COUNT(*) * 24 AS bytes
-            FROM similar_articles sa
-            INNER JOIN articles a ON a.id = sa.source_id
-            GROUP BY a.feed_id
-            """
-
-        for row in try database.prepare(similarSQL) {
-            guard let feedID = row[0] as? Int64 else { continue }
-            let bytes = (row[1] as? Int64) ?? Int64((row[1] as? Double) ?? 0)
-            sizes[feedID, default: 0] += bytes
-        }
-
         for (feedID, bytes) in podcastDownloadSizesByFeed() {
             sizes[feedID, default: 0] += bytes
         }
-
         return sizes
     }
+
+    private func accumulateBytesByFeed(sql: String, into sizes: inout [Int64: Int64]) throws {
+        for row in try database.prepare(sql) {
+            guard let feedID = row[0] as? Int64 else { continue }
+            let bytes = (row[1] as? Int64) ?? Int64((row[1] as? Double) ?? 0)
+            sizes[feedID, default: 0] += bytes
+        }
+    }
+
+    private static let storageSizeQueries: [String] = [
+        """
+        SELECT feed_id,
+               SUM(
+                   COALESCE(LENGTH(title), 0) +
+                   COALESCE(LENGTH(url), 0) +
+                   COALESCE(LENGTH(author), 0) +
+                   COALESCE(LENGTH(summary), 0) +
+                   COALESCE(LENGTH(content), 0) +
+                   COALESCE(LENGTH(image_url), 0) +
+                   COALESCE(LENGTH(carousel_urls), 0) +
+                   COALESCE(LENGTH(audio_url), 0) +
+                   COALESCE(LENGTH(ai_summary), 0) +
+                   COALESCE(LENGTH(translated_title), 0) +
+                   COALESCE(LENGTH(translated_text), 0) +
+                   COALESCE(LENGTH(translated_summary), 0) +
+                   COALESCE(LENGTH(transcript_json), 0) +
+                   COALESCE(LENGTH(download_path), 0)
+               ) AS bytes
+        FROM articles
+        GROUP BY feed_id
+        """,
+        """
+        SELECT a.feed_id, SUM(LENGTH(ic.data)) AS bytes
+        FROM articles a
+        INNER JOIN image_cache ic ON ic.url = a.image_url
+        GROUP BY a.feed_id
+        """,
+        """
+        SELECT f.id, LENGTH(ic.data) AS bytes
+        FROM feeds f
+        INNER JOIN image_cache ic ON ic.url = f.favicon_url
+        """,
+        """
+        SELECT a.feed_id,
+               SUM(COALESCE(LENGTH(c.author), 0)
+                   + COALESCE(LENGTH(c.body), 0)
+                   + COALESCE(LENGTH(c.source_url), 0)) AS bytes
+        FROM comments c
+        INNER JOIN articles a ON a.id = c.article_id
+        GROUP BY a.feed_id
+        """,
+        """
+        SELECT a.feed_id,
+               SUM(COALESCE(LENGTH(ne.name), 0)
+                   + COALESCE(LENGTH(ne.type), 0)) AS bytes
+        FROM nlp_entities ne
+        INNER JOIN articles a ON a.id = ne.article_id
+        GROUP BY a.feed_id
+        """,
+        """
+        SELECT a.feed_id, COUNT(*) * 24 AS bytes
+        FROM similar_articles sa
+        INNER JOIN articles a ON a.id = sa.source_id
+        GROUP BY a.feed_id
+        """
+    ]
 
     /// Sums podcast download file sizes per feed by mapping each episode
     /// directory back to its article via the `articles.download_path` column.

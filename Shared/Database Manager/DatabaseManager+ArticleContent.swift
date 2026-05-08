@@ -57,19 +57,17 @@ nonisolated extension DatabaseManager {
 
     // MARK: - Translation Cache
 
-    // swiftlint:disable large_tuple
     func cachedArticleTranslation(
         for articleId: Int64
-    ) throws -> (title: String?, text: String?, summary: String?)? {
+    ) throws -> CachedArticleTranslation? {
         let query = articles.filter(articleID == articleId)
         guard let row = try database.pluck(query) else { return nil }
         let title = row[articleTranslatedTitle]
         let text = row[articleTranslatedText]
         let summary = row[articleTranslatedSummary]
         guard title != nil || text != nil || summary != nil else { return nil }
-        return (title: title, text: text, summary: summary)
+        return CachedArticleTranslation(title: title, text: text, summary: summary)
     }
-    // swiftlint:enable large_tuple
 
     func cacheArticleTranslation(
         title: String?, text: String?, for articleId: Int64

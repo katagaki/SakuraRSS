@@ -72,29 +72,10 @@ extension SakuraRSSApp {
         }
 
         let refreshTask = Task {
-            // nil probe means "assume expensive" so we default to the safer behavior.
-            let imageFetchModeRaw = UserDefaults.standard.string(
-                forKey: "BackgroundRefresh.ImageFetchMode"
-            )
-            let imageFetchMode = imageFetchModeRaw
-                .flatMap(FetchImagesMode.init(rawValue:)) ?? .wifiOnly
             let pathExpensive = await NetworkMonitor.currentPathIsExpensive() ?? true
-            let skipImageFetch: Bool = {
-                switch imageFetchMode {
-                case .always: return false
-                case .wifiOnly: return pathExpensive
-                case .off: return true
-                }
-            }()
+            let skipImageFetch = Self.resolveSkipImageFetch(pathExpensive: pathExpensive)
             // Gate image preload on plugged-in + Wi-Fi so it only runs during overnight charging.
-            let pluggedIn = await MainActor.run { () -> Bool in
-                UIDevice.current.isBatteryMonitoringEnabled = true
-                switch UIDevice.current.batteryState {
-                case .charging, .full: return true
-                case .unplugged, .unknown: return false
-                @unknown default: return false
-                }
-            }
+            let pluggedIn = await Self.deviceIsPluggedIn()
             let skipImagePreload = pathExpensive || !pluggedIn
 
             let manager = await MainActor.run { FeedManager() }
@@ -120,6 +101,31 @@ extension SakuraRSSApp {
                 "handleAppRefresh end category=\(category.rawValue) cancelled=\(refreshTask.isCancelled)"
             )
             completion.complete(success: !refreshTask.isCancelled)
+        }
+    }
+
+    nonisolated private static func resolveSkipImageFetch(pathExpensive: Bool) -> Bool {
+        // nil probe means "assume expensive" so we default to the safer behavior.
+        let imageFetchModeRaw = UserDefaults.standard.string(
+            forKey: "BackgroundRefresh.ImageFetchMode"
+        )
+        let imageFetchMode = imageFetchModeRaw
+            .flatMap(FetchImagesMode.init(rawValue:)) ?? .wifiOnly
+        switch imageFetchMode {
+        case .always: return false
+        case .wifiOnly: return pathExpensive
+        case .off: return true
+        }
+    }
+
+    nonisolated private static func deviceIsPluggedIn() async -> Bool {
+        await MainActor.run { () -> Bool in
+            UIDevice.current.isBatteryMonitoringEnabled = true
+            switch UIDevice.current.batteryState {
+            case .charging, .full: return true
+            case .unplugged, .unknown: return false
+            @unknown default: return false
+            }
         }
     }
 

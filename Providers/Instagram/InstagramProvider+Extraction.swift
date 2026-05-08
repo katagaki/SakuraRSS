@@ -4,7 +4,6 @@ import Foundation
 
 extension InstagramProvider {
 
-    // swiftlint:disable:next cyclomatic_complexity
     static func parseProfileResponse(
         data: Data, username: String
     ) -> InstagramProfileFetchResult? {
@@ -24,40 +23,7 @@ extension InstagramProvider {
         }
         log("InstagramProvider", "User keys containing media/edge/timeline: \(mediaKeys)")
 
-        var posts: [ParsedInstagramPost] = []
-
-        if let edgeMedia = user["edge_owner_to_timeline_media"] as? [String: Any],
-           let edges = edgeMedia["edges"] as? [[String: Any]] {
-            for edge in edges {
-                guard let node = edge["node"] as? [String: Any] else { continue }
-                if let post = parseEdgeNode(node: node, username: username,
-                                            displayName: displayName) {
-                    posts.append(post)
-                }
-            }
-        }
-
-        if posts.isEmpty, let edgeMedia = user["edge_owner_to_timeline_media"] as? [String: Any] {
-            if let items = edgeMedia["items"] as? [[String: Any]] {
-                for item in items {
-                    if let post = parseV1Item(item: item, username: username,
-                                              displayName: displayName) {
-                        posts.append(post)
-                    }
-                }
-            }
-        }
-
-        if posts.isEmpty, let media = user["media"] as? [String: Any] {
-            if let items = media["items"] as? [[String: Any]] {
-                for item in items {
-                    if let post = parseV1Item(item: item, username: username,
-                                              displayName: displayName) {
-                        posts.append(post)
-                    }
-                }
-            }
-        }
+        let posts = extractProfilePosts(from: user, username: username, displayName: displayName)
 
         log("InstagramProvider", "Parsed \(posts.count) posts from profile response")
 
@@ -66,6 +32,38 @@ extension InstagramProvider {
             profileImageURL: profileImageURL,
             displayName: displayName
         )
+    }
+
+    private static func extractProfilePosts(
+        from user: [String: Any], username: String, displayName: String?
+    ) -> [ParsedInstagramPost] {
+        var posts: [ParsedInstagramPost] = []
+        let edgeMedia = user["edge_owner_to_timeline_media"] as? [String: Any]
+        if let edgeMedia, let edges = edgeMedia["edges"] as? [[String: Any]] {
+            for edge in edges {
+                guard let node = edge["node"] as? [String: Any] else { continue }
+                if let post = parseEdgeNode(node: node, username: username, displayName: displayName) {
+                    posts.append(post)
+                }
+            }
+        }
+        if posts.isEmpty, let edgeMedia, let items = edgeMedia["items"] as? [[String: Any]] {
+            for item in items {
+                if let post = parseV1Item(item: item, username: username, displayName: displayName) {
+                    posts.append(post)
+                }
+            }
+        }
+        if posts.isEmpty,
+           let media = user["media"] as? [String: Any],
+           let items = media["items"] as? [[String: Any]] {
+            for item in items {
+                if let post = parseV1Item(item: item, username: username, displayName: displayName) {
+                    posts.append(post)
+                }
+            }
+        }
+        return posts
     }
 
     // MARK: - GraphQL Edge Format
@@ -132,24 +130,10 @@ extension InstagramProvider {
 
     // MARK: - v1 API Item Format
 
-    // swiftlint:disable:next function_body_length
     private static func parseV1Item(
         item: [String: Any], username: String, displayName: String?
     ) -> ParsedInstagramPost? {
-        let id: String
-        if let idStr = item["id"] as? String {
-            id = idStr
-        } else if let pk = item["pk"] as? Int64 {
-            // swiftlint:disable:previous identifier_name
-            id = String(pk)
-        } else if let pk = item["pk"] as? String {
-            // swiftlint:disable:previous identifier_name
-            id = pk
-        } else {
-            return nil
-        }
-        guard !id.isEmpty else { return nil }
-
+        guard let id = parseV1ItemID(from: item) else { return nil }
         let code = item["code"] as? String ?? ""
 
         var captionText = ""
@@ -158,19 +142,7 @@ extension InstagramProvider {
             captionText = text
         }
 
-        var imageURL: String?
-        var carouselImageURLs: [String] = []
-        if let carouselMedia = item["carousel_media"] as? [[String: Any]] {
-            for media in carouselMedia {
-                if let url = bestImageURL(from: media) {
-                    carouselImageURLs.append(url)
-                }
-            }
-            imageURL = carouselImageURLs.first
-        }
-        if imageURL == nil {
-            imageURL = bestImageURL(from: item)
-        }
+        let (imageURL, carouselImageURLs) = parseV1ItemImages(from: item)
 
         var publishedDate: Date?
         if let timestamp = item["taken_at"] as? TimeInterval {
@@ -195,6 +167,39 @@ extension InstagramProvider {
             carouselImageURLs: carouselImageURLs,
             publishedDate: publishedDate
         )
+    }
+
+    private static func parseV1ItemID(from item: [String: Any]) -> String? {
+        let identifier: String
+        if let idStr = item["id"] as? String {
+            identifier = idStr
+        } else if let primaryKey = item["pk"] as? Int64 {
+            identifier = String(primaryKey)
+        } else if let primaryKey = item["pk"] as? String {
+            identifier = primaryKey
+        } else {
+            return nil
+        }
+        return identifier.isEmpty ? nil : identifier
+    }
+
+    private static func parseV1ItemImages(
+        from item: [String: Any]
+    ) -> (imageURL: String?, carouselImageURLs: [String]) {
+        var carouselImageURLs: [String] = []
+        var imageURL: String?
+        if let carouselMedia = item["carousel_media"] as? [[String: Any]] {
+            for media in carouselMedia {
+                if let url = bestImageURL(from: media) {
+                    carouselImageURLs.append(url)
+                }
+            }
+            imageURL = carouselImageURLs.first
+        }
+        if imageURL == nil {
+            imageURL = bestImageURL(from: item)
+        }
+        return (imageURL, carouselImageURLs)
     }
 
     // MARK: - User ID Extraction

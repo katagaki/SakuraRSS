@@ -14,131 +14,6 @@ nonisolated final class DatabaseManager: @unchecked Sendable {
 
     private(set) var database: Connection
 
-    // MARK: - Tables
-
-    let feeds = Table("feeds")
-    let feedID = SQLite.Expression<Int64>("id")
-    let feedTitle = SQLite.Expression<String>("title")
-    let feedURL = SQLite.Expression<String>("url")
-    let feedSiteURL = SQLite.Expression<String>("site_url")
-    let feedDescription = SQLite.Expression<String>("description")
-    let feedIconURL = SQLite.Expression<String?>("favicon_url")
-    let feedLastFetched = SQLite.Expression<Double?>("last_fetched")
-    let feedCategory = SQLite.Expression<String?>("category")
-    let feedIsPodcast = SQLite.Expression<Bool>("is_podcast")
-    let feedIsMuted = SQLite.Expression<Bool>("is_muted")
-    let feedCustomIconURL = SQLite.Expression<String?>("custom_icon_url")
-    let feedAcronymIcon = SQLite.Expression<Data?>("acronym_icon")
-    let feedIsTitleCustomized = SQLite.Expression<Bool>("is_title_customized")
-    let feedIsFediverse = SQLite.Expression<Bool?>("is_fediverse")
-
-    let imageCache = Table("image_cache")
-    let imageCacheURL = SQLite.Expression<String>("url")
-    let imageCacheData = SQLite.Expression<Data>("data")
-    let imageCachedAt = SQLite.Expression<Double>("cached_at")
-
-    let articles = Table("articles")
-    let articleID = SQLite.Expression<Int64>("id")
-    let articleFeedID = SQLite.Expression<Int64>("feed_id")
-    let articleTitle = SQLite.Expression<String>("title")
-    let articleURL = SQLite.Expression<String>("url")
-    let articleAuthor = SQLite.Expression<String?>("author")
-    let articleSummary = SQLite.Expression<String?>("summary")
-    let articleContent = SQLite.Expression<String?>("content")
-    let articleImageURL = SQLite.Expression<String?>("image_url")
-    let articleCarouselURLs = SQLite.Expression<String?>("carousel_urls")
-    let articlePublishedDate = SQLite.Expression<Double?>("published_date")
-    let articleIsRead = SQLite.Expression<Bool>("is_read")
-    let articleIsBookmarked = SQLite.Expression<Bool>("is_bookmarked")
-    let articleHasFullText = SQLite.Expression<Bool>("has_full_text")
-    let articleAudioURL = SQLite.Expression<String?>("audio_url")
-    let articleDuration = SQLite.Expression<Int?>("duration")
-    let articleAISummary = SQLite.Expression<String?>("ai_summary")
-    let articleTranslatedTitle = SQLite.Expression<String?>("translated_title")
-    let articleTranslatedText = SQLite.Expression<String?>("translated_text")
-    let articleTranslatedSummary = SQLite.Expression<String?>("translated_summary")
-    let articleParserVersion = SQLite.Expression<Int>("parser_version")
-    let articleSentimentScore = SQLite.Expression<Double?>("sentiment_score")
-    let articleSentimentProcessed = SQLite.Expression<Bool>("sentiment_processed")
-    let articleEntitiesProcessed = SQLite.Expression<Bool>("entities_processed")
-    let articleSimilarComputed = SQLite.Expression<Bool>("similar_computed")
-    let articleLastAccessed = SQLite.Expression<Double?>("last_accessed")
-    let articleDownloadPath = SQLite.Expression<String?>("download_path")
-    let articleTranscriptJSON = SQLite.Expression<String?>("transcript_json")
-    let articleCommentsFetchedAt = SQLite.Expression<Double?>("comments_fetched_at")
-
-    let comments = Table("comments")
-    let commentID = SQLite.Expression<Int64>("id")
-    let commentArticleID = SQLite.Expression<Int64>("article_id")
-    let commentRank = SQLite.Expression<Int>("rank")
-    let commentAuthor = SQLite.Expression<String>("author")
-    let commentBody = SQLite.Expression<String>("body")
-    let commentCreatedDate = SQLite.Expression<Double?>("created_date")
-    let commentSourceURL = SQLite.Expression<String?>("source_url")
-
-    let nlpEntities = Table("nlp_entities")
-    let nlpEntityID = SQLite.Expression<Int64>("id")
-    let nlpEntityArticleID = SQLite.Expression<Int64>("article_id")
-    let nlpEntityName = SQLite.Expression<String>("name")
-    let nlpEntityType = SQLite.Expression<String>("type")
-
-    let similarArticles = Table("similar_articles")
-    let similarSourceID = SQLite.Expression<Int64>("source_id")
-    let similarTargetID = SQLite.Expression<Int64>("similar_id")
-    let similarDistance = SQLite.Expression<Double>("distance")
-    let similarRank = SQLite.Expression<Int>("rank")
-
-    let summaryCache = Table("summary_cache")
-    let summaryCacheType = SQLite.Expression<String>("type")
-    let summaryCacheDate = SQLite.Expression<String>("date")
-    let summaryCacheContent = SQLite.Expression<String>("content")
-
-    let summaryHeadlines = Table("summary_headlines")
-    let summaryHeadlineType = SQLite.Expression<String>("type")
-    let summaryHeadlineDate = SQLite.Expression<String>("date")
-    let summaryHeadlineOrdinal = SQLite.Expression<Int>("ordinal")
-    let summaryHeadlineText = SQLite.Expression<String>("headline")
-    let summaryHeadlineArticleIDs = SQLite.Expression<String>("article_ids")
-    let summaryHeadlineFeedIDs = SQLite.Expression<String>("feed_ids")
-    let summaryHeadlineThumbnailURL = SQLite.Expression<String?>("thumbnail_url")
-
-    let feedRules = Table("feed_rules")
-    let ruleID = SQLite.Expression<Int64>("id")
-    let ruleFeedID = SQLite.Expression<Int64>("feed_id")
-    let ruleType = SQLite.Expression<String>("type")
-    let ruleValue = SQLite.Expression<String>("value")
-
-    let lists = Table("lists")
-    let listID = SQLite.Expression<Int64>("id")
-    let listName = SQLite.Expression<String>("name")
-    let listIcon = SQLite.Expression<String>("icon")
-    let listDisplayStyle = SQLite.Expression<String?>("display_style")
-    let listSortOrder = SQLite.Expression<Int>("sort_order")
-
-    let listFeeds = Table("list_feeds")
-    let listFeedListID = SQLite.Expression<Int64>("list_id")
-    let listFeedFeedID = SQLite.Expression<Int64>("feed_id")
-
-    let listRules = Table("list_rules")
-    let listRuleID = SQLite.Expression<Int64>("id")
-    let listRuleListID = SQLite.Expression<Int64>("list_id")
-    let listRuleType = SQLite.Expression<String>("type")
-    let listRuleValue = SQLite.Expression<String>("value")
-
-    let contentOverrides = Table("content_overrides")
-    let coFeedID = SQLite.Expression<Int64>("feed_id")
-    let coEnabled = SQLite.Expression<Bool>("enabled")
-    let coTitleField = SQLite.Expression<String>("title_field")
-    let coBodyField = SQLite.Expression<String>("body_field")
-    let coAuthorField = SQLite.Expression<String>("author_field")
-
-    let feedRefreshMetrics = Table("feed_refresh_metrics")
-    let metricFeedID = SQLite.Expression<Int64>("feed_id")
-    let metricLastDurationMs = SQLite.Expression<Int>("last_duration_ms")
-    let metricAverageDurationMs = SQLite.Expression<Double>("avg_duration_ms")
-    let metricSampleCount = SQLite.Expression<Int>("sample_count")
-    let metricLastRecordedAt = SQLite.Expression<Double>("last_recorded_at")
-
     // MARK: - Init
 
     private init() {
@@ -225,6 +100,16 @@ nonisolated final class DatabaseManager: @unchecked Sendable {
     }
 
     private func createCoreTables() throws {
+        try createFeedsTable()
+        try createArticlesTable()
+        try database.run(articles.createIndex(articleFeedID, ifNotExists: true))
+        try database.run(articles.createIndex(articlePublishedDate, ifNotExists: true))
+        try database.run(articles.createIndex(articleFeedID, articleIsRead, ifNotExists: true))
+        try createCommentsTable()
+        try database.run(comments.createIndex(commentArticleID, ifNotExists: true))
+    }
+
+    private func createFeedsTable() throws {
         try database.run(feeds.create(ifNotExists: true) { table in
             table.column(feedID, primaryKey: .autoincrement)
             table.column(feedTitle)
@@ -241,7 +126,9 @@ nonisolated final class DatabaseManager: @unchecked Sendable {
             table.column(feedIsTitleCustomized, defaultValue: false)
             table.column(feedIsFediverse)
         })
+    }
 
+    private func createArticlesTable() throws {
         try database.run(articles.create(ifNotExists: true) { table in
             table.column(articleID, primaryKey: .autoincrement)
             table.column(articleFeedID, references: feeds, feedID)
@@ -271,11 +158,9 @@ nonisolated final class DatabaseManager: @unchecked Sendable {
             table.column(articleTranscriptJSON)
             table.column(articleCommentsFetchedAt)
         })
+    }
 
-        try database.run(articles.createIndex(articleFeedID, ifNotExists: true))
-        try database.run(articles.createIndex(articlePublishedDate, ifNotExists: true))
-        try database.run(articles.createIndex(articleFeedID, articleIsRead, ifNotExists: true))
-
+    private func createCommentsTable() throws {
         try database.run(comments.create(ifNotExists: true) { table in
             table.column(commentID, primaryKey: .autoincrement)
             table.column(commentArticleID, references: articles, articleID)
@@ -285,23 +170,26 @@ nonisolated final class DatabaseManager: @unchecked Sendable {
             table.column(commentCreatedDate)
             table.column(commentSourceURL)
         })
-        try database.run(comments.createIndex(commentArticleID, ifNotExists: true))
     }
 
     private func createAuxiliaryTables() throws {
+        try createCacheTables()
+        try createListsAndRulesTables()
+        try createOverrideAndMetricsTables()
+    }
+
+    private func createCacheTables() throws {
         try database.run(imageCache.create(ifNotExists: true) { table in
             table.column(imageCacheURL, primaryKey: true)
             table.column(imageCacheData)
             table.column(imageCachedAt)
         })
-
         try database.run(summaryCache.create(ifNotExists: true) { table in
             table.column(summaryCacheType)
             table.column(summaryCacheDate)
             table.column(summaryCacheContent)
             table.primaryKey(summaryCacheType, summaryCacheDate)
         })
-
         try database.run(summaryHeadlines.create(ifNotExists: true) { table in
             table.column(summaryHeadlineType)
             table.column(summaryHeadlineDate)
@@ -312,14 +200,15 @@ nonisolated final class DatabaseManager: @unchecked Sendable {
             table.column(summaryHeadlineThumbnailURL)
             table.primaryKey(summaryHeadlineType, summaryHeadlineDate, summaryHeadlineOrdinal)
         })
+    }
 
+    private func createListsAndRulesTables() throws {
         try database.run(feedRules.create(ifNotExists: true) { table in
             table.column(ruleID, primaryKey: .autoincrement)
             table.column(ruleFeedID, references: feeds, feedID)
             table.column(ruleType)
             table.column(ruleValue)
         })
-
         try database.run(lists.create(ifNotExists: true) { table in
             table.column(listID, primaryKey: .autoincrement)
             table.column(listName)
@@ -327,20 +216,20 @@ nonisolated final class DatabaseManager: @unchecked Sendable {
             table.column(listDisplayStyle)
             table.column(listSortOrder, defaultValue: 0)
         })
-
         try database.run(listFeeds.create(ifNotExists: true) { table in
             table.column(listFeedListID)
             table.column(listFeedFeedID)
             table.primaryKey(listFeedListID, listFeedFeedID)
         })
-
         try database.run(listRules.create(ifNotExists: true) { table in
             table.column(listRuleID, primaryKey: .autoincrement)
             table.column(listRuleListID)
             table.column(listRuleType)
             table.column(listRuleValue)
         })
+    }
 
+    private func createOverrideAndMetricsTables() throws {
         try database.run(contentOverrides.create(ifNotExists: true) { table in
             table.column(coFeedID, primaryKey: true, references: feeds, feedID)
             table.column(coEnabled, defaultValue: false)
@@ -348,7 +237,6 @@ nonisolated final class DatabaseManager: @unchecked Sendable {
             table.column(coBodyField, defaultValue: "default")
             table.column(coAuthorField, defaultValue: "default")
         })
-
         try database.run(feedRefreshMetrics.create(ifNotExists: true) { table in
             table.column(metricFeedID, primaryKey: true, references: feeds, feedID)
             table.column(metricLastDurationMs, defaultValue: 0)

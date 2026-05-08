@@ -49,7 +49,6 @@ extension XProvider {
 
         log("XProvider", "Fetched \(tweets.count) tweets total")
 
-        // Persist any cookies X rotated during the fetch.
         Self.persistRotatedCookies()
 
         return XProfileFetchResult(
@@ -87,7 +86,6 @@ extension XProvider {
         return XCookies(csrfToken: csrf, authToken: auth)
     }
 
-    /// Writes rotated X cookies from `HTTPCookieStorage.shared` back to Keychain.
     static func persistRotatedCookies() {
         let jar = HTTPCookieStorage.shared
         let xCookies = (jar.cookies ?? []).filter {
@@ -117,61 +115,15 @@ extension XProvider {
 
     // MARK: - User Info
 
-    // swiftlint:disable:next function_body_length
     func fetchUserInfo(
         screenName: String, cookies: XCookies
     ) async -> UserInfo? {
-        let variables: [String: Any] = [
-            "screen_name": screenName,
-            "withGrokTranslatedBio": true
-        ]
-        let fieldToggles: [String: Any] = [
-            "withPayments": false,
-            "withAuxiliaryUserLabels": true
-        ]
-
-        guard let queryID = Self.userByScreenNameQueryID,
-              let url = Self.buildGraphQLURL(
-            queryID: queryID,
-            operationName: "UserByScreenName",
-            variables: variables,
-            features: Self.userByScreenNameFeatures,
-            fieldToggles: fieldToggles
-        ) else {
-            log("XProvider", "Failed to build UserByScreenName URL")
-            return nil
-        }
-
-        let request = buildRequest(url: url, cookies: cookies)
-
-        log("XProvider", "UserByScreenName request URL: \(url)")
+        guard let request = buildUserByScreenNameRequest(
+            screenName: screenName, cookies: cookies
+        ) else { return nil }
         log("XProvider", "Request headers: \(request.allHTTPHeaderFields ?? [:])")
 
-        let data: Data
-        let response: URLResponse
-        do {
-            (data, response) = try await URLSession.shared.data(for: request)
-        } catch {
-            log("XProvider", "UserByScreenName network error: \(error)")
-            return nil
-        }
-
-        guard let httpResponse = response as? HTTPURLResponse else { return nil }
-
-        log("XProvider", "UserByScreenName status: \(httpResponse.statusCode)")
-        if let body = String(data: data, encoding: .utf8) {
-            log("XProvider", "UserByScreenName response: \(body.prefix(1000))")
-        }
-
-        guard httpResponse.statusCode == 200 else { return nil }
-
-        guard let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
-              let dataObj = json["data"] as? [String: Any],
-              let user = dataObj["user"] as? [String: Any],
-              let result = user["result"] as? [String: Any] else {
-            log("XProvider", "Failed to parse UserByScreenName JSON structure")
-            return nil
-        }
+        guard let result = await fetchUserByScreenNameResult(request: request) else { return nil }
 
         let restId = result["rest_id"] as? String ?? ""
         guard !restId.isEmpty else { return nil }
@@ -180,21 +132,73 @@ extension XProvider {
         let displayName = core?["name"] as? String
 
         let avatar = result["avatar"] as? [String: Any]
-        var profileImageURL = avatar?["image_url"] as? String
-
-        if let url = profileImageURL {
-            profileImageURL = url
-                .replacingOccurrences(of: "_normal.", with: "_400x400.")
-                .replacingOccurrences(of: "_bigger.", with: "_400x400.")
-                .replacingOccurrences(of: "_mini.", with: "_400x400.")
-                .replacingOccurrences(of: "_200x200.", with: "_400x400.")
-        }
+        let profileImageURL = upscaleAvatarURL(avatar?["image_url"] as? String)
 
         return UserInfo(
             id: restId,
             displayName: displayName,
             profileImageURL: profileImageURL
         )
+    }
+
+    private func buildUserByScreenNameRequest(
+        screenName: String, cookies: XCookies
+    ) -> URLRequest? {
+        let variables: [String: Any] = [
+            "screen_name": screenName,
+            "withGrokTranslatedBio": true
+        ]
+        let fieldToggles: [String: Any] = [
+            "withPayments": false,
+            "withAuxiliaryUserLabels": true
+        ]
+        guard let queryID = Self.userByScreenNameQueryID,
+              let url = Self.buildGraphQLURL(
+                queryID: queryID,
+                operationName: "UserByScreenName",
+                variables: variables,
+                features: Self.userByScreenNameFeatures,
+                fieldToggles: fieldToggles
+              ) else {
+            log("XProvider", "Failed to build UserByScreenName URL")
+            return nil
+        }
+        log("XProvider", "UserByScreenName request URL: \(url)")
+        return buildRequest(url: url, cookies: cookies)
+    }
+
+    private func fetchUserByScreenNameResult(request: URLRequest) async -> [String: Any]? {
+        let data: Data
+        let response: URLResponse
+        do {
+            (data, response) = try await URLSession.shared.data(for: request)
+        } catch {
+            log("XProvider", "UserByScreenName network error: \(error)")
+            return nil
+        }
+        guard let httpResponse = response as? HTTPURLResponse else { return nil }
+        log("XProvider", "UserByScreenName status: \(httpResponse.statusCode)")
+        if let body = String(data: data, encoding: .utf8) {
+            log("XProvider", "UserByScreenName response: \(body.prefix(1000))")
+        }
+        guard httpResponse.statusCode == 200,
+              let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+              let dataObj = json["data"] as? [String: Any],
+              let user = dataObj["user"] as? [String: Any],
+              let result = user["result"] as? [String: Any] else {
+            log("XProvider", "Failed to parse UserByScreenName JSON structure")
+            return nil
+        }
+        return result
+    }
+
+    private func upscaleAvatarURL(_ url: String?) -> String? {
+        guard let url else { return nil }
+        return url
+            .replacingOccurrences(of: "_normal.", with: "_400x400.")
+            .replacingOccurrences(of: "_bigger.", with: "_400x400.")
+            .replacingOccurrences(of: "_mini.", with: "_400x400.")
+            .replacingOccurrences(of: "_200x200.", with: "_400x400.")
     }
 
     // MARK: - Single Tweet
@@ -321,64 +325,12 @@ extension XProvider {
         return ParsedTweetContent(focal: content.focal, threadItems: items)
     }
 
-    /// Fetches the raw TweetDetail GraphQL response so callers can run
-    /// their own parsing (e.g. extracting replies vs. the focal tweet).
-    /// On a stale-query-ID failure (missing ID, non-200 response, or
-    /// missing instructions), re-extracts query IDs from the current x.com
-    /// bundle once and retries.  This is the same recovery path as the in-app
-    /// "Refresh Authentication" button.
-    func fetchTweetDetailData(tweetID: String) async -> Data? {
-        if let data = await performTweetDetailFetch(tweetID: tweetID),
-           Self.tweetDetailHasInstructions(data) {
-            return data
-        }
-        log("XProvider", "TweetDetail failed; refreshing query IDs and retrying tweet=\(tweetID)")
-        await MainActor.run { Self.queryIDsFetched = false }
-        await Self.fetchQueryIDsIfNeeded()
-        return await performTweetDetailFetch(tweetID: tweetID)
-    }
-
-    private func performTweetDetailFetch(tweetID: String) async -> Data? {
+    func performTweetDetailFetch(tweetID: String) async -> Data? {
         guard let cookies = await Self.getXCookies() else {
             log("XProvider", "No X session cookies for TweetDetail fetch")
             return nil
         }
-
-        // Mirrors the variables/features/fieldToggles the x.com web client
-        // currently sends for the relevance-ranked TweetDetail call.
-        let variables: [String: Any] = [
-            "focalTweetId": tweetID,
-            "referrer": "tweet",
-            "with_rux_injections": false,
-            "rankingMode": "Relevance",
-            "includePromotedContent": true,
-            "withCommunity": true,
-            "withQuickPromoteEligibilityTweetFields": true,
-            "withBirdwatchNotes": true,
-            "withVoice": true
-        ]
-
-        let fieldToggles: [String: Any] = [
-            "withArticleRichContentState": true,
-            "withArticlePlainText": false,
-            "withArticleSummaryText": true,
-            "withArticleVoiceOver": true,
-            "withGrokAnalyze": false,
-            "withDisallowedReplyControls": false
-        ]
-
-        guard let queryID = Self.tweetDetailQueryID,
-              let url = Self.buildGraphQLURL(
-                queryID: queryID,
-                operationName: "TweetDetail",
-                variables: variables,
-                features: Self.tweetDetailFeatures,
-                fieldToggles: fieldToggles
-              ) else {
-            log("XProvider", "Failed to build TweetDetail URL")
-            return nil
-        }
-
+        guard let url = buildTweetDetailURL(tweetID: tweetID) else { return nil }
         let request = buildRequest(url: url, cookies: cookies)
 
         let data: Data
@@ -403,99 +355,40 @@ extension XProvider {
         return data
     }
 
-    /// Returns true if the response actually contains the threaded
-    /// conversation. A 200 with `errors` (e.g. "Operation not found" when
-    /// the query ID has rotated) lacks this object.
-    private static func tweetDetailHasInstructions(_ data: Data) -> Bool {
-        guard let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
-              let dataObj = json["data"] as? [String: Any],
-              let threaded = dataObj["threaded_conversation_with_injections_v2"]
-                  as? [String: Any],
-              threaded["instructions"] is [[String: Any]] else {
-            return false
-        }
-        return true
-    }
-
-    // MARK: - Tweets
-
-    func fetchTweets(
-        userId: String, cookies: XCookies
-    ) async -> [ParsedTweet] {
-        var allTweets: [ParsedTweet] = []
-        var seenIDs = Set<String>()
-        var cursor: String?
-
-        for page in 0..<2 {
-            guard !Task.isCancelled else { break }
-
-            var variables: [String: Any] = [
-                "userId": userId,
-                "count": 40,
-                "includePromotedContent": false,
-                "withQuickPromoteEligibilityTweetFields": true,
-                "withVoice": true
-            ]
-            if let cursor {
-                variables["cursor"] = cursor
-            }
-
-            let fieldToggles: [String: Any] = ["withArticlePlainText": false]
-
-            guard let queryID = Self.userTweetsQueryID,
-                  let url = Self.buildGraphQLURL(
+    private func buildTweetDetailURL(tweetID: String) -> URL? {
+        // Mirrors the variables/features/fieldToggles the x.com web client
+        // currently sends for the relevance-ranked TweetDetail call.
+        let variables: [String: Any] = [
+            "focalTweetId": tweetID,
+            "referrer": "tweet",
+            "with_rux_injections": false,
+            "rankingMode": "Relevance",
+            "includePromotedContent": true,
+            "withCommunity": true,
+            "withQuickPromoteEligibilityTweetFields": true,
+            "withBirdwatchNotes": true,
+            "withVoice": true
+        ]
+        let fieldToggles: [String: Any] = [
+            "withArticleRichContentState": true,
+            "withArticlePlainText": false,
+            "withArticleSummaryText": true,
+            "withArticleVoiceOver": true,
+            "withGrokAnalyze": false,
+            "withDisallowedReplyControls": false
+        ]
+        guard let queryID = Self.tweetDetailQueryID,
+              let url = Self.buildGraphQLURL(
                 queryID: queryID,
-                operationName: "UserTweets",
+                operationName: "TweetDetail",
                 variables: variables,
-                features: Self.userTweetsFeatures,
+                features: Self.tweetDetailFeatures,
                 fieldToggles: fieldToggles
-            ) else {
-                log("XProvider", "Failed to build UserTweets URL (page \(page))")
-                break
-            }
-
-            let request = buildRequest(url: url, cookies: cookies)
-
-            log("XProvider", "UserTweets request (page \(page)): \(url)")
-
-            let data: Data
-            let response: URLResponse
-            do {
-                (data, response) = try await URLSession.shared.data(for: request)
-            } catch {
-                log("XProvider", "UserTweets network error (page \(page)): \(error)")
-                break
-            }
-
-            guard let httpResponse = response as? HTTPURLResponse else { break }
-
-            log("XProvider", "UserTweets status (page \(page)): \(httpResponse.statusCode)")
-            if let body = String(data: data, encoding: .utf8) {
-                log("XProvider", "UserTweets response (page \(page)): \(body.prefix(2000))")
-            }
-
-            guard httpResponse.statusCode == 200 else { break }
-
-            guard let parsed = Self.parseTweetsResponse(data: data) else {
-                log("XProvider", "Failed to parse UserTweets response (page \(page))")
-                break
-            }
-
-            // swiftlint:disable:next line_length
-            log("XProvider", "Parsed \(parsed.tweets.count) tweets from page \(page), cursor: \(parsed.bottomCursor?.prefix(30) ?? "nil")")
-
-            var newCount = 0
-            for tweet in parsed.tweets where !seenIDs.contains(tweet.id) {
-                seenIDs.insert(tweet.id)
-                allTweets.append(tweet)
-                newCount += 1
-            }
-
-            if newCount == 0 || allTweets.count >= Self.targetTweetCount { break }
-            cursor = parsed.bottomCursor
-            if cursor == nil { break }
+              ) else {
+            log("XProvider", "Failed to build TweetDetail URL")
+            return nil
         }
-
-        return allTweets
+        return url
     }
+
 }

@@ -3,7 +3,7 @@ import WebKit
 
 /// A type that owns a Keychain-backed cookie jar and bridges it to
 /// `WKWebsiteDataStore`.
-protocol Authenticated {
+protocol Authenticated: Sendable {
 
     /// Keychain-backed persistent cookie jar.
     nonisolated static var cookieStore: KeychainCookieStore { get }
@@ -99,4 +99,3 @@ extension Authenticated {
         try? await Task.sleep(for: .seconds(2))
     }
 }
-

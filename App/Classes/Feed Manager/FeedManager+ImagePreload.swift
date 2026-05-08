@@ -2,7 +2,6 @@ import Foundation
 
 extension FeedManager {
 
-    /// Downloads and caches raw bytes for article images at utility priority.
     nonisolated static func preloadImages(urls: [String]) async {
         guard !urls.isEmpty else { return }
 
@@ -41,11 +40,8 @@ extension FeedManager {
                         await downloadAndCacheImage(url: url)
                     }
                 }
-                for await _ in group {
-                    // swiftlint:disable:next for_where
-                    if Task.isCancelled {
-                        group.cancelAll()
-                    }
+                for await _ in group where Task.isCancelled {
+                    group.cancelAll()
                 }
             }
         }

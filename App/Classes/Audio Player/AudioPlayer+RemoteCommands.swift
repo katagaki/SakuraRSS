@@ -1,13 +1,21 @@
 import MediaPlayer
 
-// swiftlint:disable function_body_length
 extension AudioPlayer {
 
     // MARK: - Remote Commands
 
     func configureRemoteCommands() {
         let commandCenter = MPRemoteCommandCenter.shared()
+        configurePlayCommand(commandCenter)
+        configurePauseCommand(commandCenter)
+        configureTogglePlayPauseCommand(commandCenter)
+        configureSkipForwardCommand(commandCenter)
+        configureSkipBackwardCommand(commandCenter)
+        configureChangePlaybackPositionCommand(commandCenter)
+        configureChangePlaybackRateCommand(commandCenter)
+    }
 
+    private func configurePlayCommand(_ commandCenter: MPRemoteCommandCenter) {
         commandCenter.playCommand.addTarget { [weak self] _ in
             Task { @MainActor in
                 if NewYouTubePlaybackController.shared.player != nil {
@@ -22,7 +30,9 @@ extension AudioPlayer {
             }
             return .success
         }
+    }
 
+    private func configurePauseCommand(_ commandCenter: MPRemoteCommandCenter) {
         commandCenter.pauseCommand.addTarget { [weak self] _ in
             Task { @MainActor in
                 if NewYouTubePlaybackController.shared.player != nil {
@@ -37,7 +47,9 @@ extension AudioPlayer {
             }
             return .success
         }
+    }
 
+    private func configureTogglePlayPauseCommand(_ commandCenter: MPRemoteCommandCenter) {
         commandCenter.togglePlayPauseCommand.addTarget { [weak self] _ in
             Task { @MainActor in
                 if NewYouTubePlaybackController.shared.player != nil {
@@ -50,7 +62,9 @@ extension AudioPlayer {
             }
             return .success
         }
+    }
 
+    private func configureSkipForwardCommand(_ commandCenter: MPRemoteCommandCenter) {
         commandCenter.skipForwardCommand.preferredIntervals = [30]
         commandCenter.skipForwardCommand.addTarget { [weak self] event in
             guard let event = event as? MPSkipIntervalCommandEvent else { return .commandFailed }
@@ -64,7 +78,9 @@ extension AudioPlayer {
             }
             return .success
         }
+    }
 
+    private func configureSkipBackwardCommand(_ commandCenter: MPRemoteCommandCenter) {
         commandCenter.skipBackwardCommand.preferredIntervals = [15]
         commandCenter.skipBackwardCommand.addTarget { [weak self] event in
             guard let event = event as? MPSkipIntervalCommandEvent else { return .commandFailed }
@@ -78,7 +94,9 @@ extension AudioPlayer {
             }
             return .success
         }
+    }
 
+    private func configureChangePlaybackPositionCommand(_ commandCenter: MPRemoteCommandCenter) {
         commandCenter.changePlaybackPositionCommand.addTarget { [weak self] event in
             guard let event = event as? MPChangePlaybackPositionCommandEvent else {
                 return .commandFailed
@@ -93,7 +111,9 @@ extension AudioPlayer {
             }
             return .success
         }
+    }
 
+    private func configureChangePlaybackRateCommand(_ commandCenter: MPRemoteCommandCenter) {
         commandCenter.changePlaybackRateCommand.supportedPlaybackRates = [
             0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0, 2.5, 3.0
         ]
@@ -109,4 +129,3 @@ extension AudioPlayer {
         }
     }
 }
-// swiftlint:enable function_body_length

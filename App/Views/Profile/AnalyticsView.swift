@@ -44,13 +44,13 @@ struct AnalyticsView: View {
 
     private func loadStats() async {
         let database = DatabaseManager.shared
-        let manager = feedManager
+        let feedTitlesByID: [Int64: String] = feedManager.feedsByID.mapValues { $0.title }
         await Task.detached {
             let read = (try? database.totalArticlesRead()) ?? 0
             let streakDays = (try? database.readingStreak()) ?? 0
             let feeds = (try? database.totalFeedCount()) ?? 0
             let topFeedID = try? database.mostReadFeedID()
-            let topFeedName = topFeedID.flatMap { manager.feedsByID[$0]?.title }
+            let topFeedName = topFeedID.flatMap { feedTitlesByID[$0] }
 
             await MainActor.run {
                 totalRead = read

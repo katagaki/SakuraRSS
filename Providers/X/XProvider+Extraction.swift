@@ -48,7 +48,6 @@ extension XProvider {
         "responsive_web_enhance_cards_enabled": false
     ]
 
-    /// Feature flags x.com sends for the TweetResultByRestId single-tweet call.
     static let tweetResultByRestIdFeatures: [String: Bool] = [
         "creator_subscriptions_tweet_preview_api_enabled": true,
         "premium_content_api_read_enabled": false,
@@ -177,8 +176,7 @@ extension XProvider {
         return TweetsPage(tweets: tweets, bottomCursor: bottomCursor)
     }
 
-    // swiftlint:disable:next function_body_length
-    private static func parseTweetEntry(
+    static func parseTweetEntry(
         content: [String: Any], dateFormatter: DateFormatter
     ) -> ParsedTweet? {
         guard let itemContent = content["itemContent"] as? [String: Any],
@@ -187,16 +185,8 @@ extension XProvider {
             return nil
         }
 
-        let actualResult: [String: Any]
-        if (tweetResult["__typename"] as? String) == "TweetWithVisibilityResults",
-           let tweet = tweetResult["tweet"] as? [String: Any] {
-            actualResult = tweet
-        } else {
-            actualResult = tweetResult
-        }
-
+        let actualResult = unwrapVisibilityResults(tweetResult)
         guard let legacy = actualResult["legacy"] as? [String: Any] else { return nil }
-
         if legacy["retweeted_status_result"] != nil { return nil }
 
         let fullText = legacy["full_text"] as? String ?? ""
@@ -205,23 +195,56 @@ extension XProvider {
 
         guard !idStr.isEmpty else { return nil }
 
+        let (authorName, authorHandle) = parseAuthor(from: actualResult)
+        let photoURLs = parsePhotoURLs(from: legacy)
+        let imageURL = photoURLs.first
+
+        let publishedDate = dateFormatter.date(from: createdAt)
+        let tweetURL = "https://x.com/\(authorHandle)/status/\(idStr)"
+
+        let cleanText = sanitizeTweetText(fullText: fullText, legacy: legacy)
+
+        return ParsedTweet(
+            id: idStr,
+            text: cleanText,
+            author: authorName,
+            authorHandle: authorHandle,
+            url: tweetURL,
+            imageURL: imageURL,
+            carouselImageURLs: photoURLs.count > 1 ? photoURLs : [],
+            publishedDate: publishedDate
+        )
+    }
+
+    private static func unwrapVisibilityResults(_ tweetResult: [String: Any]) -> [String: Any] {
+        if (tweetResult["__typename"] as? String) == "TweetWithVisibilityResults",
+           let tweet = tweetResult["tweet"] as? [String: Any] {
+            return tweet
+        }
+        return tweetResult
+    }
+
+    private static func parseAuthor(
+        from actualResult: [String: Any]
+    ) -> (name: String, handle: String) {
         let core = actualResult["core"] as? [String: Any]
         let userResults = core?["user_results"] as? [String: Any]
         let userResult = userResults?["result"] as? [String: Any]
         let userCore = userResult?["core"] as? [String: Any]
         let authorName = userCore?["name"] as? String ?? ""
         let authorHandle = userCore?["screen_name"] as? String ?? ""
+        return (authorName, authorHandle)
+    }
 
+    private static func parsePhotoURLs(from legacy: [String: Any]) -> [String] {
         let extendedEntities = legacy["extended_entities"] as? [String: Any]
         let media = extendedEntities?["media"] as? [[String: Any]]
-        let photoURLs = media?
+        return media?
             .filter { ($0["type"] as? String) == "photo" }
             .compactMap { $0["media_url_https"] as? String } ?? []
-        let imageURL = photoURLs.first
+    }
 
-        let publishedDate = dateFormatter.date(from: createdAt)
-        let tweetURL = "https://x.com/\(authorHandle)/status/\(idStr)"
-
+    private static func sanitizeTweetText(fullText: String, legacy: [String: Any]) -> String {
         var cleanText = fullText
         let entities = legacy["entities"] as? [String: Any]
         if let urlEntities = entities?["urls"] as? [[String: Any]] {
@@ -232,430 +255,13 @@ extension XProvider {
                 cleanText = cleanText.replacingOccurrences(of: shortURL, with: expandedURL)
             }
         }
-
         // Strip trailing t.co media links that have no expanded form.
         cleanText = cleanText.replacingOccurrences(
             of: "\\s*https://t\\.co/\\S+$",
             with: "",
             options: .regularExpression
         )
-        cleanText = XProvider.decodeHTMLEntities(cleanText)
-
-        return ParsedTweet(
-            id: idStr,
-            text: cleanText,
-            author: authorName,
-            authorHandle: authorHandle,
-            url: tweetURL,
-            imageURL: imageURL,
-            carouselImageURLs: photoURLs.count > 1 ? photoURLs : [],
-            publishedDate: publishedDate
-        )
-    }
-
-    // MARK: - TweetResultByRestId Response Parsing
-
-    /// Parses a TweetResultByRestId response. Prefers note_tweet text for
-    /// longform posts so the full body is returned instead of the truncated
-    /// legacy.full_text.
-    static func parseTweetResultByRestIdResponse(data: Data) -> ParsedTweet? {
-        guard let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
-              let dataObj = json["data"] as? [String: Any],
-              let tweetResult = dataObj["tweetResult"] as? [String: Any],
-              let result = tweetResult["result"] as? [String: Any] else {
-            log("XProvider", "Failed to parse TweetResultByRestId JSON structure")
-            return nil
-        }
-
-        let actualResult: [String: Any]
-        if (result["__typename"] as? String) == "TweetWithVisibilityResults",
-           let tweet = result["tweet"] as? [String: Any] {
-            actualResult = tweet
-        } else {
-            actualResult = result
-        }
-
-        return parseSingleTweet(from: actualResult, dateFormatter: makeXDateFormatter())
-    }
-
-    private static func parseSingleTweet(
-        from actualResult: [String: Any], dateFormatter: DateFormatter
-    ) -> ParsedTweet? {
-        guard let legacy = actualResult["legacy"] as? [String: Any] else { return nil }
-        if legacy["retweeted_status_result"] != nil { return nil }
-
-        let idStr = legacy["id_str"] as? String ?? ""
-        guard !idStr.isEmpty else { return nil }
-        let createdAt = legacy["created_at"] as? String ?? ""
-
-        let core = actualResult["core"] as? [String: Any]
-        let userResults = core?["user_results"] as? [String: Any]
-        let userResult = userResults?["result"] as? [String: Any]
-        let userCore = userResult?["core"] as? [String: Any]
-        let authorName = userCore?["name"] as? String ?? ""
-        let authorHandle = userCore?["screen_name"] as? String ?? ""
-
-        let extendedEntities = legacy["extended_entities"] as? [String: Any]
-        let media = extendedEntities?["media"] as? [[String: Any]]
-        let photoURLs = media?
-            .filter { ($0["type"] as? String) == "photo" }
-            .compactMap { $0["media_url_https"] as? String } ?? []
-        let imageURL = photoURLs.first
-
-        let publishedDate = dateFormatter.date(from: createdAt)
-        let tweetURL = "https://x.com/\(authorHandle)/status/\(idStr)"
-        let cleanText = bestTweetText(legacy: legacy, actualResult: actualResult)
-
-        return ParsedTweet(
-            id: idStr,
-            text: cleanText,
-            author: authorName,
-            authorHandle: authorHandle,
-            url: tweetURL,
-            imageURL: imageURL,
-            carouselImageURLs: photoURLs.count > 1 ? photoURLs : [],
-            publishedDate: publishedDate
-        )
-    }
-
-    /// Returns the longform note_tweet text when present, falling back to
-    /// legacy.full_text. Expands t.co URLs and decodes HTML entities.
-    private static func bestTweetText(
-        legacy: [String: Any], actualResult: [String: Any]
-    ) -> String {
-        if let noteTweet = actualResult["note_tweet"] as? [String: Any],
-           let noteResults = noteTweet["note_tweet_results"] as? [String: Any],
-           let noteResult = noteResults["result"] as? [String: Any],
-           let noteText = noteResult["text"] as? String, !noteText.isEmpty {
-            var text = noteText
-            if let entitySet = noteResult["entity_set"] as? [String: Any],
-               let urlEntities = entitySet["urls"] as? [[String: Any]] {
-                text = expandTCoURLs(in: text, using: urlEntities)
-            }
-            return XProvider.decodeHTMLEntities(stripTrailingTCo(text))
-        }
-
-        var text = legacy["full_text"] as? String ?? ""
-        if let entities = legacy["entities"] as? [String: Any],
-           let urlEntities = entities["urls"] as? [[String: Any]] {
-            text = expandTCoURLs(in: text, using: urlEntities)
-        }
-        return XProvider.decodeHTMLEntities(stripTrailingTCo(text))
-    }
-
-    private static func expandTCoURLs(
-        in text: String, using urlEntities: [[String: Any]]
-    ) -> String {
-        var result = text
-        for urlEntity in urlEntities {
-            guard let shortURL = urlEntity["url"] as? String,
-                  let expandedURL = urlEntity["expanded_url"] as? String
-            else { continue }
-            result = result.replacingOccurrences(of: shortURL, with: expandedURL)
-        }
-        return result
-    }
-
-    private static func stripTrailingTCo(_ text: String) -> String {
-        text.replacingOccurrences(
-            of: "\\s*https://t\\.co/\\S+$",
-            with: "",
-            options: .regularExpression
-        )
-    }
-
-    // MARK: - TweetDetail Response Parsing
-
-    static func parseTweetDetailResponse(data: Data, tweetID: String) -> ParsedTweet? {
-        guard let entries = tweetDetailEntries(from: data) else { return nil }
-        let dateFormatter = makeXDateFormatter()
-
-        for entry in entries {
-            guard let content = entry["content"] as? [String: Any] else { continue }
-            let entryType = content["entryType"] as? String
-
-            if entryType == "TimelineTimelineItem" {
-                if let tweet = parseTweetEntry(content: content,
-                                               dateFormatter: dateFormatter),
-                   tweet.id == tweetID {
-                    return tweet
-                }
-            } else if entryType == "TimelineTimelineModule" {
-                guard let items = content["items"] as? [[String: Any]] else { continue }
-                for item in items {
-                    guard let itemObj = item["item"] as? [String: Any] else { continue }
-                    if let tweet = parseTweetEntry(content: itemObj,
-                                                   dateFormatter: dateFormatter),
-                       tweet.id == tweetID {
-                        return tweet
-                    }
-                }
-            }
-        }
-
-        log("XProvider", "TweetDetail: focal tweet \(tweetID) not found in entries")
-        return nil
-    }
-
-    /// Parses the focal tweet plus any consecutive same-author tweets that
-    /// share its TimelineTimelineModule (self-thread). Single standalone
-    /// tweets return one thread item; full self-threads return all of them
-    /// in display order, each with its images and quoted-tweet URL.
-    static func parseTweetDetailContent(
-        data: Data, tweetID: String
-    ) -> ParsedTweetContent? {
-        guard let entries = tweetDetailEntries(from: data) else { return nil }
-        let dateFormatter = makeXDateFormatter()
-
-        for entry in entries {
-            guard let content = entry["content"] as? [String: Any] else { continue }
-            let entryType = content["entryType"] as? String
-
-            if entryType == "TimelineTimelineItem" {
-                if let item = parseTweetItem(content: content, dateFormatter: dateFormatter),
-                   item.tweet.id == tweetID {
-                    return ParsedTweetContent(
-                        focal: item.tweet,
-                        threadItems: [item.threadItem]
-                    )
-                }
-            } else if entryType == "TimelineTimelineModule",
-                      let items = content["items"] as? [[String: Any]] {
-                let parsed: [ParsedTweetItem] = items.compactMap { item in
-                    guard let itemObj = item["item"] as? [String: Any] else { return nil }
-                    return parseTweetItem(content: itemObj, dateFormatter: dateFormatter)
-                }
-                guard let focalIdx = parsed.firstIndex(where: { $0.tweet.id == tweetID })
-                else { continue }
-                let focalAuthor = parsed[focalIdx].tweet.authorHandle
-                let sameAuthor = parsed.filter { $0.tweet.authorHandle == focalAuthor }
-                return ParsedTweetContent(
-                    focal: parsed[focalIdx].tweet,
-                    threadItems: sameAuthor.map(\.threadItem)
-                )
-            }
-        }
-
-        log("XProvider", "TweetDetail: focal tweet \(tweetID) not found in entries")
-        return nil
-    }
-
-    /// Extracts the top reply from each `conversationthread-…` module that
-    /// follows the focal tweet, up to `limit`. Skips the focal tweet itself
-    /// and the trailing `tweetdetailrelatedtweets-…` related-posts module.
-    static func parseTweetDetailReplies(
-        data: Data, focalTweetID: String, limit: Int
-    ) -> [ParsedReply] {
-        guard limit > 0,
-              let entries = tweetDetailEntries(from: data) else { return [] }
-        let dateFormatter = makeXDateFormatter()
-
-        var results: [ParsedReply] = []
-        for entry in entries where results.count < limit {
-            let entryID = entry["entryId"] as? String ?? ""
-            guard entryID.hasPrefix("conversationthread-"),
-                  let content = entry["content"] as? [String: Any],
-                  (content["entryType"] as? String) == "TimelineTimelineModule",
-                  let items = content["items"] as? [[String: Any]],
-                  let firstItem = items.first?["item"] as? [String: Any],
-                  let parsed = parseReplyEntry(
-                    itemContent: firstItem, dateFormatter: dateFormatter
-                  ),
-                  parsed.id != focalTweetID else { continue }
-            results.append(parsed)
-        }
-        return results
-    }
-
-    private static func tweetDetailEntries(from data: Data) -> [[String: Any]]? {
-        guard let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
-              let dataObj = json["data"] as? [String: Any],
-              let threadedConvo = dataObj["threaded_conversation_with_injections_v2"]
-                  as? [String: Any],
-              let instructions = threadedConvo["instructions"] as? [[String: Any]] else {
-            log("XProvider", "Failed to parse TweetDetail JSON structure")
-            return nil
-        }
-        guard let addEntries = instructions.first(
-            where: { ($0["type"] as? String) == "TimelineAddEntries" }
-        ), let entries = addEntries["entries"] as? [[String: Any]] else {
-            log("XProvider", "No TimelineAddEntries in TweetDetail")
-            return nil
-        }
-        return entries
-    }
-
-    private static func makeXDateFormatter() -> DateFormatter {
-        let dateFormatter = DateFormatter()
-        dateFormatter.locale = Locale(identifier: "en_US_POSIX")
-        dateFormatter.dateFormat = "EEE MMM dd HH:mm:ss Z yyyy"
-        return dateFormatter
-    }
-
-    /// Pairs the existing `ParsedTweet` (used for header metadata) with the
-    /// thread-item view of the same tweet (text/images/quote URL for body).
-    private struct ParsedTweetItem {
-        let tweet: ParsedTweet
-        let threadItem: ParsedThreadItem
-    }
-
-    private static func parseTweetItem(
-        content: [String: Any], dateFormatter: DateFormatter
-    ) -> ParsedTweetItem? {
-        guard let tweet = parseTweetEntry(content: content, dateFormatter: dateFormatter)
-        else { return nil }
-
-        let legacy = tweetLegacy(from: content)
-        let bodyText = expandedDisplayText(legacy: legacy)
-
-        let imageURLs: [String]
-        if !tweet.carouselImageURLs.isEmpty {
-            imageURLs = tweet.carouselImageURLs
-        } else if let url = tweet.imageURL {
-            imageURLs = [url]
-        } else {
-            imageURLs = []
-        }
-
-        let quotedURL = quotedTweetURL(legacy: legacy, content: content)
-
-        return ParsedTweetItem(
-            tweet: tweet,
-            threadItem: ParsedThreadItem(
-                id: tweet.id,
-                text: bodyText,
-                imageURLs: imageURLs,
-                quotedTweetURL: quotedURL
-            )
-        )
-    }
-
-    /// Builds the body text shown in the article viewer for one thread item:
-    /// 1) start from raw `full_text`, 2) strip leading thread @mentions via
-    /// `display_text_range`, 3) expand t.co short URLs, 4) drop a trailing
-    /// t.co (which is normally a quote-tweet/media link rendered separately).
-    private static func expandedDisplayText(legacy: [String: Any]?) -> String {
-        guard let legacy else { return "" }
-        let fullText = legacy["full_text"] as? String ?? ""
-        var text = XProvider.stripLeadingMentions(
-            fullText: fullText,
-            displayTextRange: legacy["display_text_range"] as? [Int]
-        )
-
-        if let entities = legacy["entities"] as? [String: Any],
-           let urlEntities = entities["urls"] as? [[String: Any]] {
-            for urlEntity in urlEntities {
-                guard let shortURL = urlEntity["url"] as? String,
-                      let expandedURL = urlEntity["expanded_url"] as? String
-                else { continue }
-                text = text.replacingOccurrences(of: shortURL, with: expandedURL)
-            }
-        }
-
-        return text.replacingOccurrences(
-            of: "\\s*https://t\\.co/\\S+$",
-            with: "",
-            options: .regularExpression
-        )
-    }
-
-    /// Reaches into the same `legacy` dict that `parseTweetEntry` reads,
-    /// handling the `TweetWithVisibilityResults` wrapper.
-    private static func tweetLegacy(from content: [String: Any]) -> [String: Any]? {
-        guard let itemContent = content["itemContent"] as? [String: Any],
-              let tweetResults = itemContent["tweet_results"] as? [String: Any],
-              let tweetResult = tweetResults["result"] as? [String: Any] else { return nil }
-        let actualResult: [String: Any]
-        if (tweetResult["__typename"] as? String) == "TweetWithVisibilityResults",
-           let tweet = tweetResult["tweet"] as? [String: Any] {
-            actualResult = tweet
-        } else {
-            actualResult = tweetResult
-        }
-        return actualResult["legacy"] as? [String: Any]
-    }
-
-    /// Returns a canonical `https://x.com/{handle}/status/{id}` URL for the
-    /// quoted tweet, falling back to `legacy.quoted_status_permalink.expanded`
-    /// when the quoted user can't be resolved.
-    private static func quotedTweetURL(
-        legacy: [String: Any]?, content: [String: Any]
-    ) -> String? {
-        guard let legacy,
-              (legacy["is_quote_status"] as? Bool) == true,
-              let quotedID = legacy["quoted_status_id_str"] as? String else { return nil }
-
-        if let itemContent = content["itemContent"] as? [String: Any],
-           let tweetResults = itemContent["tweet_results"] as? [String: Any],
-           let tweetResult = tweetResults["result"] as? [String: Any] {
-            let result: [String: Any]
-            if (tweetResult["__typename"] as? String) == "TweetWithVisibilityResults",
-               let inner = tweetResult["tweet"] as? [String: Any] {
-                result = inner
-            } else {
-                result = tweetResult
-            }
-            if let quoted = result["quoted_status_result"] as? [String: Any],
-               let quotedResult = quoted["result"] as? [String: Any],
-               let core = quotedResult["core"] as? [String: Any],
-               let userResults = core["user_results"] as? [String: Any],
-               let userResult = userResults["result"] as? [String: Any],
-               let userCore = userResult["core"] as? [String: Any],
-               let handle = userCore["screen_name"] as? String {
-                return "https://x.com/\(handle)/status/\(quotedID)"
-            }
-        }
-
-        if let permalink = legacy["quoted_status_permalink"] as? [String: Any],
-           let expanded = permalink["expanded"] as? String, !expanded.isEmpty {
-            return expanded.replacingOccurrences(
-                of: "https://twitter.com/",
-                with: "https://x.com/"
-            )
-        }
-        return nil
-    }
-
-    private static func parseReplyEntry(
-        itemContent: [String: Any], dateFormatter: DateFormatter
-    ) -> ParsedReply? {
-        guard let inner = itemContent["itemContent"] as? [String: Any],
-              inner["promotedMetadata"] == nil,
-              let tweetResults = inner["tweet_results"] as? [String: Any],
-              let result = tweetResults["result"] as? [String: Any] else { return nil }
-
-        let actualResult: [String: Any]
-        if (result["__typename"] as? String) == "TweetWithVisibilityResults",
-           let tweet = result["tweet"] as? [String: Any] {
-            actualResult = tweet
-        } else {
-            actualResult = result
-        }
-
-        guard let legacy = actualResult["legacy"] as? [String: Any],
-              let idStr = legacy["id_str"] as? String, !idStr.isEmpty else { return nil }
-
-        let core = (actualResult["core"] as? [String: Any])?["user_results"] as? [String: Any]
-        let userResult = core?["result"] as? [String: Any]
-        let userCore = userResult?["core"] as? [String: Any]
-        let authorName = userCore?["name"] as? String ?? ""
-        let authorHandle = userCore?["screen_name"] as? String ?? ""
-
-        let fullText = legacy["full_text"] as? String ?? ""
-        let createdAt = legacy["created_at"] as? String ?? ""
-        let trimmed = XProvider.stripLeadingMentions(
-            fullText: fullText,
-            displayTextRange: legacy["display_text_range"] as? [Int]
-        )
-
-        return ParsedReply(
-            id: idStr,
-            text: trimmed,
-            author: authorName,
-            authorHandle: authorHandle,
-            url: "https://x.com/\(authorHandle)/status/\(idStr)",
-            publishedDate: dateFormatter.date(from: createdAt)
-        )
+        return XProvider.decodeHTMLEntities(cleanText)
     }
 
     // MARK: - URL Building
