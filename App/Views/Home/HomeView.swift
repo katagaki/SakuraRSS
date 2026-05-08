@@ -46,7 +46,7 @@ struct HomeView: View {
                         ToolbarItemGroup(placement: .topBarLeading) {
                             FeedRefreshProgressDonut(
                                 progress: todayRefreshState.progress,
-                                onStop: { feedManager.cancelScopedRefresh(scope: "section.all") }
+                                onStop: cancelTodayRefresh
                             )
                         }
                     }

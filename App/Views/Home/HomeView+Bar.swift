@@ -59,6 +59,15 @@ extension HomeView {
         return ScopedRefreshState()
     }
 
+    func cancelTodayRefresh() {
+        let scope = "section.all"
+        if feedManager.scopedRefreshes[scope] != nil {
+            feedManager.cancelScopedRefresh(scope: scope)
+        } else {
+            feedManager.cancelRefresh()
+        }
+    }
+
     func reloadBarConfiguration() {
         barConfiguration = .load()
     }
