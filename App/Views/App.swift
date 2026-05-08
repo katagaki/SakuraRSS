@@ -86,6 +86,13 @@ struct SakuraRSSApp: App {
                         pendingArticleID = articleID
                     }
                 }
+                .onReceive(
+                    NotificationCenter.default.publisher(for: .openArticleFromIntent)
+                ) { notification in
+                    if let articleID = notification.userInfo?["articleID"] as? Int64 {
+                        pendingArticleID = articleID
+                    }
+                }
         }
         #if os(visionOS)
         .defaultSize(width: 600, height: 900)

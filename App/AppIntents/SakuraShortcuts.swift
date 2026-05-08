@@ -68,5 +68,13 @@ struct SakuraShortcuts: AppShortcutsProvider {
             shortTitle: LocalizedStringResource("GetContentText.ShortTitle", table: "AppIntents"),
             systemImageName: "text.alignleft"
         )
+        AppShortcut(
+            intent: OpenContentIntent(),
+            phrases: [
+                "Open content in \(.applicationName)"
+            ],
+            shortTitle: LocalizedStringResource("OpenContent.ShortTitle", table: "AppIntents"),
+            systemImageName: "arrow.up.right.square"
+        )
     }
 }
