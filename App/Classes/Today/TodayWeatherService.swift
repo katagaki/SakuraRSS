@@ -270,17 +270,6 @@ final class TodayWeatherService {
         continuation?.resume(returning: location)
     }
 
-    private func reverseGeocode(_ location: CLLocation) async -> String? {
-        let geocoder = CLGeocoder()
-        let preferred = Locale(identifier: Locale.preferredLanguages.first ?? "en")
-        let placemarks = try? await geocoder.reverseGeocodeLocation(location, preferredLocale: preferred)
-        guard let placemark = placemarks?.first else { return nil }
-        return placemark.subLocality
-            ?? placemark.locality
-            ?? placemark.administrativeArea
-            ?? placemark.country
-    }
-
     // MARK: - Cache
 
     private static func loadCache() -> TodayWeather? {
