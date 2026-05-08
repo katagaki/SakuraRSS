@@ -6,6 +6,8 @@ import SwiftUI
 struct YouTubeMiniPlayerBar: View {
 
     let session = YouTubePlayerSession.shared
+    let newPlayback = NewYouTubePlaybackController.shared
+    let toggleStore = NewYouTubePlayerToggleStore.shared
 
     var body: some View {
         if let article = session.currentArticle {
@@ -32,9 +34,9 @@ struct YouTubeMiniPlayerBar: View {
                 Spacer(minLength: 8)
 
                 Button {
-                    session.togglePlayPause()
+                    togglePlayPause()
                 } label: {
-                    Image(systemName: session.isPlaying
+                    Image(systemName: isPlaying
                           ? "pause.fill"
                           : "play.fill")
                         .font(.title3)
@@ -44,7 +46,7 @@ struct YouTubeMiniPlayerBar: View {
                 .buttonStyle(.plain)
 
                 Button {
-                    session.clear()
+                    stop()
                 } label: {
                     Image(systemName: "stop.fill")
                         .font(.title3)
@@ -55,6 +57,29 @@ struct YouTubeMiniPlayerBar: View {
             }
             .padding(.horizontal, 12)
         }
+    }
+
+    private var isUsingNewPlayer: Bool {
+        toggleStore.isEnabled
+    }
+
+    private var isPlaying: Bool {
+        isUsingNewPlayer ? newPlayback.isPlaying : session.isPlaying
+    }
+
+    private func togglePlayPause() {
+        if isUsingNewPlayer {
+            newPlayback.togglePlayPause()
+        } else {
+            session.togglePlayPause()
+        }
+    }
+
+    private func stop() {
+        if isUsingNewPlayer {
+            newPlayback.clear()
+        }
+        session.clear()
     }
 
     @ViewBuilder

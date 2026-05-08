@@ -7207,55 +7207,55 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ein experimenteller Player, der das Video über einen eigenen Resolver streamt. Diese Einstellung wird beim Neustart der App zurückgesetzt."
+            "value" : "Ein experimenteller YouTube-Player. Diese Einstellung wird beim Neustart der App zurückgesetzt."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "An experimental player that streams video through a custom resolver. This setting resets when you relaunch the app."
+            "value" : "An experimental YouTube player. This setting resets when you relaunch the app."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Un lecteur expérimental qui diffuse la vidéo via un résolveur personnalisé. Ce réglage est réinitialisé au prochain lancement de l’app."
+            "value" : "Un lecteur YouTube expérimental. Ce réglage est réinitialisé au prochain lancement de l’app."
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Un lettore sperimentale che riproduce in streaming il video tramite un resolver personalizzato. Questa impostazione si reimposta al prossimo avvio dell’app."
+            "value" : "Un lettore YouTube sperimentale. Questa impostazione si reimposta al prossimo avvio dell’app."
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "カスタムリゾルバーで動画をストリーミングする実験的なプレーヤーです。この設定はアプリを再起動するとリセットされます。"
+            "value" : "実験的なYouTubeプレーヤーです。この設定はアプリを再起動するとリセットされます。"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "맞춤 리졸버로 동영상을 스트리밍하는 실험용 플레이어입니다. 앱을 다시 실행하면 이 설정이 초기화됩니다."
+            "value" : "실험용 YouTube 플레이어입니다. 앱을 다시 실행하면 이 설정이 초기화됩니다."
           }
         },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Trình phát thử nghiệm phát trực tuyến video qua trình phân giải tuỳ chỉnh. Thiết lập này sẽ đặt lại khi bạn khởi động lại ứng dụng."
+            "value" : "Trình phát YouTube thử nghiệm. Thiết lập này sẽ đặt lại khi bạn khởi động lại ứng dụng."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "通过自定义解析器流式播放视频的实验性播放器。重新启动应用时此设置将重置。"
+            "value" : "实验性 YouTube 播放器。重新启动应用时此设置将重置。"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "透過自訂解析器串流播放影片的實驗性播放器。重新啟動應用程式時此設定會重置。"
+            "value" : "實驗性 YouTube 播放器。重新啟動應用程式時此設定會重置。"
           }
         }
       }

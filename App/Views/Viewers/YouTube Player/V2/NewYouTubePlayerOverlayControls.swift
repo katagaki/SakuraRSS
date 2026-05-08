@@ -118,7 +118,7 @@ struct NewYouTubePlayerOverlayControls: View {
                 currentTime: playback.currentTime,
                 duration: playback.duration,
                 segments: sponsorSegments.map { (start: $0.startTime, end: $0.endTime) },
-                labelLayout: .inline,
+                labelLayout: isPortraitVideo ? .hidden : .inline,
                 onSeek: { time in
                     playback.seek(to: time)
                     scheduleAutoHide()
@@ -143,6 +143,10 @@ struct NewYouTubePlayerOverlayControls: View {
     private var isFullscreen: Bool {
         if case .exitFullscreen = trailingAction { return true }
         return false
+    }
+
+    private var isPortraitVideo: Bool {
+        playback.aspectRatio < 1.0
     }
 
     private var trailingActionSymbol: String {
