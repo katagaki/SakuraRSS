@@ -52,6 +52,12 @@ final class NewYouTubePlaybackController: NSObject {
         YouTubeAudioSession.prepare()
         YouTubeAudioSession.activate()
         let newPlayer = AVPlayer(url: url)
+        newPlayer.appliesMediaSelectionCriteriaAutomatically = false
+        let originalCriteria = AVPlayerMediaSelectionCriteria(
+            preferredLanguages: nil,
+            preferredMediaCharacteristics: [.isOriginalContent]
+        )
+        newPlayer.setMediaSelectionCriteria(originalCriteria, forMediaCharacteristic: .audible)
         attach(player: newPlayer)
         currentVideoID = videoID
         newPlayer.play()
@@ -154,11 +160,57 @@ final class NewYouTubePlaybackController: NSObject {
         subtitleOptions = legible?.options ?? []
 
         if let audible {
-            currentAudioOption = item.currentMediaSelection.selectedMediaOption(in: audible)
+            if let originalOption = await preferredOriginalAudioOption(in: audible) {
+                item.select(originalOption, in: audible)
+                currentAudioOption = originalOption
+            } else {
+                currentAudioOption = item.currentMediaSelection.selectedMediaOption(in: audible)
+            }
         }
         if let legible {
             currentSubtitleOption = item.currentMediaSelection.selectedMediaOption(in: legible)
         }
+    }
+
+    /// Finds the audio option that represents the video's original audio track.
+    /// Checks the explicit `isOriginalContent` characteristic first, then falls
+    /// back to a title match in the option's common metadata (YouTube
+    /// renditions are named like "English (United States) original" via the
+    /// HLS NAME attribute, which surfaces as the option's title metadata —
+    /// `displayName` returns the localized language name and is not reliable).
+    private func preferredOriginalAudioOption(
+        in group: AVMediaSelectionGroup
+    ) async -> AVMediaSelectionOption? {
+        if let original = group.options.first(where: {
+            $0.hasMediaCharacteristic(.isOriginalContent)
+        }) {
+            return original
+        }
+        for option in group.options {
+            if option.displayName.lowercased().contains("original") {
+                return option
+            }
+            let title = await audioOptionTitle(option)
+            if title.lowercased().contains("original") {
+                return option
+            }
+        }
+        return nil
+    }
+
+    private func audioOptionTitle(_ option: AVMediaSelectionOption) async -> String {
+        let titles = AVMetadataItem.metadataItems(
+            from: option.commonMetadata,
+            withKey: AVMetadataKey.commonKeyTitle,
+            keySpace: .common
+        )
+        var values: [String] = []
+        for item in titles {
+            if let value = try? await item.load(.stringValue) {
+                values.append(value)
+            }
+        }
+        return values.joined(separator: " ")
     }
 
     private func detachObservers() {
