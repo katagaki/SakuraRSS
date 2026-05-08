@@ -29,9 +29,12 @@ extension NewYouTubePlayerView {
         }
 
         if playback.currentVideoID == videoId, playback.player != nil {
+            if article.isEphemeral {
+                await fetchEphemeralMetadataIfNeeded(videoId: videoId)
+            }
             playback.updateMetadata(
-                title: article.title,
-                artist: feed?.title,
+                title: nonEmpty(fetchedMetadata?.title) ?? article.title,
+                artist: nonEmpty(fetchedMetadata?.uploader) ?? feed?.title,
                 artworkURLString: article.imageURL
             )
             loadState = .ready
@@ -40,12 +43,16 @@ extension NewYouTubePlayerView {
 
         do {
             let client = try await NewYouTubeClient.bootstrap()
-            let manifestURL = try await client.hlsPlaylistURL(videoId: videoId)
+            async let manifestTask = client.hlsPlaylistURL(videoId: videoId)
+            if article.isEphemeral {
+                fetchedMetadata = try? await client.fetchVideoMetadata(videoId: videoId)
+            }
+            let manifestURL = try await manifestTask
             playback.load(
                 url: manifestURL,
                 videoID: videoId,
-                title: article.title,
-                artist: feed?.title,
+                title: nonEmpty(fetchedMetadata?.title) ?? article.title,
+                artist: nonEmpty(fetchedMetadata?.uploader) ?? feed?.title,
                 artworkURLString: article.imageURL
             )
             loadState = .ready
@@ -53,6 +60,17 @@ extension NewYouTubePlayerView {
             log("YT NewPlayer", "Failed to resolve stream: \(error)")
             loadState = .failed
         }
+    }
+
+    private func fetchEphemeralMetadataIfNeeded(videoId: String) async {
+        guard fetchedMetadata == nil else { return }
+        guard let client = try? await NewYouTubeClient.bootstrap() else { return }
+        fetchedMetadata = try? await client.fetchVideoMetadata(videoId: videoId)
+    }
+
+    private func nonEmpty(_ value: String?) -> String? {
+        guard let value, !value.isEmpty else { return nil }
+        return value
     }
 
     func loadFeedAndIcon() async {

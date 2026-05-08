@@ -23,7 +23,7 @@ struct MainTabView: View {
     var body: some View {
         Group {
             if UIDevice.current.userInterfaceIdiom == .pad {
-                IPadSidebarView(
+                iPadSidebarView(
                     pendingFeedURL: $pendingFeedURL,
                     pendingArticleID: $pendingArticleID,
                     pendingOpenRequest: $pendingOpenRequest

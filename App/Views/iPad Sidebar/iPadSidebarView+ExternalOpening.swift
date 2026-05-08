@@ -1,6 +1,6 @@
 import SwiftUI
 
-extension IPadSidebarView {
+extension iPadSidebarView {
 
     func shouldOpenExternally(_ article: Article) -> Bool {
         if article.isYouTubeURL && youTubeOpenMode == .youTubeApp {

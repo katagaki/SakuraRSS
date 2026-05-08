@@ -21,7 +21,7 @@ struct OnboardingView: View {
     @State var backupMetadata: iCloudBackupManager.BackupMetadata?
     @State var showRestoreError = false
     @FocusState var isURLFieldFocused: Bool
-    var isIPad: Bool { UIDevice.current.userInterfaceIdiom == .pad }
+    var isiPad: Bool { UIDevice.current.userInterfaceIdiom == .pad }
     var onComplete: () -> Void
 
     var appName: String {

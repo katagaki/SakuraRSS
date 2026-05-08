@@ -1,6 +1,6 @@
 import SwiftUI
 
-extension IPadSidebarView {
+extension iPadSidebarView {
 
     var availableSections: [FeedSection] {
         let excluded: Set<FeedSection> = [.feeds, .podcasts, .youtube]

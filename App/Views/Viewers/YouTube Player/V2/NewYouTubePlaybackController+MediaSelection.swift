@@ -30,7 +30,7 @@ extension NewYouTubePlaybackController {
     /// Checks the explicit `isOriginalContent` characteristic first, then falls
     /// back to a title match in the option's common metadata (YouTube
     /// renditions are named like "English (United States) original" via the
-    /// HLS NAME attribute, which surfaces as the option's title metadata —
+    /// HLS NAME attribute, which surfaces as the option's title metadata.
     /// `displayName` returns the localized language name and is not reliable).
     func preferredOriginalAudioOption(
         in group: AVMediaSelectionGroup

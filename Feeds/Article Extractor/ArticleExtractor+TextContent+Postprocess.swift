@@ -40,8 +40,8 @@ extension ArticleExtractor {
             "icon", "emoji", "smiley", "avatar",
             "ad.", "ads.", "doubleclick", "googlesyndication"
         ]
-        for pattern in skipPatterns {
-            if lowered.contains(pattern) { return false } // swiftlint:disable:this for_where
+        for pattern in skipPatterns where lowered.contains(pattern) {
+            return false
         }
         return true
     }

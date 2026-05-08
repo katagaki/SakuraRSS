@@ -4,7 +4,7 @@ extension ArticleDetailView {
 
     @ToolbarContentBuilder
     var iPadArticleToolbar: some ToolbarContent {
-        if hasIPadIntelligenceActions {
+        if hasiPadIntelligenceActions {
             ToolbarItemGroup(placement: .topBarTrailing) {
                 iPadIntelligenceActions
             }
@@ -12,7 +12,7 @@ extension ArticleDetailView {
             ToolbarSpacer(.fixed, placement: .topBarTrailing)
             #endif
         }
-        if hasIPadOpenActions {
+        if hasiPadOpenActions {
             ToolbarItemGroup(placement: .topBarTrailing) {
                 iPadOpenActions
             }
@@ -25,11 +25,11 @@ extension ArticleDetailView {
         }
     }
 
-    private var hasIPadIntelligenceActions: Bool {
+    private var hasiPadIntelligenceActions: Bool {
         !isExtracting && displayText != nil
     }
 
-    private var hasIPadOpenActions: Bool {
+    private var hasiPadOpenActions: Bool {
         includesOpenInAppAction || includesArXivAction || includesOpenLinkAction
     }
 

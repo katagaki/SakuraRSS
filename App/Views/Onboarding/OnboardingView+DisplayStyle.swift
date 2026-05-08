@@ -50,7 +50,7 @@ extension OnboardingView {
         }
         .safeAreaInset(edge: .bottom) {
             continueButton { advanceStep() }
-                .padding(.bottom, isIPad ? 20 : 8)
+                .padding(.bottom, isiPad ? 20 : 8)
         }
     }
 }

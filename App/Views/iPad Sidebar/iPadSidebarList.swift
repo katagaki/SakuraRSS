@@ -1,6 +1,7 @@
 import SwiftUI
 
-struct IPadSidebarList: View {
+// swiftlint:disable:next type_name
+struct iPadSidebarList: View {
 
     @Environment(FeedManager.self) var feedManager
     @AppStorage("Intelligence.ContentInsights.Enabled") private var contentInsightsEnabled: Bool = false
@@ -108,7 +109,7 @@ struct IPadSidebarList: View {
                     }
                     .tag(SidebarDestination.list(list))
                     .contextMenu {
-                        IPadSidebarListContextMenu(
+                        iPadSidebarListContextMenu(
                             list: list,
                             listToEdit: $listToEdit,
                             listForRules: $listForRules,
@@ -222,7 +223,8 @@ private struct SidebarUnreadBadge: View {
     }
 }
 
-private struct IPadSidebarListContextMenu: View {
+// swiftlint:disable:next type_name
+private struct iPadSidebarListContextMenu: View {
 
     let list: FeedList
     @Binding var listToEdit: FeedList?

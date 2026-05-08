@@ -14,61 +14,66 @@ extension ArticleExtractor {
 
     // MARK: - YouTube
 
-    // swiftlint:disable:next cyclomatic_complexity
     private static func promoteYouTubeEmbeds(in element: Element) {
-        if let iframes = try? element.select("iframe[src]") {
-            for iframe in iframes {
-                guard let src = try? iframe.attr("src"),
-                      let videoID = youTubeVideoID(fromEmbedURL: src) else {
-                    continue
-                }
-                replaceWithMarker(element: iframe,
-                                  marker: "{{YOUTUBE}}\(videoID){{/YOUTUBE}}")
-            }
-        }
+        promoteYouTubeIframes(in: element)
+        promoteLiteYouTube(in: element)
+        promoteYouTubeShells(in: element)
+        promoteYouTubeAnchors(in: element)
+    }
 
-        if let liteElements = try? element.select("lite-youtube[videoid]") {
-            for lite in liteElements {
-                guard let videoID = try? lite.attr("videoid"),
-                      !videoID.isEmpty else { continue }
-                replaceWithMarker(element: lite,
-                                  marker: "{{YOUTUBE}}\(videoID){{/YOUTUBE}}")
+    private static func promoteYouTubeIframes(in element: Element) {
+        guard let iframes = try? element.select("iframe[src]") else { return }
+        for iframe in iframes {
+            guard let src = try? iframe.attr("src"),
+                  let videoID = youTubeVideoID(fromEmbedURL: src) else {
+                continue
             }
+            replaceWithMarker(element: iframe,
+                              marker: "{{YOUTUBE}}\(videoID){{/YOUTUBE}}")
         }
+    }
 
-        if let ytShells = try? element.select(
+    private static func promoteLiteYouTube(in element: Element) {
+        guard let liteElements = try? element.select("lite-youtube[videoid]") else { return }
+        for lite in liteElements {
+            guard let videoID = try? lite.attr("videoid"),
+                  !videoID.isEmpty else { continue }
+            replaceWithMarker(element: lite,
+                              marker: "{{YOUTUBE}}\(videoID){{/YOUTUBE}}")
+        }
+    }
+
+    private static func promoteYouTubeShells(in element: Element) {
+        guard let ytShells = try? element.select(
             "div[data-youtube-id], div[data-youtube-video-id]"
-        ) {
-            for shell in ytShells {
-                // SwiftSoup's `attr` returns "" for missing attributes, so
-                // nil-coalescing cannot select the first non-empty value.
-                var videoID = (try? shell.attr("data-youtube-id")) ?? ""
-                if videoID.isEmpty {
-                    videoID = (try? shell.attr("data-youtube-video-id")) ?? ""
-                }
-                guard !videoID.isEmpty else { continue }
-                replaceWithMarker(element: shell,
-                                  marker: "{{YOUTUBE}}\(videoID){{/YOUTUBE}}")
+        ) else { return }
+        for shell in ytShells {
+            // SwiftSoup's `attr` returns "" for missing attributes, so
+            // nil-coalescing cannot select the first non-empty value.
+            var videoID = (try? shell.attr("data-youtube-id")) ?? ""
+            if videoID.isEmpty {
+                videoID = (try? shell.attr("data-youtube-video-id")) ?? ""
             }
+            guard !videoID.isEmpty else { continue }
+            replaceWithMarker(element: shell,
+                              marker: "{{YOUTUBE}}\(videoID){{/YOUTUBE}}")
         }
+    }
 
-        if let anchors = try? element.select("p > a[href], figure > a[href]") {
-            for anchor in anchors {
-                guard let parent = anchor.parent() else { continue }
-                let siblingCount = parent.children().size()
-                guard siblingCount == 1 else { continue }
-                guard let href = try? anchor.attr("href"),
-                      let videoID = youTubeVideoID(fromWatchURL: href) else {
-                    continue
-                }
-                let text = (try? anchor.text()) ?? ""
-                let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
-                // Only collapse when link text is the URL itself; otherwise
-                // the anchor text is meaningful and should remain.
-                guard trimmed == href || trimmed.isEmpty else { continue }
-                replaceWithMarker(element: parent,
-                                  marker: "{{YOUTUBE}}\(videoID){{/YOUTUBE}}")
-            }
+    private static func promoteYouTubeAnchors(in element: Element) {
+        guard let anchors = try? element.select("p > a[href], figure > a[href]") else { return }
+        for anchor in anchors {
+            guard let parent = anchor.parent(),
+                  parent.children().size() == 1,
+                  let href = try? anchor.attr("href"),
+                  let videoID = youTubeVideoID(fromWatchURL: href) else { continue }
+            let trimmed = ((try? anchor.text()) ?? "")
+                .trimmingCharacters(in: .whitespacesAndNewlines)
+            // Only collapse when link text is the URL itself; otherwise
+            // the anchor text is meaningful and should remain.
+            guard trimmed == href || trimmed.isEmpty else { continue }
+            replaceWithMarker(element: parent,
+                              marker: "{{YOUTUBE}}\(videoID){{/YOUTUBE}}")
         }
     }
 
@@ -108,56 +113,62 @@ extension ArticleExtractor {
 
     // MARK: - X / Twitter
 
-    // swiftlint:disable:next cyclomatic_complexity
     private static func promoteXEmbeds(in element: Element) {
-        if let blockquotes = try? element.select("blockquote.twitter-tweet") {
-            for blockquote in blockquotes {
-                guard let anchor = xStatusAnchor(in: blockquote),
-                      let href = try? anchor.attr("href"),
-                      let normalized = normalizedXStatusURL(href) else {
-                    continue
-                }
-                replaceWithMarker(element: blockquote,
-                                  marker: "{{XPOST}}\(normalized){{/XPOST}}")
-            }
-        }
+        promoteXBlockquotes(in: element)
+        promoteXIframes(in: element)
+        promoteXAnchors(in: element)
+    }
 
-        if let iframes = try? element.select("iframe[src]") {
-            for iframe in iframes {
-                guard let src = try? iframe.attr("src"),
-                      let url = URL(string: absoluteURLString(src)),
-                      let host = url.host?.lowercased(),
-                      host.contains("platform.twitter.com")
-                        || host.contains("platform.x.com")
-                        || host.contains("publish.twitter.com")
-                        || host.contains("publish.x.com") else {
-                    continue
-                }
-                if let id = URLComponents(url: url, resolvingAgainstBaseURL: false)?
+    private static func promoteXBlockquotes(in element: Element) {
+        guard let blockquotes = try? element.select("blockquote.twitter-tweet") else { return }
+        for blockquote in blockquotes {
+            guard let anchor = xStatusAnchor(in: blockquote),
+                  let href = try? anchor.attr("href"),
+                  let normalized = normalizedXStatusURL(href) else {
+                continue
+            }
+            replaceWithMarker(element: blockquote,
+                              marker: "{{XPOST}}\(normalized){{/XPOST}}")
+        }
+    }
+
+    private static func promoteXIframes(in element: Element) {
+        guard let iframes = try? element.select("iframe[src]") else { return }
+        for iframe in iframes {
+            guard let src = try? iframe.attr("src"),
+                  let url = URL(string: absoluteURLString(src)),
+                  isXPublishHost(url.host?.lowercased()),
+                  let id = URLComponents(url: url, resolvingAgainstBaseURL: false)?
                     .queryItems?.first(where: { $0.name == "id" })?.value,
-                   !id.isEmpty,
-                   let normalized = normalizedXStatusURL("https://x.com/i/status/\(id)") {
-                    replaceWithMarker(element: iframe,
-                                      marker: "{{XPOST}}\(normalized){{/XPOST}}")
-                }
+                  !id.isEmpty,
+                  let normalized = normalizedXStatusURL("https://x.com/i/status/\(id)") else {
+                continue
             }
+            replaceWithMarker(element: iframe,
+                              marker: "{{XPOST}}\(normalized){{/XPOST}}")
         }
+    }
 
-        if let anchors = try? element.select("p > a[href], figure > a[href]") {
-            for anchor in anchors {
-                guard let parent = anchor.parent() else { continue }
-                let siblingCount = parent.children().size()
-                guard siblingCount == 1 else { continue }
-                guard let href = try? anchor.attr("href"),
-                      let normalized = normalizedXStatusURL(href) else {
-                    continue
-                }
-                let text = (try? anchor.text()) ?? ""
-                let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
-                guard trimmed == href || trimmed.isEmpty else { continue }
-                replaceWithMarker(element: parent,
-                                  marker: "{{XPOST}}\(normalized){{/XPOST}}")
-            }
+    private static func isXPublishHost(_ host: String?) -> Bool {
+        guard let host else { return false }
+        return host.contains("platform.twitter.com")
+            || host.contains("platform.x.com")
+            || host.contains("publish.twitter.com")
+            || host.contains("publish.x.com")
+    }
+
+    private static func promoteXAnchors(in element: Element) {
+        guard let anchors = try? element.select("p > a[href], figure > a[href]") else { return }
+        for anchor in anchors {
+            guard let parent = anchor.parent(),
+                  parent.children().size() == 1,
+                  let href = try? anchor.attr("href"),
+                  let normalized = normalizedXStatusURL(href) else { continue }
+            let trimmed = ((try? anchor.text()) ?? "")
+                .trimmingCharacters(in: .whitespacesAndNewlines)
+            guard trimmed == href || trimmed.isEmpty else { continue }
+            replaceWithMarker(element: parent,
+                              marker: "{{XPOST}}\(normalized){{/XPOST}}")
         }
     }
 

@@ -1,6 +1,7 @@
 import SwiftUI
 
-struct IPadSearchResultsView: View {
+// swiftlint:disable:next type_name
+struct iPadSearchResultsView: View {
 
     let searchResults: [Article]
 

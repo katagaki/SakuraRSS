@@ -48,48 +48,70 @@ struct ListWidgetProvider: AppIntentTimelineProvider {
         let storedPage = defaults?.integer(forKey: "listWidgetPage_\(listID)") ?? 0
 
         do {
-            let listTitle = (try database.list(byID: listID))?.name ?? listEntity.title
-            let feedIDs = try database.feedIDs(forListID: listID)
-            guard !feedIDs.isEmpty else {
-                return Self.emptyListWidgetEntry(
-                    listID: listID, listTitle: listTitle, layout: layout, columns: columns
-                )
-            }
-
-            let perPage = layout == .text ? 9 : columns * columns
-            let maxPages = 3
-            let totalLimit = perPage * maxPages
-            let dbArticles = try database.articles(forFeedIDs: feedIDs, limit: totalLimit)
-            let totalPages = max(1, Int(ceil(Double(dbArticles.count) / Double(perPage))))
-            let currentPage = min(storedPage, totalPages - 1)
-            let pageStart = currentPage * perPage
-            let pageArticles = Array(dbArticles.dropFirst(pageStart).prefix(perPage))
-
-            let widgetArticles = await loadWidgetArticles(
-                pageArticles: pageArticles,
-                listID: listID,
-                layout: layout,
-                columns: columns,
-                currentPage: currentPage,
+            return try await loadListEntry(
+                listEntity: listEntity,
+                params: ListWidgetLoadParams(
+                    listID: listID,
+                    layout: layout,
+                    columns: columns,
+                    storedPage: storedPage
+                ),
                 defaults: defaults,
                 database: database
-            )
-
-            return ListWidgetEntry(
-                date: Date(),
-                listID: listID,
-                listTitle: listTitle,
-                articles: widgetArticles,
-                layout: layout,
-                columns: columns,
-                currentPage: currentPage,
-                totalPages: totalPages
             )
         } catch {
             return Self.emptyListWidgetEntry(
                 listID: listID, listTitle: listEntity.title, layout: layout, columns: columns
             )
         }
+    }
+
+    private func loadListEntry(
+        listEntity: ListEntity,
+        params: ListWidgetLoadParams,
+        defaults: UserDefaults?,
+        database: DatabaseManager
+    ) async throws -> ListWidgetEntry {
+        let listID = params.listID
+        let listTitle = (try database.list(byID: listID))?.name ?? listEntity.title
+        let feedIDs = try database.feedIDs(forListID: listID)
+        guard !feedIDs.isEmpty else {
+            return Self.emptyListWidgetEntry(
+                listID: listID, listTitle: listTitle,
+                layout: params.layout, columns: params.columns
+            )
+        }
+
+        let perPage = params.layout == .text ? 9 : params.columns * params.columns
+        let totalLimit = perPage * 3
+        let dbArticles = try database.articles(forFeedIDs: feedIDs, limit: totalLimit)
+        let totalPages = max(1, Int(ceil(Double(dbArticles.count) / Double(perPage))))
+        let currentPage = min(params.storedPage, totalPages - 1)
+        let pageStart = currentPage * perPage
+        let pageArticles = Array(dbArticles.dropFirst(pageStart).prefix(perPage))
+
+        let widgetArticles = await loadWidgetArticles(
+            pageArticles: pageArticles,
+            request: ListWidgetRequest(
+                listID: listID,
+                layout: params.layout,
+                columns: params.columns,
+                currentPage: currentPage
+            ),
+            defaults: defaults,
+            database: database
+        )
+
+        return ListWidgetEntry(
+            date: Date(),
+            listID: listID,
+            listTitle: listTitle,
+            articles: widgetArticles,
+            layout: params.layout,
+            columns: params.columns,
+            currentPage: currentPage,
+            totalPages: totalPages
+        )
     }
 
     private static func emptyListWidgetEntry(
@@ -107,26 +129,20 @@ struct ListWidgetProvider: AppIntentTimelineProvider {
         )
     }
 
-    // swiftlint:disable:next function_parameter_count
     private func loadWidgetArticles(
         pageArticles: [Article],
-        listID: Int64,
-        layout: SingleFeedWidgetLayout,
-        columns: Int,
-        currentPage: Int,
+        request: ListWidgetRequest,
         defaults: UserDefaults?,
         database: DatabaseManager
     ) async -> [ListWidgetArticle] {
         // Skip network fetches when article set is unchanged, to avoid retrying failed downloads each wake.
         let articleIDsMarker = pageArticles.map(\.id).map(String.init).joined(separator: ",")
-        let markerKey = "listWidgetMarker_\(listID)_\(layout.rawValue)_\(columns)_\(currentPage)"
+        let markerKey = request.markerKey
         let previousMarker = defaults?.string(forKey: markerKey)
         let articleSetUnchanged = previousMarker == articleIDsMarker
         defaults?.set(articleIDsMarker, forKey: markerKey)
 
-        let thumbnailCache = WidgetThumbnailCache(
-            scope: "list_\(listID)_\(layout.rawValue)_\(columns)"
-        )
+        let thumbnailCache = WidgetThumbnailCache(scope: request.cacheScope)
 
         var widgetArticles: [ListWidgetArticle] = []
         for article in pageArticles {

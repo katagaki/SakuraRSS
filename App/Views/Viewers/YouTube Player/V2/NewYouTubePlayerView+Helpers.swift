@@ -8,7 +8,19 @@ extension NewYouTubePlayerView {
     }
 
     var descriptionSource: String? {
-        article.summary ?? article.content
+        if let summary = article.summary, !summary.isEmpty { return summary }
+        if let content = article.content, !content.isEmpty { return content }
+        if article.isEphemeral, let fetched = fetchedMetadata?.description, !fetched.isEmpty {
+            return fetched
+        }
+        return nil
+    }
+
+    var displayTitle: String {
+        if article.isEphemeral, let title = fetchedMetadata?.title, !title.isEmpty {
+            return title
+        }
+        return article.title
     }
 
     var hasDescription: Bool {
@@ -43,6 +55,26 @@ extension NewYouTubePlayerView {
         }
         components.scheme = "youtube"
         return components.url
+    }
+
+    @ViewBuilder
+    func ephemeralUploaderRow(metadata: YouTubeVideoMetadata) -> some View {
+        HStack(alignment: .center, spacing: 12) {
+            VStack(alignment: .leading, spacing: 2) {
+                Text(metadata.uploader)
+                    .font(.subheadline.bold())
+                if let publishDate = metadata.publishDate {
+                    Text(publishDate, format: .dateTime.year().month().day())
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                } else if let raw = metadata.publishDateString, !raw.isEmpty {
+                    Text(raw)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+            }
+            Spacer(minLength: 0)
+        }
     }
 
     @ViewBuilder

@@ -17,8 +17,7 @@ extension UIImage {
         }
     }
 
-    // swiftlint:disable:next identifier_name
-    nonisolated func _rawProminentColors() -> [[Double]]? {
+    nonisolated func rawProminentColors() -> [[Double]]? {
         guard let cgImage = cgImage else { return nil }
         guard let pixelData = Self.samplePixelData(from: cgImage) else { return nil }
         let buckets = Self.bucketPixels(pixelData)

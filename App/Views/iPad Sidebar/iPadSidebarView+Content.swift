@@ -1,13 +1,13 @@
 import SwiftUI
 
-extension IPadSidebarView {
+extension iPadSidebarView {
 
     @ViewBuilder
     var contentColumn: some View {
         Group {
             if !searchText.isEmpty {
                 iPadArticleListWrapper {
-                    IPadSearchResultsView(searchResults: searchResults)
+                    iPadSearchResultsView(searchResults: searchResults)
                 }
             } else {
                 switch selectedDestination {

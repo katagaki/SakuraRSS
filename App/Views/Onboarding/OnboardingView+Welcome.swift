@@ -54,7 +54,7 @@ extension OnboardingView {
                 }
                 continueButton { advanceStep() }
             }
-            .padding(.bottom, isIPad ? 20 : 8)
+            .padding(.bottom, isiPad ? 20 : 8)
         }
         .task {
             backupMetadata = await iCloudBackupManager.shared.backupMetadata()

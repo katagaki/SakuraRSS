@@ -52,21 +52,37 @@ extension ContentBlock {
         return segments
     }
 
-    // swiftlint:disable:next cyclomatic_complexity
     static func translateArticleContent(
         title: String?, markerText: String, session: TranslationSession
     ) async throws -> (title: String?, text: String) {
         let segments = translationSegments(from: markerText)
+        let requests = translationRequests(title: title, segments: segments)
 
-        let titleIdentifier = "title"
-        var requests: [TranslationSession.Request] = []
-
-        if let title, !title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-            requests.append(
-                TranslationSession.Request(sourceText: title, clientIdentifier: titleIdentifier)
-            )
+        guard !requests.isEmpty else {
+            return (title: title, text: markerText)
         }
 
+        let responses = try await session.translations(from: requests)
+        let (translatedTitle, translatedSegments) = mapTranslationResponses(
+            responses, fallbackTitle: title
+        )
+        let rebuilt = rebuildMarkerText(segments: segments, translatedSegments: translatedSegments)
+        return (title: translatedTitle, text: rebuilt)
+    }
+
+    private nonisolated static let titleClientIdentifier = "title"
+
+    private nonisolated static func translationRequests(
+        title: String?, segments: [TranslationSegment]
+    ) -> [TranslationSession.Request] {
+        var requests: [TranslationSession.Request] = []
+        if let title, !title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            requests.append(
+                TranslationSession.Request(
+                    sourceText: title, clientIdentifier: titleClientIdentifier
+                )
+            )
+        }
         for (index, segment) in segments.enumerated() {
             guard case .translatable(let content) = segment,
                   !content.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
@@ -77,24 +93,28 @@ extension ContentBlock {
                 )
             )
         }
+        return requests
+    }
 
-        guard !requests.isEmpty else {
-            return (title: title, text: markerText)
-        }
-
-        let responses = try await session.translations(from: requests)
-        var translatedTitle: String? = title
+    private static func mapTranslationResponses(
+        _ responses: [TranslationSession.Response], fallbackTitle: String?
+    ) -> (title: String?, segments: [Int: String]) {
+        var translatedTitle: String? = fallbackTitle
         var translatedSegments: [Int: String] = [:]
-
         for response in responses {
             guard let identifier = response.clientIdentifier else { continue }
-            if identifier == titleIdentifier {
+            if identifier == titleClientIdentifier {
                 translatedTitle = response.targetText
             } else if let index = segmentIndex(from: identifier) {
                 translatedSegments[index] = response.targetText
             }
         }
+        return (translatedTitle, translatedSegments)
+    }
 
+    private static func rebuildMarkerText(
+        segments: [TranslationSegment], translatedSegments: [Int: String]
+    ) -> String {
         var rebuilt = ""
         for (index, segment) in segments.enumerated() {
             switch segment {
@@ -104,17 +124,16 @@ extension ContentBlock {
                 rebuilt += marker
             }
         }
-
-        return (title: translatedTitle, text: rebuilt)
+        return rebuilt
     }
 
-    private static let segmentIdentifierPrefix = "seg-"
+    private nonisolated static let segmentIdentifierPrefix = "seg-"
 
-    private static func segmentIdentifier(for index: Int) -> String {
+    private nonisolated static func segmentIdentifier(for index: Int) -> String {
         "\(segmentIdentifierPrefix)\(index)"
     }
 
-    private static func segmentIndex(from identifier: String) -> Int? {
+    private nonisolated static func segmentIndex(from identifier: String) -> Int? {
         guard identifier.hasPrefix(segmentIdentifierPrefix) else { return nil }
         return Int(identifier.dropFirst(segmentIdentifierPrefix.count))
     }

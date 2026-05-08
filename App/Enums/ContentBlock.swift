@@ -149,7 +149,6 @@ enum ContentBlock: Identifiable {
         return blocks
     }
 
-    // swiftlint:disable:next cyclomatic_complexity
     private static func block(
         forTag tag: String,
         content: String,
@@ -182,17 +181,21 @@ enum ContentBlock: Identifiable {
             let trimmed = content.trimmingCharacters(in: .whitespacesAndNewlines)
             return trimmed.isEmpty ? nil : .math(ArticleMarker.unescape(trimmed))
         default:
-            let nsContent = content as NSString
-            if let linkRegex,
-               let linkMatch = linkRegex.firstMatch(
-                in: content, range: NSRange(location: 0, length: nsContent.length)
-               ) {
-                let imgURLString = nsContent.substring(with: linkMatch.range(at: 1))
-                let linkURLString = nsContent.substring(with: linkMatch.range(at: 2))
-                return URL(string: imgURLString).map { .image($0, link: URL(string: linkURLString)) }
-            }
-            return URL(string: content).map { .image($0) }
+            return imageBlock(content: content, linkRegex: linkRegex)
         }
+    }
+
+    private static func imageBlock(content: String, linkRegex: NSRegularExpression?) -> ContentBlock? {
+        let nsContent = content as NSString
+        if let linkRegex,
+           let linkMatch = linkRegex.firstMatch(
+            in: content, range: NSRange(location: 0, length: nsContent.length)
+           ) {
+            let imgURLString = nsContent.substring(with: linkMatch.range(at: 1))
+            let linkURLString = nsContent.substring(with: linkMatch.range(at: 2))
+            return URL(string: imgURLString).map { .image($0, link: URL(string: linkURLString)) }
+        }
+        return URL(string: content).map { .image($0) }
     }
 
     /// Parses `{{TABLE}}` payload `header1|header2\nrow1col1|row1col2\n…` into header + rows.
