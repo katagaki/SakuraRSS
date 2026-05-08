@@ -2,6 +2,7 @@ import SwiftUI
 
 struct ScrollActionButtonsColumn: View {
 
+    @Environment(FeedManager.self) private var feedManager
     let article: Article
     let icon: UIImage?
     let acronymIcon: UIImage?
@@ -50,15 +51,16 @@ struct ScrollActionButtonsColumn: View {
             }
             .accessibilityLabel(Text(String(localized: "Article.CopyLink", table: "Articles")))
 
+            let isBookmarked = feedManager.isBookmarked(article)
             Button(action: onToggleBookmark) {
                 labeledIcon(
-                    systemName: article.isBookmarked ? "bookmark.fill" : "bookmark",
-                    label: Text(article.isBookmarked
+                    systemName: isBookmarked ? "bookmark.fill" : "bookmark",
+                    label: Text(isBookmarked
                                 ? String(localized: "Article.RemoveBookmark", table: "Articles")
                                 : String(localized: "Article.Bookmark", table: "Articles"))
                 )
             }
-            .accessibilityLabel(Text(article.isBookmarked
+            .accessibilityLabel(Text(isBookmarked
                                      ? String(localized: "Article.RemoveBookmark", table: "Articles")
                                      : String(localized: "Article.Bookmark", table: "Articles")))
 

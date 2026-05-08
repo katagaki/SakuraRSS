@@ -19,9 +19,7 @@ struct HomeView: View {
     @State private var tabFrames: [String: CGRect] = [:]
     @State var topTopics: [String] = []
     @State var barConfiguration: HomeBarConfiguration = .load()
-    @Bindable var weatherService: TodayWeatherService = .shared
-    @AppStorage("Onboarding.Completed") var onboardingCompleted: Bool = false
-    @State var showingWeatherLocationPicker = false
+    @State private var showingWeatherLocationPicker = false
     @Namespace private var cardZoom
 
     var body: some View {
@@ -54,7 +52,9 @@ struct HomeView: View {
                     }
                     if isTodaySelected {
                         ToolbarItem(placement: .topBarTrailing) {
-                            weatherToolbarButton
+                            WeatherToolbarButton(
+                                isLocationPickerPresented: $showingWeatherLocationPicker
+                            )
                         }
                         .sharedBackgroundVisibility(.hidden)
                     }

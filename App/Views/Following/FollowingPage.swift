@@ -78,13 +78,13 @@ struct FollowingPage: View {
                 .environment(feedManager)
         }
         .alert(
-            String(localized: "FeedMenu.Delete.Title", table: "Feeds"),
+            String(localized: "FeedMenu.Unfollow.Title", table: "Feeds"),
             isPresented: Binding(
                 get: { feedToDelete != nil },
                 set: { if !$0 { feedToDelete = nil } }
             )
         ) {
-            Button(String(localized: "FeedMenu.Delete.Confirm", table: "Feeds"), role: .destructive) {
+            Button(String(localized: "FeedMenu.Unfollow.Confirm", table: "Feeds"), role: .destructive) {
                 if let feed = feedToDelete {
                     withAnimation(.smooth.speed(2.0)) {
                         try? feedManager.deleteFeed(feed)
@@ -97,14 +97,14 @@ struct FollowingPage: View {
             }
         } message: {
             if let feed = feedToDelete {
-                Text(String(localized: "FeedMenu.Delete.Message.\(feed.title)", table: "Feeds"))
+                Text(String(localized: "FeedMenu.Unfollow.Message.\(feed.title)", table: "Feeds"))
             }
         }
         .alert(
             String(localized: "FeedList.BulkDelete.Title", table: "Feeds"),
             isPresented: $isPresentingBulkDeleteAlert
         ) {
-            Button(String(localized: "FeedMenu.Delete.Confirm", table: "Feeds"), role: .destructive) {
+            Button(String(localized: "FeedMenu.Unfollow.Confirm", table: "Feeds"), role: .destructive) {
                 deleteSelectedFeeds()
             }
             Button("Shared.Cancel", role: .cancel) { }
@@ -135,6 +135,7 @@ struct FollowingPage: View {
                 } label: {
                     Image(systemName: "trash")
                 }
+                .tint(.red)
                 .accessibilityLabel(String(localized: "FeedList.Selection.Delete", table: "Feeds"))
                 Button {
                     isPresentingBulkEditSheet = true

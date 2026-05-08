@@ -35,9 +35,9 @@ enum SummaryCardKind {
     func isInTimeWindow(_ date: Date) -> Bool {
         let hour = Calendar.current.component(.hour, from: date)
         switch self {
-        case .todaysSummary: return hour >= 21
+        case .todaysSummary: return hour >= 18
         case .whileYouSlept: return hour >= 6 && hour < 12
-        case .afternoonBrief: return hour >= 12 && hour < 21
+        case .afternoonBrief: return hour >= 12 && hour < 16
         }
     }
 

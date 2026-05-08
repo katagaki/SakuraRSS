@@ -8,6 +8,7 @@ struct FeedHeaderView: View {
     @State private var icon: UIImage?
     @State private var isEditingFeed: Bool = false
     @State private var isDescriptionExpanded: Bool = false
+    @State private var isShowingUnfollowAlert: Bool = false
 
     private let iconSize: CGFloat = 64
     private let iconCornerRadius: CGFloat = 14
@@ -73,6 +74,18 @@ struct FeedHeaderView: View {
             EditFeedSheet(feedID: feed.id)
                 .environment(feedManager)
                 .navigationTransition(.zoom(sourceID: feed.id, in: editNamespace))
+        }
+        .alert(
+            String(localized: "FeedMenu.Unfollow.Title", table: "Feeds"),
+            isPresented: $isShowingUnfollowAlert
+        ) {
+            Button(String(localized: "FeedMenu.Unfollow.Confirm", table: "Feeds"),
+                   role: .destructive) {
+                try? feedManager.deleteFeed(feed)
+            }
+            Button("Shared.Cancel", role: .cancel) { }
+        } message: {
+            Text(String(localized: "FeedMenu.Unfollow.Message.\(feed.title)", table: "Feeds"))
         }
     }
 
@@ -154,6 +167,19 @@ struct FeedHeaderView: View {
                     .accessibilityLabel(String(localized: "FeedHeader.Share", table: "Feeds"))
                     .compatibleGlassEffectID("Share", in: namespace)
                 }
+
+                Button(role: .destructive) {
+                    isShowingUnfollowAlert = true
+                } label: {
+                    Image("dot.radiowaves.up.forward.slash")
+                        .font(.subheadline.weight(.semibold))
+                        .frame(minHeight: 36)
+                }
+                .compatibleGlassButtonStyle()
+                .buttonBorderShape(.circle)
+                .tint(.red)
+                .accessibilityLabel(String(localized: "FeedMenu.Unfollow", table: "Feeds"))
+                .compatibleGlassEffectID("Unfollow", in: namespace)
 
                 Spacer(minLength: 0)
             }

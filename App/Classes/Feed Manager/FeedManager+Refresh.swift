@@ -78,7 +78,6 @@ extension FeedManager {
                 contentOnly: contentOnly
             )
         }.value
-        await MainActor.run { self.bumpDataRevision() }
         if reloadData {
             await loadFromDatabaseInBackground(animated: true)
         }

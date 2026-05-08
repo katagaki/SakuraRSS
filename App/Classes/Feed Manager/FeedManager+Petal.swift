@@ -116,7 +116,6 @@ extension FeedManager {
             try database.updateFeedLastFetched(id: feedID, date: Date())
         }.value
 
-        await MainActor.run { self.bumpDataRevision() }
         if reloadData {
             await loadFromDatabaseInBackground(animated: true)
         }

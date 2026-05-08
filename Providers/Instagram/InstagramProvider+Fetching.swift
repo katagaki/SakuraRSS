@@ -73,8 +73,8 @@ extension InstagramProvider {
     static func awaitHumanPacing() async {
         let lastCompleted = lastRequestCompletedAt.withLock { $0 }
 
-        let minCooldown: TimeInterval = 3.5
-        let maxCooldown: TimeInterval = 9.0
+        let minCooldown: TimeInterval = 2.5
+        let maxCooldown: TimeInterval = 5.0
 
         var delay = TimeInterval.random(in: 0.4...1.8)
         if let lastCompleted {

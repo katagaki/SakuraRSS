@@ -49,7 +49,7 @@ extension ArticleDetailView {
     }
 
     func loadArticleMetadata() async {
-        isBookmarked = article.isBookmarked
+        isBookmarked = feedManager.isBookmarked(article)
         if !article.isEphemeral, !previewMode, marksReadOnAppear {
             feedManager.markRead(article)
         }

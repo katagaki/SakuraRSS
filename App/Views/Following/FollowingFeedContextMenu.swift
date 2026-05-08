@@ -29,8 +29,8 @@ struct FollowingFeedContextMenu: View {
         Button(role: .destructive) {
             feedToDelete = target
         } label: {
-            Label(String(localized: "FeedMenu.Delete", table: "Feeds"),
-                  systemImage: "trash")
+            Label(String(localized: "FeedMenu.Unfollow", table: "Feeds"),
+                  image: "dot.radiowaves.up.forward.slash")
         }
     }
 }

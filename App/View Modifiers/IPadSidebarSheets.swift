@@ -10,6 +10,7 @@ struct IPadSidebarSheets: ViewModifier {
     @Binding var showingOnboarding: Bool
     @Binding var showYouTubeSafari: Bool
     @Binding var pendingYouTubeSafariURL: URL?
+    @Binding var showingWeatherLocationPicker: Bool
     @Binding var feedToDelete: Feed?
     @Binding var listToEdit: FeedList?
     @Binding var listForRules: FeedList?
@@ -39,15 +40,19 @@ struct IPadSidebarSheets: ViewModifier {
                         .ignoresSafeArea()
                 }
             }
+            .sheet(isPresented: $showingWeatherLocationPicker) {
+                TodayWeatherLocationSheet()
+                    .presentationDetents([.large])
+            }
             .confirmationDialog(
-                String(localized: "FeedMenu.Delete.Title", table: "Feeds"),
+                String(localized: "FeedMenu.Unfollow.Title", table: "Feeds"),
                 isPresented: Binding(
                     get: { feedToDelete != nil },
                     set: { if !$0 { feedToDelete = nil } }
                 ),
                 titleVisibility: .visible
             ) {
-                Button(String(localized: "FeedMenu.Delete.Confirm", table: "Feeds"), role: .destructive) {
+                Button(String(localized: "FeedMenu.Unfollow.Confirm", table: "Feeds"), role: .destructive) {
                     if let feed = feedToDelete {
                         try? feedManager.deleteFeed(feed)
                         feedToDelete = nil
@@ -58,7 +63,7 @@ struct IPadSidebarSheets: ViewModifier {
                 }
             } message: {
                 if let feed = feedToDelete {
-                    Text(String(localized: "FeedMenu.Delete.Message.\(feed.title)", table: "Feeds"))
+                    Text(String(localized: "FeedMenu.Unfollow.Message.\(feed.title)", table: "Feeds"))
                 }
             }
             .sheet(item: $listToEdit) { list in
@@ -104,6 +109,7 @@ extension View {
         showingOnboarding: Binding<Bool>,
         showYouTubeSafari: Binding<Bool>,
         pendingYouTubeSafariURL: Binding<URL?>,
+        showingWeatherLocationPicker: Binding<Bool>,
         feedToDelete: Binding<Feed?>,
         listToEdit: Binding<FeedList?>,
         listForRules: Binding<FeedList?>,
@@ -116,6 +122,7 @@ extension View {
             showingOnboarding: showingOnboarding,
             showYouTubeSafari: showYouTubeSafari,
             pendingYouTubeSafariURL: pendingYouTubeSafariURL,
+            showingWeatherLocationPicker: showingWeatherLocationPicker,
             feedToDelete: feedToDelete,
             listToEdit: listToEdit,
             listForRules: listForRules,

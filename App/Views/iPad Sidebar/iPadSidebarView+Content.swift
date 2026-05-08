@@ -108,6 +108,14 @@ extension IPadSidebarView {
             TodayView()
                 .navigationTitle(String(localized: "HomeSection.Today", table: "Home"))
                 .toolbarTitleDisplayMode(.inline)
+                .toolbar {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        WeatherToolbarButton(
+                            isLocationPickerPresented: $showingWeatherLocationPicker
+                        )
+                    }
+                    .sharedBackgroundVisibility(.hidden)
+                }
         }
     }
 

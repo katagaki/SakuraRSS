@@ -38,7 +38,7 @@ struct InboxStyleView: View {
                             feedManager.toggleBookmark(article)
                         }
                     } label: {
-                        Image(systemName: article.isBookmarked ? "bookmark.slash" : "bookmark")
+                        Image(systemName: feedManager.isBookmarked(article) ? "bookmark.slash" : "bookmark")
                     }
                     .tint(.orange)
                 }

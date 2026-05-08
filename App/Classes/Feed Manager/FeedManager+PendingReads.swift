@@ -9,7 +9,19 @@ extension FeedManager {
     /// individual scroll-driven inserts stay outside observation.
     func isRead(_ article: Article) -> Bool {
         _ = readMaskRevision
+        if let staged = stagedReadChanges[article.id] {
+            return staged
+        }
         return article.isRead || pendingReadIDs.contains(article.id)
+    }
+
+    /// Bookmark state with staged-toggle awareness, mirroring `isRead`.
+    func isBookmarked(_ article: Article) -> Bool {
+        _ = readMaskRevision
+        if let staged = stagedBookmarkChanges[article.id] {
+            return staged
+        }
+        return article.isBookmarked
     }
 
     func markReadOnScroll(_ article: Article) {

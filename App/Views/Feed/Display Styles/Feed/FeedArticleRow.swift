@@ -198,7 +198,7 @@ struct FeedArticleRow: View {
                         Haptics.impact(.light)
                         feedManager.toggleBookmark(article)
                     } label: {
-                        Image(systemName: article.isBookmarked ? "bookmark.fill" : "bookmark")
+                        Image(systemName: feedManager.isBookmarked(article) ? "bookmark.fill" : "bookmark")
                     }
                     .buttonStyle(.plain)
 

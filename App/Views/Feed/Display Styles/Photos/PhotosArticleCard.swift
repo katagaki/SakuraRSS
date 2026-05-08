@@ -193,16 +193,17 @@ struct PhotosArticleCard: View {
 
                 Spacer()
 
+                let isBookmarked = feedManager.isBookmarked(article)
                 Button {
                     log("PhotosCard", "Bookmark tapped for article \(article.id)")
                     Haptics.impact(.light)
                     feedManager.toggleBookmark(article)
                 } label: {
                     Label(
-                        article.isBookmarked
+                        isBookmarked
                             ? String(localized: "Article.RemoveBookmark", table: "Articles")
                             : String(localized: "Article.Bookmark", table: "Articles"),
-                        systemImage: article.isBookmarked ? "bookmark.fill" : "bookmark"
+                        systemImage: isBookmarked ? "bookmark.fill" : "bookmark"
                     )
                 }
             }
