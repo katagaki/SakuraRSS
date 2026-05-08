@@ -13,11 +13,10 @@ extension ArticleExtractor {
             metadata.leadImageURL = metadata.leadImageURL ?? jsonLD.leadImageURL
         }
 
-        // swiftlint:disable:next identifier_name
-        if let og = metadataFromMetaTags(in: doc) {
-            metadata.author = metadata.author ?? og.author
-            metadata.publishedDate = metadata.publishedDate ?? og.publishedDate
-            metadata.leadImageURL = metadata.leadImageURL ?? og.leadImageURL
+        if let openGraph = metadataFromMetaTags(in: doc) {
+            metadata.author = metadata.author ?? openGraph.author
+            metadata.publishedDate = metadata.publishedDate ?? openGraph.publishedDate
+            metadata.leadImageURL = metadata.leadImageURL ?? openGraph.leadImageURL
         }
 
         if metadata.author == nil, let author = authorFromSemanticTags(in: doc) {

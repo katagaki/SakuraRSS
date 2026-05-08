@@ -49,7 +49,7 @@ extension OnboardingView {
                 .padding(.horizontal, 20)
                 .padding(.bottom, 8)
             }
-            .padding(.bottom, isIPad ? 20 : 8)
+            .padding(.bottom, isiPad ? 20 : 8)
         }
     }
 }

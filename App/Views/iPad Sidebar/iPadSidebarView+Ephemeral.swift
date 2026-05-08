@@ -1,6 +1,6 @@
 import SwiftUI
 
-extension IPadSidebarView {
+extension iPadSidebarView {
 
     /// Routes a `sakura://open` request to either the in-app YouTube player
     /// or to the standard article-detail flow with the requested viewer mode.

@@ -3,49 +3,55 @@ import SwiftSoup
 
 extension ArticleExtractor {
 
-    // swiftlint:disable cyclomatic_complexity
     /// Picks the best available source URL from an image-like element:
     /// `<img>`, `<amp-img>`, or `<picture>`.  Prefers `srcset` descriptors
     /// when present, then falls back through common lazy-loading attributes,
     /// then the plain `src` attribute.  Returns `nil` when nothing usable
     /// was found.
     static func bestImageURL(from element: Element) -> String? {
-        let tag = element.tagName().lowercased()
+        if element.tagName().lowercased() == "picture" {
+            return pictureBestImageURL(from: element)
+        }
+        if let lazy = lazyAttributeImageURL(from: element) {
+            return lazy
+        }
+        return fallbackSrcsetImageURL(from: element)
+    }
 
-        if tag == "picture" {
-            if let sources = try? element.select("source") {
-                for source in sources {
-                    if let srcset = try? source.attr("srcset"),
-                       let best = largestSrcsetCandidate(srcset) {
-                        return best
-                    }
+    private static func pictureBestImageURL(from element: Element) -> String? {
+        if let sources = try? element.select("source") {
+            for source in sources {
+                if let srcset = try? source.attr("srcset"),
+                   let best = largestSrcsetCandidate(srcset) {
+                    return best
                 }
             }
-            if let img = try? element.select("img, amp-img").first(),
-               let candidate = bestImageURL(from: img) {
-                return candidate
-            }
-            return nil
         }
+        if let img = try? element.select("img, amp-img").first(),
+           let candidate = bestImageURL(from: img) {
+            return candidate
+        }
+        return nil
+    }
 
+    private static func lazyAttributeImageURL(from element: Element) -> String? {
         let lazyAttrs = [
             "src", "data-src", "data-lazy-src", "data-original",
             "data-hi-res-src", "data-orig-file", "data-full-src",
             "data-original-src", "data-img-url", "data-srcset"
         ]
         for attr in lazyAttrs {
-            guard let raw = try? element.attr(attr), !raw.isEmpty else {
-                continue
-            }
+            guard let raw = try? element.attr(attr), !raw.isEmpty else { continue }
             if attr.hasSuffix("srcset") {
-                if let best = largestSrcsetCandidate(raw) {
-                    return best
-                }
+                if let best = largestSrcsetCandidate(raw) { return best }
             } else {
                 return raw
             }
         }
+        return nil
+    }
 
+    private static func fallbackSrcsetImageURL(from element: Element) -> String? {
         if let srcset = try? element.attr("srcset"),
            let best = largestSrcsetCandidate(srcset) {
             return best
@@ -57,7 +63,6 @@ extension ArticleExtractor {
         }
         return nil
     }
-    // swiftlint:enable cyclomatic_complexity
 
     /// Parses a `srcset` value and returns the URL of the largest candidate.
     /// Candidates take the form `URL[ width][w|x]` and are comma-separated.

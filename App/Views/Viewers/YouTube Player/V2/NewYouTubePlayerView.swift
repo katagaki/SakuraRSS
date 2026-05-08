@@ -20,6 +20,7 @@ struct NewYouTubePlayerView: View {
     @State var icon: UIImage?
     @State var acronymIcon: UIImage?
     @State var isBookmarked = false
+    @State var fetchedMetadata: YouTubeVideoMetadata?
 
     @AppStorage("YouTube.SponsorBlock.Enabled") var sponsorBlockEnabled = false
     @AppStorage("YouTube.SponsorBlock.Categories") var sponsorBlockCategories = "sponsor,selfpromo,interaction"
@@ -163,7 +164,7 @@ struct NewYouTubePlayerView: View {
     private var descriptionContent: some View {
         VStack(spacing: 16) {
             WordWrappingText(
-                article.title,
+                displayTitle,
                 font: .preferredFont(forTextStyle: .title2, weight: .bold)
             )
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -184,6 +185,10 @@ struct NewYouTubePlayerView: View {
                     }
                     Spacer(minLength: 0)
                 }
+                Divider()
+            } else if article.isEphemeral, let metadata = fetchedMetadata,
+                      !metadata.uploader.isEmpty {
+                ephemeralUploaderRow(metadata: metadata)
                 Divider()
             }
 

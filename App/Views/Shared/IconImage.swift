@@ -110,12 +110,12 @@ extension UIImage {
            existing.hasAnyTransparentPixel != nil {
             return existing
         }
-        let cornerSample = _rawSampleCornerAlphas()
-        let averageRGB = _rawAverageColorComponents()
-        let luminance = _rawAverageLuminance()
-        let nearBlack = _rawIsNearBlack()
-        let prominent = _rawProminentColors()
-        let anyTransparent = _rawHasAnyTransparentPixel()
+        let cornerSample = rawSampleCornerAlphas()
+        let averageRGB = rawAverageColorComponents()
+        let luminance = rawAverageLuminance()
+        let nearBlack = rawIsNearBlack()
+        let prominent = rawProminentColors()
+        let anyTransparent = rawHasAnyTransparentPixel()
         let metrics = IconDerivedMetrics(
             cornerAlphas: cornerSample?.corners ?? [],
             centerAlpha: cornerSample?.centerAlpha ?? 0,
@@ -140,7 +140,7 @@ extension UIImage {
         return cgImage.width == cgImage.height
     }
 
-    fileprivate nonisolated func _rawSampleCornerAlphas() -> (corners: [UInt8], centerAlpha: UInt8)? {
+    fileprivate nonisolated func rawSampleCornerAlphas() -> (corners: [UInt8], centerAlpha: UInt8)? {
         guard let cgImage = cgImage else { return nil }
         let width = cgImage.width
         let height = cgImage.height
@@ -213,8 +213,7 @@ extension UIImage {
         return Color(red: rgb[0], green: rgb[1], blue: rgb[2])
     }
 
-    // swiftlint:disable:next large_tuple
-    fileprivate nonisolated func _rawAverageColorComponents() -> (red: CGFloat, green: CGFloat, blue: CGFloat)? {
+    fileprivate nonisolated func rawAverageColorComponents() -> RGBComponents? {
         guard let cgImage = cgImage else { return nil }
 
         let sampleSize = 16
@@ -249,15 +248,18 @@ extension UIImage {
         }
 
         guard opaqueCount > 0 else { return nil }
-        return (totalR / opaqueCount, totalG / opaqueCount, totalB / opaqueCount)
+        return RGBComponents(
+            red: totalR / opaqueCount,
+            green: totalG / opaqueCount,
+            blue: totalB / opaqueCount
+        )
     }
 
-    // swiftlint:disable:next large_tuple
-    var averageColorComponents: (red: CGFloat, green: CGFloat, blue: CGFloat)? {
+    var averageColorComponents: RGBComponents? {
         guard let rgb = ensureIconDerivedMetrics().averageColor, rgb.count >= 3 else {
             return nil
         }
-        return (CGFloat(rgb[0]), CGFloat(rgb[1]), CGFloat(rgb[2]))
+        return RGBComponents(red: CGFloat(rgb[0]), green: CGFloat(rgb[1]), blue: CGFloat(rgb[2]))
     }
 
     /// Background colour derived from the icon's average colour for card backgrounds.

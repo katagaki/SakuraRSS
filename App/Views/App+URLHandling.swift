@@ -2,77 +2,114 @@ import Foundation
 
 extension SakuraRSSApp {
 
-    // swiftlint:disable:next function_body_length cyclomatic_complexity
     func handleOpenURL(_ url: URL) {
-        if url.scheme == "sakura" {
-            switch url.host {
-            case "article":
-                if let idString = url.pathComponents.last,
-                   let articleID = Int64(idString) {
-                    pendingArticleID = articleID
-                }
-            case "open":
-                if let request = OpenArticleRequest(url: url) {
-                    pendingOpenRequest = request
-                }
-            case "delorean":
-                DeloreanClock.shared.toggle()
-            case "justwokeup":
-                forceWhileYouSlept = true
-            case "justhadlunch":
-                forceAfternoonBrief = true
-            case "justgothome":
-                forceTodaysSummary = true
-            case "reonboard":
-                UserDefaults.standard.set(false, forKey: "Onboarding.Completed")
-            case "fixup":
-                DatabaseManager.shared.fixup()
-                UserDefaults.standard.removeObject(forKey: "App.DatabaseVersion")
-            case "arisishere":
-                Task {
-                    await feedManager.deleteAllArticlesAndRefresh()
-                }
-            case "bigbang":
-                feedManager.markAllUnread()
-            case "howmanybulbs":
-                Task {
-                    SpotlightIndexer.removeAllArticles()
-                    feedManager.reindexAllArticlesInSpotlight()
-                }
-            case "putonpipboy":
-                wipeAllCachesAndData()
-                Task {
-                    // X/Instagram cookies in Keychain survive the wipe; X must re-extract GraphQL IDs.
-                    if UserDefaults.standard.bool(forKey: "Labs.XProfileFeeds") {
-                        await XProvider.fetchQueryIDsIfNeeded()
-                    }
-                    let entries = feedManager.feeds.map { ($0.domain, $0.siteURL as String?) }
-                    await IconCache.shared.refreshIcons(for: entries)
-                }
-            case "forgetit":
-                let defaults = UserDefaults.standard
-                defaults.removeObject(forKey: "App.SelectedTab")
-                defaults.removeObject(forKey: "Home.FeedID")
-                defaults.removeObject(forKey: "Home.ArticleID")
-                defaults.removeObject(forKey: "FeedsList.FeedID")
-                defaults.removeObject(forKey: "FeedsList.ArticleID")
-                defaults.removeObject(forKey: "Display.DefaultStyle")
-                defaults.removeObject(forKey: "Search.DisplayStyle")
-                defaults.removeObject(forKey: "Display.DefaultBookmarksStyle")
-                defaults.removeObject(forKey: "ForceWhileYouSlept")
-                defaults.removeObject(forKey: "ForceAfternoonBrief")
-                defaults.removeObject(forKey: "ForceTodaysSummary")
-                for key in defaults.dictionaryRepresentation().keys {
-                    if key.hasPrefix("Display.Style.") || key.hasPrefix("openMode-")
-                        || key.hasPrefix("Labs.") {
-                        defaults.removeObject(forKey: key)
-                    }
-                }
-            default:
-                break
-            }
-        } else {
+        guard url.scheme == "sakura" else {
             pendingFeedURL = convertFeedURL(url)
+            return
+        }
+        handleSakuraScheme(url)
+    }
+
+    private func handleSakuraScheme(_ url: URL) {
+        guard let host = url.host else { return }
+        if handleNavigationHost(host, url: url) { return }
+        if handleForceFlagHost(host) { return }
+        handleAdminHost(host)
+    }
+
+    private func handleNavigationHost(_ host: String, url: URL) -> Bool {
+        switch host {
+        case "article":
+            if let idString = url.pathComponents.last,
+               let articleID = Int64(idString) {
+                pendingArticleID = articleID
+            }
+        case "open":
+            if let request = OpenArticleRequest(url: url) {
+                pendingOpenRequest = request
+            }
+        default:
+            return false
+        }
+        return true
+    }
+
+    private func handleForceFlagHost(_ host: String) -> Bool {
+        switch host {
+        case "delorean":
+            DeloreanClock.shared.toggle()
+        case "justwokeup":
+            forceWhileYouSlept = true
+        case "justhadlunch":
+            forceAfternoonBrief = true
+        case "justgothome":
+            forceTodaysSummary = true
+        case "reonboard":
+            UserDefaults.standard.set(false, forKey: "Onboarding.Completed")
+        default:
+            return false
+        }
+        return true
+    }
+
+    private func handleAdminHost(_ host: String) {
+        switch host {
+        case "fixup":
+            DatabaseManager.shared.fixup()
+            UserDefaults.standard.removeObject(forKey: "App.DatabaseVersion")
+        case "arisishere":
+            Task { await feedManager.deleteAllArticlesAndRefresh() }
+        case "bigbang":
+            feedManager.markAllUnread()
+        case "howmanybulbs":
+            Task {
+                SpotlightIndexer.removeAllArticles()
+                feedManager.reindexAllArticlesInSpotlight()
+            }
+        case "putonpipboy":
+            handlePutOnPipBoy()
+        case "forgetit":
+            handleForgetIt()
+        default:
+            break
+        }
+    }
+
+    private func handlePutOnPipBoy() {
+        wipeAllCachesAndData()
+        Task {
+            // X/Instagram cookies in Keychain survive the wipe; X must re-extract GraphQL IDs.
+            if UserDefaults.standard.bool(forKey: "Labs.XProfileFeeds") {
+                await XProvider.fetchQueryIDsIfNeeded()
+            }
+            let entries = feedManager.feeds.map { ($0.domain, $0.siteURL as String?) }
+            await IconCache.shared.refreshIcons(for: entries)
+        }
+    }
+
+    private func handleForgetIt() {
+        let defaults = UserDefaults.standard
+        let staticKeys = [
+            "App.SelectedTab",
+            "Home.FeedID",
+            "Home.ArticleID",
+            "FeedsList.FeedID",
+            "FeedsList.ArticleID",
+            "Display.DefaultStyle",
+            "Search.DisplayStyle",
+            "Display.DefaultBookmarksStyle",
+            "ForceWhileYouSlept",
+            "ForceAfternoonBrief",
+            "ForceTodaysSummary"
+        ]
+        for key in staticKeys {
+            defaults.removeObject(forKey: key)
+        }
+        for key in defaults.dictionaryRepresentation().keys
+        where key.hasPrefix("Display.Style.")
+              || key.hasPrefix("openMode-")
+              || key.hasPrefix("Labs.") {
+            defaults.removeObject(forKey: key)
         }
     }
 

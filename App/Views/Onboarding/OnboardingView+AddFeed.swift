@@ -141,7 +141,7 @@ extension OnboardingView {
                     .padding(.bottom, 8)
                 }
             }
-            .padding(.bottom, isIPad ? 20 : 8)
+            .padding(.bottom, isiPad ? 20 : 8)
         }
         .onAppear {
             isURLFieldFocused = true

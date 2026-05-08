@@ -78,7 +78,6 @@ extension ArticleExtractor {
         return resolved
     }
 
-    // swiftlint:disable function_body_length cyclomatic_complexity
     /// Walks the DOM collecting text from block-level elements and leaf wrappers.
     static func collectBlocks(
         from element: Element,
@@ -87,97 +86,155 @@ extension ArticleExtractor {
         excludeTitle: String? = nil
     ) throws {
         for child in element.children() {
-            let tag = child.tagName().lowercased()
-            if tag == "table" {
-                if let marker = tableMarker(from: child, baseURL: baseURL) {
-                    paragraphs.append(marker)
-                }
-                continue
+            try collectBlock(
+                from: child,
+                into: &paragraphs,
+                baseURL: baseURL,
+                excludeTitle: excludeTitle
+            )
+        }
+    }
+
+    private static func collectBlock(
+        from child: Element,
+        into paragraphs: inout [String],
+        baseURL: URL?,
+        excludeTitle: String?
+    ) throws {
+        let tag = child.tagName().lowercased()
+        if tag == "table" {
+            if let marker = tableMarker(from: child, baseURL: baseURL) {
+                paragraphs.append(marker)
             }
-            if let mathMarker = mathMarker(from: child) {
-                paragraphs.append(mathMarker)
-                continue
-            }
-            if tag == "img" || tag == "picture" || tag == "amp-img" {
-                if let resolved = extractImageSrc(from: child, tag: tag, baseURL: baseURL) {
-                    log("Block", "<\(tag)> → image: \(resolved)")
-                    paragraphs.append("{{IMG}}\(resolved){{/IMG}}")
-                } else {
-                    log("Block", "<\(tag)> → skipped (no valid src)")
-                }
-            } else if tag == "figure" {
-                if let resolved = extractImageSrc(from: child, tag: tag, baseURL: baseURL) {
-                    let linkHref = try? child.select("a[href]").first()?.attr("href")
-                    let suffix = linkSuffix(for: linkHref, baseURL: baseURL)
-                    log("Block", "<figure> → image: \(resolved)\(suffix.isEmpty ? "" : " (linked)")")
-                    paragraphs.append("{{IMG}}\(resolved)\(suffix){{/IMG}}")
-                } else {
-                    log("Block", "<figure> → skipped (no valid image)")
-                }
-                if let caption = try? child.select("figcaption").first() {
-                    let captionText = try textContent(of: caption, baseURL: baseURL)
-                    if !captionText.isEmpty {
-                        log("Block", "<figcaption> → \(captionText.prefix(80))")
-                        paragraphs.append("*\(captionText)*")
-                    }
-                }
-            } else if tag == "a",
-                      let imgChild = try? child.select("img, picture").first(),
-                      let resolved = extractImageSrc(
-                        from: imgChild,
-                        tag: imgChild.tagName().lowercased(),
-                        baseURL: baseURL
-                      ) {
-                let linkHref = try? child.attr("href")
-                let suffix = linkSuffix(for: linkHref, baseURL: baseURL)
-                log("Block", "<a> → linked image: \(resolved)")
-                paragraphs.append("{{IMG}}\(resolved)\(suffix){{/IMG}}")
-            } else if tag == "pre" || isCodeBlockWrapper(child) {
-                let codeText = try codeContent(of: child)
-                if !codeText.isEmpty {
-                    log("Block", "<\(tag)> → code block (\(codeText.count) chars)")
-                    paragraphs.append("{{CODE}}\(codeText){{/CODE}}")
-                } else {
-                    log("Block", "<\(tag)> → empty code block, skipped")
-                }
-            } else if blockElements.contains(tag) || isLeafBlock(child) {
-                // Skip textContent for embed-marker paragraphs so
-                // ArticleMarker.escape doesn't mangle the delimiters.
-                if let rawText = try? child.text(),
-                   let marker = embedMarkerParagraph(rawText) {
-                    paragraphs.append(marker)
-                    continue
-                }
-                var text = try textContent(of: child, baseURL: baseURL)
-                if !text.isEmpty {
-                    let headingTags = ["h1", "h2", "h3", "h4", "h5", "h6"]
-                    if headingTags.contains(tag),
-                       let excludeTitle,
-                       text.caseInsensitiveCompare(excludeTitle) == .orderedSame {
-                        log("Block", "<\(tag)> → skipped (matches article title)")
-                    } else {
-                        switch tag {
-                        case "h1": text = "# \(text)"
-                        case "h2": text = "## \(text)"
-                        case "h3": text = "### \(text)"
-                        case "h4", "h5", "h6": text = "**\(text)**"
-                        default: break
-                        }
-                        let kind = isLeafBlock(child) && !blockElements.contains(tag) ? "leaf" : tag
-                        log("Block", "<\(kind)> → text (\(text.count) chars): \(text.prefix(80))")
-                        paragraphs.append(text)
-                    }
-                } else {
-                    log("Block", "<\(tag)> → empty text, skipped")
-                }
-            } else {
-                log("Block", "<\(tag)> → wrapper, recursing into children")
-                try collectBlocks(from: child, into: &paragraphs,
-                                  baseURL: baseURL, excludeTitle: excludeTitle)
+            return
+        }
+        if let math = mathMarker(from: child) {
+            paragraphs.append(math)
+            return
+        }
+        if tag == "img" || tag == "picture" || tag == "amp-img" {
+            collectImageBlock(from: child, tag: tag, baseURL: baseURL, into: &paragraphs)
+            return
+        }
+        if tag == "figure" {
+            try collectFigureBlock(from: child, baseURL: baseURL, into: &paragraphs)
+            return
+        }
+        if tag == "a", collectAnchorImage(from: child, baseURL: baseURL, into: &paragraphs) {
+            return
+        }
+        if tag == "pre" || isCodeBlockWrapper(child) {
+            try collectCodeBlock(from: child, tag: tag, into: &paragraphs)
+            return
+        }
+        if blockElements.contains(tag) || isLeafBlock(child) {
+            try collectTextBlock(
+                from: child, tag: tag, baseURL: baseURL,
+                excludeTitle: excludeTitle, into: &paragraphs
+            )
+            return
+        }
+        log("Block", "<\(tag)> → wrapper, recursing into children")
+        try collectBlocks(from: child, into: &paragraphs,
+                          baseURL: baseURL, excludeTitle: excludeTitle)
+    }
+
+    private static func collectImageBlock(
+        from child: Element, tag: String, baseURL: URL?, into paragraphs: inout [String]
+    ) {
+        if let resolved = extractImageSrc(from: child, tag: tag, baseURL: baseURL) {
+            log("Block", "<\(tag)> → image: \(resolved)")
+            paragraphs.append("{{IMG}}\(resolved){{/IMG}}")
+        } else {
+            log("Block", "<\(tag)> → skipped (no valid src)")
+        }
+    }
+
+    private static func collectFigureBlock(
+        from child: Element, baseURL: URL?, into paragraphs: inout [String]
+    ) throws {
+        if let resolved = extractImageSrc(from: child, tag: "figure", baseURL: baseURL) {
+            let linkHref = try? child.select("a[href]").first()?.attr("href")
+            let suffix = linkSuffix(for: linkHref, baseURL: baseURL)
+            log("Block", "<figure> → image: \(resolved)\(suffix.isEmpty ? "" : " (linked)")")
+            paragraphs.append("{{IMG}}\(resolved)\(suffix){{/IMG}}")
+        } else {
+            log("Block", "<figure> → skipped (no valid image)")
+        }
+        if let caption = try? child.select("figcaption").first() {
+            let captionText = try textContent(of: caption, baseURL: baseURL)
+            if !captionText.isEmpty {
+                log("Block", "<figcaption> → \(captionText.prefix(80))")
+                paragraphs.append("*\(captionText)*")
             }
         }
     }
-    // swiftlint:enable function_body_length cyclomatic_complexity
+
+    private static func collectAnchorImage(
+        from child: Element, baseURL: URL?, into paragraphs: inout [String]
+    ) -> Bool {
+        guard let imgChild = try? child.select("img, picture").first(),
+              let resolved = extractImageSrc(
+                from: imgChild,
+                tag: imgChild.tagName().lowercased(),
+                baseURL: baseURL
+              ) else { return false }
+        let linkHref = try? child.attr("href")
+        let suffix = linkSuffix(for: linkHref, baseURL: baseURL)
+        log("Block", "<a> → linked image: \(resolved)")
+        paragraphs.append("{{IMG}}\(resolved)\(suffix){{/IMG}}")
+        return true
+    }
+
+    private static func collectCodeBlock(
+        from child: Element, tag: String, into paragraphs: inout [String]
+    ) throws {
+        let codeText = try codeContent(of: child)
+        if !codeText.isEmpty {
+            log("Block", "<\(tag)> → code block (\(codeText.count) chars)")
+            paragraphs.append("{{CODE}}\(codeText){{/CODE}}")
+        } else {
+            log("Block", "<\(tag)> → empty code block, skipped")
+        }
+    }
+
+    private static func collectTextBlock(
+        from child: Element,
+        tag: String,
+        baseURL: URL?,
+        excludeTitle: String?,
+        into paragraphs: inout [String]
+    ) throws {
+        // Skip textContent for embed-marker paragraphs so
+        // ArticleMarker.escape doesn't mangle the delimiters.
+        if let rawText = try? child.text(),
+           let marker = embedMarkerParagraph(rawText) {
+            paragraphs.append(marker)
+            return
+        }
+        var text = try textContent(of: child, baseURL: baseURL)
+        guard !text.isEmpty else {
+            log("Block", "<\(tag)> → empty text, skipped")
+            return
+        }
+        let headingTags = ["h1", "h2", "h3", "h4", "h5", "h6"]
+        if headingTags.contains(tag),
+           let excludeTitle,
+           text.caseInsensitiveCompare(excludeTitle) == .orderedSame {
+            log("Block", "<\(tag)> → skipped (matches article title)")
+            return
+        }
+        switch tag {
+        case "h1": text = "# \(text)"
+        case "h2": text = "## \(text)"
+        case "h3": text = "### \(text)"
+        case "h4", "h5", "h6": text = "**\(text)**"
+        default: break
+        }
+        let kind = isLeafBlock(child) && !blockElements.contains(tag) ? "leaf" : tag
+        log("Block", "<\(kind)> → text (\(text.count) chars): \(text.prefix(80))")
+        paragraphs.append(text)
+    }
 
     /// Builds an `{{IMGLINK}}` suffix when an image is wrapped in a link.
     static func linkSuffix(for href: String?, baseURL: URL?) -> String {

@@ -48,63 +48,60 @@ extension ArticleExtractor {
         return combined.isEmpty ? nil : combined.joined(separator: "\n\n")
     }
 
-    // swiftlint:disable cyclomatic_complexity
     /// Returns unique next-page URLs from rel=next and common "Next" anchors.
     static func nextPageURLs(from html: String, baseURL: URL) -> [URL] {
         guard let doc = try? SwiftSoup.parse(html, baseURL.absoluteString) else {
             return []
         }
-        var urls: [URL] = []
-        var seen: Set<String> = []
+        var collector = NextPageURLCollector(baseURL: baseURL)
+        appendRelNext(into: &collector, document: doc)
+        appendNamedSelectors(into: &collector, document: doc)
+        appendNextLabelAnchors(into: &collector, document: doc)
+        return collector.urls
+    }
 
-        let addIfNew: (String) -> Void = { href in
-            guard let resolved = URL(string: href, relativeTo: baseURL)?.absoluteURL
-            else { return }
-            let absolute = resolved.absoluteString
-            if seen.contains(absolute) { return }
-            seen.insert(absolute)
-            urls.append(resolved)
-        }
-
-        if let relNext = try? doc.select("link[rel=next], a[rel=next]") {
-            for element in relNext {
-                if let href = try? element.attr("href"), !href.isEmpty {
-                    addIfNew(href)
-                }
+    private static func appendRelNext(into collector: inout NextPageURLCollector, document: Document) {
+        guard let relNext = try? document.select("link[rel=next], a[rel=next]") else { return }
+        for element in relNext {
+            if let href = try? element.attr("href"), !href.isEmpty {
+                collector.add(href)
             }
         }
+    }
 
+    private static func appendNamedSelectors(
+        into collector: inout NextPageURLCollector, document: Document
+    ) {
         let selectors = [
             "a.next", "a.next-page", "a.pagination-next",
             "a[aria-label=Next]", "a[aria-label=\"Next page\"]",
             "a.pagenextload"
         ]
         for selector in selectors {
-            if let elements = try? doc.select(selector) {
-                for element in elements {
-                    if let href = try? element.attr("href"), !href.isEmpty {
-                        addIfNew(href)
-                    }
+            guard let elements = try? document.select(selector) else { continue }
+            for element in elements {
+                if let href = try? element.attr("href"), !href.isEmpty {
+                    collector.add(href)
                 }
             }
         }
+    }
 
+    private static func appendNextLabelAnchors(
+        into collector: inout NextPageURLCollector, document: Document
+    ) {
         let nextLabels: Set<String> = [
             "next", "next >", "next ›", "next page", "›"
         ]
-        if let anchors = try? doc.select("a[href]") {
-            for anchor in anchors.prefix(300) {
-                let text = ((try? anchor.text()) ?? "")
-                    .trimmingCharacters(in: .whitespacesAndNewlines)
-                    .lowercased()
-                if nextLabels.contains(text),
-                   let href = try? anchor.attr("href"), !href.isEmpty {
-                    addIfNew(href)
-                }
+        guard let anchors = try? document.select("a[href]") else { return }
+        for anchor in anchors.prefix(300) {
+            let text = ((try? anchor.text()) ?? "")
+                .trimmingCharacters(in: .whitespacesAndNewlines)
+                .lowercased()
+            if nextLabels.contains(text),
+               let href = try? anchor.attr("href"), !href.isEmpty {
+                collector.add(href)
             }
         }
-
-        return urls
     }
-    // swiftlint:enable cyclomatic_complexity
 }

@@ -4,75 +4,73 @@ extension DiscoverView {
 
     // MARK: - Data Loading
 
-    // swiftlint:disable:next function_body_length
     func loadData() async {
         let database = DatabaseManager.shared
         let loadEntities = contentInsightsEnabled
 
         await Task.detached {
             let recent = (try? database.recentlyAccessedArticles()) ?? []
-
-            var sections: [DiscoverEntitySection] = []
-            var topics: [(name: String, count: Int)] = []
-            var people: [(name: String, count: Int)] = []
-
-            if loadEntities {
-                let sevenDaysAgo = Date().addingTimeInterval(-7 * 24 * 3600)
-                let topTopics = (try? database.topEntities(
-                    types: ["organization", "place"],
-                    since: sevenDaysAgo,
-                    limit: 50
-                )) ?? []
-                let topPeople = (try? database.topEntities(
-                    type: "person",
-                    since: sevenDaysAgo,
-                    limit: 50
-                )) ?? []
-
-                topics = topTopics
-                people = topPeople
-
-                var sectionItems: [DiscoverEntitySection] = []
-                for topic in topTopics.prefix(3) {
-                    let articles = (try? database.articlesForEntity(
-                        name: topic.name,
-                        types: ["organization", "place"],
-                        limit: 10
-                    )) ?? []
-                    if !articles.isEmpty {
-                        sectionItems.append(DiscoverEntitySection(
-                            name: topic.name,
-                            types: ["organization", "place"],
-                            articles: articles
-                        ))
-                    }
-                }
-                for person in topPeople.prefix(3) {
-                    let articles = (try? database.articlesForEntity(
-                        name: person.name,
-                        types: ["person"],
-                        limit: 10
-                    )) ?? []
-                    if !articles.isEmpty {
-                        sectionItems.append(DiscoverEntitySection(
-                            name: person.name,
-                            types: ["person"],
-                            articles: articles
-                        ))
-                    }
-                }
-
-                sectionItems = Self.dailyShuffled(sectionItems)
-                sections = sectionItems
-            }
+            let entityData = loadEntities ? Self.loadEntityData(database: database) : .empty
 
             await MainActor.run {
                 recentArticles = recent
-                entitySections = sections
-                allTopics = topics
-                allPeople = people
+                entitySections = entityData.sections
+                allTopics = entityData.topics
+                allPeople = entityData.people
             }
         }.value
+    }
+
+    nonisolated static func loadEntityData(database: DatabaseManager) -> DiscoverEntityData {
+        let sevenDaysAgo = Date().addingTimeInterval(-7 * 24 * 3600)
+        let topTopics = (try? database.topEntities(
+            types: ["organization", "place"],
+            since: sevenDaysAgo,
+            limit: 50
+        )) ?? []
+        let topPeople = (try? database.topEntities(
+            type: "person",
+            since: sevenDaysAgo,
+            limit: 50
+        )) ?? []
+
+        var sectionItems: [DiscoverEntitySection] = []
+        sectionItems.append(contentsOf: buildSections(
+            from: topTopics.prefix(3),
+            types: ["organization", "place"],
+            database: database
+        ))
+        sectionItems.append(contentsOf: buildSections(
+            from: topPeople.prefix(3),
+            types: ["person"],
+            database: database
+        ))
+
+        return DiscoverEntityData(
+            sections: dailyShuffled(sectionItems),
+            topics: topTopics,
+            people: topPeople
+        )
+    }
+
+    nonisolated static func buildSections(
+        from entities: ArraySlice<(name: String, count: Int)>,
+        types: [String],
+        database: DatabaseManager
+    ) -> [DiscoverEntitySection] {
+        entities.compactMap { entity in
+            let articles = (try? database.articlesForEntity(
+                name: entity.name,
+                types: types,
+                limit: 10
+            )) ?? []
+            guard !articles.isEmpty else { return nil }
+            return DiscoverEntitySection(
+                name: entity.name,
+                types: types,
+                articles: articles
+            )
+        }
     }
 
     // MARK: - Daily Deterministic Shuffle

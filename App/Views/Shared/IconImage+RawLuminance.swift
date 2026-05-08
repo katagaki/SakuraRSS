@@ -3,8 +3,7 @@ import UIKit
 
 extension UIImage {
 
-    // swiftlint:disable:next identifier_name
-    nonisolated func _rawHasAnyTransparentPixel() -> Bool {
+    nonisolated func rawHasAnyTransparentPixel() -> Bool {
         guard let cgImage = cgImage else { return false }
 
         let sampleSize = 64
@@ -23,17 +22,13 @@ extension UIImage {
 
         context.draw(cgImage, in: CGRect(x: 0, y: 0, width: sampleSize, height: sampleSize))
 
-        for index in 0..<(sampleSize * sampleSize) {
-            // swiftlint:disable:next for_where
-            if pixelData[index * 4 + 3] < 200 {
-                return true
-            }
+        for index in 0..<(sampleSize * sampleSize) where pixelData[index * 4 + 3] < 200 {
+            return true
         }
         return false
     }
 
-    // swiftlint:disable:next identifier_name
-    nonisolated func _rawIsNearBlack() -> Bool {
+    nonisolated func rawIsNearBlack() -> Bool {
         guard let cgImage = cgImage else { return false }
 
         let sampleSize = 16
@@ -71,8 +66,7 @@ extension UIImage {
         return Double(nearBlackCount) / Double(opaqueCount) > 0.9
     }
 
-    // swiftlint:disable:next identifier_name
-    nonisolated func _rawAverageLuminance() -> CGFloat {
+    nonisolated func rawAverageLuminance() -> CGFloat {
         guard let cgImage = cgImage else { return 1.0 }
 
         let sampleSize = 16

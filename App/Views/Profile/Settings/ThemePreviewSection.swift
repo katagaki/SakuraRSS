@@ -59,18 +59,21 @@ private struct DeviceMockupView: View {
     let zoomTransitionEnabled: Bool
     let showingArticle: Bool
 
+    private var keyWindow: UIWindow? {
+        UIApplication.shared.connectedScenes
+            .compactMap { $0 as? UIWindowScene }
+            .flatMap(\.windows)
+            .first(where: \.isKeyWindow)
+    }
+
     private var screenAspectRatio: CGFloat {
-        let bounds = UIScreen.main.bounds.size
-        guard bounds.height > 0 else { return 19.5 / 9.0 }
+        let bounds = keyWindow?.windowScene?.screen.bounds.size ?? .zero
+        guard bounds.height > 0, bounds.width > 0 else { return 19.5 / 9.0 }
         return bounds.height / bounds.width
     }
 
     private var hasRoundedScreen: Bool {
-        let bottomInset = UIApplication.shared.connectedScenes
-            .compactMap { $0 as? UIWindowScene }
-            .flatMap(\.windows)
-            .first(where: \.isKeyWindow)?
-            .safeAreaInsets.bottom ?? 0
+        let bottomInset = keyWindow?.safeAreaInsets.bottom ?? 0
         return bottomInset > 0
     }
 

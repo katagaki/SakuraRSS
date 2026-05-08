@@ -27,7 +27,7 @@ struct ArticleLink<Label: View>: View {
         return mode
     }
 
-    private var usesIPadDetailColumn: Bool {
+    private var usesiPadDetailColumn: Bool {
         iPadArticleSelection != nil
     }
 
@@ -36,7 +36,7 @@ struct ArticleLink<Label: View>: View {
         feedManager.markRead(article)
     }
 
-    private func selectForIPadDetail() {
+    private func selectForiPadDetail() {
         markReadIfEnabled()
         iPadArticleSelection?.wrappedValue = article
     }
@@ -44,8 +44,8 @@ struct ArticleLink<Label: View>: View {
     var body: some View {
         Group {
             if article.isPodcastEpisode {
-                if usesIPadDetailColumn {
-                    Button { selectForIPadDetail() } label: { label() }
+                if usesiPadDetailColumn {
+                    Button { selectForiPadDetail() } label: { label() }
                 } else {
                     Button {
                         markReadIfEnabled()
@@ -55,8 +55,8 @@ struct ArticleLink<Label: View>: View {
                     }
                 }
             } else if article.isYouTubeURL && youTubeOpenMode == .inAppPlayer {
-                if usesIPadDetailColumn {
-                    Button { selectForIPadDetail() } label: { label() }
+                if usesiPadDetailColumn {
+                    Button { selectForiPadDetail() } label: { label() }
                 } else {
                     Button {
                         markReadIfEnabled()
@@ -103,16 +103,16 @@ struct ArticleLink<Label: View>: View {
                     label()
                 }
             } else if feedOpenMode == .clearThisPage || feedOpenMode == .archivePh {
-                if usesIPadDetailColumn {
-                    Button { selectForIPadDetail() } label: { label() }
+                if usesiPadDetailColumn {
+                    Button { selectForiPadDetail() } label: { label() }
                 } else if let onNavigate {
                     Button { onNavigate(article) } label: { label() }
                 } else {
                     NavigationLink(value: article) { label() }
                 }
             } else {
-                if usesIPadDetailColumn {
-                    Button { selectForIPadDetail() } label: { label() }
+                if usesiPadDetailColumn {
+                    Button { selectForiPadDetail() } label: { label() }
                 } else if let onNavigate {
                     Button { onNavigate(article) } label: { label() }
                 } else {

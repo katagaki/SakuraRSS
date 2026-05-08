@@ -12,14 +12,11 @@ extension ArticleExtractor {
             #"<div id="app-root">\s*</div>"#,
             #"<noscript>[^<]*(?:enable|turn on)[^<]*JavaScript"#
         ]
-        for marker in skeletonMarkers {
-            // swiftlint:disable:next for_where
-            if html.range(
-                of: marker,
-                options: [.regularExpression, .caseInsensitive]
-            ) != nil {
-                return true
-            }
+        for marker in skeletonMarkers where html.range(
+            of: marker,
+            options: [.regularExpression, .caseInsensitive]
+        ) != nil {
+            return true
         }
 
         let bodyStart = html.range(of: "<body", options: .caseInsensitive)

@@ -1,6 +1,7 @@
 import SwiftUI
 
-struct IPadSidebarView: View {
+// swiftlint:disable:next type_name
+struct iPadSidebarView: View {
 
     @Environment(FeedManager.self) var feedManager
     @Environment(\.openURL) var openURL
@@ -38,7 +39,7 @@ struct IPadSidebarView: View {
 
     var body: some View {
         NavigationSplitView(columnVisibility: $columnVisibility) {
-            IPadSidebarList(
+            iPadSidebarList(
                 selectedDestination: $selectedDestination,
                 searchText: $searchText,
                 feedForEditSheet: $feedForEditSheet,
@@ -61,7 +62,7 @@ struct IPadSidebarView: View {
         } detail: {
             detailContent
         }
-        .iPadSidebarSheets(
+        .iPadSidebarSheets(bindings: iPadSidebarSheetsBindings(
             pendingFeedURL: $pendingFeedURL,
             showingAddFeed: $showingAddFeed,
             showingOnboarding: $showingOnboarding,
@@ -73,7 +74,7 @@ struct IPadSidebarView: View {
             listForRules: $listForRules,
             listToDelete: $listToDelete,
             onboardingCompleted: $onboardingCompleted
-        )
+        ))
         .onChange(of: pendingFeedURL) {
             if pendingFeedURL != nil {
                 showingAddFeed = true
