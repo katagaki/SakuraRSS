@@ -93,8 +93,10 @@ struct NewYouTubePlayerView: View {
         .sakuraBackground()
         .navigationBarTitleDisplayMode(.inline)
         .toolbar { playerToolbar }
-        .onChange(of: playback.currentTime) { _, newTime in
-            checkSponsorSegments(at: newTime)
+        .background {
+            YouTubeTimeObserver(currentTime: { playback.currentTime }) { newTime in
+                checkSponsorSegments(at: newTime)
+            }
         }
         .task { await loadStream() }
         #if !os(visionOS)

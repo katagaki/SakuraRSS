@@ -10,6 +10,7 @@ struct IPadSidebarSheets: ViewModifier {
     @Binding var showingOnboarding: Bool
     @Binding var showYouTubeSafari: Bool
     @Binding var pendingYouTubeSafariURL: URL?
+    @Binding var showingWeatherLocationPicker: Bool
     @Binding var feedToDelete: Feed?
     @Binding var listToEdit: FeedList?
     @Binding var listForRules: FeedList?
@@ -38,6 +39,10 @@ struct IPadSidebarSheets: ViewModifier {
                     SafariView(url: url)
                         .ignoresSafeArea()
                 }
+            }
+            .sheet(isPresented: $showingWeatherLocationPicker) {
+                TodayWeatherLocationSheet()
+                    .presentationDetents([.large])
             }
             .confirmationDialog(
                 String(localized: "FeedMenu.Unfollow.Title", table: "Feeds"),
@@ -104,6 +109,7 @@ extension View {
         showingOnboarding: Binding<Bool>,
         showYouTubeSafari: Binding<Bool>,
         pendingYouTubeSafariURL: Binding<URL?>,
+        showingWeatherLocationPicker: Binding<Bool>,
         feedToDelete: Binding<Feed?>,
         listToEdit: Binding<FeedList?>,
         listForRules: Binding<FeedList?>,
@@ -116,6 +122,7 @@ extension View {
             showingOnboarding: showingOnboarding,
             showYouTubeSafari: showYouTubeSafari,
             pendingYouTubeSafariURL: pendingYouTubeSafariURL,
+            showingWeatherLocationPicker: showingWeatherLocationPicker,
             feedToDelete: feedToDelete,
             listToEdit: listToEdit,
             listForRules: listForRules,

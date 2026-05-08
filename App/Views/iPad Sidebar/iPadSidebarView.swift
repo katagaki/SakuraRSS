@@ -22,6 +22,7 @@ struct IPadSidebarView: View {
     @State var showingAddFeed = false
     @State var showingNewList = false
     @State var showingMore = false
+    @State var showingWeatherLocationPicker = false
     @State private var showingOnboarding = false
     @State var showYouTubeSafari = false
     @State var pendingYouTubeSafariURL: URL?
@@ -66,6 +67,7 @@ struct IPadSidebarView: View {
             showingOnboarding: $showingOnboarding,
             showYouTubeSafari: $showYouTubeSafari,
             pendingYouTubeSafariURL: $pendingYouTubeSafariURL,
+            showingWeatherLocationPicker: $showingWeatherLocationPicker,
             feedToDelete: $feedToDelete,
             listToEdit: $listToEdit,
             listForRules: $listForRules,

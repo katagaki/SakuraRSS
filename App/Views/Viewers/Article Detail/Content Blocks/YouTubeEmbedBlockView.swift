@@ -30,14 +30,14 @@ struct YouTubeEmbedBlockView: View {
                 urlString: embedURL,
                 autoplay: false,
                 isPlaying: $isPlaying,
-                currentTime: $currentTime,
-                duration: $duration,
                 webView: $webView,
                 isAd: $isAd,
                 isAdSkippable: $isAdSkippable,
                 advertiserURL: $advertiserURL,
                 videoAspectRatio: $videoAspectRatio,
-                isPiP: $isPiP
+                isPiP: $isPiP,
+                onTimeUpdate: { currentTime = $0 },
+                onDurationUpdate: { duration = $0 }
             )
             .aspectRatio(videoAspectRatio, contentMode: .fit)
             .frame(maxWidth: .infinity)

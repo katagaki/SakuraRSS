@@ -7,37 +7,37 @@ extension YouTubePlayerWebView {
     @MainActor
     final class Coordinator: NSObject, WKNavigationDelegate, WKScriptMessageHandler {
         @Binding var isPlaying: Bool
-        @Binding var currentTime: TimeInterval
-        @Binding var duration: TimeInterval
         @Binding var isAd: Bool
         @Binding var isAdSkippable: Bool
         @Binding var advertiserURL: URL?
         @Binding var videoAspectRatio: CGFloat
         @Binding var isPiP: Bool
         let chapters: Binding<[YouTubeChapter]>?
+        let onTimeUpdate: ((TimeInterval) -> Void)?
+        let onDurationUpdate: ((TimeInterval) -> Void)?
         private var chapterRetryCount = 0
         private var chaptersLoaded = false
 
         init(
             isPlaying: Binding<Bool>,
-            currentTime: Binding<TimeInterval>,
-            duration: Binding<TimeInterval>,
             isAd: Binding<Bool>,
             isAdSkippable: Binding<Bool>,
             advertiserURL: Binding<URL?>,
             videoAspectRatio: Binding<CGFloat>,
             isPiP: Binding<Bool>,
-            chapters: Binding<[YouTubeChapter]>?
+            chapters: Binding<[YouTubeChapter]>?,
+            onTimeUpdate: ((TimeInterval) -> Void)?,
+            onDurationUpdate: ((TimeInterval) -> Void)?
         ) {
             _isPlaying = isPlaying
-            _currentTime = currentTime
-            _duration = duration
             _isAd = isAd
             _isAdSkippable = isAdSkippable
             _advertiserURL = advertiserURL
             _videoAspectRatio = videoAspectRatio
             _isPiP = isPiP
             self.chapters = chapters
+            self.onTimeUpdate = onTimeUpdate
+            self.onDurationUpdate = onDurationUpdate
         }
 
         func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
@@ -127,23 +127,23 @@ extension YouTubePlayerWebView {
             switch event.kind {
             case .play, .playing:
                 isPlaying = true
-                if let time = event.currentTime { currentTime = time }
-                if let eventDuration = event.duration, eventDuration > 0 { duration = eventDuration }
+                if let time = event.currentTime { onTimeUpdate?(time) }
+                if let eventDuration = event.duration, eventDuration > 0 { onDurationUpdate?(eventDuration) }
             case .pause:
                 isPlaying = false
-                if let time = event.currentTime { currentTime = time }
+                if let time = event.currentTime { onTimeUpdate?(time) }
             case .buffering:
-                if let time = event.currentTime { currentTime = time }
+                if let time = event.currentTime { onTimeUpdate?(time) }
             case .ended:
                 isPlaying = false
             case .seek, .time:
-                if let time = event.currentTime { currentTime = time }
+                if let time = event.currentTime { onTimeUpdate?(time) }
             case .duration:
-                if let eventDuration = event.duration, eventDuration > 0 { duration = eventDuration }
+                if let eventDuration = event.duration, eventDuration > 0 { onDurationUpdate?(eventDuration) }
             case .rate:
                 break
             case .meta:
-                if let eventDuration = event.duration, eventDuration > 0 { duration = eventDuration }
+                if let eventDuration = event.duration, eventDuration > 0 { onDurationUpdate?(eventDuration) }
                 if let width = event.videoWidth, let height = event.videoHeight,
                    width > 0, height > 0 {
                     let ratio = CGFloat(width / height)
