@@ -1,22 +1,16 @@
 import Foundation
 
-/// Discovers public videos for a YouTube channel handle by walking the
-/// InnerTube `browse` response.
-nonisolated struct YouTubeBrowseChannelProvider: Sendable {
+extension NewYouTubeClient {
 
-    let inner: YouTubeInnerTube
-
-    static func bootstrap(session: URLSession = .shared) async -> YouTubeBrowseChannelProvider {
-        YouTubeBrowseChannelProvider(inner: await YouTubeInnerTube.bootstrap(session: session))
-    }
-
+    /// Discovers public videos for a YouTube channel handle by walking the
+    /// InnerTube `browse` response.
     func fetchVideos(handle: String) async throws -> [YouTubeBrowseChannelVideo] {
         let normalized = handle.hasPrefix("@") ? handle : "@\(handle)"
-        let resolveURL = "\(YouTubeInnerTube.host)/\(normalized)/videos"
+        let resolveURL = "\(Self.host)/\(normalized)/videos"
 
-        let resolveData = try await inner.post(
+        let resolveData = try await post(
             endpoint: "navigation/resolve_url",
-            body: ["context": inner.webContext(), "url": resolveURL]
+            body: ["context": webContext(), "url": resolveURL]
         )
         guard
             let resolveJSON = try JSONSerialization.jsonObject(with: resolveData) as? [String: Any],
@@ -26,11 +20,11 @@ nonisolated struct YouTubeBrowseChannelProvider: Sendable {
         else { throw YouTubeBrowseError.missingData }
 
         var browseRequest: [String: Any] = [
-            "context": inner.webContext(),
+            "context": webContext(),
             "browseId": browseId
         ]
         if let params = browse["params"] as? String { browseRequest["params"] = params }
-        let browseData = try await inner.post(endpoint: "browse", body: browseRequest)
+        let browseData = try await post(endpoint: "browse", body: browseRequest)
 
         let parsed = try Self.extractVideos(from: browseData)
         return await enrichWithDates(parsed)
@@ -121,8 +115,8 @@ nonisolated struct YouTubeBrowseChannelProvider: Sendable {
     }
 
     private func fetchPublishDate(videoId: String) async throws -> String? {
-        let body: [String: Any] = ["context": inner.webContext(), "videoId": videoId]
-        let data = try await inner.post(endpoint: "player", body: body)
+        let body: [String: Any] = ["context": webContext(), "videoId": videoId]
+        let data = try await post(endpoint: "player", body: body)
         guard
             let root = try JSONSerialization.jsonObject(with: data) as? [String: Any],
             let microformat = root["microformat"] as? [String: Any],

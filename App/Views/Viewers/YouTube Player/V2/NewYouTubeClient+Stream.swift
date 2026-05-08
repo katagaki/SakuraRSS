@@ -1,15 +1,8 @@
 import Foundation
 
-/// Resolves a YouTube watch URL or video ID into an HLS streaming URL playable
-/// by `AVPlayer`. Does not download any media.
-nonisolated struct YouTubeStreamFetcher: Sendable {
+extension NewYouTubeClient {
 
-    let inner: YouTubeInnerTube
-
-    static func bootstrap(session: URLSession = .shared) async -> YouTubeStreamFetcher {
-        YouTubeStreamFetcher(inner: await YouTubeInnerTube.bootstrap(session: session))
-    }
-
+    /// Extracts a YouTube video ID from a watch URL, short URL, or bare ID.
     static func parseVideoIdentifier(_ input: String) -> String? {
         let isValid: (Character) -> Bool = {
             $0.isLetter || $0.isNumber || $0 == "_" || $0 == "-"
@@ -50,15 +43,14 @@ nonisolated struct YouTubeStreamFetcher: Sendable {
         let masterURL = try await hlsMasterURL(videoId: videoId)
         let masterText = try await fetchText(
             url: masterURL,
-            headers: ["User-Agent": inner.iosUserAgent]
+            headers: ["User-Agent": iosUserAgent]
         )
-        let parsed = YouTubeHLSPlaylist.parseMaster(masterText)
+        let parsed = Self.parseHLSMaster(masterText)
         guard
-            let video = YouTubeHLSPlaylist.selectBestVideo(from: parsed.variants),
+            let video = Self.selectBestVideo(from: parsed.variants),
             let videoURL = URL(string: video.url)
         else { throw YouTubeBrowseError.missingData }
-        let audioURL = YouTubeHLSPlaylist
-            .selectAudio(for: video, from: parsed.audios)
+        let audioURL = Self.selectAudio(for: video, from: parsed.audios)
             .flatMap { URL(string: $0.url) }
         return YouTubeStreamSelection(
             videoVariantURL: videoURL,
@@ -69,8 +61,8 @@ nonisolated struct YouTubeStreamFetcher: Sendable {
     }
 
     private func fetchPlayerResponse(videoId: String) async throws -> [String: Any] {
-        let body: [String: Any] = ["context": inner.iosContext(), "videoId": videoId]
-        let data = try await inner.post(endpoint: "player", body: body)
+        let body: [String: Any] = ["context": iosContext(), "videoId": videoId]
+        let data = try await post(endpoint: "player", body: body)
         guard let json = try JSONSerialization.jsonObject(with: data) as? [String: Any] else {
             throw YouTubeBrowseError.decodingFailed
         }
@@ -82,7 +74,7 @@ nonisolated struct YouTubeStreamFetcher: Sendable {
         for (key, value) in headers {
             request.setValue(value, forHTTPHeaderField: key)
         }
-        let (data, response) = try await inner.session.data(for: request)
+        let (data, response) = try await session.data(for: request)
         if let http = response as? HTTPURLResponse, !(200..<300).contains(http.statusCode) {
             throw YouTubeBrowseError.unexpectedResponse(status: http.statusCode)
         }

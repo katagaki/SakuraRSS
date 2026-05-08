@@ -1,2661 +1,2838 @@
 {
-  "sourceLanguage" : "en",
-  "strings" : {
-    "ArchivePh" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Archive.md"
+  "sourceLanguage": "en",
+  "strings": {
+    "ArchivePh": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Archive.md"
           }
         },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Archive.md"
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Archive.md"
           }
         },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Archive.md"
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Archive.md"
           }
         },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Archive.md"
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Archive.md"
           }
         },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Archive.md"
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Archive.md"
           }
         },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Archive.md"
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Archive.md"
           }
         },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Archive.md"
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Archive.md"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Archive.md"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Archive.md"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Archive.md"
-          }
-        }
-      }
-    },
-    "ArXiv.PDF.LoadFailed" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "PDF konnte nicht geladen werden."
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Couldn't load PDF."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Impossible de charger le PDF."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Impossibile caricare il PDF."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "PDFを読み込めませんでした。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "PDF를 불러올 수 없습니다."
-          }
-        },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Không thể tải PDF."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "无法加载 PDF。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "無法載入 PDF。"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Archive.md"
           }
         }
       }
     },
-    "ArXiv.ViewPDF" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "PDF anzeigen"
+    "ArXiv.PDF.LoadFailed": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PDF konnte nicht geladen werden."
           }
         },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "View PDF"
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn't load PDF."
           }
         },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Afficher le PDF"
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impossible de charger le PDF."
           }
         },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Visualizza PDF"
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impossibile caricare il PDF."
           }
         },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "PDFを表示"
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PDFを読み込めませんでした。"
           }
         },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "PDF 보기"
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PDF를 불러올 수 없습니다."
           }
         },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Xem PDF"
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Không thể tải PDF."
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "查看 PDF"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "无法加载 PDF。"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "檢視 PDF"
-          }
-        }
-      }
-    },
-    "ClearThisPage" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Clear This Page"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Clear This Page"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Clear This Page"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Clear This Page"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Clear This Page"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Clear This Page"
-          }
-        },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Clear This Page"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Clear This Page"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Clear This Page"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "無法載入 PDF。"
           }
         }
       }
     },
-    "Instagram" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Instagram"
+    "ArXiv.ViewPDF": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PDF anzeigen"
           }
         },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Instagram"
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "View PDF"
           }
         },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Instagram"
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Afficher le PDF"
           }
         },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Instagram"
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Visualizza PDF"
           }
         },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Instagram"
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PDFを表示"
           }
         },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Instagram"
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PDF 보기"
           }
         },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Instagram"
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Xem PDF"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Instagram"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "查看 PDF"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Instagram"
-          }
-        }
-      }
-    },
-    "Instagram.HideReels" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Reels ausblenden"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Hide Reels"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Masquer les Reels"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nascondi i Reel"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "リールを非表示"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "릴 숨기기"
-          }
-        },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ẩn Reels"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "隐藏 Reels"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "隱藏 Reels"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "檢視 PDF"
           }
         }
       }
     },
-    "Instagram.HideReels.Footer" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Wenn aktiviert, werden Reels aus Instagram-Feeds ausgeblendet."
+    "ClearThisPage": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clear This Page"
           }
         },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "When enabled, reels will be hidden from Instagram feeds."
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clear This Page"
           }
         },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Lorsque cette option est activée, les Reels seront masqués des flux Instagram."
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clear This Page"
           }
         },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Quando attivato, i Reel verranno nascosti dai feed di Instagram."
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clear This Page"
           }
         },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "有効にすると、Instagramフィードからリールが非表示になります。"
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clear This Page"
           }
         },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "활성화하면 Instagram 피드에서 릴이 숨겨집니다."
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clear This Page"
           }
         },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Khi bật, reels sẽ bị ẩn khỏi nguồn cấp Instagram."
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clear This Page"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "启用后，Reels 将从 Instagram 订阅源中隐藏。"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clear This Page"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "啟用後，Reels 將從 Instagram 訂閱源中隱藏。"
-          }
-        }
-      }
-    },
-    "InstagramLogin.Title" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Bei Instagram anmelden"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sign in to Instagram"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Se connecter à Instagram"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Accedi a Instagram"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Instagramにログイン"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Instagram에 로그인"
-          }
-        },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Đăng nhập vào Instagram"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "登录 Instagram"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "登入 Instagram"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clear This Page"
           }
         }
       }
     },
-    "InstagramProfileFeeds" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Instagram-Profil-Feeds"
+    "Instagram": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Instagram"
           }
         },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Instagram Profile Feeds"
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Instagram"
           }
         },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Flux de profils Instagram"
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Instagram"
           }
         },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Feed profili Instagram"
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Instagram"
           }
         },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Instagramプロフィールフィード"
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Instagram"
           }
         },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Instagram 프로필 피드"
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Instagram"
           }
         },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nguồn cấp hồ sơ Instagram"
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Instagram"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Instagram个人资料订阅源"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Instagram"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Instagram個人資料訂閱源"
-          }
-        }
-      }
-    },
-    "InstagramProfileFeeds.Footer" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Folgen Sie Instagram-Profilen als Feeds, indem Sie deren Profil-URLs hinzufügen."
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Follow Instagram profiles as feeds by adding their profile URLs."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Suivez des profils Instagram comme flux en ajoutant leurs URLs de profil."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Segui i profili Instagram come feed aggiungendo i loro URL del profilo."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "InstagramのプロフィールURLを追加して、プロフィールをフィードとしてフォローできるようになります。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "프로필 URL을 추가하여 Instagram 프로필을 피드로 팔로우하세요."
-          }
-        },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Theo dõi hồ sơ Instagram dưới dạng nguồn cấp bằng cách thêm URL hồ sơ của họ."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "通过添加个人资料URL，将Instagram个人资料作为订阅源关注。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "透過新增個人資料URL，將Instagram個人資料作為訂閱源追蹤。"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Instagram"
           }
         }
       }
     },
-    "InstagramProfileFeeds.SignIn" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Bei Instagram anmelden"
+    "Instagram.HideReels": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reels ausblenden"
           }
         },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sign in to Instagram"
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hide Reels"
           }
         },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Se connecter à Instagram"
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Masquer les Reels"
           }
         },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Accedi a Instagram"
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nascondi i Reel"
           }
         },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Instagramにログイン"
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "リールを非表示"
           }
         },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Instagram에 로그인"
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "릴 숨기기"
           }
         },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Đăng nhập vào Instagram"
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ẩn Reels"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "登录 Instagram"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "隐藏 Reels"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "登入 Instagram"
-          }
-        }
-      }
-    },
-    "InstagramProfileFeeds.SignOut" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Von Instagram abmelden"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sign out of Instagram"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Se déconnecter d'Instagram"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Disconnetti da Instagram"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Instagramからログアウト"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Instagram에서 로그아웃"
-          }
-        },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Đăng xuất khỏi Instagram"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "退出 Instagram"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "登出 Instagram"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "隱藏 Reels"
           }
         }
       }
     },
-    "Petal" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Web-Feeds"
+    "Instagram.HideReels.Footer": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wenn aktiviert, werden Reels aus Instagram-Feeds ausgeblendet."
           }
         },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Web Feeds"
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "When enabled, reels will be hidden from Instagram feeds."
           }
         },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Flux web"
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lorsque cette option est activée, les Reels seront masqués des flux Instagram."
           }
         },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Feed web"
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quando attivato, i Reel verranno nascosti dai feed di Instagram."
           }
         },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Webフィード"
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "有効にすると、Instagramフィードからリールが非表示になります。"
           }
         },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "웹 피드"
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "활성화하면 Instagram 피드에서 릴이 숨겨집니다."
           }
         },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nguồn cấp web"
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Khi bật, reels sẽ bị ẩn khỏi nguồn cấp Instagram."
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "网页订阅源"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "启用后，Reels 将从 Instagram 订阅源中隐藏。"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "網頁訂閱源"
-          }
-        }
-      }
-    },
-    "Petal.Footer" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Wandle beliebige Webseiten mit geräteinternem Scraping in RSS-Feeds um. Ideal für Blogs und Single-Page-Apps, die keinen eigenen Feed anbieten."
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Turn any webpage into an RSS feed using on-device scraping. Useful for blogs and single-page apps that don't publish their own feed."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Transformez n'importe quelle page web en flux RSS grâce à un scraping effectué sur l'appareil. Pratique pour les blogs et les applications à page unique qui ne publient pas leur propre flux."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Trasforma qualsiasi pagina web in un feed RSS usando uno scraping eseguito sul dispositivo. Utile per blog e app a pagina singola che non pubblicano un feed proprio."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "デバイス上のスクレイピングで任意のWebページをRSSフィードに変換できます。独自のフィードを提供していないブログやシングルページアプリに便利です。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "기기 내 스크레이핑으로 어떤 웹페이지든 RSS 피드로 바꿀 수 있습니다. 자체 피드를 제공하지 않는 블로그나 싱글 페이지 앱에 유용합니다."
-          }
-        },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Biến bất kỳ trang web nào thành nguồn RSS bằng cách trích xuất dữ liệu ngay trên thiết bị. Hữu ích cho các blog và ứng dụng một trang không cung cấp nguồn cấp riêng."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "通过设备端抓取，将任意网页转换为 RSS 订阅源。适用于没有自带订阅源的博客和单页应用。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "透過裝置端抓取，將任意網頁轉換為 RSS 訂閱源。適用於沒有自帶訂閱源的部落格和單頁應用。"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "啟用後，Reels 將從 Instagram 訂閱源中隱藏。"
           }
         }
       }
     },
-    "Podcast" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Podcasts"
+    "InstagramLogin.Title": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bei Instagram anmelden"
           }
         },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Podcasts"
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sign in to Instagram"
           }
         },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Podcasts"
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Se connecter à Instagram"
           }
         },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Podcast"
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Accedi a Instagram"
           }
         },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ポッドキャスト"
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Instagramにログイン"
           }
         },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "팟캐스트"
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Instagram에 로그인"
           }
         },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Podcast"
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đăng nhập vào Instagram"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "播客"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "登录 Instagram"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Podcast"
-          }
-        }
-      }
-    },
-    "Readability" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Readability"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Readability"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Readability"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Readability"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Readability"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Readability"
-          }
-        },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Readability"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Readability"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Readability"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "登入 Instagram"
           }
         }
       }
     },
-    "Substack" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Substack"
+    "InstagramProfileFeeds": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Instagram-Profil-Feeds"
           }
         },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Substack"
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Instagram Profile Feeds"
           }
         },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Substack"
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Flux de profils Instagram"
           }
         },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Substack"
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Feed profili Instagram"
           }
         },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Substack"
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Instagramプロフィールフィード"
           }
         },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Substack"
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Instagram 프로필 피드"
           }
         },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Substack"
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nguồn cấp hồ sơ Instagram"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Substack"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Instagram个人资料订阅源"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Substack"
-          }
-        }
-      }
-    },
-    "Substack.Footer" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Melden Sie sich bei Substack an, um abonnierte Inhalte aus Ihren Substack-Feeds abzurufen."
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sign in to Substack to fetch paywalled content from your Substack feeds."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Connectez-vous à Substack pour récupérer le contenu payant de vos flux Substack."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Accedi a Substack per recuperare i contenuti a pagamento dei tuoi feed Substack."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Substackにログインすると、Substackフィードから有料コンテンツを取得できます。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Substack에 로그인하면 Substack 피드에서 유료 콘텐츠를 가져올 수 있습니다."
-          }
-        },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Đăng nhập vào Substack để tải nội dung trả phí từ các nguồn cấp Substack của bạn."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "登录 Substack 以从您的 Substack 订阅源中获取付费内容。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "登入 Substack 以從您的 Substack 訂閱源中獲取付費內容。"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Instagram個人資料訂閱源"
           }
         }
       }
     },
-    "Substack.SignIn" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Bei Substack anmelden"
+    "InstagramProfileFeeds.Footer": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Folgen Sie Instagram-Profilen als Feeds, indem Sie deren Profil-URLs hinzufügen."
           }
         },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sign in to Substack"
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Follow Instagram profiles as feeds by adding their profile URLs."
           }
         },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Se connecter à Substack"
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Suivez des profils Instagram comme flux en ajoutant leurs URLs de profil."
           }
         },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Accedi a Substack"
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Segui i profili Instagram come feed aggiungendo i loro URL del profilo."
           }
         },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Substackにログイン"
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "InstagramのプロフィールURLを追加して、プロフィールをフィードとしてフォローできるようになります。"
           }
         },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Substack에 로그인"
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "프로필 URL을 추가하여 Instagram 프로필을 피드로 팔로우하세요."
           }
         },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Đăng nhập vào Substack"
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Theo dõi hồ sơ Instagram dưới dạng nguồn cấp bằng cách thêm URL hồ sơ của họ."
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "登录 Substack"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "通过添加个人资料URL，将Instagram个人资料作为订阅源关注。"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "登入 Substack"
-          }
-        }
-      }
-    },
-    "Substack.SignOut" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Von Substack abmelden"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sign out of Substack"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Se déconnecter de Substack"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Disconnetti da Substack"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Substackからログアウト"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Substack에서 로그아웃"
-          }
-        },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Đăng xuất khỏi Substack"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "退出 Substack"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "登出 Substack"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "透過新增個人資料URL，將Instagram個人資料作為訂閱源追蹤。"
           }
         }
       }
     },
-    "SubstackLogin.Title" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Bei Substack anmelden"
+    "InstagramProfileFeeds.SignIn": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bei Instagram anmelden"
           }
         },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sign in to Substack"
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sign in to Instagram"
           }
         },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Se connecter à Substack"
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Se connecter à Instagram"
           }
         },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Accedi a Substack"
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Accedi a Instagram"
           }
         },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Substackにログイン"
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Instagramにログイン"
           }
         },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Substack에 로그인"
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Instagram에 로그인"
           }
         },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Đăng nhập vào Substack"
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đăng nhập vào Instagram"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "登录 Substack"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "登录 Instagram"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "登入 Substack"
-          }
-        }
-      }
-    },
-    "X" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "X"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "X"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "X"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "X"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "X（旧Twitter）"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "X"
-          }
-        },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "X"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "X"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "X"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "登入 Instagram"
           }
         }
       }
     },
-    "XLogin.Cancel" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Abbrechen"
+    "InstagramProfileFeeds.SignOut": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Von Instagram abmelden"
           }
         },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Cancel"
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sign out of Instagram"
           }
         },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Annuler"
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Se déconnecter d'Instagram"
           }
         },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Annulla"
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Disconnetti da Instagram"
           }
         },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "キャンセル"
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Instagramからログアウト"
           }
         },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "취소"
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Instagram에서 로그아웃"
           }
         },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Hủy"
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đăng xuất khỏi Instagram"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "取消"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "退出 Instagram"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "取消"
-          }
-        }
-      }
-    },
-    "XLogin.Done" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Fertig"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Done"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Terminé"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Fine"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "完了"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "완료"
-          }
-        },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Xong"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "完成"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "完成"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "登出 Instagram"
           }
         }
       }
     },
-    "XLogin.Title" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Bei X anmelden"
+    "Petal": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Web-Feeds"
           }
         },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sign in to X"
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Web Feeds"
           }
         },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Se connecter à X"
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Flux web"
           }
         },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Accedi a X"
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Feed web"
           }
         },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Xにログイン"
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Webフィード"
           }
         },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "X에 로그인"
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "웹 피드"
           }
         },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Đăng nhập vào X"
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nguồn cấp web"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "登录 X"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "网页订阅源"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "登入 X"
-          }
-        }
-      }
-    },
-    "XProfileFeeds" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "X-Profil-Feeds"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "X Profile Feeds"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Flux de profils X"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Feed profili X"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Xプロフィールフィード"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "X 프로필 피드"
-          }
-        },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nguồn cấp hồ sơ X"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "X个人资料订阅源"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "X個人資料訂閱源"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "網頁訂閱源"
           }
         }
       }
     },
-    "XProfileFeeds.Footer" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Folgen Sie X (Twitter)-Profilen als Feeds, indem Sie deren Profil-URLs hinzufügen."
+    "Petal.Footer": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wandle beliebige Webseiten mit geräteinternem Scraping in RSS-Feeds um. Ideal für Blogs und Single-Page-Apps, die keinen eigenen Feed anbieten."
           }
         },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Follow X (Twitter) profiles as feeds by adding their profile URLs."
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turn any webpage into an RSS feed using on-device scraping. Useful for blogs and single-page apps that don't publish their own feed."
           }
         },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Suivez des profils X (Twitter) comme flux en ajoutant leurs URLs de profil."
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Transformez n'importe quelle page web en flux RSS grâce à un scraping effectué sur l'appareil. Pratique pour les blogs et les applications à page unique qui ne publient pas leur propre flux."
           }
         },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Segui i profili X (Twitter) come feed aggiungendo i loro URL del profilo."
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trasforma qualsiasi pagina web in un feed RSS usando uno scraping eseguito sul dispositivo. Utile per blog e app a pagina singola che non pubblicano un feed proprio."
           }
         },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "X（Twitter）のプロフィールURLを追加して、プロフィールをフィードとしてフォローできるようになります。"
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "デバイス上のスクレイピングで任意のWebページをRSSフィードに変換できます。独自のフィードを提供していないブログやシングルページアプリに便利です。"
           }
         },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "프로필 URL을 추가하여 X(Twitter) 프로필을 피드로 팔로우하세요."
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "기기 내 스크레이핑으로 어떤 웹페이지든 RSS 피드로 바꿀 수 있습니다. 자체 피드를 제공하지 않는 블로그나 싱글 페이지 앱에 유용합니다."
           }
         },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Theo dõi hồ sơ X (Twitter) dưới dạng nguồn cấp bằng cách thêm URL hồ sơ của họ."
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Biến bất kỳ trang web nào thành nguồn RSS bằng cách trích xuất dữ liệu ngay trên thiết bị. Hữu ích cho các blog và ứng dụng một trang không cung cấp nguồn cấp riêng."
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "通过添加个人资料URL，将X（Twitter）个人资料作为订阅源关注。"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "通过设备端抓取，将任意网页转换为 RSS 订阅源。适用于没有自带订阅源的博客和单页应用。"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "透過新增個人資料URL，將X（Twitter）個人資料作為訂閱源追蹤。"
-          }
-        }
-      }
-    },
-    "XProfileFeeds.RefreshAuth" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Authentifizierung aktualisieren"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Refresh Authentication"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Actualiser l'authentification"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Aggiorna autenticazione"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "認証を更新"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "인증 새로고침"
-          }
-        },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Làm mới xác thực"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "刷新认证"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "重新整理認證"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "透過裝置端抓取，將任意網頁轉換為 RSS 訂閱源。適用於沒有自帶訂閱源的部落格和單頁應用。"
           }
         }
       }
     },
-    "XProfileFeeds.SignIn" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Bei X anmelden"
+    "Podcast": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Podcasts"
           }
         },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sign in to X"
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Podcasts"
           }
         },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Se connecter à X"
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Podcasts"
           }
         },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Accedi a X"
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Podcast"
           }
         },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Xにログイン"
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ポッドキャスト"
           }
         },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "X에 로그인"
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "팟캐스트"
           }
         },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Đăng nhập vào X"
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Podcast"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "登录 X"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "播客"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "登入 X"
-          }
-        }
-      }
-    },
-    "XProfileFeeds.SignOut" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Von X abmelden"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sign out of X"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Se déconnecter de X"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Disconnetti da X"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Xからログアウト"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "X에서 로그아웃"
-          }
-        },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Đăng xuất khỏi X"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "退出 X"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "登出 X"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Podcast"
           }
         }
       }
     },
-    "YouTube" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "YouTube"
+    "Readability": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Readability"
           }
         },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "YouTube"
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Readability"
           }
         },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "YouTube"
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Readability"
           }
         },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "YouTube"
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Readability"
           }
         },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "YouTube"
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Readability"
           }
         },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "YouTube"
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Readability"
           }
         },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "YouTube"
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Readability"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "YouTube"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Readability"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "YouTube"
-          }
-        }
-      }
-    },
-    "YouTube.Ad.Label" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Anzeige"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ad"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Pub"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Annuncio"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "広告"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "광고"
-          }
-        },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Quảng cáo"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "广告"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "廣告"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Readability"
           }
         }
       }
     },
-    "YouTube.Ad.Skip" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Anzeige überspringen"
+    "Substack": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Substack"
           }
         },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Skip Ad"
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Substack"
           }
         },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ignorer la pub"
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Substack"
           }
         },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Salta annuncio"
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Substack"
           }
         },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "広告をスキップ"
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Substack"
           }
         },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "광고 건너뛰기"
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Substack"
           }
         },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Bỏ qua quảng cáo"
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Substack"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "跳过广告"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Substack"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "略過廣告"
-          }
-        }
-      }
-    },
-    "YouTube.Chapters" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Kapitel"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Chapters"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Chapitres"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Capitoli"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "チャプター"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "챕터"
-          }
-        },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Chương"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "章节"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "章節"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Substack"
           }
         }
       }
     },
-    "YouTube.NewPlayer.LoadFailed" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Videostream konnte nicht geladen werden."
+    "Substack.Footer": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Melden Sie sich bei Substack an, um abonnierte Inhalte aus Ihren Substack-Feeds abzurufen."
           }
         },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Couldn't load video stream."
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sign in to Substack to fetch paywalled content from your Substack feeds."
           }
         },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Impossible de charger le flux vidéo."
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connectez-vous à Substack pour récupérer le contenu payant de vos flux Substack."
           }
         },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Impossibile caricare il flusso video."
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Accedi a Substack per recuperare i contenuti a pagamento dei tuoi feed Substack."
           }
         },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "動画ストリームを読み込めませんでした。"
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Substackにログインすると、Substackフィードから有料コンテンツを取得できます。"
           }
         },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "동영상 스트림을 불러오지 못했습니다."
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Substack에 로그인하면 Substack 피드에서 유료 콘텐츠를 가져올 수 있습니다."
           }
         },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Không thể tải luồng video."
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đăng nhập vào Substack để tải nội dung trả phí từ các nguồn cấp Substack của bạn."
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "无法加载视频流。"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "登录 Substack 以从您的 Substack 订阅源中获取付费内容。"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "無法載入影片串流。"
-          }
-        }
-      }
-    },
-    "YouTube.OpenInApp" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "In App öffnen"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Open in App"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ouvrir dans l'app"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Apri nell'app"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "アプリで開く"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "앱에서 열기"
-          }
-        },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Mở trong ứng dụng"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "在应用中打开"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "在應用程式中開啟"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "登入 Substack 以從您的 Substack 訂閱源中獲取付費內容。"
           }
         }
       }
     },
-    "YouTube.OpenInBrowser" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Im Browser öffnen"
+    "Substack.SignIn": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bei Substack anmelden"
           }
         },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Open in Browser"
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sign in to Substack"
           }
         },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ouvrir dans le navigateur"
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Se connecter à Substack"
           }
         },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Apri nel browser"
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Accedi a Substack"
           }
         },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ブラウザで開く"
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Substackにログイン"
           }
         },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "브라우저에서 열기"
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Substack에 로그인"
           }
         },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Mở trong trình duyệt"
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đăng nhập vào Substack"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "在浏览器中打开"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "登录 Substack"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "在瀏覽器中開啟"
-          }
-        }
-      }
-    },
-    "YouTube.PiP.Active" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Bild-in-Bild aktiv"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Playing in Picture in Picture"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Lecture en image dans l'image"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "In riproduzione in Picture in Picture"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ピクチャ・イン・ピクチャで再生中"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "화면 속 화면으로 재생 중"
-          }
-        },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Đang phát trong Hình trong hình"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "正在画中画播放"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "正在子母畫面播放"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "登入 Substack"
           }
         }
       }
     },
-    "YouTube.SponsorBlock.Skipped %@" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ übersprungen"
+    "Substack.SignOut": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Von Substack abmelden"
           }
         },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Skipped %@"
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sign out of Substack"
           }
         },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ ignoré"
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Se déconnecter de Substack"
           }
         },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ saltato"
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Disconnetti da Substack"
           }
         },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@をスキップしました"
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Substackからログアウト"
           }
         },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ 건너뜀"
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Substack에서 로그아웃"
           }
         },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Đã bỏ qua %@"
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đăng xuất khỏi Substack"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "已跳过%@"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "退出 Substack"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "已跳過%@"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "登出 Substack"
           }
         }
       }
     },
-    "YouTube.VisitAdvertiser" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Werbetreibenden besuchen"
+    "SubstackLogin.Title": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bei Substack anmelden"
           }
         },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Visit Advertiser"
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sign in to Substack"
           }
         },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Visiter l'annonceur"
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Se connecter à Substack"
           }
         },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Visita l'inserzionista"
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Accedi a Substack"
           }
         },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "広告主のサイトにアクセス"
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Substackにログイン"
           }
         },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "광고주 방문"
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Substack에 로그인"
           }
         },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Truy cập nhà quảng cáo"
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đăng nhập vào Substack"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "访问广告商"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "登录 Substack"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "造訪廣告商"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "登入 Substack"
           }
         }
       }
     },
-    "YouTubeLogin.Title" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Bei YouTube anmelden"
+    "X": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "X"
           }
         },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sign in to YouTube"
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "X"
           }
         },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Se connecter à YouTube"
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "X"
           }
         },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Accedi a YouTube"
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "X"
           }
         },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "YouTubeにログイン"
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "X（旧Twitter）"
           }
         },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "YouTube에 로그인"
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "X"
           }
         },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Đăng nhập vào YouTube"
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "X"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "登录 YouTube"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "X"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "登入 YouTube"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "X"
           }
         }
       }
     },
-    "YouTubePlayer" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "YouTube-Player"
+    "XLogin.Cancel": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abbrechen"
           }
         },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "YouTube Player"
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cancel"
           }
         },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Lecteur YouTube"
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Annuler"
           }
         },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Lettore YouTube"
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Annulla"
           }
         },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "YouTubeプレーヤー"
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "キャンセル"
           }
         },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "YouTube 플레이어"
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "취소"
           }
         },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Trình phát YouTube"
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hủy"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "YouTube 播放器"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "取消"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "YouTube 播放器"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "取消"
           }
         }
       }
     },
-    "YouTubePlayer.Footer" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "YouTube-Videos in einem integrierten Player abspielen, anstatt die YouTube-App oder den Browser zu öffnen."
+    "XLogin.Done": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fertig"
           }
         },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Play YouTube videos in a built-in player instead of opening the YouTube app or browser."
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Done"
           }
         },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Lire les vidéos YouTube dans un lecteur intégré au lieu d'ouvrir l'application YouTube ou le navigateur."
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Terminé"
           }
         },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Riproduci i video di YouTube in un lettore integrato invece di aprire l'app YouTube o il browser."
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fine"
           }
         },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "YouTubeアプリやブラウザを開く代わりに、内蔵プレーヤーでYouTube動画を再生します。"
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "完了"
           }
         },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "YouTube 앱이나 브라우저를 열지 않고 내장 플레이어에서 YouTube 동영상을 재생합니다."
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "완료"
           }
         },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Phát video YouTube trong trình phát tích hợp thay vì mở ứng dụng YouTube hoặc trình duyệt."
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Xong"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "使用内置播放器播放YouTube视频，而不是打开YouTube应用或浏览器。"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "完成"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "使用內建播放器播放YouTube影片，而不是開啟YouTube應用程式或瀏覽器。"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "完成"
           }
         }
       }
     },
-    "YouTubePlayer.SignIn" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Bei YouTube anmelden"
+    "XLogin.Title": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bei X anmelden"
           }
         },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sign in to YouTube"
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sign in to X"
           }
         },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Se connecter à YouTube"
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Se connecter à X"
           }
         },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Accedi a YouTube"
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Accedi a X"
           }
         },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "YouTubeにログイン"
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Xにログイン"
           }
         },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "YouTube에 로그인"
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "X에 로그인"
           }
         },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Đăng nhập vào YouTube"
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đăng nhập vào X"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "登录 YouTube"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "登录 X"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "登入 YouTube"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "登入 X"
           }
         }
       }
     },
-    "YouTubePlayer.SignOut" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Von YouTube abmelden"
+    "XProfileFeeds": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "X-Profil-Feeds"
           }
         },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sign out of YouTube"
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "X Profile Feeds"
           }
         },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Se déconnecter de YouTube"
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Flux de profils X"
           }
         },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Disconnetti da YouTube"
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Feed profili X"
           }
         },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "YouTubeからログアウト"
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Xプロフィールフィード"
           }
         },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "YouTube에서 로그아웃"
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "X 프로필 피드"
           }
         },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Đăng xuất khỏi YouTube"
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nguồn cấp hồ sơ X"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "退出 YouTube"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "X个人资料订阅源"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "登出 YouTube"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "X個人資料訂閱源"
+          }
+        }
+      }
+    },
+    "XProfileFeeds.Footer": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Folgen Sie X (Twitter)-Profilen als Feeds, indem Sie deren Profil-URLs hinzufügen."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Follow X (Twitter) profiles as feeds by adding their profile URLs."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Suivez des profils X (Twitter) comme flux en ajoutant leurs URLs de profil."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Segui i profili X (Twitter) come feed aggiungendo i loro URL del profilo."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "X（Twitter）のプロフィールURLを追加して、プロフィールをフィードとしてフォローできるようになります。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "프로필 URL을 추가하여 X(Twitter) 프로필을 피드로 팔로우하세요."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Theo dõi hồ sơ X (Twitter) dưới dạng nguồn cấp bằng cách thêm URL hồ sơ của họ."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "通过添加个人资料URL，将X（Twitter）个人资料作为订阅源关注。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "透過新增個人資料URL，將X（Twitter）個人資料作為訂閱源追蹤。"
+          }
+        }
+      }
+    },
+    "XProfileFeeds.RefreshAuth": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Authentifizierung aktualisieren"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Refresh Authentication"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Actualiser l'authentification"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aggiorna autenticazione"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "認証を更新"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "인증 새로고침"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Làm mới xác thực"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "刷新认证"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "重新整理認證"
+          }
+        }
+      }
+    },
+    "XProfileFeeds.SignIn": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bei X anmelden"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sign in to X"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Se connecter à X"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Accedi a X"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Xにログイン"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "X에 로그인"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đăng nhập vào X"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "登录 X"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "登入 X"
+          }
+        }
+      }
+    },
+    "XProfileFeeds.SignOut": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Von X abmelden"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sign out of X"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Se déconnecter de X"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Disconnetti da X"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Xからログアウト"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "X에서 로그아웃"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đăng xuất khỏi X"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "退出 X"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "登出 X"
+          }
+        }
+      }
+    },
+    "YouTube": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "YouTube"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "YouTube"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "YouTube"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "YouTube"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "YouTube"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "YouTube"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "YouTube"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "YouTube"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "YouTube"
+          }
+        }
+      }
+    },
+    "YouTube.Ad.Label": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Anzeige"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ad"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pub"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Annuncio"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "広告"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "광고"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quảng cáo"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "广告"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "廣告"
+          }
+        }
+      }
+    },
+    "YouTube.Ad.Skip": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Anzeige überspringen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Skip Ad"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ignorer la pub"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Salta annuncio"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "広告をスキップ"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "광고 건너뛰기"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bỏ qua quảng cáo"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "跳过广告"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "略過廣告"
+          }
+        }
+      }
+    },
+    "YouTube.Chapters": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kapitel"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chapters"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chapitres"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Capitoli"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "チャプター"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "챕터"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chương"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "章节"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "章節"
+          }
+        }
+      }
+    },
+    "YouTube.NewPlayer.LoadFailed": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Videostream konnte nicht geladen werden."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn't load video stream."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impossible de charger le flux vidéo."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impossibile caricare il flusso video."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "動画ストリームを読み込めませんでした。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "동영상 스트림을 불러오지 못했습니다."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Không thể tải luồng video."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "无法加载视频流。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "無法載入影片串流。"
+          }
+        }
+      }
+    },
+    "YouTube.OpenInApp": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In App öffnen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open in App"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ouvrir dans l'app"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apri nell'app"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "アプリで開く"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "앱에서 열기"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mở trong ứng dụng"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在应用中打开"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在應用程式中開啟"
+          }
+        }
+      }
+    },
+    "YouTube.OpenInBrowser": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Im Browser öffnen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open in Browser"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ouvrir dans le navigateur"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apri nel browser"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ブラウザで開く"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "브라우저에서 열기"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mở trong trình duyệt"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在浏览器中打开"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在瀏覽器中開啟"
+          }
+        }
+      }
+    },
+    "YouTube.PiP.Active": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bild-in-Bild aktiv"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Playing in Picture in Picture"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lecture en image dans l'image"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In riproduzione in Picture in Picture"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ピクチャ・イン・ピクチャで再生中"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "화면 속 화면으로 재생 중"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đang phát trong Hình trong hình"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在画中画播放"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在子母畫面播放"
+          }
+        }
+      }
+    },
+    "YouTube.SponsorBlock.Skipped %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ übersprungen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Skipped %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ ignoré"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ saltato"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@をスキップしました"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ 건너뜀"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đã bỏ qua %@"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已跳过%@"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已跳過%@"
+          }
+        }
+      }
+    },
+    "YouTube.VisitAdvertiser": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Werbetreibenden besuchen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Visit Advertiser"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Visiter l'annonceur"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Visita l'inserzionista"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "広告主のサイトにアクセス"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "광고주 방문"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Truy cập nhà quảng cáo"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "访问广告商"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "造訪廣告商"
+          }
+        }
+      }
+    },
+    "YouTubeLogin.Title": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bei YouTube anmelden"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sign in to YouTube"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Se connecter à YouTube"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Accedi a YouTube"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "YouTubeにログイン"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "YouTube에 로그인"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đăng nhập vào YouTube"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "登录 YouTube"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "登入 YouTube"
+          }
+        }
+      }
+    },
+    "YouTubePlayer": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "YouTube-Player"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "YouTube Player"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lecteur YouTube"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lettore YouTube"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "YouTubeプレーヤー"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "YouTube 플레이어"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trình phát YouTube"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "YouTube 播放器"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "YouTube 播放器"
+          }
+        }
+      }
+    },
+    "YouTubePlayer.Footer": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "YouTube-Videos in einem integrierten Player abspielen, anstatt die YouTube-App oder den Browser zu öffnen."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Play YouTube videos in a built-in player instead of opening the YouTube app or browser."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lire les vidéos YouTube dans un lecteur intégré au lieu d'ouvrir l'application YouTube ou le navigateur."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Riproduci i video di YouTube in un lettore integrato invece di aprire l'app YouTube o il browser."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "YouTubeアプリやブラウザを開く代わりに、内蔵プレーヤーでYouTube動画を再生します。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "YouTube 앱이나 브라우저를 열지 않고 내장 플레이어에서 YouTube 동영상을 재생합니다."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Phát video YouTube trong trình phát tích hợp thay vì mở ứng dụng YouTube hoặc trình duyệt."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用内置播放器播放YouTube视频，而不是打开YouTube应用或浏览器。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用內建播放器播放YouTube影片，而不是開啟YouTube應用程式或瀏覽器。"
+          }
+        }
+      }
+    },
+    "YouTubePlayer.SignIn": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bei YouTube anmelden"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sign in to YouTube"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Se connecter à YouTube"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Accedi a YouTube"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "YouTubeにログイン"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "YouTube에 로그인"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đăng nhập vào YouTube"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "登录 YouTube"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "登入 YouTube"
+          }
+        }
+      }
+    },
+    "YouTubePlayer.SignOut": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Von YouTube abmelden"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sign out of YouTube"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Se déconnecter de YouTube"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Disconnetti da YouTube"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "YouTubeからログアウト"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "YouTube에서 로그아웃"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đăng xuất khỏi YouTube"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "退出 YouTube"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "登出 YouTube"
+          }
+        }
+      }
+    },
+    "YouTube.MediaSelection.Audio": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Audio"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Audio"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Audio"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Audio"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "オーディオ"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "오디오"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Âm thanh"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "音频"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "音訊"
+          }
+        }
+      }
+    },
+    "YouTube.MediaSelection.Subtitles": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Untertitel"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Subtitles"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sous-titres"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sottotitoli"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "字幕"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "자막"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Phụ đề"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "字幕"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "字幕"
+          }
+        }
+      }
+    },
+    "YouTube.MediaSelection.SubtitlesOff": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aus"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Off"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Désactivés"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Disattivati"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "オフ"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "끄기"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tắt"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "关闭"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "關閉"
           }
         }
       }
     }
   },
-  "version" : "1.1"
+  "version": "1.1"
 }

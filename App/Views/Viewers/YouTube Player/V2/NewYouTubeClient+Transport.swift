@@ -2,87 +2,7 @@ import Compression
 import Foundation
 import zlib
 
-/// Transport layer for InnerTube API.
-nonisolated struct YouTube: Sendable {
-
-    static let host = "https://www.youtube.com"
-    static let fallbackVersion = "2.20260505.01.00"
-    static let fallbackIOSVersion = "21.18.4"
-    static let youtubeAppID = "544007664"
-
-    let session: URLSession
-    let clientVersion: String
-    let iosClientVersion: String
-
-    var iosUserAgent: String {
-        "com.google.ios.youtube/\(iosClientVersion) (iPhone; U; CPU iOS 18_7 like Mac OS X)"
-    }
-
-    static func bootstrap(session: URLSession = .shared) async -> YouTube {
-        async let webVersion = fetchClientVersion(session: session)
-        async let iosVersion = fetchIOSClientVersion(session: session)
-        let resolvedWebVersion = (try? await webVersion) ?? fallbackVersion
-        let resolvedIOSVersion = (try? await iosVersion) ?? fallbackIOSVersion
-        log("YouTube", "Web client version: \(resolvedWebVersion)")
-        log("YouTube", "iOS client version: \(resolvedIOSVersion)")
-        log("YouTube", "hl: \(deviceLanguage), gl: \(deviceRegion)")
-        return YouTube(
-            session: session,
-            clientVersion: resolvedWebVersion,
-            iosClientVersion: resolvedIOSVersion
-        )
-    }
-
-    static func fetchIOSClientVersion(session: URLSession) async throws -> String {
-        guard let url = URL(string: "https://itunes.apple.com/lookup?id=\(youtubeAppID)") else {
-            throw YouTubeBrowseError.invalidURL
-        }
-        log("YouTube", "Fetching iOS client version from iTunes: \(url)")
-        let (data, _) = try await session.data(from: url)
-        guard
-            let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
-            let results = json["results"] as? [[String: Any]],
-            let version = results.first?["version"] as? String
-        else {
-            log("YouTube", "Failed to parse iOS client version from iTunes response")
-            throw YouTubeBrowseError.decodingFailed
-        }
-        log("YouTube", "iTunes returned iOS client version: \(version)")
-        return version
-    }
-
-    static func fetchClientVersion(session: URLSession) async throws -> String {
-        guard let url = URL(string: "\(host)/sw.js") else {
-            throw YouTubeBrowseError.invalidURL
-        }
-        log("YouTube", "Fetching web client version from: \(url)")
-        let (data, _) = try await session.data(from: url)
-        guard let body = String(data: data, encoding: .utf8) else {
-            log("YouTube", "Failed to decode sw.js response")
-            throw YouTubeBrowseError.decodingFailed
-        }
-        let pattern = #""INNERTUBE_CONTEXT_CLIENT_VERSION":"([^"]+)""#
-        guard
-            let regex = try? NSRegularExpression(pattern: pattern),
-            let match = regex.firstMatch(in: body, range: NSRange(body.startIndex..., in: body)),
-            match.numberOfRanges >= 2,
-            let range = Range(match.range(at: 1), in: body)
-        else {
-            log("YouTube", "Failed to extract web client version from sw.js")
-            throw YouTubeBrowseError.decodingFailed
-        }
-        let version = String(body[range])
-        log("YouTube", "Extracted web client version: \(version)")
-        return version
-    }
-
-    static var deviceLanguage: String {
-        Locale.current.language.languageCode?.identifier ?? "en"
-    }
-
-    static var deviceRegion: String {
-        Locale.current.region?.identifier ?? "US"
-    }
+extension NewYouTubeClient {
 
     func webContext() -> [String: Any] {
         [
@@ -115,7 +35,7 @@ nonisolated struct YouTube: Sendable {
         guard let url = URL(string: "\(Self.host)/youtubei/v1/\(endpoint)?prettyPrint=false") else {
             throw YouTubeBrowseError.invalidURL
         }
-        log("YouTube", "POST \(endpoint) — web clientVersion: \(clientVersion), iosClientVersion: \(iosClientVersion), userAgent: \(iosUserAgent)")
+        log("YouTube", "POST \(endpoint): web clientVersion: \(clientVersion), iosClientVersion: \(iosClientVersion), userAgent: \(iosUserAgent)")
         let jsonData = try JSONSerialization.data(withJSONObject: body, options: [])
         let payload = try Self.gzip(jsonData)
 
@@ -130,7 +50,7 @@ nonisolated struct YouTube: Sendable {
 
         let (data, response) = try await session.upload(for: request, from: payload)
         if let http = response as? HTTPURLResponse {
-            log("YouTube", "POST \(endpoint) — HTTP \(http.statusCode)")
+            log("YouTube", "POST \(endpoint): HTTP \(http.statusCode)")
             if !(200..<300).contains(http.statusCode) {
                 throw YouTubeBrowseError.unexpectedResponse(status: http.statusCode)
             }

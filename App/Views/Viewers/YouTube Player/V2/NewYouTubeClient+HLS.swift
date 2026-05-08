@@ -1,28 +1,14 @@
 import Foundation
 
-/// HLS master playlist parsing helpers used to pick a video and audio variant
-/// from an InnerTube `streamingData.hlsManifestUrl` response.
-nonisolated enum YouTubeHLSPlaylist {
+extension NewYouTubeClient {
 
-    struct Variant: Sendable {
-        let url: String
-        let bandwidth: Int
-        let resolution: String?
-        let codecs: String?
-        let audioGroup: String?
-    }
-
-    struct AudioMedia: Sendable {
-        let url: String
-        let groupId: String
-        let name: String?
-        let isDefault: Bool
-    }
-
-    static func parseMaster(_ text: String) -> (variants: [Variant], audios: [AudioMedia]) {
+    /// Parses an HLS master playlist into its variant and audio media entries.
+    static func parseHLSMaster(
+        _ text: String
+    ) -> (variants: [YouTubeHLSVariant], audios: [YouTubeHLSAudioMedia]) {
         let lines = text.split(separator: "\n", omittingEmptySubsequences: false).map(String.init)
-        var variants: [Variant] = []
-        var audios: [AudioMedia] = []
+        var variants: [YouTubeHLSVariant] = []
+        var audios: [YouTubeHLSAudioMedia] = []
         var index = 0
         while index < lines.count {
             let line = lines[index]
@@ -33,7 +19,7 @@ nonisolated enum YouTubeHLSPlaylist {
                 let bandwidth = Int(attributes["BANDWIDTH"] ?? "") ?? 0
                 let next = lines[index + 1].trimmingCharacters(in: .whitespacesAndNewlines)
                 if !next.isEmpty, !next.hasPrefix("#") {
-                    variants.append(Variant(
+                    variants.append(YouTubeHLSVariant(
                         url: next,
                         bandwidth: bandwidth,
                         resolution: attributes["RESOLUTION"],
@@ -47,7 +33,7 @@ nonisolated enum YouTubeHLSPlaylist {
                 if attributes["TYPE"] == "AUDIO",
                    let uri = attributes["URI"],
                    let groupId = attributes["GROUP-ID"] {
-                    audios.append(AudioMedia(
+                    audios.append(YouTubeHLSAudioMedia(
                         url: uri,
                         groupId: groupId,
                         name: attributes["NAME"],
@@ -62,7 +48,10 @@ nonisolated enum YouTubeHLSPlaylist {
         return (variants, audios)
     }
 
-    static func selectAudio(for variant: Variant, from audios: [AudioMedia]) -> AudioMedia? {
+    static func selectAudio(
+        for variant: YouTubeHLSVariant,
+        from audios: [YouTubeHLSAudioMedia]
+    ) -> YouTubeHLSAudioMedia? {
         guard let group = variant.audioGroup else { return nil }
         let matching = audios.filter { $0.groupId == group }
         if matching.isEmpty { return nil }
@@ -76,7 +65,7 @@ nonisolated enum YouTubeHLSPlaylist {
         return pool.first(where: { $0.isDefault }) ?? pool.first
     }
 
-    static func selectBestVideo(from variants: [Variant]) -> Variant? {
+    static func selectBestVideo(from variants: [YouTubeHLSVariant]) -> YouTubeHLSVariant? {
         variants.max { lhs, rhs in
             let lhsH264 = (lhs.codecs ?? "").contains("avc1")
             let rhsH264 = (rhs.codecs ?? "").contains("avc1")
