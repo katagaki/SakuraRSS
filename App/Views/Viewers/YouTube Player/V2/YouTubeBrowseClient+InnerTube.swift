@@ -8,7 +8,7 @@ nonisolated struct YouTubeInnerTube: Sendable {
     static let host = "https://www.youtube.com"
     static let fallbackVersion = "2.20260505.01.00"
     static let iosUserAgent =
-        "com.google.ios.youtube/20.10.4 (iPhone16,2; U; CPU iOS 18_1_1 like Mac OS X)"
+        "com.google.ios.youtube/20.10.4 (iPhone; U; CPU iOS 18_7 like Mac OS X)"
 
     let session: URLSession
     let clientVersion: String
@@ -52,11 +52,11 @@ nonisolated struct YouTubeInnerTube: Sendable {
         [
             "client": [
                 "clientName": "IOS",
-                "clientVersion": "20.10.4",
+                "clientVersion": "21.18.4",
                 "deviceMake": "Apple",
-                "deviceModel": "iPhone16,2",
+                "deviceModel": "iPhone",
                 "osName": "iPhone",
-                "osVersion": "18.1.1.22B83",
+                "osVersion": "18_7.22H20",
                 "hl": "en",
                 "gl": "US"
             ]
