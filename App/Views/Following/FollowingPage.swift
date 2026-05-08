@@ -5,7 +5,6 @@ struct FollowingPage: View {
     @Environment(FeedManager.self) var feedManager
     @State var searchText = ""
     @State var isPresentingAddFeedSheet = false
-    @State var isPresentingEditFeedSheet = false
     @State var feedToEdit: Feed?
     @State var feedToDelete: Feed?
     @State var isEditingFeeds = false
@@ -13,34 +12,15 @@ struct FollowingPage: View {
     @State var selectedFeedIDs: Set<Int64> = []
     @State var isPresentingBulkEditSheet = false
     @State var isPresentingBulkDeleteAlert = false
-    @Namespace private var addFeedNamespace
-    @Namespace private var feedEditNamespace
+    @State var isPresentingNewListSheet = false
+    @State var listToDelete: FeedList?
+    @Namespace var addFeedNamespace
+    @Namespace var feedEditNamespace
+    @Namespace var newListNamespace
 
-    var filteredFeeds: [Feed] {
-        if searchText.isEmpty {
-            return feedManager.feeds
-        }
-        return feedManager.feeds.filter {
-            $0.title.localizedCaseInsensitiveContains(searchText) ||
-            $0.domain.localizedCaseInsensitiveContains(searchText)
-        }
-    }
+    let gridColumns = [GridItem(.adaptive(minimum: 80), spacing: 16)]
 
-    private func feedsForSection(_ section: FeedSection) -> [Feed] {
-        let feeds = filteredFeeds.filter { $0.feedSection == section }
-        if section == .feeds {
-            return feeds
-        }
-        return feeds.sorted {
-            let domainCompare = $0.domain.localizedStandardCompare($1.domain)
-            if domainCompare != .orderedSame { return domainCompare == .orderedAscending }
-            return $0.title.localizedStandardCompare($1.title) == .orderedAscending
-        }
-    }
-
-    private let gridColumns = [GridItem(.adaptive(minimum: 80), spacing: 16)]
-
-    private var selectedFeeds: [Feed] {
+    var selectedFeeds: [Feed] {
         selectedFeedIDs.compactMap { feedManager.feedsByID[$0] }
     }
 
@@ -50,6 +30,7 @@ struct FollowingPage: View {
                 feedSectionsContent
                     .padding()
                     .animation(.smooth.speed(2.0), value: feedManager.feeds)
+                    .animation(.smooth.speed(2.0), value: feedManager.lists)
                     .animation(.smooth.speed(2.0), value: searchText)
                     .animation(.smooth.speed(2.0), value: isEditingFeeds)
                     .animation(.smooth.speed(2.0), value: isSelectingFeeds)
@@ -77,6 +58,13 @@ struct FollowingPage: View {
             BulkEditFeedSheet(feedIDs: selectedFeedIDs)
                 .environment(feedManager)
         }
+        .sheet(isPresented: $isPresentingNewListSheet) {
+            ListEditSheet(list: nil)
+                .environment(feedManager)
+                .presentationDetents([.large])
+                .interactiveDismissDisabled()
+                .navigationTransition(.zoom(sourceID: "newList", in: newListNamespace))
+        }
         .alert(
             String(localized: "FeedMenu.Unfollow.Title", table: "Feeds"),
             isPresented: Binding(
@@ -101,6 +89,29 @@ struct FollowingPage: View {
             }
         }
         .alert(
+            String(localized: "ListMenu.Delete.Title", table: "Lists"),
+            isPresented: Binding(
+                get: { listToDelete != nil },
+                set: { if !$0 { listToDelete = nil } }
+            )
+        ) {
+            Button(String(localized: "ListMenu.Delete.Confirm", table: "Lists"), role: .destructive) {
+                if let list = listToDelete {
+                    withAnimation(.smooth.speed(2.0)) {
+                        feedManager.deleteList(list)
+                    }
+                    listToDelete = nil
+                }
+            }
+            Button("Shared.Cancel", role: .cancel) {
+                listToDelete = nil
+            }
+        } message: {
+            if let list = listToDelete {
+                Text(String(localized: "ListMenu.Delete.Message.\(list.name)", table: "Lists"))
+            }
+        }
+        .alert(
             String(localized: "FeedList.BulkDelete.Title", table: "Feeds"),
             isPresented: $isPresentingBulkDeleteAlert
         ) {
@@ -115,144 +126,6 @@ struct FollowingPage: View {
             ))
         }
     }
-
-    @ToolbarContentBuilder
-    private var toolbarContent: some ToolbarContent {
-        if !isEditingFeeds {
-            ToolbarItemGroup(placement: .topBarTrailing) {
-                Button(String(localized: "FeedList.Edit", table: "Feeds"),
-                       systemImage: "pencil") {
-                    isEditingFeeds = true
-                }
-                .labelStyle(.iconOnly)
-                .disabled(feedManager.feeds.isEmpty)
-            }
-        }
-        if isSelectingFeeds && !selectedFeedIDs.isEmpty {
-            ToolbarItemGroup(placement: .topBarTrailing) {
-                Button(role: .destructive) {
-                    isPresentingBulkDeleteAlert = true
-                } label: {
-                    Image(systemName: "trash")
-                }
-                .tint(.red)
-                .accessibilityLabel(String(localized: "FeedList.Selection.Delete", table: "Feeds"))
-                Button {
-                    isPresentingBulkEditSheet = true
-                } label: {
-                    Image(systemName: "pencil")
-                }
-                .accessibilityLabel(String(localized: "FeedList.Selection.Edit", table: "Feeds"))
-            }
-            #if !os(visionOS)
-            ToolbarSpacer(.fixed, placement: .topBarTrailing)
-            #endif
-        }
-        ToolbarItemGroup(placement: .topBarTrailing) {
-            if isEditingFeeds {
-                if isSelectingFeeds {
-                    Button(role: .cancel) {
-                        toggleSelectMode()
-                    }
-                } else {
-                    Button {
-                        toggleSelectMode()
-                    } label: {
-                        Text(String(localized: "FeedList.Select", table: "Feeds"))
-                    }
-                    Button(role: .confirm) {
-                        exitEditMode()
-                    }
-                }
-            } else {
-                Button {
-                    isPresentingAddFeedSheet = true
-                } label: {
-                    Image(systemName: "plus")
-                }
-                .compatibleGlassProminentButtonStyle()
-                .matchedTransitionSource(id: "addFeed", in: addFeedNamespace)
-            }
-        }
-    }
-
-    @ViewBuilder
-    private var emptyStateOverlay: some View {
-        if feedManager.feeds.isEmpty {
-            ContentUnavailableView {
-                Label(String(localized: "FeedList.Empty.Title", table: "Feeds"),
-                      systemImage: "newspaper")
-            } description: {
-                Text(String(localized: "FeedList.Empty.Description", table: "Feeds"))
-            } actions: {
-                Button(String(localized: "FeedList.Empty.AddFeed", table: "Feeds")) {
-                    isPresentingAddFeedSheet = true
-                }
-                .buttonStyle(.borderedProminent)
-            }
-        }
-    }
-
-    @ViewBuilder
-    private var feedSectionsContent: some View {
-        LazyVStack(alignment: .leading, spacing: 24) {
-            ForEach(FeedSection.allCases, id: \.self) { section in
-                feedSection(section)
-            }
-        }
-    }
-
-    @ViewBuilder
-    private func feedSection(_ section: FeedSection) -> some View {
-        let feeds = feedsForSection(section)
-        if !feeds.isEmpty {
-            Section {
-                LazyVGrid(columns: gridColumns, alignment: .leading, spacing: 12) {
-                    ForEach(feeds) { feed in
-                        feedCell(feed)
-                    }
-                }
-            } header: {
-                Text(section.localizedTitle)
-                    .font(.title3)
-                    .fontWeight(.bold)
-            }
-        }
-    }
-
-    @ViewBuilder
-    private func feedCell(_ feed: Feed) -> some View {
-        if isSelectingFeeds {
-            FollowingFeedGridCell(
-                feed: feed,
-                isWiggling: true,
-                isSelectMode: true,
-                isSelected: selectedFeedIDs.contains(feed.id),
-                onTap: { toggleSelection(feed) },
-                editTransitionNamespace: feedEditNamespace
-            )
-            .id(feed.id)
-        } else if isEditingFeeds {
-            FollowingFeedGridCell(
-                feed: feed,
-                isWiggling: true,
-                onDelete: { feedToDelete = feed },
-                onTap: {
-                    feedToEdit = feed
-                    isPresentingEditFeedSheet = true
-                },
-                editTransitionNamespace: feedEditNamespace
-            )
-            .id(feed.id)
-        } else {
-            NavigationLink(value: feed) {
-                FollowingFeedGridCell(feed: feed)
-            }
-            .buttonStyle(.plain)
-            .id(feed.id)
-        }
-    }
-
 }
 
 extension FollowingPage {

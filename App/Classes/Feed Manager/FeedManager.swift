@@ -25,9 +25,6 @@ final class FeedManager {
         }
     }
 
-    /// Per-scope last-refresh timestamps so the Home "Last updated" string can
-    /// follow the active section/list/feed instead of the global counter.
-    /// Stored as `[scope: epochSeconds]` in UserDefaults.
     var scopedLastRefreshedAt: [String: Date] = FeedManager.loadScopedLastRefreshedAt() {
         didSet {
             UserDefaults.standard.set(

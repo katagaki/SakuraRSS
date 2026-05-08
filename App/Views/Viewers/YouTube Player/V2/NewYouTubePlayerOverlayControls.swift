@@ -19,6 +19,12 @@ struct NewYouTubePlayerOverlayControls: View {
 
     var body: some View {
         ZStack {
+            if isVisible {
+                Color.black.opacity(0.3)
+                    .allowsHitTesting(false)
+                    .transition(.opacity)
+            }
+
             Color.clear
                 .contentShape(.rect)
                 .onTapGesture {
@@ -65,7 +71,7 @@ struct NewYouTubePlayerOverlayControls: View {
                 .frame(width: 40, height: 40)
                 .contentTransition(.symbolEffect(.replace))
         }
-        .compatibleGlassEffect(in: .circle, interactive: true)
+        .compatibleGlassEffect(in: .circle, interactive: true, clear: true)
         #if os(visionOS)
         .disabled(true)
         .opacity(0)
@@ -85,7 +91,7 @@ struct NewYouTubePlayerOverlayControls: View {
                 .font(.system(size: 16, weight: .medium))
                 .frame(width: 40, height: 40)
         }
-        .compatibleGlassEffect(in: .circle, interactive: true)
+        .compatibleGlassEffect(in: .circle, interactive: true, clear: true)
     }
 
     @ViewBuilder
@@ -99,7 +105,7 @@ struct NewYouTubePlayerOverlayControls: View {
                 .frame(width: 72, height: 72)
                 .contentTransition(.symbolEffect(.replace))
         }
-        .compatibleGlassEffect(in: .circle, interactive: true)
+        .compatibleGlassEffect(in: .circle, interactive: true, clear: true)
     }
 
     @ViewBuilder
@@ -137,7 +143,7 @@ struct NewYouTubePlayerOverlayControls: View {
         }
         .padding(.horizontal, 10)
         .padding(.vertical, 6)
-        .compatibleGlassEffect(in: .capsule, interactive: true)
+        .compatibleGlassEffect(in: .capsule, interactive: true, clear: true)
     }
 
     private var isFullscreen: Bool {

@@ -5,12 +5,15 @@ extension View {
     func compatibleGlassEffect<S: Shape>(
         in shape: S,
         tint: Color? = nil,
-        interactive: Bool = false
+        interactive: Bool = false,
+        clear: Bool = false
     ) -> some View {
         #if os(visionOS)
         self
         #else
-        modifier(CompatibleGlassEffectModifier(shape: shape, tint: tint, interactive: interactive))
+        modifier(CompatibleGlassEffectModifier(
+            shape: shape, tint: tint, interactive: interactive, clear: clear
+        ))
         #endif
     }
 
@@ -56,13 +59,14 @@ private struct CompatibleGlassEffectModifier<S: Shape>: ViewModifier {
     let shape: S
     let tint: Color?
     let interactive: Bool
+    let clear: Bool
 
     func body(content: Content) -> some View {
         content.glassEffect(glass, in: shape)
     }
 
     private var glass: Glass {
-        var result: Glass = .regular
+        var result: Glass = clear ? .clear : .regular
         if let tint { result = result.tint(tint) }
         if interactive { result = result.interactive() }
         return result

@@ -1,14 +1,6 @@
 import Foundation
 
 /// Higher-level orchestrator that turns an `Article` into body text.
-/// Encapsulates the full cascade (cache → providers → user-configured
-/// source mode → feed-content fallback → web extraction) so callers
-/// outside the article viewer (App Intents, widgets, future surfaces)
-/// get the same behavior the UI does.
-///
-/// Bump `parserVersion` whenever the cascade or any of the underlying
-/// parsing logic changes; cached article content with a stale version
-/// is invalidated on next launch.
 @MainActor
 final class ArticleContentExtractor {
 

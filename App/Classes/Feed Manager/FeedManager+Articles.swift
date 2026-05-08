@@ -47,8 +47,6 @@ extension FeedManager {
         return filterExcludingPodcastsAndVideos(allToday)
     }
 
-    /// Articles published between local 09:00 and now, used for the
-    /// Afternoon Brief summary card on the Today tab.
     func afternoonBriefArticles() -> [Article] {
         _ = dataRevision
         let calendar = Calendar.current
@@ -132,9 +130,6 @@ extension FeedManager {
         return (try? database.articleCount(forFeedID: feed.id)) ?? 0
     }
 
-    /// Most recent published date across the given feed IDs (e.g. all feeds
-    /// in a section or list). Used to anchor the initial date-based batch
-    /// window on the freshest content rather than wall-clock time.
     func latestPublishedDate(forFeedIDs feedIDs: Set<Int64>) -> Date? {
         _ = dataRevision
         return try? database.latestPublishedDate(forFeedIDs: feedIDs)

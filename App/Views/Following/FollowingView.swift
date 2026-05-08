@@ -23,6 +23,12 @@ struct FollowingView: View {
                             if path.count < 1 { savedFeedID = -1 }
                         }
                 }
+                .navigationDestination(for: FeedList.self) { list in
+                    ListArticlesView(list: list)
+                        .environment(\.zoomNamespace, cardZoom)
+                        .environment(\.navigateToFeed, { feed in path.append(feed) })
+                        .environment(\.navigateToEphemeralArticle, ephemeralAppender)
+                }
                 .navigationDestination(for: Article.self) { article in
                     ArticleDestinationView(article: article)
                         .environment(\.zoomNamespace, cardZoom)
