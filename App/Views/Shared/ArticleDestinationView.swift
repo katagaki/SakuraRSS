@@ -50,7 +50,7 @@ struct ArticleDestinationView: View {
         if article.isPodcastEpisode {
             PodcastEpisodeView(article: article)
         } else if article.isYouTubeURL {
-            if NewYouTubePlayerToggleStore.shared.isEnabled {
+            if FeatureFlagStore.shared.isEnabled(.nextgenYouTubePlayer) {
                 NewYouTubePlayerView(article: article)
             } else {
                 YouTubePlayerView(article: article)

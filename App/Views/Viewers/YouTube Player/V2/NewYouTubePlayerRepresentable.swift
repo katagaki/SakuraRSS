@@ -28,6 +28,7 @@ struct NewYouTubePlayerRepresentable: UIViewRepresentable {
 
 final class NewYouTubePlayerLayerView: UIView {
 
+    // swiftlint:disable:next static_over_final_class
     override class var layerClass: AnyClass { AVPlayerLayer.self }
 
     var playerLayer: AVPlayerLayer {

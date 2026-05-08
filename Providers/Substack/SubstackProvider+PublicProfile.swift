@@ -48,7 +48,7 @@ extension SubstackProvider {
             log("SubstackPublication", "public_profile: no logo or photo for \(host)")
             return nil
         } catch {
-            print("[SubstackPublication] public_profile fetch failed - \(error.localizedDescription)")
+            log("SubstackPublication", "public_profile fetch failed - \(error.localizedDescription)")
             return nil
         }
     }

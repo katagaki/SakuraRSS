@@ -34,23 +34,13 @@ struct ListWidgetProvider: AppIntentTimelineProvider {
         return Timeline(entries: [entry], policy: .after(Date().addingTimeInterval(90 * 60)))
     }
 
-    // swiftlint:disable:next function_body_length
     private func loadEntry(for configuration: ListWidgetIntent) async -> ListWidgetEntry {
         let database = DatabaseManager.shared
         let layout = configuration.layout ?? .thumbnails
         let columns = (configuration.columns ?? .three).rawValue
 
         guard let listEntity = configuration.list else {
-            return ListWidgetEntry(
-                date: Date(),
-                listID: 0,
-                listTitle: "",
-                articles: [],
-                layout: layout,
-                columns: columns,
-                currentPage: 0,
-                totalPages: 1
-            )
+            return Self.emptyListWidgetEntry(listID: 0, listTitle: "", layout: layout, columns: columns)
         }
 
         let listID = listEntity.listID
@@ -61,57 +51,29 @@ struct ListWidgetProvider: AppIntentTimelineProvider {
             let listTitle = (try database.list(byID: listID))?.name ?? listEntity.title
             let feedIDs = try database.feedIDs(forListID: listID)
             guard !feedIDs.isEmpty else {
-                return ListWidgetEntry(
-                    date: Date(),
-                    listID: listID,
-                    listTitle: listTitle,
-                    articles: [],
-                    layout: layout,
-                    columns: columns,
-                    currentPage: 0,
-                    totalPages: 1
+                return Self.emptyListWidgetEntry(
+                    listID: listID, listTitle: listTitle, layout: layout, columns: columns
                 )
             }
 
             let perPage = layout == .text ? 9 : columns * columns
             let maxPages = 3
             let totalLimit = perPage * maxPages
-
             let dbArticles = try database.articles(forFeedIDs: feedIDs, limit: totalLimit)
-
             let totalPages = max(1, Int(ceil(Double(dbArticles.count) / Double(perPage))))
             let currentPage = min(storedPage, totalPages - 1)
             let pageStart = currentPage * perPage
             let pageArticles = Array(dbArticles.dropFirst(pageStart).prefix(perPage))
 
-            // Skip network fetches when article set is unchanged, to avoid retrying failed downloads each wake.
-            let articleIDsMarker = pageArticles.map(\.id).map(String.init).joined(separator: ",")
-            let markerKey = "listWidgetMarker_\(listID)_\(layout.rawValue)_\(columns)_\(currentPage)"
-            let previousMarker = defaults?.string(forKey: markerKey)
-            let articleSetUnchanged = previousMarker == articleIDsMarker
-            defaults?.set(articleIDsMarker, forKey: markerKey)
-
-            let thumbnailCache = WidgetThumbnailCache(
-                scope: "list_\(listID)_\(layout.rawValue)_\(columns)"
+            let widgetArticles = await loadWidgetArticles(
+                pageArticles: pageArticles,
+                listID: listID,
+                layout: layout,
+                columns: columns,
+                currentPage: currentPage,
+                defaults: defaults,
+                database: database
             )
-
-            var widgetArticles: [ListWidgetArticle] = []
-            for article in pageArticles {
-                let imageData = await resolveImageData(
-                    urlString: article.imageURL,
-                    articleID: article.id,
-                    articleSetUnchanged: articleSetUnchanged,
-                    thumbnailCache: thumbnailCache,
-                    database: database
-                )
-                widgetArticles.append(ListWidgetArticle(
-                    id: article.id,
-                    title: article.title,
-                    imageData: imageData,
-                    publishedDate: article.publishedDate
-                ))
-            }
-            thumbnailCache.prune(keeping: pageArticles.map(\.id))
 
             return ListWidgetEntry(
                 date: Date(),
@@ -124,17 +86,66 @@ struct ListWidgetProvider: AppIntentTimelineProvider {
                 totalPages: totalPages
             )
         } catch {
-            return ListWidgetEntry(
-                date: Date(),
-                listID: listID,
-                listTitle: listEntity.title,
-                articles: [],
-                layout: layout,
-                columns: columns,
-                currentPage: 0,
-                totalPages: 1
+            return Self.emptyListWidgetEntry(
+                listID: listID, listTitle: listEntity.title, layout: layout, columns: columns
             )
         }
+    }
+
+    private static func emptyListWidgetEntry(
+        listID: Int64, listTitle: String, layout: SingleFeedWidgetLayout, columns: Int
+    ) -> ListWidgetEntry {
+        ListWidgetEntry(
+            date: Date(),
+            listID: listID,
+            listTitle: listTitle,
+            articles: [],
+            layout: layout,
+            columns: columns,
+            currentPage: 0,
+            totalPages: 1
+        )
+    }
+
+    // swiftlint:disable:next function_parameter_count
+    private func loadWidgetArticles(
+        pageArticles: [Article],
+        listID: Int64,
+        layout: SingleFeedWidgetLayout,
+        columns: Int,
+        currentPage: Int,
+        defaults: UserDefaults?,
+        database: DatabaseManager
+    ) async -> [ListWidgetArticle] {
+        // Skip network fetches when article set is unchanged, to avoid retrying failed downloads each wake.
+        let articleIDsMarker = pageArticles.map(\.id).map(String.init).joined(separator: ",")
+        let markerKey = "listWidgetMarker_\(listID)_\(layout.rawValue)_\(columns)_\(currentPage)"
+        let previousMarker = defaults?.string(forKey: markerKey)
+        let articleSetUnchanged = previousMarker == articleIDsMarker
+        defaults?.set(articleIDsMarker, forKey: markerKey)
+
+        let thumbnailCache = WidgetThumbnailCache(
+            scope: "list_\(listID)_\(layout.rawValue)_\(columns)"
+        )
+
+        var widgetArticles: [ListWidgetArticle] = []
+        for article in pageArticles {
+            let imageData = await resolveImageData(
+                urlString: article.imageURL,
+                articleID: article.id,
+                articleSetUnchanged: articleSetUnchanged,
+                thumbnailCache: thumbnailCache,
+                database: database
+            )
+            widgetArticles.append(ListWidgetArticle(
+                id: article.id,
+                title: article.title,
+                imageData: imageData,
+                publishedDate: article.publishedDate
+            ))
+        }
+        thumbnailCache.prune(keeping: pageArticles.map(\.id))
+        return widgetArticles
     }
 
     private func resolveImageData(

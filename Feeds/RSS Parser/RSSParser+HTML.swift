@@ -88,7 +88,6 @@ nonisolated extension RSSParser {
         return decoded.isEmpty ? nil : decoded
     }
 
-    /// Converts HTML to plain text, preserving structure with newlines and Markdown links.
     func cleanHTMLPreservingStructure(_ html: String, baseURL: URL? = nil) -> String? {
         guard html.contains("<") else {
             let decoded = decodeHTMLEntities(html).trimmingCharacters(in: .whitespacesAndNewlines)
@@ -127,7 +126,6 @@ nonisolated extension RSSParser {
         return result.isEmpty ? nil : result
     }
 
-    /// Converts `<a>` tags to Markdown links, resolving relative URLs against `baseURL`.
     private func convertLinksToMarkdown(_ text: String, baseURL: URL? = nil) -> String {
         guard let linkRegex = try? NSRegularExpression(
             pattern: #"<a\s[^>]*href=["']([^"']+)["'][^>]*>(.*?)</a>"#
@@ -164,7 +162,6 @@ nonisolated extension RSSParser {
         return result
     }
 
-    /// Converts inline HTML tags (headers, bold, italic, sup, sub, code) to Markdown.
     private func convertInlineMarkup(_ text: String) -> String {
         var result = text
 
@@ -248,7 +245,6 @@ nonisolated extension RSSParser {
         return nil
     }
 
-    /// Removes SUP/SUB markers whose content contains an invalid URL.
     func stripInvalidURLSupSub(_ text: String) -> String {
         let pattern = #"\{\{(SUP|SUB)\}\}(.+?)\{\{/(SUP|SUB)\}\}"#
         guard let regex = try? NSRegularExpression(pattern: pattern) else { return text }
@@ -276,7 +272,6 @@ nonisolated extension RSSParser {
         return result
     }
 
-    /// Converts `<pre>` blocks to `{{CODE}}...{{/CODE}}` markers.
     private func replacePreTagsWithMarkers(_ text: String) -> String {
         guard let regex = try? NSRegularExpression(
             pattern: #"<pre(?:\s[^>]*)?>(?:\s*<code(?:\s[^>]*)?>)?(.*?)(?:</code>\s*)?</pre>"#,
@@ -330,8 +325,8 @@ nonisolated extension RSSParser {
             "icon", "emoji", "smiley", "avatar",
             "ad.", "ads.", "doubleclick", "googlesyndication"
         ]
-        for pattern in skipPatterns {
-            if lowered.contains(pattern) { return false } // swiftlint:disable:this for_where
+        for pattern in skipPatterns where lowered.contains(pattern) {
+            return false
         }
         return true
     }

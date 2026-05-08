@@ -17,14 +17,14 @@ struct YouTubePlayerView: View {
 
     @State var isBookmarked = false
     @State var isPlaying = false
-    @State private var isPiPEligible = false
+    @State var isPiPEligible = false
     @State var webView: WKWebView?
     @State var isAd = false
     @State var isAdSkippable = false
-    @State private var advertiserURL: URL?
-    @State private var hasStartedPlaying = false
+    @State var advertiserURL: URL?
+    @State var hasStartedPlaying = false
     @State var isPiP = false
-    @State private var videoAspectRatio: CGFloat
+    @State var videoAspectRatio: CGFloat
     @State var feed: Feed?
     @State var icon: UIImage?
     @State var acronymIcon: UIImage?
@@ -35,7 +35,7 @@ struct YouTubePlayerView: View {
     @State var playerID = UUID()
 
     @AppStorage("YouTube.SponsorBlock.Enabled") var sponsorBlockEnabled = false
-    @AppStorage("YouTube.SponsorBlock.Categories") private var sponsorBlockCategories = "sponsor,selfpromo,interaction"
+    @AppStorage("YouTube.SponsorBlock.Categories") var sponsorBlockCategories = "sponsor,selfpromo,interaction"
     @State var sponsorSegments: [SponsorSegment] = []
     @State var skippedSegmentIDs: Set<String> = []
     @State var skippedSegmentMessage: String?
@@ -64,70 +64,7 @@ struct YouTubePlayerView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            YouTubePlayerWebView(
-                urlString: article.url,
-                isPlaying: $isPlaying,
-                webView: $webView,
-                isAd: $isAd,
-                isAdSkippable: $isAdSkippable,
-                advertiserURL: $advertiserURL,
-                videoAspectRatio: $videoAspectRatio,
-                isPiP: $isPiP,
-                chapters: $chapters,
-                onTimeUpdate: { newTime in
-                    YouTubePlayerSession.shared.currentTime = newTime
-                },
-                onDurationUpdate: { newDuration in
-                    YouTubePlayerSession.shared.duration = newDuration
-                }
-            )
-            .aspectRatio(videoAspectRatio, contentMode: .fit)
-            .clipped()
-            .overlay(alignment: .top) {
-                if let skippedSegmentMessage {
-                    Text(skippedSegmentMessage)
-                        .font(.caption.bold())
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 6)
-                        .background(.ultraThinMaterial, in: Capsule())
-                        .padding(.top, 8)
-                        .transition(.move(edge: .top).combined(with: .opacity))
-                }
-            }
-            .animation(.smooth.speed(2.0), value: skippedSegmentMessage)
-            .animation(.smooth.speed(2.0), value: isAd && isAdSkippable && !isPiP)
-            .overlay {
-                if isPiP {
-                    Color.black
-                        .overlay {
-                            VStack(spacing: 8) {
-                                Image(systemName: "pip")
-                                    .font(.largeTitle)
-                                Text(String(localized: "YouTube.PiP.Active", table: "Integrations"))
-                                    .font(.subheadline)
-                            }
-                            .foregroundStyle(.secondary)
-                        }
-                } else if !hasStartedPlaying {
-                    Color.black
-                        .overlay {
-                            ProgressView()
-                                .tint(.white)
-                        }
-                }
-            }
-            .overlay(alignment: .bottomLeading) {
-                if isAd && !isPiP && hasStartedPlaying {
-                    Text(String(localized: "YouTube.Ad.Label", table: "Integrations"))
-                        .font(.caption.bold())
-                        .padding(.horizontal, 10)
-                        .padding(.vertical, 4)
-                        .compatibleGlassEffect(in: .capsule)
-                        .padding(8)
-                        .transition(.opacity)
-                }
-            }
-            .animation(.smooth.speed(2.0), value: isAd && !isPiP && hasStartedPlaying)
+            playerVideoArea
 
             ScrollView(.vertical) {
                 VStack(spacing: 16) {
@@ -257,9 +194,10 @@ struct YouTubePlayerView: View {
             webView?.isUserInteractionEnabled = newValue
         }
         .background {
-            YouTubeTimeObserver(currentTime: { session.currentTime }) { newTime in
-                checkSponsorSegments(at: newTime)
-            }
+            YouTubeTimeObserver(
+                currentTime: { session.currentTime },
+                onTimeChange: { newTime in checkSponsorSegments(at: newTime) }
+            )
         }
         .onChange(of: videoAspectRatio) { _, newRatio in
             session.videoAspectRatio = newRatio
@@ -283,56 +221,7 @@ struct YouTubePlayerView: View {
                 session.clear()
             }
         }
-        .task {
-            activateBackgroundAudioSession()
-            isBookmarked = feedManager.isBookmarked(article)
-            session.adopt(article: article)
-            isPlaying = session.isPlaying
-            if session.isPlaying || session.duration > 0 {
-                hasStartedPlaying = true
-            }
-            let signedIn = await YouTubePlayerView.hasYouTubeSession()
-            let premium = signedIn ? await YouTubePlayerView.hasYouTubePremium() : false
-            isPiPEligible = signedIn && premium
-
-            if let loadedFeed = feedManager.feed(forArticle: article) {
-                feed = loadedFeed
-                session.channelTitle = loadedFeed.title
-                if let data = loadedFeed.acronymIcon {
-                    acronymIcon = UIImage(data: data)
-                }
-                icon = await IconCache.shared.icon(for: loadedFeed)
-            }
-            session.videoTitle = article.title
-            if let imageURL = article.imageURL.flatMap(URL.init(string:)) {
-                session.artworkURL = imageURL
-            }
-
-            if article.isEphemeral {
-                await fetchYouTubeOEmbed()
-            }
-
-            if sponsorBlockEnabled,
-               let videoID = SponsorBlockClient.extractVideoID(from: article.url) {
-                let categories = sponsorBlockCategories
-                    .split(separator: ",")
-                    .map(String.init)
-                sponsorSegments = await SponsorBlockClient.fetchSegments(
-                    for: videoID, categories: categories
-                )
-            }
-
-            if !article.isEphemeral,
-               let cached = try? DatabaseManager.shared.cachedArticleTranslation(for: article.id) {
-                if cached.text != nil { hasCachedTranslation = true }
-                translatedText = cached.text
-            }
-            if !article.isEphemeral,
-               let cached = try? DatabaseManager.shared.cachedArticleSummary(for: article.id),
-               !cached.isEmpty {
-                hasCachedSummary = true
-            }
-        }
+        .task { await initializePlayerSession() }
         .alert(String(localized: "Article.Summarize.Error", table: "Articles"), isPresented: Binding(
             get: { summarizationError != nil },
             set: { if !$0 { summarizationError = nil } }

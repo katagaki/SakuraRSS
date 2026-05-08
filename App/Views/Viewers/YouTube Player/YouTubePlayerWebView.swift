@@ -98,22 +98,30 @@ struct YouTubePlayerWebView: UIViewRepresentable {
 
     private func makeUserContentController(coordinator: Coordinator) -> WKUserContentController {
         let controller = WKUserContentController()
-        let scripts: [(String, WKUserScriptInjectionTime, Bool)] = [
-            (YouTubePlayerScripts.mediaIsolationBootstrap, .atDocumentStart, false),
-            (YouTubePlayerStyles.injectionScript(css: YouTubePlayerStyles.css), .atDocumentStart, true),
-            (YouTubePlayerScripts.pauseGuard, .atDocumentEnd, false),
-            (YouTubePlayerScripts.autoplayArmer, .atDocumentEnd, true),
-            (YouTubePlayerScripts.pipEventBridge, .atDocumentEnd, true),
-            (YouTubePlayerScripts.pipDisableOverride, .atDocumentStart, true),
-            (YouTubePlayerScripts.mediaSessionUserActionBridge, .atDocumentStart, true),
-            (YouTubePlayerScripts.pipAdControls, .atDocumentStart, true),
-            (YouTubePlayerScripts.playbackEventBridge, .atDocumentEnd, true)
+        let scripts: [InjectedUserScript] = [
+            .init(source: YouTubePlayerScripts.mediaIsolationBootstrap, time: .atDocumentStart, mainFrameOnly: false),
+            .init(
+                source: YouTubePlayerStyles.injectionScript(css: YouTubePlayerStyles.css),
+                time: .atDocumentStart,
+                mainFrameOnly: true
+            ),
+            .init(source: YouTubePlayerScripts.pauseGuard, time: .atDocumentEnd, mainFrameOnly: false),
+            .init(source: YouTubePlayerScripts.autoplayArmer, time: .atDocumentEnd, mainFrameOnly: true),
+            .init(source: YouTubePlayerScripts.pipEventBridge, time: .atDocumentEnd, mainFrameOnly: true),
+            .init(source: YouTubePlayerScripts.pipDisableOverride, time: .atDocumentStart, mainFrameOnly: true),
+            .init(
+                source: YouTubePlayerScripts.mediaSessionUserActionBridge,
+                time: .atDocumentStart,
+                mainFrameOnly: true
+            ),
+            .init(source: YouTubePlayerScripts.pipAdControls, time: .atDocumentStart, mainFrameOnly: true),
+            .init(source: YouTubePlayerScripts.playbackEventBridge, time: .atDocumentEnd, mainFrameOnly: true)
         ]
-        for (source, time, mainFrameOnly) in scripts {
+        for script in scripts {
             controller.addUserScript(WKUserScript(
-                source: source,
-                injectionTime: time,
-                forMainFrameOnly: mainFrameOnly
+                source: script.source,
+                injectionTime: script.time,
+                forMainFrameOnly: script.mainFrameOnly
             ))
         }
         if !autoplay {

@@ -17,14 +17,12 @@ extension YouTubePlaylistProvider {
 
         do {
             async let atomDates = fetchAtomPublishDates(playlistID: playlistID)
-
             let (data, _) = try await URLSession.shared.data(for: request)
             guard let html = String(data: data, encoding: .utf8) else {
-                print("[YouTubePlaylist] Could not decode response as UTF-8.")
+                log("YouTubePlaylist", "Could not decode response as UTF-8.")
                 _ = await atomDates
                 return empty
             }
-
             guard let ytData = Self.extractYTInitialData(from: html) else {
                 _ = await atomDates
                 return empty
@@ -33,42 +31,47 @@ extension YouTubePlaylistProvider {
             var videos = Self.parsePlaylistVideos(from: ytData)
             let title = Self.parsePlaylistTitle(from: ytData)
             let avatarURL = Self.parseChannelAvatarURL(from: ytData)
-
             let dates = await atomDates
-            if !dates.isEmpty {
-                videos = videos.map { video in
-                    var copy = video
-                    if let atomDate = dates[video.videoId] {
-                        copy.publishedDate = atomDate
-                    }
-                    return copy
-                }
-            }
-
-            let videoIDsNeedingPreciseDate = videos
-                .filter { dates[$0.videoId] == nil }
-                .map(\.videoId)
-            if !videoIDsNeedingPreciseDate.isEmpty {
-                let preciseDates = await fetchVideoPagePublishDates(
-                    videoIDs: videoIDsNeedingPreciseDate
-                )
-                if !preciseDates.isEmpty {
-                    videos = videos.map { video in
-                        var copy = video
-                        if let date = preciseDates[video.videoId] {
-                            copy.publishedDate = date
-                        }
-                        return copy
-                    }
-                }
-            }
+            videos = applyAtomPublishDates(to: videos, dates: dates)
+            videos = await applyPrecisePublishDatesIfNeeded(videos: videos, atomDates: dates)
 
             return YouTubePlaylistFetchResult(
                 videos: videos, playlistTitle: title, channelAvatarURL: avatarURL
             )
         } catch {
-            print("[YouTubePlaylist] Network request failed - \(error.localizedDescription)")
+            log("YouTubePlaylist", "Network request failed - \(error.localizedDescription)")
             return empty
+        }
+    }
+
+    private func applyAtomPublishDates(
+        to videos: [ParsedPlaylistVideo], dates: [String: Date]
+    ) -> [ParsedPlaylistVideo] {
+        guard !dates.isEmpty else { return videos }
+        return videos.map { video in
+            var copy = video
+            if let atomDate = dates[video.videoId] {
+                copy.publishedDate = atomDate
+            }
+            return copy
+        }
+    }
+
+    private func applyPrecisePublishDatesIfNeeded(
+        videos: [ParsedPlaylistVideo], atomDates: [String: Date]
+    ) async -> [ParsedPlaylistVideo] {
+        let videoIDsNeedingPreciseDate = videos
+            .filter { atomDates[$0.videoId] == nil }
+            .map(\.videoId)
+        guard !videoIDsNeedingPreciseDate.isEmpty else { return videos }
+        let preciseDates = await fetchVideoPagePublishDates(videoIDs: videoIDsNeedingPreciseDate)
+        guard !preciseDates.isEmpty else { return videos }
+        return videos.map { video in
+            var copy = video
+            if let date = preciseDates[video.videoId] {
+                copy.publishedDate = date
+            }
+            return copy
         }
     }
 
@@ -126,7 +129,7 @@ extension YouTubePlaylistProvider {
             guard let xml = String(data: data, encoding: .utf8) else { return [:] }
             return Self.parseAtomPublishDates(xml: xml)
         } catch {
-            print("[YouTubePlaylist] Atom feed fetch failed - \(error.localizedDescription)")
+            log("YouTubePlaylist", "Atom feed fetch failed - \(error.localizedDescription)")
             return [:]
         }
     }

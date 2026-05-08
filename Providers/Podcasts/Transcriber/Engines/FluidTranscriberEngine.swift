@@ -67,13 +67,53 @@ struct FluidTranscriberEngine: TranscriptionEngine {
 
     /// Groups per-token timings into sentence-level segments using the TDT decoder's timestamps.
     static func buildSegments(from timings: [TokenTiming]) -> [TranscriptSegment] {
-        var segments: [TranscriptSegment] = []
-        var buffer = ""
-        var segmentStart: TimeInterval?
-        var segmentEnd: TimeInterval = 0
-        var nextID = 0
+        var builder = SegmentBuilder()
+        for timing in timings {
+            builder.consume(timing)
+        }
+        builder.flush()
 
-        func flush() {
+        var segments = builder.segments
+        if segments.isEmpty {
+            segments = fallbackSingleSegment(from: timings) ?? []
+        }
+        return segments
+    }
+
+    private static func fallbackSingleSegment(
+        from timings: [TokenTiming]
+    ) -> [TranscriptSegment]? {
+        guard let first = timings.first, let last = timings.last else { return nil }
+        let text = timings
+            .map(\.token)
+            .joined()
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !text.isEmpty else { return nil }
+        return [TranscriptSegment(
+            id: 0,
+            start: first.startTime,
+            end: max(last.endTime, first.startTime + 0.001),
+            text: text
+        )]
+    }
+
+    private struct SegmentBuilder {
+        var segments: [TranscriptSegment] = []
+        private var buffer = ""
+        private var segmentStart: TimeInterval?
+        private var segmentEnd: TimeInterval = 0
+        private var nextID = 0
+
+        mutating func consume(_ timing: TokenTiming) {
+            if segmentStart == nil { segmentStart = timing.startTime }
+            buffer.append(timing.token)
+            segmentEnd = timing.endTime
+            if endsSentence(timing.token) {
+                flush()
+            }
+        }
+
+        mutating func flush() {
             let trimmed = buffer.trimmingCharacters(in: .whitespacesAndNewlines)
             guard !trimmed.isEmpty, let start = segmentStart else {
                 buffer = ""
@@ -92,39 +132,6 @@ struct FluidTranscriberEngine: TranscriptionEngine {
             buffer = ""
             segmentStart = nil
         }
-
-        for timing in timings {
-            if segmentStart == nil {
-                segmentStart = timing.startTime
-            }
-            buffer.append(timing.token)
-            segmentEnd = timing.endTime
-
-            if endsSentence(timing.token) {
-                flush()
-            }
-        }
-        flush()
-
-        // Fallback single-segment if no sentence punctuation was emitted.
-        if segments.isEmpty, let first = timings.first, let last = timings.last {
-            let text = timings
-                .map(\.token)
-                .joined()
-                .trimmingCharacters(in: .whitespacesAndNewlines)
-            if !text.isEmpty {
-                segments.append(
-                    TranscriptSegment(
-                        id: 0,
-                        start: first.startTime,
-                        end: max(last.endTime, first.startTime + 0.001),
-                        text: text
-                    )
-                )
-            }
-        }
-
-        return segments
     }
 
     private static func endsSentence(_ token: String) -> Bool {

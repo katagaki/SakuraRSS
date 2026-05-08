@@ -94,9 +94,10 @@ struct NewYouTubePlayerView: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbar { playerToolbar }
         .background {
-            YouTubeTimeObserver(currentTime: { playback.currentTime }) { newTime in
-                checkSponsorSegments(at: newTime)
-            }
+            YouTubeTimeObserver(
+                currentTime: { playback.currentTime },
+                onTimeChange: { newTime in checkSponsorSegments(at: newTime) }
+            )
         }
         .task { await loadStream() }
         #if !os(visionOS)
@@ -215,70 +216,4 @@ struct NewYouTubePlayerView: View {
         }
     }
 
-    #if !os(visionOS)
-    private func handleOrientationChange() {
-        let orientation = UIDevice.current.orientation
-        if orientation.isLandscape {
-            if !isFullscreenPresented {
-                isFullscreenPresented = true
-            }
-        } else if orientation.isPortrait {
-            if isFullscreenPresented {
-                isFullscreenPresented = false
-            }
-        }
-    }
-    #endif
-
-    private func loadStream() async {
-        isBookmarked = feedManager.isBookmarked(article)
-        if let loadedFeed = feedManager.feed(forArticle: article) {
-            feed = loadedFeed
-            if let data = loadedFeed.acronymIcon {
-                acronymIcon = UIImage(data: data)
-            }
-            icon = await IconCache.shared.icon(for: loadedFeed)
-        }
-
-        if sponsorBlockEnabled,
-           let videoID = SponsorBlockClient.extractVideoID(from: article.url) {
-            let categories = sponsorBlockCategories
-                .split(separator: ",")
-                .map(String.init)
-            sponsorSegments = await SponsorBlockClient.fetchSegments(
-                for: videoID, categories: categories
-            )
-        }
-
-        if !article.isEphemeral,
-           let cached = try? DatabaseManager.shared.cachedArticleTranslation(for: article.id) {
-            if cached.text != nil { hasCachedTranslation = true }
-            translatedText = cached.text
-        }
-        if !article.isEphemeral,
-           let cached = try? DatabaseManager.shared.cachedArticleSummary(for: article.id),
-           !cached.isEmpty {
-            hasCachedSummary = true
-        }
-
-        guard let videoId = NewYouTubeClient.parseVideoIdentifier(article.url) else {
-            loadState = .failed
-            return
-        }
-
-        if playback.currentVideoID == videoId, playback.player != nil {
-            loadState = .ready
-            return
-        }
-
-        do {
-            let client = try await NewYouTubeClient.bootstrap()
-            let masterURL = try await client.hlsMasterURL(videoId: videoId)
-            playback.load(url: masterURL, videoID: videoId)
-            loadState = .ready
-        } catch {
-            log("YT NewPlayer", "Failed to resolve stream: \(error)")
-            loadState = .failed
-        }
-    }
 }

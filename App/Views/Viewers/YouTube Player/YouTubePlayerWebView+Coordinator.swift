@@ -102,7 +102,8 @@ extension YouTubePlayerWebView {
             return .cancel
         }
 
-        nonisolated func userContentController(
+        @MainActor
+        func userContentController(
             _ userContentController: WKUserContentController,
             didReceive message: WKScriptMessage
         ) {
@@ -113,12 +114,12 @@ extension YouTubePlayerWebView {
             if message.name == YouTubePlayerScripts.pipMessageHandlerName {
                 guard let state = message.body as? String else { return }
                 let entered = (state == "enter")
-                Task { @MainActor in self.isPiP = entered }
+                isPiP = entered
                 return
             }
             if message.name == YouTubePlayerScripts.playbackMessageHandlerName,
                let event = PlaybackEvent(message: message) {
-                Task { @MainActor in self.apply(event) }
+                apply(event)
             }
         }
 
@@ -127,38 +128,61 @@ extension YouTubePlayerWebView {
             switch event.kind {
             case .play, .playing:
                 isPlaying = true
-                if let time = event.currentTime { onTimeUpdate?(time) }
-                if let eventDuration = event.duration, eventDuration > 0 { onDurationUpdate?(eventDuration) }
-            case .pause:
-                isPlaying = false
-                if let time = event.currentTime { onTimeUpdate?(time) }
-            case .buffering:
-                if let time = event.currentTime { onTimeUpdate?(time) }
+                applyTimeAndDuration(event)
+            case .pause, .buffering, .seek, .time:
+                if event.kind == .pause { isPlaying = false }
+                applyCurrentTime(event)
             case .ended:
                 isPlaying = false
-            case .seek, .time:
-                if let time = event.currentTime { onTimeUpdate?(time) }
             case .duration:
-                if let eventDuration = event.duration, eventDuration > 0 { onDurationUpdate?(eventDuration) }
+                applyDuration(event)
             case .rate:
                 break
             case .meta:
-                if let eventDuration = event.duration, eventDuration > 0 { onDurationUpdate?(eventDuration) }
-                if let width = event.videoWidth, let height = event.videoHeight,
-                   width > 0, height > 0 {
-                    let ratio = CGFloat(width / height)
-                    if abs(ratio - videoAspectRatio) > 0.01 {
-                        videoAspectRatio = ratio
-                    }
+                applyMeta(event)
+            case .advertisement:
+                applyAdvertisement(event)
+            }
+        }
+
+        @MainActor
+        private func applyCurrentTime(_ event: PlaybackEvent) {
+            if let time = event.currentTime { onTimeUpdate?(time) }
+        }
+
+        @MainActor
+        private func applyDuration(_ event: PlaybackEvent) {
+            if let eventDuration = event.duration, eventDuration > 0 {
+                onDurationUpdate?(eventDuration)
+            }
+        }
+
+        @MainActor
+        private func applyTimeAndDuration(_ event: PlaybackEvent) {
+            applyCurrentTime(event)
+            applyDuration(event)
+        }
+
+        @MainActor
+        private func applyMeta(_ event: PlaybackEvent) {
+            if let eventDuration = event.duration, eventDuration > 0 { onDurationUpdate?(eventDuration) }
+            if let width = event.videoWidth, let height = event.videoHeight,
+               width > 0, height > 0 {
+                let ratio = CGFloat(width / height)
+                if abs(ratio - videoAspectRatio) > 0.01 {
+                    videoAspectRatio = ratio
                 }
-            case .ad:
-                isAd = event.isAd ?? false
-                isAdSkippable = event.adSkippable ?? false
-                if let urlStr = event.advertiserURL, !urlStr.isEmpty {
-                    advertiserURL = URL(string: urlStr)
-                } else {
-                    advertiserURL = nil
-                }
+            }
+        }
+
+        @MainActor
+        private func applyAdvertisement(_ event: PlaybackEvent) {
+            isAd = event.isAd ?? false
+            isAdSkippable = event.adSkippable ?? false
+            if let urlStr = event.advertiserURL, !urlStr.isEmpty {
+                advertiserURL = URL(string: urlStr)
+            } else {
+                advertiserURL = nil
             }
         }
 

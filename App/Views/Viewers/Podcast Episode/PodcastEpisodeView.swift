@@ -27,22 +27,6 @@ struct PodcastEpisodeView: View {
     @State var showingTranscript: Bool = false
     @State var isTranscriptAutoScrolling: Bool = true
 
-    var isOffline: Bool {
-        !networkMonitor.isOnline
-    }
-
-    var downloadProgress: DownloadProgress? {
-        downloadManager.activeDownloads[article.id]
-    }
-
-    var canPlay: Bool {
-        isDownloaded || !isOffline
-    }
-
-    var canDownload: Bool {
-        !isDownloaded && !isOffline && downloadProgress == nil
-    }
-
     @State var translatedText: String?
     @State var translatedSummary: String?
     @State var isTranslating = false
@@ -56,35 +40,6 @@ struct PodcastEpisodeView: View {
     @State var hasCachedSummary = false
     @State var showingSummary = false
     @State var summarizationError: String?
-
-    var isAppleIntelligenceAvailable: Bool {
-        SystemLanguageModel.default.availability == .available
-    }
-
-    var hasTranslationForCurrentMode: Bool {
-        if showingSummary {
-            return translatedSummary != nil
-        }
-        return translatedText != nil
-    }
-
-    var displayText: String? {
-        guard let summary = article.summary, !summary.isEmpty else { return nil }
-        if showingSummary, let summarizedText {
-            if showingTranslation, let translatedSummary {
-                return translatedSummary
-            }
-            return summarizedText
-        }
-        if showingTranslation, let translatedText {
-            return translatedText
-        }
-        return summary
-    }
-
-    var isThisEpisode: Bool {
-        audioPlayer.currentArticleID == article.id
-    }
 
     var body: some View {
         ScrollViewReader { scrollProxy in
@@ -276,29 +231,7 @@ struct PodcastEpisodeView: View {
                 overflowMenu
             }
         }
-        .task {
-            feedManager.markRead(article)
-            if let feed = feedManager.feed(forArticle: article) {
-                feedName = feed.title
-                if let data = feed.acronymIcon {
-                    acronymIcon = UIImage(data: data)
-                }
-                icon = await IconCache.shared.icon(for: feed)
-            }
-            if let cached = try? DatabaseManager.shared.cachedArticleSummary(for: article.id),
-               !cached.isEmpty {
-                hasCachedSummary = true
-            }
-            if let cached = try? DatabaseManager.shared.cachedArticleTranslation(for: article.id),
-               let text = cached.text, !text.isEmpty {
-                translatedText = text
-            }
-            isDownloaded = downloadManager.isDownloaded(articleID: article.id)
-            if let cached = try? DatabaseManager.shared.cachedTranscript(for: article.id),
-               !cached.isEmpty {
-                transcript = cached
-            }
-        }
+        .task { await initializeEpisode() }
         .onChange(of: downloadProgress?.state) { _, newState in
             if newState == .completed || newState == nil {
                 isDownloaded = downloadManager.isDownloaded(articleID: article.id)

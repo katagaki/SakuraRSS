@@ -6,16 +6,16 @@ struct TodayView: View {
 
     @Environment(FeedManager.self) var feedManager
     @Environment(TodayManager.self) var todayManager
-    @AppStorage("Intelligence.ContentInsights.Enabled") private var contentInsightsEnabled: Bool = false
+    @AppStorage("Intelligence.ContentInsights.Enabled") var contentInsightsEnabled: Bool = false
 
-    @State private var sleptHasSummary = false
-    @State private var afternoonHasSummary = false
-    @State private var todayHasSummary = false
-    @State private var sleptVisible = false
-    @State private var afternoonVisible = false
-    @State private var todayVisible = false
+    @State var sleptHasSummary = false
+    @State var afternoonHasSummary = false
+    @State var todayHasSummary = false
+    @State var sleptVisible = false
+    @State var afternoonVisible = false
+    @State var todayVisible = false
 
-    @State private var summaryRefreshTrigger: Int = 0
+    @State var summaryRefreshTrigger: Int = 0
 
     var body: some View {
         ScrollView {
@@ -268,40 +268,4 @@ struct TodayView: View {
         .padding(.horizontal)
     }
 
-    // MARK: - Refresh
-
-    private var scopedRefreshState: ScopedRefreshState {
-        feedManager.scopedRefreshes["section.all"] ?? ScopedRefreshState()
-    }
-
-    private func startRefreshWithoutBlocking() {
-        guard !scopedRefreshState.hasActiveProgress else { return }
-        feedManager.flushDebouncedReads()
-        summaryRefreshTrigger += 1
-        let feeds = feedManager.feeds
-        let loadEntities = contentInsightsEnabled
-        Task { @MainActor in
-            await feedManager.refreshFeeds(scope: "section.all", feeds: feeds)
-            todayManager.load(
-                feeds: feedManager.feeds,
-                dataRevision: feedManager.dataRevision,
-                loadEntities: loadEntities
-            )
-        }
-    }
-
-    // MARK: - Data
-
-    private var filteredTopics: [(name: String, count: Int)] {
-        let topics = todayManager.allTopics.filter { $0.count > 1 }
-        let peopleCount = todayManager.allPeople.filter { $0.count > 1 }.count
-        let topicCap = max(0, min(topics.count, 20 - min(peopleCount, 10)))
-        return Array(topics.prefix(topicCap))
-    }
-
-    private var filteredPeople: [(name: String, count: Int)] {
-        let people = todayManager.allPeople.filter { $0.count > 1 }
-        let remaining = max(0, 20 - filteredTopics.count)
-        return Array(people.prefix(remaining))
-    }
 }

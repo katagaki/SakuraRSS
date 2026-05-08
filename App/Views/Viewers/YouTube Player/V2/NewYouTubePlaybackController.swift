@@ -1,12 +1,10 @@
 import AVFoundation
 import AVKit
 import Foundation
+import MediaPlayer
 import SwiftUI
 
 /// Controls and observes an `AVPlayer` for the experimental YouTube player.
-/// Implemented as a singleton so playback survives the player view being
-/// dismissed (audio continues in the background, Picture in Picture continues
-/// in the floating window).
 @MainActor
 @Observable
 final class NewYouTubePlaybackController: NSObject {
@@ -27,15 +25,20 @@ final class NewYouTubePlaybackController: NSObject {
 
     @ObservationIgnored var player: AVPlayer?
     @ObservationIgnored var currentVideoID: String?
+    @ObservationIgnored var nowPlayingTitle: String?
+    @ObservationIgnored var nowPlayingArtist: String?
+    @ObservationIgnored var nowPlayingArtworkURL: String?
+    @ObservationIgnored var cachedArtwork: MPMediaItemArtwork?
     @ObservationIgnored private var pictureInPictureController: AVPictureInPictureController?
+    @ObservationIgnored private var lastPostedElapsedTime: TimeInterval = -1
 
     @ObservationIgnored private var timeObserverToken: Any?
     @ObservationIgnored private var rateObservation: NSKeyValueObservation?
     @ObservationIgnored private var presentationSizeObservation: NSKeyValueObservation?
     @ObservationIgnored private var statusObservation: NSKeyValueObservation?
     @ObservationIgnored private var pipPossibleObservation: NSKeyValueObservation?
-    @ObservationIgnored private var audioGroup: AVMediaSelectionGroup?
-    @ObservationIgnored private var subtitleGroup: AVMediaSelectionGroup?
+    @ObservationIgnored var audioGroup: AVMediaSelectionGroup?
+    @ObservationIgnored var subtitleGroup: AVMediaSelectionGroup?
 
     var aspectRatio: CGFloat {
         guard videoSize.width > 0, videoSize.height > 0 else { return 16.0 / 9.0 }
@@ -46,8 +49,17 @@ final class NewYouTubePlaybackController: NSObject {
 
     /// Loads a new HLS stream for the given video. If the same video is already
     /// loaded, this is a no-op and the existing player keeps playing.
-    func load(url: URL, videoID: String) {
-        if currentVideoID == videoID, player != nil { return }
+    func load(
+        url: URL,
+        videoID: String,
+        title: String? = nil,
+        artist: String? = nil,
+        artworkURLString: String? = nil
+    ) {
+        if currentVideoID == videoID, player != nil {
+            applyMetadata(title: title, artist: artist, artworkURLString: artworkURLString)
+            return
+        }
         clear()
         YouTubeAudioSession.prepare()
         YouTubeAudioSession.activate()
@@ -60,7 +72,23 @@ final class NewYouTubePlaybackController: NSObject {
         newPlayer.setMediaSelectionCriteria(originalCriteria, forMediaCharacteristic: .audible)
         attach(player: newPlayer)
         currentVideoID = videoID
+        applyMetadata(title: title, artist: artist, artworkURLString: artworkURLString)
         newPlayer.play()
+    }
+
+    func updateMetadata(title: String?, artist: String?, artworkURLString: String?) {
+        applyMetadata(title: title, artist: artist, artworkURLString: artworkURLString)
+    }
+
+    private func applyMetadata(title: String?, artist: String?, artworkURLString: String?) {
+        nowPlayingTitle = title
+        nowPlayingArtist = artist
+        if nowPlayingArtworkURL != artworkURLString {
+            cachedArtwork = nil
+            nowPlayingArtworkURL = artworkURLString
+            loadArtwork(from: artworkURLString)
+        }
+        postNowPlayingUpdate()
     }
 
     /// Stops playback, releases the player, and deactivates the audio session.
@@ -73,6 +101,12 @@ final class NewYouTubePlaybackController: NSObject {
         pictureInPictureController = nil
         player = nil
         currentVideoID = nil
+        nowPlayingTitle = nil
+        nowPlayingArtist = nil
+        nowPlayingArtworkURL = nil
+        cachedArtwork = nil
+        lastPostedElapsedTime = -1
+        clearNowPlayingInfo()
         YouTubeAudioSession.deactivate()
     }
 
@@ -107,12 +141,17 @@ final class NewYouTubePlaybackController: NSObject {
                 let seconds = time.seconds
                 if seconds.isFinite {
                     self.currentTime = seconds
+                    if abs(seconds - self.lastPostedElapsedTime) >= 1.0 {
+                        self.lastPostedElapsedTime = seconds
+                        self.updateNowPlayingElapsedTime(seconds)
+                    }
                 }
                 if let item = player.currentItem {
                     let durationSeconds = item.duration.seconds
                     if durationSeconds.isFinite, durationSeconds > 0,
                        self.duration != durationSeconds {
                         self.duration = durationSeconds
+                        self.postNowPlayingUpdate()
                     }
                 }
             }
@@ -121,7 +160,9 @@ final class NewYouTubePlaybackController: NSObject {
         rateObservation = player.observe(\.rate, options: [.initial, .new]) { [weak self] observed, _ in
             let rate = observed.rate
             Task { @MainActor in
-                self?.isPlaying = rate > 0
+                guard let self else { return }
+                self.isPlaying = rate > 0
+                self.postNowPlayingUpdate()
             }
         }
 
@@ -147,70 +188,6 @@ final class NewYouTubePlaybackController: NSObject {
                 await self?.loadMediaSelectionOptions(for: observed)
             }
         }
-    }
-
-    private func loadMediaSelectionOptions(for item: AVPlayerItem) async {
-        let asset = item.asset
-        let audible = try? await asset.loadMediaSelectionGroup(for: .audible)
-        let legible = try? await asset.loadMediaSelectionGroup(for: .legible)
-
-        audioGroup = audible
-        subtitleGroup = legible
-        audioOptions = audible?.options ?? []
-        subtitleOptions = legible?.options ?? []
-
-        if let audible {
-            if let originalOption = await preferredOriginalAudioOption(in: audible) {
-                item.select(originalOption, in: audible)
-                currentAudioOption = originalOption
-            } else {
-                currentAudioOption = item.currentMediaSelection.selectedMediaOption(in: audible)
-            }
-        }
-        if let legible {
-            currentSubtitleOption = item.currentMediaSelection.selectedMediaOption(in: legible)
-        }
-    }
-
-    /// Finds the audio option that represents the video's original audio track.
-    /// Checks the explicit `isOriginalContent` characteristic first, then falls
-    /// back to a title match in the option's common metadata (YouTube
-    /// renditions are named like "English (United States) original" via the
-    /// HLS NAME attribute, which surfaces as the option's title metadata —
-    /// `displayName` returns the localized language name and is not reliable).
-    private func preferredOriginalAudioOption(
-        in group: AVMediaSelectionGroup
-    ) async -> AVMediaSelectionOption? {
-        if let original = group.options.first(where: {
-            $0.hasMediaCharacteristic(.isOriginalContent)
-        }) {
-            return original
-        }
-        for option in group.options {
-            if option.displayName.lowercased().contains("original") {
-                return option
-            }
-            let title = await audioOptionTitle(option)
-            if title.lowercased().contains("original") {
-                return option
-            }
-        }
-        return nil
-    }
-
-    private func audioOptionTitle(_ option: AVMediaSelectionOption) async -> String {
-        let titles = AVMetadataItem.metadataItems(
-            from: option.commonMetadata,
-            withKey: AVMetadataKey.commonKeyTitle,
-            keySpace: .common
-        )
-        var values: [String] = []
-        for item in titles {
-            if let value = try? await item.load(.stringValue) {
-                values.append(value)
-            }
-        }
-        return values.joined(separator: " ")
     }
 
     private func detachObservers() {
@@ -248,6 +225,7 @@ final class NewYouTubePlaybackController: NSObject {
         guard let player else { return }
         let target = CMTime(seconds: max(time, 0), preferredTimescale: 600)
         player.seek(to: target, toleranceBefore: .zero, toleranceAfter: .zero)
+        updateNowPlayingElapsedTime(max(time, 0))
     }
 
     func rewind(by seconds: TimeInterval = 10) {

@@ -3,16 +3,16 @@ import SwiftUI
 struct FollowingPage: View {
 
     @Environment(FeedManager.self) var feedManager
-    @State private var searchText = ""
-    @State private var isPresentingAddFeedSheet = false
-    @State private var isPresentingEditFeedSheet = false
-    @State private var feedToEdit: Feed?
-    @State private var feedToDelete: Feed?
-    @State private var isEditingFeeds = false
-    @State private var isSelectingFeeds = false
-    @State private var selectedFeedIDs: Set<Int64> = []
-    @State private var isPresentingBulkEditSheet = false
-    @State private var isPresentingBulkDeleteAlert = false
+    @State var searchText = ""
+    @State var isPresentingAddFeedSheet = false
+    @State var isPresentingEditFeedSheet = false
+    @State var feedToEdit: Feed?
+    @State var feedToDelete: Feed?
+    @State var isEditingFeeds = false
+    @State var isSelectingFeeds = false
+    @State var selectedFeedIDs: Set<Int64> = []
+    @State var isPresentingBulkEditSheet = false
+    @State var isPresentingBulkDeleteAlert = false
     @Namespace private var addFeedNamespace
     @Namespace private var feedEditNamespace
 
@@ -253,7 +253,11 @@ struct FollowingPage: View {
         }
     }
 
-    private func toggleSelection(_ feed: Feed) {
+}
+
+extension FollowingPage {
+
+    func toggleSelection(_ feed: Feed) {
         withAnimation(.smooth.speed(2.0)) {
             if selectedFeedIDs.contains(feed.id) {
                 selectedFeedIDs.remove(feed.id)
@@ -263,7 +267,7 @@ struct FollowingPage: View {
         }
     }
 
-    private func toggleSelectMode() {
+    func toggleSelectMode() {
         if isSelectingFeeds {
             isSelectingFeeds = false
             selectedFeedIDs = []
@@ -272,13 +276,13 @@ struct FollowingPage: View {
         }
     }
 
-    private func exitEditMode() {
+    func exitEditMode() {
         isSelectingFeeds = false
         selectedFeedIDs = []
         isEditingFeeds = false
     }
 
-    private func deleteSelectedFeeds() {
+    func deleteSelectedFeeds() {
         let feedsToDelete = selectedFeeds
         withAnimation(.smooth.speed(2.0)) {
             for feed in feedsToDelete {

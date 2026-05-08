@@ -6,9 +6,6 @@ protocol WebFeedProvider: FeedProvider {
     static func refresh(
         feed: Feed,
         on manager: FeedManager,
-        reloadData: Bool,
-        skipImagePreload: Bool,
-        runNLP: Bool,
-        contentOnly: Bool
+        options: FeedRefreshOptions
     ) async throws
 }

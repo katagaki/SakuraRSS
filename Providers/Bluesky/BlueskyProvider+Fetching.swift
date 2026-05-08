@@ -33,7 +33,7 @@ extension BlueskyProvider {
                   !did.isEmpty else { return nil }
             return did
         } catch {
-            print("[BlueskyProfile] resolveHandle failed - \(error.localizedDescription)")
+            log("BlueskyProfile", "resolveHandle failed - \(error.localizedDescription)")
             return nil
         }
     }
@@ -63,9 +63,8 @@ extension BlueskyProvider {
                 displayName: displayName
             )
         } catch {
-            print("[BlueskyProfile] getProfile failed - \(error.localizedDescription)")
+            log("BlueskyProfile", "getProfile failed - \(error.localizedDescription)")
             return nil
         }
     }
 }
-

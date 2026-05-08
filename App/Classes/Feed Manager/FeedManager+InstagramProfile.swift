@@ -5,7 +5,6 @@ extension FeedManager {
 
     // MARK: - Instagram Profile Feeds
 
-    // swiftlint:disable:next function_body_length
     func refreshInstagramFeed(
         _ feed: Feed,
         reloadData: Bool = true,
@@ -34,32 +33,11 @@ extension FeedManager {
         // swiftlint:disable:next line_length
         log("InstagramProfile", "fetched @\(handle) posts=\(result.posts.count) displayName=\(result.displayName ?? "nil")")
 
-        let postTuples = result.posts.map { post in
-            let title = post.text.isEmpty
-                ? "Post by @\(post.authorHandle)"
-                : String(post.text.prefix(200))
-            return ArticleInsertItem(
-                title: title,
-                url: post.url,
-                data: ArticleInsertData(
-                    author: post.author.isEmpty ? "@\(post.authorHandle)" : post.author,
-                    summary: post.text.isEmpty ? nil : post.text,
-                    imageURL: post.imageURL,
-                    carouselImageURLs: post.carouselImageURLs,
-                    publishedDate: post.publishedDate
-                )
-            )
-        }
-
+        let postTuples = Self.makeInstagramArticleItems(from: result.posts)
         let feedTitle = result.displayName ?? feed.title
-
-        var profileImage: UIImage?
-        if !contentOnly, feed.lastFetched == nil,
-           let imageURLString = result.profileImageURL,
-           let imageURL = URL(string: imageURLString),
-           let (imageData, _) = try? await IconCache.urlSession.data(from: imageURL) {
-            profileImage = UIImage(data: imageData)
-        }
+        let profileImage = await loadInstagramProfileImage(
+            result: result, feed: feed, contentOnly: contentOnly
+        )
 
         let database = database
         let feedID = feed.id
@@ -87,6 +65,39 @@ extension FeedManager {
             await loadFromDatabaseInBackground(animated: true)
         }
         log("InstagramProfile", "refresh end id=\(feed.id)")
+    }
+
+    private static func makeInstagramArticleItems(
+        from posts: [ParsedInstagramPost]
+    ) -> [ArticleInsertItem] {
+        posts.map { post in
+            let title = post.text.isEmpty
+                ? "Post by @\(post.authorHandle)"
+                : String(post.text.prefix(200))
+            return ArticleInsertItem(
+                title: title,
+                url: post.url,
+                data: ArticleInsertData(
+                    author: post.author.isEmpty ? "@\(post.authorHandle)" : post.author,
+                    summary: post.text.isEmpty ? nil : post.text,
+                    imageURL: post.imageURL,
+                    carouselImageURLs: post.carouselImageURLs,
+                    publishedDate: post.publishedDate
+                )
+            )
+        }
+    }
+
+    private func loadInstagramProfileImage(
+        result: InstagramProfileFetchResult, feed: Feed, contentOnly: Bool
+    ) async -> UIImage? {
+        guard !contentOnly, feed.lastFetched == nil,
+              let imageURLString = result.profileImageURL,
+              let imageURL = URL(string: imageURLString),
+              let (imageData, _) = try? await IconCache.urlSession.data(from: imageURL) else {
+            return nil
+        }
+        return UIImage(data: imageData)
     }
 
     var hasInstagramFeeds: Bool {

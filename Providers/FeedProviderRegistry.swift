@@ -3,7 +3,7 @@ import Foundation
 /// Routes stored feed URLs and profile URLs to the correct `FeedProvider`.
 nonisolated enum FeedProviderRegistry {
 
-    static let all: [any FeedProvider.Type] = [
+    nonisolated(unsafe) static let all: [any FeedProvider.Type] = [
         XProvider.self,
         InstagramProvider.self,
         YouTubePlaylistProvider.self,
@@ -42,8 +42,6 @@ nonisolated enum FeedProviderRegistry {
         return nil
     }
 
-    /// Returns the `CommentsProvider` that can supply comments for `article`
-    /// in `feed`, or `nil` if no provider matches.
     static func commentsProvider(
         for article: Article, in feed: Feed?
     ) -> (any CommentsProvider.Type)? {
@@ -58,15 +56,16 @@ nonisolated enum FeedProviderRegistry {
 
     // MARK: - Legacy Auth Cookies
 
-    /// Migrates WebKit cookies to Keychain for every enabled `Authenticated` provider.
+    @MainActor
     static func migrateAuthenticatedCookies() async {
-        await withTaskGroup(of: Void.self) { group in
-            for provider in all where provider.isEnabled {
-                guard let auth = provider as? any Authenticated.Type else { continue }
-                group.addTask { @MainActor in
-                    await auth.migrateWebKitCookiesIfNeeded()
-                }
+        let authenticatedProviders: [any Authenticated.Type] = all.compactMap { provider in
+            guard provider.isEnabled, let auth = provider as? any Authenticated.Type else {
+                return nil
             }
+            return auth
+        }
+        for auth in authenticatedProviders {
+            await auth.migrateWebKitCookiesIfNeeded()
         }
     }
 }

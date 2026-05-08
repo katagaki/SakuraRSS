@@ -68,61 +68,37 @@ enum ContentBlock: Identifiable {
     /// Strips Markdown formatting, returning plain text for content previews.
     nonisolated static func stripMarkdown(_ text: String) -> String {
         var result = text
-        result = result.replacingOccurrences(
-            of: #"\{\{IMG\}\}.+?\{\{/IMG\}\}"#, with: "", options: .regularExpression
-        )
-        result = result.replacingOccurrences(
-            of: #"\{\{IMGLINK\}\}.+?\{\{/IMGLINK\}\}"#, with: "", options: .regularExpression
-        )
-        result = result.replacingOccurrences(
-            of: #"\{\{VIDEO\}\}.+?\{\{/VIDEO\}\}"#, with: "", options: .regularExpression
-        )
-        result = result.replacingOccurrences(
-            of: #"\{\{AUDIO\}\}.+?\{\{/AUDIO\}\}"#, with: "", options: .regularExpression
-        )
-        result = result.replacingOccurrences(
-            of: #"\{\{YOUTUBE\}\}.+?\{\{/YOUTUBE\}\}"#, with: "", options: .regularExpression
-        )
-        result = result.replacingOccurrences(
-            of: #"\{\{XPOST\}\}.+?\{\{/XPOST\}\}"#, with: "", options: .regularExpression
-        )
-        result = result.replacingOccurrences(
-            of: #"\{\{EMBED\}\}.+?\{\{/EMBED\}\}"#, with: "", options: .regularExpression
-        )
-        result = result.replacingOccurrences(
-            of: #"(?s)\{\{TABLE\}\}.+?\{\{/TABLE\}\}"#, with: "", options: .regularExpression
-        )
-        result = result.replacingOccurrences(
-            of: #"\{\{MATH\}\}(.+?)\{\{/MATH\}\}"#, with: "$1", options: .regularExpression
-        )
+        for pattern in markdownStripPatterns {
+            result = result.replacingOccurrences(
+                of: pattern.pattern, with: pattern.replacement, options: .regularExpression
+            )
+        }
         result = result.replacingOccurrences(of: "{{CODE}}", with: "")
         result = result.replacingOccurrences(of: "{{/CODE}}", with: "")
-        result = result.replacingOccurrences(
-            of: #"\{\{SUP\}\}(.+?)\{\{/SUP\}\}"#, with: "$1", options: .regularExpression
-        )
-        result = result.replacingOccurrences(
-            of: #"\{\{SUB\}\}(.+?)\{\{/SUB\}\}"#, with: "$1", options: .regularExpression
-        )
-        result = result.replacingOccurrences(
-            of: #"\[((?:[^\]\\]|\\.)+)\]\([^)]+\)"#, with: "$1", options: .regularExpression
-        )
         result = result.replacingOccurrences(of: "\\[", with: "[")
         result = result.replacingOccurrences(of: "\\]", with: "]")
-        result = result.replacingOccurrences(
-            of: #"\*\*(.+?)\*\*"#, with: "$1", options: .regularExpression
-        )
-        result = result.replacingOccurrences(
-            of: #"\*(.+?)\*"#, with: "$1", options: .regularExpression
-        )
-        result = result.replacingOccurrences(
-            of: #"(?m)^#{1,6}\s+"#, with: "", options: .regularExpression
-        )
-        result = result.replacingOccurrences(
-            of: #"\n{3,}"#, with: "\n\n", options: .regularExpression
-        )
         result = ArticleMarker.unescape(result)
         return result.trimmingCharacters(in: .whitespacesAndNewlines)
     }
+
+    nonisolated private static let markdownStripPatterns: [(pattern: String, replacement: String)] = [
+        (#"\{\{IMG\}\}.+?\{\{/IMG\}\}"#, ""),
+        (#"\{\{IMGLINK\}\}.+?\{\{/IMGLINK\}\}"#, ""),
+        (#"\{\{VIDEO\}\}.+?\{\{/VIDEO\}\}"#, ""),
+        (#"\{\{AUDIO\}\}.+?\{\{/AUDIO\}\}"#, ""),
+        (#"\{\{YOUTUBE\}\}.+?\{\{/YOUTUBE\}\}"#, ""),
+        (#"\{\{XPOST\}\}.+?\{\{/XPOST\}\}"#, ""),
+        (#"\{\{EMBED\}\}.+?\{\{/EMBED\}\}"#, ""),
+        (#"(?s)\{\{TABLE\}\}.+?\{\{/TABLE\}\}"#, ""),
+        (#"\{\{MATH\}\}(.+?)\{\{/MATH\}\}"#, "$1"),
+        (#"\{\{SUP\}\}(.+?)\{\{/SUP\}\}"#, "$1"),
+        (#"\{\{SUB\}\}(.+?)\{\{/SUB\}\}"#, "$1"),
+        (#"\[((?:[^\]\\]|\\.)+)\]\([^)]+\)"#, "$1"),
+        (#"\*\*(.+?)\*\*"#, "$1"),
+        (#"\*(.+?)\*"#, "$1"),
+        (#"(?m)^#{1,6}\s+"#, ""),
+        (#"\n{3,}"#, "\n\n")
+    ]
 
     nonisolated static func parse(_ text: String) -> [ContentBlock] {
         let pattern = #"\{\{(IMG|CODE|VIDEO|AUDIO|YOUTUBE|XPOST|EMBED|TABLE|MATH)\}\}(.*?)\{\{/\1\}\}"#

@@ -11,24 +11,24 @@ extension XProvider {
         guard !queryIDsFetched else { return }
         queryIDsFetched = true
 
-        print("[XProvider:QueryIDs] Starting query ID fetch…")
+        log("XProvider:QueryIDs", "Starting query ID fetch…")
 
         await warmCookieStore()
 
         let cookies = await getHTTPCookies()
-        print("[XProvider:QueryIDs] Got \(cookies.count) cookies for x.com")
+        log("XProvider:QueryIDs", "Got \(cookies.count) cookies for x.com")
 
         await fetchQueryIDsFromBundle(cookies: cookies)
 
         if userByScreenNameQueryID == nil || userTweetsQueryID == nil
             || tweetDetailQueryID == nil || tweetResultByRestIdQueryID == nil {
-            print("[XProvider:QueryIDs] WARNING: Not all query IDs extracted. "
-                  + "UserByScreenName=\(userByScreenNameQueryID ?? "nil"), "
-                  + "UserTweets=\(userTweetsQueryID ?? "nil"), "
-                  + "TweetDetail=\(tweetDetailQueryID ?? "nil"), "
-                  + "TweetResultByRestId=\(tweetResultByRestIdQueryID ?? "nil")")
+            log("XProvider:QueryIDs", "WARNING: Not all query IDs extracted. "
+                + "UserByScreenName=\(userByScreenNameQueryID ?? "nil"), "
+                + "UserTweets=\(userTweetsQueryID ?? "nil"), "
+                + "TweetDetail=\(tweetDetailQueryID ?? "nil"), "
+                + "TweetResultByRestId=\(tweetResultByRestIdQueryID ?? "nil")")
         } else {
-            print("[XProvider:QueryIDs] All query IDs extracted successfully")
+            log("XProvider:QueryIDs", "All query IDs extracted successfully")
         }
     }
 
@@ -58,35 +58,35 @@ extension XProvider {
         do {
             let (data, _) = try await URLSession.shared.data(for: request)
             guard let html = String(data: data, encoding: .utf8) else {
-                print("[XProvider:QueryIDs] ERROR: Could not decode page HTML")
+                log("XProvider:QueryIDs", "ERROR: Could not decode page HTML")
                 return
             }
             pageHTML = html
-            print("[XProvider:QueryIDs] Fetched x.com HTML (\(html.count) chars)")
+            log("XProvider:QueryIDs", "Fetched x.com HTML (\(html.count) chars)")
         } catch {
-            print("[XProvider:QueryIDs] ERROR fetching x.com: \(error)")
+            log("XProvider:QueryIDs", "ERROR fetching x.com: \(error)")
             return
         }
 
         guard let bundleURL = extractMainBundleURL(from: pageHTML) else {
-            print("[XProvider:QueryIDs] ERROR: Could not find main bundle URL in HTML")
-            print("[XProvider:QueryIDs] HTML preview: \(pageHTML.prefix(2000))")
+            log("XProvider:QueryIDs", "ERROR: Could not find main bundle URL in HTML")
+            log("XProvider:QueryIDs", "HTML preview: \(pageHTML.prefix(2000))")
             return
         }
 
-        print("[XProvider:QueryIDs] Found main bundle: \(bundleURL)")
+        log("XProvider:QueryIDs", "Found main bundle: \(bundleURL)")
 
         let bundleText: String
         do {
             let (data, _) = try await URLSession.shared.data(for: .sakura(url: bundleURL))
             guard let text = String(data: data, encoding: .utf8) else {
-                print("[XProvider:QueryIDs] ERROR: Could not decode bundle JS")
+                log("XProvider:QueryIDs", "ERROR: Could not decode bundle JS")
                 return
             }
             bundleText = text
-            print("[XProvider:QueryIDs] Fetched bundle (\(text.count) chars)")
+            log("XProvider:QueryIDs", "Fetched bundle (\(text.count) chars)")
         } catch {
-            print("[XProvider:QueryIDs] ERROR fetching bundle: \(error)")
+            log("XProvider:QueryIDs", "ERROR fetching bundle: \(error)")
             return
         }
 
@@ -124,16 +124,16 @@ extension XProvider {
             switch name {
             case "UserByScreenName" where userByScreenNameQueryID == nil:
                 userByScreenNameQueryID = queryID
-                print("[XProvider:QueryIDs] OK: UserByScreenName: \(queryID)")
+                log("XProvider:QueryIDs", "OK: UserByScreenName: \(queryID)")
             case "UserTweets" where userTweetsQueryID == nil:
                 userTweetsQueryID = queryID
-                print("[XProvider:QueryIDs] OK: UserTweets: \(queryID)")
+                log("XProvider:QueryIDs", "OK: UserTweets: \(queryID)")
             case "TweetDetail" where tweetDetailQueryID == nil:
                 tweetDetailQueryID = queryID
-                print("[XProvider:QueryIDs] OK: TweetDetail: \(queryID)")
+                log("XProvider:QueryIDs", "OK: TweetDetail: \(queryID)")
             case "TweetResultByRestId" where tweetResultByRestIdQueryID == nil:
                 tweetResultByRestIdQueryID = queryID
-                print("[XProvider:QueryIDs] OK: TweetResultByRestId: \(queryID)")
+                log("XProvider:QueryIDs", "OK: TweetResultByRestId: \(queryID)")
             default:
                 break
             }

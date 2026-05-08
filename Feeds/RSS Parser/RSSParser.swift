@@ -70,13 +70,15 @@ nonisolated final class RSSParser: NSObject, XMLParserDelegate, @unchecked Senda
 
     // MARK: - XMLParserDelegate
 
-    // swiftlint:disable cyclomatic_complexity
     func parser(_: XMLParser, didStartElement elementName: String,
                 namespaceURI _: String?, qualifiedName _: String?,
                 attributes attributeDict: [String: String] = [:]) {
         currentElement = elementName
         currentAttributes = attributeDict
+        handleStartElement(elementName, attributes: attributeDict)
+    }
 
+    private func handleStartElement(_ elementName: String, attributes attributeDict: [String: String]) {
         switch elementName {
         case "rss":
             break
@@ -95,6 +97,13 @@ nonisolated final class RSSParser: NSObject, XMLParserDelegate, @unchecked Senda
             if let url = attributeDict["url"] {
                 currentImageURL = url
             }
+        default:
+            handleITunesElement(elementName, attributes: attributeDict)
+        }
+    }
+
+    private func handleITunesElement(_ elementName: String, attributes attributeDict: [String: String]) {
+        switch elementName {
         case "itunes:type" where !isInsideItem,
              "itunes:author" where !isInsideItem,
              "itunes:owner" where !isInsideItem:
@@ -107,7 +116,6 @@ nonisolated final class RSSParser: NSObject, XMLParserDelegate, @unchecked Senda
             break
         }
     }
-    // swiftlint:enable cyclomatic_complexity
 
     private func resetItemState() {
         currentTitle = ""

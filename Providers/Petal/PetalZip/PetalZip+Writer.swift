@@ -28,11 +28,13 @@ nonisolated extension PetalZip {
 
             appendCentralDirectoryHeader(
                 to: &centralDirectory,
-                nameBytes: nameBytes,
-                nameLength: nameLength,
-                crc: crc,
-                size: size,
-                localHeaderOffset: offset
+                entry: CentralDirectoryEntry(
+                    nameBytes: nameBytes,
+                    nameLength: nameLength,
+                    crc: crc,
+                    size: size,
+                    localHeaderOffset: offset
+                )
             )
 
             entryCount += 1
@@ -75,15 +77,23 @@ nonisolated extension PetalZip {
         output.append(contentsOf: nameBytes)
     }
 
-    // swiftlint:disable:next function_parameter_count
+    private struct CentralDirectoryEntry {
+        let nameBytes: [UInt8]
+        let nameLength: UInt16
+        let crc: UInt32
+        let size: UInt32
+        let localHeaderOffset: UInt32
+    }
+
     private static func appendCentralDirectoryHeader(
         to centralDirectory: inout Data,
-        nameBytes: [UInt8],
-        nameLength: UInt16,
-        crc: UInt32,
-        size: UInt32,
-        localHeaderOffset: UInt32
+        entry: CentralDirectoryEntry
     ) {
+        let nameBytes = entry.nameBytes
+        let nameLength = entry.nameLength
+        let crc = entry.crc
+        let size = entry.size
+        let localHeaderOffset = entry.localHeaderOffset
         centralDirectory.appendLE(Signatures.centralDirectoryHeader)
         centralDirectory.appendLE(UInt16(20))  // version made by
         centralDirectory.appendLE(UInt16(20))  // version needed

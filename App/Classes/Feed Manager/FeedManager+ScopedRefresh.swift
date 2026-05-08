@@ -2,7 +2,6 @@ import Foundation
 
 extension FeedManager {
 
-    // swiftlint:disable function_body_length
     /// Refreshes the supplied feeds and tracks progress under `scope` so each
     /// home section, list, or feed view can show its own donut without
     /// stepping on the global refresh counters used by background refresh.
@@ -29,25 +28,48 @@ extension FeedManager {
             )
         }
 
-        let effectiveSkipPreload: Bool
-        if let skipImagePreload {
-            effectiveSkipPreload = skipImagePreload
-        } else {
-            let preloadModeRaw = UserDefaults.standard.string(
-                forKey: "FeedRefresh.PreloadArticleImagesMode"
-            )
-            let preloadMode = preloadModeRaw
-                .flatMap(FetchImagesMode.init(rawValue:)) ?? .wifiOnly
-            switch preloadMode {
-            case .always: effectiveSkipPreload = false
-            case .wifiOnly: effectiveSkipPreload = await NetworkMonitor.currentPathIsExpensive() ?? true
-            case .off: effectiveSkipPreload = true
-            }
-        }
-
+        let effectiveSkipPreload = await resolveScopedSkipPreload(skipImagePreload: skipImagePreload)
         let queues = partitionRefreshQueues(feeds)
 
-        let work = Task { [weak self] in
+        let work = makeScopedRefreshTask(
+            scope: scope,
+            queues: queues,
+            effectiveSkipPreload: effectiveSkipPreload,
+            runNLP: runNLP
+        )
+        await MainActor.run { self.scopedRefreshTasks[scope] = work }
+        _ = await work.value
+        await loadFromDatabaseInBackground(animated: true)
+        await MainActor.run {
+            var updatedTimestamps = self.scopedLastRefreshedAt
+            updatedTimestamps[scope] = Date()
+            self.scopedLastRefreshedAt = updatedTimestamps
+            self.scopedRefreshes[scope] = nil
+            self.scopedRefreshTasks[scope] = nil
+        }
+        log("FeedRefresh.Scoped", "end scope=\(scope)")
+    }
+
+    private func resolveScopedSkipPreload(skipImagePreload: Bool?) async -> Bool {
+        if let skipImagePreload { return skipImagePreload }
+        let preloadModeRaw = UserDefaults.standard.string(
+            forKey: "FeedRefresh.PreloadArticleImagesMode"
+        )
+        let preloadMode = preloadModeRaw.flatMap(FetchImagesMode.init(rawValue:)) ?? .wifiOnly
+        switch preloadMode {
+        case .always: return false
+        case .wifiOnly: return await NetworkMonitor.currentPathIsExpensive() ?? true
+        case .off: return true
+        }
+    }
+
+    private func makeScopedRefreshTask(
+        scope: String,
+        queues: FeedRefreshQueues,
+        effectiveSkipPreload: Bool,
+        runNLP: Bool
+    ) -> Task<Void, Never> {
+        Task { [weak self] in
             guard let self else { return }
             async let regular: Void = self.runScopedBoundedRefresh(
                 queues.regular,
@@ -79,19 +101,7 @@ extension FeedManager {
             )
             _ = await (regular, slow, xRefresh, instagramRefresh)
         }
-        await MainActor.run { self.scopedRefreshTasks[scope] = work }
-        _ = await work.value
-        await loadFromDatabaseInBackground(animated: true)
-        await MainActor.run {
-            var updatedTimestamps = self.scopedLastRefreshedAt
-            updatedTimestamps[scope] = Date()
-            self.scopedLastRefreshedAt = updatedTimestamps
-            self.scopedRefreshes[scope] = nil
-            self.scopedRefreshTasks[scope] = nil
-        }
-        log("FeedRefresh.Scoped", "end scope=\(scope)")
     }
-    // swiftlint:enable function_body_length
 
     @MainActor
     func cancelScopedRefresh(scope: String) {

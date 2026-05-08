@@ -9,7 +9,7 @@ struct DetachedYouTubePlayerWindow: View {
     var body: some View {
         if let articleID, let article = feedManager.article(byID: articleID) {
             NavigationStack {
-                if NewYouTubePlayerToggleStore.shared.isEnabled {
+                if FeatureFlagStore.shared.isEnabled(.nextgenYouTubePlayer) {
                     NewYouTubePlayerView(article: article, showsDismissButton: false)
                 } else {
                     YouTubePlayerView(article: article, showsDismissButton: false)

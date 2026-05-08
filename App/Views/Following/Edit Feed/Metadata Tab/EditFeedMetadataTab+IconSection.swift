@@ -1,6 +1,7 @@
 import PhotosUI
 import SwiftUI
 
+@MainActor
 extension EditFeedMetadataTab {
 
     @ViewBuilder
@@ -74,11 +75,12 @@ extension EditFeedMetadataTab {
     }
 
     private var photosPickerRow: some View {
-        PhotosPicker(selection: $selectedPhoto, matching: .images) {
+        let hasCustomIcon = customIconImage != nil
+        return PhotosPicker(selection: $selectedPhoto, matching: .images) {
             HStack {
                 Text(String(localized: "FeedEdit.ChooseFromPhotos", table: "Feeds"))
                 Spacer()
-                if customIconImage != nil {
+                if hasCustomIcon {
                     Image(systemName: "checkmark.circle.fill")
                         .foregroundStyle(.green)
                 }

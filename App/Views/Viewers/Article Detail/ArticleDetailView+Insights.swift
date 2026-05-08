@@ -228,25 +228,9 @@ extension ArticleDetailView {
         let database = DatabaseManager.shared
 
         if (try? database.isSimilarComputed(articleId: currentArticle.id)) == true {
-            if let cached = try? database.cachedSimilarArticleIDs(forSourceID: currentArticle.id),
-               !cached.isEmpty {
-                var results: [SimilarMatchData] = []
-                results.reserveCapacity(cached.count)
-                for entry in cached {
-                    guard let matchArticle = try? database.article(byID: entry.id) else { continue }
-                    let feed = feedsLookup[matchArticle.feedID]
-                    let sentiment = try? database.sentimentScore(for: entry.id)
-                    results.append(SimilarMatchData(
-                        article: matchArticle,
-                        feedName: feed?.title ?? "",
-                        feed: feed,
-                        sentiment: sentiment
-                    ))
-                }
-                return results
-            }
-            // Empty cache means computed earlier with no matches; skip recompute.
-            return []
+            return cachedSimilarMatches(
+                articleID: currentArticle.id, feedsLookup: feedsLookup, database: database
+            )
         }
 
         guard let candidates = try? database.articlesInWindow(
@@ -256,19 +240,7 @@ extension ArticleDetailView {
             return []
         }
 
-        if (try? database.isEntitiesProcessed(articleId: currentArticle.id)) != true {
-            let sourceText = [currentArticle.title, currentArticle.summary ?? ""]
-                .filter { !$0.isEmpty }
-                .joined(separator: " ")
-            let extracted = NLPProcessor.extractEntities(from: sourceText)
-            if !extracted.isEmpty {
-                try? database.insertEntities(
-                    extracted.map { (name: $0.name, type: $0.type) },
-                    for: currentArticle.id
-                )
-            }
-            try? database.markEntitiesProcessed(articleId: currentArticle.id)
-        }
+        ensureEntitiesProcessed(for: currentArticle, database: database)
 
         let sourceEntities: Set<String> = (try? database.entities(forArticleID: currentArticle.id))
             .map { Set($0.map { $0.name.lowercased() }) } ?? []
@@ -306,6 +278,49 @@ extension ArticleDetailView {
             ))
         }
         return results
+    }
+
+    fileprivate nonisolated static func cachedSimilarMatches(
+        articleID: Int64, feedsLookup: [Int64: Feed], database: DatabaseManager
+    ) -> [SimilarMatchData] {
+        guard let cached = try? database.cachedSimilarArticleIDs(forSourceID: articleID),
+              !cached.isEmpty else {
+            // Empty cache means computed earlier with no matches; skip recompute.
+            return []
+        }
+        var results: [SimilarMatchData] = []
+        results.reserveCapacity(cached.count)
+        for entry in cached {
+            guard let matchArticle = try? database.article(byID: entry.id) else { continue }
+            let feed = feedsLookup[matchArticle.feedID]
+            let sentiment = try? database.sentimentScore(for: entry.id)
+            results.append(SimilarMatchData(
+                article: matchArticle,
+                feedName: feed?.title ?? "",
+                feed: feed,
+                sentiment: sentiment
+            ))
+        }
+        return results
+    }
+
+    fileprivate nonisolated static func ensureEntitiesProcessed(
+        for currentArticle: Article, database: DatabaseManager
+    ) {
+        guard (try? database.isEntitiesProcessed(articleId: currentArticle.id)) != true else {
+            return
+        }
+        let sourceText = [currentArticle.title, currentArticle.summary ?? ""]
+            .filter { !$0.isEmpty }
+            .joined(separator: " ")
+        let extracted = NLPProcessor.extractEntities(from: sourceText)
+        if !extracted.isEmpty {
+            try? database.insertEntities(
+                extracted.map { (name: $0.name, type: $0.type) },
+                for: currentArticle.id
+            )
+        }
+        try? database.markEntitiesProcessed(articleId: currentArticle.id)
     }
 }
 

@@ -104,7 +104,7 @@ nonisolated enum FediverseDetector {
     /// discovery host. The host check guards against malformed `.well-known`
     /// payloads pointing the probe at an unrelated origin.
     private static func pickNodeInfoURL(
-        from links: [NodeInfoDiscovery.Link],
+        from links: [NodeInfoLink],
         host: String
     ) -> URL? {
         for rel in nodeInfoRels {
@@ -162,19 +162,21 @@ nonisolated enum FediverseDetector {
         case inconclusive(reason: String)
     }
 
+    private struct NodeInfoLink: Decodable {
+        let rel: String
+        let href: String
+    }
+
     private struct NodeInfoDiscovery: Decodable {
-        struct Link: Decodable {
-            let rel: String
-            let href: String
-        }
-        let links: [Link]
+        let links: [NodeInfoLink]
+    }
+
+    private struct NodeInfoSoftware: Decodable {
+        let name: String
     }
 
     private struct NodeInfoDocument: Decodable {
-        struct Software: Decodable {
-            let name: String
-        }
-        let software: Software
+        let software: NodeInfoSoftware
     }
 
     private actor HostCache {

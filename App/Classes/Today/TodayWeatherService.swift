@@ -31,17 +31,17 @@ final class TodayWeatherService {
 
     static let dailyLocationChangeLimit: Int = 3
 
-    private static let cacheKey = "Today.Weather.Cache"
-    private static let locationKey = "Today.Weather.Location"
-    private static let changeCountKey = "Today.Weather.LocationChangeCount"
-    private static let changeResetDateKey = "Today.Weather.LocationChangeResetDate"
-    private static let cacheLifetime: TimeInterval = 60 * 60
+    static let cacheKey = "Today.Weather.Cache"
+    static let locationKey = "Today.Weather.Location"
+    static let changeCountKey = "Today.Weather.LocationChangeCount"
+    static let changeResetDateKey = "Today.Weather.LocationChangeResetDate"
+    static let cacheLifetime: TimeInterval = 60 * 60
 
     var weather: TodayWeather?
     var isFetching: Bool = false
     var lastError: String?
     var locationAuthorizationStatus: CLAuthorizationStatus = .notDetermined
-    private(set) var locationChangesToday: Int = 0
+    var locationChangesToday: Int = 0
 
     var remainingLocationChanges: Int {
         max(0, Self.dailyLocationChangeLimit - locationChangesToday)
@@ -143,15 +143,7 @@ final class TodayWeatherService {
             log("Weather", "refresh skipped: already in flight")
             return
         }
-        if !force, let weather {
-            let age = Int(Date().timeIntervalSince(weather.fetchedAt))
-            if age < Int(Self.cacheLifetime) {
-                log("Weather",
-                    "cache hit (refresh non-forced): region=\(weather.regionName) "
-                    + "age=\(age)s/\(Int(Self.cacheLifetime))s, skipping fetch")
-                return
-            }
-        }
+        if !force, isCacheFresh() { return }
         isFetching = true
         defer { isFetching = false }
 
@@ -167,12 +159,7 @@ final class TodayWeatherService {
                 resolved.regionName ?? "<nil>"
             ))
             let current = try await weatherService.weather(for: resolved.location).currentWeather
-            let regionName: String
-            if let saved = resolved.regionName, !saved.isEmpty {
-                regionName = saved
-            } else {
-                regionName = await reverseGeocode(resolved.location) ?? ""
-            }
+            let regionName = await resolveRegionName(saved: resolved.regionName, location: resolved.location)
             let snapshot = TodayWeather(
                 temperatureCelsius: current.temperature.converted(to: .celsius).value,
                 symbolName: current.symbolName,
@@ -194,6 +181,21 @@ final class TodayWeatherService {
             // Keep the previous cached value so the UI doesn't flash empty;
             // visibility logic only hides the panel when `weather` is nil.
         }
+    }
+
+    private func isCacheFresh() -> Bool {
+        guard let weather else { return false }
+        let age = Int(Date().timeIntervalSince(weather.fetchedAt))
+        guard age < Int(Self.cacheLifetime) else { return false }
+        log("Weather",
+            "cache hit (refresh non-forced): region=\(weather.regionName) "
+            + "age=\(age)s/\(Int(Self.cacheLifetime))s, skipping fetch")
+        return true
+    }
+
+    private func resolveRegionName(saved: String?, location: CLLocation) async -> String {
+        if let saved, !saved.isEmpty { return saved }
+        return await reverseGeocode(location) ?? ""
     }
 
     // MARK: - Location Resolution
@@ -297,52 +299,6 @@ final class TodayWeatherService {
         continuation?.resume(returning: location)
     }
 
-    // MARK: - Cache
-
-    private static func loadCache() -> TodayWeather? {
-        guard let data = UserDefaults.standard.data(forKey: cacheKey),
-              let decoded = try? JSONDecoder().decode(TodayWeather.self, from: data) else {
-            return nil
-        }
-        return decoded
-    }
-
-    private static func saveCache(_ snapshot: TodayWeather) {
-        if let data = try? JSONEncoder().encode(snapshot) {
-            UserDefaults.standard.set(data, forKey: cacheKey)
-        }
-    }
-
-    private func invalidateCache() {
-        weather = nil
-        UserDefaults.standard.removeObject(forKey: Self.cacheKey)
-    }
-
-    // MARK: - Daily Change Limit
-
-    private func loadLocationChangeCount() {
-        let now = Date()
-        if let stored = UserDefaults.standard.object(forKey: Self.changeResetDateKey) as? Date,
-           Calendar.current.isDate(stored, inSameDayAs: now) {
-            locationChangesToday = UserDefaults.standard.integer(forKey: Self.changeCountKey)
-        } else {
-            locationChangesToday = 0
-            UserDefaults.standard.removeObject(forKey: Self.changeCountKey)
-            UserDefaults.standard.removeObject(forKey: Self.changeResetDateKey)
-        }
-    }
-
-    private func recordLocationChange() {
-        let now = Date()
-        if let stored = UserDefaults.standard.object(forKey: Self.changeResetDateKey) as? Date,
-           Calendar.current.isDate(stored, inSameDayAs: now) {
-            locationChangesToday += 1
-        } else {
-            locationChangesToday = 1
-            UserDefaults.standard.set(now, forKey: Self.changeResetDateKey)
-        }
-        UserDefaults.standard.set(locationChangesToday, forKey: Self.changeCountKey)
-    }
 }
 
 private final class LocationDelegate: NSObject, CLLocationManagerDelegate, @unchecked Sendable {

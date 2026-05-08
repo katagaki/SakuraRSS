@@ -5,7 +5,6 @@ extension FeedManager {
 
     // MARK: - Petal Feed Lifecycle
 
-    /// Creates a feed backed by a Petal recipe; the feed URL is `petal://<siteURL>`.
     @discardableResult
     func addPetalFeed(
         recipe: PetalRecipe,
@@ -32,7 +31,6 @@ extension FeedManager {
         return feed
     }
 
-    /// Updates the backing recipe for an existing Petal feed.
     func updatePetalRecipe(
         feed: Feed,
         recipe: PetalRecipe
@@ -55,8 +53,6 @@ extension FeedManager {
         }
     }
 
-    // swiftlint:disable function_body_length
-    /// Mirror of `refreshFeed(_:)` that drives `PetalEngine` instead of the RSS path.
     func refreshPetalFeed(
         _ feed: Feed,
         reloadData: Bool,
@@ -87,22 +83,8 @@ extension FeedManager {
         let database = database
         let feedID = feed.id
         let feedTitle = feed.title
+        let articleItems = Self.makePetalArticleItems(from: parsed)
         try await Task.detached {
-            let articleItems = parsed.map { article in
-                ArticleInsertItem(
-                    title: article.title,
-                    url: article.url,
-                    data: ArticleInsertData(
-                        author: article.author,
-                        summary: article.summary,
-                        content: article.content,
-                        imageURL: article.imageURL,
-                        publishedDate: article.publishedDate ?? Date(),
-                        audioURL: article.audioURL,
-                        duration: article.duration
-                    )
-                )
-            }
             let insertedIDs = (try? database.insertArticles(
                 feedID: feedID, articles: articleItems
             )) ?? []
@@ -121,5 +103,22 @@ extension FeedManager {
         }
         log("Petal", "refresh end id=\(feed.id)")
     }
-    // swiftlint:enable function_body_length
+
+    private static func makePetalArticleItems(from parsed: [ParsedArticle]) -> [ArticleInsertItem] {
+        parsed.map { article in
+            ArticleInsertItem(
+                title: article.title,
+                url: article.url,
+                data: ArticleInsertData(
+                    author: article.author,
+                    summary: article.summary,
+                    content: article.content,
+                    imageURL: article.imageURL,
+                    publishedDate: article.publishedDate ?? Date(),
+                    audioURL: article.audioURL,
+                    duration: article.duration
+                )
+            )
+        }
+    }
 }

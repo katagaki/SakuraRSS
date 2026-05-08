@@ -84,52 +84,11 @@ struct FeedArticlesView: View {
         return articles
     }
 
-    private func reloadPreloadedEntries() {
-        preloadedEntries = feedManager.preloadedArticleEntries(
-            for: feed,
-            requireUnread: hideViewedContent
-        )
-        if hideViewedContent, visibility.visibleIDs == nil, !preloadedEntries.isEmpty {
-            visibility.capture(from: rawArticles, isEnabled: hideViewedContent)
-        }
-    }
-
-    private func performRefresh() async {
-        // swiftlint:disable:next line_length
-        log("FeedArticlesView", "performRefresh id=\(feed.id) title=\(feed.title) scopeActive=\(scopedRefreshState.hasActiveProgress)")
-        guard !scopedRefreshState.hasActiveProgress else { return }
-        feedManager.flushDebouncedReads()
-        withAnimation(.smooth.speed(2.0)) {
-            visibility.beginRefresh(
-                from: rawArticles,
-                isEnabled: hideViewedContent,
-                recaptureVisible: true
-            )
-        }
-        await feedManager.refreshFeeds(
-            scope: scopeKey,
-            feeds: [feed],
-            skipImagePreload: false,
-            runNLP: true
-        )
-        withAnimation(.smooth.speed(2.0)) {
-            visibility.endRefresh(from: rawArticles, isEnabled: hideViewedContent)
-        }
-        log("FeedArticlesView", "performRefresh end id=\(feed.id)")
-    }
-
-    private func acceptPendingRefresh() {
-        withAnimation(.smooth.speed(2.0)) {
-            visibility.acceptPendingRefresh()
-        }
-        scrollToTopTick &+= 1
-    }
-
-    private var styleSupportsRichHeader: Bool {
+    var styleSupportsRichHeader: Bool {
         effectiveDisplayStyle?.supportsRichHeader ?? true
     }
 
-    private var showsPrincipalTitle: Bool {
+    var showsPrincipalTitle: Bool {
         !styleSupportsRichHeader || hasScrolledPastTitle
     }
 
@@ -293,14 +252,59 @@ struct FeedArticlesView: View {
         }
     }
 
+}
+
+extension FeedArticlesView {
+
+    func reloadPreloadedEntries() {
+        preloadedEntries = feedManager.preloadedArticleEntries(
+            for: feed,
+            requireUnread: hideViewedContent
+        )
+        if hideViewedContent, visibility.visibleIDs == nil, !preloadedEntries.isEmpty {
+            visibility.capture(from: rawArticles, isEnabled: hideViewedContent)
+        }
+    }
+
+    func performRefresh() async {
+        // swiftlint:disable:next line_length
+        log("FeedArticlesView", "performRefresh id=\(feed.id) title=\(feed.title) scopeActive=\(scopedRefreshState.hasActiveProgress)")
+        guard !scopedRefreshState.hasActiveProgress else { return }
+        feedManager.flushDebouncedReads()
+        withAnimation(.smooth.speed(2.0)) {
+            visibility.beginRefresh(
+                from: rawArticles,
+                isEnabled: hideViewedContent,
+                recaptureVisible: true
+            )
+        }
+        await feedManager.refreshFeeds(
+            scope: scopeKey,
+            feeds: [feed],
+            skipImagePreload: false,
+            runNLP: true
+        )
+        withAnimation(.smooth.speed(2.0)) {
+            visibility.endRefresh(from: rawArticles, isEnabled: hideViewedContent)
+        }
+        log("FeedArticlesView", "performRefresh end id=\(feed.id)")
+    }
+
+    func acceptPendingRefresh() {
+        withAnimation(.smooth.speed(2.0)) {
+            visibility.acceptPendingRefresh()
+        }
+        scrollToTopTick &+= 1
+    }
+
     /// Most recent published date for this feed, used to anchor the initial
     /// date-based batch so feeds that haven't posted in a while still surface
     /// their newest content rather than showing an empty state.
-    private func latestArticleDateForFeed() -> Date? {
+    func latestArticleDateForFeed() -> Date? {
         feedManager.latestPublishedDate(forFeedIDs: [feed.id])
     }
 
-    private func loadProminentColors() async {
+    func loadProminentColors() async {
         let image = await IconCache.shared.icon(for: currentFeed)
         let source: UIImage? = image ?? currentFeed.acronymIcon.flatMap { UIImage(data: $0) }
         prominentColors = source?.prominentColors ?? []

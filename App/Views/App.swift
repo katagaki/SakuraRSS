@@ -124,6 +124,8 @@ struct SakuraRSSApp: App {
     init() {
         let defaults = UserDefaults.standard
 
+        _ = FeatureFlagStore.shared
+
         defaults.register(defaults: [
             "Intelligence.ContentInsights.Enabled": true
         ])
