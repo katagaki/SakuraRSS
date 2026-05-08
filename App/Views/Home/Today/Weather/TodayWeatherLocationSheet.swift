@@ -16,7 +16,7 @@ struct TodayWeatherLocationSheet: View {
         NavigationStack {
             List {
                 Section {
-                    let disabled = !service.isCurrentLocationAvailable
+                    let disabled = !service.isCurrentLocationAvailable || !service.canChangeLocation
                     Button {
                         Task {
                             await service.setLocation(TodayWeatherLocation(
@@ -40,6 +40,8 @@ struct TodayWeatherLocationSheet: View {
                 } footer: {
                     if !service.isCurrentLocationAvailable {
                         Text(String(localized: "TodayWeather.Location.ServicesDisabled", table: "Home"))
+                    } else if !service.canChangeLocation {
+                        Text(String(localized: "TodayWeather.Location.DailyLimitReached", table: "Home"))
                     }
                 }
 
@@ -63,6 +65,8 @@ struct TodayWeatherLocationSheet: View {
                                 .contentShape(.rect)
                             }
                             .buttonStyle(.plain)
+                            .disabled(!service.canChangeLocation)
+                            .opacity(service.canChangeLocation ? 1 : 0.3)
                         }
                     } header: {
                         Text(String(localized: "TodayWeather.Location.Results", table: "Home"))

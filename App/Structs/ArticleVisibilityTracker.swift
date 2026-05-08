@@ -97,7 +97,7 @@ struct ArticleVisibilityTracker {
             preRefreshMaxID = preRefreshIDs.max() ?? .max
             if isEnabled {
                 // Don't strand visibleIDs at an empty set when data isn't loaded yet.
-                if (recaptureVisible || visibleIDs == nil), !articles.isEmpty {
+                if (recaptureVisible || visibleIDs == nil) && !articles.isEmpty {
                     visibleIDs = Set(articles.filter { !$0.isRead }.map(\.id))
                 }
             } else {

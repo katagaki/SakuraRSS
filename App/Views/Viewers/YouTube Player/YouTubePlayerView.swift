@@ -18,8 +18,6 @@ struct YouTubePlayerView: View {
     @State var isBookmarked = false
     @State var isPlaying = false
     @State private var isPiPEligible = false
-    @State private var currentTime: TimeInterval = 0
-    @State private var duration: TimeInterval = 0
     @State var webView: WKWebView?
     @State var isAd = false
     @State var isAdSkippable = false
@@ -69,15 +67,19 @@ struct YouTubePlayerView: View {
             YouTubePlayerWebView(
                 urlString: article.url,
                 isPlaying: $isPlaying,
-                currentTime: $currentTime,
-                duration: $duration,
                 webView: $webView,
                 isAd: $isAd,
                 isAdSkippable: $isAdSkippable,
                 advertiserURL: $advertiserURL,
                 videoAspectRatio: $videoAspectRatio,
                 isPiP: $isPiP,
-                chapters: $chapters
+                chapters: $chapters,
+                onTimeUpdate: { newTime in
+                    YouTubePlayerSession.shared.currentTime = newTime
+                },
+                onDurationUpdate: { newDuration in
+                    YouTubePlayerSession.shared.duration = newDuration
+                }
             )
             .aspectRatio(videoAspectRatio, contentMode: .fit)
             .clipped()
@@ -135,10 +137,9 @@ struct YouTubePlayerView: View {
                     )
                     .frame(maxWidth: .infinity, alignment: .leading)
 
-                    SeekBarView(
-                        currentTime: currentTime,
-                        duration: duration,
-                        isDisabled: isAd,
+                    YouTubePlayerSeekBar(
+                        session: session,
+                        isAd: isAd,
                         segments: sponsorSegments.map { (start: $0.startTime, end: $0.endTime) },
                         onSeek: { seek(to: $0) }
                     )
@@ -255,12 +256,10 @@ struct YouTubePlayerView: View {
         .onChange(of: isAd) { _, newValue in
             webView?.isUserInteractionEnabled = newValue
         }
-        .onChange(of: currentTime) { _, newTime in
-            session.currentTime = newTime
-            checkSponsorSegments(at: newTime)
-        }
-        .onChange(of: duration) { _, newDuration in
-            session.duration = newDuration
+        .background {
+            YouTubeTimeObserver(currentTime: { session.currentTime }) { newTime in
+                checkSponsorSegments(at: newTime)
+            }
         }
         .onChange(of: videoAspectRatio) { _, newRatio in
             session.videoAspectRatio = newRatio
@@ -289,8 +288,6 @@ struct YouTubePlayerView: View {
             isBookmarked = feedManager.isBookmarked(article)
             session.adopt(article: article)
             isPlaying = session.isPlaying
-            currentTime = session.currentTime
-            duration = session.duration
             if session.isPlaying || session.duration > 0 {
                 hasStartedPlaying = true
             }

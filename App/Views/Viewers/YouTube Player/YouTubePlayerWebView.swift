@@ -7,8 +7,6 @@ struct YouTubePlayerWebView: UIViewRepresentable {
     let urlString: String
     var autoplay: Bool = true
     @Binding var isPlaying: Bool
-    @Binding var currentTime: TimeInterval
-    @Binding var duration: TimeInterval
     @Binding var webView: WKWebView?
     @Binding var isAd: Bool
     @Binding var isAdSkippable: Bool
@@ -16,18 +14,25 @@ struct YouTubePlayerWebView: UIViewRepresentable {
     @Binding var videoAspectRatio: CGFloat
     @Binding var isPiP: Bool
     var chapters: Binding<[YouTubeChapter]>?
+    /// Time callbacks are deliberately not `@Binding`s. SwiftUI reads bindings'
+    /// `wrappedValue` inside the parent view's body tracking scope while
+    /// diffing the view, which would re-subscribe the parent to whatever
+    /// observable backs the binding (causing toolbar/menu rebuilds at every
+    /// quarter-second tick when the source is `session.currentTime`).
+    var onTimeUpdate: ((TimeInterval) -> Void)?
+    var onDurationUpdate: ((TimeInterval) -> Void)?
 
     func makeCoordinator() -> Coordinator {
         Coordinator(
             isPlaying: $isPlaying,
-            currentTime: $currentTime,
-            duration: $duration,
             isAd: $isAd,
             isAdSkippable: $isAdSkippable,
             advertiserURL: $advertiserURL,
             videoAspectRatio: $videoAspectRatio,
             isPiP: $isPiP,
-            chapters: chapters
+            chapters: chapters,
+            onTimeUpdate: onTimeUpdate,
+            onDurationUpdate: onDurationUpdate
         )
     }
 
