@@ -2780,55 +2780,55 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ziehe, um die Reihenfolge zu ändern. Tippe, um Einträge ein- oder auszublenden. Die Leiste wird ausgeblendet, wenn nur ein Tab übrig ist."
+            "value" : "Ziehe, um die Reihenfolge zu ändern. Tippe, um Einträge ein- oder auszublenden. Ist nur ein Eintrag aktiv, wird die Leiste ausgeblendet."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Drag to reorder. Toggle to show or hide each item. The bar is hidden when only one tab remains."
+            "value" : "Drag to reorder. Toggle to show or hide each item. When only one item is enabled, the bar is hidden."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Glisser pour réorganiser. Activer pour afficher ou masquer chaque élément. La barre est masquée lorsqu'il ne reste qu'un seul onglet."
+            "value" : "Glisser pour réorganiser. Activer pour afficher ou masquer chaque élément. Lorsqu'un seul élément est activé, la barre est masquée."
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Trascina per riordinare. Attiva per mostrare o nascondere ogni voce. La barra viene nascosta quando rimane una sola scheda."
+            "value" : "Trascina per riordinare. Attiva per mostrare o nascondere ogni voce. Quando è attiva una sola voce, la barra viene nascosta."
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "ドラッグして並び替え、トグルで各項目を表示/非表示にします。タブが 1 つだけになるとバーは非表示になります。"
+            "value" : "ドラッグして並び替え、トグルで各項目を表示/非表示にします。項目が 1 つだけ有効な場合、バーは非表示になります。"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "끌어서 순서를 변경하세요. 각 항목을 켜거나 꺼서 표시 여부를 설정할 수 있습니다. 탭이 하나만 남으면 바가 숨겨집니다."
+            "value" : "끌어서 순서를 변경하세요. 각 항목을 켜거나 꺼서 표시 여부를 설정할 수 있습니다. 항목이 하나만 켜져 있으면 바가 숨겨집니다."
           }
         },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Kéo để sắp xếp lại. Bật/tắt để hiện hoặc ẩn từng mục. Thanh sẽ ẩn khi chỉ còn lại một tab."
+            "value" : "Kéo để sắp xếp lại. Bật/tắt để hiện hoặc ẩn từng mục. Khi chỉ một mục được bật, thanh sẽ ẩn đi."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "拖动以重新排序。开关以显示或隐藏每个项目。仅剩一个标签时，栏将被隐藏。"
+            "value" : "拖动以重新排序。开关以显示或隐藏每个项目。仅启用一个项目时，栏将被隐藏。"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "拖動以重新排序。切換以顯示或隱藏每個項目。僅剩一個分頁時，列將被隱藏。"
+            "value" : "拖動以重新排序。切換以顯示或隱藏每個項目。僅啟用一個項目時，列將被隱藏。"
           }
         }
       }
