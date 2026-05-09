@@ -2780,55 +2780,55 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ziehe, um die Reihenfolge zu ändern. Tippe, um Einträge ein- oder auszublenden."
+            "value" : "Ziehe, um Abschnitte in der Startleiste neu anzuordnen. Tippe, um Abschnitte ein- oder auszublenden. Wenn nur ein Abschnitt aktiv ist, wird die Startleiste ausgeblendet."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Drag to reorder. Toggle to show or hide each item."
+            "value" : "Drag to reorder sections in the Home bar. Toggle to show or hide sections. When only one section is enabled, the Home bar is hidden."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Glisser pour réorganiser. Activer pour afficher ou masquer chaque élément."
+            "value" : "Glissez pour réorganiser les sections de la barre d'accueil. Activez pour afficher ou masquer les sections. Lorsqu'une seule section est activée, la barre d'accueil est masquée."
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Trascina per riordinare. Attiva per mostrare o nascondere ogni voce."
+            "value" : "Trascina per riordinare le sezioni nella barra Home. Attiva per mostrare o nascondere le sezioni. Quando è attiva una sola sezione, la barra Home viene nascosta."
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "ドラッグして並び替え、トグルで各項目を表示/非表示にします。"
+            "value" : "ドラッグしてホームバーのセクションを並び替えます。トグルでセクションを表示/非表示にします。セクションが 1 つだけ有効な場合、ホームバーは非表示になります。"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "끌어서 순서를 변경하세요. 각 항목을 켜거나 꺼서 표시 여부를 설정할 수 있습니다."
+            "value" : "끌어서 홈 바의 섹션 순서를 변경하세요. 토글로 섹션을 표시하거나 숨길 수 있습니다. 섹션이 하나만 활성화된 경우 홈 바가 숨겨집니다."
           }
         },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Kéo để sắp xếp lại. Bật/tắt để hiện hoặc ẩn từng mục."
+            "value" : "Kéo để sắp xếp lại các mục trong thanh Trang chủ. Bật/tắt để hiện hoặc ẩn các mục. Khi chỉ một mục được bật, thanh Trang chủ sẽ ẩn đi."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "拖动以重新排序。开关以显示或隐藏每个项目。"
+            "value" : "拖动以重新排序首页栏中的项目。开关以显示或隐藏项目。仅启用一个项目时，首页栏将被隐藏。"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "拖動以重新排序。切換以顯示或隱藏每個項目。"
+            "value" : "拖動以重新排序首頁列中的項目。切換以顯示或隱藏項目。僅啟用一個項目時，首頁列將被隱藏。"
           }
         }
       }

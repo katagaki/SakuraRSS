@@ -98,4 +98,13 @@ extension HomeView {
             selectedSelection = .section(.all)
         }
     }
+
+    func validateBarSelection() {
+        let items = tabItems
+        guard !items.isEmpty else { return }
+        if !items.contains(where: { $0.matches(selectedSelection) }),
+           let first = items.first {
+            selectedSelection = first.selection
+        }
+    }
 }
