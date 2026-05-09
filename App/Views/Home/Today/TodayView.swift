@@ -29,21 +29,23 @@ struct TodayView: View {
                     sectionDivider
                 }
 
-                WhileYouSleptView(
-                    hasSummary: $sleptHasSummary, flatStyle: true,
-                    isVisible: $sleptVisible,
-                    refreshTrigger: summaryRefreshTrigger
-                )
-                AfternoonBriefView(
-                    hasSummary: $afternoonHasSummary,
-                    isVisible: $afternoonVisible,
-                    refreshTrigger: summaryRefreshTrigger
-                )
-                TodaysSummaryView(
-                    hasSummary: $todayHasSummary, flatStyle: true,
-                    isVisible: $todayVisible,
-                    refreshTrigger: summaryRefreshTrigger
-                )
+                VStack(spacing: 0) {
+                    WhileYouSleptView(
+                        hasSummary: $sleptHasSummary, flatStyle: true,
+                        isVisible: $sleptVisible,
+                        refreshTrigger: summaryRefreshTrigger
+                    )
+                    AfternoonBriefView(
+                        hasSummary: $afternoonHasSummary,
+                        isVisible: $afternoonVisible,
+                        refreshTrigger: summaryRefreshTrigger
+                    )
+                    TodaysSummaryView(
+                        hasSummary: $todayHasSummary, flatStyle: true,
+                        isVisible: $todayVisible,
+                        refreshTrigger: summaryRefreshTrigger
+                    )
+                }
 
                 if anySummaryVisible,
                    !todayManager.hasLoadedInitially || !contentSections.isEmpty || showEmptyState {
