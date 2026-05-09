@@ -32,11 +32,13 @@ struct HomeView: View {
                 .environment(\.hidesMarkAllReadToolbar, true)
                 .toolbarTitleDisplayMode(.inline)
                 .safeAreaInset(edge: .top, spacing: 0) {
-                    HomeSectionBarHostView(
-                        selection: $selectedSelection,
-                        tabs: tabItems,
-                        tabFrames: $tabFrames
-                    )
+                    if tabItems.count > 1 {
+                        HomeSectionBarHostView(
+                            selection: $selectedSelection,
+                            tabs: tabItems,
+                            tabFrames: $tabFrames
+                        )
+                    }
                 }
                 .toolbar {
                     ToolbarItem(placement: .principal) {

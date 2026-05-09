@@ -13,7 +13,8 @@ struct HomeSettingsView: View {
                 ForEach(visibleItems, id: \.self) { kind in
                     HomeBarItemRow(
                         kind: kind,
-                        isEnabled: enabledBinding(for: kind)
+                        isEnabled: enabledBinding(for: kind),
+                        isLastEnabled: isLastEnabled(kind)
                     )
                 }
                 .onMove(perform: move)
@@ -119,11 +120,15 @@ struct HomeSettingsView: View {
             set: { isOn in
                 if isOn {
                     configuration.enabledItems.insert(kind)
-                } else {
+                } else if configuration.enabledItems.count > 1 {
                     configuration.enabledItems.remove(kind)
                 }
             }
         )
+    }
+
+    private func isLastEnabled(_ kind: HomeBarItemKind) -> Bool {
+        configuration.enabledItems == [kind]
     }
 
     private var topicCountBinding: Binding<HomeBarTopicCount> {
@@ -138,11 +143,13 @@ private struct HomeBarItemRow: View {
 
     let kind: HomeBarItemKind
     @Binding var isEnabled: Bool
+    let isLastEnabled: Bool
 
     var body: some View {
         Toggle(isOn: $isEnabled) {
             Text(kind.localizedTitle)
         }
+        .disabled(isLastEnabled)
     }
 }
 
