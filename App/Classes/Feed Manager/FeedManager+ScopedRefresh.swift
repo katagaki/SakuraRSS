@@ -106,10 +106,16 @@ extension FeedManager {
     @MainActor
     func cancelScopedRefresh(scope: String) {
         log("FeedRefresh.Scoped", "cancel scope=\(scope)")
+        let task = scopedRefreshTasks[scope]
         scopedRefreshTasks[scope]?.cancel()
         scopedRefreshTasks[scope] = nil
         scopedRefreshes[scope] = nil
-        Task { await self.loadFromDatabaseInBackground(animated: true) }
+        Task {
+            if let task {
+                _ = await task.value
+            }
+            await self.loadFromDatabaseInBackground(animated: true)
+        }
     }
 
     fileprivate func runScopedBoundedRefresh(
