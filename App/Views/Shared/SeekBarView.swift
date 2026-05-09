@@ -14,6 +14,7 @@ struct SeekBarView: View {
     var segments: [(start: Double, end: Double)] = []
     var labelLayout: SeekBarLabelLayout = .below
     let onSeek: (TimeInterval) -> Void
+    var onScrubbingChanged: ((Bool) -> Void)?
 
     @State private var isDragging = false
     @State private var dragTime: TimeInterval = 0
@@ -103,6 +104,7 @@ struct SeekBarView: View {
                         if !isDragging {
                             isDragging = true
                             dragTime = currentTime
+                            onScrubbingChanged?(true)
                         }
                         let fraction = max(0, min(value.location.x / trackWidth, 1))
                         dragTime = TimeInterval(fraction) * duration
@@ -114,6 +116,7 @@ struct SeekBarView: View {
                         }
                         onSeek(dragTime)
                         isDragging = false
+                        onScrubbingChanged?(false)
                     }
             )
             .opacity(isDisabled ? 0.4 : 1.0)

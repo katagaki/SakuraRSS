@@ -128,6 +128,13 @@ struct NewYouTubePlayerOverlayControls: View {
                 onSeek: { time in
                     playback.seek(to: time)
                     scheduleAutoHide()
+                },
+                onScrubbingChanged: { isScrubbing in
+                    if isScrubbing {
+                        hideTask?.cancel()
+                    } else {
+                        scheduleAutoHide()
+                    }
                 }
             )
             .tint(.white)
