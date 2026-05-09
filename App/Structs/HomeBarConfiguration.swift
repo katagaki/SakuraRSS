@@ -4,10 +4,7 @@ extension Notification.Name {
     static let homeBarConfigurationDidChange = Notification.Name("HomeBarConfigurationDidChange")
 }
 
-/// User-configurable layout of the home section selection bar. The Today and
-/// Following tabs are always emitted at the front by `HomeSectionBarItem.items`
-/// (Today first when enabled, then Following), so Following does not appear in
-/// `orderedItems` or `enabledItems`.
+/// User-configurable layout of the home section selection bar.
 struct HomeBarConfiguration: Equatable, Hashable, Sendable {
 
     static let storageKey = "Home.BarConfiguration"
@@ -17,7 +14,7 @@ struct HomeBarConfiguration: Equatable, Hashable, Sendable {
     var topicCount: HomeBarTopicCount
 
     static let defaultOrderedItems: [HomeBarItemKind] = [
-        .today, .feeds, .podcasts, .bluesky, .fediverse, .instagram, .note,
+        .today, .following, .feeds, .podcasts, .bluesky, .fediverse, .instagram, .note,
         .reddit, .substack, .vimeo, .x, .youtube, .niconico, .lists, .topics
     ]
 
@@ -68,8 +65,6 @@ extension HomeBarConfiguration: Codable {
 
     /// Pre-existing rawValue for the legacy aggregate "feed sections" item.
     private static let legacyFeedSectionsRaw = "feedSections"
-    /// Pre-existing rawValue for the legacy "following" item, now implicit.
-    private static let legacyFollowingRaw = "following"
     /// Pre-existing rawValues for the legacy `mastodon` and `pixelfed` items,
     /// now folded into the unified Fediverse section.
     private static let legacyMastodonRaw = "mastodon"
@@ -96,9 +91,21 @@ extension HomeBarConfiguration: Codable {
         let hasTodayInRawOrder = rawOrdered.contains(HomeBarItemKind.today.rawValue)
         if !seenOrdered.contains(.today) {
             ordered.insert(.today, at: 0)
+            seenOrdered.insert(.today)
         }
         if !hasTodayInRawOrder {
             enabled.insert(.today)
+        }
+
+        // Following was previously implicit and is now part of the configurable
+        // list. Insert it directly after Today and enable it by default so the
+        // tab keeps appearing for users upgrading from older builds.
+        if !seenOrdered.contains(.following) {
+            let insertIndex = ordered.firstIndex(of: .today).map { $0 + 1 } ?? 0
+            ordered.insert(.following, at: insertIndex)
+        }
+        if !rawEnabled.contains(HomeBarItemKind.following.rawValue) {
+            enabled.insert(.following)
         }
 
         self.orderedItems = ordered
@@ -113,8 +120,6 @@ extension HomeBarConfiguration: Codable {
         var seen = Set<HomeBarItemKind>()
         for raw in rawOrdered {
             switch raw {
-            case Self.legacyFollowingRaw:
-                continue
             case Self.legacyFeedSectionsRaw:
                 for kind in Self.legacyFeedSectionExpansion where !seen.contains(kind) {
                     ordered.append(kind)
@@ -139,8 +144,6 @@ extension HomeBarConfiguration: Codable {
         var enabled = Set<HomeBarItemKind>()
         for raw in rawEnabled {
             switch raw {
-            case Self.legacyFollowingRaw:
-                continue
             case Self.legacyFeedSectionsRaw:
                 Self.legacyFeedSectionExpansion.forEach { enabled.insert($0) }
             case Self.legacyMastodonRaw, Self.legacyPixelfedRaw:

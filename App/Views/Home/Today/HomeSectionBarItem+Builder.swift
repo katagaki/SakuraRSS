@@ -9,17 +9,14 @@ extension HomeSectionBarItem {
         configuration: HomeBarConfiguration
     ) -> [HomeSectionBarItem] {
         var items: [HomeSectionBarItem] = []
-
-        if configuration.enabledItems.contains(.today) {
-            items.append(item(for: .today))
-        }
-
-        if sections.contains(.all) {
-            items.append(item(for: .all))
-        }
-
-        for kind in configuration.orderedItems where configuration.enabledItems.contains(kind) && kind != .today {
+        for kind in configuration.orderedItems where configuration.enabledItems.contains(kind) {
             switch kind {
+            case .today:
+                items.append(item(for: .today))
+            case .following:
+                if sections.contains(.all) {
+                    items.append(item(for: .all))
+                }
             case .lists:
                 items.append(contentsOf: lists.map(item(for:)))
             case .topics:

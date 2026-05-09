@@ -3,6 +3,7 @@ import Foundation
 /// The categories of items that can appear in the home section selection bar.
 enum HomeBarItemKind: String, Codable, CaseIterable, Identifiable, Hashable, Sendable {
     case today
+    case following
     case feeds
     case podcasts
     case bluesky
@@ -34,13 +35,14 @@ enum HomeBarItemKind: String, Codable, CaseIterable, Identifiable, Hashable, Sen
         case .x: .x
         case .youtube: .youtube
         case .niconico: .niconico
-        case .today, .lists, .topics: nil
+        case .today, .following, .lists, .topics: nil
         }
     }
 
     var localizedTitle: String {
         switch self {
         case .today: String(localized: "Home.BarItem.Today", table: "Settings")
+        case .following: String(localized: "Sidebar.Following", table: "Feeds")
         case .lists: String(localized: "Home.BarItem.Lists", table: "Settings")
         case .topics: String(localized: "Home.BarItem.Topics", table: "Settings")
         default: feedSection?.localizedTitle ?? ""
@@ -50,6 +52,7 @@ enum HomeBarItemKind: String, Codable, CaseIterable, Identifiable, Hashable, Sen
     var systemImage: String {
         switch self {
         case .today: "sun.max"
+        case .following: "square.stack"
         case .lists: "list.bullet"
         case .topics: "tag"
         case .feeds: "newspaper"
