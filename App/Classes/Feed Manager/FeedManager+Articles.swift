@@ -49,13 +49,9 @@ extension FeedManager {
 
     func afternoonBriefArticles() -> [Article] {
         _ = dataRevision
-        let calendar = Calendar.current
         let now = Date()
-        let midnight = calendar.startOfDay(for: now)
-        guard let nineAM = calendar.date(byAdding: .hour, value: 9, to: midnight) else {
-            return []
-        }
-        let articles = (try? database.allArticles(from: nineAM, to: now)) ?? []
+        let midnight = Calendar.current.startOfDay(for: now)
+        let articles = (try? database.allArticles(from: midnight, to: now)) ?? []
         return filterExcludingPodcastsAndVideos(articles)
     }
 
