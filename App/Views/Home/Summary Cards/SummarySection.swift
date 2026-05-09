@@ -64,7 +64,7 @@ struct SummarySection: View {
     }
 
     var body: some View {
-        Group {
+        ZStack {
             if shouldShow {
                 summaryCard
                     .transition(.opacity)
@@ -81,6 +81,7 @@ struct SummarySection: View {
         }
         .task(id: feedManager.dataRevision) {
             let count = kind.articles(in: feedManager).count
+            log("Summary", "kind=\(kind) revision=\(feedManager.dataRevision) count=\(count)")
             withAnimation(.smooth.speed(2.0)) {
                 articleCount = count
             }
