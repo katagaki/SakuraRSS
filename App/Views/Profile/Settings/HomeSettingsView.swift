@@ -120,15 +120,19 @@ struct HomeSettingsView: View {
             set: { isOn in
                 if isOn {
                     configuration.enabledItems.insert(kind)
-                } else if configuration.enabledItems.count > 1 {
+                } else if visibleEnabledCount > 1 {
                     configuration.enabledItems.remove(kind)
                 }
             }
         )
     }
 
+    private var visibleEnabledCount: Int {
+        visibleItems.filter(configuration.enabledItems.contains).count
+    }
+
     private func isLastEnabled(_ kind: HomeBarItemKind) -> Bool {
-        configuration.enabledItems.count == 1 && configuration.enabledItems.contains(kind)
+        configuration.enabledItems.contains(kind) && visibleEnabledCount == 1
     }
 
     private var topicCountBinding: Binding<HomeBarTopicCount> {
