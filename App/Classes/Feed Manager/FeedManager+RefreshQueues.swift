@@ -3,6 +3,7 @@ import Foundation
 /// Hard ceiling on concurrent refresh tasks per queue.
 enum FeedRefreshQueueLimits {
     static let `default` = 8
+    static let fast = 24
     static let throttled = 2
 }
 

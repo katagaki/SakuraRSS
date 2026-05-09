@@ -30,11 +30,12 @@ extension FeedManager {
         // swiftlint:disable:next line_length
         log("FeedRefresh.RSS", "inserted id=\(feed.id) new=\(insertedIDs.count)/\(articleTuples.count) metadataImages.from=parsed")
 
+        let isPodcastFeed = feed.isPodcast || parsedFeed.isPodcast
         await FeedManager.runPostInsertPipeline(
             insertedIDs: insertedIDs,
             feedTitle: feedTitleForIndex,
             skipImagePreload: options.skipImagePreload,
-            runNLP: options.runNLP
+            runNLP: options.runNLP && !isPodcastFeed
         )
 
         try applyFirstFetchUpdates(
@@ -245,7 +246,8 @@ extension FeedManager {
                   !existingURLs.contains(article.url),
                   let url = URL(string: article.url),
                   let scheme = url.scheme?.lowercased(),
-                  scheme == "http" || scheme == "https" else {
+                  scheme == "http" || scheme == "https",
+                  HTMLMetadataImage.isLikelyHTMLURL(url) else {
                 return nil
             }
             return (article.url, url)

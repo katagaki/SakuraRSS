@@ -5,6 +5,22 @@ nonisolated enum HTMLMetadataImage {
 
     private static let maxBytes = 128 * 1024
 
+    private static let nonHTMLExtensions: Set<String> = [
+        "mp3", "m4a", "aac", "ogg", "oga", "wav", "flac", "opus", "wma",
+        "mp4", "m4v", "mov", "avi", "mkv", "webm", "flv", "wmv",
+        "jpg", "jpeg", "png", "gif", "webp", "svg", "bmp",
+        "heic", "heif", "tiff", "tif", "ico", "avif",
+        "pdf", "zip", "tar", "gz", "tgz", "rar", "7z", "dmg", "epub", "mobi"
+    ]
+
+    /// Returns `false` for URLs whose path extension marks them as a media or binary file
+    /// that won't yield a parseable `<head>`. Extensionless paths are treated as HTML.
+    static func isLikelyHTMLURL(_ url: URL) -> Bool {
+        let pathExtension = url.pathExtension.lowercased()
+        guard !pathExtension.isEmpty else { return true }
+        return !nonHTMLExtensions.contains(pathExtension)
+    }
+
     static func fetchImageURL(
         for articleURL: URL,
         timeout: TimeInterval = 5
@@ -13,6 +29,7 @@ nonisolated enum HTMLMetadataImage {
               scheme == "http" || scheme == "https" else {
             return nil
         }
+        guard isLikelyHTMLURL(articleURL) else { return nil }
 
         var request = URLRequest(url: articleURL, timeoutInterval: timeout)
         request.setValue(sakuraUserAgent, forHTTPHeaderField: "User-Agent")

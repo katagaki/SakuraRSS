@@ -74,7 +74,7 @@ extension FeedManager {
             async let regular: Void = self.runScopedBoundedRefresh(
                 queues.regular,
                 scope: scope,
-                maxConcurrent: FeedRefreshQueueLimits.default,
+                maxConcurrent: FeedRefreshQueueLimits.fast,
                 skipImagePreload: effectiveSkipPreload,
                 runNLP: runNLP
             )
