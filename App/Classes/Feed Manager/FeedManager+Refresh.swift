@@ -358,11 +358,14 @@ extension FeedManager {
 
     /// Cancels the in-flight refresh task. Feeds whose RSS fetch has already
     /// completed run their pipeline through to insert; feeds still waiting on
-    /// the network drop their work. Triggers a database reload so any articles
-    /// collected up to the cancel point appear immediately.
+    /// the network drop their work. Awaits the refresh task so any pipelines
+    /// already past the network round-trip can flush their inserts, then
+    /// reloads from the database so the gathered articles bump `dataRevision`
+    /// and surface in the UI.
     @MainActor
     func cancelRefresh() {
         log("FeedRefresh", "cancelRefresh hadTask=\(refreshTask != nil) completed=\(refreshCompleted)/\(refreshTotal)")
+        let task = refreshTask
         refreshTask?.cancel()
         refreshTask = nil
         isLoading = false
@@ -370,7 +373,12 @@ extension FeedManager {
         refreshTotal = 0
         pendingRefreshFeedIDs = []
         refreshingFeedIDs = []
-        Task { await self.loadFromDatabaseInBackground(animated: true) }
+        Task {
+            if let task {
+                _ = await task.value
+            }
+            await self.loadFromDatabaseInBackground(animated: true)
+        }
     }
 
 }
