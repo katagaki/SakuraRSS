@@ -4,7 +4,6 @@ extension Notification.Name {
     static let homeBarConfigurationDidChange = Notification.Name("HomeBarConfigurationDidChange")
 }
 
-/// User-configurable layout of the home section selection bar.
 struct HomeBarConfiguration: Equatable, Hashable, Sendable {
 
     static let storageKey = "Home.BarConfiguration"
@@ -97,10 +96,6 @@ extension HomeBarConfiguration: Codable {
             enabled.insert(.today)
         }
 
-        // Following was previously implicit and is now part of the configurable
-        // list. Insert it directly after Today and enable it by default for
-        // users upgrading from older builds. The enable migration is keyed off
-        // the saved order list so explicitly disabling Following persists.
         let hasFollowingInRawOrder = rawOrdered.contains(HomeBarItemKind.following.rawValue)
         if !seenOrdered.contains(.following) {
             let insertIndex = ordered.firstIndex(of: .today).map { $0 + 1 } ?? 0

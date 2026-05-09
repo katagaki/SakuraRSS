@@ -152,8 +152,6 @@ private struct HomeBarItemRow: View {
         .disabled(isLastEnabled)
     }
 
-    /// When this row is the only enabled item, the binding ignores writes and
-    /// always reports `true`, guaranteeing the toggle cannot be turned off.
     private var lockedBinding: Binding<Bool> {
         Binding(
             get: { isLastEnabled || isEnabled },
