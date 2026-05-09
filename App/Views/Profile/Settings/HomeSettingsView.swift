@@ -128,7 +128,7 @@ struct HomeSettingsView: View {
     }
 
     private func isLastEnabled(_ kind: HomeBarItemKind) -> Bool {
-        configuration.enabledItems == [kind]
+        configuration.enabledItems.count == 1 && configuration.enabledItems.contains(kind)
     }
 
     private var topicCountBinding: Binding<HomeBarTopicCount> {

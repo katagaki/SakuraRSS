@@ -24,7 +24,20 @@ struct HomeView: View {
 
     var body: some View {
         NavigationStack(path: $path) {
-            AllArticlesView()
+            Group {
+                if tabItems.isEmpty {
+                    ContentUnavailableView {
+                        Label(
+                            String(localized: "Home.Empty.Title", table: "Home"),
+                            systemImage: "rectangle.stack.badge.xmark"
+                        )
+                    } description: {
+                        Text(String(localized: "Home.Empty.Description", table: "Home"))
+                    }
+                } else {
+                    AllArticlesView()
+                }
+            }
                 .environment(\.zoomNamespace, cardZoom)
                 .environment(\.navigateToFeed, { feed in path.append(feed) })
                 .environment(\.navigateToEphemeralArticle, ephemeralAppender)
@@ -199,6 +212,9 @@ struct HomeView: View {
         }
         .onReceive(NotificationCenter.default.publisher(for: .homeBarConfigurationDidChange)) { _ in
             reloadBarConfiguration()
+        }
+        .onChange(of: tabItems) {
+            validateBarSelection()
         }
     }
 
