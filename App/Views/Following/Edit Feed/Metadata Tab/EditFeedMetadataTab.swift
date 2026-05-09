@@ -15,6 +15,7 @@ struct EditFeedMetadataTab: View {
     @State var selectedPhoto: PhotosPickerItem?
     @State var customIconImage: UIImage?
     @State var currentIcon: UIImage?
+    @State var hasRealIcon: Bool = false
     @State var isFetchingIcon = false
     @State var showIconFetchError = false
     @State var showPetalBuilder = false
@@ -30,7 +31,9 @@ struct EditFeedMetadataTab: View {
         }
         .onAppear { initializeStateIfNeeded() }
         .task(id: feedID) {
-            currentIcon = await loadCurrentIcon()
+            let icon = await loadCurrentIcon()
+            currentIcon = icon
+            hasRealIcon = icon != nil
         }
         .onChange(of: name) {
             commitNameAndIcon()
@@ -87,6 +90,7 @@ struct EditFeedMetadataTab: View {
     func refreshAcronymPreview() {
         guard hasInitialized, let feed else { return }
         guard !useDefaultIcon, customIconImage == nil else { return }
+        guard !hasRealIcon else { return }
         let hasCustomIcon = (feed.customIconURL != nil && feed.customIconURL != "none")
             || !iconURLInput.isEmpty
         guard !hasCustomIcon else { return }
