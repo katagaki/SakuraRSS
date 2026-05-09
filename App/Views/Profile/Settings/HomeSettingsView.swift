@@ -146,10 +146,22 @@ private struct HomeBarItemRow: View {
     let isLastEnabled: Bool
 
     var body: some View {
-        Toggle(isOn: $isEnabled) {
+        Toggle(isOn: lockedBinding) {
             Text(kind.localizedTitle)
         }
         .disabled(isLastEnabled)
+    }
+
+    /// When this row is the only enabled item, the binding ignores writes and
+    /// always reports `true`, guaranteeing the toggle cannot be turned off.
+    private var lockedBinding: Binding<Bool> {
+        Binding(
+            get: { isLastEnabled || isEnabled },
+            set: { newValue in
+                guard !isLastEnabled else { return }
+                isEnabled = newValue
+            }
+        )
     }
 }
 
