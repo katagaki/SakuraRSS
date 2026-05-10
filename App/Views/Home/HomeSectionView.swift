@@ -158,6 +158,7 @@ struct HomeSectionView: View {
             )
         }
         await feedManager.refreshFeeds(scope: scopeKey, feeds: scopedFeeds)
+        await reloadPreloadedEntries()
         withAnimation(.smooth.speed(2.0)) {
             visibility.endRefresh(from: rawArticles, isEnabled: hideViewedContent)
         }
@@ -180,6 +181,7 @@ struct HomeSectionView: View {
         let feeds = scopedFeeds
         Task { @MainActor in
             await feedManager.refreshFeeds(scope: scope, feeds: feeds)
+            await reloadPreloadedEntries()
             withAnimation(.smooth.speed(2.0)) {
                 visibility.endRefresh(from: rawArticles, isEnabled: hideViewedContent)
             }

@@ -285,6 +285,7 @@ extension FeedArticlesView {
             skipImagePreload: false,
             runNLP: true
         )
+        reloadPreloadedEntries()
         withAnimation(.smooth.speed(2.0)) {
             visibility.endRefresh(from: rawArticles, isEnabled: hideViewedContent)
         }
