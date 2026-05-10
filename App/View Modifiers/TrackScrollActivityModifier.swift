@@ -1,4 +1,5 @@
 import SwiftUI
+import Hanami
 
 /// Flushes queued mark-as-read IDs when scrolling goes idle.
 struct TrackScrollActivityModifier: ViewModifier {
@@ -8,7 +9,6 @@ struct TrackScrollActivityModifier: ViewModifier {
     func body(content: Content) -> some View {
         content
             .onScrollPhaseChange { _, newPhase in
-                feedManager.updateScrollPhase(newPhase)
                 if newPhase == .idle {
                     feedManager.flushDebouncedReads()
                 }

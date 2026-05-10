@@ -1,4 +1,5 @@
 import Foundation
+import Hanami
 
 nonisolated enum LinkOpenMode: String, CaseIterable, Identifiable, Sendable {
     case browser

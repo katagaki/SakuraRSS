@@ -1,5 +1,6 @@
 import Foundation
 import WidgetKit
+import Hanami
 
 struct ListWidgetArticle: Identifiable {
     let id: Int64

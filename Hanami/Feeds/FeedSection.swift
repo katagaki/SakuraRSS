@@ -1,0 +1,33 @@
+import Foundation
+
+public nonisolated enum FeedSection: String, CaseIterable, Sendable {
+    case feeds
+    case podcasts
+    case bluesky
+    case fediverse
+    case instagram
+    case note
+    case reddit
+    case substack
+    case vimeo
+    case x // swiftlint:disable:this identifier_name
+    case youtube
+    case niconico
+
+    public var localizedTitle: String {
+        switch self {
+        case .feeds: String(localized: "FeedSection.Feeds", table: "Feeds")
+        case .podcasts: String(localized: "FeedSection.Podcasts", table: "Feeds")
+        case .bluesky: String(localized: "FeedSection.Bluesky", table: "Feeds")
+        case .fediverse: String(localized: "FeedSection.Fediverse", table: "Feeds")
+        case .instagram: String(localized: "FeedSection.Instagram", table: "Feeds")
+        case .note: String(localized: "FeedSection.Note", table: "Feeds")
+        case .reddit: String(localized: "FeedSection.Reddit", table: "Feeds")
+        case .substack: String(localized: "FeedSection.Substack", table: "Feeds")
+        case .vimeo: String(localized: "FeedSection.Vimeo", table: "Feeds")
+        case .x: String(localized: "FeedSection.X", table: "Feeds")
+        case .youtube: String(localized: "FeedSection.YouTube", table: "Feeds")
+        case .niconico: String(localized: "FeedSection.Niconico", table: "Feeds")
+        }
+    }
+}

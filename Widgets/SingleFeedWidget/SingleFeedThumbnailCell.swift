@@ -1,5 +1,6 @@
 import SwiftUI
 import WidgetKit
+import Hanami
 
 struct SingleFeedThumbnailCell: View {
 

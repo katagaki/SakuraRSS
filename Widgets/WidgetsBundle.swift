@@ -1,5 +1,6 @@
 import WidgetKit
 import SwiftUI
+import Hanami
 
 @main
 struct SakuraRSSWidgetBundle: WidgetBundle {

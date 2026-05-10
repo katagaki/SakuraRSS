@@ -1,5 +1,6 @@
 import AppIntents
 import WidgetKit
+import Hanami
 
 struct ListWidgetIntent: WidgetConfigurationIntent {
     static let title: LocalizedStringResource = LocalizedStringResource("ListWidget.IntentTitle", table: "Widget")

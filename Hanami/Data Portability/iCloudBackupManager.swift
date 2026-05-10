@@ -1,0 +1,227 @@
+import Foundation
+@preconcurrency import SQLite
+#if canImport(UIKit)
+import UIKit
+#endif
+
+// swiftlint:disable:next type_name
+public final class iCloudBackupManager: @unchecked Sendable {
+
+    public static let shared = iCloudBackupManager()
+
+    // MARK: - Backup Interval
+
+    public enum BackupInterval: Int, CaseIterable, Identifiable {
+        case everyNight = 86400
+        case every12Hours = 43200
+        case every6Hours = 21600
+        case off = 0
+
+        public var id: Int { rawValue }
+    }
+
+    // MARK: - Metadata
+
+    public struct BackupMetadata: Codable {
+        public let date: Date
+        public let appVersion: String
+        public let deviceName: String
+        public let feedCount: Int
+        public let articleCount: Int
+    }
+
+    // MARK: - iCloud Availability
+
+    public func isICloudAvailable() -> Bool {
+        FileManager.default.ubiquityIdentityToken != nil
+    }
+
+    // MARK: - Backup
+
+    public func backupNow() async throws {
+        guard isICloudAvailable(),
+              let containerURL = iCloudContainerURL() else {
+            throw BackupError.iCloudUnavailable
+        }
+
+        let documentsURL = containerURL.appendingPathComponent("Documents")
+        try FileManager.default.createDirectory(at: documentsURL,
+                                                 withIntermediateDirectories: true)
+
+        let cleanedURL = try createCleanedBackup()
+        defer { try? FileManager.default.removeItem(at: cleanedURL) }
+
+        let destinationURL = documentsURL.appendingPathComponent("Sakura.feeds")
+
+        if FileManager.default.fileExists(atPath: destinationURL.path) {
+            try FileManager.default.removeItem(at: destinationURL)
+        }
+        try FileManager.default.copyItem(at: cleanedURL, to: destinationURL)
+
+        let metadata = try buildMetadata()
+        let metadataURL = documentsURL.appendingPathComponent("backup-metadata.json")
+        let encoder = JSONEncoder()
+        encoder.dateEncodingStrategy = .iso8601
+        let data = try encoder.encode(metadata)
+        try data.write(to: metadataURL, options: .atomic)
+
+        UserDefaults.standard.set(Date().timeIntervalSince1970,
+                                  forKey: "iCloudBackup.LastBackupDate")
+    }
+
+    /// Runs a backup if the user's chosen interval has elapsed (allows 10% slack for timing drift).
+    public func backupIfScheduled() async {
+        let intervalRaw = UserDefaults.standard.integer(forKey: "iCloudBackup.Interval")
+        let interval = BackupInterval(rawValue: intervalRaw) ?? .everyNight
+        guard interval != .off else { return }
+        guard isICloudAvailable() else { return }
+
+        let lastBackup = UserDefaults.standard.double(forKey: "iCloudBackup.LastBackupDate")
+        let elapsed = Date().timeIntervalSince1970 - lastBackup
+        let threshold = Double(interval.rawValue) * 0.9
+        guard elapsed >= threshold else { return }
+
+        try? await backupNow()
+    }
+
+    // MARK: - Restore
+
+    public func hasBackup() async -> Bool {
+        await backupMetadata() != nil
+    }
+
+    public func backupMetadata() async -> BackupMetadata? {
+        guard let containerURL = iCloudContainerURL() else { return nil }
+        let metadataURL = containerURL
+            .appendingPathComponent("Documents")
+            .appendingPathComponent("backup-metadata.json")
+
+        if !FileManager.default.fileExists(atPath: metadataURL.path) {
+            try? FileManager.default.startDownloadingUbiquitousItem(at: metadataURL)
+            for _ in 0..<20 {
+                try? await Task.sleep(nanoseconds: 250_000_000)
+                if FileManager.default.fileExists(atPath: metadataURL.path) { break }
+            }
+        }
+
+        guard let data = try? Data(contentsOf: metadataURL) else { return nil }
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
+        return try? decoder.decode(BackupMetadata.self, from: data)
+    }
+
+    public func restore() async throws {
+        guard let containerURL = iCloudContainerURL() else {
+            throw BackupError.iCloudUnavailable
+        }
+
+        let backupURL = containerURL
+            .appendingPathComponent("Documents")
+            .appendingPathComponent("Sakura.feeds")
+
+        if !FileManager.default.fileExists(atPath: backupURL.path) {
+            try FileManager.default.startDownloadingUbiquitousItem(at: backupURL)
+            for _ in 0..<60 {
+                try await Task.sleep(nanoseconds: 500_000_000)
+                if FileManager.default.fileExists(atPath: backupURL.path) { break }
+            }
+        }
+
+        guard FileManager.default.fileExists(atPath: backupURL.path) else {
+            throw BackupError.backupNotFound
+        }
+
+        let dbPath = DatabaseManager.databasePath
+        let dbURL = URL(fileURLWithPath: dbPath)
+
+        for suffix in ["", "-wal", "-shm"] {
+            let fileURL = URL(fileURLWithPath: dbPath + suffix)
+            if FileManager.default.fileExists(atPath: fileURL.path) {
+                try FileManager.default.removeItem(at: fileURL)
+            }
+        }
+
+        try FileManager.default.copyItem(at: backupURL, to: dbURL)
+        try DatabaseManager.shared.reconnect()
+    }
+
+    // MARK: - Last Backup Date
+
+    public var lastBackupDate: Date? {
+        let timestamp = UserDefaults.standard.double(forKey: "iCloudBackup.LastBackupDate")
+        guard timestamp > 0 else { return nil }
+        return Date(timeIntervalSince1970: timestamp)
+    }
+    private func iCloudContainerURL() -> URL? {
+        FileManager.default.url(forUbiquityContainerIdentifier: "iCloud.com.tsubuzaki.SakuraRSS")
+    }
+
+    private func createCleanedBackup() throws -> URL {
+        let tempDir = FileManager.default.temporaryDirectory
+        let tempDB = tempDir.appendingPathComponent("Sakura-backup.feeds")
+
+        if FileManager.default.fileExists(atPath: tempDB.path) {
+            try FileManager.default.removeItem(at: tempDB)
+        }
+
+        let sourceURL = URL(fileURLWithPath: DatabaseManager.databasePath)
+        try FileManager.default.copyItem(at: sourceURL, to: tempDB)
+
+        // Copy WAL/SHM so the temp copy is complete.
+        for suffix in ["-wal", "-shm"] {
+            let src = URL(fileURLWithPath: DatabaseManager.databasePath + suffix)
+            let dst = tempDir.appendingPathComponent("Sakura-backup.feeds" + suffix)
+            if FileManager.default.fileExists(atPath: dst.path) {
+                try FileManager.default.removeItem(at: dst)
+            }
+            if FileManager.default.fileExists(atPath: src.path) {
+                try FileManager.default.copyItem(at: src, to: dst)
+            }
+        }
+
+        let connection = try Connection(tempDB.path)
+        try connection.run("DELETE FROM image_cache")
+        try connection.run("DELETE FROM summary_cache")
+        try connection.run("VACUUM")
+
+        for suffix in ["-wal", "-shm"] {
+            let dst = tempDir.appendingPathComponent("Sakura-backup.feeds" + suffix)
+            try? FileManager.default.removeItem(at: dst)
+        }
+
+        return tempDB
+    }
+
+    private func buildMetadata() throws -> BackupMetadata {
+        let database = DatabaseManager.shared
+        let feedCount = try database.totalFeedCount()
+        let articleCount = try database.database.scalar(database.articles.count)
+        let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? ""
+        #if canImport(UIKit)
+        let deviceName = UIDevice.current.name
+        #else
+        let deviceName = Host.current().localizedName ?? "Mac"
+        #endif
+        return BackupMetadata(
+            date: Date(),
+            appVersion: version,
+            deviceName: deviceName,
+            feedCount: feedCount,
+            articleCount: articleCount
+        )
+    }
+
+    // MARK: - Errors
+
+    public enum BackupError: LocalizedError {
+        case iCloudUnavailable
+        case backupNotFound
+
+        public var errorDescription: String? {
+            switch self {
+            case .iCloudUnavailable: String(localized: "iCloudBackup.Unavailable", table: "DataManagement")
+            case .backupNotFound: String(localized: "iCloudBackup.RestoreError", table: "DataManagement")
+            }
+        }
+    }
+}

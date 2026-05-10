@@ -1,5 +1,6 @@
 import Foundation
 import WidgetKit
+import Hanami
 
 struct SingleFeedArticle: Identifiable {
     let id: Int64

@@ -1,5 +1,6 @@
 import Foundation
 import WidgetKit
+import Hanami
 
 struct ArticleEntry: TimelineEntry {
     let date: Date

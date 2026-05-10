@@ -1,5 +1,6 @@
 import SwiftUI
 import UniformTypeIdentifiers
+import Hanami
 
 struct OpenArticleExtensionView: View {
 

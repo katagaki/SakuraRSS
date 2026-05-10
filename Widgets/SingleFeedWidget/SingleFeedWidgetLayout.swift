@@ -1,4 +1,5 @@
 import AppIntents
+import Hanami
 
 enum SingleFeedWidgetLayout: String, AppEnum {
     case text

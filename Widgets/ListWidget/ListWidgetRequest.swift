@@ -1,4 +1,5 @@
 import Foundation
+import Hanami
 
 struct ListWidgetRequest {
     let listID: Int64

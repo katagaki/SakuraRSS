@@ -1,4 +1,5 @@
 import Foundation
+import Hanami
 
 /// On-disk cache of downsampled widget thumbnail bytes, scoped per widget configuration.
 struct WidgetThumbnailCache {

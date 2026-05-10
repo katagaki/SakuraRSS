@@ -1,5 +1,6 @@
 import SwiftUI
 import WidgetKit
+import Hanami
 
 // MARK: - Main Widget View
 

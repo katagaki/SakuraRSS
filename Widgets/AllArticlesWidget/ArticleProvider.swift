@@ -1,4 +1,5 @@
 import WidgetKit
+import Hanami
 
 struct ArticleProvider: TimelineProvider {
 

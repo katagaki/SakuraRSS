@@ -1,6 +1,7 @@
 import Foundation
 #if canImport(UIKit) && !os(visionOS)
 import UIKit
+import Hanami
 #endif
 
 enum Haptics {

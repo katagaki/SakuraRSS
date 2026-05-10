@@ -1,5 +1,6 @@
 import AppIntents
 import WidgetKit
+import Hanami
 
 struct SingleFeedPageIntent: AppIntent {
 

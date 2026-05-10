@@ -1,4 +1,5 @@
 import SwiftUI
+import Hanami
 
 struct ListWidgetMediumThumbnailsView: View {
     let entry: ListWidgetEntry

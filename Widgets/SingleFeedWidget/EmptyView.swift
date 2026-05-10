@@ -1,4 +1,5 @@
 import SwiftUI
+import Hanami
 
 func emptyView(iconSize: CGFloat, textSize: CGFloat) -> some View {
     VStack(spacing: iconSize > 30 ? 8 : 4) {

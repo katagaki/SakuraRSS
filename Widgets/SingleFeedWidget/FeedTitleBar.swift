@@ -1,5 +1,6 @@
 import AppIntents
 import SwiftUI
+import Hanami
 
 struct FeedTitleBar: View {
     let title: String

@@ -10,6 +10,15 @@
 		AA000001AABB0001006081EF /* SQLite in Frameworks */ = {isa = PBXBuildFile; productRef = AA000001AABB0002006081EF /* SQLite */; };
 		AA000001AABB0003006081EF /* SQLite in Frameworks */ = {isa = PBXBuildFile; productRef = AA000001AABB0004006081EF /* SQLite */; };
 		E41D98A82F8B3B6E00FB2880 /* FluidAudio in Frameworks */ = {isa = PBXBuildFile; productRef = E41D98A72F8B3B6E00FB2880 /* FluidAudio */; };
+		E444841A2FB09B0E003FDAD4 /* Hanami.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E44484142FB09B0E003FDAD4 /* Hanami.framework */; };
+		E444841B2FB09B0E003FDAD4 /* Hanami.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = E44484142FB09B0E003FDAD4 /* Hanami.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		E444842A2FB0A00E003FDAD4 /* Hanami.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E44484142FB09B0E003FDAD4 /* Hanami.framework */; };
+		E444842B2FB0A00E003FDAD4 /* Hanami.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E44484142FB09B0E003FDAD4 /* Hanami.framework */; };
+		E444842C2FB0A00E003FDAD4 /* Hanami.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E44484142FB09B0E003FDAD4 /* Hanami.framework */; };
+		E444844E2FB0A00E003FDAD4 /* FluidAudio in Frameworks */ = {isa = PBXBuildFile; productRef = E444844A2FB0A00E003FDAD4 /* FluidAudio */; };
+		E444844F2FB0A00E003FDAD4 /* SwiftSoup in Frameworks */ = {isa = PBXBuildFile; productRef = E444844B2FB0A00E003FDAD4 /* SwiftSoup */; };
+		E44484502FB0A00E003FDAD4 /* FaviconFinder in Frameworks */ = {isa = PBXBuildFile; productRef = E444844C2FB0A00E003FDAD4 /* FaviconFinder */; };
+		E44484512FB0A00E003FDAD4 /* SQLite in Frameworks */ = {isa = PBXBuildFile; productRef = E444844D2FB0A00E003FDAD4 /* SQLite */; };
 		E45EAA172F9FA36900EA7A54 /* UniformTypeIdentifiers.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E47D10362F54980E006081EF /* UniformTypeIdentifiers.framework */; };
 		E45EAA222F9FA36900EA7A54 /* Open Article.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = E45EAA162F9FA36900EA7A54 /* Open Article.appex */; platformFilters = (ios, xros, ); settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		E47D102E2F5497AC006081EF /* SQLite in Frameworks */ = {isa = PBXBuildFile; productRef = E47D102D2F5497AC006081EF /* SQLite */; };
@@ -23,6 +32,34 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		E44484182FB09B0E003FDAD4 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = E47D10132F549605006081EF /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = E44484132FB09B0E003FDAD4;
+			remoteInfo = Hanami;
+		};
+		E444842D2FB0A00E003FDAD4 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = E47D10132F549605006081EF /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = E44484132FB09B0E003FDAD4;
+			remoteInfo = Hanami;
+		};
+		E444842E2FB0A00E003FDAD4 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = E47D10132F549605006081EF /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = E44484132FB09B0E003FDAD4;
+			remoteInfo = Hanami;
+		};
+		E444842F2FB0A00E003FDAD4 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = E47D10132F549605006081EF /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = E44484132FB09B0E003FDAD4;
+			remoteInfo = Hanami;
+		};
 		E45EAA202F9FA36900EA7A54 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = E47D10132F549605006081EF /* Project object */;
@@ -47,6 +84,17 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
+		E444841C2FB09B0E003FDAD4 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				E444841B2FB09B0E003FDAD4 /* Hanami.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		E47D10482F54980E006081EF /* Embed Foundation Extensions */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -63,6 +111,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		E44484142FB09B0E003FDAD4 /* Hanami.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Hanami.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		E45EAA162F9FA36900EA7A54 /* Open Article.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "Open Article.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
 		E47D101B2F549605006081EF /* Sakura.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Sakura.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E47D10342F54980E006081EF /* Add Feed.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "Add Feed.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -73,170 +122,6 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		E426BCBD2F93A87200FF1B20 /* Exceptions for "Feeds" folder in "Add Feed" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				"Article Content Extractor/ArticleContentExtractor+Helpers.swift",
-				"Article Content Extractor/ArticleContentExtractor+Pipeline.swift",
-				"Article Content Extractor/ArticleContentExtractor+Providers.swift",
-				"Article Content Extractor/ArticleContentExtractor+Renderers.swift",
-				"Article Content Extractor/ArticleContentExtractor+Sources.swift",
-				"Article Content Extractor/ArticleContentExtractor+Web.swift",
-				"Article Extractor/ArticleExtractor.swift",
-				"Article Extractor/ArticleExtractor+AMP.swift",
-				"Article Extractor/ArticleExtractor+Audio.swift",
-				"Article Extractor/ArticleExtractor+BlockCollection.swift",
-				"Article Extractor/ArticleExtractor+CodeContent.swift",
-				"Article Extractor/ArticleExtractor+Embeds.swift",
-				"Article Extractor/ArticleExtractor+GenericEmbeds.swift",
-				"Article Extractor/ArticleExtractor+Heuristics.swift",
-				"Article Extractor/ArticleExtractor+ImageURL.swift",
-				"Article Extractor/ArticleExtractor+Metadata.swift",
-				"Article Extractor/ArticleExtractor+Noise.swift",
-				"Article Extractor/ArticleExtractor+NoiseHeuristics.swift",
-				"Article Extractor/ArticleExtractor+OneCushioned.swift",
-				"Article Extractor/ArticleExtractor+Pagination.swift",
-				"Article Extractor/ArticleExtractor+Structured.swift",
-				"Article Extractor/ArticleExtractor+TextContent.swift",
-				"Article Extractor/ArticleExtractor+TextContent+Postprocess.swift",
-				"Article Extractor/ArticleExtractor+TextHTMLTags.swift",
-				"Article Extractor/ArticleExtractor+URLResolution.swift",
-				"Article Extractor/NextPageURLCollector.swift",
-				"Article Extractor/Noise Data/AdvertisementTextPatterns.json",
-				"Article Extractor/Noise Data/NoiseClassPatterns.json",
-				"Article Extractor/Noise Data/NoiseData.swift",
-				"Article Extractor/Noise Data/NoiseSelectors.json",
-				"Article Extractor/Noise Data/UnsafeInsideArticle.json",
-				"Article Extractor/WebViewExtractor.swift",
-				"Icon Cache/IconCache.swift",
-				"Icon Cache/IconCache+Cropping.swift",
-				"Icon Cache/IconCache+CustomIcons.swift",
-				"Icon Cache/IconCache+FailedLookups.swift",
-				"Icon Cache/IconCache+Fetching.swift",
-				"Icon Cache/IconCache+HTMLParsing.swift",
-				"Icon Cache/IconCache+Profiles.swift",
-				"Icon Cache/IconCache+PWA.swift",
-				"Providers/FeedProviderRegistry+Refreshing.swift",
-				"Providers/Instagram/InstagramProvider+Refresh.swift",
-				Providers/Petal/PetalAutoDetect.swift,
-				Providers/Petal/PetalEngine/PetalEngine.swift,
-				"Providers/Petal/PetalEngine/PetalEngine+Dates.swift",
-				"Providers/Petal/PetalEngine/PetalEngine+Fetching.swift",
-				"Providers/Petal/PetalEngine/PetalEngine+Parsing.swift",
-				Providers/Petal/PetalWebViewLoader.swift,
-				Providers/Podcasts/Downloads/DownloadProgress.swift,
-				Providers/Podcasts/Downloads/DownloadState.swift,
-				Providers/Podcasts/Downloads/PodcastDownloadError.swift,
-				Providers/Podcasts/Downloads/PodcastDownloadManager.swift,
-				"Providers/Podcasts/Downloads/PodcastDownloadManager+Download.swift",
-				"Providers/Podcasts/Downloads/PodcastDownloadManager+Lifecycle.swift",
-				"Providers/Podcasts/Downloads/PodcastDownloadManager+Maintenance.swift",
-				"Providers/Podcasts/Downloads/PodcastDownloadManager+Storage.swift",
-				"Providers/Podcasts/Downloads/PodcastDownloadManager+Transcription.swift",
-				"Providers/Podcasts/Downloads/PodcastDownloadManager+URLSessionDelegate.swift",
-				Providers/Podcasts/Transcriber/Engines/FluidTranscriberEngine.swift,
-				Providers/Podcasts/Transcriber/PodcastTranscriber.swift,
-				Providers/Podcasts/Transcriber/TranscriptionEngine.swift,
-				Providers/Protocols/WebFeedProvider.swift,
-				"Providers/X/XProvider+Refresh.swift",
-				"Providers/YouTube/YouTubePlaylistProvider+Refresh.swift",
-				"Site Adapters/AppleAdapter.swift",
-				"Site Adapters/France24Adapter.swift",
-				"Site Adapters/GitHubAdapter.swift",
-				"Site Adapters/MothershipAdapter.swift",
-				"Site Adapters/SiteAdapter.swift",
-				"Site Adapters/SiteAdapterRegistry.swift",
-				"Site Adapters/StackOverflowAdapter.swift",
-				"Site Adapters/TomsHardwareAdapter.swift",
-				"Site Adapters/VergeAdapter.swift",
-				"Site Adapters/WikipediaAdapter.swift",
-				"Site Adapters/ZDNETAdapter.swift",
-				"Site Adapters/ZennAdapter.swift",
-			);
-			target = E47D10332F54980E006081EF /* Add Feed */;
-		};
-		E426BCBE2F93A87200FF1B20 /* Exceptions for "Feeds" folder in "WidgetsExtension" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				"Article Content Extractor/ArticleContentExtractor+Helpers.swift",
-				"Article Content Extractor/ArticleContentExtractor+Pipeline.swift",
-				"Article Content Extractor/ArticleContentExtractor+Providers.swift",
-				"Article Content Extractor/ArticleContentExtractor+Renderers.swift",
-				"Article Content Extractor/ArticleContentExtractor+Sources.swift",
-				"Article Content Extractor/ArticleContentExtractor+Web.swift",
-				"Article Extractor/ArticleExtractor.swift",
-				"Article Extractor/ArticleExtractor+AMP.swift",
-				"Article Extractor/ArticleExtractor+Audio.swift",
-				"Article Extractor/ArticleExtractor+BlockCollection.swift",
-				"Article Extractor/ArticleExtractor+CodeContent.swift",
-				"Article Extractor/ArticleExtractor+Embeds.swift",
-				"Article Extractor/ArticleExtractor+GenericEmbeds.swift",
-				"Article Extractor/ArticleExtractor+Heuristics.swift",
-				"Article Extractor/ArticleExtractor+ImageURL.swift",
-				"Article Extractor/ArticleExtractor+Metadata.swift",
-				"Article Extractor/ArticleExtractor+Noise.swift",
-				"Article Extractor/ArticleExtractor+NoiseHeuristics.swift",
-				"Article Extractor/ArticleExtractor+OneCushioned.swift",
-				"Article Extractor/ArticleExtractor+Pagination.swift",
-				"Article Extractor/ArticleExtractor+Structured.swift",
-				"Article Extractor/ArticleExtractor+TextContent.swift",
-				"Article Extractor/ArticleExtractor+TextContent+Postprocess.swift",
-				"Article Extractor/ArticleExtractor+TextHTMLTags.swift",
-				"Article Extractor/ArticleExtractor+URLResolution.swift",
-				"Article Extractor/NextPageURLCollector.swift",
-				"Article Extractor/Noise Data/AdvertisementTextPatterns.json",
-				"Article Extractor/Noise Data/NoiseClassPatterns.json",
-				"Article Extractor/Noise Data/NoiseData.swift",
-				"Article Extractor/Noise Data/NoiseSelectors.json",
-				"Article Extractor/Noise Data/UnsafeInsideArticle.json",
-				"Article Extractor/WebViewExtractor.swift",
-				"Icon Cache/IconCache.swift",
-				"Icon Cache/IconCache+Cropping.swift",
-				"Icon Cache/IconCache+CustomIcons.swift",
-				"Icon Cache/IconCache+FailedLookups.swift",
-				"Icon Cache/IconCache+Fetching.swift",
-				"Icon Cache/IconCache+HTMLParsing.swift",
-				"Icon Cache/IconCache+Profiles.swift",
-				"Icon Cache/IconCache+PWA.swift",
-				"Providers/FeedProviderRegistry+Refreshing.swift",
-				"Providers/Instagram/InstagramProvider+Refresh.swift",
-				Providers/Petal/PetalAutoDetect.swift,
-				Providers/Petal/PetalEngine/PetalEngine.swift,
-				"Providers/Petal/PetalEngine/PetalEngine+Dates.swift",
-				"Providers/Petal/PetalEngine/PetalEngine+Fetching.swift",
-				"Providers/Petal/PetalEngine/PetalEngine+Parsing.swift",
-				Providers/Petal/PetalWebViewLoader.swift,
-				Providers/Podcasts/Downloads/DownloadProgress.swift,
-				Providers/Podcasts/Downloads/DownloadState.swift,
-				Providers/Podcasts/Downloads/PodcastDownloadError.swift,
-				Providers/Podcasts/Downloads/PodcastDownloadManager.swift,
-				"Providers/Podcasts/Downloads/PodcastDownloadManager+Download.swift",
-				"Providers/Podcasts/Downloads/PodcastDownloadManager+Lifecycle.swift",
-				"Providers/Podcasts/Downloads/PodcastDownloadManager+Maintenance.swift",
-				"Providers/Podcasts/Downloads/PodcastDownloadManager+Storage.swift",
-				"Providers/Podcasts/Downloads/PodcastDownloadManager+Transcription.swift",
-				"Providers/Podcasts/Downloads/PodcastDownloadManager+URLSessionDelegate.swift",
-				Providers/Podcasts/Transcriber/Engines/FluidTranscriberEngine.swift,
-				Providers/Podcasts/Transcriber/PodcastTranscriber.swift,
-				Providers/Podcasts/Transcriber/TranscriptionEngine.swift,
-				Providers/Protocols/WebFeedProvider.swift,
-				"Providers/X/XProvider+Refresh.swift",
-				"Providers/YouTube/YouTubePlaylistProvider+Refresh.swift",
-				"Site Adapters/AppleAdapter.swift",
-				"Site Adapters/France24Adapter.swift",
-				"Site Adapters/GitHubAdapter.swift",
-				"Site Adapters/MothershipAdapter.swift",
-				"Site Adapters/SiteAdapter.swift",
-				"Site Adapters/SiteAdapterRegistry.swift",
-				"Site Adapters/StackOverflowAdapter.swift",
-				"Site Adapters/TomsHardwareAdapter.swift",
-				"Site Adapters/VergeAdapter.swift",
-				"Site Adapters/WikipediaAdapter.swift",
-				"Site Adapters/ZDNETAdapter.swift",
-				"Site Adapters/ZennAdapter.swift",
-			);
-			target = E47D104C2F549821006081EF /* WidgetsExtension */;
-		};
 		E45EAA232F9FA36900EA7A54 /* Exceptions for "Open Article" folder in "Open Article" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
@@ -248,7 +133,6 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Assets.xcassets,
-				Log.swift,
 			);
 			target = E45EAA152F9FA36900EA7A54 /* Open Article */;
 		};
@@ -273,33 +157,12 @@
 			);
 			target = E47D101A2F549605006081EF /* Sakura */;
 		};
-		E4F2F02C2F839D74006E0EDA /* Exceptions for "Shared" folder in "Add Feed" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				Network/ImageDownsampler.swift,
-				Network/NetworkMonitor.swift,
-				SponsorBlock/SponsorBlockClient.swift,
-			);
-			target = E47D10332F54980E006081EF /* Add Feed */;
-		};
-		E4F2F02D2F839D74006E0EDA /* Exceptions for "Shared" folder in "WidgetsExtension" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				Network/NetworkMonitor.swift,
-				SponsorBlock/SponsorBlockClient.swift,
-			);
-			target = E47D104C2F549821006081EF /* WidgetsExtension */;
-		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		E426BCBC2F93A86A00FF1B20 /* Feeds */ = {
+		E44484152FB09B0E003FDAD4 /* Hanami */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				E426BCBD2F93A87200FF1B20 /* Exceptions for "Feeds" folder in "Add Feed" target */,
-				E426BCBE2F93A87200FF1B20 /* Exceptions for "Feeds" folder in "WidgetsExtension" target */,
-			);
-			path = Feeds;
+			path = Hanami;
 			sourceTree = "<group>";
 		};
 		E45EAA182F9FA36900EA7A54 /* Open Article */ = {
@@ -321,9 +184,7 @@
 		E47D10292F549709006081EF /* Shared */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				E4F2F02C2F839D74006E0EDA /* Exceptions for "Shared" folder in "Add Feed" target */,
 				E45EAA462FA0406300EA7A54 /* Exceptions for "Shared" folder in "Open Article" target */,
-				E4F2F02D2F839D74006E0EDA /* Exceptions for "Shared" folder in "WidgetsExtension" target */,
 			);
 			path = Shared;
 			sourceTree = "<group>";
@@ -347,11 +208,23 @@
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		E44484112FB09B0E003FDAD4 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E44484512FB0A00E003FDAD4 /* SQLite in Frameworks */,
+				E44484502FB0A00E003FDAD4 /* FaviconFinder in Frameworks */,
+				E444844F2FB0A00E003FDAD4 /* SwiftSoup in Frameworks */,
+				E444844E2FB0A00E003FDAD4 /* FluidAudio in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		E45EAA132F9FA36900EA7A54 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 				E45EAA172F9FA36900EA7A54 /* UniformTypeIdentifiers.framework in Frameworks */,
+				E444842A2FB0A00E003FDAD4 /* Hanami.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -360,6 +233,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				E47D102E2F5497AC006081EF /* SQLite in Frameworks */,
+				E444841A2FB09B0E003FDAD4 /* Hanami.framework in Frameworks */,
 				E47D10632F54986D006081EF /* FaviconFinder in Frameworks */,
 				E41D98A82F8B3B6E00FB2880 /* FluidAudio in Frameworks */,
 				E47D13182F549F92006081EF /* SwiftSoup in Frameworks */,
@@ -372,6 +246,7 @@
 			files = (
 				E47D10372F54980E006081EF /* UniformTypeIdentifiers.framework in Frameworks */,
 				AA000001AABB0001006081EF /* SQLite in Frameworks */,
+				E444842B2FB0A00E003FDAD4 /* Hanami.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -382,6 +257,7 @@
 				E47D10512F549821006081EF /* SwiftUI.framework in Frameworks */,
 				E47D104F2F549821006081EF /* WidgetKit.framework in Frameworks */,
 				AA000001AABB0003006081EF /* SQLite in Frameworks */,
+				E444842C2FB0A00E003FDAD4 /* Hanami.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -394,7 +270,7 @@
 				E47D10352F54980E006081EF /* Frameworks */,
 				E47D101C2F549605006081EF /* Products */,
 				E47D101D2F549605006081EF /* App */,
-				E426BCBC2F93A86A00FF1B20 /* Feeds */,
+				E44484152FB09B0E003FDAD4 /* Hanami */,
 				E47D10292F549709006081EF /* Shared */,
 				E47D10382F54980E006081EF /* Add Feed */,
 				E45EAA182F9FA36900EA7A54 /* Open Article */,
@@ -409,6 +285,7 @@
 				E47D10342F54980E006081EF /* Add Feed.appex */,
 				E47D104D2F549821006081EF /* WidgetsExtension.appex */,
 				E45EAA162F9FA36900EA7A54 /* Open Article.appex */,
+				E44484142FB09B0E003FDAD4 /* Hanami.framework */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -425,7 +302,44 @@
 		};
 /* End PBXGroup section */
 
+/* Begin PBXHeadersBuildPhase section */
+		E444840F2FB09B0E003FDAD4 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
 /* Begin PBXNativeTarget section */
+		E44484132FB09B0E003FDAD4 /* Hanami */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = E444841F2FB09B0E003FDAD4 /* Build configuration list for PBXNativeTarget "Hanami" */;
+			buildPhases = (
+				E444840F2FB09B0E003FDAD4 /* Headers */,
+				E44484102FB09B0E003FDAD4 /* Sources */,
+				E44484112FB09B0E003FDAD4 /* Frameworks */,
+				E44484122FB09B0E003FDAD4 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				E44484152FB09B0E003FDAD4 /* Hanami */,
+			);
+			name = Hanami;
+			packageProductDependencies = (
+				E444844A2FB0A00E003FDAD4 /* FluidAudio */,
+				E444844B2FB0A00E003FDAD4 /* SwiftSoup */,
+				E444844C2FB0A00E003FDAD4 /* FaviconFinder */,
+				E444844D2FB0A00E003FDAD4 /* SQLite */,
+			);
+			productName = Hanami;
+			productReference = E44484142FB09B0E003FDAD4 /* Hanami.framework */;
+			productType = "com.apple.product-type.framework";
+		};
 		E45EAA152F9FA36900EA7A54 /* Open Article */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = E45EAA242F9FA36900EA7A54 /* Build configuration list for PBXNativeTarget "Open Article" */;
@@ -437,6 +351,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				E444843A2FB0A00E003FDAD4 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				E45EAA182F9FA36900EA7A54 /* Open Article */,
@@ -457,6 +372,7 @@
 				E47D10192F549605006081EF /* Resources */,
 				E47D10482F54980E006081EF /* Embed Foundation Extensions */,
 				E47D13152F549EA3006081EF /* ShellScript */,
+				E444841C2FB09B0E003FDAD4 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -464,9 +380,9 @@
 				E47D10422F54980E006081EF /* PBXTargetDependency */,
 				E47D105B2F549822006081EF /* PBXTargetDependency */,
 				E45EAA212F9FA36900EA7A54 /* PBXTargetDependency */,
+				E44484192FB09B0E003FDAD4 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
-				E426BCBC2F93A86A00FF1B20 /* Feeds */,
 				E47D101D2F549605006081EF /* App */,
 				E47D10292F549709006081EF /* Shared */,
 			);
@@ -492,9 +408,9 @@
 			buildRules = (
 			);
 			dependencies = (
+				E444843B2FB0A00E003FDAD4 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
-				E426BCBC2F93A86A00FF1B20 /* Feeds */,
 				E47D10292F549709006081EF /* Shared */,
 				E47D10382F54980E006081EF /* Add Feed */,
 			);
@@ -517,9 +433,9 @@
 			buildRules = (
 			);
 			dependencies = (
+				E444843C2FB0A00E003FDAD4 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
-				E426BCBC2F93A86A00FF1B20 /* Feeds */,
 				E47D10292F549709006081EF /* Shared */,
 				E47D10522F549821006081EF /* Widgets */,
 			);
@@ -541,6 +457,9 @@
 				LastSwiftUpdateCheck = 2640;
 				LastUpgradeCheck = 2640;
 				TargetAttributes = {
+					E44484132FB09B0E003FDAD4 = {
+						CreatedOnToolsVersion = 26.4.1;
+					};
 					E45EAA152F9FA36900EA7A54 = {
 						CreatedOnToolsVersion = 26.4.1;
 					};
@@ -587,11 +506,19 @@
 				E47D10332F54980E006081EF /* Add Feed */,
 				E45EAA152F9FA36900EA7A54 /* Open Article */,
 				E47D104C2F549821006081EF /* WidgetsExtension */,
+				E44484132FB09B0E003FDAD4 /* Hanami */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		E44484122FB09B0E003FDAD4 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		E45EAA142F9FA36900EA7A54 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -644,6 +571,13 @@
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		E44484102FB09B0E003FDAD4 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		E45EAA122F9FA36900EA7A54 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -675,6 +609,26 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		E44484192FB09B0E003FDAD4 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = E44484132FB09B0E003FDAD4 /* Hanami */;
+			targetProxy = E44484182FB09B0E003FDAD4 /* PBXContainerItemProxy */;
+		};
+		E444843A2FB0A00E003FDAD4 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = E44484132FB09B0E003FDAD4 /* Hanami */;
+			targetProxy = E444842D2FB0A00E003FDAD4 /* PBXContainerItemProxy */;
+		};
+		E444843B2FB0A00E003FDAD4 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = E44484132FB09B0E003FDAD4 /* Hanami */;
+			targetProxy = E444842E2FB0A00E003FDAD4 /* PBXContainerItemProxy */;
+		};
+		E444843C2FB0A00E003FDAD4 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = E44484132FB09B0E003FDAD4 /* Hanami */;
+			targetProxy = E444842F2FB0A00E003FDAD4 /* PBXContainerItemProxy */;
+		};
 		E45EAA212F9FA36900EA7A54 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			platformFilters = (
@@ -705,6 +659,98 @@
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
+		E444841D2FB09B0E003FDAD4 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALLOW_TARGET_PLATFORM_SPECIALIZATION = YES;
+				BUILD_LIBRARY_FOR_DISTRIBUTION = NO;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = YYM4Z6MU8F;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_MODULE_VERIFIER = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
+				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 gnu++20";
+				PRODUCT_BUNDLE_IDENTIFIER = com.tsubuzaki.Hanami;
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator xros xrsimulator";
+				SUPPORTS_MACCATALYST = YES;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_INSTALL_MODULE = YES;
+				SWIFT_INSTALL_OBJC_HEADER = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2,7";
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+				XROS_DEPLOYMENT_TARGET = 26.0;
+			};
+			name = Debug;
+		};
+		E444841E2FB09B0E003FDAD4 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALLOW_TARGET_PLATFORM_SPECIALIZATION = YES;
+				BUILD_LIBRARY_FOR_DISTRIBUTION = NO;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = YYM4Z6MU8F;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_MODULE_VERIFIER = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
+				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 gnu++20";
+				PRODUCT_BUNDLE_IDENTIFIER = com.tsubuzaki.Hanami;
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator xros xrsimulator";
+				SUPPORTS_MACCATALYST = YES;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_INSTALL_MODULE = YES;
+				SWIFT_INSTALL_OBJC_HEADER = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2,7";
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+				XROS_DEPLOYMENT_TARGET = 26.0;
+			};
+			name = Release;
+		};
 		E45EAA252F9FA36900EA7A54 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -1159,6 +1205,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		E444841F2FB09B0E003FDAD4 /* Build configuration list for PBXNativeTarget "Hanami" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E444841D2FB09B0E003FDAD4 /* Debug */,
+				E444841E2FB09B0E003FDAD4 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		E45EAA242F9FA36900EA7A54 /* Build configuration list for PBXNativeTarget "Open Article" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -1256,6 +1311,26 @@
 			isa = XCSwiftPackageProductDependency;
 			package = E41D98A62F8B3B6E00FB2880 /* XCRemoteSwiftPackageReference "FluidAudio" */;
 			productName = FluidAudio;
+		};
+		E444844A2FB0A00E003FDAD4 /* FluidAudio */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = E41D98A62F8B3B6E00FB2880 /* XCRemoteSwiftPackageReference "FluidAudio" */;
+			productName = FluidAudio;
+		};
+		E444844B2FB0A00E003FDAD4 /* SwiftSoup */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = E47D13162F549F92006081EF /* XCRemoteSwiftPackageReference "SwiftSoup" */;
+			productName = SwiftSoup;
+		};
+		E444844C2FB0A00E003FDAD4 /* FaviconFinder */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = E47D10612F54986D006081EF /* XCRemoteSwiftPackageReference "FaviconFinder" */;
+			productName = FaviconFinder;
+		};
+		E444844D2FB0A00E003FDAD4 /* SQLite */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = E47D102C2F5497AC006081EF /* XCRemoteSwiftPackageReference "SQLite.swift" */;
+			productName = SQLite;
 		};
 		E47D102D2F5497AC006081EF /* SQLite */ = {
 			isa = XCSwiftPackageProductDependency;

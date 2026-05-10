@@ -1,4 +1,5 @@
 import Foundation
+import Hanami
 
 /// Local copy of the request struct used to launch the host app via the
 /// `sakura://open` URL scheme. The main app declares its own copy in

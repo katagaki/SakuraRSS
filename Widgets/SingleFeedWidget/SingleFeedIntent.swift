@@ -1,5 +1,6 @@
 import AppIntents
 import WidgetKit
+import Hanami
 
 struct SingleFeedIntent: WidgetConfigurationIntent {
     static let title: LocalizedStringResource = LocalizedStringResource("SingleFeedWidget.IntentTitle", table: "Widget")

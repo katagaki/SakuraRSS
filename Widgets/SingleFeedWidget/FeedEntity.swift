@@ -1,4 +1,5 @@
 import AppIntents
+import Hanami
 
 struct FeedQuery: EntityQuery {
 

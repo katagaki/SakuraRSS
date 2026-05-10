@@ -1,4 +1,5 @@
 import SwiftUI
+import Hanami
 
 /// Watches a search-field text binding for `/enable-feature:KEY` and
 /// `/disable-feature:KEY` inputs. When the input matches a known

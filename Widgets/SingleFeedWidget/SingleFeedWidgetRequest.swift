@@ -1,4 +1,5 @@
 import Foundation
+import Hanami
 
 struct SingleFeedWidgetRequest {
     let feedID: Int64
