@@ -12,7 +12,6 @@ enum HomeContentSource: Hashable {
 struct HomeSectionView: View {
 
     @Environment(FeedManager.self) var feedManager
-    @Environment(\.hidesRefreshDonutToolbar) private var hidesRefreshDonutToolbar
 
     let source: HomeContentSource
     let showsListHeader: Bool
@@ -223,7 +222,7 @@ struct HomeSectionView: View {
             onMarkAllRead: performMarkAllRead,
             scrollToTopTrigger: scrollToTopTick &+ externalScrollToTopTrigger,
             headerView: headerView,
-            additionalLeadingToolbar: (!hidesRefreshDonutToolbar && scopedRefreshState.hasActiveProgress) ? AnyView(
+            additionalLeadingToolbar: scopedRefreshState.hasActiveProgress ? AnyView(
                 FeedRefreshProgressDonut(
                     progress: scopedRefreshState.progress,
                     onStop: { [scope = scopeKey] in feedManager.cancelScopedRefresh(scope: scope) }

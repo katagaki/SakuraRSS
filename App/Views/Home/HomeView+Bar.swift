@@ -44,12 +44,15 @@ extension HomeView {
         return false
     }
 
+    /// Surfaces the refresh that the toolbar donut should display. Only fires
+    /// for the app startup preload (non-scoped global refresh) — which has no
+    /// per-section donut anywhere — and for Today's pull-to-refresh, which
+    /// uses the `section.all` scope but is rendered by `TodayView` and so
+    /// has no section-level donut of its own. Section pull-to-refreshes are
+    /// surfaced by `HomeSectionView` instead.
     var homeRefreshState: ScopedRefreshState {
-        if let scoped = feedManager.scopedRefreshes[currentScopeKey],
-           scoped.hasActiveProgress {
-            return scoped
-        }
-        if let scoped = feedManager.scopedRefreshes["section.all"],
+        if isTodaySelected,
+           let scoped = feedManager.scopedRefreshes["section.all"],
            scoped.hasActiveProgress {
             return scoped
         }
@@ -64,15 +67,12 @@ extension HomeView {
         return ScopedRefreshState()
     }
 
-    /// Cancels whichever refresh is currently visible to the user (the
-    /// current section's scope, the global startup preload scope, or the
-    /// non-scoped global refresh) and forces every displayed data source to
-    /// reload so callers see fresh state regardless of which tab is active.
+    /// Cancels the refresh tracked by `homeRefreshState` and forces Today's
+    /// data to reload alongside the database revision bump driven by the
+    /// underlying cancel calls, so neither Today summaries nor section
+    /// preloaded entries are left stale.
     func cancelHomeRefresh() {
-        let scope = currentScopeKey
-        if feedManager.scopedRefreshes[scope] != nil {
-            feedManager.cancelScopedRefresh(scope: scope)
-        } else if feedManager.scopedRefreshes["section.all"] != nil {
+        if isTodaySelected, feedManager.scopedRefreshes["section.all"] != nil {
             feedManager.cancelScopedRefresh(scope: "section.all")
         } else {
             feedManager.cancelRefresh()

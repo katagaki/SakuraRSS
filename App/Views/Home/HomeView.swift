@@ -38,7 +38,6 @@ struct HomeView: View {
                     }
                 } else {
                     AllArticlesView()
-                        .environment(\.hidesRefreshDonutToolbar, true)
                 }
             }
                 .environment(\.zoomNamespace, cardZoom)
