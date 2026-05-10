@@ -84,6 +84,7 @@ extension FollowingPage {
         }
     }
 
+    @discardableResult
     func addFeeds(_ items: [FollowingFeedDragItem], to list: FeedList) -> Bool {
         var didAdd = false
         for item in items {

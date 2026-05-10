@@ -25,7 +25,7 @@ extension ExtractsArticle {
     /// extraction takes the JS-rendered or paywalled path.
     func fetchEphemeralPageTitle(from url: URL) async {
         let request = URLRequest.sakura(url: url)
-        guard let (data, response) = try? await URLSession.shared.data(for: request),
+        guard let (data, response) = try? await HTTPSPreferringSession.shared.data(for: request),
               let html = HTMLDataDecoder.decode(data, response: response),
               !html.isEmpty,
               let doc = try? SwiftSoup.parse(html),
@@ -41,11 +41,10 @@ extension ExtractsArticle {
     func extractArticleContent() async {
         isExtracting = true
         isPaywalled = false
-        extractedAuthor = nil
-        extractedPublishedDate = nil
-        extractedLeadImageURL = nil
-        extractedPageTitle = nil
         defer { isExtracting = false }
+        // Keep previously-extracted metadata in place; `applyExtractedMetadata`
+        // only writes when the new run produces a value, so a transient fetch
+        // failure on pull-to-refresh doesn't blank the lead image / byline.
 
         if article.isEphemeral, let url = URL(string: article.url) {
             Task { @MainActor in

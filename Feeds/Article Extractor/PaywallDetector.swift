@@ -39,16 +39,14 @@ nonisolated enum PaywallDetector {
         return textPatterns.contains(where: lowered.contains)
     }
 
-    /// True when raw HTML contains paywall markup like `data-paywall` or subscriber-only meta tags.
     static func htmlSuggestsPaywall(_ html: String) -> Bool {
         let lowered = html.lowercased()
         let markers = [
             "meta name=\"articleaccess\" content=\"subscriber",
-            "data-testid=\"paywall",
-            "class=\"paywall",
-            "id=\"paywall",
-            "data-paywall",
-            "<meta property=\"article:content_tier\" content=\"locked"
+            "<meta property=\"article:content_tier\" content=\"locked",
+            "data-testid=\"paywall\"",
+            "id=\"paywall\"",
+            "data-paywall="
         ]
         return markers.contains(where: lowered.contains)
     }

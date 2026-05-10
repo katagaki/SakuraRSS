@@ -10,7 +10,13 @@ enum ContentBlock: Identifiable {
     case xPost(URL)
     case embed(EmbedProvider, URL)
     case table(header: [String], rows: [[String]])
+    case definitionList(items: [DefinitionListItem])
     case math(String)
+
+    nonisolated struct DefinitionListItem: Hashable, Sendable {
+        let term: String
+        let definitions: [String]
+    }
 
     nonisolated var id: String {
         switch self {
@@ -25,6 +31,8 @@ enum ContentBlock: Identifiable {
             return "embed-\(provider.rawValue)-\(url.absoluteString)"
         case .table(let header, let rows):
             return "table-\(header.hashValue)-\(rows.count)"
+        case .definitionList(let items):
+            return "dl-\(items.hashValue)"
         case .math(let latex): return "math-\(latex.hashValue)"
         }
     }
@@ -54,6 +62,9 @@ enum ContentBlock: Identifiable {
         )
         .replacingOccurrences(
             of: #"(?s)\{\{TABLE\}\}.+?\{\{/TABLE\}\}"#, with: "", options: .regularExpression
+        )
+        .replacingOccurrences(
+            of: #"(?s)\{\{DL\}\}.+?\{\{/DL\}\}"#, with: "", options: .regularExpression
         )
         .replacingOccurrences(
             of: #"\{\{MATH\}\}.+?\{\{/MATH\}\}"#, with: "", options: .regularExpression
@@ -90,6 +101,7 @@ enum ContentBlock: Identifiable {
         (#"\{\{XPOST\}\}.+?\{\{/XPOST\}\}"#, ""),
         (#"\{\{EMBED\}\}.+?\{\{/EMBED\}\}"#, ""),
         (#"(?s)\{\{TABLE\}\}.+?\{\{/TABLE\}\}"#, ""),
+        (#"(?s)\{\{DL\}\}.+?\{\{/DL\}\}"#, ""),
         (#"\{\{MATH\}\}(.+?)\{\{/MATH\}\}"#, "$1"),
         (#"\{\{SUP\}\}(.+?)\{\{/SUP\}\}"#, "$1"),
         (#"\{\{SUB\}\}(.+?)\{\{/SUB\}\}"#, "$1"),
@@ -101,7 +113,7 @@ enum ContentBlock: Identifiable {
     ]
 
     nonisolated static func parse(_ text: String) -> [ContentBlock] {
-        let pattern = #"\{\{(IMG|CODE|VIDEO|AUDIO|YOUTUBE|XPOST|EMBED|TABLE|MATH)\}\}(.*?)\{\{/\1\}\}"#
+        let pattern = #"\{\{(IMG|CODE|VIDEO|AUDIO|YOUTUBE|XPOST|EMBED|TABLE|DL|MATH)\}\}(.*?)\{\{/\1\}\}"#
         guard let regex = try? NSRegularExpression(pattern: pattern, options: .dotMatchesLineSeparators)
         else {
             return [.text(ArticleMarker.unescape(text))]
@@ -154,22 +166,13 @@ enum ContentBlock: Identifiable {
         content: String,
         linkRegex: NSRegularExpression?
     ) -> ContentBlock? {
+        let trimmed = content.trimmingCharacters(in: .whitespacesAndNewlines)
         switch tag {
         case "CODE":
             return content.isEmpty ? nil : .code(ArticleMarker.unescape(content))
-        case "VIDEO":
-            return URL(string: content).map { .video($0) }
-        case "AUDIO":
-            let trimmed = content.trimmingCharacters(in: .whitespacesAndNewlines)
-            return URL(string: trimmed).map { .audio($0) }
-        case "YOUTUBE":
-            let trimmed = content.trimmingCharacters(in: .whitespacesAndNewlines)
-            return trimmed.isEmpty ? nil : .youtube(trimmed)
-        case "XPOST":
-            let trimmed = content.trimmingCharacters(in: .whitespacesAndNewlines)
-            return URL(string: trimmed).map { .xPost($0) }
+        case "VIDEO", "AUDIO", "YOUTUBE", "XPOST":
+            return urlBlock(forTag: tag, content: trimmed)
         case "EMBED":
-            let trimmed = content.trimmingCharacters(in: .whitespacesAndNewlines)
             let parts = trimmed.split(separator: "|", maxSplits: 1, omittingEmptySubsequences: false)
             guard parts.count == 2,
                   let provider = EmbedProvider(markerValue: String(parts[0])),
@@ -177,11 +180,22 @@ enum ContentBlock: Identifiable {
             return .embed(provider, url)
         case "TABLE":
             return parseTableMarker(content)
+        case "DL":
+            return parseDefinitionListMarker(content)
         case "MATH":
-            let trimmed = content.trimmingCharacters(in: .whitespacesAndNewlines)
             return trimmed.isEmpty ? nil : .math(ArticleMarker.unescape(trimmed))
         default:
             return imageBlock(content: content, linkRegex: linkRegex)
+        }
+    }
+
+    nonisolated private static func urlBlock(forTag tag: String, content: String) -> ContentBlock? {
+        switch tag {
+        case "VIDEO": return URL(string: content).map { .video($0) }
+        case "AUDIO": return URL(string: content).map { .audio($0) }
+        case "YOUTUBE": return content.isEmpty ? nil : .youtube(content)
+        case "XPOST": return URL(string: content).map { .xPost($0) }
+        default: return nil
         }
     }
 
@@ -218,5 +232,26 @@ enum ContentBlock: Identifiable {
             .filter { !$0.allSatisfy(\.isEmpty) }
         guard !header.isEmpty else { return nil }
         return .table(header: header, rows: rows)
+    }
+
+    /// Parses `{{DL}}` payload `term1|def1a|def1b\nterm2|def2a…` into definition items.
+    /// The first cell on each line is the term; remaining cells are its definitions.
+    nonisolated private static func parseDefinitionListMarker(_ content: String) -> ContentBlock? {
+        let lines = content
+            .split(separator: "\n", omittingEmptySubsequences: false)
+            .map { String($0) }
+        let items: [DefinitionListItem] = lines.compactMap { line in
+            let cells = line.components(separatedBy: "|").map {
+                ArticleMarker.unescape(
+                    $0.trimmingCharacters(in: .whitespacesAndNewlines)
+                        .replacingOccurrences(of: "¦", with: "|")
+                )
+            }
+            guard let term = cells.first, !term.isEmpty else { return nil }
+            let definitions = Array(cells.dropFirst()).filter { !$0.isEmpty }
+            return DefinitionListItem(term: term, definitions: definitions)
+        }
+        guard !items.isEmpty else { return nil }
+        return .definitionList(items: items)
     }
 }

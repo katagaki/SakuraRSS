@@ -38,17 +38,14 @@ extension ArticleContentExtractor {
         let url = await ArticleExtractor.resolveOneCushionedURL(initialURL)
         let (html, _) = await fetchHTML(from: url)
         if let html {
-            let text = ArticleExtractor.extractText(
+            let extracted = ArticleExtractor.extractArticle(
                 fromHTML: html, baseURL: url, excludeTitle: article.title
             )
-            result.text = text
+            result.text = extracted.text
             if article.isEphemeral {
-                let extracted = ArticleExtractor.extractArticle(
-                    fromHTML: html, baseURL: url, excludeTitle: article.title
-                )
                 mergeMetadata(extracted.metadata)
             }
-            if let text, !text.isEmpty {
+            if let text = extracted.text, !text.isEmpty {
                 persistCachedContent(text)
             }
         }
@@ -77,16 +74,22 @@ extension ArticleContentExtractor {
 
     /// Tries the feed-supplied content as a last resort before web extraction.
     /// Skipped when the article came from Reddit (linked articles use the
-    /// resolved URL, not Reddit's snippet) or sits on a one-cushioned domain
-    /// (LinkedIn etc., where the feed snippet is just a teaser).
+    /// resolved URL, not Reddit's snippet), sits on a one-cushioned domain
+    /// (LinkedIn etc., where the feed snippet is just a teaser), or has a
+    /// registered `SiteAdapter` (which produces a richer extraction than the
+    /// feed snippet, e.g. France24 chapo vs. full body).
     func tryFeedContentFallback() -> Bool {
-        let isOneCushionedArticle: Bool = {
-            guard let url = URL(string: article.url) else { return false }
-            return OneCushionedDomains.isOneCushioned(url: url)
-        }()
+        let articleURL = URL(string: article.url)
+        let isOneCushionedArticle = articleURL.map(OneCushionedDomains.isOneCushioned) ?? false
+        let hasSiteAdapter = articleURL.flatMap(SiteAdapterRegistry.adapter(for:)) != nil
 
-        guard !isRedditLinkedArticle, !isOneCushionedArticle,
+        guard !isRedditLinkedArticle, !isOneCushionedArticle, !hasSiteAdapter,
               let content = article.content, !content.isEmpty else { return false }
+
+        if ArticleExtractor.looksLikePartialFeedSnippet(content) {
+            log("Extract", "Feed content looks partial (CTA link present), fetching full URL: \(article.url)")
+            return false
+        }
 
         let baseURL = URL(string: article.url)
         let text = ArticleExtractor.extractText(

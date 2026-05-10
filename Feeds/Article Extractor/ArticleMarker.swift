@@ -23,6 +23,8 @@ nonisolated enum ArticleMarker {
         ("{{/EMBED}}", "\u{E000}/EMBED\u{E001}"),
         ("{{TABLE}}", "\u{E000}TABLE\u{E001}"),
         ("{{/TABLE}}", "\u{E000}/TABLE\u{E001}"),
+        ("{{DL}}", "\u{E000}DL\u{E001}"),
+        ("{{/DL}}", "\u{E000}/DL\u{E001}"),
         ("{{MATH}}", "\u{E000}MATH\u{E001}"),
         ("{{/MATH}}", "\u{E000}/MATH\u{E001}"),
         ("{{SUP}}", "\u{E000}SUP\u{E001}"),

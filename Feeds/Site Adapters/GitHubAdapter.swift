@@ -1,8 +1,6 @@
 import Foundation
 import SwiftSoup
 
-/// GitHub READMEs, issues, and PR bodies live in well-known containers.
-/// Using them directly avoids ambient repo-navigation chrome and side panels.
 struct GitHubAdapter: SiteAdapter {
 
     func canHandle(url: URL) -> Bool {

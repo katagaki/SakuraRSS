@@ -88,6 +88,52 @@ extension ArticleExtractor {
             .trimmingCharacters(in: .whitespaces)
     }
 
+    /// Builds a `{{DL}}…{{/DL}}` marker from a `<dl>` element.
+    /// Each line encodes one definition item: `term|def1|def2…`, with `|`
+    /// escaped as `¦` (matching the `{{TABLE}}` cell-encoding scheme).
+    /// Returns `nil` when no usable term/definition pairs are present.
+    static func definitionListMarker(from list: Element, baseURL: URL? = nil) -> String? {
+        var items: [(term: String, definitions: [String])] = []
+        for child in list.children() {
+            let tag = child.tagName().lowercased()
+            switch tag {
+            case "dt":
+                let term = encodeDefinitionCell(
+                    (try? textContent(of: child, baseURL: baseURL)) ?? ""
+                )
+                guard !term.isEmpty else { continue }
+                items.append((term: term, definitions: []))
+            case "dd":
+                let definition = encodeDefinitionCell(
+                    (try? textContent(of: child, baseURL: baseURL)) ?? ""
+                )
+                guard !definition.isEmpty else { continue }
+                if items.isEmpty {
+                    items.append((term: "", definitions: [definition]))
+                } else {
+                    items[items.count - 1].definitions.append(definition)
+                }
+            default:
+                continue
+            }
+        }
+        let usable = items.filter { !$0.definitions.isEmpty }
+        guard !usable.isEmpty else { return nil }
+        let payload = usable
+            .map { item in
+                ([item.term] + item.definitions).joined(separator: "|")
+            }
+            .joined(separator: "\n")
+        return "{{DL}}\(payload){{/DL}}"
+    }
+
+    private static func encodeDefinitionCell(_ text: String) -> String {
+        text
+            .replacingOccurrences(of: "\n", with: " ")
+            .replacingOccurrences(of: "|", with: "¦")
+            .trimmingCharacters(in: .whitespaces)
+    }
+
     /// Returns `{{MATH}}latex{{/MATH}}` marker for MathJax / KaTeX blocks
     /// when we can recover the underlying LaTeX source.
     static func mathMarker(from element: Element) -> String? {

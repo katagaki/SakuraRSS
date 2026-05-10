@@ -59,7 +59,7 @@ extension ArticleContentExtractor {
         if tryArXivExtraction() { return true }
         if tryInstagramExtraction() { return true }
         if await tryXPostExtraction() { return true }
-        return await tryExtractTextDomain()
+        return await tryWebViewAdapter()
     }
 
     private func tryArXivExtraction() -> Bool {
@@ -115,9 +115,10 @@ extension ArticleContentExtractor {
         }
     }
 
-    private func tryExtractTextDomain() async -> Bool {
+    private func tryWebViewAdapter() async -> Bool {
         guard let url = URL(string: article.url),
-              ExtractTextDomains.shouldExtractText(for: url) else { return false }
+              let adapter = SiteAdapterRegistry.adapter(for: url),
+              adapter.requiresWebView else { return false }
         let text = await extractViaWebView(from: url, excludeTitle: article.title)
         result.text = text
         if let text, !text.isEmpty {

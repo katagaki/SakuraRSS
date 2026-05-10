@@ -144,7 +144,7 @@ nonisolated extension RSSParser {
             if linkText.isEmpty {
                 result = (result as NSString).replacingCharacters(in: match.range, with: "")
             } else {
-                url = url.replacingOccurrences(of: " ", with: "%20")
+                url = url.markdownLinkSafeURL
                 if !url.hasPrefix("http://") && !url.hasPrefix("https://") {
                     if url.hasPrefix("//"), let abs = URL(string: "https:\(url)") {
                         url = abs.absoluteString

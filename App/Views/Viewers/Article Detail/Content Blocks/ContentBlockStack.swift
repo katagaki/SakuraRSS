@@ -50,6 +50,14 @@ struct ContentBlockStack: View {
                     onImageTap: onImageTap,
                     onLinkTap: onLinkTap
                 )
+            case .definitionList(let items):
+                DefinitionListBlockView(
+                    items: items,
+                    textStyle: textStyle,
+                    imageNamespace: imageNamespace,
+                    onImageTap: onImageTap,
+                    onLinkTap: onLinkTap
+                )
             case .math(let latex):
                 MathBlockView(latex: latex)
             }

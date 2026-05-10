@@ -83,7 +83,8 @@ extension ArticleExtractor {
                 result = (result as NSString).replacingCharacters(in: match.range, with: "")
                 continue
             }
-            let replacement = "\(linkOpenPlaceholder)\(linkText)\(linkMidPlaceholder)\(href)\(linkClosePlaceholder)"
+            let safeHref = href.markdownLinkSafeURL
+            let replacement = "\(linkOpenPlaceholder)\(linkText)\(linkMidPlaceholder)\(safeHref)\(linkClosePlaceholder)"
             result = (result as NSString).replacingCharacters(in: match.range, with: replacement)
         }
         return result

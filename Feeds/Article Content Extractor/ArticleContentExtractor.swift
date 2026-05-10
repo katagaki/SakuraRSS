@@ -5,8 +5,7 @@ import Foundation
 final class ArticleContentExtractor {
 
     /// Bumped whenever extraction logic changes.
-    /// Invalidates all cached article content on next launch.
-    nonisolated static let parserVersion = 18
+    nonisolated static let parserVersion = 20260510_162900
 
     let article: Article
     let articleSourceOverride: ArticleSource?

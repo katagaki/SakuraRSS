@@ -104,6 +104,7 @@ extension ArticleExtractor {
         let shareTargetPatterns = [
             "facebook.com/sharer", "facebook.com/share",
             "twitter.com/intent", "twitter.com/share",
+            "twitter.com/home?status",
             "x.com/intent", "x.com/share",
             "linkedin.com/share", "linkedin.com/sharing",
             "pinterest.com/pin", "reddit.com/submit",

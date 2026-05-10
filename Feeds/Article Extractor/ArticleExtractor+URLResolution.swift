@@ -56,7 +56,7 @@ extension ArticleExtractor {
         for match in matches.reversed() {
             var url = nsText.substring(with: match.range(at: 2))
             if url.hasPrefix("http://") || url.hasPrefix("https://") { continue }
-            url = url.replacingOccurrences(of: " ", with: "%20")
+            url = url.markdownLinkSafeURL
             if url.hasPrefix("//"), let abs = URL(string: "https:\(url)") {
                 url = abs.absoluteString
             } else if let resolved = URL(string: url, relativeTo: baseURL) {

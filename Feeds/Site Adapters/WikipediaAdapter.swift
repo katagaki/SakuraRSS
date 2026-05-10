@@ -1,10 +1,6 @@
 import Foundation
 import SwiftSoup
 
-/// Wikipedia articles are much cleaner when we extract the
-/// `#mw-content-text > .mw-parser-output` container directly.
-/// Auto-suggestions, navigation boxes, and citations all live
-/// outside that scope or are easy to target with targeted selectors.
 struct WikipediaAdapter: SiteAdapter {
 
     func canHandle(url: URL) -> Bool {

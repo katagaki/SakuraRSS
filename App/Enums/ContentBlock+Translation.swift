@@ -13,7 +13,7 @@ extension ContentBlock {
 
     /// Splits marker-encoded text into translatable spans and preserved marker blocks.
     static func translationSegments(from text: String) -> [TranslationSegment] {
-        let pattern = #"\{\{(IMG|CODE|VIDEO|YOUTUBE|XPOST|EMBED|TABLE|MATH)\}\}.*?\{\{/\1\}\}"#
+        let pattern = #"\{\{(IMG|CODE|VIDEO|YOUTUBE|XPOST|EMBED|TABLE|DL|MATH)\}\}.*?\{\{/\1\}\}"#
         guard let regex = try? NSRegularExpression(
             pattern: pattern, options: .dotMatchesLineSeparators
         ) else {

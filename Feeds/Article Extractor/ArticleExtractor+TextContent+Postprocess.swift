@@ -129,6 +129,96 @@ extension ArticleExtractor {
         return result.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
+    /// Link texts used by partial-feed CTAs at the end of an item
+    /// (Ars Technica's "Read full article" / "Comments" pair, etc.).
+    /// Compared case-insensitively against the trimmed Markdown link text.
+    private static let trailingFeedCTATexts: Set<String> = [
+        "read full article",
+        "read full story",
+        "read the full article",
+        "read the full story",
+        "read the rest",
+        "read the rest of this entry",
+        "read the rest of this entry »",
+        "read more",
+        "read more...",
+        "read more…",
+        "read more »",
+        "continue reading",
+        "continue reading...",
+        "continue reading…",
+        "continue reading »",
+        "view original",
+        "view full article",
+        "view on website",
+        "view article",
+        "see full article",
+        "see more",
+        "comments",
+        "view comments",
+        "view all comments",
+        "leave a comment",
+        "0 comments",
+        "discuss on hacker news"
+    ]
+
+    /// Strips trailing paragraphs whose entire content is a single Markdown
+    /// link with text matching `trailingFeedCTATexts`. Targets boilerplate
+    /// like Ars Technica's "Read full article" / "Comments" footer that
+    /// shows up in partial-feed RSS items.
+    static func removeTrailingFeedCTAParagraphs(_ paragraphs: [String]) -> [String] {
+        var result = paragraphs
+        while let last = result.last, isFeedCTAParagraph(last) {
+            result.removeLast()
+        }
+        return result
+    }
+
+    /// Detects whether feed-supplied HTML carries a "Read full article" /
+    /// "Comments" style anchor near its end, indicating the snippet is a
+    /// partial preview rather than the full article body. Used by the
+    /// automatic extraction cascade to skip the feed-content fallback and
+    /// fetch the canonical URL instead.
+    static func looksLikePartialFeedSnippet(_ html: String) -> Bool {
+        let tail = String(html.suffix(4000))
+        let pattern = #"<a\b[^>]*>([\s\S]+?)</a>"#
+        guard let regex = try? NSRegularExpression(pattern: pattern, options: .caseInsensitive)
+        else { return false }
+        let nsTail = tail as NSString
+        let matches = regex.matches(
+            in: tail, range: NSRange(location: 0, length: nsTail.length)
+        )
+        for match in matches {
+            let inner = nsTail.substring(with: match.range(at: 1))
+                .replacingOccurrences(of: "<[^>]+>", with: "", options: .regularExpression)
+                .replacingOccurrences(of: "&nbsp;", with: " ")
+                .trimmingCharacters(in: .whitespacesAndNewlines)
+                .lowercased()
+            if trailingFeedCTATexts.contains(inner) {
+                return true
+            }
+        }
+        return false
+    }
+
+    private static func isFeedCTAParagraph(_ paragraph: String) -> Bool {
+        let trimmed = paragraph.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return true }
+        let pattern = #"^\[((?:[^\]\\]|\\.)+)\]\([^)\s]+\)$"#
+        guard let regex = try? NSRegularExpression(pattern: pattern) else { return false }
+        let nsTrimmed = trimmed as NSString
+        guard let match = regex.firstMatch(
+            in: trimmed,
+            range: NSRange(location: 0, length: nsTrimmed.length)
+        ), match.numberOfRanges >= 2 else {
+            return false
+        }
+        let linkText = nsTrimmed.substring(with: match.range(at: 1))
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+            .lowercased()
+        return trailingFeedCTATexts.contains(linkText)
+    }
+
     /// Strips any remaining HTML tags that may have leaked through parsing.
     static func stripRemainingHTMLTags(_ text: String) -> String {
         var result = text

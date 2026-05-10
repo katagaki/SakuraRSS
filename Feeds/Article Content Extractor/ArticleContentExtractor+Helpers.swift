@@ -19,7 +19,7 @@ extension ArticleContentExtractor {
     func fetchHTML(from url: URL) async -> (String?, URLResponse?) {
         do {
             let request = URLRequest.sakura(url: url)
-            let (data, response) = try await URLSession.shared.data(for: request)
+            let (data, response) = try await HTTPSPreferringSession.shared.data(for: request)
             return (HTMLDataDecoder.decode(data, response: response), response)
         } catch {
             return (nil, nil)

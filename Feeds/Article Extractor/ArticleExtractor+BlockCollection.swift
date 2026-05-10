@@ -108,6 +108,12 @@ extension ArticleExtractor {
             }
             return
         }
+        if tag == "dl" {
+            if let marker = definitionListMarker(from: child, baseURL: baseURL) {
+                paragraphs.append(marker)
+            }
+            return
+        }
         if let math = mathMarker(from: child) {
             paragraphs.append(math)
             return
@@ -263,7 +269,7 @@ extension ArticleExtractor {
     /// into their wrapper's text content.
     static func isLeafBlock(_ element: Element) -> Bool {
         let structuralTags: Set<String> = ["div", "section", "article", "main", "aside"]
-        let specialTags: Set<String> = ["table", "pre"]
+        let specialTags: Set<String> = ["table", "pre", "dl"]
         for child in element.children() {
             let tag = child.tagName().lowercased()
             if blockElements.contains(tag)

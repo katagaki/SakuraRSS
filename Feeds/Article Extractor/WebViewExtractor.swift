@@ -6,7 +6,7 @@ final class WebViewExtractor: NSObject, WKNavigationDelegate {
     // MARK: - Domain Whitelist
 
     static func requiresWebView(for url: URL) -> Bool {
-        ExtractTextDomains.shouldExtractText(for: url)
+        SiteAdapterRegistry.adapter(for: url)?.requiresWebView ?? false
     }
 
     // MARK: - Extraction

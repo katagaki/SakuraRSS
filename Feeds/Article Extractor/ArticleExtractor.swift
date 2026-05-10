@@ -146,7 +146,8 @@ struct ArticleExtractor {
             let rawParagraphs = try extractParagraphs(from: element,
                                                       baseURL: baseURL,
                                                       excludeTitle: excludeTitle)
-            let paragraphs = rawParagraphs.filter { !isAdvertisementText($0) }
+            let nonAdParagraphs = rawParagraphs.filter { !isAdvertisementText($0) }
+            let paragraphs = removeTrailingFeedCTAParagraphs(nonAdParagraphs)
             let result = paragraphs.joined(separator: "\n\n")
             var cleaned = stripRemainingHTMLTags(result)
             cleaned = resolveMarkdownLinks(in: cleaned, baseURL: baseURL)

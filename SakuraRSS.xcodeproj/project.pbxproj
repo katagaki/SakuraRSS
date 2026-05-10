@@ -73,66 +73,6 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		E426BC932F93A67F00FF1B20 /* Exceptions for "Providers" folder in "Add Feed" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				"FeedProviderRegistry+Refreshing.swift",
-				"Instagram/InstagramProvider+Refresh.swift",
-				Petal/PetalAutoDetect.swift,
-				Petal/PetalEngine/PetalEngine.swift,
-				"Petal/PetalEngine/PetalEngine+Dates.swift",
-				"Petal/PetalEngine/PetalEngine+Fetching.swift",
-				"Petal/PetalEngine/PetalEngine+Parsing.swift",
-				Petal/PetalWebViewLoader.swift,
-				Podcasts/Downloads/DownloadProgress.swift,
-				Podcasts/Downloads/DownloadState.swift,
-				Podcasts/Downloads/PodcastDownloadError.swift,
-				Podcasts/Downloads/PodcastDownloadManager.swift,
-				"Podcasts/Downloads/PodcastDownloadManager+Download.swift",
-				"Podcasts/Downloads/PodcastDownloadManager+Lifecycle.swift",
-				"Podcasts/Downloads/PodcastDownloadManager+Maintenance.swift",
-				"Podcasts/Downloads/PodcastDownloadManager+Storage.swift",
-				"Podcasts/Downloads/PodcastDownloadManager+Transcription.swift",
-				"Podcasts/Downloads/PodcastDownloadManager+URLSessionDelegate.swift",
-				Podcasts/Transcriber/Engines/FluidTranscriberEngine.swift,
-				Podcasts/Transcriber/PodcastTranscriber.swift,
-				Podcasts/Transcriber/TranscriptionEngine.swift,
-				Protocols/WebFeedProvider.swift,
-				"X/XProvider+Refresh.swift",
-				"YouTube/YouTubePlaylistProvider+Refresh.swift",
-			);
-			target = E47D10332F54980E006081EF /* Add Feed */;
-		};
-		E426BC942F93A67F00FF1B20 /* Exceptions for "Providers" folder in "WidgetsExtension" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				"FeedProviderRegistry+Refreshing.swift",
-				"Instagram/InstagramProvider+Refresh.swift",
-				Petal/PetalAutoDetect.swift,
-				Petal/PetalEngine/PetalEngine.swift,
-				"Petal/PetalEngine/PetalEngine+Dates.swift",
-				"Petal/PetalEngine/PetalEngine+Fetching.swift",
-				"Petal/PetalEngine/PetalEngine+Parsing.swift",
-				Petal/PetalWebViewLoader.swift,
-				Podcasts/Downloads/DownloadProgress.swift,
-				Podcasts/Downloads/DownloadState.swift,
-				Podcasts/Downloads/PodcastDownloadError.swift,
-				Podcasts/Downloads/PodcastDownloadManager.swift,
-				"Podcasts/Downloads/PodcastDownloadManager+Download.swift",
-				"Podcasts/Downloads/PodcastDownloadManager+Lifecycle.swift",
-				"Podcasts/Downloads/PodcastDownloadManager+Maintenance.swift",
-				"Podcasts/Downloads/PodcastDownloadManager+Storage.swift",
-				"Podcasts/Downloads/PodcastDownloadManager+Transcription.swift",
-				"Podcasts/Downloads/PodcastDownloadManager+URLSessionDelegate.swift",
-				Podcasts/Transcriber/Engines/FluidTranscriberEngine.swift,
-				Podcasts/Transcriber/PodcastTranscriber.swift,
-				Podcasts/Transcriber/TranscriptionEngine.swift,
-				Protocols/WebFeedProvider.swift,
-				"X/XProvider+Refresh.swift",
-				"YouTube/YouTubePlaylistProvider+Refresh.swift",
-			);
-			target = E47D104C2F549821006081EF /* WidgetsExtension */;
-		};
 		E426BCBD2F93A87200FF1B20 /* Exceptions for "Feeds" folder in "Add Feed" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
@@ -167,10 +107,6 @@
 				"Article Extractor/Noise Data/NoiseData.swift",
 				"Article Extractor/Noise Data/NoiseSelectors.json",
 				"Article Extractor/Noise Data/UnsafeInsideArticle.json",
-				"Article Extractor/Site Adapters/GitHubAdapter.swift",
-				"Article Extractor/Site Adapters/StackOverflowAdapter.swift",
-				"Article Extractor/Site Adapters/WikipediaAdapter.swift",
-				"Article Extractor/SiteAdapter.swift",
 				"Article Extractor/WebViewExtractor.swift",
 				"Icon Cache/IconCache.swift",
 				"Icon Cache/IconCache+Cropping.swift",
@@ -180,6 +116,42 @@
 				"Icon Cache/IconCache+HTMLParsing.swift",
 				"Icon Cache/IconCache+Profiles.swift",
 				"Icon Cache/IconCache+PWA.swift",
+				"Providers/FeedProviderRegistry+Refreshing.swift",
+				"Providers/Instagram/InstagramProvider+Refresh.swift",
+				Providers/Petal/PetalAutoDetect.swift,
+				Providers/Petal/PetalEngine/PetalEngine.swift,
+				"Providers/Petal/PetalEngine/PetalEngine+Dates.swift",
+				"Providers/Petal/PetalEngine/PetalEngine+Fetching.swift",
+				"Providers/Petal/PetalEngine/PetalEngine+Parsing.swift",
+				Providers/Petal/PetalWebViewLoader.swift,
+				Providers/Podcasts/Downloads/DownloadProgress.swift,
+				Providers/Podcasts/Downloads/DownloadState.swift,
+				Providers/Podcasts/Downloads/PodcastDownloadError.swift,
+				Providers/Podcasts/Downloads/PodcastDownloadManager.swift,
+				"Providers/Podcasts/Downloads/PodcastDownloadManager+Download.swift",
+				"Providers/Podcasts/Downloads/PodcastDownloadManager+Lifecycle.swift",
+				"Providers/Podcasts/Downloads/PodcastDownloadManager+Maintenance.swift",
+				"Providers/Podcasts/Downloads/PodcastDownloadManager+Storage.swift",
+				"Providers/Podcasts/Downloads/PodcastDownloadManager+Transcription.swift",
+				"Providers/Podcasts/Downloads/PodcastDownloadManager+URLSessionDelegate.swift",
+				Providers/Podcasts/Transcriber/Engines/FluidTranscriberEngine.swift,
+				Providers/Podcasts/Transcriber/PodcastTranscriber.swift,
+				Providers/Podcasts/Transcriber/TranscriptionEngine.swift,
+				Providers/Protocols/WebFeedProvider.swift,
+				"Providers/X/XProvider+Refresh.swift",
+				"Providers/YouTube/YouTubePlaylistProvider+Refresh.swift",
+				"Site Adapters/AppleAdapter.swift",
+				"Site Adapters/France24Adapter.swift",
+				"Site Adapters/GitHubAdapter.swift",
+				"Site Adapters/MothershipAdapter.swift",
+				"Site Adapters/SiteAdapter.swift",
+				"Site Adapters/SiteAdapterRegistry.swift",
+				"Site Adapters/StackOverflowAdapter.swift",
+				"Site Adapters/TomsHardwareAdapter.swift",
+				"Site Adapters/VergeAdapter.swift",
+				"Site Adapters/WikipediaAdapter.swift",
+				"Site Adapters/ZDNETAdapter.swift",
+				"Site Adapters/ZennAdapter.swift",
 			);
 			target = E47D10332F54980E006081EF /* Add Feed */;
 		};
@@ -217,10 +189,6 @@
 				"Article Extractor/Noise Data/NoiseData.swift",
 				"Article Extractor/Noise Data/NoiseSelectors.json",
 				"Article Extractor/Noise Data/UnsafeInsideArticle.json",
-				"Article Extractor/Site Adapters/GitHubAdapter.swift",
-				"Article Extractor/Site Adapters/StackOverflowAdapter.swift",
-				"Article Extractor/Site Adapters/WikipediaAdapter.swift",
-				"Article Extractor/SiteAdapter.swift",
 				"Article Extractor/WebViewExtractor.swift",
 				"Icon Cache/IconCache.swift",
 				"Icon Cache/IconCache+Cropping.swift",
@@ -230,6 +198,42 @@
 				"Icon Cache/IconCache+HTMLParsing.swift",
 				"Icon Cache/IconCache+Profiles.swift",
 				"Icon Cache/IconCache+PWA.swift",
+				"Providers/FeedProviderRegistry+Refreshing.swift",
+				"Providers/Instagram/InstagramProvider+Refresh.swift",
+				Providers/Petal/PetalAutoDetect.swift,
+				Providers/Petal/PetalEngine/PetalEngine.swift,
+				"Providers/Petal/PetalEngine/PetalEngine+Dates.swift",
+				"Providers/Petal/PetalEngine/PetalEngine+Fetching.swift",
+				"Providers/Petal/PetalEngine/PetalEngine+Parsing.swift",
+				Providers/Petal/PetalWebViewLoader.swift,
+				Providers/Podcasts/Downloads/DownloadProgress.swift,
+				Providers/Podcasts/Downloads/DownloadState.swift,
+				Providers/Podcasts/Downloads/PodcastDownloadError.swift,
+				Providers/Podcasts/Downloads/PodcastDownloadManager.swift,
+				"Providers/Podcasts/Downloads/PodcastDownloadManager+Download.swift",
+				"Providers/Podcasts/Downloads/PodcastDownloadManager+Lifecycle.swift",
+				"Providers/Podcasts/Downloads/PodcastDownloadManager+Maintenance.swift",
+				"Providers/Podcasts/Downloads/PodcastDownloadManager+Storage.swift",
+				"Providers/Podcasts/Downloads/PodcastDownloadManager+Transcription.swift",
+				"Providers/Podcasts/Downloads/PodcastDownloadManager+URLSessionDelegate.swift",
+				Providers/Podcasts/Transcriber/Engines/FluidTranscriberEngine.swift,
+				Providers/Podcasts/Transcriber/PodcastTranscriber.swift,
+				Providers/Podcasts/Transcriber/TranscriptionEngine.swift,
+				Providers/Protocols/WebFeedProvider.swift,
+				"Providers/X/XProvider+Refresh.swift",
+				"Providers/YouTube/YouTubePlaylistProvider+Refresh.swift",
+				"Site Adapters/AppleAdapter.swift",
+				"Site Adapters/France24Adapter.swift",
+				"Site Adapters/GitHubAdapter.swift",
+				"Site Adapters/MothershipAdapter.swift",
+				"Site Adapters/SiteAdapter.swift",
+				"Site Adapters/SiteAdapterRegistry.swift",
+				"Site Adapters/StackOverflowAdapter.swift",
+				"Site Adapters/TomsHardwareAdapter.swift",
+				"Site Adapters/VergeAdapter.swift",
+				"Site Adapters/WikipediaAdapter.swift",
+				"Site Adapters/ZDNETAdapter.swift",
+				"Site Adapters/ZennAdapter.swift",
 			);
 			target = E47D104C2F549821006081EF /* WidgetsExtension */;
 		};
@@ -289,15 +293,6 @@
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		E426BC392F93A67E00FF1B20 /* Providers */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				E426BC932F93A67F00FF1B20 /* Exceptions for "Providers" folder in "Add Feed" target */,
-				E426BC942F93A67F00FF1B20 /* Exceptions for "Providers" folder in "WidgetsExtension" target */,
-			);
-			path = Providers;
-			sourceTree = "<group>";
-		};
 		E426BCBC2F93A86A00FF1B20 /* Feeds */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
@@ -400,7 +395,6 @@
 				E47D101C2F549605006081EF /* Products */,
 				E47D101D2F549605006081EF /* App */,
 				E426BCBC2F93A86A00FF1B20 /* Feeds */,
-				E426BC392F93A67E00FF1B20 /* Providers */,
 				E47D10292F549709006081EF /* Shared */,
 				E47D10382F54980E006081EF /* Add Feed */,
 				E45EAA182F9FA36900EA7A54 /* Open Article */,
@@ -472,7 +466,6 @@
 				E45EAA212F9FA36900EA7A54 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
-				E426BC392F93A67E00FF1B20 /* Providers */,
 				E426BCBC2F93A86A00FF1B20 /* Feeds */,
 				E47D101D2F549605006081EF /* App */,
 				E47D10292F549709006081EF /* Shared */,
@@ -501,7 +494,6 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				E426BC392F93A67E00FF1B20 /* Providers */,
 				E426BCBC2F93A86A00FF1B20 /* Feeds */,
 				E47D10292F549709006081EF /* Shared */,
 				E47D10382F54980E006081EF /* Add Feed */,
@@ -527,7 +519,6 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				E426BC392F93A67E00FF1B20 /* Providers */,
 				E426BCBC2F93A86A00FF1B20 /* Feeds */,
 				E47D10292F549709006081EF /* Shared */,
 				E47D10522F549821006081EF /* Widgets */,

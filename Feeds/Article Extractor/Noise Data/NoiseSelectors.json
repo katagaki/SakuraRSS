@@ -80,12 +80,15 @@
         ".linkedin-share",
         ".pinterest-share",
         ".reddit-share",
-        ".whatsapp-share"
+        ".whatsapp-share",
+        ".ssk-group",
+        ".ssk-sm",
+        "#share_top"
       ]
     },
     {
       "name": "Embedded social widgets",
-      "comment": "`.twitter-tweet` and `.twitter-timeline` intentionally NOT listed - they are promoted to inline embeds before this runs.",
+      "comment": "`.twitter-tweet` and `.twitter-timeline` intentionally NOT listed, they are promoted to inline embeds before this runs.",
       "selectors": [
         ".fb-post",
         ".fb-like",
@@ -286,8 +289,15 @@
         ".alert-banner",
         ".notification-bar",
         ".announcement-bar",
-        ".paywall",
+        "aside.paywall",
+        "section.paywall",
+        "div.paywall",
+        "header.paywall",
+        "footer.paywall",
         ".paywall-prompt",
+        ".paywall-banner",
+        ".paywall-overlay",
+        ".paywall-modal",
         ".gate",
         ".login-prompt",
         ".register-prompt"
@@ -367,6 +377,15 @@
       ]
     },
     {
+      "name": "Reader text settings widgets",
+      "selectors": [
+        ".text-settings",
+        ".text-settings-dropdown",
+        ".text-settings-dropdown-story",
+        ".text-settings-menu"
+      ]
+    },
+    {
       "name": "UI elements",
       "selectors": [
         ".toolbar",
@@ -421,7 +440,7 @@
     },
     {
       "name": "Author, byline & meta sections",
-      "comment": "Bare `.author` / `.authors` omitted - many themes use them on inline <span> elements within article text; the class-pattern sweep still catches wrapper divs via 'author' substrings below.",
+      "comment": "Bare `.author` / `.authors` omitted, many themes use them on inline <span> elements within article text; the class-pattern sweep still catches wrapper divs via 'author' substrings below.",
       "selectors": [
         ".author-bio",
         ".author-box",
@@ -445,6 +464,9 @@
         ".author-link",
         ".author-description",
         ".author-contact",
+        ".author-mini-bio",
+        ".author-mini",
+        ".mini-bio",
         ".post-author",
         ".post-authors",
         ".post-author-bio",
