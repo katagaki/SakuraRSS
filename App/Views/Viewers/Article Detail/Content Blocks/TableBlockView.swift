@@ -46,6 +46,7 @@ struct TableBlockView: View {
             )
             .clipShape(.rect(cornerRadius: 8))
         }
+        .scrollClipDisabled()
     }
 
     @ViewBuilder
