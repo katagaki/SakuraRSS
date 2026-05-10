@@ -254,6 +254,30 @@
       ]
     },
     {
+      "name": "The New Stack (thenewstack.io)",
+      "selectors": [
+        "#tns-header",
+        ".mobile-nav-dropdown",
+        ".channels-nav-block",
+        ".tns-poll",
+        ".tns-voxpop-screen",
+        ".tns-voxpop-modal",
+        ".tns-logo-slug",
+        ".tns-share",
+        ".tns-follow-links",
+        ".tns-sponsors-rss",
+        ".tns-sponsors-rss-block",
+        ".post-roll",
+        ".post-roll-block",
+        ".mobile-share",
+        ".tns-modal-content",
+        ".tns-modal-buttons",
+        ".tns-modal-title",
+        ".tns-modal-close",
+        ".tns-insight-portcos-disclosure"
+      ]
+    },
+    {
       "name": "Affiliate / FTC disclosures",
       "selectors": [
         ".ad-disclaimer",
