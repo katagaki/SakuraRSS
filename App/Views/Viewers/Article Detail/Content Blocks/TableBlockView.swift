@@ -24,26 +24,29 @@ struct TableBlockView: View {
     }
 
     var body: some View {
-        Grid(alignment: .topLeading, horizontalSpacing: 0, verticalSpacing: 0) {
-            if !header.isEmpty {
-                gridRow(header, isHeader: true, background: .clear)
-                Divider().gridCellUnsizedAxes(.horizontal)
-            }
-            ForEach(Array(rows.enumerated()), id: \.offset) { index, row in
-                let background: Color = index.isMultiple(of: 2)
-                    ? .clear
-                    : .secondary.opacity(0.06)
-                gridRow(row, isHeader: false, background: background)
-                if index < rows.count - 1 {
+        ScrollView(.horizontal, showsIndicators: false) {
+            Grid(alignment: .topLeading, horizontalSpacing: 0, verticalSpacing: 0) {
+                if !header.isEmpty {
+                    gridRow(header, isHeader: true, background: .clear)
                     Divider().gridCellUnsizedAxes(.horizontal)
                 }
+                ForEach(Array(rows.enumerated()), id: \.offset) { index, row in
+                    let background: Color = index.isMultiple(of: 2)
+                        ? .clear
+                        : .secondary.opacity(0.06)
+                    gridRow(row, isHeader: false, background: background)
+                    if index < rows.count - 1 {
+                        Divider().gridCellUnsizedAxes(.horizontal)
+                    }
+                }
             }
+            .overlay(
+                RoundedRectangle(cornerRadius: 8)
+                    .stroke(.secondary.opacity(0.55), lineWidth: 1.5)
+            )
+            .clipShape(.rect(cornerRadius: 8))
         }
-        .overlay(
-            RoundedRectangle(cornerRadius: 8)
-                .stroke(.secondary.opacity(0.55), lineWidth: 1.5)
-        )
-        .clipShape(.rect(cornerRadius: 8))
+        .scrollClipDisabled()
     }
 
     @ViewBuilder
