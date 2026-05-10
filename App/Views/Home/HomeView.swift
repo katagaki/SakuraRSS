@@ -3,9 +3,11 @@ import SwiftUI
 struct HomeView: View {
 
     @Environment(FeedManager.self) var feedManager
+    @Environment(TodayManager.self) var todayManager
     @AppStorage("Home.FeedID") var savedFeedID: Int = -1
     @AppStorage("Home.ArticleID") var savedArticleID: Int = -1
     @AppStorage("YouTube.OpenMode") var youTubeOpenMode: YouTubeOpenMode = .inAppPlayer
+    @AppStorage("Intelligence.ContentInsights.Enabled") var contentInsightsEnabled: Bool = false
     @Binding var pendingArticleID: Int64?
     @Binding var pendingOpenRequest: OpenArticleRequest?
     @State var path = NavigationPath()
@@ -57,14 +59,6 @@ struct HomeView: View {
                     ToolbarItem(placement: .principal) {
                         principalToolbarLabel
                     }
-                    if isTodaySelected, todayRefreshState.hasActiveProgress {
-                        ToolbarItemGroup(placement: .topBarLeading) {
-                            FeedRefreshProgressDonut(
-                                progress: todayRefreshState.progress,
-                                onStop: cancelTodayRefresh
-                            )
-                        }
-                    }
                     if isTodaySelected {
                         ToolbarItem(placement: .topBarTrailing) {
                             WeatherToolbarButton(
@@ -98,6 +92,17 @@ struct HomeView: View {
                                 .padding(20)
                                 .presentationCompactAdaptation(.popover)
                             }
+                        }
+                    }
+                    if homeRefreshState.hasActiveProgress {
+                        #if !os(visionOS)
+                        ToolbarSpacer(.fixed, placement: .topBarLeading)
+                        #endif
+                        ToolbarItemGroup(placement: .topBarLeading) {
+                            FeedRefreshProgressDonut(
+                                progress: homeRefreshState.progress,
+                                onStop: cancelHomeRefresh
+                            )
                         }
                     }
                 }
