@@ -9,7 +9,8 @@ extension TodayView {
     }
 
     func startRefreshWithoutBlocking() {
-        guard !scopedRefreshState.hasActiveProgress else { return }
+        guard !scopedRefreshState.hasActiveProgress,
+              !feedManager.hasActiveRefreshProgress else { return }
         feedManager.flushDebouncedReads()
         summaryRefreshTrigger += 1
         let feeds = feedManager.feeds

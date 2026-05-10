@@ -147,7 +147,8 @@ struct HomeSectionView: View {
     }
 
     private func performRefresh() async {
-        guard !scopedRefreshState.hasActiveProgress else { return }
+        guard !scopedRefreshState.hasActiveProgress,
+              !feedManager.hasActiveRefreshProgress else { return }
         feedManager.flushDebouncedReads()
         withAnimation(.smooth.speed(2.0)) {
             visibility.beginRefresh(
@@ -165,7 +166,8 @@ struct HomeSectionView: View {
     /// Kicks off a refresh and returns immediately so SwiftUI dismisses the
     /// pull-to-refresh indicator; in-flight progress shows via the toolbar donut.
     private func startRefreshWithoutBlocking() {
-        guard !scopedRefreshState.hasActiveProgress else { return }
+        guard !scopedRefreshState.hasActiveProgress,
+              !feedManager.hasActiveRefreshProgress else { return }
         feedManager.flushDebouncedReads()
         withAnimation(.smooth.speed(2.0)) {
             visibility.beginRefresh(
