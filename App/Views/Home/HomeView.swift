@@ -59,14 +59,6 @@ struct HomeView: View {
                     ToolbarItem(placement: .principal) {
                         principalToolbarLabel
                     }
-                    if homeRefreshState.hasActiveProgress {
-                        ToolbarItemGroup(placement: .topBarLeading) {
-                            FeedRefreshProgressDonut(
-                                progress: homeRefreshState.progress,
-                                onStop: cancelHomeRefresh
-                            )
-                        }
-                    }
                     if isTodaySelected {
                         ToolbarItem(placement: .topBarTrailing) {
                             WeatherToolbarButton(
@@ -100,6 +92,17 @@ struct HomeView: View {
                                 .padding(20)
                                 .presentationCompactAdaptation(.popover)
                             }
+                        }
+                    }
+                    if homeRefreshState.hasActiveProgress {
+                        #if !os(visionOS)
+                        ToolbarSpacer(.fixed, placement: .topBarLeading)
+                        #endif
+                        ToolbarItemGroup(placement: .topBarLeading) {
+                            FeedRefreshProgressDonut(
+                                progress: homeRefreshState.progress,
+                                onStop: cancelHomeRefresh
+                            )
                         }
                     }
                 }
