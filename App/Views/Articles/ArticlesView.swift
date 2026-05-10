@@ -5,10 +5,19 @@ private struct HidesMarkAllReadToolbarKey: EnvironmentKey {
     static let defaultValue: Bool = false
 }
 
+private struct HidesRefreshDonutToolbarKey: EnvironmentKey {
+    static let defaultValue: Bool = false
+}
+
 extension EnvironmentValues {
     var hidesMarkAllReadToolbar: Bool {
         get { self[HidesMarkAllReadToolbarKey.self] }
         set { self[HidesMarkAllReadToolbarKey.self] = newValue }
+    }
+
+    var hidesRefreshDonutToolbar: Bool {
+        get { self[HidesRefreshDonutToolbarKey.self] }
+        set { self[HidesRefreshDonutToolbarKey.self] = newValue }
     }
 }
 

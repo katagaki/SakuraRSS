@@ -44,8 +44,13 @@ extension HomeView {
         return false
     }
 
-    var todayRefreshState: ScopedRefreshState {
-        if let scoped = feedManager.scopedRefreshes["section.all"] {
+    var homeRefreshState: ScopedRefreshState {
+        if let scoped = feedManager.scopedRefreshes[currentScopeKey],
+           scoped.hasActiveProgress {
+            return scoped
+        }
+        if let scoped = feedManager.scopedRefreshes["section.all"],
+           scoped.hasActiveProgress {
             return scoped
         }
         if feedManager.hasActiveRefreshProgress {
@@ -59,13 +64,24 @@ extension HomeView {
         return ScopedRefreshState()
     }
 
-    func cancelTodayRefresh() {
-        let scope = "section.all"
+    /// Cancels whichever refresh is currently visible to the user (the
+    /// current section's scope, the global startup preload scope, or the
+    /// non-scoped global refresh) and forces every displayed data source to
+    /// reload so callers see fresh state regardless of which tab is active.
+    func cancelHomeRefresh() {
+        let scope = currentScopeKey
         if feedManager.scopedRefreshes[scope] != nil {
             feedManager.cancelScopedRefresh(scope: scope)
+        } else if feedManager.scopedRefreshes["section.all"] != nil {
+            feedManager.cancelScopedRefresh(scope: "section.all")
         } else {
             feedManager.cancelRefresh()
         }
+        todayManager.load(
+            feeds: feedManager.feeds,
+            dataRevision: feedManager.dataRevision,
+            loadEntities: contentInsightsEnabled
+        )
     }
 
     func reloadBarConfiguration() {

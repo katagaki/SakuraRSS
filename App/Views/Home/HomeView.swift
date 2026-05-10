@@ -3,9 +3,11 @@ import SwiftUI
 struct HomeView: View {
 
     @Environment(FeedManager.self) var feedManager
+    @Environment(TodayManager.self) var todayManager
     @AppStorage("Home.FeedID") var savedFeedID: Int = -1
     @AppStorage("Home.ArticleID") var savedArticleID: Int = -1
     @AppStorage("YouTube.OpenMode") var youTubeOpenMode: YouTubeOpenMode = .inAppPlayer
+    @AppStorage("Intelligence.ContentInsights.Enabled") var contentInsightsEnabled: Bool = false
     @Binding var pendingArticleID: Int64?
     @Binding var pendingOpenRequest: OpenArticleRequest?
     @State var path = NavigationPath()
@@ -36,6 +38,7 @@ struct HomeView: View {
                     }
                 } else {
                     AllArticlesView()
+                        .environment(\.hidesRefreshDonutToolbar, true)
                 }
             }
                 .environment(\.zoomNamespace, cardZoom)
@@ -57,11 +60,11 @@ struct HomeView: View {
                     ToolbarItem(placement: .principal) {
                         principalToolbarLabel
                     }
-                    if isTodaySelected, todayRefreshState.hasActiveProgress {
+                    if homeRefreshState.hasActiveProgress {
                         ToolbarItemGroup(placement: .topBarLeading) {
                             FeedRefreshProgressDonut(
-                                progress: todayRefreshState.progress,
-                                onStop: cancelTodayRefresh
+                                progress: homeRefreshState.progress,
+                                onStop: cancelHomeRefresh
                             )
                         }
                     }
