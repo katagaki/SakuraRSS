@@ -48,9 +48,10 @@ public nonisolated extension DatabaseManager {
         // summary_cache table
         _ = try? database.run(summaryCache.addColumn(summaryCacheContent, defaultValue: ""))
 
-        // summary_headlines table is created in createTables. Wipe rows on
-        // version-change fixup so a fresh schema/prompt change starts clean.
-        _ = try? database.run(summaryHeadlines.delete())
+        // summary_headlines table is created in createTables. The row
+        // wipe is now keyed to HeadlineSummarizer.promptVersion via
+        // wipeSummaryHeadlinesIfPromptVersionChanged so a bugfix bump
+        // that doesn't touch the prompt no longer discards cached rows.
         _ = try? database.run(summaryHeadlines.addColumn(summaryHeadlinePartialGeneration, defaultValue: false))
         _ = try? database.run(summaryHeadlines.addColumn(summaryHeadlineArticleCountAtGeneration, defaultValue: 0))
 

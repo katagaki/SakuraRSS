@@ -19,6 +19,7 @@ public nonisolated final class DatabaseManager: @unchecked Sendable {
             try Self.applyConnectionPragmas(database)
             try createTables()
             fixupIfVersionChanged()
+            wipeSummaryHeadlinesIfPromptVersionChanged()
             invalidateStaleParserCache()
             migrateContentInsightsToggle()
             invalidateStaleSimilarContentCache()

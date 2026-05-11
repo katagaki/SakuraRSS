@@ -98,6 +98,18 @@ public nonisolated extension DatabaseManager {
         try database.run(summaryHeadlines.delete())
     }
 
+    /// Wipes the summary_headlines cache when the running app's prompt
+    /// version differs from the version that produced the cached rows.
+    /// Runs every launch; cheap when versions match.
+    func wipeSummaryHeadlinesIfPromptVersionChanged() {
+        let key = "SummaryHeadlines.PromptVersion"
+        let stored = UserDefaults.standard.object(forKey: key) as? Int
+        let current = HeadlineSummarizer.promptVersion
+        guard stored != current else { return }
+        _ = try? database.run(summaryHeadlines.delete())
+        UserDefaults.standard.set(current, forKey: key)
+    }
+
     // MARK: - Encoding Helpers
 
     private func encodeIDs(_ ids: [Int64]) -> String {

@@ -31,6 +31,13 @@ public enum HeadlineSummarizer {
     public static let maxArticlesConsidered = 30
     static let maxConcurrentBatches = 3
 
+    /// Bump whenever the headline prompt template, input format, event
+    /// cap, or resolver changes in a way that would invalidate cached
+    /// rows. The DB wipes the summary_headlines cache on next launch
+    /// when this differs from the stored value, independent of app
+    /// version.
+    public static let promptVersion = 2
+
     /// Cap on returned events that scales with input size so light days
     /// don't get padded out to five headlines.
     public static func maxEvents(for inputCount: Int) -> Int {
