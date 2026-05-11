@@ -52,7 +52,6 @@ public extension FeedManager {
         let dbm = database
         Task.detached(priority: .utility) {
             try? dbm.markArticlesRead(ids: idArray, read: true)
-            try? dbm.updateLastAccessed(articleIDs: idArray)
         }
     }
 
