@@ -105,13 +105,12 @@ struct PodcastDownloadButton: View {
     }
 }
 
-/// Indeterminate spinning donut shown while transcription is running.
 private struct TranscribingDonut: View {
 
     let size: CGFloat
     let lineWidth: CGFloat
 
-    @State private var rotation: Double = 0
+    @State private var isPulsing = false
 
     var body: some View {
         ZStack {
@@ -120,18 +119,17 @@ private struct TranscribingDonut: View {
                 .frame(width: size - lineWidth, height: size - lineWidth)
 
             Circle()
-                .trim(from: 0, to: 0.25)
                 .stroke(.accent, style: StrokeStyle(lineWidth: lineWidth, lineCap: .round))
                 .frame(width: size - lineWidth, height: size - lineWidth)
-                .rotationEffect(.degrees(rotation))
 
             Image(systemName: "waveform")
                 .font(.system(size: size * 0.45))
                 .foregroundStyle(.accent)
+                .opacity(isPulsing ? 0.35 : 1.0)
         }
         .onAppear {
-            withAnimation(.linear(duration: 1.0).repeatForever(autoreverses: false)) {
-                rotation = 360
+            withAnimation(.easeInOut(duration: 0.9).repeatForever(autoreverses: true)) {
+                isPulsing = true
             }
         }
     }

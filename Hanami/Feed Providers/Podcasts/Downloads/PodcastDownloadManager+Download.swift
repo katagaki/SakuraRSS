@@ -70,7 +70,7 @@ public extension PodcastDownloadManager {
 
         // Transcription failure is non-fatal; we still markCompleted below.
         if await PodcastTranscriber.isAvailable {
-            activeDownloads[articleID] = DownloadProgress(state: .transcribing, progress: 0)
+            activeDownloads[articleID] = DownloadProgress(state: .transcribing, progress: 1.0)
             let title = article.title
             await attemptTranscription(articleID: articleID, fileURL: destination, title: title)
         }
