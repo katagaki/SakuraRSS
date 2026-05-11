@@ -30,4 +30,11 @@ public enum PodcastTranscriber {
         }
         return try await engine.transcribe(audioFileURL: audioFileURL, title: title)
     }
+
+    public static func makeStreamingSession() async throws -> StreamingTranscriptionSession {
+        guard isEnabled else {
+            throw TranscriptionEngineError.notAvailable
+        }
+        return try await FluidTranscriberEngine().makeStreamingSession()
+    }
 }

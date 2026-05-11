@@ -9,9 +9,9 @@ public struct FluidTranscriberEngine: TranscriptionEngine {
 
     public static let requiresModelDownload = true
 
-    private static var modelVersion: AsrModelVersion { .v3 }
+    internal static var modelVersion: AsrModelVersion { .v3 }
 
-    private static var cacheDirectory: URL {
+    internal static var cacheDirectory: URL {
         AsrModels.defaultCacheDirectory(for: modelVersion)
     }
 

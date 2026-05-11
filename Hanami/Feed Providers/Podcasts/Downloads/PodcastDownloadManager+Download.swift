@@ -50,6 +50,29 @@ public extension PodcastDownloadManager {
             }
         }.value
 
+        let transcriptionAvailable = await PodcastTranscriber.isAvailable
+
+        if transcriptionAvailable {
+            do {
+                try await streamingDownloadAndTranscribe(
+                    article: article,
+                    audioURL: audioURL,
+                    destination: destination
+                )
+                let relativePath = "\(articleID)/\(name)"
+                try DatabaseManager.shared.setDownloadPath(relativePath, for: articleID)
+                markCompleted(articleID: articleID)
+                return
+            } catch is CancellationError {
+                throw CancellationError()
+            } catch let urlError as URLError where urlError.code == .cancelled {
+                throw urlError
+            } catch {
+                log("PodcastDownload", "Streaming pipeline failed for \(articleID): \(error). Falling back.")
+                try? FileManager.default.removeItem(at: destination)
+            }
+        }
+
         let tempURL: URL = try await withCheckedThrowingContinuation { continuation in
             let sessionTask = urlSession.downloadTask(with: audioURL)
             downloadTasks[articleID] = sessionTask
@@ -64,13 +87,11 @@ public extension PodcastDownloadManager {
             try FileManager.default.moveItem(at: tempURL, to: dest)
         }.value
 
-        // Store relative path so it survives container path changes.
         let relativePath = "\(articleID)/\(name)"
         try DatabaseManager.shared.setDownloadPath(relativePath, for: articleID)
 
-        // Transcription failure is non-fatal; we still markCompleted below.
-        if await PodcastTranscriber.isAvailable {
-            activeDownloads[articleID] = DownloadProgress(state: .transcribing, progress: 0)
+        if transcriptionAvailable {
+            activeDownloads[articleID] = DownloadProgress(state: .transcribing, progress: 1.0)
             let title = article.title
             await attemptTranscription(articleID: articleID, fileURL: destination, title: title)
         }
