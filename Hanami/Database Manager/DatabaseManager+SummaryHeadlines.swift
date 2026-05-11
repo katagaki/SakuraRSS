@@ -1,7 +1,7 @@
 import Foundation
 @preconcurrency import SQLite
 
-public struct CachedSummaryHeadlinesResult: Sendable {
+public nonisolated struct CachedSummaryHeadlinesResult: Sendable {
     public let headlines: [SummaryHeadline]
     public let partialGeneration: Bool
     public let articleCountAtGeneration: Int
