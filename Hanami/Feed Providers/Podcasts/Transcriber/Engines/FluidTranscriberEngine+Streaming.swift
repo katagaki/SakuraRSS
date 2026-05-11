@@ -35,8 +35,8 @@ public final class StreamingTranscriptionSession: @unchecked Sendable {
         self.manager = manager
     }
 
-    public func start() {
-        let updates = manager.transcriptionUpdates
+    public func start() async {
+        let updates = await manager.transcriptionUpdates
         let collector = self.collector
         updatesTask = Task {
             for await update in updates {
@@ -46,9 +46,9 @@ public final class StreamingTranscriptionSession: @unchecked Sendable {
         }
     }
 
-    public func streamAudio(_ buffer: AVAudioPCMBuffer) {
+    public func streamAudio(_ buffer: AVAudioPCMBuffer) async {
         if finished { return }
-        manager.streamAudio(buffer)
+        await manager.streamAudio(buffer)
     }
 
     public func finish() async throws -> [TranscriptSegment] {

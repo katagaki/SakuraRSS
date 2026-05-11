@@ -16,7 +16,7 @@ public extension PodcastDownloadManager {
         let title = article.title
 
         let session = try await PodcastTranscriber.makeStreamingSession()
-        session.start()
+        await session.start()
 
         let request = URLRequest(url: audioURL)
         let (asyncBytes, response) = try await urlSession.bytes(for: request)
@@ -203,7 +203,7 @@ enum StreamingAudioPipeline {
                 finished = true
             }
 
-            let advancedFrames = decodeAvailable(
+            let advancedFrames = await decodeAvailable(
                 fileURL: fileURL,
                 startingAt: lastReadFrame,
                 targetFormat: targetFormat,
@@ -223,7 +223,7 @@ enum StreamingAudioPipeline {
         startingAt startingFrame: AVAudioFramePosition,
         targetFormat: AVAudioFormat,
         session: StreamingTranscriptionSession
-    ) -> AVAudioFramePosition {
+    ) async -> AVAudioFramePosition {
         guard let audioFile = try? AVAudioFile(forReading: fileURL) else { return 0 }
         let totalFrames = audioFile.length
         guard totalFrames > startingFrame else { return 0 }
@@ -278,7 +278,7 @@ enum StreamingAudioPipeline {
             return framesRead
         }
         if targetBuffer.frameLength > 0 {
-            session.streamAudio(targetBuffer)
+            await session.streamAudio(targetBuffer)
         }
         return framesRead
     }
