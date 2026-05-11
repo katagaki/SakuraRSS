@@ -51,6 +51,8 @@ public nonisolated extension DatabaseManager {
         // summary_headlines table is created in createTables. Wipe rows on
         // version-change fixup so a fresh schema/prompt change starts clean.
         _ = try? database.run(summaryHeadlines.delete())
+        _ = try? database.run(summaryHeadlines.addColumn(summaryHeadlinePartialGeneration, defaultValue: false))
+        _ = try? database.run(summaryHeadlines.addColumn(summaryHeadlineArticleCountAtGeneration, defaultValue: 0))
 
         // Drop the legacy plain-text summary cache; the carousel replaces it.
         _ = try? database.run(summaryCache.delete())

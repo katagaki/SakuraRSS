@@ -195,6 +195,8 @@ public nonisolated final class DatabaseManager: @unchecked Sendable {
             table.column(summaryHeadlineArticleIDs)
             table.column(summaryHeadlineFeedIDs)
             table.column(summaryHeadlineThumbnailURL)
+            table.column(summaryHeadlinePartialGeneration, defaultValue: false)
+            table.column(summaryHeadlineArticleCountAtGeneration, defaultValue: 0)
             table.primaryKey(summaryHeadlineType, summaryHeadlineDate, summaryHeadlineOrdinal)
         })
     }

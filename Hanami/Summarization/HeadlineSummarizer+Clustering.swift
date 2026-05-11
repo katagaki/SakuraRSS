@@ -8,11 +8,13 @@ extension HeadlineSummarizer {
     /// organizations) so articles about the same story end up in the same
     /// batch. Articles without entities, or whose entities don't overlap
     /// with anyone else's, become singleton clusters. Order within a cluster
-    /// preserves the original order. Larger clusters are returned first so
-    /// they get first dibs on batch space.
+    /// preserves the original order. Clusters containing at least one
+    /// preferred-feed article are returned first; remaining ties break on
+    /// cluster size and original article order.
     static func clusterByEntities(
         inputs: [Input],
         entityMap: [Int64: Set<String>],
+        preferredFeedIDs: Set<Int64> = [],
         sharedThreshold: Int = 2
     ) -> [[Input]] {
         guard !inputs.isEmpty else { return [] }
@@ -54,6 +56,11 @@ extension HeadlineSummarizer {
         }
         return groups
             .sorted { lhs, rhs in
+                let lhsPreferred = lhs.value.contains { preferredFeedIDs.contains($0.feedID) }
+                let rhsPreferred = rhs.value.contains { preferredFeedIDs.contains($0.feedID) }
+                if lhsPreferred != rhsPreferred {
+                    return lhsPreferred && !rhsPreferred
+                }
                 if lhs.value.count != rhs.value.count {
                     return lhs.value.count > rhs.value.count
                 }

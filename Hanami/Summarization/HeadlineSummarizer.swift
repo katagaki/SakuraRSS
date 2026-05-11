@@ -27,17 +27,30 @@ public enum HeadlineSummarizer {
 
     nonisolated static let logModule = "Summary"
     static let batchCharLimit = 3000
-    public static let snippetCharLimit = 150
+    public static let snippetCharLimit = 300
     public static let maxArticlesConsidered = 30
-    static let maxEvents = 5
     static let maxConcurrentBatches = 3
+
+    /// Cap on returned events that scales with input size so light days
+    /// don't get padded out to five headlines.
+    public static func maxEvents(for inputCount: Int) -> Int {
+        switch inputCount {
+        case ..<5: return 1
+        case 5..<10: return 2
+        case 10..<18: return 3
+        case 18..<25: return 4
+        default: return 5
+        }
+    }
 
     public struct Input: Sendable {
         public let articleID: Int64
+        public let feedID: Int64
         public let description: String
 
-        public init(articleID: Int64, description: String) {
+        public init(articleID: Int64, feedID: Int64 = 0, description: String) {
             self.articleID = articleID
+            self.feedID = feedID
             self.description = description
         }
     }
@@ -47,15 +60,23 @@ public enum HeadlineSummarizer {
         public let articleIDs: [Int64]
     }
 
+    /// Returns surviving events alongside the last non-guardrail error, if
+    /// any. Callers persist partial results when events is non-empty even
+    /// if error is set, so a cancelled batch doesn't wipe the section.
     public static func summarize(
         articles: [Input],
         instructions: String,
-        entityMap: [Int64: Set<String>] = [:]
-    ) async throws -> [ResolvedEvent] {
+        entityMap: [Int64: Set<String>] = [:],
+        preferredFeedIDs: Set<Int64> = []
+    ) async -> (events: [ResolvedEvent], error: Error?) {
         let filtered = articles.filter { input in
             !RejectPatterns.matchesAny(input.description)
         }
-        let clusters = clusterByEntities(inputs: filtered, entityMap: entityMap)
+        let clusters = clusterByEntities(
+            inputs: filtered,
+            entityMap: entityMap,
+            preferredFeedIDs: preferredFeedIDs
+        )
         let clusterSizes = clusters.map(\.count)
         log(
             logModule,
@@ -66,7 +87,7 @@ public enum HeadlineSummarizer {
         log(logModule, "instructions length=\(instructions.count) chars")
         guard !batches.isEmpty else {
             log(logModule, "no batches after filtering; returning empty")
-            return []
+            return ([], nil)
         }
 
         let (events, lastNonGuardrailError) = await runBatches(
@@ -76,16 +97,20 @@ public enum HeadlineSummarizer {
 
         if events.isEmpty {
             if let lastNonGuardrailError {
-                log(logModule, "all batches failed; throwing: \(lastNonGuardrailError.localizedDescription)")
-                throw lastNonGuardrailError
+                log(
+                    logModule,
+                    "all batches failed; surfacing error: \(lastNonGuardrailError.localizedDescription)"
+                )
+            } else {
+                log(logModule, "no events extracted from any batch")
             }
-            log(logModule, "no events extracted from any batch")
-            return []
+            return ([], lastNonGuardrailError)
         }
-        let deduped = Array(deduplicate(events).prefix(maxEvents))
-        log(logModule, "raw events=\(events.count) after dedup+cap=\(deduped.count)")
+        let cap = maxEvents(for: articles.count)
+        let deduped = Array(deduplicate(events).prefix(cap))
+        log(logModule, "raw events=\(events.count) after dedup+cap(\(cap))=\(deduped.count)")
         let translated = await translateHeadlinesIfNeeded(deduped)
-        return translated
+        return (translated, lastNonGuardrailError)
     }
 
     /// Detects each headline's language and runs a translation pass on
