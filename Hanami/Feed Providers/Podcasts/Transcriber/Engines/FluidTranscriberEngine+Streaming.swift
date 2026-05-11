@@ -46,7 +46,7 @@ public final class StreamingTranscriptionSession: @unchecked Sendable {
         }
     }
 
-    public func streamAudio(_ buffer: AVAudioPCMBuffer) async {
+    public func streamAudio(_ buffer: sending AVAudioPCMBuffer) async {
         if finished { return }
         await manager.streamAudio(buffer)
     }
