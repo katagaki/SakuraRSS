@@ -68,16 +68,17 @@ struct PodcastEpisodeRow: View {
             Spacer(minLength: 0)
 
             if article.isPodcastEpisode {
-                PodcastDownloadButton(article: article, size: 28, lineWidth: 2.5)
+                PodcastDownloadButton(article: article, size: 32, lineWidth: 3)
                 Button {
                     handlePlay()
                 } label: {
                     Image(systemName: isCurrentlyPlaying && audioPlayer.isPlaying
                           ? "pause.circle.fill"
                           : "play.circle.fill")
-                        .font(.title)
+                        .font(.system(size: 32))
                         .foregroundStyle(.accent)
                         .symbolRenderingMode(.multicolor)
+                        .frame(width: 32, height: 32)
                 }
                 .buttonStyle(.plain)
                 .disabled(!canPlay && !isCurrentlyPlaying)

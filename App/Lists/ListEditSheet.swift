@@ -174,21 +174,20 @@ struct ListEditSheet: View {
             feedManager.updateList(list, name: trimmedName, icon: selectedIcon,
                                    displayStyle: list.displayStyle)
         } else {
-            if (try? feedManager.createList(name: trimmedName, icon: selectedIcon)) != nil {
-                if let newList = feedManager.lists.last {
-                    for id in selectedFeedIDs {
-                        if let feed = feedManager.feedsByID[id] {
-                            feedManager.addFeedToList(newList, feed: feed)
-                        }
+            if let newListID = try? feedManager.createList(name: trimmedName, icon: selectedIcon),
+               let newList = feedManager.lists.first(where: { $0.id == newListID }) {
+                for id in selectedFeedIDs {
+                    if let feed = feedManager.feedsByID[id] {
+                        feedManager.addFeedToList(newList, feed: feed)
                     }
-                    if let displayStyle = resolvedDisplayStyle {
-                        feedManager.updateList(
-                            newList,
-                            name: trimmedName,
-                            icon: selectedIcon,
-                            displayStyle: displayStyle
-                        )
-                    }
+                }
+                if let displayStyle = resolvedDisplayStyle {
+                    feedManager.updateList(
+                        newList,
+                        name: trimmedName,
+                        icon: selectedIcon,
+                        displayStyle: displayStyle
+                    )
                 }
             }
         }

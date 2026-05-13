@@ -1,6 +1,22 @@
 import Foundation
 @preconcurrency import SQLite
 
+public nonisolated struct CachedSummaryHeadlinesResult: Sendable {
+    public let headlines: [SummaryHeadline]
+    public let partialGeneration: Bool
+    public let articleCountAtGeneration: Int
+
+    public init(
+        headlines: [SummaryHeadline],
+        partialGeneration: Bool,
+        articleCountAtGeneration: Int
+    ) {
+        self.headlines = headlines
+        self.partialGeneration = partialGeneration
+        self.articleCountAtGeneration = articleCountAtGeneration
+    }
+}
+
 public nonisolated extension DatabaseManager {
 
     // MARK: - Summary Headlines Cache
@@ -8,18 +24,22 @@ public nonisolated extension DatabaseManager {
     func cachedSummaryHeadlines(
         ofType type: SummaryCacheType,
         for date: Date
-    ) throws -> [SummaryHeadline] {
+    ) throws -> CachedSummaryHeadlinesResult {
         let key = summaryHeadlineDateKey(for: date)
         let query = summaryHeadlines
             .filter(summaryHeadlineType == type.rawValue && summaryHeadlineDate == key)
             .order(summaryHeadlineOrdinal.asc)
         var results: [SummaryHeadline] = []
+        var partial = false
+        var articleCount = 0
         for row in try database.prepare(query) {
             let headline = row[summaryHeadlineText]
             let articleIDs = decodeIDs(row[summaryHeadlineArticleIDs])
             let feedIDs = decodeIDs(row[summaryHeadlineFeedIDs])
             let thumbnail = row[summaryHeadlineThumbnailURL]
             guard !articleIDs.isEmpty else { continue }
+            partial = row[summaryHeadlinePartialGeneration] || partial
+            articleCount = max(articleCount, row[summaryHeadlineArticleCountAtGeneration])
             results.append(
                 SummaryHeadline(
                     headline: headline,
@@ -29,7 +49,11 @@ public nonisolated extension DatabaseManager {
                 )
             )
         }
-        return results
+        return CachedSummaryHeadlinesResult(
+            headlines: results,
+            partialGeneration: partial,
+            articleCountAtGeneration: articleCount
+        )
     }
 
     func clearCachedSummaryHeadlines(
@@ -45,7 +69,9 @@ public nonisolated extension DatabaseManager {
     func cacheSummaryHeadlines(
         _ headlines: [SummaryHeadline],
         ofType type: SummaryCacheType,
-        for date: Date
+        for date: Date,
+        partialGeneration: Bool = false,
+        articleCountAtGeneration: Int = 0
     ) throws {
         let key = summaryHeadlineDateKey(for: date)
         try database.transaction {
@@ -60,7 +86,9 @@ public nonisolated extension DatabaseManager {
                     summaryHeadlineText <- item.headline,
                     summaryHeadlineArticleIDs <- encodeIDs(item.articleIDs),
                     summaryHeadlineFeedIDs <- encodeIDs(item.feedIDs),
-                    summaryHeadlineThumbnailURL <- item.thumbnailURL
+                    summaryHeadlineThumbnailURL <- item.thumbnailURL,
+                    summaryHeadlinePartialGeneration <- partialGeneration,
+                    summaryHeadlineArticleCountAtGeneration <- articleCountAtGeneration
                 ))
             }
         }
@@ -68,6 +96,18 @@ public nonisolated extension DatabaseManager {
 
     func purgeAllSummaryHeadlines() throws {
         try database.run(summaryHeadlines.delete())
+    }
+
+    /// Wipes the summary_headlines cache when the running app's prompt
+    /// version differs from the version that produced the cached rows.
+    /// Runs every launch; cheap when versions match.
+    func wipeSummaryHeadlinesIfPromptVersionChanged() {
+        let key = "SummaryHeadlines.PromptVersion"
+        let stored = UserDefaults.standard.object(forKey: key) as? Int
+        let current = HeadlineSummarizer.promptVersion
+        guard stored != current else { return }
+        _ = try? database.run(summaryHeadlines.delete())
+        UserDefaults.standard.set(current, forKey: key)
     }
 
     // MARK: - Encoding Helpers

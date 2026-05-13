@@ -16,6 +16,7 @@ public extension PodcastDownloadManager {
     }
 
     func markCompleted(articleID: Int64) {
+        log("PodcastDownload", "Download completed for article \(articleID)")
         activeDownloads[articleID] = DownloadProgress(state: .completed, progress: 1.0)
         downloadTasks[articleID] = nil
         transcriptionTasks[articleID] = nil
@@ -26,6 +27,7 @@ public extension PodcastDownloadManager {
     }
 
     func markFailed(articleID: Int64, error: String) {
+        log("PodcastDownload", "Download failed for article \(articleID): \(error)")
         activeDownloads[articleID] = DownloadProgress(
             state: .failed,
             progress: 0,

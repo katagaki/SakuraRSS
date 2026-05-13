@@ -22,6 +22,10 @@ public extension PodcastDownloadManager {
         if last.isEmpty || last == "/" {
             return "episode.mp3"
         }
+        if last.utf8.count > 200 {
+            let ext = audioURL.pathExtension
+            return ext.isEmpty ? "episode.mp3" : "episode.\(ext)"
+        }
         return last
     }
 

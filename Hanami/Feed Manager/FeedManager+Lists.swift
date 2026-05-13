@@ -4,10 +4,12 @@ public extension FeedManager {
 
     // MARK: - List CRUD
 
-    func createList(name: String, icon: String) throws {
+    @discardableResult
+    func createList(name: String, icon: String) throws -> Int64 {
         let sortOrder = lists.count
-        try database.insertList(name: name, icon: icon, sortOrder: sortOrder)
+        let newID = try database.insertList(name: name, icon: icon, sortOrder: sortOrder)
         loadFromDatabase()
+        return newID
     }
 
     func updateList(_ list: FeedList, name: String, icon: String, displayStyle: String?) {
