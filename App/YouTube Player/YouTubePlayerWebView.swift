@@ -116,6 +116,8 @@ struct YouTubePlayerWebView: UIViewRepresentable {
                 mainFrameOnly: true
             ),
             .init(source: YouTubePlayerScripts.pipAdControls, time: .atDocumentStart, mainFrameOnly: true),
+            .init(source: YouTubePlayerScripts.autoPipTargetBridge, time: .atDocumentEnd, mainFrameOnly: true),
+            .init(source: YouTubePlayerScripts.inactivitySuppressor, time: .atDocumentEnd, mainFrameOnly: true),
             .init(source: YouTubePlayerScripts.playbackEventBridge, time: .atDocumentEnd, mainFrameOnly: true)
         ]
         for script in scripts {

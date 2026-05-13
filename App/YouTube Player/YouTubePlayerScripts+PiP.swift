@@ -3,9 +3,7 @@ import Hanami
 
 extension YouTubePlayerScripts {
 
-    /// Re-routes the system next/previous track controls during ads so
-    /// next-track invisibly skips the ad. Skips via `<video>.currentTime`
-    /// so it does not depend on the click being a trusted gesture.
+    /// Re-routes the system next/previous track controls during ads.
     static let pipAdControls = """
     (function() {
         if (!('mediaSession' in navigator)) return;
@@ -208,8 +206,50 @@ extension YouTubePlayerScripts {
     })();
     """
 
-    /// Pushes player state changes to native via `ytPlayback`. Replaces a 0.5s
-    /// `evaluateJavaScript` polling loop. The HTML5 `<video>` element fires
-    /// `play`/`pause`/`seeked`/`durationchange`/`ratechange`/`resize`/`ended`/
-    /// `timeupdate` natively, and `timeupdate` self-throttles when paused.
+    // Adapted from Brave's auto-PiP target selection.
+    static let autoPipTargetBridge = """
+    (function() {
+        if (!('mediaSession' in navigator)) return;
+
+        function pickAutoPipTarget() {
+            var videos = document.getElementsByTagName('video');
+            var bestPlaying = null;
+            var bestPlayingArea = 0;
+            var bestReady = null;
+            var bestReadyArea = 0;
+            for (var index = 0; index < videos.length; index++) {
+                var video = videos[index];
+                if (video.disablePictureInPicture) continue;
+                var rect = video.getBoundingClientRect();
+                var width = Math.max(0, rect.width);
+                var height = Math.max(0, rect.height);
+                var area = width * height;
+                if (area <= 0) continue;
+                if (!video.paused && !video.ended
+                    && video.readyState >= 2
+                    && area > bestPlayingArea) {
+                    bestPlaying = video;
+                    bestPlayingArea = area;
+                }
+                if (video.readyState >= 1 && area > bestReadyArea) {
+                    bestReady = video;
+                    bestReadyArea = area;
+                }
+            }
+            return bestPlaying || bestReady;
+        }
+
+        try {
+            navigator.mediaSession.setActionHandler('enterpictureinpicture',
+                function() {
+                    var video = pickAutoPipTarget();
+                    if (!video) return;
+                    if (window.__yt
+                        && typeof window.__yt.enterPiP === 'function') {
+                        window.__yt.enterPiP(video);
+                    }
+                });
+        } catch (error) {}
+    })();
+    """
 }
