@@ -19,6 +19,8 @@ public extension PodcastDownloadManager {
             } else {
                 fraction = 0
             }
+            // swiftlint:disable:next line_length
+            log("PodcastDownload", "Progress for article \(articleID): \(totalBytesWritten)/\(totalBytesExpectedToWrite) bytes (\(String(format: "%.1f", fraction * 100))%)")
             activeDownloads[articleID] = DownloadProgress(
                 state: .downloading,
                 progress: fraction
@@ -43,6 +45,7 @@ public extension PodcastDownloadManager {
                   let continuation = downloadContinuations.removeValue(forKey: articleID) else {
                 return
             }
+            log("PodcastDownload", "URLSession finished downloading article \(articleID) to \(tempCopy.path)")
             taskArticleIDs[taskID] = nil
             continuation.resume(returning: tempCopy)
         }
@@ -61,6 +64,7 @@ public extension PodcastDownloadManager {
                   let continuation = downloadContinuations.removeValue(forKey: articleID) else {
                 return
             }
+            log("PodcastDownload", "URLSession task completed with error for article \(articleID): \(error)")
             continuation.resume(throwing: error)
         }
     }
