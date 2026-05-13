@@ -103,15 +103,21 @@ public extension FeedManager {
         }
     }
 
+    /// Cancels the scoped refresh task and enters a "stopping" state. The
+    /// scoped state stays populated (with `isStopping = true`) so the donut
+    /// can swap to a `Stopping` label until the underlying refresh task
+    /// settles, letting in-flight pipelines flush their inserts. Final cleanup
+    /// is handled by the original `refreshFeeds(scope:)` flow when its
+    /// `work.value` await returns.
     @MainActor
     func cancelScopedRefresh(scope: String) {
-        let state = scopedRefreshes[scope]
-        // swiftlint:disable:next line_length
-        log("FeedRefresh.Scoped", "cancel scope=\(scope) hadTask=\(scopedRefreshTasks[scope] != nil) completed=\(state?.completed ?? 0)/\(state?.total ?? 0)")
+        guard var state = scopedRefreshes[scope], !state.isStopping else { return }
         let task = scopedRefreshTasks[scope]
-        scopedRefreshTasks[scope]?.cancel()
-        scopedRefreshTasks[scope] = nil
-        scopedRefreshes[scope] = nil
+        // swiftlint:disable:next line_length
+        log("FeedRefresh.Scoped", "cancel scope=\(scope) hadTask=\(task != nil) completed=\(state.completed)/\(state.total)")
+        state.isStopping = true
+        scopedRefreshes[scope] = state
+        task?.cancel()
         Task {
             if let task {
                 _ = await task.value

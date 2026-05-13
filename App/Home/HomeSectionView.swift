@@ -230,6 +230,7 @@ struct HomeSectionView: View {
             additionalLeadingToolbar: scopedRefreshState.hasActiveProgress ? AnyView(
                 FeedRefreshProgressDonut(
                     progress: scopedRefreshState.progress,
+                    isStopping: scopedRefreshState.isStopping,
                     onStop: { [scope = scopeKey] in feedManager.cancelScopedRefresh(scope: scope) }
                 )
             ) : nil,

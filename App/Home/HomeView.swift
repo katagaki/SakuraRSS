@@ -102,6 +102,7 @@ struct HomeView: View {
                         ToolbarItemGroup(placement: .topBarLeading) {
                             FeedRefreshProgressDonut(
                                 progress: homeRefreshState.progress,
+                                isStopping: homeRefreshState.isStopping,
                                 onStop: cancelHomeRefresh
                             )
                         }

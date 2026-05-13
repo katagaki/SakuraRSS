@@ -272,6 +272,7 @@ public extension FeedManager {
             self.lastRefreshedAt = Date()
             self.scopedLastRefreshedAt = [:]
             self.isLoading = false
+            self.isStopping = false
             self.refreshCompleted = 0
             self.refreshTotal = 0
             self.pendingRefreshFeedIDs = []
@@ -346,6 +347,7 @@ public extension FeedManager {
             self.lastRefreshedAt = Date()
             self.scopedLastRefreshedAt = [:]
             self.isLoading = false
+            self.isStopping = false
             self.refreshCompleted = 0
             self.refreshTotal = 0
             self.pendingRefreshFeedIDs = []
@@ -356,27 +358,23 @@ public extension FeedManager {
         log("FeedRefresh.AllAndIcons", "end completed=\(finalCompleted)/\(currentFeeds.count)")
     }
 
-    /// Cancels the in-flight refresh task. Feeds whose RSS fetch has already
-    /// completed run their pipeline through to insert; feeds still waiting on
-    /// the network drop their work. Awaits the refresh task so any pipelines
-    /// already past the network round-trip can flush their inserts, then
-    /// reloads from the database so the gathered articles bump `dataRevision`
-    /// and surface in the UI.
+    /// Cancels the in-flight refresh task and enters a "stopping" state.
+    /// Feeds whose RSS fetch has already completed run their pipeline through
+    /// to insert; feeds still waiting on the network drop their work. Counters
+    /// remain populated so the toolbar slot stays visible — the donut swaps to
+    /// a `Stopping` label — until the refresh task settles and the original
+    /// `refreshAllFeeds` flow finalizes state via `finalizeRefreshAll`.
     @MainActor
     func cancelRefresh() {
-        log("FeedRefresh", "cancelRefresh hadTask=\(refreshTask != nil) completed=\(refreshCompleted)/\(refreshTotal)")
-        let task = refreshTask
-        refreshTask?.cancel()
-        refreshTask = nil
-        isLoading = false
-        refreshCompleted = 0
-        refreshTotal = 0
-        pendingRefreshFeedIDs = []
-        refreshingFeedIDs = []
+        guard let task = refreshTask, !isStopping else {
+            log("FeedRefresh", "cancelRefresh skipped task=\(refreshTask != nil) stopping=\(isStopping)")
+            return
+        }
+        log("FeedRefresh", "cancelRefresh begin completed=\(refreshCompleted)/\(refreshTotal)")
+        isStopping = true
+        task.cancel()
         Task {
-            if let task {
-                _ = await task.value
-            }
+            _ = await task.value
             await self.loadFromDatabaseInBackground(animated: true)
         }
     }

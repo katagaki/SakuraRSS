@@ -258,6 +258,7 @@ public extension FeedManager {
         var results: [String: String] = [:]
         var index = 0
         while index < candidates.count {
+            if Task.isCancelled { return results }
             let batch = candidates[index..<min(index + maxConcurrent, candidates.count)]
             index += maxConcurrent
             await withTaskGroup(of: (String, String?).self) { group in

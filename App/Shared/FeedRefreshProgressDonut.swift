@@ -7,6 +7,7 @@ struct FeedRefreshProgressDonut: View {
     let progress: Double
     var size: CGFloat = 22
     var lineWidth: CGFloat = 2
+    var isStopping: Bool = false
     var onStop: (() -> Void)?
 
     private var clampedProgress: Double {
@@ -14,7 +15,16 @@ struct FeedRefreshProgressDonut: View {
     }
 
     var body: some View {
-        if let onStop {
+        if isStopping {
+            ProgressView()
+                .controlSize(.small)
+                .frame(width: size, height: size)
+                .padding(lineWidth / 2)
+                .accessibilityElement()
+                .accessibilityLabel(
+                    Text(String(localized: "Refresh.Stopping", table: "Home"))
+                )
+        } else if let onStop {
             Button(action: onStop) {
                 donut
             }

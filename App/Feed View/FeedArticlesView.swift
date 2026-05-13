@@ -119,6 +119,7 @@ struct FeedArticlesView: View {
             additionalLeadingToolbar: scopedRefreshState.hasActiveProgress ? AnyView(
                 FeedRefreshProgressDonut(
                     progress: scopedRefreshState.progress,
+                    isStopping: scopedRefreshState.isStopping,
                     onStop: { [scope = scopeKey] in feedManager.cancelScopedRefresh(scope: scope) }
                 )
             ) : nil,
@@ -128,53 +129,31 @@ struct FeedArticlesView: View {
         .toolbar {
             ToolbarItem(placement: .principal) {
                 #if os(visionOS)
-                VStack(alignment: .leading, spacing: 0) {
-                    Text(currentFeed.title)
-                        .font(.subheadline)
-                        .fontWeight(.semibold)
-                    if !currentFeed.domain.isEmpty {
-                        Text(currentFeed.domain)
-                            .font(.caption2)
-                            .foregroundStyle(.secondary)
-                    }
-                }
-                .multilineTextAlignment(.leading)
-                .lineLimit(1)
-                .truncationMode(.middle)
-                .fixedSize(horizontal: false, vertical: true)
-                .frame(height: 42)
-                .contentShape(.rect)
-                .onTapGesture {
-                    scrollToTopTick &+= 1
-                }
-                .allowsHitTesting(showsPrincipalTitle)
-                .opacity(showsPrincipalTitle ? 1 : 0)
-                .animation(.smooth.speed(2.0), value: showsPrincipalTitle)
+                principalTitleContent
+                    .multilineTextAlignment(.leading)
+                    .lineLimit(1)
+                    .truncationMode(.middle)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .frame(height: 42)
+                    .contentShape(.rect)
+                    .onTapGesture { scrollToTopTick &+= 1 }
+                    .allowsHitTesting(showsPrincipalTitle)
+                    .opacity(showsPrincipalTitle ? 1 : 0)
+                    .animation(.smooth.speed(2.0), value: showsPrincipalTitle)
                 #else
-                VStack(spacing: 0) {
-                    Text(currentFeed.title)
-                        .font(.subheadline)
-                        .fontWeight(.semibold)
-                    if !currentFeed.domain.isEmpty {
-                        Text(currentFeed.domain)
-                            .font(.caption2)
-                            .foregroundStyle(.secondary)
-                    }
-                }
-                .multilineTextAlignment(.center)
-                .lineLimit(1)
-                .truncationMode(.middle)
-                .fixedSize(horizontal: false, vertical: true)
-                .frame(height: 42)
-                .padding(.horizontal, 18)
-                .compatibleGlassEffect(in: .capsule, interactive: true)
-                .contentShape(.capsule)
-                .onTapGesture {
-                    scrollToTopTick &+= 1
-                }
-                .allowsHitTesting(showsPrincipalTitle)
-                .opacity(showsPrincipalTitle ? 1 : 0)
-                .animation(.smooth.speed(2.0), value: showsPrincipalTitle)
+                principalTitleContent
+                    .multilineTextAlignment(.center)
+                    .lineLimit(1)
+                    .truncationMode(.middle)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .frame(height: 42)
+                    .padding(.horizontal, 18)
+                    .compatibleGlassEffect(in: .capsule, interactive: true)
+                    .contentShape(.capsule)
+                    .onTapGesture { scrollToTopTick &+= 1 }
+                    .allowsHitTesting(showsPrincipalTitle)
+                    .opacity(showsPrincipalTitle ? 1 : 0)
+                    .animation(.smooth.speed(2.0), value: showsPrincipalTitle)
                 #endif
             }
         }
@@ -256,6 +235,37 @@ struct FeedArticlesView: View {
 }
 
 extension FeedArticlesView {
+
+    @ViewBuilder
+    var principalTitleContent: some View {
+        if scopedRefreshState.isStopping {
+            Text(String(localized: "Refresh.Stopping", table: "Home"))
+                .font(.subheadline)
+                .fontWeight(.semibold)
+        } else {
+            #if os(visionOS)
+            VStack(alignment: .leading, spacing: 0) {
+                feedTitleAndDomain
+            }
+            #else
+            VStack(spacing: 0) {
+                feedTitleAndDomain
+            }
+            #endif
+        }
+    }
+
+    @ViewBuilder
+    private var feedTitleAndDomain: some View {
+        Text(currentFeed.title)
+            .font(.subheadline)
+            .fontWeight(.semibold)
+        if !currentFeed.domain.isEmpty {
+            Text(currentFeed.domain)
+                .font(.caption2)
+                .foregroundStyle(.secondary)
+        }
+    }
 
     func reloadPreloadedEntries() {
         preloadedEntries = feedManager.preloadedArticleEntries(

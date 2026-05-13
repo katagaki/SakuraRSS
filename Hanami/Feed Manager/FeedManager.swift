@@ -11,6 +11,7 @@ public final class FeedManager {
     public var articles: [Article] = []
     public var lists: [FeedList] = []
     public var isLoading = false
+    public var isStopping = false
     public var refreshTotal: Int = 0
     public var refreshCompleted: Int = 0
     public var refreshingFeedIDs: Set<Int64> = []
@@ -261,17 +262,20 @@ public struct ScopedRefreshState: Hashable, Sendable {
     public var completed: Int = 0
     public var refreshingFeedIDs: Set<Int64> = []
     public var pendingFeedIDs: [Int64] = []
+    public var isStopping: Bool = false
 
     public init(
         total: Int = 0,
         completed: Int = 0,
         refreshingFeedIDs: Set<Int64> = [],
-        pendingFeedIDs: [Int64] = []
+        pendingFeedIDs: [Int64] = [],
+        isStopping: Bool = false
     ) {
         self.total = total
         self.completed = completed
         self.refreshingFeedIDs = refreshingFeedIDs
         self.pendingFeedIDs = pendingFeedIDs
+        self.isStopping = isStopping
     }
 
     public var progress: Double {

@@ -62,7 +62,8 @@ extension HomeView {
                 total: feedManager.refreshTotal,
                 completed: feedManager.refreshCompleted,
                 refreshingFeedIDs: feedManager.refreshingFeedIDs,
-                pendingFeedIDs: feedManager.pendingRefreshFeedIDs
+                pendingFeedIDs: feedManager.pendingRefreshFeedIDs,
+                isStopping: feedManager.isStopping
             )
         }
         return ScopedRefreshState()

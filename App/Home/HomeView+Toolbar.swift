@@ -59,6 +59,12 @@ extension HomeView {
 
     var principalText: String {
         let scopedState = feedManager.scopedRefreshes[currentScopeKey]
+        if let scopedState, scopedState.isStopping {
+            return String(localized: "Refresh.Stopping", table: "Home")
+        }
+        if feedManager.isStopping, feedManager.hasActiveRefreshProgress {
+            return String(localized: "Refresh.Stopping", table: "Home")
+        }
         if let scopedState, scopedState.hasActiveProgress {
             return String(
                 localized: "Home.Refreshing \(scopedState.completed) \(scopedState.total)",
