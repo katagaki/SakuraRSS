@@ -58,6 +58,8 @@ public extension PodcastDownloadManager {
             }
         }.value
 
+        let transcriptionAvailable = await PodcastTranscriber.isAvailable
+
         log("PodcastDownload", "Starting URLSession download task for article \(articleID)")
         let tempURL: URL = try await withCheckedThrowingContinuation { continuation in
             let sessionTask = urlSession.downloadTask(with: audioURL)
@@ -74,15 +76,14 @@ public extension PodcastDownloadManager {
             try FileManager.default.moveItem(at: tempURL, to: dest)
         }.value
 
-        // Store relative path so it survives container path changes.
         let relativePath = "\(articleID)/\(name)"
         log("PodcastDownload", "Storing download path '\(relativePath)' for article \(articleID)")
         try DatabaseManager.shared.setDownloadPath(relativePath, for: articleID)
 
         // Transcription failure is non-fatal; we still markCompleted below.
-        if await PodcastTranscriber.isAvailable {
+        if transcriptionAvailable {
             log("PodcastDownload", "Transcription available, queuing transcription for article \(articleID)")
-            activeDownloads[articleID] = DownloadProgress(state: .transcribing, progress: 1.0)
+            activeDownloads[articleID] = DownloadProgress(state: .transcribing, progress: 0.0)
             let title = article.title
             await attemptTranscription(articleID: articleID, fileURL: destination, title: title)
         } else {

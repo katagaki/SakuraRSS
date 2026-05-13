@@ -54,9 +54,9 @@ struct TranscriptView: View {
         let isActive = segment.id == activeSegmentID
         Text(segment.text)
             .font(.body)
+            .fontWeight(.semibold)
             .lineSpacing(4)
-            .fontWeight(isActive ? .semibold : .regular)
-            .foregroundStyle(isActive ? Color.primary : Color.primary.opacity(0.55))
+            .foregroundStyle(isActive ? Color.primary : Color.primary.opacity(0.4))
             .frame(maxWidth: .infinity, alignment: .leading)
             .contentShape(.rect)
             .onTapGesture {
