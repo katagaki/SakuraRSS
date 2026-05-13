@@ -8,14 +8,7 @@ public extension FluidTranscriberEngine {
         guard isModelDownloaded else {
             throw TranscriptionEngineError.modelNotDownloaded
         }
-        let config = SlidingWindowAsrConfig(
-            chunkSeconds: 15.0,
-            hypothesisChunkSeconds: 1.0,
-            leftContextSeconds: 2.0,
-            rightContextSeconds: 2.0,
-            minContextForConfirmation: 10.0,
-            confirmationThreshold: 0.85
-        )
+        let config = SlidingWindowAsrConfig.streaming
         let manager = SlidingWindowAsrManager(config: config)
         let models = try await AsrModels.downloadAndLoad(version: Self.modelVersion)
         try await manager.loadModels(models)
