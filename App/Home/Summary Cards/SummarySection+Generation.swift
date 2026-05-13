@@ -17,7 +17,7 @@ extension SummarySection {
                 summary: article.summary
             )
         }
-        if allArticles.count < 5 {
+        if allArticles.count < 3 {
             log(
                 "Summary",
                 "no eligible articles to summarize (\(allArticles.count) after filter); marking unavailable"
@@ -28,41 +28,113 @@ extension SummarySection {
 
         await MainActor.run { isGenerating = true }
 
-        let articles = Array(allArticles.prefix(Self.articleConsiderationLimit))
+        let personalizationOn = Self.personalizationEnabled
+        let feedAccessCounts: [Int64: Int] = personalizationOn
+            ? ((try? DatabaseManager.shared.feedAccessCounts(
+                since: date.addingTimeInterval(-30 * 24 * 3600)
+            )) ?? [:])
+            : [:]
+        let sortedArticles = sortByEngagement(
+            allArticles,
+            feedAccessCounts: feedAccessCounts
+        )
+        let articles = Array(sortedArticles.prefix(Self.articleConsiderationLimit))
         let articlesByID = Dictionary(uniqueKeysWithValues: articles.map { ($0.id, $0) })
-        let inputs = headlineInputs(for: articles)
-        let instructions = composeInstructions(date: date)
+        let preferredFeeds = preferredFeedIDs(
+            from: articles,
+            feedAccessCounts: feedAccessCounts
+        )
+        let inputs = headlineInputs(for: articles, preferredFeedIDs: preferredFeeds)
+        let instructions = composeInstructions(
+            date: date,
+            personalizationOn: personalizationOn,
+            includePreferredHint: !preferredFeeds.isEmpty
+        )
         let entityMap = await loadEntityMap(for: articles)
 
-        do {
-            let events = try await HeadlineSummarizer.summarize(
-                articles: inputs,
-                instructions: instructions,
-                entityMap: entityMap
-            )
-            let resolved = resolveHeadlines(events: events, articlesByID: articlesByID)
-            await applyGenerated(resolved, for: date)
-        } catch {
-            await MainActor.run {
-                isGenerating = false
-                hasGenerated = true
-                generationFailed = true
-                generationError = error.localizedDescription
-            }
+        let outcome = await HeadlineSummarizer.summarize(
+            articles: inputs,
+            instructions: instructions,
+            entityMap: entityMap,
+            preferredFeedIDs: preferredFeeds
+        )
+        let resolved = resolveHeadlines(events: outcome.events, articlesByID: articlesByID)
+        if resolved.isEmpty {
+            await markGenerationFailed(error: outcome.error)
+            return
+        }
+        await applyGenerated(
+            resolved,
+            for: date,
+            partialGeneration: outcome.error != nil,
+            articleCountAtGeneration: articles.count
+        )
+    }
+
+    static var personalizationEnabled: Bool {
+        // Default ON: missing key means the user hasn't visited Settings yet.
+        (UserDefaults.standard.object(forKey: "Intelligence.Personalization.Enabled") as? Bool) ?? true
+    }
+
+    private func sortByEngagement(
+        _ articles: [Article],
+        feedAccessCounts: [Int64: Int]
+    ) -> [Article] {
+        guard !feedAccessCounts.isEmpty else { return articles }
+        return articles.sorted { lhs, rhs in
+            let lhsScore = feedAccessCounts[lhs.feedID] ?? 0
+            let rhsScore = feedAccessCounts[rhs.feedID] ?? 0
+            if lhsScore != rhsScore { return lhsScore > rhsScore }
+            let lhsDate = lhs.publishedDate ?? .distantPast
+            let rhsDate = rhs.publishedDate ?? .distantPast
+            return lhsDate > rhsDate
         }
     }
 
-    private func composeInstructions(date: Date) -> String {
+    /// Top quartile (at minimum one) of distinct feeds present in the
+    /// candidate batch that have any positive access count. Returns empty
+    /// when personalization is off or the user has no engagement history.
+    private func preferredFeedIDs(
+        from articles: [Article],
+        feedAccessCounts: [Int64: Int]
+    ) -> Set<Int64> {
+        guard !feedAccessCounts.isEmpty else { return [] }
+        let candidateFeedIDs = Set(articles.map(\.feedID))
+        let scored: [(feedID: Int64, count: Int)] = candidateFeedIDs.compactMap { feedID in
+            let count = feedAccessCounts[feedID] ?? 0
+            guard count > 0 else { return nil }
+            return (feedID, count)
+        }
+        guard !scored.isEmpty else { return [] }
+        let sorted = scored.sorted { $0.count > $1.count }
+        let quartile = max(1, sorted.count / 4)
+        return Set(sorted.prefix(quartile).map(\.feedID))
+    }
+
+    private func composeInstructions(
+        date: Date,
+        personalizationOn: Bool,
+        includePreferredHint: Bool
+    ) -> String {
         let template = String(localized: "SummaryHeadlines.SharedPrompt", table: "Home")
         let timeWindow = String(localized: kind.timeWindowPhrase)
-        let baseInstructions = String(format: template, timeWindow)
-        let topicHints = topEntityHints(for: date)
+        var baseInstructions = String(format: template, timeWindow)
+        if includePreferredHint {
+            let hint = String(localized: "SummaryHeadlines.PreferredHint", table: "Home")
+            baseInstructions = "\(baseInstructions)\n\n\(hint)"
+        }
+        let topicHints = topEntityHints(for: date, personalizationOn: personalizationOn)
         guard !topicHints.isEmpty else { return baseInstructions }
         let prefix = String(localized: "SummaryHeadlines.TopicHintPrefix", table: "Home")
         return "\(baseInstructions)\n\n\(prefix)\n\(topicHints)"
     }
 
-    private func applyGenerated(_ resolved: [SummaryHeadline], for date: Date) async {
+    private func applyGenerated(
+        _ resolved: [SummaryHeadline],
+        for date: Date,
+        partialGeneration: Bool,
+        articleCountAtGeneration: Int
+    ) async {
         await MainActor.run {
             isGenerating = false
             hasGenerated = true
@@ -73,9 +145,26 @@ extension SummarySection {
             }
             withAnimation(.smooth.speed(2.0)) { headlines = resolved }
             hasSummary = true
+            cachedIsPartial = partialGeneration
+            cachedArticleCountAtGeneration = articleCountAtGeneration
             try? DatabaseManager.shared.cacheSummaryHeadlines(
-                resolved, ofType: kind.cacheType, for: date
+                resolved, ofType: kind.cacheType, for: date,
+                partialGeneration: partialGeneration,
+                articleCountAtGeneration: articleCountAtGeneration
             )
+        }
+    }
+
+    private func markGenerationFailed(error: Error?) async {
+        await MainActor.run {
+            isGenerating = false
+            hasGenerated = true
+            generationFailed = true
+            if let error {
+                generationError = error.localizedDescription
+            } else {
+                generationError = String(localized: "SummaryHeadlines.NoEventsExtracted", table: "Home")
+            }
         }
     }
 
@@ -107,13 +196,24 @@ extension SummarySection {
         return feed.feedSection == .feeds
     }
 
-    private func headlineInputs(for articles: [Article]) -> [HeadlineSummarizer.Input] {
+    private func headlineInputs(
+        for articles: [Article],
+        preferredFeedIDs: Set<Int64>
+    ) -> [HeadlineSummarizer.Input] {
         articles.map { article in
             let feed = feedManager.feed(forArticle: article)
-            let source = feed?.title ?? ""
-            let snippet = String((article.summary ?? "").prefix(Self.snippetCharLimit))
+            let baseSource = feed?.title ?? ""
+            let source = preferredFeedIDs.contains(article.feedID)
+                ? "\(baseSource) ★"
+                : baseSource
+            let raw = article.summary ?? article.content ?? ""
+            let snippet = String(raw.prefix(Self.snippetCharLimit))
             let body = "ID: \(article.id)\n[\(source)] \(article.title)\n\(snippet)"
-            return HeadlineSummarizer.Input(articleID: article.id, description: body)
+            return HeadlineSummarizer.Input(
+                articleID: article.id,
+                feedID: article.feedID,
+                description: body
+            )
         }
     }
 
@@ -157,20 +257,34 @@ extension SummarySection {
         }.value
     }
 
-    /// Top topics + people from the past week. Empty when Content Insights
-    /// is off or no entities were extracted.
-    private func topEntityHints(for date: Date) -> String {
+    /// Top topics + people. When personalization is on, ranked over the
+    /// articles the user has opened in the past 30 days; otherwise ranked
+    /// globally over the past week. Empty when Content Insights is off or
+    /// no entities were extracted.
+    private func topEntityHints(for date: Date, personalizationOn: Bool) -> String {
         let defaults = UserDefaults.standard
         guard defaults.bool(forKey: "Intelligence.ContentInsights.Enabled") else { return "" }
 
         let database = DatabaseManager.shared
-        let sevenDaysAgo = date.addingTimeInterval(-7 * 24 * 3600)
-        let topicsAndPlaces = (try? database.topEntities(
-            types: ["organization", "place"], since: sevenDaysAgo, limit: Self.topEntityHintLimit
-        )) ?? []
-        let people = (try? database.topEntities(
-            type: "person", since: sevenDaysAgo, limit: Self.topEntityHintLimit
-        )) ?? []
+        let topicsAndPlaces: [(name: String, count: Int)]
+        let people: [(name: String, count: Int)]
+        if personalizationOn {
+            let thirtyDaysAgo = date.addingTimeInterval(-30 * 24 * 3600)
+            topicsAndPlaces = (try? database.topAccessedEntities(
+                types: ["organization", "place"], since: thirtyDaysAgo, limit: Self.topEntityHintLimit
+            )) ?? []
+            people = (try? database.topAccessedEntities(
+                types: ["person"], since: thirtyDaysAgo, limit: Self.topEntityHintLimit
+            )) ?? []
+        } else {
+            let sevenDaysAgo = date.addingTimeInterval(-7 * 24 * 3600)
+            topicsAndPlaces = (try? database.topEntities(
+                types: ["organization", "place"], since: sevenDaysAgo, limit: Self.topEntityHintLimit
+            )) ?? []
+            people = (try? database.topEntities(
+                type: "person", since: sevenDaysAgo, limit: Self.topEntityHintLimit
+            )) ?? []
+        }
 
         var ranked = topicsAndPlaces + people
         ranked.sort { lhs, rhs in lhs.count > rhs.count }

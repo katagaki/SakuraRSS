@@ -58,6 +58,7 @@ extension SakuraRSSApp {
         case "fixup":
             DatabaseManager.shared.fixup()
             UserDefaults.standard.removeObject(forKey: "App.DatabaseVersion")
+            UserDefaults.standard.removeObject(forKey: "SummaryHeadlines.PromptVersion")
         case "arisishere":
             Task { await feedManager.deleteAllArticlesAndRefresh() }
         case "bigbang":

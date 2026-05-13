@@ -100,6 +100,10 @@ public nonisolated extension DatabaseManager {
     var summaryHeadlineArticleIDs: SQLite.Expression<String> { SQLite.Expression<String>("article_ids") }
     var summaryHeadlineFeedIDs: SQLite.Expression<String> { SQLite.Expression<String>("feed_ids") }
     var summaryHeadlineThumbnailURL: SQLite.Expression<String?> { SQLite.Expression<String?>("thumbnail_url") }
+    var summaryHeadlinePartialGeneration: SQLite.Expression<Bool> { SQLite.Expression<Bool>("partial_generation") }
+    var summaryHeadlineArticleCountAtGeneration: SQLite.Expression<Int> {
+        SQLite.Expression<Int>("article_count_at_generation")
+    }
 
     // MARK: - Feed Rules
 

@@ -22,6 +22,8 @@ struct SummarySection: View {
     @State var hasGenerated = false
     @State var generationFailed = false
     @State var generationError: String?
+    @State var cachedIsPartial: Bool = false
+    @State var cachedArticleCountAtGeneration: Int = 0
     @State private var deferredForLowPowerMode = false
     @State private var articleCount: Int = 0
 
@@ -85,6 +87,16 @@ struct SummarySection: View {
             log("Summary", "kind=\(kind) revision=\(feedManager.dataRevision) count=\(count)")
             withAnimation(.smooth.speed(2.0)) {
                 articleCount = count
+            }
+            if hasGenerated,
+               cachedIsPartial,
+               !isGenerating,
+               count >= cachedArticleCountAtGeneration + 3 {
+                log(
+                    "Summary",
+                    "auto-regen: partial cache + \(count - cachedArticleCountAtGeneration) more articles"
+                )
+                await regenerateHeadlines()
             }
         }
         .onAppear { isVisible?.wrappedValue = shouldShow }
@@ -241,8 +253,10 @@ struct SummarySection: View {
         if let cached = try? DatabaseManager.shared.cachedSummaryHeadlines(
             ofType: kind.cacheType,
             for: today
-        ), !cached.isEmpty {
-            headlines = cached
+        ), !cached.headlines.isEmpty {
+            headlines = cached.headlines
+            cachedIsPartial = cached.partialGeneration
+            cachedArticleCountAtGeneration = cached.articleCountAtGeneration
             hasGenerated = true
             hasSummary = true
             return
@@ -282,6 +296,8 @@ struct SummarySection: View {
             generationFailed = false
             generationError = nil
             deferredForLowPowerMode = false
+            cachedIsPartial = false
+            cachedArticleCountAtGeneration = 0
         }
         await generateHeadlines(for: today)
     }

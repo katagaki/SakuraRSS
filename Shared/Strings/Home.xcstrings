@@ -3663,6 +3663,65 @@
           }
         }
       }
+    },
+    "SummaryHeadlines.PreferredHint": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bevorzuge Ereignisse aus Artikeln, die mit ★ markiert sind."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Prioritize events drawn from articles marked with ★."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Privilégie les événements tirés des articles marqués d'une ★."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dai la priorità agli eventi tratti dagli articoli contrassegnati con ★."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "★が付いた記事から得られた出来事を優先してください。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "★ 표시가 있는 기사에서 추출한 사건을 우선적으로 다루세요."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ưu tiên các sự kiện được rút ra từ các bài viết được đánh dấu ★."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "优先选择标有 ★ 的文章中的事件。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "優先選擇標有 ★ 的文章中的事件。"
+          }
+        }
+      }
     }
   },
   "version": "1.1"
