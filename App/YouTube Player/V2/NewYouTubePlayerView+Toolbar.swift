@@ -20,6 +20,17 @@ extension NewYouTubePlayerView {
                 ToolbarActivityIndicator(label: activityLabel)
             }
         }
+        if !chapters.isEmpty {
+            ToolbarItemGroup(placement: .topBarTrailing) {
+                ChapterMenu(chapters: chapters) { time in
+                    playback.seek(to: time)
+                }
+                .equatable()
+            }
+            #if !os(visionOS)
+            ToolbarSpacer(.fixed, placement: .topBarTrailing)
+            #endif
+        }
         if hasMediaSelectionOptions {
             ToolbarItemGroup(placement: .topBarTrailing) {
                 mediaSelectionMenu
@@ -49,5 +60,9 @@ extension NewYouTubePlayerView {
             return String(localized: "Article.Summarizing", table: "Articles")
         }
         return nil
+    }
+
+    var chapters: [YouTubeChapter] {
+        fetchedMetadata?.chapters ?? []
     }
 }

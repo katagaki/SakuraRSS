@@ -30,12 +30,10 @@ extension NewYouTubePlayerView {
         }
 
         if playback.currentVideoID == videoId, playback.player != nil {
-            if article.isEphemeral {
-                await fetchEphemeralMetadataIfNeeded(videoId: videoId)
-            }
+            await fetchMetadataIfNeeded(videoId: videoId)
             playback.updateMetadata(
-                title: nonEmpty(fetchedMetadata?.title) ?? article.title,
-                artist: nonEmpty(fetchedMetadata?.uploader) ?? feed?.title,
+                title: playbackTitle,
+                artist: playbackArtist,
                 artworkURLString: article.imageURL
             )
             loadState = .ready
@@ -45,15 +43,14 @@ extension NewYouTubePlayerView {
         do {
             let client = try await NewYouTubeClient.bootstrap()
             async let manifestTask = client.hlsPlaylistURL(videoId: videoId)
-            if article.isEphemeral {
-                fetchedMetadata = try? await client.fetchVideoMetadata(videoId: videoId)
-            }
+            async let metadataTask = client.fetchVideoMetadata(videoId: videoId)
+            fetchedMetadata = try? await metadataTask
             let manifestURL = try await manifestTask
             playback.load(
                 url: manifestURL,
                 videoID: videoId,
-                title: nonEmpty(fetchedMetadata?.title) ?? article.title,
-                artist: nonEmpty(fetchedMetadata?.uploader) ?? feed?.title,
+                title: playbackTitle,
+                artist: playbackArtist,
                 artworkURLString: article.imageURL
             )
             loadState = .ready
@@ -63,7 +60,7 @@ extension NewYouTubePlayerView {
         }
     }
 
-    private func fetchEphemeralMetadataIfNeeded(videoId: String) async {
+    private func fetchMetadataIfNeeded(videoId: String) async {
         guard fetchedMetadata == nil else { return }
         guard let client = try? await NewYouTubeClient.bootstrap() else { return }
         fetchedMetadata = try? await client.fetchVideoMetadata(videoId: videoId)
@@ -72,6 +69,20 @@ extension NewYouTubePlayerView {
     private func nonEmpty(_ value: String?) -> String? {
         guard let value, !value.isEmpty else { return nil }
         return value
+    }
+
+    private var playbackTitle: String {
+        if article.isEphemeral, let title = nonEmpty(fetchedMetadata?.title) {
+            return title
+        }
+        return article.title
+    }
+
+    private var playbackArtist: String? {
+        if article.isEphemeral, let artist = nonEmpty(fetchedMetadata?.uploader) {
+            return artist
+        }
+        return feed?.title
     }
 
     func loadFeedAndIcon() async {

@@ -10,6 +10,7 @@ nonisolated struct YouTubeVideoMetadata: Sendable {
     let uploader: String
     let description: String
     let publishDateString: String?
+    let chapters: [YouTubeChapter]
 
     var publishDate: Date? {
         guard let publishDateString, !publishDateString.isEmpty else { return nil }
