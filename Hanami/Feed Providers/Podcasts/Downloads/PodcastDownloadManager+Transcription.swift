@@ -8,10 +8,24 @@ public extension PodcastDownloadManager {
         }
         do {
             log("PodcastDownload", "Transcribing article \(articleID) located at \(fileURL.path())")
-            let segments = try await PodcastTranscriber.transcribe(audioFileURL: fileURL, title: title)
+            let progressHandler: @Sendable (Double) -> Void = { [weak self] fraction in
+                self?.reportTranscriptionProgress(articleID: articleID, fraction: fraction)
+            }
+            let segments = try await PodcastTranscriber.transcribe(
+                audioFileURL: fileURL,
+                title: title,
+                progress: progressHandler
+            )
             try DatabaseManager.shared.cacheTranscript(segments, for: articleID)
         } catch {
             log("PodcastDownload", "Transcription failed for article \(articleID): \(error)")
+        }
+    }
+
+    nonisolated func reportTranscriptionProgress(articleID: Int64, fraction: Double) {
+        Task { @MainActor [weak self] in
+            guard let self else { return }
+            activeDownloads[articleID] = DownloadProgress(state: .transcribing, progress: fraction)
         }
     }
 

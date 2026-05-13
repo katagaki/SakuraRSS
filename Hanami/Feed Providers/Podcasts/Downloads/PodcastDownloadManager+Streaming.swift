@@ -1,4 +1,4 @@
-import AVFoundation
+@preconcurrency import AVFoundation
 import Foundation
 
 public extension PodcastDownloadManager {
@@ -166,14 +166,23 @@ enum StreamingBridgeSignal: Sendable {
     case finished(Int64)
 }
 
+/// Wraps a decoded PCM buffer alongside its chunk ordering index so that
+/// results from parallel tasks can be sorted back into presentation order.
+private struct DecodedChunk: @unchecked Sendable {
+    let index: Int
+    let buffer: AVAudioPCMBuffer?
+    let sourceFrames: AVAudioFramePosition
+}
+
 /// Reads PCM samples from the growing audio file and feeds them to the
-/// transcription session. Opens a fresh `AVAudioFile` each pass and seeks past
-/// the frames it has already consumed so we only decode new audio.
+/// transcription session. Decodes up to `parallelChunkCount` consecutive
+/// 5-second windows concurrently, then streams the results in order.
 enum StreamingAudioPipeline {
 
     static let flushChunkBytes = 64 * 1024
     static let minBytesBeforeFirstDecode: Int64 = 256 * 1024
     static let decodeFrameCapacity: AVAudioFrameCount = 16_000 * 5
+    static let parallelChunkCount = 4
 
     static func run(
         fileURL: URL,
@@ -215,9 +224,9 @@ enum StreamingAudioPipeline {
         }
     }
 
-    /// Decodes from `startingAt` to the current EOF of `fileURL`, returning the
-    /// number of source-format frames advanced. Returns 0 if no new frames are
-    /// readable (e.g., the next MP3 frame hasn't fully landed yet).
+    /// Decodes up to `parallelChunkCount` chunks concurrently starting at
+    /// `startingFrame`, streams them in order, and returns the total number of
+    /// source-format frames advanced. Returns 0 when no new frames are readable.
     private static func decodeAvailable(
         fileURL: URL,
         startingAt startingFrame: AVAudioFramePosition,
@@ -227,40 +236,76 @@ enum StreamingAudioPipeline {
         guard let audioFile = try? AVAudioFile(forReading: fileURL) else { return 0 }
         let totalFrames = audioFile.length
         guard totalFrames > startingFrame else { return 0 }
-        audioFile.framePosition = startingFrame
-
         let sourceFormat = audioFile.processingFormat
-        guard let converter = AVAudioConverter(from: sourceFormat, to: targetFormat) else {
-            return 0
+
+        let framesPerChunk = Int64(decodeFrameCapacity)
+        let availableFrames = totalFrames - startingFrame
+        let chunkCount = min(parallelChunkCount, Int((availableFrames + framesPerChunk - 1) / framesPerChunk))
+
+        var results: [DecodedChunk] = []
+        await withTaskGroup(of: DecodedChunk.self) { group in
+            for chunkIndex in 0..<chunkCount {
+                let chunkStart = startingFrame + AVAudioFramePosition(Int64(chunkIndex) * framesPerChunk)
+                let chunkCapacity = AVAudioFrameCount(min(framesPerChunk, totalFrames - chunkStart))
+                group.addTask {
+                    await Self.decodeChunk(
+                        fileURL: fileURL,
+                        sourceFormat: sourceFormat,
+                        targetFormat: targetFormat,
+                        startingAt: chunkStart,
+                        frameCapacity: chunkCapacity,
+                        chunkIndex: chunkIndex
+                    )
+                }
+            }
+            for await decoded in group {
+                results.append(decoded)
+            }
         }
 
-        let chunkSourceFrames = AVAudioFrameCount(
-            max(1, min(Int64(decodeFrameCapacity), totalFrames - startingFrame))
-        )
-        guard let sourceBuffer = AVAudioPCMBuffer(
-            pcmFormat: sourceFormat,
-            frameCapacity: chunkSourceFrames
-        ) else {
-            return 0
+        results.sort { $0.index < $1.index }
+        for decoded in results {
+            if let buffer = decoded.buffer {
+                await session.streamAudio(buffer)
+            }
+        }
+        return results.reduce(0) { $0 + $1.sourceFrames }
+    }
+
+    private static func decodeChunk(
+        fileURL: URL,
+        sourceFormat: AVAudioFormat,
+        targetFormat: AVAudioFormat,
+        startingAt startingFrame: AVAudioFramePosition,
+        frameCapacity: AVAudioFrameCount,
+        chunkIndex: Int
+    ) async -> DecodedChunk {
+        let empty = DecodedChunk(index: chunkIndex, buffer: nil, sourceFrames: 0)
+        guard let audioFile = try? AVAudioFile(forReading: fileURL) else { return empty }
+        audioFile.framePosition = startingFrame
+
+        guard let converter = AVAudioConverter(from: sourceFormat, to: targetFormat) else { return empty }
+        guard let sourceBuffer = AVAudioPCMBuffer(pcmFormat: sourceFormat, frameCapacity: frameCapacity) else {
+            return empty
         }
 
         do {
             try audioFile.read(into: sourceBuffer)
         } catch {
-            return 0
+            return empty
         }
+
         let framesRead = AVAudioFramePosition(sourceBuffer.frameLength)
-        guard sourceBuffer.frameLength > 0 else { return 0 }
+        guard sourceBuffer.frameLength > 0 else {
+            return DecodedChunk(index: chunkIndex, buffer: nil, sourceFrames: 0)
+        }
 
         let ratio = targetFormat.sampleRate / sourceFormat.sampleRate
         let targetFrameCapacity = AVAudioFrameCount(
             (Double(sourceBuffer.frameLength) * ratio).rounded(.up) + 1024
         )
-        guard let targetBuffer = AVAudioPCMBuffer(
-            pcmFormat: targetFormat,
-            frameCapacity: targetFrameCapacity
-        ) else {
-            return framesRead
+        guard let targetBuffer = AVAudioPCMBuffer(pcmFormat: targetFormat, frameCapacity: targetFrameCapacity) else {
+            return DecodedChunk(index: chunkIndex, buffer: nil, sourceFrames: framesRead)
         }
 
         var providedBuffer = false
@@ -275,11 +320,10 @@ enum StreamingAudioPipeline {
             return sourceBuffer
         }
         if status == .error || conversionError != nil {
-            return framesRead
+            return DecodedChunk(index: chunkIndex, buffer: nil, sourceFrames: framesRead)
         }
-        if targetBuffer.frameLength > 0 {
-            await session.streamAudio(targetBuffer)
-        }
-        return framesRead
+
+        let finalBuffer: AVAudioPCMBuffer? = targetBuffer.frameLength > 0 ? targetBuffer : nil
+        return DecodedChunk(index: chunkIndex, buffer: finalBuffer, sourceFrames: framesRead)
     }
 }

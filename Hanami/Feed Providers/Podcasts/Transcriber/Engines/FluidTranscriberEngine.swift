@@ -42,7 +42,11 @@ public struct FluidTranscriberEngine: TranscriptionEngine {
         try? FileManager.default.removeItem(at: Self.cacheDirectory)
     }
 
-    public func transcribe(audioFileURL: URL, title: String) async throws -> [TranscriptSegment] {
+    public func transcribe(
+        audioFileURL: URL,
+        title: String,
+        progress: (@Sendable (Double) -> Void)?
+    ) async throws -> [TranscriptSegment] {
         guard FileManager.default.fileExists(atPath: audioFileURL.path) else {
             throw TranscriptionEngineError.audioFileUnreadable
         }
@@ -53,16 +57,37 @@ public struct FluidTranscriberEngine: TranscriptionEngine {
         let models = try await AsrModels.downloadAndLoad(version: Self.modelVersion)
         let manager = AsrManager(models: models)
 
-        var decoderState = TdtDecoderState.make()
-        let result = try await manager.transcribe(audioFileURL, decoderState: &decoderState)
-
-        if let timings = result.tokenTimings, !timings.isEmpty {
-            return Self.buildSegments(from: timings)
+        let progressTask: Task<Void, Never>?
+        if let progress {
+            let stream = await manager.transcriptionProgressStream
+            progressTask = Task {
+                do {
+                    for try await fraction in stream {
+                        if Task.isCancelled { break }
+                        progress(fraction)
+                    }
+                } catch {}
+            }
+        } else {
+            progressTask = nil
         }
 
-        // Fallback: no token timings (shouldn't happen for TDT models).
-        let duration = try await Self.audioDuration(of: audioFileURL)
-        return Self.distributeTimestamps(text: result.text, totalDuration: duration)
+        var decoderState = TdtDecoderState.make()
+        do {
+            let result = try await manager.transcribe(audioFileURL, decoderState: &decoderState)
+            await progressTask?.value
+
+            if let timings = result.tokenTimings, !timings.isEmpty {
+                return Self.buildSegments(from: timings)
+            }
+
+            // Fallback: no token timings (shouldn't happen for TDT models).
+            let duration = try await Self.audioDuration(of: audioFileURL)
+            return Self.distributeTimestamps(text: result.text, totalDuration: duration)
+        } catch {
+            progressTask?.cancel()
+            throw error
+        }
     }
 
     // MARK: - Segment construction from token timings

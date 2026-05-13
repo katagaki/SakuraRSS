@@ -60,27 +60,6 @@ public extension PodcastDownloadManager {
 
         let transcriptionAvailable = await PodcastTranscriber.isAvailable
 
-        if transcriptionAvailable {
-            do {
-                try await streamingDownloadAndTranscribe(
-                    article: article,
-                    audioURL: audioURL,
-                    destination: destination
-                )
-                let relativePath = "\(articleID)/\(name)"
-                try DatabaseManager.shared.setDownloadPath(relativePath, for: articleID)
-                markCompleted(articleID: articleID)
-                return
-            } catch is CancellationError {
-                throw CancellationError()
-            } catch let urlError as URLError where urlError.code == .cancelled {
-                throw urlError
-            } catch {
-                log("PodcastDownload", "Streaming pipeline failed for \(articleID): \(error). Falling back.")
-                try? FileManager.default.removeItem(at: destination)
-            }
-        }
-
         log("PodcastDownload", "Starting URLSession download task for article \(articleID)")
         let tempURL: URL = try await withCheckedThrowingContinuation { continuation in
             let sessionTask = urlSession.downloadTask(with: audioURL)
@@ -104,7 +83,7 @@ public extension PodcastDownloadManager {
         // Transcription failure is non-fatal; we still markCompleted below.
         if transcriptionAvailable {
             log("PodcastDownload", "Transcription available, queuing transcription for article \(articleID)")
-            activeDownloads[articleID] = DownloadProgress(state: .transcribing, progress: 1.0)
+            activeDownloads[articleID] = DownloadProgress(state: .transcribing, progress: 0.0)
             let title = article.title
             await attemptTranscription(articleID: articleID, fileURL: destination, title: title)
         } else {

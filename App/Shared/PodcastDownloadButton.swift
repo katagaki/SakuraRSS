@@ -41,7 +41,7 @@ struct PodcastDownloadButton: View {
                     downloadManager.cancelDownload(articleID: article.id)
                 } label: {
                     if progress.state == .transcribing {
-                        transcribingDonut()
+                        transcribingDonut(progress: progress.progress)
                     } else {
                         donutProgress(progress: progress.progress)
                     }
@@ -81,8 +81,8 @@ struct PodcastDownloadButton: View {
         .frame(width: size, height: size)
     }
 
-    private func transcribingDonut() -> some View {
-        TranscribingDonut(size: size, lineWidth: lineWidth)
+    private func transcribingDonut(progress: Double) -> some View {
+        TranscribingDonut(size: size, lineWidth: lineWidth, progress: progress)
     }
 
     private func donutProgress(progress: Double) -> some View {
@@ -109,6 +109,7 @@ private struct TranscribingDonut: View {
 
     let size: CGFloat
     let lineWidth: CGFloat
+    let progress: Double
 
     @State private var isPulsing = false
 
@@ -118,16 +119,26 @@ private struct TranscribingDonut: View {
                 .stroke(.secondary.opacity(0.2), lineWidth: lineWidth)
                 .frame(width: size - lineWidth, height: size - lineWidth)
 
-            Circle()
-                .stroke(.accent, style: StrokeStyle(lineWidth: lineWidth, lineCap: .round))
-                .frame(width: size - lineWidth, height: size - lineWidth)
+            if progress > 0 {
+                Circle()
+                    .trim(from: 0, to: CGFloat(progress))
+                    .stroke(.accent, style: StrokeStyle(lineWidth: lineWidth, lineCap: .round))
+                    .frame(width: size - lineWidth, height: size - lineWidth)
+                    .rotationEffect(.degrees(-90))
+                    .animation(.smooth, value: progress)
+            } else {
+                Circle()
+                    .stroke(.accent, style: StrokeStyle(lineWidth: lineWidth, lineCap: .round))
+                    .frame(width: size - lineWidth, height: size - lineWidth)
+            }
 
             Image(systemName: "waveform")
                 .font(.system(size: size * 0.45))
                 .foregroundStyle(.accent)
-                .opacity(isPulsing ? 0.35 : 1.0)
+                .opacity(progress > 0 ? 1.0 : (isPulsing ? 0.35 : 1.0))
         }
         .onAppear {
+            guard progress <= 0 else { return }
             withAnimation(.easeInOut(duration: 0.9).repeatForever(autoreverses: true)) {
                 isPulsing = true
             }

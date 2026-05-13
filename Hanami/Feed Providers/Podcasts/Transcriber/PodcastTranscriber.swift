@@ -21,14 +21,18 @@ public enum PodcastTranscriber {
         }
     }
 
-    public static func transcribe(audioFileURL: URL, title: String) async throws -> [TranscriptSegment] {
+    public static func transcribe(
+        audioFileURL: URL,
+        title: String,
+        progress: (@Sendable (Double) -> Void)? = nil
+    ) async throws -> [TranscriptSegment] {
         guard isEnabled else {
             throw TranscriptionEngineError.notAvailable
         }
         guard engine.isModelDownloaded else {
             throw TranscriptionEngineError.modelNotDownloaded
         }
-        return try await engine.transcribe(audioFileURL: audioFileURL, title: title)
+        return try await engine.transcribe(audioFileURL: audioFileURL, title: title, progress: progress)
     }
 
     public static func makeStreamingSession() async throws -> StreamingTranscriptionSession {
