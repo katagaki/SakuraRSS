@@ -70,9 +70,13 @@ public nonisolated final class RSSParser: NSObject, XMLParserDelegate, @unchecke
 
     // MARK: - XMLParserDelegate
 
-    public func parser(_: XMLParser, didStartElement elementName: String,
-                namespaceURI _: String?, qualifiedName _: String?,
-                attributes attributeDict: [String: String] = [:]) {
+    public func parser(
+        _: XMLParser,
+        didStartElement elementName: String,
+        namespaceURI _: String?,
+        qualifiedName _: String?,
+        attributes attributeDict: [String: String] = [:]
+    ) {
         currentElement = elementName
         currentAttributes = attributeDict
         handleStartElement(elementName, attributes: attributeDict)
@@ -194,8 +198,12 @@ public nonisolated final class RSSParser: NSObject, XMLParserDelegate, @unchecke
         }
     }
 
-    public func parser(_: XMLParser, didEndElement elementName: String,
-                namespaceURI _: String?, qualifiedName _: String?) {
+    public func parser(
+        _: XMLParser,
+        didEndElement elementName: String,
+        namespaceURI _: String?,
+        qualifiedName _: String?
+    ) {
         if elementName == "image" {
             isInsideImage = false
         } else if elementName == "item" || elementName == "entry" {
