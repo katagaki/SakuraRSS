@@ -17,6 +17,7 @@ struct DataSettingsView: View {
                 FeedStorageSection(feedSizes: feedSizes, isLoading: isLoadingStorage)
             }
             PortabilitySection()
+            LogsSection()
         }
         .listStyle(.insetGrouped)
         .sakuraBackground()

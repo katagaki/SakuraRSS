@@ -28,7 +28,7 @@ public extension InstagramProvider {
         }
 
         // swiftlint:disable:next line_length
-        log("InstagramProvider", "Got cookies - csrf: \(cookies.csrfToken.prefix(20))..., total cookies: \(cookies.allCookies.count)")
+        log("InstagramProvider", "Got cookies - csrf: \(cookies.csrfToken.prefix(5))..., total cookies: \(cookies.allCookies.count)")
 
         let session = makeSession(cookies: cookies)
 

@@ -163,36 +163,40 @@ public nonisolated struct SakuraStorageBreakdown: Sendable {
     public let feedsBytes: Int64
     public let podcastsBytes: Int64
     public let cacheBytes: Int64
+    public let logsBytes: Int64
 
-    public var totalBytes: Int64 { feedsBytes + podcastsBytes + cacheBytes }
+    public var totalBytes: Int64 { feedsBytes + podcastsBytes + cacheBytes + logsBytes }
 
-    public init(feedsBytes: Int64, podcastsBytes: Int64, cacheBytes: Int64) {
+    public init(feedsBytes: Int64, podcastsBytes: Int64, cacheBytes: Int64, logsBytes: Int64) {
         self.feedsBytes = feedsBytes
         self.podcastsBytes = podcastsBytes
         self.cacheBytes = cacheBytes
+        self.logsBytes = logsBytes
     }
 }
 
 /// Splits the shared app-group container into Feeds (DB text + recipes),
-/// Podcasts (downloaded audio), and Cache (DB image cache + favicon cache +
-/// widget thumbnails).
+/// Podcasts (downloaded audio), Cache (DB image cache + favicon cache +
+/// widget thumbnails), and Logs (per-module log files).
 public nonisolated func sakuraStorageBreakdown(imageCacheTableBytes: Int64) -> SakuraStorageBreakdown {
     guard let container = FileManager.default.containerURL(
         forSecurityApplicationGroupIdentifier: "group.com.tsubuzaki.SakuraRSS"
     ) else {
-        return SakuraStorageBreakdown(feedsBytes: 0, podcastsBytes: 0, cacheBytes: 0)
+        return SakuraStorageBreakdown(feedsBytes: 0, podcastsBytes: 0, cacheBytes: 0, logsBytes: 0)
     }
     let podcasts = directorySize(at: container.appendingPathComponent("PodcastDownloads", isDirectory: true))
     let favicons = directorySize(at: container.appendingPathComponent("FaviconCache", isDirectory: true))
     let widgetThumbs = directorySize(at: container.appendingPathComponent("WidgetThumbnails", isDirectory: true))
+    let logs = directorySize(at: container.appendingPathComponent("Logs", isDirectory: true))
     let containerTotal = directorySize(at: container)
     let cacheOnDisk = favicons + widgetThumbs
     let cache = imageCacheTableBytes + cacheOnDisk
-    let feeds = max(0, containerTotal - podcasts - cacheOnDisk - imageCacheTableBytes)
+    let feeds = max(0, containerTotal - podcasts - cacheOnDisk - imageCacheTableBytes - logs)
     return SakuraStorageBreakdown(
         feedsBytes: feeds,
         podcastsBytes: podcasts,
-        cacheBytes: cache
+        cacheBytes: cache,
+        logsBytes: logs
     )
 }
 

@@ -18,7 +18,7 @@ struct StorageBarSection: View {
 
     private var sakuraSegments: [StorageSegment] {
         let breakdown = deviceStats?.breakdown ?? SakuraStorageBreakdown(
-            feedsBytes: 0, podcastsBytes: 0, cacheBytes: 0
+            feedsBytes: 0, podcastsBytes: 0, cacheBytes: 0, logsBytes: 0
         )
         return [
             StorageSegment(
@@ -38,6 +38,12 @@ struct StorageBarSection: View {
                 label: String(localized: "Storage.Usage.Cache", table: "DataManagement"),
                 color: .blue,
                 bytes: breakdown.cacheBytes
+            ),
+            StorageSegment(
+                kind: .sakura,
+                label: String(localized: "Storage.Usage.Logs", table: "DataManagement"),
+                color: .green,
+                bytes: breakdown.logsBytes
             )
         ]
     }

@@ -31,7 +31,7 @@ public extension XProvider {
             return XProfileFetchResult(tweets: [], profileImageURL: nil, displayName: nil)
         }
 
-        log("XProvider", "Got cookies - csrf: \(cookies.csrfToken.prefix(20))…")
+        log("XProvider", "Got cookies - csrf: \(cookies.csrfToken.prefix(5))…")
 
         guard let userInfo = await fetchUserInfo(
             screenName: handle, cookies: cookies
