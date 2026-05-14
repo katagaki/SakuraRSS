@@ -110,9 +110,14 @@ struct SeekBarView: View {
                             onScrubbingChanged?(true)
                         }
                         guard duration > 0, trackWidth > 0 else { return }
+                        #if targetEnvironment(macCatalyst) || os(visionOS)
+                        let fraction = value.location.x / trackWidth
+                        dragTime = max(0, min(TimeInterval(fraction) * duration, duration))
+                        #else
                         let deltaFraction = value.translation.width / trackWidth
                         let deltaTime = TimeInterval(deltaFraction) * duration
                         dragTime = max(0, min(dragStartTime + deltaTime, duration))
+                        #endif
                     }
                     .onEnded { _ in
                         guard !isDisabled else { return }
