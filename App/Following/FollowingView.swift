@@ -34,6 +34,7 @@ struct FollowingView: View {
                     ArticleDestinationView(article: article)
                         .environment(\.zoomNamespace, cardZoom)
                         .environment(\.navigateToEphemeralArticle, ephemeralAppender)
+                        .environment(\.navigateToFeed, { feed in path.append(feed) })
                         .zoomTransition(sourceID: article.id, in: cardZoom)
                         .onAppear { savedArticleID = Int(article.id) }
                         .onDisappear { savedArticleID = -1 }
