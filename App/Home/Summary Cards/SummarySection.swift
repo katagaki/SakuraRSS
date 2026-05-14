@@ -96,6 +96,7 @@ struct SummarySection: View {
                     "Summary",
                     "auto-regen: partial cache + \(count - cachedArticleCountAtGeneration) more articles"
                 )
+                isGenerating = true
                 await regenerateHeadlines()
             }
         }
@@ -103,6 +104,7 @@ struct SummarySection: View {
         .onChange(of: shouldShow) { _, newValue in isVisible?.wrappedValue = newValue }
         .onChange(of: refreshTrigger) { _, newValue in
             guard newValue > 0, shouldShow, !isGenerating else { return }
+            isGenerating = true
             Task { await regenerateHeadlines() }
         }
     }

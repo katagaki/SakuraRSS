@@ -25,6 +25,8 @@ public extension FeedManager {
             }
             return url
         }
+        // swiftlint:disable:next line_length
+        log("FeedRefresh.ImagePreload", "begin urls=\(urls.count) deduped=\(deduped.count) candidates=\(candidates.count)")
         guard !candidates.isEmpty else { return }
 
         let maxConcurrent = 4
@@ -55,12 +57,18 @@ public extension FeedManager {
             let (data, response) = try await URLSession.shared.data(for: .sakuraImage(url: url))
             if let http = response as? HTTPURLResponse,
                !(200..<300).contains(http.statusCode) {
+                log("FeedRefresh.ImagePreload", "fail url=\(urlString) status=\(http.statusCode)")
                 return
             }
-            guard !data.isEmpty else { return }
+            guard !data.isEmpty else {
+                log("FeedRefresh.ImagePreload", "fail url=\(urlString) reason=empty")
+                return
+            }
             try? database.cacheImageData(data, for: urlString)
+            log("FeedRefresh.ImagePreload", "success url=\(urlString) bytes=\(data.count)")
         } catch {
-            return
+            // swiftlint:disable:next line_length
+            log("FeedRefresh.ImagePreload", "fail url=\(urlString) error=\(error.localizedDescription)")
         }
     }
 }

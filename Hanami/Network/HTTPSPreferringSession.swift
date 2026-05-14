@@ -1,13 +1,5 @@
 import Foundation
 
-/// Shared `URLSession` that intercepts HTTP redirects and rewrites
-/// `http://` redirect targets to `https://` so unexpected scheme
-/// downgrades don't trip App Transport Security and abort the fetch.
-///
-/// Servers occasionally 30x from `https://` to `http://` (canonical-host
-/// quirks, misconfigured load balancers, etc.). Without this rewrite, the
-/// follow-up request is blocked by ATS and the fetch fails outright; the
-/// HTTPS variant almost always works in practice.
 public final class HTTPSPreferringSession: @unchecked Sendable {
 
     public static let shared = HTTPSPreferringSession()
@@ -45,6 +37,7 @@ private final class HTTPSRedirectDelegate: NSObject, URLSessionTaskDelegate {
     nonisolated static func upgradeIfNeeded(_ request: URLRequest) -> URLRequest {
         guard let url = request.url, url.scheme?.lowercased() == "http",
               let upgraded = httpsURL(from: url) else { return request }
+        log("HTTPSPreferringSession", "upgraded \(url.absoluteString) -> \(upgraded.absoluteString)")
         var modified = request
         modified.url = upgraded
         if let host = upgraded.host,

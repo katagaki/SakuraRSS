@@ -36,7 +36,7 @@ public nonisolated enum HTMLMetadataImage {
         request.setValue("text/html,application/xhtml+xml", forHTTPHeaderField: "Accept")
 
         do {
-            let (data, response) = try await URLSession.shared.data(for: request)
+            let (data, response) = try await HTTPSPreferringSession.shared.data(for: request)
             if let http = response as? HTTPURLResponse, !(200...299).contains(http.statusCode) {
                 return nil
             }

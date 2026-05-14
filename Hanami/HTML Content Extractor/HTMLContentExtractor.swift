@@ -6,7 +6,6 @@ public final class HTMLContentExtractor {
 
     private init() {}
 
-
     public static let contentSelectors = [
         // High-precision schema.org / semantic markup - check first
         "[itemprop=articleBody]",

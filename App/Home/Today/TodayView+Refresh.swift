@@ -13,7 +13,6 @@ extension TodayView {
         guard !scopedRefreshState.hasActiveProgress,
               !feedManager.hasActiveRefreshProgress else { return }
         feedManager.flushDebouncedReads()
-        summaryRefreshTrigger += 1
         let feeds = feedManager.feeds
         let loadEntities = contentInsightsEnabled
         Task { @MainActor in
@@ -23,6 +22,7 @@ extension TodayView {
                 dataRevision: feedManager.dataRevision,
                 loadEntities: loadEntities
             )
+            summaryRefreshTrigger += 1
         }
     }
 

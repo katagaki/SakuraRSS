@@ -59,12 +59,19 @@ public extension FeedManager {
         let fetchURL = RedirectDomains.redirectedURL(url)
         log("FeedRefresh.RSS", "fetch begin id=\(feed.id) url=\(fetchURL.absoluteString)")
 
-        var request = URLRequest.sakura(url: fetchURL, timeoutInterval: 5)
+        var request = URLRequest.sakura(url: fetchURL, timeoutInterval: 3)
         if feed.isSubstackFeed, let host = fetchURL.host,
            let cookieHeader = SubstackAuth.cookieHeader(for: host) {
             request.setValue(cookieHeader, forHTTPHeaderField: "Cookie")
         }
-        let (data, response) = try await URLSession.shared.data(for: request)
+        let data: Data
+        let response: URLResponse
+        do {
+            (data, response) = try await HTTPSPreferringSession.shared.data(for: request)
+        } catch let error as URLError where error.code == .timedOut {
+            log("FeedRefresh.RSS", "fetch timeout id=\(feed.id) url=\(fetchURL.absoluteString) retrying")
+            (data, response) = try await HTTPSPreferringSession.shared.data(for: request)
+        }
         let statusCode = (response as? HTTPURLResponse)?.statusCode ?? 0
         let contentType = (response as? HTTPURLResponse)?
             .value(forHTTPHeaderField: "Content-Type") ?? "unknown"
