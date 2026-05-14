@@ -53,7 +53,12 @@ extension SakuraRSSApp {
         for category in BackgroundRefreshCategory.allCases {
             let request = BGAppRefreshTaskRequest(identifier: category.taskID)
             request.earliestBeginDate = earliest
-            try? BGTaskScheduler.shared.submit(request)
+            do {
+                try BGTaskScheduler.shared.submit(request)
+            } catch {
+                // swiftlint:disable:next line_length
+                log("BackgroundRefresh", "submit failed category=\(category.rawValue) error=\(Self.describe(error))")
+            }
         }
     }
 
@@ -119,6 +124,20 @@ extension SakuraRSSApp {
         }
     }
 
+    nonisolated static func describe(_ error: Error) -> String {
+        let nsError = error as NSError
+        if nsError.domain == BGTaskScheduler.errorDomain,
+           let code = BGTaskScheduler.Error.Code(rawValue: nsError.code) {
+            switch code {
+            case .unavailable: return "unavailable (Background App Refresh disabled)"
+            case .tooManyPendingTaskRequests: return "tooManyPendingTaskRequests"
+            case .notPermitted: return "notPermitted (identifier missing from Info.plist?)"
+            @unknown default: return "unknownBGCode(\(nsError.code))"
+            }
+        }
+        return "\(nsError.domain):\(nsError.code) \(nsError.localizedDescription)"
+    }
+
     nonisolated private static func deviceIsPluggedIn() async -> Bool {
         await MainActor.run { () -> Bool in
             UIDevice.current.isBatteryMonitoringEnabled = true
@@ -143,7 +162,11 @@ extension SakuraRSSApp {
         request.requiresNetworkConnectivity = true
         request.requiresExternalPower = true
         request.earliestBeginDate = earliestBackupDate(for: interval)
-        try? BGTaskScheduler.shared.submit(request)
+        do {
+            try BGTaskScheduler.shared.submit(request)
+        } catch {
+            log("iCloudBackup", "submit failed error=\(Self.describe(error))")
+        }
     }
 
     nonisolated private func earliestBackupDate(for interval: iCloudBackupManager.BackupInterval) -> Date {

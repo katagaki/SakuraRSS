@@ -19,7 +19,25 @@ nonisolated enum AutomaticCleanupScheduler {
         request.requiresNetworkConnectivity = false
         request.requiresExternalPower = false
         request.earliestBeginDate = Date(timeIntervalSinceNow: 24 * 60 * 60)
-        try? BGTaskScheduler.shared.submit(request)
+        do {
+            try BGTaskScheduler.shared.submit(request)
+        } catch {
+            log("AutomaticCleanup", "submit failed error=\(describe(error))")
+        }
+    }
+
+    private static func describe(_ error: Error) -> String {
+        let nsError = error as NSError
+        if nsError.domain == BGTaskScheduler.errorDomain,
+           let code = BGTaskScheduler.Error.Code(rawValue: nsError.code) {
+            switch code {
+            case .unavailable: return "unavailable (Background App Refresh disabled in Settings; common on Simulator)"
+            case .tooManyPendingTaskRequests: return "tooManyPendingTaskRequests"
+            case .notPermitted: return "notPermitted (identifier missing from Info.plist?)"
+            @unknown default: return "unknownBGCode(\(nsError.code))"
+            }
+        }
+        return "\(nsError.domain):\(nsError.code) \(nsError.localizedDescription)"
     }
 
     static func runCleanup(isCancelled: () -> Bool = { false }) async -> Bool {
