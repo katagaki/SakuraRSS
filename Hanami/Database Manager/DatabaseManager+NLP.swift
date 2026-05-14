@@ -227,6 +227,14 @@ public nonisolated extension DatabaseManager {
         return try database.pluck(query)?[articleEntitiesProcessed] ?? false
     }
 
+    func isSentimentProcessed(articleId: Int64) throws -> Bool {
+        let query = articles
+            .select(articleSentimentProcessed)
+            .filter(articleID == articleId)
+            .limit(1)
+        return try database.pluck(query)?[articleSentimentProcessed] ?? false
+    }
+
     func cachedSimilarArticleIDs(forSourceID sourceID: Int64) throws -> [(id: Int64, distance: Double)] {
         let query = similarArticles
             .filter(similarSourceID == sourceID)

@@ -84,7 +84,7 @@ public extension FeedManager {
         let feedID = feed.id
         let feedTitle = feed.title
         let articleItems = Self.makePetalArticleItems(from: parsed)
-        try await Task.detached {
+        let pipelineTask = Task.detached {
             let insertedIDs = (try? database.insertArticles(
                 feedID: feedID, articles: articleItems
             )) ?? []
@@ -96,7 +96,12 @@ public extension FeedManager {
                 runNLP: runNLP
             )
             try database.updateFeedLastFetched(id: feedID, date: Date())
-        }.value
+        }
+        try await withTaskCancellationHandler {
+            try await pipelineTask.value
+        } onCancel: {
+            pipelineTask.cancel()
+        }
 
         if reloadData {
             await loadFromDatabaseInBackground(animated: true)

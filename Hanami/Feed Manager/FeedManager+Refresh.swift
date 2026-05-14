@@ -73,13 +73,18 @@ public extension FeedManager {
     ) async throws {
         log("FeedRefresh", "dispatch -> standard RSS pipeline id=\(feed.id)")
         let database = database
-        try await Task.detached {
+        let pipelineTask = Task.detached {
             try await FeedManager.runStandardFeedPipeline(
                 feed: feed,
                 database: database,
                 options: options
             )
-        }.value
+        }
+        try await withTaskCancellationHandler {
+            try await pipelineTask.value
+        } onCancel: {
+            pipelineTask.cancel()
+        }
         if reloadData {
             await loadFromDatabaseInBackground(animated: true)
         }

@@ -137,6 +137,12 @@ extension ArticleDetailView {
             articlePeople = loadedEntities.people
             isLoadingInsights = false
         }
+
+        Task.detached(priority: .utility) {
+            Self.ensureSentimentProcessed(
+                for: currentArticle, database: DatabaseManager.shared
+            )
+        }
     }
 
     /// Runs entity extraction off the main actor using Sendable inputs.
@@ -322,6 +328,21 @@ extension ArticleDetailView {
             )
         }
         try? database.markEntitiesProcessed(articleId: currentArticle.id)
+    }
+
+    fileprivate nonisolated static func ensureSentimentProcessed(
+        for currentArticle: Article, database: DatabaseManager
+    ) {
+        guard (try? database.isSentimentProcessed(articleId: currentArticle.id)) != true else {
+            return
+        }
+        let sourceText = [currentArticle.title, currentArticle.summary ?? ""]
+            .filter { !$0.isEmpty }
+            .joined(separator: " ")
+        if let score = NLPProcessor.sentimentScore(for: sourceText) {
+            try? database.updateSentimentScore(score, for: currentArticle.id)
+        }
+        try? database.markSentimentProcessed(articleId: currentArticle.id)
     }
 }
 

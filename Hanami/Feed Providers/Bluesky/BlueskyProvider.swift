@@ -18,6 +18,16 @@ public final class BlueskyProvider {
         guard !handle.isEmpty else { return false }
         return !reservedHandles.contains(handle.lowercased())
     }
+
+    /// Returns true if the URL points to a specific Bluesky post
+    /// (`/profile/{handle}/post/{rkey}`).
+    public nonisolated static func isBlueskyPostURL(_ url: URL) -> Bool {
+        guard matchesHost(url.host) else { return false }
+        let components = url.pathComponents
+        return components.count >= 5
+            && components[1].lowercased() == "profile"
+            && components[3].lowercased() == "post"
+    }
     public func fetchProfile(handle: String) async -> BlueskyProfileFetchResult {
         await performFetch(handle: handle)
     }

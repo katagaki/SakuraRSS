@@ -43,7 +43,7 @@ public extension FeedManager {
 
         let database = database
         let feedID = feed.id
-        try await Task.detached {
+        let pipelineTask = Task.detached {
             let insertedIDs = (try? database.insertArticles(
                 feedID: feedID, articles: tweetTuples
             )) ?? []
@@ -55,7 +55,12 @@ public extension FeedManager {
                 runNLP: runNLP
             )
             try database.updateFeedLastFetched(id: feedID, date: Date())
-        }.value
+        }
+        try await withTaskCancellationHandler {
+            try await pipelineTask.value
+        } onCancel: {
+            pipelineTask.cancel()
+        }
 
         if !contentOnly {
             await applyFetcherMetadataRefresh(

@@ -133,6 +133,9 @@ extension ArticleDetailView {
         if article.isInstagramPostURL {
             return String(localized: "Article.InstagramPost.Title", table: "Articles")
         }
+        if article.isBlueskyPostURL {
+            return String(localized: "Article.BlueskyPost.Title", table: "Articles")
+        }
         if article.isEphemeral {
             if let extractedPageTitle {
                 return extractedPageTitle

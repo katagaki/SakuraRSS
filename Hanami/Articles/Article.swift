@@ -68,6 +68,11 @@ public nonisolated struct Article: Identifiable, Hashable, Sendable {
         return InstagramProvider.isInstagramPostURL(parsed)
     }
 
+    public var isBlueskyPostURL: Bool {
+        guard let parsed = URL(string: url) else { return false }
+        return BlueskyProvider.isBlueskyPostURL(parsed)
+    }
+
     public var isPodcastEpisode: Bool {
         audioURL != nil
     }
