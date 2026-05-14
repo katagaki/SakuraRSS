@@ -19,6 +19,7 @@ struct SeekBarView: View {
 
     @State private var isDragging = false
     @State private var dragTime: TimeInterval = 0
+    @State private var dragStartTime: TimeInterval = 0
     /// Holds the seek target between drag-end and the parent's `currentTime`
     /// catching up, so the bar doesn't snap back to the pre-seek position.
     @State private var pendingSeekTarget: TimeInterval?
@@ -104,11 +105,14 @@ struct SeekBarView: View {
                         guard !isDisabled else { return }
                         if !isDragging {
                             isDragging = true
+                            dragStartTime = currentTime
                             dragTime = currentTime
                             onScrubbingChanged?(true)
                         }
-                        let fraction = max(0, min(value.location.x / trackWidth, 1))
-                        dragTime = TimeInterval(fraction) * duration
+                        guard duration > 0, trackWidth > 0 else { return }
+                        let deltaFraction = value.translation.width / trackWidth
+                        let deltaTime = TimeInterval(deltaFraction) * duration
+                        dragTime = max(0, min(dragStartTime + deltaTime, duration))
                     }
                     .onEnded { _ in
                         guard !isDisabled else { return }
