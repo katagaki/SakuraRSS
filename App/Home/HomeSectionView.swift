@@ -141,6 +141,11 @@ struct HomeSectionView: View {
             )
         }
         if Task.isCancelled { return }
+        if entries.isEmpty,
+           !preloadedEntries.isEmpty,
+           lastLoadedSource == source {
+            return
+        }
         preloadedEntries = entries
         if hideViewedContent, visibility.visibleIDs == nil, !preloadedEntries.isEmpty {
             visibility.capture(from: rawArticles, isEnabled: hideViewedContent)
@@ -167,8 +172,12 @@ struct HomeSectionView: View {
 
     /// Kicks off a refresh and returns immediately so SwiftUI dismisses the
     /// pull-to-refresh indicator; in-flight progress shows via the toolbar donut.
-    private func startRefreshWithoutBlocking() {
-        guard !scopedRefreshState.hasActiveProgress,
+    /// Scope and feeds are passed in rather than read from `self` so a stale
+    /// `.refreshable` closure captured before a section switch can't kick off
+    /// the previous section's refresh.
+    private func startRefreshWithoutBlocking(scope: String, feeds: [Feed]) {
+        let activeScopedState = feedManager.scopedRefreshes[scope] ?? ScopedRefreshState()
+        guard !activeScopedState.hasActiveProgress,
               !feedManager.hasActiveRefreshProgress else { return }
         feedManager.flushDebouncedReads()
         withAnimation(.smooth.speed(2.0)) {
@@ -178,8 +187,6 @@ struct HomeSectionView: View {
                 recaptureVisible: true
             )
         }
-        let scope = scopeKey
-        let feeds = scopedFeeds
         Task { @MainActor in
             await feedManager.refreshFeeds(scope: scope, feeds: feeds)
             await reloadPreloadedEntries()
@@ -227,18 +234,12 @@ struct HomeSectionView: View {
             onMarkAllRead: performMarkAllRead,
             scrollToTopTrigger: scrollToTopTick &+ externalScrollToTopTrigger,
             headerView: headerView,
-            additionalLeadingToolbar: scopedRefreshState.hasActiveProgress ? AnyView(
-                FeedRefreshProgressDonut(
-                    progress: scopedRefreshState.progress,
-                    isStopping: scopedRefreshState.isStopping,
-                    onStop: { [scope = scopeKey] in feedManager.cancelScopedRefresh(scope: scope) }
-                )
-            ) : nil,
             effectiveStyleBinding: effectiveStyleBinding
         )
-        .refreshable {
-            startRefreshWithoutBlocking()
+        .refreshable { [scope = scopeKey, feeds = scopedFeeds] in
+            startRefreshWithoutBlocking(scope: scope, feeds: feeds)
         }
+        .id(source)
         .trackArticleVisibility(
             $visibility,
             hideViewedContent: hideViewedContent,

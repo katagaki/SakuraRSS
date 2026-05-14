@@ -268,10 +268,14 @@ extension FeedArticlesView {
     }
 
     func reloadPreloadedEntries() {
-        preloadedEntries = feedManager.preloadedArticleEntries(
+        let entries = feedManager.preloadedArticleEntries(
             for: feed,
             requireUnread: hideViewedContent
         )
+        if entries.isEmpty, !preloadedEntries.isEmpty {
+            return
+        }
+        preloadedEntries = entries
         if hideViewedContent, visibility.visibleIDs == nil, !preloadedEntries.isEmpty {
             visibility.capture(from: rawArticles, isEnabled: hideViewedContent)
         }
@@ -310,9 +314,6 @@ extension FeedArticlesView {
         scrollToTopTick &+= 1
     }
 
-    /// Most recent published date for this feed, used to anchor the initial
-    /// date-based batch so feeds that haven't posted in a while still surface
-    /// their newest content rather than showing an empty state.
     func latestArticleDateForFeed() -> Date? {
         feedManager.latestPublishedDate(forFeedIDs: [feed.id])
     }

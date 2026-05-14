@@ -2,9 +2,6 @@ import Foundation
 
 public extension FeedManager {
 
-    /// Refreshes the supplied feeds and tracks progress under `scope` so each
-    /// home section, list, or feed view can show its own donut without
-    /// stepping on the global refresh counters used by background refresh.
     func refreshFeeds(
         scope: String,
         feeds: [Feed],
@@ -103,12 +100,6 @@ public extension FeedManager {
         }
     }
 
-    /// Cancels the scoped refresh task and enters a "stopping" state. The
-    /// scoped state stays populated (with `isStopping = true`) so the donut
-    /// can swap to a `Stopping` label until the underlying refresh task
-    /// settles, letting in-flight pipelines flush their inserts. Final cleanup
-    /// is handled by the original `refreshFeeds(scope:)` flow when its
-    /// `work.value` await returns.
     @MainActor
     func cancelScopedRefresh(scope: String) {
         guard var state = scopedRefreshes[scope], !state.isStopping else { return }

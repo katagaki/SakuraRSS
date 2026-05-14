@@ -6,7 +6,7 @@ extension TodayView {
     // MARK: - Refresh
 
     var scopedRefreshState: ScopedRefreshState {
-        feedManager.scopedRefreshes["section.all"] ?? ScopedRefreshState()
+        feedManager.scopedRefreshes["section.today"] ?? ScopedRefreshState()
     }
 
     func startRefreshWithoutBlocking() {
@@ -17,7 +17,7 @@ extension TodayView {
         let feeds = feedManager.feeds
         let loadEntities = contentInsightsEnabled
         Task { @MainActor in
-            await feedManager.refreshFeeds(scope: "section.all", feeds: feeds)
+            await feedManager.refreshFeeds(scope: "section.today", feeds: feeds)
             todayManager.load(
                 feeds: feedManager.feeds,
                 dataRevision: feedManager.dataRevision,

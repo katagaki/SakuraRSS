@@ -34,31 +34,28 @@ extension HomeView {
     }
 
     var isShowingRefreshProgress: Bool {
-        if let scopedState = feedManager.scopedRefreshes[currentScopeKey],
-           scopedState.hasActiveProgress {
-            return true
-        }
+        if activeRefreshScopeKey != nil { return true }
         return feedManager.isLoading && feedManager.hasActiveRefreshProgress
     }
 
     var activeRefreshingFeedIDs: Set<Int64> {
-        if let scopedState = feedManager.scopedRefreshes[currentScopeKey],
-           scopedState.hasActiveProgress {
+        if let key = activeRefreshScopeKey,
+           let scopedState = feedManager.scopedRefreshes[key] {
             return scopedState.refreshingFeedIDs
         }
         return feedManager.refreshingFeedIDs
     }
 
     var activePendingFeedIDs: [Int64] {
-        if let scopedState = feedManager.scopedRefreshes[currentScopeKey],
-           scopedState.hasActiveProgress {
+        if let key = activeRefreshScopeKey,
+           let scopedState = feedManager.scopedRefreshes[key] {
             return scopedState.pendingFeedIDs
         }
         return feedManager.pendingRefreshFeedIDs
     }
 
     var principalText: String {
-        let scopedState = feedManager.scopedRefreshes[currentScopeKey]
+        let scopedState = activeRefreshScopeKey.flatMap { feedManager.scopedRefreshes[$0] }
         if let scopedState, scopedState.isStopping {
             return String(localized: "Refresh.Stopping", table: "Home")
         }
@@ -82,6 +79,8 @@ extension HomeView {
 
     var currentScopeKey: String {
         switch selectedSelection {
+        case .section(.today):
+            return "section.today"
         case .section(let section):
             if let feedSection = section.feedSection {
                 return "section.\(feedSection.rawValue)"

@@ -358,12 +358,6 @@ public extension FeedManager {
         log("FeedRefresh.AllAndIcons", "end completed=\(finalCompleted)/\(currentFeeds.count)")
     }
 
-    /// Cancels the in-flight refresh task and enters a "stopping" state.
-    /// Feeds whose RSS fetch has already completed run their pipeline through
-    /// to insert; feeds still waiting on the network drop their work. Counters
-    /// remain populated so the toolbar slot stays visible — the donut swaps to
-    /// a `Stopping` label — until the refresh task settles and the original
-    /// `refreshAllFeeds` flow finalizes state via `finalizeRefreshAll`.
     @MainActor
     func cancelRefresh() {
         guard let task = refreshTask, !isStopping else {

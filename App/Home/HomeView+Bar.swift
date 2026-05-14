@@ -45,16 +45,16 @@ extension HomeView {
         return false
     }
 
-    /// Surfaces the refresh that the toolbar donut should display. Only fires
-    /// for the app startup preload (non-scoped global refresh), which has no
-    /// per-section donut anywhere, and for Today's pull-to-refresh, which
-    /// uses the `section.all` scope but is rendered by `TodayView` and so
-    /// has no section-level donut of its own. Section pull-to-refreshes are
-    /// surfaced by `HomeSectionView` instead.
+    var activeRefreshScopeKey: String? {
+        if feedManager.scopedRefreshes[currentScopeKey]?.hasActiveProgress == true {
+            return currentScopeKey
+        }
+        return feedManager.scopedRefreshes.first { $0.value.hasActiveProgress }?.key
+    }
+
     var homeRefreshState: ScopedRefreshState {
-        if isTodaySelected,
-           let scoped = feedManager.scopedRefreshes["section.all"],
-           scoped.hasActiveProgress {
+        if let key = activeRefreshScopeKey,
+           let scoped = feedManager.scopedRefreshes[key] {
             return scoped
         }
         if feedManager.hasActiveRefreshProgress {
@@ -69,13 +69,9 @@ extension HomeView {
         return ScopedRefreshState()
     }
 
-    /// Cancels the refresh tracked by `homeRefreshState` and forces Today's
-    /// data to reload alongside the database revision bump driven by the
-    /// underlying cancel calls, so neither Today summaries nor section
-    /// preloaded entries are left stale.
     func cancelHomeRefresh() {
-        if isTodaySelected, feedManager.scopedRefreshes["section.all"] != nil {
-            feedManager.cancelScopedRefresh(scope: "section.all")
+        if let scope = activeRefreshScopeKey {
+            feedManager.cancelScopedRefresh(scope: scope)
         } else {
             feedManager.cancelRefresh()
         }
