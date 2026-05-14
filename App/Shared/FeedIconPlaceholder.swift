@@ -14,7 +14,7 @@ struct FeedIconPlaceholder: View {
     let icon: UIImage?
     let acronymIcon: UIImage?
     let feedName: String?
-    let isSocialFeed: Bool
+    let isCircleIcon: Bool
     let iconSize: CGFloat
     var cornerRadius: CGFloat = 0
     var fallback: Fallback = .initials
@@ -38,7 +38,7 @@ struct FeedIconPlaceholder: View {
     @ViewBuilder
     private var iconView: some View {
         if let icon {
-            if isSocialFeed {
+            if isCircleIcon {
                 Image(uiImage: icon)
                     .resizable()
                     .aspectRatio(contentMode: .fill)

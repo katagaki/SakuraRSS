@@ -32,6 +32,17 @@ public nonisolated enum FeedProviderRegistry {
         all.first { $0.matchesFeedURL(url) }
     }
 
+    /// Best-effort siteURL inferred from a feed URL, for callers (like OPML
+    /// import) that have a feed URL but no companion site URL.
+    public static func inferredSiteURL(forFeedURL feedURL: String) -> String? {
+        for provider in all {
+            if let derived = provider.inferredSiteURL(fromFeedURL: feedURL) {
+                return derived
+            }
+        }
+        return FeedDiscovery.youTubeSiteURL(fromFeedURL: feedURL)
+    }
+
     public static func profileProvider(forURL url: URL) -> (any ProfileFeedProvider.Type)? {
         for provider in all {
             if let profile = provider as? any ProfileFeedProvider.Type,

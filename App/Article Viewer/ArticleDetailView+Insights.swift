@@ -213,7 +213,7 @@ extension ArticleDetailView {
                         id: match.article.id,
                         article: match.article,
                         feedName: match.feedName,
-                        isSocialFeed: match.feed?.isSocialFeed ?? false,
+                        isCircleIcon: match.feed?.isCircleIcon ?? false,
                         sentiment: match.sentiment,
                         icon: icon
                     ))
@@ -408,7 +408,7 @@ private struct SimilarArticleCard: View {
             icon: item.icon,
             acronymIcon: nil,
             feedName: item.feedName,
-            isSocialFeed: item.isSocialFeed,
+            isCircleIcon: item.isCircleIcon,
             iconSize: imageHeight * 0.5,
             fallback: .symbol("doc.text")
         )

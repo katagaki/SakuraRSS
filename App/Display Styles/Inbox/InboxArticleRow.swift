@@ -9,6 +9,7 @@ struct InboxArticleRow: View {
     @State private var acronymIcon: UIImage?
     @State private var feedName: String?
     @State private var isSocialFeed = false
+    @State private var isCircleIcon = false
 
     var body: some View {
         HStack(alignment: .center, spacing: 8) {
@@ -22,7 +23,7 @@ struct InboxArticleRow: View {
                         icon: icon,
                         acronymIcon: acronymIcon,
                         feedName: feedName,
-                        isSocialFeed: isSocialFeed,
+                        isCircleIcon: isCircleIcon,
                         iconSize: 30,
                         cornerRadius: 8
                     )
@@ -38,7 +39,7 @@ struct InboxArticleRow: View {
                     icon: icon,
                     acronymIcon: acronymIcon,
                     feedName: feedName,
-                    isSocialFeed: isSocialFeed,
+                    isCircleIcon: isCircleIcon,
                     iconSize: 30,
                     cornerRadius: 8
                 )
@@ -97,6 +98,7 @@ struct InboxArticleRow: View {
             if let feed = feedManager.feed(forArticle: article) {
                 feedName = feed.title
                 isSocialFeed = feed.isSocialFeed
+                isCircleIcon = feed.isCircleIcon
                 if let data = feed.acronymIcon {
                     acronymIcon = UIImage(data: data)
                 }

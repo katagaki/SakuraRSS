@@ -10,7 +10,7 @@ struct MasonryArticleCard: View {
     @State private var acronymIcon: UIImage?
     @State private var skipIconInset = false
     @State private var isVideoFeed = false
-    @State private var isSocialFeed = false
+    @State private var isCircleIcon = false
     @State private var imageAspectRatio: CGFloat?
 
     /// Caps to keep the column flow predictable while still varying card heights.
@@ -88,7 +88,7 @@ struct MasonryArticleCard: View {
                     acronymIcon = UIImage(data: data)
                 }
                 isVideoFeed = feed.isVideoFeed || feed.isXFeed || feed.isInstagramFeed
-                isSocialFeed = feed.isSocialFeed
+                isCircleIcon = feed.isCircleIcon
                 skipIconInset = feed.isVideoFeed || feed.isXFeed || feed.isInstagramFeed
                 icon = await Iconography.shared.icon(for: feed)
             }
@@ -100,7 +100,7 @@ struct MasonryArticleCard: View {
             icon: icon,
             acronymIcon: acronymIcon,
             feedName: feedName,
-            isSocialFeed: isSocialFeed,
+            isCircleIcon: isCircleIcon,
             iconSize: 40,
             cornerRadius: 12,
             fallback: .symbol("doc.text")

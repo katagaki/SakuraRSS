@@ -22,7 +22,7 @@ struct ScrollArticlePage: View {
     @State private var acronymIcon: UIImage?
     @State private var feedName: String?
     @State private var isVideoFeed = false
-    @State private var isSocialFeed = false
+    @State private var isCircleIcon = false
     @State private var backgroundImage: UIImage?
     @State private var showSafari = false
 
@@ -77,7 +77,7 @@ struct ScrollArticlePage: View {
                 feed = loadedFeed
                 feedName = loadedFeed.title
                 isVideoFeed = loadedFeed.isVideoFeed || loadedFeed.isXFeed || loadedFeed.isInstagramFeed
-                isSocialFeed = loadedFeed.isSocialFeed
+                isCircleIcon = loadedFeed.isCircleIcon
                 if let data = loadedFeed.acronymIcon {
                     acronymIcon = UIImage(data: data)
                 }
@@ -123,10 +123,10 @@ struct ScrollArticlePage: View {
             if let icon {
                 let iconImage = Image(uiImage: icon)
                     .resizable()
-                    .aspectRatio(contentMode: isSocialFeed ? .fill : .fit)
+                    .aspectRatio(contentMode: isCircleIcon ? .fill : .fit)
                     .frame(width: pageSize.width * 0.5, height: pageSize.width * 0.5)
                 Group {
-                    if isSocialFeed {
+                    if isCircleIcon {
                         iconImage.clipShape(Circle())
                     } else {
                         iconImage

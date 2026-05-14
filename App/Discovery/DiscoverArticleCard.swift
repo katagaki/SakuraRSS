@@ -7,7 +7,7 @@ struct DiscoverArticleCard: View {
     @Environment(\.zoomNamespace) private var zoomNamespace
     let article: Article
     @State private var icon: UIImage?
-    @State private var isSocialFeed = false
+    @State private var isCircleIcon = false
     @State private var shouldCenterImage = false
 
     private let cardWidth: CGFloat = 220
@@ -51,7 +51,7 @@ struct DiscoverArticleCard: View {
         .buttonStyle(.plain)
         .task {
             guard let feed = feedManager.feedsByID[article.feedID] else { return }
-            isSocialFeed = feed.isSocialFeed
+            isCircleIcon = feed.isCircleIcon
             shouldCenterImage = CenteredImageDomains.shouldCenterImage(feedDomain: feed.domain)
             icon = await Iconography.shared.icon(for: feed)
         }
@@ -73,7 +73,7 @@ struct DiscoverArticleCard: View {
             icon: icon,
             acronymIcon: nil,
             feedName: feedName,
-            isSocialFeed: isSocialFeed,
+            isCircleIcon: isCircleIcon,
             iconSize: imageHeight * 0.5,
             fallback: .symbol("doc.text")
         )

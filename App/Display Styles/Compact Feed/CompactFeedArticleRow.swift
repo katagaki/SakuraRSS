@@ -21,14 +21,22 @@ struct CompactFeedArticleRow: View {
 
     @ViewBuilder
     private var feedAvatarView: some View {
+        let isCircleIcon = feed?.isCircleIcon ?? false
         if let icon = icon {
-            IconImage(icon, size: 20, circle: true, skipInset: skipIconInset)
+            IconImage(icon, size: 20, cornerRadius: 4,
+                      circle: isCircleIcon, skipInset: skipIconInset)
         } else if let acronymIcon {
-            IconImage(acronymIcon, size: 20, circle: true, skipInset: true)
+            IconImage(acronymIcon, size: 20, cornerRadius: 4,
+                      circle: isCircleIcon, skipInset: true)
         } else if let feedName {
-            InitialsAvatarView(feedName, size: 20, circle: true)
-        } else {
+            InitialsAvatarView(feedName, size: 20,
+                               circle: isCircleIcon, cornerRadius: 4)
+        } else if isCircleIcon {
             Circle()
+                .fill(.secondary.opacity(0.2))
+                .frame(width: 20, height: 20)
+        } else {
+            RoundedRectangle(cornerRadius: 4)
                 .fill(.secondary.opacity(0.2))
                 .frame(width: 20, height: 20)
         }

@@ -15,7 +15,7 @@ struct CardView: View {
     @State private var icon: UIImage?
     @State private var cardImage: UIImage?
     @State private var shouldCenterImage = false
-    @State private var isSocialFeed = false
+    @State private var isCircleIcon = false
 
     private var rotation: Double {
         Double(offset.width) / 20.0
@@ -109,7 +109,7 @@ struct CardView: View {
         .task {
             if let feed = feedManager.feed(forArticle: article) {
                 shouldCenterImage = CenteredImageDomains.shouldCenterImage(feedDomain: feed.domain)
-                isSocialFeed = feed.isSocialFeed
+                isCircleIcon = feed.isCircleIcon
                 icon = await Iconography.shared.icon(for: feed)
             }
         }
@@ -139,11 +139,11 @@ struct CardView: View {
             if let icon {
                 let iconImage = Image(uiImage: icon)
                     .resizable()
-                    .aspectRatio(contentMode: isSocialFeed ? .fill : .fit)
+                    .aspectRatio(contentMode: isCircleIcon ? .fill : .fit)
                     .frame(width: geometry.size.width * 0.4,
                            height: geometry.size.width * 0.4)
                 Group {
-                    if isSocialFeed {
+                    if isCircleIcon {
                         iconImage.clipShape(Circle())
                     } else {
                         iconImage

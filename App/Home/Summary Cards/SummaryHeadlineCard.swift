@@ -9,7 +9,7 @@ struct SummaryHeadlineCard: View {
     let headline: SummaryHeadline
 
     @State private var primaryFeedIcon: UIImage?
-    @State private var primaryFeedIsSocial = false
+    @State private var primaryFeedIsCircleIcon = false
 
     private var primaryFeed: Feed? {
         guard let feedID = headline.feedIDs.first else { return nil }
@@ -55,7 +55,7 @@ struct SummaryHeadlineCard: View {
         .zoomSource(id: zoomTransitionID, namespace: zoomNamespace)
         .task {
             guard let feed = primaryFeed else { return }
-            primaryFeedIsSocial = feed.isSocialFeed
+            primaryFeedIsCircleIcon = feed.isCircleIcon
             primaryFeedIcon = await Iconography.shared.icon(for: feed)
         }
     }
@@ -77,7 +77,7 @@ struct SummaryHeadlineCard: View {
             icon: primaryFeedIcon,
             acronymIcon: primaryFeed?.acronymIcon.flatMap { UIImage(data: $0) },
             feedName: primaryFeed?.title,
-            isSocialFeed: primaryFeedIsSocial,
+            isCircleIcon: primaryFeedIsCircleIcon,
             iconSize: 80,
             fallback: .symbol("doc.text")
         )

@@ -22,23 +22,57 @@ public extension FeedManager {
             }
         }
 
-        var added = 0
+        var inserted: [InsertedOPMLFeed] = []
         for opmlFeed in opmlFeeds {
             if database.feedExists(url: opmlFeed.xmlURL) {
                 continue
             }
+            let siteURL = opmlFeed.htmlURL.isEmpty
+                ? (FeedProviderRegistry.inferredSiteURL(forFeedURL: opmlFeed.xmlURL) ?? "")
+                : opmlFeed.htmlURL
             let feedID = try database.insertFeed(
                 title: opmlFeed.title,
                 url: opmlFeed.xmlURL,
-                siteURL: opmlFeed.htmlURL,
+                siteURL: siteURL,
                 description: opmlFeed.description,
                 category: opmlFeed.category
             )
             generateAcronymIcon(feedID: feedID, title: opmlFeed.title)
-            added += 1
+            inserted.append(InsertedOPMLFeed(
+                feedID: feedID,
+                url: opmlFeed.xmlURL,
+                siteURL: siteURL,
+                category: opmlFeed.category,
+                title: opmlFeed.title
+            ))
         }
 
         loadFromDatabase()
-        return added
+
+        if !inserted.isEmpty {
+            Task { [inserted] in
+                for row in inserted {
+                    guard !row.siteURL.isEmpty else { continue }
+                    await self.enrichInsertedFeed(
+                        feedID: row.feedID,
+                        url: row.url,
+                        siteURL: row.siteURL,
+                        category: row.category,
+                        fallbackTitle: row.title
+                    )
+                }
+                await self.loadFromDatabaseInBackground()
+            }
+        }
+
+        return inserted.count
     }
+}
+
+private struct InsertedOPMLFeed: Sendable {
+    let feedID: Int64
+    let url: String
+    let siteURL: String
+    let category: String?
+    let title: String
 }

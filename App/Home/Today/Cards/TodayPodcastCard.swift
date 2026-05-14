@@ -8,7 +8,7 @@ struct TodayPodcastCard: View {
     @Environment(\.zoomNamespace) private var zoomNamespace
     let article: Article
     @State private var icon: UIImage?
-    @State private var isSocialFeed = false
+    @State private var isCircleIcon = false
     @State private var shouldCenterImage = false
 
     private let cardSize: CGFloat = 160
@@ -49,7 +49,7 @@ struct TodayPodcastCard: View {
         .buttonStyle(.plain)
         .task {
             guard let feed = feedManager.feedsByID[article.feedID] else { return }
-            isSocialFeed = feed.isSocialFeed
+            isCircleIcon = feed.isCircleIcon
             shouldCenterImage = CenteredImageDomains.shouldCenterImage(feedDomain: feed.domain)
             icon = await Iconography.shared.icon(for: feed)
         }
@@ -71,7 +71,7 @@ struct TodayPodcastCard: View {
             icon: icon,
             acronymIcon: nil,
             feedName: feedName,
-            isSocialFeed: isSocialFeed,
+            isCircleIcon: isCircleIcon,
             iconSize: cardSize * 0.5,
             fallback: .symbol("waveform")
         )

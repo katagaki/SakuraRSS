@@ -37,6 +37,28 @@ public extension FeedDiscovery {
         )
     }
 
+    /// Reconstructs a YouTube site URL from a stored channel/playlist Atom feed URL.
+    /// Used by OPML import to backfill siteURL when `htmlUrl` is missing.
+    nonisolated static func youTubeSiteURL(fromFeedURL feedURL: String) -> String? {
+        guard let url = URL(string: feedURL),
+              let host = url.host?.lowercased(),
+              host == "youtube.com" || host == "www.youtube.com" || host == "m.youtube.com",
+              let components = URLComponents(url: url, resolvingAgainstBaseURL: false),
+              components.path == "/feeds/videos.xml" else {
+            return nil
+        }
+        let queryItems = components.queryItems ?? []
+        if let channelID = queryItems.first(where: { $0.name == "channel_id" })?.value,
+           channelID.hasPrefix("UC") {
+            return "https://www.youtube.com/channel/\(channelID)"
+        }
+        if let playlistID = queryItems.first(where: { $0.name == "playlist_id" })?.value,
+           !playlistID.isEmpty {
+            return "https://www.youtube.com/playlist?list=\(playlistID)"
+        }
+        return nil
+    }
+
     /// Returns a discovered feed pointing at the channel's Atom feed.
     func detectYouTubeChannelFeed(url: URL) async -> DiscoveredFeed? {
         guard let host = url.host?.lowercased(),

@@ -47,15 +47,7 @@ public extension FeedManager {
             category: category, isPodcast: isPodcast
         )
 
-        if let image = prefetched.iconImage {
-            await Iconography.shared.setCustomIcon(image, feedID: feedID)
-            try? database.updateFeedDetails(
-                id: feedID, title: resolvedTitle, url: url,
-                customIconURL: "photo",
-                isTitleCustomized: false
-            )
-            await MainActor.run { self.notifyIconChange() }
-        }
+        await applyPrefetchedIcon(prefetched, feedID: feedID, url: url, title: resolvedTitle)
         generateAcronymIcon(feedID: feedID, title: resolvedTitle)
 
         let newFeed = try? database.feed(byID: feedID)
@@ -66,6 +58,47 @@ public extension FeedManager {
             }
         }
         return newFeed
+    }
+
+    /// Post-insert enrichment: fetches provider metadata and applies a resolved
+    /// title and icon to a freshly-inserted feed. Used by bulk paths (OPML
+    /// import) where rows are written first for fast user feedback.
+    func enrichInsertedFeed(
+        feedID: Int64,
+        url: String,
+        siteURL: String,
+        category: String?,
+        fallbackTitle: String
+    ) async {
+        let prefetched = await prefetchAddFeedMetadata(siteURL: siteURL)
+        let resolvedTitle: String
+        if let displayName = prefetched.displayName,
+           !displayName.isEmpty {
+            resolvedTitle = displayName
+        } else {
+            resolvedTitle = fallbackTitle
+        }
+        if resolvedTitle != fallbackTitle {
+            try? database.updateFeed(id: feedID, title: resolvedTitle, category: category)
+            generateAcronymIcon(feedID: feedID, title: resolvedTitle)
+        }
+        await applyPrefetchedIcon(prefetched, feedID: feedID, url: url, title: resolvedTitle)
+    }
+
+    private func applyPrefetchedIcon(
+        _ prefetched: PrefetchedAddFeedMetadata,
+        feedID: Int64,
+        url: String,
+        title: String
+    ) async {
+        guard let image = prefetched.iconImage else { return }
+        await Iconography.shared.setCustomIcon(image, feedID: feedID)
+        try? database.updateFeedDetails(
+            id: feedID, title: title, url: url,
+            customIconURL: "photo",
+            isTitleCustomized: false
+        )
+        await MainActor.run { self.notifyIconChange() }
     }
 
     private struct PrefetchedAddFeedMetadata {

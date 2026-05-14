@@ -10,7 +10,7 @@ struct PodcastPlayerControls: View {
     let playbackSpeedPresets: [Double]
 
     var body: some View {
-        HStack(spacing: 32) {
+        HStack(spacing: 0) {
             transcriptToggle
 
             Spacer(minLength: 0)
@@ -18,18 +18,25 @@ struct PodcastPlayerControls: View {
             Button { audioPlayer.skipBackward() } label: {
                 Image(systemName: "gobackward.15")
                     .font(.system(size: 22))
+                    .frame(width: 36, height: 36)
             }
+
+            Spacer(minLength: 0)
 
             Button { audioPlayer.togglePlayPause() } label: {
                 Image(systemName: audioPlayer.isPlaying
                       ? "pause.circle.fill"
                       : "play.circle.fill")
                     .font(.system(size: 62))
+                    .frame(width: 62, height: 62)
             }
+
+            Spacer(minLength: 0)
 
             Button { audioPlayer.skipForward() } label: {
                 Image(systemName: "goforward.30")
                     .font(.system(size: 22))
+                    .frame(width: 36, height: 36)
             }
 
             Spacer(minLength: 0)
@@ -50,6 +57,7 @@ struct PodcastPlayerControls: View {
         } label: {
             Image(systemName: "quote.bubble")
                 .font(.system(size: 22))
+                .frame(width: 36, height: 36)
                 .foregroundStyle(showingTranscript ? AnyShapeStyle(.tint) : AnyShapeStyle(.primary))
         }
         .buttonStyle(.plain)
@@ -67,6 +75,7 @@ struct PodcastPlayerControls: View {
         } label: {
             Image(systemName: gaugeIcon(for: playbackSpeed))
                 .font(.system(size: 22))
+                .frame(width: 36, height: 36)
                 .foregroundStyle(.primary)
         }
         .onChange(of: playbackSpeed) { _, newValue in

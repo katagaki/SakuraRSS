@@ -14,6 +14,12 @@ public protocol FeedProvider {
     nonisolated static var domains: Set<String> { get }
 
     nonisolated static func matchesFeedURL(_ feedURL: String) -> Bool
+
+    /// Reconstructs a human-facing site URL from a stored feed URL, when the
+    /// mapping is unambiguous (e.g. `…/r/swift/.rss` → `https://www.reddit.com/r/swift`).
+    /// Returns `nil` if the provider can't derive one. Used to backfill siteURL
+    /// when OPML imports omit `htmlUrl`.
+    nonisolated static func inferredSiteURL(fromFeedURL feedURL: String) -> String?
 }
 
 public extension FeedProvider {
@@ -30,4 +36,6 @@ public extension FeedProvider {
         guard let host = host?.lowercased() else { return false }
         return domains.contains { host == $0 || host.hasSuffix(".\($0)") }
     }
+
+    nonisolated static func inferredSiteURL(fromFeedURL _: String) -> String? { nil }
 }

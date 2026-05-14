@@ -14,12 +14,13 @@ struct YouTubePlayerControls: View {
     let onEnterFullscreen: () -> Void
 
     var body: some View {
-        HStack(spacing: 32) {
+        HStack(spacing: 0) {
             Button {
                 onTogglePiP()
             } label: {
                 Image(systemName: "pip.enter")
                     .font(.system(size: 22))
+                    .frame(width: 36, height: 36)
             }
             #if os(visionOS)
             .disabled(true)
@@ -36,16 +37,22 @@ struct YouTubePlayerControls: View {
             } label: {
                 Image(systemName: "gobackward.10")
                     .font(.system(size: 22))
+                    .frame(width: 36, height: 36)
             }
             .disabled(isAd)
             .opacity(isAd ? 0.5 : 1.0)
+
+            Spacer(minLength: 0)
 
             Button {
                 onTogglePlayPause()
             } label: {
                 Image(systemName: isPlaying ? "pause.circle.fill" : "play.circle.fill")
                     .font(.system(size: 62))
+                    .frame(width: 62, height: 62)
             }
+
+            Spacer(minLength: 0)
 
             Button {
                 if isAd && isAdSkippable {
@@ -59,6 +66,7 @@ struct YouTubePlayerControls: View {
                     : "goforward.10")
                     .font(.system(size: 22))
                     .contentTransition(.symbolEffect(.replace))
+                    .frame(width: 36, height: 36)
             }
             .disabled(isAd && !isAdSkippable)
             .opacity((isAd && !isAdSkippable) ? 0.5 : 1.0)
@@ -70,6 +78,7 @@ struct YouTubePlayerControls: View {
             } label: {
                 Image(systemName: "arrow.up.left.and.arrow.down.right")
                     .font(.system(size: 22))
+                    .frame(width: 36, height: 36)
             }
             .disabled(isAd)
             .opacity(isAd ? 0.5 : 1.0)
