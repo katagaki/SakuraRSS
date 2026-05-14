@@ -8,6 +8,18 @@ extension ArticleDetailView {
 
     @ToolbarContentBuilder
     var articleToolbar: some ToolbarContent {
+        if !previewMode, !article.isEphemeral,
+           UIDevice.current.userInterfaceIdiom != .pad,
+           let feed = feedManager.feed(forArticle: article) {
+            ToolbarItem(placement: .topBarLeading) {
+                feedToolbarIcon
+                    .contentShape(.rect)
+                    .onTapGesture {
+                        navigateToFeed?(feed)
+                    }
+            }
+            .sharedBackgroundVisibility(.hidden)
+        }
         if !previewMode {
             ToolbarItem(placement: .principal) {
                 if let activityLabel = toolbarActivityLabel {
@@ -47,6 +59,19 @@ extension ArticleDetailView {
             return String(localized: "Article.Summarizing", table: "Articles")
         }
         return nil
+    }
+
+    @ViewBuilder
+    private var feedToolbarIcon: some View {
+        if let icon {
+            IconImage(icon, size: 36, cornerRadius: 8,
+                      circle: isVideoFeed, skipInset: skipIconInset)
+        } else if let acronymIcon {
+            IconImage(acronymIcon, size: 36, cornerRadius: 8,
+                      circle: isVideoFeed, skipInset: true)
+        } else if let feedName {
+            InitialsAvatarView(feedName, size: 36, circle: isVideoFeed, cornerRadius: 8)
+        }
     }
 
     func loadArticleMetadata() async {

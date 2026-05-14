@@ -43,6 +43,102 @@ extension ArticleDetailView {
         return extractedText ?? article.summary
     }
 
+    /// Subtitle for non-ephemeral articles. iPad keeps the feed icon and name
+    /// (tappable to open the feed); compact widths drop them since the feed
+    /// identity is already shown in the principal capsule.
+    @ViewBuilder
+    var articleSubtitleRow: some View {
+        let feed = feedManager.feed(forArticle: article)
+        let feedTitle = feed?.title
+        let resolvedAuthor = subtitleResolvedAuthor(feedTitle: feedTitle)
+        let resolvedDate = article.publishedDate ?? extractedPublishedDate
+
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            iPadSubtitleRow(
+                feed: feed,
+                feedTitle: feedTitle,
+                author: resolvedAuthor,
+                date: resolvedDate
+            )
+        } else {
+            compactSubtitleRow(author: resolvedAuthor, date: resolvedDate)
+        }
+    }
+
+    private func subtitleResolvedAuthor(feedTitle: String?) -> String? {
+        guard let author = article.author ?? extractedAuthor else { return nil }
+        if author.caseInsensitiveCompare(feedTitle ?? "") == .orderedSame { return nil }
+        return author
+    }
+
+    @ViewBuilder
+    private func iPadSubtitleRow(
+        feed: Feed?, feedTitle: String?, author: String?, date: Date?
+    ) -> some View {
+        HStack(spacing: 12) {
+            feedAvatarView
+            if let feedTitle {
+                Text(feedTitle)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
+            }
+            if let author {
+                Text("·")
+                    .foregroundStyle(.tertiary)
+                Text(author)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
+            }
+            if let date {
+                Text("·")
+                    .foregroundStyle(.tertiary)
+                RelativeTimeText(date: date)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .lineLimit(1)
+    }
+
+    @ViewBuilder
+    private func compactSubtitleRow(author: String?, date: Date?) -> some View {
+        if author != nil || date != nil {
+            HStack(spacing: 12) {
+                if let author {
+                    Text(author)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
+                }
+                if author != nil, date != nil {
+                    Text("·")
+                        .foregroundStyle(.tertiary)
+                }
+                if let date {
+                    RelativeTimeText(date: date)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+            }
+            .lineLimit(1)
+        }
+    }
+
+    @ViewBuilder
+    private var feedAvatarView: some View {
+        if let icon {
+            IconImage(icon, size: 18, cornerRadius: 3,
+                      circle: isVideoFeed, skipInset: skipIconInset)
+        } else if let acronymIcon {
+            IconImage(acronymIcon, size: 18, cornerRadius: 3,
+                      circle: isVideoFeed, skipInset: true)
+        } else if let feedName {
+            InitialsAvatarView(feedName, size: 18, circle: isVideoFeed, cornerRadius: 3)
+        }
+    }
+
     /// Domain host extracted from the article URL, used as a fallback
     /// metadata label when the article is ephemeral (e.g. opened via an
     /// in-article link tap) and no feed/author info is available.

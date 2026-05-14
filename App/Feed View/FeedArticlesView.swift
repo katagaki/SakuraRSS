@@ -146,7 +146,7 @@ struct FeedArticlesView: View {
                     .lineLimit(1)
                     .truncationMode(.middle)
                     .fixedSize(horizontal: false, vertical: true)
-                    .frame(height: 42)
+                    .frame(height: 44)
                     .padding(.horizontal, 18)
                     .compatibleGlassEffect(in: .capsule, interactive: true)
                     .contentShape(.capsule)

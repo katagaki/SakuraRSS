@@ -10,6 +10,7 @@ struct ArticleDetailView: View {
     @Environment(FeedManager.self) var feedManager
     @Environment(\.openURL) var openURL
     @Environment(\.navigateToEphemeralArticle) var navigateToEphemeralArticle
+    @Environment(\.navigateToFeed) var navigateToFeed
     let article: Article
     /// When non-nil, forces a specific text-extraction mode for ephemeral
     /// articles (those opened via `sakura://open`).
@@ -89,44 +90,7 @@ struct ArticleDetailView: View {
                 .transition(.blurReplace)
 
                 if !article.isEphemeral {
-                    HStack(spacing: 12) {
-                        if let icon = icon {
-                            IconImage(icon, size: 18, cornerRadius: 3,
-                                         circle: isVideoFeed, skipInset: skipIconInset)
-                        } else if let acronymIcon {
-                            IconImage(acronymIcon, size: 18, cornerRadius: 3,
-                                         circle: isVideoFeed, skipInset: true)
-                        } else if let feedName {
-                            InitialsAvatarView(feedName, size: 18, circle: isVideoFeed, cornerRadius: 3)
-                        }
-
-                        let feedTitle = feedManager.feed(forArticle: article)?.title
-                        if let feedTitle {
-                            Text(feedTitle)
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                                .lineLimit(1)
-                        }
-
-                        if let author = article.author ?? extractedAuthor,
-                           author.caseInsensitiveCompare(feedTitle ?? "") != .orderedSame {
-                            Text("·")
-                                .foregroundStyle(.tertiary)
-                            Text(author)
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                                .lineLimit(1)
-                        }
-
-                        if let date = article.publishedDate ?? extractedPublishedDate {
-                            Text("·")
-                                .foregroundStyle(.tertiary)
-                            RelativeTimeText(date: date)
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                        }
-                    }
-                    .lineLimit(1)
+                    articleSubtitleRow
                 } else if article.isXPostURL {
                     ephemeralXMetadataRow
                 } else {
