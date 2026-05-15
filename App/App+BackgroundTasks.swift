@@ -49,16 +49,15 @@ extension SakuraRSSApp {
         }
         let refreshInterval = UserDefaults.standard.integer(forKey: "BackgroundRefresh.Interval")
         let minutes = refreshInterval > 0 ? refreshInterval : 240
-        let earliest = Date(timeIntervalSinceNow: TimeInterval(minutes * 60))
-        for category in BackgroundRefreshCategory.allCases {
+        let base = Date(timeIntervalSinceNow: TimeInterval(minutes * 60))
+        for (index, category) in BackgroundRefreshCategory.allCases.enumerated() {
+            let earliest = base.addingTimeInterval(TimeInterval(index * 2 * 60))
             let request = BGAppRefreshTaskRequest(identifier: category.taskID)
             request.earliestBeginDate = earliest
             do {
                 try BGTaskScheduler.shared.submit(request)
-                // swiftlint:disable:next line_length
-                log("BackgroundRefresh", "submit success category=\(category.rawValue)")
+                log("BackgroundRefresh", "submit success category=\(category.rawValue) scheduledAt=\(earliest)")
             } catch {
-                // swiftlint:disable:next line_length
                 log("BackgroundRefresh", "submit failed category=\(category.rawValue) error=\(Self.describe(error))")
             }
         }
@@ -134,6 +133,7 @@ extension SakuraRSSApp {
             case .unavailable: return "unavailable (Background App Refresh disabled)"
             case .tooManyPendingTaskRequests: return "tooManyPendingTaskRequests"
             case .notPermitted: return "notPermitted (identifier missing from Info.plist?)"
+            case .immediateRunIneligible: return "immediateRunIneligible"
             @unknown default: return "unknownBGCode(\(nsError.code))"
             }
         }

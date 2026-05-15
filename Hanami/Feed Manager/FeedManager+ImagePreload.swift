@@ -67,7 +67,6 @@ public extension FeedManager {
             try? database.cacheImageData(data, for: urlString)
             log("FeedRefresh.ImagePreload", "success url=\(urlString) bytes=\(data.count)")
         } catch {
-            // swiftlint:disable:next line_length
             log("FeedRefresh.ImagePreload", "fail url=\(urlString) error=\(error.localizedDescription)")
         }
     }
