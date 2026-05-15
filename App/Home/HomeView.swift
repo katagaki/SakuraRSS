@@ -76,13 +76,24 @@ struct HomeView: View {
                                 Image(systemName: "envelope.open")
                                     .font(.system(size: 14.0))
                             }
+                            #if targetEnvironment(macCatalyst)
+                            .alert(
+                                String(localized: "MarkAllRead.Confirm", table: "Articles"),
+                                isPresented: $isShowingMarkAllReadConfirmation
+                            ) {
+                                Button(String(localized: "MarkAllRead", table: "Articles")) {
+                                    Task { @MainActor in performMarkAllRead() }
+                                }
+                                Button(role: .cancel) {}
+                            }
+                            #else
                             .popover(isPresented: $isShowingMarkAllReadConfirmation) {
                                 VStack(spacing: 12) {
                                     Text(String(localized: "MarkAllRead.Confirm", table: "Articles"))
                                         .font(.body)
                                     Button {
-                                        performMarkAllRead()
                                         isShowingMarkAllReadConfirmation = false
+                                        Task { @MainActor in performMarkAllRead() }
                                     } label: {
                                         Text(String(localized: "MarkAllRead", table: "Articles"))
                                             .frame(maxWidth: .infinity)
@@ -93,6 +104,7 @@ struct HomeView: View {
                                 .padding(20)
                                 .presentationCompactAdaptation(.popover)
                             }
+                            #endif
                         }
                     }
                     if homeRefreshState.hasActiveProgress {

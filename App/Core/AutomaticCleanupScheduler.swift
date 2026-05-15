@@ -34,6 +34,7 @@ nonisolated enum AutomaticCleanupScheduler {
             case .unavailable: return "unavailable (Background App Refresh disabled in Settings; common on Simulator)"
             case .tooManyPendingTaskRequests: return "tooManyPendingTaskRequests"
             case .notPermitted: return "notPermitted (identifier missing from Info.plist?)"
+            case .immediateRunIneligible: return "immediateRunIneligible"
             @unknown default: return "unknownBGCode(\(nsError.code))"
             }
         }
