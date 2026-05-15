@@ -39,8 +39,34 @@ public extension FeedManager {
             result: result, feed: feed, contentOnly: contentOnly
         )
 
+        try await runInstagramPipelineTask(
+            feedID: feed.id,
+            feedTitle: feedTitle,
+            postTuples: postTuples,
+            skipImagePreload: skipImagePreload,
+            runNLP: runNLP
+        )
+
+        if !contentOnly {
+            await applyFetcherMetadataRefresh(
+                feed: feed, fetchdTitle: feedTitle, profileImage: profileImage
+            )
+        }
+
+        if reloadData {
+            await loadFromDatabaseInBackground(animated: true)
+        }
+        log("InstagramProfile", "refresh end id=\(feed.id)")
+    }
+
+    private func runInstagramPipelineTask(
+        feedID: Int64,
+        feedTitle: String,
+        postTuples: [ArticleInsertItem],
+        skipImagePreload: Bool,
+        runNLP: Bool
+    ) async throws {
         let database = database
-        let feedID = feed.id
         let pipelineTask = Task.detached {
             let insertedIDs = (try? database.insertArticles(
                 feedID: feedID, articles: postTuples
@@ -59,17 +85,6 @@ public extension FeedManager {
         } onCancel: {
             pipelineTask.cancel()
         }
-
-        if !contentOnly {
-            await applyFetcherMetadataRefresh(
-                feed: feed, fetchdTitle: feedTitle, profileImage: profileImage
-            )
-        }
-
-        if reloadData {
-            await loadFromDatabaseInBackground(animated: true)
-        }
-        log("InstagramProfile", "refresh end id=\(feed.id)")
     }
 
     private static func makeInstagramArticleItems(

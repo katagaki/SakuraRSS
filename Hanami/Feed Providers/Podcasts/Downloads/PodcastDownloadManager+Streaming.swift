@@ -68,17 +68,28 @@ public extension PodcastDownloadManager {
 
         await decoderTask.value
 
+        await finalizeStreamingTranscription(
+            session: session, articleID: articleID, fileURL: destination, title: title
+        )
+    }
+
+    private func finalizeStreamingTranscription(
+        session: StreamingTranscriptionSession,
+        articleID: Int64,
+        fileURL: URL,
+        title: String
+    ) async {
         do {
             let segments = try await session.finish()
             if segments.isEmpty {
                 log("PodcastDownload", "Streaming produced no segments for \(articleID). Falling back.")
-                await attemptTranscription(articleID: articleID, fileURL: destination, title: title)
+                await attemptTranscription(articleID: articleID, fileURL: fileURL, title: title)
             } else {
                 try DatabaseManager.shared.cacheTranscript(segments, for: articleID)
             }
         } catch {
             log("PodcastDownload", "Streaming transcription finalize failed for \(articleID): \(error)")
-            await attemptTranscription(articleID: articleID, fileURL: destination, title: title)
+            await attemptTranscription(articleID: articleID, fileURL: fileURL, title: title)
         }
     }
 
@@ -272,6 +283,7 @@ enum StreamingAudioPipeline {
         return results.reduce(0) { $0 + $1.sourceFrames }
     }
 
+    // swiftlint:disable:next function_parameter_count
     private static func decodeChunk(
         fileURL: URL,
         sourceFormat: AVAudioFormat,

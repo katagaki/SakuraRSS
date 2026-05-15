@@ -70,12 +70,6 @@ struct HomeSectionView: View {
     @State private var lastLoadedSource: HomeContentSource?
     @State private var lastLoadedHideViewed: Bool?
 
-    private struct PreloadKey: Hashable {
-        let source: HomeContentSource
-        let revision: Int
-        let hideViewed: Bool
-    }
-
     private var batchingMode: BatchingMode {
         DoomscrollingMode.effectiveBatchingMode(storedBatchingMode)
     }
@@ -297,4 +291,10 @@ extension HomeSectionView {
     func latestArticleDate() -> Date? {
         preloadedEntries.compactMap(\.publishedDate).max()
     }
+}
+
+private struct PreloadKey: Hashable {
+    let source: HomeContentSource
+    let revision: Int
+    let hideViewed: Bool
 }

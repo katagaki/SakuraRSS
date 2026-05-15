@@ -41,8 +41,34 @@ public extension FeedManager {
             result: result, feed: feed, contentOnly: contentOnly
         )
 
+        try await runXPipelineTask(
+            feedID: feed.id,
+            feedTitle: feedTitle,
+            tweetTuples: tweetTuples,
+            skipImagePreload: skipImagePreload,
+            runNLP: runNLP
+        )
+
+        if !contentOnly {
+            await applyFetcherMetadataRefresh(
+                feed: feed, fetchdTitle: feedTitle, profileImage: profileImage
+            )
+        }
+
+        if reloadData {
+            await loadFromDatabaseInBackground(animated: true)
+        }
+        log("XProfile", "refresh end id=\(feed.id)")
+    }
+
+    private func runXPipelineTask(
+        feedID: Int64,
+        feedTitle: String,
+        tweetTuples: [ArticleInsertItem],
+        skipImagePreload: Bool,
+        runNLP: Bool
+    ) async throws {
         let database = database
-        let feedID = feed.id
         let pipelineTask = Task.detached {
             let insertedIDs = (try? database.insertArticles(
                 feedID: feedID, articles: tweetTuples
@@ -61,17 +87,6 @@ public extension FeedManager {
         } onCancel: {
             pipelineTask.cancel()
         }
-
-        if !contentOnly {
-            await applyFetcherMetadataRefresh(
-                feed: feed, fetchdTitle: feedTitle, profileImage: profileImage
-            )
-        }
-
-        if reloadData {
-            await loadFromDatabaseInBackground(animated: true)
-        }
-        log("XProfile", "refresh end id=\(feed.id)")
     }
 
     private static func makeXArticleItems(from tweets: [ParsedTweet]) -> [ArticleInsertItem] {

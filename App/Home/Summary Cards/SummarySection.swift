@@ -249,7 +249,11 @@ struct SummarySection: View {
             }
     }
 
-    private func loadOrGenerateHeadlines() async {
+}
+
+private extension SummarySection {
+
+    func loadOrGenerateHeadlines() async {
         let today = Date()
 
         if let cached = try? DatabaseManager.shared.cachedSummaryHeadlines(
@@ -282,7 +286,7 @@ struct SummarySection: View {
     /// Waits for the cold-launch refresh in App.swift to clear
     /// `App.StartupInProgress`. Capped at 60s so a stuck refresh can't block
     /// the UI indefinitely.
-    private func waitForStartupRefresh() async {
+    func waitForStartupRefresh() async {
         let defaults = UserDefaults.standard
         let deadline = Date().addingTimeInterval(60)
         while defaults.bool(forKey: "App.StartupInProgress"), Date() < deadline {
@@ -290,7 +294,7 @@ struct SummarySection: View {
         }
     }
 
-    private func regenerateHeadlines() async {
+    func regenerateHeadlines() async {
         let today = Date()
         try? DatabaseManager.shared.clearCachedSummaryHeadlines(ofType: kind.cacheType, for: today)
         withAnimation(.smooth.speed(2.0)) {

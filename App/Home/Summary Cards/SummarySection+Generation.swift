@@ -10,13 +10,7 @@ extension SummarySection {
     static let topEntityHintLimit = 10
 
     func generateHeadlines(for date: Date) async {
-        let allArticles = kind.articles(in: feedManager).filter { article in
-            guard isPlainRSSArticle(article) else { return false }
-            return BatchSummarizer.hasUsefulContent(
-                title: article.title,
-                summary: article.summary
-            )
-        }
+        let allArticles = eligibleArticles()
         if allArticles.count < 3 {
             log(
                 "Summary",
@@ -29,11 +23,7 @@ extension SummarySection {
         await MainActor.run { isGenerating = true }
 
         let personalizationOn = Self.personalizationEnabled
-        let feedAccessCounts: [Int64: Int] = personalizationOn
-            ? ((try? DatabaseManager.shared.feedAccessCounts(
-                since: date.addingTimeInterval(-30 * 24 * 3600)
-            )) ?? [:])
-            : [:]
+        let feedAccessCounts = loadFeedAccessCounts(personalizationOn: personalizationOn, for: date)
         let sortedArticles = sortByEngagement(
             allArticles,
             feedAccessCounts: feedAccessCounts
@@ -74,6 +64,23 @@ extension SummarySection {
     static var personalizationEnabled: Bool {
         // Default ON: missing key means the user hasn't visited Settings yet.
         (UserDefaults.standard.object(forKey: "Intelligence.Personalization.Enabled") as? Bool) ?? true
+    }
+
+    private func eligibleArticles() -> [Article] {
+        kind.articles(in: feedManager).filter { article in
+            guard isPlainRSSArticle(article) else { return false }
+            return BatchSummarizer.hasUsefulContent(
+                title: article.title,
+                summary: article.summary
+            )
+        }
+    }
+
+    private func loadFeedAccessCounts(personalizationOn: Bool, for date: Date) -> [Int64: Int] {
+        guard personalizationOn else { return [:] }
+        return (try? DatabaseManager.shared.feedAccessCounts(
+            since: date.addingTimeInterval(-30 * 24 * 3600)
+        )) ?? [:]
     }
 
     private func sortByEngagement(
