@@ -42,9 +42,6 @@ public final class FeedManager {
         return raw.mapValues { Date(timeIntervalSince1970: $0) }
     }
 
-    /// Re-reads refresh timestamps from `UserDefaults` so the foreground
-    /// instance picks up writes made by a separate `FeedManager` running in a
-    /// `BGAppRefreshTask` while the app was suspended.
     public func reloadRefreshTimestampsFromDefaults() {
         let storedLast = UserDefaults.standard.object(
             forKey: FeedManager.lastRefreshedAtDefaultsKey
