@@ -110,7 +110,7 @@ public final class FeedManager {
 
     @ObservationIgnored public var contentOverrideCache: [Int64: CachedContentOverride] = [:]
 
-    @ObservationIgnored nonisolated(unsafe) private var hideReelsObserver: NSObjectProtocol?
+    @ObservationIgnored nonisolated(unsafe) private var userDefaultsObserver: NSObjectProtocol?
     @ObservationIgnored private var lastObservedHideReels: Bool =
         UserDefaults.standard.bool(forKey: FeedManager.hideInstagramReelsDefaultsKey)
 
@@ -120,20 +120,21 @@ public final class FeedManager {
 
     public init() {
         loadFromDatabase()
-        hideReelsObserver = NotificationCenter.default.addObserver(
+        userDefaultsObserver = NotificationCenter.default.addObserver(
             forName: UserDefaults.didChangeNotification,
             object: UserDefaults.standard,
             queue: nil
         ) { [weak self] _ in
             Task { @MainActor [weak self] in
                 self?.handleHideReelsChangeIfNeeded()
+                self?.reloadRefreshTimestampsFromDefaults()
             }
         }
     }
 
     deinit {
-        if let hideReelsObserver {
-            NotificationCenter.default.removeObserver(hideReelsObserver)
+        if let userDefaultsObserver {
+            NotificationCenter.default.removeObserver(userDefaultsObserver)
         }
     }
 
