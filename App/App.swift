@@ -59,6 +59,7 @@ struct SakuraRSSApp: App {
                     NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)
                 ) { _ in
                     feedManager.updateBadgeCount()
+                    feedManager.reloadRefreshTimestampsFromDefaults()
                     let now = Date()
                     if let last = lastForegroundWorkAt, now.timeIntervalSince(last) < 5 * 60 {
                         return
