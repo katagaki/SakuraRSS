@@ -7,6 +7,7 @@ extension NewYouTubePlaybackController {
     // MARK: - Now Playing Info
 
     func postNowPlayingUpdate() {
+        guard isPrimary else { return }
         guard player != nil else {
             clearNowPlayingInfo()
             return
@@ -26,12 +27,14 @@ extension NewYouTubePlaybackController {
     }
 
     func updateNowPlayingElapsedTime(_ time: TimeInterval) {
+        guard isPrimary else { return }
         MPNowPlayingInfoCenter.default().nowPlayingInfo?[
             MPNowPlayingInfoPropertyElapsedPlaybackTime
         ] = time
     }
 
     func clearNowPlayingInfo() {
+        guard isPrimary else { return }
         MPNowPlayingInfoCenter.default().nowPlayingInfo = nil
     }
 

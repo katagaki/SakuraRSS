@@ -15,10 +15,9 @@ struct AppearanceSettingsView: View {
 
     var body: some View {
         List {
+            #if !os(visionOS) && !targetEnvironment(macCatalyst)
             Section {
-                #if !os(visionOS) && !targetEnvironment(macCatalyst)
                 ThemePreviewSection()
-                #endif
                 Toggle(String(localized: "SakuraBackground", table: "Settings"),
                        isOn: $sakuraBackgroundEnabled)
                 .tint(.accent)
@@ -27,6 +26,7 @@ struct AppearanceSettingsView: View {
             } header: {
                 Text(String(localized: "Section.Theme", table: "Settings"))
             }
+            #endif
 
             Section {
                 Picker(selection: $defaultDisplayStyle) {

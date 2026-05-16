@@ -4,6 +4,17 @@ import Hanami
 
 extension Color {
 
+    /// On Mac Catalyst, resolves to the user's macOS system accent color
+    /// (`UIColor.tintColor`). Elsewhere, falls back to the asset catalog's
+    /// `AccentColor`.
+    static var platformAccent: Color {
+        #if targetEnvironment(macCatalyst)
+        Color(uiColor: .tintColor)
+        #else
+        Color.accentColor
+        #endif
+    }
+
     static let lime = Color(uiColor: UIColor { traits in
         traits.userInterfaceStyle == .dark
             ? UIColor(red: 0.65, green: 0.90, blue: 0.30, alpha: 1)

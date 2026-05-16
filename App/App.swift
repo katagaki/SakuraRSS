@@ -120,11 +120,34 @@ struct SakuraRSSApp: App {
         #endif
 
         #if targetEnvironment(macCatalyst)
-        WindowGroup(id: "ProfileWindow") {
+        WindowGroup(id: "ProfileWindow", for: String.self) { _ in
             ProfileView(showsCloseButton: false)
                 .environment(feedManager)
         }
-        .defaultSize(width: 700, height: 700)
+        .defaultSize(width: 600, height: 700)
+        .commandsRemoved()
+
+        WindowGroup(id: "ArticleWindow", for: Int64.self) { $articleID in
+            if let articleID {
+                ArticleDetailWindow(articleID: articleID)
+                    .environment(feedManager)
+            }
+        }
+        .defaultSize(width: 420, height: 520)
+        .commandsRemoved()
+
+        WindowGroup(id: "YouTubePlayerWindow", for: Int64.self) { $articleID in
+            DetachedYouTubePlayerWindow(articleID: articleID)
+                .environment(feedManager)
+        }
+        .defaultSize(width: 450, height: 700)
+        .commandsRemoved()
+
+        WindowGroup(id: "PodcastPlayerWindow", for: Int64.self) { $articleID in
+            DetachedPodcastPlayerWindow(articleID: articleID)
+                .environment(feedManager)
+        }
+        .defaultSize(width: 300, height: 550)
         .commandsRemoved()
         #endif
     }

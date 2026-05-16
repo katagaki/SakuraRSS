@@ -53,7 +53,7 @@ struct PodcastDownloadButton: View {
                 } label: {
                     Image(systemName: "checkmark.circle.fill")
                         .font(.system(size: size))
-                        .foregroundStyle(.accent)
+                        .foregroundStyle(Color.platformAccent)
                         .symbolRenderingMode(.hierarchical)
                 }
                 .buttonStyle(.plain)
@@ -71,7 +71,7 @@ struct PodcastDownloadButton: View {
                 } label: {
                     Image(systemName: "arrow.down.circle.fill")
                         .font(.system(size: size))
-                        .foregroundStyle(canDownload ? .accent : .secondary)
+                        .foregroundStyle(canDownload ? Color.platformAccent : Color.secondary)
                         .symbolRenderingMode(.multicolor)
                 }
                 .buttonStyle(.plain)
@@ -93,14 +93,14 @@ struct PodcastDownloadButton: View {
 
             Circle()
                 .trim(from: 0, to: CGFloat(progress))
-                .stroke(.accent, style: StrokeStyle(lineWidth: lineWidth, lineCap: .round))
+                .stroke(Color.platformAccent, style: StrokeStyle(lineWidth: lineWidth, lineCap: .round))
                 .frame(width: size - lineWidth, height: size - lineWidth)
                 .rotationEffect(.degrees(-90))
                 .animation(.smooth, value: progress)
 
             Image(systemName: "stop.fill")
                 .font(.system(size: size * 0.3))
-                .foregroundStyle(.accent)
+                .foregroundStyle(Color.platformAccent)
         }
     }
 }
@@ -122,19 +122,19 @@ private struct TranscribingDonut: View {
             if progress > 0 {
                 Circle()
                     .trim(from: 0, to: CGFloat(progress))
-                    .stroke(.accent, style: StrokeStyle(lineWidth: lineWidth, lineCap: .round))
+                    .stroke(Color.platformAccent, style: StrokeStyle(lineWidth: lineWidth, lineCap: .round))
                     .frame(width: size - lineWidth, height: size - lineWidth)
                     .rotationEffect(.degrees(-90))
                     .animation(.smooth, value: progress)
             } else {
                 Circle()
-                    .stroke(.accent, style: StrokeStyle(lineWidth: lineWidth, lineCap: .round))
+                    .stroke(Color.platformAccent, style: StrokeStyle(lineWidth: lineWidth, lineCap: .round))
                     .frame(width: size - lineWidth, height: size - lineWidth)
             }
 
             Image(systemName: "waveform")
                 .font(.system(size: size * 0.45))
-                .foregroundStyle(.accent)
+                .foregroundStyle(Color.platformAccent)
                 .opacity(progress > 0 ? 1.0 : (isPulsing ? 0.35 : 1.0))
         }
         .onAppear {

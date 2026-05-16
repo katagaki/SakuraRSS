@@ -5,6 +5,9 @@ struct TimelineStyleView: View {
 
     @Environment(FeedManager.self) var feedManager
     @Environment(\.zoomNamespace) private var zoomNamespace
+    #if targetEnvironment(macCatalyst)
+    @Environment(\.openWindow) private var openWindow
+    #endif
     let articles: [Article]
     var onLoadMore: (() -> Void)?
     var headerView: AnyView?
@@ -41,6 +44,22 @@ struct TimelineStyleView: View {
                         .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16))
                         .listRowSeparator(.hidden)
                         .listRowSpacing(0)
+                        #if targetEnvironment(macCatalyst)
+                        .contextMenu {
+                            OpenInNewWindowButton(article: article)
+                            Divider()
+                            Button {
+                                feedManager.toggleRead(article)
+                            } label: {
+                                Label(
+                                    feedManager.isRead(article)
+                                        ? String(localized: "Article.MarkUnread", table: "Articles")
+                                        : String(localized: "Article.MarkRead", table: "Articles"),
+                                    systemImage: feedManager.isRead(article) ? "envelope" : "envelope.open"
+                                )
+                            }
+                        }
+                        #endif
                     }
                 } header: {
                     Text(group.key)

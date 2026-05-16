@@ -6,7 +6,7 @@ struct MainTabView: View {
 
     @Environment(FeedManager.self) var feedManager
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
-    #if os(visionOS)
+    #if os(visionOS) || targetEnvironment(macCatalyst)
     @Environment(\.openWindow) private var openWindow
     #endif
     @AppStorage("App.SelectedTab") private var selectedTab: AppTab = .home
@@ -33,7 +33,7 @@ struct MainTabView: View {
                 iPhoneTabView
             }
         }
-        #if os(visionOS)
+        #if os(visionOS) || targetEnvironment(macCatalyst)
         .onAppear {
             mediaPresenter.detachedHandler = { item in
                 switch item {

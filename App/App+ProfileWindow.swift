@@ -8,7 +8,7 @@ struct OpenProfileSettingsButton: View {
 
     var body: some View {
         Button(String(localized: "Menu.Settings", table: "Settings")) {
-            openWindow(id: "ProfileWindow")
+            openWindow(id: "ProfileWindow", value: "settings")
         }
         .keyboardShortcut(",", modifiers: .command)
     }

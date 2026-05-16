@@ -7,7 +7,12 @@ import Hanami
 @Observable
 final class AudioPlayer {
 
-    static let shared = AudioPlayer()
+    static let shared = AudioPlayer(isPrimary: true)
+
+    /// Whether this is the app-wide shared player. Detached-window instances
+    /// are not primary and skip mutual-exclusion with `YouTubePlayerSession.shared`.
+    @ObservationIgnored
+    let isPrimary: Bool
 
     // MARK: - State
 
@@ -37,10 +42,13 @@ final class AudioPlayer {
         return seconds.isFinite ? seconds : 0
     }
 
-    private init() {
+    init(isPrimary: Bool = false) {
+        self.isPrimary = isPrimary
         let storedRate = UserDefaults.standard.float(forKey: "Podcast.PlaybackSpeed")
         playbackRate = storedRate > 0 ? storedRate : 1.0
-        configureRemoteCommands()
+        if isPrimary {
+            configureRemoteCommands()
+        }
     }
 
     // MARK: - Audio Session
@@ -65,8 +73,10 @@ final class AudioPlayer {
         episodeDuration: Int?
     ) {
         stop()
-        Task { @MainActor in
-            YouTubePlayerSession.shared.clear()
+        if isPrimary {
+            Task { @MainActor in
+                YouTubePlayerSession.shared.clear()
+            }
         }
 
         activateAudioSession()

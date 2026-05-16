@@ -14,9 +14,11 @@ struct NewYouTubeFullscreenView: View {
     var body: some View {
         ZStack {
             Color.black
+                .ignoresSafeArea()
 
             NewYouTubePlayerLayerOnlyRepresentable(controller: playback)
                 .aspectRatio(playback.aspectRatio, contentMode: .fit)
+                .ignoresSafeArea()
         }
         .overlay {
             NewYouTubePlayerOverlayControls(
@@ -24,8 +26,10 @@ struct NewYouTubeFullscreenView: View {
                 trailingAction: .exitFullscreen(onDismiss),
                 sponsorSegments: sponsorSegments
             )
+            #if !targetEnvironment(macCatalyst)
+            .ignoresSafeArea()
+            #endif
         }
-        .ignoresSafeArea()
         .statusBarHidden()
     }
 }

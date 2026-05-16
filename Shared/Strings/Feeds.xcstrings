@@ -8561,25 +8561,25 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Wähle etwas aus, um es hier zu lesen."
+            "value" : "Wähle etwas aus, um es hier anzusehen."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Select something to read it here."
+            "value" : "Select something to view it here."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sélectionnez un élément pour le lire ici."
+            "value" : "Sélectionnez un élément pour le consulter ici."
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Seleziona qualcosa per leggerlo qui."
+            "value" : "Seleziona qualcosa per visualizzarlo qui."
           }
         },
         "ja" : {
@@ -8591,7 +8591,7 @@
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "항목을 선택하면 여기에서 읽을 수 있습니다."
+            "value" : "항목을 선택하면 여기에서 볼 수 있습니다."
           }
         },
         "vi" : {
@@ -8603,13 +8603,13 @@
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "选择内容以在此阅读。"
+            "value" : "选择内容以在此查看。"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "選擇內容以在此閱讀。"
+            "value" : "選擇內容以在此查看。"
           }
         }
       }

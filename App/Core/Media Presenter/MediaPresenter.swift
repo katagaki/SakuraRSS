@@ -21,6 +21,12 @@ final class MediaPresenter {
     private init() {}
 
     func presentYouTube(_ article: Article) {
+        if let detachedHandler {
+            // Detached windows own per-window sessions and run their own
+            // adoption on appear; skip the shared-session mutation.
+            detachedHandler(.youTube(article))
+            return
+        }
         let session = YouTubePlayerSession.shared
         if session.currentArticle?.id != article.id {
             session.clear()
@@ -35,11 +41,7 @@ final class MediaPresenter {
            let imageURL = article.imageURL.flatMap(URL.init(string:)) {
             session.artworkURL = imageURL
         }
-        if let detachedHandler {
-            detachedHandler(.youTube(article))
-        } else {
-            presentedItem = .youTube(article)
-        }
+        presentedItem = .youTube(article)
     }
 
     func presentPodcast(_ article: Article) {

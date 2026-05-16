@@ -47,6 +47,10 @@ struct CompactStyleView: View {
                 .listRowSeparator(.hidden, edges: .top)
                 .listRowSeparator(.visible, edges: .bottom)
                 .contextMenu {
+                    #if targetEnvironment(macCatalyst)
+                    OpenInNewWindowButton(article: article)
+                    Divider()
+                    #endif
                     Button {
                         feedManager.toggleRead(article)
                     } label: {

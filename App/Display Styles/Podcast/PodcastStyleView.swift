@@ -57,6 +57,10 @@ struct PodcastStyleView: View {
                     .tint(.blue)
                 }
                 .contextMenu {
+                    #if targetEnvironment(macCatalyst)
+                    OpenInNewWindowButton(article: article)
+                    Divider()
+                    #endif
                     Button {
                         feedManager.toggleRead(article)
                     } label: {

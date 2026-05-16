@@ -11,7 +11,17 @@ struct PodcastEpisodeView: View {
     @Environment(\.dismiss) private var dismiss
     let article: Article
     var showsDismissButton: Bool = false
-    let audioPlayer = AudioPlayer.shared
+    let audioPlayer: AudioPlayer
+
+    init(
+        article: Article,
+        audioPlayer: AudioPlayer = .shared,
+        showsDismissButton: Bool = false
+    ) {
+        self.article = article
+        self.audioPlayer = audioPlayer
+        self.showsDismissButton = showsDismissButton
+    }
 
     @State var icon: UIImage?
     @State var feedName: String?
@@ -143,6 +153,7 @@ struct PodcastEpisodeView: View {
                                     .padding(.vertical, 8)
                             }
                             .buttonStyle(.borderedProminent)
+                            .tint(Color.platformAccent)
                             .disabled(!canPlay)
 
                             PodcastDownloadButton(article: article, size: 50, lineWidth: 3.5)

@@ -39,7 +39,7 @@ extension PodcastEpisodeView {
     /// Returns the id of the segment covering the current playback time.
     func activeTranscriptID(in segments: [TranscriptSegment]) -> Int? {
         guard !segments.isEmpty else { return nil }
-        let currentTime = AudioPlayer.shared.currentTime()
+        let currentTime = audioPlayer.currentTime()
         var low = 0
         var high = segments.count - 1
         var result: Int?

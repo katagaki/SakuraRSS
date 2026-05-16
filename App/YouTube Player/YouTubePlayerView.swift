@@ -14,7 +14,7 @@ struct YouTubePlayerView: View {
     @Environment(\.dismiss) var dismissSheet
     let article: Article
     let showsDismissButton: Bool
-    let session = YouTubePlayerSession.shared
+    let session: YouTubePlayerSession
 
     @State var isBookmarked = false
     @State var isPlaying = false
@@ -57,10 +57,15 @@ struct YouTubePlayerView: View {
     @State private var imageViewerURL: URL?
     @Namespace private var imageViewerNamespace
 
-    init(article: Article, showsDismissButton: Bool = false) {
+    init(
+        article: Article,
+        session: YouTubePlayerSession = .shared,
+        showsDismissButton: Bool = false
+    ) {
         self.article = article
+        self.session = session
         self.showsDismissButton = showsDismissButton
-        _videoAspectRatio = State(initialValue: YouTubePlayerSession.shared.videoAspectRatio)
+        _videoAspectRatio = State(initialValue: session.videoAspectRatio)
     }
 
     var body: some View {
@@ -218,7 +223,9 @@ struct YouTubePlayerView: View {
             // the player is in PiP).
             if UIDevice.current.userInterfaceIdiom == .pad, !isPiP {
                 pauseForOtherPlayer()
-                YouTubeAudioSession.deactivate()
+                if session.isPrimary {
+                    YouTubeAudioSession.deactivate()
+                }
                 session.clear()
             }
         }

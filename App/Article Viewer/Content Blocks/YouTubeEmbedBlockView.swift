@@ -29,6 +29,7 @@ struct YouTubeEmbedBlockView: View {
         VStack(spacing: 0) {
             YouTubePlayerWebView(
                 urlString: embedURL,
+                session: .shared,
                 autoplay: false,
                 isPlaying: $isPlaying,
                 webView: $webView,

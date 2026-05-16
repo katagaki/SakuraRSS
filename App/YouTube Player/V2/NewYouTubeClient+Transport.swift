@@ -5,6 +5,11 @@ import Hanami
 
 extension NewYouTubeClient {
 
+    enum InnerTubeClient: Sendable {
+        case web
+        case ios
+    }
+
     func webContext() -> [String: Any] {
         [
             "client": [
@@ -32,14 +37,20 @@ extension NewYouTubeClient {
         ]
     }
 
-    func post(endpoint: String, body: [String: Any]) async throws -> Data {
+    func post(
+        endpoint: String,
+        body: [String: Any],
+        as client: InnerTubeClient = .web
+    ) async throws -> Data {
         guard let url = URL(string: "\(Self.host)/youtubei/v1/\(endpoint)?prettyPrint=false") else {
             throw YouTubeBrowseError.invalidURL
         }
+        let headerValues = headerValues(for: client)
         log(
             "YouTube",
-            "POST \(endpoint): web clientVersion: \(clientVersion), " +
-            "iosClientVersion: \(iosClientVersion), userAgent: \(iosUserAgent)"
+            "POST \(endpoint) as \(client): clientName: \(headerValues.clientName), " +
+            "clientVersion: \(headerValues.clientVersion), " +
+            "userAgent: \(headerValues.userAgent ?? "(default)")"
         )
         let jsonData = try JSONSerialization.data(withJSONObject: body, options: [])
         let payload = try Self.gzip(jsonData)
@@ -50,8 +61,11 @@ extension NewYouTubeClient {
         request.setValue("gzip", forHTTPHeaderField: "Content-Encoding")
         request.setValue("gzip, deflate", forHTTPHeaderField: "Accept-Encoding")
         request.setValue(Self.host, forHTTPHeaderField: "Origin")
-        request.setValue("1", forHTTPHeaderField: "X-Youtube-Client-Name")
-        request.setValue(clientVersion, forHTTPHeaderField: "X-Youtube-Client-Version")
+        request.setValue(headerValues.clientName, forHTTPHeaderField: "X-Youtube-Client-Name")
+        request.setValue(headerValues.clientVersion, forHTTPHeaderField: "X-Youtube-Client-Version")
+        if let userAgent = headerValues.userAgent {
+            request.setValue(userAgent, forHTTPHeaderField: "User-Agent")
+        }
 
         let (data, response) = try await session.upload(for: request, from: payload)
         if let http = response as? HTTPURLResponse {
@@ -61,6 +75,18 @@ extension NewYouTubeClient {
             }
         }
         return data
+    }
+
+    // swiftlint:disable:this large_tuple
+    private func headerValues(
+        for client: InnerTubeClient
+    ) -> (clientName: String, clientVersion: String, userAgent: String?) {
+        switch client {
+        case .web:
+            return (clientName: "1", clientVersion: clientVersion, userAgent: sakuraUserAgent)
+        case .ios:
+            return (clientName: "5", clientVersion: iosClientVersion, userAgent: iosUserAgent)
+        }
     }
 
     private static func gzip(_ data: Data) throws -> Data {

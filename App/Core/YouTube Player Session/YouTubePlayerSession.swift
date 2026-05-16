@@ -9,7 +9,7 @@ import Hanami
 @Observable
 final class YouTubePlayerSession {
 
-    static let shared = YouTubePlayerSession()
+    static let shared = YouTubePlayerSession(isPrimary: true)
 
     var currentArticle: Article?
     var isPlaying = false
@@ -29,10 +29,17 @@ final class YouTubePlayerSession {
     @ObservationIgnored
     var webView: WKWebView?
 
-    private init() {}
+    /// Whether this is the app-wide shared session. Detached-window instances
+    /// are not primary and skip mutual-exclusion with `AudioPlayer.shared`.
+    @ObservationIgnored
+    let isPrimary: Bool
+
+    init(isPrimary: Bool = false) {
+        self.isPrimary = isPrimary
+    }
 
     func adopt(article: Article) {
-        if AudioPlayer.shared.currentArticleID != nil {
+        if isPrimary, AudioPlayer.shared.currentArticleID != nil {
             AudioPlayer.shared.stop()
         }
         if let current = currentArticle, current.id != article.id || current.url != article.url {
@@ -73,10 +80,10 @@ final class YouTubePlayerSession {
             return !video.paused;
         })();
         """
-        webView?.evaluateJavaScript(script) { result, _ in
+        webView?.evaluateJavaScript(script) { [weak self] result, _ in
             if let playing = result as? Bool {
                 Task { @MainActor in
-                    YouTubePlayerSession.shared.isPlaying = playing
+                    self?.isPlaying = playing
                 }
             }
         }
@@ -97,10 +104,10 @@ final class YouTubePlayerSession {
             return !video.paused;
         })();
         """
-        webView?.evaluateJavaScript(script) { result, _ in
+        webView?.evaluateJavaScript(script) { [weak self] result, _ in
             if let playing = result as? Bool {
                 Task { @MainActor in
-                    YouTubePlayerSession.shared.isPlaying = playing
+                    self?.isPlaying = playing
                 }
             }
         }
@@ -116,10 +123,10 @@ final class YouTubePlayerSession {
             return !video.paused;
         })();
         """
-        webView?.evaluateJavaScript(script) { result, _ in
+        webView?.evaluateJavaScript(script) { [weak self] result, _ in
             if let playing = result as? Bool {
                 Task { @MainActor in
-                    YouTubePlayerSession.shared.isPlaying = playing
+                    self?.isPlaying = playing
                 }
             }
         }

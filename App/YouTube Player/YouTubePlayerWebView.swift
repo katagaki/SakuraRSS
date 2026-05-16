@@ -6,6 +6,7 @@ import Hanami
 struct YouTubePlayerWebView: UIViewRepresentable {
 
     let urlString: String
+    let session: YouTubePlayerSession
     var autoplay: Bool = true
     @Binding var isPlaying: Bool
     @Binding var webView: WKWebView?
@@ -65,16 +66,17 @@ struct YouTubePlayerWebView: UIViewRepresentable {
         if let url = URL(string: urlString) {
             webView.load(URLRequest(url: Self.normalizedURL(url)))
         }
+        let session = self.session
         DispatchQueue.main.async {
             self.webView = webView
-            YouTubePlayerSession.shared.webView = webView
+            session.webView = webView
         }
         return webView
     }
 
     private func reuseExistingWebViewIfMatching(coordinator: Coordinator) -> WKWebView? {
-        guard let existing = YouTubePlayerSession.shared.webView,
-              YouTubePlayerSession.shared.currentArticle?.url == urlString else {
+        guard let existing = session.webView,
+              session.currentArticle?.url == urlString else {
             return nil
         }
         existing.removeFromSuperview()

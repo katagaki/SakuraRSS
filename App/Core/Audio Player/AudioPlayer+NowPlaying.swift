@@ -7,6 +7,7 @@ extension AudioPlayer {
     // MARK: - Now Playing Info
 
     func postNowPlayingUpdate() {
+        guard isPrimary else { return }
         var info: [String: Any] = [
             MPMediaItemPropertyTitle: currentEpisodeTitle ?? "",
             MPMediaItemPropertyArtist: currentFeedTitle ?? "",
@@ -21,12 +22,14 @@ extension AudioPlayer {
     }
 
     func updateNowPlayingElapsedTime(_ time: TimeInterval) {
+        guard isPrimary else { return }
         MPNowPlayingInfoCenter.default().nowPlayingInfo?[
             MPNowPlayingInfoPropertyElapsedPlaybackTime
         ] = time
     }
 
     func clearNowPlayingInfo() {
+        guard isPrimary else { return }
         MPNowPlayingInfoCenter.default().nowPlayingInfo = nil
     }
 

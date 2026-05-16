@@ -4,6 +4,9 @@ import Hanami
 struct FeedStyleView: View {
 
     @Environment(FeedManager.self) var feedManager
+    #if targetEnvironment(macCatalyst)
+    @Environment(\.openWindow) private var openWindow
+    #endif
     @Environment(\.zoomNamespace) private var zoomNamespace
     let articles: [Article]
     var variant: FeedStyleVariant = .full
@@ -46,6 +49,32 @@ struct FeedStyleView: View {
                 .alignmentGuide(.listRowSeparatorTrailing) { dimensions in
                     return dimensions.width
                 }
+                #if targetEnvironment(macCatalyst)
+                .contextMenu {
+                    OpenInNewWindowButton(article: article)
+                    Divider()
+                    Button {
+                        feedManager.toggleRead(article)
+                    } label: {
+                        Label(
+                            feedManager.isRead(article)
+                                ? String(localized: "Article.MarkUnread", table: "Articles")
+                                : String(localized: "Article.MarkRead", table: "Articles"),
+                            systemImage: feedManager.isRead(article) ? "envelope" : "envelope.open"
+                        )
+                    }
+                    Button {
+                        feedManager.toggleBookmark(article)
+                    } label: {
+                        Label(
+                            feedManager.isBookmarked(article)
+                                ? String(localized: "Article.RemoveBookmark", table: "Articles")
+                                : String(localized: "Article.Bookmark", table: "Articles"),
+                            systemImage: feedManager.isBookmarked(article) ? "bookmark.fill" : "bookmark"
+                        )
+                    }
+                }
+                #endif
             }
             if let onLoadMore {
                 LoadPreviousArticlesButton(action: onLoadMore, articleCount: articles.count)

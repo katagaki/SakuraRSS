@@ -16,7 +16,7 @@ struct NewYouTubePlayerView: View {
     let showsDismissButton: Bool
 
     @State var loadState: LoadState = .loading
-    let playback = NewYouTubePlaybackController.shared
+    let playback: NewYouTubePlaybackController
     @State var feed: Feed?
     @State var icon: UIImage?
     @State var acronymIcon: UIImage?
@@ -47,8 +47,13 @@ struct NewYouTubePlayerView: View {
     @Namespace var imageViewerNamespace
     @Namespace var fullscreenNamespace
 
-    init(article: Article, showsDismissButton: Bool = false) {
+    init(
+        article: Article,
+        playback: NewYouTubePlaybackController = .shared,
+        showsDismissButton: Bool = false
+    ) {
         self.article = article
+        self.playback = playback
         self.showsDismissButton = showsDismissButton
     }
 

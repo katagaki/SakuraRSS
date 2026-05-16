@@ -40,8 +40,53 @@ extension NewYouTubeClient {
             let streamingData = manifest["streamingData"] as? [String: Any],
             let manifestString = streamingData["hlsManifestUrl"] as? String,
             let manifestURL = URL(string: manifestString)
-        else { throw YouTubeBrowseError.missingData }
+        else {
+            Self.logManifestDiagnostics(videoId: videoId, manifest: manifest)
+            throw YouTubeBrowseError.missingData
+        }
         return manifestURL
+    }
+
+    private static func logManifestDiagnostics(videoId: String, manifest: [String: Any]) {
+        let topLevelKeys = manifest.keys.sorted().joined(separator: ", ")
+        log("YouTube", "Diag \(videoId) topLevelKeys: \(topLevelKeys)")
+
+        if let playabilityStatus = manifest["playabilityStatus"] as? [String: Any] {
+            let status = playabilityStatus["status"] as? String ?? "(none)"
+            let reason = playabilityStatus["reason"] as? String ?? "(none)"
+            let playabilityKeys = playabilityStatus.keys.sorted().joined(separator: ", ")
+            log("YouTube", "Diag \(videoId) playability status=\(status) reason=\(reason) keys=\(playabilityKeys)")
+            if let errorScreen = playabilityStatus["errorScreen"] as? [String: Any] {
+                let errorKeys = errorScreen.keys.sorted().joined(separator: ", ")
+                log("YouTube", "Diag \(videoId) errorScreen keys=\(errorKeys)")
+            }
+        } else {
+            log("YouTube", "Diag \(videoId) no playabilityStatus")
+        }
+
+        if let streamingData = manifest["streamingData"] as? [String: Any] {
+            let streamingKeys = streamingData.keys.sorted().joined(separator: ", ")
+            let formatCount = (streamingData["formats"] as? [Any])?.count ?? 0
+            let adaptiveCount = (streamingData["adaptiveFormats"] as? [Any])?.count ?? 0
+            let hasHLS = streamingData["hlsManifestUrl"] != nil
+            let hasDash = streamingData["dashManifestUrl"] != nil
+            let serverAbrStreamingUrl = streamingData["serverAbrStreamingUrl"] != nil
+            // swiftlint:disable:next line_length
+            log("YouTube", "Diag \(videoId) streamingData keys=\(streamingKeys) formats=\(formatCount) adaptive=\(adaptiveCount) hls=\(hasHLS) dash=\(hasDash) serverAbr=\(serverAbrStreamingUrl)")
+        } else {
+            log("YouTube", "Diag \(videoId) no streamingData")
+        }
+
+        if let json = try? JSONSerialization.data(
+            withJSONObject: manifest,
+            options: [.prettyPrinted, .sortedKeys]
+        ), let text = String(data: json, encoding: .utf8) {
+            let limit = 4096
+            let truncated = text.count > limit
+                ? String(text.prefix(limit)) + "...(truncated \(text.count - limit) chars)"
+                : text
+            log("YouTube", "Diag \(videoId) response body:\n\(truncated)")
+        }
     }
 
     /// Fetches the HLS multivariant playlist and picks the best video variant
@@ -70,8 +115,12 @@ extension NewYouTubeClient {
 
     private func fetchPlayerResponse(videoId: String) async throws -> [String: Any] {
         let body: [String: Any] = ["context": iosContext(), "videoId": videoId]
-        let data = try await post(endpoint: "player", body: body)
+        let data = try await post(endpoint: "player", body: body, as: .ios)
+        log("YouTube", "Player response for \(videoId): \(data.count) bytes")
         guard let json = try JSONSerialization.jsonObject(with: data) as? [String: Any] else {
+            if let preview = String(data: data.prefix(512), encoding: .utf8) {
+                log("YouTube", "Player response \(videoId) not JSON, preview: \(preview)")
+            }
             throw YouTubeBrowseError.decodingFailed
         }
         return json

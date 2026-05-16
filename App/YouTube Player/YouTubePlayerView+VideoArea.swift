@@ -7,6 +7,7 @@ extension YouTubePlayerView {
     var playerVideoArea: some View {
         YouTubePlayerWebView(
             urlString: article.url,
+            session: session,
             isPlaying: $isPlaying,
             webView: $webView,
             isAd: $isAd,
@@ -15,11 +16,11 @@ extension YouTubePlayerView {
             videoAspectRatio: $videoAspectRatio,
             isPiP: $isPiP,
             chapters: $chapters,
-            onTimeUpdate: { newTime in
-                YouTubePlayerSession.shared.currentTime = newTime
+            onTimeUpdate: { [session] newTime in
+                session.currentTime = newTime
             },
-            onDurationUpdate: { newDuration in
-                YouTubePlayerSession.shared.duration = newDuration
+            onDurationUpdate: { [session] newDuration in
+                session.duration = newDuration
             }
         )
         .aspectRatio(videoAspectRatio, contentMode: .fit)

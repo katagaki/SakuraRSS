@@ -5,6 +5,9 @@ import Hanami
 struct ArticleDestinationView: View {
 
     @Environment(FeedManager.self) private var feedManager
+    @Environment(\.youTubePlayerSession) private var youTubeSession
+    @Environment(\.newYouTubePlayback) private var youTubePlayback
+    @Environment(\.podcastAudioPlayer) private var audioPlayer
     let article: Article
     /// When non-nil, overrides the per-feed `FeedOpenMode` lookup (used for
     /// ephemeral articles opened via `sakura://open`).
@@ -49,12 +52,12 @@ struct ArticleDestinationView: View {
     var body: some View {
         let article = rawArticle
         if article.isPodcastEpisode {
-            PodcastEpisodeView(article: article)
+            PodcastEpisodeView(article: article, audioPlayer: audioPlayer)
         } else if article.isYouTubeURL {
             if FeatureFlagStore.shared.isEnabled(.nextgenYouTubePlayer) {
-                NewYouTubePlayerView(article: article)
+                NewYouTubePlayerView(article: article, playback: youTubePlayback)
             } else {
-                YouTubePlayerView(article: article)
+                YouTubePlayerView(article: article, session: youTubeSession)
             }
         } else if effectiveOpenMode == .clearThisPage,
                   let url = URL(string: article.url) {

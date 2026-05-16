@@ -29,6 +29,10 @@ struct MagazineStyleView: View {
                         })
                         .buttonStyle(.plain)
                         .contextMenu {
+                            #if targetEnvironment(macCatalyst)
+                            OpenInNewWindowButton(article: article)
+                            Divider()
+                            #endif
                             Button {
                                 feedManager.toggleRead(article)
                             } label: {

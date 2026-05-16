@@ -10,7 +10,12 @@ import Hanami
 @Observable
 final class NewYouTubePlaybackController: NSObject {
 
-    static let shared = NewYouTubePlaybackController()
+    static let shared = NewYouTubePlaybackController(isPrimary: true)
+
+    /// Whether this is the app-wide shared controller. Detached-window
+    /// instances are not primary and skip global Now Playing updates.
+    @ObservationIgnored
+    let isPrimary: Bool
 
     var isPlaying: Bool = false
     var currentTime: TimeInterval = 0
@@ -46,7 +51,10 @@ final class NewYouTubePlaybackController: NSObject {
         return videoSize.width / videoSize.height
     }
 
-    private override init() { super.init() }
+    init(isPrimary: Bool = false) {
+        self.isPrimary = isPrimary
+        super.init()
+    }
 
     /// Loads a new HLS stream for the given video. If the same video is already
     /// loaded, this is a no-op and the existing player keeps playing.
@@ -108,7 +116,9 @@ final class NewYouTubePlaybackController: NSObject {
         cachedArtwork = nil
         lastPostedElapsedTime = -1
         clearNowPlayingInfo()
-        YouTubeAudioSession.deactivate()
+        if isPrimary {
+            YouTubeAudioSession.deactivate()
+        }
     }
 
     /// Connects a player layer (from the on-screen view) so we can drive

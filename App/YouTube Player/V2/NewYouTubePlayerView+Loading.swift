@@ -25,9 +25,11 @@ extension NewYouTubePlayerView {
         loadCachedTranslationsAndSummaries()
 
         guard let videoId = NewYouTubeClient.parseVideoIdentifier(article.url) else {
+            log("YT NewPlayer", "Failed to parse videoId from url: \(article.url)")
             loadState = .failed
             return
         }
+        log("YT NewPlayer", "loadStream videoId=\(videoId) url=\(article.url)")
 
         if playback.currentVideoID == videoId, playback.player != nil {
             await fetchMetadataIfNeeded(videoId: videoId)

@@ -76,7 +76,7 @@ struct PodcastEpisodeRow: View {
                           ? "pause.circle.fill"
                           : "play.circle.fill")
                         .font(.system(size: 32))
-                        .foregroundStyle(.accent)
+                        .foregroundStyle(Color.platformAccent)
                         .symbolRenderingMode(.multicolor)
                         .frame(width: 32, height: 32)
                 }
