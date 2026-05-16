@@ -8,6 +8,7 @@ extension YouTubePlayerScripts {
     (function() {
         var lastTimeQuarter = -1;
         var lastAdSig = '';
+        var lastIsAd = null;
         function send(payload) {
             try {
                 window.webkit.messageHandlers.\(playbackMessageHandlerName)
@@ -53,6 +54,12 @@ extension YouTubePlayerScripts {
                 + (s.adSkippable ? '1' : '0') + ':' + s.advertiserURL;
             if (!force && sig === lastAdSig) return;
             lastAdSig = sig;
+            if (lastIsAd !== null && lastIsAd !== s.isAd
+                && window.__yt && window.__yt.userPaused !== true
+                && typeof window.__yt.armAutoplay === 'function') {
+                window.__yt.armAutoplay(8000);
+            }
+            lastIsAd = s.isAd;
             send({ event: 'ad', isAd: s.isAd,
                 adSkippable: s.adSkippable, advertiserURL: s.advertiserURL });
         }
