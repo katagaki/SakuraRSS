@@ -8,6 +8,7 @@ extension YouTubePlayerScripts {
     (function() {
         var lastTimeQuarter = -1;
         var lastAdSig = '';
+        var lastIsAd = null;
         function send(payload) {
             try {
                 window.webkit.messageHandlers.\(playbackMessageHandlerName)
@@ -53,6 +54,19 @@ extension YouTubePlayerScripts {
                 + (s.adSkippable ? '1' : '0') + ':' + s.advertiserURL;
             if (!force && sig === lastAdSig) return;
             lastAdSig = sig;
+            // YouTube swaps the <video> source during ad <> content
+            // transitions, which leaves the element paused with no
+            // pause event to retrigger the pause guard (and the guard's
+            // end-of-video bail also fires when an ad ends naturally).
+            // Arm the autoplay poller so it picks up the new media as
+            // soon as it is ready. Respect `userPaused` so a manual
+            // pause during an ad survives the natural ad end.
+            if (lastIsAd !== null && lastIsAd !== s.isAd
+                && window.__yt && window.__yt.userPaused !== true
+                && typeof window.__yt.armAutoplay === 'function') {
+                window.__yt.armAutoplay(8000);
+            }
+            lastIsAd = s.isAd;
             send({ event: 'ad', isAd: s.isAd,
                 adSkippable: s.adSkippable, advertiserURL: s.advertiserURL });
         }
