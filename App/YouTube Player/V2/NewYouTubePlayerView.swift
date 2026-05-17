@@ -155,13 +155,25 @@ struct NewYouTubePlayerView: View {
             NewYouTubePlayerRepresentable(controller: playback)
         case .failed:
             Color.black.overlay {
-                VStack(spacing: 8) {
-                    Image(systemName: "exclamationmark.triangle")
-                        .font(.title)
-                    Text(String(localized: "YouTube.NewPlayer.LoadFailed", table: "Integrations"))
-                        .font(.subheadline)
+                VStack(spacing: 12) {
+                    VStack(spacing: 8) {
+                        Image(systemName: "exclamationmark.triangle")
+                            .font(.title)
+                        Text(String(localized: "YouTube.NewPlayer.LoadFailed", table: "Integrations"))
+                            .font(.subheadline)
+                    }
+                    .foregroundStyle(.secondary)
+                    Button {
+                        Task {
+                            loadState = .loading
+                            await loadStream()
+                        }
+                    } label: {
+                        Text(String(localized: "YouTube.NewPlayer.Retry", table: "Integrations"))
+                    }
+                    .buttonStyle(.bordered)
+                    .tint(.white)
                 }
-                .foregroundStyle(.secondary)
             }
         }
     }

@@ -87,6 +87,7 @@ extension YouTubePlayerScripts {
 
         function performSkipAd() {
             if (!isShowingAd()) return;
+            resumePlayback();
             var btn = findSkipButton();
             if (btn) {
                 clickSkipButton(btn);
@@ -113,15 +114,17 @@ extension YouTubePlayerScripts {
             })();
         }
 
+        function blockRewind() {}
+
         function apply() {
             var isAd = isShowingAd();
 
             var desired;
             if (isAd) {
                 desired = {
-                    previoustrack: null,
+                    previoustrack: blockRewind,
                     nexttrack: performSkipAd,
-                    seekbackward: null,
+                    seekbackward: blockRewind,
                     seekforward: performSkipAd
                 };
             } else {
