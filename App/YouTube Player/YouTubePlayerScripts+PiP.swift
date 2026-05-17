@@ -87,8 +87,6 @@ extension YouTubePlayerScripts {
 
         function performSkipAd() {
             if (!isShowingAd()) return;
-            // Arm autoplay before the skip so the post-ad video swap plays
-            // without the usual startup delay.
             resumePlayback();
             var btn = findSkipButton();
             if (btn) {
@@ -116,8 +114,6 @@ extension YouTubePlayerScripts {
             })();
         }
 
-        // No-op handler; setting `null` would let the user agent fall back
-        // to its default seek behavior.
         function blockRewind() {}
 
         function apply() {
