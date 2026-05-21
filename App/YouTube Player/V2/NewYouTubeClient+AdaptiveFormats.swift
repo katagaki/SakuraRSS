@@ -25,15 +25,26 @@ extension NewYouTubeClient {
         }
     }
 
-    /// Picks the highest-bitrate AAC/MP4 audio track, preferring the original
-    /// audio track over dubbed alternatives.
+    /// Picks the highest-bitrate AAC/MP4 audio track, preferring the video's
+    /// original audio over auto-dubbed alternatives. A track explicitly named
+    /// "original" wins; otherwise the track YouTube marks as default for the
+    /// requesting locale is used, falling back to any available track.
     static func selectAudioFormat(
         from formats: [YouTubeAdaptiveFormat]
     ) -> YouTubeAdaptiveFormat? {
         let candidates = formats.filter { $0.isAudio && $0.isMP4 }
-        let original = candidates.filter { $0.isDefaultAudioTrack != false }
-        let pool = original.isEmpty ? candidates : original
+        let pool = preferredAudioPool(from: candidates)
         return pool.max { $0.bitrate < $1.bitrate }
+    }
+
+    private static func preferredAudioPool(
+        from candidates: [YouTubeAdaptiveFormat]
+    ) -> [YouTubeAdaptiveFormat] {
+        let original = candidates.filter(\.isOriginalAudioTrack)
+        if !original.isEmpty { return original }
+        let defaultTracks = candidates.filter { $0.isDefaultAudioTrack != false }
+        if !defaultTracks.isEmpty { return defaultTracks }
+        return candidates
     }
 
     private static func parseAdaptiveFormat(
@@ -56,7 +67,8 @@ extension NewYouTubeClient {
             contentLength: integer(entry["contentLength"]),
             initRange: byteRange(entry["initRange"]),
             indexRange: byteRange(entry["indexRange"]),
-            isDefaultAudioTrack: audioTrack?["audioIsDefault"] as? Bool
+            isDefaultAudioTrack: audioTrack?["audioIsDefault"] as? Bool,
+            audioTrackDisplayName: audioTrack?["displayName"] as? String
         )
     }
 

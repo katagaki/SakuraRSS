@@ -24,10 +24,20 @@ nonisolated struct YouTubeAdaptiveFormat: Sendable {
     let initRange: YouTubeByteRange?
     let indexRange: YouTubeByteRange?
     let isDefaultAudioTrack: Bool?
+    let audioTrackDisplayName: String?
 
     var isVideo: Bool { mimeType.hasPrefix("video/") }
     var isAudio: Bool { mimeType.hasPrefix("audio/") }
     var isMP4: Bool { mimeType.contains("mp4") }
+
+    /// Whether this audio track is the video's original (undubbed) rendition.
+    /// YouTube names the original track's `displayName` with an "original"
+    /// suffix (e.g. "English (United States) original"), which is a more
+    /// reliable signal than `audioIsDefault` for auto-dubbed videos where the
+    /// default track follows the requesting locale rather than the source.
+    var isOriginalAudioTrack: Bool {
+        audioTrackDisplayName?.lowercased().contains("original") ?? false
+    }
 
     var codecs: String? {
         guard let opening = mimeType.range(of: "codecs=\"") else { return nil }
