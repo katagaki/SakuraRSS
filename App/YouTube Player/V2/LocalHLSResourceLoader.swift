@@ -6,7 +6,7 @@ import Hanami
 /// Serves a synthesized `YouTubeLocalHLSStream` to `AVPlayer` over a custom URL
 /// scheme. Only the small text playlists are vended here; the media segments
 /// they reference use absolute https URLs that `AVPlayer` fetches directly.
-final class LocalHLSResourceLoader: NSObject, AVAssetResourceLoaderDelegate, @unchecked Sendable {
+nonisolated final class LocalHLSResourceLoader: NSObject, AVAssetResourceLoaderDelegate, @unchecked Sendable {
 
     static let scheme = "sakurahls"
     // swiftlint:disable:next force_unwrapping
