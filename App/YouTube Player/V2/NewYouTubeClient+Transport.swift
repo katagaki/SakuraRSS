@@ -71,10 +71,26 @@ extension NewYouTubeClient {
         if let http = response as? HTTPURLResponse {
             log("YouTube", "POST \(endpoint): HTTP \(http.statusCode)")
             if !(200..<300).contains(http.statusCode) {
+                Self.logResponseBody(endpoint: endpoint, data: data)
                 throw YouTubeBrowseError.unexpectedResponse(status: http.statusCode)
             }
         }
+        Self.logResponseBody(endpoint: endpoint, data: data)
         return data
+    }
+
+    private static let responseBodyLogLimit = 8192
+
+    private static func logResponseBody(endpoint: String, data: Data) {
+        guard let text = String(data: data, encoding: .utf8) else {
+            log("YouTube", "Response \(endpoint): \(data.count) bytes (non-UTF8)")
+            return
+        }
+        let truncated = text.count > responseBodyLogLimit
+            // swiftlint:disable:next line_length
+            ? String(text.prefix(responseBodyLogLimit)) + "...(truncated \(text.count - responseBodyLogLimit) chars)"
+            : text
+        log("YouTube", "Response \(endpoint) (\(data.count) bytes):\n\(truncated)")
     }
 
     // swiftlint:disable:this large_tuple
