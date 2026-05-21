@@ -45,15 +45,14 @@ extension NewYouTubePlayerView {
 
         do {
             let client = try await NewYouTubeClient.bootstrap()
-            async let manifestTask = client.hlsPlaylistURL(videoId: videoId)
+            async let sourceTask = client.resolvePlaybackSource(videoId: videoId)
             async let metadataTask = client.fetchVideoMetadata(videoId: videoId)
             fetchedMetadata = try? await metadataTask
             log("YT NewPlayer", "Metadata for \(videoId): \(fetchedMetadata == nil ? "unavailable" : "ok")")
-            let manifestURL = try await manifestTask
-            // swiftlint:disable:next line_length
-            log("YT NewPlayer", "Stream ready videoId=\(videoId) manifest=\(manifestURL.absoluteString)")
+            let source = try await sourceTask
+            logStreamReady(videoId: videoId, source: source)
             playback.load(
-                url: manifestURL,
+                source: source,
                 videoID: videoId,
                 title: playbackTitle,
                 artist: playbackArtist,
@@ -63,6 +62,16 @@ extension NewYouTubePlayerView {
         } catch {
             log("YT NewPlayer", "Failed to resolve stream videoId=\(videoId): \(error)")
             loadState = .failed
+        }
+    }
+
+    private func logStreamReady(videoId: String, source: YouTubePlaybackSource) {
+        switch source {
+        case .remoteHLS(let url):
+            log("YT NewPlayer", "Stream ready videoId=\(videoId) remoteHLS=\(url.absoluteString)")
+        case .localHLS(let stream):
+            // swiftlint:disable:next line_length
+            log("YT NewPlayer", "Stream ready videoId=\(videoId) localHLS resolution=\(stream.resolution ?? "unknown")")
         }
     }
 
