@@ -46,12 +46,15 @@ final class LocalHLSResourceLoader: NSObject, AVAssetResourceLoaderDelegate, @un
 
         if let dataRequest = loadingRequest.dataRequest {
             let offset = Int(dataRequest.requestedOffset)
-            guard offset <= data.count else {
+            guard offset >= 0, offset <= data.count else {
                 loadingRequest.finishLoading()
                 return true
             }
-            let end = min(offset + dataRequest.requestedLength, data.count)
-            dataRequest.respond(with: data.subdata(in: offset..<end))
+            let remaining = data.count - offset
+            let length = min(dataRequest.requestedLength, remaining)
+            if length > 0 {
+                dataRequest.respond(with: data.subdata(in: offset..<(offset + length)))
+            }
         }
 
         loadingRequest.finishLoading()
