@@ -37,6 +37,7 @@ final class NewYouTubePlaybackController: NSObject {
     @ObservationIgnored var cachedArtwork: MPMediaItemArtwork?
     @ObservationIgnored private var pictureInPictureController: AVPictureInPictureController?
     @ObservationIgnored private var lastPostedElapsedTime: TimeInterval = -1
+    @ObservationIgnored private var resourceLoader: LocalHLSResourceLoader?
 
     @ObservationIgnored private var timeObserverToken: Any?
     @ObservationIgnored private var rateObservation: NSKeyValueObservation?
@@ -56,10 +57,10 @@ final class NewYouTubePlaybackController: NSObject {
         super.init()
     }
 
-    /// Loads a new HLS stream for the given video. If the same video is already
+    /// Loads a new stream for the given video. If the same video is already
     /// loaded, this is a no-op and the existing player keeps playing.
     func load(
-        url: URL,
+        source: YouTubePlaybackSource,
         videoID: String,
         title: String? = nil,
         artist: String? = nil,
@@ -72,7 +73,7 @@ final class NewYouTubePlaybackController: NSObject {
         clear()
         YouTubeAudioSession.prepare()
         YouTubeAudioSession.activate()
-        let newPlayer = AVPlayer(url: url)
+        let newPlayer = AVPlayer(playerItem: makePlayerItem(for: source))
         newPlayer.appliesMediaSelectionCriteriaAutomatically = false
         let originalCriteria = AVPlayerMediaSelectionCriteria(
             preferredLanguages: nil,
@@ -83,6 +84,19 @@ final class NewYouTubePlaybackController: NSObject {
         currentVideoID = videoID
         applyMetadata(title: title, artist: artist, artworkURLString: artworkURLString)
         newPlayer.play()
+    }
+
+    private func makePlayerItem(for source: YouTubePlaybackSource) -> AVPlayerItem {
+        switch source {
+        case .remoteHLS(let url):
+            return AVPlayerItem(asset: AVURLAsset(url: url))
+        case .localHLS(let stream):
+            let loader = LocalHLSResourceLoader(stream: stream)
+            resourceLoader = loader
+            let asset = AVURLAsset(url: LocalHLSResourceLoader.masterURL)
+            asset.resourceLoader.setDelegate(loader, queue: loader.queue)
+            return AVPlayerItem(asset: asset)
+        }
     }
 
     func updateMetadata(title: String?, artist: String?, artworkURLString: String?) {
@@ -108,6 +122,7 @@ final class NewYouTubePlaybackController: NSObject {
         detachObservers()
         player?.pause()
         pictureInPictureController = nil
+        resourceLoader = nil
         player = nil
         currentVideoID = nil
         nowPlayingTitle = nil

@@ -32,6 +32,28 @@ extension NewYouTubeClient {
         return nil
     }
 
+    /// Resolves how a video should be played. Live and legacy responses still
+    /// expose `hlsManifestUrl`, which `AVPlayer` can play directly. Newer
+    /// responses only expose `adaptiveFormats`, which are repackaged into a
+    /// locally served HLS stream.
+    func resolvePlaybackSource(videoId: String) async throws -> YouTubePlaybackSource {
+        let manifest = try await fetchPlayerResponse(videoId: videoId)
+        guard let streamingData = manifest["streamingData"] as? [String: Any] else {
+            Self.logManifestDiagnostics(videoId: videoId, manifest: manifest)
+            throw YouTubeBrowseError.missingData
+        }
+        if let manifestString = streamingData["hlsManifestUrl"] as? String,
+           let manifestURL = URL(string: manifestString) {
+            return .remoteHLS(manifestURL)
+        }
+        if let adaptiveFormats = streamingData["adaptiveFormats"] as? [[String: Any]],
+           !adaptiveFormats.isEmpty {
+            return .localHLS(try await buildLocalHLSStream(from: adaptiveFormats, videoId: videoId))
+        }
+        Self.logManifestDiagnostics(videoId: videoId, manifest: manifest)
+        throw YouTubeBrowseError.missingData
+    }
+
     /// Returns the HLS playlist URL for a given video. `AVPlayer` can play this
     /// URL directly without further parsing.
     func hlsPlaylistURL(videoId: String) async throws -> URL {
