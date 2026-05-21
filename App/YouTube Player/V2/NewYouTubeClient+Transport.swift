@@ -22,7 +22,12 @@ extension NewYouTubeClient {
         ]
     }
 
-    func iosContext() -> [String: Any] {
+    /// - Parameter languageCode: Overrides the `hl` locale. The streaming
+    ///   player request forces `"en"` so `audioTrack.displayName` carries the
+    ///   English "original" suffix, which the audio-track selection relies on to
+    ///   detect a video's source audio (the suffix is otherwise localized to the
+    ///   requesting locale and the signal is lost on non-English devices).
+    func iosContext(languageCode: String = NewYouTubeClient.deviceLanguage) -> [String: Any] {
         [
             "client": [
                 "clientName": "IOS",
@@ -31,7 +36,7 @@ extension NewYouTubeClient {
                 "deviceModel": "iPhone",
                 "osName": "iPhone",
                 "osVersion": "18_7.22H20",
-                "hl": Self.deviceLanguage,
+                "hl": languageCode,
                 "gl": Self.deviceRegion
             ]
         ]

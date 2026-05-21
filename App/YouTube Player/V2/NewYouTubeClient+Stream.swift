@@ -136,7 +136,7 @@ extension NewYouTubeClient {
     }
 
     private func fetchPlayerResponse(videoId: String) async throws -> [String: Any] {
-        let body: [String: Any] = ["context": iosContext(), "videoId": videoId]
+        let body: [String: Any] = ["context": iosContext(languageCode: "en"), "videoId": videoId]
         let data = try await post(endpoint: "player", body: body, as: .ios)
         log("YouTube", "Player response for \(videoId): \(data.count) bytes")
         guard let json = try JSONSerialization.jsonObject(with: data) as? [String: Any] else {
