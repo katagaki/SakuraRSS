@@ -13,6 +13,8 @@ extension NewYouTubePlaybackController {
         subtitleGroup = legible
         audioOptions = audible?.options ?? []
         subtitleOptions = legible?.options ?? []
+        // swiftlint:disable:next line_length
+        log("YT Playback", "Media options audio=\(audioOptions.count) [\(audioOptions.map(\.displayName).joined(separator: ", "))] subtitles=\(subtitleOptions.count) [\(subtitleOptions.map(\.displayName).joined(separator: ", "))]")
 
         if let audible {
             if let originalOption = await preferredOriginalAudioOption(in: audible) {

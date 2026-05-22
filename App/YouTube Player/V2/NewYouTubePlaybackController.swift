@@ -43,6 +43,7 @@ final class NewYouTubePlaybackController: NSObject {
     @ObservationIgnored private var rateObservation: NSKeyValueObservation?
     @ObservationIgnored private var presentationSizeObservation: NSKeyValueObservation?
     @ObservationIgnored private var statusObservation: NSKeyValueObservation?
+    @ObservationIgnored private var timeControlObservation: NSKeyValueObservation?
     @ObservationIgnored private var pipPossibleObservation: NSKeyValueObservation?
     @ObservationIgnored var audioGroup: AVMediaSelectionGroup?
     @ObservationIgnored var subtitleGroup: AVMediaSelectionGroup?
@@ -209,10 +210,18 @@ final class NewYouTubePlaybackController: NSObject {
 
         statusObservation = item.observe(\.status, options: [.initial, .new]) { [weak self] observed, _ in
             let status = observed.status
+            // swiftlint:disable:next line_length
+            log("YT Playback", "Item status=\(status.rawValue) error=\(observed.error.map { String(describing: $0) } ?? "none")")
             guard status == .readyToPlay else { return }
             Task { @MainActor in
                 await self?.loadMediaSelectionOptions(for: observed)
             }
+        }
+
+        timeControlObservation = player?.observe(\.timeControlStatus, options: [.new]) { observed, _ in
+            let reason = observed.reasonForWaitingToPlay?.rawValue ?? "none"
+            // swiftlint:disable:next line_length
+            log("YT Playback", "timeControlStatus=\(observed.timeControlStatus.rawValue) waitingReason=\(reason)")
         }
     }
 
@@ -227,6 +236,8 @@ final class NewYouTubePlaybackController: NSObject {
         presentationSizeObservation = nil
         statusObservation?.invalidate()
         statusObservation = nil
+        timeControlObservation?.invalidate()
+        timeControlObservation = nil
         pipPossibleObservation?.invalidate()
         pipPossibleObservation = nil
         audioGroup = nil
@@ -252,7 +263,9 @@ final class NewYouTubePlaybackController: NSObject {
         let target = CMTime(seconds: max(time, 0), preferredTimescale: 600)
         let wasPlaying = player.timeControlStatus != .paused
         updateNowPlayingElapsedTime(max(time, 0))
+        log("YT Playback", "Seek to \(max(time, 0))s wasPlaying=\(wasPlaying)")
         player.seek(to: target, toleranceBefore: .zero, toleranceAfter: .zero) { [weak self] finished in
+            log("YT Playback", "Seek finished=\(finished) to \(max(time, 0))s")
             guard finished, wasPlaying else { return }
             Task { @MainActor in self?.player?.play() }
         }
@@ -278,6 +291,7 @@ final class NewYouTubePlaybackController: NSObject {
 
     func selectAudioOption(_ option: AVMediaSelectionOption?) {
         guard let group = audioGroup, let item = player?.currentItem else { return }
+        log("YT Playback", "Select audio option: \(option?.displayName ?? "auto")")
         item.select(option, in: group)
         currentAudioOption = option
     }

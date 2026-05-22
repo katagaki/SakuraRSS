@@ -29,7 +29,13 @@ nonisolated final class LocalHLSResourceLoader: NSObject, AVAssetResourceLoaderD
             url.scheme == Self.scheme
         else { return false }
 
+        let requestedRange = loadingRequest.dataRequest.map {
+            "\($0.requestedOffset)+\($0.requestedLength)"
+        } ?? "info"
+        log("YT Playback", "Loader request \(url.lastPathComponent) range=\(requestedRange)")
+
         guard let data = playlists[url.lastPathComponent] else {
+            log("YT Playback", "Loader MISS \(url.lastPathComponent)")
             loadingRequest.finishLoading(with: YouTubeBrowseError.missingData)
             return true
         }
