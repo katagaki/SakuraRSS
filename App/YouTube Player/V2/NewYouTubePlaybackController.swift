@@ -250,8 +250,12 @@ final class NewYouTubePlaybackController: NSObject {
     func seek(to time: TimeInterval) {
         guard let player else { return }
         let target = CMTime(seconds: max(time, 0), preferredTimescale: 600)
-        player.seek(to: target, toleranceBefore: .zero, toleranceAfter: .zero)
+        let wasPlaying = player.timeControlStatus != .paused
         updateNowPlayingElapsedTime(max(time, 0))
+        player.seek(to: target, toleranceBefore: .zero, toleranceAfter: .zero) { [weak self] finished in
+            guard finished, wasPlaying else { return }
+            Task { @MainActor in self?.player?.play() }
+        }
     }
 
     func rewind(by seconds: TimeInterval = 10) {
