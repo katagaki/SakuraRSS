@@ -264,7 +264,9 @@ final class NewYouTubePlaybackController: NSObject {
         let wasPlaying = player.timeControlStatus != .paused
         updateNowPlayingElapsedTime(max(time, 0))
         log("YT Playback", "Seek to \(max(time, 0))s wasPlaying=\(wasPlaying)")
-        player.seek(to: target, toleranceBefore: .zero, toleranceAfter: .zero) { [weak self] finished in
+        player.seek(
+            to: target, toleranceBefore: .positiveInfinity, toleranceAfter: .positiveInfinity
+        ) { [weak self] finished in
             log("YT Playback", "Seek finished=\(finished) to \(max(time, 0))s")
             guard finished, wasPlaying else { return }
             Task { @MainActor in self?.player?.play() }
