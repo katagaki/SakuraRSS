@@ -74,7 +74,8 @@ extension NewYouTubeClient {
         log("YouTube", "Built local HLS for \(videoId) video itag=\(video.itag) (\(video.width ?? 0)x\(video.height ?? 0)) audioTracks=\(availableAudio.count) subtitles=\(subtitles.count)")
         return YouTubeLocalHLSStream(
             resources: resources,
-            resolution: Self.resolution(for: video)
+            resolution: Self.resolution(for: video),
+            userAgent: iosUserAgent
         )
     }
 

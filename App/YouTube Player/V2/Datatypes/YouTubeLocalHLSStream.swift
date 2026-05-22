@@ -8,6 +8,7 @@ import Hanami
 nonisolated struct YouTubeLocalHLSStream: Sendable {
     let resources: [String: Data]
     let resolution: String?
+    let userAgent: String
 }
 
 /// One selectable audio track in the synthesized master playlist.
