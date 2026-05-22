@@ -6,7 +6,7 @@ extension NewYouTubeClient {
     /// Parses an ISO BMFF `sidx` (Segment Index) box into HLS segments.
     /// `indexEndOffset` is the last byte offset of the `sidx` box within the
     /// media file, used to anchor the first media subsegment.
-    static func parseSidx(_ data: Data, indexEndOffset: Int) -> [YouTubeHLSSegment]? {
+    nonisolated static func parseSidx(_ data: Data, indexEndOffset: Int) -> [YouTubeHLSSegment]? {
         let bytes = [UInt8](data)
         var cursor = 0
         while cursor + 8 <= bytes.count {
@@ -21,7 +21,7 @@ extension NewYouTubeClient {
         return nil
     }
 
-    private static func parseSidxBox(
+    nonisolated private static func parseSidxBox(
         _ bytes: [UInt8],
         boxStart: Int,
         indexEndOffset: Int
@@ -70,17 +70,17 @@ extension NewYouTubeClient {
         return segments.isEmpty ? nil : segments
     }
 
-    private static func boxType(_ bytes: [UInt8], at offset: Int) -> String {
+    nonisolated private static func boxType(_ bytes: [UInt8], at offset: Int) -> String {
         guard offset + 4 <= bytes.count else { return "" }
         return String(bytes: bytes[offset..<offset + 4], encoding: .ascii) ?? ""
     }
 
-    private static func readUInt16(_ bytes: [UInt8], at offset: Int) -> UInt16 {
+    nonisolated private static func readUInt16(_ bytes: [UInt8], at offset: Int) -> UInt16 {
         guard offset + 2 <= bytes.count else { return 0 }
         return (UInt16(bytes[offset]) << 8) | UInt16(bytes[offset + 1])
     }
 
-    private static func readUInt32(_ bytes: [UInt8], at offset: Int) -> UInt32 {
+    nonisolated private static func readUInt32(_ bytes: [UInt8], at offset: Int) -> UInt32 {
         guard offset + 4 <= bytes.count else { return 0 }
         return (UInt32(bytes[offset]) << 24)
             | (UInt32(bytes[offset + 1]) << 16)
@@ -88,7 +88,7 @@ extension NewYouTubeClient {
             | UInt32(bytes[offset + 3])
     }
 
-    private static func readUInt64(_ bytes: [UInt8], at offset: Int) -> UInt64 {
+    nonisolated private static func readUInt64(_ bytes: [UInt8], at offset: Int) -> UInt64 {
         guard offset + 8 <= bytes.count else { return 0 }
         var value: UInt64 = 0
         for index in 0..<8 {
