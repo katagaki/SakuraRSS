@@ -48,10 +48,7 @@ extension NewYouTubeClient {
         }
         if let adaptiveFormats = streamingData["adaptiveFormats"] as? [[String: Any]],
            !adaptiveFormats.isEmpty {
-            let captionTracks = Self.captionTracks(from: manifest)
-            return .localHLS(try await buildLocalHLSStream(
-                from: adaptiveFormats, captionTracks: captionTracks, videoId: videoId
-            ))
+            return .localHLS(try await buildLocalHLSStream(from: adaptiveFormats, videoId: videoId))
         }
         Self.logManifestDiagnostics(videoId: videoId, manifest: manifest)
         throw YouTubeBrowseError.missingData

@@ -25,17 +25,11 @@ nonisolated struct YouTubeAdaptiveFormat: Sendable {
     let indexRange: YouTubeByteRange?
     let isDefaultAudioTrack: Bool?
     let audioTrackDisplayName: String?
-    let audioTrackId: String?
     let xtags: String?
 
     var isVideo: Bool { mimeType.hasPrefix("video/") }
     var isAudio: Bool { mimeType.hasPrefix("audio/") }
     var isMP4: Bool { mimeType.contains("mp4") }
-
-    /// Language code carried in `audioTrack.id` (e.g. "en.4" -> "en").
-    var audioLanguageCode: String? {
-        audioTrackId?.split(separator: ".").first.map(String.init)
-    }
 
     /// Source (undubbed) rendition. Uses the locale-independent `acont=original`
     /// marker in `xtags`; `displayName` is localized and `audioIsDefault`
