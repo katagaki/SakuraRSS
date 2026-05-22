@@ -17,7 +17,7 @@ extension NewYouTubeClient {
         else {
             throw YouTubeBrowseError.missingData
         }
-        Self.logAudioCandidates(from: formats, selected: audio, videoId: videoId)
+        Self.logAudioCandidates(from: entries, selected: audio, videoId: videoId)
         async let videoSegments = segments(for: video)
         async let audioSegments = segments(for: audio)
         let videoPlaylist = Self.renderMediaPlaylist(
@@ -37,14 +37,22 @@ extension NewYouTubeClient {
     }
 
     private static func logAudioCandidates(
-        from formats: [YouTubeAdaptiveFormat],
+        from entries: [[String: Any]],
         selected: YouTubeAdaptiveFormat,
         videoId: String
     ) {
-        let audioFormats = formats.filter { $0.isAudio && $0.isMP4 }
-        for format in audioFormats {
+        for entry in entries {
+            guard
+                let mimeType = entry["mimeType"] as? String,
+                mimeType.hasPrefix("audio/")
+            else { continue }
+            let itag = entry["itag"] as? Int ?? -1
+            let xtags = entry["xtags"] as? String ?? "(nil)"
+            let track = (entry["audioTrack"] as? [String: Any]).map {
+                String(describing: $0)
+            } ?? "(nil)"
             // swiftlint:disable:next line_length
-            log("YouTube", "Audio candidate \(videoId) itag=\(format.itag) default=\(String(describing: format.isDefaultAudioTrack)) original=\(format.isOriginalAudioTrack) name=\(format.audioTrackDisplayName ?? "(nil)")")
+            log("YouTube", "Audio candidate \(videoId) itag=\(itag) xtags=\(xtags) audioTrack=\(track)")
         }
         // swiftlint:disable:next line_length
         log("YouTube", "Selected audio \(videoId) itag=\(selected.itag) original=\(selected.isOriginalAudioTrack) name=\(selected.audioTrackDisplayName ?? "(nil)")")
