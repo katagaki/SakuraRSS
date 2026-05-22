@@ -31,20 +31,13 @@ nonisolated struct YouTubeAdaptiveFormat: Sendable {
     var isAudio: Bool { mimeType.hasPrefix("audio/") }
     var isMP4: Bool { mimeType.contains("mp4") }
 
-    /// Whether this audio track is the video's original (undubbed) rendition.
-    /// Derived from the `acont=original` marker in `xtags` rather than
-    /// `displayName` or `audioIsDefault`: the display name is localized to the
-    /// requesting locale (so an "original" suffix match fails on non-English
-    /// devices) and `audioIsDefault` follows that locale, pointing at an
-    /// auto-dub. `xtags` carries `acont=original` for the source track and
-    /// `acont=dubbed` for auto-dubs regardless of locale.
+    /// Source (undubbed) rendition. Uses the locale-independent `acont=original`
+    /// marker in `xtags`; `displayName` is localized and `audioIsDefault`
+    /// follows the requesting locale, both pointing at an auto-dub.
     var isOriginalAudioTrack: Bool {
         decodedXtags?.contains("original") ?? false
     }
 
-    /// Whether this is a loudness-normalized (dynamic range compressed) variant.
-    /// These are duplicates of a track marked with `drc` in `xtags` and should
-    /// not be preferred over the unprocessed rendition.
     var isDRCAudioTrack: Bool {
         decodedXtags?.contains("drc") ?? false
     }
