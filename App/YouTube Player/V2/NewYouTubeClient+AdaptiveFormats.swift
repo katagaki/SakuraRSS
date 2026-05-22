@@ -40,11 +40,13 @@ extension NewYouTubeClient {
     private static func preferredAudioPool(
         from candidates: [YouTubeAdaptiveFormat]
     ) -> [YouTubeAdaptiveFormat] {
-        let original = candidates.filter(\.isOriginalAudioTrack)
+        let nonDRC = candidates.filter { !$0.isDRCAudioTrack }
+        let pool = nonDRC.isEmpty ? candidates : nonDRC
+        let original = pool.filter(\.isOriginalAudioTrack)
         if !original.isEmpty { return original }
-        let defaultTracks = candidates.filter { $0.isDefaultAudioTrack != false }
+        let defaultTracks = pool.filter { $0.isDefaultAudioTrack != false }
         if !defaultTracks.isEmpty { return defaultTracks }
-        return candidates
+        return pool
     }
 
     private static func parseAdaptiveFormat(
@@ -68,7 +70,8 @@ extension NewYouTubeClient {
             initRange: byteRange(entry["initRange"]),
             indexRange: byteRange(entry["indexRange"]),
             isDefaultAudioTrack: audioTrack?["audioIsDefault"] as? Bool,
-            audioTrackDisplayName: audioTrack?["displayName"] as? String
+            audioTrackDisplayName: audioTrack?["displayName"] as? String,
+            xtags: entry["xtags"] as? String
         )
     }
 
