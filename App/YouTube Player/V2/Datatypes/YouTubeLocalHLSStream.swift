@@ -2,13 +2,21 @@ import Foundation
 import Hanami
 
 /// A self-contained set of HLS resources synthesized from `adaptiveFormats`.
-/// Media playlists reference the original googlevideo URLs by byte range, so
-/// only these small text manifests (and any subtitle WebVTT) are served
-/// locally. Keyed by file name as requested over the custom scheme.
+/// Playlists are served from `resources`; media byte ranges are proxied from
+/// `mediaSources` (fetched from googlevideo with the iOS User-Agent) because
+/// AVPlayer's own requests are rejected for far-range seeks.
 nonisolated struct YouTubeLocalHLSStream: Sendable {
     let resources: [String: Data]
+    let mediaSources: [String: YouTubeLocalMediaSource]
     let resolution: String?
     let userAgent: String
+}
+
+/// The remote media file a synthesized media playlist's byte ranges point at.
+nonisolated struct YouTubeLocalMediaSource: Sendable {
+    let url: String
+    let contentLength: Int
+    let mimeType: String
 }
 
 /// One selectable audio track in the synthesized master playlist.

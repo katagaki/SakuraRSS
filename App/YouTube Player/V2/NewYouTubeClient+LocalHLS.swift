@@ -40,12 +40,15 @@ extension NewYouTubeClient {
         let captionInfos = Self.parseCaptionTracks(captionTracks)
 
         async let subtitleTask = subtitleRenditions(from: captionInfos)
-        let videoPlaylist = try await mediaPlaylist(for: video)
+        let videoPlaylist = try await mediaPlaylist(for: video, mediaPath: "video.media")
         let audioPlaylists = await audioMediaPlaylists(for: audioRenditions)
         let subtitles = await subtitleTask
 
         var resources: [String: Data] = [
             "video.m3u8": Data(videoPlaylist.utf8)
+        ]
+        var mediaSources: [String: YouTubeLocalMediaSource] = [
+            "video.media": Self.mediaSource(for: video)
         ]
         // A dub whose segment index fails to load is dropped rather than
         // failing the whole stream.
@@ -53,6 +56,7 @@ extension NewYouTubeClient {
         for (index, rendition) in audioRenditions.enumerated() {
             guard let playlist = audioPlaylists[index] else { continue }
             resources[rendition.playlistName] = Data(playlist.utf8)
+            mediaSources[Self.mediaPath(for: rendition)] = Self.mediaSource(for: rendition.format)
             availableAudio.append(rendition)
         }
         guard !availableAudio.isEmpty else { throw YouTubeBrowseError.missingData }
@@ -74,8 +78,23 @@ extension NewYouTubeClient {
         log("YouTube", "Built local HLS for \(videoId) video itag=\(video.itag) (\(video.width ?? 0)x\(video.height ?? 0)) audioTracks=\(availableAudio.count) subtitles=\(subtitles.count)")
         return YouTubeLocalHLSStream(
             resources: resources,
+            mediaSources: mediaSources,
             resolution: Self.resolution(for: video),
             userAgent: iosUserAgent
+        )
+    }
+
+    private static func mediaPath(for rendition: YouTubeLocalAudioRendition) -> String {
+        rendition.playlistName.replacingOccurrences(of: ".m3u8", with: ".media")
+    }
+
+    private static func mediaSource(for format: YouTubeAdaptiveFormat) -> YouTubeLocalMediaSource {
+        let baseMimeType = format.mimeType.split(separator: ";").first.map(String.init)
+            ?? format.mimeType
+        return YouTubeLocalMediaSource(
+            url: format.url,
+            contentLength: format.contentLength ?? 0,
+            mimeType: baseMimeType
         )
     }
 
@@ -85,7 +104,10 @@ extension NewYouTubeClient {
         await withTaskGroup(of: (Int, String?).self) { group in
             for (index, rendition) in renditions.enumerated() {
                 let format = rendition.format
-                group.addTask { (index, try? await self.mediaPlaylist(for: format)) }
+                let mediaPath = Self.mediaPath(for: rendition)
+                group.addTask {
+                    (index, try? await self.mediaPlaylist(for: format, mediaPath: mediaPath))
+                }
             }
             var playlists: [Int: String] = [:]
             for await (index, playlist) in group {
@@ -96,9 +118,12 @@ extension NewYouTubeClient {
     }
 
     nonisolated private func mediaPlaylist(
-        for format: YouTubeAdaptiveFormat
+        for format: YouTubeAdaptiveFormat,
+        mediaPath: String
     ) async throws -> String {
-        Self.renderMediaPlaylist(format: format, segments: try await segments(for: format))
+        Self.renderMediaPlaylist(
+            format: format, mediaPath: mediaPath, segments: try await segments(for: format)
+        )
     }
 
     private static func logAudioCandidates(
@@ -239,6 +264,7 @@ extension NewYouTubeClient {
 
     nonisolated private static func renderMediaPlaylist(
         format: YouTubeAdaptiveFormat,
+        mediaPath: String,
         segments: [YouTubeHLSSegment]
     ) -> String {
         let targetDuration = max(1, Int((segments.map(\.duration).max() ?? 1).rounded(.up)))
@@ -251,13 +277,13 @@ extension NewYouTubeClient {
         ]
         if let initRange = format.initRange {
             lines.append(
-                "#EXT-X-MAP:URI=\"\(format.url)\",BYTERANGE=\"\(initRange.length)@\(initRange.start)\""
+                "#EXT-X-MAP:URI=\"\(mediaPath)\",BYTERANGE=\"\(initRange.length)@\(initRange.start)\""
             )
         }
         for segment in segments {
             lines.append(String(format: "#EXTINF:%.5f,", segment.duration))
             lines.append("#EXT-X-BYTERANGE:\(segment.length)@\(segment.offset)")
-            lines.append(format.url)
+            lines.append(mediaPath)
         }
         lines.append("#EXT-X-ENDLIST")
         return lines.joined(separator: "\n") + "\n"
