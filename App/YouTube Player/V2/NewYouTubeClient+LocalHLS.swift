@@ -17,6 +17,7 @@ extension NewYouTubeClient {
         else {
             throw YouTubeBrowseError.missingData
         }
+        Self.logAudioCandidates(from: formats, selected: audio, videoId: videoId)
         async let videoSegments = segments(for: video)
         async let audioSegments = segments(for: audio)
         let videoPlaylist = Self.renderMediaPlaylist(
@@ -33,6 +34,20 @@ extension NewYouTubeClient {
             audioPlaylist: audioPlaylist,
             resolution: Self.resolution(for: video)
         )
+    }
+
+    private static func logAudioCandidates(
+        from formats: [YouTubeAdaptiveFormat],
+        selected: YouTubeAdaptiveFormat,
+        videoId: String
+    ) {
+        let audioFormats = formats.filter { $0.isAudio && $0.isMP4 }
+        for format in audioFormats {
+            // swiftlint:disable:next line_length
+            log("YouTube", "Audio candidate \(videoId) itag=\(format.itag) default=\(String(describing: format.isDefaultAudioTrack)) original=\(format.isOriginalAudioTrack) name=\(format.audioTrackDisplayName ?? "(nil)")")
+        }
+        // swiftlint:disable:next line_length
+        log("YouTube", "Selected audio \(videoId) itag=\(selected.itag) original=\(selected.isOriginalAudioTrack) name=\(selected.audioTrackDisplayName ?? "(nil)")")
     }
 
     private func segments(for format: YouTubeAdaptiveFormat) async throws -> [YouTubeHLSSegment] {
