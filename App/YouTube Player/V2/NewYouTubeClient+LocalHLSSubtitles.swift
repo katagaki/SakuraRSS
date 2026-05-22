@@ -39,17 +39,13 @@ extension NewYouTubeClient {
     func subtitleRenditions(
         from tracks: [CaptionTrackInfo]
     ) async -> [YouTubeLocalSubtitleRendition] {
-        guard !tracks.isEmpty else { return [] }
-        return await withTaskGroup(of: (Int, YouTubeLocalSubtitleRendition?).self) { group in
-            for track in tracks {
-                group.addTask { (track.index, await self.subtitleRendition(from: track)) }
+        var renditions: [YouTubeLocalSubtitleRendition] = []
+        for track in tracks {
+            if let rendition = await subtitleRendition(from: track) {
+                renditions.append(rendition)
             }
-            var collected = [YouTubeLocalSubtitleRendition?](repeating: nil, count: tracks.count)
-            for await (index, rendition) in group where index < collected.count {
-                collected[index] = rendition
-            }
-            return collected.compactMap { $0 }
         }
+        return renditions
     }
 
     private func subtitleRendition(

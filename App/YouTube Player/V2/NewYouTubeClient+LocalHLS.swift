@@ -40,18 +40,27 @@ extension NewYouTubeClient {
 
         let captionInfos = Self.parseCaptionTracks(captionTracks)
         async let subtitleTask = subtitleRenditions(from: captionInfos)
-        let videoPlaylist = Self.renderMediaPlaylist(
-            format: video, segments: try await segments(for: video)
-        )
-        let audioPlaylists = try await audioMediaPlaylists(for: audioRenditions)
-        let subtitles = await subtitleTask
+        async let videoSegmentsTask = segments(for: video)
 
+        let videoPlaylist = Self.renderMediaPlaylist(
+            format: video, segments: try await videoSegmentsTask
+        )
         var resources: [String: Data] = [
             "video.m3u8": Data(videoPlaylist.utf8)
         ]
-        for (rendition, playlist) in zip(audioRenditions, audioPlaylists) {
+        // Only the playing (default) track needs a precise segment index; dubs
+        // use a single whole-file segment to avoid a network round trip each.
+        for rendition in audioRenditions {
+            let audioSegments = rendition.isDefault
+                ? try await segments(for: rendition.format)
+                : Self.singleSegment(for: rendition.format)
+            let playlist = Self.renderMediaPlaylist(
+                format: rendition.format, segments: audioSegments
+            )
             resources[rendition.playlistName] = Data(playlist.utf8)
         }
+
+        let subtitles = await subtitleTask
         for subtitle in subtitles {
             resources[subtitle.vttName] = Data(subtitle.vtt.utf8)
             resources[subtitle.playlistName] = Data(
@@ -71,25 +80,6 @@ extension NewYouTubeClient {
             resources: resources,
             resolution: Self.resolution(for: video)
         )
-    }
-
-    private func audioMediaPlaylists(
-        for renditions: [YouTubeLocalAudioRendition]
-    ) async throws -> [String] {
-        try await withThrowingTaskGroup(of: (Int, String).self) { group in
-            for (index, rendition) in renditions.enumerated() {
-                let format = rendition.format
-                group.addTask {
-                    let segments = try await self.segments(for: format)
-                    return (index, Self.renderMediaPlaylist(format: format, segments: segments))
-                }
-            }
-            var playlists = [String?](repeating: nil, count: renditions.count)
-            for try await (index, playlist) in group {
-                playlists[index] = playlist
-            }
-            return playlists.compactMap { $0 }
-        }
     }
 
     private static func logAudioCandidates(
