@@ -16,11 +16,7 @@ nonisolated final class LocalHLSResourceLoader: NSObject, AVAssetResourceLoaderD
     private let playlists: [String: Data]
 
     init(stream: YouTubeLocalHLSStream) {
-        playlists = [
-            "master.m3u8": Data(stream.masterPlaylist.utf8),
-            "video.m3u8": Data(stream.videoPlaylist.utf8),
-            "audio.m3u8": Data(stream.audioPlaylist.utf8)
-        ]
+        playlists = stream.resources
         super.init()
     }
 
@@ -39,7 +35,7 @@ nonisolated final class LocalHLSResourceLoader: NSObject, AVAssetResourceLoaderD
         }
 
         if let infoRequest = loadingRequest.contentInformationRequest {
-            infoRequest.contentType = UTType.m3uPlaylist.identifier
+            infoRequest.contentType = Self.contentType(for: url)
             infoRequest.contentLength = Int64(data.count)
             infoRequest.isByteRangeAccessSupported = true
         }
@@ -59,5 +55,12 @@ nonisolated final class LocalHLSResourceLoader: NSObject, AVAssetResourceLoaderD
 
         loadingRequest.finishLoading()
         return true
+    }
+
+    private static func contentType(for url: URL) -> String {
+        if url.pathExtension.lowercased() == "vtt" {
+            return UTType(filenameExtension: "vtt")?.identifier ?? "public.text"
+        }
+        return UTType.m3uPlaylist.identifier
     }
 }

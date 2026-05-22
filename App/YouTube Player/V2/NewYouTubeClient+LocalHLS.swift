@@ -4,36 +4,92 @@ import Hanami
 extension NewYouTubeClient {
 
     /// Repackages the adaptive (DASH) formats into a locally servable HLS
-    /// stream: a master playlist plus byte-range media playlists for the chosen
-    /// video and audio tracks.
+    /// stream: a master playlist, byte-range media playlists for the video and
+    /// every audio track, and WebVTT subtitle renditions from the caption
+    /// tracks. Every dub is exposed as a selectable audio rendition.
     func buildLocalHLSStream(
         from entries: [[String: Any]],
+        captionTracks: [[String: Any]],
         videoId: String
     ) async throws -> YouTubeLocalHLSStream {
         let formats = Self.parseAdaptiveFormats(entries)
+        let audioFormats = Self.audioRenditionFormats(from: formats)
         guard
             let video = Self.selectVideoFormat(from: formats),
-            let audio = Self.selectAudioFormat(from: formats)
+            let defaultAudio = Self.selectAudioFormat(from: formats),
+            !audioFormats.isEmpty
         else {
             throw YouTubeBrowseError.missingData
         }
-        Self.logAudioCandidates(from: entries, selected: audio, videoId: videoId)
-        async let videoSegments = segments(for: video)
-        async let audioSegments = segments(for: audio)
+        Self.logAudioCandidates(from: entries, selected: defaultAudio, videoId: videoId)
+
+        let audioRenditions = audioFormats.enumerated().map { index, format in
+            YouTubeLocalAudioRendition(
+                format: format,
+                name: format.audioTrackDisplayName ?? "Audio",
+                languageCode: format.audioLanguageCode,
+                isDefault: format.itag == defaultAudio.itag
+                    && format.audioTrackId == defaultAudio.audioTrackId,
+                playlistName: "audio\(index).m3u8"
+            )
+        }
+        let durationSeconds = Double(
+            video.approximateDurationMilliseconds
+                ?? defaultAudio.approximateDurationMilliseconds ?? 0
+        ) / 1000.0
+
+        let captionInfos = Self.parseCaptionTracks(captionTracks)
+        async let subtitleTask = subtitleRenditions(from: captionInfos)
         let videoPlaylist = Self.renderMediaPlaylist(
-            format: video, segments: try await videoSegments
+            format: video, segments: try await segments(for: video)
         )
-        let audioPlaylist = Self.renderMediaPlaylist(
-            format: audio, segments: try await audioSegments
+        let audioPlaylists = try await audioMediaPlaylists(for: audioRenditions)
+        let subtitles = await subtitleTask
+
+        var resources: [String: Data] = [
+            "video.m3u8": Data(videoPlaylist.utf8)
+        ]
+        for (rendition, playlist) in zip(audioRenditions, audioPlaylists) {
+            resources[rendition.playlistName] = Data(playlist.utf8)
+        }
+        for subtitle in subtitles {
+            resources[subtitle.vttName] = Data(subtitle.vtt.utf8)
+            resources[subtitle.playlistName] = Data(
+                Self.renderSubtitlePlaylist(
+                    vttName: subtitle.vttName, durationSeconds: durationSeconds
+                ).utf8
+            )
+        }
+        let master = Self.renderMasterPlaylist(
+            video: video, audioRenditions: audioRenditions, subtitleRenditions: subtitles
         )
+        resources["master.m3u8"] = Data(master.utf8)
+
         // swiftlint:disable:next line_length
-        log("YouTube", "Built local HLS for \(videoId) video itag=\(video.itag) (\(video.width ?? 0)x\(video.height ?? 0)) audio itag=\(audio.itag)")
+        log("YouTube", "Built local HLS for \(videoId) video itag=\(video.itag) (\(video.width ?? 0)x\(video.height ?? 0)) audioTracks=\(audioRenditions.count) subtitles=\(subtitles.count)")
         return YouTubeLocalHLSStream(
-            masterPlaylist: Self.renderMasterPlaylist(video: video, audio: audio),
-            videoPlaylist: videoPlaylist,
-            audioPlaylist: audioPlaylist,
+            resources: resources,
             resolution: Self.resolution(for: video)
         )
+    }
+
+    private func audioMediaPlaylists(
+        for renditions: [YouTubeLocalAudioRendition]
+    ) async throws -> [String] {
+        try await withThrowingTaskGroup(of: (Int, String).self) { group in
+            for (index, rendition) in renditions.enumerated() {
+                let format = rendition.format
+                group.addTask {
+                    let segments = try await self.segments(for: format)
+                    return (index, Self.renderMediaPlaylist(format: format, segments: segments))
+                }
+            }
+            var playlists = [String?](repeating: nil, count: renditions.count)
+            for try await (index, playlist) in group {
+                playlists[index] = playlist
+            }
+            return playlists.compactMap { $0 }
+        }
     }
 
     private static func logAudioCandidates(
@@ -109,23 +165,62 @@ extension NewYouTubeClient {
 
     private static func renderMasterPlaylist(
         video: YouTubeAdaptiveFormat,
-        audio: YouTubeAdaptiveFormat
+        audioRenditions: [YouTubeLocalAudioRendition],
+        subtitleRenditions: [YouTubeLocalSubtitleRendition]
     ) -> String {
+        let defaultAudio = audioRenditions.first(where: \.isDefault) ?? audioRenditions[0]
         let videoCodecs = video.codecs ?? "avc1.4d401f"
-        let audioCodecs = audio.codecs ?? "mp4a.40.2"
-        var streamInfo = "#EXT-X-STREAM-INF:BANDWIDTH=\(video.bitrate + audio.bitrate)," +
+        let audioCodecs = defaultAudio.format.codecs ?? "mp4a.40.2"
+        var lines = ["#EXTM3U", "#EXT-X-VERSION:7", "#EXT-X-INDEPENDENT-SEGMENTS"]
+
+        // Only the original/default track is auto-selectable, so AVPlayer does
+        // not switch to a dub that matches the device language. Dubs stay in the
+        // group and remain selectable from the menu.
+        for rendition in audioRenditions {
+            var attributes = "TYPE=AUDIO,GROUP-ID=\"audio\",NAME=\"\(escapeAttribute(rendition.name))\""
+            if let languageCode = rendition.languageCode {
+                attributes += ",LANGUAGE=\"\(languageCode)\""
+            }
+            let flag = rendition.isDefault ? "YES" : "NO"
+            attributes += ",DEFAULT=\(flag),AUTOSELECT=\(flag),URI=\"\(rendition.playlistName)\""
+            lines.append("#EXT-X-MEDIA:\(attributes)")
+        }
+        for rendition in subtitleRenditions {
+            // swiftlint:disable:next line_length
+            lines.append("#EXT-X-MEDIA:TYPE=SUBTITLES,GROUP-ID=\"subs\",NAME=\"\(escapeAttribute(rendition.name))\",LANGUAGE=\"\(rendition.languageCode)\",AUTOSELECT=NO,DEFAULT=NO,URI=\"\(rendition.playlistName)\"")
+        }
+
+        var streamInfo = "#EXT-X-STREAM-INF:BANDWIDTH=\(video.bitrate + defaultAudio.format.bitrate)," +
             "CODECS=\"\(videoCodecs),\(audioCodecs)\",AUDIO=\"audio\""
+        if !subtitleRenditions.isEmpty {
+            streamInfo += ",SUBTITLES=\"subs\""
+        }
         if let resolution = resolution(for: video) {
             streamInfo += ",RESOLUTION=\(resolution)"
         }
+        lines.append(streamInfo)
+        lines.append("video.m3u8")
+        return lines.joined(separator: "\n") + "\n"
+    }
+
+    /// HLS attribute quoted-strings cannot contain double quotes or line breaks.
+    private static func escapeAttribute(_ value: String) -> String {
+        value
+            .replacingOccurrences(of: "\"", with: "'")
+            .replacingOccurrences(of: "\n", with: " ")
+    }
+
+    static func renderSubtitlePlaylist(vttName: String, durationSeconds: Double) -> String {
+        let duration = durationSeconds > 0 ? durationSeconds : 1
         return [
             "#EXTM3U",
             "#EXT-X-VERSION:7",
-            "#EXT-X-INDEPENDENT-SEGMENTS",
-            // swiftlint:disable:next line_length
-            "#EXT-X-MEDIA:TYPE=AUDIO,GROUP-ID=\"audio\",NAME=\"Audio\",DEFAULT=YES,AUTOSELECT=YES,URI=\"audio.m3u8\"",
-            streamInfo,
-            "video.m3u8"
+            "#EXT-X-PLAYLIST-TYPE:VOD",
+            "#EXT-X-TARGETDURATION:\(max(1, Int(duration.rounded(.up))))",
+            "#EXT-X-MEDIA-SEQUENCE:0",
+            String(format: "#EXTINF:%.5f,", duration),
+            vttName,
+            "#EXT-X-ENDLIST"
         ].joined(separator: "\n") + "\n"
     }
 

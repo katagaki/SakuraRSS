@@ -37,6 +37,29 @@ extension NewYouTubeClient {
         return pool.max { $0.bitrate < $1.bitrate }
     }
 
+    /// One audio format per language (the highest-bitrate AAC/MP4 track),
+    /// excluding loudness-normalized duplicates. Used to expose every dub as a
+    /// selectable rendition.
+    static func audioRenditionFormats(
+        from formats: [YouTubeAdaptiveFormat]
+    ) -> [YouTubeAdaptiveFormat] {
+        let mp4 = formats.filter { $0.isAudio && $0.isMP4 }
+        let nonDRC = mp4.filter { !$0.isDRCAudioTrack }
+        let candidates = nonDRC.isEmpty ? mp4 : nonDRC
+        var best: [String: YouTubeAdaptiveFormat] = [:]
+        var order: [String] = []
+        for format in candidates {
+            let key = format.audioTrackId ?? "default"
+            if let existing = best[key] {
+                if format.bitrate > existing.bitrate { best[key] = format }
+            } else {
+                best[key] = format
+                order.append(key)
+            }
+        }
+        return order.compactMap { best[$0] }
+    }
+
     private static func preferredAudioPool(
         from candidates: [YouTubeAdaptiveFormat]
     ) -> [YouTubeAdaptiveFormat] {
@@ -71,6 +94,7 @@ extension NewYouTubeClient {
             indexRange: byteRange(entry["indexRange"]),
             isDefaultAudioTrack: audioTrack?["audioIsDefault"] as? Bool,
             audioTrackDisplayName: audioTrack?["displayName"] as? String,
+            audioTrackId: audioTrack?["id"] as? String,
             xtags: entry["xtags"] as? String
         )
     }
