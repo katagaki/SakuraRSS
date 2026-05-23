@@ -156,16 +156,6 @@ struct YouTubePlayerView: View {
         .sakuraBackground()
         .navigationBarTitleDisplayMode(.inline)
         .toolbar { playerToolbar }
-        #if !os(visionOS)
-        .onReceive(
-            NotificationCenter.default.publisher(for: UIDevice.orientationDidChangeNotification)
-        ) { _ in
-            let orientation = UIDevice.current.orientation
-            if orientation.isLandscape {
-                enterFullscreen()
-            }
-        }
-        #endif
         .onChange(of: isPlaying) { _, newValue in
             session.isPlaying = newValue
             if newValue && !hasStartedPlaying {
