@@ -8,7 +8,6 @@ struct ArticleDetailWindow: View {
     let articleID: Int64
     @State private var navigationPath: [EphemeralArticleDestination] = []
     @State private var youTubeSession = YouTubePlayerSession()
-    @State private var youTubePlayback = NewYouTubePlaybackController()
     @State private var audioPlayer = AudioPlayer()
 
     private var article: Article? {
@@ -37,7 +36,6 @@ struct ArticleDetailWindow: View {
                         }
                 }
                 .environment(\.youTubePlayerSession, youTubeSession)
-                .environment(\.newYouTubePlayback, youTubePlayback)
                 .environment(\.podcastAudioPlayer, audioPlayer)
             } else {
                 ProgressView()
@@ -46,7 +44,6 @@ struct ArticleDetailWindow: View {
         }
         .onDisappear {
             youTubeSession.clear()
-            youTubePlayback.clear()
             audioPlayer.stop()
         }
     }

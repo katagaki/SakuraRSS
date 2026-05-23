@@ -61,7 +61,7 @@ struct YouTubePlayerWebView: UIViewRepresentable {
         webView.isOpaque = false
         webView.backgroundColor = .black
         webView.scrollView.backgroundColor = .black
-        webView.customUserAgent = sakuraUserAgent
+        webView.customUserAgent = Self.youTubeUserAgent
         webView.isUserInteractionEnabled = false
         if let url = URL(string: urlString) {
             webView.load(URLRequest(url: Self.normalizedURL(url)))
@@ -163,6 +163,15 @@ struct YouTubePlayerWebView: UIViewRepresentable {
         components.queryItems = items
         return components.url ?? url
     }
+
+    /// A desktop Chrome User-Agent. YouTube serves Safari/WKWebView a native
+    /// HLS stream with the dubbed audio baked in and no switchable tracks; with
+    /// a Chrome UA it serves its MSE player instead, which exposes
+    /// `getAvailableAudioTracks()` / `setAudioTrack()` so the original audio can
+    /// be selected.
+    static let youTubeUserAgent =
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 "
+        + "(KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
 
     static func dismantleUIView(_ uiView: WKWebView, coordinator: Coordinator) {
         uiView.configuration.userContentController.removeScriptMessageHandler(

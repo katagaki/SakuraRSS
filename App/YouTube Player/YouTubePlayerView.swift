@@ -32,6 +32,7 @@ struct YouTubePlayerView: View {
     @State var fetchedTitle: String?
     @State var fetchedAuthor: String?
     @State var chapters: [YouTubeChapter] = []
+    @State var didForceOriginalAudio = false
     @State var wantsPlaybackInBackground = false
     @State var playerID = UUID()
 
@@ -79,25 +80,6 @@ struct YouTubePlayerView: View {
                         font: .preferredFont(forTextStyle: .title2, weight: .bold)
                     )
                     .frame(maxWidth: .infinity, alignment: .leading)
-
-                    YouTubePlayerSeekBar(
-                        session: session,
-                        isAd: isAd,
-                        segments: sponsorSegments.map { (start: $0.startTime, end: $0.endTime) },
-                        onSeek: { seek(to: $0) }
-                    )
-
-                    YouTubePlayerControls(
-                        isPlaying: isPlaying,
-                        isAd: isAd,
-                        isAdSkippable: isAdSkippable,
-                        onTogglePiP: togglePiP,
-                        onRewind: rewind,
-                        onTogglePlayPause: togglePlayPause,
-                        onSkipAd: skipAd,
-                        onFastForward: fastForward,
-                        onEnterFullscreen: enterFullscreen
-                    )
 
                     if isAd, let advertiserURL {
                         Button {
@@ -196,14 +178,23 @@ struct YouTubePlayerView: View {
                 )
             }
         }
-        .onChange(of: isAd) { _, newValue in
-            webView?.isUserInteractionEnabled = newValue
-        }
         .background {
             YouTubeTimeObserver(
                 currentTime: { session.currentTime },
                 onTimeChange: { newTime in checkSponsorSegments(at: newTime) }
             )
+        }
+        .onChange(of: hasStartedPlaying) { _, started in
+            if started { forceOriginalAudio() }
+        }
+        .onChange(of: isAd) { wasAd, nowAd in
+            // A preroll ad swaps the media; the real video's audio tracks only
+            // exist once the ad finishes. The ad may have consumed the one-shot
+            // before real content loaded, so allow forcing the original again.
+            if wasAd && !nowAd {
+                didForceOriginalAudio = false
+                forceOriginalAudio()
+            }
         }
         .onChange(of: videoAspectRatio) { _, newRatio in
             session.videoAspectRatio = newRatio
