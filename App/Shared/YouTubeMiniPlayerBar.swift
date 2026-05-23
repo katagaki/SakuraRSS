@@ -7,8 +7,6 @@ import Hanami
 struct YouTubeMiniPlayerBar: View {
 
     let session = YouTubePlayerSession.shared
-    let newPlayback = NewYouTubePlaybackController.shared
-    let featureFlags = FeatureFlagStore.shared
 
     var body: some View {
         if let article = session.currentArticle {
@@ -60,26 +58,15 @@ struct YouTubeMiniPlayerBar: View {
         }
     }
 
-    private var isUsingNewPlayer: Bool {
-        featureFlags.isEnabled(.nextgenYouTubePlayer)
-    }
-
     private var isPlaying: Bool {
-        isUsingNewPlayer ? newPlayback.isPlaying : session.isPlaying
+        session.isPlaying
     }
 
     private func togglePlayPause() {
-        if isUsingNewPlayer {
-            newPlayback.togglePlayPause()
-        } else {
-            session.togglePlayPause()
-        }
+        session.togglePlayPause()
     }
 
     private func stop() {
-        if isUsingNewPlayer {
-            newPlayback.clear()
-        }
         session.clear()
     }
 

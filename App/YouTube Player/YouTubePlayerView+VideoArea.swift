@@ -58,6 +58,25 @@ extension YouTubePlayerView {
                     }
             }
         }
+        .overlay {
+            if !isPiP && hasStartedPlaying {
+                YouTubePlayerOverlayControls(
+                    session: session,
+                    isPlaying: isPlaying,
+                    isAd: isAd,
+                    isAdSkippable: isAdSkippable,
+                    videoAspectRatio: videoAspectRatio,
+                    segments: sponsorSegments.map { (start: $0.startTime, end: $0.endTime) },
+                    onTogglePiP: togglePiP,
+                    onRewind: rewind,
+                    onTogglePlayPause: togglePlayPause,
+                    onSkipAd: skipAd,
+                    onFastForward: fastForward,
+                    onSeek: { seek(to: $0) },
+                    onEnterFullscreen: enterFullscreen
+                )
+            }
+        }
         .overlay(alignment: .bottomLeading) {
             if isAd && !isPiP && hasStartedPlaying {
                 Text(String(localized: "YouTube.Ad.Label", table: "Integrations"))

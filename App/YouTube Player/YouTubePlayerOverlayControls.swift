@@ -4,16 +4,21 @@ import Hanami
 /// Liquid-Glass control overlay that sits on top of the video itself.
 /// Tapping the video toggles visibility; an internal timer auto-hides
 /// the controls a few seconds after the last interaction.
-struct NewYouTubePlayerOverlayControls: View {
+struct YouTubePlayerOverlayControls: View {
 
-    enum TrailingAction {
-        case enterFullscreen(() -> Void)
-        case exitFullscreen(() -> Void)
-    }
-
-    let playback: NewYouTubePlaybackController
-    let trailingAction: TrailingAction
-    let sponsorSegments: [SponsorSegment]
+    let session: YouTubePlayerSession
+    let isPlaying: Bool
+    let isAd: Bool
+    let isAdSkippable: Bool
+    let videoAspectRatio: CGFloat
+    let segments: [(start: Double, end: Double)]
+    let onTogglePiP: () -> Void
+    let onRewind: () -> Void
+    let onTogglePlayPause: () -> Void
+    let onSkipAd: () -> Void
+    let onFastForward: () -> Void
+    let onSeek: (TimeInterval) -> Void
+    let onEnterFullscreen: () -> Void
 
     @State private var isVisible = true
     @State private var hideTask: Task<Void, Never>?
@@ -33,7 +38,7 @@ struct NewYouTubePlayerOverlayControls: View {
                 }
 
             if isVisible {
-                GlassEffectContainer {
+                CompatibleGlassEffectContainer {
                     VStack(spacing: 0) {
                         topBar
                         Spacer(minLength: 4)
@@ -41,15 +46,15 @@ struct NewYouTubePlayerOverlayControls: View {
                         Spacer(minLength: 4)
                         bottomBar
                     }
-                    .padding(.horizontal, isFullscreen ? 32 : 8)
-                    .padding(.vertical, isFullscreen ? 20 : 8)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 8)
                     .foregroundStyle(.white)
                     .transition(.opacity)
                 }
             }
         }
         .onAppear { scheduleAutoHide() }
-        .onChange(of: playback.isPlaying) { _, _ in scheduleAutoHide() }
+        .onChange(of: isPlaying) { _, _ in scheduleAutoHide() }
     }
 
     @ViewBuilder
@@ -57,51 +62,52 @@ struct NewYouTubePlayerOverlayControls: View {
         HStack {
             pictureInPictureButton
             Spacer()
-            trailingActionButton
+            fullscreenButton
         }
     }
 
     @ViewBuilder
     private var pictureInPictureButton: some View {
         Button {
-            playback.togglePictureInPicture()
+            onTogglePiP()
             scheduleAutoHide()
         } label: {
-            Image(systemName: playback.isPictureInPictureActive ? "pip.exit" : "pip.enter")
+            Image(systemName: "pip.enter")
                 .font(.system(size: 16, weight: .medium))
                 .frame(width: 40, height: 40)
-                .contentTransition(.symbolEffect(.replace))
         }
         .compatibleGlassEffect(in: .circle, interactive: true, clear: true)
         #if os(visionOS)
         .disabled(true)
         .opacity(0)
         #else
-        .disabled(!playback.isPictureInPicturePossible)
-        .opacity(playback.isPictureInPicturePossible ? 1.0 : 0.5)
+        .disabled(isAd)
+        .opacity(isAd ? 0.5 : 1.0)
         #endif
     }
 
     @ViewBuilder
-    private var trailingActionButton: some View {
+    private var fullscreenButton: some View {
         Button {
-            invokeTrailingAction()
+            onEnterFullscreen()
             scheduleAutoHide()
         } label: {
-            Image(systemName: trailingActionSymbol)
+            Image(systemName: "arrow.up.left.and.arrow.down.right")
                 .font(.system(size: 16, weight: .medium))
                 .frame(width: 40, height: 40)
         }
         .compatibleGlassEffect(in: .circle, interactive: true, clear: true)
+        .disabled(isAd)
+        .opacity(isAd ? 0.5 : 1.0)
     }
 
     @ViewBuilder
     private var centerControl: some View {
         Button {
-            playback.togglePlayPause()
+            onTogglePlayPause()
             scheduleAutoHide()
         } label: {
-            Image(systemName: playback.isPlaying ? "pause.fill" : "play.fill")
+            Image(systemName: isPlaying ? "pause.fill" : "play.fill")
                 .font(.system(size: 30, weight: .semibold))
                 .frame(width: 72, height: 72)
                 .contentTransition(.symbolEffect(.replace))
@@ -113,21 +119,23 @@ struct NewYouTubePlayerOverlayControls: View {
     private var bottomBar: some View {
         HStack(spacing: 12) {
             Button {
-                playback.rewind()
+                onRewind()
                 scheduleAutoHide()
             } label: {
                 Image(systemName: "gobackward.10")
                     .font(.system(size: 18, weight: .medium))
                     .frame(width: 36, height: 36)
             }
+            .disabled(isAd)
+            .opacity(isAd ? 0.5 : 1.0)
 
-            SeekBarView(
-                currentTime: playback.currentTime,
-                duration: playback.duration,
-                segments: sponsorSegments.map { (start: $0.startTime, end: $0.endTime) },
+            OverlaySeekBar(
+                session: session,
+                isAd: isAd,
+                segments: segments,
                 labelLayout: isPortraitVideo ? .hidden : .inline,
                 onSeek: { time in
-                    playback.seek(to: time)
+                    onSeek(time)
                     scheduleAutoHide()
                 },
                 onScrubbingChanged: { isScrubbing in
@@ -141,40 +149,28 @@ struct NewYouTubePlayerOverlayControls: View {
             .tint(.white)
 
             Button {
-                playback.fastForward()
+                if isAd && isAdSkippable {
+                    onSkipAd()
+                } else {
+                    onFastForward()
+                }
                 scheduleAutoHide()
             } label: {
-                Image(systemName: "goforward.10")
+                Image(systemName: isAd ? "forward.end.fill" : "goforward.10")
                     .font(.system(size: 18, weight: .medium))
+                    .contentTransition(.symbolEffect(.replace))
                     .frame(width: 36, height: 36)
             }
+            .disabled(isAd && !isAdSkippable)
+            .opacity((isAd && !isAdSkippable) ? 0.5 : 1.0)
         }
         .padding(.horizontal, 10)
         .padding(.vertical, 6)
         .compatibleGlassEffect(in: .capsule, interactive: true, clear: true)
     }
 
-    private var isFullscreen: Bool {
-        if case .exitFullscreen = trailingAction { return true }
-        return false
-    }
-
     private var isPortraitVideo: Bool {
-        playback.aspectRatio < 1.0
-    }
-
-    private var trailingActionSymbol: String {
-        switch trailingAction {
-        case .enterFullscreen: "arrow.up.left.and.arrow.down.right"
-        case .exitFullscreen: "arrow.down.right.and.arrow.up.left"
-        }
-    }
-
-    private func invokeTrailingAction() {
-        switch trailingAction {
-        case .enterFullscreen(let action), .exitFullscreen(let action):
-            action()
-        }
+        videoAspectRatio < 1.0
     }
 
     private func toggleVisibility() {
@@ -190,7 +186,7 @@ struct NewYouTubePlayerOverlayControls: View {
 
     private func scheduleAutoHide() {
         hideTask?.cancel()
-        guard playback.isPlaying else { return }
+        guard isPlaying else { return }
         hideTask = Task { @MainActor in
             try? await Task.sleep(for: .seconds(3))
             guard !Task.isCancelled else { return }
@@ -198,5 +194,30 @@ struct NewYouTubePlayerOverlayControls: View {
                 isVisible = false
             }
         }
+    }
+}
+
+/// Reads `currentTime` and `duration` from the player session inside its own
+/// body so periodic time updates only invalidate the seek bar, not the whole
+/// overlay.
+private struct OverlaySeekBar: View {
+
+    let session: YouTubePlayerSession
+    let isAd: Bool
+    let segments: [(start: Double, end: Double)]
+    let labelLayout: SeekBarLabelLayout
+    let onSeek: (TimeInterval) -> Void
+    let onScrubbingChanged: (Bool) -> Void
+
+    var body: some View {
+        SeekBarView(
+            currentTime: session.currentTime,
+            duration: session.duration,
+            isDisabled: isAd,
+            segments: segments,
+            labelLayout: labelLayout,
+            onSeek: onSeek,
+            onScrubbingChanged: onScrubbingChanged
+        )
     }
 }

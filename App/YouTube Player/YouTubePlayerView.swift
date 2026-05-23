@@ -80,25 +80,6 @@ struct YouTubePlayerView: View {
                     )
                     .frame(maxWidth: .infinity, alignment: .leading)
 
-                    YouTubePlayerSeekBar(
-                        session: session,
-                        isAd: isAd,
-                        segments: sponsorSegments.map { (start: $0.startTime, end: $0.endTime) },
-                        onSeek: { seek(to: $0) }
-                    )
-
-                    YouTubePlayerControls(
-                        isPlaying: isPlaying,
-                        isAd: isAd,
-                        isAdSkippable: isAdSkippable,
-                        onTogglePiP: togglePiP,
-                        onRewind: rewind,
-                        onTogglePlayPause: togglePlayPause,
-                        onSkipAd: skipAd,
-                        onFastForward: fastForward,
-                        onEnterFullscreen: enterFullscreen
-                    )
-
                     if isAd, let advertiserURL {
                         Button {
                             openURL(advertiserURL)
@@ -195,9 +176,6 @@ struct YouTubePlayerView: View {
                     object: playerID
                 )
             }
-        }
-        .onChange(of: isAd) { _, newValue in
-            webView?.isUserInteractionEnabled = newValue
         }
         .background {
             YouTubeTimeObserver(

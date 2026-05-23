@@ -9,33 +9,20 @@ struct DetachedYouTubePlayerWindow: View {
 
     #if targetEnvironment(macCatalyst)
     @State private var session = YouTubePlayerSession()
-    @State private var playback = NewYouTubePlaybackController()
     #endif
 
     var body: some View {
         if let articleID, let article = feedManager.article(byID: articleID) {
             NavigationStack {
-                if FeatureFlagStore.shared.isEnabled(.nextgenYouTubePlayer) {
-                    #if targetEnvironment(macCatalyst)
-                    NewYouTubePlayerView(
-                        article: article,
-                        playback: playback,
-                        showsDismissButton: false
-                    )
-                    #else
-                    NewYouTubePlayerView(article: article, showsDismissButton: false)
-                    #endif
-                } else {
-                    #if targetEnvironment(macCatalyst)
-                    YouTubePlayerView(
-                        article: article,
-                        session: session,
-                        showsDismissButton: false
-                    )
-                    #else
-                    YouTubePlayerView(article: article, showsDismissButton: false)
-                    #endif
-                }
+                #if targetEnvironment(macCatalyst)
+                YouTubePlayerView(
+                    article: article,
+                    session: session,
+                    showsDismissButton: false
+                )
+                #else
+                YouTubePlayerView(article: article, showsDismissButton: false)
+                #endif
             }
             #if targetEnvironment(macCatalyst)
             .background {
@@ -44,7 +31,6 @@ struct DetachedYouTubePlayerWindow: View {
             }
             .onDisappear {
                 session.clear()
-                playback.clear()
             }
             #endif
         } else {

@@ -79,7 +79,6 @@ struct SearchView: View {
             }
             .animation(.smooth.speed(2.0), value: searchDisplayStyle)
             .searchable(text: $searchText, prompt: String(localized: "Prompt", table: "Search"))
-            .handleFeatureCommands(searchText: $searchText)
             .task(id: searchText) {
                 let query = searchText
                 guard !query.isEmpty else {

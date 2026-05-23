@@ -19,9 +19,7 @@ extension AudioPlayer {
     private func configurePlayCommand(_ commandCenter: MPRemoteCommandCenter) {
         commandCenter.playCommand.addTarget { [weak self] _ in
             Task { @MainActor in
-                if NewYouTubePlaybackController.shared.player != nil {
-                    NewYouTubePlaybackController.shared.player?.play()
-                } else if YouTubePlayerSession.shared.isActive {
+                if YouTubePlayerSession.shared.isActive {
                     YouTubePlayerSession.shared.play()
                 } else {
                     self?.player?.play()
@@ -36,9 +34,7 @@ extension AudioPlayer {
     private func configurePauseCommand(_ commandCenter: MPRemoteCommandCenter) {
         commandCenter.pauseCommand.addTarget { [weak self] _ in
             Task { @MainActor in
-                if NewYouTubePlaybackController.shared.player != nil {
-                    NewYouTubePlaybackController.shared.player?.pause()
-                } else if YouTubePlayerSession.shared.isActive {
+                if YouTubePlayerSession.shared.isActive {
                     YouTubePlayerSession.shared.pause()
                 } else {
                     self?.player?.pause()
@@ -53,9 +49,7 @@ extension AudioPlayer {
     private func configureTogglePlayPauseCommand(_ commandCenter: MPRemoteCommandCenter) {
         commandCenter.togglePlayPauseCommand.addTarget { [weak self] _ in
             Task { @MainActor in
-                if NewYouTubePlaybackController.shared.player != nil {
-                    NewYouTubePlaybackController.shared.togglePlayPause()
-                } else if YouTubePlayerSession.shared.isActive {
+                if YouTubePlayerSession.shared.isActive {
                     YouTubePlayerSession.shared.togglePlayPause()
                 } else {
                     self?.togglePlayPause()
@@ -71,11 +65,7 @@ extension AudioPlayer {
             guard let event = event as? MPSkipIntervalCommandEvent else { return .commandFailed }
             let interval = event.interval
             Task { @MainActor in
-                if NewYouTubePlaybackController.shared.player != nil {
-                    NewYouTubePlaybackController.shared.fastForward(by: interval)
-                } else {
-                    self?.skipForward(interval)
-                }
+                self?.skipForward(interval)
             }
             return .success
         }
@@ -87,11 +77,7 @@ extension AudioPlayer {
             guard let event = event as? MPSkipIntervalCommandEvent else { return .commandFailed }
             let interval = event.interval
             Task { @MainActor in
-                if NewYouTubePlaybackController.shared.player != nil {
-                    NewYouTubePlaybackController.shared.rewind(by: interval)
-                } else {
-                    self?.skipBackward(interval)
-                }
+                self?.skipBackward(interval)
             }
             return .success
         }
@@ -104,11 +90,7 @@ extension AudioPlayer {
             }
             let position = event.positionTime
             Task { @MainActor in
-                if NewYouTubePlaybackController.shared.player != nil {
-                    NewYouTubePlaybackController.shared.seek(to: position)
-                } else {
-                    self?.seek(to: position)
-                }
+                self?.seek(to: position)
             }
             return .success
         }
