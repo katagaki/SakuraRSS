@@ -41,6 +41,17 @@ nonisolated enum YouTubePlayerStyles {
         left: 0 !important;
         top: 0 !important;
     }
+    /* Desktop YouTube reserves masthead height as a top margin on the page
+       manager; with the masthead hidden this leaves an empty band above the
+       player. */
+    #page-manager.ytd-app, ytd-page-manager#page-manager {
+        margin-top: 0 !important;
+    }
+    /* Force the caption layer above the (full-bleed) video element so subtitles
+       aren't painted underneath it. */
+    .ytp-caption-window-container, .caption-window {
+        z-index: 2147483646 !important;
+    }
     /* Mobile YouTube (m.youtube.com) chrome */
     ytm-mobile-topbar-renderer,
     ytm-masthead,

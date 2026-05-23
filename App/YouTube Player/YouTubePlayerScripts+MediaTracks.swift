@@ -25,6 +25,12 @@ extension YouTubePlayerScripts {
 
         try {
             if (typeof player.getOption === 'function') {
+                // The captions module isn't always initialized yet (especially
+                // in an anonymous session), which leaves the tracklist empty.
+                // Loading it makes the available caption tracks resolvable.
+                if (typeof player.loadModule === 'function') {
+                    player.loadModule('captions');
+                }
                 var captionList = player.getOption('captions', 'tracklist') || [];
                 var currentCaption = player.getOption('captions', 'track');
                 var currentCode = (currentCaption && currentCaption.languageCode)
