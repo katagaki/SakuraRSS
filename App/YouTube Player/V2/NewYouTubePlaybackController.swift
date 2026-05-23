@@ -93,7 +93,10 @@ final class NewYouTubePlaybackController: NSObject {
         case .localHLS(let stream):
             let loader = LocalHLSResourceLoader(stream: stream)
             resourceLoader = loader
-            let asset = AVURLAsset(url: LocalHLSResourceLoader.masterURL)
+            let asset = AVURLAsset(
+                url: LocalHLSResourceLoader.masterURL,
+                options: [AVURLAssetHTTPUserAgentKey: stream.userAgent]
+            )
             asset.resourceLoader.setDelegate(loader, queue: loader.queue)
             return AVPlayerItem(asset: asset)
         }

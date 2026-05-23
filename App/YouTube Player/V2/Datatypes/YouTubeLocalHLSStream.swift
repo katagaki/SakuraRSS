@@ -9,4 +9,5 @@ nonisolated struct YouTubeLocalHLSStream: Sendable {
     let videoPlaylist: String
     let audioPlaylist: String
     let resolution: String?
+    let userAgent: String
 }

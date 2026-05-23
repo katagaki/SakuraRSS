@@ -32,7 +32,8 @@ extension NewYouTubeClient {
             masterPlaylist: Self.renderMasterPlaylist(video: video, audio: audio),
             videoPlaylist: videoPlaylist,
             audioPlaylist: audioPlaylist,
-            resolution: Self.resolution(for: video)
+            resolution: Self.resolution(for: video),
+            userAgent: iosUserAgent
         )
     }
 
@@ -143,16 +144,23 @@ extension NewYouTubeClient {
         ]
         if let initRange = format.initRange {
             lines.append(
-                "#EXT-X-MAP:URI=\"\(format.url)\",BYTERANGE=\"\(initRange.length)@\(initRange.start)\""
+                "#EXT-X-MAP:URI=\"\(rangeURL(format.url, start: initRange.start, end: initRange.end))\""
             )
         }
         for segment in segments {
+            let end = segment.offset + segment.length - 1
             lines.append(String(format: "#EXTINF:%.5f,", segment.duration))
-            lines.append("#EXT-X-BYTERANGE:\(segment.length)@\(segment.offset)")
-            lines.append(format.url)
+            lines.append(rangeURL(format.url, start: segment.offset, end: end))
         }
         lines.append("#EXT-X-ENDLIST")
         return lines.joined(separator: "\n") + "\n"
+    }
+
+    /// googlevideo serves byte ranges via the `range` query parameter more
+    /// reliably than via HTTP `Range` headers, which it rejects for
+    /// non-sequential access. The format URL always carries a query string.
+    private static func rangeURL(_ url: String, start: Int, end: Int) -> String {
+        "\(url)&range=\(start)-\(end)"
     }
 
     private static func resolution(for format: YouTubeAdaptiveFormat) -> String? {
