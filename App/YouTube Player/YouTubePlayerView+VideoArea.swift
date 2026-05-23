@@ -97,8 +97,8 @@ extension YouTubePlayerView {
                     )
                     .font(.subheadline.weight(.medium))
                     .foregroundStyle(.white)
-                    .padding(.horizontal, 14)
-                    .padding(.vertical, 10)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 12)
                 }
                 .compatibleGlassEffect(in: .capsule, interactive: true, clear: true)
                 .padding(.trailing, 16)

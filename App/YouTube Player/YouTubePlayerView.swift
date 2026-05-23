@@ -32,7 +32,6 @@ struct YouTubePlayerView: View {
     @State var fetchedTitle: String?
     @State var fetchedAuthor: String?
     @State var chapters: [YouTubeChapter] = []
-    @State var captionTracks: [YouTubeCaptionTrack] = []
     @State var didForceOriginalAudio = false
     @State var wantsPlaybackInBackground = false
     @State var playerID = UUID()
@@ -186,19 +185,14 @@ struct YouTubePlayerView: View {
             )
         }
         .onChange(of: hasStartedPlaying) { _, started in
-            if started {
-                refreshMediaTracks()
-                forceOriginalAudio()
-            }
+            if started { forceOriginalAudio() }
         }
         .onChange(of: isAd) { wasAd, nowAd in
-            // A preroll ad swaps the media; the real video's audio/caption
-            // tracks only exist once the ad finishes, so re-read then.
+            // A preroll ad swaps the media; the real video's audio tracks only
+            // exist once the ad finishes. The ad may have consumed the one-shot
+            // before real content loaded, so allow forcing the original again.
             if wasAd && !nowAd {
-                // The ad may have consumed the one-shot before real content
-                // loaded; allow forcing the original again now.
                 didForceOriginalAudio = false
-                refreshMediaTracks()
                 forceOriginalAudio()
             }
         }

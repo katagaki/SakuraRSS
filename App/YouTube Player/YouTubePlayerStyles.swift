@@ -47,11 +47,6 @@ nonisolated enum YouTubePlayerStyles {
     #page-manager.ytd-app, ytd-page-manager#page-manager {
         margin-top: 0 !important;
     }
-    /* Force the caption layer above the (full-bleed) video element so subtitles
-       aren't painted underneath it. */
-    .ytp-caption-window-container, .caption-window {
-        z-index: 2147483646 !important;
-    }
     /* Mobile YouTube (m.youtube.com) chrome */
     ytm-mobile-topbar-renderer,
     ytm-masthead,
@@ -189,6 +184,8 @@ nonisolated enum YouTubePlayerStyles {
     .ytp-visit-advertiser-link, .ytp-ad-overlay-link,
     [class*="visit-advertiser"], .ytp-ad-text,
     .ytp-ad-progress, .ytp-ad-progress-list,
+    .ytp-ad-persistent-progress-bar-container,
+    .ytp-ad-persistent-progress-bar,
     .ytp-ad-message-container,
     .ytp-flyout-cta, .ytp-ad-action-interstitial,
     .ytp-ad-overlay-container, .ytp-ad-image-overlay,
