@@ -58,25 +58,6 @@ extension YouTubePlayerView {
                     }
             }
         }
-        .overlay {
-            if !isPiP && hasStartedPlaying {
-                YouTubePlayerOverlayControls(
-                    session: session,
-                    isPlaying: isPlaying,
-                    isAd: isAd,
-                    isAdSkippable: isAdSkippable,
-                    videoAspectRatio: videoAspectRatio,
-                    segments: sponsorSegments.map { (start: $0.startTime, end: $0.endTime) },
-                    onTogglePiP: togglePiP,
-                    onRewind: rewind,
-                    onTogglePlayPause: togglePlayPause,
-                    onSkipAd: skipAd,
-                    onFastForward: fastForward,
-                    onSeek: { seek(to: $0) },
-                    onEnterFullscreen: enterFullscreen
-                )
-            }
-        }
         .overlay(alignment: .bottomLeading) {
             if isAd && !isPiP && hasStartedPlaying {
                 Text(String(localized: "YouTube.Ad.Label", table: "Integrations"))
@@ -88,6 +69,44 @@ extension YouTubePlayerView {
                     .transition(.opacity)
             }
         }
+        .overlay {
+            if !isPiP && hasStartedPlaying {
+                YouTubePlayerOverlayControls(
+                    session: session,
+                    isPlaying: isPlaying,
+                    isAd: isAd,
+                    videoAspectRatio: videoAspectRatio,
+                    segments: sponsorSegments.map { (start: $0.startTime, end: $0.endTime) },
+                    onTogglePiP: togglePiP,
+                    onRewind: rewind,
+                    onTogglePlayPause: togglePlayPause,
+                    onFastForward: fastForward,
+                    onSeek: { seek(to: $0) },
+                    onEnterFullscreen: enterFullscreen
+                )
+            }
+        }
+        .overlay(alignment: .bottomTrailing) {
+            if isAd && isAdSkippable && !isPiP && hasStartedPlaying {
+                Button {
+                    skipAd()
+                } label: {
+                    Label(
+                        String(localized: "YouTube.Ad.Skip", table: "Integrations"),
+                        systemImage: "forward.end.fill"
+                    )
+                    .font(.subheadline.weight(.medium))
+                    .foregroundStyle(.white)
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 10)
+                }
+                .compatibleGlassEffect(in: .capsule, interactive: true, clear: true)
+                .padding(.trailing, 16)
+                .padding(.bottom, 64)
+                .transition(.opacity)
+            }
+        }
         .animation(.smooth.speed(2.0), value: isAd && !isPiP && hasStartedPlaying)
+        .animation(.smooth.speed(2.0), value: isAd && isAdSkippable && !isPiP && hasStartedPlaying)
     }
 }

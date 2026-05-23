@@ -13,6 +13,7 @@ struct SeekBarView: View {
     let duration: TimeInterval
     var isDisabled: Bool = false
     var segments: [(start: Double, end: Double)] = []
+    var trackBackgroundColor: Color?
     var labelLayout: SeekBarLabelLayout = .below
     let onSeek: (TimeInterval) -> Void
     var onScrubbingChanged: ((Bool) -> Void)?
@@ -74,9 +75,14 @@ struct SeekBarView: View {
             let thumbX = progress * trackWidth
 
             ZStack(alignment: .leading) {
-                Capsule()
-                    .fill(.tertiary)
-                    .frame(height: isDragging ? 8 : 6)
+                Group {
+                    if let trackBackgroundColor {
+                        Capsule().fill(trackBackgroundColor)
+                    } else {
+                        Capsule().fill(.tertiary)
+                    }
+                }
+                .frame(height: isDragging ? 8 : 6)
 
                 if duration > 0 {
                     ForEach(Array(segments.enumerated()), id: \.offset) { _, segment in

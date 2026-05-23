@@ -20,10 +20,16 @@ extension YouTubePlayerView {
                 ToolbarActivityIndicator(label: activityLabel)
             }
         }
-        if !chapters.isEmpty {
+        if !chapters.isEmpty || !captionTracks.isEmpty {
             ToolbarItemGroup(placement: .topBarTrailing) {
-                ChapterMenu(chapters: chapters, onSelect: seek(to:))
-                    .equatable()
+                if !chapters.isEmpty {
+                    ChapterMenu(chapters: chapters, onSelect: seek(to:))
+                        .equatable()
+                }
+                if !captionTracks.isEmpty {
+                    SubtitleMenu(tracks: captionTracks, onSelect: selectCaptionTrack(code:))
+                        .equatable()
+                }
             }
             #if !os(visionOS)
             ToolbarSpacer(.fixed, placement: .topBarTrailing)

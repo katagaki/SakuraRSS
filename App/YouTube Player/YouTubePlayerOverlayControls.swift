@@ -9,13 +9,11 @@ struct YouTubePlayerOverlayControls: View {
     let session: YouTubePlayerSession
     let isPlaying: Bool
     let isAd: Bool
-    let isAdSkippable: Bool
     let videoAspectRatio: CGFloat
     let segments: [(start: Double, end: Double)]
     let onTogglePiP: () -> Void
     let onRewind: () -> Void
     let onTogglePlayPause: () -> Void
-    let onSkipAd: () -> Void
     let onFastForward: () -> Void
     let onSeek: (TimeInterval) -> Void
     let onEnterFullscreen: () -> Void
@@ -132,7 +130,8 @@ struct YouTubePlayerOverlayControls: View {
             OverlaySeekBar(
                 session: session,
                 isAd: isAd,
-                segments: segments,
+                segments: isAd ? [] : segments,
+                trackBackgroundColor: isAd ? .orange : nil,
                 labelLayout: isPortraitVideo ? .hidden : .inline,
                 onSeek: { time in
                     onSeek(time)
@@ -149,20 +148,15 @@ struct YouTubePlayerOverlayControls: View {
             .tint(.white)
 
             Button {
-                if isAd && isAdSkippable {
-                    onSkipAd()
-                } else {
-                    onFastForward()
-                }
+                onFastForward()
                 scheduleAutoHide()
             } label: {
-                Image(systemName: isAd ? "forward.end.fill" : "goforward.10")
+                Image(systemName: "goforward.10")
                     .font(.system(size: 18, weight: .medium))
-                    .contentTransition(.symbolEffect(.replace))
                     .frame(width: 36, height: 36)
             }
-            .disabled(isAd && !isAdSkippable)
-            .opacity((isAd && !isAdSkippable) ? 0.5 : 1.0)
+            .disabled(isAd)
+            .opacity(isAd ? 0.5 : 1.0)
         }
         .padding(.horizontal, 10)
         .padding(.vertical, 6)
@@ -205,6 +199,7 @@ private struct OverlaySeekBar: View {
     let session: YouTubePlayerSession
     let isAd: Bool
     let segments: [(start: Double, end: Double)]
+    let trackBackgroundColor: Color?
     let labelLayout: SeekBarLabelLayout
     let onSeek: (TimeInterval) -> Void
     let onScrubbingChanged: (Bool) -> Void
@@ -215,6 +210,7 @@ private struct OverlaySeekBar: View {
             duration: session.duration,
             isDisabled: isAd,
             segments: segments,
+            trackBackgroundColor: trackBackgroundColor,
             labelLayout: labelLayout,
             onSeek: onSeek,
             onScrubbingChanged: onScrubbingChanged
