@@ -40,6 +40,12 @@
             "value" : "웹사이트를 검색하거나 피드 URL을 붙여넣어 첫 번째 피드를 팔로우하세요."
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zoek een website of plak een feed-URL om je eerste abonnement te volgen."
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -97,6 +103,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "첫 번째 피드 팔로우"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Volg je eerste feed"
           }
         },
         "vi" : {
@@ -158,6 +170,12 @@
             "value" : "계속"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Doorgaan"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -215,6 +233,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "RSS 및 Atom 피드"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "RSS- en Atom-feeds"
           }
         },
         "vi" : {
@@ -276,6 +300,12 @@
             "value" : "좋아하는 블로그, 뉴스 사이트 등을 팔로우하세요"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Volg je favoriete blogs, nieuwssites en meer"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -333,6 +363,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "팟캐스트"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Podcasts"
           }
         },
         "vi" : {
@@ -394,6 +430,12 @@
             "value" : "앱에서 바로 좋아하는 쇼를 들으세요"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Luister rechtstreeks in de app naar je favoriete shows"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -451,6 +493,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "AI 요약"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "AI-samenvattingen"
           }
         },
         "vi" : {
@@ -512,6 +560,12 @@
             "value" : "Apple Intelligence로 매일 스마트 요약을 받으세요"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ontvang slimme dagelijkse samenvattingen, mogelijk gemaakt door Apple Intelligence"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -569,6 +623,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "다양한 표시 스타일"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Meerdere weergavestijlen"
           }
         },
         "vi" : {
@@ -630,6 +690,12 @@
             "value" : "받은편지함, 피드, 매거진 등 다양한 레이아웃으로 콘텐츠를 탐색하세요"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Blader door content in postvak-, feed-, magazine- en andere lay-outs"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -687,6 +753,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "시작하기"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aan de slag"
           }
         },
         "vi" : {
@@ -748,6 +820,12 @@
             "value" : "백업 복원"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reservekopie herstellen"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -805,6 +883,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%2$@에 %1$@에서 생성된 백업을 찾았습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Er is een reservekopie van %1$@ op %2$@ gevonden."
           }
         },
         "vi" : {
@@ -866,6 +950,12 @@
             "value" : "복원 중…"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Herstellen…"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -925,6 +1015,12 @@
             "value" : "iCloud에서 복원"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Herstellen vanuit iCloud"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -979,6 +1075,12 @@
           }
         },
         "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The Brink"
+          }
+        },
+        "nl" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "The Brink"
@@ -1043,6 +1145,12 @@
             "value" : "Sci-Curious"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sci-Curious"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1097,6 +1205,12 @@
           }
         },
         "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "TaberuTV"
+          }
+        },
+        "nl" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "TaberuTV"
@@ -1161,6 +1275,12 @@
             "value" : "최신 Passionfruit Phone은 혁신적인 홀로그래픽 디스플레이와 스마트폰 역사상 가장 빠른 칩을 탑재했습니다."
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "De nieuwste Passionfruit Phone heeft een revolutionair holografisch scherm en de snelste chip ooit in een smartphone."
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1218,6 +1338,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "연구자들은 수년간의 고급 수학 훈련 끝에 신경망이 정답을 반환한 것을 축하했습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Onderzoekers vieren feest nu hun neuraal netwerk na jaren training in geavanceerde wiskunde het juiste antwoord geeft."
           }
         },
         "vi" : {
@@ -1279,6 +1405,12 @@
             "value" : "FamilyStop의 주먹밥 24종을 최악부터 최고까지 랭킹했습니다. 1위는 놀라울 겁니다!"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ik heb alle 24 onigirismaken bij FamilyStop gerangschikt van slechtste tot beste. Nummer één zal je verbazen!"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1336,6 +1468,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Passionfruit, 홀로그래픽 디스플레이 탑재 Passionfruit Phone 20 공개"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Passionfruit onthult de Passionfruit Phone 20 met holografisch scherm"
           }
         },
         "vi" : {
@@ -1397,6 +1535,12 @@
             "value" : "AI, 획기적인 성과로 1 + 1 계산에 최초 성공"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eerste AI berekent met succes 1 + 1 in baanbrekende prestatie"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1454,6 +1598,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "도쿄 편의점의 모든 주먹밥 먹어보기"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elke onigiri proberen bij een Tokiose buurtsuper"
           }
         },
         "vi" : {
@@ -1515,6 +1665,12 @@
             "value" : "AI 요약"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "AI-samenvattingen"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1572,6 +1728,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "기본 스타일"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Standaardstijl"
           }
         },
         "vi" : {
@@ -1633,6 +1795,12 @@
             "value" : "건너뛰기"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Overslaan"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1690,6 +1858,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "지금은 건너뛰기"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Voorlopig overslaan"
           }
         },
         "vi" : {
@@ -1751,6 +1925,12 @@
             "value" : "Apple Intelligence로 피드의 스마트 일일 요약을 받아보세요."
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ontvang slimme dagelijkse samenvattingen van je feeds, mogelijk gemaakt door Apple Intelligence."
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1805,6 +1985,12 @@
           }
         },
         "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple Intelligence"
+          }
+        },
+        "nl" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Apple Intelligence"
@@ -1869,6 +2055,12 @@
             "value" : "자동 백그라운드 업데이트로 피드를 최신 상태로 유지합니다."
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Houd je feeds actueel met automatische updates op de achtergrond."
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1926,6 +2118,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "최신 상태 유지"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Blijf op de hoogte"
           }
         },
         "vi" : {
@@ -1987,6 +2185,12 @@
             "value" : "콘텐츠를 탐색할 방식을 선택하세요."
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kies hoe je door je content wilt bladeren."
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2044,6 +2248,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "일부 표시 스타일은 특정 유형의 피드에서만 사용할 수 있습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sommige weergavestijlen zijn alleen beschikbaar voor bepaalde soorten feeds."
           }
         },
         "vi" : {
@@ -2105,6 +2315,12 @@
             "value" : "스타일 선택"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kies je stijl"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2162,6 +2378,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "북마크가 이제 홈 섹션 선택기에 있습니다. 제목을 탭하여 이동하세요."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Je bladwijzers staan nu in de sectiekiezer op Start. Tik op de titel om er direct naartoe te gaan."
           }
         },
         "vi" : {
@@ -2223,6 +2445,12 @@
             "value" : "북마크 위치 변경"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bladwijzers verplaatst"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2280,6 +2508,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "이 버튼을 탭하여 콘텐츠 표시 방식을 변경하세요."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tik op deze knop om te wijzigen hoe je content wordt weergegeven."
           }
         },
         "vi" : {
@@ -2341,6 +2575,12 @@
             "value" : "표시 스타일 전환"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Weergavestijl wijzigen"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2398,6 +2638,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%@에 오신 것을 환영합니다"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Welkom bij %@"
           }
         },
         "vi" : {

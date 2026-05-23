@@ -40,6 +40,12 @@
             "value" : "새 리스트"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nieuwe lijst"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -97,6 +103,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "리스트가 없습니다. 하나 만들어 시작하세요."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nog geen lijsten. Maak er een om te beginnen."
           }
         },
         "vi" : {
@@ -158,6 +170,12 @@
             "value" : "리스트에 추가"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Toevoegen aan lijst"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -215,6 +233,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "리스트 만들기"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lijst aanmaken"
           }
         },
         "vi" : {
@@ -276,6 +300,12 @@
             "value" : "피드를 그룹으로 묶으려면 리스트를 만드세요."
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Maak een lijst om je feeds te groeperen."
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -333,6 +363,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "리스트 없음"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Geen lijsten"
           }
         },
         "vi" : {
@@ -466,6 +502,12 @@
             }
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld feeds"
+          }
+        },
         "vi" : {
           "variations" : {
             "plural" : {
@@ -561,6 +603,12 @@
             "value" : "이 리스트를 편집하여 피드를 추가하세요."
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bewerk deze lijst om feeds toe te voegen."
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -618,6 +666,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "피드 없음"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Geen feeds"
           }
         },
         "vi" : {
@@ -679,6 +733,12 @@
             "value" : "제거"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verwijderen"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -736,6 +796,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "표시 스타일"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Weergavestijl"
           }
         },
         "vi" : {
@@ -797,6 +863,12 @@
             "value" : "기본값"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Standaard"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -854,6 +926,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "기본값 사용"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Standaard gebruiken"
           }
         },
         "vi" : {
@@ -915,6 +993,12 @@
             "value" : "피드"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Feeds"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -972,6 +1056,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "추가할 피드가 없습니다. 먼저 피드를 팔로우하세요."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Geen feeds om toe te voegen. Volg eerst enkele feeds."
           }
         },
         "vi" : {
@@ -1033,6 +1123,12 @@
             "value" : "아이콘"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Symbool"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1090,6 +1186,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "이 이름의 리스트가 이미 존재합니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Er bestaat al een lijst met deze naam."
           }
         },
         "vi" : {
@@ -1151,6 +1253,12 @@
             "value" : "리스트 이름"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lijstnaam"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1208,6 +1316,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "리스트 편집"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lijst bewerken"
           }
         },
         "vi" : {
@@ -1269,6 +1383,12 @@
             "value" : "새 리스트"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nieuwe lijst"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1326,6 +1446,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "편집"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bewerken"
           }
         },
         "vi" : {
@@ -1387,6 +1513,12 @@
             "value" : "삭제"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verwijderen"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1444,6 +1576,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "삭제"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verwijderen"
           }
         },
         "vi" : {
@@ -1505,6 +1643,12 @@
             "value" : "\"%@\"을(를) 삭제하시겠습니까? 이 리스트의 피드는 삭제되지 않습니다."
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Weet je zeker dat je \"%@\" wilt verwijderen? Feeds in deze lijst worden niet verwijderd."
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1562,6 +1706,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "리스트를 삭제하시겠습니까?"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lijst verwijderen?"
           }
         },
         "vi" : {
@@ -1623,6 +1773,12 @@
             "value" : "편집"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bewerken"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1680,6 +1836,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "피드"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Feeds"
           }
         },
         "vi" : {
@@ -1741,6 +1903,12 @@
             "value" : "규칙"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Regels"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1798,6 +1966,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "이 키워드와 일치하는 콘텐츠만 이 리스트에 표시됩니다. 피드 규칙 이후에 적용됩니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alleen content die overeenkomt met deze trefwoorden verschijnt in deze lijst. Toegepast na de regels per feed."
           }
         },
         "vi" : {
@@ -1859,6 +2033,12 @@
             "value" : "이 저자의 콘텐츠는 이 리스트에서 숨겨집니다. 피드 규칙 이후에 적용됩니다."
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Content van deze auteurs wordt verborgen in deze lijst. Toegepast na de regels per feed."
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1916,6 +2096,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "이 키워드와 일치하는 콘텐츠는 이 리스트에서 숨겨집니다. 피드 규칙 이후에 적용됩니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Content die overeenkomt met deze trefwoorden wordt verborgen in deze lijst. Toegepast na de regels per feed."
           }
         },
         "vi" : {
@@ -1977,6 +2163,12 @@
             "value" : "리스트 규칙"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lijstregels"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2034,6 +2226,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "리스트"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lijsten"
           }
         },
         "vi" : {

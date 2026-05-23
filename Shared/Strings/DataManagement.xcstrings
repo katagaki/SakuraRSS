@@ -40,6 +40,12 @@
             "value" : "전체"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aller tijden"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -97,6 +103,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "자동 정리"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Automatisch opruimen"
           }
         },
         "vi" : {
@@ -158,6 +170,12 @@
             "value" : "켜면 Sakura가 선택한 기간보다 오래된 콘텐츠를 백그라운드에서 주기적으로 삭제합니다."
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Indien ingeschakeld verwijdert Sakura periodiek op de achtergrond content die ouder is dan het gekozen interval."
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -215,6 +233,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "북마크 포함"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bladwijzers meenemen"
           }
         },
         "vi" : {
@@ -276,6 +300,12 @@
             "value" : "콘텐츠 정리"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Content opruimen"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -333,6 +363,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "삭제"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verwijderen"
           }
         },
         "vi" : {
@@ -394,6 +430,12 @@
             "value" : "\"%@\"보다 오래된 모든 콘텐츠가 영구적으로 삭제됩니다. 이 작업은 되돌릴 수 없습니다."
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alle content ouder dan \"%@\" wordt permanent verwijderd. Dit kan niet ongedaan worden gemaakt."
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -451,6 +493,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "콘텐츠를 삭제하시겠습니까?"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Content verwijderen?"
           }
         },
         "vi" : {
@@ -512,6 +560,12 @@
             "value" : "끔"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uit"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -569,6 +623,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "다음보다 오래된 항목…"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alles ouder dan…"
           }
         },
         "vi" : {
@@ -630,6 +690,12 @@
             "value" : "최근 4주"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Afgelopen 4 weken"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -687,6 +753,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "최근 7일"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Afgelopen 7 dagen"
           }
         },
         "vi" : {
@@ -748,6 +820,12 @@
             "value" : "최근 24시간"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Afgelopen 24 uur"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -805,6 +883,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "지난 30일"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Afgelopen 30 dagen"
           }
         },
         "vi" : {
@@ -866,6 +950,12 @@
             "value" : "콘텐츠를 어디까지 삭제할지 선택하세요. 삭제된 콘텐츠는 복원할 수 없습니다."
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kies hoe ver terug content moet worden verwijderd. Verwijderde content kan niet worden hersteld."
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -923,6 +1013,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "콘텐츠가 삭제되었습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "De content is verwijderd."
           }
         },
         "vi" : {
@@ -984,6 +1080,12 @@
             "value" : "오래된 콘텐츠 삭제"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Oude content verwijderen"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1041,6 +1143,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "피드 내보내기에 실패했습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kon de abonnementen niet exporteren."
           }
         },
         "vi" : {
@@ -1102,6 +1210,12 @@
             "value" : "피드를 성공적으로 내보냈습니다."
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abonnementen zijn geëxporteerd."
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1159,6 +1273,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "내보내기"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Exporteren"
           }
         },
         "vi" : {
@@ -1220,6 +1340,12 @@
             "value" : "자동 백업"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Automatische reservekopieën"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1277,6 +1403,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "백업을 생성하지 못했습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kon geen reservekopie maken."
           }
         },
         "vi" : {
@@ -1338,6 +1470,12 @@
             "value" : "지금 백업"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nu een reservekopie maken"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1395,6 +1533,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "백업이 완료되었습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reservekopie is voltooid."
           }
         },
         "vi" : {
@@ -1456,6 +1600,12 @@
             "value" : "백업에는 피드, 콘텐츠, 읽음 상태, 북마크, 피드 규칙이 포함됩니다."
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reservekopieën bevatten je feeds, content, leesstatussen, bladwijzers en feedregels."
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1513,6 +1663,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "6시간마다"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elke 6 uur"
           }
         },
         "vi" : {
@@ -1574,6 +1730,12 @@
             "value" : "12시간마다"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elke 12 uur"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1631,6 +1793,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "매일 밤"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elke nacht"
           }
         },
         "vi" : {
@@ -1692,6 +1860,12 @@
             "value" : "끔"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uit"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1749,6 +1923,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "마지막 백업"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Laatste reservekopie"
           }
         },
         "vi" : {
@@ -1810,6 +1990,12 @@
             "value" : "없음"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nooit"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1867,6 +2053,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "백업에서 복원하지 못했습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kon niet herstellen vanuit de reservekopie."
           }
         },
         "vi" : {
@@ -1928,6 +2120,12 @@
             "value" : "iCloud 백업"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iCloud-reservekopie"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1985,6 +2183,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "백업을 활성화하려면 설정에서 iCloud에 로그인하세요."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Log in bij iCloud in Instellingen om reservekopieën in te schakelen."
           }
         },
         "vi" : {
@@ -2046,6 +2250,12 @@
             "value" : "피드 가져오기에 실패했습니다."
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kon de abonnementen niet importeren."
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2103,6 +2313,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "병합"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Samenvoegen"
           }
         },
         "vi" : {
@@ -2164,6 +2380,12 @@
             "value" : "가져온 피드를 기존 피드와 병합하시겠습니까, 아니면 기존 피드를 모두 교체하시겠습니까?"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wil je de geïmporteerde feeds samenvoegen met je bestaande feeds, of alle bestaande feeds vervangen?"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2221,6 +2443,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "가져오기 모드"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Importeermodus"
           }
         },
         "vi" : {
@@ -2282,6 +2510,12 @@
             "value" : "모두 교체"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alles vervangen"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2339,6 +2573,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%lld개의 피드를 성공적으로 가져왔습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld feeds geïmporteerd."
           }
         },
         "vi" : {
@@ -2400,6 +2640,12 @@
             "value" : "가져오기"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Importeren"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2457,6 +2703,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "아직 기록된 로그가 없습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Er zijn nog geen logboeken vastgelegd."
           }
         },
         "vi" : {
@@ -2518,6 +2770,12 @@
             "value" : "로그는 공유하기 전까지 이 기기에만 저장됩니다."
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Logboeken blijven op dit apparaat totdat je ze deelt."
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2577,6 +2835,12 @@
             "value" : "OPML 파일을 사용하여 RSS 리더 간에 피드를 전송합니다."
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gebruik OPML-bestanden om je abonnementen over te zetten tussen RSS-lezers."
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2631,6 +2895,12 @@
           }
         },
         "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "OPML"
+          }
+        },
+        "nl" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "OPML"
@@ -2695,6 +2965,12 @@
             "value" : "캐시"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cache"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2752,6 +3028,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "피드 콘텐츠"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Feedcontent"
           }
         },
         "vi" : {
@@ -2813,6 +3095,12 @@
             "value" : "용량은 대략적인 수치입니다."
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "De groottes zijn bij benadering."
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2870,6 +3158,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "피드"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Feeds"
           }
         },
         "vi" : {
@@ -2931,6 +3225,12 @@
             "value" : "사용 가능"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vrij"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2988,6 +3288,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "로그"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Logboeken"
           }
         },
         "vi" : {
@@ -3049,6 +3355,12 @@
             "value" : "다른 앱"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Andere apps"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3108,6 +3420,12 @@
             "value" : "팟캐스트"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Podcasts"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3165,6 +3483,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "데이터 관리"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gegevensbeheer"
           }
         },
         "vi" : {

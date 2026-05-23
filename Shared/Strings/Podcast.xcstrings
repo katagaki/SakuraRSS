@@ -40,6 +40,12 @@
             "value" : "다운로드 삭제"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Download verwijderen"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -97,6 +103,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "삭제"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verwijderen"
           }
         },
         "vi" : {
@@ -158,6 +170,12 @@
             "value" : "다운로드한 에피소드와 스크립트가 기기에서 삭제됩니다."
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hiermee worden de gedownloade aflevering en het transcript van je apparaat verwijderd."
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -215,6 +233,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "다운로드"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Downloaden"
           }
         },
         "vi" : {
@@ -276,6 +300,12 @@
             "value" : "다운로드됨"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gedownload"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -333,6 +363,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "모든 다운로드 삭제"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alle downloads verwijderen"
           }
         },
         "vi" : {
@@ -394,6 +430,12 @@
             "value" : "모두 삭제"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alles verwijderen"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -451,6 +493,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "이 기기에서 다운로드한 모든 팟캐스트 에피소드와 스크립트가 삭제됩니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hiermee worden alle gedownloade podcastafleveringen en hun transcripties van dit apparaat verwijderd."
           }
         },
         "vi" : {
@@ -512,6 +560,12 @@
             "value" : "모든 다운로드를 삭제하시겠습니까?"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alle downloads verwijderen?"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -569,6 +623,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "사용 중인 저장 공간"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gebruikte opslag"
           }
         },
         "vi" : {
@@ -630,6 +690,12 @@
             "value" : "팟캐스트 다운로드"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gedownloade podcasts"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -687,6 +753,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%1$lld시간 %2$lld분"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld u %2$lld m"
           }
         },
         "vi" : {
@@ -748,6 +820,12 @@
             "value" : "%lld분"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld min"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -805,6 +883,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "재생 중이 아님"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Niet aan het afspelen"
           }
         },
         "vi" : {
@@ -866,6 +950,12 @@
             "value" : "오프라인"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Offline"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -923,6 +1013,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "에피소드 재생"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aflevering afspelen"
           }
         },
         "vi" : {
@@ -984,6 +1080,12 @@
             "value" : "재생"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Afspelen"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1041,6 +1143,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "재생 속도"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Afspeelsnelheid"
           }
         },
         "vi" : {
@@ -1102,6 +1210,12 @@
             "value" : "필러"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Opvulling"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1159,6 +1273,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "상호작용 알림"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Interactieverzoek"
           }
         },
         "vi" : {
@@ -1220,6 +1340,12 @@
             "value" : "인트로"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pauze/intro"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1277,6 +1403,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "비음악 구간"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Niet-muzieksectie"
           }
         },
         "vi" : {
@@ -1338,6 +1470,12 @@
             "value" : "엔드카드/크레딧"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eindkaarten/aftiteling"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1395,6 +1533,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "미리보기/요약"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Voorvertoning/samenvatting"
           }
         },
         "vi" : {
@@ -1456,6 +1600,12 @@
             "value" : "자체 홍보"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Onbetaalde/eigen promotie"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1513,6 +1663,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "스폰서"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sponsor"
           }
         },
         "vi" : {
@@ -1574,6 +1730,12 @@
             "value" : "자동 스크롤"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Meelezen"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1631,6 +1793,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "모든 스크립트 삭제"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alle transcripties verwijderen"
           }
         },
         "vi" : {
@@ -1692,6 +1860,12 @@
             "value" : "모두 삭제"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alles verwijderen"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1749,6 +1923,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "이 기기에서 캐시된 모든 팟캐스트 스크립트가 삭제됩니다. 에피소드를 다시 다운로드하여 재생성할 수 있습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hiermee worden alle in de cache opgeslagen podcasttranscripties van dit apparaat verwijderd. Je kunt ze opnieuw genereren door afleveringen opnieuw te downloaden."
           }
         },
         "vi" : {
@@ -1810,6 +1990,12 @@
             "value" : "모든 스크립트를 삭제하시겠습니까?"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alle transcripties verwijderen?"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1867,6 +2053,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "모델 다운로드에 실패했습니다. 다시 시도해 주세요."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Downloaden van het model is mislukt. Probeer het opnieuw."
           }
         },
         "vi" : {
@@ -1928,6 +2120,12 @@
             "value" : "전사 모델을 다운로드하려면 인터넷 연결이 필요합니다."
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Een internetverbinding is vereist om het transcriptiemodel te downloaden."
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1985,6 +2183,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "온디바이스 전사는 NVIDIA Parakeet로 구동됩니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Transcripties op het apparaat worden mogelijk gemaakt door NVIDIA Parakeet."
           }
         },
         "vi" : {
@@ -2046,6 +2250,12 @@
             "value" : "온디바이스 전사"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Transcripties op het apparaat"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2105,6 +2315,12 @@
             "value" : "모델 다운로드 중…"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Model downloaden…"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2162,6 +2378,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "스크립트"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Transcripties"
           }
         },
         "vi" : {

@@ -40,6 +40,12 @@
             "value" : "오후 브리핑"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Middagsamenvatting"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -97,6 +103,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "읽은"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Content bekeken"
           }
         },
         "vi" : {
@@ -158,6 +170,12 @@
             "value" : "피드"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Feeds"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -215,6 +233,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "최애 피드"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Topfeed"
           }
         },
         "vi" : {
@@ -276,6 +300,12 @@
             "value" : "연속 일수"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dagenreeks"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -333,6 +363,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Apple Intelligence가 피드 헤드라인을 아침, 오후, 저녁 요약으로 정리합니다. 요약은 Today 탭이 활성화된 경우에만 생성됩니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple Intelligence vat je feedkoppen samen in ochtend-, middag- en avondoverzichten. Overzichten worden alleen gegenereerd wanneer het tabblad Vandaag is ingeschakeld."
           }
         },
         "vi" : {
@@ -394,6 +430,12 @@
             "value" : "요약이 정확하지 않을 수 있습니다. 중요한 정보는 직접 확인하세요."
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Samenvattingen kunnen onnauwkeurig zijn. Verifieer belangrijke informatie."
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -451,6 +493,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Archive.md는 웹 페이지의 스냅샷을 저장하여 유료 장벽이나 추적 없이 볼 수 있습니다. 기사에서 Archive.md 링크를 탭하여 아카이브된 페이지를 로드하세요."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Archive.md bewaart momentopnamen van webpagina's die je kunt bekijken zonder betaalmuren of tracking. Tik op Archive.md-koppelingen in artikelen om gearchiveerde pagina's te laden."
           }
         },
         "vi" : {
@@ -512,6 +560,12 @@
             "value" : "정보"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Over"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -569,6 +623,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "자세한 내용은 https://archive.md 에서 확인하세요"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lees meer op https://archive.md"
           }
         },
         "vi" : {
@@ -630,6 +690,12 @@
             "value" : "둠스크롤"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Doomscroll-modus"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -687,6 +753,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "주기적으로 콘텐츠 가져오기"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Content periodiek ophalen"
           }
         },
         "vi" : {
@@ -748,6 +820,12 @@
             "value" : "알림 배지"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Berichtenbadge"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -805,6 +883,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "1일"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1 dag"
           }
         },
         "vi" : {
@@ -866,6 +950,12 @@
             "value" : "3일"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "3 dagen"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -923,6 +1013,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "목록 하단에 도달할 때마다 불러올 이전 콘텐츠 양을 설정합니다. 끄면 이전 콘텐츠를 한 번에 모두 불러옵니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bepaalt hoeveel oudere content telkens wordt geladen wanneer je het einde van de lijst bereikt. Indien uit, wordt alle oudere content tegelijk geladen."
           }
         },
         "vi" : {
@@ -984,6 +1080,12 @@
             "value" : "25개"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "25 items"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1041,6 +1143,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "50개"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "50 items"
           }
         },
         "vi" : {
@@ -1102,6 +1210,12 @@
             "value" : "100개"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "100 items"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1159,6 +1273,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "끔"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uit"
           }
         },
         "vi" : {
@@ -1220,6 +1340,12 @@
             "value" : "1주"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1 week"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1277,6 +1403,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "이전 콘텐츠 표시 단위"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Oudere content tonen per"
           }
         },
         "vi" : {
@@ -1338,6 +1470,12 @@
             "value" : "Clear This Page는 웹 기사에서 광고와 잡다한 요소를 제거하여 깔끔하고 방해 없는 형식으로 보여주는 제3자 리더 서비스입니다. 피드에 활성화하면 기사는 https://clearthis.page 를 사용하는 내장 WebView에서 열립니다."
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clear This Page is een leesdienst van derden die advertenties en rommel uit webartikelen verwijdert en ze in een schone, afleidingsvrije opmaak presenteert. Wanneer dit voor een feed is ingeschakeld, openen artikelen in een ingesloten WebView via https://clearthis.page."
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1395,6 +1533,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "정보"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Over"
           }
         },
         "vi" : {
@@ -1456,6 +1600,12 @@
             "value" : "피드에 Clear This Page를 사용하려면 피드를 편집하고 '열기' 옵션을 'Clear This Page'로 설정하세요."
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Om Clear This Page voor een feed te gebruiken, bewerk je de feed en stel je de optie Openen in in op Clear This Page."
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1513,6 +1663,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "clearthis.page 방문"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bezoek clearthis.page"
           }
         },
         "vi" : {
@@ -1574,6 +1730,12 @@
             "value" : "콘텐츠 인사이트"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Contentinzichten"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1631,6 +1793,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "피드의 콘텐츠에서 유사한 콘텐츠, 주제, 조직, 인물을 자동으로 찾습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vind automatisch vergelijkbare content, onderwerpen, organisaties en personen uit content in je feed."
           }
         },
         "vi" : {
@@ -1692,6 +1860,12 @@
             "value" : "기본 표시 스타일"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Standaard weergavestijl"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1749,6 +1923,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "활성화"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Inschakelen"
           }
         },
         "vi" : {
@@ -1810,6 +1990,12 @@
             "value" : "피드 배경"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Feedachtergrond"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1867,6 +2053,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "콘텐츠를 주기적으로 가져오기"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Content periodiek ophalen"
           }
         },
         "vi" : {
@@ -1928,6 +2120,12 @@
             "value" : "콘텐츠 가져오기 대기 시간"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wachttijd contentophaling"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1985,6 +2183,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "이미지 다운로드"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Afbeeldingen downloaden"
           }
         },
         "vi" : {
@@ -2046,6 +2250,12 @@
             "value" : "항상"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Altijd"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2103,6 +2313,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "끔"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uit"
           }
         },
         "vi" : {
@@ -2164,6 +2380,12 @@
             "value" : "Wi-Fi 전용"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alleen wifi"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2221,6 +2443,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "콘텐츠 가져오기 간격"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ophaalinterval content"
           }
         },
         "vi" : {
@@ -2282,6 +2510,12 @@
             "value" : "시작 시 콘텐츠 가져오기"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Content ophalen bij opstarten"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2339,6 +2573,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "본 콘텐츠 숨기기"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bekeken content verbergen"
           }
         },
         "vi" : {
@@ -2400,6 +2640,12 @@
             "value" : "목록"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lijsten"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2457,6 +2703,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Today"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vandaag"
           }
         },
         "vi" : {
@@ -2518,6 +2770,12 @@
             "value" : "주제"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Onderwerpen"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2575,6 +2833,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "홈에 표시되는 리스트를 끌어서 순서를 변경합니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sleep om de lijsten op Start opnieuw te ordenen."
           }
         },
         "vi" : {
@@ -2636,6 +2900,12 @@
             "value" : "재설정"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Herstellen"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2693,6 +2963,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "모든 섹션의 순서와 표시 여부가 기본값으로 복원됩니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hiermee worden de standaardvolgorde en -zichtbaarheid voor alle secties hersteld."
           }
         },
         "vi" : {
@@ -2754,6 +3030,12 @@
             "value" : "기본값으로 재설정하시겠습니까?"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Terugzetten naar standaard?"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2811,6 +3093,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "끌어서 홈 바의 섹션 순서를 변경하세요. 토글로 섹션을 표시하거나 숨길 수 있습니다. 섹션이 하나만 활성화된 경우 홈 바가 숨겨집니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sleep om secties in de Start-balk opnieuw te ordenen. Schakel in of uit om secties te tonen of verbergen. Wanneer slechts één sectie is ingeschakeld, wordt de Start-balk verborgen."
           }
         },
         "vi" : {
@@ -2872,6 +3160,12 @@
             "value" : "정렬"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Opnieuw ordenen"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2929,6 +3223,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "표시되는 주제"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Weergegeven onderwerpen"
           }
         },
         "vi" : {
@@ -2990,6 +3290,12 @@
             "value" : "상위 %lld개"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Top %lld"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3047,6 +3353,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "인사이트"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Inzichten"
           }
         },
         "vi" : {
@@ -3108,6 +3420,12 @@
             "value" : "링크 열기"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Koppelingen openen in"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3167,6 +3485,12 @@
             "value" : "브라우저"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Browser"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3224,6 +3548,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "앱 내 뷰어"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ingebouwde weergave"
           }
         },
         "vi" : {
@@ -3287,6 +3617,12 @@
             "value" : "설정…"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Instellingen…"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3344,6 +3680,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "헤드라인 맞춤화"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Koppen personaliseren"
           }
         },
         "vi" : {
@@ -3405,6 +3747,12 @@
             "value" : "참여 기록 지우기"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Interactiegeschiedenis wissen"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3462,6 +3810,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "열어본 기사 기록을 삭제합니다. 새 기사를 읽기 전까지 맞춤 설정이 초기화됩니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hiermee wordt het overzicht van geopende artikelen verwijderd. Personalisatie wordt opnieuw ingesteld totdat je meer artikelen leest."
           }
         },
         "vi" : {
@@ -3523,6 +3877,12 @@
             "value" : "참여 기록을 지울까요?"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Interactiegeschiedenis wissen?"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3580,6 +3940,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "이 기기에서 읽은 콘텐츠를 사용해 헤드라인과 주제 힌트의 순위를 정합니다. 이 데이터는 기기 외부로 전송되지 않습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gebruik wat je op dit apparaat leest om koppen en onderwerphints te rangschikken. Deze gegevens verlaten je apparaat nooit."
           }
         },
         "vi" : {
@@ -3641,6 +4007,12 @@
             "value" : "Readability는 Mozilla의 오픈소스 라이브러리로, 웹 기사에서 본문을 추출하여 깔끔하고 방해 없는 레이아웃으로 보여줍니다. 피드에 활성화하면 콘텐츠는 기기에서 처리되어 내장 WebView에 표시됩니다. 소스 코드는 https://github.com/mozilla/readability 에서 확인할 수 있습니다."
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Readability is een opensource-bibliotheek van Mozilla die de hoofdinhoud uit een webartikel haalt en in een schone, afleidingsvrije opmaak presenteert. Wanneer dit voor een feed is ingeschakeld, wordt content op het apparaat verwerkt en weergegeven in een ingesloten WebView. Broncode beschikbaar op https://github.com/mozilla/readability."
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3698,6 +4070,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "정보"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Over"
           }
         },
         "vi" : {
@@ -3759,6 +4137,12 @@
             "value" : "피드에 Readability를 사용하려면 피드를 편집하고 '열기' 옵션을 'Readability'로 설정하세요."
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Om Readability voor een feed te gebruiken, bewerk je de feed en stel je de optie Openen in in op Readability."
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3816,6 +4200,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "1시간마다"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elk uur"
           }
         },
         "vi" : {
@@ -3877,6 +4267,12 @@
             "value" : "4시간마다"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elke 4 uur"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3934,6 +4330,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "8시간마다"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elke 8 uur"
           }
         },
         "vi" : {
@@ -3995,6 +4397,12 @@
             "value" : "12시간마다"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elke 12 uur"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -4052,6 +4460,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "15분마다"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elke 15 minuten"
           }
         },
         "vi" : {
@@ -4113,6 +4527,12 @@
             "value" : "24시간마다"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elke 24 uur"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -4170,6 +4590,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "30분마다"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elke 30 minuten"
           }
         },
         "vi" : {
@@ -4231,6 +4657,12 @@
             "value" : "1시간"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1 uur"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -4288,6 +4720,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "1분"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1 minuut"
           }
         },
         "vi" : {
@@ -4349,6 +4787,12 @@
             "value" : "5분"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "5 minuten"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -4406,6 +4850,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "10분"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "10 minuten"
           }
         },
         "vi" : {
@@ -4467,6 +4917,12 @@
             "value" : "30분"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "30 minuten"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -4524,6 +4980,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "이 기간 동안 자동으로 새로고친 피드는 건너뜁니다. 수동 새로고침은 항상 전체를 새로고칩니다. 새로 추가된 피드는 항상 새로고칩니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Feeds die binnen dit venster automatisch zijn ververst, worden overgeslagen. Een handmatige verversing ververst altijd alles. Nieuw toegevoegde feeds worden altijd ververst."
           }
         },
         "vi" : {
@@ -4585,6 +5047,12 @@
             "value" : "끔"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uit"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -4642,6 +5110,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "지난 실행 중 예기치 않게 종료되어 안전 모드로 시작되었습니다. 시작 시 새로고침을 건너뛰고 저장된 상태를 초기화했습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "De app is in de veilige modus gestart omdat deze tijdens de vorige keer opstarten onverwacht is gestopt. Verversen bij opstarten is overgeslagen en bewaarde statussen zijn opnieuw ingesteld."
           }
         },
         "vi" : {
@@ -4703,6 +5177,12 @@
             "value" : "확인"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "OK"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -4760,6 +5240,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "안전 모드"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Veilige modus"
           }
         },
         "vi" : {
@@ -4821,6 +5307,12 @@
             "value" : "사쿠라 배경"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sakura-achtergrond"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -4878,6 +5370,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "스크롤하여 읽음으로 표시"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scrollen om als gelezen te markeren"
           }
         },
         "vi" : {
@@ -4939,6 +5437,12 @@
             "value" : "검색 표시 스타일"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Weergavestijl voor zoeken"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -4996,6 +5500,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "분석"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Analyse"
           }
         },
         "vi" : {
@@ -5057,6 +5567,12 @@
             "value" : "외관"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Weergave"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -5111,6 +5627,12 @@
           }
         },
         "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple Intelligence"
+          }
+        },
+        "nl" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Apple Intelligence"
@@ -5175,6 +5697,12 @@
             "value" : "탐색"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bladeren"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -5232,6 +5760,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "내장 서비스"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ingebouwde diensten"
           }
         },
         "vi" : {
@@ -5293,6 +5827,12 @@
             "value" : "사용자 설정"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aanpassing"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -5350,6 +5890,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "데이터"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gegevens"
           }
         },
         "vi" : {
@@ -5411,6 +5957,12 @@
             "value" : "표시 스타일"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Weergavestijlen"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -5468,6 +6020,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "둠스크롤링 모드"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Doomscroll-modus"
           }
         },
         "vi" : {
@@ -5529,6 +6087,12 @@
             "value" : "피드"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Feeds"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -5586,6 +6150,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "홈"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Start"
           }
         },
         "vi" : {
@@ -5647,6 +6217,12 @@
             "value" : "앱 내 뷰어"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ingebouwde weergave"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -5704,6 +6280,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "인텔리전스"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Intelligentie"
           }
         },
         "vi" : {
@@ -5765,6 +6347,12 @@
             "value" : "통합"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Integraties"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -5822,6 +6410,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "리스트"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lijsten"
           }
         },
         "vi" : {
@@ -5883,6 +6477,12 @@
             "value" : "새 리스트…"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nieuwe lijst…"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -5940,6 +6540,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "로그"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Logboeken"
           }
         },
         "vi" : {
@@ -6001,6 +6607,12 @@
             "value" : "내비게이션"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Navigatie"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -6058,6 +6670,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "기타 서비스"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Andere diensten"
           }
         },
         "vi" : {
@@ -6119,6 +6737,12 @@
             "value" : "팟캐스트"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Podcasts"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -6176,6 +6800,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "이동성"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Overdraagbaarheid"
           }
         },
         "vi" : {
@@ -6237,6 +6867,12 @@
             "value" : "리더 서비스"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Leesdiensten"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -6294,6 +6930,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "읽음 및 안 읽음"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gelezen en ongelezen"
           }
         },
         "vi" : {
@@ -6355,6 +6997,12 @@
             "value" : "새로 고침"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verversen"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -6412,6 +7060,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "스크롤"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scrollen"
           }
         },
         "vi" : {
@@ -6473,6 +7127,12 @@
             "value" : "설정"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Instellingen"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -6530,6 +7190,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "저장 공간"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Opslag"
           }
         },
         "vi" : {
@@ -6591,6 +7257,12 @@
             "value" : "테마"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Thema"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -6648,6 +7320,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "웹 피드"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Webfeeds"
           }
         },
         "vi" : {
@@ -6709,6 +7387,12 @@
             "value" : "앱이 닫혀 있을 때"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wanneer de app gesloten is"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -6766,6 +7450,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "앱이 열려 있을 때"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wanneer de app geopend is"
           }
         },
         "vi" : {
@@ -6827,6 +7517,12 @@
             "value" : "모두 읽음으로 표시 버튼 표시"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Knop Alles markeren als gelezen tonen"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -6884,6 +7580,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "오늘의 요약"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Samenvatting van vandaag"
           }
         },
         "vi" : {
@@ -6945,6 +7647,12 @@
             "value" : "하루의 콘텐츠 요약을 매일 저녁 9시 이후에 표시합니다."
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ontvang een samenvatting van de content van de dag, elke avond na 21:00 uur weergegeven."
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -7002,6 +7710,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "읽지 않은 배지"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Badge voor ongelezen"
           }
         },
         "vi" : {
@@ -7063,6 +7777,12 @@
             "value" : "홈 화면 및 홈 탭"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Beginscherm en Start-tabblad"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -7120,6 +7840,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "홈 화면만"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alleen beginscherm"
           }
         },
         "vi" : {
@@ -7181,6 +7907,12 @@
             "value" : "홈 탭만"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alleen Start-tabblad"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -7238,6 +7970,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "끔"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uit"
           }
         },
         "vi" : {
@@ -7299,6 +8037,12 @@
             "value" : "자는 동안"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Terwijl je sliep"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -7356,6 +8100,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "밤사이 게시된 콘텐츠 요약을 매일 오전 6시부터 정오 사이에 표시합니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ontvang een samenvatting van content die 's nachts is gepubliceerd, elke ochtend tussen 6:00 en 12:00 uur weergegeven."
           }
         },
         "vi" : {
@@ -7417,6 +8167,12 @@
             "value" : "인앱 브라우저"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ingebouwde browser"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -7474,6 +8230,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "인앱 플레이어"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ingebouwde speler"
           }
         },
         "vi" : {
@@ -7535,6 +8297,12 @@
             "value" : "YouTube 동영상 열기"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "YouTube-video's openen in"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -7589,6 +8357,12 @@
           }
         },
         "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "SponsorBlock"
+          }
+        },
+        "nl" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "SponsorBlock"
@@ -7653,6 +8427,12 @@
             "value" : "건너뛸 카테고리"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Over te slaan categorieën"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -7710,6 +8490,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "SponsorBlock의 크라우드소싱 데이터를 사용하여 YouTube 동영상에서 스폰서 세그먼트, 인트로, 아웃트로 및 기타 비콘텐츠 섹션을 자동으로 건너뜁니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sla automatisch gesponsorde segmenten, intro's, outro's en andere niet-contentsecties in YouTube-video's over met crowdsourcegegevens van SponsorBlock."
           }
         },
         "vi" : {
@@ -7771,6 +8557,12 @@
             "value" : "YouTube 앱"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "YouTube-app"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -7828,6 +8620,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "확대 전환"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zoomovergang"
           }
         },
         "vi" : {

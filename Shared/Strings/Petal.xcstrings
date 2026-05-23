@@ -40,6 +40,12 @@
             "value" : "웹 피드를 사용하면 RSS가 없는 사이트에서도 맞춤 피드를 만들 수 있습니다."
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Met Webfeeds maak je aangepaste feeds van elke website, zelfs van websites zonder RSS."
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -97,6 +103,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "웹 피드 정보"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Over Webfeeds"
           }
         },
         "vi" : {
@@ -158,6 +170,12 @@
             "value" : "웹 피드 생성"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Webfeed genereren"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -215,6 +233,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "RSS 피드를 찾을 수 없습니다. 선택한 선택자로 페이지를 스크레이핑하여 기기에서 웹 피드를 만들 수 있습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Er is geen RSS-feed gevonden. Webfeeds kan er een op het apparaat samenstellen door de pagina te scrapen met door jou gekozen selectors."
           }
         },
         "vi" : {
@@ -276,6 +300,12 @@
             "value" : "자동 감지"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Automatisch detecteren"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -333,6 +363,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "선택자를 자동으로 감지할 수 없습니다. 직접 입력해 보세요."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kon de selectors niet automatisch detecteren. Probeer ze handmatig in te voeren."
           }
         },
         "vi" : {
@@ -394,6 +430,12 @@
             "value" : "날짜 선택자"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Datumselector"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -451,6 +493,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "웹 피드 삭제"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Webfeed verwijderen"
           }
         },
         "vi" : {
@@ -512,6 +560,12 @@
             "value" : "레시피와 가져온 콘텐츠가 삭제됩니다. 이 작업은 취소할 수 없습니다."
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Het recept en de opgehaalde content worden verwijderd. Dit kan niet ongedaan worden gemaakt."
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -569,6 +623,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "이 웹 피드를 삭제하시겠습니까?"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deze webfeed verwijderen?"
           }
         },
         "vi" : {
@@ -630,6 +690,12 @@
             "value" : "가져와서 미리보기"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ophalen en voorvertonen"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -687,6 +753,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "가져오기 모드"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ophaalmodus"
           }
         },
         "vi" : {
@@ -748,6 +820,12 @@
             "value" : "렌더링됨(SPA용)"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gerenderd (voor SPA's)"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -805,6 +883,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "정적 HTML"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Statische HTML"
           }
         },
         "vi" : {
@@ -866,6 +950,12 @@
             "value" : "이미지 선택자"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Afbeeldingsselector"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -923,6 +1013,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "항목 선택자(필수)"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Itemselector (vereist)"
           }
         },
         "vi" : {
@@ -984,6 +1080,12 @@
             "value" : "링크 선택자"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Koppelingsselector"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1041,6 +1143,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "피드 이름"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Feednaam"
           }
         },
         "vi" : {
@@ -1102,6 +1210,12 @@
             "value" : "요소 선택"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elementen kiezen"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1159,6 +1273,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "일치하는 항목이 없습니다. 더 넓은 항목 선택자를 사용해 보세요."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Geen items kwamen overeen. Probeer een bredere itemselector."
           }
         },
         "vi" : {
@@ -1220,6 +1340,12 @@
             "value" : "‘가져와서 미리보기’를 탭하여 페이지를 불러오세요."
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tik op Ophalen en voorvertonen om de pagina te laden."
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1277,6 +1403,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "미리보기"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Voorvertoning"
           }
         },
         "vi" : {
@@ -1338,6 +1470,12 @@
             "value" : "선택자"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Selectors"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1395,6 +1533,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "각 선택자는 항목을 기준으로 실행됩니다. 필드를 비워 두면 항목 자체의 콘텐츠에서 값을 자동으로 감지합니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elke selector werkt relatief ten opzichte van een item. Laat een veld leeg om de waarde automatisch uit de eigen content van het item te detecteren."
           }
         },
         "vi" : {
@@ -1456,6 +1600,12 @@
             "value" : "소스"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bron"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1513,6 +1663,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "렌더링 모드는 웹 뷰에서 페이지를 불러오고 JavaScript가 실행될 때까지 기다립니다. React 또는 기타 싱글 페이지 앱에 사용하세요."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "De gerenderde modus laadt de pagina in een webweergave en wacht tot JavaScript is uitgevoerd. Gebruik dit voor React of andere single-page apps."
           }
         },
         "vi" : {
@@ -1574,6 +1730,12 @@
             "value" : "요약 선택자"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Samenvattingsselector"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1631,6 +1793,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "웹 피드"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Webfeed"
           }
         },
         "vi" : {
@@ -1692,6 +1860,12 @@
             "value" : "제목 선택자"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Titelselector"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1749,6 +1923,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "https://example.com/blog"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "https://voorbeeld.nl/blog"
           }
         },
         "vi" : {
@@ -1810,6 +1990,12 @@
             "value" : "해당 페이지를 불러올 수 없습니다. URL을 확인하거나 렌더링 모드를 사용해 보세요."
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kon die pagina niet laden. Controleer de URL of probeer de gerenderde modus."
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1867,6 +2053,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "해당 패키지를 가져올 수 없습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kon dat pakket niet importeren."
           }
         },
         "vi" : {
@@ -1928,6 +2120,12 @@
             "value" : "현재 선택자와 일치하는 항목이 없습니다."
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Geen items kwamen overeen met de huidige selectors."
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1985,6 +2183,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "유효한 Sakura RSS 패키지가 아닌 것 같습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dit lijkt geen geldig Sakura RSS-pakket te zijn."
           }
         },
         "vi" : {
@@ -2046,6 +2250,12 @@
             "value" : "패키지에 레시피 파일이 없습니다."
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Het pakket mist een receptbestand."
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2103,6 +2313,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "이 패키지는 Sakura가 가져올 수 있는 크기보다 큽니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dit pakket is groter dan Sakura zal importeren."
           }
         },
         "vi" : {
@@ -2164,6 +2380,12 @@
             "value" : "이 패키지는 더 최신 버전의 Sakura에서 만들어졌습니다. 앱을 업데이트한 후 다시 시도하세요."
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dit pakket is gemaakt met een nieuwere versie van Sakura. Werk de app bij en probeer het opnieuw."
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2221,6 +2443,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "웹 피드"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Webfeeds"
           }
         },
         "vi" : {
@@ -2282,6 +2510,12 @@
             "value" : "레시피 편집"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Recept bewerken"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2339,6 +2573,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "웹 피드"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Webfeed"
           }
         },
         "vi" : {
@@ -2400,6 +2640,12 @@
             "value" : "소스 URL"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bron-URL"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2457,6 +2703,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "아직 웹 피드가 없습니다. '피드 추가' 화면에서 만들거나 .srss 패키지를 가져오세요."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nog geen webfeeds. Maak er een via het scherm Feed toevoegen, of importeer een .srss-pakket."
           }
         },
         "vi" : {
@@ -2518,6 +2770,12 @@
             "value" : ".srss로 내보내기"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Exporteren als .srss"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2575,6 +2833,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : ".srss 패키지 가져오기"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : ".srss-pakket importeren"
           }
         },
         "vi" : {
@@ -2636,6 +2900,12 @@
             "value" : "Sakura RSS 패키지(.srss)에는 레시피와 선택 사항인 피드 아이콘이 포함됩니다. 업로드되는 항목은 없으며 가져오기는 전적으로 기기에서 수행됩니다."
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sakura RSS-pakketten (.srss) bevatten een recept en een optioneel feedsymbool. Er wordt niets geüpload; de import verloopt volledig op het apparaat."
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2693,6 +2963,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "설치됨"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Geïnstalleerd"
           }
         },
         "vi" : {
@@ -2754,6 +3030,12 @@
             "value" : "웹 피드 관리"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Webfeeds beheren"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2811,6 +3093,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "할당 대상…"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Toewijzen aan…"
           }
         },
         "vi" : {
@@ -2872,6 +3160,12 @@
             "value" : "하위 요소 표시"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Onderliggende elementen tonen"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2929,6 +3223,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "하위 요소"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Onderliggend"
           }
         },
         "vi" : {
@@ -2990,6 +3290,12 @@
             "value" : "작성자"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Auteur"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3047,6 +3353,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "날짜"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Datum"
           }
         },
         "vi" : {
@@ -3108,6 +3420,12 @@
             "value" : "이미지"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Afbeelding"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3165,6 +3483,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "항목 컨테이너"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Itemcontainer"
           }
         },
         "vi" : {
@@ -3226,6 +3550,12 @@
             "value" : "링크"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Koppeling"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3283,6 +3613,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "요약"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Samenvatting"
           }
         },
         "vi" : {
@@ -3344,6 +3680,12 @@
             "value" : "제목"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Titel"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3403,6 +3745,12 @@
             "value" : "요소를 탭해서 선택하세요"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tik op een element om het te kiezen"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3460,6 +3808,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "요소 선택기"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elementkiezer"
           }
         },
         "vi" : {

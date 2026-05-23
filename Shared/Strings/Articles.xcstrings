@@ -40,6 +40,12 @@
             "value" : "나중에 다시 확인하세요!"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kom later terug voor meer!"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -97,6 +103,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "모두 읽음"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alles gelezen"
           }
         },
         "vi" : {
@@ -158,6 +170,12 @@
             "value" : "Bluesky 게시물"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bluesky-bericht"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -215,6 +233,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "북마크"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bladwijzer"
           }
         },
         "vi" : {
@@ -276,6 +300,12 @@
             "value" : "링크 복사"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Koppeling kopiëren"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -333,6 +363,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "사진 복사"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Foto kopiëren"
           }
         },
         "vi" : {
@@ -394,6 +430,12 @@
             "value" : "닫기"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sluiten"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -451,6 +493,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "YouTube에서 열기"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Openen in YouTube"
           }
         },
         "vi" : {
@@ -512,6 +560,12 @@
             "value" : "게시물을 불러오는 중…"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bericht laden…"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -569,6 +623,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "탭하여 X에서 게시물 열기"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tik om het bericht op X te openen"
           }
         },
         "vi" : {
@@ -630,6 +690,12 @@
             "value" : "X 게시물"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "X-bericht"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -687,6 +753,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "브라우저에서 열기"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Openen in browser"
           }
         },
         "vi" : {
@@ -748,6 +820,12 @@
             "value" : "이 콘텐츠는 브라우저에서 계속 볼 수 있습니다."
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Je kunt deze content nog steeds in je browser bekijken."
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -805,6 +883,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "이 콘텐츠는 안전하지 않아 Sakura에서 볼 수 없습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deze content is onveilig en kan niet in Sakura worden bekeken."
           }
         },
         "vi" : {
@@ -866,6 +950,12 @@
             "value" : "Instagram 게시물"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Instagram-bericht"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -923,6 +1013,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "콘텐츠 불러오는 중..."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Content laden…"
           }
         },
         "vi" : {
@@ -984,6 +1080,12 @@
             "value" : "청취함으로 표시"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Markeren als beluisterd"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1041,6 +1143,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "재생됨으로 표시"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Markeren als afgespeeld"
           }
         },
         "vi" : {
@@ -1102,6 +1210,12 @@
             "value" : "읽음으로 표시"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Markeren als gelezen"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1159,6 +1273,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "청취 안 함으로 표시"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Markeren als niet beluisterd"
           }
         },
         "vi" : {
@@ -1220,6 +1340,12 @@
             "value" : "재생되지 않음으로 표시"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Markeren als niet afgespeeld"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1277,6 +1403,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "읽지 않음으로 표시"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Markeren als ongelezen"
           }
         },
         "vi" : {
@@ -1338,6 +1470,12 @@
             "value" : "시청 안 함으로 표시"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Markeren als niet bekeken"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1395,6 +1533,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "시청함으로 표시"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Markeren als bekeken"
           }
         },
         "vi" : {
@@ -1456,6 +1600,12 @@
             "value" : "브라우저에서 열기"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Openen in browser"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1513,6 +1663,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "새 창에서 열기"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Openen in nieuw venster"
           }
         },
         "vi" : {
@@ -1574,6 +1730,12 @@
             "value" : "유료 콘텐츠를 브라우저에서 열기"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Betaalde content openen in browser"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1631,6 +1793,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "북마크 제거"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bladwijzer verwijderen"
           }
         },
         "vi" : {
@@ -1692,6 +1860,12 @@
             "value" : "공유"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deel"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1749,6 +1923,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "원문 보기"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Origineel tonen"
           }
         },
         "vi" : {
@@ -1810,6 +1990,12 @@
             "value" : "원문 요약 보기"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Originele samenvatting tonen"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1867,6 +2053,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "원본 번역 보기"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Originele vertaling tonen"
           }
         },
         "vi" : {
@@ -1928,6 +2120,12 @@
             "value" : "요약 보기"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Samenvatting tonen"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1985,6 +2183,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "번역 보기"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vertaling tonen"
           }
         },
         "vi" : {
@@ -2046,6 +2250,12 @@
             "value" : "요약"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Samenvatten"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2103,6 +2313,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "요약 실패"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Samenvatten mislukt"
           }
         },
         "vi" : {
@@ -2164,6 +2380,12 @@
             "value" : "아래는 콘텐츠의 전문입니다. 각 단락에서 핵심 내용을 추출하여 요약하세요. 콘텐츠와 같은 언어로 응답하세요. 쉬운 언어를 사용하세요. 핵심 용어를 강조하기 위해 **굵게**를 사용할 수 있습니다. 서론이나 결론을 포함하지 마세요. 핵심 내용만 간결한 글머리 기호로 출력하세요.\n\n콘텐츠:"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hieronder staat de volledige tekst van de content. Vat deze samen door de belangrijkste punten uit elke alinea te halen. Antwoord in dezelfde taal als de content. Gebruik eenvoudige taal. Je mag **vet** gebruiken om belangrijke termen te benadrukken. Voeg geen inleiding of conclusie toe. Geef alleen de belangrijkste punten weer als beknopte opsommingstekens.\n\nContent:"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2221,6 +2443,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "번역 요약"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vertaling samenvatten"
           }
         },
         "vi" : {
@@ -2282,6 +2510,12 @@
             "value" : "요약 중…"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Samenvatten…"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2339,6 +2573,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "번역"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vertalen"
           }
         },
         "vi" : {
@@ -2400,6 +2640,12 @@
             "value" : "요약 번역"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Samenvatting vertalen"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2457,6 +2703,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "번역 중…"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vertalen…"
           }
         },
         "vi" : {
@@ -2518,6 +2770,12 @@
             "value" : "X 게시물"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "X-bericht"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2575,6 +2833,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "읽은 항목 모두 삭제"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alle gelezen verwijderen"
           }
         },
         "vi" : {
@@ -2636,6 +2900,12 @@
             "value" : "삭제"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verwijderen"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2693,6 +2963,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "읽은 북마크를 모두 삭제하시겠습니까?"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Weet je zeker dat je alle gelezen bladwijzers wilt verwijderen?"
           }
         },
         "vi" : {
@@ -2754,6 +3030,12 @@
             "value" : "콘텐츠를 북마크하여 나중에 볼 수 있습니다."
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Maak een bladwijzer van content om deze voor later te bewaren."
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2811,6 +3093,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "북마크 없음"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Geen bladwijzers"
           }
         },
         "vi" : {
@@ -2872,6 +3160,12 @@
             "value" : "모든 콘텐츠를 확인했습니다."
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Je hebt alle content doorlopen."
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2929,6 +3223,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "콘텐츠 없음"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Geen content meer"
           }
         },
         "vi" : {
@@ -2990,6 +3290,12 @@
             "value" : "나중에 듣기"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Later luisteren"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3047,6 +3353,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "읽음"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gelezen"
           }
         },
         "vi" : {
@@ -3108,6 +3420,12 @@
             "value" : "나중에 읽기"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Later lezen"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3165,6 +3483,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "처음부터"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Opnieuw beginnen"
           }
         },
         "vi" : {
@@ -3226,6 +3550,12 @@
             "value" : "나중에 보기"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Later kijken"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3283,6 +3613,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "이미지 복사"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Afbeelding kopiëren"
           }
         },
         "vi" : {
@@ -3344,6 +3680,12 @@
             "value" : "공유"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deel"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3401,6 +3743,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "이미지"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Afbeelding"
           }
         },
         "vi" : {
@@ -3462,6 +3810,12 @@
             "value" : "대화 참여하기"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Doe mee aan het gesprek"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3519,6 +3873,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "대화"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gesprekken"
           }
         },
         "vi" : {
@@ -3580,6 +3940,12 @@
             "value" : "익명"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Anoniem"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3637,6 +4003,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "표시 스타일"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Weergavestijl"
           }
         },
         "vi" : {
@@ -3698,6 +4070,12 @@
             "value" : "아래로 당겨서 새 콘텐츠를 불러오세요."
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Veeg om te verversen en nieuwe content te laden."
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3755,6 +4133,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "아무것도 없음"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hier is niets"
           }
         },
         "vi" : {
@@ -3816,6 +4200,12 @@
             "value" : "읽은 콘텐츠 숨기기"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bekeken content verbergen"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3873,6 +4263,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "이전 콘텐츠 보기"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Oudere content tonen"
           }
         },
         "vi" : {
@@ -3934,6 +4330,12 @@
             "value" : "이전 콘텐츠 로드 중…"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Oudere content laden…"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3991,6 +4393,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "모두 읽음으로 표시"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alles markeren als gelezen"
           }
         },
         "vi" : {
@@ -4052,6 +4460,12 @@
             "value" : "모든 콘텐츠를 읽음으로 표시할까요?"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alle content als gelezen markeren?"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -4109,6 +4523,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "페이지 로드 중…"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pagina laden…"
           }
         },
         "vi" : {
@@ -4170,6 +4590,12 @@
             "value" : "모드"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Modus"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -4224,6 +4650,12 @@
           }
         },
         "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Archive.today"
+          }
+        },
+        "nl" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Archive.today"
@@ -4288,6 +4720,12 @@
             "value" : "Clear This Page"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deze pagina wissen"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -4342,6 +4780,12 @@
           }
         },
         "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Readability"
+          }
+        },
+        "nl" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Readability"
@@ -4406,6 +4850,12 @@
             "value" : "앱 내 뷰어"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ingebouwde weergave"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -4463,6 +4913,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "웹 페이지를 찾을 수 없음"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Geen webpagina gevonden"
           }
         },
         "vi" : {
@@ -4524,6 +4980,12 @@
             "value" : "열기"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Openen"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -4581,6 +5043,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "뷰어"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Weergave"
           }
         },
         "vi" : {
@@ -4642,6 +5110,12 @@
             "value" : "콘텐츠 가져오기"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Contentbron"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -4696,6 +5170,12 @@
           }
         },
         "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "URL"
+          }
+        },
+        "nl" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "URL"
@@ -4760,6 +5240,12 @@
             "value" : "콘텐츠"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Content"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -4817,6 +5303,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "자동"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Automatisch"
           }
         },
         "vi" : {
@@ -4878,6 +5370,12 @@
             "value" : "추출"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Extraheren"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -4935,6 +5433,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "가져오기"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ophalen"
           }
         },
         "vi" : {
@@ -4996,6 +5500,12 @@
             "value" : "Sakura에서 읽기"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lezen in Sakura"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -5053,6 +5563,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "앱에서 열기"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Openen in app"
           }
         },
         "vi" : {
@@ -5114,6 +5630,12 @@
             "value" : "브라우저에서 열기"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Openen in browser"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -5171,6 +5693,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "아직 인물이 없습니다"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nog geen personen"
           }
         },
         "vi" : {
@@ -5232,6 +5760,12 @@
             "value" : "콘텐츠에서 언급된 인물이 처리 후 여기에 표시됩니다. 온디바이스 인텔리전스 설정에서 주제 및 인물을 활성화하세요."
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Personen die in content worden genoemd, verschijnen hier na verwerking. Schakel Onderwerpen en personen in bij de instellingen voor Intelligentie op het apparaat."
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -5289,6 +5823,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "인물"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Personen"
           }
         },
         "vi" : {
@@ -5350,6 +5890,12 @@
             "value" : "새로운 콘텐츠"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nieuwe content"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -5407,6 +5953,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "계속 스크롤하려면 이전 콘텐츠를 불러오세요."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Laad oudere content om verder te scrollen."
           }
         },
         "vi" : {
@@ -5468,6 +6020,12 @@
             "value" : "모두 확인했습니다"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Je bent helemaal bij"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -5525,6 +6083,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "읽은 콘텐츠 표시"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bekeken content tonen"
           }
         },
         "vi" : {
@@ -5586,6 +6150,12 @@
             "value" : "인물"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Personen"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -5643,6 +6213,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "유사한 콘텐츠"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vergelijkbare content"
           }
         },
         "vi" : {
@@ -5704,6 +6280,12 @@
             "value" : "주제"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Onderwerpen"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -5761,6 +6343,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "카드"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kaarten"
           }
         },
         "vi" : {
@@ -5822,6 +6410,12 @@
             "value" : "간략하게"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Compact"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -5879,6 +6473,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "피드"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Feed"
           }
         },
         "vi" : {
@@ -5940,6 +6540,12 @@
             "value" : "피드 (간략하게)"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Feed (compact)"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -5997,6 +6603,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "그리드"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Raster"
           }
         },
         "vi" : {
@@ -6058,6 +6670,12 @@
             "value" : "받은 편지함"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Postvak"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -6115,6 +6733,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "매거진"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Magazine"
           }
         },
         "vi" : {
@@ -6176,6 +6800,12 @@
             "value" : "메이슨리"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Metselwerk"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -6233,6 +6863,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "사진"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Foto's"
           }
         },
         "vi" : {
@@ -6294,6 +6930,12 @@
             "value" : "팟캐스트"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Podcast"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -6351,6 +6993,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "스크롤"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scrollen"
           }
         },
         "vi" : {
@@ -6412,6 +7060,12 @@
             "value" : "타임라인"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tijdlijn"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -6469,6 +7123,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "동영상"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Video"
           }
         },
         "vi" : {
@@ -6530,6 +7190,12 @@
             "value" : "클래식"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Klassiek"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -6587,6 +7253,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "그리드"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rasters"
           }
         },
         "vi" : {
@@ -6648,6 +7320,12 @@
             "value" : "몰입형"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Meeslepend"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -6705,6 +7383,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "미디어"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Media"
           }
         },
         "vi" : {
@@ -6766,6 +7450,12 @@
             "value" : "미디어 중심"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mediagericht"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -6823,6 +7513,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "특수"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gespecialiseerd"
           }
         },
         "vi" : {
@@ -6884,6 +7580,12 @@
             "value" : "비주얼"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Visueel"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -6941,6 +7643,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "이전"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eerder"
           }
         },
         "vi" : {
@@ -7002,6 +7710,12 @@
             "value" : "오늘"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vandaag"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -7059,6 +7773,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "어제"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gisteren"
           }
         },
         "vi" : {
@@ -7120,6 +7840,12 @@
             "value" : "아직 주제가 없습니다"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nog geen onderwerpen"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -7177,6 +7903,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "콘텐츠가 처리된 후 주제가 표시됩니다. 온디바이스 인텔리전스 설정에서 주제 및 인물을 활성화하세요."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Onderwerpen verschijnen nadat content is verwerkt. Schakel Onderwerpen en personen in bij de instellingen voor Intelligentie op het apparaat."
           }
         },
         "vi" : {
@@ -7238,6 +7970,12 @@
             "value" : "주제"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Onderwerpen"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -7297,6 +8035,12 @@
             "value" : "간략하게"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Compact"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -7354,6 +8098,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "전체"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Volledig"
           }
         },
         "vi" : {

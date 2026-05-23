@@ -40,6 +40,12 @@
             "value" : "오후 브리핑을 생성할 수 없습니다. 나중에 다시 시도해 주세요."
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kon de middagsamenvatting niet genereren. Probeer het later opnieuw."
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -97,6 +103,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "오후 요약을 생성하는 중…"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Je middag samenvatten…"
           }
         },
         "vi" : {
@@ -158,6 +170,12 @@
             "value" : "저전력 모드에서는 새로 고침을 눌러 오후 브리핑을 생성하세요."
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tik op verversen om de middagsamenvatting te genereren in de spaarstand."
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -215,6 +233,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "간단히 보기"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Minder tonen"
           }
         },
         "vi" : {
@@ -276,6 +300,12 @@
             "value" : "더 보기"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Meer tonen"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -333,6 +363,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "오후 브리핑"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Middagsamenvatting"
           }
         },
         "vi" : {
@@ -394,6 +430,12 @@
             "value" : "오후 요약을 생성할 콘텐츠가 아직 부족합니다."
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nog niet genoeg middagcontent om samen te vatten."
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -451,6 +493,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "설정에서 섹션을 활성화하면 여기에 콘텐츠가 표시됩니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Schakel een sectie in bij Instellingen om hier content te zien."
           }
         },
         "vi" : {
@@ -512,6 +560,12 @@
             "value" : "표시할 콘텐츠가 없습니다"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Geen content beschikbaar"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -569,6 +623,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "마지막 업데이트: %@"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bijgewerkt: %@"
           }
         },
         "vi" : {
@@ -630,6 +690,12 @@
             "value" : "%2$lld개 중 %1$lld개 새로 고침 중"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld van %2$lld verversen"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -687,6 +753,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Today"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vandaag"
           }
         },
         "vi" : {
@@ -748,6 +820,12 @@
             "value" : "모두 완료!"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Helemaal klaar!"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -805,6 +883,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "피드 새로 고침 중"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Feeds verversen"
           }
         },
         "vi" : {
@@ -866,6 +950,12 @@
             "value" : "피드 새로 고침 중지"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stoppen met verversen van feeds"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -923,6 +1013,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "중지 중"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stoppen"
           }
         },
         "vi" : {
@@ -984,6 +1080,12 @@
             "value" : "현재 헤드라인에서 중요한 사건을 추출할 수 없었습니다."
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kon geen belangrijke gebeurtenissen uit de beschikbare koppen halen."
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1041,6 +1143,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "잠시 후 다시 시도하거나 아래로 당겨 새로 고침하세요."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Probeer het later opnieuw, of trek omlaag om te verversen."
           }
         },
         "vi" : {
@@ -1104,6 +1212,12 @@
             "value" : "현재 헤드라인이 없습니다"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Op dit moment geen koppen"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1161,6 +1275,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "★ 표시가 있는 기사에서 추출한 사건을 우선적으로 다루세요."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Geef prioriteit aan gebeurtenissen uit artikelen die zijn gemarkeerd met ★."
           }
         },
         "vi" : {
@@ -1222,6 +1342,12 @@
             "value" : "아래는 %@의 RSS 기사이며, ---로 구분되어 있습니다. 각 기사는 `ID: <숫자>` 줄로 시작하고, 같은 줄에 [출처]와 제목이 이어지며, 다음 줄에 짧은 발췌문이 나옵니다.\n\n최대 5개의 서로 다른 중요한 사건을 식별하세요. 중요한 사건이란 여러 출처가 다루거나, 독자가 꼭 알아야 할 중대한 동향(정치, 국제 정세, 경제, 과학, 기술, 문화 등)을 말합니다. 2개 이상의 출처에서 언급되는 사건을 우선하세요.\n\n각 사건에 대해 다음을 출력하세요:\n- headline: 출처 기사를 정확히 요약하는 12단어 이하의 구체적이고 사실 기반의 헤드라인. 누가 무엇을 했는지 밝히세요. 세부 내용을 지어내지 마세요.\n- articleIDs: 이 사건을 설명하는 출처 기사의 정확한 ID 번호. 위의 `ID:` 줄에서 각 ID를 원문 그대로 복사하세요. 실제로 위에 등장하는 ID만 포함하세요. ID를 지어내지 마세요.\n\n엄수 규칙:\n- 같은 사건을 다루는 경우에만 기사를 묶으세요. 관련 없는 기사를 하나로 합치지 마세요.\n- 5개 미만의 사건만 해당된다면 해당하는 것만 반환하세요. 빈 목록도 괜찮습니다.\n- 기사에 적힌 내용 이상으로 추측하지 마세요. 외부 지식을 사용하지 마세요.\n- 헤드라인은 항상 한국어로 작성하세요. 필요한 경우 원문 언어에서 번역하세요."
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hieronder staan RSS-artikelen van %@, gescheiden door --- scheidingstekens. Elk artikel begint met een regel `ID: <nummer>`, daarna [Source] en de titel op dezelfde regel, en vervolgens een kort fragment op de volgende regel.\n\nIdentificeer maximaal 5 verschillende belangrijke gebeurtenissen. Een belangrijke gebeurtenis is er een die door meerdere bronnen wordt behandeld, of een grote ontwikkeling die een lezer zou moeten kennen (politiek, wereldzaken, economie, wetenschap, technologie of cultuur). Geef de voorkeur aan gebeurtenissen waarnaar door 2 of meer bronnen wordt verwezen.\n\nGeef voor elke gebeurtenis het volgende terug:\n- headline: een specifieke, feitelijke kop van 12 woorden of minder die de bronartikelen nauwkeurig samenvat. Geef aan wie wat heeft gedaan. Verzin geen details.\n- articleIDs: de exacte ID-nummers van de bronartikelen die deze gebeurtenis beschrijven. Kopieer elk ID letterlijk uit de bovenstaande `ID:`-regels. Neem alleen ID's op die daadwerkelijk hierboven voorkomen. Verzin geen ID's.\n\nStrikte regels:\n- Groepeer artikelen alleen wanneer ze dezelfde gebeurtenis behandelen. Voeg nooit niet-gerelateerde verhalen samen.\n- Als er minder dan 5 gebeurtenissen in aanmerking komen, geef dan alleen de in aanmerking komende terug. Een lege lijst is toegestaan.\n- Speculeer niet verder dan wat de artikelen zeggen. Gebruik geen externe kennis.\n- Schrijf de kop altijd in het Nederlands. Vertaal indien nodig uit de brontaal."
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1279,6 +1405,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "밤사이"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "'s nachts"
           }
         },
         "vi" : {
@@ -1340,6 +1472,12 @@
             "value" : "오늘 오후"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "deze middag"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1397,6 +1535,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "오늘"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "vandaag"
           }
         },
         "vi" : {
@@ -1460,6 +1604,12 @@
             "value" : "우선순위 힌트일 뿐입니다 — 이 목록을 헤드라인으로 출력하지 마세요. 오늘의 사건이 이 주제나 인물과 관련된다면 우선 다루세요:"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alleen een prioriteitshint — geef deze lijst nooit als kop weer. Als een gebeurtenis van vandaag een van deze onderwerpen of personen betreft, geef er dan de voorkeur aan:"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1517,6 +1667,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "북마크 다시 보기"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bladwijzers opnieuw bekijken"
           }
         },
         "vi" : {
@@ -1578,6 +1734,12 @@
             "value" : "새로운 콘텐츠가 로드되면 이 화면이 업데이트됩니다."
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kom later terug voor nieuwe content."
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1635,6 +1797,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "지금은 다 봤어요"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Voorlopig helemaal klaar"
           }
         },
         "vi" : {
@@ -1696,6 +1864,12 @@
             "value" : "지금 듣기"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nu luisteren"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1755,6 +1929,12 @@
             "value" : "콘텐츠 로딩 중…"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Content laden…"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1812,6 +1992,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "지금 보기"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nu kijken"
           }
         },
         "vi" : {
@@ -1933,6 +2119,12 @@
             "value" : "날씨 정보 제공:"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Weersinformatie verstrekt door"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1990,6 +2182,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "안녕하세요"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Goedemiddag"
           }
         },
         "vi" : {
@@ -2051,6 +2249,12 @@
             "value" : "오늘도 수고 많으셨습니다"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Goedenavond"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2108,6 +2312,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "좋은 저녁입니다"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Goedenavond"
           }
         },
         "vi" : {
@@ -2169,6 +2379,12 @@
             "value" : "늦은 시간까지 수고 많으십니다"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hallo daar"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2228,6 +2444,12 @@
             "value" : "좋은 아침입니다"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Goedemorgen"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2282,6 +2504,12 @@
           }
         },
         "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "."
+          }
+        },
+        "nl" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "."
@@ -2346,6 +2574,12 @@
             "value" : "아래는 하루 중 다른 시간대의 뉴스 헤드라인 요약입니다. 이를 3~5개의 글머리 기호로 된 하나의 통합 목록으로 결합하세요. 각 글머리 기호는 한 문장이어야 합니다. 중복을 제거하고 관련 주제를 병합하세요. 서론, 개요, 결론 또는 논평을 포함하지 마세요. 글머리 기호만 출력하세요. 쉬운 언어를 사용하세요. 핵심 용어를 강조하기 위해 **굵게**를 사용할 수 있습니다. 한국어로 응답하세요.\n\n요약:"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hieronder staan verschillende samenvattingen van nieuwskoppen op verschillende tijdstippen van de dag. Combineer ze tot één samengevoegde lijst van 3 tot 5 opsommingstekens. Elk opsommingsteken moet één zin zijn. Verwijder duplicaten en voeg gerelateerde onderwerpen samen. Voeg geen inleiding, overzicht, conclusie of commentaar toe. Geef alleen de opsommingstekens weer. Gebruik eenvoudige taal. Je mag **vet** gebruiken om belangrijke termen te benadrukken. Antwoord in het Nederlands.\n\nSamenvattingen:"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2403,6 +2637,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "요약을 생성할 수 없습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kon de samenvatting niet genereren."
           }
         },
         "vi" : {
@@ -2464,6 +2704,12 @@
             "value" : "오늘의 콘텐츠를 요약하는 중…"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "De content van vandaag samenvatten…"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2521,6 +2767,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "저전력 모드가 켜져 있습니다. 새로고침을 눌러 요약을 생성하세요."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "De spaarstand is ingeschakeld. Tik op verversen om de samenvatting te genereren."
           }
         },
         "vi" : {
@@ -2582,6 +2834,12 @@
             "value" : "아래는 RSS 피드의 기사 헤드라인입니다. 각 항목에는 출처 이름과 헤드라인이 있으며, 짧은 요약이 포함될 수 있습니다.\n\n이 헤드라인에서 가장 중요한 내용을 2~3개의 글머리 기호로 응답하세요. 각 글머리 기호는 한 문장이어야 합니다. 관련 헤드라인은 가능한 한 하나의 항목으로 묶으세요. 같은 기사를 두 번 반복하지 마세요. 헤드라인에 나타난 내용 이상으로 추측하지 마세요. 서론, 개요, 결론 또는 논평을 포함하지 마세요. 글머리 기호만 출력하세요. 쉬운 언어를 사용하세요. 핵심 용어를 강조하기 위해 **굵게**를 사용할 수 있습니다. 한국어로 응답하세요.\n\n헤드라인:"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hieronder staan artikelkoppen uit RSS-feeds. Elk item heeft een bronnaam en een kop, en bevat mogelijk een kort fragment.\n\nAntwoord met 2 tot 3 opsommingstekens van de belangrijkste zaken uit deze koppen. Elk opsommingsteken moet één zin zijn. Groepeer gerelateerde koppen waar mogelijk tot één punt. Herhaal hetzelfde verhaal niet tweemaal. Speculeer niet verder dan wat de koppen aangeven. Voeg geen inleiding, overzicht, conclusie of commentaar toe. Geef alleen de opsommingstekens weer. Gebruik eenvoudige taal. Je mag **vet** gebruiken om belangrijke termen te benadrukken. Antwoord in het Nederlands.\n\nKoppen:"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2639,6 +2897,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "아래는 오늘 게시된 RSS 피드의 기사 헤드라인입니다. 각 항목에는 출처 이름과 헤드라인이 있으며, 짧은 요약이 포함될 수 있습니다.\n\n이 헤드라인에서 가장 중요한 내용을 3~5개의 글머리 기호로만 응답하세요. 각 글머리 기호는 한 문장이어야 합니다. 관련 헤드라인은 가능한 한 하나의 항목으로 묶으세요. 같은 기사를 두 번 반복하지 마세요. 헤드라인에 나타난 내용 이상으로 추측하지 마세요. 서론, 개요, 결론 또는 논평을 포함하지 마세요. 글머리 기호만 출력하세요. 쉬운 언어를 사용하세요. 핵심 용어를 강조하기 위해 **굵게**를 사용할 수 있습니다. 한국어로 응답하세요.\n\n헤드라인:"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hieronder staan artikelkoppen uit RSS-feeds die vandaag zijn gepubliceerd. Elk item heeft een bronnaam en een kop, en bevat mogelijk een kort fragment.\n\nAntwoord met slechts 3 tot 5 opsommingstekens van de belangrijkste zaken uit deze koppen. Elk opsommingsteken moet één zin zijn. Groepeer gerelateerde koppen waar mogelijk tot één punt. Herhaal hetzelfde verhaal niet tweemaal. Speculeer niet verder dan wat de koppen aangeven. Voeg geen inleiding, overzicht, conclusie of commentaar toe. Geef alleen de opsommingstekens weer. Gebruik eenvoudige taal. Je mag **vet** gebruiken om belangrijke termen te benadrukken. Antwoord in het Nederlands.\n\nKoppen:"
           }
         },
         "vi" : {
@@ -2700,6 +2964,12 @@
             "value" : "접기"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Minder tonen"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2757,6 +3027,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "더 보기"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Meer tonen"
           }
         },
         "vi" : {
@@ -2818,6 +3094,12 @@
             "value" : "오늘의 요약"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Samenvatting van vandaag"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2875,6 +3157,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "요약하기에 헤드라인이 너무 적습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Er waren te weinig koppen om samen te vatten."
           }
         },
         "vi" : {
@@ -2936,6 +3224,12 @@
             "value" : "현재 위치"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Huidige locatie"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -2993,6 +3287,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "날씨 위치는 하루에 최대 3번 변경할 수 있습니다. 내일 다시 시도해 주세요."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Je kunt de weerlocatie tot 3 keer per dag wijzigen. Probeer het morgen opnieuw."
           }
         },
         "vi" : {
@@ -3054,6 +3354,12 @@
             "value" : "결과"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Resultaten"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3111,6 +3417,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "국가, 도시 또는 장소"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Land, stad of plaats"
           }
         },
         "vi" : {
@@ -3172,6 +3484,12 @@
             "value" : "위치 서비스가 활성화되지 않았습니다."
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Locatievoorzieningen is niet ingeschakeld."
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3229,6 +3547,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "탭하여 위치 설정"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tik om de locatie in te stellen"
           }
         },
         "vi" : {
@@ -3290,6 +3614,12 @@
             "value" : "날씨 위치"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Weerlocatie"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3347,6 +3677,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "요약을 생성할 수 없습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kon de samenvatting niet genereren."
           }
         },
         "vi" : {
@@ -3408,6 +3744,12 @@
             "value" : "밤사이 콘텐츠를 요약하는 중…"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Content van de nacht samenvatten…"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3465,6 +3807,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "저전력 모드가 켜져 있습니다. 새로고침을 눌러 요약을 생성하세요."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "De spaarstand is ingeschakeld. Tik op verversen om de samenvatting te genereren."
           }
         },
         "vi" : {
@@ -3526,6 +3874,12 @@
             "value" : "아래는 밤사이 게시된 RSS 피드의 기사 헤드라인입니다. 각 항목에는 출처 이름과 헤드라인이 있으며, 짧은 요약이 포함될 수 있습니다.\n\n이 헤드라인에서 가장 중요한 내용을 3~5개의 글머리 기호로만 응답하세요. 각 글머리 기호는 한 문장이어야 합니다. 관련 헤드라인은 가능한 한 하나의 항목으로 묶으세요. 같은 기사를 두 번 반복하지 마세요. 헤드라인에 나타난 내용 이상으로 추측하지 마세요. 서론, 개요, 결론 또는 논평을 포함하지 마세요. 글머리 기호만 출력하세요. 쉬운 언어를 사용하세요. 핵심 용어를 강조하기 위해 **굵게**를 사용할 수 있습니다. 한국어로 응답하세요.\n\n헤드라인:"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hieronder staan artikelkoppen uit RSS-feeds die 's nachts zijn gepubliceerd. Elk item heeft een bronnaam en een kop, en bevat mogelijk een kort fragment.\n\nAntwoord met slechts 3 tot 5 opsommingstekens van de belangrijkste zaken uit deze koppen. Elk opsommingsteken moet één zin zijn. Groepeer gerelateerde koppen waar mogelijk tot één punt. Herhaal hetzelfde verhaal niet tweemaal. Speculeer niet verder dan wat de koppen aangeven. Voeg geen inleiding, overzicht, conclusie of commentaar toe. Geef alleen de opsommingstekens weer. Gebruik eenvoudige taal. Je mag **vet** gebruiken om belangrijke termen te benadrukken. Antwoord in het Nederlands.\n\nKoppen:"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3583,6 +3937,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "접기"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Minder tonen"
           }
         },
         "vi" : {
@@ -3644,6 +4004,12 @@
             "value" : "더 보기"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Meer tonen"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3703,6 +4069,12 @@
             "value" : "자는 동안"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Terwijl je sliep"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -3760,6 +4132,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "요약하기에 헤드라인이 너무 적습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Er waren te weinig koppen om samen te vatten."
           }
         },
         "vi" : {

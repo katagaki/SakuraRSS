@@ -40,6 +40,12 @@
             "value" : "동작"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gedrag"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -99,6 +105,12 @@
             "value" : "열기 방법"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Openen in"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -153,6 +165,12 @@
           }
         },
         "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "archive.today"
+          }
+        },
+        "nl" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "archive.today"
@@ -217,6 +235,12 @@
             "value" : "Clear This Page"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deze pagina wissen"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -276,6 +300,12 @@
             "value" : "앱 내 뷰어"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ingebouwde weergave"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -330,6 +360,12 @@
           }
         },
         "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Readability"
+          }
+        },
+        "nl" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Readability"
@@ -394,6 +430,12 @@
             "value" : "페이지 로드 중…"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pagina laden…"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -451,6 +493,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "웹 페이지를 찾을 수 없음"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Geen webpagina gevonden"
           }
         },
         "vi" : {
@@ -512,6 +560,12 @@
             "value" : "열기"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Openen"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -566,6 +620,12 @@
           }
         },
         "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "URL"
+          }
+        },
+        "nl" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "URL"
@@ -630,6 +690,12 @@
             "value" : "Sakura에서 읽기"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lezen in Sakura"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -687,6 +753,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "취소"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Annuleren"
           }
         },
         "vi" : {

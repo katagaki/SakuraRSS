@@ -41,6 +41,12 @@
             "value" : "사쿠라"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sakura"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -98,6 +104,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Sakura는 Today 탭에 현지 날씨를 표시하기 위해 위치 정보를 사용합니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sakura gebruikt je locatie om het lokale weer op het tabblad Vandaag te tonen."
           }
         },
         "vi" : {
@@ -160,6 +172,12 @@
             "value" : "Sakura는 이미지를 사진 보관함에 저장할 수 있습니다."
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sakura kan afbeeldingen uit feedcontent in je fotobibliotheek bewaren."
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -218,6 +236,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Sakura는 다운로드한 팟캐스트 에피소드를 전사하기 위해 기기 내 음성 인식을 사용합니다. 오디오는 로컬에서 처리되며 기기를 떠나지 않습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sakura gebruikt spraakherkenning op het apparaat om podcastafleveringen die je downloadt te transcriberen. De audio wordt lokaal verwerkt en verlaat je apparaat nooit."
           }
         },
         "vi" : {
@@ -279,6 +303,12 @@
             "value" : "RSS 피드"
           }
         },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "RSS-feeds"
+          }
+        },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
@@ -335,6 +365,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Sakura 웹 피드"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sakura-webfeed"
           }
         },
         "vi" : {

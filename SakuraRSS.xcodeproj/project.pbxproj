@@ -488,6 +488,7 @@
 				de,
 				fr,
 				it,
+				nl,
 			);
 			mainGroup = E47D10122F549605006081EF;
 			minimizedProjectReferenceProxies = 1;

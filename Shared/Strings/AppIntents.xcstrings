@@ -40,6 +40,12 @@
             "value": "지정된 URL의 피드를 구독합니다. 추가된 경우 true를 반환합니다."
           }
         },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abonneert op de feed op de opgegeven URL. Geeft true terug als de feed is toegevoegd."
+          }
+        },
         "vi": {
           "stringUnit": {
             "state": "translated",
@@ -94,6 +100,12 @@
           }
         },
         "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "URL"
+          }
+        },
+        "nl": {
           "stringUnit": {
             "state": "translated",
             "value": "URL"
@@ -158,6 +170,12 @@
             "value": "피드 추가"
           }
         },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Feed toevoegen"
+          }
+        },
         "vi": {
           "stringUnit": {
             "state": "translated",
@@ -215,6 +233,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "URL에서 피드 추가"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Feed toevoegen vanaf URL"
           }
         },
         "vi": {
@@ -276,6 +300,12 @@
             "value": "지정된 콘텐츠를 북마크에 추가합니다. 새로 추가된 경우 true를 반환합니다."
           }
         },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Maakt een bladwijzer voor de opgegeven content. Geeft true terug als de bladwijzer nieuw is toegevoegd."
+          }
+        },
         "vi": {
           "stringUnit": {
             "state": "translated",
@@ -333,6 +363,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "콘텐츠"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Content"
           }
         },
         "vi": {
@@ -394,6 +430,12 @@
             "value": "북마크"
           }
         },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bladwijzer"
+          }
+        },
         "vi": {
           "stringUnit": {
             "state": "translated",
@@ -451,6 +493,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "북마크에 추가"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Toevoegen aan bladwijzers"
           }
         },
         "vi": {
@@ -512,6 +560,12 @@
             "value": "콘텐츠"
           }
         },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Content"
+          }
+        },
         "vi": {
           "stringUnit": {
             "state": "translated",
@@ -569,6 +623,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "북마크"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bladwijzer"
           }
         },
         "vi": {
@@ -630,6 +690,12 @@
             "value": "피드"
           }
         },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Feed"
+          }
+        },
         "vi": {
           "stringUnit": {
             "state": "translated",
@@ -687,6 +753,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "지정된 콘텐츠의 전체 본문을 블록 목록으로 추출합니다."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Haalt de volledige inhoud van de opgegeven content op als een lijst met blokken."
           }
         },
         "vi": {
@@ -748,6 +820,12 @@
             "value": "콘텐츠"
           }
         },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Content"
+          }
+        },
         "vi": {
           "stringUnit": {
             "state": "translated",
@@ -805,6 +883,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "콘텐츠 텍스트"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Contenttekst"
           }
         },
         "vi": {
@@ -866,6 +950,12 @@
             "value": "콘텐츠 텍스트 가져오기"
           }
         },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Contenttekst ophalen"
+          }
+        },
         "vi": {
           "stringUnit": {
             "state": "translated",
@@ -923,6 +1013,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "피드, 목록, 주제 또는 인물에서 가장 최근 콘텐츠를 반환합니다."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Geeft de meest recente content van een feed, lijst, onderwerp of persoon terug."
           }
         },
         "vi": {
@@ -984,6 +1080,12 @@
             "value": "피드"
           }
         },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Feed"
+          }
+        },
         "vi": {
           "stringUnit": {
             "state": "translated",
@@ -1041,6 +1143,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "목록"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lijst"
           }
         },
         "vi": {
@@ -1102,6 +1210,12 @@
             "value": "주제 또는 인물"
           }
         },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Onderwerp of persoon"
+          }
+        },
         "vi": {
           "stringUnit": {
             "state": "translated",
@@ -1159,6 +1273,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "최신 콘텐츠"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nieuwste content"
           }
         },
         "vi": {
@@ -1220,6 +1340,12 @@
             "value": "최신 콘텐츠 가져오기"
           }
         },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nieuwste content ophalen"
+          }
+        },
         "vi": {
           "stringUnit": {
             "state": "translated",
@@ -1277,6 +1403,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "현재 구독을 OPML 문서로 반환합니다."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Geeft de huidige abonnementen terug als een OPML-document."
           }
         },
         "vi": {
@@ -1338,6 +1470,12 @@
             "value": "OPML 내보내기"
           }
         },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OPML exporteren"
+          }
+        },
         "vi": {
           "stringUnit": {
             "state": "translated",
@@ -1395,6 +1533,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "피드를 OPML로 내보내기"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Feeds exporteren als OPML"
           }
         },
         "vi": {
@@ -1456,6 +1600,12 @@
             "value": "최근 콘텐츠에서 가장 많이 언급된 주제와 인물을 반환합니다."
           }
         },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Geeft de meest genoemde onderwerpen en personen uit recente content terug."
+          }
+        },
         "vi": {
           "stringUnit": {
             "state": "translated",
@@ -1513,6 +1663,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "상위 개수"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Top N"
           }
         },
         "vi": {
@@ -1574,6 +1730,12 @@
             "value": "주제 및 인물"
           }
         },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Onderwerpen en personen"
+          }
+        },
         "vi": {
           "stringUnit": {
             "state": "translated",
@@ -1631,6 +1793,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "주제 및 인물 가져오기"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Onderwerpen en personen ophalen"
           }
         },
         "vi": {
@@ -1692,6 +1860,12 @@
             "value": "목록"
           }
         },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lijst"
+          }
+        },
         "vi": {
           "stringUnit": {
             "state": "translated",
@@ -1749,6 +1923,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "지정된 콘텐츠를 Sakura에서 엽니다."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Opent de opgegeven content in Sakura."
           }
         },
         "vi": {
@@ -1810,6 +1990,12 @@
             "value": "콘텐츠"
           }
         },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Content"
+          }
+        },
         "vi": {
           "stringUnit": {
             "state": "translated",
@@ -1867,6 +2053,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "열기"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Openen"
           }
         },
         "vi": {
@@ -1928,6 +2120,12 @@
             "value": "콘텐츠 열기"
           }
         },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Content openen"
+          }
+        },
         "vi": {
           "stringUnit": {
             "state": "translated",
@@ -1985,6 +2183,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "구독 중인 모든 피드를 새로 고치고 업데이트된 개수를 반환합니다."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ververst alle gevolgde feeds en geeft het aantal bijgewerkte feeds terug."
           }
         },
         "vi": {
@@ -2046,6 +2250,12 @@
             "value": "새로 고침"
           }
         },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verversen"
+          }
+        },
         "vi": {
           "stringUnit": {
             "state": "translated",
@@ -2103,6 +2313,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "피드 새로 고침"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Feeds verversen"
           }
         },
         "vi": {
@@ -2164,6 +2380,12 @@
             "value": "저장된 콘텐츠를 키워드로 검색하고 일치하는 항목을 반환합니다."
           }
         },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Doorzoekt bewaarde content op trefwoord en geeft overeenkomende items terug."
+          }
+        },
         "vi": {
           "stringUnit": {
             "state": "translated",
@@ -2221,6 +2443,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "키워드"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trefwoord"
           }
         },
         "vi": {
@@ -2282,6 +2510,12 @@
             "value": "최대 결과 수"
           }
         },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Maximaal aantal resultaten"
+          }
+        },
         "vi": {
           "stringUnit": {
             "state": "translated",
@@ -2339,6 +2573,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "검색"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zoeken"
           }
         },
         "vi": {
@@ -2400,6 +2640,12 @@
             "value": "콘텐츠 검색"
           }
         },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Content zoeken"
+          }
+        },
         "vi": {
           "stringUnit": {
             "state": "translated",
@@ -2457,6 +2703,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "주제 또는 인물"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Onderwerp of persoon"
           }
         },
         "vi": {
@@ -2518,6 +2770,12 @@
             "value": "유형"
           }
         },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Soort"
+          }
+        },
         "vi": {
           "stringUnit": {
             "state": "translated",
@@ -2577,6 +2835,12 @@
             "value": "인물"
           }
         },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Persoon"
+          }
+        },
         "vi": {
           "stringUnit": {
             "state": "translated",
@@ -2634,6 +2898,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "주제"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Onderwerp"
           }
         },
         "vi": {
