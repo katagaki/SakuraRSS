@@ -6,18 +6,15 @@ extension YouTubePlayerScripts {
     /// Switches the MSE player to the original (non-dubbed) audio track.
     /// Returns one of: `"switched"` (changed to original), `"original"`
     /// (already playing it), `"none"` (no original / single-audio video, so
-    /// nothing to do), or `"pending"` (the player or its track list hasn't
-    /// populated yet — the Swift caller retries). Only works on the MSE
-    /// player, where `getAvailableAudioTracks()` is populated. The player and
-    /// its audio-track methods can be absent for a moment after playback
-    /// starts, so report that as `"pending"` rather than `"none"`; otherwise
-    /// the auto-dub is never corrected on slower (mobile) loads.
+    /// nothing to do), or `"pending"` (the track list hasn't populated yet —
+    /// the Swift caller retries). Only works on the MSE player, where
+    /// `getAvailableAudioTracks()` is populated.
     static let forceOriginalAudioTrack = """
     (function() {
         var player = document.querySelector('#movie_player')
             || document.querySelector('.html5-video-player');
         if (!player || typeof player.getAvailableAudioTracks !== 'function'
-            || typeof player.setAudioTrack !== 'function') { return 'pending'; }
+            || typeof player.setAudioTrack !== 'function') { return 'none'; }
         var tracks = player.getAvailableAudioTracks() || [];
         if (tracks.length === 0) { return 'pending'; }
         function info(track) {
