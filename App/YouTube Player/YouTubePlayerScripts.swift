@@ -341,4 +341,31 @@ nonisolated enum YouTubePlayerScripts {
         };
     })();
     """
+
+    /// Forces inline playback on every `<video>`. The desktop User-Agent makes
+    /// YouTube serve its desktop player, whose video elements omit the
+    /// `playsinline` attribute; on iPhone that attribute is required (alongside
+    /// `allowsInlineMediaPlayback`) or playback enters native fullscreen the
+    /// moment it starts. The player recreates the element across ad/content
+    /// transitions, so the attribute is reapplied via a `MutationObserver`.
+    static let inlinePlaybackEnforcer = """
+    (function() {
+        if (window.__ytInlineEnforcer) { return; }
+        window.__ytInlineEnforcer = true;
+        function enforce(video) {
+            if (!video) { return; }
+            video.setAttribute('playsinline', '');
+            video.setAttribute('webkit-playsinline', '');
+            try { video.playsInline = true; } catch (error) {}
+        }
+        function scan() {
+            document.querySelectorAll('video').forEach(enforce);
+        }
+        scan();
+        var observer = new MutationObserver(scan);
+        if (document.documentElement) {
+            observer.observe(document.documentElement, { childList: true, subtree: true });
+        }
+    })();
+    """
 }

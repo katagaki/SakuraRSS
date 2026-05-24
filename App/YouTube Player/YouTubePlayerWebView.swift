@@ -103,6 +103,7 @@ struct YouTubePlayerWebView: UIViewRepresentable {
         let controller = WKUserContentController()
         let scripts: [InjectedUserScript] = [
             .init(source: YouTubePlayerScripts.mediaIsolationBootstrap, time: .atDocumentStart, mainFrameOnly: false),
+            .init(source: YouTubePlayerScripts.inlinePlaybackEnforcer, time: .atDocumentStart, mainFrameOnly: true),
             .init(
                 source: YouTubePlayerStyles.injectionScript(css: YouTubePlayerStyles.css),
                 time: .atDocumentStart,
