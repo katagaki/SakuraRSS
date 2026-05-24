@@ -9,8 +9,13 @@ extension YouTubePlayerView {
     /// starts, so retry until it resolves.
     func forceOriginalAudio(retriesRemaining: Int = 8) {
         guard !didForceOriginalAudio, let webView else { return }
+        webView.evaluateJavaScript(YouTubePlayerScripts.audioTrackDiagnostics) { result, _ in
+            // swiftlint:disable:next line_length
+            log("YT Audio", "diagnostics retriesRemaining=\(retriesRemaining) \((result as? String) ?? "nil")")
+        }
         webView.evaluateJavaScript(YouTubePlayerScripts.forceOriginalAudioTrack) { [self] result, _ in
             let status = (result as? String) ?? "none"
+            log("YT Audio", "forceOriginalAudio status=\(status)")
             DispatchQueue.main.async {
                 switch status {
                 case "pending":

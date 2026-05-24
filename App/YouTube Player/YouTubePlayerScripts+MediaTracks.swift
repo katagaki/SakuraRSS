@@ -36,4 +36,37 @@ extension YouTubePlayerScripts {
         return 'switched';
     })();
     """
+
+    /// Temporary diagnostic: dumps what the player exposes about audio tracks
+    /// so the iPhone-specific dub failure can be diagnosed from device logs.
+    static let audioTrackDiagnostics = """
+    (function() {
+        function describe(track) {
+            if (!track) { return null; }
+            var info = null;
+            try { info = (typeof track.getLanguageInfo === 'function') ? track.getLanguageInfo() : null; }
+            catch (error) { info = { error: String(error) }; }
+            return { id: track.id, info: info };
+        }
+        var player = document.querySelector('#movie_player')
+            || document.querySelector('.html5-video-player');
+        var out = {
+            hasPlayer: !!player,
+            hasGetTracks: !!player && typeof player.getAvailableAudioTracks === 'function',
+            hasSetTrack: !!player && typeof player.setAudioTrack === 'function',
+            hasGetTrack: !!player && typeof player.getAudioTrack === 'function',
+            videoCount: document.querySelectorAll('video').length
+        };
+        if (out.hasGetTracks) {
+            var tracks = [];
+            try { tracks = player.getAvailableAudioTracks() || []; } catch (error) { out.tracksError = String(error); }
+            out.trackCount = tracks.length;
+            out.tracks = tracks.map(describe);
+        }
+        if (out.hasGetTrack) {
+            try { out.current = describe(player.getAudioTrack()); } catch (error) { out.currentError = String(error); }
+        }
+        return JSON.stringify(out);
+    })();
+    """
 }
