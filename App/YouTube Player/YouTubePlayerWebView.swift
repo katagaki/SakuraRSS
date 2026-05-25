@@ -164,14 +164,21 @@ struct YouTubePlayerWebView: UIViewRepresentable {
         return components.url ?? url
     }
 
-    /// A desktop Chrome User-Agent. YouTube serves Safari/WKWebView a native
-    /// HLS stream with the dubbed audio baked in and no switchable tracks; with
-    /// a Chrome UA it serves its MSE player instead, which exposes
-    /// `getAvailableAudioTracks()` / `setAudioTrack()` so the original audio can
-    /// be selected.
-    static let youTubeUserAgent =
-        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 "
-        + "(KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
+    /// A desktop Chrome User-Agent, used on Mac Catalyst only. YouTube serves
+    /// Safari/WKWebView a native HLS stream with the dubbed audio baked in and
+    /// no switchable tracks; with a Chrome UA it serves its MSE player instead,
+    /// which exposes `getAvailableAudioTracks()` / `setAudioTrack()` so the
+    /// original audio can be selected. On iOS the desktop player stops inline
+    /// playback after about a minute, so iPhone and iPad use the default
+    /// WKWebView User-Agent (`nil`) and the mobile site instead.
+    static var youTubeUserAgent: String? {
+        #if targetEnvironment(macCatalyst)
+        return "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 "
+            + "(KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
+        #else
+        return nil
+        #endif
+    }
 
     static func dismantleUIView(_ uiView: WKWebView, coordinator: Coordinator) {
         uiView.configuration.userContentController.removeScriptMessageHandler(
