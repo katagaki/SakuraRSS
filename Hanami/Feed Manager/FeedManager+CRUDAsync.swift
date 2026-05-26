@@ -3,10 +3,10 @@ import UIKit
 
 public extension FeedManager {
 
-    /// Async variant of `addFeed(url:title:siteURL:...)` that pre-fetches
-    /// provider-specific metadata (display name, profile photo) before
-    /// inserting so the feed appears in the list with its final title and
-    /// icon, rather than briefly showing a handle placeholder.
+    /// Async variant of `addFeed(url:title:siteURL:...)` that inserts the feed
+    /// immediately with a placeholder title and acronym icon so the row (and the
+    /// dismissed sheet) appear without waiting on the network, then enriches the
+    /// title and icon and runs the first refresh in the background.
     @discardableResult
     func addFeedFetchingMetadata(
         url: String,
@@ -32,29 +32,25 @@ public extension FeedManager {
             }
         }
 
-        let prefetched = await prefetchAddFeedMetadata(siteURL: siteURL)
-        let resolvedTitle: String
-        if let displayName = prefetched.displayName,
-           !displayName.isEmpty {
-            resolvedTitle = displayName
-        } else {
-            resolvedTitle = title
-        }
-
         let feedID = try database.insertFeed(
-            title: resolvedTitle, url: url, siteURL: siteURL,
+            title: title, url: url, siteURL: siteURL,
             description: description, iconURL: nil,
             category: category, isPodcast: isPodcast
         )
-
-        await applyPrefetchedIcon(prefetched, feedID: feedID, url: url, title: resolvedTitle)
-        generateAcronymIcon(feedID: feedID, title: resolvedTitle)
+        generateAcronymIcon(feedID: feedID, title: title)
 
         let newFeed = try? database.feed(byID: feedID)
         await loadFromDatabaseInBackground()
-        if let newFeed {
-            Task {
-                try? await refreshFeed(newFeed)
+
+        Task { [weak self] in
+            guard let self else { return }
+            await self.enrichInsertedFeed(
+                feedID: feedID, url: url, siteURL: siteURL,
+                category: category, fallbackTitle: title
+            )
+            await self.loadFromDatabaseInBackground()
+            if let enriched = try? self.database.feed(byID: feedID) {
+                try? await self.refreshFeed(enriched)
             }
         }
         return newFeed
