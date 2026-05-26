@@ -235,21 +235,21 @@ public extension FeedManager {
     func markAllRead(feed: Feed) {
         stagedReadChanges.removeAll()
         try? database.markAllRead(feedID: feed.id)
-        loadFromDatabase()
+        Task { await loadFromDatabaseInBackground(animated: true) }
         updateBadgeCount()
     }
 
     func markAllRead() {
         stagedReadChanges.removeAll()
         try? database.markAllRead()
-        loadFromDatabase()
+        Task { await loadFromDatabaseInBackground(animated: true) }
         updateBadgeCount()
     }
 
     func markAllUnread() {
         stagedReadChanges.removeAll()
         try? database.markAllUnread()
-        loadFromDatabase()
+        Task { await loadFromDatabaseInBackground(animated: true) }
         updateBadgeCount()
     }
 
@@ -275,7 +275,7 @@ public extension FeedManager {
 
     func clearAccessHistory() {
         try? database.clearAccessHistory()
-        loadFromDatabase()
+        Task { await loadFromDatabaseInBackground() }
     }
 
     // MARK: - Section Queries
@@ -344,7 +344,7 @@ public extension FeedManager {
         for feed in sectionFeeds {
             try? database.markAllRead(feedID: feed.id)
         }
-        loadFromDatabase()
+        Task { await loadFromDatabaseInBackground(animated: true) }
         updateBadgeCount()
     }
 

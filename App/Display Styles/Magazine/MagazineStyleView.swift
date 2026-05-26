@@ -67,7 +67,6 @@ struct MagazineStyleView: View {
             }
             .padding(.bottom)
         }
-        .animation(.smooth.speed(2.0), value: articles)
         .trackScrollActivity()
     }
 }
