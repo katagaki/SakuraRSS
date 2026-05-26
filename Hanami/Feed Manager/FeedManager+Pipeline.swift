@@ -264,21 +264,28 @@ public extension FeedManager {
         let maxConcurrent = 4
         var results: [String: String] = [:]
         var index = 0
-        while index < candidates.count {
-            if Task.isCancelled { return results }
-            let batch = candidates[index..<min(index + maxConcurrent, candidates.count)]
-            index += maxConcurrent
-            await withTaskGroup(of: (String, String?).self) { group in
-                for candidate in batch {
+        await withTaskGroup(of: (String, String?).self) { group in
+            while index < candidates.count && index < maxConcurrent {
+                let candidate = candidates[index]
+                index += 1
+                group.addTask {
+                    let imageURL = await HTMLMetadataImage.fetchImageURL(for: candidate.requestURL)
+                    return (candidate.articleURL, imageURL)
+                }
+            }
+            while let (articleURL, imageURL) = await group.next() {
+                if let imageURL { results[articleURL] = imageURL }
+                if Task.isCancelled {
+                    group.cancelAll()
+                    break
+                }
+                if index < candidates.count {
+                    let candidate = candidates[index]
+                    index += 1
                     group.addTask {
-                        let imageURL = await HTMLMetadataImage.fetchImageURL(
-                            for: candidate.requestURL
-                        )
+                        let imageURL = await HTMLMetadataImage.fetchImageURL(for: candidate.requestURL)
                         return (candidate.articleURL, imageURL)
                     }
-                }
-                for await (articleURL, imageURL) in group {
-                    if let imageURL { results[articleURL] = imageURL }
                 }
             }
         }
