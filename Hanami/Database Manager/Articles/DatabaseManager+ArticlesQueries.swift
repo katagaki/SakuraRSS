@@ -255,4 +255,112 @@ public nonisolated extension DatabaseManager {
         }
         return results
     }
+
+    // MARK: - List Projections
+
+    /// The following variants mirror the queries above but omit the `content`
+    /// blob (see `selectingListColumns`). They back the scrollable lists, where
+    /// `content` is never displayed; the reader re-fetches the full row by id.
+
+    func articlesList(withIDs ids: [Int64]) throws -> [Article] {
+        guard !ids.isEmpty else { return [] }
+        let query = selectingListColumns(articles)
+            .filter(ids.contains(articleID))
+            .order(articlePublishedDate.desc)
+        return try database.prepare(query).map(rowToListArticle)
+    }
+
+    func unreadArticlesList(forFeedID fid: Int64) throws -> [Article] {
+        let query = selectingListColumns(articles)
+            .filter(articleFeedID == fid && articleIsRead == false)
+            .order(articlePublishedDate.desc)
+        return try database.prepare(query).map(rowToListArticle)
+    }
+
+    func articlesList(forFeedID fid: Int64, limit: Int? = nil) throws -> [Article] {
+        var query = selectingListColumns(articles)
+            .filter(articleFeedID == fid)
+            .order(articlePublishedDate.desc)
+        if let limit {
+            query = query.limit(limit)
+        }
+        return try database.prepare(query).map(rowToListArticle)
+    }
+
+    func articlesList(forFeedIDs feedIDs: [Int64], limit: Int, requireUnread: Bool = false) throws -> [Article] {
+        guard !feedIDs.isEmpty else { return [] }
+        var query = selectingListColumns(articles).filter(feedIDs.contains(articleFeedID))
+        if requireUnread {
+            query = query.filter(articleIsRead == false)
+        }
+        return try database
+            .prepare(query.order(articlePublishedDate.desc).limit(limit))
+            .map(rowToListArticle)
+    }
+
+    func articlesList(forFeedID fid: Int64, since date: Date) throws -> [Article] {
+        let query = selectingListColumns(articles)
+            .filter(articleFeedID == fid
+                    && articlePublishedDate >= date.timeIntervalSince1970)
+            .order(articlePublishedDate.desc)
+        return try database.prepare(query).map(rowToListArticle)
+    }
+
+    func undatedArticlesList(forFeedID fid: Int64) throws -> [Article] {
+        let query = selectingListColumns(articles)
+            .filter(articleFeedID == fid && articlePublishedDate == nil)
+            .order(articleID.desc)
+        return try database.prepare(query).map(rowToListArticle)
+    }
+
+    func articlesList(forFeedIDs feedIDs: Set<Int64>, since date: Date) throws -> [Article] {
+        guard !feedIDs.isEmpty else { return [] }
+        let query = selectingListColumns(articles)
+            .filter(feedIDs.contains(articleFeedID)
+                    && articlePublishedDate >= date.timeIntervalSince1970)
+            .order(articlePublishedDate.desc)
+        return try database.prepare(query).map(rowToListArticle)
+    }
+
+    func undatedArticlesList(forFeedIDs feedIDs: Set<Int64>) throws -> [Article] {
+        guard !feedIDs.isEmpty else { return [] }
+        let query = selectingListColumns(articles)
+            .filter(feedIDs.contains(articleFeedID) && articlePublishedDate == nil)
+            .order(articleID.desc)
+        return try database.prepare(query).map(rowToListArticle)
+    }
+
+    func allArticlesList(limit: Int = 100) throws -> [Article] {
+        let query = selectingListColumns(articles)
+            .order(articlePublishedDate.desc)
+            .limit(limit)
+        return try database.prepare(query).map(rowToListArticle)
+    }
+
+    func allArticlesList(since date: Date, limit: Int? = 200) throws -> [Article] {
+        var query = selectingListColumns(articles)
+            .filter(articlePublishedDate >= date.timeIntervalSince1970)
+            .order(articlePublishedDate.desc)
+        if let limit {
+            query = query.limit(limit)
+        }
+        return try database.prepare(query).map(rowToListArticle)
+    }
+
+    func allArticlesList(before date: Date, limit: Int = 200) throws -> [Article] {
+        let query = selectingListColumns(articles)
+            .filter(articlePublishedDate < date.timeIntervalSince1970 || articlePublishedDate == nil)
+            .order(articlePublishedDate.desc)
+            .limit(limit)
+        return try database.prepare(query).map(rowToListArticle)
+    }
+
+    func allArticlesList(from startDate: Date, to endDate: Date, limit: Int = 200) throws -> [Article] {
+        let query = selectingListColumns(articles)
+            .filter(articlePublishedDate >= startDate.timeIntervalSince1970
+                    && articlePublishedDate < endDate.timeIntervalSince1970)
+            .order(articlePublishedDate.desc)
+            .limit(limit)
+        return try database.prepare(query).map(rowToListArticle)
+    }
 }

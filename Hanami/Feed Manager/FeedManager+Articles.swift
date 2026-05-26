@@ -24,7 +24,7 @@ public extension FeedManager {
     func todayArticles() -> [Article] {
         _ = dataRevision
         let startOfToday = Calendar.current.startOfDay(for: Date())
-        var all = (try? database.allArticles(since: startOfToday)) ?? []
+        var all = (try? database.allArticlesList(since: startOfToday)) ?? []
         let muted = mutedFeedIDs
         if !muted.isEmpty {
             all = all.filter { !muted.contains($0.feedID) }
@@ -58,7 +58,7 @@ public extension FeedManager {
     func olderArticles(limit: Int = 200) -> [Article] {
         _ = dataRevision
         let startOfToday = Calendar.current.startOfDay(for: Date())
-        var all = (try? database.allArticles(before: startOfToday, limit: limit)) ?? []
+        var all = (try? database.allArticlesList(before: startOfToday, limit: limit)) ?? []
         let muted = mutedFeedIDs
         if !muted.isEmpty {
             all = all.filter { !muted.contains($0.feedID) }
@@ -69,13 +69,13 @@ public extension FeedManager {
     func articles(for feed: Feed, limit: Int? = nil, requireUnread: Bool = false) -> [Article] {
         _ = dataRevision
         guard requireUnread, let limit else {
-            let all = (try? database.articles(forFeedID: feed.id, limit: limit)) ?? []
+            let all = (try? database.articlesList(forFeedID: feed.id, limit: limit)) ?? []
             return applyRules(all, feedID: feed.id)
         }
         var fetchLimit = max(limit * 4, 100)
         let maxIterations = 20
         for _ in 0..<maxIterations {
-            let all = (try? database.articles(forFeedID: feed.id, limit: fetchLimit)) ?? []
+            let all = (try? database.articlesList(forFeedID: feed.id, limit: fetchLimit)) ?? []
             let pool = applyRules(all, feedID: feed.id)
             let unread = pool.filter { !$0.isRead }
             if unread.count >= limit || pool.count < fetchLimit {
@@ -83,19 +83,19 @@ public extension FeedManager {
             }
             fetchLimit *= 2
         }
-        let all = (try? database.articles(forFeedID: feed.id, limit: fetchLimit)) ?? []
+        let all = (try? database.articlesList(forFeedID: feed.id, limit: fetchLimit)) ?? []
         return Array(applyRules(all, feedID: feed.id).filter { !$0.isRead }.prefix(limit))
     }
 
     func articles(for feed: Feed, since date: Date) -> [Article] {
         _ = dataRevision
-        let all = (try? database.articles(forFeedID: feed.id, since: date)) ?? []
+        let all = (try? database.articlesList(forFeedID: feed.id, since: date)) ?? []
         return applyRules(all, feedID: feed.id)
     }
 
     func undatedArticles(for feed: Feed) -> [Article] {
         _ = dataRevision
-        let all = (try? database.undatedArticles(forFeedID: feed.id)) ?? []
+        let all = (try? database.undatedArticlesList(forFeedID: feed.id)) ?? []
         return applyRules(all, feedID: feed.id)
     }
 
@@ -111,7 +111,7 @@ public extension FeedManager {
             let chunkStart = FeedManager.chunkStart(for: earlier)
             guard chunkStart < cursor else { return nil }
             let chunkEnd = FeedManager.chunkEnd(for: chunkStart)
-            let chunkArticles = (try? database.articles(forFeedID: feed.id, since: chunkStart)) ?? []
+            let chunkArticles = (try? database.articlesList(forFeedID: feed.id, since: chunkStart)) ?? []
             let inChunk = chunkArticles.filter { ($0.publishedDate ?? .distantPast) < chunkEnd }
             if !applyRules(inChunk, feedID: feed.id).isEmpty {
                 return chunkStart
@@ -138,7 +138,7 @@ public extension FeedManager {
 
     func articles(since date: Date) -> [Article] {
         _ = dataRevision
-        var all = (try? database.allArticles(since: date, limit: nil)) ?? []
+        var all = (try? database.allArticlesList(since: date, limit: nil)) ?? []
         let muted = mutedFeedIDs
         if !muted.isEmpty {
             all = all.filter { !muted.contains($0.feedID) }
@@ -160,7 +160,7 @@ public extension FeedManager {
             let chunkStart = FeedManager.chunkStart(for: earlier)
             guard chunkStart < cursor else { return nil }
             let chunkEnd = FeedManager.chunkEnd(for: chunkStart)
-            let chunkArticles = (try? database.allArticles(from: chunkStart, to: chunkEnd, limit: 10000)) ?? []
+            let chunkArticles = (try? database.allArticlesList(from: chunkStart, to: chunkEnd, limit: 10000)) ?? []
             var visible = muted.isEmpty ? chunkArticles : chunkArticles.filter { !muted.contains($0.feedID) }
             visible = applyAllRules(visible)
             if !visible.isEmpty {
@@ -299,7 +299,7 @@ public extension FeedManager {
                 .map(\.id)
         )
         guard !sectionFeedIDs.isEmpty else { return [] }
-        let pool = (try? database.articles(forFeedIDs: sectionFeedIDs, since: date)) ?? []
+        let pool = (try? database.articlesList(forFeedIDs: sectionFeedIDs, since: date)) ?? []
         return applyAllRules(pool)
     }
 
@@ -312,7 +312,7 @@ public extension FeedManager {
                 .map(\.id)
         )
         guard !sectionFeedIDs.isEmpty else { return [] }
-        let pool = (try? database.undatedArticles(forFeedIDs: sectionFeedIDs)) ?? []
+        let pool = (try? database.undatedArticlesList(forFeedIDs: sectionFeedIDs)) ?? []
         return applyAllRules(pool)
     }
 
@@ -327,7 +327,7 @@ public extension FeedManager {
             guard let chunkStart = nextArticleChunk(before: cursor) else { return nil }
             guard chunkStart < cursor else { return nil }
             let chunkEnd = FeedManager.chunkEnd(for: chunkStart)
-            let chunkArticles = (try? database.allArticles(from: chunkStart, to: chunkEnd, limit: 10000)) ?? []
+            let chunkArticles = (try? database.allArticlesList(from: chunkStart, to: chunkEnd, limit: 10000)) ?? []
             var visible = muted.isEmpty ? chunkArticles : chunkArticles.filter { !muted.contains($0.feedID) }
             visible = applyAllRules(visible).filter { sectionFeedIDs.contains($0.feedID) }
             if !visible.isEmpty {
