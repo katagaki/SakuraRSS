@@ -48,26 +48,37 @@ struct ArticleDestinationView: View {
         return mode
     }
 
+    /// Stable per-article identity. Ephemeral articles all share `id == 0`, so
+    /// they key on the URL instead; otherwise navigating between two ephemeral
+    /// articles (or any reused detail view) leaves the previous content on
+    /// screen because the id-keyed loader never re-runs.
+    private var articleIdentity: String {
+        article.isEphemeral ? article.url : String(article.id)
+    }
+
     var body: some View {
         let article = rawArticle
-        if article.isPodcastEpisode {
-            PodcastEpisodeView(article: article, audioPlayer: audioPlayer)
-        } else if article.isYouTubeURL {
-            YouTubePlayerView(article: article, session: youTubeSession)
-        } else if effectiveOpenMode == .clearThisPage,
-                  let url = URL(string: article.url) {
-            ClearThisPageView(article: article, url: url)
-        } else if effectiveOpenMode == .readability,
-                  let url = URL(string: article.url) {
-            ReadabilityView(article: article, url: url)
-        } else if effectiveOpenMode == .archivePh,
-                  let url = URL(string: article.url) {
-            ArchivePhView(article: article, url: url)
-        } else {
-            ArticleDetailView(
-                article: article,
-                ephemeralTextMode: article.isEphemeral ? overrideTextMode : nil
-            )
+        Group {
+            if article.isPodcastEpisode {
+                PodcastEpisodeView(article: article, audioPlayer: audioPlayer)
+            } else if article.isYouTubeURL {
+                YouTubePlayerView(article: article, session: youTubeSession)
+            } else if effectiveOpenMode == .clearThisPage,
+                      let url = URL(string: article.url) {
+                ClearThisPageView(article: article, url: url)
+            } else if effectiveOpenMode == .readability,
+                      let url = URL(string: article.url) {
+                ReadabilityView(article: article, url: url)
+            } else if effectiveOpenMode == .archivePh,
+                      let url = URL(string: article.url) {
+                ArchivePhView(article: article, url: url)
+            } else {
+                ArticleDetailView(
+                    article: article,
+                    ephemeralTextMode: article.isEphemeral ? overrideTextMode : nil
+                )
+            }
         }
+        .id(articleIdentity)
     }
 }
