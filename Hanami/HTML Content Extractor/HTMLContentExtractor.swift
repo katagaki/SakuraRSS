@@ -88,7 +88,8 @@ public final class HTMLContentExtractor {
         let text = extractText(
             fromHTML: html,
             baseURL: baseURL,
-            excludeTitle: excludeTitle
+            excludeTitle: excludeTitle,
+            preparsedDocument: doc
         )
         return ExtractionResult(
             text: text,
@@ -100,7 +101,8 @@ public final class HTMLContentExtractor {
     public static func extractText(
         fromHTML html: String,
         baseURL: URL? = nil,
-        excludeTitle: String? = nil
+        excludeTitle: String? = nil,
+        preparsedDocument: Document? = nil
     ) -> String? {
         guard !html.isEmpty else {
             log("Extract", "extractText: empty HTML, returning nil")
@@ -136,7 +138,12 @@ public final class HTMLContentExtractor {
         log("Extract", "extractText: full HTML (\(tagCount) tags, \(html.count) chars), parsing with SwiftSoup")
 
         do {
-            let doc = try SwiftSoup.parse(html)
+            let doc: Document
+            if let preparsedDocument {
+                doc = preparsedDocument
+            } else {
+                doc = try SwiftSoup.parse(html)
+            }
             normalizeAMPElements(in: doc)
             // Promote social embeds (YouTube, X) into marker paragraphs
             // before noise removal so selectors targeting twitter-tweet
