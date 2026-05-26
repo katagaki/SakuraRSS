@@ -93,7 +93,6 @@ struct CardsStyleView: View {
         .navigationDestination(item: $selectedArticle) { article in
             let raw = feedManager.article(byID: article.id) ?? article
             ArticleDetailView(article: raw, marksReadOnAppear: false)
-                .id(raw.id)
                 .zoomTransition(sourceID: article.id, in: zoomNamespace)
         }
         .onAppear {
