@@ -4,6 +4,8 @@ import Hanami
 /// Image fitted to a fixed height; width follows the natural aspect ratio.
 struct CarouselImageView: View {
 
+    static let maxPixelSize: CGFloat = 800
+
     let url: URL
     let height: CGFloat
     @State private var image: UIImage?
@@ -12,7 +14,9 @@ struct CarouselImageView: View {
         self.url = url
         self.height = height
         // Paint memory-cache hits on first render to avoid placeholder flash during scroll.
-        _image = State(initialValue: ImageMemoryCache.shared.image(forKey: url.absoluteString))
+        _image = State(initialValue: ImageMemoryCache.shared.image(
+            forKey: CachedAsyncImage<EmptyView>.cacheKey(url, CarouselImageView.maxPixelSize)
+        ))
     }
 
     var body: some View {
@@ -35,7 +39,9 @@ struct CarouselImageView: View {
         }
         .task(priority: .utility) {
             if image != nil { return }
-            let loaded = await CachedAsyncImage<EmptyView>.loadImage(from: url)
+            let loaded = await CachedAsyncImage<EmptyView>.loadImage(
+                from: url, maxPixelSize: CarouselImageView.maxPixelSize
+            )
             if Task.isCancelled { return }
             image = loaded
         }

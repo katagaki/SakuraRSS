@@ -95,7 +95,7 @@ struct PhotosArticleCard: View {
                     let effectiveRatio = max(imageAspectRatio ?? 4.0/5.0, 4.0/5.0)
                     TabView(selection: $currentPage) {
                         ForEach(Array(urls.enumerated()), id: \.offset) { index, url in
-                            CachedAsyncImage(url: url) {
+                            CachedAsyncImage(url: url, maxPixelSize: 1600) {
                                 Rectangle()
                                     .fill(.secondary.opacity(0.1))
                             }
@@ -114,7 +114,7 @@ struct PhotosArticleCard: View {
                             .padding(.bottom, 8)
                     }
                     .task {
-                        let loaded = await CachedAsyncImage<EmptyView>.loadImage(from: urls[0])
+                        let loaded = await CachedAsyncImage<EmptyView>.loadImage(from: urls[0], maxPixelSize: 1600)
                         photoImage = loaded
                         if let loaded, loaded.size.height > 0 {
                             imageAspectRatio = loaded.size.width / loaded.size.height
@@ -233,7 +233,7 @@ struct PhotosArticleCard: View {
             guard article.carouselImageURLs.count <= 1,
                   let imageURL = article.imageURL,
                   let url = URL(string: imageURL) else { return }
-            let loaded = await CachedAsyncImage<EmptyView>.loadImage(from: url)
+            let loaded = await CachedAsyncImage<EmptyView>.loadImage(from: url, maxPixelSize: 1600)
             guard !Task.isCancelled, let loaded, loaded.size.height > 0 else { return }
             let pixelWidth = loaded.size.width * loaded.scale
             let pixelHeight = loaded.size.height * loaded.scale

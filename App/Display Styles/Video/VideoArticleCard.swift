@@ -32,7 +32,7 @@ struct VideoArticleCard: View {
                 Color.clear
                     .aspectRatio(16 / 9, contentMode: .fit)
                     .overlay {
-                        CachedAsyncImage(url: url) {
+                        CachedAsyncImage(url: url, maxPixelSize: 1200) {
                             Rectangle()
                                 .fill(.secondary.opacity(0.15))
                         }

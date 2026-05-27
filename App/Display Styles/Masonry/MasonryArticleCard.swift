@@ -32,6 +32,7 @@ struct MasonryArticleCard: View {
                         .overlay {
                             CachedAsyncImage(
                                 url: url,
+                                maxPixelSize: 800,
                                 onImageLoaded: { image in
                                     guard image.size.height > 0 else { return }
                                     imageAspectRatio = image.size.width / image.size.height
