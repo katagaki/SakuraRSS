@@ -36,6 +36,24 @@ nonisolated private let htmlNamedEntities: [String: String] = [
     "hearts": "\u{2665}", "diams": "\u{2666}"
 ]
 
+nonisolated private let rssLinkRegex = try? NSRegularExpression(
+    pattern: #"<a\s[^>]*href=["']([^"']+)["'][^>]*>(.*?)</a>"#
+)
+nonisolated private let rssSupSubRegex = try? NSRegularExpression(
+    pattern: #"\{\{(SUP|SUB)\}\}(.+?)\{\{/(SUP|SUB)\}\}"#
+)
+nonisolated private let rssMarkdownLinkRegex = try? NSRegularExpression(
+    pattern: #"\[([^\]]+)\]\(([^)]+)\)"#
+)
+nonisolated private let rssPreTagRegex = try? NSRegularExpression(
+    pattern: #"<pre(?:\s[^>]*)?>(?:\s*<code(?:\s[^>]*)?>)?(.*?)(?:</code>\s*)?</pre>"#,
+    options: [.caseInsensitive, .dotMatchesLineSeparators]
+)
+nonisolated private let rssImgTagRegex = try? NSRegularExpression(
+    pattern: #"<img\s[^>]*src=["']([^"']+)["'][^>]*>"#,
+    options: .caseInsensitive
+)
+
 public nonisolated extension RSSParser {
 
     func decodeHTMLEntities(_ string: String) -> String {
@@ -127,9 +145,7 @@ public nonisolated extension RSSParser {
     }
 
     private func convertLinksToMarkdown(_ text: String, baseURL: URL? = nil) -> String {
-        guard let linkRegex = try? NSRegularExpression(
-            pattern: #"<a\s[^>]*href=["']([^"']+)["'][^>]*>(.*?)</a>"#
-        ) else { return text }
+        guard let linkRegex = rssLinkRegex else { return text }
 
         var result = text
         let nsResult = result as NSString
@@ -246,15 +262,13 @@ public nonisolated extension RSSParser {
     }
 
     func stripInvalidURLSupSub(_ text: String) -> String {
-        let pattern = #"\{\{(SUP|SUB)\}\}(.+?)\{\{/(SUP|SUB)\}\}"#
-        guard let regex = try? NSRegularExpression(pattern: pattern) else { return text }
+        guard let regex = rssSupSubRegex else { return text }
         var result = text
         let nsText = result as NSString
         let matches = regex.matches(in: result, range: NSRange(location: 0, length: nsText.length))
         for match in matches.reversed() {
             let content = nsText.substring(with: match.range(at: 2))
-            let linkPattern = #"\[([^\]]+)\]\(([^)]+)\)"#
-            if let linkRegex = try? NSRegularExpression(pattern: linkPattern),
+            if let linkRegex = rssMarkdownLinkRegex,
                let linkMatch = linkRegex.firstMatch(
                 in: content, range: NSRange(location: 0, length: (content as NSString).length)
                ) {
@@ -273,10 +287,7 @@ public nonisolated extension RSSParser {
     }
 
     private func replacePreTagsWithMarkers(_ text: String) -> String {
-        guard let regex = try? NSRegularExpression(
-            pattern: #"<pre(?:\s[^>]*)?>(?:\s*<code(?:\s[^>]*)?>)?(.*?)(?:</code>\s*)?</pre>"#,
-            options: [.caseInsensitive, .dotMatchesLineSeparators]
-        ) else { return text }
+        guard let regex = rssPreTagRegex else { return text }
         var result = text
         let nsResult = result as NSString
         let matches = regex.matches(in: result, range: NSRange(location: 0, length: nsResult.length))
@@ -293,9 +304,7 @@ public nonisolated extension RSSParser {
     }
 
     private func replaceImgTagsWithMarkers(_ text: String) -> String {
-        let imgPattern = #"<img\s[^>]*src=["']([^"']+)["'][^>]*>"#
-        guard let imgRegex = try? NSRegularExpression(pattern: imgPattern, options: .caseInsensitive)
-        else { return text }
+        guard let imgRegex = rssImgTagRegex else { return text }
         var result = text
         let nsResult = result as NSString
         let matches = imgRegex.matches(in: result, range: NSRange(location: 0, length: nsResult.length))

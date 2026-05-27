@@ -20,6 +20,9 @@ struct FeedArticlesView: View {
     @State private var hasScrolledPastTitle: Bool = false
     @State private var effectiveDisplayStyle: FeedDisplayStyle?
     @State private var prominentColors: [Color] = []
+    @State private var fetchedArticles: [Article] = []
+    @State private var undatedTail: [Article] = []
+    @State private var hasLoadedWindow = false
 
     private var batchingMode: BatchingMode {
         DoomscrollingMode.effectiveBatchingMode(storedBatchingMode)
@@ -65,24 +68,51 @@ struct FeedArticlesView: View {
         return nil
     }
 
-    private var rawArticles: [Article] {
+    private var slicedIDs: [Int64] {
         let batcher = self.batcher
-        let slicedIDs: [Int64]
         if batchingMode.isCountBased {
-            slicedIDs = batcher.ids(limit: loadedCount)
+            return batcher.ids(limit: loadedCount)
         } else if batchingMode.isDateBased {
-            slicedIDs = batcher.ids(since: loadedSinceDate)
+            return batcher.ids(since: loadedSinceDate)
         } else {
-            slicedIDs = preloadedEntries.map(\.id)
+            return preloadedEntries.map(\.id)
         }
-        var articles = feedManager.articles(withPreloadedIDs: slicedIDs)
+    }
+
+    private func assembleArticles(windowed: [Article], undated: [Article]) -> [Article] {
+        var articles = windowed
         if loadMoreAction == nil {
-            articles += feedManager.undatedArticles(for: feed)
+            articles += undated
         }
         if hideReels && feed.isInstagramFeed {
             articles = articles.filter { !$0.url.contains("/reel/") }
         }
         return articles
+    }
+
+    /// Live assembly that performs the database fetches; used for the initial
+    /// frame and the visibility-capture sites that need a current snapshot.
+    private func currentRawArticles() -> [Article] {
+        assembleArticles(
+            windowed: feedManager.articles(withPreloadedIDs: slicedIDs),
+            undated: feedManager.undatedArticles(for: feed)
+        )
+    }
+
+    /// Cached assembly read by `body` and the visibility trackers, so
+    /// scroll-driven re-evaluations don't hit the database.
+    private var rawArticles: [Article] {
+        guard hasLoadedWindow else { return currentRawArticles() }
+        return assembleArticles(windowed: fetchedArticles, undated: undatedTail)
+    }
+
+    private func refreshWindowedArticles() {
+        fetchedArticles = feedManager.articles(withPreloadedIDs: slicedIDs)
+        hasLoadedWindow = true
+    }
+
+    private func refreshUndatedTail() {
+        undatedTail = feedManager.undatedArticles(for: feed)
     }
 
     var styleSupportsRichHeader: Bool {
@@ -209,10 +239,15 @@ struct FeedArticlesView: View {
                 latestArticleDate: latestArticleDateForFeed()
             )
             loadedCount = batchingMode.initialCount()
-            visibility.capture(from: rawArticles, isEnabled: hideViewedContent)
+            visibility.capture(from: currentRawArticles(), isEnabled: hideViewedContent)
+        }
+        .onChange(of: slicedIDs) { _, _ in
+            refreshWindowedArticles()
         }
         .onChange(of: feedManager.dataRevision) { _, _ in
             reloadPreloadedEntries()
+            refreshWindowedArticles()
+            refreshUndatedTail()
         }
         .onChange(of: hideViewedContent) { _, _ in
             reloadPreloadedEntries()
@@ -222,10 +257,10 @@ struct FeedArticlesView: View {
                 latestArticleDate: latestArticleDateForFeed()
             )
             loadedCount = newMode.initialCount()
-            visibility.capture(from: rawArticles, isEnabled: hideViewedContent)
+            visibility.capture(from: currentRawArticles(), isEnabled: hideViewedContent)
         }
         .onChange(of: doomscrollingMode) { _, _ in
-            visibility.capture(from: rawArticles, isEnabled: hideViewedContent)
+            visibility.capture(from: currentRawArticles(), isEnabled: hideViewedContent)
         }
         .onChange(of: feedExists) { _, exists in
             if !exists { dismiss() }
@@ -276,8 +311,10 @@ extension FeedArticlesView {
             return
         }
         preloadedEntries = entries
+        refreshWindowedArticles()
+        refreshUndatedTail()
         if hideViewedContent, visibility.visibleIDs == nil, !preloadedEntries.isEmpty {
-            visibility.capture(from: rawArticles, isEnabled: hideViewedContent)
+            visibility.capture(from: currentRawArticles(), isEnabled: hideViewedContent)
         }
     }
 

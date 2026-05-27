@@ -32,6 +32,7 @@ private enum CachedAsyncImageConfig {
 struct CachedAsyncImage<Placeholder: View>: View {
 
     let url: URL?
+    let maxPixelSize: CGFloat
     let alignment: Alignment
     let onImageLoaded: ((UIImage) -> Void)?
     let placeholder: () -> Placeholder
@@ -41,17 +42,19 @@ struct CachedAsyncImage<Placeholder: View>: View {
 
     init(
         url: URL?,
+        maxPixelSize: CGFloat = CachedAsyncImageConfig.maxDisplayPixelSize,
         alignment: Alignment = .center,
         onImageLoaded: ((UIImage) -> Void)? = nil,
         @ViewBuilder placeholder: @escaping () -> Placeholder
     ) {
         self.url = url
+        self.maxPixelSize = maxPixelSize
         self.alignment = alignment
         self.onImageLoaded = onImageLoaded
         self.placeholder = placeholder
         let initial: UIImage? = {
             guard let url, !url.absoluteString.hasPrefix("data:") else { return nil }
-            return ImageMemoryCache.shared.image(forKey: url.absoluteString)
+            return ImageMemoryCache.shared.image(forKey: Self.cacheKey(url, maxPixelSize))
         }()
         _image = State(initialValue: initial)
         _isLoading = State(initialValue: initial == nil)
@@ -93,7 +96,7 @@ struct CachedAsyncImage<Placeholder: View>: View {
                 isLoading = false
                 return
             }
-            let loadedImage = await Self.loadImage(from: url)
+            let loadedImage = await Self.loadImage(from: url, maxPixelSize: maxPixelSize)
             if Task.isCancelled { return }
             image = loadedImage
             if let loadedImage {
@@ -108,15 +111,27 @@ struct CachedAsyncImage<Placeholder: View>: View {
         CachedAsyncImageConfig.maxDisplayPixelSize
     }
 
-    nonisolated static func loadImage(from url: URL) async -> UIImage? {
+    /// Full-size requests keep the bare URL (so existing callers and the
+    /// `CarouselImageView` raw-URL lookup still hit); thumbnails get a size suffix.
+    nonisolated static func cacheKey(_ url: URL, _ maxPixelSize: CGFloat) -> String {
+        maxPixelSize == CachedAsyncImageConfig.maxDisplayPixelSize
+            ? url.absoluteString
+            : "\(url.absoluteString)|\(Int(maxPixelSize))"
+    }
+
+    nonisolated static func loadImage(
+        from url: URL,
+        maxPixelSize: CGFloat = CachedAsyncImageConfig.maxDisplayPixelSize
+    ) async -> UIImage? {
         let urlString = url.absoluteString
 
         if urlString.hasPrefix("data:") {
             return nil
         }
 
+        let key = cacheKey(url, maxPixelSize)
         let memoryCache = ImageMemoryCache.shared
-        if let cached = memoryCache.image(forKey: urlString) {
+        if let cached = memoryCache.image(forKey: key) {
             _ = cached.ensureIconDerivedMetrics()
             return cached
         }
@@ -125,10 +140,10 @@ struct CachedAsyncImage<Placeholder: View>: View {
 
         if let cachedData = try? database.cachedImageData(for: urlString),
            let cachedImage = ImageDownsampler.downsample(
-               cachedData, maxPixelSize: maxDisplayPixelSize
+               cachedData, maxPixelSize: maxPixelSize
            ) ?? UIImage(data: cachedData) {
             _ = cachedImage.ensureIconDerivedMetrics()
-            memoryCache.setImage(cachedImage, forKey: urlString)
+            memoryCache.setImage(cachedImage, forKey: key)
             log("Image", "Cache hit for \(urlString) (\(cachedData.count) bytes)")
             return cachedImage
         }
@@ -140,17 +155,17 @@ struct CachedAsyncImage<Placeholder: View>: View {
             let statusCode = (response as? HTTPURLResponse)?.statusCode
             log("Image", "Downloaded \(urlString): \(data.count) bytes, HTTP \(statusCode ?? 0)")
             let downsampled = ImageDownsampler.downsample(
-                data, maxPixelSize: maxDisplayPixelSize
+                data, maxPixelSize: maxPixelSize
             ) ?? UIImage(data: data)
             guard let downsampled else {
                 log("Image", "Failed to decode image data from \(urlString) (\(data.count) bytes)")
                 return nil
             }
             _ = downsampled.ensureIconDerivedMetrics()
-            if memoryCache.image(forKey: urlString) == nil {
+            if memoryCache.image(forKey: key) == nil {
                 try? database.cacheImageData(data, for: urlString)
             }
-            memoryCache.setImage(downsampled, forKey: urlString)
+            memoryCache.setImage(downsampled, forKey: key)
             return downsampled
         } catch {
             log("Image", "Download failed for \(urlString): \(error.localizedDescription)")

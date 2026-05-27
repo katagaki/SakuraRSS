@@ -69,6 +69,8 @@ struct HomeSectionView: View {
     @State private var scrollToTopTick: Int = 0
     @State private var lastLoadedSource: HomeContentSource?
     @State private var lastLoadedHideViewed: Bool?
+    @State private var fetchedArticles: [Article] = []
+    @State private var hasLoadedWindow = false
 
     private var batchingMode: BatchingMode {
         DoomscrollingMode.effectiveBatchingMode(storedBatchingMode)
@@ -92,21 +94,38 @@ struct HomeSectionView: View {
         return nil
     }
 
-    var rawArticles: [Article] {
+    private var slicedIDs: [Int64] {
         let batcher = self.batcher
-        let slicedIDs: [Int64]
         if batchingMode.isCountBased {
-            slicedIDs = batcher.ids(limit: loadedCount)
+            return batcher.ids(limit: loadedCount)
         } else if batchingMode.isDateBased {
-            slicedIDs = batcher.ids(since: loadedSinceDate)
+            return batcher.ids(since: loadedSinceDate)
         } else {
-            slicedIDs = preloadedEntries.map(\.id)
+            return preloadedEntries.map(\.id)
         }
-        var articles = feedManager.articles(withPreloadedIDs: slicedIDs)
-        if hideInstagramReels {
-            articles = articles.filter { !$0.url.contains("/reel/") }
-        }
-        return articles
+    }
+
+    private func assembleArticles(_ windowed: [Article]) -> [Article] {
+        guard hideInstagramReels else { return windowed }
+        return windowed.filter { !$0.url.contains("/reel/") }
+    }
+
+    /// Live assembly that performs the database fetch; used for the initial
+    /// frame and the visibility-capture sites that need a current snapshot.
+    private func currentRawArticles() -> [Article] {
+        assembleArticles(feedManager.articles(withPreloadedIDs: slicedIDs))
+    }
+
+    /// Cached assembly read by `body` and the visibility trackers, so
+    /// scroll-driven re-evaluations don't hit the database.
+    var rawArticles: [Article] {
+        guard hasLoadedWindow else { return currentRawArticles() }
+        return assembleArticles(fetchedArticles)
+    }
+
+    private func refreshWindowedArticles() {
+        fetchedArticles = feedManager.articles(withPreloadedIDs: slicedIDs)
+        hasLoadedWindow = true
     }
 
     private func reloadPreloadedEntries() async {
@@ -141,8 +160,9 @@ struct HomeSectionView: View {
             return
         }
         preloadedEntries = entries
+        refreshWindowedArticles()
         if hideViewedContent, visibility.visibleIDs == nil, !preloadedEntries.isEmpty {
-            visibility.capture(from: rawArticles, isEnabled: hideViewedContent)
+            visibility.capture(from: currentRawArticles(), isEnabled: hideViewedContent)
         }
     }
 
@@ -152,7 +172,7 @@ struct HomeSectionView: View {
         feedManager.flushDebouncedReads()
         withAnimation(.smooth.speed(2.0)) {
             visibility.beginRefresh(
-                from: rawArticles,
+                from: currentRawArticles(),
                 isEnabled: hideViewedContent,
                 recaptureVisible: true
             )
@@ -176,7 +196,7 @@ struct HomeSectionView: View {
         feedManager.flushDebouncedReads()
         withAnimation(.smooth.speed(2.0)) {
             visibility.beginRefresh(
-                from: rawArticles,
+                from: currentRawArticles(),
                 isEnabled: hideViewedContent,
                 recaptureVisible: true
             )
@@ -266,7 +286,7 @@ struct HomeSectionView: View {
                     latestArticleDate: latestArticleDate()
                 )
                 loadedCount = batchingMode.initialCount()
-                visibility.capture(from: rawArticles, isEnabled: hideViewedContent)
+                visibility.capture(from: currentRawArticles(), isEnabled: hideViewedContent)
                 hasInitializedSinceDate = true
             }
             lastLoadedSource = source
@@ -277,10 +297,13 @@ struct HomeSectionView: View {
                 latestArticleDate: latestArticleDate()
             )
             loadedCount = newMode.initialCount()
-            visibility.capture(from: rawArticles, isEnabled: hideViewedContent)
+            visibility.capture(from: currentRawArticles(), isEnabled: hideViewedContent)
         }
         .onChange(of: doomscrollingMode) { _, _ in
-            visibility.capture(from: rawArticles, isEnabled: hideViewedContent)
+            visibility.capture(from: currentRawArticles(), isEnabled: hideViewedContent)
+        }
+        .onChange(of: slicedIDs) { _, _ in
+            refreshWindowedArticles()
         }
     }
 

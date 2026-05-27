@@ -13,21 +13,34 @@ struct IconProgressBadge: View {
     var cornerRadius: CGFloat = 12
 
     var body: some View {
-        TimelineView(.periodic(from: .now, by: 1)) { context in
-            if let progress = cooldownProgress(now: context.date) {
-                ZStack {
-                    shape
-                        .fill(Color.clear)
-                    PieSliceShape(progress: 1 - progress)
-                        .fill(Color.black.opacity(0.4))
-                        .clipShape(shape)
+        if isCooldownActive {
+            TimelineView(.periodic(from: .now, by: 1)) { context in
+                if let progress = cooldownProgress(now: context.date) {
+                    ZStack {
+                        shape
+                            .fill(Color.clear)
+                        PieSliceShape(progress: 1 - progress)
+                            .fill(Color.black.opacity(0.4))
+                            .clipShape(shape)
+                    }
+                    .frame(width: size, height: size)
+                    .allowsHitTesting(false)
+                } else {
+                    Color.clear.frame(width: size, height: size)
                 }
-                .frame(width: size, height: size)
-                .allowsHitTesting(false)
-            } else {
-                Color.clear.frame(width: size, height: size)
             }
+        } else {
+            Color.clear.frame(width: size, height: size)
         }
+    }
+
+    /// Whether a cooldown is currently elapsing. When false the periodic
+    /// timeline is skipped entirely so idle feed icons don't re-render once a
+    /// second.
+    private var isCooldownActive: Bool {
+        guard let lastFetched, cooldown > 0 else { return false }
+        let elapsed = Date().timeIntervalSince(lastFetched)
+        return elapsed >= 0 && elapsed < cooldown
     }
 
     private var shape: AnyShape {

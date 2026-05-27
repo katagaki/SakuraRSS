@@ -10,7 +10,7 @@ public extension FeedManager {
     func preloadedArticleEntries(requireUnread: Bool = false) -> [ArticleIDEntry] {
         _ = dataRevision
         let muted = mutedFeedIDs
-        let raw = (try? database.allArticles(limit: Int.max)) ?? []
+        let raw = (try? database.allArticlesList(limit: Int.max)) ?? []
         var pool = applyAllRules(raw)
         if !muted.isEmpty {
             pool = pool.filter { !muted.contains($0.feedID) }
@@ -28,7 +28,7 @@ public extension FeedManager {
 
     func preloadedArticleEntries(for feed: Feed, requireUnread: Bool = false) -> [ArticleIDEntry] {
         _ = dataRevision
-        let raw = (try? database.articles(forFeedID: feed.id)) ?? []
+        let raw = (try? database.articlesList(forFeedID: feed.id)) ?? []
         var pool = applyRules(raw, feedID: feed.id)
         if requireUnread {
             pool = pool.filter { !$0.isRead }
@@ -92,7 +92,7 @@ public extension FeedManager {
             forEntity: topic,
             types: ["organization", "place"]
         )) ?? []
-        let raw = (try? database.articles(withIDs: ids)) ?? []
+        let raw = (try? database.articlesList(withIDs: ids)) ?? []
         var pool = applyAllRules(raw)
         if !muted.isEmpty {
             pool = pool.filter { !muted.contains($0.feedID) }
@@ -113,7 +113,7 @@ public extension FeedManager {
     func articles(withPreloadedIDs ids: [Int64]) -> [Article] {
         guard !ids.isEmpty else { return [] }
         _ = dataRevision
-        let fetched = (try? database.articles(withIDs: ids)) ?? []
+        let fetched = (try? database.articlesList(withIDs: ids)) ?? []
         let byID = Dictionary(uniqueKeysWithValues: fetched.map { ($0.id, $0) })
         let ordered = ids.compactMap { byID[$0] }
         return applyContentOverrides(ordered)
@@ -183,7 +183,7 @@ public extension FeedManager {
         muted: Set<Int64>,
         requireUnread: Bool
     ) -> [ArticleIDEntry] {
-        let raw = (try? database.allArticles(limit: Int.max)) ?? []
+        let raw = (try? database.allArticlesList(limit: Int.max)) ?? []
         var pool = applyAllRules(raw, database: database)
         if !muted.isEmpty {
             pool = pool.filter { !muted.contains($0.feedID) }
@@ -247,7 +247,7 @@ public extension FeedManager {
             forEntity: topic,
             types: ["organization", "place"]
         )) ?? []
-        let raw = (try? database.articles(withIDs: ids)) ?? []
+        let raw = (try? database.articlesList(withIDs: ids)) ?? []
         var pool = applyAllRules(raw, database: database)
         if !muted.isEmpty {
             pool = pool.filter { !muted.contains($0.feedID) }

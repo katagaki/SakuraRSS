@@ -86,7 +86,7 @@ public extension FeedManager {
         guard !feedsWithRules.isEmpty else { return rawCounts }
         var result = rawCounts
         for feedID in feedsWithRules where (result[feedID] ?? 0) > 0 {
-            let unread = (try? database.unreadArticles(forFeedID: feedID)) ?? []
+            let unread = (try? database.unreadArticlesList(forFeedID: feedID)) ?? []
             result[feedID] = applyRules(unread, feedID: feedID, database: database).count
         }
         return result

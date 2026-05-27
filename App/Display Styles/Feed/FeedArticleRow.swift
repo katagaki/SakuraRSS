@@ -241,7 +241,7 @@ struct FeedArticleRow: View {
                 imageAspectRatio = nil
                 return
             }
-            let image = await CachedAsyncImage<EmptyView>.loadImage(from: url)
+            let image = await CachedAsyncImage<EmptyView>.loadImage(from: url, maxPixelSize: 1200)
             guard !Task.isCancelled, let image else { return }
             let pixelWidth = image.size.width * image.scale
             let pixelHeight = image.size.height * image.scale

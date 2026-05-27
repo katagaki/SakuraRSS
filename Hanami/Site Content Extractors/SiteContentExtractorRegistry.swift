@@ -12,7 +12,8 @@ public enum SiteContentExtractorRegistry {
         TomsHardwareExtractor(),
         France24Extractor(),
         AppleExtractor(),
-        ZDNETExtractor()
+        ZDNETExtractor(),
+        NineToFiveExtractor()
     ]
 
     public static func extractor(for url: URL) -> SiteContentExtractor? {

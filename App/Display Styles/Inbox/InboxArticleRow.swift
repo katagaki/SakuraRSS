@@ -18,7 +18,7 @@ struct InboxArticleRow: View {
                 .padding(.top, 6)
 
             if let imageURL = article.imageURL, let url = URL(string: imageURL) {
-                CachedAsyncImage(url: url) {
+                CachedAsyncImage(url: url, maxPixelSize: 144) {
                     FeedIconPlaceholder(
                         icon: icon,
                         acronymIcon: acronymIcon,

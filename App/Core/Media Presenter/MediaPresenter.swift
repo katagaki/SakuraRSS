@@ -20,7 +20,16 @@ final class MediaPresenter {
 
     private init() {}
 
+    /// Refills the `content` blob for persisted articles. Callers hand in the
+    /// content-light list projection; the players read `content`, so resolve the
+    /// full row here. Ephemeral articles (no DB row) keep their in-memory value.
+    private func resolvingFullContent(_ article: Article) -> Article {
+        guard !article.isEphemeral else { return article }
+        return (try? DatabaseManager.shared.article(byID: article.id)) ?? article
+    }
+
     func presentYouTube(_ article: Article) {
+        let article = resolvingFullContent(article)
         if let detachedHandler {
             // Detached windows own per-window sessions and run their own
             // adoption on appear; skip the shared-session mutation.
@@ -45,6 +54,7 @@ final class MediaPresenter {
     }
 
     func presentPodcast(_ article: Article) {
+        let article = resolvingFullContent(article)
         if let detachedHandler {
             detachedHandler(.podcast(article))
         } else {

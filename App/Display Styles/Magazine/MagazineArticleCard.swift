@@ -20,7 +20,7 @@ struct MagazineArticleCard: View {
                     Color.clear
                         .frame(height: 120)
                         .overlay {
-                            CachedAsyncImage(url: url, alignment: shouldCenterImage ? .center : .top) {
+                            CachedAsyncImage(url: url, maxPixelSize: 1200, alignment: shouldCenterImage ? .center : .top) {
                                 Rectangle()
                                     .fill(.secondary.opacity(0.15))
                             }

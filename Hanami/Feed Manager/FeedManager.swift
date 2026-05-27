@@ -147,7 +147,7 @@ public final class FeedManager {
         do {
             feeds = try database.allFeeds()
             feedsByID = Dictionary(uniqueKeysWithValues: feeds.map { ($0.id, $0) })
-            articles = try database.allArticles(limit: 200)
+            articles = try database.allArticlesList(limit: 200)
             let rawUnreadCounts = (try? database.allUnreadCounts()) ?? [:]
             unreadCounts = FeedManager.applyRulesToUnreadCounts(rawUnreadCounts, database: database)
             let instagramFeedIDs = Set(feeds.filter { $0.isInstagramFeed }.map(\.id))
@@ -177,7 +177,7 @@ public final class FeedManager {
                 loadedLists
             ) = try await Task.detached {
                 let feeds = try dbm.allFeeds()
-                let articles = try dbm.allArticles(limit: 200)
+                let articles = try dbm.allArticlesList(limit: 200)
                 let rawUnreadCounts = (try? dbm.allUnreadCounts()) ?? [:]
                 let unreadCounts = FeedManager.applyRulesToUnreadCounts(rawUnreadCounts, database: dbm)
                 let instagramFeedIDs = Set(feeds.filter { $0.isInstagramFeed }.map(\.id))
