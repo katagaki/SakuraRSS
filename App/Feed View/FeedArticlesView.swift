@@ -90,9 +90,8 @@ struct FeedArticlesView: View {
         return articles
     }
 
-    /// Live assembly that performs the database fetches. Used for the initial
-    /// frame and the infrequent `visibility.capture` sites that need an
-    /// up-to-date snapshot before the cache-refresh handlers fire.
+    /// Live assembly that performs the database fetches; used for the initial
+    /// frame and the visibility-capture sites that need a current snapshot.
     private func currentRawArticles() -> [Article] {
         assembleArticles(
             windowed: feedManager.articles(withPreloadedIDs: slicedIDs),
@@ -100,10 +99,8 @@ struct FeedArticlesView: View {
         )
     }
 
-    /// Cached assembly read by `body` and the visibility trackers. Once the
-    /// window has loaded this reads only in-memory state, so scroll-driven body
-    /// re-evaluations (e.g. the visibility tracker ticking) never hit the
-    /// database.
+    /// Cached assembly read by `body` and the visibility trackers, so
+    /// scroll-driven re-evaluations don't hit the database.
     private var rawArticles: [Article] {
         guard hasLoadedWindow else { return currentRawArticles() }
         return assembleArticles(windowed: fetchedArticles, undated: undatedTail)

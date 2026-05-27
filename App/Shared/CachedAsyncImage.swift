@@ -111,10 +111,8 @@ struct CachedAsyncImage<Placeholder: View>: View {
         CachedAsyncImageConfig.maxDisplayPixelSize
     }
 
-    /// Memory-cache key. The full-size default keeps the bare URL so existing
-    /// readers (and the raw-URL lookup in `CarouselImageView`) still hit;
-    /// smaller thumbnail requests get a size-suffixed key so a list row and a
-    /// hero image of the same URL don't clobber each other.
+    /// Full-size requests keep the bare URL (so existing callers and the
+    /// `CarouselImageView` raw-URL lookup still hit); thumbnails get a size suffix.
     nonisolated static func cacheKey(_ url: URL, _ maxPixelSize: CGFloat) -> String {
         maxPixelSize == CachedAsyncImageConfig.maxDisplayPixelSize
             ? url.absoluteString

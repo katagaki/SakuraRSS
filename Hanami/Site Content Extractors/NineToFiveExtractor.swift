@@ -17,10 +17,8 @@ public struct NineToFiveExtractor: SiteContentExtractor {
         guard let container = try? document.select("div.post-content").first() else {
             return nil
         }
-        // The body lives in `.post-content`; every `<article>` on the page is a
-        // clickable recirculation card, so the generic `article` selector would
-        // otherwise return a "Featured Content" carousel item. Strip those cards
-        // in case they nest inside the body container.
+        // Every <article> here is a recirculation card, so strip the featured /
+        // related modules in case they nest inside the body container.
         try? container.select(".featured-items, .related-guides, .related-guide").remove()
 
         guard let html = try? container.outerHtml(), !html.isEmpty else { return nil }
