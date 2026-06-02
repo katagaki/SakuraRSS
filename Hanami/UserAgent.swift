@@ -6,10 +6,6 @@ public nonisolated let sakuraUserAgent = "Mozilla/5.0 (Macintosh; Intel Mac OS X
 public nonisolated let sakuraUserAgent = "Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.5 Mobile/15E148 Safari/605.1.15"
 #endif
 
-/// Accept-Language header derived from the user's preferred locales, Safari-style.
-/// Sending the device's real language preference keeps remote services from
-/// forcing English — notably stops YouTube's AutoDub from replacing a video's
-/// original audio with an English dub.
 public nonisolated var sakuraAcceptLanguage: String {
     let preferred = Locale.preferredLanguages.prefix(5)
     guard !preferred.isEmpty else { return "en-US,en;q=0.9" }

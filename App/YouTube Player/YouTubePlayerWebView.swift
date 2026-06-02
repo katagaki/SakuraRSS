@@ -16,11 +16,6 @@ struct YouTubePlayerWebView: UIViewRepresentable {
     @Binding var videoAspectRatio: CGFloat
     @Binding var isPiP: Bool
     var chapters: Binding<[YouTubeChapter]>?
-    /// Time callbacks are deliberately not `@Binding`s. SwiftUI reads bindings'
-    /// `wrappedValue` inside the parent view's body tracking scope while
-    /// diffing the view, which would re-subscribe the parent to whatever
-    /// observable backs the binding (causing toolbar/menu rebuilds at every
-    /// quarter-second tick when the source is `session.currentTime`).
     var onTimeUpdate: ((TimeInterval) -> Void)?
     var onDurationUpdate: ((TimeInterval) -> Void)?
 
@@ -164,13 +159,6 @@ struct YouTubePlayerWebView: UIViewRepresentable {
         return components.url ?? url
     }
 
-    /// A desktop Chrome User-Agent, used on Mac Catalyst only. YouTube serves
-    /// Safari/WKWebView a native HLS stream with the dubbed audio baked in and
-    /// no switchable tracks; with a Chrome UA it serves its MSE player instead,
-    /// which exposes `getAvailableAudioTracks()` / `setAudioTrack()` so the
-    /// original audio can be selected. On iOS the desktop player stops inline
-    /// playback after about a minute, so iPhone and iPad use the default
-    /// WKWebView User-Agent (`nil`) and the mobile site instead.
     static var youTubeUserAgent: String? {
         #if targetEnvironment(macCatalyst)
         return "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 "
