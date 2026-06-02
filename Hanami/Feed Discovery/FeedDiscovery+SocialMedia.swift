@@ -110,7 +110,7 @@ public extension FeedDiscovery {
     static func resolveYouTubeChannelID(from url: URL) async -> String? {
         var request = URLRequest(url: url)
         request.setValue(sakuraUserAgent, forHTTPHeaderField: "User-Agent")
-        request.setValue("en-US,en;q=0.9", forHTTPHeaderField: "Accept-Language")
+        request.setValue(sakuraAcceptLanguage, forHTTPHeaderField: "Accept-Language")
 
         do {
             let (data, _) = try await URLSession.shared.data(for: request)

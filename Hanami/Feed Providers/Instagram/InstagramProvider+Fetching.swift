@@ -98,16 +98,7 @@ public extension InstagramProvider {
 
     // MARK: - Accept-Language
 
-    /// Accept-Language header value derived from the user's preferred locales, Safari-style.
-    static var acceptLanguageHeader: String {
-        let preferred = Locale.preferredLanguages.prefix(5)
-        guard !preferred.isEmpty else { return "en-US,en;q=0.9" }
-        return preferred.enumerated().map { index, lang in
-            if index == 0 { return lang }
-            let quality = max(0.1, 1.0 - Double(index) * 0.1)
-            return "\(lang);q=\(String(format: "%.1f", quality))"
-        }.joined(separator: ",")
-    }
+    static var acceptLanguageHeader: String { sakuraAcceptLanguage }
 
     // MARK: - Cookies
 
