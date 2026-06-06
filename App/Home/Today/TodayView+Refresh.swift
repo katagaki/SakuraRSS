@@ -16,7 +16,7 @@ extension TodayView {
         let feeds = feedManager.feeds
         let loadEntities = contentInsightsEnabled
         Task { @MainActor in
-            await feedManager.refreshFeeds(scope: "section.today", feeds: feeds)
+            await feedManager.refreshFeeds(scope: "section.today", feeds: feeds, runNLP: loadEntities)
             todayManager.load(
                 feeds: feedManager.feeds,
                 dataRevision: feedManager.dataRevision,
