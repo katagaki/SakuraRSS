@@ -162,7 +162,10 @@ public extension FeedManager {
                 }
             }
         }
-        await MainActor.run { self.lastRefreshedAt = Date() }
+        await MainActor.run {
+            self.lastRefreshedAt = Date()
+            self.scopedLastRefreshedAt = [:]
+        }
         log("FeedRefresh.Category", "category=\(category.rawValue) end count=\(eligible.count)")
     }
 
