@@ -96,15 +96,15 @@ struct ProfileView: View {
                         }
                     }
                     .tint(.primary)
-                    Link(destination: URL(string: "https://testflight.apple.com/join/Vhb17waj")!) {
-                        HStack {
-                            Text("More.TestFlight")
-                            Spacer()
-                            Image(systemName: "arrow.up.right.square")
-                                .foregroundStyle(.secondary)
-                        }
-                    }
-                    .tint(.primary)
+//                    Link(destination: URL(string: "https://testflight.apple.com/join/Vhb17waj")!) {
+//                        HStack {
+//                            Text("More.TestFlight")
+//                            Spacer()
+//                            Image(systemName: "arrow.up.right.square")
+//                                .foregroundStyle(.secondary)
+//                        }
+//                    }
+//                    .tint(.primary)
                     NavigationLink {
                         AttributesView()
                     } label: {
