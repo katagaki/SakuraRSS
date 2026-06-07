@@ -5,6 +5,10 @@ struct HomeRefreshStatusView: View {
 
     let state: ScopedRefreshState
     var onStop: (() -> Void)?
+    @Binding var isShowingDetails: Bool
+    let refreshingFeedIDs: Set<Int64>
+    let pendingFeedIDs: [Int64]
+    @Environment(FeedManager.self) private var feedManager
 
     var body: some View {
         Button {
@@ -33,6 +37,17 @@ struct HomeRefreshStatusView: View {
         .shadow(color: .black.opacity(0.15), radius: 8, y: 2)
         .animation(.smooth, value: state.completed)
         .accessibilityLabel(Text(String(localized: "Refresh.Stop", table: "Home")))
+        .onLongPressGesture {
+            isShowingDetails = true
+        }
+        .popover(isPresented: $isShowingDetails) {
+            RefreshingFeedsPopoverView(
+                refreshingFeedIDs: refreshingFeedIDs,
+                pendingFeedIDs: pendingFeedIDs
+            )
+            .environment(feedManager)
+            .presentationCompactAdaptation(.popover)
+        }
     }
 
     private var progressText: String {

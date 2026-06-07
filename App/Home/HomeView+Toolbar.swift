@@ -96,7 +96,10 @@ extension HomeView {
                 if homeRefreshState.hasActiveProgress {
                     HomeRefreshStatusView(
                         state: homeRefreshState,
-                        onStop: cancelHomeRefresh
+                        onStop: cancelHomeRefresh,
+                        isShowingDetails: $isShowingRefreshingFeedsPopover,
+                        refreshingFeedIDs: activeRefreshingFeedIDs,
+                        pendingFeedIDs: activePendingFeedIDs
                     )
                     .padding(.top, 8)
                     .transition(.move(edge: .top).combined(with: .opacity))
