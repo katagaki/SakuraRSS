@@ -118,7 +118,6 @@ struct SummarySection: View {
             footer
                 .padding(.horizontal)
         }
-        .padding(.bottom, 12)
         .background {
             appleIntelligenceMeshBackground
         }

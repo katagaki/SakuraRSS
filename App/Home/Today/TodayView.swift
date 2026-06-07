@@ -24,11 +24,9 @@ struct TodayView: View {
             VStack(alignment: .leading, spacing: 16) {
                 TodayGreetingView()
                     .padding(.horizontal)
-                    .padding(.top, 8)
 
                 if isWeatherShowing {
                     sectionDivider
-                        .padding(.top, 4)
                 }
 
                 if !anySummaryVisible, !isWeatherShowing,
@@ -74,6 +72,7 @@ struct TodayView: View {
 
                 attributionFooter
             }
+            .padding(.top, 8)
             .padding(.bottom, 24)
         }
         .sakuraBackground()
