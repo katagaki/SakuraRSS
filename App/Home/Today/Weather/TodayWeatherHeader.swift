@@ -22,6 +22,7 @@ struct TodayWeatherHeader: View {
                         .symbolVariant(.fill)
                         .symbolRenderingMode(.multicolor)
                         .font(.system(size: 28))
+                        .shadow(color: .black.opacity(0.15), radius: 2, y: 1)
                 }
                 Spacer(minLength: 0)
                 VStack(alignment: .trailing, spacing: 2) {

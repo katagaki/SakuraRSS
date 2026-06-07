@@ -45,8 +45,12 @@ struct TodayWeatherCard: View {
         .clipShape(.rect(cornerRadius: 14))
     }
 
-    private func tint(_ weather: TodayWeather) -> Color {
-        baseColor(weather).opacity(colorScheme == .dark ? 0.3 : 0.2)
+    private func tint(_ weather: TodayWeather) -> Color? {
+        if graphMode == .precipitation {
+            guard weather.alert != nil else { return nil }
+            return Color.red.opacity(colorScheme == .dark ? 0.3 : 0.2)
+        }
+        return baseColor(weather).opacity(colorScheme == .dark ? 0.3 : 0.2)
     }
 
     private func baseColor(_ weather: TodayWeather) -> Color {

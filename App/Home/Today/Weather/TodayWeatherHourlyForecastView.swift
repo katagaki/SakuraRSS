@@ -26,6 +26,7 @@ struct TodayWeatherHourlyForecastView: View {
                 .symbolRenderingMode(.multicolor)
                 .font(.body)
                 .frame(width: 22)
+                .shadow(color: .black.opacity(0.15), radius: 1.5, y: 0.5)
         }
     }
 
