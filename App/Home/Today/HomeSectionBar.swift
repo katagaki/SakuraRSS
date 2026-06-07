@@ -140,6 +140,9 @@ private struct HomeSectionBarButton: View {
 
     var body: some View {
         Button(action: action) {
+            // Reserve the semibold width always so selecting a tab doesn't widen
+            // it (regular -> semibold). A width change resizes the scroll content
+            // and makes the horizontal ScrollView reset its offset to 0.
             Text(tab.title)
                 .font(.body.weight(.semibold))
                 .lineLimit(1)
