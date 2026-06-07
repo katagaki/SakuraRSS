@@ -1,3516 +1,3711 @@
 {
-  "sourceLanguage" : "en",
-  "strings" : {
-    "Cleanup.AllTime" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Gesamte Zeit"
+  "sourceLanguage": "en",
+  "strings": {
+    "Cleanup.AllTime": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gesamte Zeit"
           }
         },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "All Time"
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "All Time"
           }
         },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Depuis toujours"
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Depuis toujours"
           }
         },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Dall'inizio"
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dall'inizio"
           }
         },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "すべて"
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "すべて"
           }
         },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "전체"
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "전체"
           }
         },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Aller tijden"
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aller tijden"
           }
         },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tất cả"
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tất cả"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "所有时间"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "所有时间"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "所有時間"
-          }
-        }
-      }
-    },
-    "Cleanup.Automatic.Enabled" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Automatische Bereinigung"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Automatic Clean Up"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nettoyage automatique"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Pulizia automatica"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "自動クリーンアップ"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "자동 정리"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Automatisch opruimen"
-          }
-        },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Dọn dẹp tự động"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "自动清理"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "自動清理"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "所有時間"
           }
         }
       }
     },
-    "Cleanup.Automatic.Footer" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Wenn aktiviert, löscht Sakura im Hintergrund regelmäßig Inhalte, die älter als das gewählte Intervall sind."
+    "Cleanup.Automatic.Enabled": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Automatische Bereinigung"
           }
         },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "When on, Sakura periodically deletes content older than the chosen interval in the background."
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Automatic Clean Up"
           }
         },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Lorsqu’activé, Sakura supprime périodiquement en arrière-plan les contenus plus anciens que l’intervalle choisi."
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nettoyage automatique"
           }
         },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Se attivata, Sakura elimina periodicamente in background i contenuti più vecchi dell’intervallo scelto."
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pulizia automatica"
           }
         },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "有効にすると、選択した期間より古いコンテンツがバックグラウンドで定期的に削除されます。"
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "自動クリーンアップ"
           }
         },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "켜면 Sakura가 선택한 기간보다 오래된 콘텐츠를 백그라운드에서 주기적으로 삭제합니다."
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "자동 정리"
           }
         },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Indien ingeschakeld verwijdert Sakura periodiek op de achtergrond content die ouder is dan het gekozen interval."
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Automatisch opruimen"
           }
         },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Khi bật, Sakura sẽ định kỳ xóa nội dung cũ hơn khoảng thời gian đã chọn trong nền."
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dọn dẹp tự động"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "启用后,Sakura 会在后台定期删除早于所选时间间隔的内容。"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "自动清理"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "啟用後,Sakura 會在背景定期刪除早於所選時間間隔的內容。"
-          }
-        }
-      }
-    },
-    "Cleanup.Automatic.IncludeBookmarks" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Lesezeichen einbeziehen"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Include Bookmarks"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Inclure les signets"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Includi segnalibri"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ブックマークも含める"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "북마크 포함"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Bladwijzers meenemen"
-          }
-        },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Bao gồm dấu trang"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "包含书签"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "包含書籤"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "自動清理"
           }
         }
       }
     },
-    "Cleanup.Automatic.Picker" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Inhalte bereinigen"
+    "Cleanup.Automatic.Footer": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wenn aktiviert, löscht Sakura im Hintergrund regelmäßig Inhalte, die älter als das gewählte Intervall sind."
           }
         },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Clean Up Content"
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "When on, Sakura periodically deletes content older than the chosen interval in the background."
           }
         },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nettoyer le contenu"
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lorsqu’activé, Sakura supprime périodiquement en arrière-plan les contenus plus anciens que l’intervalle choisi."
           }
         },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Pulisci contenuti"
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Se attivata, Sakura elimina periodicamente in background i contenuti più vecchi dell’intervallo scelto."
           }
         },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "コンテンツをクリーンアップ"
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "有効にすると、選択した期間より古いコンテンツがバックグラウンドで定期的に削除されます。"
           }
         },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "콘텐츠 정리"
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "켜면 Sakura가 선택한 기간보다 오래된 콘텐츠를 백그라운드에서 주기적으로 삭제합니다."
           }
         },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Content opruimen"
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Indien ingeschakeld verwijdert Sakura periodiek op de achtergrond content die ouder is dan het gekozen interval."
           }
         },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Dọn nội dung"
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Khi bật, Sakura sẽ định kỳ xóa nội dung cũ hơn khoảng thời gian đã chọn trong nền."
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "清理内容"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "启用后,Sakura 会在后台定期删除早于所选时间间隔的内容。"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "清理內容"
-          }
-        }
-      }
-    },
-    "Cleanup.Confirm" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Löschen"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Delete"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Supprimer"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Elimina"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "削除"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "삭제"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Verwijderen"
-          }
-        },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Xóa"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "删除"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "刪除"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "啟用後,Sakura 會在背景定期刪除早於所選時間間隔的內容。"
           }
         }
       }
     },
-    "Cleanup.ConfirmMessage %@" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Alle Inhalte älter als \"%@\" werden dauerhaft gelöscht. Dies kann nicht rückgängig gemacht werden."
+    "Cleanup.Automatic.IncludeBookmarks": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lesezeichen einbeziehen"
           }
         },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "All content older than \"%@\" will be permanently deleted. This cannot be undone."
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Include Bookmarks"
           }
         },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tout le contenu datant de plus de « %@ » sera supprimé définitivement. Cette action est irréversible."
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Inclure les signets"
           }
         },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tutti i contenuti più vecchi di \"%@\" verranno eliminati definitivamente. Questa azione non può essere annullata."
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Includi segnalibri"
           }
         },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "「%@」より前のコンテンツがすべて完全に削除されます。この操作は取り消せません。"
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ブックマークも含める"
           }
         },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "\"%@\"보다 오래된 모든 콘텐츠가 영구적으로 삭제됩니다. 이 작업은 되돌릴 수 없습니다."
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "북마크 포함"
           }
         },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Alle content ouder dan \"%@\" wordt permanent verwijderd. Dit kan niet ongedaan worden gemaakt."
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bladwijzers meenemen"
           }
         },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tất cả nội dung cũ hơn \"%@\" sẽ bị xóa vĩnh viễn. Hành động này không thể hoàn tác."
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bao gồm dấu trang"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "所有早于「%@」的内容将被永久删除。此操作无法撤消。"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "包含书签"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "所有早於「%@」的內容將被永久刪除。此操作無法復原。"
-          }
-        }
-      }
-    },
-    "Cleanup.ConfirmTitle" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Inhalte löschen?"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Delete Content?"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Supprimer le contenu ?"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Eliminare i contenuti?"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "コンテンツを削除しますか？"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "콘텐츠를 삭제하시겠습니까?"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Content verwijderen?"
-          }
-        },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Xóa nội dung?"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "删除内容？"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "刪除內容？"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "包含書籤"
           }
         }
       }
     },
-    "Cleanup.Cutoff.Off" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Aus"
+    "Cleanup.Automatic.Picker": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Inhalte bereinigen"
           }
         },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Off"
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clean Up Content"
           }
         },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Désactivé"
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nettoyer le contenu"
           }
         },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Disattivato"
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pulisci contenuti"
           }
         },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "オフ"
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "コンテンツをクリーンアップ"
           }
         },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "끔"
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "콘텐츠 정리"
           }
         },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Uit"
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Content opruimen"
           }
         },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tắt"
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dọn nội dung"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "关闭"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "清理内容"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "關閉"
-          }
-        }
-      }
-    },
-    "Cleanup.Cutoff.OlderThanHeader" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Älter als …"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Anything Older Than…"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Plus ancien que…"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Più vecchio di…"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "次より古いコンテンツ…"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "다음보다 오래된 항목…"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Alles ouder dan…"
-          }
-        },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Cũ hơn…"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "早于…"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "早於…"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "清理內容"
           }
         }
       }
     },
-    "Cleanup.Last4Weeks" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Letzte 4 Wochen"
+    "Cleanup.Confirm": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Löschen"
           }
         },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Last 4 Weeks"
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete"
           }
         },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "4 dernières semaines"
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Supprimer"
           }
         },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ultime 4 settimane"
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Elimina"
           }
         },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "過去4週間"
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "削除"
           }
         },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "최근 4주"
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "삭제"
           }
         },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Afgelopen 4 weken"
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verwijderen"
           }
         },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "4 tuần qua"
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Xóa"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "过去4周"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "删除"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "過去4週"
-          }
-        }
-      }
-    },
-    "Cleanup.Last7Days" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Letzte 7 Tage"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Last 7 Days"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "7 derniers jours"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ultimi 7 giorni"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "過去7日間"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "최근 7일"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Afgelopen 7 dagen"
-          }
-        },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "7 ngày qua"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "过去7天"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "過去7天"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "刪除"
           }
         }
       }
     },
-    "Cleanup.Last24Hours" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Letzte 24 Stunden"
+    "Cleanup.ConfirmMessage %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alle Inhalte älter als \"%@\" werden dauerhaft gelöscht. Dies kann nicht rückgängig gemacht werden."
           }
         },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Last 24 Hours"
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "All content older than \"%@\" will be permanently deleted. This cannot be undone."
           }
         },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Dernières 24 heures"
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tout le contenu datant de plus de « %@ » sera supprimé définitivement. Cette action est irréversible."
           }
         },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ultime 24 ore"
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tutti i contenuti più vecchi di \"%@\" verranno eliminati definitivamente. Questa azione non può essere annullata."
           }
         },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "過去24時間"
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "「%@」より前のコンテンツがすべて完全に削除されます。この操作は取り消せません。"
           }
         },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "최근 24시간"
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\"%@\"보다 오래된 모든 콘텐츠가 영구적으로 삭제됩니다. 이 작업은 되돌릴 수 없습니다."
           }
         },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Afgelopen 24 uur"
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alle content ouder dan \"%@\" wordt permanent verwijderd. Dit kan niet ongedaan worden gemaakt."
           }
         },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "24 giờ qua"
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tất cả nội dung cũ hơn \"%@\" sẽ bị xóa vĩnh viễn. Hành động này không thể hoàn tác."
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "过去24小时"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "所有早于「%@」的内容将被永久删除。此操作无法撤消。"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "過去24小時"
-          }
-        }
-      }
-    },
-    "Cleanup.Last30Days" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Letzte 30 Tage"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Last 30 Days"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "30 derniers jours"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ultimi 30 giorni"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "過去30日間"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "지난 30일"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Afgelopen 30 dagen"
-          }
-        },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "30 Ngày Qua"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "过去30天"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "過去30天"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "所有早於「%@」的內容將被永久刪除。此操作無法復原。"
           }
         }
       }
     },
-    "Cleanup.Manual.Message" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Wähle aus, wie weit zurück Inhalte gelöscht werden sollen. Gelöschte Inhalte können nicht wiederhergestellt werden."
+    "Cleanup.ConfirmTitle": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Inhalte löschen?"
           }
         },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Choose how far back to delete content. Deleted content cannot be restored."
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete Content?"
           }
         },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Choisissez jusqu’où supprimer les contenus. Le contenu supprimé ne peut pas être restauré."
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Supprimer le contenu ?"
           }
         },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Scegli fino a quando eliminare i contenuti. I contenuti eliminati non possono essere ripristinati."
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eliminare i contenuti?"
           }
         },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "どこまで遡ってコンテンツを削除するかを選択してください。削除したコンテンツは復元できません。"
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "コンテンツを削除しますか？"
           }
         },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "콘텐츠를 어디까지 삭제할지 선택하세요. 삭제된 콘텐츠는 복원할 수 없습니다."
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "콘텐츠를 삭제하시겠습니까?"
           }
         },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Kies hoe ver terug content moet worden verwijderd. Verwijderde content kan niet worden hersteld."
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Content verwijderen?"
           }
         },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Chọn khoảng thời gian cần xóa. Nội dung đã xóa không thể khôi phục."
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Xóa nội dung?"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "选择要删除多久之前的内容。已删除的内容无法恢复。"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "删除内容？"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "選擇要刪除多久之前的內容。已刪除的內容無法復原。"
-          }
-        }
-      }
-    },
-    "Cleanup.Success" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Inhalte wurden gelöscht."
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Content has been deleted."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Le contenu a été supprimé."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "I contenuti sono stati eliminati."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "コンテンツが削除されました。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "콘텐츠가 삭제되었습니다."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "De content is verwijderd."
-          }
-        },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nội dung đã được xóa."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "内容已删除。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "內容已刪除。"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "刪除內容？"
           }
         }
       }
     },
-    "Cleanup.Title" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Alte Inhalte löschen"
+    "Cleanup.Cutoff.Off": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aus"
           }
         },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Delete Old Content"
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Off"
           }
         },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Supprimer les anciens contenus"
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Désactivé"
           }
         },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Elimina vecchi contenuti"
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Disattivato"
           }
         },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "古いコンテンツを削除"
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "オフ"
           }
         },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "오래된 콘텐츠 삭제"
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "끔"
           }
         },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Oude content verwijderen"
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uit"
           }
         },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Xóa nội dung cũ"
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tắt"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "清除旧内容"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "关闭"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "清除舊內容"
-          }
-        }
-      }
-    },
-    "Export.Error" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Export der Feeds fehlgeschlagen."
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Failed to export subscriptions."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Échec de l'exportation des flux."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Esportazione dei feed non riuscita."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "フィードのエクスポートに失敗しました。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "피드 내보내기에 실패했습니다."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Kon de abonnementen niet exporteren."
-          }
-        },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Không thể xuất danh sách nguồn cấp."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "订阅源导出失败。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "訂閱源匯出失敗。"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "關閉"
           }
         }
       }
     },
-    "Export.Success" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Feeds erfolgreich exportiert."
+    "Cleanup.Cutoff.OlderThanHeader": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Älter als …"
           }
         },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Subscriptions exported successfully."
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Anything Older Than…"
           }
         },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Flux exportés avec succès."
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Plus ancien que…"
           }
         },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Feed esportati con successo."
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Più vecchio di…"
           }
         },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "フィードのエクスポートに成功しました。"
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "次より古いコンテンツ…"
           }
         },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "피드를 성공적으로 내보냈습니다."
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "다음보다 오래된 항목…"
           }
         },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Abonnementen zijn geëxporteerd."
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alles ouder dan…"
           }
         },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Đã xuất danh sách nguồn cấp thành công."
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cũ hơn…"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "订阅源导出成功。"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "早于…"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "訂閱源匯出成功。"
-          }
-        }
-      }
-    },
-    "ExportOPML" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Exportieren"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Export"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Exporter"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Esporta"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "エクスポート"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "내보내기"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Exporteren"
-          }
-        },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Xuất"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "导出"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "匯出"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "早於…"
           }
         }
       }
     },
-    "iCloudBackup.AutoBackup" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Automatische Backups"
+    "Cleanup.Last4Weeks": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Letzte 4 Wochen"
           }
         },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Automatic Backups"
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Last 4 Weeks"
           }
         },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sauvegardes automatiques"
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "4 dernières semaines"
           }
         },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Backup automatici"
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ultime 4 settimane"
           }
         },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "自動バックアップ"
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "過去4週間"
           }
         },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "자동 백업"
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "최근 4주"
           }
         },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Automatische reservekopieën"
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Afgelopen 4 weken"
           }
         },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sao lưu tự động"
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "4 tuần qua"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "自动备份"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "过去4周"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "自動備份"
-          }
-        }
-      }
-    },
-    "iCloudBackup.BackupError" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Backup konnte nicht erstellt werden."
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Failed to create backup."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Échec de la création de la sauvegarde."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Impossibile creare il backup."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "バックアップを作成できませんでした。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "백업을 생성하지 못했습니다."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Kon geen reservekopie maken."
-          }
-        },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Không thể tạo bản sao lưu."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "无法创建备份。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "無法建立備份。"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "過去4週"
           }
         }
       }
     },
-    "iCloudBackup.BackupNow" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Jetzt sichern"
+    "Cleanup.Last7Days": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Letzte 7 Tage"
           }
         },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Back Up Now"
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Last 7 Days"
           }
         },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sauvegarder maintenant"
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "7 derniers jours"
           }
         },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Esegui backup ora"
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ultimi 7 giorni"
           }
         },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "今すぐバックアップ"
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "過去7日間"
           }
         },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "지금 백업"
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "최근 7일"
           }
         },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nu een reservekopie maken"
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Afgelopen 7 dagen"
           }
         },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sao lưu ngay"
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "7 ngày qua"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "立即备份"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "过去7天"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "立即備份"
-          }
-        }
-      }
-    },
-    "iCloudBackup.BackupSuccess" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Backup erfolgreich abgeschlossen."
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Backup completed successfully."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sauvegarde terminée avec succès."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Backup completato con successo."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "バックアップが完了しました。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "백업이 완료되었습니다."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Reservekopie is voltooid."
-          }
-        },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Đã hoàn tất sao lưu."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "备份已成功完成。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "備份已成功完成。"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "過去7天"
           }
         }
       }
     },
-    "iCloudBackup.Footer" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Backups enthalten Ihre Feeds, Inhalte, Lesestatus, Lesezeichen und Feed-Regeln."
+    "Cleanup.Last24Hours": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Letzte 24 Stunden"
           }
         },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Backups include your feeds, content, read states, bookmarks, and feed rules."
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Last 24 Hours"
           }
         },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Les sauvegardes incluent vos flux, contenus, états de lecture, favoris et règles de flux."
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dernières 24 heures"
           }
         },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "I backup includono i tuoi feed, contenuti, stati di lettura, preferiti e regole dei feed."
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ultime 24 ore"
           }
         },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "バックアップには、フィード、コンテンツ、既読状態、ブックマーク、フィードルールが含まれます。"
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "過去24時間"
           }
         },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "백업에는 피드, 콘텐츠, 읽음 상태, 북마크, 피드 규칙이 포함됩니다."
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "최근 24시간"
           }
         },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Reservekopieën bevatten je feeds, content, leesstatussen, bladwijzers en feedregels."
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Afgelopen 24 uur"
           }
         },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Bản sao lưu bao gồm nguồn cấp, nội dung, trạng thái đã đọc, mục đã lưu và quy tắc nguồn cấp."
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "24 giờ qua"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "备份包含您的订阅源、内容、已读状态、书签和订阅源规则。"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "过去24小时"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "備份包含您的訂閱源、內容、已讀狀態、書籤和訂閱源規則。"
-          }
-        }
-      }
-    },
-    "iCloudBackup.Interval.Every6Hours" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Alle 6 Stunden"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Every 6 Hours"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Toutes les 6 heures"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ogni 6 ore"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "6時間ごと"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "6시간마다"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Elke 6 uur"
-          }
-        },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Mỗi 6 giờ"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "每 6 小时"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "每 6 小時"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "過去24小時"
           }
         }
       }
     },
-    "iCloudBackup.Interval.Every12Hours" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Alle 12 Stunden"
+    "Cleanup.Last30Days": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Letzte 30 Tage"
           }
         },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Every 12 Hours"
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Last 30 Days"
           }
         },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Toutes les 12 heures"
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "30 derniers jours"
           }
         },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ogni 12 ore"
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ultimi 30 giorni"
           }
         },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "12時間ごと"
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "過去30日間"
           }
         },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "12시간마다"
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "지난 30일"
           }
         },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Elke 12 uur"
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Afgelopen 30 dagen"
           }
         },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Mỗi 12 giờ"
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "30 Ngày Qua"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "每 12 小时"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "过去30天"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "每 12 小時"
-          }
-        }
-      }
-    },
-    "iCloudBackup.Interval.EveryNight" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Jede Nacht"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Every Night"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Chaque nuit"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ogni notte"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "毎晩"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "매일 밤"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Elke nacht"
-          }
-        },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Mỗi đêm"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "每晚"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "每晚"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "過去30天"
           }
         }
       }
     },
-    "iCloudBackup.Interval.Off" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Aus"
+    "Cleanup.Manual.Message": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wähle aus, wie weit zurück Inhalte gelöscht werden sollen. Gelöschte Inhalte können nicht wiederhergestellt werden."
           }
         },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Off"
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose how far back to delete content. Deleted content cannot be restored."
           }
         },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Désactivé"
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choisissez jusqu’où supprimer les contenus. Le contenu supprimé ne peut pas être restauré."
           }
         },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Disattivato"
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scegli fino a quando eliminare i contenuti. I contenuti eliminati non possono essere ripristinati."
           }
         },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "オフ"
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "どこまで遡ってコンテンツを削除するかを選択してください。削除したコンテンツは復元できません。"
           }
         },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "끔"
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "콘텐츠를 어디까지 삭제할지 선택하세요. 삭제된 콘텐츠는 복원할 수 없습니다."
           }
         },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Uit"
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kies hoe ver terug content moet worden verwijderd. Verwijderde content kan niet worden hersteld."
           }
         },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tắt"
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chọn khoảng thời gian cần xóa. Nội dung đã xóa không thể khôi phục."
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "关闭"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "选择要删除多久之前的内容。已删除的内容无法恢复。"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "關閉"
-          }
-        }
-      }
-    },
-    "iCloudBackup.LastBackupLabel" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Letztes Backup"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Last Backup"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Dernière sauvegarde"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ultimo backup"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "最終バックアップ"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "마지막 백업"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Laatste reservekopie"
-          }
-        },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sao lưu gần nhất"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "上次备份"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "上次備份"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "選擇要刪除多久之前的內容。已刪除的內容無法復原。"
           }
         }
       }
     },
-    "iCloudBackup.Never" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nie"
+    "Cleanup.Success": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Inhalte wurden gelöscht."
           }
         },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Never"
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Content has been deleted."
           }
         },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Jamais"
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le contenu a été supprimé."
           }
         },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Mai"
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "I contenuti sono stati eliminati."
           }
         },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "なし"
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "コンテンツが削除されました。"
           }
         },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "없음"
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "콘텐츠가 삭제되었습니다."
           }
         },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nooit"
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "De content is verwijderd."
           }
         },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Chưa bao giờ"
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nội dung đã được xóa."
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "从未"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "内容已删除。"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "從未"
-          }
-        }
-      }
-    },
-    "iCloudBackup.RestoreError" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Wiederherstellung aus Backup fehlgeschlagen."
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Failed to restore from backup."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Échec de la restauration depuis la sauvegarde."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Impossibile ripristinare dal backup."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "バックアップから復元できませんでした。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "백업에서 복원하지 못했습니다."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Kon niet herstellen vanuit de reservekopie."
-          }
-        },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Không thể khôi phục từ bản sao lưu."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "无法从备份恢复。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "無法從備份還原。"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "內容已刪除。"
           }
         }
       }
     },
-    "iCloudBackup.Title" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "iCloud-Backup"
+    "Cleanup.Title": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alte Inhalte löschen"
           }
         },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "iCloud Backup"
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete Old Content"
           }
         },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sauvegarde iCloud"
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Supprimer les anciens contenus"
           }
         },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Backup iCloud"
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Elimina vecchi contenuti"
           }
         },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "iCloudバックアップ"
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "古いコンテンツを削除"
           }
         },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "iCloud 백업"
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "오래된 콘텐츠 삭제"
           }
         },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "iCloud-reservekopie"
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Oude content verwijderen"
           }
         },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sao lưu iCloud"
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Xóa nội dung cũ"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "iCloud 备份"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "清除旧内容"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "iCloud 備份"
-          }
-        }
-      }
-    },
-    "iCloudBackup.Unavailable" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Melden Sie sich in den Einstellungen bei iCloud an, um Backups zu aktivieren."
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sign in to iCloud in Settings to enable backups."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Connectez-vous à iCloud dans les Réglages pour activer les sauvegardes."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Accedi a iCloud nelle Impostazioni per abilitare i backup."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "バックアップを有効にするには、設定でiCloudにサインインしてください。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "백업을 활성화하려면 설정에서 iCloud에 로그인하세요."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Log in bij iCloud in Instellingen om reservekopieën in te schakelen."
-          }
-        },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Đăng nhập iCloud trong Cài đặt để bật sao lưu."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "请在“设置”中登录 iCloud 以启用备份。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "請在「設定」中登入 iCloud 以啟用備份。"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "清除舊內容"
           }
         }
       }
     },
-    "Import.Error" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Import der Feeds fehlgeschlagen."
+    "Export.Error": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Export der Feeds fehlgeschlagen."
           }
         },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Failed to import subscriptions."
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Failed to export subscriptions."
           }
         },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Échec de l'importation des flux."
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Échec de l'exportation des flux."
           }
         },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Importazione dei feed non riuscita."
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Esportazione dei feed non riuscita."
           }
         },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "フィードのインポートに失敗しました。"
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "フィードのエクスポートに失敗しました。"
           }
         },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "피드 가져오기에 실패했습니다."
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "피드 내보내기에 실패했습니다."
           }
         },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Kon de abonnementen niet importeren."
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kon de abonnementen niet exporteren."
           }
         },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Không thể nhập danh sách nguồn cấp."
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Không thể xuất danh sách nguồn cấp."
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "订阅源导入失败。"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "订阅源导出失败。"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "訂閱源匯入失敗。"
-          }
-        }
-      }
-    },
-    "Import.Merge" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Zusammenführen"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Merge"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Fusionner"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Unisci"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "マージ"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "병합"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Samenvoegen"
-          }
-        },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Hợp nhất"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "合并"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "合併"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "訂閱源匯出失敗。"
           }
         }
       }
     },
-    "Import.ModeMessage" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Möchten Sie die importierten Feeds mit Ihren bestehenden zusammenführen oder alle vorhandenen Feeds ersetzen?"
+    "Export.Success": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Feeds erfolgreich exportiert."
           }
         },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Would you like to merge the imported feeds with your existing ones, or replace all existing feeds?"
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Subscriptions exported successfully."
           }
         },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Voulez-vous fusionner les flux importés avec vos flux existants, ou remplacer tous les flux existants ?"
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Flux exportés avec succès."
           }
         },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Vuoi unire i feed importati con quelli esistenti, o sostituire tutti i feed esistenti?"
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Feed esportati con successo."
           }
         },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "インポートしたフィードを既存のフィードとマージしますか、それとも既存のフィードをすべて置き換えますか？"
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "フィードのエクスポートに成功しました。"
           }
         },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "가져온 피드를 기존 피드와 병합하시겠습니까, 아니면 기존 피드를 모두 교체하시겠습니까?"
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "피드를 성공적으로 내보냈습니다."
           }
         },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Wil je de geïmporteerde feeds samenvoegen met je bestaande feeds, of alle bestaande feeds vervangen?"
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abonnementen zijn geëxporteerd."
           }
         },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Bạn muốn hợp nhất các nguồn cấp đã nhập với các nguồn cấp hiện có, hay thay thế tất cả các nguồn cấp hiện có?"
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đã xuất danh sách nguồn cấp thành công."
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "你想将导入的订阅源与现有订阅源合并，还是替换所有现有订阅源？"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "订阅源导出成功。"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "你想將匯入的訂閱源與現有訂閱源合併，還是取代所有現有訂閱源？"
-          }
-        }
-      }
-    },
-    "Import.ModeTitle" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Importmodus"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Import Mode"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Mode d'importation"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Modalità di importazione"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "インポート方法"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "가져오기 모드"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Importeermodus"
-          }
-        },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Chế độ nhập"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "导入方式"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "匯入方式"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "訂閱源匯出成功。"
           }
         }
       }
     },
-    "Import.Overwrite" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ersetzen"
+    "ExportOPML": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Exportieren"
           }
         },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Replace All"
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Export"
           }
         },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tout remplacer"
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Exporter"
           }
         },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sostituisci tutto"
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Esporta"
           }
         },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "すべて置き換え"
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "エクスポート"
           }
         },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "모두 교체"
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "내보내기"
           }
         },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Alles vervangen"
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Exporteren"
           }
         },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Thay thế tất cả"
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Xuất"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "全部替换"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "导出"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "全部取代"
-          }
-        }
-      }
-    },
-    "Import.Success %lld" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld Feeds erfolgreich importiert."
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Successfully imported %lld feeds."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld flux importés avec succès."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld feed importati con successo."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld件のフィードをインポートしました。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld개의 피드를 성공적으로 가져왔습니다."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld feeds geïmporteerd."
-          }
-        },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Đã nhập thành công %lld nguồn cấp."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "成功导入了 %lld 个订阅源。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "成功匯入了 %lld 個訂閱源。"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "匯出"
           }
         }
       }
     },
-    "ImportOPML" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Importieren"
+    "iCloudBackup.AutoBackup": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Automatische Backups"
           }
         },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Import"
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Automatic Backups"
           }
         },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Importer"
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sauvegardes automatiques"
           }
         },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Importa"
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Backup automatici"
           }
         },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "インポート"
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "自動バックアップ"
           }
         },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "가져오기"
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "자동 백업"
           }
         },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Importeren"
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Automatische reservekopieën"
           }
         },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nhập"
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sao lưu tự động"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "导入"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "自动备份"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "匯入"
-          }
-        }
-      }
-    },
-    "Logs.Empty" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Es wurden noch keine Protokolle aufgezeichnet."
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No logs have been recorded yet."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Aucun journal n'a encore été enregistré."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nessun log è stato ancora registrato."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "まだログは記録されていません。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "아직 기록된 로그가 없습니다."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Er zijn nog geen logboeken vastgelegd."
-          }
-        },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Chưa có nhật ký nào được ghi lại."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "尚未记录任何日志。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "尚未記錄任何日誌。"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "自動備份"
           }
         }
       }
     },
-    "Logs.Footer" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Protokolle verbleiben auf diesem Gerät, bis Sie sie teilen."
+    "iCloudBackup.BackupError": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Backup konnte nicht erstellt werden."
           }
         },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Logs remain on this device until you share them."
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Failed to create backup."
           }
         },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Les journaux restent sur cet appareil jusqu'à ce que vous les partagiez."
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Échec de la création de la sauvegarde."
           }
         },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "I log restano su questo dispositivo finché non li condividi."
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impossibile creare il backup."
           }
         },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ログは共有するまでこのデバイス内にのみ保存されます。"
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "バックアップを作成できませんでした。"
           }
         },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "로그는 공유하기 전까지 이 기기에만 저장됩니다."
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "백업을 생성하지 못했습니다."
           }
         },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Logboeken blijven op dit apparaat totdat je ze deelt."
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kon geen reservekopie maken."
           }
         },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nhật ký được lưu trên thiết bị này cho đến khi bạn chia sẻ."
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Không thể tạo bản sao lưu."
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "日志会保留在本设备上，直到你将其分享。"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "无法创建备份。"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "日誌會保留於此裝置上，直到你將其分享。"
-          }
-        }
-      }
-    },
-    "OPML.Footer" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Verwenden Sie OPML-Dateien, um Ihre Feeds zwischen RSS-Readern zu übertragen."
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Use OPML files to transfer your subscriptions between RSS readers."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Utilisez des fichiers OPML pour transférer vos flux entre lecteurs RSS."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Usa i file OPML per trasferire i tuoi feed tra lettori RSS."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "OPMLファイルを使って、RSSリーダー間でフィードを移行できます。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "OPML 파일을 사용하여 RSS 리더 간에 피드를 전송합니다."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Gebruik OPML-bestanden om je abonnementen over te zetten tussen RSS-lezers."
-          }
-        },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sử dụng tệp OPML để chuyển danh sách nguồn cấp giữa các trình đọc RSS."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "使用 OPML 文件在 RSS 阅读器之间转移订阅源。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "使用 OPML 檔案在 RSS 閱讀器之間轉移訂閱源。"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "無法建立備份。"
           }
         }
       }
     },
-    "Section.OPML" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "OPML"
+    "iCloudBackup.BackupNow": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jetzt sichern"
           }
         },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "OPML"
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Back Up Now"
           }
         },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "OPML"
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sauvegarder maintenant"
           }
         },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "OPML"
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Esegui backup ora"
           }
         },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "OPML"
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "今すぐバックアップ"
           }
         },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "OPML"
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "지금 백업"
           }
         },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "OPML"
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nu een reservekopie maken"
           }
         },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "OPML"
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sao lưu ngay"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "OPML"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "立即备份"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "OPML"
-          }
-        }
-      }
-    },
-    "Storage.Usage.Cache" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Cache"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Cache"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Cache"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Cache"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "キャッシュ"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "캐시"
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Cache"
-          }
-        },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Bộ nhớ đệm"
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "缓存"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "快取"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "立即備份"
           }
         }
       }
     },
-    "Storage.Usage.Feeds" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Feed-Inhalte"
+    "iCloudBackup.BackupSuccess": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Backup erfolgreich abgeschlossen."
           }
         },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Feed Content"
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Backup completed successfully."
           }
         },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Contenu des flux"
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sauvegarde terminée avec succès."
           }
         },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Contenuto feed"
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Backup completato con successo."
           }
         },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "コンテンツ"
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "バックアップが完了しました。"
           }
         },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "피드 콘텐츠"
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "백업이 완료되었습니다."
           }
         },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Feedcontent"
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reservekopie is voltooid."
           }
         },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nội dung nguồn cấp"
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đã hoàn tất sao lưu."
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "订阅源内容"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "备份已成功完成。"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "訂閱源內容"
-          }
-        }
-      }
-    },
-    "Storage.Usage.FeedsFooter" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Größenangaben sind Näherungswerte."
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sizes are approximate."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Les tailles sont approximatives."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Le dimensioni sono approssimative."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "サイズはおおよその値です。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "용량은 대략적인 수치입니다."
-          }
-        },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "De groottes zijn bij benadering."
-          }
-        },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Kích thước chỉ là ước tính."
-          }
-        },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "大小为近似值。"
-          }
-        },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "大小為近似值。"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "備份已成功完成。"
           }
         }
       }
     },
-    "Storage.Usage.FeedsHeader" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Feeds"
+    "iCloudBackup.Footer": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Backups enthalten Ihre Feeds, Inhalte, Lesestatus, Lesezeichen und Feed-Regeln."
           }
         },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Feeds"
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Backups include your feeds, content, read states, bookmarks, and feed rules."
           }
         },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Flux"
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les sauvegardes incluent vos flux, contenus, états de lecture, favoris et règles de flux."
           }
         },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Feed"
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "I backup includono i tuoi feed, contenuti, stati di lettura, preferiti e regole dei feed."
           }
         },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "フィード"
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "バックアップには、フィード、コンテンツ、既読状態、ブックマーク、フィードルールが含まれます。"
           }
         },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "피드"
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "백업에는 피드, 콘텐츠, 읽음 상태, 북마크, 피드 규칙이 포함됩니다."
           }
         },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Feeds"
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reservekopieën bevatten je feeds, content, leesstatussen, bladwijzers en feedregels."
           }
         },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nguồn cấp"
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bản sao lưu bao gồm nguồn cấp, nội dung, trạng thái đã đọc, mục đã lưu và quy tắc nguồn cấp."
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "订阅源"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "备份包含您的订阅源、内容、已读状态、书签和订阅源规则。"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "訂閱源"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "備份包含您的訂閱源、內容、已讀狀態、書籤和訂閱源規則。"
           }
         }
       }
     },
-    "Storage.Usage.Free" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Frei"
+    "iCloudBackup.Interval.Every6Hours": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alle 6 Stunden"
           }
         },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Free"
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Every 6 Hours"
           }
         },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Libre"
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Toutes les 6 heures"
           }
         },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Libero"
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ogni 6 ore"
           }
         },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "使用可能"
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "6時間ごと"
           }
         },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "사용 가능"
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "6시간마다"
           }
         },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Vrij"
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Elke 6 uur"
           }
         },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Còn trống"
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mỗi 6 giờ"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "可用"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "每 6 小时"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "可用空間"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "每 6 小時"
           }
         }
       }
     },
-    "Storage.Usage.Logs" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Protokolle"
+    "iCloudBackup.Interval.Every12Hours": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alle 12 Stunden"
           }
         },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Logs"
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Every 12 Hours"
           }
         },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Journaux"
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Toutes les 12 heures"
           }
         },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Log"
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ogni 12 ore"
           }
         },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ログ"
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "12時間ごと"
           }
         },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "로그"
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "12시간마다"
           }
         },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Logboeken"
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Elke 12 uur"
           }
         },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nhật ký"
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mỗi 12 giờ"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "日志"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "每 12 小时"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "日誌"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "每 12 小時"
           }
         }
       }
     },
-    "Storage.Usage.OtherApps" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Andere Apps"
+    "iCloudBackup.Interval.EveryNight": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jede Nacht"
           }
         },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Other Apps"
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Every Night"
           }
         },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Autres apps"
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chaque nuit"
           }
         },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Altre app"
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ogni notte"
           }
         },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "他のアプリ"
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "毎晩"
           }
         },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "다른 앱"
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "매일 밤"
           }
         },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Andere apps"
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Elke nacht"
           }
         },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ứng dụng khác"
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mỗi đêm"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "其他 App"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "每晚"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "其他 App"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "每晚"
           }
         }
       }
     },
-    "Storage.Usage.Podcasts" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Podcasts"
+    "iCloudBackup.Interval.Off": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aus"
           }
         },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Podcasts"
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Off"
           }
         },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Podcasts"
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Désactivé"
           }
         },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Podcast"
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Disattivato"
           }
         },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ポッドキャスト"
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "オフ"
           }
         },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "팟캐스트"
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "끔"
           }
         },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Podcasts"
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uit"
           }
         },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Podcast"
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tắt"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "播客"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "关闭"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Podcast"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "關閉"
           }
         }
       }
     },
-    "Title" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Datenverwaltung"
+    "iCloudBackup.LastBackupLabel": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Letztes Backup"
           }
         },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Data Management"
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Last Backup"
           }
         },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Gestion des données"
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dernière sauvegarde"
           }
         },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Gestione dati"
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ultimo backup"
           }
         },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "データ管理"
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "最終バックアップ"
           }
         },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "데이터 관리"
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "마지막 백업"
           }
         },
-        "nl" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Gegevensbeheer"
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Laatste reservekopie"
           }
         },
-        "vi" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Quản lý dữ liệu"
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sao lưu gần nhất"
           }
         },
-        "zh-Hans" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "数据管理"
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "上次备份"
           }
         },
-        "zh-Hant" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "資料管理"
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "上次備份"
+          }
+        }
+      }
+    },
+    "iCloudBackup.Never": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nie"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Never"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jamais"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mai"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "なし"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "없음"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nooit"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chưa bao giờ"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "从未"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "從未"
+          }
+        }
+      }
+    },
+    "iCloudBackup.RestoreError": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wiederherstellung aus Backup fehlgeschlagen."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Failed to restore from backup."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Échec de la restauration depuis la sauvegarde."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impossibile ripristinare dal backup."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "バックアップから復元できませんでした。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "백업에서 복원하지 못했습니다."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kon niet herstellen vanuit de reservekopie."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Không thể khôi phục từ bản sao lưu."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "无法从备份恢复。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "無法從備份還原。"
+          }
+        }
+      }
+    },
+    "iCloudBackup.Title": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "iCloud-Backup"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "iCloud Backup"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sauvegarde iCloud"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Backup iCloud"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "iCloudバックアップ"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "iCloud 백업"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "iCloud-reservekopie"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sao lưu iCloud"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "iCloud 备份"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "iCloud 備份"
+          }
+        }
+      }
+    },
+    "iCloudBackup.Unavailable": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Melden Sie sich in den Einstellungen bei iCloud an, um Backups zu aktivieren."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sign in to iCloud in Settings to enable backups."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connectez-vous à iCloud dans les Réglages pour activer les sauvegardes."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Accedi a iCloud nelle Impostazioni per abilitare i backup."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "バックアップを有効にするには、設定でiCloudにサインインしてください。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "백업을 활성화하려면 설정에서 iCloud에 로그인하세요."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Log in bij iCloud in Instellingen om reservekopieën in te schakelen."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đăng nhập iCloud trong Cài đặt để bật sao lưu."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请在“设置”中登录 iCloud 以启用备份。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "請在「設定」中登入 iCloud 以啟用備份。"
+          }
+        }
+      }
+    },
+    "Import.Error": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import der Feeds fehlgeschlagen."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Failed to import subscriptions."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Échec de l'importation des flux."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Importazione dei feed non riuscita."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "フィードのインポートに失敗しました。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "피드 가져오기에 실패했습니다."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kon de abonnementen niet importeren."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Không thể nhập danh sách nguồn cấp."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "订阅源导入失败。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "訂閱源匯入失敗。"
+          }
+        }
+      }
+    },
+    "Import.Merge": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zusammenführen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Merge"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fusionner"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unisci"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "マージ"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "병합"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Samenvoegen"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hợp nhất"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "合并"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "合併"
+          }
+        }
+      }
+    },
+    "Import.ModeMessage": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Möchten Sie die importierten Feeds mit Ihren bestehenden zusammenführen oder alle vorhandenen Feeds ersetzen?"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Would you like to merge the imported feeds with your existing ones, or replace all existing feeds?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Voulez-vous fusionner les flux importés avec vos flux existants, ou remplacer tous les flux existants ?"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vuoi unire i feed importati con quelli esistenti, o sostituire tutti i feed esistenti?"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "インポートしたフィードを既存のフィードとマージしますか、それとも既存のフィードをすべて置き換えますか？"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "가져온 피드를 기존 피드와 병합하시겠습니까, 아니면 기존 피드를 모두 교체하시겠습니까?"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wil je de geïmporteerde feeds samenvoegen met je bestaande feeds, of alle bestaande feeds vervangen?"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bạn muốn hợp nhất các nguồn cấp đã nhập với các nguồn cấp hiện có, hay thay thế tất cả các nguồn cấp hiện có?"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "你想将导入的订阅源与现有订阅源合并，还是替换所有现有订阅源？"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "你想將匯入的訂閱源與現有訂閱源合併，還是取代所有現有訂閱源？"
+          }
+        }
+      }
+    },
+    "Import.ModeTitle": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Importmodus"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import Mode"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mode d'importation"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Modalità di importazione"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "インポート方法"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "가져오기 모드"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Importeermodus"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chế độ nhập"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "导入方式"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "匯入方式"
+          }
+        }
+      }
+    },
+    "Import.Overwrite": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ersetzen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Replace All"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tout remplacer"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sostituisci tutto"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "すべて置き換え"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "모두 교체"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alles vervangen"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Thay thế tất cả"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "全部替换"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "全部取代"
+          }
+        }
+      }
+    },
+    "Import.Success %lld": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld Feeds erfolgreich importiert."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Successfully imported %lld feeds."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld flux importés avec succès."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld feed importati con successo."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld件のフィードをインポートしました。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld개의 피드를 성공적으로 가져왔습니다."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld feeds geïmporteerd."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Đã nhập thành công %lld nguồn cấp."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "成功导入了 %lld 个订阅源。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "成功匯入了 %lld 個訂閱源。"
+          }
+        }
+      }
+    },
+    "ImportOPML": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Importieren"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Importer"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Importa"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "インポート"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "가져오기"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Importeren"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nhập"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "导入"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "匯入"
+          }
+        }
+      }
+    },
+    "Logs.Empty": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Es wurden noch keine Protokolle aufgezeichnet."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No logs have been recorded yet."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aucun journal n'a encore été enregistré."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nessun log è stato ancora registrato."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "まだログは記録されていません。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "아직 기록된 로그가 없습니다."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Er zijn nog geen logboeken vastgelegd."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chưa có nhật ký nào được ghi lại."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "尚未记录任何日志。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "尚未記錄任何日誌。"
+          }
+        }
+      }
+    },
+    "Logs.Footer": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Protokolle verbleiben auf diesem Gerät, bis Sie sie teilen."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Logs remain on this device until you share them."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les journaux restent sur cet appareil jusqu'à ce que vous les partagiez."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "I log restano su questo dispositivo finché non li condividi."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ログは共有するまでこのデバイス内にのみ保存されます。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "로그는 공유하기 전까지 이 기기에만 저장됩니다."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Logboeken blijven op dit apparaat totdat je ze deelt."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nhật ký được lưu trên thiết bị này cho đến khi bạn chia sẻ."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "日志会保留在本设备上，直到你将其分享。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "日誌會保留於此裝置上，直到你將其分享。"
+          }
+        }
+      }
+    },
+    "OPML.Footer": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verwenden Sie OPML-Dateien, um Ihre Feeds zwischen RSS-Readern zu übertragen."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Use OPML files to transfer your subscriptions between RSS readers."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Utilisez des fichiers OPML pour transférer vos flux entre lecteurs RSS."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Usa i file OPML per trasferire i tuoi feed tra lettori RSS."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OPMLファイルを使って、RSSリーダー間でフィードを移行できます。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OPML 파일을 사용하여 RSS 리더 간에 피드를 전송합니다."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gebruik OPML-bestanden om je abonnementen over te zetten tussen RSS-lezers."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sử dụng tệp OPML để chuyển danh sách nguồn cấp giữa các trình đọc RSS."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用 OPML 文件在 RSS 阅读器之间转移订阅源。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用 OPML 檔案在 RSS 閱讀器之間轉移訂閱源。"
+          }
+        }
+      }
+    },
+    "Section.OPML": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OPML"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OPML"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OPML"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OPML"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OPML"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OPML"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OPML"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OPML"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OPML"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OPML"
+          }
+        }
+      }
+    },
+    "Storage.Usage.Cache": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cache"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cache"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cache"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cache"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "キャッシュ"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "캐시"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cache"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bộ nhớ đệm"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "缓存"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "快取"
+          }
+        }
+      }
+    },
+    "Storage.Usage.Feeds": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Feed-Inhalte"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Feed Content"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Contenu des flux"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Contenuto feed"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "コンテンツ"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "피드 콘텐츠"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Feedcontent"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nội dung nguồn cấp"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "订阅源内容"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "訂閱源內容"
+          }
+        }
+      }
+    },
+    "Storage.Usage.FeedsFooter": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Größenangaben sind Näherungswerte."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sizes are approximate."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les tailles sont approximatives."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le dimensioni sono approssimative."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "サイズはおおよその値です。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "용량은 대략적인 수치입니다."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "De groottes zijn bij benadering."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kích thước chỉ là ước tính."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "大小为近似值。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "大小為近似值。"
+          }
+        }
+      }
+    },
+    "Storage.Usage.FeedsHeader": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Feeds"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Feeds"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Flux"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Feed"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "フィード"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "피드"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Feeds"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nguồn cấp"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "订阅源"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "訂閱源"
+          }
+        }
+      }
+    },
+    "Storage.Usage.Free": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Frei"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Free"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Libre"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Libero"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用可能"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "사용 가능"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vrij"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Còn trống"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "可用"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "可用空間"
+          }
+        }
+      }
+    },
+    "Storage.Usage.Logs": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Protokolle"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Logs"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Journaux"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Log"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ログ"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "로그"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Logboeken"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nhật ký"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "日志"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "日誌"
+          }
+        }
+      }
+    },
+    "Storage.Usage.OtherApps": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Andere Apps"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Other Apps"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Autres apps"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Altre app"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "他のアプリ"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "다른 앱"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Andere apps"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ứng dụng khác"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "其他 App"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "其他 App"
+          }
+        }
+      }
+    },
+    "Storage.Usage.Podcasts": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Podcasts"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Podcasts"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Podcasts"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Podcast"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ポッドキャスト"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "팟캐스트"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Podcasts"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Podcast"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "播客"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Podcast"
+          }
+        }
+      }
+    },
+    "Title": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Datenverwaltung"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Data Management"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gestion des données"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gestione dati"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "データ管理"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "데이터 관리"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gegevensbeheer"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quản lý dữ liệu"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "数据管理"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "資料管理"
+          }
+        }
+      }
+    },
+    "Logs.Clear": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Protokolle löschen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clear Logs"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Effacer les journaux"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cancella log"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ログを消去"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "로그 지우기"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Logboeken wissen"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Xóa nhật ký"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "清除日志"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "清除日誌"
+          }
+        }
+      }
+    },
+    "Logs.Clear.Confirm": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alle Protokolle löschen?"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clear All Logs?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Effacer tous les journaux ?"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cancellare tutti i log?"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "すべてのログを消去しますか？"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "모든 로그를 지울까요?"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alle logboeken wissen?"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Xóa tất cả nhật ký?"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "清除所有日志？"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "清除所有日誌？"
+          }
+        }
+      }
+    },
+    "Logs.Clear.Message": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dadurch werden alle aufgezeichneten Protokolle dauerhaft gelöscht. Diese Aktion kann nicht rückgängig gemacht werden."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This will permanently delete all recorded logs. This action cannot be undone."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cette action supprimera définitivement tous les journaux enregistrés. Elle est irréversible."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Questa operazione eliminerà definitivamente tutti i log registrati. L'azione non può essere annullata."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "記録されたすべてのログが完全に削除されます。この操作は取り消せません。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "기록된 모든 로그가 영구적으로 삭제됩니다. 이 작업은 취소할 수 없습니다."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hiermee worden alle vastgelegde logboeken permanent verwijderd. Deze actie kan niet ongedaan worden gemaakt."
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Thao tác này sẽ xóa vĩnh viễn tất cả nhật ký đã ghi. Không thể hoàn tác."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "这将永久删除所有已记录的日志。此操作无法撤销。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "這將永久刪除所有已記錄的日誌。此操作無法復原。"
           }
         }
       }
     }
   },
-  "version" : "1.1"
+  "version": "1.1"
 }

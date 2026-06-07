@@ -4,6 +4,7 @@ import Hanami
 struct LogsView: View {
 
     @State private var modules: [LogModuleEntry] = []
+    @State private var isShowingClearConfirmation: Bool = false
 
     var body: some View {
         List {
@@ -34,8 +35,39 @@ struct LogsView: View {
         .sakuraBackground()
         .navigationTitle(String(localized: "Section.Logs", table: "Settings"))
         .toolbarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button(role: .destructive) {
+                    isShowingClearConfirmation = true
+                } label: {
+                    Label(String(localized: "Logs.Clear", table: "DataManagement"),
+                          systemImage: "trash")
+                }
+                .tint(.red)
+                .disabled(modules.isEmpty)
+            }
+        }
+        .alert(
+            String(localized: "Logs.Clear.Confirm", table: "DataManagement"),
+            isPresented: $isShowingClearConfirmation
+        ) {
+            Button(String(localized: "Logs.Clear", table: "DataManagement"),
+                   role: .destructive) {
+                clearAllLogs()
+            }
+            Button("Shared.Cancel", role: .cancel) { }
+        } message: {
+            Text(String(localized: "Logs.Clear.Message", table: "DataManagement"))
+        }
         .task {
             await loadModules()
+        }
+    }
+
+    private func clearAllLogs() {
+        LogManager.shared.clearAll()
+        withAnimation {
+            modules = []
         }
     }
 

@@ -74,6 +74,17 @@ public nonisolated final class LogManager: @unchecked Sendable {
         }
     }
 
+    public func clearAll() {
+        guard let directory = directoryURL else { return }
+        let contents = (try? FileManager.default.contentsOfDirectory(
+            at: directory,
+            includingPropertiesForKeys: nil
+        )) ?? []
+        for url in contents where url.pathExtension == "log" {
+            try? FileManager.default.removeItem(at: url)
+        }
+    }
+
     public func contents(for module: String) -> String {
         guard let url = fileURL(for: module),
               let data = try? Data(contentsOf: url),

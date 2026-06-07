@@ -18,6 +18,11 @@ struct TodayGreetingView: View {
             styledGreeting
                 .font(UIDevice.current.userInterfaceIdiom == .pad ? .title3 : .largeTitle)
                 .fontWeight(.bold)
+
+            if HomeLayout.usesPhoneTopBar {
+                TodayWeatherCard()
+                    .padding(.top, 12)
+            }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .onAppear {

@@ -31,6 +31,7 @@ struct ListArticlesView: View {
         HomeSectionView(
             list: currentList,
             showsListHeader: true,
+            showsLastUpdated: false,
             effectiveStyleBinding: $effectiveDisplayStyle,
             externalScrollToTopTrigger: scrollToTopTick
         )

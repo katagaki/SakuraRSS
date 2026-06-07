@@ -10,6 +10,7 @@ struct AppearanceSettingsView: View {
     @AppStorage("Display.MarkAllReadPosition") private var markAllReadPosition: MarkAllReadPosition = .top
     @AppStorage("Display.UnreadBadgeMode") private var unreadBadgeMode: UnreadBadgeMode = .none
     @AppStorage("Display.ZoomTransition") private var zoomTransitionEnabled: Bool = true
+    @AppStorage("Display.ShowStatusBar") private var showStatusBar: Bool = true
     @AppStorage("Display.SakuraBackground") private var sakuraBackgroundEnabled: Bool = true
     @AppStorage("Display.FeedBackground") private var feedBackgroundEnabled: Bool = true
 
@@ -61,6 +62,15 @@ struct AppearanceSettingsView: View {
                     Text(String(localized: "Section.Navigation", table: "Settings"))
                 }
             }
+
+            #if !os(visionOS) && !targetEnvironment(macCatalyst)
+            Section {
+                Toggle(String(localized: "ShowStatusBar", table: "Settings"),
+                       isOn: $showStatusBar)
+            } header: {
+                Text(String(localized: "Section.StatusBar", table: "Settings"))
+            }
+            #endif
 
             Section {
                 Toggle(String(localized: "ShowMarkAllRead", table: "Settings"),

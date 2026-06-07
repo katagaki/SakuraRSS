@@ -106,6 +106,6 @@ struct MasonryArticleCard: View {
             cornerRadius: 12,
             fallback: .symbol("doc.text")
         )
-        .aspectRatio(16.0 / 9.0, contentMode: .fit)
+        .aspectRatio(16 / 9, contentMode: .fit)
     }
 }

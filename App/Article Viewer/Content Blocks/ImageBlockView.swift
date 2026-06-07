@@ -20,7 +20,7 @@ struct ImageBlockView: View {
     }
 
     private var effectiveAspectRatio: CGFloat {
-        aspectRatio ?? (16.0 / 9.0)
+        aspectRatio ?? (16 / 9)
     }
 
     @ViewBuilder

@@ -118,7 +118,7 @@ struct SummarySection: View {
             footer
                 .padding(.horizontal)
         }
-        .padding(.vertical, 12)
+        .padding(.bottom, 12)
         .background {
             appleIntelligenceMeshBackground
         }
@@ -251,7 +251,7 @@ struct SummarySection: View {
             .containerRelativeFrame(.horizontal) { value, _ in
                 max(0, value - 32)
             }
-            .aspectRatio(4.0 / 3.0, contentMode: .fit)
+            .aspectRatio(16 / 9, contentMode: .fit)
             .frame(maxWidth: .infinity)
             .overlay {
                 content()

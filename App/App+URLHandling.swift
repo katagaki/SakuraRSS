@@ -14,8 +14,23 @@ extension SakuraRSSApp {
     private func handleSakuraScheme(_ url: URL) {
         guard let host = url.host else { return }
         if handleNavigationHost(host, url: url) { return }
+        if handleWeatherSimulationHost(host, url: url) { return }
         if handleForceFlagHost(host) { return }
         handleAdminHost(host)
+    }
+
+    private func handleWeatherSimulationHost(_ host: String, url: URL) -> Bool {
+        switch host {
+        case "stormchasers":
+            TodayWeatherService.shared.simulateAlert()
+        case "seedclouds":
+            let style = URLComponents(url: url, resolvingAgainstBaseURL: false)?
+                .queryItems?.first { $0.name == "style" }?.value
+            TodayWeatherService.shared.simulateCondition(style: style)
+        default:
+            return false
+        }
+        return true
     }
 
     private func handleNavigationHost(_ host: String, url: URL) -> Bool {

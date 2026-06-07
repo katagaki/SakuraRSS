@@ -4,17 +4,37 @@ import WeatherKit
 import SwiftUI
 import Hanami
 
-/// Cached snapshot of the latest fetched weather, for display in the Today tab.
 struct TodayWeather: Equatable, Codable, Sendable {
     var temperatureCelsius: Double
+    var apparentTemperatureCelsius: Double
     var symbolName: String
     var conditionDescription: String
+    var highCelsius: Double
+    var lowCelsius: Double
     var regionName: String
+    var hourly: [TodayWeatherHour]
+    var alert: TodayWeatherAlert?
     var fetchedAt: Date
 }
 
-/// Persisted user-chosen location for the Today weather panel.
-/// `nil` coordinates means "use current location" via CoreLocation.
+struct TodayWeatherHour: Equatable, Codable, Sendable, Identifiable {
+    var date: Date
+    var temperatureCelsius: Double
+    var symbolName: String
+    var precipitationChance: Double
+    var id: Date { date }
+}
+
+struct TodayWeatherAlert: Equatable, Codable, Sendable {
+    var summary: String
+    var source: String
+    var detailsURL: URL?
+}
+
+private enum WeatherFetchError: Error {
+    case locationUnavailable
+}
+
 struct TodayWeatherLocation: Equatable, Codable, Sendable {
     var name: String
     var latitude: Double?
@@ -23,7 +43,6 @@ struct TodayWeatherLocation: Equatable, Codable, Sendable {
     var isCurrent: Bool { latitude == nil || longitude == nil }
 }
 
-/// Loads, caches and refreshes weather for the Today tab using Apple WeatherKit.
 @MainActor
 @Observable
 final class TodayWeatherService {
@@ -52,9 +71,6 @@ final class TodayWeatherService {
         locationChangesToday < Self.dailyLocationChangeLimit
     }
 
-    /// Whether the current authorization permits resolving the device location.
-    /// `.denied` and `.restricted` (which also covers system-wide Location Services off)
-    /// mean the Current Location flow is unavailable to this app.
     var isCurrentLocationAvailable: Bool {
         switch locationAuthorizationStatus {
         case .authorizedAlways, .authorizedWhenInUse, .notDetermined:
@@ -121,7 +137,6 @@ final class TodayWeatherService {
         return true
     }
 
-    /// Refreshes if the cached weather is older than the per-hour budget.
     func refreshIfNeeded() async {
         if let weather {
             let age = Int(Date().timeIntervalSince(weather.fetchedAt))
@@ -159,15 +174,9 @@ final class TodayWeatherService {
                 resolved.location.coordinate.longitude,
                 resolved.regionName ?? "<nil>"
             ))
-            let current = try await weatherService.weather(for: resolved.location).currentWeather
+            let weatherData = try await weatherService.weather(for: resolved.location)
             let regionName = await resolveRegionName(saved: resolved.regionName, location: resolved.location)
-            let snapshot = TodayWeather(
-                temperatureCelsius: current.temperature.converted(to: .celsius).value,
-                symbolName: current.symbolName,
-                conditionDescription: current.condition.description,
-                regionName: regionName,
-                fetchedAt: Date()
-            )
+            let snapshot = Self.makeSnapshot(from: weatherData, regionName: regionName)
             self.weather = snapshot
             Self.saveCache(snapshot)
             self.lastError = nil
@@ -175,12 +184,14 @@ final class TodayWeatherService {
             log("Weather",
                 "API fetch ok in \(elapsed)ms: region=\(snapshot.regionName) "
                 + "temp=\(Int(snapshot.temperatureCelsius.rounded()))°C "
-                + "symbol=\(snapshot.symbolName)")
+                + "symbol=\(snapshot.symbolName) "
+                + "hours=\(snapshot.hourly.count) alert=\(snapshot.alert != nil)")
+        } catch is WeatherFetchError {
+            self.lastError = nil
+            log("Weather", "location unavailable; awaiting permission or saved location")
         } catch {
             self.lastError = error.localizedDescription
             log("Weather", "API fetch failed: \(error.localizedDescription)")
-            // Keep the previous cached value so the UI doesn't flash empty;
-            // visibility logic only hides the panel when `weather` is nil.
         }
     }
 
@@ -215,11 +226,7 @@ final class TodayWeatherService {
             )
         }
         guard let location = await currentLocation() else {
-            throw NSError(
-                domain: "TodayWeatherService",
-                code: 1,
-                userInfo: [NSLocalizedDescriptionKey: "Location unavailable"]
-            )
+            throw WeatherFetchError.locationUnavailable
         }
         return ResolvedLocation(location: location, regionName: nil)
     }
@@ -229,7 +236,6 @@ final class TodayWeatherService {
         switch manager.authorizationStatus {
         case .notDetermined:
             manager.requestWhenInUseAuthorization()
-            // Don't issue requestLocation yet
             return await withCheckedContinuation { continuation in
                 self.pendingResolution = continuation
             }

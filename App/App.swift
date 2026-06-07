@@ -22,6 +22,7 @@ struct SakuraRSSApp: App {
     @AppStorage("BackgroundRefresh.Enabled") private var backgroundRefreshEnabled: Bool = true
     @AppStorage("BackgroundRefresh.Interval") private var refreshInterval: Int = 240
     @AppStorage("App.FetchOnStartup") private var fetchOnStartup: Bool = true
+    @AppStorage("Display.ShowStatusBar") private var showStatusBar: Bool = true
     @AppStorage("iCloudBackup.Interval")
     private var iCloudBackupInterval: Int = iCloudBackupManager.BackupInterval.everyNight.rawValue
     let iCloudBackupTaskID = "com.tsubuzaki.SakuraRSS.iCloudBackup"
@@ -33,6 +34,9 @@ struct SakuraRSSApp: App {
                 pendingArticleID: $pendingArticleID,
                 pendingOpenRequest: $pendingOpenRequest
             )
+                #if !os(visionOS) && !targetEnvironment(macCatalyst)
+                .statusBarHidden(!showStatusBar)
+                #endif
                 .environment(\.defaultMinListRowHeight, 10.0)
                 .environment(feedManager)
                 .environment(todayManager)

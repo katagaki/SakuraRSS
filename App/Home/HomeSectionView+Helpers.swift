@@ -84,7 +84,23 @@ extension HomeSectionView {
     }
 
     var headerView: AnyView? {
-        guard showsListHeader, case .list(let list) = source else { return nil }
-        return AnyView(ListHeaderView(list: list).environment(feedManager))
+        let listHeader: AnyView?
+        if showsListHeader, case .list(let list) = source {
+            listHeader = AnyView(ListHeaderView(list: list).environment(feedManager))
+        } else {
+            listHeader = nil
+        }
+        guard HomeLayout.usesPhoneTopBar, showsLastUpdated else {
+            return listHeader
+        }
+        let date = feedManager.scopedLastRefreshedAt[scopeKey] ?? feedManager.lastRefreshedAt
+        return AnyView(
+            VStack(spacing: 0) {
+                LastUpdatedLabel(date: date)
+                if let listHeader {
+                    listHeader
+                }
+            }
+        )
     }
 }

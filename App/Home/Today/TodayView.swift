@@ -8,6 +8,7 @@ struct TodayView: View {
     @Environment(FeedManager.self) var feedManager
     @Environment(TodayManager.self) var todayManager
     @AppStorage("Intelligence.ContentInsights.Enabled") var contentInsightsEnabled: Bool = false
+    @Bindable var weatherService: TodayWeatherService = .shared
 
     @State var sleptHasSummary = false
     @State var afternoonHasSummary = false
@@ -25,7 +26,12 @@ struct TodayView: View {
                     .padding(.horizontal)
                     .padding(.top, 8)
 
-                if !anySummaryVisible,
+                if isWeatherShowing {
+                    sectionDivider
+                        .padding(.top, 4)
+                }
+
+                if !anySummaryVisible, !isWeatherShowing,
                    !todayManager.hasLoadedInitially || !contentSections.isEmpty || showEmptyState {
                     sectionDivider
                 }
@@ -107,6 +113,12 @@ struct TodayView: View {
 
     private var anySummaryVisible: Bool {
         sleptVisible || afternoonVisible || todayVisible
+    }
+
+    private var isWeatherShowing: Bool {
+        HomeLayout.usesPhoneTopBar
+            && weatherService.lastError == nil
+            && weatherService.weather != nil
     }
 
     private var showEmptyState: Bool {

@@ -8,7 +8,7 @@ struct VideoBlockView: View {
 
     var body: some View {
         VideoPlayerRepresentable(url: url)
-            .aspectRatio(16.0 / 9.0, contentMode: .fit)
+            .aspectRatio(16 / 9, contentMode: .fit)
             .frame(maxWidth: .infinity)
             .clipShape(.rect(cornerRadius: 12))
     }

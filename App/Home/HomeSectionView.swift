@@ -16,17 +16,20 @@ struct HomeSectionView: View {
 
     let source: HomeContentSource
     let showsListHeader: Bool
+    let showsLastUpdated: Bool
     let effectiveStyleBinding: Binding<FeedDisplayStyle?>?
     let externalScrollToTopTrigger: Int
 
     init(
         source: HomeContentSource,
         showsListHeader: Bool = false,
+        showsLastUpdated: Bool = true,
         effectiveStyleBinding: Binding<FeedDisplayStyle?>? = nil,
         externalScrollToTopTrigger: Int = 0
     ) {
         self.source = source
         self.showsListHeader = showsListHeader
+        self.showsLastUpdated = showsLastUpdated
         self.effectiveStyleBinding = effectiveStyleBinding
         self.externalScrollToTopTrigger = externalScrollToTopTrigger
     }
@@ -34,6 +37,7 @@ struct HomeSectionView: View {
     init(section: FeedSection?) {
         self.source = .section(section)
         self.showsListHeader = false
+        self.showsLastUpdated = true
         self.effectiveStyleBinding = nil
         self.externalScrollToTopTrigger = 0
     }
@@ -41,11 +45,13 @@ struct HomeSectionView: View {
     init(
         list: FeedList,
         showsListHeader: Bool = false,
+        showsLastUpdated: Bool = true,
         effectiveStyleBinding: Binding<FeedDisplayStyle?>? = nil,
         externalScrollToTopTrigger: Int = 0
     ) {
         self.source = .list(list)
         self.showsListHeader = showsListHeader
+        self.showsLastUpdated = showsLastUpdated
         self.effectiveStyleBinding = effectiveStyleBinding
         self.externalScrollToTopTrigger = externalScrollToTopTrigger
     }
@@ -53,6 +59,7 @@ struct HomeSectionView: View {
     init(topic: String) {
         self.source = .topic(topic)
         self.showsListHeader = false
+        self.showsLastUpdated = true
         self.effectiveStyleBinding = nil
         self.externalScrollToTopTrigger = 0
     }
@@ -71,6 +78,9 @@ struct HomeSectionView: View {
     @State private var lastLoadedHideViewed: Bool?
     @State private var fetchedArticles: [Article] = []
     @State private var hasLoadedWindow = false
+    @AppStorage("Display.MarkAllReadPosition") private var markAllReadPosition: MarkAllReadPosition = .top
+    @State private var isMarkReadPillVisible = false
+    @State private var isShowingMarkAllReadConfirmation = false
 
     private var batchingMode: BatchingMode {
         DoomscrollingMode.effectiveBatchingMode(storedBatchingMode)
@@ -210,31 +220,6 @@ struct HomeSectionView: View {
         }
     }
 
-    private func acceptPendingRefresh() {
-        withAnimation(.smooth.speed(2.0)) {
-            visibility.acceptPendingRefresh()
-        }
-        scrollToTopTick &+= 1
-    }
-
-    private var loadMoreAction: (() -> Void)? {
-        if hideViewedContent && visibility.hasReachedEnd { return nil }
-        let batcher = self.batcher
-        if let days = batchingMode.chunkDays {
-            guard let next = batcher.nextChunkStart(before: loadedSinceDate, chunkDays: days) else {
-                return nil
-            }
-            return { loadedSinceDate = next }
-        }
-        if let batch = batchingMode.batchSize {
-            guard let next = batcher.nextLoadedCount(after: loadedCount, batchSize: batch) else {
-                return nil
-            }
-            return { loadedCount = next }
-        }
-        return nil
-    }
-
     var body: some View {
         ArticlesView(
             articles: visibility.filter(rawArticles, isEnabled: hideViewedContent),
@@ -248,10 +233,14 @@ struct HomeSectionView: View {
             onMarkAllRead: performMarkAllRead,
             scrollToTopTrigger: scrollToTopTick &+ externalScrollToTopTrigger,
             headerView: headerView,
-            effectiveStyleBinding: effectiveStyleBinding
+            effectiveStyleBinding: effectiveStyleBinding,
+            onScrollOffsetChange: handleScrollOffsetChange
         )
         .refreshable { [scope = scopeKey, feeds = scopedFeeds] in
             startRefreshWithoutBlocking(scope: scope, feeds: feeds)
+        }
+        .overlay(alignment: .bottom) {
+            markAllReadPill
         }
         .id(source)
         .trackArticleVisibility(
@@ -313,6 +302,59 @@ extension HomeSectionView {
     /// Latest preloaded entry date, so the initial batch anchors on visible content.
     func latestArticleDate() -> Date? {
         preloadedEntries.compactMap(\.publishedDate).max()
+    }
+
+    @ViewBuilder
+    var markAllReadPill: some View {
+        if HomeLayout.usesPhoneTopBar, markAllReadPosition == .top, isMarkReadPillVisible {
+            MarkAllReadPill {
+                isShowingMarkAllReadConfirmation = true
+            }
+            .padding(.bottom, 8)
+            .transition(.move(edge: .bottom).combined(with: .opacity))
+            .confirmationDialog(
+                String(localized: "MarkAllRead.Confirm", table: "Articles"),
+                isPresented: $isShowingMarkAllReadConfirmation,
+                titleVisibility: .visible
+            ) {
+                Button(String(localized: "MarkAllRead", table: "Articles")) {
+                    performMarkAllRead()
+                }
+            }
+        }
+    }
+
+    func handleScrollOffsetChange(_ offset: CGFloat) {
+        let shouldShow = offset > 60
+        guard shouldShow != isMarkReadPillVisible else { return }
+        withAnimation(.smooth.speed(2.0)) {
+            isMarkReadPillVisible = shouldShow
+        }
+    }
+
+    func acceptPendingRefresh() {
+        withAnimation(.smooth.speed(2.0)) {
+            visibility.acceptPendingRefresh()
+        }
+        scrollToTopTick &+= 1
+    }
+
+    var loadMoreAction: (() -> Void)? {
+        if hideViewedContent && visibility.hasReachedEnd { return nil }
+        let batcher = self.batcher
+        if let days = batchingMode.chunkDays {
+            guard let next = batcher.nextChunkStart(before: loadedSinceDate, chunkDays: days) else {
+                return nil
+            }
+            return { loadedSinceDate = next }
+        }
+        if let batch = batchingMode.batchSize {
+            guard let next = batcher.nextLoadedCount(after: loadedCount, batchSize: batch) else {
+                return nil
+            }
+            return { loadedCount = next }
+        }
+        return nil
     }
 }
 

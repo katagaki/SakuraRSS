@@ -8,6 +8,7 @@ struct FeedRefreshProgressDonut: View {
     var size: CGFloat = 22
     var lineWidth: CGFloat = 2
     var isStopping: Bool = false
+    var showsStopIndicator: Bool = false
     var onStop: (() -> Void)?
 
     private var clampedProgress: Double {
@@ -60,7 +61,7 @@ struct FeedRefreshProgressDonut: View {
                 )
                 .rotationEffect(.degrees(-90))
                 .animation(.smooth, value: clampedProgress)
-            if onStop != nil {
+            if onStop != nil || showsStopIndicator {
                 RoundedRectangle(cornerRadius: 2, style: .continuous)
                     .fill(Color.accentColor)
                     .frame(width: size * 0.32, height: size * 0.32)

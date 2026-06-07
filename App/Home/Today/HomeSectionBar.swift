@@ -49,9 +49,6 @@ struct HomeSectionBar: View {
                             selectedTextColor: selectedTextColor(for: tab)
                         ) {
                             selection = tab.selection
-                            withAnimation(.smooth.speed(2.0)) {
-                                proxy.scrollTo(tab.id, anchor: .center)
-                            }
                         }
                         .id(tab.id)
                         .background {
@@ -97,6 +94,11 @@ struct HomeSectionBar: View {
                       tabFrames[selected.id] != nil else { return }
                 hasPerformedInitialScroll = true
                 proxy.scrollTo(selected.id, anchor: .center)
+            }
+            .onChange(of: selection) {
+                withAnimation(.smooth.speed(2.0)) {
+                    proxy.scrollTo(selection.rawValue, anchor: .center)
+                }
             }
         }
     }

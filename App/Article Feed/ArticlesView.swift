@@ -34,8 +34,10 @@ struct ArticlesView: View {
     var headerView: AnyView?
     var additionalLeadingToolbar: AnyView?
     var effectiveStyleBinding: Binding<FeedDisplayStyle?>?
+    var onScrollOffsetChange: ((CGFloat) -> Void)?
 
     @Environment(\.hidesMarkAllReadToolbar) private var hidesMarkAllReadToolbar
+    @Environment(\.homeSectionDisplayMenu) private var homeSectionDisplayMenu
     @State private var displayStyle: FeedDisplayStyle
     @State private var isShowingMarkAllReadConfirmation = false
     @AppStorage("Display.MarkAllReadPosition") private var markAllReadPosition: MarkAllReadPosition = .top
@@ -61,7 +63,8 @@ struct ArticlesView: View {
          scrollToTopTrigger: Int = 0,
          headerView: AnyView? = nil,
          additionalLeadingToolbar: AnyView? = nil,
-         effectiveStyleBinding: Binding<FeedDisplayStyle?>? = nil) {
+         effectiveStyleBinding: Binding<FeedDisplayStyle?>? = nil,
+         onScrollOffsetChange: ((CGFloat) -> Void)? = nil) {
         self.articles = articles
         self.title = title
         self.subtitle = subtitle
@@ -80,6 +83,7 @@ struct ArticlesView: View {
         self.headerView = headerView
         self.additionalLeadingToolbar = additionalLeadingToolbar
         self.effectiveStyleBinding = effectiveStyleBinding
+        self.onScrollOffsetChange = onScrollOffsetChange
         let raw = UserDefaults.standard.string(forKey: "Display.Style.\(feedKey)")
         let defaultRaw = UserDefaults.standard.string(forKey: "Display.DefaultStyle") ?? FeedDisplayStyle.inbox.rawValue
         let fallback: FeedDisplayStyle
@@ -132,6 +136,11 @@ struct ArticlesView: View {
                 withAnimation(.smooth.speed(2.0)) {
                     proxy.scrollTo(firstID, anchor: .top)
                 }
+            }
+            .onScrollGeometryChange(for: CGFloat.self) { geometry in
+                geometry.contentOffset.y
+            } action: { _, newOffset in
+                onScrollOffsetChange?(newOffset)
             }
         }
         .sakuraBackground()
@@ -188,33 +197,41 @@ struct ArticlesView: View {
                     additionalLeadingToolbar
                 }
             }
-            ToolbarItemGroup(placement: .topBarTrailing) {
-                #if os(visionOS)
-                if let onRefresh {
-                    Button {
-                        Task { await onRefresh() }
-                    } label: {
-                        Image(systemName: "arrow.clockwise")
+            if homeSectionDisplayMenu == nil {
+                ToolbarItemGroup(placement: .topBarTrailing) {
+                    #if os(visionOS)
+                    if let onRefresh {
+                        Button {
+                            Task { await onRefresh() }
+                        } label: {
+                            Image(systemName: "arrow.clockwise")
+                        }
                     }
+                    #endif
+                    Menu {
+                        DisplayStylePicker(
+                            displayStyle: $displayStyle,
+                            hasImages: hasImages,
+                            showTimeline: feedKey != "all",
+                            showPodcast: isPodcastFeed || hasAudioArticles
+                        )
+                    } label: {
+                        Image(systemName: "line.3.horizontal.decrease")
+                    }
+                    .menuActionDismissBehavior(.disabled)
+                    .popoverTip(viewStyleSwitcherTip)
                 }
-                #endif
-                Menu {
-                    DisplayStylePicker(
-                        displayStyle: $displayStyle,
-                        hasImages: hasImages,
-                        showTimeline: feedKey != "all",
-                        showPodcast: isPodcastFeed || hasAudioArticles
-                    )
-                } label: {
-                    Image(systemName: "line.3.horizontal.decrease")
-                }
-                .menuActionDismissBehavior(.disabled)
-                .popoverTip(viewStyleSwitcherTip)
             }
         }
         .animation(.smooth.speed(2.0), value: displayStyle)
         .task(id: effectiveStyle) {
             effectiveStyleBinding?.wrappedValue = effectiveStyle
+        }
+        .task(id: homeMenuSignature) {
+            publishHomeDisplayMenu()
+        }
+        .onDisappear {
+            homeSectionDisplayMenu?.isActive = false
         }
         .onChange(of: displayStyle) { _, newValue in
             UserDefaults.standard.set(newValue.rawValue, forKey: "Display.Style.\(feedKey)")
@@ -254,8 +271,24 @@ struct ArticlesView: View {
         }
     }
 
-    /// Falls back to inbox when the chosen style isn't valid for the current feed.
-    private var effectiveDisplayStyle: FeedDisplayStyle {
+}
+
+extension ArticlesView {
+
+    var homeMenuSignature: String {
+        "\(feedKey)|\(displayStyle.rawValue)|\(hasImages)|\(hasAudioArticles)|\(isPodcastFeed)"
+    }
+
+    func publishHomeDisplayMenu() {
+        guard let model = homeSectionDisplayMenu else { return }
+        model.styleBinding = $displayStyle
+        model.hasImages = hasImages
+        model.showTimeline = feedKey != "all"
+        model.showPodcast = isPodcastFeed || hasAudioArticles
+        model.isActive = true
+    }
+
+    var effectiveDisplayStyle: FeedDisplayStyle {
         if !hasImages && displayStyle.requiresImages {
             return .inbox
         }

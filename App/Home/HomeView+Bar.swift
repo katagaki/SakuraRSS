@@ -45,6 +45,26 @@ extension HomeView {
         return false
     }
 
+    var contentSource: HomeContentSource {
+        switch selectedSelection {
+        case .section(.today):
+            return .section(nil)
+        case .section(let section):
+            return .section(section.feedSection)
+        case .list(let id):
+            if let list = feedManager.lists.first(where: { $0.id == id }) {
+                return .list(list)
+            }
+            return .section(nil)
+        case .topic(let name):
+            return .topic(name)
+        }
+    }
+
+    var usesPhoneTopBarRedesign: Bool {
+        HomeLayout.usesPhoneTopBar
+    }
+
     var activeRefreshScopeKey: String? {
         if feedManager.scopedRefreshes[currentScopeKey]?.hasActiveProgress == true {
             return currentScopeKey

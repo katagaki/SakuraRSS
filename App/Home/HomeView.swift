@@ -22,25 +22,17 @@ struct HomeView: View {
     @State private var tabFrames: [String: CGRect] = [:]
     @State var topTopics: [String] = []
     @State var barConfiguration: HomeBarConfiguration = .load()
-    @State private var showingWeatherLocationPicker = false
+    @State var showingWeatherLocationPicker = false
+    @AppStorage("Today.Weather.GraphMode") var weatherGraphMode: WeatherGraphMode = .temperature
+    @State var sectionDisplayMenu = HomeSectionDisplayMenuModel()
     @Namespace private var cardZoom
 
     var body: some View {
         NavigationStack(path: $path) {
-            Group {
-                if tabItems.isEmpty {
-                    ContentUnavailableView {
-                        Label(
-                            String(localized: "Home.Empty.Title", table: "Home"),
-                            systemImage: "rectangle.stack.badge.xmark"
-                        )
-                    } description: {
-                        Text(String(localized: "Home.Empty.Description", table: "Home"))
-                    }
-                } else {
-                    AllArticlesView()
-                }
+            ZStack {
+                homeContent
             }
+                .animation(.smooth.speed(2.0), value: isTodaySelected)
                 .environment(\.zoomNamespace, cardZoom)
                 .environment(\.navigateToFeed, { feed in path.append(feed) })
                 .environment(\.navigateToEphemeralArticle, ephemeralAppender)
@@ -48,7 +40,7 @@ struct HomeView: View {
                 .environment(\.hidesMarkAllReadToolbar, true)
                 .toolbarTitleDisplayMode(.inline)
                 .safeAreaInset(edge: .top, spacing: 0) {
-                    if tabItems.count > 1 {
+                    if tabItems.count > 1, !usesPhoneTopBarRedesign {
                         HomeSectionBarHostView(
                             selection: $selectedSelection,
                             tabs: tabItems,
@@ -56,19 +48,33 @@ struct HomeView: View {
                         )
                     }
                 }
+                .overlay(alignment: .top) {
+                    phoneRefreshStatusStrip
+                }
                 .toolbar {
-                    ToolbarItem(placement: .principal) {
-                        principalToolbarLabel
-                    }
-                    if isTodaySelected {
-                        ToolbarItem(placement: .topBarTrailing) {
-                            WeatherToolbarButton(
-                                isLocationPickerPresented: $showingWeatherLocationPicker
-                            )
+                    if usesPhoneTopBarRedesign {
+                        if tabItems.count > 1 {
+                            ToolbarItem(placement: .principal) {
+                                HomeSectionBar(
+                                    tabs: tabItems,
+                                    selection: $selectedSelection,
+                                    tabFrames: $tabFrames
+                                )
+                                .frame(maxWidth: .infinity)
+                            }
                         }
-                        .sharedBackgroundVisibility(.hidden)
+                    } else {
+                        ToolbarItem(placement: .principal) {
+                            principalToolbarLabel
+                        }
                     }
-                    if markAllReadPosition == .top, !isTodaySelected {
+                    if isTodaySelected || usesPhoneTopBarRedesign {
+                        ToolbarItem(placement: .topBarTrailing) {
+                            homeTrailingControl
+                        }
+                        .sharedBackgroundVisibility(usesPhoneTopBarRedesign ? .automatic : .hidden)
+                    }
+                    if markAllReadPosition == .top, !isTodaySelected, !usesPhoneTopBarRedesign {
                         ToolbarItemGroup(placement: .topBarLeading) {
                             Button {
                                 isShowingMarkAllReadConfirmation = true
@@ -107,7 +113,7 @@ struct HomeView: View {
                             #endif
                         }
                     }
-                    if homeRefreshState.hasActiveProgress {
+                    if homeRefreshState.hasActiveProgress, !usesPhoneTopBarRedesign {
                         #if !os(visionOS)
                         ToolbarSpacer(.fixed, placement: .topBarLeading)
                         #endif

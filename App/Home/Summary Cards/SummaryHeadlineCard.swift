@@ -45,7 +45,7 @@ struct SummaryHeadlineCard: View {
                 .padding(12)
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         }
-        .aspectRatio(4.0 / 3.0, contentMode: .fit)
+        .aspectRatio(16 / 9, contentMode: .fit)
         .clipShape(.rect(cornerRadius: 14))
         .overlay(
             RoundedRectangle(cornerRadius: 14)
