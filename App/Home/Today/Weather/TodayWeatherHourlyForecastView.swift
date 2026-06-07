@@ -22,6 +22,7 @@ struct TodayWeatherHourlyForecastView: View {
                 .lineLimit(1)
                 .minimumScaleFactor(0.7)
             Image(systemName: hour.symbolName)
+                .symbolVariant(.fill)
                 .symbolRenderingMode(.multicolor)
                 .font(.body)
                 .frame(width: 22)

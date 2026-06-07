@@ -14,6 +14,7 @@ struct WeatherToolbarButton: View {
             } label: {
                 HStack(spacing: 4) {
                     Image(systemName: weather.symbolName)
+                        .symbolVariant(.fill)
                         .symbolRenderingMode(.multicolor)
                     Text(temperatureText(weather.temperatureCelsius))
                         .fontWeight(.semibold)

@@ -6,25 +6,32 @@ struct TodayWeatherHeader: View {
     let weather: TodayWeather
 
     var body: some View {
-        HStack(alignment: .top) {
-            VStack(alignment: .leading, spacing: 2) {
-                HStack(alignment: .firstTextBaseline, spacing: 8) {
-                    Text(WeatherTemperatureFormat.degrees(weather.temperatureCelsius))
-                        .font(.system(size: 42, weight: .light))
-                        .contentTransition(.numericText())
-                    Image(systemName: weather.symbolName)
-                        .symbolRenderingMode(.multicolor)
-                        .font(.title2)
-                }
-                Text(conditionLine)
-                    .font(.subheadline)
+        VStack(alignment: .leading, spacing: 4) {
+            if !weather.regionName.isEmpty {
+                Text(weather.regionName)
+                    .font(.caption)
+                    .lineLimit(1)
                     .foregroundStyle(.secondary)
             }
-            Spacer(minLength: 0)
-            VStack(alignment: .trailing, spacing: 2) {
-                highLow(label: highLabel, celsius: weather.highCelsius)
-                highLow(label: lowLabel, celsius: weather.lowCelsius)
+            HStack(alignment: .center) {
+                HStack(alignment: .center, spacing: 8) {
+                    Text(WeatherTemperatureFormat.degrees(weather.temperatureCelsius))
+                        .font(.system(size: 42))
+                        .contentTransition(.numericText())
+                    Image(systemName: weather.symbolName)
+                        .symbolVariant(.fill)
+                        .symbolRenderingMode(.multicolor)
+                        .font(.system(size: 28))
+                }
+                Spacer(minLength: 0)
+                VStack(alignment: .trailing, spacing: 2) {
+                    highLow(label: highLabel, celsius: weather.highCelsius)
+                    highLow(label: lowLabel, celsius: weather.lowCelsius)
+                }
             }
+            Text(conditionLine)
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
         }
     }
 

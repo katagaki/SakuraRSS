@@ -26,21 +26,19 @@ struct TodayWeatherCard: View {
                 upperBound: graphBounds(weather).upper,
                 color: graphColor(weather)
             )
-            VStack(alignment: .leading, spacing: 12) {
+            VStack(alignment: .leading, spacing: 8) {
                 if let alert = weather.alert {
                     TodayWeatherAlertBanner(alert: alert)
                     Divider()
                 }
                 TodayWeatherHeader(weather: weather)
                 if !weather.hourly.isEmpty {
+                    Divider()
                     TodayWeatherHourlyForecastView(hours: weather.hourly)
                         .frame(maxWidth: .infinity)
                 }
-                if !weather.regionName.isEmpty {
-                    locationFooter(weather.regionName)
-                }
             }
-            .padding(20)
+            .padding()
         }
         .frame(maxWidth: .infinity)
         .compatibleGlassEffect(in: .rect(cornerRadius: 14), tint: tint(weather))
@@ -74,17 +72,6 @@ struct TodayWeatherCard: View {
 
     private func graphColor(_ weather: TodayWeather) -> Color {
         graphMode == .precipitation ? .blue : baseColor(weather)
-    }
-
-    private func locationFooter(_ region: String) -> some View {
-        HStack(spacing: 4) {
-            Image(systemName: "location.fill")
-                .font(.caption2)
-            Text(region)
-                .font(.caption)
-                .lineLimit(1)
-        }
-        .foregroundStyle(.secondary)
     }
 
     private var setLocationPrompt: some View {
