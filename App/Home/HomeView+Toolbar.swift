@@ -3,109 +3,6 @@ import Hanami
 
 extension HomeView {
 
-    @ViewBuilder
-    var homeContent: some View {
-        if tabItems.isEmpty {
-            homeEmptyState
-        } else if isTodaySelected {
-            TodayView()
-                .transition(.opacity)
-        } else {
-            HomeSectionView(source: contentSource)
-                .environment(
-                    \.homeSectionDisplayMenu,
-                    usesPhoneTopBarRedesign ? sectionDisplayMenu : nil
-                )
-                .transition(.opacity)
-        }
-    }
-
-    var homeEmptyState: some View {
-        ContentUnavailableView {
-            Label(
-                String(localized: "Home.Empty.Title", table: "Home"),
-                systemImage: "rectangle.stack.badge.xmark"
-            )
-        } description: {
-            Text(String(localized: "Home.Empty.Description", table: "Home"))
-        }
-    }
-
-    @ViewBuilder
-    var homeTrailingControl: some View {
-        if isTodaySelected {
-            weatherTrailingControl
-        } else if usesPhoneTopBarRedesign {
-            sectionDisplayMenuControl
-        }
-    }
-
-    @ViewBuilder
-    var sectionDisplayMenuControl: some View {
-        if let binding = sectionDisplayMenu.styleBinding {
-            Menu {
-                DisplayStylePicker(
-                    displayStyle: binding,
-                    hasImages: sectionDisplayMenu.hasImages,
-                    showTimeline: sectionDisplayMenu.showTimeline,
-                    showPodcast: sectionDisplayMenu.showPodcast
-                )
-            } label: {
-                Image(systemName: "line.3.horizontal.decrease")
-            }
-            .menuActionDismissBehavior(.disabled)
-        }
-    }
-
-    @ViewBuilder
-    var weatherTrailingControl: some View {
-        if usesPhoneTopBarRedesign {
-            Menu {
-                Picker(
-                    String(localized: "TodayWeather.Graph", table: "Home"),
-                    selection: $weatherGraphMode
-                ) {
-                    ForEach(WeatherGraphMode.allCases) { mode in
-                        Label(mode.title, systemImage: mode.symbol).tag(mode)
-                    }
-                }
-                .pickerStyle(.inline)
-                .labelsVisibility(.visible)
-                Button {
-                    showingWeatherLocationPicker = true
-                } label: {
-                    Label(
-                        String(localized: "TodayWeather.Location.Title", table: "Home"),
-                        systemImage: "location"
-                    )
-                }
-            } label: {
-                Image(systemName: "line.3.horizontal.decrease")
-            }
-        } else {
-            WeatherToolbarButton(
-                isLocationPickerPresented: $showingWeatherLocationPicker
-            )
-        }
-    }
-
-    @ViewBuilder
-    var phoneRefreshStatusStrip: some View {
-        if usesPhoneTopBarRedesign {
-            ZStack {
-                if homeRefreshState.hasActiveProgress {
-                    HomeRefreshStatusView(
-                        state: homeRefreshState,
-                        onStop: cancelHomeRefresh
-                    )
-                    .padding(.top, 8)
-                    .transition(.move(edge: .top).combined(with: .opacity))
-                }
-            }
-            .animation(.smooth, value: homeRefreshState.hasActiveProgress)
-        }
-    }
-
     var principalToolbarLabel: some View {
         Button {
             if isShowingRefreshProgress {
@@ -181,19 +78,7 @@ extension HomeView {
     }
 
     var currentScopeKey: String {
-        switch selectedSelection {
-        case .section(.today):
-            return "section.today"
-        case .section(let section):
-            if let feedSection = section.feedSection {
-                return "section.\(feedSection.rawValue)"
-            }
-            return "section.all"
-        case .list(let id):
-            return "list.\(id)"
-        case .topic(let name):
-            return "topic.\(name)"
-        }
+        HomeRefreshScope.key(for: selectedSelection)
     }
 
     var formattedDate: String {

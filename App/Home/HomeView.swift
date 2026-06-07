@@ -14,25 +14,32 @@ struct HomeView: View {
     @State var path = NavigationPath()
     @State var hasRestored = false
     @State var showYouTubeSafari = false
-    @AppStorage("Home.SelectedSection") var selectedSelection: HomeSelection = .section(.today)
-    @AppStorage("Display.MarkAllReadPosition") private var markAllReadPosition: MarkAllReadPosition = .top
+    @State var selectionStore = HomeSelectionStore()
+    @Environment(\.scenePhase) private var scenePhase
+    @AppStorage("Display.MarkAllReadPosition") var markAllReadPosition: MarkAllReadPosition = .top
     @State var pendingYouTubeSafariURL: URL?
-    @State private var isShowingMarkAllReadConfirmation = false
+    @State var isShowingMarkAllReadConfirmation = false
     @State var isShowingRefreshingFeedsPopover = false
-    @State private var tabFrames: [String: CGRect] = [:]
     @State var topTopics: [String] = []
     @State var barConfiguration: HomeBarConfiguration = .load()
     @State var showingWeatherLocationPicker = false
-    @AppStorage("Today.Weather.GraphMode") var weatherGraphMode: WeatherGraphMode = .temperature
     @State var sectionDisplayMenu = HomeSectionDisplayMenuModel()
     @Namespace private var cardZoom
+
+    var selectedSelection: HomeSelection {
+        get { selectionStore.selection }
+        nonmutating set { selectionStore.selection = newValue }
+    }
 
     var body: some View {
         NavigationStack(path: $path) {
             ZStack {
-                homeContent
-            }
-                .animation(.smooth.speed(2.0), value: isTodaySelected)
+                HomeContentArea(
+                    selectionStore: selectionStore,
+                    tabItems: tabItems,
+                    usesPhoneTopBarRedesign: usesPhoneTopBarRedesign,
+                    sectionDisplayMenu: sectionDisplayMenu
+                )
                 .environment(\.zoomNamespace, cardZoom)
                 .environment(\.navigateToFeed, { feed in path.append(feed) })
                 .environment(\.navigateToEphemeralArticle, ephemeralAppender)
@@ -42,128 +49,63 @@ struct HomeView: View {
                 .safeAreaInset(edge: .top, spacing: 0) {
                     if tabItems.count > 1, !usesPhoneTopBarRedesign {
                         HomeSectionBarHostView(
-                            selection: $selectedSelection,
-                            tabs: tabItems,
-                            tabFrames: $tabFrames
+                            selectionStore: selectionStore,
+                            tabs: tabItems
                         )
                     }
                 }
                 .overlay(alignment: .top) {
-                    phoneRefreshStatusStrip
-                }
-                .toolbar {
-                    if usesPhoneTopBarRedesign {
-                        if tabItems.count > 1 {
-                            ToolbarItem(placement: .principal) {
-                                HomeSectionBar(
-                                    tabs: tabItems,
-                                    selection: $selectedSelection,
-                                    tabFrames: $tabFrames
-                                )
-                                .frame(maxWidth: .infinity)
-                            }
-                        }
-                    } else {
-                        ToolbarItem(placement: .principal) {
-                            principalToolbarLabel
-                        }
-                    }
-                    if isTodaySelected || usesPhoneTopBarRedesign {
-                        ToolbarItem(placement: .topBarTrailing) {
-                            homeTrailingControl
-                        }
-                        .sharedBackgroundVisibility(usesPhoneTopBarRedesign ? .automatic : .hidden)
-                    }
-                    if markAllReadPosition == .top, !isTodaySelected, !usesPhoneTopBarRedesign {
-                        ToolbarItemGroup(placement: .topBarLeading) {
-                            Button {
-                                isShowingMarkAllReadConfirmation = true
-                            } label: {
-                                Image(systemName: "envelope.open")
-                                    .font(.system(size: 14.0))
-                            }
-                            #if targetEnvironment(macCatalyst)
-                            .alert(
-                                String(localized: "MarkAllRead.Confirm", table: "Articles"),
-                                isPresented: $isShowingMarkAllReadConfirmation
-                            ) {
-                                Button(String(localized: "MarkAllRead", table: "Articles")) {
-                                    Task { @MainActor in performMarkAllRead() }
-                                }
-                                Button(role: .cancel) {}
-                            }
-                            #else
-                            .popover(isPresented: $isShowingMarkAllReadConfirmation) {
-                                VStack(spacing: 12) {
-                                    Text(String(localized: "MarkAllRead.Confirm", table: "Articles"))
-                                        .font(.body)
-                                    Button {
-                                        isShowingMarkAllReadConfirmation = false
-                                        Task { @MainActor in performMarkAllRead() }
-                                    } label: {
-                                        Text(String(localized: "MarkAllRead", table: "Articles"))
-                                            .frame(maxWidth: .infinity)
-                                            .padding(.vertical, 6)
-                                    }
-                                    .buttonStyle(.bordered)
-                                }
-                                .padding(20)
-                                .presentationCompactAdaptation(.popover)
-                            }
-                            #endif
-                        }
-                    }
-                    if homeRefreshState.hasActiveProgress, !usesPhoneTopBarRedesign {
-                        #if !os(visionOS)
-                        ToolbarSpacer(.fixed, placement: .topBarLeading)
-                        #endif
-                        ToolbarItemGroup(placement: .topBarLeading) {
-                            FeedRefreshProgressDonut(
-                                progress: homeRefreshState.progress,
-                                isStopping: homeRefreshState.isStopping,
-                                onStop: cancelHomeRefresh
-                            )
-                        }
-                    }
-                }
-                .navigationDestination(for: Feed.self) { feed in
-                    FeedArticlesView(feed: feed)
-                        .environment(\.zoomNamespace, cardZoom)
-                        .environment(\.navigateToEphemeralArticle, ephemeralAppender)
-                        .onAppear { savedFeedID = Int(feed.id) }
-                        .onDisappear {
-                            if path.count < 1 { savedFeedID = -1 }
-                        }
-                }
-                .navigationDestination(for: Article.self) { article in
-                    ArticleDestinationView(article: article)
-                        .environment(\.zoomNamespace, cardZoom)
-                        .environment(\.navigateToEphemeralArticle, ephemeralAppender)
-                        .environment(\.navigateToFeed, { feed in path.append(feed) })
-                        .zoomTransition(sourceID: article.id, in: cardZoom)
-                        .onAppear { savedArticleID = Int(article.id) }
-                        .onDisappear { savedArticleID = -1 }
-                }
-                .navigationDestination(for: EphemeralArticleDestination.self) { destination in
-                    ArticleDestinationView(
-                        article: destination.article,
-                        overrideMode: destination.mode,
-                        overrideTextMode: destination.textMode
+                    HomeRefreshStatusStrip(
+                        selectionStore: selectionStore,
+                        usesPhoneTopBarRedesign: usesPhoneTopBarRedesign
                     )
+                }
+            }
+            .toolbar {
+                if usesPhoneTopBarRedesign {
+                    redesignToolbarItems
+                } else {
+                    nonRedesignToolbarItems
+                }
+            }
+            .navigationDestination(for: Feed.self) { feed in
+                FeedArticlesView(feed: feed)
                     .environment(\.zoomNamespace, cardZoom)
                     .environment(\.navigateToEphemeralArticle, ephemeralAppender)
-                }
-                .navigationDestination(for: EntityDestination.self) { destination in
-                    EntityArticlesView(destination: destination)
-                        .environment(\.zoomNamespace, cardZoom)
-                        .environment(\.navigateToEphemeralArticle, ephemeralAppender)
-                }
-                .navigationDestination(for: SummaryHeadlineDestination.self) { destination in
-                    SummaryHeadlinesArticlesView(destination: destination)
-                        .environment(\.zoomNamespace, cardZoom)
-                        .environment(\.navigateToEphemeralArticle, ephemeralAppender)
-                        .zoomTransition(sourceID: destination.zoomTransitionID, in: cardZoom)
-                }
+                    .onAppear { savedFeedID = Int(feed.id) }
+                    .onDisappear {
+                        if path.count < 1 { savedFeedID = -1 }
+                    }
+            }
+            .navigationDestination(for: Article.self) { article in
+                ArticleDestinationView(article: article)
+                    .environment(\.zoomNamespace, cardZoom)
+                    .environment(\.navigateToEphemeralArticle, ephemeralAppender)
+                    .environment(\.navigateToFeed, { feed in path.append(feed) })
+                    .zoomTransition(sourceID: article.id, in: cardZoom)
+                    .onAppear { savedArticleID = Int(article.id) }
+                    .onDisappear { savedArticleID = -1 }
+            }
+            .navigationDestination(for: EphemeralArticleDestination.self) { destination in
+                ArticleDestinationView(
+                    article: destination.article,
+                    overrideMode: destination.mode,
+                    overrideTextMode: destination.textMode
+                )
+                .environment(\.zoomNamespace, cardZoom)
+                .environment(\.navigateToEphemeralArticle, ephemeralAppender)
+            }
+            .navigationDestination(for: EntityDestination.self) { destination in
+                EntityArticlesView(destination: destination)
+                    .environment(\.zoomNamespace, cardZoom)
+                    .environment(\.navigateToEphemeralArticle, ephemeralAppender)
+            }
+            .navigationDestination(for: SummaryHeadlineDestination.self) { destination in
+                SummaryHeadlinesArticlesView(destination: destination)
+                    .environment(\.zoomNamespace, cardZoom)
+                    .environment(\.navigateToEphemeralArticle, ephemeralAppender)
+                    .zoomTransition(sourceID: destination.zoomTransitionID, in: cardZoom)
+            }
         }
         .onChange(of: path.count) {
             if path.isEmpty {
@@ -241,6 +183,11 @@ struct HomeView: View {
         }
         .onChange(of: tabItems) {
             validateBarSelection()
+        }
+        .onChange(of: scenePhase) { _, phase in
+            if phase != .active {
+                selectionStore.persist()
+            }
         }
     }
 

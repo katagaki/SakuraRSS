@@ -4,12 +4,16 @@ import Hanami
 struct HomeSectionBar: View {
 
     let tabs: [HomeSectionBarItem]
-    @Binding var selection: HomeSelection
-    @Binding var tabFrames: [String: CGRect]
+    let selectionStore: HomeSelectionStore
 
+    @State private var tabFrames: [String: CGRect] = [:]
     @State private var hasPerformedInitialScroll = false
 
     private let deloreanClock = DeloreanClock.shared
+
+    private var selection: HomeSelection {
+        selectionStore.selection
+    }
 
     private var indicatorFrame: CGRect {
         tabFrames[selection.rawValue] ?? .zero
@@ -48,7 +52,7 @@ struct HomeSectionBar: View {
                             isSelected: tab.matches(selection),
                             selectedTextColor: selectedTextColor(for: tab)
                         ) {
-                            selection = tab.selection
+                            selectionStore.selection = tab.selection
                         }
                         .id(tab.id)
                         .background {
@@ -76,29 +80,43 @@ struct HomeSectionBar: View {
                         )
                         .opacity(indicatorFrame.width > 0 ? 1 : 0)
                         .animation(.smooth.speed(2.0), value: indicatorFrame)
-                        .animation(.smooth.speed(2.0), value: selection)
                 }
                 .onPreferenceChange(HomeSectionBarFrameKey.self) { newFrames in
                     tabFrames.merge(newFrames, uniquingKeysWith: { _, new in new })
                 }
             }
-            .clipShape(.capsule)
+            // Glass sits behind the scroll content rather than wrapping it, so a
+            // programmatic scroll repaints instead of leaving a stale composite.
             #if os(visionOS)
             .background(.regularMaterial, in: .capsule)
             #else
-            .compatibleGlassEffect(in: .capsule, interactive: true)
+            .background {
+                Color.clear.compatibleGlassEffect(in: .capsule, interactive: true)
+            }
             #endif
+            .clipShape(.capsule)
             .onChange(of: tabFrames, initial: true) {
                 guard !hasPerformedInitialScroll,
-                      let selected = tabs.first(where: { $0.matches(selection) }),
-                      tabFrames[selected.id] != nil else { return }
+                      tabFrames[selection.rawValue] != nil else { return }
                 hasPerformedInitialScroll = true
-                proxy.scrollTo(selected.id, anchor: .center)
+                scrollSelectionIntoView(proxy, animated: false)
             }
             .onChange(of: selection) {
+                scrollSelectionIntoView(proxy, animated: true)
+            }
+        }
+    }
+
+    @MainActor
+    private func scrollSelectionIntoView(_ proxy: ScrollViewProxy, animated: Bool) {
+        let target = selection.rawValue
+        Task { @MainActor in
+            if animated {
                 withAnimation(.smooth.speed(2.0)) {
-                    proxy.scrollTo(selection.rawValue, anchor: .center)
+                    proxy.scrollTo(target, anchor: .center)
                 }
+            } else {
+                proxy.scrollTo(target, anchor: .center)
             }
         }
     }
@@ -123,9 +141,15 @@ private struct HomeSectionBarButton: View {
     var body: some View {
         Button(action: action) {
             Text(tab.title)
-                .font(.body.weight(isSelected ? .semibold : .regular))
-                .foregroundStyle(isSelected ? selectedTextColor : Color.primary)
+                .font(.body.weight(.semibold))
                 .lineLimit(1)
+                .hidden()
+                .overlay {
+                    Text(tab.title)
+                        .font(.body.weight(isSelected ? .semibold : .regular))
+                        .foregroundStyle(isSelected ? selectedTextColor : Color.primary)
+                        .lineLimit(1)
+                }
                 .padding(.horizontal, 14)
                 .padding(.vertical, 8)
                 .fixedSize(horizontal: true, vertical: false)

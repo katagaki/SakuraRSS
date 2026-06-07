@@ -34,22 +34,24 @@ struct TodayView: View {
                     sectionDivider
                 }
 
-                VStack(spacing: 0) {
-                    WhileYouSleptView(
-                        hasSummary: $sleptHasSummary, flatStyle: true,
-                        isVisible: $sleptVisible,
-                        refreshTrigger: summaryRefreshTrigger
-                    )
-                    AfternoonBriefView(
-                        hasSummary: $afternoonHasSummary,
-                        isVisible: $afternoonVisible,
-                        refreshTrigger: summaryRefreshTrigger
-                    )
-                    TodaysSummaryView(
-                        hasSummary: $todayHasSummary, flatStyle: true,
-                        isVisible: $todayVisible,
-                        refreshTrigger: summaryRefreshTrigger
-                    )
+                if anySummaryVisible {
+                    VStack(spacing: 0) {
+                        WhileYouSleptView(
+                            hasSummary: $sleptHasSummary, flatStyle: true,
+                            isVisible: $sleptVisible,
+                            refreshTrigger: summaryRefreshTrigger
+                        )
+                        AfternoonBriefView(
+                            hasSummary: $afternoonHasSummary,
+                            isVisible: $afternoonVisible,
+                            refreshTrigger: summaryRefreshTrigger
+                        )
+                        TodaysSummaryView(
+                            hasSummary: $todayHasSummary, flatStyle: true,
+                            isVisible: $todayVisible,
+                            refreshTrigger: summaryRefreshTrigger
+                        )
+                    }
                 }
 
                 if anySummaryVisible,

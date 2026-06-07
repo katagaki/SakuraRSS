@@ -80,7 +80,14 @@ public final class FeedManager {
     public var scopedRefreshes: [String: ScopedRefreshState] = [:]
     @ObservationIgnored public var scopedRefreshTasks: [String: Task<Void, Never>] = [:]
 
-    public private(set) var dataRevision: Int = 0
+    public private(set) var dataRevision: Int = 0 {
+        didSet { refreshUnreadBadgeCount() }
+    }
+    /// Change-gated mirror of `totalUnreadCount()`. Reading this instead of
+    /// calling `totalUnreadCount()` lets a view observe the badge without
+    /// subscribing to every `dataRevision` bump, so a data load that leaves the
+    /// count unchanged does not invalidate the observer.
+    public private(set) var unreadBadgeCount: Int = 0
     public private(set) var iconRevision: Int = 0
     public private(set) var unreadCounts: [Int64: Int] = [:]
     /// Per-Instagram-feed count of unread articles that are reels.
@@ -215,6 +222,13 @@ public final class FeedManager {
 
     public func notifyIconChange() {
         iconRevision += 1
+    }
+
+    func refreshUnreadBadgeCount() {
+        let newCount = totalUnreadCount()
+        if newCount != unreadBadgeCount {
+            unreadBadgeCount = newCount
+        }
     }
 
     public func decrementUnreadCount(feedID: Int64) {

@@ -45,59 +45,23 @@ extension HomeView {
         return false
     }
 
-    var contentSource: HomeContentSource {
-        switch selectedSelection {
-        case .section(.today):
-            return .section(nil)
-        case .section(let section):
-            return .section(section.feedSection)
-        case .list(let id):
-            if let list = feedManager.lists.first(where: { $0.id == id }) {
-                return .list(list)
-            }
-            return .section(nil)
-        case .topic(let name):
-            return .topic(name)
-        }
-    }
-
     var usesPhoneTopBarRedesign: Bool {
         HomeLayout.usesPhoneTopBar
     }
 
     var activeRefreshScopeKey: String? {
-        if feedManager.scopedRefreshes[currentScopeKey]?.hasActiveProgress == true {
-            return currentScopeKey
-        }
-        return feedManager.scopedRefreshes.first { $0.value.hasActiveProgress }?.key
+        HomeRefreshScope.activeKey(feedManager: feedManager, selection: selectedSelection)
     }
 
     var homeRefreshState: ScopedRefreshState {
-        if let key = activeRefreshScopeKey,
-           let scoped = feedManager.scopedRefreshes[key] {
-            return scoped
-        }
-        if feedManager.hasActiveRefreshProgress {
-            return ScopedRefreshState(
-                total: feedManager.refreshTotal,
-                completed: feedManager.refreshCompleted,
-                refreshingFeedIDs: feedManager.refreshingFeedIDs,
-                pendingFeedIDs: feedManager.pendingRefreshFeedIDs,
-                isStopping: feedManager.isStopping
-            )
-        }
-        return ScopedRefreshState()
+        HomeRefreshScope.state(feedManager: feedManager, selection: selectedSelection)
     }
 
     func cancelHomeRefresh() {
-        if let scope = activeRefreshScopeKey {
-            feedManager.cancelScopedRefresh(scope: scope)
-        } else {
-            feedManager.cancelRefresh()
-        }
-        todayManager.load(
-            feeds: feedManager.feeds,
-            dataRevision: feedManager.dataRevision,
+        HomeRefreshScope.cancel(
+            feedManager: feedManager,
+            todayManager: todayManager,
+            selection: selectedSelection,
             loadEntities: contentInsightsEnabled
         )
     }

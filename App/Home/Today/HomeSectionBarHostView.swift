@@ -3,12 +3,11 @@ import Hanami
 
 struct HomeSectionBarHostView: View {
 
-    @Binding var selection: HomeSelection
+    let selectionStore: HomeSelectionStore
     let tabs: [HomeSectionBarItem]
-    @Binding var tabFrames: [String: CGRect]
 
     var body: some View {
-        HomeSectionBar(tabs: tabs, selection: $selection, tabFrames: $tabFrames)
+        HomeSectionBar(tabs: tabs, selectionStore: selectionStore)
             .padding(.horizontal, 16)
             .padding(.bottom, 8)
     }

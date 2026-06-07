@@ -56,7 +56,7 @@ struct MainTabView: View {
                 )
             }
             .badge(unreadBadgeMode == .homeScreenAndHomeTab || unreadBadgeMode == .homeTabOnly
-                ? feedManager.totalUnreadCount() : 0)
+                ? feedManager.unreadBadgeCount : 0)
 
             Tab("Tabs.Feeds", systemImage: "dot.radiowaves.up.forward", value: .feeds) {
                 FollowingView()
