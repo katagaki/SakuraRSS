@@ -26,7 +26,6 @@ struct SummarySection: View {
     @State var cachedArticleCountAtGeneration: Int = 0
     @State private var deferredForLowPowerMode = false
     @State private var articleCount: Int = 0
-    @State private var isReadyToSummarize = false
 
     init(
         kind: SummaryCardKind,
@@ -61,10 +60,14 @@ struct SummarySection: View {
         SystemLanguageModel.default.availability == .available
     }
 
+    private var canGenerate: Bool {
+        if forceVisible { return isSupported }
+        return isEnabled && isSupported && kind.isInTimeWindow(Date())
+    }
+
     private var shouldShow: Bool {
         if forceVisible { return true }
-        return isEnabled && isSupported && kind.isInTimeWindow(Date())
-            && isReadyToSummarize && articleCount > 0
+        return canGenerate && articleCount > 0 && (hasGenerated || isGenerating)
     }
 
     var body: some View {
@@ -76,16 +79,10 @@ struct SummarySection: View {
                     .animation(.smooth.speed(2.0), value: headlines)
                     .animation(.smooth.speed(2.0), value: generationFailed)
                     .animation(.smooth.speed(2.0), value: deferredForLowPowerMode)
-                    .task {
-                        if !hasGenerated {
-                            await loadOrGenerateHeadlines()
-                        }
-                    }
             }
         }
         .task {
-            await waitForLoadingToFinish()
-            withAnimation(.smooth.speed(2.0)) { isReadyToSummarize = true }
+            await loadOrGenerateHeadlines()
         }
         .task(id: feedManager.dataRevision) {
             let count = kind.articles(in: feedManager).count
@@ -93,23 +90,16 @@ struct SummarySection: View {
             withAnimation(.smooth.speed(2.0)) {
                 articleCount = count
             }
-            if hasGenerated,
-               isReadyToSummarize,
-               cachedIsPartial,
-               !isGenerating,
-               count >= cachedArticleCountAtGeneration + 3 {
-                log(
-                    "Summary",
-                    "auto-regen: partial cache + \(count - cachedArticleCountAtGeneration) more articles"
-                )
-                isGenerating = true
-                await regenerateHeadlines()
-            }
+            maybeAutoRegenerate(count: count)
+        }
+        .onChange(of: feedManager.isLoading) { _, nowLoading in
+            guard !nowLoading, !hasGenerated, !isGenerating else { return }
+            Task { await loadOrGenerateHeadlines() }
         }
         .onAppear { isVisible?.wrappedValue = shouldShow }
         .onChange(of: shouldShow) { _, newValue in isVisible?.wrappedValue = newValue }
         .onChange(of: refreshTrigger) { _, newValue in
-            guard newValue > 0, shouldShow, !isGenerating else { return }
+            guard newValue > 0, canGenerate, !isGenerating else { return }
             isGenerating = true
             Task { await regenerateHeadlines() }
         }
@@ -268,20 +258,26 @@ struct SummarySection: View {
 
 private extension SummarySection {
 
+    /// Regenerates when the cached run was partial and enough new articles have
+    /// since arrived. Spawns its own task so it is never cancelled by the
+    /// data-revision observer restarting.
+    func maybeAutoRegenerate(count: Int) {
+        guard hasGenerated, cachedIsPartial, !isGenerating,
+              !feedManager.isLoading,
+              count >= cachedArticleCountAtGeneration + 3 else { return }
+        log(
+            "Summary",
+            "auto-regen: partial cache + \(count - cachedArticleCountAtGeneration) more articles"
+        )
+        isGenerating = true
+        Task { await regenerateHeadlines() }
+    }
+
     func loadOrGenerateHeadlines() async {
+        guard !hasGenerated, !isGenerating, canGenerate else { return }
         let today = Date()
 
-        if let cached = try? DatabaseManager.shared.cachedSummaryHeadlines(
-            ofType: kind.cacheType,
-            for: today
-        ), !cached.headlines.isEmpty {
-            headlines = cached.headlines
-            cachedIsPartial = cached.partialGeneration
-            cachedArticleCountAtGeneration = cached.articleCountAtGeneration
-            hasGenerated = true
-            hasSummary = true
-            return
-        }
+        if loadCachedHeadlines(for: today) { return }
 
         if ProcessInfo.processInfo.isLowPowerModeEnabled {
             deferredForLowPowerMode = true
@@ -289,7 +285,25 @@ private extension SummarySection {
             return
         }
 
+        // No wait/poll: generate only once the feed has finished loading.
+        // While a refresh is in flight, the loading-completion observer (or the
+        // end of the swipe-refresh pipeline) drives generation instead.
+        guard !feedManager.isLoading else { return }
+        isGenerating = true
         await generateHeadlines(for: today)
+    }
+
+    func loadCachedHeadlines(for date: Date) -> Bool {
+        guard let cached = try? DatabaseManager.shared.cachedSummaryHeadlines(
+            ofType: kind.cacheType,
+            for: date
+        ), !cached.headlines.isEmpty else { return false }
+        headlines = cached.headlines
+        cachedIsPartial = cached.partialGeneration
+        cachedArticleCountAtGeneration = cached.articleCountAtGeneration
+        hasGenerated = true
+        hasSummary = true
+        return true
     }
 
     func regenerateHeadlines() async {

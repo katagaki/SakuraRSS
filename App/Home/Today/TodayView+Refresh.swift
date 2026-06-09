@@ -26,6 +26,21 @@ extension TodayView {
         }
     }
 
+    // MARK: - Summary Visibility
+
+    var anySummaryVisible: Bool {
+        sleptVisible || afternoonVisible || todayVisible
+    }
+
+    /// Whether any summary card could appear right now, computed without the
+    /// cards' own view state so the section mounts (and starts generating)
+    /// independently of its own visibility.
+    var anySummaryActive: Bool {
+        SummaryCardKind.whileYouSlept.couldDisplay(in: feedManager)
+            || SummaryCardKind.afternoonBrief.couldDisplay(in: feedManager)
+            || SummaryCardKind.todaysSummary.couldDisplay(in: feedManager)
+    }
+
     // MARK: - Data
 
     var filteredTopics: [(name: String, count: Int)] {

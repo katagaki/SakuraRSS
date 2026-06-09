@@ -34,7 +34,7 @@ struct TodayView: View {
                     sectionDivider
                 }
 
-                if anySummaryVisible {
+                if anySummaryActive {
                     VStack(spacing: 0) {
                         WhileYouSleptView(
                             hasSummary: $sleptHasSummary, flatStyle: true,
@@ -110,10 +110,6 @@ struct TodayView: View {
         case topicsAndPeople
         case bookmarks
         case recentlyViewed
-    }
-
-    private var anySummaryVisible: Bool {
-        sleptVisible || afternoonVisible || todayVisible
     }
 
     private var isWeatherShowing: Bool {

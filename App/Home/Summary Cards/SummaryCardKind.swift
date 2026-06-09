@@ -1,4 +1,5 @@
 import Foundation
+import FoundationModels
 import Hanami
 
 /// Identifies one of the three Apple Intelligence summary cards on Home.
@@ -48,6 +49,18 @@ enum SummaryCardKind {
         case .whileYouSlept: feedManager.overnightArticles()
         case .afternoonBrief: feedManager.afternoonBriefArticles()
         }
+    }
+
+    /// Whether this card could plausibly appear right now. Computed without
+    /// the card's own view state so the host can decide to mount the section,
+    /// rather than the section needing to be mounted to report its visibility.
+    func couldDisplay(in feedManager: FeedManager) -> Bool {
+        let defaults = UserDefaults.standard
+        if defaults.bool(forKey: forceVisibleStorageKey) { return true }
+        guard SystemLanguageModel.default.availability == .available,
+              defaults.bool(forKey: enabledStorageKey),
+              isInTimeWindow(Date()) else { return false }
+        return !articles(in: feedManager).isEmpty
     }
 
     var title: LocalizedStringResource {
