@@ -9,7 +9,26 @@ extension SummarySection {
     static let articleConsiderationLimit = HeadlineSummarizer.maxArticlesConsidered
     static let topEntityHintLimit = 10
 
+    /// Startup wait is capped at 60s so a stuck refresh can't block forever.
+    func waitForLoadingToFinish() async {
+        let defaults = UserDefaults.standard
+        let deadline = Date().addingTimeInterval(60)
+        while defaults.bool(forKey: "App.StartupInProgress"), Date() < deadline {
+            guard !Task.isCancelled else { return }
+            try? await Task.sleep(for: .milliseconds(300))
+        }
+        while feedManager.isLoading {
+            guard !Task.isCancelled else { return }
+            try? await Task.sleep(for: .milliseconds(200))
+        }
+    }
+
     func generateHeadlines(for date: Date) async {
+        await waitForLoadingToFinish()
+        if Task.isCancelled {
+            await MainActor.run { isGenerating = false }
+            return
+        }
         let allArticles = eligibleArticles()
         if allArticles.count < 3 {
             log(

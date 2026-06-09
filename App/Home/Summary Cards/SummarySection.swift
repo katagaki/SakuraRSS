@@ -26,6 +26,7 @@ struct SummarySection: View {
     @State var cachedArticleCountAtGeneration: Int = 0
     @State private var deferredForLowPowerMode = false
     @State private var articleCount: Int = 0
+    @State private var isReadyToSummarize = false
 
     init(
         kind: SummaryCardKind,
@@ -63,7 +64,7 @@ struct SummarySection: View {
     private var shouldShow: Bool {
         if forceVisible { return true }
         return isEnabled && isSupported && kind.isInTimeWindow(Date())
-            && articleCount > 0
+            && isReadyToSummarize && articleCount > 0
     }
 
     var body: some View {
@@ -82,6 +83,10 @@ struct SummarySection: View {
                     }
             }
         }
+        .task {
+            await waitForLoadingToFinish()
+            withAnimation(.smooth.speed(2.0)) { isReadyToSummarize = true }
+        }
         .task(id: feedManager.dataRevision) {
             let count = kind.articles(in: feedManager).count
             log("Summary", "kind=\(kind) revision=\(feedManager.dataRevision) count=\(count)")
@@ -89,6 +94,7 @@ struct SummarySection: View {
                 articleCount = count
             }
             if hasGenerated,
+               isReadyToSummarize,
                cachedIsPartial,
                !isGenerating,
                count >= cachedArticleCountAtGeneration + 3 {
@@ -283,24 +289,7 @@ private extension SummarySection {
             return
         }
 
-        await waitForStartupRefresh()
-
-        while feedManager.isLoading {
-            try? await Task.sleep(for: .milliseconds(200))
-        }
-
         await generateHeadlines(for: today)
-    }
-
-    /// Waits for the cold-launch refresh in App.swift to clear
-    /// `App.StartupInProgress`. Capped at 60s so a stuck refresh can't block
-    /// the UI indefinitely.
-    func waitForStartupRefresh() async {
-        let defaults = UserDefaults.standard
-        let deadline = Date().addingTimeInterval(60)
-        while defaults.bool(forKey: "App.StartupInProgress"), Date() < deadline {
-            try? await Task.sleep(for: .milliseconds(300))
-        }
     }
 
     func regenerateHeadlines() async {

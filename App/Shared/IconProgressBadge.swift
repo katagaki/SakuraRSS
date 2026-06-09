@@ -69,7 +69,7 @@ struct PieSliceShape: Shape {
         set { progress = newValue }
     }
 
-    func path(in rect: CGRect) -> Path {
+    nonisolated func path(in rect: CGRect) -> Path {
         var path = Path()
         let center = CGPoint(x: rect.midX, y: rect.midY)
         let radius = max(rect.width, rect.height)
