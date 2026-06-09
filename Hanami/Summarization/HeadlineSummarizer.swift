@@ -11,6 +11,11 @@ struct HeadlineEvent: Sendable {
         description: "The exact ID numbers of the source articles describing this event. Copy each ID verbatim from the `ID:` line of the matching articles. Only include IDs that appear in the input. Do not invent IDs."
     )
     var articleIDs: [Int]
+    @Guide(
+        // swiftlint:disable:next line_length
+        description: "true when this is major world or national news every reader should know about (politics, international affairs, conflicts, disasters, public safety, or economy-wide developments). false when the event mainly matters to readers who follow the topic."
+    )
+    var isMajorWorldEvent: Bool
 }
 
 @Generable
@@ -36,11 +41,13 @@ public enum HeadlineSummarizer {
     /// rows. The DB wipes the summary_headlines cache on next launch
     /// when this differs from the stored value, independent of app
     /// version.
-    public nonisolated static let promptVersion = 2
+    public nonisolated static let promptVersion = 3
 
-    /// Cap on returned events that scales with input size so light days
-    /// don't get padded out to five headlines.
-    public static func maxEvents(for inputCount: Int) -> Int {
+    /// Per-category cap on returned events that scales with input size so
+    /// light days don't get padded out. Applied separately to
+    /// reader-interest events and major world events, so the overall
+    /// maximum is twice this value (10 on busy days).
+    public static func maxEventsPerCategory(for inputCount: Int) -> Int {
         switch inputCount {
         case ..<5: return 1
         case 5..<10: return 2
@@ -65,6 +72,7 @@ public enum HeadlineSummarizer {
     public struct ResolvedEvent: Sendable {
         public let headline: String
         public let articleIDs: [Int64]
+        public let isMajorWorldEvent: Bool
     }
 
     /// Returns surviving events alongside the last non-guardrail error, if
@@ -113,71 +121,14 @@ public enum HeadlineSummarizer {
             }
             return ([], lastNonGuardrailError)
         }
-        let cap = maxEvents(for: articles.count)
-        let deduped = Array(deduplicate(events).prefix(cap))
-        log(logModule, "raw events=\(events.count) after dedup+cap(\(cap))=\(deduped.count)")
-        let translated = await translateHeadlinesIfNeeded(deduped)
+        let cap = maxEventsPerCategory(for: articles.count)
+        let deduped = deduplicate(events)
+        let interestEvents = Array(deduped.filter { !$0.isMajorWorldEvent }.prefix(cap))
+        let keyEvents = Array(deduped.filter(\.isMajorWorldEvent).prefix(cap))
+        // swiftlint:disable:next line_length
+        log(logModule, "raw events=\(events.count) deduped=\(deduped.count) interest=\(interestEvents.count) keyEvents=\(keyEvents.count) (cap \(cap) each)")
+        let translated = await translateHeadlinesIfNeeded(interestEvents + keyEvents)
         return (translated, lastNonGuardrailError)
-    }
-
-    /// Detects each headline's language and runs a translation pass on
-    /// anything that isn't in the user's locale. The model frequently
-    /// ignores in-prompt language directives when the source articles are
-    /// in a different language, so this is a deterministic safety net.
-    private static func translateHeadlinesIfNeeded(
-        _ events: [ResolvedEvent]
-    ) async -> [ResolvedEvent] {
-        let target = userLanguageCode
-        return await withTaskGroup(of: (Int, ResolvedEvent).self) { group in
-            for (index, event) in events.enumerated() {
-                group.addTask {
-                    let detected = detectLanguage(of: event.headline)
-                    if detected == nil || detected == target {
-                        return (index, event)
-                    }
-                    log(
-                        logModule,
-                        "translating headline (detected=\(detected ?? "?") -> \(target)): \(event.headline)"
-                    )
-                    if let translated = await translate(headline: event.headline),
-                       !translated.isEmpty {
-                        return (
-                            index,
-                            ResolvedEvent(headline: translated, articleIDs: event.articleIDs)
-                        )
-                    }
-                    return (index, event)
-                }
-            }
-            var indexed: [(Int, ResolvedEvent)] = []
-            for await item in group { indexed.append(item) }
-            return indexed.sorted { $0.0 < $1.0 }.map(\.1)
-        }
-    }
-
-    nonisolated private static func detectLanguage(of text: String) -> String? {
-        let recognizer = NLLanguageRecognizer()
-        recognizer.processString(text)
-        return recognizer.dominantLanguage?.rawValue
-    }
-
-    private static func translate(headline: String) async -> String? {
-        let langName = Locale(identifier: "en")
-            .localizedString(forLanguageCode: userLanguageCode) ?? "English"
-        let instructions = "Translate the user's text into \(langName). "
-            + "Output only the translated text. Keep proper nouns. Do not add commentary."
-        do {
-            let session = LanguageModelSession(instructions: instructions)
-            let response = try await session.respond(to: headline)
-            return response.content.trimmingCharacters(in: .whitespacesAndNewlines)
-        } catch {
-            log(logModule, "translation failed: \(error.localizedDescription)")
-            return nil
-        }
-    }
-
-    private static var userLanguageCode: String {
-        Locale.current.language.languageCode?.identifier ?? "en"
     }
 
     /// Drops batches that trip the safety classifier; surfaces other errors
@@ -283,7 +234,11 @@ public enum HeadlineSummarizer {
                 ids.append(candidate)
             }
             guard !ids.isEmpty else { return nil }
-            return ResolvedEvent(headline: cleanedHeadline, articleIDs: ids)
+            return ResolvedEvent(
+                headline: cleanedHeadline,
+                articleIDs: ids,
+                isMajorWorldEvent: event.isMajorWorldEvent
+            )
         }
     }
 
