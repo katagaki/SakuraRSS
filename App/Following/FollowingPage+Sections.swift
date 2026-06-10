@@ -138,7 +138,7 @@ extension FollowingPage {
             .id(feed.id)
         } else {
             NavigationLink(value: feed) {
-                FollowingFeedGridCell(feed: feed)
+                FollowingFeedGridCell(feed: feed, editTransitionNamespace: feedEditNamespace)
             }
             .buttonStyle(.plain)
             .contextMenu {
