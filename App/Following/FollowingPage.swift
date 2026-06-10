@@ -59,6 +59,7 @@ struct FollowingPage: View {
         .sheet(item: $feedForRules) { feed in
             EditFeedSheet(feedID: feed.id, initialTab: .rules)
                 .environment(feedManager)
+                .navigationTransition(.zoom(sourceID: feed.id, in: feedEditNamespace))
         }
         .sheet(isPresented: $isPresentingBulkEditSheet) {
             BulkEditFeedSheet(feedIDs: selectedFeedIDs)
