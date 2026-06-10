@@ -17,6 +17,30 @@ struct FeedArticleRow: View {
     @State private var imageAspectRatio: CGFloat?
     @State private var loadedImage: UIImage?
 
+    private static let imageMaxPixelSize: CGFloat = 1200
+
+    init(article: Article) {
+        self.article = article
+        guard let imageURL = article.imageURL, let url = URL(string: imageURL) else { return }
+        // Paint memory-cache hits and known aspect ratios on first render so
+        // revisited rows lay out at their final size without a reflow.
+        if let widthOverHeight = ImageAspectRatioCache.shared.aspectRatio(for: imageURL),
+           widthOverHeight > 0 {
+            _imageAspectRatio = State(initialValue: 1 / widthOverHeight)
+        }
+        let cacheKey = CachedAsyncImage<EmptyView>.cacheKey(url, Self.imageMaxPixelSize)
+        if let cachedImage = ImageMemoryCache.shared.image(forKey: cacheKey),
+           Self.isDisplayableSize(cachedImage) {
+            _loadedImage = State(initialValue: cachedImage)
+        }
+    }
+
+    private static func isDisplayableSize(_ image: UIImage) -> Bool {
+        let pixelWidth = image.size.width * image.scale
+        let pixelHeight = image.size.height * image.scale
+        return pixelWidth > 100 || pixelHeight > 100
+    }
+
     private var imageHeight: CGFloat {
         if UIDevice.current.userInterfaceIdiom == .pad {
             return 200
@@ -241,14 +265,17 @@ struct FeedArticleRow: View {
                 imageAspectRatio = nil
                 return
             }
-            let image = await CachedAsyncImage<EmptyView>.loadImage(from: url, maxPixelSize: 1200)
-            guard !Task.isCancelled, let image else { return }
-            let pixelWidth = image.size.width * image.scale
-            let pixelHeight = image.size.height * image.scale
-            guard pixelWidth > 100 || pixelHeight > 100 else { return }
+            let image = await CachedAsyncImage<EmptyView>.loadImage(
+                from: url, maxPixelSize: Self.imageMaxPixelSize
+            )
+            guard !Task.isCancelled, let image, Self.isDisplayableSize(image) else { return }
             let aspect = image.size.height / image.size.width
-            imageAspectRatio = aspect
-            loadedImage = image
+            if imageAspectRatio != aspect {
+                imageAspectRatio = aspect
+            }
+            if loadedImage !== image {
+                loadedImage = image
+            }
         }
         .sheet(isPresented: $showSafari) {
             if let url = URL(string: article.url) {

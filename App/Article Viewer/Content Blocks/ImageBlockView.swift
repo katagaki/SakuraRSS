@@ -12,6 +12,18 @@ struct ImageBlockView: View {
     @State private var loadedImage: UIImage?
     @Environment(\.openURL) private var openURL
 
+    init(url: URL, link: URL? = nil, namespace: Namespace.ID, onTap: (() -> Void)? = nil) {
+        self.url = url
+        self.link = link
+        self.namespace = namespace
+        self.onTap = onTap
+        // Known aspect ratios applied on first render keep article content
+        // below from shifting when the image arrives.
+        if let ratio = ImageAspectRatioCache.shared.aspectRatio(for: url.absoluteString) {
+            _aspectRatio = State(initialValue: ratio)
+        }
+    }
+
     var body: some View {
         imageView
             .matchedTransitionSource(id: url, in: namespace)
@@ -26,7 +38,10 @@ struct ImageBlockView: View {
     @ViewBuilder
     private var imageView: some View {
         CachedAsyncImage(url: url, onImageLoaded: { image in
-            aspectRatio = image.size.width / image.size.height
+            let ratio = image.size.width / image.size.height
+            if aspectRatio != ratio {
+                aspectRatio = ratio
+            }
             imageSize = image.size
             loadedImage = image
         }, placeholder: {
