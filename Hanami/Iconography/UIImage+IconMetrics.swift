@@ -76,7 +76,8 @@ public extension UIImage {
             averageColor: averageRGB.map { [Double($0.red), Double($0.green), Double($0.blue)] },
             averageLuminance: Double(luminance),
             isNearBlack: nearBlack,
-            prominentColors: prominent,
+            // Empty, not nil, so accessors don't recompute on every access.
+            prominentColors: prominent ?? [],
             hasAnyTransparentPixel: anyTransparent
         )
         iconDerivedMetrics = metrics

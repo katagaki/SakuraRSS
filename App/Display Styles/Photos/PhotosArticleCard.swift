@@ -14,6 +14,33 @@ struct PhotosArticleCard: View {
     @State private var feed: Feed?
     @State private var currentPage: Int = 0
 
+    private static let imageMaxPixelSize: CGFloat = 1600
+
+    init(article: Article) {
+        self.article = article
+        let aspectSourceURL = article.carouselImageURLs.count > 1
+            ? article.carouselImageURLs.first
+            : article.imageURL
+        if let aspectSourceURL,
+           let ratio = ImageAspectRatioCache.shared.aspectRatio(for: aspectSourceURL) {
+            _imageAspectRatio = State(initialValue: ratio)
+        }
+        guard article.carouselImageURLs.count <= 1,
+              let imageURL = article.imageURL,
+              let url = URL(string: imageURL) else { return }
+        let cacheKey = CachedAsyncImage<EmptyView>.cacheKey(url, Self.imageMaxPixelSize)
+        if let cachedImage = ImageMemoryCache.shared.image(forKey: cacheKey),
+           Self.isDisplayableSize(cachedImage) {
+            _photoImage = State(initialValue: cachedImage)
+        }
+    }
+
+    private static func isDisplayableSize(_ image: UIImage) -> Bool {
+        let pixelWidth = image.size.width * image.scale
+        let pixelHeight = image.size.height * image.scale
+        return pixelWidth > 100 || pixelHeight > 100
+    }
+
     @ViewBuilder
     private var feedAvatarView: some View {
         if let icon = icon {
@@ -114,10 +141,17 @@ struct PhotosArticleCard: View {
                             .padding(.bottom, 8)
                     }
                     .task {
-                        let loaded = await CachedAsyncImage<EmptyView>.loadImage(from: urls[0], maxPixelSize: 1600)
-                        photoImage = loaded
+                        let loaded = await CachedAsyncImage<EmptyView>.loadImage(
+                            from: urls[0], maxPixelSize: Self.imageMaxPixelSize
+                        )
+                        if photoImage !== loaded {
+                            photoImage = loaded
+                        }
                         if let loaded, loaded.size.height > 0 {
-                            imageAspectRatio = loaded.size.width / loaded.size.height
+                            let ratio = loaded.size.width / loaded.size.height
+                            if imageAspectRatio != ratio {
+                                imageAspectRatio = ratio
+                            }
                         }
                     }
                     .padding(.bottom, 10)
@@ -233,14 +267,16 @@ struct PhotosArticleCard: View {
             guard article.carouselImageURLs.count <= 1,
                   let imageURL = article.imageURL,
                   let url = URL(string: imageURL) else { return }
-            let loaded = await CachedAsyncImage<EmptyView>.loadImage(from: url, maxPixelSize: 1600)
-            guard !Task.isCancelled, let loaded, loaded.size.height > 0 else { return }
-            let pixelWidth = loaded.size.width * loaded.scale
-            let pixelHeight = loaded.size.height * loaded.scale
-            guard pixelWidth > 100 || pixelHeight > 100 else { return }
+            let loaded = await CachedAsyncImage<EmptyView>.loadImage(
+                from: url, maxPixelSize: Self.imageMaxPixelSize
+            )
+            guard !Task.isCancelled, let loaded, loaded.size.height > 0,
+                  Self.isDisplayableSize(loaded) else { return }
             let aspect = loaded.size.width / loaded.size.height
-            withAnimation(.easeOut(duration: 0.2)) {
+            if imageAspectRatio != aspect {
                 imageAspectRatio = aspect
+            }
+            if photoImage !== loaded {
                 photoImage = loaded
             }
         }

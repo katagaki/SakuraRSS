@@ -37,7 +37,6 @@ struct CachedAsyncImage<Placeholder: View>: View {
     let onImageLoaded: ((UIImage) -> Void)?
     let placeholder: () -> Placeholder
     @State private var image: UIImage?
-    @State private var isLoading: Bool
     @State private var reportedCachedHit = false
 
     init(
@@ -57,7 +56,6 @@ struct CachedAsyncImage<Placeholder: View>: View {
             return ImageMemoryCache.shared.image(forKey: Self.cacheKey(url, maxPixelSize))
         }()
         _image = State(initialValue: initial)
-        _isLoading = State(initialValue: initial == nil)
     }
 
     var body: some View {
@@ -84,25 +82,20 @@ struct CachedAsyncImage<Placeholder: View>: View {
             transaction.disablesAnimations = true
         }
         .task(id: url, priority: .utility) {
-            guard let url else {
-                isLoading = false
-                return
-            }
+            guard let url else { return }
             if let image {
                 if !reportedCachedHit {
                     reportedCachedHit = true
                     onImageLoaded?(image)
                 }
-                isLoading = false
                 return
             }
             let loadedImage = await Self.loadImage(from: url, maxPixelSize: maxPixelSize)
             if Task.isCancelled { return }
-            image = loadedImage
             if let loadedImage {
+                image = loadedImage
                 onImageLoaded?(loadedImage)
             }
-            isLoading = false
         }
     }
 
@@ -132,7 +125,7 @@ struct CachedAsyncImage<Placeholder: View>: View {
         let key = cacheKey(url, maxPixelSize)
         let memoryCache = ImageMemoryCache.shared
         if let cached = memoryCache.image(forKey: key) {
-            _ = cached.ensureIconDerivedMetrics()
+            ImageAspectRatioCache.shared.recordAspectRatio(of: cached, for: urlString)
             return cached
         }
 
@@ -142,7 +135,8 @@ struct CachedAsyncImage<Placeholder: View>: View {
            let cachedImage = ImageDownsampler.downsample(
                cachedData, maxPixelSize: maxPixelSize
            ) ?? UIImage(data: cachedData) {
-            _ = cachedImage.ensureIconDerivedMetrics()
+            attachDerivedMetrics(to: cachedImage, encodedData: cachedData)
+            ImageAspectRatioCache.shared.recordAspectRatio(of: cachedImage, for: urlString)
             memoryCache.setImage(cachedImage, forKey: key)
             log("Image", "Cache hit for \(urlString) (\(cachedData.count) bytes)")
             return cachedImage
@@ -161,7 +155,8 @@ struct CachedAsyncImage<Placeholder: View>: View {
                 log("Image", "Failed to decode image data from \(urlString) (\(data.count) bytes)")
                 return nil
             }
-            _ = downsampled.ensureIconDerivedMetrics()
+            attachDerivedMetrics(to: downsampled, encodedData: data)
+            ImageAspectRatioCache.shared.recordAspectRatio(of: downsampled, for: urlString)
             if memoryCache.image(forKey: key) == nil {
                 try? database.cacheImageData(data, for: urlString)
             }
@@ -170,6 +165,14 @@ struct CachedAsyncImage<Placeholder: View>: View {
         } catch {
             log("Image", "Download failed for \(urlString): \(error.localizedDescription)")
             return nil
+        }
+    }
+
+    nonisolated private static func attachDerivedMetrics(to image: UIImage, encodedData: Data) {
+        if let metricsSource = ImageDownsampler.downsample(encodedData, maxPixelSize: 64) {
+            image.iconDerivedMetrics = metricsSource.ensureIconDerivedMetrics()
+        } else {
+            image.ensureIconDerivedMetrics()
         }
     }
 }

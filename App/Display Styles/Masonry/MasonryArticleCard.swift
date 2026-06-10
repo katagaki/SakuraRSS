@@ -18,6 +18,14 @@ struct MasonryArticleCard: View {
     private static let maxAspectRatio: CGFloat = 1.6
     private static let fallbackAspectRatio: CGFloat = 1.0
 
+    init(article: Article) {
+        self.article = article
+        if let imageURL = article.imageURL,
+           let ratio = ImageAspectRatioCache.shared.aspectRatio(for: imageURL) {
+            _imageAspectRatio = State(initialValue: ratio)
+        }
+    }
+
     private var effectiveAspectRatio: CGFloat {
         let ratio = imageAspectRatio ?? Self.fallbackAspectRatio
         return min(max(ratio, Self.minAspectRatio), Self.maxAspectRatio)
@@ -35,7 +43,10 @@ struct MasonryArticleCard: View {
                                 maxPixelSize: 800,
                                 onImageLoaded: { image in
                                     guard image.size.height > 0 else { return }
-                                    imageAspectRatio = image.size.width / image.size.height
+                                    let ratio = image.size.width / image.size.height
+                                    if imageAspectRatio != ratio {
+                                        imageAspectRatio = ratio
+                                    }
                                 },
                                 placeholder: {
                                     Rectangle()

@@ -4,17 +4,12 @@ import Hanami
 struct TodayWeatherCard: View {
 
     @Bindable var weatherService: TodayWeatherService = .shared
-    @AppStorage("Onboarding.Completed") private var onboardingCompleted: Bool = false
     @AppStorage("Today.Weather.GraphMode") private var graphMode: WeatherGraphMode = .temperature
     @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
-        if weatherService.lastError != nil {
-            EmptyView()
-        } else if let weather = weatherService.weather {
+        if let weather = weatherService.weather {
             card(weather)
-        } else if onboardingCompleted, !weatherService.isFetching {
-            setLocationPrompt
         }
     }
 
@@ -76,18 +71,5 @@ struct TodayWeatherCard: View {
 
     private func graphColor(_ weather: TodayWeather) -> Color {
         graphMode == .precipitation ? .blue : baseColor(weather)
-    }
-
-    private var setLocationPrompt: some View {
-        HStack(spacing: 8) {
-            Image(systemName: "location.slash")
-                .symbolRenderingMode(.hierarchical)
-            Text(String(localized: "TodayWeather.Location.SetPrompt", table: "Home"))
-                .font(.subheadline)
-        }
-        .foregroundStyle(.secondary)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(20)
-        .compatibleGlassEffect(in: .rect(cornerRadius: 14))
     }
 }
