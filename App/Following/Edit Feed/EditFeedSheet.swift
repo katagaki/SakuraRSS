@@ -8,7 +8,12 @@ struct EditFeedSheet: View {
     let feedID: Int64
 
     @State private var feed: Feed?
-    @State private var selectedTab: FeedEditTab = .about
+    @State private var selectedTab: FeedEditTab
+
+    init(feedID: Int64, initialTab: FeedEditTab = .about) {
+        self.feedID = feedID
+        _selectedTab = State(initialValue: initialTab)
+    }
 
     var body: some View {
         NavigationStack {

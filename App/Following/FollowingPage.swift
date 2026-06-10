@@ -7,6 +7,7 @@ struct FollowingPage: View {
     @State var searchText = ""
     @State var isPresentingAddFeedSheet = false
     @State var feedToEdit: Feed?
+    @State var feedForRules: Feed?
     @State var feedToDelete: Feed?
     @State var isEditingFeeds = false
     @State var isSelectingFeeds = false
@@ -54,6 +55,10 @@ struct FollowingPage: View {
             EditFeedSheet(feedID: feed.id)
                 .environment(feedManager)
                 .navigationTransition(.zoom(sourceID: feed.id, in: feedEditNamespace))
+        }
+        .sheet(item: $feedForRules) { feed in
+            EditFeedSheet(feedID: feed.id, initialTab: .rules)
+                .environment(feedManager)
         }
         .sheet(isPresented: $isPresentingBulkEditSheet) {
             BulkEditFeedSheet(feedIDs: selectedFeedIDs)
