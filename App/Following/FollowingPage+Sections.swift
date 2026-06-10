@@ -138,9 +138,19 @@ extension FollowingPage {
             .id(feed.id)
         } else {
             NavigationLink(value: feed) {
-                FollowingFeedGridCell(feed: feed)
+                FollowingFeedGridCell(feed: feed, editTransitionNamespace: feedEditNamespace)
             }
             .buttonStyle(.plain)
+            .contextMenu {
+                FollowingFeedGridContextMenu(
+                    feed: feed,
+                    feedToEdit: $feedToEdit,
+                    feedForRules: $feedForRules,
+                    feedToDelete: $feedToDelete
+                )
+            }
+            // Keep .id after .contextMenu: lazy grids reuse the menu interaction and can
+            // present the previously long-pressed feed's menu without an explicit identity.
             .id(feed.id)
         }
     }

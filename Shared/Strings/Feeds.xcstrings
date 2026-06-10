@@ -6896,61 +6896,61 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Hinzufügen zu …"
+            "value" : "Zur Liste hinzufügen …"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Add to..."
+            "value" : "Add to List..."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ajouter à…"
+            "value" : "Ajouter à une liste…"
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Aggiungi a…"
+            "value" : "Aggiungi a una lista…"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "追加先…"
+            "value" : "リストに追加…"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "추가…"
+            "value" : "리스트에 추가…"
           }
         },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Toevoegen aan…"
+            "value" : "Toevoegen aan lijst…"
           }
         },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Thêm vào…"
+            "value" : "Thêm vào danh sách…"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "添加到…"
+            "value" : "添加到列表…"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "加入到…"
+            "value" : "加入到列表…"
           }
         }
       }

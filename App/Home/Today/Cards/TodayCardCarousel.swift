@@ -23,6 +23,10 @@ struct TodayCardCarousel<Card: View>: View {
                             .contextMenu {
                                 TodayCardContextMenu(article: article)
                             }
+                            // Lazy containers reuse the context menu interaction, which can
+                            // present the previously long-pressed item's menu without an
+                            // explicit identity.
+                            .id(article.id)
                     }
                 }
                 .padding(.horizontal)
