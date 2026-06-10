@@ -168,8 +168,6 @@ struct CachedAsyncImage<Placeholder: View>: View {
         }
     }
 
-    /// Metrics sample tiny buffers, so derive them from a small thumbnail
-    /// instead of resampling the full-size bitmap once per metric.
     nonisolated private static func attachDerivedMetrics(to image: UIImage, encodedData: Data) {
         if let metricsSource = ImageDownsampler.downsample(encodedData, maxPixelSize: 64) {
             image.iconDerivedMetrics = metricsSource.ensureIconDerivedMetrics()

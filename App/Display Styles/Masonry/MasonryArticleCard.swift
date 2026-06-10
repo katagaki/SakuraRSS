@@ -20,8 +20,6 @@ struct MasonryArticleCard: View {
 
     init(article: Article) {
         self.article = article
-        // Known aspect ratios applied on first render keep the masonry
-        // columns from reflowing when the image arrives.
         if let imageURL = article.imageURL,
            let ratio = ImageAspectRatioCache.shared.aspectRatio(for: imageURL) {
             _imageAspectRatio = State(initialValue: ratio)

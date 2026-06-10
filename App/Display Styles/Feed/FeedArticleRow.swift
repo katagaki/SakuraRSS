@@ -22,8 +22,6 @@ struct FeedArticleRow: View {
     init(article: Article) {
         self.article = article
         guard let imageURL = article.imageURL, let url = URL(string: imageURL) else { return }
-        // Paint memory-cache hits and known aspect ratios on first render so
-        // revisited rows lay out at their final size without a reflow.
         if let widthOverHeight = ImageAspectRatioCache.shared.aspectRatio(for: imageURL),
            widthOverHeight > 0 {
             _imageAspectRatio = State(initialValue: 1 / widthOverHeight)

@@ -17,8 +17,6 @@ struct ImageBlockView: View {
         self.link = link
         self.namespace = namespace
         self.onTap = onTap
-        // Known aspect ratios applied on first render keep article content
-        // below from shifting when the image arrives.
         if let ratio = ImageAspectRatioCache.shared.aspectRatio(for: url.absoluteString) {
             _aspectRatio = State(initialValue: ratio)
         }

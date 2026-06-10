@@ -18,8 +18,6 @@ struct PhotosArticleCard: View {
 
     init(article: Article) {
         self.article = article
-        // Paint memory-cache hits and known aspect ratios on first render so
-        // revisited cards lay out at their final size without a reflow.
         let aspectSourceURL = article.carouselImageURLs.count > 1
             ? article.carouselImageURLs.first
             : article.imageURL

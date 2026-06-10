@@ -1,7 +1,5 @@
 import UIKit
 
-/// Remembers width/height ratios of decoded images so rows can size
-/// themselves on first render instead of reflowing when the image arrives.
 nonisolated final class ImageAspectRatioCache: @unchecked Sendable {
 
     static let shared = ImageAspectRatioCache()
