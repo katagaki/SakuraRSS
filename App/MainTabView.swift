@@ -71,7 +71,7 @@ struct MainTabView: View {
                 ProfileView(showsCloseButton: false)
             }
 
-            Tab("Tabs.Discover", systemImage: "magnifyingglass", value: .search, role: .search) {
+            Tab("Tabs.Discover", systemImage: "magnifyingglass", value: .search) {
                 SearchView()
             }
         }
