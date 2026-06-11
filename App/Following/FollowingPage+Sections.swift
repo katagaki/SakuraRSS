@@ -107,10 +107,31 @@ extension FollowingPage {
                     }
                 }
             } header: {
-                Text(section.localizedTitle)
-                    .font(.title3)
-                    .fontWeight(.bold)
+                feedSectionHeader(section)
             }
+        }
+    }
+
+    @ViewBuilder
+    func feedSectionHeader(_ section: FeedSection) -> some View {
+        if isEditingFeeds || isSelectingFeeds {
+            Text(section.localizedTitle)
+                .font(.title3)
+                .fontWeight(.bold)
+        } else {
+            NavigationLink(value: section) {
+                HStack(spacing: 4) {
+                    Text(section.localizedTitle)
+                        .font(.title3)
+                        .fontWeight(.bold)
+                        .foregroundStyle(.primary)
+                    Image(systemName: "chevron.right")
+                        .font(.subheadline)
+                        .fontWeight(.semibold)
+                        .foregroundStyle(.secondary)
+                }
+            }
+            .buttonStyle(.plain)
         }
     }
 

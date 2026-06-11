@@ -7,6 +7,7 @@ struct TodayView: View {
 
     @Environment(FeedManager.self) var feedManager
     @Environment(TodayManager.self) var todayManager
+    @Environment(\.verticalSizeClass) var verticalSizeClass
     @AppStorage("Intelligence.ContentInsights.Enabled") var contentInsightsEnabled: Bool = false
     @Bindable var weatherService: TodayWeatherService = .shared
 
@@ -20,67 +21,14 @@ struct TodayView: View {
     @State var summaryRefreshTrigger: Int = 0
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 16) {
-                TodayGreetingView()
-                    .padding(.horizontal)
-
-                if isWeatherShowing {
-                    sectionDivider
-                }
-
-                if !anySummaryVisible, !isWeatherShowing,
-                   !todayManager.hasLoadedInitially || !contentSections.isEmpty || showEmptyState {
-                    sectionDivider
-                }
-
-                if anySummaryActive {
-                    VStack(spacing: 0) {
-                        WhileYouSleptView(
-                            hasSummary: $sleptHasSummary, flatStyle: true,
-                            isVisible: $sleptVisible,
-                            refreshTrigger: summaryRefreshTrigger
-                        )
-                        AfternoonBriefView(
-                            hasSummary: $afternoonHasSummary,
-                            isVisible: $afternoonVisible,
-                            refreshTrigger: summaryRefreshTrigger
-                        )
-                        TodaysSummaryView(
-                            hasSummary: $todayHasSummary, flatStyle: true,
-                            isVisible: $todayVisible,
-                            refreshTrigger: summaryRefreshTrigger
-                        )
-                    }
-                }
-
-                if anySummaryVisible,
-                   !todayManager.hasLoadedInitially || !contentSections.isEmpty || showEmptyState {
-                    sectionDivider
-                }
-
-                if !todayManager.hasLoadedInitially {
-                    loadingIndicator
-                } else if showEmptyState {
-                    emptyContentView
-                } else {
-                    ForEach(Array(contentSections.enumerated()), id: \.element) { index, section in
-                        sectionView(section)
-                        if index < contentSections.count - 1 {
-                            sectionDivider
-                        }
-                    }
-                }
-
-                attributionFooter
+        Group {
+            if isLandscapeLayout {
+                landscapeLayout
+            } else {
+                portraitLayout
             }
-            .padding(.top, 8)
-            .padding(.bottom, 24)
         }
         .sakuraBackground()
-        .refreshable {
-            startRefreshWithoutBlocking()
-        }
         #if os(visionOS)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
@@ -101,9 +49,83 @@ struct TodayView: View {
         }
     }
 
+    // MARK: - Layouts
+
+    private var portraitLayout: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 16) {
+                TodayGreetingView()
+                    .padding(.horizontal)
+
+                if isWeatherShowing {
+                    sectionDivider
+                }
+
+                if !anySummaryVisible, !isWeatherShowing,
+                   !todayManager.hasLoadedInitially || !contentSections.isEmpty || showEmptyState {
+                    sectionDivider
+                }
+
+                if anySummaryActive {
+                    summaryCardsStack
+                }
+
+                if anySummaryVisible,
+                   !todayManager.hasLoadedInitially || !contentSections.isEmpty || showEmptyState {
+                    sectionDivider
+                }
+
+                if !todayManager.hasLoadedInitially {
+                    loadingIndicator
+                } else if showEmptyState {
+                    emptyContentView
+                } else {
+                    contentSectionsStack
+                }
+
+                attributionFooter
+            }
+            .padding(.top, 8)
+            .padding(.bottom, 24)
+        }
+        .refreshable {
+            startRefreshWithoutBlocking()
+        }
+    }
+
+    var summaryCardsStack: some View {
+        VStack(spacing: 0) {
+            WhileYouSleptView(
+                hasSummary: $sleptHasSummary, flatStyle: true,
+                isVisible: $sleptVisible,
+                refreshTrigger: summaryRefreshTrigger
+            )
+            AfternoonBriefView(
+                hasSummary: $afternoonHasSummary,
+                isVisible: $afternoonVisible,
+                refreshTrigger: summaryRefreshTrigger
+            )
+            TodaysSummaryView(
+                hasSummary: $todayHasSummary, flatStyle: true,
+                isVisible: $todayVisible,
+                refreshTrigger: summaryRefreshTrigger
+            )
+        }
+    }
+
+    @ViewBuilder
+    var contentSectionsStack: some View {
+        ForEach(Array(contentSections.enumerated()), id: \.element) { index, section in
+            sectionView(section)
+            if index < contentSections.count - 1 {
+                sectionDivider
+            }
+        }
+    }
+
     // MARK: - Sections
 
-    private enum ContentSection: Hashable {
+    enum ContentSection: Hashable {
         case listenNow
         case watchNow
         case topThree
@@ -112,7 +134,7 @@ struct TodayView: View {
         case recentlyViewed
     }
 
-    private var isWeatherShowing: Bool {
+    var isWeatherShowing: Bool {
         HomeLayout.usesPhoneTopBar
             && weatherService.lastError == nil
             && weatherService.weather != nil
@@ -123,17 +145,18 @@ struct TodayView: View {
     }
 
     @ViewBuilder
-    private var emptyContentView: some View {
+    var emptyContentView: some View {
         ContentUnavailableView {
             Label(String(localized: "Today.Empty.Title", table: "Home"), systemImage: "checkmark.circle")
         } description: {
             Text(String(localized: "Today.Empty.Description", table: "Home"))
         }
         .padding(.vertical, 32)
+        .todayHorizontalContentPadding(0)
     }
 
     @ViewBuilder
-    private var loadingIndicator: some View {
+    var loadingIndicator: some View {
         VStack(spacing: 12) {
             ProgressView()
             Text(String(localized: "Today.Loading", table: "Home"))
@@ -142,9 +165,10 @@ struct TodayView: View {
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 48)
+        .todayHorizontalContentPadding(0)
     }
 
-    private var contentSections: [ContentSection] {
+    var contentSections: [ContentSection] {
         var sections: [ContentSection] = []
         if !visibleUnreadPodcastEpisodes.isEmpty {
             sections.append(.listenNow)
@@ -178,13 +202,13 @@ struct TodayView: View {
         todayManager.unreadVideoEpisodes.filter { !feedManager.isRead($0) }
     }
 
-    private var sectionDivider: some View {
+    var sectionDivider: some View {
         Divider()
-            .padding(.horizontal)
+            .todayHorizontalContentPadding()
     }
 
     @ViewBuilder
-    private func sectionView(_ section: ContentSection) -> some View {
+    func sectionView(_ section: ContentSection) -> some View {
         switch section {
         case .listenNow: listenNowSection
         case .watchNow: watchNowSection
@@ -236,13 +260,13 @@ struct TodayView: View {
             Text(String(localized: "Discover.TopicsAndPeople", table: "Feeds"))
                 .font(.title3)
                 .fontWeight(.bold)
-                .padding(.horizontal)
+                .todayHorizontalContentPadding()
 
             TodayChipsFlow(
                 topics: filteredTopics,
                 people: filteredPeople
             )
-            .padding(.horizontal)
+            .todayHorizontalContentPadding()
         }
     }
 
@@ -265,7 +289,7 @@ struct TodayView: View {
     }
 
     @ViewBuilder
-    private var attributionFooter: some View {
+    var attributionFooter: some View {
         let prefix = String(localized: "Today.WeatherAttribution.Prefix", table: "Home")
         let linkLabel = String(localized: "Today.WeatherAttribution.Link", table: "Home")
         let markdown = "\(prefix) [\(linkLabel)](https://developer.apple.com/weatherkit/data-source-attribution/)"

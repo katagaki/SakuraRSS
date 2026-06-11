@@ -8,6 +8,12 @@ struct TodayGreetingView: View {
     private let deloreanClock = DeloreanClock.shared
     @State private var greeting: TodayGreeting = .from(date: Date())
 
+    let usesCompactWeatherCard: Bool
+
+    init(usesCompactWeatherCard: Bool = false) {
+        self.usesCompactWeatherCard = usesCompactWeatherCard
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 2) {
             Text(formattedDate)
@@ -20,8 +26,11 @@ struct TodayGreetingView: View {
                 .fontWeight(.bold)
 
             if HomeLayout.usesPhoneTopBar {
-                TodayWeatherCard()
-                    .padding(.top, 12)
+                TodayWeatherCard(
+                    usesFlatBackground: usesCompactWeatherCard,
+                    showsHourlyTimeLabels: !usesCompactWeatherCard
+                )
+                .padding(.top, 12)
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
