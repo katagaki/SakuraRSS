@@ -62,6 +62,7 @@ struct VideoStyleView: View {
                                 )
                             }
                         }
+                        MoveToFolderMenuItems(article: article)
                     }
                     .padding(.bottom, 8)
                 }

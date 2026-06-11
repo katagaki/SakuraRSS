@@ -56,6 +56,7 @@ struct GridStyleView: View {
                                           systemImage: "square.and.arrow.up")
                                 }
                             }
+                            MoveToFolderMenuItems(article: article)
                         }
                     }
                 }

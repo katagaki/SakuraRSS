@@ -44,6 +44,7 @@ struct MiniPlayerAccessoryModifier: ViewModifier {
                         sheetContent(for: item)
                     }
                 }
+                .compatibleSoftScrollEdgeEffectStyle()
                 .presentationDragIndicator(.visible)
                 .navigationTransition(
                     .zoom(sourceID: "NowPlayingBar", in: namespace)
@@ -57,6 +58,7 @@ struct MiniPlayerAccessoryModifier: ViewModifier {
                 NavigationStack {
                     sheetContent(for: item)
                 }
+                .compatibleSoftScrollEdgeEffectStyle()
                 .presentationDragIndicator(.visible)
             }
             #endif

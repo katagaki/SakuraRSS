@@ -115,6 +115,7 @@ struct ProfileView: View {
             .listStyle(.insetGrouped)
             .sakuraBackground()
             .navigationTitle("Tabs.Profile")
+            .compatibleSoftScrollEdgeEffectStyle()
             .toolbarTitleDisplayMode(UIDevice.current.userInterfaceIdiom == .pad ? .inline : .inlineLarge)
             #if targetEnvironment(macCatalyst)
             .toolbar(.hidden, for: .navigationBar)

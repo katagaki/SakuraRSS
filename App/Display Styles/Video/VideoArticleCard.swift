@@ -119,6 +119,7 @@ struct VideoArticleCard: View {
                             )
                         }
                     }
+                    MoveToFolderMenuItems(article: article)
                 } label: {
                     Image(systemName: "ellipsis")
                         .frame(width: 28, height: 28)

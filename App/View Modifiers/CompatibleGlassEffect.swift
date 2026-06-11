@@ -53,6 +53,15 @@ extension View {
         scrollEdgeEffectHidden(true, for: .all)
         #endif
     }
+
+    @ViewBuilder
+    func compatibleSoftScrollEdgeEffectStyle() -> some View {
+        #if os(visionOS)
+        self
+        #else
+        scrollEdgeEffectStyle(.soft, for: .all)
+        #endif
+    }
 }
 
 #if !os(visionOS)

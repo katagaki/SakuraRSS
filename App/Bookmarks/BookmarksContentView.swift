@@ -10,9 +10,15 @@ struct BookmarksContentView: View {
     @State private var bookmarkedArticles: [Article] = []
     @State private var displayStyle: FeedDisplayStyle
     @State private var showingDeleteReadAlert = false
+    @State private var isCreatingFolder = false
+    @State private var selectedFolder: BookmarkFolder?
 
     private var hasImages: Bool {
         bookmarkedArticles.contains { $0.imageURL != nil }
+    }
+
+    private var hasFolders: Bool {
+        !feedManager.bookmarkFolders.isEmpty
     }
 
     init() {
@@ -25,7 +31,7 @@ struct BookmarksContentView: View {
     var body: some View {
         let effectiveStyle = effectiveDisplayStyle
         Group {
-            if bookmarkedArticles.isEmpty {
+            if bookmarkedArticles.isEmpty && !hasFolders {
                 ContentUnavailableView {
                     Label(String(localized: "Bookmarks.Empty.Title", table: "Articles"),
                           systemImage: "bookmark")
@@ -35,14 +41,32 @@ struct BookmarksContentView: View {
             } else {
                 DisplayStyleContentView(
                     style: effectiveStyle,
-                    articles: bookmarkedArticles
+                    articles: bookmarkedArticles,
+                    headerView: hasFolders
+                        ? AnyView(BookmarkFoldersGridSection { folder in
+                            selectedFolder = folder
+                        })
+                        : nil,
+                    usesStackLayout: true
                 )
             }
         }
+        .environment(\.allowsMovingBookmarksToFolders, true)
         .navigationTitle("Tabs.Bookmarks")
         .toolbarTitleDisplayMode(.inlineLarge)
         .sakuraBackground()
+        .navigationDestination(item: $selectedFolder) { folder in
+            BookmarkFolderArticlesView(folder: folder)
+        }
         .toolbar {
+            ToolbarItemGroup(placement: .topBarTrailing) {
+                Button {
+                    isCreatingFolder = true
+                } label: {
+                    Image(systemName: "folder.badge.plus")
+                }
+                .accessibilityLabel(String(localized: "Folders.New", table: "Articles"))
+            }
             if !bookmarkedArticles.isEmpty {
                 ToolbarItemGroup(placement: .topBarTrailing) {
                     Button {
@@ -59,7 +83,8 @@ struct BookmarksContentView: View {
                         DisplayStylePicker(
                             displayStyle: $displayStyle,
                             hasImages: hasImages,
-                            showCards: false
+                            showCards: false,
+                            showScroll: false
                         )
                     } label: {
                         Image(systemName: "line.3.horizontal.decrease")
@@ -73,28 +98,40 @@ struct BookmarksContentView: View {
         .alert(String(localized: "Bookmarks.DeleteAllRead", table: "Articles"), isPresented: $showingDeleteReadAlert) {
             Button(String(localized: "Bookmarks.DeleteAllRead.Confirm", table: "Articles"), role: .destructive) {
                 try? DatabaseManager.shared.removeReadBookmarks()
-                bookmarkedArticles = (try? DatabaseManager.shared.bookmarkedArticles()) ?? []
+                reloadBookmarks()
             }
             Button("Shared.Cancel", role: .cancel) { }
         } message: {
             Text(String(localized: "Bookmarks.DeleteAllRead.Message", table: "Articles"))
         }
+        .sheet(isPresented: $isCreatingFolder) {
+            BookmarkFolderEditSheet(folder: nil)
+                .environment(feedManager)
+                .presentationDetents([.large])
+                .interactiveDismissDisabled()
+        }
         .onChange(of: displayStyle) { _, newValue in
             UserDefaults.standard.set(newValue.rawValue, forKey: "Display.DefaultBookmarksStyle")
         }
         .onAppear {
-            bookmarkedArticles = (try? DatabaseManager.shared.bookmarkedArticles()) ?? []
+            reloadBookmarks()
         }
         .onChange(of: feedManager.dataRevision) {
-            bookmarkedArticles = (try? DatabaseManager.shared.bookmarkedArticles()) ?? []
+            reloadBookmarks()
         }
+    }
+
+    private func reloadBookmarks() {
+        bookmarkedArticles = feedManager.unorganizedBookmarkedArticles()
     }
 
     private var effectiveDisplayStyle: FeedDisplayStyle {
         if !hasImages && displayStyle.requiresImages {
             return .inbox
         }
-        if displayStyle == .podcast {
+        // Immersive styles can't host the folder grid or the move-to-folder
+        // interactions, so they are unavailable in Bookmarks.
+        if displayStyle == .podcast || displayStyle == .cards || displayStyle == .scroll {
             return .inbox
         }
         return displayStyle

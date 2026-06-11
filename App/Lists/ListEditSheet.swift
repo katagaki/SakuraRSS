@@ -134,6 +134,7 @@ struct ListEditSheet: View {
                              ? String(localized: "ListEdit.Title.Edit", table: "Lists")
                              : String(localized: "ListEdit.Title.New", table: "Lists"))
             .navigationBarTitleDisplayMode(.inline)
+            .compatibleSoftScrollEdgeEffectStyle()
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button(role: .cancel) {

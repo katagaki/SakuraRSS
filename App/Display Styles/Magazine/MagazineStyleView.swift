@@ -55,6 +55,7 @@ struct MagazineStyleView: View {
                                         ? "bookmark.fill" : "bookmark"
                                 )
                             }
+                            MoveToFolderMenuItems(article: article)
                         }
                     }
                 }

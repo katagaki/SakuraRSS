@@ -103,6 +103,7 @@ struct PhotosArticleCard: View {
                                 ? "envelope" : "envelope.open"
                         )
                     }
+                    MoveToFolderMenuItems(article: article)
                 } label: {
                     Image(systemName: "ellipsis")
                         .tint(.primary)

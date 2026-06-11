@@ -11,8 +11,17 @@ struct TimelineStyleView: View {
     let articles: [Article]
     var onLoadMore: (() -> Void)?
     var headerView: AnyView?
+    var usesStackLayout: Bool = false
 
     var body: some View {
+        if usesStackLayout {
+            stackLayout
+        } else {
+            listLayout
+        }
+    }
+
+    private var listLayout: some View {
         List {
             if let headerView {
                 headerView
@@ -44,29 +53,12 @@ struct TimelineStyleView: View {
                         .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16))
                         .listRowSeparator(.hidden)
                         .listRowSpacing(0)
-                        #if targetEnvironment(macCatalyst)
                         .contextMenu {
-                            OpenInNewWindowButton(article: article)
-                            Divider()
-                            Button {
-                                feedManager.toggleRead(article)
-                            } label: {
-                                Label(
-                                    feedManager.isRead(article)
-                                        ? String(localized: "Article.MarkUnread", table: "Articles")
-                                        : String(localized: "Article.MarkRead", table: "Articles"),
-                                    systemImage: feedManager.isRead(article) ? "envelope" : "envelope.open"
-                                )
-                            }
+                            rowContextMenu(for: article)
                         }
-                        #endif
                     }
                 } header: {
-                    Text(group.key)
-                        .font(.subheadline)
-                        .fontWeight(.semibold)
-                        .foregroundStyle(.secondary)
-                        .textCase(nil)
+                    sectionHeader(group.key)
                 }
             }
 
@@ -80,6 +72,79 @@ struct TimelineStyleView: View {
         .listSectionSpacing(.compact)
         .environment(\.defaultMinListHeaderHeight, 0)
         .trackScrollActivity()
+    }
+
+    private var stackLayout: some View {
+        ScrollView(.vertical) {
+            LazyVStack(spacing: 0) {
+                if let headerView {
+                    headerView
+                }
+                let groups = groupedArticles(from: articles)
+
+                ForEach(Array(groups.enumerated()), id: \.element.key) { groupIndex, group in
+                    sectionHeader(group.key)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.horizontal, 16)
+                        .padding(.top, groupIndex == 0 ? 4 : 12)
+                        .padding(.bottom, 4)
+                    ForEach(Array(group.articles.enumerated()), id: \.element.id) { index, article in
+                        ArticleLink(article: article, label: {
+                            timelineRow(
+                                article: article,
+                                isFirst: index == 0,
+                                isLast: index == group.articles.count - 1,
+                                isFeatured: groupIndex == 0 && index == 0
+                            )
+                            .zoomSource(id: article.id, namespace: zoomNamespace)
+                            .markReadOnScroll(article: article)
+                            .contentShape(.rect)
+                        })
+                        .buttonStyle(.plain)
+                        .padding(.horizontal, 16)
+                        .contextMenu {
+                            rowContextMenu(for: article)
+                        }
+                        // Lazy containers reuse the context menu interaction, which can
+                        // present the previously long-pressed item's menu without an
+                        // explicit identity.
+                        .id(article.id)
+                    }
+                }
+
+                if let onLoadMore {
+                    LoadPreviousArticlesButton(action: onLoadMore, articleCount: articles.count)
+                }
+            }
+        }
+        .trackScrollActivity()
+    }
+
+    private func sectionHeader(_ title: String) -> some View {
+        Text(title)
+            .font(.subheadline)
+            .fontWeight(.semibold)
+            .foregroundStyle(.secondary)
+            .textCase(nil)
+    }
+
+    @ViewBuilder
+    private func rowContextMenu(for article: Article) -> some View {
+        #if targetEnvironment(macCatalyst)
+        OpenInNewWindowButton(article: article)
+        Divider()
+        Button {
+            feedManager.toggleRead(article)
+        } label: {
+            Label(
+                feedManager.isRead(article)
+                    ? String(localized: "Article.MarkUnread", table: "Articles")
+                    : String(localized: "Article.MarkRead", table: "Articles"),
+                systemImage: feedManager.isRead(article) ? "envelope" : "envelope.open"
+            )
+        }
+        #endif
+        MoveToFolderMenuItems(article: article)
     }
 
     private func groupedArticles(from articles: [Article]) -> [(key: String, articles: [Article])] {

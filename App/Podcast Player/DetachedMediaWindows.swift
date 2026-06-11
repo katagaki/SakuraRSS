@@ -24,6 +24,7 @@ struct DetachedYouTubePlayerWindow: View {
                 YouTubePlayerView(article: article, showsDismissButton: false)
                 #endif
             }
+            .compatibleSoftScrollEdgeEffectStyle()
             #if targetEnvironment(macCatalyst)
             .background {
                 FreeResizabilityHelper()
@@ -61,6 +62,7 @@ struct DetachedPodcastPlayerWindow: View {
                 PodcastEpisodeView(article: article, showsDismissButton: false)
                 #endif
             }
+            .compatibleSoftScrollEdgeEffectStyle()
             #if targetEnvironment(macCatalyst)
             .background {
                 FreeResizabilityHelper()

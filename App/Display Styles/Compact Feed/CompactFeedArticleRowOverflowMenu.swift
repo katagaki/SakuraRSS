@@ -29,6 +29,8 @@ struct CompactFeedArticleRowOverflowMenu: View {
                     )
                 }
             }
+
+            MoveToFolderMenuItems(article: article)
         } label: {
             Image(systemName: "ellipsis")
                 .font(.footnote.weight(.semibold))

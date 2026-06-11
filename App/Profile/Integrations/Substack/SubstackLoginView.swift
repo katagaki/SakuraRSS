@@ -14,6 +14,7 @@ struct SubstackLoginView: View {
                 .ignoresSafeArea(edges: .bottom)
                 .navigationTitle(String(localized: "SubstackLogin.Title", table: "Integrations"))
                 .navigationBarTitleDisplayMode(.inline)
+                .compatibleSoftScrollEdgeEffectStyle()
                 .toolbar {
                     ToolbarItem(placement: .topBarTrailing) {
                         Button(role: .close) {

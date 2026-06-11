@@ -15,6 +15,7 @@ struct XLoginView: View {
                 .ignoresSafeArea(edges: .bottom)
                 .navigationTitle(String(localized: "XLogin.Title", table: "Integrations"))
                 .navigationBarTitleDisplayMode(.inline)
+                .compatibleSoftScrollEdgeEffectStyle()
                 .toolbar {
                     ToolbarItem(placement: .topBarTrailing) {
                         Button(role: .close) {

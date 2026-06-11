@@ -61,18 +61,20 @@ struct DisplayStylePicker: View {
             }
             .pickerStyle(.inline)
             .labelsVisibility(.visible)
-            Picker(String(localized: "StyleSection.Immersive", table: "Articles"), selection: $displayStyle) {
-                if hasImages && showCards {
-                    Label(String(localized: "Style.Cards", table: "Articles"), systemImage: "square.stack.3d.up")
-                        .tag(FeedDisplayStyle.cards)
+            if (hasImages && showCards) || showScroll {
+                Picker(String(localized: "StyleSection.Immersive", table: "Articles"), selection: $displayStyle) {
+                    if hasImages && showCards {
+                        Label(String(localized: "Style.Cards", table: "Articles"), systemImage: "square.stack.3d.up")
+                            .tag(FeedDisplayStyle.cards)
+                    }
+                    if showScroll {
+                        Label(String(localized: "Style.Scroll", table: "Articles"), systemImage: "arrow.up.and.down")
+                            .tag(FeedDisplayStyle.scroll)
+                    }
                 }
-                if showScroll {
-                    Label(String(localized: "Style.Scroll", table: "Articles"), systemImage: "arrow.up.and.down")
-                        .tag(FeedDisplayStyle.scroll)
-                }
+                .pickerStyle(.inline)
+                .labelsVisibility(.visible)
             }
-            .pickerStyle(.inline)
-            .labelsVisibility(.visible)
         }
         .menuActionDismissBehavior(.disabled)
     }

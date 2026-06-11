@@ -84,6 +84,7 @@ struct AddFeedView: View {
             }
             .animation(.smooth.speed(2.0), value: urlInput.isEmpty)
             .navigationTitle(String(localized: "AddFeed.Title", table: "Feeds"))
+            .compatibleSoftScrollEdgeEffectStyle()
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {

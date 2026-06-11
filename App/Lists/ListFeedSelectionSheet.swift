@@ -28,6 +28,7 @@ struct ListFeedSelectionSheet: View {
             .listStyle(.insetGrouped)
             .navigationTitle(String(localized: "ListEdit.Feeds", table: "Lists"))
             .navigationBarTitleDisplayMode(.inline)
+            .compatibleSoftScrollEdgeEffectStyle()
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button(role: .cancel) {

@@ -33,6 +33,7 @@ struct MainTabView: View {
                 iPhoneTabView
             }
         }
+        .compatibleSoftScrollEdgeEffectStyle()
         #if os(visionOS) || targetEnvironment(macCatalyst)
         .onAppear {
             mediaPresenter.detachedHandler = { item in
@@ -70,7 +71,7 @@ struct MainTabView: View {
                 ProfileView(showsCloseButton: false)
             }
 
-            Tab("Tabs.Discover", systemImage: "magnifyingglass", value: .search, role: .search) {
+            Tab("Tabs.Discover", systemImage: "magnifyingglass", value: .search) {
                 SearchView()
             }
         }

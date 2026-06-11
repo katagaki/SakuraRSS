@@ -82,6 +82,7 @@ struct TodayWeatherLocationSheet: View {
             )
             .navigationTitle(String(localized: "TodayWeather.Location.Title", table: "Home"))
             .toolbarTitleDisplayMode(.inline)
+            .compatibleSoftScrollEdgeEffectStyle()
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button(role: .cancel) { dismiss() }

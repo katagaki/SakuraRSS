@@ -64,6 +64,7 @@ struct PetalBuilderView: View {
             }
             .navigationTitle(String(localized: "Builder.Title", table: "Petal"))
             .toolbarTitleDisplayMode(.inline)
+            .compatibleSoftScrollEdgeEffectStyle()
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button(role: .cancel) { dismiss() }
