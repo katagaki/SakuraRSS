@@ -19,6 +19,9 @@ public nonisolated extension DatabaseManager {
         guard let row = try database.pluck(articles.filter(articleID == id)) else { return }
         let current = row[articleIsBookmarked]
         try database.run(articles.filter(articleID == id).update(articleIsBookmarked <- !current))
+        if current {
+            try removeBookmarkFromAllFolders(articleID: id)
+        }
     }
 
     /// Idempotent bookmark setter used by App Intents.
@@ -29,12 +32,16 @@ public nonisolated extension DatabaseManager {
         let current = row[articleIsBookmarked]
         guard current != bookmarked else { return false }
         try database.run(articles.filter(articleID == id).update(articleIsBookmarked <- bookmarked))
+        if !bookmarked {
+            try removeBookmarkFromAllFolders(articleID: id)
+        }
         return true
     }
 
     func removeReadBookmarks() throws {
         let target = articles.filter(articleIsBookmarked == true && articleIsRead == true)
         try database.run(target.update(articleIsBookmarked <- false))
+        try pruneOrphanedBookmarkFolderItems()
     }
 
     func markAllRead(feedID fid: Int64) throws {

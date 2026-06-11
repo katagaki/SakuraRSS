@@ -14,6 +14,7 @@ struct InstagramLoginView: View {
                 .ignoresSafeArea(edges: .bottom)
                 .navigationTitle(String(localized: "InstagramLogin.Title", table: "Integrations"))
                 .navigationBarTitleDisplayMode(.inline)
+                .compatibleSoftScrollEdgeEffectStyle()
                 .toolbar {
                     ToolbarItem(placement: .topBarTrailing) {
                         Button(role: .close) {

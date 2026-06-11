@@ -173,6 +173,7 @@ public nonisolated final class DatabaseManager: @unchecked Sendable {
     private func createAuxiliaryTables() throws {
         try createCacheTables()
         try createListsAndRulesTables()
+        try createBookmarkFolderTables()
         try createOverrideAndMetricsTables()
     }
 
@@ -227,6 +228,23 @@ public nonisolated final class DatabaseManager: @unchecked Sendable {
             table.column(listRuleType)
             table.column(listRuleValue)
         })
+    }
+
+    private func createBookmarkFolderTables() throws {
+        try database.run(bookmarkFolders.create(ifNotExists: true) { table in
+            table.column(bookmarkFolderID, primaryKey: .autoincrement)
+            table.column(bookmarkFolderName)
+            table.column(bookmarkFolderIcon, defaultValue: "bookmark")
+            table.column(bookmarkFolderDisplayStyle)
+            table.column(bookmarkFolderSortOrder, defaultValue: 0)
+            table.column(bookmarkFolderParentID)
+        })
+        try database.run(bookmarkFolderItems.create(ifNotExists: true) { table in
+            table.column(bookmarkFolderItemFolderID)
+            table.column(bookmarkFolderItemArticleID)
+            table.primaryKey(bookmarkFolderItemFolderID, bookmarkFolderItemArticleID)
+        })
+        try database.run(bookmarkFolderItems.createIndex(bookmarkFolderItemArticleID, ifNotExists: true))
     }
 
     private func createOverrideAndMetricsTables() throws {

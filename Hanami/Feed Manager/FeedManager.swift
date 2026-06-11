@@ -10,6 +10,7 @@ public final class FeedManager {
     public var feeds: [Feed] = []
     public var articles: [Article] = []
     public var lists: [FeedList] = []
+    public var bookmarkFolders: [BookmarkFolder] = []
     public var isLoading = false
     public var isStopping = false
     public var refreshTotal: Int = 0
@@ -123,6 +124,7 @@ public final class FeedManager {
     public let database = DatabaseManager.shared
 
     public init() {
+        createDefaultBookmarkFoldersIfNeeded()
         loadFromDatabase()
         userDefaultsObserver = NotificationCenter.default.addObserver(
             forName: UserDefaults.didChangeNotification,
@@ -160,6 +162,7 @@ public final class FeedManager {
             let instagramFeedIDs = Set(feeds.filter { $0.isInstagramFeed }.map(\.id))
             unreadReelsCounts = (try? database.unreadReelsCounts(forFeedIDs: instagramFeedIDs)) ?? [:]
             lists = (try? database.allLists()) ?? []
+            bookmarkFolders = (try? database.allBookmarkFolders()) ?? []
             pendingReadIDs.removeAll()
             pendingReadDecrements.removeAll()
             pendingReadReelsDecrements.removeAll()
@@ -181,7 +184,8 @@ public final class FeedManager {
                 loadedArticles,
                 loadedUnreadCounts,
                 loadedReelsCounts,
-                loadedLists
+                loadedLists,
+                loadedBookmarkFolders
             ) = try await Task.detached {
                 let feeds = try dbm.allFeeds()
                 let articles = try dbm.allArticlesList(limit: 200)
@@ -190,7 +194,8 @@ public final class FeedManager {
                 let instagramFeedIDs = Set(feeds.filter { $0.isInstagramFeed }.map(\.id))
                 let reelsCounts = (try? dbm.unreadReelsCounts(forFeedIDs: instagramFeedIDs)) ?? [:]
                 let lists = (try? dbm.allLists()) ?? []
-                return (feeds, articles, unreadCounts, reelsCounts, lists)
+                let bookmarkFolders = (try? dbm.allBookmarkFolders()) ?? []
+                return (feeds, articles, unreadCounts, reelsCounts, lists, bookmarkFolders)
             }.value
             await MainActor.run {
                 let apply = {
@@ -200,6 +205,7 @@ public final class FeedManager {
                     self.unreadCounts = loadedUnreadCounts
                     self.unreadReelsCounts = loadedReelsCounts
                     self.lists = loadedLists
+                    self.bookmarkFolders = loadedBookmarkFolders
                     self.pendingReadIDs.removeAll()
                     self.pendingReadDecrements.removeAll()
                     self.pendingReadReelsDecrements.removeAll()

@@ -22,6 +22,7 @@ struct EditFeedSheet: View {
             }
             .navigationTitle(feed?.title ?? String(localized: "FeedEdit.Title", table: "Feeds"))
             .navigationBarTitleDisplayMode(.inline)
+            .compatibleSoftScrollEdgeEffectStyle()
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button(role: .confirm) {

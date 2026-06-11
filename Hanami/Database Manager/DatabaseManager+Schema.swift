@@ -132,6 +132,20 @@ public nonisolated extension DatabaseManager {
     var listRuleType: SQLite.Expression<String> { SQLite.Expression<String>("type") }
     var listRuleValue: SQLite.Expression<String> { SQLite.Expression<String>("value") }
 
+    // MARK: - Bookmark Folders
+
+    var bookmarkFolders: Table { Table("bookmark_folders") }
+    var bookmarkFolderID: SQLite.Expression<Int64> { SQLite.Expression<Int64>("id") }
+    var bookmarkFolderName: SQLite.Expression<String> { SQLite.Expression<String>("name") }
+    var bookmarkFolderIcon: SQLite.Expression<String> { SQLite.Expression<String>("icon") }
+    var bookmarkFolderDisplayStyle: SQLite.Expression<String?> { SQLite.Expression<String?>("display_style") }
+    var bookmarkFolderSortOrder: SQLite.Expression<Int> { SQLite.Expression<Int>("sort_order") }
+    var bookmarkFolderParentID: SQLite.Expression<Int64?> { SQLite.Expression<Int64?>("parent_folder_id") }
+
+    var bookmarkFolderItems: Table { Table("bookmark_folder_items") }
+    var bookmarkFolderItemFolderID: SQLite.Expression<Int64> { SQLite.Expression<Int64>("folder_id") }
+    var bookmarkFolderItemArticleID: SQLite.Expression<Int64> { SQLite.Expression<Int64>("article_id") }
+
     // MARK: - Content Overrides
 
     var contentOverrides: Table { Table("content_overrides") }

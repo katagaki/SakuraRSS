@@ -35,6 +35,7 @@ struct ArticleDetailWindow: View {
                             navigationPath.append(destination)
                         }
                 }
+                .compatibleSoftScrollEdgeEffectStyle()
                 .environment(\.youTubePlayerSession, youTubeSession)
                 .environment(\.podcastAudioPlayer, audioPlayer)
             } else {

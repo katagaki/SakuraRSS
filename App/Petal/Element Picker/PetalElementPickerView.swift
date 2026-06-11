@@ -26,6 +26,7 @@ struct PetalElementPickerView: View {
             .ignoresSafeArea()
             .navigationTitle(String(localized: "Picker.Title", table: "Petal"))
             .toolbarTitleDisplayMode(.inline)
+            .compatibleSoftScrollEdgeEffectStyle()
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
                     Button(role: .confirm) { dismiss() }

@@ -14,6 +14,7 @@ struct YouTubeLoginView: View {
                 .ignoresSafeArea(edges: .bottom)
                 .navigationTitle(String(localized: "YouTubeLogin.Title", table: "Integrations"))
                 .navigationBarTitleDisplayMode(.inline)
+                .compatibleSoftScrollEdgeEffectStyle()
                 .toolbar {
                     ToolbarItem(placement: .topBarTrailing) {
                         Button(role: .close) {

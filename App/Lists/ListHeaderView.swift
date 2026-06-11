@@ -13,6 +13,7 @@ struct ListHeaderView: View {
 
     private let iconSize: CGFloat = 64
     private let iconCornerRadius: CGFloat = 14
+    private let actionButtonHeight: CGFloat = 36
 
     @Namespace private var namespace
     @Namespace private var editNamespace
@@ -97,7 +98,7 @@ struct ListHeaderView: View {
                     Text(String(localized: "ListMenu.Feeds", table: "Lists"))
                         .font(.subheadline.weight(.semibold))
                         .padding(.horizontal, 14)
-                        .padding(.vertical, 4)
+                        .frame(height: actionButtonHeight)
                         .matchedTransitionSource(id: list.id, in: feedsNamespace)
                 }
                 .compatibleGlassButtonStyle()
@@ -110,7 +111,7 @@ struct ListHeaderView: View {
                     Text(String(localized: "ListMenu.Rules", table: "Lists"))
                         .font(.subheadline.weight(.semibold))
                         .padding(.horizontal, 14)
-                        .padding(.vertical, 4)
+                        .frame(height: actionButtonHeight)
                         .matchedTransitionSource(id: list.id, in: rulesNamespace)
                 }
                 .compatibleGlassButtonStyle()
@@ -122,7 +123,7 @@ struct ListHeaderView: View {
                 } label: {
                     Image(systemName: "pencil")
                         .font(.subheadline.weight(.semibold))
-                        .frame(minHeight: 36)
+                        .frame(width: actionButtonHeight, height: actionButtonHeight)
                         .matchedTransitionSource(id: list.id, in: editNamespace)
                 }
                 .compatibleGlassButtonStyle()
@@ -135,7 +136,7 @@ struct ListHeaderView: View {
                 } label: {
                     Image(systemName: "trash")
                         .font(.subheadline.weight(.semibold))
-                        .frame(minHeight: 36)
+                        .frame(width: actionButtonHeight, height: actionButtonHeight)
                 }
                 .compatibleGlassButtonStyle()
                 .buttonBorderShape(.circle)

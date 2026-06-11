@@ -83,6 +83,13 @@ public nonisolated extension DatabaseManager {
         _ = try? database.run(listRules.addColumn(listRuleType, defaultValue: ""))
         _ = try? database.run(listRules.addColumn(listRuleValue, defaultValue: ""))
 
+        // bookmark_folders table
+        _ = try? database.run(bookmarkFolders.addColumn(bookmarkFolderName, defaultValue: ""))
+        _ = try? database.run(bookmarkFolders.addColumn(bookmarkFolderIcon, defaultValue: "bookmark"))
+        _ = try? database.run(bookmarkFolders.addColumn(bookmarkFolderDisplayStyle))
+        _ = try? database.run(bookmarkFolders.addColumn(bookmarkFolderSortOrder, defaultValue: 0))
+        _ = try? database.run(bookmarkFolders.addColumn(bookmarkFolderParentID))
+
         // Discover: last accessed tracking
         _ = try? database.run(articles.addColumn(articleLastAccessed))
 

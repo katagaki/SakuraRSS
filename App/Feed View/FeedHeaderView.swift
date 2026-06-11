@@ -13,6 +13,7 @@ struct FeedHeaderView: View {
 
     private let iconSize: CGFloat = 64
     private let iconCornerRadius: CGFloat = 14
+    private let actionButtonHeight: CGFloat = 36
 
     @Namespace private var namespace
     @Namespace private var editNamespace
@@ -138,7 +139,7 @@ struct FeedHeaderView: View {
                         .font(.subheadline.weight(.semibold))
                         .contentTransition(.interpolate)
                         .padding(.horizontal, 14)
-                        .padding(.vertical, 4)
+                        .frame(height: actionButtonHeight)
                 }
                 .compatibleGlassButtonStyle()
                 .buttonBorderShape(.capsule)
@@ -149,7 +150,7 @@ struct FeedHeaderView: View {
                 } label: {
                     Image(systemName: "pencil")
                         .font(.subheadline.weight(.semibold))
-                        .frame(minHeight: 36)
+                        .frame(width: actionButtonHeight, height: actionButtonHeight)
                         .matchedTransitionSource(id: feed.id, in: editNamespace)
                 }
                 .compatibleGlassButtonStyle()
@@ -161,7 +162,7 @@ struct FeedHeaderView: View {
                     ShareLink(item: shareURL) {
                         Image(systemName: "square.and.arrow.up")
                             .font(.subheadline.weight(.semibold))
-                            .frame(minHeight: 36)
+                            .frame(width: actionButtonHeight, height: actionButtonHeight)
                     }
                     .compatibleGlassButtonStyle()
                     .buttonBorderShape(.circle)
@@ -174,7 +175,7 @@ struct FeedHeaderView: View {
                 } label: {
                     Image("dot.radiowaves.up.forward.slash")
                         .font(.subheadline.weight(.semibold))
-                        .frame(minHeight: 36)
+                        .frame(width: actionButtonHeight, height: actionButtonHeight)
                 }
                 .compatibleGlassButtonStyle()
                 .buttonBorderShape(.circle)

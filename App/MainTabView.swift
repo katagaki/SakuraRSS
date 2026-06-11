@@ -33,6 +33,7 @@ struct MainTabView: View {
                 iPhoneTabView
             }
         }
+        .compatibleSoftScrollEdgeEffectStyle()
         #if os(visionOS) || targetEnvironment(macCatalyst)
         .onAppear {
             mediaPresenter.detachedHandler = { item in

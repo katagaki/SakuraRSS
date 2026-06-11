@@ -161,6 +161,7 @@ struct ListRulesSheet: View {
             .formStyle(.grouped)
             .navigationTitle(String(localized: "ListRules.Title", table: "Lists"))
             .navigationBarTitleDisplayMode(.inline)
+            .compatibleSoftScrollEdgeEffectStyle()
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button(role: .cancel) {
