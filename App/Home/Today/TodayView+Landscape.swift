@@ -50,7 +50,7 @@ extension TodayView {
     private var landscapeLeadingColumn: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
-                TodayGreetingView(usesCompactWeatherCard: true)
+                TodayGreetingView(isCompact: true)
                     .padding(.horizontal)
 
                 if isWeatherShowing || anySummaryActive {
@@ -65,7 +65,11 @@ extension TodayView {
             }
             .padding(.vertical, 16)
         }
-        .compatibleGlassEffect(in: .rect(cornerRadius: 24))
-        .clipShape(.rect(cornerRadius: 24))
+        // Inset the scroll indicator so it isn't clipped by the rounded corners.
+        .contentMargins(.vertical, leadingColumnCornerRadius, for: .scrollIndicators)
+        .compatibleGlassEffect(in: .rect(cornerRadius: leadingColumnCornerRadius))
+        .clipShape(.rect(cornerRadius: leadingColumnCornerRadius))
     }
+
+    private var leadingColumnCornerRadius: CGFloat { 24 }
 }
