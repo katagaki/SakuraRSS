@@ -49,9 +49,7 @@ struct BookmarkFolderGridCell: View {
     private var cellContent: some View {
         let urls = thumbnailURLs
         if urls.isEmpty {
-            Image(systemName: folder.icon)
-                .font(.system(size: cellSize * 0.4, weight: .semibold))
-                .foregroundStyle(ListIcon.gradient(forRawValue: folder.icon))
+            Color.clear
         } else {
             BookmarkThumbnailStack(thumbnailURLs: urls, containerSize: cellSize)
         }

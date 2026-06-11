@@ -4,6 +4,7 @@ import Hanami
 struct BookmarkFoldersGridSection: View {
 
     @Environment(FeedManager.self) var feedManager
+    let onFolderSelected: (BookmarkFolder) -> Void
 
     private let gridColumns = [GridItem(.adaptive(minimum: 80), spacing: 16)]
 
@@ -15,10 +16,15 @@ struct BookmarkFoldersGridSection: View {
 
             LazyVGrid(columns: gridColumns, alignment: .leading, spacing: 12) {
                 ForEach(feedManager.bookmarkFolders) { folder in
-                    NavigationLink(value: folder) {
+                    // Buttons with .borderless keep taps isolated inside a
+                    // List row; NavigationLinks here would all fire at once.
+                    Button {
+                        onFolderSelected(folder)
+                    } label: {
                         BookmarkFolderGridCell(folder: folder)
                     }
-                    .buttonStyle(.plain)
+                    .buttonStyle(.borderless)
+                    .foregroundStyle(.primary)
                 }
             }
             .padding(.horizontal, 16)

@@ -11,6 +11,7 @@ struct BookmarksContentView: View {
     @State private var displayStyle: FeedDisplayStyle
     @State private var showingDeleteReadAlert = false
     @State private var isCreatingFolder = false
+    @State private var selectedFolder: BookmarkFolder?
 
     private var hasImages: Bool {
         bookmarkedArticles.contains { $0.imageURL != nil }
@@ -41,14 +42,18 @@ struct BookmarksContentView: View {
                 DisplayStyleContentView(
                     style: effectiveStyle,
                     articles: bookmarkedArticles,
-                    headerView: hasFolders ? AnyView(BookmarkFoldersGridSection()) : nil
+                    headerView: hasFolders
+                        ? AnyView(BookmarkFoldersGridSection { folder in
+                            selectedFolder = folder
+                        })
+                        : nil
                 )
             }
         }
         .navigationTitle("Tabs.Bookmarks")
         .toolbarTitleDisplayMode(.inlineLarge)
         .sakuraBackground()
-        .navigationDestination(for: BookmarkFolder.self) { folder in
+        .navigationDestination(item: $selectedFolder) { folder in
             BookmarkFolderArticlesView(folder: folder)
         }
         .toolbar {
