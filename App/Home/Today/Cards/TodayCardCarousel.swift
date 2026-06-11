@@ -14,7 +14,7 @@ struct TodayCardCarousel<Card: View>: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             header
-                .padding(.horizontal)
+                .todayHorizontalContentPadding()
 
             ScrollView(.horizontal, showsIndicators: false) {
                 LazyHStack(alignment: .top, spacing: 12) {
@@ -29,7 +29,7 @@ struct TodayCardCarousel<Card: View>: View {
                             .id(article.id)
                     }
                 }
-                .padding(.horizontal)
+                .todayHorizontalContentPadding()
             }
         }
     }

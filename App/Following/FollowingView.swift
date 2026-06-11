@@ -53,6 +53,12 @@ struct FollowingView: View {
                         .environment(\.zoomNamespace, cardZoom)
                         .environment(\.navigateToEphemeralArticle, ephemeralAppender)
                 }
+                .navigationDestination(for: FeedSection.self) { section in
+                    HomeSectionView(section: section)
+                        .environment(\.zoomNamespace, cardZoom)
+                        .environment(\.navigateToFeed, { feed in path.append(feed) })
+                        .environment(\.navigateToEphemeralArticle, ephemeralAppender)
+                }
         }
         .onChange(of: path.count) {
             if path.isEmpty {

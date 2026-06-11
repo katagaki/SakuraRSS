@@ -8,6 +8,12 @@ struct TodayGreetingView: View {
     private let deloreanClock = DeloreanClock.shared
     @State private var greeting: TodayGreeting = .from(date: Date())
 
+    let isCompact: Bool
+
+    init(isCompact: Bool = false) {
+        self.isCompact = isCompact
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 2) {
             Text(formattedDate)
@@ -16,12 +22,15 @@ struct TodayGreetingView: View {
                 .foregroundStyle(.secondary)
 
             styledGreeting
-                .font(UIDevice.current.userInterfaceIdiom == .pad ? .title3 : .largeTitle)
+                .font(greetingFont)
                 .fontWeight(.bold)
 
             if HomeLayout.usesPhoneTopBar {
-                TodayWeatherCard()
-                    .padding(.top, 12)
+                TodayWeatherCard(
+                    usesFlatBackground: isCompact,
+                    showsHourlyTimeLabels: !isCompact
+                )
+                .padding(.top, 12)
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -40,6 +49,13 @@ struct TodayGreetingView: View {
         .onChange(of: deloreanClock.virtualMinutes) { _, _ in
             applyClockState()
         }
+    }
+
+    private var greetingFont: Font {
+        if isCompact {
+            return .title2
+        }
+        return UIDevice.current.userInterfaceIdiom == .pad ? .title3 : .largeTitle
     }
 
     private func applyClockState() {
