@@ -32,16 +32,36 @@ struct BookmarkFolderEditSheet: View {
 
     var body: some View {
         NavigationStack {
-            ScrollView {
-                VStack(alignment: .leading, spacing: 20) {
-                    nameSection
-                    iconSection
-                    if isEditing {
-                        bookmarksSection
+            List {
+                Section {
+                    TextField(String(localized: "FolderEdit.NamePlaceholder", table: "Articles"),
+                              text: $name)
+                        .focused($isNameFieldFocused)
+                    if nameAlreadyExists {
+                        Text(String(localized: "FolderEdit.NameExists", table: "Articles"))
+                            .font(.caption)
+                            .foregroundStyle(.red)
                     }
                 }
-                .padding(16)
+
+                Section(String(localized: "FolderEdit.Icon", table: "Articles")) {
+                    iconPicker
+                }
+
+                if isEditing {
+                    Section(String(localized: "FolderEdit.Bookmarks", table: "Articles")) {
+                        if allBookmarks.isEmpty {
+                            Text(String(localized: "FolderEdit.Bookmarks.Empty", table: "Articles"))
+                                .foregroundStyle(.secondary)
+                        } else {
+                            ForEach(allBookmarks) { article in
+                                bookmarkSelectionRow(article)
+                            }
+                        }
+                    }
+                }
             }
+            .listStyle(.insetGrouped)
             .navigationTitle(isEditing
                              ? String(localized: "FolderEdit.Title.Edit", table: "Articles")
                              : String(localized: "FolderEdit.Title.New", table: "Articles"))
@@ -64,66 +84,6 @@ struct BookmarkFolderEditSheet: View {
                 initializeIfNeeded()
             }
         }
-    }
-
-    private var nameSection: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            TextField(String(localized: "FolderEdit.NamePlaceholder", table: "Articles"),
-                      text: $name)
-                .focused($isNameFieldFocused)
-                .padding(.horizontal, 16)
-                .padding(.vertical, 12)
-                .background(.fill.tertiary)
-                .clipShape(.rect(cornerRadius: 12))
-            if nameAlreadyExists {
-                Text(String(localized: "FolderEdit.NameExists", table: "Articles"))
-                    .font(.caption)
-                    .foregroundStyle(.red)
-                    .padding(.horizontal, 16)
-            }
-        }
-    }
-
-    private var iconSection: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            sectionHeader(String(localized: "FolderEdit.Icon", table: "Articles"))
-            iconPicker
-                .background(.fill.tertiary)
-                .clipShape(.rect(cornerRadius: 12))
-        }
-    }
-
-    private var bookmarksSection: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            sectionHeader(String(localized: "FolderEdit.Bookmarks", table: "Articles"))
-            LazyVStack(spacing: 0) {
-                if allBookmarks.isEmpty {
-                    Text(String(localized: "FolderEdit.Bookmarks.Empty", table: "Articles"))
-                        .foregroundStyle(.secondary)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(16)
-                } else {
-                    ForEach(allBookmarks) { article in
-                        bookmarkSelectionRow(article)
-                        if article.id != allBookmarks.last?.id {
-                            Divider()
-                                .padding(.leading, 56)
-                        }
-                    }
-                }
-            }
-            .background(.fill.tertiary)
-            .clipShape(.rect(cornerRadius: 12))
-        }
-    }
-
-    private func sectionHeader(_ title: String) -> some View {
-        Text(title)
-            .font(.footnote)
-            .fontWeight(.medium)
-            .foregroundStyle(.secondary)
-            .textCase(.uppercase)
-            .padding(.horizontal, 16)
     }
 
     private var iconPicker: some View {
@@ -153,6 +113,7 @@ struct BookmarkFolderEditSheet: View {
             .padding(.horizontal, 18)
             .padding(.vertical, 18)
         }
+        .listRowInsets(EdgeInsets())
     }
 
     private func bookmarkSelectionRow(_ article: Article) -> some View {
@@ -181,8 +142,6 @@ struct BookmarkFolderEditSheet: View {
                         .foregroundStyle(.accent)
                 }
             }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 10)
             .contentShape(.rect)
         }
         .buttonStyle(.plain)

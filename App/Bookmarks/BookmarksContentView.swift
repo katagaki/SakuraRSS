@@ -46,7 +46,8 @@ struct BookmarksContentView: View {
                         ? AnyView(BookmarkFoldersGridSection { folder in
                             selectedFolder = folder
                         })
-                        : nil
+                        : nil,
+                    usesStackLayout: true
                 )
             }
         }
