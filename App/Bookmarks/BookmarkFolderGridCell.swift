@@ -6,7 +6,7 @@ struct BookmarkFolderGridCell: View {
     @Environment(FeedManager.self) var feedManager
     let folder: BookmarkFolder
 
-    private let cellSize: CGFloat = 56
+    private let cellSize: CGFloat = 72
     private let cellCornerRadius: CGFloat = 12
 
     private var folderTint: Color? {
@@ -63,7 +63,7 @@ struct BookmarkThumbnailStack: View {
     let thumbnailURLs: [URL]
     let containerSize: CGFloat
 
-    private let rotationDegrees: [Double] = [-3, 7, -9]
+    private let rotationDegrees: [Double] = [-3, 12, -20]
 
     private var thumbnailSize: CGFloat {
         containerSize * 0.58
@@ -85,9 +85,9 @@ struct BookmarkThumbnailStack: View {
             Color.secondary.opacity(0.2)
         }
         .frame(width: thumbnailSize, height: thumbnailSize)
-        .clipShape(RoundedRectangle(cornerRadius: 3))
+        .clipShape(RoundedRectangle(cornerRadius: 6))
         .overlay {
-            RoundedRectangle(cornerRadius: 3)
+            RoundedRectangle(cornerRadius: 6)
                 .strokeBorder(.white, lineWidth: 1.5)
         }
         .shadow(color: .black.opacity(0.25), radius: 1.5, y: 0.5)
