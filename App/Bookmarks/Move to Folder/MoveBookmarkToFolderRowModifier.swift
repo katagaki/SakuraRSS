@@ -10,7 +10,6 @@ struct MoveBookmarkToFolderRowModifier: ViewModifier {
     let article: Article
 
     @State private var isShowingFolderPicker = false
-    @State private var destinationFolders: [BookmarkFolder] = []
 
     func body(content: Content) -> some View {
         if allowsMoving && !feedManager.bookmarkFolders.isEmpty {
@@ -18,28 +17,16 @@ struct MoveBookmarkToFolderRowModifier: ViewModifier {
                 .draggable(BookmarkDragPayload.encode(articleID: article.id))
                 .swipeActions(edge: .trailing) {
                     Button {
-                        let currentFolderID = feedManager.bookmarkFolderID(forArticleID: article.id)
-                        destinationFolders = feedManager.bookmarkFolders
-                            .filter { $0.id != currentFolderID }
                         isShowingFolderPicker = true
                     } label: {
                         Image(systemName: "folder")
                     }
                     .tint(.indigo)
                 }
-                .confirmationDialog(
-                    String(localized: "Article.MoveToFolder", table: "Articles"),
-                    isPresented: $isShowingFolderPicker,
-                    titleVisibility: .visible
-                ) {
-                    ForEach(destinationFolders) { folder in
-                        Button(folder.name) {
-                            withAnimation(.smooth.speed(2.0)) {
-                                feedManager.moveBookmark(articleID: article.id, to: folder)
-                            }
-                        }
-                    }
-                    Button("Shared.Cancel", role: .cancel) { }
+                .sheet(isPresented: $isShowingFolderPicker) {
+                    MoveToFolderSheet(article: article)
+                        .environment(feedManager)
+                        .presentationDetents([.medium, .large])
                 }
         } else {
             content
