@@ -50,6 +50,15 @@ public extension FeedManager {
         Set((try? database.articleIDs(inFolderID: folder.id)) ?? [])
     }
 
+    func bookmarkFolderID(forArticleID articleID: Int64) -> Int64? {
+        (try? database.bookmarkFolderID(forArticleID: articleID)) ?? nil
+    }
+
+    func moveBookmark(articleID: Int64, to folder: BookmarkFolder) {
+        try? database.setBookmarkFolder(articleID: articleID, folderID: folder.id)
+        bumpDataRevision()
+    }
+
     // MARK: - Folder Article Queries
 
     func bookmarkedArticles(in folder: BookmarkFolder) -> [Article] {

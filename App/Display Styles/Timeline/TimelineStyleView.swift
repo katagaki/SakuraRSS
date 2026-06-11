@@ -44,8 +44,8 @@ struct TimelineStyleView: View {
                         .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16))
                         .listRowSeparator(.hidden)
                         .listRowSpacing(0)
-                        #if targetEnvironment(macCatalyst)
                         .contextMenu {
+                            #if targetEnvironment(macCatalyst)
                             OpenInNewWindowButton(article: article)
                             Divider()
                             Button {
@@ -58,8 +58,9 @@ struct TimelineStyleView: View {
                                     systemImage: feedManager.isRead(article) ? "envelope" : "envelope.open"
                                 )
                             }
+                            #endif
+                            MoveToFolderMenuItems(article: article)
                         }
-                        #endif
                     }
                 } header: {
                     Text(group.key)

@@ -50,6 +50,7 @@ struct BookmarksContentView: View {
                 )
             }
         }
+        .environment(\.allowsMovingBookmarksToFolders, true)
         .navigationTitle("Tabs.Bookmarks")
         .toolbarTitleDisplayMode(.inlineLarge)
         .sakuraBackground()
@@ -81,7 +82,8 @@ struct BookmarksContentView: View {
                         DisplayStylePicker(
                             displayStyle: $displayStyle,
                             hasImages: hasImages,
-                            showCards: false
+                            showCards: false,
+                            showScroll: false
                         )
                     } label: {
                         Image(systemName: "line.3.horizontal.decrease")
@@ -126,7 +128,9 @@ struct BookmarksContentView: View {
         if !hasImages && displayStyle.requiresImages {
             return .inbox
         }
-        if displayStyle == .podcast {
+        // Immersive styles can't host the folder grid or the move-to-folder
+        // interactions, so they are unavailable in Bookmarks.
+        if displayStyle == .podcast || displayStyle == .cards || displayStyle == .scroll {
             return .inbox
         }
         return displayStyle

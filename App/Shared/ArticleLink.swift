@@ -121,6 +121,7 @@ struct ArticleLink<Label: View>: View {
                 }
             }
         }
+        .modifier(MoveBookmarkToFolderRowModifier(article: article))
         .sheet(isPresented: $showSafari) {
             if let url = URL(string: article.url) {
                 SafariView(url: url)

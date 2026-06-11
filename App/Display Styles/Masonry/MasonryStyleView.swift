@@ -63,6 +63,7 @@ struct MasonryStyleView: View {
                                                 ? "bookmark.fill" : "bookmark"
                                         )
                                     }
+                                    MoveToFolderMenuItems(article: article)
                                 }
                             }
                         }

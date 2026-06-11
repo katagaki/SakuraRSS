@@ -50,8 +50,8 @@ struct InboxStyleView: View {
                 .listRowSeparator(.hidden, edges: .top)
                 .listRowSeparator(.visible, edges: .bottom)
                 .listRowInsets(EdgeInsets(top: 8, leading: 12, bottom: 8, trailing: 12))
-                #if targetEnvironment(macCatalyst)
                 .contextMenu {
+                    #if targetEnvironment(macCatalyst)
                     OpenInNewWindowButton(article: article)
                     Divider()
                     Button {
@@ -74,8 +74,9 @@ struct InboxStyleView: View {
                             systemImage: feedManager.isBookmarked(article) ? "bookmark.fill" : "bookmark"
                         )
                     }
+                    #endif
+                    MoveToFolderMenuItems(article: article)
                 }
-                #endif
             }
             if let onLoadMore {
                 LoadPreviousArticlesButton(action: onLoadMore, articleCount: articles.count)

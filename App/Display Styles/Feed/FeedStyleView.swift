@@ -49,8 +49,8 @@ struct FeedStyleView: View {
                 .alignmentGuide(.listRowSeparatorTrailing) { dimensions in
                     return dimensions.width
                 }
-                #if targetEnvironment(macCatalyst)
                 .contextMenu {
+                    #if targetEnvironment(macCatalyst)
                     OpenInNewWindowButton(article: article)
                     Divider()
                     Button {
@@ -73,8 +73,9 @@ struct FeedStyleView: View {
                             systemImage: feedManager.isBookmarked(article) ? "bookmark.fill" : "bookmark"
                         )
                     }
+                    #endif
+                    MoveToFolderMenuItems(article: article)
                 }
-                #endif
             }
             if let onLoadMore {
                 LoadPreviousArticlesButton(action: onLoadMore, articleCount: articles.count)

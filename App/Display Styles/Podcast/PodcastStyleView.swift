@@ -98,6 +98,7 @@ struct PodcastStyleView: View {
                             )
                         }
                     }
+                    MoveToFolderMenuItems(article: article)
                 }
             }
             if let onLoadMore {

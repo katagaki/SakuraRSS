@@ -71,6 +71,7 @@ struct CompactStyleView: View {
                             systemImage: feedManager.isBookmarked(article) ? "bookmark.fill" : "bookmark"
                         )
                     }
+                    MoveToFolderMenuItems(article: article)
                 }
             }
             if let onLoadMore {

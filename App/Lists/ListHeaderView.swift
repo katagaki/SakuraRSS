@@ -13,7 +13,7 @@ struct ListHeaderView: View {
 
     private let iconSize: CGFloat = 64
     private let iconCornerRadius: CGFloat = 14
-    private let actionButtonHeight: CGFloat = 32
+    private let actionButtonHeight: CGFloat = 28
 
     @Namespace private var namespace
     @Namespace private var editNamespace
