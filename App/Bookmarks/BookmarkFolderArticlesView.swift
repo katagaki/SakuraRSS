@@ -77,6 +77,9 @@ struct BookmarkFolderArticlesView: View {
         }
         .environment(\.allowsMovingBookmarksToFolders, true)
         .sakuraBackground()
+        // .automatic inherits .inlineLarge from the Bookmarks root and
+        // reserves empty large title space above the header.
+        .toolbarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .principal) {
                 principalTitle

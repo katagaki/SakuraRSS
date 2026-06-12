@@ -37,6 +37,7 @@ struct CachedAsyncImage<Placeholder: View>: View {
     let onImageLoaded: ((UIImage) -> Void)?
     let placeholder: () -> Placeholder
     @State private var image: UIImage?
+    @State private var loadedURL: URL?
     @State private var reportedCachedHit = false
 
     init(
@@ -51,11 +52,9 @@ struct CachedAsyncImage<Placeholder: View>: View {
         self.alignment = alignment
         self.onImageLoaded = onImageLoaded
         self.placeholder = placeholder
-        let initial: UIImage? = {
-            guard let url, !url.absoluteString.hasPrefix("data:") else { return nil }
-            return ImageMemoryCache.shared.image(forKey: Self.cacheKey(url, maxPixelSize))
-        }()
+        let initial = Self.cachedImage(for: url, maxPixelSize: maxPixelSize)
         _image = State(initialValue: initial)
+        _loadedURL = State(initialValue: initial == nil ? nil : url)
     }
 
     var body: some View {
@@ -82,6 +81,13 @@ struct CachedAsyncImage<Placeholder: View>: View {
             transaction.disablesAnimations = true
         }
         .task(id: url, priority: .utility) {
+            // State persists across url changes when the view's identity is
+            // reused (e.g. lazy containers), so drop the previous url's image.
+            if loadedURL != url {
+                image = Self.cachedImage(for: url, maxPixelSize: maxPixelSize)
+                loadedURL = image == nil ? nil : url
+                reportedCachedHit = false
+            }
             guard let url else { return }
             if let image {
                 if !reportedCachedHit {
@@ -94,9 +100,15 @@ struct CachedAsyncImage<Placeholder: View>: View {
             if Task.isCancelled { return }
             if let loadedImage {
                 image = loadedImage
+                loadedURL = url
                 onImageLoaded?(loadedImage)
             }
         }
+    }
+
+    nonisolated private static func cachedImage(for url: URL?, maxPixelSize: CGFloat) -> UIImage? {
+        guard let url, !url.absoluteString.hasPrefix("data:") else { return nil }
+        return ImageMemoryCache.shared.image(forKey: cacheKey(url, maxPixelSize))
     }
 
     /// Largest dimension ever displayed; originals are downsampled to this size.

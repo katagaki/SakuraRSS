@@ -6,12 +6,15 @@ import Hanami
 struct BookmarksContentView: View {
 
     @Environment(FeedManager.self) var feedManager
+    @Environment(\.zoomNamespace) private var zoomNamespace
 
     @State private var bookmarkedArticles: [Article] = []
     @State private var displayStyle: FeedDisplayStyle
     @State private var showingDeleteReadAlert = false
     @State private var isCreatingFolder = false
-    @State private var selectedFolder: BookmarkFolder?
+
+    @Namespace private var newFolderNamespace
+    private let newFolderTransitionID = "NewFolder"
 
     private var hasImages: Bool {
         bookmarkedArticles.contains { $0.imageURL != nil }
@@ -43,9 +46,7 @@ struct BookmarksContentView: View {
                     style: effectiveStyle,
                     articles: bookmarkedArticles,
                     headerView: hasFolders
-                        ? AnyView(BookmarkFoldersGridSection { folder in
-                            selectedFolder = folder
-                        })
+                        ? AnyView(BookmarkFoldersGridSection())
                         : nil,
                     usesStackLayout: true
                 )
@@ -55,8 +56,11 @@ struct BookmarksContentView: View {
         .navigationTitle("Tabs.Bookmarks")
         .toolbarTitleDisplayMode(.inlineLarge)
         .sakuraBackground()
-        .navigationDestination(item: $selectedFolder) { folder in
+        .navigationDestination(for: BookmarkFolder.self) { folder in
+            // Destinations don't inherit the environment applied around
+            // this view, so the host's zoom namespace is forwarded manually.
             BookmarkFolderArticlesView(folder: folder)
+                .environment(\.zoomNamespace, zoomNamespace)
         }
         .toolbar {
             ToolbarItemGroup(placement: .topBarTrailing) {
@@ -64,6 +68,7 @@ struct BookmarksContentView: View {
                     isCreatingFolder = true
                 } label: {
                     Image(systemName: "folder.badge.plus")
+                        .matchedTransitionSource(id: newFolderTransitionID, in: newFolderNamespace)
                 }
                 .accessibilityLabel(String(localized: "Folders.New", table: "Articles"))
             }
@@ -109,6 +114,7 @@ struct BookmarksContentView: View {
                 .environment(feedManager)
                 .presentationDetents([.large])
                 .interactiveDismissDisabled()
+                .navigationTransition(.zoom(sourceID: newFolderTransitionID, in: newFolderNamespace))
         }
         .onChange(of: displayStyle) { _, newValue in
             UserDefaults.standard.set(newValue.rawValue, forKey: "Display.DefaultBookmarksStyle")

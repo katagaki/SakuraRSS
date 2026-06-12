@@ -4,11 +4,10 @@ import Hanami
 struct BookmarkFoldersGridSection: View {
 
     @Environment(FeedManager.self) var feedManager
-    let onFolderSelected: (BookmarkFolder) -> Void
 
     @State private var folderBeingEdited: BookmarkFolder?
     @State private var folderPendingDeletion: BookmarkFolder?
-    @State private var isShowingDeleteDialog = false
+    @State private var isShowingDeleteAlert = false
 
     private let gridColumns = [GridItem(.adaptive(minimum: 80), spacing: 16)]
 
@@ -18,7 +17,7 @@ struct BookmarkFoldersGridSection: View {
                 .font(.title3.weight(.bold))
                 .padding(.horizontal, 16)
 
-            LazyVGrid(columns: gridColumns, alignment: .leading, spacing: 12) {
+            LazyVGrid(columns: gridColumns, alignment: .leading, spacing: 16) {
                 ForEach(feedManager.bookmarkFolders) { folder in
                     folderCell(for: folder)
                 }
@@ -33,10 +32,9 @@ struct BookmarkFoldersGridSection: View {
                 .presentationDetents([.large])
                 .interactiveDismissDisabled()
         }
-        .confirmationDialog(
+        .alert(
             String(localized: "FolderMenu.Delete.Title", table: "Articles"),
-            isPresented: $isShowingDeleteDialog,
-            titleVisibility: .visible,
+            isPresented: $isShowingDeleteAlert,
             presenting: folderPendingDeletion
         ) { folder in
             Button(String(localized: "FolderMenu.Delete.DeleteBookmarks", table: "Articles"),
@@ -54,11 +52,9 @@ struct BookmarkFoldersGridSection: View {
 
     @ViewBuilder
     private func folderCell(for folder: BookmarkFolder) -> some View {
-        // Buttons with .borderless keep taps isolated inside a
-        // List row; NavigationLinks here would all fire at once.
-        Button {
-            onFolderSelected(folder)
-        } label: {
+        // Value-based navigation; an item-bound navigationDestination
+        // re-pushes the folder when an article is pushed from inside it.
+        NavigationLink(value: folder) {
             BookmarkFolderGridCell(folder: folder)
         }
         .buttonStyle(.borderless)
@@ -73,7 +69,7 @@ struct BookmarkFoldersGridSection: View {
             Divider()
             Button(role: .destructive) {
                 folderPendingDeletion = folder
-                isShowingDeleteDialog = true
+                isShowingDeleteAlert = true
             } label: {
                 Label(String(localized: "FolderMenu.Delete", table: "Articles"),
                       systemImage: "trash")

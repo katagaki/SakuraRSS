@@ -7,7 +7,7 @@ struct BookmarkFolderHeaderView: View {
     let folder: BookmarkFolder
 
     @State private var isEditingFolder: Bool = false
-    @State private var isShowingDeleteDialog: Bool = false
+    @State private var isShowingDeleteAlert: Bool = false
 
     private let iconSize: CGFloat = 64
     private let iconCornerRadius: CGFloat = 14
@@ -46,10 +46,9 @@ struct BookmarkFolderHeaderView: View {
                 .interactiveDismissDisabled()
                 .navigationTransition(.zoom(sourceID: folder.id, in: editNamespace))
         }
-        .confirmationDialog(
+        .alert(
             String(localized: "FolderMenu.Delete.Title", table: "Articles"),
-            isPresented: $isShowingDeleteDialog,
-            titleVisibility: .visible
+            isPresented: $isShowingDeleteAlert
         ) {
             Button(String(localized: "FolderMenu.Delete.DeleteBookmarks", table: "Articles"),
                    role: .destructive) {
@@ -84,7 +83,7 @@ struct BookmarkFolderHeaderView: View {
                 .compatibleGlassEffectID("FolderEdit", in: namespace)
 
                 Button(role: .destructive) {
-                    isShowingDeleteDialog = true
+                    isShowingDeleteAlert = true
                 } label: {
                     Image(systemName: "trash")
                         .font(.subheadline.weight(.semibold))
