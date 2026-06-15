@@ -5,6 +5,7 @@ import Hanami
 struct ReadabilityView: View {
 
     @Environment(\.colorScheme) private var colorScheme
+    @Environment(FeedManager.self) private var feedManager
     let article: Article
     let url: URL
     @State private var isLoading = true
@@ -40,6 +41,11 @@ struct ReadabilityView: View {
                 isBookmarked: $isBookmarked,
                 onReload: { reloadTrigger &+= 1 }
             )
+        }
+        .task(id: article.id) {
+            if !article.isEphemeral {
+                feedManager.markRead(article)
+            }
         }
     }
 }
