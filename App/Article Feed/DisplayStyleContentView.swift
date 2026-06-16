@@ -3,6 +3,8 @@ import Hanami
 
 struct DisplayStyleContentView: View {
 
+    @Environment(\.articleListBottomInset) private var bottomInset
+
     let style: FeedDisplayStyle
     let articles: [Article]
     var onLoadMore: (() -> Void)?
@@ -14,6 +16,12 @@ struct DisplayStyleContentView: View {
     var usesStackLayout: Bool = false
 
     var body: some View {
+        styleContent
+            .safeAreaPadding(.bottom, bottomInset)
+    }
+
+    @ViewBuilder
+    private var styleContent: some View {
         switch style {
         case .inbox:
             InboxStyleView(articles: articles, onLoadMore: onLoadMore, headerView: headerView,
