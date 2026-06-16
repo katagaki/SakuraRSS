@@ -105,10 +105,13 @@ struct SelectableText: UIViewRepresentable {
         return attributed
     }
 
+    nonisolated private static let supSubRegex = try? NSRegularExpression(
+        pattern: #"\{\{(SUP|SUB)\}\}(.+?)\{\{/(SUP|SUB)\}\}"#
+    )
+
     /// Splits around `{{SUP/SUB}}` markers and parses remaining segments as Markdown.
     private func parseLine(_ text: String, baseFont: UIFont) -> NSAttributedString {
-        let supSubPattern = #"\{\{(SUP|SUB)\}\}(.+?)\{\{/(SUP|SUB)\}\}"#
-        guard let supSubRegex = try? NSRegularExpression(pattern: supSubPattern) else {
+        guard let supSubRegex = Self.supSubRegex else {
             return parseMarkdown(text, baseFont: baseFont)
         }
 
