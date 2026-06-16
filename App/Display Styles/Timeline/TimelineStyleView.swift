@@ -181,12 +181,16 @@ struct TimelineStyleView: View {
         if calendar.isDateInYesterday(date) {
             return String(localized: "Timeline.Yesterday", table: "Articles")
         }
+        return Self.daySectionFormatter.string(from: date)
+    }
+
+    private static let daySectionFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.doesRelativeDateFormatting = false
         formatter.dateStyle = .medium
         formatter.timeStyle = .none
-        return formatter.string(from: date)
-    }
+        return formatter
+    }()
 
     private func titleWeight(isFeatured: Bool, isRead: Bool) -> Font.Weight {
         if isFeatured { return .semibold }
