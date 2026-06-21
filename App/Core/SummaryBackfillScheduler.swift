@@ -2,10 +2,6 @@
 import Foundation
 import Hanami
 
-/// Schedules a best-effort `BGProcessingTask` that pre-generates Apple
-/// Intelligence summary headlines so the Home cards load from cache instead
-/// of generating on launch. Submitted 30 minutes after a background feed
-/// refresh finishes and only runs while the device is charging.
 nonisolated enum SummaryBackfillScheduler {
 
     static let taskIdentifier = "com.tsubuzaki.SakuraRSS.SummaryBackfill"
@@ -35,8 +31,6 @@ nonisolated enum SummaryBackfillScheduler {
         }
     }
 
-    /// Generates and caches one summary kind, but only when it would actually
-    /// be displayable right now and isn't already cached for today.
     @MainActor
     private static func generateIfNeeded(
         kind: SummaryCardKind,

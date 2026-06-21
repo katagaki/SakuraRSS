@@ -305,9 +305,6 @@ extension HomeSectionView {
         preloadedEntries.compactMap(\.publishedDate).max()
     }
 
-    /// Bottom content inset so the last rows clear the floating pill. Applied
-    /// whenever the pill can appear, not just while it is visible, so scrolling to
-    /// the end always leaves room for it.
     var markAllReadBottomInset: CGFloat {
         HomeLayout.usesPhoneTopBar && markAllReadPosition == .top ? 64 : 0
     }

@@ -18,10 +18,6 @@ struct MarkReadOnScrollModifier: ViewModifier {
     @State private var hasQueued = false
     @State private var topAtOrBelowScreenTop = true
 
-    // Only install the per-row geometry/visibility observers when the feature is
-    // active. Attaching them to every row unconditionally drives continuous
-    // layout callbacks across the whole list while scrolling, even when the
-    // default (disabled) setting means the work is always discarded.
     @ViewBuilder
     func body(content: Content) -> some View {
         if scrollMarkAsRead {

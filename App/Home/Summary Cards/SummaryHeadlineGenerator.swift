@@ -2,10 +2,6 @@ import Foundation
 import NaturalLanguage
 import Hanami
 
-/// Headless headline-generation pipeline shared by `SummarySection` and the
-/// overnight summary background task. Gathers eligible articles for a summary
-/// kind, runs the on-device summarizer, and caches the resolved headlines so
-/// the UI can load them without regenerating on launch.
 struct SummaryHeadlineGenerator {
 
     let kind: SummaryCardKind
@@ -26,8 +22,6 @@ struct SummaryHeadlineGenerator {
         (UserDefaults.standard.object(forKey: "Intelligence.Personalization.Enabled") as? Bool) ?? true
     }
 
-    /// Runs the full pipeline and caches the result on success. Returns the
-    /// resolved headlines so callers can also drive UI state.
     func generate(for date: Date) async -> Outcome {
         let allArticles = eligibleArticles()
         if allArticles.count < 3 {
@@ -103,9 +97,6 @@ struct SummaryHeadlineGenerator {
         }
     }
 
-    /// Top quartile (at minimum one) of distinct feeds present in the
-    /// candidate batch that have any positive access count. Returns empty
-    /// when personalization is off or the user has no engagement history.
     private func preferredFeedIDs(
         from articles: [Article],
         feedAccessCounts: [Int64: Int]
@@ -141,11 +132,6 @@ struct SummaryHeadlineGenerator {
         return "\(baseInstructions)\n\n\(prefix)\n\(topicHints)"
     }
 
-    /// Plain RSS only; skip research papers, social, video, podcast, and
-    /// aggregator feeds. Bluesky/Instagram/Fediverse are already excluded
-    /// by the `feedSection == .feeds` check (they have their own sections);
-    /// they're listed explicitly here as a guard against future provider
-    /// changes.
     private func isPlainRSSArticle(_ article: Article) -> Bool {
         guard let feed = feedManager.feed(forArticle: article) else { return false }
         if feed.isResearchFeed
@@ -178,10 +164,6 @@ struct SummaryHeadlineGenerator {
         }
     }
 
-    /// Returns a per-article entity name set for clustering. Reads from the
-    /// `nlp_entities` table when Content Insights has populated it, then
-    /// fills in any gaps with in-memory NLTagger extraction so clustering
-    /// works even when Content Insights is disabled.
     private func loadEntityMap(for articles: [Article]) async -> [Int64: Set<String>] {
         let ids = articles.map(\.id)
         let dbMap = (try? DatabaseManager.shared.entities(forArticleIDs: ids)) ?? [:]
@@ -218,10 +200,6 @@ struct SummaryHeadlineGenerator {
         }.value
     }
 
-    /// Top topics + people. When personalization is on, ranked over the
-    /// articles the user has opened in the past 30 days; otherwise ranked
-    /// globally over the past week. Empty when Content Insights is off or
-    /// no entities were extracted.
     private func topEntityHints(for date: Date, personalizationOn: Bool) -> String {
         let defaults = UserDefaults.standard
         guard defaults.bool(forKey: "Intelligence.ContentInsights.Enabled") else { return "" }
@@ -277,8 +255,6 @@ struct SummaryHeadlineGenerator {
         }
     }
 
-    /// Rejects topic-list outputs the model occasionally regurgitates from
-    /// the priority hint section.
     private func isPlausibleHeadline(_ text: String) -> Bool {
         let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return false }

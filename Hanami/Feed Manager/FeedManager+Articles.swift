@@ -218,15 +218,9 @@ public extension FeedManager {
         articles[index].isBookmarked = isBookmarked
     }
 
-    /// Drops a queued scroll-mark-read for `article` so the next debounced flush
-    /// doesn't write a now-superseded value back to the DB. Symmetric to
-    /// `markReadOnScroll`'s pending-decrement bookkeeping.
-    ///
-    /// If the scroll-read was still unflushed, its unread decrement had not yet
-    /// reached `unreadCounts` (that happens at flush), even though `isRead`
-    /// already reports the article as read. Apply that decrement now so the live
-    /// count matches the read state the caller is about to toggle from; otherwise
-    /// `markRead`/`toggleRead`'s delta logic would drop or double-count the unread.
+    /// Applies an unflushed scroll-read's pending unread decrement now, before the
+    /// caller toggles read state, so `markRead`/`toggleRead`'s delta isn't dropped
+    /// or double-counted.
     private func cancelPendingScrollRead(for article: Article) {
         pendingReadIDs.remove(article.id)
         guard unflushedReadIDs.remove(article.id) != nil else { return }

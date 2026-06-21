@@ -49,8 +49,6 @@ public extension FeedManager {
         }
     }
 
-    /// Best-effort backfill of cached images for recently published articles.
-    /// `preloadImages` skips anything already cached, so this only fetches gaps.
     nonisolated static func backfillRecentImages(
         since cutoff: Date = Date().addingTimeInterval(-14 * 24 * 60 * 60),
         limit: Int = 500

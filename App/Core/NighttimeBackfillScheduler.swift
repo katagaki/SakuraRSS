@@ -2,8 +2,6 @@
 import Foundation
 import Hanami
 
-/// Schedules best-effort overnight `BGProcessingTask`s that backfill NLP
-/// (3 AM) and article images (4 AM). Both require the device to be charging.
 nonisolated enum NighttimeBackfillScheduler {
 
     static let nlpTaskIdentifier = "com.tsubuzaki.SakuraRSS.NLPBackfill"
