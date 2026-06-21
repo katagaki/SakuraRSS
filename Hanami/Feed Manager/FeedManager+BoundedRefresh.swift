@@ -116,7 +116,10 @@ public extension FeedManager {
         skipImageFetch: Bool,
         skipImagePreload: Bool
     ) async {
-        let eligible = feeds.filter(category.includes)
+        let matching = feeds.filter(category.includes)
+        let cooldownRaw = UserDefaults.standard.string(forKey: "BackgroundRefresh.Cooldown")
+        let cooldownSeconds = (cooldownRaw.flatMap(FeedRefreshCooldown.init(rawValue:)) ?? .fiveMinutes).seconds
+        let eligible = filterByRefreshCooldown(matching, cooldownSeconds: cooldownSeconds)
         guard !eligible.isEmpty else {
             log("FeedRefresh.Category", "category=\(category.rawValue) no feeds eligible")
             return
