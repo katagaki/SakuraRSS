@@ -1,7 +1,5 @@
 import Foundation
 
-/// Comments-only provider that surfaces the public reply thread of a Mastodon
-/// status as an article's conversation. It never claims feed routing.
 public nonisolated enum MastodonCommentsProvider {
 
     public static func isMastodonStatusURL(_ url: URL) -> Bool {

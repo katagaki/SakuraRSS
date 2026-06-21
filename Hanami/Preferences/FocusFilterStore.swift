@@ -1,6 +1,5 @@
 import Foundation
 
-/// The set of feed lists and source sections a Focus filter narrows the app to.
 public nonisolated struct FocusFilter: Sendable, Equatable {
     public var listIDs: Set<Int64>
     public var sectionKeys: Set<String>
@@ -17,9 +16,6 @@ public nonisolated struct FocusFilter: Sendable, Equatable {
     public var isEmpty: Bool { listIDs.isEmpty && sectionKeys.isEmpty }
 }
 
-/// Persists the active Focus filter selection. The in-app SetFocusFilterIntent
-/// writes here when a Focus activates or deactivates; the app reloads from here
-/// on launch, on foreground, and via the UserDefaults change observer.
 public nonisolated enum FocusFilterStore {
 
     private static let listIDsKey = "Focus.ActiveListIDs"

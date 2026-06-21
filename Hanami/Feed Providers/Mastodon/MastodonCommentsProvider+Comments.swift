@@ -1,7 +1,5 @@
 import Foundation
 
-/// Fetches the first-level replies to a Mastodon status via the public,
-/// unauthenticated `/api/v1/statuses/:id/context` endpoint.
 extension MastodonCommentsProvider: CommentsProvider {
 
     public nonisolated static func canProvideComments(for article: Article, in feed: Feed?) -> Bool {

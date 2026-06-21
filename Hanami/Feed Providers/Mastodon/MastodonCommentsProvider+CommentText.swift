@@ -2,10 +2,6 @@ import Foundation
 
 public nonisolated extension MastodonCommentsProvider {
 
-    /// Strips a Mastodon status `content` HTML fragment down to plain text,
-    /// preserving paragraph breaks. Mastodon emits `<p>`, `<br>`, `<a>`, and
-    /// `<span>`, so the same lightweight approach the other comment providers
-    /// use is sufficient (and avoids linking SwiftSoup into this path).
     static func cleanCommentText(_ html: String) -> String {
         var text = html
         text = text.replacingOccurrences(

@@ -6,8 +6,6 @@ public extension FeedManager {
         activeFocus.isActive && !activeFocus.isEmpty
     }
 
-    /// The feed ids visible under the active focus: the union of feeds in any
-    /// focused list and feeds belonging to any focused source section.
     var focusedFeedIDs: Set<Int64> {
         guard isFocusActive else { return Set(feeds.map(\.id)) }
         var ids = Set<Int64>()
