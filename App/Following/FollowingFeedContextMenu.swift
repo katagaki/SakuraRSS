@@ -10,6 +10,10 @@ struct FollowingFeedContextMenu: View {
 
     var body: some View {
         let target = feed
+        #if targetEnvironment(macCatalyst)
+        OpenFeedInNewWindowButton(feed: target)
+        Divider()
+        #endif
         Button {
             feedManager.toggleMuted(target)
         } label: {

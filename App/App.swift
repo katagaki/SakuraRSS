@@ -141,6 +141,24 @@ struct SakuraRSSApp: App {
         .defaultSize(width: 420, height: 520)
         .commandsRemoved()
 
+        WindowGroup(id: "FeedWindow", for: Int64.self) { $feedID in
+            if let feedID {
+                FeedDetailWindow(feedID: feedID)
+                    .environment(feedManager)
+            }
+        }
+        .defaultSize(width: 480, height: 700)
+        .commandsRemoved()
+
+        WindowGroup(id: "ListWindow", for: Int64.self) { $listID in
+            if let listID {
+                ListDetailWindow(listID: listID)
+                    .environment(feedManager)
+            }
+        }
+        .defaultSize(width: 480, height: 700)
+        .commandsRemoved()
+
         WindowGroup(id: "YouTubePlayerWindow", for: Int64.self) { $articleID in
             DetachedYouTubePlayerWindow(articleID: articleID)
                 .environment(feedManager)
