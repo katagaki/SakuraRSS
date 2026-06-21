@@ -49,6 +49,22 @@ public extension FeedManager {
         }
     }
 
+    nonisolated static func backfillRecentImages(
+        since cutoff: Date = Date().addingTimeInterval(-14 * 24 * 60 * 60),
+        limit: Int = 500
+    ) async {
+        let database = DatabaseManager.shared
+        let articles = (try? database.allArticles(since: cutoff, limit: limit)) ?? []
+        let urls = articles.compactMap { $0.imageURL }
+        guard !urls.isEmpty else {
+            log("ImageBackfill", "no candidate image URLs")
+            return
+        }
+        log("ImageBackfill", "begin candidates=\(urls.count)")
+        await preloadImages(urls: urls)
+        log("ImageBackfill", "end")
+    }
+
     nonisolated private static func downloadAndCacheImage(url: URL) async {
         let urlString = url.absoluteString
         let database = DatabaseManager.shared

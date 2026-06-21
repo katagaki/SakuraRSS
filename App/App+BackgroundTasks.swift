@@ -9,6 +9,7 @@ extension SakuraRSSApp {
         scheduleAppRefresh()
         scheduleiCloudBackup()
         AutomaticCleanupScheduler.scheduleNextCleanup()
+        NighttimeBackfillScheduler.scheduleAll()
     }
 
     nonisolated private func registerLaunchHandlers(cloudBackupTaskID: String) {
@@ -34,6 +35,27 @@ extension SakuraRSSApp {
         ) { task in
             guard let task = task as? BGProcessingTask else { return }
             self.handleAutomaticCleanup(task: task)
+        }
+        BGTaskScheduler.shared.register(
+            forTaskWithIdentifier: NighttimeBackfillScheduler.nlpTaskIdentifier,
+            using: nil
+        ) { task in
+            guard let task = task as? BGProcessingTask else { return }
+            self.handleNLPBackfill(task: task)
+        }
+        BGTaskScheduler.shared.register(
+            forTaskWithIdentifier: NighttimeBackfillScheduler.imageTaskIdentifier,
+            using: nil
+        ) { task in
+            guard let task = task as? BGProcessingTask else { return }
+            self.handleImageBackfill(task: task)
+        }
+        BGTaskScheduler.shared.register(
+            forTaskWithIdentifier: SummaryBackfillScheduler.taskIdentifier,
+            using: nil
+        ) { task in
+            guard let task = task as? BGProcessingTask else { return }
+            self.handleSummaryBackfill(task: task)
         }
     }
 
@@ -107,6 +129,7 @@ extension SakuraRSSApp {
                 "BackgroundRefresh",
                 "handleAppRefresh end category=\(category.rawValue) cancelled=\(refreshTask.isCancelled)"
             )
+            SummaryBackfillScheduler.schedule()
             completion.complete(success: !refreshTask.isCancelled)
         }
     }
@@ -231,6 +254,74 @@ extension SakuraRSSApp {
             let success = await cleanupTask.value
             log("AutomaticCleanup", "handleAutomaticCleanup end success=\(success)")
             completion.complete(success: success)
+        }
+    }
+
+    nonisolated func handleNLPBackfill(task: BGProcessingTask) {
+        NighttimeBackfillScheduler.scheduleNLPBackfill()
+        log("NighttimeBackfill", "handleNLPBackfill begin")
+
+        let completion = BackgroundTaskCompletion(task: task)
+
+        let work = Task {
+            await NighttimeBackfillScheduler.runNLPBackfill()
+        }
+
+        task.expirationHandler = {
+            log("NighttimeBackfill", "handleNLPBackfill expired")
+            work.cancel()
+            completion.complete(success: false)
+        }
+
+        Task {
+            _ = await work.value
+            log("NighttimeBackfill", "handleNLPBackfill end cancelled=\(work.isCancelled)")
+            completion.complete(success: !work.isCancelled)
+        }
+    }
+
+    nonisolated func handleImageBackfill(task: BGProcessingTask) {
+        NighttimeBackfillScheduler.scheduleImageBackfill()
+        log("NighttimeBackfill", "handleImageBackfill begin")
+
+        let completion = BackgroundTaskCompletion(task: task)
+
+        let work = Task {
+            await NighttimeBackfillScheduler.runImageBackfill()
+        }
+
+        task.expirationHandler = {
+            log("NighttimeBackfill", "handleImageBackfill expired")
+            work.cancel()
+            completion.complete(success: false)
+        }
+
+        Task {
+            _ = await work.value
+            log("NighttimeBackfill", "handleImageBackfill end cancelled=\(work.isCancelled)")
+            completion.complete(success: !work.isCancelled)
+        }
+    }
+
+    nonisolated func handleSummaryBackfill(task: BGProcessingTask) {
+        log("SummaryBackfill", "handleSummaryBackfill begin")
+
+        let completion = BackgroundTaskCompletion(task: task)
+
+        let work = Task {
+            await SummaryBackfillScheduler.runBackfill(isCancelled: { Task.isCancelled })
+        }
+
+        task.expirationHandler = {
+            log("SummaryBackfill", "handleSummaryBackfill expired")
+            work.cancel()
+            completion.complete(success: false)
+        }
+
+        Task {
+            _ = await work.value
+            log("SummaryBackfill", "handleSummaryBackfill end cancelled=\(work.isCancelled)")
+            completion.complete(success: !work.isCancelled)
         }
     }
 }

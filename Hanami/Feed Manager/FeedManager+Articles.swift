@@ -218,11 +218,12 @@ public extension FeedManager {
         articles[index].isBookmarked = isBookmarked
     }
 
-    /// Drops a queued scroll-mark-read for `article` so the next debounced flush
-    /// doesn't write a now-superseded value back to the DB. Symmetric to
-    /// `markReadOnScroll`'s pending-decrement bookkeeping.
+    /// Applies an unflushed scroll-read's pending unread decrement now, before the
+    /// caller toggles read state, so `markRead`/`toggleRead`'s delta isn't dropped
+    /// or double-counted.
     private func cancelPendingScrollRead(for article: Article) {
-        guard pendingReadIDs.remove(article.id) != nil else { return }
+        pendingReadIDs.remove(article.id)
+        guard unflushedReadIDs.remove(article.id) != nil else { return }
         if let count = pendingReadDecrements[article.feedID], count > 0 {
             pendingReadDecrements[article.feedID] = count - 1
         }
@@ -230,6 +231,7 @@ public extension FeedManager {
            let count = pendingReadReelsDecrements[article.feedID], count > 0 {
             pendingReadReelsDecrements[article.feedID] = count - 1
         }
+        adjustUnreadCount(for: article, delta: -1)
     }
 
     func markAllRead(feed: Feed) {

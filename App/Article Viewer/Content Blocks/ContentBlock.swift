@@ -113,10 +113,17 @@ enum ContentBlock: Identifiable {
         (#"\n{3,}"#, "\n\n")
     ]
 
+    nonisolated private static let blockRegex = try? NSRegularExpression(
+        pattern: #"\{\{(IMG|CODE|VIDEO|AUDIO|YOUTUBE|XPOST|EMBED|TABLE|DL|MATH)\}\}(.*?)\{\{/\1\}\}"#,
+        options: .dotMatchesLineSeparators
+    )
+
+    nonisolated private static let imageLinkRegex = try? NSRegularExpression(
+        pattern: #"^(.+?)\{\{IMGLINK\}\}(.+?)\{\{/IMGLINK\}\}$"#
+    )
+
     nonisolated static func parse(_ text: String) -> [ContentBlock] {
-        let pattern = #"\{\{(IMG|CODE|VIDEO|AUDIO|YOUTUBE|XPOST|EMBED|TABLE|DL|MATH)\}\}(.*?)\{\{/\1\}\}"#
-        guard let regex = try? NSRegularExpression(pattern: pattern, options: .dotMatchesLineSeparators)
-        else {
+        guard let regex = blockRegex else {
             return [.text(ArticleMarker.unescape(text))]
         }
 
@@ -126,8 +133,7 @@ enum ContentBlock: Identifiable {
             return [.text(ArticleMarker.unescape(text))]
         }
 
-        let linkPattern = #"^(.+?)\{\{IMGLINK\}\}(.+?)\{\{/IMGLINK\}\}$"#
-        let linkRegex = try? NSRegularExpression(pattern: linkPattern)
+        let linkRegex = imageLinkRegex
 
         var blocks: [ContentBlock] = []
         var lastEnd = 0

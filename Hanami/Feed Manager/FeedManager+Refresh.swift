@@ -202,11 +202,18 @@ public extension FeedManager {
         skipAuthenticatedFetchers: Bool,
         cooldownSeconds: TimeInterval?
     ) -> [Feed] {
+        let candidates = skipAuthenticatedFetchers
+            ? feeds.filter { !$0.isXFeed && !$0.isInstagramFeed }
+            : feeds
+        return filterByRefreshCooldown(candidates, cooldownSeconds: cooldownSeconds)
+    }
+
+    func filterByRefreshCooldown(
+        _ feeds: [Feed],
+        cooldownSeconds: TimeInterval?
+    ) -> [Feed] {
         let now = Date()
         return feeds.filter { feed in
-            if skipAuthenticatedFetchers, feed.isXFeed || feed.isInstagramFeed {
-                return false
-            }
             let domainTimeout = RefreshTimeoutDomains.refreshTimeout(for: feed.domain)
             let effectiveCooldown = domainTimeout ?? cooldownSeconds
             if let effectiveCooldown,
@@ -299,10 +306,21 @@ public extension FeedManager {
             generateAcronymIcon(feedID: feed.id, title: feed.title)
         }
 
+        let maxConcurrent = FeedRefreshQueueLimits.default
         await withTaskGroup(of: Void.self) { group in
-            for feed in unfetched {
+            var iterator = unfetched.makeIterator()
+            var submitted = 0
+            while submitted < maxConcurrent, let feed = iterator.next() {
                 group.addTask {
                     try? await self.refreshFeed(feed, reloadData: false)
+                }
+                submitted += 1
+            }
+            while await group.next() != nil {
+                if let feed = iterator.next() {
+                    group.addTask {
+                        try? await self.refreshFeed(feed, reloadData: false)
+                    }
                 }
             }
         }

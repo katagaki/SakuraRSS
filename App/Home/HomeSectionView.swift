@@ -239,6 +239,7 @@ struct HomeSectionView: View {
         .refreshable { [scope = scopeKey, feeds = scopedFeeds] in
             startRefreshWithoutBlocking(scope: scope, feeds: feeds)
         }
+        .environment(\.articleListBottomInset, markAllReadBottomInset)
         .overlay(alignment: .bottom) {
             markAllReadPill
         }
@@ -302,6 +303,10 @@ extension HomeSectionView {
     /// Latest preloaded entry date, so the initial batch anchors on visible content.
     func latestArticleDate() -> Date? {
         preloadedEntries.compactMap(\.publishedDate).max()
+    }
+
+    var markAllReadBottomInset: CGFloat {
+        HomeLayout.usesPhoneTopBar && markAllReadPosition == .top ? 64 : 0
     }
 
     @ViewBuilder

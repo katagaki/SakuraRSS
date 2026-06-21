@@ -12,6 +12,9 @@
 		<string>com.tsubuzaki.SakuraRSS.RefreshFeeds.instagram</string>
 		<string>com.tsubuzaki.SakuraRSS.iCloudBackup</string>
 		<string>com.tsubuzaki.SakuraRSS.AutomaticCleanup</string>
+		<string>com.tsubuzaki.SakuraRSS.NLPBackfill</string>
+		<string>com.tsubuzaki.SakuraRSS.ImageBackfill</string>
+		<string>com.tsubuzaki.SakuraRSS.SummaryBackfill</string>
 	</array>
 	<key>CFBundleDocumentTypes</key>
 	<array>

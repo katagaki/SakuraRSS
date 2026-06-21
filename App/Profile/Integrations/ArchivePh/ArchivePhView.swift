@@ -5,6 +5,7 @@ import Hanami
 /// Presents an article URL through archive.today in an embedded WebView.
 struct ArchivePhView: View {
 
+    @Environment(FeedManager.self) private var feedManager
     let article: Article
     let url: URL
     @State private var isLoading = true
@@ -39,6 +40,11 @@ struct ArchivePhView: View {
                 isBookmarked: $isBookmarked,
                 onReload: { reloadTrigger &+= 1 }
             )
+        }
+        .task(id: article.id) {
+            if !article.isEphemeral {
+                feedManager.markRead(article)
+            }
         }
     }
 }

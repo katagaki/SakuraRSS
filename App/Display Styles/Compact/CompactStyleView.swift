@@ -11,14 +11,14 @@ struct CompactStyleView: View {
     var usesStackLayout: Bool = false
 
     private func articleLabel(for article: Article) -> some View {
-        HStack {
+        HStack(alignment: .top) {
             Text(article.title)
                 .font(.caption)
                 .fontWeight(feedManager.isRead(article) ? .regular : .medium)
                 .foregroundStyle(feedManager.isRead(article) ? .secondary : .primary)
-                .lineLimit(1)
-
-            Spacer()
+                .lineLimit(3)
+                .multilineTextAlignment(.leading)
+                .frame(maxWidth: .infinity, alignment: .leading)
 
             if let date = article.publishedDate {
                 RelativeTimeText(date: date)
