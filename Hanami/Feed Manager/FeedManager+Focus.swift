@@ -6,6 +6,13 @@ public extension FeedManager {
         activeFocus.isActive && !activeFocus.isEmpty
     }
 
+    /// True only when an active focus actually resolves to at least one feed.
+    /// Guards against an unsatisfiable focus (e.g. a focused list was deleted)
+    /// hiding everything with no way back.
+    var isFocusEffective: Bool {
+        isFocusActive && !focusedFeedIDs.isEmpty
+    }
+
     var focusedFeedIDs: Set<Int64> {
         guard isFocusActive else { return Set(feeds.map(\.id)) }
         var ids = Set<Int64>()

@@ -30,7 +30,7 @@ struct FollowingPage: View {
     }
 
     var applyFocus: Bool {
-        feedManager.isFocusActive && !isShowingAllDespiteFocus
+        feedManager.isFocusEffective && !isShowingAllDespiteFocus
     }
 
     var body: some View {

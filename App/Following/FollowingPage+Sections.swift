@@ -59,7 +59,7 @@ extension FollowingPage {
 
     @ViewBuilder
     var focusBanner: some View {
-        if feedManager.isFocusActive, !isEditingFeeds, !isSelectingFeeds {
+        if feedManager.isFocusEffective, !isEditingFeeds, !isSelectingFeeds {
             HStack(spacing: 12) {
                 Image(systemName: "moon.fill")
                     .foregroundStyle(.tint)
