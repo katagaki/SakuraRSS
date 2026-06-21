@@ -15,6 +15,10 @@ public extension FeedManager {
 
     var focusedFeedIDs: Set<Int64> {
         guard isFocusActive else { return Set(feeds.map(\.id)) }
+        let revision = dataRevision
+        if let cache = focusedFeedIDsCache, cache.revision == revision {
+            return cache.ids
+        }
         var ids = Set<Int64>()
         for list in lists where activeFocus.listIDs.contains(list.id) {
             ids.formUnion(feedIDs(for: list))
@@ -22,6 +26,7 @@ public extension FeedManager {
         for feed in feeds where activeFocus.sectionKeys.contains(feed.feedSection.rawValue) {
             ids.insert(feed.id)
         }
+        focusedFeedIDsCache = (revision, ids)
         return ids
     }
 

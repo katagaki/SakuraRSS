@@ -98,6 +98,10 @@ public final class FeedManager {
 
     public var activeFocus: FocusFilter = FocusFilterStore.load()
 
+    /// Memoized `focusedFeedIDs`, keyed on `dataRevision` since every feed,
+    /// list, membership, or focus change bumps it.
+    @ObservationIgnored var focusedFeedIDsCache: (revision: Int, ids: Set<Int64>)?
+
     /// Kept out of observation so scroll-driven mutations don't cascade body
     /// re-evaluations across rows; views observe `readMaskRevision` instead.
     @ObservationIgnored public var pendingReadIDs: Set<Int64> = []
