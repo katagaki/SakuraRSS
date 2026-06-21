@@ -221,8 +221,15 @@ public extension FeedManager {
     /// Drops a queued scroll-mark-read for `article` so the next debounced flush
     /// doesn't write a now-superseded value back to the DB. Symmetric to
     /// `markReadOnScroll`'s pending-decrement bookkeeping.
+    ///
+    /// If the scroll-read was still unflushed, its unread decrement had not yet
+    /// reached `unreadCounts` (that happens at flush), even though `isRead`
+    /// already reports the article as read. Apply that decrement now so the live
+    /// count matches the read state the caller is about to toggle from; otherwise
+    /// `markRead`/`toggleRead`'s delta logic would drop or double-count the unread.
     private func cancelPendingScrollRead(for article: Article) {
-        guard pendingReadIDs.remove(article.id) != nil else { return }
+        pendingReadIDs.remove(article.id)
+        guard unflushedReadIDs.remove(article.id) != nil else { return }
         if let count = pendingReadDecrements[article.feedID], count > 0 {
             pendingReadDecrements[article.feedID] = count - 1
         }
@@ -230,6 +237,7 @@ public extension FeedManager {
            let count = pendingReadReelsDecrements[article.feedID], count > 0 {
             pendingReadReelsDecrements[article.feedID] = count - 1
         }
+        adjustUnreadCount(for: article, delta: -1)
     }
 
     func markAllRead(feed: Feed) {

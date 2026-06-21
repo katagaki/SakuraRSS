@@ -96,10 +96,15 @@ public final class FeedManager {
     public private(set) var unreadReelsCounts: [Int64: Int] = [:]
     public private(set) var feedsByID: [Int64: Feed] = [:]
 
-    /// Queued mark-read IDs; flushed every 250ms while scrolling, on idle, or on backgrounding.
-    /// Kept out of observation so scroll-driven mutations don't cascade body re-evaluations
-    /// across every visible article row; views observe `readMaskRevision` instead.
+    /// Articles marked read by scrolling; consulted by `isRead` so rows stay read
+    /// until the next database reload. Persists across flushes (a flush only writes
+    /// the new delta), so it is kept out of observation to avoid cascading body
+    /// re-evaluations across every visible row; views observe `readMaskRevision`.
     @ObservationIgnored public var pendingReadIDs: Set<Int64> = []
+    /// Subset of `pendingReadIDs` not yet written to the database. A flush drains
+    /// only these, so repeated idle flushes during a long scroll don't re-write the
+    /// entire accumulated set.
+    @ObservationIgnored public var unflushedReadIDs: Set<Int64> = []
     /// Read-state overrides for explicit toggles, so `isRead` stays correct for cached
     /// `Article` snapshots held outside `articles` (e.g. TodayManager) until they refresh.
     @ObservationIgnored public var stagedReadChanges: [Int64: Bool] = [:]
@@ -164,6 +169,7 @@ public final class FeedManager {
             lists = (try? database.allLists()) ?? []
             bookmarkFolders = (try? database.allBookmarkFolders()) ?? []
             pendingReadIDs.removeAll()
+            unflushedReadIDs.removeAll()
             pendingReadDecrements.removeAll()
             pendingReadReelsDecrements.removeAll()
             let freshArticleIDs = Set(articles.map(\.id))
@@ -207,6 +213,7 @@ public final class FeedManager {
                     self.lists = loadedLists
                     self.bookmarkFolders = loadedBookmarkFolders
                     self.pendingReadIDs.removeAll()
+                    self.unflushedReadIDs.removeAll()
                     self.pendingReadDecrements.removeAll()
                     self.pendingReadReelsDecrements.removeAll()
                     let freshArticleIDs = Set(loadedArticles.map(\.id))

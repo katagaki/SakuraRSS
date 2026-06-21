@@ -27,6 +27,7 @@ public extension FeedManager {
     func markReadOnScroll(_ article: Article) {
         guard !article.isRead,
               pendingReadIDs.insert(article.id).inserted else { return }
+        unflushedReadIDs.insert(article.id)
         pendingReadDecrements[article.feedID, default: 0] += 1
         if article.url.contains("/reel/") {
             pendingReadReelsDecrements[article.feedID, default: 0] += 1
@@ -37,7 +38,7 @@ public extension FeedManager {
     func flushDebouncedReads() {
         pendingReadsFlushWorkItem?.cancel()
         pendingReadsFlushWorkItem = nil
-        guard !pendingReadIDs.isEmpty else { return }
+        guard !unflushedReadIDs.isEmpty else { return }
         let decrements = pendingReadDecrements
         let reelsDecrements = pendingReadReelsDecrements
         pendingReadDecrements.removeAll()
@@ -46,7 +47,8 @@ public extension FeedManager {
         applyUnreadDecrements(decrements, reelsDecrements: reelsDecrements)
         updateBadgeCount()
 
-        let idArray = Array(pendingReadIDs)
+        let idArray = Array(unflushedReadIDs)
+        unflushedReadIDs.removeAll()
         readMaskRevision += 1
 
         let dbm = database
