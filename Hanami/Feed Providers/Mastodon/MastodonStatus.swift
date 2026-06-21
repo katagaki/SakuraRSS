@@ -41,12 +41,12 @@ nonisolated struct MastodonAccount: Decodable, Sendable {
 }
 
 nonisolated enum MastodonDate {
+    private static let fractionalStyle = Date.ISO8601FormatStyle(includingFractionalSeconds: true)
+    private static let plainStyle = Date.ISO8601FormatStyle(includingFractionalSeconds: false)
+
     static func parse(_ value: String?) -> Date? {
         guard let value else { return nil }
-        let formatter = ISO8601DateFormatter()
-        formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
-        if let date = formatter.date(from: value) { return date }
-        formatter.formatOptions = [.withInternetDateTime]
-        return formatter.date(from: value)
+        if let date = try? fractionalStyle.parse(value) { return date }
+        return try? plainStyle.parse(value)
     }
 }

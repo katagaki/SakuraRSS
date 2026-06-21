@@ -5,7 +5,7 @@ public nonisolated extension MastodonCommentsProvider {
     static func cleanCommentText(_ html: String) -> String {
         var text = html
         text = text.replacingOccurrences(
-            of: #"<p\s*/?>"#, with: "\n\n",
+            of: #"<p\b[^>]*>"#, with: "\n\n",
             options: [.regularExpression, .caseInsensitive]
         )
         text = text.replacingOccurrences(
