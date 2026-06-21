@@ -64,6 +64,7 @@ struct SakuraRSSApp: App {
                 ) { _ in
                     feedManager.updateBadgeCount()
                     feedManager.reloadRefreshTimestampsFromDefaults()
+                    feedManager.reloadFocusFromDefaults()
                     let now = Date()
                     if let last = lastForegroundWorkAt, now.timeIntervalSince(last) < 5 * 60 {
                         return

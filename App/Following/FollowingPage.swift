@@ -13,6 +13,7 @@ struct FollowingPage: View {
     @State var feedToDelete: Feed?
     @State var isEditingFeeds = false
     @State var isSelectingFeeds = false
+    @State var isShowingAllDespiteFocus = false
     @State var selectedFeedIDs: Set<Int64> = []
     @State var isPresentingBulkEditSheet = false
     @State var isPresentingBulkDeleteAlert = false
@@ -26,6 +27,10 @@ struct FollowingPage: View {
 
     var selectedFeeds: [Feed] {
         selectedFeedIDs.compactMap { feedManager.feedsByID[$0] }
+    }
+
+    var applyFocus: Bool {
+        feedManager.isFocusActive && !isShowingAllDespiteFocus
     }
 
     var body: some View {
@@ -47,6 +52,9 @@ struct FollowingPage: View {
         .toolbar { toolbarContent }
         .sakuraBackground()
         .overlay { emptyStateOverlay }
+        .onChange(of: feedManager.activeFocus) { _, _ in
+            isShowingAllDespiteFocus = false
+        }
         .sheet(isPresented: $isPresentingAddFeedSheet) {
             AddFeedView(session: addFeedSession)
                 .environment(feedManager)

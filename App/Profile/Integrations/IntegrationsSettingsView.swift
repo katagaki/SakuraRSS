@@ -6,6 +6,9 @@ struct IntegrationsSettingsView: View {
     var body: some View {
         List {
             Section {
+                NavigationLink(String(localized: "Focus", table: "Integrations")) {
+                    FocusSettingsView()
+                }
                 NavigationLink(String(localized: "Podcast", table: "Integrations")) {
                     PodcastSettingsView()
                 }

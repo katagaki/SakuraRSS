@@ -96,6 +96,8 @@ public final class FeedManager {
     public private(set) var unreadReelsCounts: [Int64: Int] = [:]
     public private(set) var feedsByID: [Int64: Feed] = [:]
 
+    public var activeFocus: FocusFilter = FocusFilterStore.load()
+
     /// Kept out of observation so scroll-driven mutations don't cascade body
     /// re-evaluations across rows; views observe `readMaskRevision` instead.
     @ObservationIgnored public var pendingReadIDs: Set<Int64> = []
@@ -134,6 +136,7 @@ public final class FeedManager {
             Task { @MainActor [weak self] in
                 self?.handleHideReelsChangeIfNeeded()
                 self?.reloadRefreshTimestampsFromDefaults()
+                self?.reloadFocusFromDefaults()
             }
         }
     }

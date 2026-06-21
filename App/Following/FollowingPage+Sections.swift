@@ -3,23 +3,33 @@ import Hanami
 
 extension FollowingPage {
 
+    var focusFilteredFeeds: [Feed] {
+        guard applyFocus else { return feedManager.feeds }
+        let focused = feedManager.focusedFeedIDs
+        return feedManager.feeds.filter { focused.contains($0.id) }
+    }
+
     var filteredFeeds: [Feed] {
+        let base = focusFilteredFeeds
         if searchText.isEmpty {
-            return feedManager.feeds
+            return base
         }
-        return feedManager.feeds.filter {
+        return base.filter {
             $0.title.localizedCaseInsensitiveContains(searchText) ||
             $0.domain.localizedCaseInsensitiveContains(searchText)
         }
     }
 
     var sortedLists: [FeedList] {
+        let base = applyFocus
+            ? feedManager.lists.filter { feedManager.isListInFocus($0) }
+            : feedManager.lists
         if searchText.isEmpty {
-            return feedManager.lists.sorted {
+            return base.sorted {
                 $0.name.localizedStandardCompare($1.name) == .orderedAscending
             }
         }
-        return feedManager.lists
+        return base
             .filter { $0.name.localizedCaseInsensitiveContains(searchText) }
             .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
     }
@@ -39,10 +49,40 @@ extension FollowingPage {
     @ViewBuilder
     var feedSectionsContent: some View {
         LazyVStack(alignment: .leading, spacing: 24) {
+            focusBanner
             listsSection
             ForEach(FeedSection.allCases, id: \.self) { section in
                 feedSection(section)
             }
+        }
+    }
+
+    @ViewBuilder
+    var focusBanner: some View {
+        if feedManager.isFocusActive, !isEditingFeeds, !isSelectingFeeds {
+            HStack(spacing: 12) {
+                Image(systemName: "moon.fill")
+                    .foregroundStyle(.tint)
+                Text(applyFocus
+                    ? String(localized: "Focus.Banner.Active", table: "Feeds")
+                    : String(localized: "Focus.Banner.ShowingAll", table: "Feeds"))
+                    .font(.subheadline)
+                Spacer()
+                Button {
+                    withAnimation(.smooth.speed(2.0)) {
+                        isShowingAllDespiteFocus.toggle()
+                    }
+                } label: {
+                    Text(applyFocus
+                        ? String(localized: "Focus.Banner.ShowAll", table: "Feeds")
+                        : String(localized: "Focus.Banner.ShowFocused", table: "Feeds"))
+                        .font(.subheadline)
+                        .fontWeight(.semibold)
+                }
+                .buttonStyle(.borderless)
+            }
+            .padding()
+            .background(.thinMaterial, in: .rect(cornerRadius: 12))
         }
     }
 
