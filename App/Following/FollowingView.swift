@@ -20,7 +20,7 @@ struct FollowingView: View {
                     FeedArticlesView(feed: feed)
                         .environment(\.zoomNamespace, cardZoom)
                         .environment(\.navigateToEphemeralArticle, ephemeralAppender)
-                        .zoomTransition(sourceID: feed.id, in: followingNavigationZoom)
+                        .zoomTransition(sourceID: FollowingZoomID.feed(feed.id), in: followingNavigationZoom)
                         .onAppear { savedFeedID = Int(feed.id) }
                         .onDisappear {
                             if path.count < 1 { savedFeedID = -1 }
@@ -31,7 +31,7 @@ struct FollowingView: View {
                         .environment(\.zoomNamespace, cardZoom)
                         .environment(\.navigateToFeed, { feed in path.append(feed) })
                         .environment(\.navigateToEphemeralArticle, ephemeralAppender)
-                        .zoomTransition(sourceID: list.id, in: followingNavigationZoom)
+                        .zoomTransition(sourceID: FollowingZoomID.list(list.id), in: followingNavigationZoom)
                 }
                 .navigationDestination(for: Article.self) { article in
                     ArticleDestinationView(article: article)
@@ -61,7 +61,7 @@ struct FollowingView: View {
                         .environment(\.zoomNamespace, cardZoom)
                         .environment(\.navigateToFeed, { feed in path.append(feed) })
                         .environment(\.navigateToEphemeralArticle, ephemeralAppender)
-                        .zoomTransition(sourceID: section.rawValue, in: followingNavigationZoom)
+                        .zoomTransition(sourceID: FollowingZoomID.section(section), in: followingNavigationZoom)
                 }
         }
         .onChange(of: path.count) {
