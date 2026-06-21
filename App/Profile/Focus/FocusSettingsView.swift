@@ -39,7 +39,7 @@ struct FocusSettingsView: View {
         }
         .listStyle(.insetGrouped)
         .sakuraBackground()
-        .navigationTitle(String(localized: "Focus", table: "Integrations"))
+        .navigationTitle(String(localized: "Section.Focus", table: "Settings"))
         .toolbarTitleDisplayMode(.inline)
     }
 }
