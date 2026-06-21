@@ -6,6 +6,7 @@ struct FollowingPage: View {
     @Environment(FeedManager.self) var feedManager
     @State var searchText = ""
     @State var isPresentingAddFeedSheet = false
+    @State private var addFeedSession = AddFeedSession()
     @State var feedToEdit: Feed?
     @State var feedForRules: Feed?
     @State var feedToDelete: Feed?
@@ -46,7 +47,7 @@ struct FollowingPage: View {
         .sakuraBackground()
         .overlay { emptyStateOverlay }
         .sheet(isPresented: $isPresentingAddFeedSheet) {
-            AddFeedView()
+            AddFeedView(session: addFeedSession)
                 .environment(feedManager)
                 .presentationDetents([.large])
                 .navigationTransition(.zoom(sourceID: "addFeed", in: addFeedNamespace))

@@ -7,8 +7,7 @@ struct AddFeedView: View {
     @Environment(\.dismiss) var dismiss
 
     var initialURL: String = ""
-    @SceneStorage("AddFeedView.urlInput") var urlInput = ""
-    @SceneStorage("AddFeedView.hasInitialized") var hasInitialized = false
+    @Bindable var session: AddFeedSession
     @State var discoveredFeeds: [DiscoveredFeed] = []
     @State var isSearching = false
     @State var errorMessage: String?
@@ -25,7 +24,7 @@ struct AddFeedView: View {
     @FocusState var isURLFieldFocused: Bool
 
     private var petalSeedURL: String {
-        let trimmed = urlInput.trimmingCharacters(in: .whitespaces)
+        let trimmed = session.urlInput.trimmingCharacters(in: .whitespaces)
         return trimmed.isEmpty ? "" : normalizeURL(trimmed)
     }
 
@@ -37,13 +36,13 @@ struct AddFeedView: View {
         NavigationStack {
             Form {
                 AddFeedSearchSection(
-                    urlInput: $urlInput,
+                    urlInput: $session.urlInput,
                     isSearching: isSearching,
                     isURLFieldFocused: $isURLFieldFocused,
                     onSubmit: searchFeeds
                 )
 
-                if urlInput.isEmpty {
+                if session.urlInput.isEmpty {
                     AddFeedSuggestedTopicsSection(
                         topics: suggestedTopics,
                         addedURLs: addedURLs,
@@ -58,7 +57,7 @@ struct AddFeedView: View {
                 if let errorMessage {
                     AddFeedErrorSection(
                         errorMessage: errorMessage,
-                        showPetalGenerate: petalRecipesEnabled && !urlInput.isEmpty,
+                        showPetalGenerate: petalRecipesEnabled && !session.urlInput.isEmpty,
                         onGeneratePetal: { showPetalBuilder = true }
                     )
                 }
@@ -82,15 +81,15 @@ struct AddFeedView: View {
                     )
                 }
             }
-            .animation(.smooth.speed(2.0), value: urlInput.isEmpty)
+            .animation(.smooth.speed(2.0), value: session.urlInput.isEmpty)
             .navigationTitle(String(localized: "AddFeed.Title", table: "Feeds"))
             .compatibleSoftScrollEdgeEffectStyle()
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
                     Button(role: .confirm) {
-                        urlInput = ""
-                        hasInitialized = false
+                        session.urlInput = ""
+                        session.hasInitialized = false
                         dismiss()
                     }
                     .disabled(!addingURLs.isEmpty)
@@ -123,10 +122,10 @@ struct AddFeedView: View {
         if suggestedTopics.isEmpty {
             suggestedTopics = SuggestedFeedsLoader.topicsForCurrentRegion()
         }
-        guard !hasInitialized else { return }
-        hasInitialized = true
-        urlInput = initialURL
-        if !urlInput.isEmpty {
+        guard !session.hasInitialized else { return }
+        session.hasInitialized = true
+        session.urlInput = initialURL
+        if !session.urlInput.isEmpty {
             searchFeeds()
         } else {
             isURLFieldFocused = true

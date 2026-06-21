@@ -16,6 +16,7 @@ struct MainTabView: View {
     @Binding var pendingArticleID: Int64?
     @Binding var pendingOpenRequest: OpenArticleRequest?
     @State private var showingAddFeed = false
+    @State private var addFeedSession = AddFeedSession()
     @State private var showingOnboarding = false
     private let audioPlayer = AudioPlayer.shared
     private let youTubeSession = YouTubePlayerSession.shared
@@ -88,7 +89,7 @@ struct MainTabView: View {
                 mediaPresenter: mediaPresenter
             )
             .sheet(isPresented: $showingAddFeed) {
-                AddFeedView(initialURL: pendingFeedURL ?? "")
+                AddFeedView(initialURL: pendingFeedURL ?? "", session: addFeedSession)
                     .environment(feedManager)
                     .onDisappear {
                         pendingFeedURL = nil

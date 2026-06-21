@@ -11,18 +11,18 @@ extension AddFeedView {
         Task {
             var results: [DiscoveredFeed] = []
 
-            if let feed = await tryDirectFeedURL(urlInput) {
+            if let feed = await tryDirectFeedURL(session.urlInput) {
                 results.append(feed)
             }
 
-            let normalizedURL = normalizeURL(urlInput)
+            let normalizedURL = normalizeURL(session.urlInput)
             if let url = URL(string: normalizedURL) {
                 let urlFeeds = await FeedDiscovery.shared.discoverFeeds(fromPageURL: url)
                 results.append(contentsOf: urlFeeds)
             }
 
             if results.isEmpty {
-                let domain = extractDomain(from: urlInput)
+                let domain = extractDomain(from: session.urlInput)
                 let domainFeeds = await FeedDiscovery.shared.discoverFeeds(forDomain: domain)
                 results.append(contentsOf: domainFeeds)
             }

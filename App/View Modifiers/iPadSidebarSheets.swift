@@ -18,6 +18,7 @@ struct iPadSidebarSheetsModifier: ViewModifier {
 private struct IPadSidebarSheetsPresentationModifier: ViewModifier {
 
     @Environment(FeedManager.self) var feedManager
+    @State private var addFeedSession = AddFeedSession()
     let bindings: iPadSidebarSheetsBindings
 
     func body(content: Content) -> some View {
@@ -25,7 +26,7 @@ private struct IPadSidebarSheetsPresentationModifier: ViewModifier {
             .sheet(isPresented: bindings.showingAddFeed) {
                 bindings.pendingFeedURL.wrappedValue = nil
             } content: {
-                AddFeedView(initialURL: bindings.pendingFeedURL.wrappedValue ?? "")
+                AddFeedView(initialURL: bindings.pendingFeedURL.wrappedValue ?? "", session: addFeedSession)
                     .environment(feedManager)
             }
             .sheet(isPresented: bindings.showingOnboarding) {
