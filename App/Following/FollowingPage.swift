@@ -4,6 +4,7 @@ import Hanami
 struct FollowingPage: View {
 
     @Environment(FeedManager.self) var feedManager
+    let followingNavigationNamespace: Namespace.ID
     @State var searchText = ""
     @State var isPresentingAddFeedSheet = false
     @State private var addFeedSession = AddFeedSession()

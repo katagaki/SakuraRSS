@@ -81,6 +81,7 @@ extension FollowingPage {
                 FollowingListGridCell(list: list)
             }
             .buttonStyle(.plain)
+            .matchedSource(id: list.id, in: followingNavigationNamespace)
             .id(list.id)
         }
     }
@@ -132,6 +133,7 @@ extension FollowingPage {
                 }
             }
             .buttonStyle(.plain)
+            .matchedSource(id: section.rawValue, in: followingNavigationNamespace)
         }
     }
 
@@ -162,6 +164,7 @@ extension FollowingPage {
                 FollowingFeedGridCell(feed: feed, editTransitionNamespace: feedEditNamespace)
             }
             .buttonStyle(.plain)
+            .matchedSource(id: feed.id, in: followingNavigationNamespace)
             .contextMenu {
                 FollowingFeedGridContextMenu(
                     feed: feed,
