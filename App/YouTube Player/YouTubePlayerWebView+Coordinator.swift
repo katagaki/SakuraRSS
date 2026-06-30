@@ -7,6 +7,7 @@ extension YouTubePlayerWebView {
 
     @MainActor
     final class Coordinator: NSObject, WKNavigationDelegate, WKScriptMessageHandler {
+        let autoplay: Bool
         @Binding var isPlaying: Bool
         @Binding var isAd: Bool
         @Binding var isAdSkippable: Bool
@@ -18,8 +19,10 @@ extension YouTubePlayerWebView {
         let onDurationUpdate: ((TimeInterval) -> Void)?
         private var chapterRetryCount = 0
         private var chaptersLoaded = false
+        private var hasArmedAutoplay = false
 
         init(
+            autoplay: Bool,
             isPlaying: Binding<Bool>,
             isAd: Binding<Bool>,
             isAdSkippable: Binding<Bool>,
@@ -30,6 +33,7 @@ extension YouTubePlayerWebView {
             onTimeUpdate: ((TimeInterval) -> Void)?,
             onDurationUpdate: ((TimeInterval) -> Void)?
         ) {
+            self.autoplay = autoplay
             _isPlaying = isPlaying
             _isAd = isAd
             _isAdSkippable = isAdSkippable
@@ -44,9 +48,23 @@ extension YouTubePlayerWebView {
         func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
             injectStyles(into: webView)
             unmuteVideo(in: webView)
+            armAutoplayIfNeeded(in: webView)
             if !chaptersLoaded {
                 extractChapters(from: webView)
             }
+        }
+
+        /// YouTube's web player does not reliably auto-start in a WKWebView with
+        /// user interaction disabled, so the player can sit at the spinner
+        /// forever. Arm the autoplay armer once the page loads so it actively
+        /// plays the `<video>` (including a preroll ad) as soon as it is ready.
+        private func armAutoplayIfNeeded(in webView: WKWebView) {
+            guard autoplay, !hasArmedAutoplay else { return }
+            hasArmedAutoplay = true
+            webView.evaluateJavaScript(
+                "window.__yt && window.__yt.armAutoplay && window.__yt.armAutoplay(12000);",
+                completionHandler: nil
+            )
         }
 
         private func extractChapters(from webView: WKWebView) {

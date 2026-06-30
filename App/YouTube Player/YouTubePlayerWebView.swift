@@ -21,6 +21,7 @@ struct YouTubePlayerWebView: UIViewRepresentable {
 
     func makeCoordinator() -> Coordinator {
         Coordinator(
+            autoplay: autoplay,
             isPlaying: $isPlaying,
             isAd: $isAd,
             isAdSkippable: $isAdSkippable,
