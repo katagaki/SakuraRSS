@@ -54,10 +54,6 @@ extension YouTubePlayerWebView {
             }
         }
 
-        /// YouTube's web player does not reliably auto-start in a WKWebView with
-        /// user interaction disabled, so the player can sit at the spinner
-        /// forever. Arm the autoplay armer once the page loads so it actively
-        /// plays the `<video>` (including a preroll ad) as soon as it is ready.
         private func armAutoplayIfNeeded(in webView: WKWebView) {
             guard autoplay, !hasArmedAutoplay else { return }
             hasArmedAutoplay = true
