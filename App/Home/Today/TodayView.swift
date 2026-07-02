@@ -19,6 +19,7 @@ struct TodayView: View {
     @State var todayVisible = false
 
     @State var summaryRefreshTrigger: Int = 0
+    @State var anySummaryActive = false
 
     var body: some View {
         Group {
@@ -46,6 +47,7 @@ struct TodayView: View {
                 dataRevision: feedManager.dataRevision,
                 loadEntities: contentInsightsEnabled
             )
+            updateAnySummaryActive()
         }
     }
 

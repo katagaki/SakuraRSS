@@ -34,9 +34,11 @@ extension TodayView {
 
     /// Whether any summary card could appear right now, computed without the
     /// cards' own view state so the section mounts (and starts generating)
-    /// independently of its own visibility.
-    var anySummaryActive: Bool {
-        SummaryCardKind.whileYouSlept.couldDisplay(in: feedManager)
+    /// independently of its own visibility. Cached in state because each
+    /// check queries a full day of articles; recomputed per data revision
+    /// rather than per body evaluation.
+    func updateAnySummaryActive() {
+        anySummaryActive = SummaryCardKind.whileYouSlept.couldDisplay(in: feedManager)
             || SummaryCardKind.afternoonBrief.couldDisplay(in: feedManager)
             || SummaryCardKind.todaysSummary.couldDisplay(in: feedManager)
     }
