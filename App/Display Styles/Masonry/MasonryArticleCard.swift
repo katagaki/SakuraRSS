@@ -80,6 +80,13 @@ struct MasonryArticleCard: View {
                         .padding(6)
                 }
             }
+            // Shape shadow behind the image: shadowing the whole card forces
+            // an offscreen pass per card and casts under the title text too.
+            .background {
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(Color(.systemBackground))
+                    .shadow(color: .black.opacity(0.05), radius: 2, y: 1)
+            }
 
             HStack(spacing: 4) {
                 Text(article.title)
@@ -92,7 +99,6 @@ struct MasonryArticleCard: View {
             }
         }
         .contentShape(.rect)
-        .shadow(color: .black.opacity(0.05), radius: 2, y: 1)
         .task {
             if let feed = feedManager.feed(forArticle: article) {
                 feedName = feed.title

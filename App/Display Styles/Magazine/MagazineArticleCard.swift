@@ -20,7 +20,8 @@ struct MagazineArticleCard: View {
                     Color.clear
                         .frame(height: 120)
                         .overlay {
-                            CachedAsyncImage(url: url, maxPixelSize: 1200, alignment: shouldCenterImage ? .center : .top) {
+                            CachedAsyncImage(url: url, maxPixelSize: 1200,
+                                             alignment: shouldCenterImage ? .center : .top) {
                                 Rectangle()
                                     .fill(.secondary.opacity(0.15))
                             }
@@ -51,6 +52,13 @@ struct MagazineArticleCard: View {
                         .padding(6)
                 }
             }
+            // Shape shadow behind the image: shadowing the whole card forces
+            // an offscreen pass per card and casts under the title text too.
+            .background {
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(Color(.systemBackground))
+                    .shadow(color: .black.opacity(0.05), radius: 2, y: 1)
+            }
 
             HStack(spacing: 4) {
                 Text(article.title)
@@ -72,7 +80,6 @@ struct MagazineArticleCard: View {
             Spacer(minLength: 0)
         }
         .contentShape(.rect)
-        .shadow(color: .black.opacity(0.05), radius: 2, y: 1)
         .task {
             if let feed = feedManager.feed(forArticle: article) {
                 feedName = feed.title
