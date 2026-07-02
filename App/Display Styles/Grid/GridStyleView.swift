@@ -8,9 +8,13 @@ struct GridStyleView: View {
     let articles: [Article]
     var onLoadMore: (() -> Void)?
     var headerView: AnyView?
+    private let articlesWithImages: [Article]
 
-    private var articlesWithImages: [Article] {
-        articles.filter { $0.imageURL != nil }
+    init(articles: [Article], onLoadMore: (() -> Void)? = nil, headerView: AnyView? = nil) {
+        self.articles = articles
+        self.onLoadMore = onLoadMore
+        self.headerView = headerView
+        self.articlesWithImages = articles.filter { $0.imageURL != nil }
     }
 
     private let columns = [
