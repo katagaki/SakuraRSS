@@ -9,6 +9,10 @@ public final class PodcastDownloadManager: NSObject, URLSessionDownloadDelegate 
 
     public var activeDownloads: [Int64: DownloadProgress] = [:]
 
+    /// Verified downloaded article IDs, kept in memory so row views don't
+    /// query the database and filesystem on every render.
+    public internal(set) var downloadedIDs: Set<Int64> = []
+
     public var urlSession: URLSession!
     public var downloadTasks: [Int64: URLSessionDownloadTask] = [:]
     public var taskArticleIDs: [Int: Int64] = [:]
@@ -29,5 +33,9 @@ public final class PodcastDownloadManager: NSObject, URLSessionDownloadDelegate 
             delegate: self,
             delegateQueue: nil
         )
+        Task { [weak self] in
+            let ids = await Self.verifiedDownloadedIDs()
+            self?.downloadedIDs = ids
+        }
     }
 }
