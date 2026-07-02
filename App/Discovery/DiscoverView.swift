@@ -210,7 +210,7 @@ struct DiscoverView: View {
                             .fontWeight(.medium)
                             .padding(.horizontal, 12)
                             .padding(.vertical, 8)
-                            .background(.regularMaterial, in: Capsule())
+                            .background(Color(.secondarySystemFill), in: Capsule())
                             .foregroundStyle(.primary)
                     }
                     .buttonStyle(.plain)
@@ -222,7 +222,7 @@ struct DiscoverView: View {
                             .fontWeight(.medium)
                             .padding(.horizontal, 12)
                             .padding(.vertical, 8)
-                            .background(.regularMaterial, in: Capsule())
+                            .background(Color(.secondarySystemFill), in: Capsule())
                             .foregroundStyle(.primary)
                     }
                     .buttonStyle(.plain)
