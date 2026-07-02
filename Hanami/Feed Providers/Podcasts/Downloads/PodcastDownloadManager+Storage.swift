@@ -18,7 +18,7 @@ public extension PodcastDownloadManager {
         return dir
     }
 
-    nonisolated static func verifiedDownloadedIDs() async -> Set<Int64> {
+    @concurrent nonisolated static func verifiedDownloadedIDs() async -> Set<Int64> {
         guard let directory = sharedDownloadsDirectory else { return [] }
         let fileManager = FileManager.default
         let pairs = (try? DatabaseManager.shared.downloadedArticlePaths()) ?? []

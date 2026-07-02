@@ -28,7 +28,7 @@ struct SummaryText: View {
             }
     }
 
-    nonisolated private static func strip(_ summary: String) async -> String {
+    @concurrent nonisolated private static func strip(_ summary: String) async -> String {
         if let existing = strippedCache.object(forKey: summary as NSString) {
             return existing as String
         }

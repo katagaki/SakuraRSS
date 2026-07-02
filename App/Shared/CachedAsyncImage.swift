@@ -124,7 +124,10 @@ struct CachedAsyncImage<Placeholder: View>: View {
             : "\(url.absoluteString)|\(Int(maxPixelSize))"
     }
 
-    nonisolated static func loadImage(
+    // @concurrent so the SQLite blob read, ImageIO decode, and metrics
+    // sampling leave the caller's actor; with NonisolatedNonsendingByDefault
+    // they would otherwise run on the main thread.
+    @concurrent nonisolated static func loadImage(
         from url: URL,
         maxPixelSize: CGFloat = CachedAsyncImageConfig.maxDisplayPixelSize
     ) async -> UIImage? {
