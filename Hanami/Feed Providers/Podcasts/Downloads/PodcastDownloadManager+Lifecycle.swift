@@ -27,6 +27,7 @@ public extension PodcastDownloadManager {
         }
         try DatabaseManager.shared.setDownloadPath(nil, for: articleID)
         try? DatabaseManager.shared.clearCachedTranscript(for: articleID)
+        downloadedIDs.remove(articleID)
         activeDownloads[articleID] = nil
         log("PodcastDownload", "Download deleted for article \(articleID)")
     }
@@ -47,6 +48,7 @@ public extension PodcastDownloadManager {
             try? DatabaseManager.shared.setDownloadPath(nil, for: identifier)
             try? DatabaseManager.shared.clearCachedTranscript(for: identifier)
         }
+        downloadedIDs.removeAll()
         activeDownloads.removeAll()
         log("PodcastDownload", "All downloads deleted")
     }

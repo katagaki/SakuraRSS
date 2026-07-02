@@ -42,6 +42,9 @@ struct SakuraRSSApp: App {
                 .environment(todayManager)
                 .keepScreenOnDuringPodcastWork()
                 .task {
+                    feedManager.onBookmarkAdded = { [feedManager] article in
+                        BookmarkToastManager.shared.show(article: article, feedManager: feedManager)
+                    }
                     await FeedProviderRegistry.migrateAuthenticatedCookies()
                     if fetchOnStartup {
                         await feedManager.refreshAllFeeds(
@@ -64,6 +67,7 @@ struct SakuraRSSApp: App {
                 ) { _ in
                     feedManager.updateBadgeCount()
                     feedManager.reloadRefreshTimestampsFromDefaults()
+                    feedManager.reloadFocusFromDefaults()
                     let now = Date()
                     if let last = lastForegroundWorkAt, now.timeIntervalSince(last) < 5 * 60 {
                         return
@@ -139,6 +143,24 @@ struct SakuraRSSApp: App {
             }
         }
         .defaultSize(width: 420, height: 520)
+        .commandsRemoved()
+
+        WindowGroup(id: "FeedWindow", for: Int64.self) { $feedID in
+            if let feedID {
+                FeedDetailWindow(feedID: feedID)
+                    .environment(feedManager)
+            }
+        }
+        .defaultSize(width: 480, height: 700)
+        .commandsRemoved()
+
+        WindowGroup(id: "ListWindow", for: Int64.self) { $listID in
+            if let listID {
+                ListDetailWindow(listID: listID)
+                    .environment(feedManager)
+            }
+        }
+        .defaultSize(width: 480, height: 700)
         .commandsRemoved()
 
         WindowGroup(id: "YouTubePlayerWindow", for: Int64.self) { $articleID in

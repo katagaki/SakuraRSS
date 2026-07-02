@@ -27,14 +27,21 @@ extension HomeView {
     var availableSections: [HomeSection] {
         HomeSection.allCases.filter { section in
             guard let feedSection = section.feedSection else { return true }
-            return feedManager.hasFeeds(for: feedSection)
+            guard feedManager.hasFeeds(for: feedSection) else { return false }
+            guard feedManager.isFocusEffective else { return true }
+            return feedManager.isSectionInFocus(feedSection)
         }
+    }
+
+    var focusedLists: [FeedList] {
+        guard feedManager.isFocusEffective else { return feedManager.lists }
+        return feedManager.lists.filter { feedManager.isListInFocus($0) }
     }
 
     var tabItems: [HomeSectionBarItem] {
         HomeSectionBarItem.items(
             sections: availableSections,
-            lists: feedManager.lists,
+            lists: focusedLists,
             topics: topTopics,
             configuration: barConfiguration
         )

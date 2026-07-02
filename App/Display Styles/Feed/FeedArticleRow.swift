@@ -33,50 +33,13 @@ struct FeedArticleRow: View {
         }
     }
 
-    private static func isDisplayableSize(_ image: UIImage) -> Bool {
-        let pixelWidth = image.size.width * image.scale
-        let pixelHeight = image.size.height * image.scale
-        return pixelWidth > 100 || pixelHeight > 100
-    }
-
-    private var imageHeight: CGFloat {
-        if UIDevice.current.userInterfaceIdiom == .pad {
-            return 200
-        }
-        guard let imageAspectRatio else { return 180 }
-        #if os(visionOS)
-        let estimatedWidth: CGFloat = 375 - 86
-        #else
-        let estimatedWidth = (UIApplication.shared.connectedScenes
-            .compactMap { $0 as? UIWindowScene }
-            .first?.screen.bounds.width ?? 375) - 86
-        #endif
-        let naturalHeight = estimatedWidth * imageAspectRatio
-        return min(max(naturalHeight, 180), 420)
-    }
-
-    @ViewBuilder
-    private var feedAvatarView: some View {
-        let isCircleIcon = feed?.isCircleIcon ?? false
-        if let icon = icon {
-            IconImage(icon, size: 40, cornerRadius: 8,
-                      circle: isCircleIcon, skipInset: skipIconInset)
-        } else if let acronymIcon {
-            IconImage(acronymIcon, size: 40, cornerRadius: 8,
-                      circle: isCircleIcon, skipInset: true)
-        } else if let feedName {
-            InitialsAvatarView(feedName, size: 40,
-                               circle: isCircleIcon, cornerRadius: 8)
-        } else if isCircleIcon {
-            Circle()
-                .fill(.secondary.opacity(0.2))
-                .frame(width: 40, height: 40)
-        } else {
-            RoundedRectangle(cornerRadius: 8)
-                .fill(.secondary.opacity(0.2))
-                .frame(width: 40, height: 40)
-        }
-    }
+    #if !os(visionOS)
+    // The scene walk is too costly per row per render; the screen reference is
+    // stable while its live bounds stay orientation-correct.
+    private static let mainScreen: UIScreen? = UIApplication.shared.connectedScenes
+        .compactMap { $0 as? UIWindowScene }
+        .first?.screen
+    #endif
 
     var body: some View {
         HStack(alignment: .top, spacing: 10) {
@@ -250,9 +213,7 @@ struct FeedArticleRow: View {
             if let loadedFeed = feedManager.feed(forArticle: article) {
                 feed = loadedFeed
                 feedName = loadedFeed.title
-                if let data = loadedFeed.acronymIcon {
-                    acronymIcon = UIImage(data: data)
-                }
+                acronymIcon = AcronymIconCache.shared.icon(for: loadedFeed)
                 skipIconInset = loadedFeed.isVideoFeed || loadedFeed.isXFeed || loadedFeed.isInstagramFeed
                 icon = await Iconography.shared.icon(for: loadedFeed)
             }
@@ -280,6 +241,52 @@ struct FeedArticleRow: View {
                 SafariView(url: url)
                     .ignoresSafeArea()
             }
+        }
+    }
+}
+
+private extension FeedArticleRow {
+
+    static func isDisplayableSize(_ image: UIImage) -> Bool {
+        let pixelWidth = image.size.width * image.scale
+        let pixelHeight = image.size.height * image.scale
+        return pixelWidth > 100 || pixelHeight > 100
+    }
+
+    var imageHeight: CGFloat {
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            return 200
+        }
+        guard let imageAspectRatio else { return 180 }
+        #if os(visionOS)
+        let estimatedWidth: CGFloat = 375 - 86
+        #else
+        let estimatedWidth = (Self.mainScreen?.bounds.width ?? 375) - 86
+        #endif
+        let naturalHeight = estimatedWidth * imageAspectRatio
+        return min(max(naturalHeight, 180), 420)
+    }
+
+    @ViewBuilder
+    var feedAvatarView: some View {
+        let isCircleIcon = feed?.isCircleIcon ?? false
+        if let icon = icon {
+            IconImage(icon, size: 40, cornerRadius: 8,
+                      circle: isCircleIcon, skipInset: skipIconInset)
+        } else if let acronymIcon {
+            IconImage(acronymIcon, size: 40, cornerRadius: 8,
+                      circle: isCircleIcon, skipInset: true)
+        } else if let feedName {
+            InitialsAvatarView(feedName, size: 40,
+                               circle: isCircleIcon, cornerRadius: 8)
+        } else if isCircleIcon {
+            Circle()
+                .fill(.secondary.opacity(0.2))
+                .frame(width: 40, height: 40)
+        } else {
+            RoundedRectangle(cornerRadius: 8)
+                .fill(.secondary.opacity(0.2))
+                .frame(width: 40, height: 40)
         }
     }
 }

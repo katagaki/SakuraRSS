@@ -60,12 +60,12 @@ extension EnvironmentValues {
 // MARK: - Zoom Transition Modifiers
 
 extension View {
-    func zoomTransition(sourceID: Int64, in namespace: Namespace.ID) -> some View {
+    func zoomTransition<ID: Hashable>(sourceID: ID, in namespace: Namespace.ID) -> some View {
         ZoomTransitionModifier(sourceID: sourceID, namespace: namespace, wrappedView: self)
     }
 
     @ViewBuilder
-    func zoomTransition(sourceID: Int64, in namespace: Namespace.ID?) -> some View {
+    func zoomTransition<ID: Hashable>(sourceID: ID, in namespace: Namespace.ID?) -> some View {
         if let namespace {
             ZoomTransitionModifier(sourceID: sourceID, namespace: namespace, wrappedView: self)
         } else {
@@ -74,7 +74,7 @@ extension View {
     }
 
     @ViewBuilder
-    func zoomSource(id: Int64, namespace: Namespace.ID?) -> some View {
+    func zoomSource<ID: Hashable>(id: ID, namespace: Namespace.ID?) -> some View {
         if let namespace {
             ZoomSourceModifier(id: id, namespace: namespace, wrappedView: self)
         } else {
@@ -83,7 +83,7 @@ extension View {
     }
 
     @ViewBuilder
-    func matchedSource(id: Int64, in namespace: Namespace.ID?) -> some View {
+    func matchedSource<ID: Hashable>(id: ID, in namespace: Namespace.ID?) -> some View {
         if let namespace {
             self.matchedTransitionSource(id: id, in: namespace)
         } else {
@@ -92,9 +92,9 @@ extension View {
     }
 }
 
-private struct ZoomTransitionModifier<WrappedView: View>: View {
+private struct ZoomTransitionModifier<ID: Hashable, WrappedView: View>: View {
     @AppStorage("Display.ZoomTransition") private var zoomTransitionEnabled: Bool = true
-    let sourceID: Int64
+    let sourceID: ID
     let namespace: Namespace.ID
     let wrappedView: WrappedView
 
@@ -107,9 +107,9 @@ private struct ZoomTransitionModifier<WrappedView: View>: View {
     }
 }
 
-private struct ZoomSourceModifier<WrappedView: View>: View {
+private struct ZoomSourceModifier<ID: Hashable, WrappedView: View>: View {
     @AppStorage("Display.ZoomTransition") private var zoomTransitionEnabled: Bool = true
-    let id: Int64
+    let id: ID
     let namespace: Namespace.ID
     let wrappedView: WrappedView
 
