@@ -141,7 +141,7 @@ struct DiscoverView: View {
             .padding(.horizontal)
 
             ScrollView(.horizontal, showsIndicators: false) {
-                HStack(alignment: .top, spacing: 12) {
+                LazyHStack(alignment: .top, spacing: 12) {
                     ForEach(recentArticles) { article in
                         DiscoverArticleCard(article: article)
                     }
@@ -173,7 +173,7 @@ struct DiscoverView: View {
                 .padding(.horizontal)
 
                 ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(alignment: .top, spacing: 12) {
+                    LazyHStack(alignment: .top, spacing: 12) {
                         ForEach(section.articles) { article in
                             DiscoverArticleCard(article: article)
                         }
