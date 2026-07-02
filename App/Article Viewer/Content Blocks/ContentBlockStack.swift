@@ -17,7 +17,7 @@ struct ContentBlockStack: View {
     var onLinkTap: ((URL) -> Void)?
 
     var body: some View {
-        let blocks = ContentBlock.parse(text)
+        let blocks = ContentBlock.cachedParse(text)
         ForEach(blocks) { block in
             switch block {
             case .text(let content):
