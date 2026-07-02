@@ -25,6 +25,7 @@ struct ScrollArticlePage: View {
     @State private var isCircleIcon = false
     @State private var backgroundImage: UIImage?
     @State private var showSafari = false
+    @State private var expandedArticle: Article?
 
     @Namespace private var headerNamespace
 
@@ -50,7 +51,7 @@ struct ScrollArticlePage: View {
             Group {
                 if isExpanded {
                     ScrollExpandedArticleView(
-                        article: feedManager.article(byID: article.id) ?? article,
+                        article: expandedArticle ?? article,
                         feedName: feedName,
                         icon: icon,
                         acronymIcon: acronymIcon,
@@ -83,6 +84,15 @@ struct ScrollArticlePage: View {
                 }
                 icon = await Iconography.shared.icon(for: loadedFeed)
             }
+        }
+        // Fetches once per expand/data change; the full `content` blob is too
+        // heavy to read from the database on every body evaluation.
+        .task(id: isExpanded ? feedManager.dataRevision : -1) {
+            guard isExpanded else {
+                expandedArticle = nil
+                return
+            }
+            expandedArticle = feedManager.article(byID: article.id) ?? article
         }
         .task(id: article.imageURL) {
             guard let urlString = article.imageURL, let url = URL(string: urlString) else { return }
