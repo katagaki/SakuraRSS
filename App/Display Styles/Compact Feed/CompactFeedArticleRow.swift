@@ -92,7 +92,7 @@ struct CompactFeedArticleRow: View {
     @ViewBuilder
     private var thumbnail: some View {
         if let imageURL = article.imageURL, let url = URL(string: imageURL) {
-            CachedAsyncImage(url: url, alignment: .center, placeholder: {
+            CachedAsyncImage(url: url, maxPixelSize: 216, alignment: .center, placeholder: {
                 Color.secondary.opacity(0.1)
                     .frame(width: 72, height: 72)
             })

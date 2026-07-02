@@ -63,7 +63,7 @@ struct SummaryHeadlineCard: View {
     @ViewBuilder
     private var thumbnail: some View {
         if let urlString = headline.thumbnailURL, let url = URL(string: urlString) {
-            CachedAsyncImage(url: url, alignment: .center) {
+            CachedAsyncImage(url: url, maxPixelSize: 1200, alignment: .center) {
                 feedIconBackground
             }
         } else {
