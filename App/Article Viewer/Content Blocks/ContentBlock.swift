@@ -80,9 +80,11 @@ enum ContentBlock: Identifiable {
     /// Strips Markdown formatting, returning plain text for content previews.
     nonisolated static func stripMarkdown(_ text: String) -> String {
         var result = text
-        for pattern in markdownStripPatterns {
-            result = result.replacingOccurrences(
-                of: pattern.pattern, with: pattern.replacement, options: .regularExpression
+        for (regex, template) in markdownStripRegexes {
+            result = regex.stringByReplacingMatches(
+                in: result,
+                range: NSRange(result.startIndex..., in: result),
+                withTemplate: template
             )
         }
         result = result.replacingOccurrences(of: "{{CODE}}", with: "")
@@ -92,6 +94,12 @@ enum ContentBlock: Identifiable {
         result = ArticleMarker.unescape(result)
         return result.trimmingCharacters(in: .whitespacesAndNewlines)
     }
+
+    nonisolated private static let markdownStripRegexes: [(NSRegularExpression, String)] =
+        markdownStripPatterns.compactMap { pattern, replacement in
+            guard let regex = try? NSRegularExpression(pattern: pattern) else { return nil }
+            return (regex, replacement)
+        }
 
     nonisolated private static let markdownStripPatterns: [(pattern: String, replacement: String)] = [
         (#"\{\{IMG\}\}.+?\{\{/IMG\}\}"#, ""),
