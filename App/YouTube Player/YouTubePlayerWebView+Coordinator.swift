@@ -193,6 +193,15 @@ extension YouTubePlayerWebView {
                 function unmute() {
                     var video = document.querySelector('video');
                     if (video) { video.muted = false; }
+                    var player = document.getElementById('movie_player');
+                    if (player && typeof player.unMute === 'function') {
+                        player.unMute();
+                        if (typeof player.setVolume === 'function'
+                            && typeof player.getVolume === 'function'
+                            && player.getVolume() === 0) {
+                            player.setVolume(100);
+                        }
+                    }
                 }
                 unmute();
                 var observer = new MutationObserver(function() { unmute(); });
