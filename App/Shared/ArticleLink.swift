@@ -43,6 +43,8 @@ struct ArticleLink<Label: View>: View {
     }
 
     var body: some View {
+        let openMode = feedOpenMode
+        let isYouTube = article.isYouTubeURL
         Group {
             if article.isPodcastEpisode {
                 if usesiPadDetailColumn {
@@ -55,7 +57,7 @@ struct ArticleLink<Label: View>: View {
                         label()
                     }
                 }
-            } else if article.isYouTubeURL && youTubeOpenMode == .inAppPlayer {
+            } else if isYouTube && youTubeOpenMode == .inAppPlayer {
                 if usesiPadDetailColumn {
                     Button { selectForiPadDetail() } label: { label() }
                 } else {
@@ -66,21 +68,21 @@ struct ArticleLink<Label: View>: View {
                         label()
                     }
                 }
-            } else if article.isYouTubeURL && youTubeOpenMode == .youTubeApp {
+            } else if isYouTube && youTubeOpenMode == .youTubeApp {
                 Button {
                     markReadIfEnabled()
                     YouTubeHelper.openInApp(url: article.url)
                 } label: {
                     label()
                 }
-            } else if article.isYouTubeURL && youTubeOpenMode == .browser {
+            } else if isYouTube && youTubeOpenMode == .browser {
                 Button {
                     markReadIfEnabled()
                     showSafari = true
                 } label: {
                     label()
                 }
-            } else if feedOpenMode == .browser {
+            } else if openMode == .browser {
                 Button {
                     markReadIfEnabled()
                     if let url = URL(string: article.url) {
@@ -89,21 +91,21 @@ struct ArticleLink<Label: View>: View {
                 } label: {
                     label()
                 }
-            } else if feedOpenMode == .inAppBrowser {
+            } else if openMode == .inAppBrowser {
                 Button {
                     markReadIfEnabled()
                     showSafari = true
                 } label: {
                     label()
                 }
-            } else if feedOpenMode == .inAppBrowserReader {
+            } else if openMode == .inAppBrowserReader {
                 Button {
                     markReadIfEnabled()
                     showSafariReader = true
                 } label: {
                     label()
                 }
-            } else if feedOpenMode == .clearThisPage || feedOpenMode == .archivePh {
+            } else if openMode == .clearThisPage || openMode == .archivePh {
                 if usesiPadDetailColumn {
                     Button { selectForiPadDetail() } label: { label() }
                 } else if let onNavigate {
