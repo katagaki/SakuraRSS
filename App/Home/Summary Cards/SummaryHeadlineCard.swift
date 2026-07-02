@@ -75,7 +75,7 @@ struct SummaryHeadlineCard: View {
     private var feedIconBackground: some View {
         FeedIconPlaceholder(
             icon: primaryFeedIcon,
-            acronymIcon: primaryFeed?.acronymIcon.flatMap { UIImage(data: $0) },
+            acronymIcon: primaryFeed.flatMap { AcronymIconCache.shared.icon(for: $0) },
             feedName: primaryFeed?.title,
             isCircleIcon: primaryFeedIsCircleIcon,
             iconSize: 80,

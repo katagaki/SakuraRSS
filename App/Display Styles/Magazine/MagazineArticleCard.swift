@@ -76,9 +76,7 @@ struct MagazineArticleCard: View {
         .task {
             if let feed = feedManager.feed(forArticle: article) {
                 feedName = feed.title
-                if let data = feed.acronymIcon {
-                    acronymIcon = UIImage(data: data)
-                }
+                acronymIcon = AcronymIconCache.shared.icon(for: feed)
                 isVideoFeed = feed.isVideoFeed || feed.isXFeed || feed.isInstagramFeed
                 isCircleIcon = feed.isCircleIcon
                 skipIconInset = feed.isVideoFeed || feed.isXFeed || feed.isInstagramFeed

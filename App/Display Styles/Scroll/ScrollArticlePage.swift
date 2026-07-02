@@ -79,9 +79,7 @@ struct ScrollArticlePage: View {
                 feedName = loadedFeed.title
                 isVideoFeed = loadedFeed.isVideoFeed || loadedFeed.isXFeed || loadedFeed.isInstagramFeed
                 isCircleIcon = loadedFeed.isCircleIcon
-                if let data = loadedFeed.acronymIcon {
-                    acronymIcon = UIImage(data: data)
-                }
+                acronymIcon = AcronymIconCache.shared.icon(for: loadedFeed)
                 icon = await Iconography.shared.icon(for: loadedFeed)
             }
         }
