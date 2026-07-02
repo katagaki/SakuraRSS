@@ -42,6 +42,9 @@ struct SakuraRSSApp: App {
                 .environment(todayManager)
                 .keepScreenOnDuringPodcastWork()
                 .task {
+                    feedManager.onBookmarkAdded = { [feedManager] article in
+                        BookmarkToastManager.shared.show(article: article, feedManager: feedManager)
+                    }
                     await FeedProviderRegistry.migrateAuthenticatedCookies()
                     if fetchOnStartup {
                         await feedManager.refreshAllFeeds(

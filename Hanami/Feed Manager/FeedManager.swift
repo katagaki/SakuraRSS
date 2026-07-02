@@ -111,6 +111,8 @@ public final class FeedManager {
     @ObservationIgnored public var stagedReadChanges: [Int64: Bool] = [:]
     /// Same staging mechanism for bookmark state, consulted by `isBookmarked`.
     @ObservationIgnored public var stagedBookmarkChanges: [Int64: Bool] = [:]
+    /// Fired after a bookmark is added (not removed), so the app can confirm the action.
+    @ObservationIgnored public var onBookmarkAdded: ((Article) -> Void)?
     public var readMaskRevision: Int = 0
     @ObservationIgnored public var pendingReadDecrements: [Int64: Int] = [:]
     @ObservationIgnored public var pendingReadReelsDecrements: [Int64: Int] = [:]
