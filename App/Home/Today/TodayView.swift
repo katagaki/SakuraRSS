@@ -19,6 +19,7 @@ struct TodayView: View {
     @State var todayVisible = false
 
     @State var summaryRefreshTrigger: Int = 0
+    @State var anySummaryActive = false
 
     var body: some View {
         Group {
@@ -46,13 +47,16 @@ struct TodayView: View {
                 dataRevision: feedManager.dataRevision,
                 loadEntities: contentInsightsEnabled
             )
+            updateAnySummaryActive()
         }
     }
 
     // MARK: - Layouts
 
     private var portraitLayout: some View {
-        ScrollView {
+        let sections = contentSections
+        let showEmpty = todayManager.hasLoadedInitially && !anySummaryVisible && sections.isEmpty
+        return ScrollView {
             VStack(alignment: .leading, spacing: 16) {
                 TodayGreetingView()
                     .padding(.horizontal)
@@ -62,7 +66,7 @@ struct TodayView: View {
                 }
 
                 if !anySummaryVisible, !isWeatherShowing,
-                   !todayManager.hasLoadedInitially || !contentSections.isEmpty || showEmptyState {
+                   !todayManager.hasLoadedInitially || !sections.isEmpty || showEmpty {
                     sectionDivider
                 }
 
@@ -71,19 +75,19 @@ struct TodayView: View {
                 }
 
                 if anySummaryVisible,
-                   !todayManager.hasLoadedInitially || !contentSections.isEmpty || showEmptyState {
+                   !todayManager.hasLoadedInitially || !sections.isEmpty || showEmpty {
                     sectionDivider
                 }
 
                 if !todayManager.hasLoadedInitially {
                     loadingIndicator
-                } else if showEmptyState {
+                } else if showEmpty {
                     emptyContentView
                 } else {
-                    contentSectionsStack
+                    contentSectionsStack(sections)
                 }
 
-                attributionFooter
+                TodayAttributionFooter()
             }
             .padding(.top, 8)
             .padding(.bottom, 24)
@@ -114,10 +118,10 @@ struct TodayView: View {
     }
 
     @ViewBuilder
-    var contentSectionsStack: some View {
-        ForEach(Array(contentSections.enumerated()), id: \.element) { index, section in
+    func contentSectionsStack(_ sections: [ContentSection]) -> some View {
+        ForEach(Array(sections.enumerated()), id: \.element) { index, section in
             sectionView(section)
-            if index < contentSections.count - 1 {
+            if index < sections.count - 1 {
                 sectionDivider
             }
         }
@@ -138,10 +142,6 @@ struct TodayView: View {
         HomeLayout.usesPhoneTopBar
             && weatherService.lastError == nil
             && weatherService.weather != nil
-    }
-
-    private var showEmptyState: Bool {
-        todayManager.hasLoadedInitially && !anySummaryVisible && contentSections.isEmpty
     }
 
     @ViewBuilder
@@ -286,23 +286,6 @@ struct TodayView: View {
             destination: nil,
             articles: todayManager.recentArticles
         )
-    }
-
-    @ViewBuilder
-    var attributionFooter: some View {
-        let prefix = String(localized: "Today.WeatherAttribution.Prefix", table: "Home")
-        let linkLabel = String(localized: "Today.WeatherAttribution.Link", table: "Home")
-        let markdown = "\(prefix) [\(linkLabel)](https://developer.apple.com/weatherkit/data-source-attribution/)"
-        let attributed = (try? AttributedString(markdown: markdown)) ?? AttributedString(markdown)
-        VStack(spacing: 16) {
-            Divider()
-            Text(attributed)
-                .font(.caption)
-                .foregroundStyle(.secondary)
-                .multilineTextAlignment(.center)
-                .frame(maxWidth: .infinity)
-        }
-        .padding(.horizontal)
     }
 
 }

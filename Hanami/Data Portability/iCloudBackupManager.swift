@@ -5,7 +5,7 @@ import UIKit
 #endif
 
 // swiftlint:disable:next type_name
-public final class iCloudBackupManager: @unchecked Sendable {
+public nonisolated final class iCloudBackupManager: @unchecked Sendable {
 
     public static let shared = iCloudBackupManager()
 

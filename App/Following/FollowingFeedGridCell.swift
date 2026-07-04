@@ -29,7 +29,7 @@ struct FollowingFeedGridCell: View {
                             circle: feed.isCircleIcon,
                             skipInset: feed.isCircleIcon || feed.isXFeed || feed.isInstagramFeed
                         )
-                    } else if let data = feed.acronymIcon, let acronym = UIImage(data: data) {
+                    } else if let acronym = AcronymIconCache.shared.icon(for: feed) {
                         IconImage(
                             acronym,
                             size: iconSize,

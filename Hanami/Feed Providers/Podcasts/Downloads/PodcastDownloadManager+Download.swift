@@ -79,6 +79,7 @@ public extension PodcastDownloadManager {
         let relativePath = "\(articleID)/\(name)"
         log("PodcastDownload", "Storing download path '\(relativePath)' for article \(articleID)")
         try DatabaseManager.shared.setDownloadPath(relativePath, for: articleID)
+        downloadedIDs.insert(articleID)
 
         // Transcription failure is non-fatal; we still markCompleted below.
         if transcriptionAvailable {

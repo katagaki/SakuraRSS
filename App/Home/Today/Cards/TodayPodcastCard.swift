@@ -58,7 +58,7 @@ struct TodayPodcastCard: View {
     @ViewBuilder
     private var cardVisual: some View {
         if let imageURL = article.imageURL, let url = URL(string: imageURL) {
-            CachedAsyncImage(url: url, alignment: shouldCenterImage ? .center : .top) {
+            CachedAsyncImage(url: url, maxPixelSize: 480, alignment: shouldCenterImage ? .center : .top) {
                 thumbnailBackground
             }
         } else {

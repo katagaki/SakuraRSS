@@ -132,9 +132,7 @@ struct VideoArticleCard: View {
             if let loadedFeed = feedManager.feed(forArticle: article) {
                 feed = loadedFeed
                 feedName = loadedFeed.title
-                if let data = loadedFeed.acronymIcon {
-                    acronymIcon = UIImage(data: data)
-                }
+                acronymIcon = AcronymIconCache.shared.icon(for: loadedFeed)
                 icon = await Iconography.shared.icon(for: loadedFeed)
             }
         }

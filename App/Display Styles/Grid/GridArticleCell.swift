@@ -8,7 +8,7 @@ struct GridArticleCell: View {
     var body: some View {
         Group {
             if let imageURL = article.imageURL, let url = URL(string: imageURL) {
-                CachedAsyncImage(url: url) {
+                CachedAsyncImage(url: url, maxPixelSize: 600) {
                     Rectangle()
                         .fill(.secondary.opacity(0.15))
                 }

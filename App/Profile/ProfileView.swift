@@ -47,6 +47,15 @@ struct ProfileView: View {
                         )
                     }
                     NavigationLink {
+                        FocusSettingsView()
+                    } label: {
+                        SettingsIconLabel(
+                            String(localized: "Section.Focus", table: "Settings"),
+                            systemImage: "moon.fill",
+                            color: .purple
+                        )
+                    }
+                    NavigationLink {
                         FetchingSettingsView()
                     } label: {
                         SettingsIconLabel(

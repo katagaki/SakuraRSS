@@ -232,6 +232,10 @@ private struct iPadSidebarListContextMenu: View {
     @Binding var listToDelete: FeedList?
 
     var body: some View {
+        #if targetEnvironment(macCatalyst)
+        OpenListInNewWindowButton(list: list)
+        Divider()
+        #endif
         Button {
             listToEdit = list
         } label: {

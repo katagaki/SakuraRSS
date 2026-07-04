@@ -99,9 +99,7 @@ struct InboxArticleRow: View {
                 feedName = feed.title
                 isSocialFeed = feed.isSocialFeed
                 isCircleIcon = feed.isCircleIcon
-                if let data = feed.acronymIcon {
-                    acronymIcon = UIImage(data: data)
-                }
+                acronymIcon = AcronymIconCache.shared.icon(for: feed)
                 icon = await Iconography.shared.icon(for: feed)
             }
         }

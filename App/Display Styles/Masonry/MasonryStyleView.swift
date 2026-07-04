@@ -8,16 +8,20 @@ struct MasonryStyleView: View {
     let articles: [Article]
     var onLoadMore: (() -> Void)?
     var headerView: AnyView?
+    private let columns: [[Article]]
 
     private static let columnCount = 2
     private static let spacing: CGFloat = 12
 
-    private var columns: [[Article]] {
+    init(articles: [Article], onLoadMore: (() -> Void)? = nil, headerView: AnyView? = nil) {
+        self.articles = articles
+        self.onLoadMore = onLoadMore
+        self.headerView = headerView
         var buckets: [[Article]] = Array(repeating: [], count: Self.columnCount)
         for (index, article) in articles.enumerated() {
             buckets[index % Self.columnCount].append(article)
         }
-        return buckets
+        self.columns = buckets
     }
 
     var body: some View {

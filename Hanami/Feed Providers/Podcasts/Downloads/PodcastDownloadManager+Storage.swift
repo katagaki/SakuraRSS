@@ -3,6 +3,11 @@ import Foundation
 public extension PodcastDownloadManager {
 
     var downloadsDirectory: URL? {
+        Self.sharedDownloadsDirectory
+    }
+
+    nonisolated static var sharedDownloadsDirectory: URL? {
+        let fileManager = FileManager.default
         guard let container = fileManager.containerURL(
             forSecurityApplicationGroupIdentifier: "group.com.tsubuzaki.SakuraRSS"
         ) else { return nil }
@@ -11,6 +16,16 @@ public extension PodcastDownloadManager {
             try? fileManager.createDirectory(at: dir, withIntermediateDirectories: true)
         }
         return dir
+    }
+
+    @concurrent nonisolated static func verifiedDownloadedIDs() async -> Set<Int64> {
+        guard let directory = sharedDownloadsDirectory else { return [] }
+        let fileManager = FileManager.default
+        let pairs = (try? DatabaseManager.shared.downloadedArticlePaths()) ?? []
+        let verified = pairs.filter { _, path in
+            fileManager.fileExists(atPath: directory.appendingPathComponent(path).path)
+        }
+        return Set(verified.map(\.id))
     }
 
     func episodeDirectory(for articleID: Int64) -> URL? {
@@ -39,6 +54,6 @@ public extension PodcastDownloadManager {
     }
 
     func isDownloaded(articleID: Int64) -> Bool {
-        localFileURL(for: articleID) != nil
+        downloadedIDs.contains(articleID)
     }
 }

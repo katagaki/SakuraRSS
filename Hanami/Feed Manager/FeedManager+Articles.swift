@@ -206,6 +206,9 @@ public extension FeedManager {
         applyBookmarkChangeToCachedArticle(id: article.id, isBookmarked: newState)
         readMaskRevision += 1
         bumpDataRevision()
+        if newState {
+            onBookmarkAdded?(article)
+        }
     }
 
     private func applyReadChangeToCachedArticle(id: Int64, isRead: Bool) {

@@ -341,4 +341,43 @@ nonisolated enum YouTubePlayerScripts {
         };
     })();
     """
+
+    /// Arms autoplay at document end so the first video plays as soon as its
+    /// media is ready instead of waiting for YouTube's own autoplay, which
+    /// only fires after the whole watch page finishes initializing. Unmutes on
+    /// the first `playing` because this can start playback before `didFinish`,
+    /// where the coordinator's unmute normally runs.
+    static let initialAutoplayKick = """
+    (function() {
+        if (!window.__yt || typeof window.__yt.armAutoplay !== 'function') return;
+        window.__yt.armAutoplay(15000);
+        function unmute(video) {
+            if (video.muted) { video.muted = false; }
+            var player = document.getElementById('movie_player');
+            if (player && typeof player.unMute === 'function') {
+                player.unMute();
+                if (typeof player.setVolume === 'function'
+                    && typeof player.getVolume === 'function'
+                    && player.getVolume() === 0) {
+                    player.setVolume(100);
+                }
+            }
+        }
+        function attach(video) {
+            if (!video || video.__ytInitialUnmuteAttached) return;
+            video.__ytInitialUnmuteAttached = true;
+            window.__yt.addListener(video, 'playing', function() {
+                unmute(video);
+            }, true);
+        }
+        function scan() { document.querySelectorAll('video').forEach(attach); }
+        scan();
+        var observer = new MutationObserver(scan);
+        if (document.documentElement) {
+            observer.observe(document.documentElement,
+                { childList: true, subtree: true });
+            setTimeout(function() { observer.disconnect(); }, 20000);
+        }
+    })();
+    """
 }

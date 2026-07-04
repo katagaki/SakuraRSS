@@ -12,6 +12,23 @@ struct TimelineStyleView: View {
     var onLoadMore: (() -> Void)?
     var headerView: AnyView?
     var usesStackLayout: Bool = false
+    // Computed in init: body re-evaluates on every read-mask flush via
+    // isRead, and regrouping the whole list there costs a Calendar/ICU
+    // call per article.
+    private let groups: [(key: String, articles: [Article])]
+
+    init(
+        articles: [Article],
+        onLoadMore: (() -> Void)? = nil,
+        headerView: AnyView? = nil,
+        usesStackLayout: Bool = false
+    ) {
+        self.articles = articles
+        self.onLoadMore = onLoadMore
+        self.headerView = headerView
+        self.usesStackLayout = usesStackLayout
+        self.groups = Self.groupedArticles(from: articles)
+    }
 
     var body: some View {
         if usesStackLayout {
@@ -29,8 +46,6 @@ struct TimelineStyleView: View {
                     .listRowSeparator(.hidden)
                     .listRowInsets(EdgeInsets())
             }
-            let groups = groupedArticles(from: articles)
-
             ForEach(Array(groups.enumerated()), id: \.element.key) { groupIndex, group in
                 Section {
                     ForEach(Array(group.articles.enumerated()), id: \.element.id) { index, article in
@@ -80,8 +95,6 @@ struct TimelineStyleView: View {
                 if let headerView {
                     headerView
                 }
-                let groups = groupedArticles(from: articles)
-
                 ForEach(Array(groups.enumerated()), id: \.element.key) { groupIndex, group in
                     sectionHeader(group.key)
                         .frame(maxWidth: .infinity, alignment: .leading)
@@ -147,7 +160,7 @@ struct TimelineStyleView: View {
         MoveToFolderMenuItems(article: article)
     }
 
-    private func groupedArticles(from articles: [Article]) -> [(key: String, articles: [Article])] {
+    private static func groupedArticles(from articles: [Article]) -> [(key: String, articles: [Article])] {
         let calendar = Calendar.current
         var groups: [(key: String, articles: [Article])] = []
         var currentKey: String?
@@ -171,7 +184,7 @@ struct TimelineStyleView: View {
         return groups
     }
 
-    private func daySectionTitle(for date: Date?, calendar: Calendar) -> String {
+    private static func daySectionTitle(for date: Date?, calendar: Calendar) -> String {
         guard let date else {
             return String(localized: "Timeline.Earlier", table: "Articles")
         }

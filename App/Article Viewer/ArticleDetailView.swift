@@ -105,7 +105,9 @@ struct ArticleDetailView: View {
                 .padding(.horizontal)
                 .padding(.vertical, 4)
 
-            VStack(alignment: .leading, spacing: 16) {
+            // Lazy so a long article's blocks (and their image loads) start
+            // as they approach the viewport rather than all at once on open.
+            LazyVStack(alignment: .leading, spacing: 16) {
                 if !fullTextHasImages, !article.isXPostURL, !article.isInstagramPostURL,
                    let imageURL = article.imageURL ?? extractedLeadImageURL,
                    let url = URL(string: imageURL) {

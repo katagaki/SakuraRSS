@@ -11,6 +11,16 @@ struct FollowingFeedGridContextMenu: View {
 
     var body: some View {
         Button {
+            feedManager.toggleMuted(feed)
+        } label: {
+            Label(
+                feed.isMuted
+                    ? String(localized: "FeedMenu.Unmute", table: "Feeds")
+                    : String(localized: "FeedMenu.Mute", table: "Feeds"),
+                systemImage: feed.isMuted ? "bell" : "bell.slash"
+            )
+        }
+        Button {
             feedToEdit = feed
         } label: {
             Label(String(localized: "FeedMenu.Edit", table: "Feeds"),

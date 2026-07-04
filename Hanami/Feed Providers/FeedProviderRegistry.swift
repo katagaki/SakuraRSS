@@ -13,7 +13,8 @@ public nonisolated enum FeedProviderRegistry {
         RedditProvider.self,
         HackerNewsProvider.self,
         PixelfedProvider.self,
-        ArXivProvider.self
+        ArXivProvider.self,
+        MastodonCommentsProvider.self
     ]
 
     // MARK: - Convenience Fetchers

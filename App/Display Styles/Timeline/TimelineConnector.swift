@@ -7,32 +7,30 @@ struct TimelineConnector: View {
     let isLast: Bool
     let isRead: Bool
 
+    private static let dotSize: CGFloat = 10
+    private static let dotCenterY: CGFloat = 19
+
     var body: some View {
-        GeometryReader { geometry in
-            let midX = geometry.size.width / 2
-            let dotSize: CGFloat = 10
-            let dotY: CGFloat = 19
-
-            if !isFirst {
-                Path { path in
-                    path.move(to: CGPoint(x: midX, y: 0))
-                    path.addLine(to: CGPoint(x: midX, y: dotY - dotSize / 2))
-                }
-                .stroke(.secondary.opacity(0.3), lineWidth: 2)
-            }
-
-            if !isLast {
-                Path { path in
-                    path.move(to: CGPoint(x: midX, y: dotY + dotSize / 2))
-                    path.addLine(to: CGPoint(x: midX, y: geometry.size.height))
-                }
-                .stroke(.secondary.opacity(0.3), lineWidth: 2)
-            }
-
+        VStack(spacing: 0) {
+            connectorLine(isVisible: !isFirst)
+                .frame(height: Self.dotCenterY - Self.dotSize / 2)
             Circle()
                 .fill(isRead ? Color.blue.opacity(0.3) : Color.blue)
-                .frame(width: dotSize, height: dotSize)
-                .position(x: midX, y: dotY)
+                .frame(width: Self.dotSize, height: Self.dotSize)
+            connectorLine(isVisible: !isLast)
+                .frame(maxHeight: .infinity)
+        }
+    }
+
+    @ViewBuilder
+    private func connectorLine(isVisible: Bool) -> some View {
+        if isVisible {
+            Rectangle()
+                .fill(.secondary.opacity(0.3))
+                .frame(width: 2)
+        } else {
+            Color.clear
+                .frame(width: 2)
         }
     }
 }
