@@ -53,6 +53,7 @@ struct SakuraRSSApp: App {
                         )
                     }
                     UserDefaults.standard.set(false, forKey: "App.StartupInProgress")
+                    feedManager.reconcileFocusWithSystemStatus()
                     feedManager.updateBadgeCount()
                     requestReviewIfNeeded()
                     reindexSpotlightIfSchemaChanged()
@@ -68,6 +69,7 @@ struct SakuraRSSApp: App {
                     feedManager.updateBadgeCount()
                     feedManager.reloadRefreshTimestampsFromDefaults()
                     feedManager.reloadFocusFromDefaults()
+                    feedManager.reconcileFocusWithSystemStatus()
                     let now = Date()
                     if let last = lastForegroundWorkAt, now.timeIntervalSince(last) < 5 * 60 {
                         return

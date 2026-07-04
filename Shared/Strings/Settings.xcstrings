@@ -8908,6 +8908,71 @@
         }
       }
     },
+    "Focus.Settings.PermissionDenied" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Der Zugriff auf deinen Fokus-Status ist deaktiviert. Aktiviere ihn in den Einstellungen, damit Sakura erkennt, wann ein Fokus aktiv ist."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Access to your Focus status is turned off. Turn it on in Settings so Sakura can tell when a Focus is on."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "L’accès à votre statut de concentration est désactivé. Activez-le dans Réglages pour que Sakura sache quand un mode de concentration est activé."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "L’accesso allo stato Full Immersion è disattivato. Attivalo in Impostazioni per consentire a Sakura di rilevare quando una Full Immersion è attiva."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "集中モードの状況へのアクセスがオフになっています。「設定」でオンにすると、Sakuraが集中モードのオン/オフを認識できるようになります。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "집중 모드 상태에 대한 접근이 꺼져 있습니다. 설정에서 켜면 Sakura가 집중 모드가 켜져 있는지 알 수 있습니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Toegang tot je focusstatus is uitgeschakeld. Schakel deze in via Instellingen zodat Sakura weet wanneer een focus actief is."
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quyền truy cập trạng thái Tập trung đang tắt. Hãy bật trong Cài đặt để Sakura biết khi nào chế độ Tập trung đang bật."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "对专注模式状态的访问已关闭。请在“设置”中开启，以便 Sakura 识别专注模式是否开启。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "對專注模式狀態的取用已關閉。請在「設定」中開啟，讓 Sakura 得知專注模式是否開啟。"
+          }
+        }
+      }
+    },
     "Focus.Settings.Active" : {
       "extractionState" : "manual",
       "localizations" : {

@@ -67,6 +67,71 @@
         }
       }
     },
+    "NSFocusStatusUsageDescription" : {
+      "comment" : "Privacy - Focus Status Usage Description",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sakura verwendet deinen Fokus-Status, um deine Fokusfilter synchron zu halten, während ein Fokus aktiv ist."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sakura uses your Focus status to keep your Focus filters in sync while a Focus is on."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sakura utilise votre statut de concentration pour garder vos filtres de concentration synchronisés lorsqu’un mode de concentration est activé."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sakura usa il tuo stato Full Immersion per mantenere sincronizzati i filtri Full Immersion quando una Full Immersion è attiva."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sakuraは、集中モードがオンの間に集中モードのフィルタを同期させるため、集中モードの状況を使用します。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sakura는 집중 모드가 켜져 있는 동안 집중 모드 필터를 동기화하기 위해 집중 모드 상태를 사용합니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sakura gebruikt je focusstatus om je focusfilters synchroon te houden terwijl een focus actief is."
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sakura sử dụng trạng thái Tập trung của bạn để giữ các bộ lọc Tập trung được đồng bộ khi chế độ Tập trung đang bật."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sakura 使用你的专注模式状态，以在专注模式开启时保持专注模式过滤器同步。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sakura 會使用你的專注模式狀態，以在專注模式開啟時保持專注模式過濾器同步。"
+          }
+        }
+      }
+    },
     "NSLocationWhenInUseUsageDescription" : {
       "comment" : "Privacy - Location When In Use Usage Description",
       "localizations" : {

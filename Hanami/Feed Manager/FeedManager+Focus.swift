@@ -1,4 +1,5 @@
 import Foundation
+import Intents
 
 public extension FeedManager {
 
@@ -52,5 +53,16 @@ public extension FeedManager {
         guard loaded != activeFocus else { return }
         activeFocus = loaded
         bumpDataRevision()
+    }
+
+    /// Clears a stale focus filter when the system reports no Focus is on,
+    /// e.g. when the deactivation `perform()` call was missed while the app
+    /// was terminated. Requires Focus status authorization.
+    func reconcileFocusWithSystemStatus() {
+        guard INFocusStatusCenter.default.authorizationStatus == .authorized else { return }
+        guard INFocusStatusCenter.default.focusStatus.isFocused == false else { return }
+        guard activeFocus.isActive else { return }
+        FocusFilterStore.clear()
+        reloadFocusFromDefaults()
     }
 }

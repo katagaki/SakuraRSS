@@ -66,6 +66,8 @@
 			</array>
 		</dict>
 	</array>
+	<key>NSFocusStatusUsageDescription</key>
+	<string>Sakura uses your Focus status to keep your Focus filters in sync while a Focus is on.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Location is used to show local weather on the Today tab.</string>
 	<key>LSApplicationQueriesSchemes</key>
