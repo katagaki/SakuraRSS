@@ -7,6 +7,7 @@ assignees: ''
 
 ---
 
+NOTE: When submitting a new Issue, please do NOT delete this template and fill in the below fields instead.
 NOTE: If your bug report does not contain one or more of the following fields, it may be closed with no prior notice. Please do NOT submit feature requests using this template.
 NOTE: If this bug report is not related to a feed or article, please use the 'Bug Report (General)' template.
 

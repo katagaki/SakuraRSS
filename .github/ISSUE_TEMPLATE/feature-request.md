@@ -7,6 +7,7 @@ assignees: ''
 
 ---
 
+NOTE: When submitting a new Issue, please do NOT delete this template and fill in the below fields instead.
 NOTE: If your feature request does not contain one or more of the following fields, it may be closed with no prior notice. Please do NOT submit bug reports using this template.
 NOTE: Sakura Reader is NOT a social media app, and any feature requests relating to adding social media-like features (such as commenting, liking, reposting, etc) will be closed with no prior notice.
 
