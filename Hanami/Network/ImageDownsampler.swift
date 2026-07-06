@@ -6,8 +6,7 @@ import UIKit
 public nonisolated enum ImageDownsampler {
 
     /// Downsamples encoded bytes to a thumbnail whose largest dimension is `maxPixelSize`.
-    /// Pass `cacheImmediately: false` in memory-constrained processes (widgets) so the
-    /// decoded bitmap is not pinned by the image source.
+    /// `cacheImmediately: false` avoids pinning the decoded bitmap in memory-constrained processes.
     public nonisolated static func downsample(
         _ data: Data,
         maxPixelSize: CGFloat,

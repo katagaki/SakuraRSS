@@ -1,8 +1,6 @@
 import SwiftUI
 import UIKit
 
-/// Releases the Follow Along screen-wake hold when the transcript is hidden,
-/// the view disappears, or the app leaves the foreground.
 struct TranscriptFollowAlongScreenWake: ViewModifier {
     @Environment(\.scenePhase) private var scenePhase
     @Binding var isKeepingScreenAwake: Bool

@@ -6,8 +6,6 @@ public extension YouTubePlaylistProvider {
     /// playlist quickly without tripping YouTube's anti-scraping heuristics.
     private static let videoDateConcurrency = 8
 
-    /// Ceiling on per-video date lookups in one fetch so a large playlist's
-    /// first refresh stays bounded.
     private static let videoDateFetchLimit = 50
 
     func performFetch(
