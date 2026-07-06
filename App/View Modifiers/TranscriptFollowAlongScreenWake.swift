@@ -11,7 +11,9 @@ struct TranscriptFollowAlongScreenWake: ViewModifier {
     func body(content: Content) -> some View {
         content
             .onChange(of: scenePhase) { _, newPhase in
-                UIApplication.shared.isIdleTimerDisabled = newPhase == .active && isKeepingScreenAwake
+                if isKeepingScreenAwake {
+                    UIApplication.shared.isIdleTimerDisabled = newPhase == .active
+                }
             }
             .onChange(of: showingTranscript) { _, isShowing in
                 if !isShowing {
@@ -22,6 +24,7 @@ struct TranscriptFollowAlongScreenWake: ViewModifier {
     }
 
     private func releaseScreenWake() {
+        guard isKeepingScreenAwake else { return }
         isKeepingScreenAwake = false
         UIApplication.shared.isIdleTimerDisabled = false
     }
