@@ -8784,61 +8784,61 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Wenn ein Fokusfilter aktiv ist, zeigen Start und Abonniert nur die dafür gewählten Listen und Bereiche. Richte Filter in Einstellungen › Fokus ein."
+            "value" : "Wenn ein Fokus aktiv ist, zeigen Start und Abonniert nur die dafür gewählten Listen und Bereiche. Es ist keine Berechtigung nötig – Filter werden in der App „Einstellungen“ eingerichtet."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "When a Focus filter is on, Home and Following show only the lists and sections you chose for it. Set up filters in Settings › Focus."
+            "value" : "When a Focus is on, Home and Following show only the lists and sections you chose for it. No permission is needed — filters are set up in the Settings app."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Lorsqu’un filtre de Concentration est activé, Accueil et Abonnements n’affichent que les listes et sections choisies. Configurez les filtres dans Réglages › Concentration."
+            "value" : "Lorsqu’une Concentration est activée, Accueil et Abonnements n’affichent que les listes et sections choisies. Aucune autorisation n’est requise : les filtres se configurent dans l’app Réglages."
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Quando un filtro Full Immersion è attivo, Home e Seguiti mostrano solo gli elenchi e le sezioni scelti. Configura i filtri in Impostazioni › Full Immersion."
+            "value" : "Quando una Full Immersion è attiva, Home e Seguiti mostrano solo gli elenchi e le sezioni scelti. Non serve alcuna autorizzazione: i filtri si configurano nell’app Impostazioni."
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "集中モードのフィルタがオンのとき、ホームとフォロー中には選択したリストとセクションのみが表示されます。フィルタは「設定」›「集中モード」で設定できます。"
+            "value" : "集中モードがオンのとき、ホームとフォロー中には選択したリストとセクションのみが表示されます。許可は不要で、フィルタは「設定」App で設定します。"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "집중 모드 필터가 켜져 있으면 홈과 팔로잉에 선택한 리스트와 섹션만 표시됩니다. 설정 › 집중 모드에서 필터를 설정하세요."
+            "value" : "집중 모드가 켜져 있으면 홈과 팔로잉에 선택한 리스트와 섹션만 표시됩니다. 권한은 필요하지 않으며, 필터는 설정 App에서 설정합니다."
           }
         },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Als een focusfilter actief is, tonen Start en Volgend alleen de gekozen lijsten en secties. Stel filters in via Instellingen › Focus."
+            "value" : "Als een Focus actief is, tonen Start en Volgend alleen de gekozen lijsten en secties. Er is geen toestemming nodig – filters stel je in via de Instellingen-app."
           }
         },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Khi bộ lọc Tập trung được bật, Trang chính và Đang theo dõi chỉ hiển thị các danh sách và mục bạn đã chọn. Thiết lập bộ lọc trong Cài đặt › Tập trung."
+            "value" : "Khi một chế độ Tập trung được bật, Trang chính và Đang theo dõi chỉ hiển thị các danh sách và mục bạn đã chọn. Không cần cấp quyền — bộ lọc được thiết lập trong ứng dụng Cài đặt."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "开启专注模式过滤器后，首页和关注仅显示你为其选择的列表和分区。请在“设置”›“专注模式”中设置过滤器。"
+            "value" : "开启专注模式后，首页和关注仅显示你为其选择的列表和分区。无需授权，过滤器在“设置”App 中设置。"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "開啟專注模式過濾器後，首頁和追蹤中僅顯示你為其選擇的列表和區段。請在「設定」›「專注模式」中設定過濾器。"
+            "value" : "開啟專注模式後，首頁和追蹤中僅顯示你為其選擇的列表和區段。無需授權，過濾器在「設定」App 中設定。"
           }
         }
       }
@@ -8969,6 +8969,331 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "專注模式過濾器已啟用"
+          }
+        }
+      }
+    },
+    "Focus.Settings.Setup.Title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Filter einrichten"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Set Up a Filter"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Configurer un filtre"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Configura un filtro"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "フィルタを設定"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "필터 설정"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Filter instellen"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Thiết lập bộ lọc"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "设置过滤器"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "設定過濾器"
+          }
+        }
+      }
+    },
+    "Focus.Settings.Setup.Step1" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Öffne die App „Einstellungen“ und tippe auf „Fokus“."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open the Settings app, then tap Focus."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ouvrez l’app Réglages, puis touchez Concentration."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apri l’app Impostazioni, poi tocca Full Immersion."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "「設定」App を開き、「集中モード」をタップします。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "설정 App을 열고 집중 모드를 탭하세요."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open de Instellingen-app en tik op Focus."
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mở ứng dụng Cài đặt, rồi chạm vào Tập trung."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "打开“设置”App，然后轻点“专注模式”。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "打開「設定」App，然後點一下「專注模式」。"
+          }
+        }
+      }
+    },
+    "Focus.Settings.Setup.Step2" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wähle einen Fokus, etwa „Schlafen“ oder „Arbeit“."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choose a Focus, such as Sleep or Work."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choisissez une Concentration, comme Sommeil ou Travail."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scegli una Full Immersion, come Sonno o Lavoro."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "「睡眠」や「仕事」などの集中モードを選択します。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "수면 또는 업무 같은 집중 모드를 선택하세요."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kies een Focus, zoals Slaap of Werk."
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chọn một chế độ Tập trung, chẳng hạn như Ngủ hoặc Công việc."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "选择一个专注模式，例如“睡眠”或“工作”。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "選擇一個專注模式，例如「睡眠」或「工作」。"
+          }
+        }
+      }
+    },
+    "Focus.Settings.Setup.Step3" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tippe unter „Fokusfilter“ auf „Filter hinzufügen“ und dann auf „Sakura“."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Under Focus Filters, tap Add Filter, then Sakura."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sous Filtres de Concentration, touchez Ajouter un filtre, puis Sakura."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In Filtri Full Immersion, tocca Aggiungi filtro, poi Sakura."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "「集中モードフィルタ」で「フィルタを追加」をタップし、「Sakura」を選択します。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "집중 모드 필터에서 필터 추가를 탭한 다음 Sakura를 선택하세요."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tik onder Focusfilters op Voeg filter toe en daarna op Sakura."
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trong Bộ lọc Tập trung, chạm vào Thêm bộ lọc, rồi chọn Sakura."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在“专注模式过滤器”下，轻点“添加过滤器”，然后选择“Sakura”。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "在「專注模式過濾器」下，點一下「加入過濾器」，然後選擇「Sakura」。"
+          }
+        }
+      }
+    },
+    "Focus.Settings.Setup.Step4" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wähle die anzuzeigenden Listen und Bereiche."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choose the lists and sections to show."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choisissez les listes et sections à afficher."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scegli gli elenchi e le sezioni da mostrare."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "表示するリストとセクションを選択します。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "표시할 리스트와 섹션을 선택하세요."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kies de lijsten en secties die je wilt tonen."
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chọn các danh sách và mục cần hiển thị."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "选择要显示的列表和分区。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "選擇要顯示的列表和區段。"
           }
         }
       }

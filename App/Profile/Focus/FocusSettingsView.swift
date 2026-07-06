@@ -22,10 +22,19 @@ struct FocusSettingsView: View {
                 }
             }
 
+            Section {
+                FocusSetupStep(number: 1, text: String(localized: "Focus.Settings.Setup.Step1", table: "Settings"))
+                FocusSetupStep(number: 2, text: String(localized: "Focus.Settings.Setup.Step2", table: "Settings"))
+                FocusSetupStep(number: 3, text: String(localized: "Focus.Settings.Setup.Step3", table: "Settings"))
+                FocusSetupStep(number: 4, text: String(localized: "Focus.Settings.Setup.Step4", table: "Settings"))
+            } header: {
+                Text(String(localized: "Focus.Settings.Setup.Title", table: "Settings"))
+            }
+
             #if !targetEnvironment(macCatalyst)
             Section {
                 Button {
-                    if let url = URL(string: UIApplication.openSettingsURLString) {
+                    if let url = URL(string: "App-Prefs:") {
                         UIApplication.shared.open(url)
                     }
                 } label: {
@@ -41,5 +50,21 @@ struct FocusSettingsView: View {
         .sakuraBackground()
         .navigationTitle(String(localized: "Section.Focus", table: "Settings"))
         .toolbarTitleDisplayMode(.inline)
+    }
+}
+
+private struct FocusSetupStep: View {
+
+    let number: Int
+    let text: String
+
+    var body: some View {
+        HStack(alignment: .firstTextBaseline, spacing: 12) {
+            Text("\(number)")
+                .font(.subheadline.weight(.semibold))
+                .foregroundStyle(.tint)
+                .frame(minWidth: 16, alignment: .center)
+            Text(text)
+        }
     }
 }
