@@ -18,6 +18,7 @@ extension PodcastEpisodeView {
         if showingTranscript, let transcript, !transcript.isEmpty, !isTranscriptAutoScrolling {
             Button {
                 isTranscriptAutoScrolling = true
+                isKeepingScreenAwake = true
                 UIApplication.shared.isIdleTimerDisabled = true
                 if let active = activeTranscriptID(in: transcript) {
                     withAnimation(.smooth) {
