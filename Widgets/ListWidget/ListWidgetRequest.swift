@@ -6,13 +6,14 @@ struct ListWidgetRequest {
     let layout: SingleFeedWidgetLayout
     let columns: Int
     let currentPage: Int
+    let thumbnailMaxPixelSize: CGFloat
 
     var markerKey: String {
         "listWidgetMarker_\(listID)_\(layout.rawValue)_\(columns)_\(currentPage)"
     }
 
     var cacheScope: String {
-        "list_\(listID)_\(layout.rawValue)_\(columns)"
+        "list_\(listID)_\(layout.rawValue)_\(columns)_\(Int(thumbnailMaxPixelSize))"
     }
 }
 
@@ -21,4 +22,5 @@ struct ListWidgetLoadParams {
     let layout: SingleFeedWidgetLayout
     let columns: Int
     let storedPage: Int
+    let thumbnailMaxPixelSize: CGFloat
 }

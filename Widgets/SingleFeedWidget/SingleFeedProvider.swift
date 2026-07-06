@@ -25,17 +25,19 @@ struct SingleFeedProvider: AppIntentTimelineProvider {
         )
     }
 
-    func snapshot(for configuration: SingleFeedIntent, in _: Context) async -> SingleFeedEntry {
-        await loadEntry(for: configuration)
+    func snapshot(for configuration: SingleFeedIntent, in context: Context) async -> SingleFeedEntry {
+        await loadEntry(for: configuration, family: context.family)
     }
 
-    func timeline(for configuration: SingleFeedIntent, in _: Context) async -> Timeline<SingleFeedEntry> {
-        let entry = await loadEntry(for: configuration)
+    func timeline(for configuration: SingleFeedIntent, in context: Context) async -> Timeline<SingleFeedEntry> {
+        let entry = await loadEntry(for: configuration, family: context.family)
         // 90-minute interval; widget reloads wake the app process.
         return Timeline(entries: [entry], policy: .after(Date().addingTimeInterval(90 * 60)))
     }
 
-    private func loadEntry(for configuration: SingleFeedIntent) async -> SingleFeedEntry {
+    private func loadEntry(
+        for configuration: SingleFeedIntent, family: WidgetFamily
+    ) async -> SingleFeedEntry {
         let database = DatabaseManager.shared
         let layout = configuration.layout ?? .thumbnails
         let columns = (configuration.columns ?? .three).rawValue
@@ -55,7 +57,8 @@ struct SingleFeedProvider: AppIntentTimelineProvider {
                     feedID: feedID,
                     layout: layout,
                     columns: columns,
-                    storedPage: storedPage
+                    storedPage: storedPage,
+                    thumbnailMaxPixelSize: Self.thumbnailMaxPixelSize(for: family)
                 ),
                 defaults: defaults,
                 database: database
@@ -95,7 +98,8 @@ struct SingleFeedProvider: AppIntentTimelineProvider {
                 feedID: params.feedID,
                 layout: params.layout,
                 columns: params.columns,
-                currentPage: currentPage
+                currentPage: currentPage,
+                thumbnailMaxPixelSize: params.thumbnailMaxPixelSize
             ),
             defaults: defaults,
             database: database
@@ -142,15 +146,19 @@ struct SingleFeedProvider: AppIntentTimelineProvider {
         defaults?.set(articleIDsMarker, forKey: markerKey)
 
         let thumbnailCache = WidgetThumbnailCache(scope: request.cacheScope)
+        let resolveContext = ThumbnailResolveContext(
+            articleSetUnchanged: articleSetUnchanged,
+            thumbnailCache: thumbnailCache,
+            database: database,
+            maxPixelSize: request.thumbnailMaxPixelSize
+        )
 
         var widgetArticles: [SingleFeedArticle] = []
         for article in pageArticles {
             let imageData = await resolveImageData(
                 urlString: article.imageURL,
                 articleID: article.id,
-                articleSetUnchanged: articleSetUnchanged,
-                thumbnailCache: thumbnailCache,
-                database: database
+                context: resolveContext
             )
             widgetArticles.append(SingleFeedArticle(
                 id: article.id,
@@ -163,13 +171,21 @@ struct SingleFeedProvider: AppIntentTimelineProvider {
         return widgetArticles
     }
 
+    private struct ThumbnailResolveContext {
+        let articleSetUnchanged: Bool
+        let thumbnailCache: WidgetThumbnailCache
+        let database: DatabaseManager
+        let maxPixelSize: CGFloat
+    }
+
     private func resolveImageData(
         urlString: String?,
         articleID: Int64,
-        articleSetUnchanged: Bool,
-        thumbnailCache: WidgetThumbnailCache,
-        database: DatabaseManager
+        context: ThumbnailResolveContext
     ) async -> Data? {
+        let articleSetUnchanged = context.articleSetUnchanged
+        let thumbnailCache = context.thumbnailCache
+        let database = context.database
         guard let urlString, let imageURL = URL(string: urlString) else { return nil }
         if articleSetUnchanged, let cached = thumbnailCache.thumbnail(for: articleID) {
             return cached
@@ -188,7 +204,7 @@ struct SingleFeedProvider: AppIntentTimelineProvider {
             }
         }
         guard let rawData else { return nil }
-        let imageData = await Self.downsampleImageData(rawData, maxDimension: Self.thumbnailMaxPixelSize)
+        let imageData = await Self.downsampleImageData(rawData, maxDimension: context.maxPixelSize)
         if let imageData {
             thumbnailCache.storeThumbnail(imageData, for: articleID)
         }
@@ -199,6 +215,11 @@ struct SingleFeedProvider: AppIntentTimelineProvider {
     }
 
     private static let thumbnailMaxPixelSize: CGFloat = 240
+    private static let smallWidgetThumbnailMaxPixelSize: CGFloat = 300
+
+    private static func thumbnailMaxPixelSize(for family: WidgetFamily) -> CGFloat {
+        family == .systemSmall ? smallWidgetThumbnailMaxPixelSize : thumbnailMaxPixelSize
+    }
 
     private static func downsampleImageData(_ data: Data, maxDimension: CGFloat) async -> Data? {
         ImageDownsampler.downsampleToJPEG(data, maxPixelSize: maxDimension, cacheImmediately: false)
