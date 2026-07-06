@@ -9,7 +9,8 @@ public nonisolated extension RSSParser {
             "EEE, dd MMM yyyy HH:mm:ss Z",
             "EEE, dd MMM yyyy HH:mm:ss zzz",
             "yyyy-MM-dd'T'HH:mm:ssZ",
-            "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
+            "yyyy-MM-dd'T'HH:mm:ss.SSSZ",
+            "yyyy-MM-dd"
         ]
         return formats.map { format in
             let formatter = DateFormatter()

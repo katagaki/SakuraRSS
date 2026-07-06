@@ -72,13 +72,24 @@ public nonisolated extension DatabaseManager {
         ))
     }
 
+    /// `undatedFallbackDate` dates undated items by feed order so date sorting preserves it;
+    /// `nil` keeps them undated, e.g. for scraped Web Feeds.
     @discardableResult
-    func insertArticles(feedID fid: Int64, articles items: [ArticleInsertItem]) throws -> [Int64] {
+    func insertArticles(
+        feedID fid: Int64,
+        articles items: [ArticleInsertItem],
+        undatedFallbackDate: Date? = nil
+    ) throws -> [Int64] {
         guard !items.isEmpty else { return [] }
         let cutoffDate = articleCutoffDate()
         var insertedIDs: [Int64] = []
         try database.transaction {
-            insertedIDs = try insertArticleItems(feedID: fid, items: items, cutoffDate: cutoffDate)
+            insertedIDs = try insertArticleItems(
+                feedID: fid,
+                items: items,
+                cutoffDate: cutoffDate,
+                undatedFallbackDate: undatedFallbackDate
+            )
         }
         return insertedIDs
     }
@@ -91,14 +102,18 @@ public nonisolated extension DatabaseManager {
     private func insertArticleItems(
         feedID fid: Int64,
         items: [ArticleInsertItem],
-        cutoffDate: Date?
+        cutoffDate: Date?,
+        undatedFallbackDate: Date? = nil
     ) throws -> [Int64] {
         var insertedIDs: [Int64] = []
-        for item in items {
+        for (itemIndex, item) in items.enumerated() {
             if let cutoff = cutoffDate, let published = item.data.publishedDate,
                published < cutoff {
                 continue
             }
+            let fallbackDate = undatedFallbackDate?
+                .addingTimeInterval(-Double(itemIndex))
+            let publishedDate = item.data.publishedDate ?? fallbackDate
             let carouselValue = item.data.carouselImageURLs.isEmpty
                 ? nil : item.data.carouselImageURLs.joined(separator: "\n")
             let rowid = try database.run(articles.insert(or: .ignore,
@@ -110,7 +125,7 @@ public nonisolated extension DatabaseManager {
                 articleContent <- item.data.content,
                 articleImageURL <- item.data.imageURL,
                 articleCarouselURLs <- carouselValue,
-                articlePublishedDate <- item.data.publishedDate?.timeIntervalSince1970,
+                articlePublishedDate <- publishedDate?.timeIntervalSince1970,
                 articleIsRead <- false,
                 articleIsBookmarked <- false,
                 articleAudioURL <- item.data.audioURL,
@@ -118,8 +133,19 @@ public nonisolated extension DatabaseManager {
             ))
             if database.changes > 0 {
                 insertedIDs.append(rowid)
+            } else if let published = item.data.publishedDate {
+                try backfillPublishedDate(url: item.url, publishedDate: published)
             }
         }
         return insertedIDs
+    }
+
+    private func backfillPublishedDate(url: String, publishedDate: Date) throws {
+        let undatedArticle = articles.filter(
+            articleURL == url && articlePublishedDate == nil
+        )
+        try database.run(undatedArticle.update(
+            articlePublishedDate <- publishedDate.timeIntervalSince1970
+        ))
     }
 }
