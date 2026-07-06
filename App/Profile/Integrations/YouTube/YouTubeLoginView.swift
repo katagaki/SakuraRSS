@@ -71,6 +71,7 @@ private struct YouTubeLoginWebView: UIViewRepresentable {
 
                 let loggedIn = await YouTubePlayerView.hasYouTubeSession()
                 if loggedIn {
+                    YouTubePlayerView.invalidatePremiumCache()
                     self.isLoggedIn = true
                 }
             }

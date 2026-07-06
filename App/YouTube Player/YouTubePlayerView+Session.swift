@@ -87,7 +87,29 @@ extension YouTubePlayerView {
         }
     }
 
+    private static let premiumCacheKey = "YouTubePlayerView.hasPremium"
+    private static let premiumCheckedAtKey = "YouTubePlayerView.hasPremiumCheckedAt"
+    private static let premiumCacheLifetime: TimeInterval = 24 * 60 * 60
+
     static func hasYouTubePremium() async -> Bool {
+        let defaults = UserDefaults.standard
+        if let checkedAt = defaults.object(forKey: premiumCheckedAtKey) as? Date,
+           Date().timeIntervalSince(checkedAt) < premiumCacheLifetime {
+            return defaults.bool(forKey: premiumCacheKey)
+        }
+        let isPremium = await probeYouTubePremium()
+        defaults.set(isPremium, forKey: premiumCacheKey)
+        defaults.set(Date(), forKey: premiumCheckedAtKey)
+        return isPremium
+    }
+
+    static func invalidatePremiumCache() {
+        let defaults = UserDefaults.standard
+        defaults.removeObject(forKey: premiumCacheKey)
+        defaults.removeObject(forKey: premiumCheckedAtKey)
+    }
+
+    private static func probeYouTubePremium() async -> Bool {
         let config = WKWebViewConfiguration()
         config.websiteDataStore = .default()
         let webView = WKWebView(frame: .zero, configuration: config)
@@ -113,5 +135,6 @@ extension YouTubePlayerView {
             await store.httpCookieStore.deleteCookie(cookie)
         }
         UserDefaults.standard.set(false, forKey: youtubeSessionCacheKey)
+        invalidatePremiumCache()
     }
 }
