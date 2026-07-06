@@ -57,16 +57,24 @@ struct AudioBlockView: View {
             }
             .buttonStyle(.plain)
 
-            TimelineView(.periodic(from: .now, by: 1.0)) { _ in
-                Text(timeLabel)
-                    .font(.caption.monospacedDigit())
-                    .foregroundStyle(.secondary)
-                    .lineLimit(1)
+            if isPlaying {
+                TimelineView(.periodic(from: .now, by: 1.0)) { _ in
+                    timeLabelText
+                }
+            } else {
+                timeLabelText
             }
 
             Spacer(minLength: 0)
         }
         .foregroundStyle(.primary)
+    }
+
+    private var timeLabelText: some View {
+        Text(timeLabel)
+            .font(.caption.monospacedDigit())
+            .foregroundStyle(.secondary)
+            .lineLimit(1)
     }
 
     private var timeLabel: String {
