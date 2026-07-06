@@ -18,7 +18,6 @@ struct YouTubePlayerView: View {
 
     @State var isBookmarked = false
     @State var isPlaying = false
-    @State var isPiPEligible = false
     @State var webView: WKWebView?
     @State var isAd = false
     @State var isAdSkippable = false
