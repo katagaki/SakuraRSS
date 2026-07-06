@@ -50,6 +50,10 @@ nonisolated enum AutomaticCleanupScheduler {
         guard isEnabled, let cutoffDate = cutoff.cutoffDate() else {
             return true
         }
+        if ProcessInfo.processInfo.isLowPowerModeEnabled {
+            log("AutomaticCleanup", "runCleanup: Low Power Mode is on, deferring")
+            return true
+        }
         guard !isCancelled() else { return false }
         let manager = await MainActor.run { FeedManager() }
         await manager.deleteArticlesAndVacuum(

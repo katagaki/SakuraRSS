@@ -23,6 +23,10 @@ nonisolated enum SummaryBackfillScheduler {
 
     @MainActor
     static func runBackfill(isCancelled: @Sendable () -> Bool = { false }) async {
+        if ProcessInfo.processInfo.isLowPowerModeEnabled {
+            log("SummaryBackfill", "runBackfill: Low Power Mode is on, deferring")
+            return
+        }
         let date = Date()
         let manager = FeedManager()
         for kind in [SummaryCardKind.whileYouSlept, .afternoonBrief, .todaysSummary] {
