@@ -11,6 +11,7 @@ struct AudioBlockView: View {
 
     @State private var player: AVPlayer?
     @State private var isPlaying = false
+    @State private var pausedDisplayTime: TimeInterval?
     @State private var duration: TimeInterval = 0
     @State private var statusObserver: AnyCancellable?
     @State private var endObserver: AnyCancellable?
@@ -78,7 +79,7 @@ struct AudioBlockView: View {
     }
 
     private var timeLabel: String {
-        let current = Int(max(0, currentTime()))
+        let current = Int(max(0, pausedDisplayTime ?? currentTime()))
         let total = Int(max(0, duration))
         return "\(formatTime(current)) / \(formatTime(total))"
     }
@@ -106,6 +107,7 @@ struct AudioBlockView: View {
             .receive(on: DispatchQueue.main)
             .sink { _ in
                 isPlaying = false
+                pausedDisplayTime = 0
                 player.seek(to: .zero)
             }
     }
@@ -124,10 +126,12 @@ struct AudioBlockView: View {
         guard let player else { return }
         if isPlaying {
             player.pause()
+            pausedDisplayTime = currentTime()
         } else {
             try? AVAudioSession.sharedInstance().setCategory(.playback, mode: .default)
             try? AVAudioSession.sharedInstance().setActive(true)
             player.play()
+            pausedDisplayTime = nil
         }
         isPlaying.toggle()
     }
@@ -136,5 +140,8 @@ struct AudioBlockView: View {
         guard let player else { return }
         let target = max(0, min(duration, currentTime() + delta))
         player.seek(to: CMTime(seconds: target, preferredTimescale: 600))
+        if !isPlaying {
+            pausedDisplayTime = target
+        }
     }
 }
