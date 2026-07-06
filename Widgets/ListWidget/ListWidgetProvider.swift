@@ -85,7 +85,7 @@ struct ListWidgetProvider: AppIntentTimelineProvider {
 
         let perPage = params.layout == .text ? 9 : params.columns * params.columns
         let totalLimit = perPage * 3
-        let dbArticles = try database.articles(forFeedIDs: feedIDs, limit: totalLimit)
+        let dbArticles = try database.articlesList(forFeedIDs: feedIDs, limit: totalLimit)
         let totalPages = max(1, Int(ceil(Double(dbArticles.count) / Double(perPage))))
         let currentPage = min(params.storedPage, totalPages - 1)
         let pageStart = currentPage * perPage
@@ -186,14 +186,16 @@ struct ListWidgetProvider: AppIntentTimelineProvider {
             }
         }
         guard let rawData else { return nil }
-        let imageData = await Self.downsampleImageData(rawData, maxDimension: 300)
+        let imageData = await Self.downsampleImageData(rawData, maxDimension: Self.thumbnailMaxPixelSize)
         if let imageData {
             thumbnailCache.storeThumbnail(imageData, for: articleID)
         }
         return imageData
     }
 
+    private static let thumbnailMaxPixelSize: CGFloat = 240
+
     private static func downsampleImageData(_ data: Data, maxDimension: CGFloat) async -> Data? {
-        ImageDownsampler.downsampleToJPEG(data, maxPixelSize: maxDimension)
+        ImageDownsampler.downsampleToJPEG(data, maxPixelSize: maxDimension, cacheImmediately: false)
     }
 }

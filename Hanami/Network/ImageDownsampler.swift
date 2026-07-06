@@ -6,18 +6,27 @@ import UIKit
 public nonisolated enum ImageDownsampler {
 
     /// Downsamples encoded bytes to a thumbnail whose largest dimension is `maxPixelSize`.
-    public nonisolated static func downsample(_ data: Data, maxPixelSize: CGFloat) -> UIImage? {
+    /// Pass `cacheImmediately: false` in memory-constrained processes (widgets) so the
+    /// decoded bitmap is not pinned by the image source.
+    public nonisolated static func downsample(
+        _ data: Data,
+        maxPixelSize: CGFloat,
+        cacheImmediately: Bool = true
+    ) -> UIImage? {
         guard let source = createSource(from: data) else { return nil }
-        return downsample(source: source, maxPixelSize: maxPixelSize)
+        return downsample(source: source, maxPixelSize: maxPixelSize, cacheImmediately: cacheImmediately)
     }
 
     /// Downsamples encoded bytes and returns JPEG-encoded thumbnail bytes.
     public nonisolated static func downsampleToJPEG(
         _ data: Data,
         maxPixelSize: CGFloat,
-        quality: CGFloat = 0.7
+        quality: CGFloat = 0.7,
+        cacheImmediately: Bool = true
     ) -> Data? {
-        guard let image = downsample(data, maxPixelSize: maxPixelSize) else { return nil }
+        guard let image = downsample(
+            data, maxPixelSize: maxPixelSize, cacheImmediately: cacheImmediately
+        ) else { return nil }
         return image.jpegData(compressionQuality: quality)
     }
 
@@ -28,10 +37,14 @@ public nonisolated enum ImageDownsampler {
         return CGImageSourceCreateWithData(data as CFData, options as CFDictionary)
     }
 
-    nonisolated private static func downsample(source: CGImageSource, maxPixelSize: CGFloat) -> UIImage? {
+    nonisolated private static func downsample(
+        source: CGImageSource,
+        maxPixelSize: CGFloat,
+        cacheImmediately: Bool
+    ) -> UIImage? {
         let options: [CFString: Any] = [
             kCGImageSourceCreateThumbnailFromImageAlways: true,
-            kCGImageSourceShouldCacheImmediately: true,
+            kCGImageSourceShouldCacheImmediately: cacheImmediately,
             kCGImageSourceCreateThumbnailWithTransform: true,
             kCGImageSourceThumbnailMaxPixelSize: maxPixelSize
         ]
