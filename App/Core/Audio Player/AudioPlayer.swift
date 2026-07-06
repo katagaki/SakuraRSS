@@ -148,7 +148,9 @@ final class AudioPlayer {
 
     func stop() {
         resetPlayback()
-        deactivateAudioSession()
+        if isPrimary {
+            deactivateAudioSession()
+        }
     }
 
     private func resetPlayback() {
