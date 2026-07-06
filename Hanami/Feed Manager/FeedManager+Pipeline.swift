@@ -25,7 +25,9 @@ public extension FeedManager {
 
         let feedTitleForIndex = parsedFeed.title.isEmpty ? feed.title : parsedFeed.title
         let insertedIDs = (try? database.insertArticles(
-            feedID: feed.id, articles: articleTuples
+            feedID: feed.id,
+            articles: articleTuples,
+            undatedFallbackDate: Date()
         )) ?? []
         // swiftlint:disable:next line_length
         log("FeedRefresh.RSS", "inserted id=\(feed.id) new=\(insertedIDs.count)/\(articleTuples.count) metadataImages.from=parsed")
@@ -96,6 +98,7 @@ public extension FeedManager {
         skipImageFetch: Bool
     ) async -> [ArticleInsertItem] {
         let existingURLs = (try? database.existingArticleURLs(forFeedID: feed.id)) ?? []
+        let hasNewArticles = parsed.articles.contains { !existingURLs.contains($0.url) }
         let metadataImages: [String: String]
         if skipImageFetch {
             metadataImages = [:]
@@ -104,7 +107,7 @@ public extension FeedManager {
                 for: parsed.articles, skippingURLs: existingURLs
             )
         }
-        let redditImages: [String: String] = (!skipImageFetch && feed.isRedditFeed)
+        let redditImages: [String: String] = (!skipImageFetch && feed.isRedditFeed && hasNewArticles)
             ? await FeedManager.fetchRedditImages(forFeedURL: feed.url)
             : [:]
         return parsed.articles.map { article in

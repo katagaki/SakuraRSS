@@ -6,7 +6,13 @@ public extension YouTubePlaylistProvider {
     /// playlist quickly without tripping YouTube's anti-scraping heuristics.
     private static let videoDateConcurrency = 8
 
-    func performFetch(url: URL, playlistID: String) async -> YouTubePlaylistFetchResult {
+    private static let videoDateFetchLimit = 50
+
+    func performFetch(
+        url: URL,
+        playlistID: String,
+        knownVideoIDs: Set<String> = []
+    ) async -> YouTubePlaylistFetchResult {
         var request = URLRequest(url: url)
         request.setValue(sakuraUserAgent, forHTTPHeaderField: "User-Agent")
         request.setValue(sakuraAcceptLanguage, forHTTPHeaderField: "Accept-Language")
@@ -33,7 +39,9 @@ public extension YouTubePlaylistProvider {
             let avatarURL = Self.parseChannelAvatarURL(from: ytData)
             let dates = await atomDates
             videos = applyAtomPublishDates(to: videos, dates: dates)
-            videos = await applyPrecisePublishDatesIfNeeded(videos: videos, atomDates: dates)
+            videos = await applyPrecisePublishDatesIfNeeded(
+                videos: videos, atomDates: dates, knownVideoIDs: knownVideoIDs
+            )
 
             return YouTubePlaylistFetchResult(
                 videos: videos, playlistTitle: title, channelAvatarURL: avatarURL
@@ -58,10 +66,13 @@ public extension YouTubePlaylistProvider {
     }
 
     private func applyPrecisePublishDatesIfNeeded(
-        videos: [ParsedPlaylistVideo], atomDates: [String: Date]
+        videos: [ParsedPlaylistVideo],
+        atomDates: [String: Date],
+        knownVideoIDs: Set<String>
     ) async -> [ParsedPlaylistVideo] {
         let videoIDsNeedingPreciseDate = videos
-            .filter { atomDates[$0.videoId] == nil }
+            .filter { atomDates[$0.videoId] == nil && !knownVideoIDs.contains($0.videoId) }
+            .prefix(Self.videoDateFetchLimit)
             .map(\.videoId)
         guard !videoIDsNeedingPreciseDate.isEmpty else { return videos }
         let preciseDates = await fetchVideoPagePublishDates(videoIDs: videoIDsNeedingPreciseDate)

@@ -7,6 +7,16 @@ public extension FeedManager {
 
     private static let youTubePlaylistRefreshInterval: TimeInterval = 30 * 60
 
+    private func knownVideoIDs(forFeedID feedID: Int64) -> Set<String> {
+        let existingURLs = (try? database.existingArticleURLs(forFeedID: feedID)) ?? []
+        return Set(existingURLs.compactMap { urlString in
+            URLComponents(string: urlString)?
+                .queryItems?
+                .first(where: { $0.name == "v" })?
+                .value
+        })
+    }
+
     func refreshYouTubePlaylistFeed(
         _ feed: Feed,
         reloadData: Bool = true,
@@ -29,8 +39,8 @@ public extension FeedManager {
         }
         log("YouTubePlaylist", "fetching playlistID=\(playlistID) id=\(feed.id)")
 
-        let fetcher = YouTubePlaylistProvider()
-        let result = await fetcher.fetchPlaylist(playlistID: playlistID)
+        let result = await YouTubePlaylistProvider()
+            .fetchPlaylist(playlistID: playlistID, knownVideoIDs: knownVideoIDs(forFeedID: feed.id))
         // swiftlint:disable:next line_length
         log("YouTubePlaylist", "fetched playlistID=\(playlistID) videos=\(result.videos.count) playlistTitle=\(result.playlistTitle ?? "nil")")
 

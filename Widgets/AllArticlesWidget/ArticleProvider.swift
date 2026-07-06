@@ -37,7 +37,7 @@ struct ArticleProvider: TimelineProvider {
     private func loadEntry() -> ArticleEntry {
         let database = DatabaseManager.shared
         do {
-            let articles = try database.unreadArticles(limit: 10)
+            let articles = try database.unreadArticlesList(limit: 10)
             let feeds = try database.allFeeds()
 
             let widgetArticles = articles.map { article in

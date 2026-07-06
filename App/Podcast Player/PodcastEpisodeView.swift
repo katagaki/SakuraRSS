@@ -37,6 +37,7 @@ struct PodcastEpisodeView: View {
     @State var transcript: [TranscriptSegment]?
     @State var showingTranscript: Bool = false
     @State var isTranscriptAutoScrolling: Bool = true
+    @State var isKeepingScreenAwake: Bool = false
 
     @State var translatedText: String?
     @State var translatedSummary: String?
@@ -209,6 +210,7 @@ struct PodcastEpisodeView: View {
                 if showingTranscript, isTranscriptAutoScrolling,
                    newPhase == .interacting || newPhase == .tracking {
                     isTranscriptAutoScrolling = false
+                    isKeepingScreenAwake = false
                     UIApplication.shared.isIdleTimerDisabled = false
                 }
             }
@@ -244,6 +246,10 @@ struct PodcastEpisodeView: View {
             }
         }
         .task { await initializeEpisode() }
+        .transcriptFollowAlongScreenWake(
+            isKeepingScreenAwake: $isKeepingScreenAwake,
+            showingTranscript: showingTranscript
+        )
         .onChange(of: downloadProgress?.state) { _, newState in
             if newState == .completed || newState == nil {
                 isDownloaded = downloadManager.isDownloaded(articleID: article.id)

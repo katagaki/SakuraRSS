@@ -87,22 +87,6 @@ extension YouTubePlayerView {
         }
     }
 
-    static func hasYouTubePremium() async -> Bool {
-        let config = WKWebViewConfiguration()
-        config.websiteDataStore = .default()
-        let webView = WKWebView(frame: .zero, configuration: config)
-        webView.customUserAgent = sakuraUserAgent
-
-        return await withCheckedContinuation { continuation in
-            let delegate = PremiumCheckDelegate { isPremium in
-                continuation.resume(returning: isPremium)
-            }
-            webView.navigationDelegate = delegate
-            objc_setAssociatedObject(webView, "delegate", delegate, .OBJC_ASSOCIATION_RETAIN)
-            webView.load(URLRequest(url: URL(string: "https://m.youtube.com/")!))
-        }
-    }
-
     @MainActor
     static func clearYouTubeSession() async {
         let store = WKWebsiteDataStore.default()

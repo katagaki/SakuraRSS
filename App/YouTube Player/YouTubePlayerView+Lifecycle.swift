@@ -11,10 +11,6 @@ extension YouTubePlayerView {
         if session.isPlaying || session.duration > 0 {
             hasStartedPlaying = true
         }
-        let signedIn = await YouTubePlayerView.hasYouTubeSession()
-        let premium = signedIn ? await YouTubePlayerView.hasYouTubePremium() : false
-        isPiPEligible = signedIn && premium
-
         if let loadedFeed = feedManager.feed(forArticle: article) {
             feed = loadedFeed
             session.channelTitle = loadedFeed.title

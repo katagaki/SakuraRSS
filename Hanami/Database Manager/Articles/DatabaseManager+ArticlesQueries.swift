@@ -277,6 +277,14 @@ public nonisolated extension DatabaseManager {
         return try database.prepare(query).map(rowToListArticle)
     }
 
+    func unreadArticlesList(limit: Int = 50) throws -> [Article] {
+        let query = selectingListColumns(articles)
+            .filter(articleIsRead == false)
+            .order(articlePublishedDate.desc)
+            .limit(limit)
+        return try database.prepare(query).map(rowToListArticle)
+    }
+
     func articlesList(forFeedID fid: Int64, limit: Int? = nil) throws -> [Article] {
         var query = selectingListColumns(articles)
             .filter(articleFeedID == fid)

@@ -8,8 +8,7 @@ public nonisolated final class RSSParser: NSObject, XMLParserDelegate, @unchecke
     private var currentDescription = ""
     private var currentAuthor = ""
     private var currentContent = ""
-    private var currentPubDate = ""
-    private var currentUpdatedDate = ""
+    private var currentDateStrings: [String: String] = [:]
     private var currentImageURL = ""
     private var currentAudioURL = ""
     private var currentDuration = ""
@@ -52,8 +51,7 @@ public nonisolated final class RSSParser: NSObject, XMLParserDelegate, @unchecke
         currentDescription = ""
         currentAuthor = ""
         currentContent = ""
-        currentPubDate = ""
-        currentUpdatedDate = ""
+        currentDateStrings = [:]
         currentImageURL = ""
         currentAudioURL = ""
         currentDuration = ""
@@ -127,8 +125,7 @@ public nonisolated final class RSSParser: NSObject, XMLParserDelegate, @unchecke
         currentDescription = ""
         currentAuthor = ""
         currentContent = ""
-        currentPubDate = ""
-        currentUpdatedDate = ""
+        currentDateStrings = [:]
         currentImageURL = ""
         currentAudioURL = ""
         currentDuration = ""
@@ -180,8 +177,9 @@ public nonisolated final class RSSParser: NSObject, XMLParserDelegate, @unchecke
         case "description", "summary", "subtitle", "media:description": currentDescription += string
         case "dc:creator", "author", "name": currentAuthor += string
         case "content:encoded", "content": currentContent += string
-        case "pubDate", "published", "dc:date": currentPubDate += string
-        case "updated": currentUpdatedDate += string
+        // Kept separate per element; feeds like PubMed provide several date elements per item
+        case "pubDate", "published", "dc:date", "updated":
+            currentDateStrings[currentElement, default: ""] += string
         case "itunes:duration": currentDuration += string
         default: break
         }
@@ -212,10 +210,7 @@ public nonisolated final class RSSParser: NSObject, XMLParserDelegate, @unchecke
             let trimmedAudioURL = currentAudioURL.trimmingCharacters(in: .whitespacesAndNewlines)
             let trimmedLink = currentLink.trimmingCharacters(in: .whitespacesAndNewlines)
             let articleURL = trimmedLink.isEmpty ? trimmedAudioURL : trimmedLink
-            let trimmedPubDate = currentPubDate.trimmingCharacters(in: .whitespacesAndNewlines)
-            let dateString = trimmedPubDate.isEmpty
-                ? currentUpdatedDate.trimmingCharacters(in: .whitespacesAndNewlines)
-                : trimmedPubDate
+            let dateString = preferredItemDateString()
             let article = ParsedArticle(
                 title: decodeHTMLEntities(currentTitle.trimmingCharacters(in: .whitespacesAndNewlines)),
                 url: articleURL,
@@ -254,6 +249,16 @@ public nonisolated final class RSSParser: NSObject, XMLParserDelegate, @unchecke
             isInsideItem = false
         }
         currentElement = ""
+    }
+
+    private func preferredItemDateString() -> String {
+        let elementPriority = ["pubDate", "published", "dc:date", "updated"]
+        for elementName in elementPriority {
+            guard let value = currentDateStrings[elementName] else { continue }
+            let trimmed = value.trimmingCharacters(in: .whitespacesAndNewlines)
+            if !trimmed.isEmpty { return trimmed }
+        }
+        return ""
     }
 
     // MARK: - Image Resolution
