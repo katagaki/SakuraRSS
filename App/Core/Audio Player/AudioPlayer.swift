@@ -59,6 +59,10 @@ final class AudioPlayer {
         try? session.setActive(true)
     }
 
+    private func deactivateAudioSession() {
+        try? AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
+    }
+
     // MARK: - Playback
 
     // swiftlint:disable:next function_parameter_count
@@ -72,7 +76,7 @@ final class AudioPlayer {
         feedIconURL: String? = nil,
         episodeDuration: Int?
     ) {
-        stop()
+        resetPlayback()
         if isPrimary {
             Task { @MainActor in
                 YouTubePlayerSession.shared.clear()
@@ -143,6 +147,11 @@ final class AudioPlayer {
     }
 
     func stop() {
+        resetPlayback()
+        deactivateAudioSession()
+    }
+
+    private func resetPlayback() {
         player?.pause()
         player = nil
         isPlaying = false
