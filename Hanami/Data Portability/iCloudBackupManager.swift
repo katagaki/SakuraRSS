@@ -143,6 +143,9 @@ public nonisolated final class iCloudBackupManager: @unchecked Sendable {
 
         try FileManager.default.copyItem(at: backupURL, to: dbURL)
         try DatabaseManager.shared.reconnect()
+        // The restored database carries another device's sync bookkeeping;
+        // start over so the engine reconciles against CloudKit from scratch.
+        CloudSyncEngine.shared.resetAfterRestore()
     }
 
     // MARK: - Last Backup Date

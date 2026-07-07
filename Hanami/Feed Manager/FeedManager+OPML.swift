@@ -10,16 +10,21 @@ public extension FeedManager {
 
     // MARK: - OPML Import
 
+    private func deleteAllFeedsBeforeImport() throws {
+        let existing = try database.allFeeds()
+        for feed in existing {
+            try database.deleteFeed(id: feed.id)
+            captureUserFeedDeletion(syncID: feed.syncID)
+        }
+    }
+
     func importOPML(data: Data, overwrite: Bool) throws -> Int {
         let opmlFeeds = OPMLManager.shared.parseOPML(data: data)
             .filter { Feed.isOPMLPortableURL($0.xmlURL) }
         guard !opmlFeeds.isEmpty else { return 0 }
 
         if overwrite {
-            let existing = try database.allFeeds()
-            for feed in existing {
-                try database.deleteFeed(id: feed.id)
-            }
+            try deleteAllFeedsBeforeImport()
         }
 
         var inserted: [InsertedOPMLFeed] = []
@@ -38,6 +43,7 @@ public extension FeedManager {
                 category: opmlFeed.category
             )
             generateAcronymIcon(feedID: feedID, title: opmlFeed.title)
+            CloudSyncEngine.shared.noteFeedChanged(syncID: (try? database.feed(byID: feedID))?.syncID)
             inserted.append(InsertedOPMLFeed(
                 feedID: feedID,
                 url: opmlFeed.xmlURL,
