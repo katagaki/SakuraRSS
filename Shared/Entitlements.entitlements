@@ -6,9 +6,12 @@
 	<array>
 		<string>iCloud.com.tsubuzaki.SakuraRSS</string>
 	</array>
+	<key>aps-environment</key>
+	<string>development</string>
 	<key>com.apple.developer.icloud-services</key>
 	<array>
 		<string>CloudDocuments</string>
+		<string>CloudKit</string>
 	</array>
 	<key>com.apple.developer.ubiquity-container-identifiers</key>
 	<array>
