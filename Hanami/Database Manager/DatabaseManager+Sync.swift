@@ -180,6 +180,10 @@ public nonisolated extension DatabaseManager {
 
     // MARK: - Engine State
 
+    func clearSyncEngineState() {
+        _ = try? database.run(syncState.delete())
+    }
+
     func syncEngineStateData(forKey key: String) -> Data? {
         guard let row = try? database.pluck(syncState.filter(syncStateKey == key)) else { return nil }
         return try? row.get(syncStateData)
