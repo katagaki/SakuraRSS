@@ -2,8 +2,6 @@ import Foundation
 
 public extension FeedManager {
 
-    /// Wires this manager as the local applier for remote sync changes and
-    /// starts the engine when the user has sync enabled.
     func connectCloudSync() {
         let engine = CloudSyncEngine.shared
         engine.onRemoteChangesApplied = { [weak self] insertedNewFeeds in

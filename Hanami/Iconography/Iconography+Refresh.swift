@@ -2,9 +2,6 @@ import UIKit
 
 public extension Iconography {
 
-    /// Re-fetches icons for all feeds: domain favicons, provider avatars
-    /// (X, Instagram, YouTube, Bluesky, ...), and custom icon URLs.
-    /// User photos without a re-fetchable source are preserved.
     func refreshAllIcons(for feeds: [Feed]) async {
         let domainEntries = feeds.map { (domain: $0.domain, siteURL: $0.siteURL as String?) }
         async let domainIcons: Void = refreshIcons(for: domainEntries)

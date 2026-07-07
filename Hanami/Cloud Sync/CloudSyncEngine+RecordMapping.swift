@@ -61,8 +61,6 @@ nonisolated extension CloudSyncEngine {
         }
     }
 
-    /// Writes a fetched record into the local database. Returns `true`
-    /// when a new feed row was inserted.
     @discardableResult
     func applyFetchedRecord(_ record: CKRecord) -> Bool {
         archiveSystemFields(of: record)

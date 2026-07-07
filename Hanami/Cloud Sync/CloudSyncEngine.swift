@@ -1,10 +1,6 @@
 import CloudKit
 import Foundation
 
-/// Syncs feed subscriptions across devices through CloudKit's private
-/// database. Wraps `CKSyncEngine`, which owns scheduling, push
-/// subscriptions, and retry; this class maps between `CKRecord`s and the
-/// local SQLite rows.
 public nonisolated final class CloudSyncEngine: @unchecked Sendable {
 
     public static let shared = CloudSyncEngine()
@@ -24,12 +20,7 @@ public nonisolated final class CloudSyncEngine: @unchecked Sendable {
 
     let database = DatabaseManager.shared
 
-    /// Fired after fetched remote changes have been written to the local
-    /// database; `true` when at least one new feed row was inserted.
     public var onRemoteChangesApplied: (@Sendable (_ insertedNewFeeds: Bool) -> Void)?
-    /// Fired when a remote deletion needs local cleanup beyond the database
-    /// row (Spotlight, podcast downloads). Falls back to a plain database
-    /// delete when unset.
     public var onRemoteFeedDeleted: (@Sendable (Feed) -> Void)?
 
     private let engineLock = NSLock()
@@ -61,9 +52,6 @@ public nonisolated final class CloudSyncEngine: @unchecked Sendable {
         }
     }
 
-    /// Discards all sync bookkeeping and starts over with a full
-    /// re-upload + fetch. Called after an iCloud backup restore replaces
-    /// the database underneath the engine.
     public func resetAfterRestore() {
         let wasRunning = engine != nil
         stop(clearingSyncMetadata: true)
@@ -101,8 +89,6 @@ public nonisolated final class CloudSyncEngine: @unchecked Sendable {
         log("CloudSyncEngine", "Stopped (cleared metadata: \(clearingSyncMetadata))")
     }
 
-    /// Queues everything local for upload. Runs when the engine has no
-    /// serialized state: first enable, account switch, or post-restore.
     func queueInitialSync(on engine: CKSyncEngine) {
         _ = try? database.backfillFeedSyncIDs()
         engine.state.add(pendingDatabaseChanges: [.saveZone(CKRecordZone(zoneName: Self.zoneName))])

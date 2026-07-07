@@ -1,9 +1,6 @@
 import Foundation
 @preconcurrency import SQLite
 
-/// A feed record as it travels through CloudKit. Carries only fields that are
-/// meaningful across devices; device-local state (icons, fetch timestamps,
-/// Fediverse probe results) is re-derived on each device.
 public nonisolated struct SyncedFeed: Sendable {
     public var syncID: String
     public var url: String
@@ -79,8 +76,6 @@ public nonisolated extension DatabaseManager {
         return Date(timeIntervalSince1970: timestamp)
     }
 
-    /// Assigns a sync ID to every feed that lacks one and returns the
-    /// newly assigned IDs.
     func backfillFeedSyncIDs() throws -> [String] {
         let rowsWithoutSyncID = try database.prepare(feeds.filter(feedSyncID == nil))
         var assignedSyncIDs: [String] = []
