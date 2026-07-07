@@ -83,6 +83,11 @@ extension SakuraRSSApp {
                 SpotlightIndexer.removeAllArticles()
                 feedManager.reindexAllArticlesInSpotlight()
             }
+        case "visuallystunning":
+            Task {
+                let entries = feedManager.feeds.map { ($0.domain, $0.siteURL as String?) }
+                await Iconography.shared.refreshIcons(for: entries)
+            }
         case "putonpipboy":
             handlePutOnPipBoy()
         case "forgetit":
