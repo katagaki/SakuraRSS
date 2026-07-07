@@ -33,6 +33,9 @@ struct DetachedYouTubePlayerWindow: View {
             .onDisappear {
                 session.clear()
             }
+            .stopsMediaOnWindowClose {
+                session.clear()
+            }
             #endif
         } else {
             ProgressView()
@@ -69,6 +72,9 @@ struct DetachedPodcastPlayerWindow: View {
                     .frame(width: 0, height: 0)
             }
             .onDisappear {
+                audioPlayer.stop()
+            }
+            .stopsMediaOnWindowClose {
                 audioPlayer.stop()
             }
             #endif

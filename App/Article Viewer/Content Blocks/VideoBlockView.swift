@@ -31,4 +31,9 @@ private struct VideoPlayerRepresentable: UIViewControllerRepresentable {
             controller.player = AVPlayer(url: url)
         }
     }
+
+    static func dismantleUIViewController(_ controller: AVPlayerViewController, coordinator: ()) {
+        controller.player?.pause()
+        controller.player = nil
+    }
 }

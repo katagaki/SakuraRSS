@@ -41,6 +41,9 @@ struct SakuraRSSApp: App {
                 .environment(feedManager)
                 .environment(todayManager)
                 .keepScreenOnDuringPodcastWork()
+                #if targetEnvironment(macCatalyst)
+                .stopsSharedMediaOnLastMainWindowClose()
+                #endif
                 .task {
                     feedManager.onBookmarkAdded = { [feedManager] article in
                         BookmarkToastManager.shared.show(article: article, feedManager: feedManager)
@@ -132,6 +135,7 @@ struct SakuraRSSApp: App {
         WindowGroup(id: "ProfileWindow", for: String.self) { _ in
             ProfileView(showsCloseButton: false)
                 .environment(feedManager)
+                .stopsMediaOnWindowClose()
         }
         .defaultSize(width: 600, height: 700)
         .commandsRemoved()

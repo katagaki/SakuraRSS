@@ -62,6 +62,10 @@ struct DetachedFeedNavigationStack<Root: View>: View {
             youTubeSession.clear()
             audioPlayer.stop()
         }
+        .stopsMediaOnWindowClose {
+            youTubeSession.clear()
+            audioPlayer.stop()
+        }
     }
 }
 #endif
