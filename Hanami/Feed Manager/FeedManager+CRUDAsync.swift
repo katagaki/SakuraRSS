@@ -40,6 +40,7 @@ public extension FeedManager {
         generateAcronymIcon(feedID: feedID, title: title)
 
         let newFeed = try? database.feed(byID: feedID)
+        CloudSyncEngine.shared.noteFeedChanged(syncID: newFeed?.syncID)
         await loadFromDatabaseInBackground()
 
         Task { [weak self] in
@@ -77,6 +78,8 @@ public extension FeedManager {
         if resolvedTitle != fallbackTitle {
             try? database.updateFeed(id: feedID, title: resolvedTitle, category: category)
             generateAcronymIcon(feedID: feedID, title: resolvedTitle)
+            let syncID = (try? database.feed(byID: feedID))?.syncID
+            CloudSyncEngine.shared.noteFeedChanged(syncID: syncID)
         }
         await applyPrefetchedIcon(prefetched, feedID: feedID, url: url, title: resolvedTitle)
     }

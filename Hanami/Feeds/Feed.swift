@@ -18,6 +18,9 @@ public nonisolated struct Feed: Identifiable, Hashable, Sendable {
     /// Cached result of probing the feed's host for Fediverse `.well-known`
     /// endpoints. `nil` means the probe has not run yet.
     public var isFediverse: Bool?
+    /// Stable identifier keying this feed's CloudKit record across devices.
+    /// `nil` until assigned at insert or backfilled when sync starts.
+    public var syncID: String?
 
     public var domain: String {
         URL(string: siteURL)?.host ?? URL(string: fetchURL)?.host ?? ""

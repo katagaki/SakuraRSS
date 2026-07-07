@@ -22,7 +22,7 @@ public nonisolated final class iCloudBackupManager: @unchecked Sendable {
 
     // MARK: - Metadata
 
-    public struct BackupMetadata: Codable {
+    public struct BackupMetadata: Codable, Sendable {
         public let date: Date
         public let appVersion: String
         public let deviceName: String
@@ -38,6 +38,7 @@ public nonisolated final class iCloudBackupManager: @unchecked Sendable {
 
     // MARK: - Backup
 
+    @concurrent
     public func backupNow() async throws {
         guard isICloudAvailable(),
               let containerURL = iCloudContainerURL() else {
@@ -70,6 +71,7 @@ public nonisolated final class iCloudBackupManager: @unchecked Sendable {
     }
 
     /// Runs a backup if the user's chosen interval has elapsed (allows 10% slack for timing drift).
+    @concurrent
     public func backupIfScheduled() async {
         let intervalRaw = UserDefaults.standard.integer(forKey: "iCloudBackup.Interval")
         let interval = BackupInterval(rawValue: intervalRaw) ?? .everyNight
@@ -90,6 +92,7 @@ public nonisolated final class iCloudBackupManager: @unchecked Sendable {
         await backupMetadata() != nil
     }
 
+    @concurrent
     public func backupMetadata() async -> BackupMetadata? {
         guard let containerURL = iCloudContainerURL() else { return nil }
         let metadataURL = containerURL
@@ -110,6 +113,7 @@ public nonisolated final class iCloudBackupManager: @unchecked Sendable {
         return try? decoder.decode(BackupMetadata.self, from: data)
     }
 
+    @concurrent
     public func restore() async throws {
         guard let containerURL = iCloudContainerURL() else {
             throw BackupError.iCloudUnavailable
@@ -143,6 +147,9 @@ public nonisolated final class iCloudBackupManager: @unchecked Sendable {
 
         try FileManager.default.copyItem(at: backupURL, to: dbURL)
         try DatabaseManager.shared.reconnect()
+        // The restored database carries another device's sync bookkeeping;
+        // start over so the engine reconciles against CloudKit from scratch.
+        CloudSyncEngine.shared.resetAfterRestore()
     }
 
     // MARK: - Last Backup Date

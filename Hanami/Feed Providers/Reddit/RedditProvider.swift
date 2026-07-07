@@ -39,6 +39,10 @@ public final class RedditProvider: @unchecked Sendable {
         URL(string: "https://www.reddit.com/r/\(subreddit)/new.json?raw_json=1&limit=\(limit)")
     }
 
+    public nonisolated static func atomFeedURL(for subreddit: String) -> URL? {
+        URL(string: "https://www.reddit.com/r/\(subreddit).rss")
+    }
+
     /// Reddit's image URLs are HTML-encoded inside JSON; only `&amp;` matters
     /// in practice.
     public nonisolated static func unescapeAmpersand(_ input: String) -> String {
@@ -74,7 +78,11 @@ public final class RedditProvider: @unchecked Sendable {
         guard let url = Self.aboutURL(for: subreddit) else {
             return RedditCommunityFetchResult(communityIconURL: nil)
         }
-        return await performCommunityFetch(url: url)
+        let aboutResult = await performCommunityFetch(url: url)
+        if aboutResult.communityIconURL != nil {
+            return aboutResult
+        }
+        return await performCommunityFeedLogoFetch(subreddit: subreddit)
     }
 
     public func fetchListing(subreddit: String) async -> RedditListingFetchResult {
@@ -94,9 +102,19 @@ public final class RedditProvider: @unchecked Sendable {
             return cached
         }
 
-        let result = try await performPostFetch(postID: postID)
-        storePostResult(result, for: postID)
-        return result
+        do {
+            let result = try await performPostFetch(postID: postID)
+            storePostResult(result, for: postID)
+            return result
+        } catch {
+            guard let fallback = await Self.extractPostResult(fromEntryOf: article) else {
+                throw error
+            }
+            // swiftlint:disable:next line_length
+            log("RedditPost", "JSON fetch failed (\(error.localizedDescription)); using Atom entry fallback for post \(postID)")
+            storePostResult(fallback, for: postID)
+            return fallback
+        }
     }
 
     // MARK: - Post Cache

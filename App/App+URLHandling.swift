@@ -85,6 +85,8 @@ extension SakuraRSSApp {
             }
         case "putonpipboy":
             handlePutOnPipBoy()
+        case "faceoff":
+            handleFaceOff()
         case "forgetit":
             handleForgetIt()
         default:
@@ -101,6 +103,17 @@ extension SakuraRSSApp {
             }
             let entries = feedManager.feeds.map { ($0.domain, $0.siteURL as String?) }
             await Iconography.shared.refreshIcons(for: entries)
+        }
+    }
+
+    private func handleFaceOff() {
+        let currentFeeds = feedManager.feeds
+        Task {
+            await Iconography.shared.refreshAllIcons(for: currentFeeds)
+            await MainActor.run {
+                feedManager.regenerateAllAcronymIcons()
+                feedManager.notifyIconChange()
+            }
         }
     }
 

@@ -30,6 +30,7 @@ public extension FeedManager {
         )
         generateAcronymIcon(feedID: feedID, title: title)
         let newFeed = try? database.feed(byID: feedID)
+        CloudSyncEngine.shared.noteFeedChanged(syncID: newFeed?.syncID)
         Task { await loadFromDatabaseInBackground() }
         if let newFeed {
             Task {
@@ -39,8 +40,10 @@ public extension FeedManager {
     }
 
     func deleteFeed(_ feed: Feed) throws {
+        let syncID = (try? database.feed(byID: feed.id))?.syncID ?? feed.syncID
         let articleIDs = (try? database.articles(forFeedID: feed.id)).map { $0.map(\.id) } ?? []
         try database.deleteFeed(id: feed.id)
+        captureUserFeedDeletion(syncID: syncID)
         PodcastDownloadManager.cleanupOrphanedDownloads()
         SpotlightIndexer.removeArticles(feedID: feed.id, articleIDs: articleIDs)
         Task { await loadFromDatabaseInBackground() }
@@ -48,6 +51,7 @@ public extension FeedManager {
 
     func toggleMuted(_ feed: Feed) {
         try? database.updateFeedMuted(id: feed.id, isMuted: !feed.isMuted)
+        captureUserFeedEdit(feedID: feed.id)
         Task { await loadFromDatabaseInBackground() }
     }
 
@@ -89,6 +93,7 @@ public extension FeedManager {
         try? database.updateFeedDetails(id: feed.id, title: title, url: url,
                                         customIconURL: customIconURL,
                                         isTitleCustomized: titleIsCustomized)
+        captureUserFeedEdit(feedID: feed.id)
         if title != feed.title {
             generateAcronymIcon(feedID: feed.id, title: title)
         }
@@ -99,6 +104,7 @@ public extension FeedManager {
     func updateFeedDescription(_ feed: Feed, description: String) {
         guard description != feed.feedDescription else { return }
         try? database.updateFeedDescription(id: feed.id, description: description)
+        captureUserFeedEdit(feedID: feed.id)
         Task { await loadFromDatabaseInBackground() }
     }
 

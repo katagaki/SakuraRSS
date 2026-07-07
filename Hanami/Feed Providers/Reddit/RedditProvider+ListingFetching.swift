@@ -13,11 +13,13 @@ public extension RedditProvider {
             let (data, response) = try await URLSession.shared.data(for: request)
             if let http = response as? HTTPURLResponse,
                !(200..<300).contains(http.statusCode) {
+                log("RedditListing", "Listing fetch blocked or failed - HTTP \(http.statusCode)")
                 return empty
             }
             let json = try JSONSerialization.jsonObject(with: data)
             return Self.extractListingResult(from: json)
         } catch {
+            log("RedditListing", "Listing fetch failed - \(error.localizedDescription)")
             return empty
         }
     }
