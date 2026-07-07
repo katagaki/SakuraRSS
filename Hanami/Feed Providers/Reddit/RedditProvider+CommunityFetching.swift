@@ -31,4 +31,41 @@ public extension RedditProvider {
             return empty
         }
     }
+
+    /// Reddit serves `about.json` behind bot verification on some networks,
+    /// but the Atom feed stays reachable and carries the community icon in
+    /// its feed-level `<logo>` element.
+    func performCommunityFeedLogoFetch(subreddit: String) async -> RedditCommunityFetchResult {
+        let empty = RedditCommunityFetchResult(communityIconURL: nil)
+        guard let url = Self.atomFeedURL(for: subreddit) else { return empty }
+
+        var request = URLRequest(url: url)
+        request.setValue(sakuraUserAgent, forHTTPHeaderField: "User-Agent")
+        request.setValue("application/atom+xml", forHTTPHeaderField: "Accept")
+
+        do {
+            let (data, _) = try await URLSession.shared.data(for: request)
+            guard let feedXML = String(data: data, encoding: .utf8),
+                  let logoURL = Self.extractAtomLogoURL(from: feedXML) else {
+                return empty
+            }
+            return RedditCommunityFetchResult(
+                communityIconURL: Self.stripQuery(from: logoURL)
+            )
+        } catch {
+            log("RedditCommunity", "Feed logo fetch failed - \(error.localizedDescription)")
+            return empty
+        }
+    }
+
+    nonisolated static func extractAtomLogoURL(from feedXML: String) -> String? {
+        guard let openRange = feedXML.range(of: "<logo>"),
+              let closeRange = feedXML.range(
+                of: "</logo>",
+                range: openRange.upperBound..<feedXML.endIndex
+              ) else { return nil }
+        let logoURL = unescapeAmpersand(String(feedXML[openRange.upperBound..<closeRange.lowerBound]))
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        return logoURL.isEmpty ? nil : logoURL
+    }
 }
