@@ -16,7 +16,9 @@ public nonisolated extension DatabaseManager {
             feedDescription <- description,
             feedIconURL <- iconURL,
             feedCategory <- category,
-            feedIsPodcast <- isPodcast
+            feedIsPodcast <- isPodcast,
+            feedSyncID <- UUID().uuidString,
+            feedUserModifiedAt <- Date().timeIntervalSince1970
         ))
     }
 
@@ -122,7 +124,8 @@ public nonisolated extension DatabaseManager {
             customIconURL: try? row.get(feedCustomIconURL),
             acronymIcon: try? row.get(feedAcronymIcon),
             isTitleCustomized: (try? row.get(feedIsTitleCustomized)) ?? false,
-            isFediverse: (try? row.get(feedIsFediverse)) ?? nil
+            isFediverse: (try? row.get(feedIsFediverse)) ?? nil,
+            syncID: (try? row.get(feedSyncID)) ?? nil
         )
     }
 }

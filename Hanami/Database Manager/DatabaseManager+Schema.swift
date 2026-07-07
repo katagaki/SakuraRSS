@@ -20,6 +20,8 @@ public nonisolated extension DatabaseManager {
     var feedAcronymIcon: SQLite.Expression<Data?> { SQLite.Expression<Data?>("acronym_icon") }
     var feedIsTitleCustomized: SQLite.Expression<Bool> { SQLite.Expression<Bool>("is_title_customized") }
     var feedIsFediverse: SQLite.Expression<Bool?> { SQLite.Expression<Bool?>("is_fediverse") }
+    var feedSyncID: SQLite.Expression<String?> { SQLite.Expression<String?>("sync_id") }
+    var feedUserModifiedAt: SQLite.Expression<Double?> { SQLite.Expression<Double?>("user_modified_at") }
 
     // MARK: - Articles
 
@@ -154,6 +156,16 @@ public nonisolated extension DatabaseManager {
     var coTitleField: SQLite.Expression<String> { SQLite.Expression<String>("title_field") }
     var coBodyField: SQLite.Expression<String> { SQLite.Expression<String>("body_field") }
     var coAuthorField: SQLite.Expression<String> { SQLite.Expression<String>("author_field") }
+
+    // MARK: - Cloud Sync
+
+    var syncTombstones: Table { Table("sync_tombstones") }
+    var tombstoneSyncID: SQLite.Expression<String> { SQLite.Expression<String>("sync_id") }
+    var tombstoneDeletedAt: SQLite.Expression<Double> { SQLite.Expression<Double>("deleted_at") }
+
+    var syncState: Table { Table("sync_state") }
+    var syncStateKey: SQLite.Expression<String> { SQLite.Expression<String>("key") }
+    var syncStateData: SQLite.Expression<Data> { SQLite.Expression<Data>("data") }
 
     // MARK: - Feed Refresh Metrics
 
