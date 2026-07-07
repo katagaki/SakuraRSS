@@ -102,9 +102,19 @@ public final class RedditProvider: @unchecked Sendable {
             return cached
         }
 
-        let result = try await performPostFetch(postID: postID)
-        storePostResult(result, for: postID)
-        return result
+        do {
+            let result = try await performPostFetch(postID: postID)
+            storePostResult(result, for: postID)
+            return result
+        } catch {
+            guard let fallback = await Self.extractPostResult(fromEntryOf: article) else {
+                throw error
+            }
+            // swiftlint:disable:next line_length
+            log("RedditPost", "JSON fetch failed (\(error.localizedDescription)); using Atom entry fallback for post \(postID)")
+            storePostResult(fallback, for: postID)
+            return fallback
+        }
     }
 
     // MARK: - Post Cache
