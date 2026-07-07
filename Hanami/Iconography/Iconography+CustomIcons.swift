@@ -35,6 +35,22 @@ public extension Iconography {
         return await icon(for: feed.domain, siteURL: feed.siteURL)
     }
 
+    /// X/Instagram avatars live under the `custom-feed-<id>` key, so a domain-based
+    /// refresh never touches them; re-fetch and reinstall them here instead.
+    func refreshIcon(for feed: Feed) async {
+        guard feed.isXFeed || feed.isInstagramFeed else {
+            await refreshIcons(for: [(domain: feed.domain, siteURL: feed.siteURL)])
+            return
+        }
+        if let siteURL = URL(string: feed.siteURL),
+           let provider = FeedProviderRegistry.metadataFetcher(forSiteURL: siteURL),
+           let metadata = await provider.fetchMetadata(for: siteURL),
+           let iconURL = metadata.iconURL,
+           let image = await downloadImage(from: iconURL) {
+            setCustomIcon(image, feedID: feed.id)
+        }
+    }
+
     func setCustomIcon(_ image: UIImage, feedID: Int64) {
         let key = "custom-feed-\(feedID)"
         memoryCache[key] = image
