@@ -66,13 +66,23 @@ final class YouTubePlayerSession {
         (function() {
             var video = document.querySelector('video');
             if (!video) { return null; }
-            if (video.paused) {
+            var mediaMissing = (window.__yt && window.__yt.mediaMissing)
+                ? window.__yt.mediaMissing(video)
+                : (video.readyState === 0 && !video.currentSrc && !video.srcObject);
+            if (video.paused || mediaMissing) {
                 if (window.__yt) {
                     window.__yt.autoplayBlocked = false;
                     window.__yt.userPaused = false;
                     window.__yt.exitedPiPRecently = false;
                 }
-                video.play();
+                // A play() the page never observed leaves the element
+                // un-paused with no media; cycle pause() so the mobile watch
+                // page sees a fresh play event and attaches the media.
+                if (!video.paused) { video.pause(); }
+                var playPromise = video.play();
+                if (playPromise && typeof playPromise.catch === 'function') {
+                    playPromise.catch(function(){});
+                }
             } else {
                 if (window.__yt) { window.__yt.userPaused = true; }
                 video.pause();
@@ -99,8 +109,14 @@ final class YouTubePlayerSession {
                 window.__yt.userPaused = false;
                 window.__yt.exitedPiPRecently = false;
             }
-            var p = video.play();
-            if (p && typeof p.catch === 'function') { p.catch(function(){}); }
+            var mediaMissing = (window.__yt && window.__yt.mediaMissing)
+                ? window.__yt.mediaMissing(video)
+                : (video.readyState === 0 && !video.currentSrc && !video.srcObject);
+            if (!video.paused && mediaMissing) { video.pause(); }
+            var playPromise = video.play();
+            if (playPromise && typeof playPromise.catch === 'function') {
+                playPromise.catch(function(){});
+            }
             return !video.paused;
         })();
         """
