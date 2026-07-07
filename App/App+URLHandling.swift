@@ -95,24 +95,26 @@ extension SakuraRSSApp {
     }
 
     private func handleReloadAllFeedIcons() {
-        Task {
-            if UserDefaults.standard.bool(forKey: "Labs.XProfileFeeds") {
-                await XProvider.fetchQueryIDsIfNeeded()
-            }
-            let currentFeeds = feedManager.feeds
-            let domainEntries = currentFeeds
-                .filter { !$0.isXFeed && !$0.isInstagramFeed }
-                .map { ($0.domain, $0.siteURL as String?) }
-            await Iconography.shared.refreshIcons(for: domainEntries)
-            await withTaskGroup(of: Void.self) { group in
-                for feed in currentFeeds where feed.isXFeed || feed.isInstagramFeed {
-                    group.addTask {
-                        await Iconography.shared.refreshIcon(for: feed)
-                    }
+        Task { await reloadAllFeedIcons() }
+    }
+
+    private func reloadAllFeedIcons() async {
+        if UserDefaults.standard.bool(forKey: "Labs.XProfileFeeds") {
+            await XProvider.fetchQueryIDsIfNeeded()
+        }
+        let currentFeeds = feedManager.feeds
+        let domainEntries = currentFeeds
+            .filter { !$0.isXFeed && !$0.isInstagramFeed }
+            .map { ($0.domain, $0.siteURL as String?) }
+        await Iconography.shared.refreshIcons(for: domainEntries)
+        await withTaskGroup(of: Void.self) { group in
+            for feed in currentFeeds where feed.isXFeed || feed.isInstagramFeed {
+                group.addTask {
+                    await Iconography.shared.refreshIcon(for: feed)
                 }
             }
-            feedManager.notifyIconChange()
         }
+        feedManager.notifyIconChange()
     }
 
     private func handlePutOnPipBoy() {
