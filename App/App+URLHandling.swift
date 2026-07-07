@@ -107,9 +107,9 @@ extension SakuraRSSApp {
     }
 
     private func handleFaceOff() {
-        let entries = feedManager.feeds.map { ($0.domain, $0.siteURL as String?) }
+        let currentFeeds = feedManager.feeds
         Task {
-            await Iconography.shared.refreshIcons(for: entries)
+            await Iconography.shared.refreshAllIcons(for: currentFeeds)
             await MainActor.run {
                 feedManager.regenerateAllAcronymIcons()
                 feedManager.notifyIconChange()
