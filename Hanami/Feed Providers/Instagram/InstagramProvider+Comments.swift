@@ -14,7 +14,6 @@ extension InstagramProvider: CommentsProvider {
     }
 
     public nonisolated static func commentsURL(for article: Article, in feed: Feed?) -> URL? {
-        if let feed, !feed.isInstagramFeed { return nil }
         guard let url = URL(string: article.url),
               isInstagramPostURL(url),
               extractPostShortcode(from: url) != nil else {

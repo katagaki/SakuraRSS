@@ -13,7 +13,6 @@ extension XProvider: CommentsProvider {
     }
 
     public nonisolated static func commentsURL(for article: Article, in feed: Feed?) -> URL? {
-        if let feed, !feed.isXFeed { return nil }
         guard let url = URL(string: article.url),
               isXPostURL(url) else { return nil }
         return url

@@ -10,7 +10,7 @@ public extension ContentResolver {
 
     func tryRedditExtraction() async -> RedditExtractionOutcome {
         let isRedditCandidate = feed?.isRedditFeed == true
-            || (article.isEphemeral && URL(string: article.url).map { Self.isRedditPostURL($0) } == true)
+            || URL(string: article.url).map { Self.isRedditPostURL($0) } == true
         guard isRedditCandidate else { return .none }
         do {
             let redditResult = try await RedditProvider.shared.fetchContent(for: article)
@@ -32,9 +32,7 @@ public extension ContentResolver {
     }
 
     func tryHackerNewsExtraction() async -> Bool {
-        let isHackerNewsCandidate = feed?.isHackerNewsFeed == true || article.isEphemeral
-        guard isHackerNewsCandidate,
-              let url = URL(string: article.url),
+        guard let url = URL(string: article.url),
               HackerNewsPostFetcher.isSelfPostURL(url) else { return false }
         do {
             if let html = try await HackerNewsPostFetcher.fetchPostText(for: url) {
@@ -64,20 +62,20 @@ public extension ContentResolver {
 
     private func tryArXivExtraction() -> Bool {
         guard let url = URL(string: article.url), ArXivProvider.isAbstractURL(url) else { return false }
-        if let summary = article.summary, !summary.isEmpty {
-            result.text = summary
-            persistCachedContent(summary)
-        }
+        guard let summary = article.summary, !summary.isEmpty else { return false }
+        result.text = summary
+        persistCachedContent(summary)
         return true
     }
 
     private func tryInstagramExtraction() -> Bool {
         guard article.isInstagramPostURL else { return false }
         let text = renderInstagramPostContent()
+        // Articles from feeds without Instagram-populated fields render empty;
+        // fall through so the cascade can still try web extraction.
+        guard !text.isEmpty else { return feed?.isInstagramFeed == true }
         result.text = text
-        if !text.isEmpty {
-            persistCachedContent(text)
-        }
+        persistCachedContent(text)
         return true
     }
 

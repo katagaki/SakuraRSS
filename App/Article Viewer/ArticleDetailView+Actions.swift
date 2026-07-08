@@ -154,8 +154,8 @@ extension ArticleDetailView: ArticleActions {
     }
 
     func resolveLinkedArticleURL() async {
-        guard let feed = feedManager.feed(forArticle: article),
-              feed.isRedditFeed else {
+        guard let url = URL(string: article.url),
+              ContentResolver.isRedditPostURL(url) else {
             linkedArticleURL = nil
             return
         }

@@ -11,7 +11,6 @@ extension RedditProvider: CommentsProvider {
     }
 
     public nonisolated static func commentsURL(for article: Article, in feed: Feed?) -> URL? {
-        if let feed, !feed.isRedditFeed { return nil }
         guard let url = URL(string: article.url),
               matchesHost(url.host),
               postID(from: url) != nil,
