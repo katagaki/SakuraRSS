@@ -9,8 +9,10 @@ extension HackerNewsProvider: CommentsProvider {
     }
 
     public nonisolated static func commentsURL(for article: Article, in feed: Feed?) -> URL? {
-        if let feed, !feed.isHackerNewsFeed { return nil }
-        if let summary = article.summary,
+        // Summary-link lookup is only trustworthy for Hacker News feeds,
+        // where the RSS summary carries the item's "Comments" link.
+        if feed?.isHackerNewsFeed == true,
+           let summary = article.summary,
            let url = threadURL(fromSummary: summary) {
             return url
         }

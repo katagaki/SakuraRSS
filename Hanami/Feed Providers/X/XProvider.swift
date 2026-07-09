@@ -80,15 +80,19 @@ public final class XProvider: Authenticated {
     /// Returns true if the URL points to a specific X/Twitter post (status).
     public nonisolated static func isXPostURL(_ url: URL) -> Bool {
         guard isXHost(url.host) else { return false }
-        let components = url.pathComponents
-        return components.count >= 4 && components[2] == "status"
+        return extractTweetID(from: url) != nil
     }
 
-    /// Extracts the tweet ID from an X/Twitter status URL.
+    /// Extracts the tweet ID from an X/Twitter status URL. Accepts both the
+    /// `/<handle>/status/<id>` and `/i/web/status/<id>` path shapes so posts
+    /// linked from third-party feeds and in-article links are recognized.
     public nonisolated static func extractTweetID(from url: URL) -> String? {
         let components = url.pathComponents
-        guard components.count >= 4, components[2] == "status" else { return nil }
-        return components[3]
+        guard let statusIndex = components.lastIndex(of: "status"),
+              components.indices.contains(statusIndex + 1) else { return nil }
+        let tweetID = components[statusIndex + 1]
+        guard !tweetID.isEmpty, tweetID.allSatisfy(\.isNumber) else { return nil }
+        return tweetID
     }
 
     /// Constructs a canonical X profile URL from a handle.
