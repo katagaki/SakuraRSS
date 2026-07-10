@@ -5,11 +5,13 @@ extension YouTubePlayerScripts {
 
     /// Plays the next ready `<video>` after `__yt.armAutoplay(ms)` is called.
     ///
-    /// The mobile watch page (m.youtube.com) ships its `<video>` with no media
-    /// attached and only attaches a source in reaction to a fresh `play`
-    /// event. A `play()` that ran before the page's listener existed flips
-    /// `paused` to false with no media and no further `play` event can fire,
-    /// so `tryPlay` cycles `pause()` first to make the retry observable.
+    /// Prefers `#movie_player.playVideo()` over `<video>.play()` since the
+    /// mobile watch page ships its `<video>` with no media attached until a
+    /// fresh `play` event fires, so a raw `play()` can flip `paused` to false
+    /// with nothing to actually play. `playVideo()` drives YouTube's own
+    /// state machine instead, attaching media as a side effect. The raw
+    /// `<video>` path remains as a fallback for the window before the player
+    /// API has booted.
     static let autoplayArmer = """
     (function() {
         if (!window.__yt) return;
@@ -25,12 +27,38 @@ extension YouTubePlayerScripts {
         }
         window.__yt.mediaMissing = mediaMissing;
 
+        var PLAYER_ENDED = 0;
+        var PLAYER_PLAYING = 1;
+        var PLAYER_BUFFERING = 3;
+
+        function playViaPlayerAPI() {
+            var player = document.getElementById('movie_player');
+            if (!player || typeof player.playVideo !== 'function') return false;
+            var state = -1;
+            try {
+                if (typeof player.getPlayerState === 'function') {
+                    state = player.getPlayerState();
+                }
+            } catch (e) {}
+            if (state !== PLAYER_ENDED && state !== PLAYER_PLAYING
+                && state !== PLAYER_BUFFERING) {
+                try { player.playVideo(); } catch (e) {}
+            }
+            return true;
+        }
+
+        function suppressed() {
+            return window.__yt.userPaused === true
+                || window.__yt.autoplayBlocked === true
+                || window.__yt.exitedPiPRecently === true;
+        }
+
         function tryPlay(video) {
-            if (!video || video.ended) return;
-            if (!video.paused && !mediaMissing(video)) return;
-            if (window.__yt.userPaused === true) return;
-            if (window.__yt.autoplayBlocked === true) return;
-            if (window.__yt.exitedPiPRecently === true) return;
+            if (suppressed()) return;
+            if (video && video.ended) return;
+            if (video && !video.paused && !mediaMissing(video)) return;
+            if (playViaPlayerAPI()) return;
+            if (!video) return;
             try {
                 if (!video.paused && mediaMissing(video)) {
                     var now = Date.now();
@@ -73,7 +101,12 @@ extension YouTubePlayerScripts {
             scan();
             (function tick() {
                 if (!armed()) return;
-                document.querySelectorAll('video').forEach(tryPlay);
+                var videos = document.querySelectorAll('video');
+                if (videos.length > 0) {
+                    videos.forEach(tryPlay);
+                } else {
+                    tryPlay(null);
+                }
                 setTimeout(tick, 200);
             })();
         };

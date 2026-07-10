@@ -23,6 +23,10 @@ extension YouTubePlayerView {
                         window.__yt.userPaused = false;
                         window.__yt.exitedPiPRecently = false;
                     }
+                    var player = document.getElementById('movie_player');
+                    if (player && typeof player.playVideo === 'function') {
+                        player.playVideo();
+                    }
                     video.play();
                 } else {
                     if (window.__yt) { window.__yt.userPaused = true; }
