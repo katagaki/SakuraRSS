@@ -4,14 +4,10 @@ import Hanami
 extension YouTubePlayerScripts {
 
     /// Plays the next ready `<video>` after `__yt.armAutoplay(ms)` is called.
-    ///
-    /// Calls both `#movie_player.playVideo()` and `<video>.play()` on every
-    /// attempt rather than picking one: `#movie_player` can exist in the DOM
-    /// with a callable `playVideo` before the player is actually wired up, so
-    /// treating its presence as "handled" can silently swallow the attempt.
-    /// The raw `<video>.play()` stays as the load-bearing fallback because the
-    /// mobile watch page ships its `<video>` with no media attached until a
-    /// fresh `play` event fires.
+    /// Calls both `playVideo()` and `<video>.play()` every attempt instead of
+    /// picking one: `#movie_player.playVideo` can exist before the player is
+    /// actually wired up, so treating its presence as "handled" would swallow
+    /// the attempt with nothing to fall back on.
     static let autoplayArmer = """
     (function() {
         if (!window.__yt) return;
@@ -112,14 +108,10 @@ extension YouTubePlayerScripts {
     """
 
     /// One native-initiated play attempt, evaluated repeatedly by the
-    /// coordinator until it returns `done` or `suppressed`.
-    ///
-    /// This must run through `evaluateJavaScript` and not a user script:
-    /// WebKit wraps `evaluateJavaScript` in a synthetic user gesture
-    /// (`forceUserGesture:YES` → transient user activation), and the mobile
-    /// watch page refuses to attach media to its `<video>` without user
-    /// activation. The armer's in-page timer loop has no activation, so its
-    /// play attempts are ignored on iOS no matter how often they fire.
+    /// coordinator until it returns `done` or `suppressed`. Must run through
+    /// `evaluateJavaScript` rather than a user script: WebKit gives that call
+    /// a synthetic user gesture, which the mobile watch page requires before
+    /// it will attach media — a `WKUserScript` timer loop never gets one.
     static let nativeAutoplayKick = """
     (function() {
         if (!window.__yt) return 'waiting';
