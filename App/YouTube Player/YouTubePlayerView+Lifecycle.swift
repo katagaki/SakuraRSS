@@ -11,6 +11,9 @@ extension YouTubePlayerView {
         if session.isPlaying || session.duration > 0 {
             hasStartedPlaying = true
         }
+        if session.isPlaying || session.duration > 0 || session.webView != nil {
+            isPlayerReady = true
+        }
         if let loadedFeed = feedManager.feed(forArticle: article) {
             feed = loadedFeed
             session.channelTitle = loadedFeed.title

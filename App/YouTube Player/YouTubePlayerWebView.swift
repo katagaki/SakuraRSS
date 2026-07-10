@@ -15,6 +15,7 @@ struct YouTubePlayerWebView: UIViewRepresentable {
     @Binding var advertiserURL: URL?
     @Binding var videoAspectRatio: CGFloat
     @Binding var isPiP: Bool
+    @Binding var isPlayerReady: Bool
     var chapters: Binding<[YouTubeChapter]>?
     var onTimeUpdate: ((TimeInterval) -> Void)?
     var onDurationUpdate: ((TimeInterval) -> Void)?
@@ -27,6 +28,7 @@ struct YouTubePlayerWebView: UIViewRepresentable {
             advertiserURL: $advertiserURL,
             videoAspectRatio: $videoAspectRatio,
             isPiP: $isPiP,
+            isPlayerReady: $isPlayerReady,
             chapters: chapters,
             onTimeUpdate: onTimeUpdate,
             onDurationUpdate: onDurationUpdate

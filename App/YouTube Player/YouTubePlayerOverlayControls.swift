@@ -9,6 +9,7 @@ struct YouTubePlayerOverlayControls: View {
     let session: YouTubePlayerSession
     let isPlaying: Bool
     let isAd: Bool
+    let isPlayerReady: Bool
     let videoAspectRatio: CGFloat
     let segments: [(start: Double, end: Double)]
     let onTogglePiP: () -> Void
@@ -79,8 +80,8 @@ struct YouTubePlayerOverlayControls: View {
         .disabled(true)
         .opacity(0)
         #else
-        .disabled(isAd)
-        .opacity(isAd ? 0.5 : 1.0)
+        .disabled(isAd || !isPlayerReady)
+        .opacity(isAd || !isPlayerReady ? 0.5 : 1.0)
         #endif
     }
 
@@ -95,8 +96,8 @@ struct YouTubePlayerOverlayControls: View {
                 .frame(width: 40, height: 40)
         }
         .compatibleGlassEffect(in: .circle, interactive: true, clear: true)
-        .disabled(isAd)
-        .opacity(isAd ? 0.5 : 1.0)
+        .disabled(isAd || !isPlayerReady)
+        .opacity(isAd || !isPlayerReady ? 0.5 : 1.0)
     }
 
     @ViewBuilder
@@ -124,12 +125,13 @@ struct YouTubePlayerOverlayControls: View {
                     .font(.system(size: 18, weight: .medium))
                     .frame(width: 36, height: 36)
             }
-            .disabled(isAd)
-            .opacity(isAd ? 0.5 : 1.0)
+            .disabled(isAd || !isPlayerReady)
+            .opacity(isAd || !isPlayerReady ? 0.5 : 1.0)
 
             OverlaySeekBar(
                 session: session,
                 isAd: isAd,
+                isPlayerReady: isPlayerReady,
                 segments: isAd ? [] : segments,
                 trackBackgroundColor: isAd ? .orange : nil,
                 labelLayout: isPortraitVideo ? .hidden : .inline,
@@ -155,8 +157,8 @@ struct YouTubePlayerOverlayControls: View {
                     .font(.system(size: 18, weight: .medium))
                     .frame(width: 36, height: 36)
             }
-            .disabled(isAd)
-            .opacity(isAd ? 0.5 : 1.0)
+            .disabled(isAd || !isPlayerReady)
+            .opacity(isAd || !isPlayerReady ? 0.5 : 1.0)
         }
         .padding(.horizontal, 10)
         .padding(.vertical, 6)
@@ -198,6 +200,7 @@ private struct OverlaySeekBar: View {
 
     let session: YouTubePlayerSession
     let isAd: Bool
+    let isPlayerReady: Bool
     let segments: [(start: Double, end: Double)]
     let trackBackgroundColor: Color?
     let labelLayout: SeekBarLabelLayout
@@ -208,7 +211,7 @@ private struct OverlaySeekBar: View {
         SeekBarView(
             currentTime: session.currentTime,
             duration: session.duration,
-            isDisabled: isAd,
+            isDisabled: isAd || !isPlayerReady,
             segments: segments,
             trackBackgroundColor: trackBackgroundColor,
             labelLayout: labelLayout,

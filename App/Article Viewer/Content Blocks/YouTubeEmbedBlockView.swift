@@ -17,6 +17,7 @@ struct YouTubeEmbedBlockView: View {
     @State private var advertiserURL: URL?
     @State private var videoAspectRatio: CGFloat = 16 / 9
     @State private var isPiP = false
+    @State private var isPlayerReady = false
     @State private var hasStartedPlaying = false
     @State private var showFullPlayer = false
     @State private var showSafari = false
@@ -38,6 +39,7 @@ struct YouTubeEmbedBlockView: View {
                 advertiserURL: $advertiserURL,
                 videoAspectRatio: $videoAspectRatio,
                 isPiP: $isPiP,
+                isPlayerReady: $isPlayerReady,
                 onTimeUpdate: { currentTime = $0 },
                 onDurationUpdate: { duration = $0 }
             )

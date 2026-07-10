@@ -23,6 +23,7 @@ struct YouTubePlayerView: View {
     @State var isAdSkippable = false
     @State var advertiserURL: URL?
     @State var hasStartedPlaying = false
+    @State var isPlayerReady = false
     @State var isPiP = false
     @State var videoAspectRatio: CGFloat
     @State var feed: Feed?

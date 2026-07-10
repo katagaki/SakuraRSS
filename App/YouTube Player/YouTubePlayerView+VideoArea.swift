@@ -15,6 +15,7 @@ extension YouTubePlayerView {
             advertiserURL: $advertiserURL,
             videoAspectRatio: $videoAspectRatio,
             isPiP: $isPiP,
+            isPlayerReady: $isPlayerReady,
             chapters: $chapters,
             onTimeUpdate: { [session] newTime in
                 session.currentTime = newTime
@@ -50,16 +51,10 @@ extension YouTubePlayerView {
                         }
                         .foregroundStyle(.secondary)
                     }
-            } else if !hasStartedPlaying {
-                Color.black
-                    .overlay {
-                        ProgressView()
-                            .tint(.white)
-                    }
             }
         }
         .overlay(alignment: .bottomLeading) {
-            if isAd && !isPiP && hasStartedPlaying {
+            if isAd && !isPiP {
                 Text(String(localized: "YouTube.Ad.Label", table: "Integrations"))
                     .font(.caption.bold())
                     .padding(.horizontal, 10)
@@ -70,11 +65,12 @@ extension YouTubePlayerView {
             }
         }
         .overlay {
-            if !isPiP && hasStartedPlaying {
+            if !isPiP {
                 YouTubePlayerOverlayControls(
                     session: session,
                     isPlaying: isPlaying,
                     isAd: isAd,
+                    isPlayerReady: isPlayerReady,
                     videoAspectRatio: videoAspectRatio,
                     segments: sponsorSegments.map { (start: $0.startTime, end: $0.endTime) },
                     onTogglePiP: togglePiP,
@@ -87,7 +83,7 @@ extension YouTubePlayerView {
             }
         }
         .overlay(alignment: .bottomTrailing) {
-            if isAd && isAdSkippable && !isPiP && hasStartedPlaying {
+            if isAd && isAdSkippable && !isPiP {
                 Button {
                     skipAd()
                 } label: {
@@ -106,7 +102,7 @@ extension YouTubePlayerView {
                 .transition(.opacity)
             }
         }
-        .animation(.smooth.speed(2.0), value: isAd && !isPiP && hasStartedPlaying)
-        .animation(.smooth.speed(2.0), value: isAd && isAdSkippable && !isPiP && hasStartedPlaying)
+        .animation(.smooth.speed(2.0), value: isAd && !isPiP)
+        .animation(.smooth.speed(2.0), value: isAd && isAdSkippable && !isPiP)
     }
 }

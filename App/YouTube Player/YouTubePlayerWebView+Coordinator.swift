@@ -13,6 +13,7 @@ extension YouTubePlayerWebView {
         @Binding var advertiserURL: URL?
         @Binding var videoAspectRatio: CGFloat
         @Binding var isPiP: Bool
+        @Binding var isPlayerReady: Bool
         let chapters: Binding<[YouTubeChapter]>?
         let onTimeUpdate: ((TimeInterval) -> Void)?
         let onDurationUpdate: ((TimeInterval) -> Void)?
@@ -28,6 +29,7 @@ extension YouTubePlayerWebView {
             advertiserURL: Binding<URL?>,
             videoAspectRatio: Binding<CGFloat>,
             isPiP: Binding<Bool>,
+            isPlayerReady: Binding<Bool>,
             chapters: Binding<[YouTubeChapter]>?,
             onTimeUpdate: ((TimeInterval) -> Void)?,
             onDurationUpdate: ((TimeInterval) -> Void)?
@@ -38,6 +40,7 @@ extension YouTubePlayerWebView {
             _advertiserURL = advertiserURL
             _videoAspectRatio = videoAspectRatio
             _isPiP = isPiP
+            _isPlayerReady = isPlayerReady
             self.chapters = chapters
             self.onTimeUpdate = onTimeUpdate
             self.onDurationUpdate = onDurationUpdate
@@ -162,6 +165,7 @@ extension YouTubePlayerWebView {
 
         @MainActor
         private func apply(_ event: PlaybackEvent) {
+            isPlayerReady = true
             switch event.kind {
             case .play, .playing:
                 isPlaying = true
