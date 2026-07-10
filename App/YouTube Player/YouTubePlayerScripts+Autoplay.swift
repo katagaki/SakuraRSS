@@ -111,6 +111,37 @@ extension YouTubePlayerScripts {
     })();
     """
 
+    /// One native-initiated play attempt, evaluated repeatedly by the
+    /// coordinator until it returns `done` or `suppressed`.
+    ///
+    /// This must run through `evaluateJavaScript` and not a user script:
+    /// WebKit wraps `evaluateJavaScript` in a synthetic user gesture
+    /// (`forceUserGesture:YES` → transient user activation), and the mobile
+    /// watch page refuses to attach media to its `<video>` without user
+    /// activation. The armer's in-page timer loop has no activation, so its
+    /// play attempts are ignored on iOS no matter how often they fire.
+    static let nativeAutoplayKick = """
+    (function() {
+        if (!window.__yt) return 'waiting';
+        if (window.__yt.userPaused === true) return 'suppressed';
+        if (window.__yt.autoplayBlocked === true) return 'suppressed';
+        var video = document.querySelector('video');
+        if (!video) return 'waiting';
+        if (video.ended) return 'done';
+        var mediaMissing = (typeof window.__yt.mediaMissing === 'function')
+            ? window.__yt.mediaMissing(video)
+            : (video.readyState === 0 && !video.currentSrc && !video.srcObject);
+        if (!video.paused && !mediaMissing) return 'done';
+        window.__yt.exitedPiPRecently = false;
+        if (!video.paused) { video.pause(); }
+        var playPromise = video.play();
+        if (playPromise && typeof playPromise.catch === 'function') {
+            playPromise.catch(function(){});
+        }
+        return 'kicked';
+    })();
+    """
+
     /// Arms autoplay at document end so the first video plays as soon as its
     /// media is ready instead of waiting for YouTube's own autoplay, which
     /// only fires after the whole watch page finishes initializing. Unmutes on

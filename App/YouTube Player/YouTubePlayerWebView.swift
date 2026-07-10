@@ -61,6 +61,9 @@ struct YouTubePlayerWebView: UIViewRepresentable {
         if let url = URL(string: urlString) {
             webView.load(URLRequest(url: Self.normalizedURL(url)))
         }
+        if autoplay {
+            context.coordinator.beginAutoplayKick(in: webView)
+        }
         let session = self.session
         DispatchQueue.main.async {
             self.webView = webView
@@ -175,6 +178,7 @@ struct YouTubePlayerWebView: UIViewRepresentable {
     }
 
     static func dismantleUIView(_ uiView: WKWebView, coordinator: Coordinator) {
+        coordinator.cancelAutoplayKick()
         uiView.configuration.userContentController.removeScriptMessageHandler(
             forName: YouTubePlayerScripts.pipMessageHandlerName
         )

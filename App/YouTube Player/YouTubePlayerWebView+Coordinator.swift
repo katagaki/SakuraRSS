@@ -18,6 +18,8 @@ extension YouTubePlayerWebView {
         let onDurationUpdate: ((TimeInterval) -> Void)?
         private var chapterRetryCount = 0
         private var chaptersLoaded = false
+        private var autoplayKickAttemptsRemaining = 0
+        private weak var autoplayKickWebView: WKWebView?
 
         init(
             isPlaying: Binding<Bool>,
@@ -46,6 +48,40 @@ extension YouTubePlayerWebView {
             unmuteVideo(in: webView)
             if !chaptersLoaded {
                 extractChapters(from: webView)
+            }
+        }
+
+        func beginAutoplayKick(in webView: WKWebView) {
+            autoplayKickWebView = webView
+            autoplayKickAttemptsRemaining = 180
+            scheduleAutoplayKick()
+        }
+
+        func cancelAutoplayKick() {
+            autoplayKickAttemptsRemaining = 0
+            autoplayKickWebView = nil
+        }
+
+        private func scheduleAutoplayKick() {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
+                self?.performAutoplayKick()
+            }
+        }
+
+        private func performAutoplayKick() {
+            guard autoplayKickAttemptsRemaining > 0,
+                  let webView = autoplayKickWebView else { return }
+            autoplayKickAttemptsRemaining -= 1
+            webView.evaluateJavaScript(YouTubePlayerScripts.nativeAutoplayKick) { [weak self] result, _ in
+                DispatchQueue.main.async {
+                    guard let self, self.autoplayKickAttemptsRemaining > 0 else { return }
+                    let status = result as? String
+                    if status == "done" || status == "suppressed" {
+                        self.cancelAutoplayKick()
+                        return
+                    }
+                    self.scheduleAutoplayKick()
+                }
             }
         }
 
