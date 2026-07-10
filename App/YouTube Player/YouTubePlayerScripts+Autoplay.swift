@@ -5,13 +5,13 @@ extension YouTubePlayerScripts {
 
     /// Plays the next ready `<video>` after `__yt.armAutoplay(ms)` is called.
     ///
-    /// Prefers `#movie_player.playVideo()` over `<video>.play()` since the
+    /// Calls both `#movie_player.playVideo()` and `<video>.play()` on every
+    /// attempt rather than picking one: `#movie_player` can exist in the DOM
+    /// with a callable `playVideo` before the player is actually wired up, so
+    /// treating its presence as "handled" can silently swallow the attempt.
+    /// The raw `<video>.play()` stays as the load-bearing fallback because the
     /// mobile watch page ships its `<video>` with no media attached until a
-    /// fresh `play` event fires, so a raw `play()` can flip `paused` to false
-    /// with nothing to actually play. `playVideo()` drives YouTube's own
-    /// state machine instead, attaching media as a side effect. The raw
-    /// `<video>` path remains as a fallback for the window before the player
-    /// API has booted.
+    /// fresh `play` event fires.
     static let autoplayArmer = """
     (function() {
         if (!window.__yt) return;
@@ -33,18 +33,16 @@ extension YouTubePlayerScripts {
 
         function playViaPlayerAPI() {
             var player = document.getElementById('movie_player');
-            if (!player || typeof player.playVideo !== 'function') return false;
+            if (!player || typeof player.playVideo !== 'function') return;
             var state = -1;
             try {
                 if (typeof player.getPlayerState === 'function') {
                     state = player.getPlayerState();
                 }
             } catch (e) {}
-            if (state !== PLAYER_ENDED && state !== PLAYER_PLAYING
-                && state !== PLAYER_BUFFERING) {
-                try { player.playVideo(); } catch (e) {}
-            }
-            return true;
+            if (state === PLAYER_ENDED || state === PLAYER_PLAYING
+                || state === PLAYER_BUFFERING) return;
+            try { player.playVideo(); } catch (e) {}
         }
 
         function suppressed() {
@@ -57,7 +55,7 @@ extension YouTubePlayerScripts {
             if (suppressed()) return;
             if (video && video.ended) return;
             if (video && !video.paused && !mediaMissing(video)) return;
-            if (playViaPlayerAPI()) return;
+            playViaPlayerAPI();
             if (!video) return;
             try {
                 if (!video.paused && mediaMissing(video)) {
