@@ -70,6 +70,7 @@ nonisolated extension DatabaseManager {
             table.column(articleDownloadPath)
             table.column(articleTranscriptJSON)
             table.column(articleCommentsFetchedAt)
+            table.column(articleExternalSource, defaultValue: false)
         })
     }
 

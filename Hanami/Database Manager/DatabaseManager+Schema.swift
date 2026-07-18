@@ -57,6 +57,7 @@ public nonisolated extension DatabaseManager {
     var articleStatusModifiedAt: SQLite.Expression<Double?> { SQLite.Expression<Double?>("status_modified_at") }
     var articleStatusSyncID: SQLite.Expression<String?> { SQLite.Expression<String?>("status_sync_id") }
     var articleStatusDirty: SQLite.Expression<Bool> { SQLite.Expression<Bool>("status_dirty") }
+    var articleExternalSource: SQLite.Expression<Bool> { SQLite.Expression<Bool>("external_source") }
 
     // MARK: - Comments
 

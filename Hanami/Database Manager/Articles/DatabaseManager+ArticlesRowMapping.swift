@@ -22,7 +22,8 @@ public nonisolated extension DatabaseManager {
             isRead: row[articleIsRead],
             isBookmarked: row[articleIsBookmarked],
             audioURL: row[articleAudioURL],
-            duration: row[articleDuration]
+            duration: row[articleDuration],
+            isExternalBookmark: (try? row.get(articleExternalSource)) ?? false
         )
     }
 
@@ -42,7 +43,8 @@ public nonisolated extension DatabaseManager {
             articleIsRead,
             articleIsBookmarked,
             articleAudioURL,
-            articleDuration
+            articleDuration,
+            articleExternalSource
         )
     }
 
@@ -67,7 +69,8 @@ public nonisolated extension DatabaseManager {
             isRead: row[articleIsRead],
             isBookmarked: row[articleIsBookmarked],
             audioURL: row[articleAudioURL],
-            duration: row[articleDuration]
+            duration: row[articleDuration],
+            isExternalBookmark: (try? row.get(articleExternalSource)) ?? false
         )
     }
 }

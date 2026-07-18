@@ -17,8 +17,25 @@ struct InboxArticleRow: View {
                 .padding(.leading, -4)
                 .padding(.top, 6)
 
-            if let imageURL = article.imageURL, let url = URL(string: imageURL) {
-                CachedAsyncImage(url: url, maxPixelSize: 144) {
+            Group {
+                if let imageURL = article.imageURL, let url = URL(string: imageURL) {
+                    CachedAsyncImage(url: url, maxPixelSize: 144) {
+                        FeedIconPlaceholder(
+                            icon: icon,
+                            acronymIcon: acronymIcon,
+                            feedName: feedName,
+                            isCircleIcon: isCircleIcon,
+                            iconSize: 30,
+                            cornerRadius: 8
+                        )
+                    }
+                    .frame(width: 48, height: 48)
+                    .clipShape(.rect(cornerRadius: 8))
+                    .overlay {
+                        RoundedRectangle(cornerRadius: 8)
+                            .strokeBorder(.primary.opacity(0.2), lineWidth: 0.5)
+                    }
+                } else {
                     FeedIconPlaceholder(
                         icon: icon,
                         acronymIcon: acronymIcon,
@@ -27,26 +44,17 @@ struct InboxArticleRow: View {
                         iconSize: 30,
                         cornerRadius: 8
                     )
+                    .frame(width: 48, height: 48)
+                    .overlay {
+                        RoundedRectangle(cornerRadius: 8)
+                            .strokeBorder(.primary.opacity(0.2), lineWidth: 0.5)
+                    }
                 }
-                .frame(width: 48, height: 48)
-                .clipShape(.rect(cornerRadius: 8))
-                .overlay {
-                    RoundedRectangle(cornerRadius: 8)
-                        .strokeBorder(.primary.opacity(0.2), lineWidth: 0.5)
-                }
-            } else {
-                FeedIconPlaceholder(
-                    icon: icon,
-                    acronymIcon: acronymIcon,
-                    feedName: feedName,
-                    isCircleIcon: isCircleIcon,
-                    iconSize: 30,
-                    cornerRadius: 8
-                )
-                .frame(width: 48, height: 48)
-                .overlay {
-                    RoundedRectangle(cornerRadius: 8)
-                        .strokeBorder(.primary.opacity(0.2), lineWidth: 0.5)
+            }
+            .overlay(alignment: .bottomTrailing) {
+                if article.isExternalBookmark {
+                    ExternalSourceBadge()
+                        .offset(x: 5, y: 5)
                 }
             }
 

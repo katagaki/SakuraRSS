@@ -15,6 +15,7 @@
 		E444842A2FB0A00E003FDAD4 /* Hanami.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E44484142FB09B0E003FDAD4 /* Hanami.framework */; };
 		E444842B2FB0A00E003FDAD4 /* Hanami.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E44484142FB09B0E003FDAD4 /* Hanami.framework */; };
 		E444842C2FB0A00E003FDAD4 /* Hanami.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E44484142FB09B0E003FDAD4 /* Hanami.framework */; };
+		E4BC0A01300B95BD0083C0BD /* Hanami.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E44484142FB09B0E003FDAD4 /* Hanami.framework */; };
 		E444844E2FB0A00E003FDAD4 /* FluidAudio in Frameworks */ = {isa = PBXBuildFile; productRef = E444844A2FB0A00E003FDAD4 /* FluidAudio */; };
 		E444844F2FB0A00E003FDAD4 /* SwiftSoup in Frameworks */ = {isa = PBXBuildFile; productRef = E444844B2FB0A00E003FDAD4 /* SwiftSoup */; };
 		E44484502FB0A00E003FDAD4 /* FaviconFinder in Frameworks */ = {isa = PBXBuildFile; productRef = E444844C2FB0A00E003FDAD4 /* FaviconFinder */; };
@@ -56,6 +57,13 @@
 			remoteInfo = Hanami;
 		};
 		E444842F2FB0A00E003FDAD4 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = E47D10132F549605006081EF /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = E44484132FB09B0E003FDAD4;
+			remoteInfo = Hanami;
+		};
+		E4BC0A02300B95BD0083C0BD /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = E47D10132F549605006081EF /* Project object */;
 			proxyType = 1;
@@ -249,6 +257,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E4BC0A01300B95BD0083C0BD /* Hanami.framework in Frameworks */,
 				E45623E4300B95BD0083C0BD /* UniformTypeIdentifiers.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -387,8 +396,10 @@
 			buildRules = (
 			);
 			dependencies = (
+				E4BC0A03300B95BD0083C0BD /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
+				E47D10292F549709006081EF /* Shared */,
 				E45623E5300B95BD0083C0BD /* Bookmark Article */,
 			);
 			name = "Bookmark Article";
@@ -706,6 +717,11 @@
 			isa = PBXTargetDependency;
 			target = E44484132FB09B0E003FDAD4 /* Hanami */;
 			targetProxy = E444842F2FB0A00E003FDAD4 /* PBXContainerItemProxy */;
+		};
+		E4BC0A03300B95BD0083C0BD /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = E44484132FB09B0E003FDAD4 /* Hanami */;
+			targetProxy = E4BC0A02300B95BD0083C0BD /* PBXContainerItemProxy */;
 		};
 		E45623EF300B95BD0083C0BD /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
