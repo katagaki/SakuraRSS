@@ -1,4 +1,5 @@
 import CloudKit
+import CryptoKit
 import Foundation
 
 public nonisolated final class CloudSyncEngine: @unchecked Sendable {
@@ -7,10 +8,13 @@ public nonisolated final class CloudSyncEngine: @unchecked Sendable {
 
     public static let enabledDefaultsKey = "iCloudSync.Enabled"
     public static let lastSyncedAtDefaultsKey = "iCloudSync.LastSyncedAt"
+    public static let didMigrateItemStatusesKey = "iCloudSync.DidMigrateItemStatuses"
 
     static let containerIdentifier = "iCloud.com.tsubuzaki.SakuraRSS"
     static let zoneName = "SakuraFeeds"
     static let feedRecordType = "Feed"
+    static let itemStatusRecordType = "ItemStatus"
+    static let itemStatusIDPrefix = "status."
     static let engineStateKey = "engineState"
     static let archivedRecordKeyPrefix = "record."
 
@@ -25,6 +29,7 @@ public nonisolated final class CloudSyncEngine: @unchecked Sendable {
 
     private let engineLock = NSLock()
     private var underlyingEngine: CKSyncEngine?
+    private var itemStatusEnqueueScheduled = false
 
     var engine: CKSyncEngine? {
         engineLock.lock()
@@ -62,8 +67,10 @@ public nonisolated final class CloudSyncEngine: @unchecked Sendable {
 
     private func start() {
         engineLock.lock()
-        defer { engineLock.unlock() }
-        guard underlyingEngine == nil else { return }
+        guard underlyingEngine == nil else {
+            engineLock.unlock()
+            return
+        }
         let stateSerialization = loadEngineState()
         let container = CKContainer(identifier: Self.containerIdentifier)
         let configuration = CKSyncEngine.Configuration(
@@ -75,6 +82,11 @@ public nonisolated final class CloudSyncEngine: @unchecked Sendable {
         underlyingEngine = newEngine
         if stateSerialization == nil {
             queueInitialSync(on: newEngine)
+        }
+        engineLock.unlock()
+        Task.detached { [weak self] in
+            self?.migrateItemStatusesIfNeeded()
+            self?.enqueueDirtyItemStatuses()
         }
         log("CloudSyncEngine", "Started (fresh state: \(stateSerialization == nil))")
     }
@@ -115,6 +127,68 @@ public nonisolated final class CloudSyncEngine: @unchecked Sendable {
         guard let syncID else { return }
         database.setSyncEngineStateData(nil, forKey: Self.archivedRecordKeyPrefix + syncID)
         engine?.state.add(pendingRecordZoneChanges: [.deleteRecord(Self.recordID(for: syncID))])
+    }
+
+    // MARK: - Item Status Sync
+
+    /// Cheap hot-path hook: coalesces status writes into a single debounced
+    /// background enqueue so marking items read never blocks the caller and
+    /// bulk operations queue at most one upload pass.
+    public func noteItemStatusChanged() {
+        guard Self.isEnabled else { return }
+        engineLock.lock()
+        guard underlyingEngine != nil, !itemStatusEnqueueScheduled else {
+            engineLock.unlock()
+            return
+        }
+        itemStatusEnqueueScheduled = true
+        engineLock.unlock()
+        Task.detached { [weak self] in
+            try? await Task.sleep(for: .seconds(2))
+            self?.enqueueDirtyItemStatuses()
+        }
+    }
+
+    func enqueueDirtyItemStatuses() {
+        engineLock.lock()
+        itemStatusEnqueueScheduled = false
+        let engine = underlyingEngine
+        engineLock.unlock()
+        guard let engine else { return }
+        let dirty = (try? database.dirtyItemStatuses()) ?? []
+        guard !dirty.isEmpty else { return }
+        let changes = dirty.map { change -> CKSyncEngine.PendingRecordZoneChange in
+            let syncID = Self.itemStatusSyncID(forURL: change.url)
+            database.setItemStatusSyncID(url: change.url, syncID: syncID)
+            return .saveRecord(Self.recordID(for: syncID))
+        }
+        engine.state.add(pendingRecordZoneChanges: changes)
+        database.clearItemStatusDirty(urls: dirty.map(\.url))
+        log("CloudSyncEngine", "Enqueued \(changes.count) item statuses")
+    }
+
+    public func noteItemStatusesDeleted(syncIDs: [String]) {
+        guard let engine, !syncIDs.isEmpty else { return }
+        for syncID in syncIDs {
+            database.setSyncEngineStateData(nil, forKey: Self.archivedRecordKeyPrefix + syncID)
+        }
+        engine.state.add(pendingRecordZoneChanges: syncIDs.map { .deleteRecord(Self.recordID(for: $0)) })
+    }
+
+    func migrateItemStatusesIfNeeded() {
+        guard !UserDefaults.standard.bool(forKey: Self.didMigrateItemStatusesKey) else { return }
+        try? database.migrateItemStatusesForSync()
+        UserDefaults.standard.set(true, forKey: Self.didMigrateItemStatusesKey)
+        log("CloudSyncEngine", "Migrated existing item statuses for sync")
+    }
+
+    static func itemStatusSyncID(forURL url: String) -> String {
+        let digest = SHA256.hash(data: Data(url.utf8))
+        return itemStatusIDPrefix + digest.map { String(format: "%02x", $0) }.joined()
+    }
+
+    static func isItemStatusID(_ recordName: String) -> Bool {
+        recordName.hasPrefix(itemStatusIDPrefix)
     }
 
     // MARK: - Manual Sync

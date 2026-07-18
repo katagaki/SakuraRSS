@@ -54,6 +54,9 @@ public nonisolated extension DatabaseManager {
     var articleDownloadPath: SQLite.Expression<String?> { SQLite.Expression<String?>("download_path") }
     var articleTranscriptJSON: SQLite.Expression<String?> { SQLite.Expression<String?>("transcript_json") }
     var articleCommentsFetchedAt: SQLite.Expression<Double?> { SQLite.Expression<Double?>("comments_fetched_at") }
+    var articleStatusModifiedAt: SQLite.Expression<Double?> { SQLite.Expression<Double?>("status_modified_at") }
+    var articleStatusSyncID: SQLite.Expression<String?> { SQLite.Expression<String?>("status_sync_id") }
+    var articleStatusDirty: SQLite.Expression<Bool> { SQLite.Expression<Bool>("status_dirty") }
 
     // MARK: - Comments
 

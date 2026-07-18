@@ -51,6 +51,11 @@ public nonisolated extension DatabaseManager {
             table.column(syncStateData)
         })
         _ = try? database.run(feeds.createIndex(feedSyncID, unique: true, ifNotExists: true))
+        _ = try? database.run(articles.addColumn(articleStatusModifiedAt))
+        _ = try? database.run(articles.addColumn(articleStatusSyncID))
+        _ = try? database.run(articles.addColumn(articleStatusDirty, defaultValue: false))
+        _ = try? database.run(articles.createIndex(articleStatusDirty, ifNotExists: true))
+        _ = try? database.run(articles.createIndex(articleStatusSyncID, ifNotExists: true))
     }
 
     // MARK: - Feed Sync Metadata

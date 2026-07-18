@@ -1,0 +1,27 @@
+DEFINE SCHEMA
+
+    RECORD TYPE Feed (
+        category        STRING,
+        feedDescription STRING,
+        iconURL         STRING,
+        isMuted         INT64,
+        isPodcast       INT64,
+        isTitleCustomized INT64,
+        siteURL         STRING,
+        title           STRING,
+        url             STRING,
+        userModifiedAt  TIMESTAMP,
+        GRANT WRITE TO "_creator",
+        GRANT CREATE TO "_icloud",
+        GRANT READ TO "_creator"
+    );
+
+    RECORD TYPE ItemStatus (
+        isBookmarked    INT64,
+        isRead          INT64,
+        url             STRING,
+        userModifiedAt  TIMESTAMP,
+        GRANT WRITE TO "_creator",
+        GRANT CREATE TO "_icloud",
+        GRANT READ TO "_creator"
+    );
