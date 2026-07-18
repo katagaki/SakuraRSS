@@ -203,6 +203,7 @@ public extension XProvider {
         let tweetURL = "https://x.com/\(authorHandle)/status/\(idStr)"
 
         let cleanText = sanitizeTweetText(fullText: fullText, legacy: legacy)
+        let video = parseTweetVideo(from: legacy)
 
         return ParsedTweet(
             id: idStr,
@@ -212,7 +213,9 @@ public extension XProvider {
             url: tweetURL,
             imageURL: imageURL,
             carouselImageURLs: photoURLs.count > 1 ? photoURLs : [],
-            publishedDate: publishedDate
+            publishedDate: publishedDate,
+            videoURL: video?.url,
+            videoAspectRatio: video?.aspectRatio
         )
     }
 
