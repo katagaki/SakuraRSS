@@ -30,8 +30,9 @@ class ActionViewController: UIViewController {
                     provider.loadItem(forTypeIdentifier: UTType.image.identifier) { (imageURL, error) in
                         if let imageURL = imageURL as? URL {
                             Task { @MainActor in
-                                if let strongImageView = weakImageView {
-                                    strongImageView.image = UIImage(data: try! Data(contentsOf: imageURL))
+                                if let strongImageView = weakImageView,
+                                   let data = try? Data(contentsOf: imageURL) {
+                                    strongImageView.image = UIImage(data: data)
                                 }
                             }
                         }
