@@ -19,6 +19,8 @@
 		E444844F2FB0A00E003FDAD4 /* SwiftSoup in Frameworks */ = {isa = PBXBuildFile; productRef = E444844B2FB0A00E003FDAD4 /* SwiftSoup */; };
 		E44484502FB0A00E003FDAD4 /* FaviconFinder in Frameworks */ = {isa = PBXBuildFile; productRef = E444844C2FB0A00E003FDAD4 /* FaviconFinder */; };
 		E44484512FB0A00E003FDAD4 /* SQLite in Frameworks */ = {isa = PBXBuildFile; productRef = E444844D2FB0A00E003FDAD4 /* SQLite */; };
+		E45623E4300B95BD0083C0BD /* UniformTypeIdentifiers.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E47D10362F54980E006081EF /* UniformTypeIdentifiers.framework */; };
+		E45623F0300B95BD0083C0BD /* Bookmark Article.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = E45623E3300B95BD0083C0BD /* Bookmark Article.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		E45EAA172F9FA36900EA7A54 /* UniformTypeIdentifiers.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E47D10362F54980E006081EF /* UniformTypeIdentifiers.framework */; };
 		E45EAA222F9FA36900EA7A54 /* Open Article.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = E45EAA162F9FA36900EA7A54 /* Open Article.appex */; platformFilters = (ios, xros, ); settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		E47D102E2F5497AC006081EF /* SQLite in Frameworks */ = {isa = PBXBuildFile; productRef = E47D102D2F5497AC006081EF /* SQLite */; };
@@ -59,6 +61,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = E44484132FB09B0E003FDAD4;
 			remoteInfo = Hanami;
+		};
+		E45623EE300B95BD0083C0BD /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = E47D10132F549605006081EF /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = E45623E2300B95BD0083C0BD;
+			remoteInfo = "Bookmark Article";
 		};
 		E45EAA202F9FA36900EA7A54 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -101,6 +110,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 13;
 			files = (
+				E45623F0300B95BD0083C0BD /* Bookmark Article.appex in Embed Foundation Extensions */,
 				E47D105C2F549822006081EF /* WidgetsExtension.appex in Embed Foundation Extensions */,
 				E45EAA222F9FA36900EA7A54 /* Open Article.appex in Embed Foundation Extensions */,
 				E47D10432F54980E006081EF /* Add Feed.appex in Embed Foundation Extensions */,
@@ -112,6 +122,7 @@
 
 /* Begin PBXFileReference section */
 		E44484142FB09B0E003FDAD4 /* Hanami.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Hanami.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		E45623E3300B95BD0083C0BD /* Bookmark Article.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "Bookmark Article.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
 		E45EAA162F9FA36900EA7A54 /* Open Article.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "Open Article.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
 		E47D101B2F549605006081EF /* Sakura.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Sakura.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E47D10342F54980E006081EF /* Add Feed.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "Add Feed.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -122,6 +133,13 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		E45623F3300B95BD0083C0BD /* Exceptions for "Bookmark Article" folder in "Bookmark Article" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = E45623E2300B95BD0083C0BD /* Bookmark Article */;
+		};
 		E45EAA232F9FA36900EA7A54 /* Exceptions for "Open Article" folder in "Open Article" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
@@ -163,6 +181,14 @@
 		E44484152FB09B0E003FDAD4 /* Hanami */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = Hanami;
+			sourceTree = "<group>";
+		};
+		E45623E5300B95BD0083C0BD /* Bookmark Article */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				E45623F3300B95BD0083C0BD /* Exceptions for "Bookmark Article" folder in "Bookmark Article" target */,
+			);
+			path = "Bookmark Article";
 			sourceTree = "<group>";
 		};
 		E45EAA182F9FA36900EA7A54 /* Open Article */ = {
@@ -216,6 +242,14 @@
 				E44484502FB0A00E003FDAD4 /* FaviconFinder in Frameworks */,
 				E444844F2FB0A00E003FDAD4 /* SwiftSoup in Frameworks */,
 				E444844E2FB0A00E003FDAD4 /* FluidAudio in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E45623E0300B95BD0083C0BD /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E45623E4300B95BD0083C0BD /* UniformTypeIdentifiers.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -274,6 +308,7 @@
 				E47D10292F549709006081EF /* Shared */,
 				E47D10382F54980E006081EF /* Add Feed */,
 				E45EAA182F9FA36900EA7A54 /* Open Article */,
+				E45623E5300B95BD0083C0BD /* Bookmark Article */,
 				E47D10522F549821006081EF /* Widgets */,
 			);
 			sourceTree = "<group>";
@@ -286,6 +321,7 @@
 				E47D104D2F549821006081EF /* WidgetsExtension.appex */,
 				E45EAA162F9FA36900EA7A54 /* Open Article.appex */,
 				E44484142FB09B0E003FDAD4 /* Hanami.framework */,
+				E45623E3300B95BD0083C0BD /* Bookmark Article.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -340,6 +376,28 @@
 			productReference = E44484142FB09B0E003FDAD4 /* Hanami.framework */;
 			productType = "com.apple.product-type.framework";
 		};
+		E45623E2300B95BD0083C0BD /* Bookmark Article */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = E45623F4300B95BD0083C0BD /* Build configuration list for PBXNativeTarget "Bookmark Article" */;
+			buildPhases = (
+				E45623DF300B95BD0083C0BD /* Sources */,
+				E45623E0300B95BD0083C0BD /* Frameworks */,
+				E45623E1300B95BD0083C0BD /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				E45623E5300B95BD0083C0BD /* Bookmark Article */,
+			);
+			name = "Bookmark Article";
+			packageProductDependencies = (
+			);
+			productName = "Bookmark Article";
+			productReference = E45623E3300B95BD0083C0BD /* Bookmark Article.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 		E45EAA152F9FA36900EA7A54 /* Open Article */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = E45EAA242F9FA36900EA7A54 /* Build configuration list for PBXNativeTarget "Open Article" */;
@@ -381,6 +439,7 @@
 				E47D105B2F549822006081EF /* PBXTargetDependency */,
 				E45EAA212F9FA36900EA7A54 /* PBXTargetDependency */,
 				E44484192FB09B0E003FDAD4 /* PBXTargetDependency */,
+				E45623EF300B95BD0083C0BD /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				E47D101D2F549605006081EF /* App */,
@@ -454,11 +513,14 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 2640;
+				LastSwiftUpdateCheck = 2700;
 				LastUpgradeCheck = 2650;
 				TargetAttributes = {
 					E44484132FB09B0E003FDAD4 = {
 						CreatedOnToolsVersion = 26.4.1;
+					};
+					E45623E2300B95BD0083C0BD = {
+						CreatedOnToolsVersion = 27.0;
 					};
 					E45EAA152F9FA36900EA7A54 = {
 						CreatedOnToolsVersion = 26.4.1;
@@ -506,6 +568,7 @@
 				E47D101A2F549605006081EF /* Sakura */,
 				E47D10332F54980E006081EF /* Add Feed */,
 				E45EAA152F9FA36900EA7A54 /* Open Article */,
+				E45623E2300B95BD0083C0BD /* Bookmark Article */,
 				E47D104C2F549821006081EF /* WidgetsExtension */,
 				E44484132FB09B0E003FDAD4 /* Hanami */,
 			);
@@ -514,6 +577,13 @@
 
 /* Begin PBXResourcesBuildPhase section */
 		E44484122FB09B0E003FDAD4 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E45623E1300B95BD0083C0BD /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -579,6 +649,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		E45623DF300B95BD0083C0BD /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		E45EAA122F9FA36900EA7A54 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -629,6 +706,11 @@
 			isa = PBXTargetDependency;
 			target = E44484132FB09B0E003FDAD4 /* Hanami */;
 			targetProxy = E444842F2FB0A00E003FDAD4 /* PBXContainerItemProxy */;
+		};
+		E45623EF300B95BD0083C0BD /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = E45623E2300B95BD0083C0BD /* Bookmark Article */;
+			targetProxy = E45623EE300B95BD0083C0BD /* PBXContainerItemProxy */;
 		};
 		E45EAA212F9FA36900EA7A54 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -754,6 +836,72 @@
 			};
 			name = Release;
 		};
+		E45623F1300B95BD0083C0BD /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 10;
+				DEVELOPMENT_TEAM = YYM4Z6MU8F;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Bookmark Article/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "Bookmark Article";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.8.1;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.tsubuzaki.SakuraRSS.Bookmark-Article";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator xros xrsimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2,7";
+			};
+			name = Debug;
+		};
+		E45623F2300B95BD0083C0BD /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 10;
+				DEVELOPMENT_TEAM = YYM4Z6MU8F;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Bookmark Article/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "Bookmark Article";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.8.1;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.tsubuzaki.SakuraRSS.Bookmark-Article";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator xros xrsimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2,7";
+			};
+			name = Release;
+		};
 		E45EAA252F9FA36900EA7A54 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -771,7 +919,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.8;
+				MARKETING_VERSION = 1.8.1;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.tsubuzaki.SakuraRSS.Open-Article";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -807,7 +955,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.8;
+				MARKETING_VERSION = 1.8.1;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.tsubuzaki.SakuraRSS.Open-Article";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -985,7 +1133,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.8;
+				MARKETING_VERSION = 1.8.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.tsubuzaki.SakuraRSS;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
@@ -1036,7 +1184,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.8;
+				MARKETING_VERSION = 1.8.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.tsubuzaki.SakuraRSS;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
@@ -1073,7 +1221,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.8;
+				MARKETING_VERSION = 1.8.1;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.tsubuzaki.SakuraRSS.Add-Feed";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -1110,7 +1258,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.8;
+				MARKETING_VERSION = 1.8.1;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.tsubuzaki.SakuraRSS.Add-Feed";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -1148,7 +1296,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.8;
+				MARKETING_VERSION = 1.8.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.tsubuzaki.SakuraRSS.Widgets;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -1186,7 +1334,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 1.8;
+				MARKETING_VERSION = 1.8.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.tsubuzaki.SakuraRSS.Widgets;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -1213,6 +1361,15 @@
 			buildConfigurations = (
 				E444841D2FB09B0E003FDAD4 /* Debug */,
 				E444841E2FB09B0E003FDAD4 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		E45623F4300B95BD0083C0BD /* Build configuration list for PBXNativeTarget "Bookmark Article" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E45623F1300B95BD0083C0BD /* Debug */,
+				E45623F2300B95BD0083C0BD /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
