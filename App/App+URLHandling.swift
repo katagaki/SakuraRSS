@@ -44,6 +44,11 @@ extension SakuraRSSApp {
             if let request = OpenArticleRequest(url: url) {
                 pendingOpenRequest = request
             }
+        case "addfeed":
+            if let feedURL = URLComponents(url: url, resolvingAgainstBaseURL: false)?
+                .queryItems?.first(where: { $0.name == "url" })?.value {
+                pendingFeedURL = feedURL
+            }
         default:
             return false
         }
