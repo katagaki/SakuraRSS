@@ -41,5 +41,6 @@ struct EmbedBlockView: View {
             .background(.secondary.opacity(0.08), in: RoundedRectangle(cornerRadius: 10))
         }
         .buttonStyle(.plain)
+        .articleMediaWidthCap()
     }
 }

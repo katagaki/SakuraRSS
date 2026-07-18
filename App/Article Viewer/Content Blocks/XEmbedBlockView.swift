@@ -41,6 +41,7 @@ struct XEmbedBlockView: View {
                 }
             }
             .task { await loadTweet() }
+            .articleMediaWidthCap()
     }
 
     @ViewBuilder
