@@ -174,7 +174,8 @@ public enum HeadlineSummarizer {
     private static func runBatch(
         batchIndex: Int,
         batch: [Input],
-        instructions: String
+        instructions: String,
+        splitDepth: Int = 0
     ) async -> Result<[ResolvedEvent], Error> {
         let prompt = renderPrompt(batch)
         log(
@@ -206,6 +207,18 @@ public enum HeadlineSummarizer {
             )
             return .success(resolved)
         } catch {
+            if isContextWindowOverflow(error), batch.count > 1, splitDepth < 2 {
+                log(
+                    logModule,
+                    "batch[\(batchIndex)] exceeded context window; splitting \(batch.count) articles and retrying"
+                )
+                return await runSplitBatch(
+                    batchIndex: batchIndex,
+                    batch: batch,
+                    instructions: instructions,
+                    splitDepth: splitDepth
+                )
+            }
             if isGuardrailViolation(error) {
                 log(logModule, "batch[\(batchIndex)] dropped (guardrail): \(error.localizedDescription)")
             } else {
@@ -213,6 +226,38 @@ public enum HeadlineSummarizer {
             }
             return .failure(error)
         }
+    }
+
+    /// Runs the two halves of an oversized batch sequentially, merging
+    /// whatever succeeds. Only fails when both halves fail.
+    private static func runSplitBatch(
+        batchIndex: Int,
+        batch: [Input],
+        instructions: String,
+        splitDepth: Int
+    ) async -> Result<[ResolvedEvent], Error> {
+        let middle = batch.count / 2
+        let halves = [Array(batch[..<middle]), Array(batch[middle...])]
+        var events: [ResolvedEvent] = []
+        var lastFailure: Error?
+        for half in halves where !half.isEmpty {
+            let outcome = await runBatch(
+                batchIndex: batchIndex,
+                batch: half,
+                instructions: instructions,
+                splitDepth: splitDepth + 1
+            )
+            switch outcome {
+            case .success(let halfEvents):
+                events.append(contentsOf: halfEvents)
+            case .failure(let error):
+                lastFailure = error
+            }
+        }
+        if events.isEmpty, let lastFailure {
+            return .failure(lastFailure)
+        }
+        return .success(events)
     }
 
     /// Filters each event's articleIDs to those present in the batch and
