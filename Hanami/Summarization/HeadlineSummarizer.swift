@@ -27,7 +27,7 @@ struct HeadlineEventList: Sendable {
 /// Runs structured-output headline grouping in batches that fit the on-device
 /// context window. Articles are tagged with their real `Article.id` in the
 /// prompt; the model echoes those IDs back, and we filter to IDs that appear
-/// in each batch before flat-merging across batches.
+/// in each batch before merging same-story events across batches.
 public enum HeadlineSummarizer {
 
     nonisolated static let logModule = "Summary"
@@ -105,12 +105,12 @@ public enum HeadlineSummarizer {
             return ([], nil)
         }
 
-        let (events, lastNonGuardrailError) = await runBatches(
+        let (batchedEvents, lastNonGuardrailError) = await runBatches(
             batches: batches,
             instructions: instructions
         )
 
-        if events.isEmpty {
+        if batchedEvents.isEmpty {
             if let lastNonGuardrailError {
                 log(
                     logModule,
@@ -122,61 +122,73 @@ public enum HeadlineSummarizer {
             return ([], lastNonGuardrailError)
         }
         let cap = maxEventsPerCategory(for: articles.count)
-        let deduped = deduplicate(events)
-        let interestEvents = Array(deduped.filter { !$0.isMajorWorldEvent }.prefix(cap))
-        let keyEvents = Array(deduped.filter(\.isMajorWorldEvent).prefix(cap))
+        let merged = mergeSameStoryEvents(batchedEvents, entityMap: entityMap)
+        let interestEvents = Array(merged.filter { !$0.isMajorWorldEvent }.prefix(cap))
+        let keyEvents = Array(merged.filter(\.isMajorWorldEvent).prefix(cap))
         // swiftlint:disable:next line_length
-        log(logModule, "raw events=\(events.count) deduped=\(deduped.count) interest=\(interestEvents.count) keyEvents=\(keyEvents.count) (cap \(cap) each)")
+        log(logModule, "raw events=\(batchedEvents.count) merged=\(merged.count) interest=\(interestEvents.count) keyEvents=\(keyEvents.count) (cap \(cap) each)")
         let translated = await translateHeadlinesIfNeeded(interestEvents + keyEvents)
         return (translated, lastNonGuardrailError)
     }
 
     /// Drops batches that trip the safety classifier; surfaces other errors
-    /// only if no batch survived.
+    /// only if no batch survived. Stops scheduling new batches once the
+    /// surrounding task is cancelled (e.g. a background task expiring) so
+    /// whatever already resolved can still be persisted as a partial result.
     private static func runBatches(
         batches: [[Input]],
         instructions: String
-    ) async -> (events: [ResolvedEvent], lastNonGuardrailError: Error?) {
-        var resolved: [ResolvedEvent] = []
+    ) async -> (events: [BatchedEvent], lastNonGuardrailError: Error?) {
+        var resolved: [BatchedEvent] = []
         var lastError: Error?
-        await withTaskGroup(of: Result<[ResolvedEvent], Error>.self) { group in
+        await withTaskGroup(of: Result<[BatchedEvent], Error>.self) { group in
             var index = 0
-            while index < batches.count && index < maxConcurrentBatches {
-                let batch = batches[index]
-                let batchIndex = index
-                group.addTask {
-                    await runBatch(batchIndex: batchIndex, batch: batch, instructions: instructions)
-                }
+            while index < batches.count && index < maxConcurrentBatches && !Task.isCancelled {
+                scheduleBatch(&group, batches: batches, index: index, instructions: instructions)
                 index += 1
             }
             for await outcome in group {
                 switch outcome {
                 case .success(let events):
                     resolved.append(contentsOf: events)
-                case .failure(let error):
-                    if !isGuardrailViolation(error) {
-                        lastError = error
-                    }
+                case .failure(let error) where !isGuardrailViolation(error):
+                    lastError = error
+                case .failure:
+                    break
                 }
-                if index < batches.count {
-                    let batch = batches[index]
-                    let batchIndex = index
-                    group.addTask {
-                        await runBatch(batchIndex: batchIndex, batch: batch, instructions: instructions)
-                    }
+                if index < batches.count && !Task.isCancelled {
+                    scheduleBatch(&group, batches: batches, index: index, instructions: instructions)
                     index += 1
                 }
             }
+            if Task.isCancelled && index < batches.count {
+                log(logModule, "cancelled; skipped \(batches.count - index) remaining batches")
+                lastError = lastError ?? CancellationError()
+            }
         }
         return (resolved, lastError)
+    }
+
+    private static func scheduleBatch(
+        _ group: inout TaskGroup<Result<[BatchedEvent], Error>>,
+        batches: [[Input]],
+        index: Int,
+        instructions: String
+    ) {
+        let batch = batches[index]
+        group.addTask {
+            await runBatch(batchIndex: index, batch: batch, instructions: instructions)
+        }
     }
 
     private static func runBatch(
         batchIndex: Int,
         batch: [Input],
         instructions: String,
-        splitDepth: Int = 0
-    ) async -> Result<[ResolvedEvent], Error> {
+        splitDepth: Int = 0,
+        callPath: String? = nil
+    ) async -> Result<[BatchedEvent], Error> {
+        let path = callPath ?? String(batchIndex)
         let prompt = renderPrompt(batch)
         log(
             logModule,
@@ -190,22 +202,13 @@ public enum HeadlineSummarizer {
                 generating: HeadlineEventList.self
             )
             let events = response.content.events
-            log(
-                logModule,
-                "batch[\(batchIndex)] received \(events.count) raw events"
-            )
-            for (eventIndex, event) in events.enumerated() {
-                log(
-                    logModule,
-                    "batch[\(batchIndex)] event[\(eventIndex)]: ids=\(event.articleIDs) headline=\(event.headline)"
-                )
-            }
+            logRawEvents(batchIndex: batchIndex, events: events)
             let resolved = resolve(events: events, batch: batch)
             log(
                 logModule,
                 "batch[\(batchIndex)] resolved \(resolved.count) of \(events.count) events"
             )
-            return .success(resolved)
+            return .success(resolved.map { BatchedEvent(callPath: path, event: $0) })
         } catch {
             if isContextWindowOverflow(error), batch.count > 1, splitDepth < 2 {
                 log(
@@ -216,7 +219,8 @@ public enum HeadlineSummarizer {
                     batchIndex: batchIndex,
                     batch: batch,
                     instructions: instructions,
-                    splitDepth: splitDepth
+                    splitDepth: splitDepth,
+                    callPath: path
                 )
             }
             if isGuardrailViolation(error) {
@@ -228,24 +232,38 @@ public enum HeadlineSummarizer {
         }
     }
 
+    private static func logRawEvents(batchIndex: Int, events: [HeadlineEvent]) {
+        log(logModule, "batch[\(batchIndex)] received \(events.count) raw events")
+        for (eventIndex, event) in events.enumerated() {
+            log(
+                logModule,
+                "batch[\(batchIndex)] event[\(eventIndex)]: ids=\(event.articleIDs) headline=\(event.headline)"
+            )
+        }
+    }
+
     /// Runs the two halves of an oversized batch sequentially, merging
-    /// whatever succeeds. Only fails when both halves fail.
+    /// whatever succeeds. Only fails when both halves fail. Each half is
+    /// a separate model call, so it gets its own call path and duplicate
+    /// events across halves can be entity-merged later.
     private static func runSplitBatch(
         batchIndex: Int,
         batch: [Input],
         instructions: String,
-        splitDepth: Int
-    ) async -> Result<[ResolvedEvent], Error> {
+        splitDepth: Int,
+        callPath: String
+    ) async -> Result<[BatchedEvent], Error> {
         let middle = batch.count / 2
         let halves = [Array(batch[..<middle]), Array(batch[middle...])]
-        var events: [ResolvedEvent] = []
+        var events: [BatchedEvent] = []
         var lastFailure: Error?
-        for half in halves where !half.isEmpty {
+        for (halfIndex, half) in halves.enumerated() where !half.isEmpty {
             let outcome = await runBatch(
                 batchIndex: batchIndex,
                 batch: half,
                 instructions: instructions,
-                splitDepth: splitDepth + 1
+                splitDepth: splitDepth + 1,
+                callPath: "\(callPath).\(halfIndex)"
             )
             switch outcome {
             case .success(let halfEvents):
@@ -285,18 +303,6 @@ public enum HeadlineSummarizer {
                 isMajorWorldEvent: event.isMajorWorldEvent
             )
         }
-    }
-
-    private static func deduplicate(_ events: [ResolvedEvent]) -> [ResolvedEvent] {
-        var seen = Set<String>()
-        var output: [ResolvedEvent] = []
-        for event in events {
-            let signature = event.articleIDs.sorted().map(String.init).joined(separator: ",")
-            guard !seen.contains(signature) else { continue }
-            seen.insert(signature)
-            output.append(event)
-        }
-        return output
     }
 
 }
