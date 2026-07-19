@@ -12,10 +12,13 @@ public nonisolated extension DatabaseManager {
 
     // MARK: - Reading Dirty Rows
 
-    func dirtyItemStatuses() throws -> [ItemStatusChange] {
-        let query = articles
+    func dirtyItemStatuses(limit: Int? = nil) throws -> [ItemStatusChange] {
+        var query = articles
             .filter(articleStatusDirty == true)
             .select(articleURL, articleIsRead, articleIsBookmarked, articleStatusModifiedAt)
+        if let limit {
+            query = query.limit(limit)
+        }
         return try database.prepare(query).map { row in
             ItemStatusChange(
                 url: row[articleURL],

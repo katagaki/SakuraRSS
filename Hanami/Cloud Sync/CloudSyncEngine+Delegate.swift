@@ -15,8 +15,13 @@ extension CloudSyncEngine: CKSyncEngineDelegate {
             applyFetchedRecordZoneChanges(changes)
         case .sentRecordZoneChanges(let sent):
             handleSentRecordZoneChanges(sent, syncEngine: syncEngine)
-        case .didFetchChanges, .didSendChanges:
+        case .didFetchChanges:
             markSynced()
+        case .didSendChanges:
+            markSynced()
+            // Drains the next chunk of any dirty-status backlog that was
+            // held back by maxItemStatusEnqueuePerPass.
+            noteItemStatusChanged()
         case .sentDatabaseChanges, .willFetchChanges, .willFetchRecordZoneChanges,
              .didFetchRecordZoneChanges, .willSendChanges:
             break
