@@ -24,17 +24,14 @@ public struct FluidTranscriberEngine: TranscriptionEngine {
     }
 
     public func downloadModel(progress: (@Sendable (Double) -> Void)?) async throws {
-        let handler: DownloadUtils.ProgressHandler?
-        if let progress {
-            handler = { @Sendable (downloadProgress: DownloadUtils.DownloadProgress) in
-                progress(downloadProgress.fractionCompleted)
-            }
-        } else {
-            handler = nil
-        }
+        // FluidAudio's DownloadProgress is shadowed by Hanami's own type and the
+        // FluidAudio struct shadows its module name, so the handler types are
+        // left to inference from the progressHandler parameter.
         _ = try await AsrModels.download(
             version: Self.modelVersion,
-            progressHandler: handler
+            progressHandler: progress.map { callback in
+                { @Sendable downloadProgress in callback(downloadProgress.fractionCompleted) }
+            }
         )
     }
 

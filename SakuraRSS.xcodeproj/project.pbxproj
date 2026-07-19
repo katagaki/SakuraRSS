@@ -1446,8 +1446,8 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/FluidInference/FluidAudio";
 			requirement = {
-				branch = main;
-				kind = branch;
+				kind = revision;
+				revision = 19a1c9d66595f4a956792e501696b63e59d227b1;
 			};
 		};
 		E47D102C2F5497AC006081EF /* XCRemoteSwiftPackageReference "SQLite.swift" */ = {
@@ -1470,8 +1470,8 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/scinfu/SwiftSoup";
 			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 2.11.3;
+				kind = revision;
+				revision = 8d6ad267714cac3ae747cefdd21f7a6665006e1f;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
