@@ -41,7 +41,7 @@ public enum HeadlineSummarizer {
     /// rows. The DB wipes the summary_headlines cache on next launch
     /// when this differs from the stored value, independent of app
     /// version.
-    public nonisolated static let promptVersion = 3
+    public nonisolated static let promptVersion = 4
 
     /// Per-category cap on returned events that scales with input size so
     /// light days don't get padded out. Applied separately to
