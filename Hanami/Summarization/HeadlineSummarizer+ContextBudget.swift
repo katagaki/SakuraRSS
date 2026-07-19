@@ -5,19 +5,24 @@ extension HeadlineSummarizer {
 
     // MARK: - Context Budget
 
+    /// Upper bound on how much of a raw article body is worth processing
+    /// for a snippet; full-content feeds can carry bodies of hundreds of
+    /// kilobytes.
+    static let rawSnippetSourceLimit = 4096
+
     /// Prepares an article body for prompting: strips HTML tags and
     /// entities, collapses whitespace, and trims to the weighted snippet
     /// budget so a CJK snippet costs roughly the same number of model
     /// tokens as a Latin one.
     public static func snippet(from raw: String) -> String {
-        var text = raw.replacingOccurrences(
+        var text = String(raw.prefix(rawSnippetSourceLimit)).replacingOccurrences(
             of: "<[^>]+>",
             with: " ",
             options: .regularExpression
         )
         let entities: [(String, String)] = [
-            ("&amp;", "&"), ("&lt;", "<"), ("&gt;", ">"),
-            ("&quot;", "\""), ("&#39;", "'"), ("&nbsp;", " ")
+            ("&lt;", "<"), ("&gt;", ">"), ("&quot;", "\""),
+            ("&#39;", "'"), ("&nbsp;", " "), ("&amp;", "&")
         ]
         for (entity, replacement) in entities {
             text = text.replacingOccurrences(of: entity, with: replacement)

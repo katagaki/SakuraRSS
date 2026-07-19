@@ -59,10 +59,11 @@ extension HeadlineSummarizer {
         return Locale.current.language
     }
 
-    /// Compares language codes, and scripts only when both sides specify
-    /// one. NLLanguageRecognizer reports Chinese as `zh-Hans`/`zh-Hant`
-    /// while a bare target of `zh` has no script, so a plain identifier
-    /// comparison would flag every Chinese headline as foreign.
+    /// Compares language code plus script instead of raw identifiers, so
+    /// `zh-Hans` matches a `zh` target (Locale.Language infers likely
+    /// subtags) and regional variants like `en` vs `en-GB` match, while
+    /// `zh-Hans` vs `zh-Hant` still counts as a mismatch and gets
+    /// converted.
     nonisolated static func languagesMatch(
         _ first: Locale.Language,
         _ second: Locale.Language

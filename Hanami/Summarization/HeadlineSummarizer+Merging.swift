@@ -19,11 +19,14 @@ extension HeadlineSummarizer {
     /// also merge when their articles share enough named entities,
     /// repairing stories that were split across batch boundaries and
     /// answered with one headline per batch. Events from the same call
-    /// are never entity-merged, because the model saw both together and
-    /// chose to keep them separate. The merged event keeps the headline
-    /// of the constituent citing the most articles, unions all article
-    /// IDs, and the result is ordered by source count so the
-    /// best-corroborated stories survive the per-category cap.
+    /// are never directly entity-merged, because the model saw both
+    /// together and chose to keep them separate (they can still end up
+    /// in one group transitively via a third call's event, the same
+    /// trade-off `clusterByEntities` makes when batching). The merged
+    /// event keeps the headline of the constituent citing the most
+    /// articles, unions all article IDs, and the result is ordered by
+    /// source count so the best-corroborated stories survive the
+    /// per-category cap.
     static func mergeSameStoryEvents(
         _ batched: [BatchedEvent],
         entityMap: [Int64: Set<String>]

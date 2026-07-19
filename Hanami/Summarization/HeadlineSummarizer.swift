@@ -131,6 +131,14 @@ public enum HeadlineSummarizer {
         return (translated, lastNonGuardrailError)
     }
 
+    /// One model call's worth of results: the events that resolved plus
+    /// any error encountered, so a batch that partially succeeded (e.g.
+    /// one half of a split) still reports its failure.
+    struct BatchOutcome: Sendable {
+        let events: [BatchedEvent]
+        let error: Error?
+    }
+
     /// Drops batches that trip the safety classifier; surfaces other errors
     /// only if no batch survived. Stops scheduling new batches once the
     /// surrounding task is cancelled (e.g. a background task expiring) so
@@ -141,20 +149,16 @@ public enum HeadlineSummarizer {
     ) async -> (events: [BatchedEvent], lastNonGuardrailError: Error?) {
         var resolved: [BatchedEvent] = []
         var lastError: Error?
-        await withTaskGroup(of: Result<[BatchedEvent], Error>.self) { group in
+        await withTaskGroup(of: BatchOutcome.self) { group in
             var index = 0
             while index < batches.count && index < maxConcurrentBatches && !Task.isCancelled {
                 scheduleBatch(&group, batches: batches, index: index, instructions: instructions)
                 index += 1
             }
             for await outcome in group {
-                switch outcome {
-                case .success(let events):
-                    resolved.append(contentsOf: events)
-                case .failure(let error) where !isGuardrailViolation(error):
+                resolved.append(contentsOf: outcome.events)
+                if let error = outcome.error, !isGuardrailViolation(error) {
                     lastError = error
-                case .failure:
-                    break
                 }
                 if index < batches.count && !Task.isCancelled {
                     scheduleBatch(&group, batches: batches, index: index, instructions: instructions)
@@ -170,7 +174,7 @@ public enum HeadlineSummarizer {
     }
 
     private static func scheduleBatch(
-        _ group: inout TaskGroup<Result<[BatchedEvent], Error>>,
+        _ group: inout TaskGroup<BatchOutcome>,
         batches: [[Input]],
         index: Int,
         instructions: String
@@ -187,7 +191,7 @@ public enum HeadlineSummarizer {
         instructions: String,
         splitDepth: Int = 0,
         callPath: String? = nil
-    ) async -> Result<[BatchedEvent], Error> {
+    ) async -> BatchOutcome {
         let path = callPath ?? String(batchIndex)
         let prompt = renderPrompt(batch)
         log(
@@ -208,7 +212,10 @@ public enum HeadlineSummarizer {
                 logModule,
                 "batch[\(batchIndex)] resolved \(resolved.count) of \(events.count) events"
             )
-            return .success(resolved.map { BatchedEvent(callPath: path, event: $0) })
+            return BatchOutcome(
+                events: resolved.map { BatchedEvent(callPath: path, event: $0) },
+                error: nil
+            )
         } catch {
             if isContextWindowOverflow(error), batch.count > 1, splitDepth < 2 {
                 log(
@@ -228,7 +235,7 @@ public enum HeadlineSummarizer {
             } else {
                 log(logModule, "batch[\(batchIndex)] failed: \(error.localizedDescription)")
             }
-            return .failure(error)
+            return BatchOutcome(events: [], error: error)
         }
     }
 
@@ -243,21 +250,23 @@ public enum HeadlineSummarizer {
     }
 
     /// Runs the two halves of an oversized batch sequentially, merging
-    /// whatever succeeds. Only fails when both halves fail. Each half is
-    /// a separate model call, so it gets its own call path and duplicate
-    /// events across halves can be entity-merged later.
+    /// whatever succeeds. A failed half still surfaces its error alongside
+    /// the other half's events so the generation is cached as partial and
+    /// can regenerate later; non-guardrail errors win over guardrail drops.
+    /// Each half is a separate model call, so it gets its own call path
+    /// and duplicate events across halves can be entity-merged later.
     private static func runSplitBatch(
         batchIndex: Int,
         batch: [Input],
         instructions: String,
         splitDepth: Int,
         callPath: String
-    ) async -> Result<[BatchedEvent], Error> {
+    ) async -> BatchOutcome {
         let middle = batch.count / 2
         let halves = [Array(batch[..<middle]), Array(batch[middle...])]
         var events: [BatchedEvent] = []
-        var lastFailure: Error?
-        for (halfIndex, half) in halves.enumerated() where !half.isEmpty {
+        var failure: Error?
+        for (halfIndex, half) in halves.enumerated() {
             let outcome = await runBatch(
                 batchIndex: batchIndex,
                 batch: half,
@@ -265,17 +274,13 @@ public enum HeadlineSummarizer {
                 splitDepth: splitDepth + 1,
                 callPath: "\(callPath).\(halfIndex)"
             )
-            switch outcome {
-            case .success(let halfEvents):
-                events.append(contentsOf: halfEvents)
-            case .failure(let error):
-                lastFailure = error
+            events.append(contentsOf: outcome.events)
+            if let error = outcome.error {
+                let keepExisting = failure.map { !isGuardrailViolation($0) } ?? false
+                if !keepExisting { failure = error }
             }
         }
-        if events.isEmpty, let lastFailure {
-            return .failure(lastFailure)
-        }
-        return .success(events)
+        return BatchOutcome(events: events, error: failure)
     }
 
     /// Filters each event's articleIDs to those present in the batch and
