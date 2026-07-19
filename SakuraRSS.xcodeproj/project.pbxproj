@@ -15,13 +15,12 @@
 		E444842A2FB0A00E003FDAD4 /* Hanami.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E44484142FB09B0E003FDAD4 /* Hanami.framework */; };
 		E444842B2FB0A00E003FDAD4 /* Hanami.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E44484142FB09B0E003FDAD4 /* Hanami.framework */; };
 		E444842C2FB0A00E003FDAD4 /* Hanami.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E44484142FB09B0E003FDAD4 /* Hanami.framework */; };
-		E4BC0A01300B95BD0083C0BD /* Hanami.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E44484142FB09B0E003FDAD4 /* Hanami.framework */; };
 		E444844E2FB0A00E003FDAD4 /* FluidAudio in Frameworks */ = {isa = PBXBuildFile; productRef = E444844A2FB0A00E003FDAD4 /* FluidAudio */; };
 		E444844F2FB0A00E003FDAD4 /* SwiftSoup in Frameworks */ = {isa = PBXBuildFile; productRef = E444844B2FB0A00E003FDAD4 /* SwiftSoup */; };
 		E44484502FB0A00E003FDAD4 /* FaviconFinder in Frameworks */ = {isa = PBXBuildFile; productRef = E444844C2FB0A00E003FDAD4 /* FaviconFinder */; };
 		E44484512FB0A00E003FDAD4 /* SQLite in Frameworks */ = {isa = PBXBuildFile; productRef = E444844D2FB0A00E003FDAD4 /* SQLite */; };
 		E45623E4300B95BD0083C0BD /* UniformTypeIdentifiers.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E47D10362F54980E006081EF /* UniformTypeIdentifiers.framework */; };
-		E45623F0300B95BD0083C0BD /* Bookmark Article.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = E45623E3300B95BD0083C0BD /* Bookmark Article.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		E45623F0300B95BD0083C0BD /* Bookmark Article.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = E45623E3300B95BD0083C0BD /* Bookmark Article.appex */; platformFilters = (ios, xros, ); settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		E45EAA172F9FA36900EA7A54 /* UniformTypeIdentifiers.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E47D10362F54980E006081EF /* UniformTypeIdentifiers.framework */; };
 		E45EAA222F9FA36900EA7A54 /* Open Article.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = E45EAA162F9FA36900EA7A54 /* Open Article.appex */; platformFilters = (ios, xros, ); settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		E47D102E2F5497AC006081EF /* SQLite in Frameworks */ = {isa = PBXBuildFile; productRef = E47D102D2F5497AC006081EF /* SQLite */; };
@@ -32,6 +31,7 @@
 		E47D105C2F549822006081EF /* WidgetsExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = E47D104D2F549821006081EF /* WidgetsExtension.appex */; platformFilters = (ios, xros, ); settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		E47D10632F54986D006081EF /* FaviconFinder in Frameworks */ = {isa = PBXBuildFile; productRef = E47D10622F54986D006081EF /* FaviconFinder */; };
 		E47D13182F549F92006081EF /* SwiftSoup in Frameworks */ = {isa = PBXBuildFile; productRef = E47D13172F549F92006081EF /* SwiftSoup */; };
+		E4BC0A01300B95BD0083C0BD /* Hanami.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E44484142FB09B0E003FDAD4 /* Hanami.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -57,13 +57,6 @@
 			remoteInfo = Hanami;
 		};
 		E444842F2FB0A00E003FDAD4 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = E47D10132F549605006081EF /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = E44484132FB09B0E003FDAD4;
-			remoteInfo = Hanami;
-		};
-		E4BC0A02300B95BD0083C0BD /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = E47D10132F549605006081EF /* Project object */;
 			proxyType = 1;
@@ -97,6 +90,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = E47D104C2F549821006081EF;
 			remoteInfo = WidgetsExtension;
+		};
+		E4BC0A02300B95BD0083C0BD /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = E47D10132F549605006081EF /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = E44484132FB09B0E003FDAD4;
+			remoteInfo = Hanami;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -399,8 +399,8 @@
 				E4BC0A03300B95BD0083C0BD /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
-				E47D10292F549709006081EF /* Shared */,
 				E45623E5300B95BD0083C0BD /* Bookmark Article */,
+				E47D10292F549709006081EF /* Shared */,
 			);
 			name = "Bookmark Article";
 			packageProductDependencies = (
@@ -718,13 +718,12 @@
 			target = E44484132FB09B0E003FDAD4 /* Hanami */;
 			targetProxy = E444842F2FB0A00E003FDAD4 /* PBXContainerItemProxy */;
 		};
-		E4BC0A03300B95BD0083C0BD /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = E44484132FB09B0E003FDAD4 /* Hanami */;
-			targetProxy = E4BC0A02300B95BD0083C0BD /* PBXContainerItemProxy */;
-		};
 		E45623EF300B95BD0083C0BD /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
+			platformFilters = (
+				ios,
+				xros,
+			);
 			target = E45623E2300B95BD0083C0BD /* Bookmark Article */;
 			targetProxy = E45623EE300B95BD0083C0BD /* PBXContainerItemProxy */;
 		};
@@ -754,6 +753,11 @@
 			);
 			target = E47D104C2F549821006081EF /* WidgetsExtension */;
 			targetProxy = E47D105A2F549822006081EF /* PBXContainerItemProxy */;
+		};
+		E4BC0A03300B95BD0083C0BD /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = E44484132FB09B0E003FDAD4 /* Hanami */;
+			targetProxy = E4BC0A02300B95BD0083C0BD /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
