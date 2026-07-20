@@ -103,7 +103,7 @@ struct CompactFeedArticleRow: View {
                     .strokeBorder(.primary.opacity(0.2), lineWidth: 0.5)
             }
             .overlay {
-                if feed?.isVideoFeed == true || feed?.isPodcast == true {
+                if feed?.isVideoFeed == true || feed?.isPodcast == true || article.hasXVideoThumbnail {
                     Image(systemName: "play.fill")
                         .font(.caption)
                         .foregroundStyle(.primary)

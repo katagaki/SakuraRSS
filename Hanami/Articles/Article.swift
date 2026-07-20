@@ -82,6 +82,15 @@ public nonisolated struct Article: Identifiable, Hashable, Sendable {
         audioURL != nil
     }
 
+    /// X serves video post thumbnails from dedicated paths, so the image URL
+    /// alone identifies posts with playable video. GIF posts
+    /// (`tweet_video_thumb`) are excluded because they autoplay.
+    public var hasXVideoThumbnail: Bool {
+        guard let imageURL else { return false }
+        return imageURL.contains("ext_tw_video_thumb")
+            || imageURL.contains("amplify_video_thumb")
+    }
+
     /// Filters out placeholder summaries (e.g. "Comments" from Hacker News).
     public var hasMeaningfulSummary: Bool {
         guard let summary else { return false }
