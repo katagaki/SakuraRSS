@@ -163,7 +163,10 @@ public extension XProvider {
                 id: tweet.id,
                 text: bodyText,
                 imageURLs: imageURLs,
-                quotedTweetURL: quotedURL
+                quotedTweetURL: quotedURL,
+                videoURL: tweet.videoURL,
+                videoAspectRatio: tweet.videoAspectRatio,
+                videoIsGIF: tweet.videoIsGIF
             )
         )
     }

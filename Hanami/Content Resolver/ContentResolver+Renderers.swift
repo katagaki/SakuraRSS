@@ -26,11 +26,33 @@ public extension ContentResolver {
             for imageURL in item.imageURLs {
                 section += "\n\n{{IMG}}\(imageURL){{/IMG}}"
             }
+            if let videoURL = item.videoURL {
+                section += "\n\n" + Self.videoMarker(
+                    url: videoURL,
+                    aspectRatio: item.videoAspectRatio,
+                    isGIF: item.videoIsGIF
+                )
+            }
             if let quoted = item.quotedTweetURL {
                 section += "\n\n{{XPOST}}\(quoted){{/XPOST}}"
             }
             sections.append(section)
         }
         return sections.joined(separator: "\n\n")
+    }
+
+    /// Builds a `{{VIDEO}}` marker with the extended `url|aspectRatio|gif`
+    /// payload understood by the article viewer's block parser.
+    static func videoMarker(url: String, aspectRatio: Double?, isGIF: Bool) -> String {
+        var payload = url
+        if let aspectRatio {
+            payload += "|\(String(format: "%.4f", aspectRatio))"
+            if isGIF {
+                payload += "|gif"
+            }
+        } else if isGIF {
+            payload += "||gif"
+        }
+        return "{{VIDEO}}\(payload){{/VIDEO}}"
     }
 }

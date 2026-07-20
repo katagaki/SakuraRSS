@@ -66,7 +66,9 @@ public extension XProvider {
             carouselImageURLs: photoURLs.count > 1 ? photoURLs : [],
             publishedDate: publishedDate,
             videoURL: video?.url,
-            videoAspectRatio: video?.aspectRatio
+            videoAspectRatio: video?.aspectRatio,
+            videoThumbnailURL: video?.thumbnailURL,
+            videoIsGIF: video?.isGIF ?? false
         )
     }
 

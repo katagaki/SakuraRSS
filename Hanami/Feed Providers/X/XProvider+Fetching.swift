@@ -320,7 +320,10 @@ public extension XProvider {
             id: original.id,
             text: longform.text,
             imageURLs: original.imageURLs,
-            quotedTweetURL: original.quotedTweetURL
+            quotedTweetURL: original.quotedTweetURL,
+            videoURL: original.videoURL,
+            videoAspectRatio: original.videoAspectRatio,
+            videoIsGIF: original.videoIsGIF
         )
         return ParsedTweetContent(focal: content.focal, threadItems: items)
     }

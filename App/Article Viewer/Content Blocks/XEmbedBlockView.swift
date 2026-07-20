@@ -57,10 +57,12 @@ struct XEmbedBlockView: View {
                     .textSelection(.enabled)
 
                 if let videoURLString = tweet.videoURL, let videoURL = URL(string: videoURLString) {
-                    VideoBlockView(
-                        url: videoURL,
-                        aspectRatio: tweet.videoAspectRatio.map { CGFloat($0) } ?? (16.0 / 9.0)
-                    )
+                    let aspectRatio = tweet.videoAspectRatio.map { CGFloat($0) } ?? (16.0 / 9.0)
+                    if tweet.videoIsGIF {
+                        GIFVideoBlockView(url: videoURL, aspectRatio: aspectRatio)
+                    } else {
+                        VideoBlockView(url: videoURL, aspectRatio: aspectRatio)
+                    }
                 } else if let imageURL = tweet.imageURL, let url = URL(string: imageURL) {
                     CachedAsyncImage(url: url, onImageLoaded: { image in
                         imageAspectRatio = image.size.width / image.size.height

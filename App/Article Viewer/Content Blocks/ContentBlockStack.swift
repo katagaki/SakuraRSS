@@ -32,8 +32,12 @@ struct ContentBlockStack: View {
                 ) {
                     onImageTap(url)
                 }
-            case .video(let url):
-                VideoBlockView(url: url)
+            case .video(let url, let aspectRatio, let isGIF):
+                if isGIF {
+                    GIFVideoBlockView(url: url, aspectRatio: aspectRatio ?? 16 / 9)
+                } else {
+                    VideoBlockView(url: url, aspectRatio: aspectRatio ?? 16 / 9)
+                }
             case .audio(let url):
                 AudioBlockView(url: url)
             case .youtube(let videoID):
