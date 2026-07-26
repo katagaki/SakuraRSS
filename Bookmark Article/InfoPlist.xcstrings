@@ -7,25 +7,25 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Lesezeichen in Sakura"
+            "value" : "Seite als Lesezeichen"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Bookmark in Sakura"
+            "value" : "Bookmark Page"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ajouter aux signets Sakura"
+            "value" : "Ajouter la page aux signets"
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Aggiungi ai segnalibri di Sakura"
+            "value" : "Aggiungi la pagina ai segnalibri"
           }
         },
         "ja" : {
@@ -37,31 +37,31 @@
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sakura에 북마크"
+            "value" : "페이지 북마크"
           }
         },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Bladwijzer in Sakura"
+            "value" : "Pagina als bladwijzer"
           }
         },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Thêm dấu trang trong Sakura"
+            "value" : "Đánh dấu trang này"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "在 Sakura 中添加书签"
+            "value" : "为页面添加书签"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "在 Sakura 中加入書籤"
+            "value" : "將頁面加入書籤"
           }
         }
       }
@@ -72,25 +72,25 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Lesezeichen in Sakura"
+            "value" : "Seite als Lesezeichen"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Bookmark in Sakura"
+            "value" : "Bookmark Page"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ajouter aux signets Sakura"
+            "value" : "Ajouter la page aux signets"
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Aggiungi ai segnalibri di Sakura"
+            "value" : "Aggiungi la pagina ai segnalibri"
           }
         },
         "ja" : {
@@ -102,31 +102,31 @@
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sakura에 북마크"
+            "value" : "페이지 북마크"
           }
         },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Bladwijzer in Sakura"
+            "value" : "Pagina als bladwijzer"
           }
         },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Thêm dấu trang trong Sakura"
+            "value" : "Đánh dấu trang này"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "在 Sakura 中添加书签"
+            "value" : "为页面添加书签"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "在 Sakura 中加入書籤"
+            "value" : "將頁面加入書籤"
           }
         }
       }

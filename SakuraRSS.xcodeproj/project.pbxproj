@@ -866,7 +866,7 @@
 				DEVELOPMENT_TEAM = YYM4Z6MU8F;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "Bookmark Article/Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = "Bookmark in Sakura";
+				INFOPLIST_KEY_CFBundleDisplayName = "Bookmark Page";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -901,7 +901,7 @@
 				DEVELOPMENT_TEAM = YYM4Z6MU8F;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "Bookmark Article/Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = "Bookmark in Sakura";
+				INFOPLIST_KEY_CFBundleDisplayName = "Bookmark Page";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
 				LD_RUNPATH_SEARCH_PATHS = (
