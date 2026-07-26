@@ -1,3 +1,5 @@
+#if !os(visionOS)
+
 import AVFoundation
 import FluidAudio
 import Foundation
@@ -81,3 +83,5 @@ private final class TimingCollector: @unchecked Sendable {
         return timings
     }
 }
+
+#endif

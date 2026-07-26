@@ -1,3 +1,5 @@
+#if !os(visionOS)
+
 import AVFoundation
 import FluidAudio
 import Foundation
@@ -194,3 +196,5 @@ public struct FluidTranscriberEngine: TranscriptionEngine {
         }
     }
 }
+
+#endif

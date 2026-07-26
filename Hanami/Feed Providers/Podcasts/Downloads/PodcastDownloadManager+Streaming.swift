@@ -1,3 +1,5 @@
+#if !os(visionOS)
+
 @preconcurrency import AVFoundation
 import Foundation
 
@@ -339,3 +341,5 @@ enum StreamingAudioPipeline {
         return DecodedChunk(index: chunkIndex, buffer: finalBuffer, sourceFrames: framesRead)
     }
 }
+
+#endif

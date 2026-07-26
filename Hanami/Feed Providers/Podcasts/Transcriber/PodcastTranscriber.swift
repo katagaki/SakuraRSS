@@ -5,6 +5,24 @@ public enum PodcastTranscriber {
 
     public static let enabledKey = "Podcast.TranscriptionEnabled"
 
+    #if os(visionOS)
+
+    public static var isEnabled: Bool { false }
+
+    public static var isAvailable: Bool {
+        get async { false }
+    }
+
+    public static func transcribe(
+        audioFileURL: URL,
+        title: String,
+        progress: (@Sendable (Double) -> Void)? = nil
+    ) async throws -> [TranscriptSegment] {
+        throw TranscriptionEngineError.notAvailable
+    }
+
+    #else
+
     public static var isEnabled: Bool {
         UserDefaults.standard.bool(forKey: enabledKey)
     }
@@ -41,4 +59,6 @@ public enum PodcastTranscriber {
         }
         return try await FluidTranscriberEngine().makeStreamingSession()
     }
+
+    #endif
 }
