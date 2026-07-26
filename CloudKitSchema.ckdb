@@ -1,0 +1,27 @@
+DEFINE SCHEMA
+
+    RECORD TYPE Feed (
+        category          STRING QUERYABLE SEARCHABLE SORTABLE,
+        feedDescription   STRING QUERYABLE SEARCHABLE SORTABLE,
+        iconURL           STRING QUERYABLE SEARCHABLE SORTABLE,
+        isMuted           INT64 QUERYABLE SORTABLE,
+        isPodcast         INT64 QUERYABLE SORTABLE,
+        isTitleCustomized INT64 QUERYABLE SORTABLE,
+        siteURL           STRING QUERYABLE SEARCHABLE SORTABLE,
+        title             STRING QUERYABLE SEARCHABLE SORTABLE,
+        url               STRING QUERYABLE SEARCHABLE SORTABLE,
+        userModifiedAt    TIMESTAMP QUERYABLE SORTABLE,
+        GRANT WRITE TO "_creator",
+        GRANT CREATE TO "_icloud",
+        GRANT READ TO "_creator"
+    );
+
+    RECORD TYPE ItemStatus (
+        isBookmarked      INT64 QUERYABLE SORTABLE,
+        isRead            INT64 QUERYABLE SORTABLE,
+        url               STRING QUERYABLE SEARCHABLE SORTABLE,
+        userModifiedAt    TIMESTAMP QUERYABLE SORTABLE,
+        GRANT WRITE TO "_creator",
+        GRANT CREATE TO "_icloud",
+        GRANT READ TO "_creator"
+    );

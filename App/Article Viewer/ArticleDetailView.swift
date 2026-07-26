@@ -56,6 +56,7 @@ struct ArticleDetailView: View {
     @Namespace private var imageViewerNamespace
     @AppStorage("YouTube.OpenMode") var youTubeOpenMode: YouTubeOpenMode = .inAppPlayer
     @AppStorage(LinkOpenMode.storageKey) var linkOpenMode: LinkOpenMode = .inAppViewer
+    @AppStorage(ArticleWidthStyle.storageKey) var articleWidthStyle: ArticleWidthStyle = .default
     @AppStorage("Intelligence.ContentInsights.Enabled") var contentInsightsEnabled: Bool = false
     @State var similarArticles: [SimilarArticleItem] = []
     @State var articleTopics: [String] = []
@@ -100,10 +101,12 @@ struct ArticleDetailView: View {
             }
             .animation(.smooth.speed(2.0), value: translatedTitle)
             .padding([.horizontal, .top])
+            .articleColumnWidth(style: articleWidthStyle)
 
             Divider()
                 .padding(.horizontal)
                 .padding(.vertical, 4)
+                .articleColumnWidth(style: articleWidthStyle)
 
             // Lazy so a long article's blocks (and their image loads) start
             // as they approach the viewport rather than all at once on open.
@@ -142,10 +145,13 @@ struct ArticleDetailView: View {
             .animation(.smooth.speed(2.0), value: showingTranslation)
             .animation(.smooth.speed(2.0), value: translatedText)
             .padding([.horizontal, .bottom])
+            .articleColumnWidth(style: articleWidthStyle)
 
             conversationsSection
+                .articleColumnWidth(style: articleWidthStyle)
 
             insightsSection
+                .articleColumnWidth(style: articleWidthStyle)
         }
         .refreshable {
             await refreshArticleContent()

@@ -28,6 +28,7 @@ struct AudioBlockView: View {
             .padding(.vertical, 10)
             .background(.thinMaterial)
             .clipShape(.rect(cornerRadius: 12))
+            .articleMediaWidthCap()
             .onAppear(perform: setupPlayer)
             .onDisappear(perform: teardownPlayer)
     }

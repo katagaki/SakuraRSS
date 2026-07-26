@@ -22,6 +22,17 @@ nonisolated extension CloudSyncEngine {
         return record
     }
 
+    func record(forItemStatusSyncID syncID: String) -> CKRecord? {
+        guard let status = try? database.itemStatus(byStatusSyncID: syncID) else { return nil }
+        let record = archivedRecord(syncID: syncID)
+            ?? CKRecord(recordType: Self.itemStatusRecordType, recordID: Self.recordID(for: syncID))
+        record["url"] = status.url
+        record["isRead"] = status.isRead
+        record["isBookmarked"] = status.isBookmarked
+        record["userModifiedAt"] = Date(timeIntervalSince1970: status.modifiedAt)
+        return record
+    }
+
     // MARK: - CKRecord → Local
 
     func syncedFeed(from record: CKRecord) -> SyncedFeed? {
@@ -46,11 +57,19 @@ nonisolated extension CloudSyncEngine {
     func applyFetchedRecordZoneChanges(_ changes: CKSyncEngine.Event.FetchedRecordZoneChanges) {
         var insertedNewFeeds = false
         var appliedAnything = false
-        for modification in changes.modifications where modification.record.recordType == Self.feedRecordType {
-            if applyFetchedRecord(modification.record) {
-                insertedNewFeeds = true
+        for modification in changes.modifications {
+            switch modification.record.recordType {
+            case Self.feedRecordType:
+                if applyFetchedRecord(modification.record) {
+                    insertedNewFeeds = true
+                }
+                appliedAnything = true
+            case Self.itemStatusRecordType:
+                applyFetchedItemStatus(modification.record)
+                appliedAnything = true
+            default:
+                break
             }
-            appliedAnything = true
         }
         for deletion in changes.deletions {
             applyRemoteDeletion(recordID: deletion.recordID)
@@ -59,6 +78,19 @@ nonisolated extension CloudSyncEngine {
         if appliedAnything {
             onRemoteChangesApplied?(insertedNewFeeds)
         }
+    }
+
+    func applyFetchedItemStatus(_ record: CKRecord) {
+        archiveSystemFields(of: record)
+        guard let url = record["url"] as? String, !url.isEmpty else { return }
+        let modifiedAt = (record["userModifiedAt"] as? Date)?.timeIntervalSince1970 ?? 0
+        try? database.applyRemoteItemStatus(
+            url: url,
+            isRead: record["isRead"] as? Bool ?? false,
+            isBookmarked: record["isBookmarked"] as? Bool ?? false,
+            modifiedAt: modifiedAt,
+            syncID: record.recordID.recordName
+        )
     }
 
     @discardableResult
@@ -81,6 +113,9 @@ nonisolated extension CloudSyncEngine {
     func applyRemoteDeletion(recordID: CKRecord.ID) {
         let syncID = recordID.recordName
         database.setSyncEngineStateData(nil, forKey: Self.archivedRecordKeyPrefix + syncID)
+        // A deleted status record only clears sync bookkeeping (e.g. the other
+        // device cleaned up an old item); the local read/bookmark state stays.
+        if Self.isItemStatusID(syncID) { return }
         try? database.removeSyncTombstone(syncID: syncID)
         guard let feed = try? database.feed(bySyncID: syncID) else { return }
         if let onRemoteFeedDeleted {

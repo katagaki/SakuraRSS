@@ -16,6 +16,9 @@ public nonisolated struct Article: Identifiable, Hashable, Sendable {
     public var isBookmarked: Bool
     public var audioURL: String?
     public var duration: Int?
+    /// Saved into Bookmarks from another app via the share extension rather
+    /// than originating from a subscribed feed.
+    public var isExternalBookmark: Bool = false
 
     public init(
         id: Int64,
@@ -31,7 +34,8 @@ public nonisolated struct Article: Identifiable, Hashable, Sendable {
         isRead: Bool = false,
         isBookmarked: Bool = false,
         audioURL: String? = nil,
-        duration: Int? = nil
+        duration: Int? = nil,
+        isExternalBookmark: Bool = false
     ) {
         self.id = id
         self.feedID = feedID
@@ -47,6 +51,7 @@ public nonisolated struct Article: Identifiable, Hashable, Sendable {
         self.isBookmarked = isBookmarked
         self.audioURL = audioURL
         self.duration = duration
+        self.isExternalBookmark = isExternalBookmark
     }
 
     public var hasLink: Bool {
@@ -75,6 +80,15 @@ public nonisolated struct Article: Identifiable, Hashable, Sendable {
 
     public var isPodcastEpisode: Bool {
         audioURL != nil
+    }
+
+    /// X serves video post thumbnails from dedicated paths, so the image URL
+    /// alone identifies posts with playable video. GIF posts
+    /// (`tweet_video_thumb`) are excluded because they autoplay.
+    public var hasXVideoThumbnail: Bool {
+        guard let imageURL else { return false }
+        return imageURL.contains("ext_tw_video_thumb")
+            || imageURL.contains("amplify_video_thumb")
     }
 
     /// Filters out placeholder summaries (e.g. "Comments" from Hacker News).

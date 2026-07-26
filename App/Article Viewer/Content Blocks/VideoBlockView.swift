@@ -5,12 +5,14 @@ import Hanami
 struct VideoBlockView: View {
 
     let url: URL
+    var aspectRatio: CGFloat = 16 / 9
 
     var body: some View {
         VideoPlayerRepresentable(url: url)
-            .aspectRatio(16 / 9, contentMode: .fit)
+            .aspectRatio(aspectRatio, contentMode: .fit)
             .frame(maxWidth: .infinity)
             .clipShape(.rect(cornerRadius: 12))
+            .articleMediaWidthCap()
     }
 }
 

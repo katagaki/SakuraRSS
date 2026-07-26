@@ -9,4 +9,8 @@ public struct ParsedTweet: Sendable {
     public let imageURL: String?
     public let carouselImageURLs: [String]
     public let publishedDate: Date?
+    public let videoURL: String?
+    public let videoAspectRatio: Double?
+    public let videoThumbnailURL: String?
+    public let videoIsGIF: Bool
 }

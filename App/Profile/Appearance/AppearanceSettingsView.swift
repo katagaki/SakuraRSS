@@ -13,6 +13,7 @@ struct AppearanceSettingsView: View {
     @AppStorage("Display.ShowStatusBar") private var showStatusBar: Bool = true
     @AppStorage("Display.SakuraBackground") private var sakuraBackgroundEnabled: Bool = true
     @AppStorage("Display.FeedBackground") private var feedBackgroundEnabled: Bool = true
+    @AppStorage(ArticleWidthStyle.storageKey) private var articleWidthStyle: ArticleWidthStyle = .default
 
     var body: some View {
         List {
@@ -53,6 +54,8 @@ struct AppearanceSettingsView: View {
             } header: {
                 Text(String(localized: "Section.DisplayStyles", table: "Settings"))
             }
+
+            contentWidthSection
 
             if UIDevice.current.userInterfaceIdiom != .pad {
                 Section {
@@ -120,5 +123,34 @@ struct AppearanceSettingsView: View {
         .sakuraBackground()
         .navigationTitle(String(localized: "Section.Appearance", table: "Settings"))
         .toolbarTitleDisplayMode(.inline)
+    }
+
+    @ViewBuilder
+    private var contentWidthSection: some View {
+        #if targetEnvironment(macCatalyst)
+        contentWidthPickerSection
+        #else
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            contentWidthPickerSection
+        }
+        #endif
+    }
+
+    @ViewBuilder
+    private var contentWidthPickerSection: some View {
+        Section {
+            Picker(selection: $articleWidthStyle) {
+                Text(String(localized: "ContentWidthStyle.Default", table: "Settings"))
+                    .tag(ArticleWidthStyle.default)
+                Text(String(localized: "ContentWidthStyle.FullWidth", table: "Settings"))
+                    .tag(ArticleWidthStyle.fullWidth)
+            } label: {
+                Text(String(localized: "ContentWidthStyle", table: "Settings"))
+            }
+        } header: {
+            Text(String(localized: "Section.ContentWidth", table: "Settings"))
+        } footer: {
+            Text(String(localized: "ContentWidthStyle.Footer", table: "Settings"))
+        }
     }
 }

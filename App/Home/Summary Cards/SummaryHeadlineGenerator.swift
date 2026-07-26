@@ -7,7 +7,6 @@ struct SummaryHeadlineGenerator {
     let kind: SummaryCardKind
     let feedManager: FeedManager
 
-    static let snippetCharLimit = HeadlineSummarizer.snippetCharLimit
     static let articleConsiderationLimit = HeadlineSummarizer.maxArticlesConsidered
     static let topEntityHintLimit = 10
 
@@ -154,7 +153,7 @@ struct SummaryHeadlineGenerator {
                 ? "\(baseSource) ★"
                 : baseSource
             let raw = article.summary ?? article.content ?? ""
-            let snippet = String(raw.prefix(Self.snippetCharLimit))
+            let snippet = HeadlineSummarizer.snippet(from: raw)
             let body = "ID: \(article.id)\n[\(source)] \(article.title)\n\(snippet)"
             return HeadlineSummarizer.Input(
                 articleID: article.id,

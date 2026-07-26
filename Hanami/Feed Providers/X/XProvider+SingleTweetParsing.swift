@@ -54,6 +54,7 @@ public extension XProvider {
         let publishedDate = dateFormatter.date(from: createdAt)
         let tweetURL = "https://x.com/\(authorHandle)/status/\(idStr)"
         let cleanText = bestTweetText(legacy: legacy, actualResult: actualResult)
+        let video = parseTweetVideo(from: legacy)
 
         return ParsedTweet(
             id: idStr,
@@ -63,7 +64,11 @@ public extension XProvider {
             url: tweetURL,
             imageURL: imageURL,
             carouselImageURLs: photoURLs.count > 1 ? photoURLs : [],
-            publishedDate: publishedDate
+            publishedDate: publishedDate,
+            videoURL: video?.url,
+            videoAspectRatio: video?.aspectRatio,
+            videoThumbnailURL: video?.thumbnailURL,
+            videoIsGIF: video?.isGIF ?? false
         )
     }
 

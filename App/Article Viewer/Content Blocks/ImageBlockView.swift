@@ -27,6 +27,7 @@ struct ImageBlockView: View {
             .matchedTransitionSource(id: url, in: namespace)
             .onTapGesture { onTap?() }
             .contextMenu { contextMenuContent }
+            .articleMediaWidthCap()
     }
 
     private var effectiveAspectRatio: CGFloat {

@@ -72,6 +72,8 @@ extension HeadlineSummarizer {
     /// Packs whole clusters into batches without splitting a cluster across
     /// batch boundaries when possible. A cluster larger than `charLimit`
     /// falls back to character-greedy packing within its own batch space.
+    /// Lengths are weighted so CJK text counts toward the budget at its
+    /// approximate token cost rather than its character count.
     static func packClusters(_ clusters: [[Input]], charLimit: Int) -> [[Input]] {
         var batches: [[Input]] = []
         var current: [Input] = []
@@ -87,7 +89,7 @@ extension HeadlineSummarizer {
 
         for cluster in clusters {
             let clusterLength = cluster.reduce(0) { sum, input in
-                sum + input.description.count + 8
+                sum + weightedPromptLength(of: input.description) + 8
             }
             if clusterLength > charLimit {
                 flush()
@@ -110,7 +112,7 @@ extension HeadlineSummarizer {
         var current: [Input] = []
         var currentLength = 0
         for article in articles {
-            let lineLength = article.description.count + 6
+            let lineLength = weightedPromptLength(of: article.description) + 6
             let added = currentLength == 0 ? lineLength : lineLength + 2
             if !current.isEmpty && currentLength + added > charLimit {
                 batches.append(current)

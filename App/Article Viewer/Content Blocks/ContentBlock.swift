@@ -5,7 +5,7 @@ enum ContentBlock: Identifiable {
     case text(String)
     case image(URL, link: URL? = nil)
     case code(String)
-    case video(URL)
+    case video(URL, aspectRatio: CGFloat?, isGIF: Bool)
     case audio(URL)
     case youtube(String)
     case xPost(URL)
@@ -24,7 +24,7 @@ enum ContentBlock: Identifiable {
         case .text(let text): return "text-\(text.hashValue)"
         case .image(let url, _): return "image-\(url.absoluteString)"
         case .code(let text): return "code-\(text.hashValue)"
-        case .video(let url): return "video-\(url.absoluteString)"
+        case .video(let url, _, _): return "video-\(url.absoluteString)"
         case .audio(let url): return "audio-\(url.absoluteString)"
         case .youtube(let videoID): return "youtube-\(videoID)"
         case .xPost(let url): return "xpost-\(url.absoluteString)"
@@ -142,12 +142,24 @@ enum ContentBlock: Identifiable {
 
     nonisolated private static func urlBlock(forTag tag: String, content: String) -> ContentBlock? {
         switch tag {
-        case "VIDEO": return URL(string: content).map { .video($0) }
+        case "VIDEO": return videoBlock(content: content)
         case "AUDIO": return URL(string: content).map { .audio($0) }
         case "YOUTUBE": return content.isEmpty ? nil : .youtube(content)
         case "XPOST": return URL(string: content).map { .xPost($0) }
         default: return nil
         }
+    }
+
+    /// Parses the `{{VIDEO}}` payload `url` or `url|aspectRatio` or
+    /// `url|aspectRatio|gif` (aspect ratio may be empty).
+    nonisolated private static func videoBlock(content: String) -> ContentBlock? {
+        let parts = content.split(
+            separator: "|", omittingEmptySubsequences: false
+        ).map(String.init)
+        guard let urlPart = parts.first, let url = URL(string: urlPart) else { return nil }
+        let aspectRatio = parts.count > 1 ? Double(parts[1]).map { CGFloat($0) } : nil
+        let isGIF = parts.count > 2 && parts[2] == "gif"
+        return .video(url, aspectRatio: aspectRatio, isGIF: isGIF)
     }
 
     nonisolated private static func imageBlock(content: String, linkRegex: NSRegularExpression?) -> ContentBlock? {

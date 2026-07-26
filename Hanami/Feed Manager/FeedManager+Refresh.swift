@@ -73,17 +73,12 @@ public extension FeedManager {
     ) async throws {
         log("FeedRefresh", "dispatch -> standard RSS pipeline id=\(feed.id)")
         let database = database
-        let pipelineTask = Task.detached {
+        try await withBackgroundActivity(reason: "Feed refresh") {
             try await FeedManager.runStandardFeedPipeline(
                 feed: feed,
                 database: database,
                 options: options
             )
-        }
-        try await withTaskCancellationHandler {
-            try await pipelineTask.value
-        } onCancel: {
-            pipelineTask.cancel()
         }
         if reloadData {
             await loadFromDatabaseInBackground(animated: true)
@@ -96,7 +91,9 @@ public extension FeedManager {
         let database = self.database
         Task.detached(priority: .utility) {
             do {
-                try database.recordFeedRefreshMetric(feedID: feedID, durationMs: durationMs)
+                try await withBackgroundActivity(reason: "Record refresh metric") {
+                    try database.recordFeedRefreshMetric(feedID: feedID, durationMs: durationMs)
+                }
                 log("FeedRefresh", "metric recorded id=\(feedID) durationMs=\(durationMs)")
             } catch {
                 log("FeedRefresh", "metric record failed id=\(feedID) error=\(error.localizedDescription)")
@@ -122,25 +119,6 @@ public extension FeedManager {
                 }
             }
         }
-    }
-
-    func deleteArticlesAndVacuum(olderThan date: Date?, includeBookmarks: Bool = false) async {
-        let cutoff = date ?? Date()
-        UserDefaults.standard.set(cutoff.timeIntervalSince1970, forKey: "Content.CutoffDate")
-        let database = database
-        _ = try? await Task.detached {
-            if let date {
-                try database.deleteArticles(olderThan: date, includeBookmarks: includeBookmarks)
-                try database.clearImageCache(olderThan: date)
-            } else {
-                try database.deleteAllArticlesOnly(includeBookmarks: includeBookmarks)
-                try database.clearImageCache()
-            }
-            try database.vacuum()
-            PodcastDownloadManager.cleanupOrphanedDownloads()
-        }.value
-        SpotlightIndexer.removeAllArticles()
-        await loadFromDatabaseInBackground()
     }
 
     func refreshAllFeeds(

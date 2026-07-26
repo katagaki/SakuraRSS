@@ -15,8 +15,13 @@ extension CloudSyncEngine: CKSyncEngineDelegate {
             applyFetchedRecordZoneChanges(changes)
         case .sentRecordZoneChanges(let sent):
             handleSentRecordZoneChanges(sent, syncEngine: syncEngine)
-        case .didFetchChanges, .didSendChanges:
+        case .didFetchChanges:
             markSynced()
+        case .didSendChanges:
+            markSynced()
+            // Drains the next chunk of any dirty-status backlog that was
+            // held back by maxItemStatusEnqueuePerPass.
+            noteItemStatusChanged()
         case .sentDatabaseChanges, .willFetchChanges, .willFetchRecordZoneChanges,
              .didFetchRecordZoneChanges, .willSendChanges:
             break
@@ -32,8 +37,15 @@ extension CloudSyncEngine: CKSyncEngineDelegate {
         let scope = context.options.scope
         let pendingChanges = syncEngine.state.pendingRecordZoneChanges.filter { scope.contains($0) }
         return await CKSyncEngine.RecordZoneChangeBatch(pendingChanges: pendingChanges) { recordID in
-            guard let feed = try? self.database.feed(bySyncID: recordID.recordName),
-                  let record = self.record(for: feed) else {
+            let record: CKRecord?
+            if Self.isItemStatusID(recordID.recordName) {
+                record = self.record(forItemStatusSyncID: recordID.recordName)
+            } else if let feed = try? self.database.feed(bySyncID: recordID.recordName) {
+                record = self.record(for: feed)
+            } else {
+                record = nil
+            }
+            guard let record else {
                 syncEngine.state.remove(pendingRecordZoneChanges: [.saveRecord(recordID)])
                 return nil
             }
@@ -132,8 +144,21 @@ extension CloudSyncEngine: CKSyncEngineDelegate {
     ) {
         archiveSystemFields(of: serverRecord)
         let syncID = recordID.recordName
-        let localModifiedAt = database.feedUserModifiedAt(syncID: syncID) ?? .distantPast
         let serverModifiedAt = serverRecord["userModifiedAt"] as? Date ?? .distantPast
+
+        if Self.isItemStatusID(syncID) {
+            let localModifiedAt = (try? database.itemStatus(byStatusSyncID: syncID))
+                .map { Date(timeIntervalSince1970: $0.modifiedAt) } ?? .distantPast
+            if localModifiedAt > serverModifiedAt {
+                syncEngine.state.add(pendingRecordZoneChanges: [.saveRecord(recordID)])
+            } else {
+                applyFetchedItemStatus(serverRecord)
+                onRemoteChangesApplied?(false)
+            }
+            return
+        }
+
+        let localModifiedAt = database.feedUserModifiedAt(syncID: syncID) ?? .distantPast
         if localModifiedAt > serverModifiedAt {
             syncEngine.state.add(pendingRecordZoneChanges: [.saveRecord(recordID)])
         } else {

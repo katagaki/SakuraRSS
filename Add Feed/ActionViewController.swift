@@ -24,6 +24,7 @@ class ActionExtensionModel {
     var discoveredFeeds: [DiscoveredFeed] = []
     var addedFeedIDs: Set<UUID> = []
     var duplicateFeedIDs: Set<UUID> = []
+    var sharedPageURL: URL?
 
     enum Status {
         case searching
@@ -87,6 +88,11 @@ struct ActionExtensionView: View {
                                     .font(.caption)
                                     .foregroundStyle(.secondary)
                                     .lineLimit(1)
+                                if requiresAppToAdd(feed.url) {
+                                    Text(String(localized: "AddFeed.Extension.RequiresApp", table: "Feeds"))
+                                        .font(.caption2)
+                                        .foregroundStyle(.tertiary)
+                                }
                             }
 
                             Spacer()
@@ -99,6 +105,15 @@ struct ActionExtensionView: View {
                                 Image(systemName: "checkmark.circle.fill")
                                     .font(.title2)
                                     .foregroundStyle(.secondary)
+                            } else if requiresAppToAdd(feed.url) {
+                                Button {
+                                    openAppToAdd(feed)
+                                } label: {
+                                    Image(systemName: "arrow.up.forward.app.fill")
+                                        .font(.title2)
+                                }
+                                .buttonStyle(.borderless)
+                                .accessibilityLabel(String(localized: "AddFeed.Extension.OpenApp", table: "Feeds"))
                             } else {
                                 Button {
                                     addFeed(feed)
@@ -157,6 +172,7 @@ struct ActionExtensionView: View {
     }
 
     private func discoverFeeds(from url: URL) async {
+        model.sharedPageURL = url
         guard let host = url.host else {
             model.status = .noURL
             return
@@ -192,5 +208,22 @@ struct ActionExtensionView: View {
         } catch {
             model.duplicateFeedIDs.insert(feed.id)
         }
+    }
+
+    /// X and Instagram feeds need an in-app login session, so they can't be
+    /// added from the extension; the user is sent to the app to sign in.
+    private func requiresAppToAdd(_ url: String) -> Bool {
+        XProvider.isFeedURL(url) || InstagramProvider.isFeedURL(url)
+    }
+
+    private func openAppToAdd(_ feed: DiscoveredFeed) {
+        var components = URLComponents()
+        components.scheme = "sakura"
+        components.host = "addfeed"
+        components.queryItems = [
+            URLQueryItem(name: "url", value: model.sharedPageURL?.absoluteString ?? feed.url)
+        ]
+        guard let appURL = components.url else { return }
+        extensionContext?.open(appURL)
     }
 }

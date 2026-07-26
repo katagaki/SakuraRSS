@@ -100,7 +100,7 @@ public extension FeedManager {
                 data: ArticleInsertData(
                     author: tweet.author.isEmpty ? "@\(tweet.authorHandle)" : tweet.author,
                     summary: tweet.text.isEmpty ? nil : tweet.text,
-                    imageURL: tweet.imageURL,
+                    imageURL: tweet.imageURL ?? tweet.videoThumbnailURL,
                     carouselImageURLs: tweet.carouselImageURLs,
                     publishedDate: tweet.publishedDate
                 )

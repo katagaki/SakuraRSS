@@ -5,23 +5,30 @@ public nonisolated extension DatabaseManager {
 
     func markArticleRead(id: Int64, read: Bool) throws {
         let target = articles.filter(articleID == id)
-        try database.run(target.update(articleIsRead <- read))
+        try database.run(target.update(articleIsRead <- read, articleStatusDirty <- true,
+                                       articleStatusModifiedAt <- Date().timeIntervalSince1970))
+        CloudSyncEngine.shared.noteItemStatusChanged()
     }
 
     /// Batched counterpart of `markArticleRead(id:read:)`.
     func markArticlesRead(ids: [Int64], read: Bool) throws {
         guard !ids.isEmpty else { return }
         let target = articles.filter(ids.contains(articleID))
-        try database.run(target.update(articleIsRead <- read))
+        try database.run(target.update(articleIsRead <- read, articleStatusDirty <- true,
+                                       articleStatusModifiedAt <- Date().timeIntervalSince1970))
+        CloudSyncEngine.shared.noteItemStatusChanged()
     }
 
     func toggleBookmark(id: Int64) throws {
         guard let row = try database.pluck(articles.filter(articleID == id)) else { return }
         let current = row[articleIsBookmarked]
-        try database.run(articles.filter(articleID == id).update(articleIsBookmarked <- !current))
+        try database.run(articles.filter(articleID == id).update(
+            articleIsBookmarked <- !current, articleStatusDirty <- true,
+            articleStatusModifiedAt <- Date().timeIntervalSince1970))
         if current {
             try removeBookmarkFromAllFolders(articleID: id)
         }
+        CloudSyncEngine.shared.noteItemStatusChanged()
     }
 
     /// Idempotent bookmark setter used by App Intents.
@@ -31,32 +38,43 @@ public nonisolated extension DatabaseManager {
         guard let row = try database.pluck(articles.filter(articleID == id)) else { return false }
         let current = row[articleIsBookmarked]
         guard current != bookmarked else { return false }
-        try database.run(articles.filter(articleID == id).update(articleIsBookmarked <- bookmarked))
+        try database.run(articles.filter(articleID == id).update(
+            articleIsBookmarked <- bookmarked, articleStatusDirty <- true,
+            articleStatusModifiedAt <- Date().timeIntervalSince1970))
         if !bookmarked {
             try removeBookmarkFromAllFolders(articleID: id)
         }
+        CloudSyncEngine.shared.noteItemStatusChanged()
         return true
     }
 
     func removeReadBookmarks() throws {
         let target = articles.filter(articleIsBookmarked == true && articleIsRead == true)
-        try database.run(target.update(articleIsBookmarked <- false))
+        try database.run(target.update(articleIsBookmarked <- false, articleStatusDirty <- true,
+                                       articleStatusModifiedAt <- Date().timeIntervalSince1970))
         try pruneOrphanedBookmarkFolderItems()
+        CloudSyncEngine.shared.noteItemStatusChanged()
     }
 
     func markAllRead(feedID fid: Int64) throws {
         let target = articles.filter(articleFeedID == fid && articleIsRead == false)
-        try database.run(target.update(articleIsRead <- true))
+        try database.run(target.update(articleIsRead <- true, articleStatusDirty <- true,
+                                       articleStatusModifiedAt <- Date().timeIntervalSince1970))
+        CloudSyncEngine.shared.noteItemStatusChanged()
     }
 
     func markAllRead() throws {
         let target = articles.filter(articleIsRead == false)
-        try database.run(target.update(articleIsRead <- true))
+        try database.run(target.update(articleIsRead <- true, articleStatusDirty <- true,
+                                       articleStatusModifiedAt <- Date().timeIntervalSince1970))
+        CloudSyncEngine.shared.noteItemStatusChanged()
     }
 
     func markAllUnread() throws {
         let target = articles.filter(articleIsRead == true)
-        try database.run(target.update(articleIsRead <- false))
+        try database.run(target.update(articleIsRead <- false, articleStatusDirty <- true,
+                                       articleStatusModifiedAt <- Date().timeIntervalSince1970))
+        CloudSyncEngine.shared.noteItemStatusChanged()
     }
 
     func unreadCount(forFeedID fid: Int64) throws -> Int {
