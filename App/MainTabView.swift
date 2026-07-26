@@ -24,6 +24,13 @@ struct MainTabView: View {
 
     var body: some View {
         Group {
+            #if os(visionOS)
+            iPadSidebarView(
+                pendingFeedURL: $pendingFeedURL,
+                pendingArticleID: $pendingArticleID,
+                pendingOpenRequest: $pendingOpenRequest
+            )
+            #else
             if UIDevice.current.userInterfaceIdiom == .pad {
                 iPadSidebarView(
                     pendingFeedURL: $pendingFeedURL,
@@ -33,6 +40,7 @@ struct MainTabView: View {
             } else {
                 iPhoneTabView
             }
+            #endif
         }
         .compatibleSoftScrollEdgeEffectStyle()
         #if os(visionOS) || targetEnvironment(macCatalyst)

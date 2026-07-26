@@ -4,10 +4,10 @@ enum ArticleLayout {
 
     static let readableWidth: CGFloat = 700
 
-    /// The readable-column cap only applies on iPad and Mac; iPhone always
-    /// renders article content edge to edge.
+    /// The readable-column cap only applies on iPad, Mac and Vision Pro; iPhone
+    /// always renders article content edge to edge.
     static var capsWidth: Bool {
-        #if targetEnvironment(macCatalyst)
+        #if targetEnvironment(macCatalyst) || os(visionOS)
         return true
         #else
         return UIDevice.current.userInterfaceIdiom == .pad

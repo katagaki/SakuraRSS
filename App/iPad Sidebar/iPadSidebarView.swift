@@ -13,10 +13,17 @@ struct iPadSidebarView: View {
     @Binding var pendingArticleID: Int64?
     @Binding var pendingOpenRequest: OpenArticleRequest?
 
+    #if os(visionOS)
+    @SceneStorage("IPadSidebar.SelectedDestinationToken")
+    private var selectedDestinationToken: String = SidebarDestination.allArticles.persistenceToken
+
+    @State var selectedDestination: SidebarDestination? = .allArticles
+    #else
     @SceneStorage("IPadSidebar.SelectedDestinationToken")
     private var selectedDestinationToken: String = SidebarDestination.today.persistenceToken
 
     @State var selectedDestination: SidebarDestination? = .today
+    #endif
     @State var selectedArticle: Article?
     @State var ephemeralDestinations: [EphemeralArticleDestination] = []
     @State private var hasRestoredSelectedDestination: Bool = false

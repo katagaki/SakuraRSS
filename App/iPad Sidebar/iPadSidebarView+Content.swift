@@ -13,7 +13,12 @@ extension iPadSidebarView {
             } else {
                 switch selectedDestination {
                 case .today:
+                    // Today is unavailable on visionOS; fall back to Following.
+                    #if os(visionOS)
+                    iPadAllArticlesContent()
+                    #else
                     iPadTodayContent()
+                    #endif
                 case .allArticles:
                     iPadAllArticlesContent()
                 case .section(let section):
@@ -105,6 +110,9 @@ extension iPadSidebarView {
 
     @ViewBuilder
     func iPadTodayContent() -> some View {
+        #if os(visionOS)
+        EmptyView()
+        #else
         iPadArticleListWrapper {
             TodayView()
                 .navigationTitle(String(localized: "HomeSection.Today", table: "Home"))
@@ -118,6 +126,7 @@ extension iPadSidebarView {
                     .sharedBackgroundVisibility(.hidden)
                 }
         }
+        #endif
     }
 
     @ViewBuilder

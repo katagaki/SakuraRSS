@@ -109,7 +109,8 @@ struct SakuraRSSApp: App {
                 }
         }
         #if os(visionOS)
-        .defaultSize(width: 600, height: 900)
+        // Wide enough for the sidebar split view to stay expanded.
+        .defaultSize(width: 1280, height: 820)
         #endif
         #if targetEnvironment(macCatalyst)
         .commands {
