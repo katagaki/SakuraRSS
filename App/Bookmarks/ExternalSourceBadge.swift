@@ -7,7 +7,7 @@ struct ExternalSourceBadge: View {
     var size: CGFloat = 18
 
     var body: some View {
-        Image(systemName: "square.and.arrow.down.fill")
+        Image(systemName: "globe")
             .font(.system(size: size * 0.5, weight: .bold))
             .foregroundStyle(.white)
             .frame(width: size, height: size)
