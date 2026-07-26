@@ -13,10 +13,26 @@ struct HomeBarConfiguration: Equatable, Hashable, Sendable {
     var enabledItems: Set<HomeBarItemKind>
     var topicCount: HomeBarTopicCount
 
+    #if os(visionOS)
+    static let defaultOrderedItems: [HomeBarItemKind] = [
+        .following, .feeds, .podcasts, .bluesky, .fediverse, .instagram, .note,
+        .reddit, .substack, .vimeo, .x, .youtube, .niconico, .lists, .topics
+    ]
+    #else
     static let defaultOrderedItems: [HomeBarItemKind] = [
         .today, .following, .feeds, .podcasts, .bluesky, .fediverse, .instagram, .note,
         .reddit, .substack, .vimeo, .x, .youtube, .niconico, .lists, .topics
     ]
+    #endif
+
+    /// Today has no visionOS counterpart, so it is never offered there.
+    static let availableItemKinds: [HomeBarItemKind] = {
+        #if os(visionOS)
+        HomeBarItemKind.allCases.filter { $0 != .today }
+        #else
+        HomeBarItemKind.allCases
+        #endif
+    }()
 
     static let `default` = HomeBarConfiguration(
         orderedItems: defaultOrderedItems,
@@ -46,12 +62,12 @@ struct HomeBarConfiguration: Equatable, Hashable, Sendable {
             ordered.append(kind)
             seen.insert(kind)
         }
-        for kind in HomeBarItemKind.allCases where !seen.contains(kind) {
+        for kind in Self.availableItemKinds where !seen.contains(kind) {
             ordered.append(kind)
         }
         return HomeBarConfiguration(
-            orderedItems: ordered,
-            enabledItems: enabledItems.intersection(HomeBarItemKind.allCases),
+            orderedItems: ordered.filter { Self.availableItemKinds.contains($0) },
+            enabledItems: enabledItems.intersection(Self.availableItemKinds),
             topicCount: topicCount
         )
     }

@@ -38,13 +38,18 @@ extension SidebarDestination {
     }
 
     private static func staticDestination(for token: String) -> SidebarDestination? {
+        #if os(visionOS)
+        // Today has no visionOS counterpart; a token synced from another device
+        // must not restore a destination that cannot render.
+        if token == "today" { return nil }
+        #endif
         switch token {
-        case "today": .today
-        case "allArticles": .allArticles
-        case "bookmarks": .bookmarks
-        case "topics": .topics
-        case "people": .people
-        default: nil
+        case "today": return .today
+        case "allArticles": return .allArticles
+        case "bookmarks": return .bookmarks
+        case "topics": return .topics
+        case "people": return .people
+        default: return nil
         }
     }
 

@@ -138,6 +138,11 @@ final class TodayWeatherService {
     }
 
     func refreshIfNeeded() async {
+        #if os(visionOS)
+        // Weather only ever surfaces in Today, which is unavailable on
+        // visionOS, so never fetch it (and never prompt for location) there.
+        return
+        #else
         if let weather {
             let age = Int(Date().timeIntervalSince(weather.fetchedAt))
             if age < Int(Self.cacheLifetime) {
@@ -152,6 +157,7 @@ final class TodayWeatherService {
             log("Weather", "no cache; fetching from API (refreshIfNeeded)")
         }
         await refresh(force: false)
+        #endif
     }
 
     func refresh(force: Bool) async {
@@ -232,6 +238,9 @@ final class TodayWeatherService {
     }
 
     private func currentLocation() async -> CLLocation? {
+        #if os(visionOS)
+        return nil
+        #else
         let manager = ensureLocationManager()
         switch manager.authorizationStatus {
         case .notDetermined:
@@ -247,6 +256,7 @@ final class TodayWeatherService {
         default:
             return nil
         }
+        #endif
     }
 
     func refreshAuthorizationStatus() {

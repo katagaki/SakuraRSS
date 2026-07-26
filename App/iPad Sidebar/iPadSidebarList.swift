@@ -66,8 +66,10 @@ struct iPadSidebarList: View {
     @ViewBuilder
     private var primarySection: some View {
         Section {
+            #if !os(visionOS)
             Label(String(localized: "HomeSection.Today", table: "Home"), systemImage: "newspaper")
                 .tag(SidebarDestination.today)
+            #endif
             Label(String(localized: "Sidebar.Following", table: "Feeds"), systemImage: "dot.radiowaves.up.forward")
                 .tag(SidebarDestination.allArticles)
             Label("Tabs.Bookmarks", systemImage: "bookmark")

@@ -13,7 +13,9 @@ extension HomeSectionBarItem {
         for kind in configuration.orderedItems where configuration.enabledItems.contains(kind) {
             switch kind {
             case .today:
+                #if !os(visionOS)
                 items.append(item(for: .today))
+                #endif
             case .following:
                 if sections.contains(.all) {
                     items.append(item(for: .all))

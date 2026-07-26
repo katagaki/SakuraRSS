@@ -16,13 +16,28 @@ final class HomeSelectionStore {
 
     private static let storageKey = "Home.SelectedSection"
 
+    /// Today has no visionOS counterpart, so a selection synced from another
+    /// device must not land a visionOS user on a section that cannot render.
+    private static var defaultSelection: HomeSelection {
+        #if os(visionOS)
+        .section(.all)
+        #else
+        .section(.today)
+        #endif
+    }
+
     init() {
         if let rawValue = UserDefaults.standard.string(forKey: Self.storageKey),
            let restored = HomeSelection(rawValue: rawValue) {
             selection = restored
         } else {
-            selection = .section(.today)
+            selection = Self.defaultSelection
         }
+        #if os(visionOS)
+        if selection.rawValue == HomeSelection.section(.today).rawValue {
+            selection = Self.defaultSelection
+        }
+        #endif
     }
 
     func persist() {

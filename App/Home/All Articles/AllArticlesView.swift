@@ -29,15 +29,23 @@ struct AllArticlesView: View {
 
     /// On iPad, Today is its own sidebar destination; the "Following" entry
     /// here must always render the article list, not honor the iPhone section
-    /// bar's saved selection.
+    /// bar's saved selection. visionOS has no Today at all.
+    private var usesSidebarLayout: Bool {
+        #if os(visionOS)
+        return true
+        #else
+        return UIDevice.current.userInterfaceIdiom == .pad
+        #endif
+    }
+
     private var isShowingToday: Bool {
-        if UIDevice.current.userInterfaceIdiom == .pad { return false }
+        if usesSidebarLayout { return false }
         if case .section(.today) = selectedSelection { return true }
         return false
     }
 
     var currentTitle: String {
-        if UIDevice.current.userInterfaceIdiom == .pad {
+        if usesSidebarLayout {
             return String(localized: "Sidebar.Following", table: "Feeds")
         }
         switch selectedSelection {
