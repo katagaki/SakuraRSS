@@ -20,6 +20,8 @@ struct OnDeviceIntelligenceSettingsView: View {
 
     var body: some View {
         List {
+            // The summary cards render inside Today, which visionOS does not have.
+            #if !os(visionOS)
             if isAppleIntelligenceAvailable {
                 Section {
                     Toggle(String(localized: "WhileYouSlept", table: "Settings"), isOn: $whileYouSleptEnabled)
@@ -31,6 +33,7 @@ struct OnDeviceIntelligenceSettingsView: View {
                     Text(String(localized: "AppleIntelligence.Footer", table: "Settings"))
                 }
             }
+            #endif
 
             Section {
                 Toggle(String(localized: "ContentInsights", table: "Settings"), isOn: $contentInsightsEnabled)

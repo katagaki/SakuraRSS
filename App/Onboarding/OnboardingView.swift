@@ -33,6 +33,16 @@ struct OnboardingView: View {
         SystemLanguageModel.default.availability == .available
     }
 
+    /// The Apple Intelligence step only configures the summary cards, which
+    /// render inside Today and therefore have no visionOS counterpart.
+    var offersSummaryCards: Bool {
+        #if os(visionOS)
+        false
+        #else
+        isAppleIntelligenceAvailable
+        #endif
+    }
+
     var body: some View {
         currentStepContent
             .sakuraBackground()
@@ -88,7 +98,7 @@ struct OnboardingView: View {
             case .appleIntelligence:
                 currentStep = .displayStyle
             case .addFeed:
-                if isAppleIntelligenceAvailable {
+                if offersSummaryCards {
                     currentStep = .appleIntelligence
                 } else {
                     currentStep = .displayStyle
@@ -105,7 +115,7 @@ struct OnboardingView: View {
             case .backgroundRefresh:
                 currentStep = .displayStyle
             case .displayStyle:
-                if isAppleIntelligenceAvailable {
+                if offersSummaryCards {
                     currentStep = .appleIntelligence
                 } else {
                     todaysSummaryEnabled = false
