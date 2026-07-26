@@ -3,14 +3,14 @@ import Hanami
 
 extension View {
     @ViewBuilder
-    func compatibleGlassEffect<S: Shape>(
+    func compatibleGlassEffect<S: InsettableShape>(
         in shape: S,
         tint: Color? = nil,
         interactive: Bool = false,
         clear: Bool = false
     ) -> some View {
         #if os(visionOS)
-        self
+        glassBackgroundEffect(in: shape)
         #else
         modifier(CompatibleGlassEffectModifier(
             shape: shape, tint: tint, interactive: interactive, clear: clear

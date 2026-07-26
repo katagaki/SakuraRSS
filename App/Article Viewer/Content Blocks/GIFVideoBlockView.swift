@@ -76,7 +76,9 @@ final class LoopingVideoPlayerUIView: UIView {
         let item = AVPlayerItem(url: url)
         let player = AVQueuePlayer()
         player.isMuted = true
+        #if !os(visionOS)
         player.preventsDisplaySleepDuringVideoPlayback = false
+        #endif
         playerLooper = AVPlayerLooper(player: player, templateItem: item)
         playerLayer.player = player
         queuePlayer = player

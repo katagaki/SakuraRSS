@@ -22,7 +22,9 @@ extension HomeView {
                 sectionDisplayMenu: sectionDisplayMenu
             )
         }
+        #if !os(visionOS)
         .sharedBackgroundVisibility(.automatic)
+        #endif
     }
 
     @ToolbarContentBuilder
@@ -30,6 +32,7 @@ extension HomeView {
         ToolbarItem(id: "home.principalLabel", placement: .principal) {
             principalToolbarLabel
         }
+        #if !os(visionOS)
         if isTodaySelected {
             ToolbarItem(id: "home.trailing", placement: .topBarTrailing) {
                 HomeTrailingControl(
@@ -41,6 +44,7 @@ extension HomeView {
             }
             .sharedBackgroundVisibility(.hidden)
         }
+        #endif
         if markAllReadPosition == .top, !isTodaySelected {
             ToolbarItemGroup(placement: .topBarLeading) {
                 markAllReadButton

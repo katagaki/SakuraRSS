@@ -18,7 +18,9 @@ extension ArticleDetailView {
                         navigateToFeed?(feed)
                     }
             }
+            #if !os(visionOS)
             .sharedBackgroundVisibility(.hidden)
+            #endif
         }
         if !previewMode {
             ToolbarItem(placement: .principal) {

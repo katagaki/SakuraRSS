@@ -5,7 +5,7 @@ struct ListWidgetMediumTextView: View {
     let entry: ListWidgetEntry
 
     private var articleCount: Int {
-        UIDevice.current.userInterfaceIdiom == .pad ? 2 : 3
+        UIDevice.current.userInterfaceIdiom == .phone ? 3 : 2
     }
 
     var body: some View {
@@ -51,7 +51,7 @@ struct ListWidgetLargeTextView: View {
     let entry: ListWidgetEntry
 
     private var articleCount: Int {
-        UIDevice.current.userInterfaceIdiom == .pad ? 7 : 8
+        UIDevice.current.userInterfaceIdiom == .phone ? 8 : 7
     }
 
     var body: some View {
