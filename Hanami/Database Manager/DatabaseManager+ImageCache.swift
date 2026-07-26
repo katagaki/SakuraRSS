@@ -11,6 +11,7 @@ private nonisolated(unsafe) let imageCacheConnection: Connection? = {
     _ = try? connection.run("PRAGMA journal_mode = WAL")
     _ = try? connection.run("PRAGMA synchronous = NORMAL")
     connection.busyTimeout = 5.0
+    DatabaseManager.applyDataProtection(atPath: DatabaseManager.databasePath)
     return connection
 }()
 

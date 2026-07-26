@@ -40,6 +40,22 @@ public nonisolated final class DatabaseManager: @unchecked Sendable {
         try connection.run("PRAGMA journal_mode = WAL")
         try connection.run("PRAGMA synchronous = NORMAL")
         connection.busyTimeout = 5.0
+        applyDataProtection(atPath: databasePath)
+    }
+
+    /// Lowers the database file's data protection so a SQLite lock held while the
+    /// device is locked in the background doesn't trigger a `0xdead10cc` watchdog
+    /// kill. The WAL/SHM siblings must match the main file's protection class.
+    static func applyDataProtection(atPath path: String) {
+        let fileManager = FileManager.default
+        let attributes: [FileAttributeKey: Any] = [
+            .protectionKey: FileProtectionType.completeUntilFirstUserAuthentication
+        ]
+        for suffix in ["", "-wal", "-shm"] {
+            let filePath = path + suffix
+            guard fileManager.fileExists(atPath: filePath) else { continue }
+            try? fileManager.setAttributes(attributes, ofItemAtPath: filePath)
+        }
     }
 
     private func invalidateStaleParserCache() {

@@ -23,6 +23,7 @@ public extension FeedManager {
             skipImageFetch: options.skipImageFetch
         )
 
+        try Task.checkCancellation()
         let feedTitleForIndex = parsedFeed.title.isEmpty ? feed.title : parsedFeed.title
         let insertedIDs = (try? database.insertArticles(
             feedID: feed.id,
@@ -46,6 +47,7 @@ public extension FeedManager {
             database: database,
             options: options
         )
+        try Task.checkCancellation()
         try database.updateFeedLastFetched(id: feed.id, date: Date())
         if !options.contentOnly {
             FeedManager.scheduleFediverseProbeIfNeeded(for: feed, database: database)
