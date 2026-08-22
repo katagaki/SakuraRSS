@@ -265,18 +265,21 @@ public extension HTMLContentExtractor {
 
     private static let fallbackFormatters: [DateFormatter] = {
         let locale = Locale(identifier: "en_US_POSIX")
-        let formats = [
-            "yyyy-MM-dd'T'HH:mm:ssXXXXX",
-            "yyyy-MM-dd'T'HH:mm:ss",
-            "yyyy-MM-dd HH:mm:ss",
-            "yyyy-MM-dd",
-            "EEE, dd MMM yyyy HH:mm:ss zzz",
-            "MMM d, yyyy"
+        let formats: [(format: String, carriesZone: Bool)] = [
+            ("yyyy-MM-dd'T'HH:mm:ssXXXXX", true),
+            ("yyyy-MM-dd'T'HH:mm:ss", false),
+            ("yyyy-MM-dd HH:mm:ss", false),
+            ("yyyy-MM-dd", false),
+            ("EEE, dd MMM yyyy HH:mm:ss zzz", true),
+            ("MMM d, yyyy", false)
         ]
-        return formats.map {
+        return formats.map { format, carriesZone in
             let formatter = DateFormatter()
             formatter.locale = locale
-            formatter.dateFormat = $0
+            formatter.dateFormat = format
+            if !carriesZone {
+                formatter.timeZone = TimeZone(secondsFromGMT: 0)
+            }
             return formatter
         }
     }()
