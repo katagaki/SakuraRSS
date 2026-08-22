@@ -10,18 +10,14 @@ struct CompactFeedArticleRow: View {
     @State private var feedName: String?
     @State private var acronymIcon: UIImage?
     @State private var skipIconInset = false
+    @State private var isCircleIcon = false
+    @State private var showsPlayBadge = false
+    @State private var opensInExternalApp = false
     @State private var feed: Feed?
     @State private var showSafari = false
 
-    var opensInExternalApp: Bool {
-        if feed?.isRedditFeed == true { return RedditHelper.isAppInstalled }
-        if feed?.isInstagramFeed == true { return InstagramHelper.isAppInstalled }
-        return false
-    }
-
     @ViewBuilder
     private var feedAvatarView: some View {
-        let isCircleIcon = feed?.isCircleIcon ?? false
         if let icon = icon {
             IconImage(icon, size: 20, cornerRadius: 4,
                       circle: isCircleIcon, skipInset: skipIconInset)
@@ -103,7 +99,7 @@ struct CompactFeedArticleRow: View {
                     .strokeBorder(.primary.opacity(0.2), lineWidth: 0.5)
             }
             .overlay {
-                if feed?.isVideoFeed == true || feed?.isPodcast == true || article.hasXVideoThumbnail {
+                if showsPlayBadge || article.hasXVideoThumbnail {
                     Image(systemName: "play.fill")
                         .font(.caption)
                         .foregroundStyle(.primary)
@@ -143,10 +139,22 @@ struct CompactFeedArticleRow: View {
         }
         .task {
             if let loadedFeed = feedManager.feed(forArticle: article) {
+                let isVideoFeed = loadedFeed.isVideoFeed
+                let isXFeed = loadedFeed.isXFeed
+                let isInstagramFeed = loadedFeed.isInstagramFeed
                 feed = loadedFeed
                 feedName = loadedFeed.title
                 acronymIcon = AcronymIconCache.shared.icon(for: loadedFeed)
-                skipIconInset = loadedFeed.isVideoFeed || loadedFeed.isXFeed || loadedFeed.isInstagramFeed
+                skipIconInset = isVideoFeed || isXFeed || isInstagramFeed
+                isCircleIcon = loadedFeed.isCircleIcon
+                showsPlayBadge = isVideoFeed || loadedFeed.isPodcast
+                if loadedFeed.isRedditFeed {
+                    opensInExternalApp = RedditHelper.isAppInstalled
+                } else if isInstagramFeed {
+                    opensInExternalApp = InstagramHelper.isAppInstalled
+                } else {
+                    opensInExternalApp = false
+                }
                 icon = await Iconography.shared.icon(for: loadedFeed)
             }
         }
