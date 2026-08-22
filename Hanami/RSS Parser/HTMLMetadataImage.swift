@@ -131,11 +131,21 @@ public nonisolated enum HTMLMetadataImage {
         return nil
     }
 
-    private static func firstCaptureGroup(in text: String, pattern: String) -> String? {
+    nonisolated(unsafe) private static let regexCache = NSCache<NSString, NSRegularExpression>()
+
+    private static func cachedRegex(for pattern: String) -> NSRegularExpression? {
+        let key = pattern as NSString
+        if let cached = regexCache.object(forKey: key) { return cached }
         guard let regex = try? NSRegularExpression(
             pattern: pattern,
             options: [.caseInsensitive, .dotMatchesLineSeparators]
         ) else { return nil }
+        regexCache.setObject(regex, forKey: key)
+        return regex
+    }
+
+    private static func firstCaptureGroup(in text: String, pattern: String) -> String? {
+        guard let regex = cachedRegex(for: pattern) else { return nil }
         let nsText = text as NSString
         let range = NSRange(location: 0, length: nsText.length)
         guard let match = regex.firstMatch(in: text, range: range),
