@@ -78,7 +78,7 @@ public extension FeedManager {
             }
             fetchLimit *= 2
         }
-        let raw = (try? database.articles(
+        let raw = (try? database.articlesList(
             forFeedIDs: feedIDList,
             limit: fetchLimit,
             requireUnread: requireUnread
@@ -135,32 +135,42 @@ public extension FeedManager {
     // MARK: - Count-based Batches (List)
 
     func articles(for list: FeedList, limit: Int, requireUnread: Bool = false) -> [Article] {
-        let listFeedIDs = feedIDs(for: list)
-        guard !listFeedIDs.isEmpty else { return [] }
-        var multiplier = 3
+        _ = dataRevision
+        let feedIDList = unmutedFeedIDs(for: list)
+        guard !feedIDList.isEmpty else { return [] }
+        var fetchLimit = max(limit * 4, 100)
         let maxIterations = 20
         for _ in 0..<maxIterations {
-            let pool = articles(limit: limit * multiplier)
-            let pooled = pool.filter { listFeedIDs.contains($0.feedID) }
-            let listed = applyListRules(pooled, listID: list.id)
-            let candidates = requireUnread ? listed.filter { !$0.isRead } : listed
-            if candidates.count >= limit || pool.count < limit * multiplier {
-                return Array(candidates.prefix(limit))
+            let raw = (try? database.articlesList(
+                forFeedIDs: feedIDList,
+                limit: fetchLimit,
+                requireUnread: requireUnread
+            )) ?? []
+            let listed = applyListRules(applyAllRules(raw), listID: list.id)
+            if listed.count >= limit || raw.count < fetchLimit {
+                return Array(listed.prefix(limit))
             }
-            multiplier *= 2
+            fetchLimit *= 2
         }
-        let pool = articles(limit: limit * multiplier)
-        let pooled = pool.filter { listFeedIDs.contains($0.feedID) }
-        let listed = applyListRules(pooled, listID: list.id)
-        let candidates = requireUnread ? listed.filter { !$0.isRead } : listed
-        return Array(candidates.prefix(limit))
+        let raw = (try? database.articlesList(
+            forFeedIDs: feedIDList,
+            limit: fetchLimit,
+            requireUnread: requireUnread
+        )) ?? []
+        return Array(applyListRules(applyAllRules(raw), listID: list.id).prefix(limit))
     }
 
     func hasMoreArticles(for list: FeedList, beyond count: Int) -> Bool {
-        let listFeedIDs = feedIDs(for: list)
-        guard !listFeedIDs.isEmpty else { return false }
-        let pooled = articles(limit: (count + 1) * 3).filter { listFeedIDs.contains($0.feedID) }
-        return applyListRules(pooled, listID: list.id).count > count
+        _ = dataRevision
+        let feedIDList = unmutedFeedIDs(for: list)
+        guard !feedIDList.isEmpty else { return false }
+        let raw = (try? database.articlesList(forFeedIDs: feedIDList, limit: count + 1)) ?? []
+        return applyListRules(applyAllRules(raw), listID: list.id).count > count
+    }
+
+    private func unmutedFeedIDs(for list: FeedList) -> [Int64] {
+        let muted = mutedFeedIDs
+        return Array(feedIDs(for: list).filter { !muted.contains($0) })
     }
 
     func nextLoadedCount(for list: FeedList, after count: Int, batchSize: Int, requireUnread: Bool = false) -> Int? {
@@ -186,10 +196,10 @@ public extension FeedManager {
         requireUnread: Bool = false
     ) -> Date? {
         _ = dataRevision
-        let listFeedIDs = feedIDs(for: list)
-        guard !listFeedIDs.isEmpty else { return nil }
-        let calendar = Calendar.current
         let muted = mutedFeedIDs
+        let windowFeedIDs = feedIDs(for: list).filter { !muted.contains($0) }
+        guard !windowFeedIDs.isEmpty else { return nil }
+        let calendar = Calendar.current
         var cursor = date
         var iterations = 0
         let maxIterations = FeedManager.chunkWalkLimit
@@ -197,10 +207,10 @@ public extension FeedManager {
             iterations += 1
             guard (try? database.earliestArticleDate(before: cursor)) ?? nil != nil else { return nil }
             guard let newStart = calendar.date(byAdding: .day, value: -days, to: cursor) else { return nil }
-            let windowArticles = (try? database.allArticlesList(from: newStart, to: cursor, limit: 10000)) ?? []
-            var visible = muted.isEmpty ? windowArticles : windowArticles.filter { !muted.contains($0.feedID) }
-            visible = applyAllRules(visible).filter { listFeedIDs.contains($0.feedID) }
-            visible = applyListRules(visible, listID: list.id)
+            let windowArticles = (try? database.articlesList(
+                forFeedIDs: windowFeedIDs, from: newStart, to: cursor, limit: 10000
+            )) ?? []
+            var visible = applyListRules(applyAllRules(windowArticles), listID: list.id)
             if requireUnread {
                 visible = visible.filter { !$0.isRead }
             }
@@ -250,10 +260,14 @@ public extension FeedManager {
         requireUnread: Bool = false
     ) -> Date? {
         _ = dataRevision
-        let sectionFeedIDs = Set(feeds.filter { $0.feedSection == section }.map(\.id))
+        let muted = mutedFeedIDs
+        let sectionFeedIDs = Set(
+            feeds
+                .filter { $0.feedSection == section && !muted.contains($0.id) }
+                .map(\.id)
+        )
         guard !sectionFeedIDs.isEmpty else { return nil }
         let calendar = Calendar.current
-        let muted = mutedFeedIDs
         var cursor = date
         var iterations = 0
         let maxIterations = FeedManager.chunkWalkLimit
@@ -261,9 +275,10 @@ public extension FeedManager {
             iterations += 1
             guard (try? database.earliestArticleDate(before: cursor)) ?? nil != nil else { return nil }
             guard let newStart = calendar.date(byAdding: .day, value: -days, to: cursor) else { return nil }
-            let windowArticles = (try? database.allArticlesList(from: newStart, to: cursor, limit: 10000)) ?? []
-            var visible = muted.isEmpty ? windowArticles : windowArticles.filter { !muted.contains($0.feedID) }
-            visible = applyAllRules(visible).filter { sectionFeedIDs.contains($0.feedID) }
+            let windowArticles = (try? database.articlesList(
+                forFeedIDs: sectionFeedIDs, from: newStart, to: cursor, limit: 10000
+            )) ?? []
+            var visible = applyAllRules(windowArticles)
             if requireUnread {
                 visible = visible.filter { !$0.isRead }
             }
@@ -292,8 +307,9 @@ public extension FeedManager {
                 return nil
             }
             guard let newStart = calendar.date(byAdding: .day, value: -days, to: cursor) else { return nil }
-            let windowArticles = ((try? database.articlesList(forFeedID: feed.id, since: newStart)) ?? [])
-                .filter { ($0.publishedDate ?? .distantPast) < cursor }
+            let windowArticles = (try? database.articlesList(
+                forFeedID: feed.id, from: newStart, to: cursor, limit: 10000
+            )) ?? []
             var visible = applyRules(windowArticles, feedID: feed.id)
             if requireUnread {
                 visible = visible.filter { !$0.isRead }
