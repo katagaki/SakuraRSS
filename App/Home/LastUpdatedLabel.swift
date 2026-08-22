@@ -13,17 +13,6 @@ struct LastUpdatedLabel: View {
     }
 
     private var text: String {
-        let relative: String
-        if let date {
-            relative = date.formatted(.relative(presentation: .named))
-        } else {
-            relative = Date().formatted(
-                .dateTime
-                    .weekday(.wide)
-                    .month(.abbreviated)
-                    .day()
-            )
-        }
-        return String(localized: "Home.LastUpdated \(relative)", table: "Home")
+        LastUpdatedText.text(for: date)
     }
 }

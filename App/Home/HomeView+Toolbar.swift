@@ -82,18 +82,7 @@ extension HomeView {
     }
 
     var formattedDate: String {
-        let relative: String
         let scopedDate = feedManager.scopedLastRefreshedAt[currentScopeKey]
-        if let date = scopedDate ?? feedManager.lastRefreshedAt {
-            relative = date.formatted(.relative(presentation: .named))
-        } else {
-            relative = Date().formatted(
-                .dateTime
-                    .weekday(.wide)
-                    .month(.abbreviated)
-                    .day()
-            )
-        }
-        return String(localized: "Home.LastUpdated \(relative)", table: "Home")
+        return LastUpdatedText.text(for: scopedDate ?? feedManager.lastRefreshedAt)
     }
 }
