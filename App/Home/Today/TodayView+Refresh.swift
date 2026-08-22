@@ -62,12 +62,11 @@ extension TodayView {
 
     /// Re-filters TodayManager's pre-fetched unread lists with the live read state so
     /// items mark-read'd in this session disappear without waiting for a full reload.
-    var visibleUnreadPodcastEpisodes: [Article] {
-        todayManager.unreadPodcastEpisodes.filter { !feedManager.isRead($0) }
-    }
-
-    var visibleUnreadVideoEpisodes: [Article] {
-        todayManager.unreadVideoEpisodes.filter { !feedManager.isRead($0) }
+    var visibleEpisodes: TodayVisibleEpisodes {
+        TodayVisibleEpisodes(
+            podcasts: todayManager.unreadPodcastEpisodes.filter { !feedManager.isRead($0) },
+            videos: todayManager.unreadVideoEpisodes.filter { !feedManager.isRead($0) }
+        )
     }
 
     var filteredTopics: [(name: String, count: Int)] {

@@ -28,7 +28,8 @@ extension TodayView {
     }
 
     private func landscapeTrailingScrollView(columnWidth: CGFloat) -> some View {
-        let sections = contentSections
+        let episodes = visibleEpisodes
+        let sections = contentSections(episodes: episodes)
         return ScrollView {
             VStack(alignment: .leading, spacing: 16) {
                 if !todayManager.hasLoadedInitially {
@@ -36,7 +37,7 @@ extension TodayView {
                 } else if sections.isEmpty {
                     emptyContentView
                 } else {
-                    contentSectionsStack(sections)
+                    contentSectionsStack(sections, episodes: episodes)
                 }
             }
             .padding(.top, 8)

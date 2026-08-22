@@ -55,7 +55,8 @@ struct TodayView: View {
     // MARK: - Layouts
 
     private var portraitLayout: some View {
-        let sections = contentSections
+        let episodes = visibleEpisodes
+        let sections = contentSections(episodes: episodes)
         let showEmpty = todayManager.hasLoadedInitially && !anySummaryVisible && sections.isEmpty
         return ScrollView {
             VStack(alignment: .leading, spacing: 16) {
@@ -85,7 +86,7 @@ struct TodayView: View {
                 } else if showEmpty {
                     emptyContentView
                 } else {
-                    contentSectionsStack(sections)
+                    contentSectionsStack(sections, episodes: episodes)
                 }
 
                 TodayAttributionFooter()
@@ -122,9 +123,12 @@ struct TodayView: View {
     }
 
     @ViewBuilder
-    func contentSectionsStack(_ sections: [ContentSection]) -> some View {
+    func contentSectionsStack(
+        _ sections: [ContentSection],
+        episodes: TodayVisibleEpisodes
+    ) -> some View {
         ForEach(Array(sections.enumerated()), id: \.element) { index, section in
-            sectionView(section)
+            sectionView(section, episodes: episodes)
             if index < sections.count - 1 {
                 sectionDivider
             }
@@ -172,12 +176,12 @@ struct TodayView: View {
         .todayHorizontalContentPadding(0)
     }
 
-    var contentSections: [ContentSection] {
+    func contentSections(episodes: TodayVisibleEpisodes) -> [ContentSection] {
         var sections: [ContentSection] = []
-        if !visibleUnreadPodcastEpisodes.isEmpty {
+        if !episodes.podcasts.isEmpty {
             sections.append(.listenNow)
         }
-        if !visibleUnreadVideoEpisodes.isEmpty {
+        if !episodes.videos.isEmpty {
             sections.append(.watchNow)
         }
         if contentInsightsEnabled,
@@ -202,10 +206,10 @@ struct TodayView: View {
     }
 
     @ViewBuilder
-    func sectionView(_ section: ContentSection) -> some View {
+    func sectionView(_ section: ContentSection, episodes: TodayVisibleEpisodes) -> some View {
         switch section {
-        case .listenNow: listenNowSection
-        case .watchNow: watchNowSection
+        case .listenNow: listenNowSection(episodes.podcasts)
+        case .watchNow: watchNowSection(episodes.videos)
         case .topThree: topThreeTopicsSection
         case .topicsAndPeople: topicsAndPeopleSection
         case .bookmarks: bookmarksSection
@@ -214,22 +218,22 @@ struct TodayView: View {
     }
 
     @ViewBuilder
-    private var listenNowSection: some View {
+    private func listenNowSection(_ episodes: [Article]) -> some View {
         TodayCardCarousel(
             title: String(localized: "Today.ListenNow", table: "Home"),
             destination: nil,
-            articles: visibleUnreadPodcastEpisodes
+            articles: episodes
         ) { article in
             TodayPodcastCard(article: article)
         }
     }
 
     @ViewBuilder
-    private var watchNowSection: some View {
+    private func watchNowSection(_ episodes: [Article]) -> some View {
         TodayCardCarousel(
             title: String(localized: "Today.WatchNow", table: "Home"),
             destination: nil,
-            articles: visibleUnreadVideoEpisodes
+            articles: episodes
         )
     }
 
