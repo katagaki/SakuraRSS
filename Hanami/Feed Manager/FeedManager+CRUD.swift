@@ -35,6 +35,7 @@ public extension FeedManager {
         if let newFeed {
             Task {
                 try? await refreshFeed(newFeed)
+                reloadWidgetTimelines()
             }
         }
     }
@@ -47,12 +48,14 @@ public extension FeedManager {
         PodcastDownloadManager.cleanupOrphanedDownloads()
         SpotlightIndexer.removeArticles(feedID: feed.id, articleIDs: articleIDs)
         Task { await loadFromDatabaseInBackground() }
+        reloadWidgetTimelines()
     }
 
     func toggleMuted(_ feed: Feed) {
         try? database.updateFeedMuted(id: feed.id, isMuted: !feed.isMuted)
         captureUserFeedEdit(feedID: feed.id)
         Task { await loadFromDatabaseInBackground() }
+        reloadWidgetTimelines()
     }
 
     /// Installs the fetchd title + profile photo on the first refresh
