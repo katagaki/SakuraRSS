@@ -16,6 +16,7 @@ nonisolated extension DatabaseManager {
         try database.run(articles.createIndex(articleFeedID, ifNotExists: true))
         try database.run(articles.createIndex(articlePublishedDate, ifNotExists: true))
         try database.run(articles.createIndex(articleFeedID, articleIsRead, ifNotExists: true))
+        try database.run(articles.createIndex(articleIsBookmarked, ifNotExists: true))
         try createCommentsTable()
         try database.run(comments.createIndex(commentArticleID, ifNotExists: true))
     }
@@ -126,6 +127,7 @@ nonisolated extension DatabaseManager {
             table.column(ruleType)
             table.column(ruleValue)
         })
+        try database.run(feedRules.createIndex(ruleFeedID, ruleType, ifNotExists: true))
         try database.run(lists.create(ifNotExists: true) { table in
             table.column(listID, primaryKey: .autoincrement)
             table.column(listName)
@@ -144,6 +146,7 @@ nonisolated extension DatabaseManager {
             table.column(listRuleType)
             table.column(listRuleValue)
         })
+        try database.run(listRules.createIndex(listRuleListID, listRuleType, ifNotExists: true))
     }
 
     private func createBookmarkFolderTables() throws {

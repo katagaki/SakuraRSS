@@ -68,6 +68,9 @@ public nonisolated extension DatabaseManager {
         _ = try? database.run(articles.createIndex(articleFeedID, ifNotExists: true))
         _ = try? database.run(articles.createIndex(articlePublishedDate, ifNotExists: true))
         _ = try? database.run(articles.createIndex(articleFeedID, articleIsRead, ifNotExists: true))
+        _ = try? database.run(articles.createIndex(articleIsBookmarked, ifNotExists: true))
+        _ = try? database.run(feedRules.createIndex(ruleFeedID, ruleType, ifNotExists: true))
+        _ = try? database.run(listRules.createIndex(listRuleListID, listRuleType, ifNotExists: true))
 
         // lists table
         _ = try? database.run(lists.addColumn(listName, defaultValue: ""))
