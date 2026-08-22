@@ -50,6 +50,7 @@ struct SakuraRSSApp: App {
                         BookmarkToastManager.shared.show(article: article, feedManager: feedManager)
                     }
                     feedManager.connectCloudSync()
+                    feedManager.connectProviderSessions()
                     await FeedProviderRegistry.migrateAuthenticatedCookies()
                     if fetchOnStartup {
                         await feedManager.refreshAllFeeds(

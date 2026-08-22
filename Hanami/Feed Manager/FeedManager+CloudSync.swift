@@ -14,11 +14,6 @@ public extension FeedManager {
                 self?.applyRemoteFeedDeletion(feed)
             }
         }
-        ProviderSessionEvents.onSessionEstablished = { [weak self] service in
-            Task { @MainActor [weak self] in
-                await self?.refreshIcons(forProvider: service)
-            }
-        }
         engine.startIfEnabled()
     }
 

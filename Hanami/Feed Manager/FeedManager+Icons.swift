@@ -24,6 +24,16 @@ public extension FeedManager {
         }
     }
 
+    /// Profile icons for cookie-authenticated services are unreachable while
+    /// signed out, so a sign-in refetches the ones that failed.
+    func connectProviderSessions() {
+        ProviderSessionEvents.onSessionEstablished = { [weak self] service in
+            Task { @MainActor [weak self] in
+                await self?.refreshIcons(forProvider: service)
+            }
+        }
+    }
+
     func refreshIcons(forProvider service: ProviderSessionEvents.Service) async {
         await refreshIcons(for: feeds.filter { service.matches($0) })
     }
