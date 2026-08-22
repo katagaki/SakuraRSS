@@ -96,6 +96,17 @@ public nonisolated extension DatabaseManager {
         ).map { $0[listRuleValue] }
     }
 
+    func allListRules(forListID lid: Int64) throws -> [String: [String]] {
+        var result: [String: [String]] = [:]
+        let query = listRules
+            .filter(listRuleListID == lid)
+            .order(listRuleValue.asc)
+        for row in try database.prepare(query) {
+            result[row[listRuleType], default: []].append(row[listRuleValue])
+        }
+        return result
+    }
+
     func replaceListRules(listID lid: Int64, type: String, values: [String]) throws {
         let existing = listRules.filter(listRuleListID == lid && listRuleType == type)
         try database.run(existing.delete())

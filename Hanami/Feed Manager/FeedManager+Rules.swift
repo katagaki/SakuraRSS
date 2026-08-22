@@ -54,18 +54,31 @@ public extension FeedManager {
     }
 
     nonisolated static func applyRules(_ articles: [Article], feedID: Int64, database: DatabaseManager) -> [Article] {
-        let allowedKeywords = (try? database.rules(forFeedID: feedID, type: "allowed_keyword")) ?? []
-        let keywords = (try? database.rules(forFeedID: feedID, type: "muted_keyword")) ?? []
-        let authors = Set((try? database.rules(forFeedID: feedID, type: "muted_author")) ?? [])
-        guard !allowedKeywords.isEmpty || !keywords.isEmpty || !authors.isEmpty else { return articles }
+        let rules = filterRules(forFeedID: feedID, database: database)
+        return applyRules(articles, rules: rules)
+    }
+
+    nonisolated static func filterRules(forFeedID feedID: Int64, database: DatabaseManager) -> FeedFilterRules {
+        let grouped = (try? database.allRules(forFeedID: feedID)) ?? [:]
+        return FeedFilterRules(
+            allowedKeywords: grouped["allowed_keyword"] ?? [],
+            keywords: grouped["muted_keyword"] ?? [],
+            authors: Set(grouped["muted_author"] ?? [])
+        )
+    }
+
+    nonisolated static func applyRules(_ articles: [Article], rules: FeedFilterRules) -> [Article] {
+        guard !rules.allowedKeywords.isEmpty || !rules.keywords.isEmpty || !rules.authors.isEmpty else {
+            return articles
+        }
         return articles.filter { article in
-            if !allowedKeywords.isEmpty {
-                return Self.articleMatchesKeywords(article, keywords: allowedKeywords)
+            if !rules.allowedKeywords.isEmpty {
+                return articleMatchesKeywords(article, keywords: rules.allowedKeywords)
             }
-            if let author = article.author, authors.contains(author) {
+            if let author = article.author, rules.authors.contains(author) {
                 return false
             }
-            for keyword in keywords {
+            for keyword in rules.keywords {
                 if article.title.localizedCaseInsensitiveContains(keyword) {
                     return false
                 }
@@ -86,8 +99,12 @@ public extension FeedManager {
         guard !feedsWithRules.isEmpty else { return rawCounts }
         var result = rawCounts
         for feedID in feedsWithRules where (result[feedID] ?? 0) > 0 {
+            let rules = filterRules(forFeedID: feedID, database: database)
+            guard !rules.allowedKeywords.isEmpty || !rules.keywords.isEmpty || !rules.authors.isEmpty else {
+                continue
+            }
             let unread = (try? database.unreadArticlesList(forFeedID: feedID)) ?? []
-            result[feedID] = applyRules(unread, feedID: feedID, database: database).count
+            result[feedID] = applyRules(unread, rules: rules).count
         }
         return result
     }
@@ -102,12 +119,7 @@ public extension FeedManager {
         var result: [Article] = []
         for article in articles {
             if rulesByFeed[article.feedID] == nil {
-                let allowedKeywords = (try? database.rules(forFeedID: article.feedID, type: "allowed_keyword")) ?? []
-                let keywords = (try? database.rules(forFeedID: article.feedID, type: "muted_keyword")) ?? []
-                let authors = Set((try? database.rules(forFeedID: article.feedID, type: "muted_author")) ?? [])
-                rulesByFeed[article.feedID] = FeedFilterRules(
-                    allowedKeywords: allowedKeywords, keywords: keywords, authors: authors
-                )
+                rulesByFeed[article.feedID] = filterRules(forFeedID: article.feedID, database: database)
             }
             let rules = rulesByFeed[article.feedID]!
             guard !rules.allowedKeywords.isEmpty || !rules.keywords.isEmpty || !rules.authors.isEmpty else {
@@ -147,28 +159,13 @@ public extension FeedManager {
         listID: Int64,
         database: DatabaseManager
     ) -> [Article] {
-        let allowedKeywords = (try? database.listRules(forListID: listID, type: "allowed_keyword")) ?? []
-        let keywords = (try? database.listRules(forListID: listID, type: "muted_keyword")) ?? []
-        let authors = Set((try? database.listRules(forListID: listID, type: "muted_author")) ?? [])
-        guard !allowedKeywords.isEmpty || !keywords.isEmpty || !authors.isEmpty else { return articles }
-        return articles.filter { article in
-            if !allowedKeywords.isEmpty {
-                return articleMatchesKeywords(article, keywords: allowedKeywords)
-            }
-            if let author = article.author, authors.contains(author) {
-                return false
-            }
-            for keyword in keywords {
-                if article.title.localizedCaseInsensitiveContains(keyword) {
-                    return false
-                }
-                if let summary = article.summary,
-                   summary.localizedCaseInsensitiveContains(keyword) {
-                    return false
-                }
-            }
-            return true
-        }
+        let grouped = (try? database.allListRules(forListID: listID)) ?? [:]
+        let rules = FeedFilterRules(
+            allowedKeywords: grouped["allowed_keyword"] ?? [],
+            keywords: grouped["muted_keyword"] ?? [],
+            authors: Set(grouped["muted_author"] ?? [])
+        )
+        return applyRules(articles, rules: rules)
     }
 
     private func articleMatchesKeywords(_ article: Article, keywords: [String]) -> Bool {
