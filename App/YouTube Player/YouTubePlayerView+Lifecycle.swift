@@ -35,7 +35,8 @@ extension YouTubePlayerView {
            let videoID = SponsorBlockClient.extractVideoID(from: article.url) {
             let categories = sponsorBlockCategories
                 .split(separator: ",")
-                .map(String.init)
+                .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+                .filter { !$0.isEmpty }
             let fetched = await SponsorBlockClient.fetchSegments(
                 for: videoID, categories: categories
             )
