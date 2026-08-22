@@ -24,7 +24,7 @@ struct CarouselImageView: View {
             if let image {
                 Image(uiImage: image)
                     .resizable()
-                    .aspectRatio(contentMode: .fit)
+                    .scaledToFit()
                     .frame(height: height)
                     .debugLayout()
             } else {

@@ -49,7 +49,7 @@ struct CardView: View {
                         .overlay(alignment: shouldCenterImage ? .center : .top) {
                             Image(uiImage: cardImage)
                                 .resizable()
-                                .aspectRatio(contentMode: .fill)
+                                .scaledToFill()
                                 .debugLayout()
                         }
                         .frame(width: geometry.size.width, height: geometry.size.height)

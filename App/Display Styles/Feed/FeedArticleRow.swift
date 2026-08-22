@@ -123,7 +123,7 @@ struct FeedArticleRow: View {
                         .overlay(alignment: imageOverlayAlignment) {
                             Image(uiImage: loadedImage)
                                 .resizable()
-                                .aspectRatio(contentMode: .fill)
+                                .scaledToFill()
                                 .debugLayout()
                         }
                         .clipped()
