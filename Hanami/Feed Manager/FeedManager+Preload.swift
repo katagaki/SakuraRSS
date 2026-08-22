@@ -7,7 +7,7 @@ public extension FeedManager {
 
     /// Upper bound for the "all articles" preload. Far beyond what the list can
     /// be scrolled through, but keeps the whole articles table off the heap.
-    static var maximumPreloadedEntries: Int { 5000 }
+    nonisolated static var maximumPreloadedEntries: Int { 5000 }
 
     // MARK: - All Articles
 
