@@ -96,7 +96,7 @@ public extension FeedManager {
     // XMLParser assumes UTF-8 when the document carries no encoding declaration, so a feed
     // that declares its charset only in the HTTP header would otherwise parse to nothing.
     nonisolated private static func utf8FeedData(_ data: Data, response: URLResponse) -> Data {
-        let head = String(decoding: data.prefix(256), as: UTF8.self).lowercased()
+        let head = (String(bytes: data.prefix(256), encoding: .isoLatin1) ?? "").lowercased()
         if head.hasPrefix("<?xml"), let declarationEnd = head.range(of: "?>"),
            head[..<declarationEnd.lowerBound].contains("encoding=") {
             return data
