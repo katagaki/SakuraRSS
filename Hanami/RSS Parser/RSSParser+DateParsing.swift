@@ -24,9 +24,9 @@ public nonisolated extension RSSParser {
     ]
 
     private static let dateFormatters: [DateFormatter] = {
-        let zoned = Self.zonedDateFormats.map { Self.makeDateFormatter(format: $0, timeZone: nil) }
+        let zoned = RSSParser.zonedDateFormats.map { RSSParser.makeDateFormatter(format: $0, timeZone: nil) }
         let utc = TimeZone(secondsFromGMT: 0)
-        let zoneless = Self.zonelessDateFormats.map { Self.makeDateFormatter(format: $0, timeZone: utc) }
+        let zoneless = RSSParser.zonelessDateFormats.map { RSSParser.makeDateFormatter(format: $0, timeZone: utc) }
         return zoned + zoneless
     }()
 
