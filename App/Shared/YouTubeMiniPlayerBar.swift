@@ -80,7 +80,7 @@ struct YouTubeMiniPlayerBar: View {
                 RoundedRectangle(cornerRadius: 6)
                     .fill(.secondary.opacity(0.15))
             }
-            .aspectRatio(contentMode: .fill)
+            .scaledToFill()
         } else {
             RoundedRectangle(cornerRadius: 6)
                 .fill(.secondary.opacity(0.5))
