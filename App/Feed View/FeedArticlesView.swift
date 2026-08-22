@@ -36,11 +36,11 @@ struct FeedArticlesView: View {
     }
 
     private var currentFeed: Feed {
-        feedManager.feeds.first(where: { $0.id == feed.id }) ?? feed
+        feedManager.feedsByID[feed.id] ?? feed
     }
 
     private var feedExists: Bool {
-        feedManager.feeds.contains(where: { $0.id == feed.id })
+        feedManager.feedsByID[feed.id] != nil
     }
 
     private var scopeKey: String { "feed.\(feed.id)" }
