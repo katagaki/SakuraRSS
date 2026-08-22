@@ -279,7 +279,6 @@ public extension HTMLContentExtractor {
                 return false
             }
         }
-        let text = (try? element.text()) ?? ""
-        return !text.isEmpty
+        return element.hasText()
     }
 }
