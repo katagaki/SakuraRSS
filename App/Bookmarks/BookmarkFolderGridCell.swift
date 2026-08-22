@@ -13,11 +13,7 @@ struct BookmarkFolderGridCell: View {
         ListIcon(rawValue: folder.icon)?.gradientColors.0
     }
 
-    private var thumbnailURLs: [URL] {
-        _ = feedManager.dataRevision
-        return feedManager.latestBookmarkThumbnailURLs(in: folder)
-            .compactMap(URL.init(string:))
-    }
+    @State private var thumbnailURLs: [URL] = []
 
     var body: some View {
         VStack(alignment: .center, spacing: 6) {
@@ -43,17 +39,25 @@ struct BookmarkFolderGridCell: View {
         }
         .frame(maxWidth: .infinity)
         .contentShape(.rect)
+        .task(id: ThumbnailKey(folderID: folder.id, revision: feedManager.dataRevision)) {
+            thumbnailURLs = feedManager.latestBookmarkThumbnailURLs(in: folder)
+                .compactMap(URL.init(string:))
+        }
     }
 
     @ViewBuilder
     private var cellContent: some View {
-        let urls = thumbnailURLs
-        if urls.isEmpty {
+        if thumbnailURLs.isEmpty {
             Color.clear
         } else {
-            BookmarkThumbnailStack(thumbnailURLs: urls, containerSize: cellSize)
+            BookmarkThumbnailStack(thumbnailURLs: thumbnailURLs, containerSize: cellSize)
         }
     }
+}
+
+private struct ThumbnailKey: Hashable {
+    let folderID: Int64
+    let revision: Int
 }
 
 /// Up to three article thumbnails arranged like photos casually
