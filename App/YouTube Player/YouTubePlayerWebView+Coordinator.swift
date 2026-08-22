@@ -54,6 +54,26 @@ extension YouTubePlayerWebView {
             }
         }
 
+        private static var messageHandlerOwners: [ObjectIdentifier: ObjectIdentifier] = [:]
+
+        func claimMessageHandlers(on controller: WKUserContentController) {
+            Self.messageHandlerOwners[ObjectIdentifier(controller)] = ObjectIdentifier(self)
+        }
+
+        /// A newer coordinator may already have re-registered its own handlers
+        /// on this shared controller, so only the current owner may remove
+        /// them by name.
+        func releaseMessageHandlers(on controller: WKUserContentController) {
+            let controllerID = ObjectIdentifier(controller)
+            guard Self.messageHandlerOwners[controllerID] == ObjectIdentifier(self) else { return }
+            Self.messageHandlerOwners[controllerID] = nil
+            controller.removeScriptMessageHandler(forName: YouTubePlayerScripts.pipMessageHandlerName)
+            controller.removeScriptMessageHandler(forName: YouTubePlayerScripts.playbackMessageHandlerName)
+            #if DEBUG
+            controller.removeScriptMessageHandler(forName: "ytDebug")
+            #endif
+        }
+
         func reloadChapters(in webView: WKWebView) {
             chaptersLoaded = false
             chapterRetryCount = 0

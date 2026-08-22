@@ -88,6 +88,7 @@ struct YouTubePlayerWebView: UIViewRepresentable {
         #if DEBUG
         userContent.add(coordinator, name: "ytDebug")
         #endif
+        coordinator.claimMessageHandlers(on: userContent)
         DispatchQueue.main.async {
             self.webView = existing
             existing.evaluateJavaScript(
@@ -149,6 +150,7 @@ struct YouTubePlayerWebView: UIViewRepresentable {
         #if DEBUG
         controller.add(coordinator, name: "ytDebug")
         #endif
+        coordinator.claimMessageHandlers(on: controller)
         return controller
     }
 
@@ -186,15 +188,7 @@ struct YouTubePlayerWebView: UIViewRepresentable {
 
     static func dismantleUIView(_ uiView: WKWebView, coordinator: Coordinator) {
         coordinator.cancelAutoplayKick()
-        uiView.configuration.userContentController.removeScriptMessageHandler(
-            forName: YouTubePlayerScripts.pipMessageHandlerName
-        )
-        uiView.configuration.userContentController.removeScriptMessageHandler(
-            forName: YouTubePlayerScripts.playbackMessageHandlerName
-        )
-        #if DEBUG
-        uiView.configuration.userContentController.removeScriptMessageHandler(forName: "ytDebug")
-        #endif
+        coordinator.releaseMessageHandlers(on: uiView.configuration.userContentController)
         // Leave the WKWebView alive if the session still owns it so audio
         // continues while collapsed into the tab bar bottom accessory.
     }
