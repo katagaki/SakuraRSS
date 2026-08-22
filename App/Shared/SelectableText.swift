@@ -38,6 +38,12 @@ struct SelectableText: UIViewRepresentable {
 
     func updateUIView(_ textView: UITextView, context: Context) {
         context.coordinator.onLinkTap = onLinkTap
+        guard context.coordinator.renderedText != text
+                || context.coordinator.renderedFont != font
+                || context.coordinator.renderedTextColor != textColor else { return }
+        context.coordinator.renderedText = text
+        context.coordinator.renderedFont = font
+        context.coordinator.renderedTextColor = textColor
         textView.attributedText = buildAttributedString()
         textView.invalidateIntrinsicContentSize()
     }
@@ -56,6 +62,9 @@ struct SelectableText: UIViewRepresentable {
 
     final class Coordinator: NSObject, UITextViewDelegate {
         var onLinkTap: ((URL) -> Void)?
+        var renderedText: String?
+        var renderedFont: UIFont?
+        var renderedTextColor: UIColor?
 
         init(onLinkTap: ((URL) -> Void)?) {
             self.onLinkTap = onLinkTap
