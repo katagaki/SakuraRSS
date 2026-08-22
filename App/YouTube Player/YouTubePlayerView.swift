@@ -160,8 +160,9 @@ struct YouTubePlayerView: View {
         .onReceive(
             NotificationCenter.default.publisher(for: UIDevice.orientationDidChangeNotification)
         ) { _ in
-            let orientation = UIDevice.current.orientation
-            if orientation.isLandscape {
+            guard UIDevice.current.userInterfaceIdiom == .phone,
+                  isPlaying, hasStartedPlaying, !isPiP else { return }
+            if UIDevice.current.orientation.isLandscape {
                 enterFullscreen()
             }
         }
