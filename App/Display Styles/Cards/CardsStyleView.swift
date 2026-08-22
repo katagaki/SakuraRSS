@@ -12,16 +12,20 @@ struct CardsStyleView: View {
     @State private var deckArticleIDs: Set<Int64>?
     @State private var selectedArticle: Article?
 
-    private var deckArticles: [Article] {
-        guard let ids = deckArticleIDs else { return [] }
-        return articles.filter { ids.contains($0.id) }
-    }
-
     /// Session-scoped swipe dismissals; resets on navigate-away-and-back.
     @State private var dismissedIDs: Set<Int64> = []
 
+    /// Only the top two cards are ever rendered, so the scan stops there.
     private var visibleCards: [Article] {
-        deckArticles.filter { !dismissedIDs.contains($0.id) }
+        guard let deckArticleIDs else { return [] }
+        var cards: [Article] = []
+        for article in articles {
+            guard deckArticleIDs.contains(article.id),
+                  !dismissedIDs.contains(article.id) else { continue }
+            cards.append(article)
+            if cards.count == 2 { break }
+        }
+        return cards
     }
 
     @State private var isRefreshing = false
@@ -31,8 +35,9 @@ struct CardsStyleView: View {
     }
 
     var body: some View {
-        ZStack {
-            if visibleCards.isEmpty {
+        let cards = visibleCards
+        return ZStack {
+            if cards.isEmpty {
                 ContentUnavailableView {
                     Label(String(localized: "Cards.Empty.Title", table: "Articles"),
                           systemImage: "rectangle.stack")
@@ -63,7 +68,7 @@ struct CardsStyleView: View {
                     }
                 }
             } else {
-                ForEach(Array(visibleCards.prefix(2).enumerated().reversed()),
+                ForEach(Array(cards.enumerated().reversed()),
                         id: \.element.id) { index, article in
                     ArticleLink(article: article, onNavigate: {
                         selectedArticle = $0
