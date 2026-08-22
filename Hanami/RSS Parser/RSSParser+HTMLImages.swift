@@ -82,7 +82,7 @@ public nonisolated extension RSSParser {
         guard let match = regex.firstMatch(
             in: tag, range: NSRange(location: 0, length: nsTag.length)
         ), match.numberOfRanges >= 2 else { return nil }
-        let value = nsTag.substring(with: match.range(at: 1))
+        let value = RSSParser.decodeHTMLEntities(nsTag.substring(with: match.range(at: 1)))
             .trimmingCharacters(in: .whitespacesAndNewlines)
         return value.isEmpty ? nil : value
     }
