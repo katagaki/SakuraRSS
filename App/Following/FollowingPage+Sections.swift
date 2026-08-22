@@ -34,16 +34,18 @@ extension FollowingPage {
             .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
     }
 
-    func feedsForSection(_ section: FeedSection) -> [Feed] {
-        let feeds = filteredFeeds.filter { $0.feedSection == section }
-        if section == .feeds {
-            return feeds
+    /// Groups the filtered feeds by section once, so each section doesn't
+    /// re-filter and re-sort the whole feed list on every body evaluation.
+    var feedsBySection: [FeedSection: [Feed]] {
+        var grouped = Dictionary(grouping: filteredFeeds, by: \.feedSection)
+        for (section, feeds) in grouped where section != .feeds {
+            grouped[section] = feeds.sorted {
+                let domainCompare = $0.domain.localizedStandardCompare($1.domain)
+                if domainCompare != .orderedSame { return domainCompare == .orderedAscending }
+                return $0.title.localizedStandardCompare($1.title) == .orderedAscending
+            }
         }
-        return feeds.sorted {
-            let domainCompare = $0.domain.localizedStandardCompare($1.domain)
-            if domainCompare != .orderedSame { return domainCompare == .orderedAscending }
-            return $0.title.localizedStandardCompare($1.title) == .orderedAscending
-        }
+        return grouped
     }
 
     @ViewBuilder
@@ -51,8 +53,9 @@ extension FollowingPage {
         LazyVStack(alignment: .leading, spacing: 24) {
             focusBanner
             listsSection
+            let groupedFeeds = feedsBySection
             ForEach(FeedSection.allCases, id: \.self) { section in
-                feedSection(section)
+                feedSection(section, feeds: groupedFeeds[section] ?? [])
             }
         }
     }
@@ -138,8 +141,7 @@ extension FollowingPage {
     }
 
     @ViewBuilder
-    func feedSection(_ section: FeedSection) -> some View {
-        let feeds = feedsForSection(section)
+    func feedSection(_ section: FeedSection, feeds: [Feed]) -> some View {
         if !feeds.isEmpty {
             Section {
                 LazyVGrid(columns: gridColumns, alignment: .leading, spacing: 12) {
