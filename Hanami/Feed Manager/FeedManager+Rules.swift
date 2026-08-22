@@ -35,15 +35,7 @@ public extension FeedManager {
     }
 
     func uniqueAuthors(for feed: Feed) -> [String] {
-        let allArticles = (try? database.articles(forFeedID: feed.id)) ?? []
-        var seen = Set<String>()
-        var result: [String] = []
-        for article in allArticles {
-            if let author = article.author, !author.isEmpty, seen.insert(author).inserted {
-                result.append(author)
-            }
-        }
-        return result
+        (try? database.distinctAuthors(forFeedID: feed.id)) ?? []
     }
 
     // MARK: - Rule Application

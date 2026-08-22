@@ -125,12 +125,10 @@ public extension FeedManager {
         guard !ids.isEmpty else { return [] }
         var seen = Set<String>()
         var result: [String] = []
-        for id in ids {
-            let articles = (try? database.articles(forFeedID: id)) ?? []
-            for article in articles {
-                if let author = article.author, !author.isEmpty, seen.insert(author).inserted {
-                    result.append(author)
-                }
+        for feedID in ids {
+            for author in (try? database.distinctAuthors(forFeedID: feedID)) ?? []
+            where seen.insert(author).inserted {
+                result.append(author)
             }
         }
         return result
