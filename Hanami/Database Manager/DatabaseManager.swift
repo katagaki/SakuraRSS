@@ -18,15 +18,44 @@ public nonisolated final class DatabaseManager: @unchecked Sendable {
             database = try Connection(Self.databasePath)
             try Self.applyConnectionPragmas(database)
             try createTables()
-            fixupIfVersionChanged()
-            wipeSummaryHeadlinesIfPromptVersionChanged()
-            invalidateStaleParserCache()
-            migrateContentInsightsToggle()
-            invalidateStaleSimilarContentCache()
+            if !Self.isRunningInAppExtension {
+                runVersionedMigrations()
+            }
         } catch {
             fatalError("Database initialization failed: \(error)")
         }
     }
+
+    private func runVersionedMigrations() {
+        fixupIfVersionChanged()
+        wipeSummaryHeadlinesIfPromptVersionChanged()
+        invalidateStaleParserCache()
+        migrateContentInsightsToggle()
+        invalidateStaleSimilarContentCache()
+    }
+
+    static let isRunningInAppExtension: Bool = Bundle.main.bundleURL.pathExtension == "appex"
+
+    private static let versionGateKeys = [
+        "App.DatabaseVersion",
+        "App.ParserVersion.HTMLContentExtractor",
+        "Intelligence.SimilarContent.AlgorithmVersion"
+    ]
+
+    /// Version gates must read the same values in every process, and
+    /// `UserDefaults.standard` is per-process for extensions. Existing values are
+    /// seeded from `.standard` so upgrading users don't re-run the migrations.
+    static let versionGateDefaults: UserDefaults = {
+        guard let sharedDefaults = UserDefaults(suiteName: "group.com.tsubuzaki.SakuraRSS") else {
+            return .standard
+        }
+        for key in versionGateKeys where sharedDefaults.object(forKey: key) == nil {
+            if let existing = UserDefaults.standard.object(forKey: key) {
+                sharedDefaults.set(existing, forKey: key)
+            }
+        }
+        return sharedDefaults
+    }()
 
     /// Replaces the current database connection and re-creates tables.
     public func reconnect() throws {
@@ -60,10 +89,11 @@ public nonisolated final class DatabaseManager: @unchecked Sendable {
 
     private func invalidateStaleParserCache() {
         let key = "App.ParserVersion.HTMLContentExtractor"
-        let stored = UserDefaults.standard.integer(forKey: key)
+        let defaults = Self.versionGateDefaults
+        let stored = defaults.integer(forKey: key)
         if stored < ContentResolver.parserVersion {
             try? invalidateAllCachedArticleContent()
-            UserDefaults.standard.set(ContentResolver.parserVersion, forKey: key)
+            defaults.set(ContentResolver.parserVersion, forKey: key)
         }
     }
 
@@ -86,9 +116,10 @@ public nonisolated final class DatabaseManager: @unchecked Sendable {
     private func invalidateStaleSimilarContentCache() {
         let key = "Intelligence.SimilarContent.AlgorithmVersion"
         let current = 2   // v1: embedding-only; v2: hybrid embedding + entity Jaccard
-        let stored = UserDefaults.standard.integer(forKey: key)
+        let defaults = Self.versionGateDefaults
+        let stored = defaults.integer(forKey: key)
         guard stored < current else { return }
-        UserDefaults.standard.set(current, forKey: key)
+        defaults.set(current, forKey: key)
         Task.detached(priority: .utility) { [weak self] in
             try? self?.invalidateSimilarContentCache()
         }
@@ -98,10 +129,11 @@ public nonisolated final class DatabaseManager: @unchecked Sendable {
         let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? ""
         let build = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? ""
         let current = "\(version).\(build)"
-        let stored = UserDefaults.standard.string(forKey: "App.DatabaseVersion")
+        let defaults = Self.versionGateDefaults
+        let stored = defaults.string(forKey: "App.DatabaseVersion")
         if current != stored {
             fixup()
-            UserDefaults.standard.set(current, forKey: "App.DatabaseVersion")
+            defaults.set(current, forKey: "App.DatabaseVersion")
         }
     }
 }
