@@ -72,16 +72,16 @@ public extension HTMLContentExtractor {
     private static func pathTokens(of path: String) -> [String] {
         let withoutQuery = path.split(
             separator: "?", maxSplits: 1, omittingEmptySubsequences: false
-        ).first.map(String.init) ?? path
+        ).first.map { String($0) } ?? path
         return withoutQuery
             .split { !$0.isLetter && !$0.isNumber }
-            .map(String.init)
+            .map { String($0) }
     }
 
     private static func imageExtension(of path: String) -> String? {
         let withoutQuery = path.split(
             separator: "?", maxSplits: 1, omittingEmptySubsequences: false
-        ).first.map(String.init) ?? path
+        ).first.map { String($0) } ?? path
         guard let fileName = withoutQuery.split(separator: "/").last,
               let fileExtension = fileName.split(separator: ".").last,
               fileExtension != fileName else {
