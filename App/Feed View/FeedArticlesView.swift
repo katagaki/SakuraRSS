@@ -23,6 +23,7 @@ struct FeedArticlesView: View {
     @State private var fetchedArticles: [Article] = []
     @State private var undatedTail: [Article] = []
     @State private var hasLoadedWindow = false
+    @State private var loadMoreTarget: LoadMoreTarget?
     @State private var lastLoadedFeedID: Int64?
     @State private var lastLoadedHideViewed: Bool?
 
@@ -54,20 +55,26 @@ struct FeedArticlesView: View {
 
     private var loadMoreAction: (() -> Void)? {
         if hideViewedContent && visibility.hasReachedEnd { return nil }
+        switch loadMoreTarget {
+        case .sinceDate(let date): return { loadedSinceDate = date }
+        case .count(let count): return { loadedCount = count }
+        case nil: return nil
+        }
+    }
+
+    private func refreshLoadMoreTarget() {
         let batcher = self.batcher
         if let days = batchingMode.chunkDays {
-            guard let next = batcher.nextChunkStart(before: loadedSinceDate, chunkDays: days) else {
-                return nil
-            }
-            return { loadedSinceDate = next }
+            loadMoreTarget = batcher
+                .nextChunkStart(before: loadedSinceDate, chunkDays: days)
+                .map(LoadMoreTarget.sinceDate)
+        } else if let batch = batchingMode.batchSize {
+            loadMoreTarget = batcher
+                .nextLoadedCount(after: loadedCount, batchSize: batch)
+                .map(LoadMoreTarget.count)
+        } else {
+            loadMoreTarget = nil
         }
-        if let batch = batchingMode.batchSize {
-            guard let next = batcher.nextLoadedCount(after: loadedCount, batchSize: batch) else {
-                return nil
-            }
-            return { loadedCount = next }
-        }
-        return nil
     }
 
     private var slicedIDs: [Int64] {
@@ -109,6 +116,7 @@ struct FeedArticlesView: View {
     }
 
     private func refreshWindowedArticles() {
+        refreshLoadMoreTarget()
         fetchedArticles = feedManager.articles(withPreloadedIDs: slicedIDs)
         hasLoadedWindow = true
     }

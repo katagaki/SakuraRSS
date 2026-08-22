@@ -74,6 +74,7 @@ struct HomeSectionView: View {
     @AppStorage("Articles.HideViewedContent") private var storedHideViewedContent: Bool = false
     @State var visibility = ArticleVisibilityTracker()
     @State private var scrollToTopTick: Int = 0
+    @State private var loadMoreTarget: LoadMoreTarget?
     @State var lastLoadedSource: HomeContentSource?
     @State private var lastLoadedHideViewed: Bool?
     @State private var fetchedArticles: [Article] = []
@@ -134,8 +135,33 @@ struct HomeSectionView: View {
     }
 
     func refreshWindowedArticles() {
+        refreshLoadMoreTarget()
         fetchedArticles = feedManager.articles(withPreloadedIDs: slicedIDs)
         hasLoadedWindow = true
+    }
+
+    private func refreshLoadMoreTarget() {
+        let batcher = self.batcher
+        if let days = batchingMode.chunkDays {
+            loadMoreTarget = batcher
+                .nextChunkStart(before: loadedSinceDate, chunkDays: days)
+                .map(LoadMoreTarget.sinceDate)
+        } else if let batch = batchingMode.batchSize {
+            loadMoreTarget = batcher
+                .nextLoadedCount(after: loadedCount, batchSize: batch)
+                .map(LoadMoreTarget.count)
+        } else {
+            loadMoreTarget = nil
+        }
+    }
+
+    var loadMoreAction: (() -> Void)? {
+        if hideViewedContent && visibility.hasReachedEnd { return nil }
+        switch loadMoreTarget {
+        case .sinceDate(let date): return { loadedSinceDate = date }
+        case .count(let count): return { loadedCount = count }
+        case nil: return nil
+        }
     }
 
     var body: some View {
@@ -266,23 +292,6 @@ extension HomeSectionView {
         scrollToTopTick &+= 1
     }
 
-    var loadMoreAction: (() -> Void)? {
-        if hideViewedContent && visibility.hasReachedEnd { return nil }
-        let batcher = self.batcher
-        if let days = batchingMode.chunkDays {
-            guard let next = batcher.nextChunkStart(before: loadedSinceDate, chunkDays: days) else {
-                return nil
-            }
-            return { loadedSinceDate = next }
-        }
-        if let batch = batchingMode.batchSize {
-            guard let next = batcher.nextLoadedCount(after: loadedCount, batchSize: batch) else {
-                return nil
-            }
-            return { loadedCount = next }
-        }
-        return nil
-    }
 }
 
 private struct PreloadKey: Hashable {
