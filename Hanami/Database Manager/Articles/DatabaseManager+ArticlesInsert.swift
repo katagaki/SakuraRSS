@@ -144,6 +144,7 @@ public nonisolated extension DatabaseManager {
         let undatedArticle = articles.filter(
             articleURL == url && articlePublishedDate == nil
         )
+        guard try database.scalar(undatedArticle.count) > 0 else { return }
         try database.run(undatedArticle.update(
             articlePublishedDate <- publishedDate.timeIntervalSince1970
         ))

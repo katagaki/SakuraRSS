@@ -40,7 +40,7 @@ public nonisolated extension DatabaseManager {
     // MARK: - AI Summary Cache
 
     func cachedArticleSummary(for articleId: Int64) throws -> String? {
-        let query = articles.filter(articleID == articleId)
+        let query = articles.filter(articleID == articleId).select(articleAISummary)
         guard let row = try database.pluck(query) else { return nil }
         return row[articleAISummary]
     }
@@ -60,7 +60,9 @@ public nonisolated extension DatabaseManager {
     func cachedArticleTranslation(
         for articleId: Int64
     ) throws -> CachedArticleTranslation? {
-        let query = articles.filter(articleID == articleId)
+        let query = articles
+            .filter(articleID == articleId)
+            .select(articleTranslatedTitle, articleTranslatedText, articleTranslatedSummary)
         guard let row = try database.pluck(query) else { return nil }
         let title = row[articleTranslatedTitle]
         let text = row[articleTranslatedText]

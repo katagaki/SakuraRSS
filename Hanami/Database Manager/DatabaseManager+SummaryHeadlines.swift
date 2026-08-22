@@ -122,8 +122,14 @@ public nonisolated extension DatabaseManager {
     }
 
     private func summaryHeadlineDateKey(for date: Date) -> String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd"
-        return formatter.string(from: date)
+        Self.summaryHeadlineDateFormatter.string(from: date)
     }
+
+    private nonisolated(unsafe) static let summaryHeadlineDateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.timeZone = TimeZone.current
+        formatter.dateFormat = "yyyy-MM-dd"
+        return formatter
+    }()
 }

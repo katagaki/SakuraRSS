@@ -198,11 +198,12 @@ public nonisolated extension DatabaseManager {
         return try database.prepare(query).map(rowToArticle)
     }
 
-    func bookmarkedArticles() throws -> [Article] {
-        let query = articles
+    func bookmarkedArticles(limit: Int = 2000) throws -> [Article] {
+        let query = selectingListColumns(articles)
             .filter(articleIsBookmarked == true)
             .order(articlePublishedDate.desc)
-        return try database.prepare(query).map(rowToArticle)
+            .limit(limit)
+        return try database.prepare(query).map(rowToListArticle)
     }
 
     func bookmarkedCount() throws -> Int {
