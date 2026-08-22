@@ -225,7 +225,8 @@ struct ListWidgetProvider: AppIntentTimelineProvider {
             return cached
         }
         var rawData: Data?
-        if let cached = try? database.cachedImageData(for: urlString) {
+        if WidgetImageBudget.isWithinBudget(byteCount: database.cachedImageByteCount(for: urlString)),
+           let cached = try? database.cachedImageData(for: urlString) {
             rawData = cached
         } else if !articleSetUnchanged {
             if let (data, _) = try? await URLSession.shared.data(for: .sakuraImage(url: imageURL)),

@@ -10,4 +10,9 @@ enum WidgetImageBudget {
     static func isWithinBudget(_ data: Data) -> Bool {
         data.count <= maxSourceBytes
     }
+
+    static func isWithinBudget(byteCount: Int?) -> Bool {
+        guard let byteCount else { return false }
+        return byteCount <= maxSourceBytes
+    }
 }

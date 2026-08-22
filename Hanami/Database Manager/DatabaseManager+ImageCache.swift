@@ -28,6 +28,16 @@ public nonisolated extension DatabaseManager {
         return row[imageCacheData]
     }
 
+    /// Byte size of a cached BLOB without materializing it, so callers under a
+    /// tight memory budget can skip oversized sources before decoding.
+    func cachedImageByteCount(for url: String) -> Int? {
+        let lengthExpression = SQLite.Expression<Int?>(literal: "length(\"data\")")
+        guard let row = try? imageDatabase.pluck(
+            imageCache.select(lengthExpression).filter(imageCacheURL == url)
+        ) else { return nil }
+        return row[lengthExpression]
+    }
+
     /// Cheap existence check that avoids loading the full BLOB.
     func isImageCached(for url: String) -> Bool {
         guard let row = try? imageDatabase.pluck(

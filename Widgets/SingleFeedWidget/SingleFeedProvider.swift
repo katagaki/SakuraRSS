@@ -223,7 +223,8 @@ struct SingleFeedProvider: AppIntentTimelineProvider {
             return cached
         }
         var rawData: Data?
-        if let cached = try? database.cachedImageData(for: urlString) {
+        if WidgetImageBudget.isWithinBudget(byteCount: database.cachedImageByteCount(for: urlString)),
+           let cached = try? database.cachedImageData(for: urlString) {
             log("Widget", "Image cache hit for \(urlString) (\(cached.count) bytes)")
             rawData = cached
         } else if !articleSetUnchanged {
