@@ -39,9 +39,10 @@ public extension HTMLContentExtractor {
         return ArticleMarker.escape(decoded)
     }
 
+    /// `&amp;` is decoded last so code whose visible text is `&lt;div&gt;`
+    /// (serialized as `&amp;lt;div&amp;gt;`) does not decode twice.
     static func decodeCodeEntities(_ text: String) -> String {
         var result = text
-        result = result.replacingOccurrences(of: "&amp;", with: "&")
         result = result.replacingOccurrences(of: "&lt;", with: "<")
         result = result.replacingOccurrences(of: "&gt;", with: ">")
         result = result.replacingOccurrences(of: "&quot;", with: "\"")
@@ -49,6 +50,7 @@ public extension HTMLContentExtractor {
         result = result.replacingOccurrences(of: "&apos;", with: "'")
         result = result.replacingOccurrences(of: "&#x27;", with: "'")
         result = result.replacingOccurrences(of: "&nbsp;", with: " ")
+        result = result.replacingOccurrences(of: "&amp;", with: "&")
         return result
     }
 }
