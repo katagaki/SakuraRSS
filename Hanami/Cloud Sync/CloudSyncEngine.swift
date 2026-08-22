@@ -188,11 +188,9 @@ public nonisolated final class CloudSyncEngine: @unchecked Sendable {
         guard let engine else { return }
         let dirty = (try? database.dirtyItemStatuses(limit: Self.maxItemStatusEnqueuePerPass)) ?? []
         guard !dirty.isEmpty else { return }
-        let changes = dirty.map { change -> CKSyncEngine.PendingRecordZoneChange in
-            let syncID = Self.itemStatusSyncID(forURL: change.url)
-            database.setItemStatusSyncID(url: change.url, syncID: syncID)
-            return .saveRecord(Self.recordID(for: syncID))
-        }
+        let syncIDs = dirty.map { (url: $0.url, syncID: Self.itemStatusSyncID(forURL: $0.url)) }
+        database.setItemStatusSyncIDs(syncIDs)
+        let changes = syncIDs.map { CKSyncEngine.PendingRecordZoneChange.saveRecord(Self.recordID(for: $0.syncID)) }
         engine.state.add(pendingRecordZoneChanges: changes)
         database.clearItemStatusDirty(urls: dirty.map(\.url))
         log("CloudSyncEngine", "Enqueued \(changes.count) item statuses")

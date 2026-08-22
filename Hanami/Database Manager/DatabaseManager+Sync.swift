@@ -189,6 +189,19 @@ public nonisolated extension DatabaseManager {
         return try? row.get(syncStateData)
     }
 
+    func setSyncEngineStateData(_ entries: [(key: String, data: Data)]) {
+        guard !entries.isEmpty else { return }
+        _ = try? database.transaction {
+            for entry in entries {
+                _ = try database.run(syncState.insert(
+                    or: .replace,
+                    syncStateKey <- entry.key,
+                    syncStateData <- entry.data
+                ))
+            }
+        }
+    }
+
     func setSyncEngineStateData(_ data: Data?, forKey key: String) {
         if let data {
             _ = try? database.run(syncState.insert(

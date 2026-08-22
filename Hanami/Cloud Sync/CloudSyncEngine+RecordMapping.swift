@@ -57,10 +57,12 @@ nonisolated extension CloudSyncEngine {
     func applyFetchedRecordZoneChanges(_ changes: CKSyncEngine.Event.FetchedRecordZoneChanges) {
         var insertedNewFeeds = false
         var appliedAnything = false
+        archiveSystemFields(of: changes.modifications.map(\.record))
+        let tombstoneIDs = Set((try? database.allSyncTombstoneIDs()) ?? [])
         for modification in changes.modifications {
             switch modification.record.recordType {
             case Self.feedRecordType:
-                if applyFetchedRecord(modification.record) {
+                if applyFetchedRecord(modification.record, tombstoneIDs: tombstoneIDs) {
                     insertedNewFeeds = true
                 }
                 appliedAnything = true
@@ -81,7 +83,6 @@ nonisolated extension CloudSyncEngine {
     }
 
     func applyFetchedItemStatus(_ record: CKRecord) {
-        archiveSystemFields(of: record)
         guard let url = record["url"] as? String, !url.isEmpty else { return }
         let modifiedAt = (record["userModifiedAt"] as? Date)?.timeIntervalSince1970 ?? 0
         try? database.applyRemoteItemStatus(
@@ -94,13 +95,12 @@ nonisolated extension CloudSyncEngine {
     }
 
     @discardableResult
-    func applyFetchedRecord(_ record: CKRecord) -> Bool {
-        archiveSystemFields(of: record)
+    func applyFetchedRecord(_ record: CKRecord, tombstoneIDs: Set<String>? = nil) -> Bool {
         guard let synced = syncedFeed(from: record) else { return false }
         // A tombstone means the user deleted this feed locally while the
         // remote edit was in flight; keep the deletion.
-        let tombstoneIDs = (try? database.allSyncTombstoneIDs()) ?? []
-        if tombstoneIDs.contains(synced.syncID) { return false }
+        let tombstones = tombstoneIDs ?? Set((try? database.allSyncTombstoneIDs()) ?? [])
+        if tombstones.contains(synced.syncID) { return false }
         do {
             let result = try database.applySyncedFeed(synced)
             return result.inserted
@@ -130,13 +130,25 @@ nonisolated extension CloudSyncEngine {
     /// Keeps each record's CloudKit change tag so re-saves don't conflict
     /// with our own previous uploads.
     func archiveSystemFields(of record: CKRecord) {
+        database.setSyncEngineStateData(
+            archivedSystemFields(of: record),
+            forKey: Self.archivedRecordKeyPrefix + record.recordID.recordName
+        )
+    }
+
+    func archiveSystemFields(of records: [CKRecord]) {
+        guard !records.isEmpty else { return }
+        database.setSyncEngineStateData(records.map { record in
+            (key: Self.archivedRecordKeyPrefix + record.recordID.recordName,
+             data: archivedSystemFields(of: record))
+        })
+    }
+
+    private func archivedSystemFields(of record: CKRecord) -> Data {
         let archiver = NSKeyedArchiver(requiringSecureCoding: true)
         record.encodeSystemFields(with: archiver)
         archiver.finishEncoding()
-        database.setSyncEngineStateData(
-            archiver.encodedData,
-            forKey: Self.archivedRecordKeyPrefix + record.recordID.recordName
-        )
+        return archiver.encodedData
     }
 
     func archivedRecord(syncID: String) -> CKRecord? {

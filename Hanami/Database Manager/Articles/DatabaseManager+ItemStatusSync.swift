@@ -45,6 +45,17 @@ public nonisolated extension DatabaseManager {
         _ = try? database.run(articles.filter(articleURL == url).update(articleStatusSyncID <- syncID))
     }
 
+    func setItemStatusSyncIDs(_ pairs: [(url: String, syncID: String)]) {
+        guard !pairs.isEmpty else { return }
+        _ = try? database.transaction {
+            for pair in pairs {
+                _ = try database.run(
+                    articles.filter(articleURL == pair.url).update(articleStatusSyncID <- pair.syncID)
+                )
+            }
+        }
+    }
+
     func clearItemStatusDirty(urls: [String]) {
         guard !urls.isEmpty else { return }
         _ = try? database.run(articles.filter(urls.contains(articleURL)).update(articleStatusDirty <- false))

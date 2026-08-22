@@ -93,9 +93,7 @@ extension CloudSyncEngine: CKSyncEngineDelegate {
         _ sent: CKSyncEngine.Event.SentRecordZoneChanges,
         syncEngine: CKSyncEngine
     ) {
-        for savedRecord in sent.savedRecords {
-            archiveSystemFields(of: savedRecord)
-        }
+        archiveSystemFields(of: sent.savedRecords)
         for deletedRecordID in sent.deletedRecordIDs {
             try? database.removeSyncTombstone(syncID: deletedRecordID.recordName)
             database.setSyncEngineStateData(
