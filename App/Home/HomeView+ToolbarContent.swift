@@ -4,11 +4,11 @@ import Hanami
 extension HomeView {
 
     @ToolbarContentBuilder
-    var redesignToolbarItems: some ToolbarContent {
-        if tabItems.count > 1 {
+    func redesignToolbarItems(tabs: [HomeSectionBarItem]) -> some ToolbarContent {
+        if tabs.count > 1 {
             ToolbarItem(id: "home.sectionBar", placement: .principal) {
                 HomeSectionBar(
-                    tabs: tabItems,
+                    tabs: tabs,
                     selectionStore: selectionStore
                 )
                 .frame(maxWidth: .infinity)

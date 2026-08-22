@@ -32,11 +32,12 @@ struct HomeView: View {
     }
 
     var body: some View {
-        NavigationStack(path: $path) {
+        let items = tabItems
+        return NavigationStack(path: $path) {
             ZStack {
                 HomeContentArea(
                     selectionStore: selectionStore,
-                    tabItems: tabItems,
+                    tabItems: items,
                     usesPhoneTopBarRedesign: usesPhoneTopBarRedesign,
                     sectionDisplayMenu: sectionDisplayMenu
                 )
@@ -47,10 +48,10 @@ struct HomeView: View {
                 .environment(\.hidesMarkAllReadToolbar, true)
                 .toolbarTitleDisplayMode(.inline)
                 .safeAreaInset(edge: .top, spacing: 0) {
-                    if tabItems.count > 1, !usesPhoneTopBarRedesign {
+                    if items.count > 1, !usesPhoneTopBarRedesign {
                         HomeSectionBarHostView(
                             selectionStore: selectionStore,
-                            tabs: tabItems
+                            tabs: items
                         )
                     }
                 }
@@ -63,7 +64,7 @@ struct HomeView: View {
             }
             .toolbar {
                 if usesPhoneTopBarRedesign {
-                    redesignToolbarItems
+                    redesignToolbarItems(tabs: items)
                 } else {
                     nonRedesignToolbarItems
                 }
@@ -181,7 +182,7 @@ struct HomeView: View {
         .onReceive(NotificationCenter.default.publisher(for: .homeBarConfigurationDidChange)) { _ in
             reloadBarConfiguration()
         }
-        .onChange(of: tabItems) {
+        .onChange(of: items) {
             validateBarSelection()
         }
         .onChange(of: scenePhase) { _, phase in
