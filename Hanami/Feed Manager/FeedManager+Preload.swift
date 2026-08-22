@@ -48,7 +48,7 @@ public extension FeedManager {
             .filter { $0.feedSection == section && !muted.contains($0.id) }
             .map(\.id)
         guard !sectionFeedIDs.isEmpty else { return [] }
-        let raw = (try? database.articles(
+        let raw = (try? database.articlesList(
             forFeedIDs: sectionFeedIDs,
             limit: Int.max,
             requireUnread: requireUnread
@@ -68,7 +68,7 @@ public extension FeedManager {
         _ = dataRevision
         let listFeedIDs = feedIDs(for: list)
         guard !listFeedIDs.isEmpty else { return [] }
-        let raw = (try? database.articles(
+        let raw = (try? database.articlesList(
             forFeedIDs: Array(listFeedIDs),
             limit: Int.max,
             requireUnread: requireUnread
@@ -232,7 +232,7 @@ public extension FeedManager {
         requireUnread: Bool
     ) -> [ArticleIDEntry] {
         guard !feedIDs.isEmpty else { return [] }
-        let raw = (try? database.articles(
+        let raw = (try? database.articlesList(
             forFeedIDs: feedIDs,
             limit: Int.max,
             requireUnread: requireUnread
@@ -250,7 +250,7 @@ public extension FeedManager {
         requireUnread: Bool
     ) -> [ArticleIDEntry] {
         guard !feedIDs.isEmpty else { return [] }
-        let raw = (try? database.articles(
+        let raw = (try? database.articlesList(
             forFeedIDs: feedIDs,
             limit: Int.max,
             requireUnread: requireUnread
