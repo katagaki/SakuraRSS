@@ -68,6 +68,9 @@ struct YouTubeMiniPlayerBar: View {
 
     private func stop() {
         session.clear()
+        if session.isPrimary {
+            YouTubeAudioSession.deactivate()
+        }
     }
 
     @ViewBuilder
