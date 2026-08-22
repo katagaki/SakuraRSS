@@ -29,7 +29,6 @@ struct ArticleProvider: TimelineProvider {
 
     func getTimeline(in _: Context, completion: @escaping (Timeline<ArticleEntry>) -> Void) {
         let entry = loadEntry()
-        // 90-minute interval; widget reloads wake the app process.
         let timeline = Timeline(entries: [entry], policy: .after(Date().addingTimeInterval(90 * 60)))
         completion(timeline)
     }
@@ -38,10 +37,13 @@ struct ArticleProvider: TimelineProvider {
         let database = DatabaseManager.shared
         do {
             let articles = try database.unreadArticlesList(limit: 10)
-            let feeds = try database.allFeeds()
+            let feedTitlesByID = Dictionary(
+                try database.allFeeds().map { ($0.id, $0.title) },
+                uniquingKeysWith: { first, _ in first }
+            )
 
             let widgetArticles = articles.map { article in
-                let feedName = feeds.first { $0.id == article.feedID }?.title ?? ""
+                let feedName = feedTitlesByID[article.feedID] ?? ""
                 return WidgetArticle(
                     id: article.id,
                     title: article.title,
