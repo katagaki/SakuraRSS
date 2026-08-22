@@ -22,6 +22,10 @@ public protocol Authenticated: Sendable {
     /// (used by services that never had a WebKit-only era).
     nonisolated static var cookieWarmURL: URL? { get }
 
+    /// Identifies this service to `ProviderSessionEvents` so listeners can react
+    /// to a sign-in. `nil` opts out of those notifications.
+    nonisolated static var sessionService: ProviderSessionEvents.Service? { get }
+
     /// Optional hook called at the end of `clearSession` for service-specific
     /// state (e.g. cached query IDs).
     @MainActor
@@ -43,6 +47,7 @@ public extension Authenticated {
 
     nonisolated static var sessionCookieNames: Set<String>? { nil }
     nonisolated static var cookieWarmURL: URL? { nil }
+    nonisolated static var sessionService: ProviderSessionEvents.Service? { nil }
 
     @MainActor
     static func didClearSession() async {}
@@ -72,9 +77,13 @@ public extension Authenticated {
         let allCookies = await store.httpCookieStore.allCookies()
         let matching = allCookies.filter { cookieDomainMatches($0.domain.lowercased()) }
         guard !matching.isEmpty else { return }
+        let hadSession = hasSession()
         cookieStore.save(matching)
 
         log("\(String(describing: Self.self))", "Synced \(matching.count) cookies from WebKit → Keychain")
+        if !hadSession, hasSession(), let service = sessionService {
+            ProviderSessionEvents.sessionEstablished(service)
+        }
     }
 
     @MainActor

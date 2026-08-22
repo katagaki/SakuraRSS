@@ -4,6 +4,8 @@ import WebKit
 /// Fetches Instagram profile posts via the web API using Keychain-stored session cookies.
 public final class InstagramProvider: Authenticated {
 
+    public nonisolated static var sessionService: ProviderSessionEvents.Service? { .instagram }
+
     public init() {}
 
     public nonisolated(unsafe) var requestTimeoutInterval: TimeInterval = 15

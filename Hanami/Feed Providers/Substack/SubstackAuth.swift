@@ -5,6 +5,8 @@ import WebKit
 /// custom-domain Substack feeds detected via the RSS `<generator>` element.
 public enum SubstackAuth: Authenticated {
 
+    public nonisolated static var sessionService: ProviderSessionEvents.Service? { .substack }
+
     /// Keychain-backed persistent cookie jar.
     public nonisolated static let cookieStore = KeychainCookieStore(
         service: "com.tsubuzaki.SakuraRSS.SubstackCookies"

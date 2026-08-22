@@ -4,6 +4,8 @@ import WebKit
 /// Fetches tweets from an X (Twitter) profile using GraphQL API calls.
 public final class XProvider: Authenticated {
 
+    public nonisolated static var sessionService: ProviderSessionEvents.Service? { .x }
+
     public init() {}
 
     public nonisolated(unsafe) var requestTimeoutInterval: TimeInterval = 15

@@ -14,6 +14,11 @@ public extension FeedManager {
                 self?.applyRemoteFeedDeletion(feed)
             }
         }
+        ProviderSessionEvents.onSessionEstablished = { [weak self] service in
+            Task { @MainActor [weak self] in
+                await self?.refreshIcons(forProvider: service)
+            }
+        }
         engine.startIfEnabled()
     }
 
@@ -42,6 +47,9 @@ public extension FeedManager {
         }
         guard !newFeeds.isEmpty else { return }
         notifyIconChange()
+        Task { [weak self] in
+            await self?.refreshIcons(for: newFeeds)
+        }
         Task { [weak self] in
             for feed in newFeeds {
                 try? await self?.refreshFeed(feed)
