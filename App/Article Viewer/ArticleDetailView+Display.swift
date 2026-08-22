@@ -5,7 +5,7 @@ import Hanami
 extension ArticleDetailView {
 
     var isAppleIntelligenceAvailable: Bool {
-        SystemLanguageModel.default.availability == .available
+        AppleIntelligenceAvailability.isAvailable
     }
 
     var hasTranslationForCurrentMode: Bool {

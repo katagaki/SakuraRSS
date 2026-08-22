@@ -61,7 +61,7 @@ struct SummarySection: View {
     }
 
     private var isSupported: Bool {
-        SystemLanguageModel.default.availability == .available
+        AppleIntelligenceAvailability.isAvailable
     }
 
     private var canGenerate: Bool {

@@ -13,7 +13,7 @@ extension YouTubePlayerView {
     }
 
     var isAppleIntelligenceAvailable: Bool {
-        SystemLanguageModel.default.availability == .available
+        AppleIntelligenceAvailability.isAvailable
     }
 
     var descriptionSource: String? {

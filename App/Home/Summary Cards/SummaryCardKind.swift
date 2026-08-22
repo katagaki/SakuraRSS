@@ -60,7 +60,7 @@ enum SummaryCardKind: CaseIterable {
     var passesDisplayGates: Bool {
         let defaults = UserDefaults.standard
         if defaults.bool(forKey: forceVisibleStorageKey) { return true }
-        return SystemLanguageModel.default.availability == .available
+        return AppleIntelligenceAvailability.isAvailable
             && defaults.bool(forKey: enabledStorageKey)
             && isInTimeWindow(Date())
     }
