@@ -9,7 +9,7 @@ struct ListWidgetRequest {
     let thumbnailMaxPixelSize: CGFloat
 
     var markerKey: String {
-        "listWidgetMarker_\(listID)_\(layout.rawValue)_\(columns)_\(currentPage)"
+        "listWidgetMarker_\(listID)_\(layout.rawValue)_\(columns)_\(currentPage)_\(Int(thumbnailMaxPixelSize))"
     }
 
     var cacheScope: String {

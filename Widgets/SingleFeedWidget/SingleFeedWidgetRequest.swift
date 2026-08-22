@@ -9,7 +9,7 @@ struct SingleFeedWidgetRequest {
     let thumbnailMaxPixelSize: CGFloat
 
     var markerKey: String {
-        "singleFeedMarker_\(feedID)_\(layout.rawValue)_\(columns)_\(currentPage)"
+        "singleFeedMarker_\(feedID)_\(layout.rawValue)_\(columns)_\(currentPage)_\(Int(thumbnailMaxPixelSize))"
     }
 
     var cacheScope: String {
