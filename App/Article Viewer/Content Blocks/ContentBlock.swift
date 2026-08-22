@@ -1,6 +1,11 @@
 import Foundation
 import Hanami
 
+nonisolated struct IdentifiedContentBlock: Identifiable {
+    let id: String
+    let block: ContentBlock
+}
+
 enum ContentBlock: Identifiable {
     case text(String)
     case image(URL, link: URL? = nil)
@@ -48,20 +53,24 @@ enum ContentBlock: Identifiable {
     )
 
     private nonisolated final class ParsedBlocksBox {
-        let blocks: [ContentBlock]
-        init(_ blocks: [ContentBlock]) { self.blocks = blocks }
+        let blocks: [IdentifiedContentBlock]
+        init(_ blocks: [IdentifiedContentBlock]) { self.blocks = blocks }
     }
 
     // NSCache is thread-safe.
     nonisolated(unsafe) private static let parseCache = NSCache<NSString, ParsedBlocksBox>()
 
-    /// Memoized `parse`, for view bodies that re-evaluate with the same text.
-    nonisolated static func cachedParse(_ text: String) -> [ContentBlock] {
+    /// Memoized `parse` paired with positional identities, for view bodies
+    /// that re-evaluate with the same text. Two identical paragraphs, or the
+    /// same image URL twice, would otherwise collide as one `ForEach` row.
+    nonisolated static func cachedIdentifiedBlocks(_ text: String) -> [IdentifiedContentBlock] {
         let key = text as NSString
         if let box = parseCache.object(forKey: key) {
             return box.blocks
         }
-        let blocks = parse(text)
+        let blocks = parse(text).enumerated().map { index, block in
+            IdentifiedContentBlock(id: "\(index)-\(block.id)", block: block)
+        }
         parseCache.setObject(ParsedBlocksBox(blocks), forKey: key)
         return blocks
     }
