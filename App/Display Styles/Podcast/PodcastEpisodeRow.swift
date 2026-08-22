@@ -9,6 +9,11 @@ struct PodcastEpisodeRow: View {
     private let downloadManager = PodcastDownloadManager.shared
     private let networkMonitor = NetworkMonitor.shared
 
+    private nonisolated static let episodeDateStyle = Date.FormatStyle(
+        date: .abbreviated,
+        time: .omitted
+    )
+
     private var isCurrentlyPlaying: Bool {
         audioPlayer.currentArticleID == article.id
     }
@@ -46,7 +51,7 @@ struct PodcastEpisodeRow: View {
 
             VStack(alignment: .leading, spacing: 4) {
                 if let date = article.publishedDate {
-                    Text(date.formatted(date: .abbreviated, time: .omitted).uppercased())
+                    Text(date.formatted(Self.episodeDateStyle).uppercased())
                         .font(.caption2)
                         .fontWeight(.bold)
                         .foregroundStyle(.secondary)
