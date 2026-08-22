@@ -94,15 +94,25 @@ public extension HTMLContentExtractor {
         for script in scripts {
             guard let src = try? script.attr("src"),
                   src.contains("gist.github.com"),
-                  src.hasSuffix(".js"),
-                  let resolved = absoluteEmbedURL(src) else {
+                  let resolved = absoluteEmbedURL(src),
+                  let htmlURL = gistHTMLURL(from: resolved) else {
                 continue
             }
-            let htmlURL = resolved.replacingOccurrences(of: ".js", with: "")
             insertEmbedMarker(replacing: script,
                               provider: .gist,
                               url: htmlURL)
         }
+    }
+
+    private static func gistHTMLURL(from absoluteString: String) -> String? {
+        guard var components = URLComponents(string: absoluteString),
+              components.path.hasSuffix(".js") else {
+            return nil
+        }
+        components.path = String(components.path.dropLast(3))
+        components.query = nil
+        components.fragment = nil
+        return components.string
     }
 
     // MARK: - Anchor-only (bare link in its own paragraph)
