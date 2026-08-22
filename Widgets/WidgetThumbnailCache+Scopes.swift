@@ -27,8 +27,8 @@ extension WidgetThumbnailCache {
         let cutoff = Date().addingTimeInterval(-maxScopeAge)
         for scope in scopes {
             let values = try? scope.resourceValues(forKeys: [.contentModificationDateKey, .isDirectoryKey])
-            guard values?.isDirectory == true else { continue }
-            let modifiedAt = values?.contentModificationDate ?? .distantPast
+            guard let values, values.isDirectory == true else { continue }
+            let modifiedAt = values.contentModificationDate ?? Date.distantPast
             if modifiedAt < cutoff {
                 try? fileManager.removeItem(at: scope)
             } else {
