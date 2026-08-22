@@ -212,7 +212,8 @@ struct TimelineStyleView: View {
 
     private func timelineRow(article: Article, isFirst: Bool, isLast: Bool,
                              isFeatured: Bool = false) -> some View {
-        HStack(alignment: .top, spacing: 0) {
+        let isRead = feedManager.isRead(article)
+        return HStack(alignment: .top, spacing: 0) {
             Group {
                 if let date = article.publishedDate {
                     RelativeTimeText(date: date)
@@ -226,13 +227,13 @@ struct TimelineStyleView: View {
             .frame(width: 64, alignment: .trailing)
             .padding(.top, 12)
 
-            TimelineConnector(isFirst: isFirst, isLast: isLast, isRead: feedManager.isRead(article))
+            TimelineConnector(isFirst: isFirst, isLast: isLast, isRead: isRead)
                 .frame(width: 28)
 
             Text(article.title)
                 .font(isFeatured ? .body : .subheadline)
-                .fontWeight(titleWeight(isFeatured: isFeatured, isRead: feedManager.isRead(article)))
-                .foregroundStyle(feedManager.isRead(article) ? .secondary : .primary)
+                .fontWeight(titleWeight(isFeatured: isFeatured, isRead: isRead))
+                .foregroundStyle(isRead ? .secondary : .primary)
                 .lineLimit(isFeatured ? 3 : 2)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.vertical, 12)
