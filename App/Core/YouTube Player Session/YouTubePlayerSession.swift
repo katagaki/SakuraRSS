@@ -78,70 +78,59 @@ final class YouTubePlayerSession {
 
     func togglePlayPause() {
         let script = """
-        (function() {
-            var video = document.querySelector('video');
-            if (!video) { return null; }
-            var mediaMissing = (window.__yt && window.__yt.mediaMissing)
-                ? window.__yt.mediaMissing(video)
-                : (video.readyState === 0 && !video.currentSrc && !video.srcObject);
-            if (video.paused || mediaMissing) {
-                if (window.__yt) {
-                    window.__yt.autoplayBlocked = false;
-                    window.__yt.userPaused = false;
-                    window.__yt.exitedPiPRecently = false;
-                }
-                // A play() the page never observed leaves the element
-                // un-paused with no media; cycle pause() so the mobile watch
-                // page sees a fresh play event and attaches the media.
-                if (!video.paused) { video.pause(); }
-                var playPromise = video.play();
-                if (playPromise && typeof playPromise.catch === 'function') {
-                    playPromise.catch(function(){});
-                }
-            } else {
-                if (window.__yt) { window.__yt.userPaused = true; }
-                video.pause();
+        var video = document.querySelector('video');
+        if (!video) { return null; }
+        var mediaMissing = (window.__yt && window.__yt.mediaMissing)
+            ? window.__yt.mediaMissing(video)
+            : (video.readyState === 0 && !video.currentSrc && !video.srcObject);
+        if (video.paused || mediaMissing) {
+            if (window.__yt) {
+                window.__yt.autoplayBlocked = false;
+                window.__yt.userPaused = false;
+                window.__yt.exitedPiPRecently = false;
             }
+            // A play() the page never observed leaves the element
+            // un-paused with no media; cycle pause() so the mobile watch
+            // page sees a fresh play event and attaches the media.
+            if (!video.paused) { video.pause(); }
+            try { await video.play(); } catch (error) { return false; }
             return !video.paused;
-        })();
+        }
+        if (window.__yt) { window.__yt.userPaused = true; }
+        video.pause();
+        return !video.paused;
         """
-        webView?.evaluateJavaScript(script) { [weak self] result, _ in
-            if let playing = result as? Bool {
-                Task { @MainActor in
-                    self?.isPlaying = playing
-                }
+        evaluatePlaybackState(script)
+    }
+
+    /// The play promise can still reject (autoplay policy), so the resulting
+    /// state is only known once it settles.
+    private func evaluatePlaybackState(_ script: String) {
+        webView?.callAsyncJavaScript(script, in: nil, in: .page) { [weak self] result in
+            guard case .success(let value) = result, let playing = value as? Bool else { return }
+            Task { @MainActor in
+                self?.isPlaying = playing
             }
         }
     }
 
     func play() {
         let script = """
-        (function() {
-            var video = document.querySelector('video');
-            if (!video) { return null; }
-            if (window.__yt) {
-                window.__yt.autoplayBlocked = false;
-                window.__yt.userPaused = false;
-                window.__yt.exitedPiPRecently = false;
-            }
-            var mediaMissing = (window.__yt && window.__yt.mediaMissing)
-                ? window.__yt.mediaMissing(video)
-                : (video.readyState === 0 && !video.currentSrc && !video.srcObject);
-            if (!video.paused && mediaMissing) { video.pause(); }
-            var playPromise = video.play();
-            if (playPromise && typeof playPromise.catch === 'function') {
-                playPromise.catch(function(){});
-            }
-            return !video.paused;
-        })();
-        """
-        webView?.evaluateJavaScript(script) { [weak self] result, _ in
-            if let playing = result as? Bool {
-                Task { @MainActor in
-                    self?.isPlaying = playing
-                }
-            }
+        var video = document.querySelector('video');
+        if (!video) { return null; }
+        if (window.__yt) {
+            window.__yt.autoplayBlocked = false;
+            window.__yt.userPaused = false;
+            window.__yt.exitedPiPRecently = false;
         }
+        var mediaMissing = (window.__yt && window.__yt.mediaMissing)
+            ? window.__yt.mediaMissing(video)
+            : (video.readyState === 0 && !video.currentSrc && !video.srcObject);
+        if (!video.paused && mediaMissing) { video.pause(); }
+        try { await video.play(); } catch (error) { return false; }
+        return !video.paused;
+        """
+        evaluatePlaybackState(script)
     }
 
     func pause() {

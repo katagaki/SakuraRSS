@@ -11,36 +11,33 @@ extension YouTubePlayerView {
     func togglePlayPause() {
         log("YT Native", "togglePlayPause tapped, webView=\(webView != nil)")
         let script = """
-        (function() {
-            var videos = document.querySelectorAll('video');
-            try { window.webkit.messageHandlers.ytDebug.postMessage('toggle: videos=' + videos.length); } catch(e) {}
-            var video = videos[0];
-            if (video) {
-                try { window.webkit.messageHandlers.ytDebug.postMessage('toggle: paused=' + video.paused); } catch(e) {}
-                if (video.paused) {
-                    if (window.__yt) {
-                        window.__yt.autoplayBlocked = false;
-                        window.__yt.userPaused = false;
-                        window.__yt.exitedPiPRecently = false;
-                    }
-                    var player = document.getElementById('movie_player');
-                    if (player && typeof player.playVideo === 'function') {
-                        player.playVideo();
-                    }
-                    video.play();
-                } else {
-                    if (window.__yt) { window.__yt.userPaused = true; }
-                    video.pause();
-                }
-                return !video.paused;
+        var video = document.querySelectorAll('video')[0];
+        if (!video) { return null; }
+        if (video.paused) {
+            if (window.__yt) {
+                window.__yt.autoplayBlocked = false;
+                window.__yt.userPaused = false;
+                window.__yt.exitedPiPRecently = false;
             }
-            return null;
-        })();
+            var player = document.getElementById('movie_player');
+            if (player && typeof player.playVideo === 'function') {
+                player.playVideo();
+            }
+            // The play promise can reject under the autoplay policy, so the
+            // resulting state is only known once it settles.
+            try { await video.play(); } catch (error) { return false; }
+            return !video.paused;
+        }
+        if (window.__yt) { window.__yt.userPaused = true; }
+        video.pause();
+        return !video.paused;
         """
         let startingID = playerID
-        webView?.evaluateJavaScript(script) { result, error in
-            log("YT Native", "toggle result=\(String(describing: result)) error=\(String(describing: error))")
-            if let playing = result as? Bool {
+        webView?.callAsyncJavaScript(script, in: nil, in: .page) { result in
+            switch result {
+            case .success(let value):
+                log("YT Native", "toggle result=\(String(describing: value))")
+                guard let playing = value as? Bool else { return }
                 isPlaying = playing
                 if playing {
                     NotificationCenter.default.post(
@@ -48,6 +45,8 @@ extension YouTubePlayerView {
                         object: startingID
                     )
                 }
+            case .failure(let error):
+                log("YT Native", "toggle error=\(error)")
             }
         }
     }
