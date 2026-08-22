@@ -7,6 +7,7 @@ struct TodaysSummaryView: View {
     var flatStyle: Bool = false
     var isVisible: Binding<Bool>?
     var refreshTrigger: Int = 0
+    var articleCount: Int = 0
 
     var body: some View {
         SummarySection(
@@ -14,7 +15,8 @@ struct TodaysSummaryView: View {
             hasSummary: $hasSummary,
             flatStyle: flatStyle,
             isVisible: isVisible,
-            refreshTrigger: refreshTrigger
+            refreshTrigger: refreshTrigger,
+            articleCount: articleCount
         )
     }
 }

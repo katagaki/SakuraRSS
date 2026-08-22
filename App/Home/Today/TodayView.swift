@@ -20,6 +20,7 @@ struct TodayView: View {
 
     @State var summaryRefreshTrigger: Int = 0
     @State var anySummaryActive = false
+    @State var summaryArticleCounts: [SummaryCardKind: Int] = [:]
 
     var body: some View {
         Group {
@@ -102,17 +103,20 @@ struct TodayView: View {
             WhileYouSleptView(
                 hasSummary: $sleptHasSummary, flatStyle: true,
                 isVisible: $sleptVisible,
-                refreshTrigger: summaryRefreshTrigger
+                refreshTrigger: summaryRefreshTrigger,
+                articleCount: summaryArticleCount(for: .whileYouSlept)
             )
             AfternoonBriefView(
                 hasSummary: $afternoonHasSummary,
                 isVisible: $afternoonVisible,
-                refreshTrigger: summaryRefreshTrigger
+                refreshTrigger: summaryRefreshTrigger,
+                articleCount: summaryArticleCount(for: .afternoonBrief)
             )
             TodaysSummaryView(
                 hasSummary: $todayHasSummary, flatStyle: true,
                 isVisible: $todayVisible,
-                refreshTrigger: summaryRefreshTrigger
+                refreshTrigger: summaryRefreshTrigger,
+                articleCount: summaryArticleCount(for: .todaysSummary)
             )
         }
     }
@@ -190,16 +194,6 @@ struct TodayView: View {
             sections.append(.recentlyViewed)
         }
         return sections
-    }
-
-    /// Re-filters TodayManager's pre-fetched unread lists with the live read state so
-    /// items mark-read'd in this session disappear without waiting for a full reload.
-    private var visibleUnreadPodcastEpisodes: [Article] {
-        todayManager.unreadPodcastEpisodes.filter { !feedManager.isRead($0) }
-    }
-
-    private var visibleUnreadVideoEpisodes: [Article] {
-        todayManager.unreadVideoEpisodes.filter { !feedManager.isRead($0) }
     }
 
     var sectionDivider: some View {

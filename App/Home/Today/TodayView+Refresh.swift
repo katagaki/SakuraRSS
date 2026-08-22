@@ -38,12 +38,37 @@ extension TodayView {
     /// check queries a full day of articles; recomputed per data revision
     /// rather than per body evaluation.
     func updateAnySummaryActive() {
-        anySummaryActive = SummaryCardKind.whileYouSlept.couldDisplay(in: feedManager)
-            || SummaryCardKind.afternoonBrief.couldDisplay(in: feedManager)
-            || SummaryCardKind.todaysSummary.couldDisplay(in: feedManager)
+        var counts: [SummaryCardKind: Int] = [:]
+        var active = false
+        for kind in SummaryCardKind.allCases {
+            guard kind.passesDisplayGates else { continue }
+            let count = kind.articles(in: feedManager).count
+            counts[kind] = count
+            if count > 0 || kind.isForcedVisible {
+                active = true
+            }
+        }
+        anySummaryActive = active
+        withAnimation(.smooth.speed(2.0)) {
+            summaryArticleCounts = counts
+        }
+    }
+
+    func summaryArticleCount(for kind: SummaryCardKind) -> Int {
+        summaryArticleCounts[kind] ?? 0
     }
 
     // MARK: - Data
+
+    /// Re-filters TodayManager's pre-fetched unread lists with the live read state so
+    /// items mark-read'd in this session disappear without waiting for a full reload.
+    var visibleUnreadPodcastEpisodes: [Article] {
+        todayManager.unreadPodcastEpisodes.filter { !feedManager.isRead($0) }
+    }
+
+    var visibleUnreadVideoEpisodes: [Article] {
+        todayManager.unreadVideoEpisodes.filter { !feedManager.isRead($0) }
+    }
 
     var filteredTopics: [(name: String, count: Int)] {
         let topics = todayManager.allTopics.filter { $0.count > 1 }

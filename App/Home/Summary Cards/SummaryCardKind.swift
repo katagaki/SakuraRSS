@@ -5,7 +5,7 @@ import Hanami
 /// Identifies one of the three Apple Intelligence summary cards on Home.
 /// Centralizes localization keys, AppStorage keys, time windows, article
 /// providers, and cache types so `SummarySection` can render any of them.
-enum SummaryCardKind {
+enum SummaryCardKind: CaseIterable {
     case todaysSummary
     case whileYouSlept
     case afternoonBrief
@@ -51,15 +51,26 @@ enum SummaryCardKind {
         }
     }
 
+    var isForcedVisible: Bool {
+        UserDefaults.standard.bool(forKey: forceVisibleStorageKey)
+    }
+
+    /// Cheap gates that decide whether the (expensive) article query is worth
+    /// running at all: model availability, the user's toggle, and time window.
+    var passesDisplayGates: Bool {
+        let defaults = UserDefaults.standard
+        if defaults.bool(forKey: forceVisibleStorageKey) { return true }
+        return SystemLanguageModel.default.availability == .available
+            && defaults.bool(forKey: enabledStorageKey)
+            && isInTimeWindow(Date())
+    }
+
     /// Whether this card could plausibly appear right now. Computed without
     /// the card's own view state so the host can decide to mount the section,
     /// rather than the section needing to be mounted to report its visibility.
     func couldDisplay(in feedManager: FeedManager) -> Bool {
-        let defaults = UserDefaults.standard
-        if defaults.bool(forKey: forceVisibleStorageKey) { return true }
-        guard SystemLanguageModel.default.availability == .available,
-              defaults.bool(forKey: enabledStorageKey),
-              isInTimeWindow(Date()) else { return false }
+        if isForcedVisible { return true }
+        guard passesDisplayGates else { return false }
         return !articles(in: feedManager).isEmpty
     }
 

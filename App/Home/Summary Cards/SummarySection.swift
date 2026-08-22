@@ -13,6 +13,7 @@ struct SummarySection: View {
     @Binding var hasSummary: Bool
     var isVisible: Binding<Bool>?
     var refreshTrigger: Int
+    var articleCount: Int
 
     @AppStorage private var isEnabled: Bool
     @AppStorage private var forceVisible: Bool
@@ -25,18 +26,19 @@ struct SummarySection: View {
     @State var cachedIsPartial: Bool = false
     @State var cachedArticleCountAtGeneration: Int = 0
     @State private var deferredForLowPowerMode = false
-    @State private var articleCount: Int = 0
 
     init(
         kind: SummaryCardKind,
         hasSummary: Binding<Bool>,
         isVisible: Binding<Bool>? = nil,
-        refreshTrigger: Int = 0
+        refreshTrigger: Int = 0,
+        articleCount: Int = 0
     ) {
         self.kind = kind
         self._hasSummary = hasSummary
         self.isVisible = isVisible
         self.refreshTrigger = refreshTrigger
+        self.articleCount = articleCount
         self._isEnabled = AppStorage(wrappedValue: false, kind.enabledStorageKey)
         self._forceVisible = AppStorage(wrappedValue: false, kind.forceVisibleStorageKey)
     }
@@ -46,13 +48,15 @@ struct SummarySection: View {
         hasSummary: Binding<Bool>,
         flatStyle _: Bool,
         isVisible: Binding<Bool>? = nil,
-        refreshTrigger: Int = 0
+        refreshTrigger: Int = 0,
+        articleCount: Int = 0
     ) {
         self.init(
             kind: kind,
             hasSummary: hasSummary,
             isVisible: isVisible,
-            refreshTrigger: refreshTrigger
+            refreshTrigger: refreshTrigger,
+            articleCount: articleCount
         )
     }
 
@@ -84,12 +88,7 @@ struct SummarySection: View {
         .task {
             await loadOrGenerateHeadlines()
         }
-        .task(id: feedManager.dataRevision) {
-            let count = kind.articles(in: feedManager).count
-            log("Summary", "kind=\(kind) revision=\(feedManager.dataRevision) count=\(count)")
-            withAnimation(.smooth.speed(2.0)) {
-                articleCount = count
-            }
+        .onChange(of: articleCount) { _, count in
             maybeAutoRegenerate(count: count)
         }
         .onChange(of: feedManager.isLoading) { _, nowLoading in
