@@ -34,14 +34,15 @@ public extension HTMLContentExtractor {
     /// Removes utm_*, fbclid, gclid and similar tracking query parameters.
     static func stripTrackingParameters(from absoluteString: String) -> String {
         guard var components = URLComponents(string: absoluteString),
-              let queryItems = components.queryItems, !queryItems.isEmpty else {
+              let queryItems = components.percentEncodedQueryItems, !queryItems.isEmpty else {
             return absoluteString
         }
         let filtered = queryItems.filter { item in
             let lowered = item.name.lowercased()
             return !trackingParameterPrefixes.contains(where: lowered.hasPrefix)
         }
-        components.queryItems = filtered.isEmpty ? nil : filtered
+        guard filtered.count != queryItems.count else { return absoluteString }
+        components.percentEncodedQueryItems = filtered.isEmpty ? nil : filtered
         return components.string ?? absoluteString
     }
 
