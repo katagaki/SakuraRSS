@@ -61,9 +61,7 @@ public extension ContentResolver {
     /// character class is ASCII-only so URLs pasted flush against CJK text
     /// (common in Japanese posts) don't swallow the following words.
     static func linkifyBareURLs(in text: String) -> String {
-        let pattern = #"https?://[A-Za-z0-9\-._~:/?#\[\]@!$&'()*+,;=%]+"#
-        guard text.contains("http"),
-              let regex = try? NSRegularExpression(pattern: pattern) else { return text }
+        guard text.contains("http"), let regex = bareURLRegex else { return text }
         let nsText = text as NSString
         let matches = regex.matches(
             in: text, range: NSRange(location: 0, length: nsText.length)
@@ -76,10 +74,9 @@ public extension ContentResolver {
             result += nsText.substring(
                 with: NSRange(location: lastEnd, length: match.range.location - lastEnd)
             )
-            var urlString = nsText.substring(with: match.range)
-            while let last = urlString.last, ".,;:!?)]'\"".contains(last) {
-                urlString = String(urlString.dropLast())
-            }
+            let urlString = trimmedTrailingPunctuation(
+                in: nsText.substring(with: match.range)
+            )
             // Trimmed characters are ASCII, so character count matches the
             // UTF-16 offsets used by NSRange.
             let trimmedCount = nsText.substring(with: match.range).count
@@ -91,10 +88,54 @@ public extension ContentResolver {
         return result
     }
 
+    private static let bareURLRegex = try? NSRegularExpression(
+        pattern: #"https?://[A-Za-z0-9\-._~:/?#\[\]@!$&'()*+,;=%]+"#
+    )
+
+    /// Drops trailing sentence punctuation, but keeps a closing bracket that
+    /// the URL itself opened, as in `…/Mercury_(planet)`.
+    private static func trimmedTrailingPunctuation(in urlString: String) -> String {
+        var result = urlString
+        while let last = result.last {
+            if ".,;:!?'\"".contains(last) {
+                result.removeLast()
+                continue
+            }
+            if last == ")", !isBracketBalanced(result, open: "(", close: ")") {
+                result.removeLast()
+                continue
+            }
+            if last == "]", !isBracketBalanced(result, open: "[", close: "]") {
+                result.removeLast()
+                continue
+            }
+            break
+        }
+        return result
+    }
+
+    private static func isBracketBalanced(
+        _ text: String, open: Character, close: Character
+    ) -> Bool {
+        var depth = 0
+        for character in text {
+            if character == open {
+                depth += 1
+            } else if character == close {
+                depth -= 1
+                if depth < 0 { return false }
+            }
+        }
+        return depth == 0
+    }
+
     private static func markdownLink(for urlString: String) -> String {
         var display = urlString
-            .replacingOccurrences(of: "https://", with: "")
-            .replacingOccurrences(of: "http://", with: "")
+        if display.hasPrefix("https://") {
+            display = String(display.dropFirst(8))
+        } else if display.hasPrefix("http://") {
+            display = String(display.dropFirst(7))
+        }
         if display.hasPrefix("www.") {
             display = String(display.dropFirst(4))
         }
