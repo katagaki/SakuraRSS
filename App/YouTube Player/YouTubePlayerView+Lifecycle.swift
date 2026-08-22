@@ -36,9 +36,10 @@ extension YouTubePlayerView {
             let categories = sponsorBlockCategories
                 .split(separator: ",")
                 .map(String.init)
-            sponsorSegments = await SponsorBlockClient.fetchSegments(
+            let fetched = await SponsorBlockClient.fetchSegments(
                 for: videoID, categories: categories
             )
+            sponsorSegments = Self.mergedSegments(fetched)
         }
 
         if !article.isEphemeral,
