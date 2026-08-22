@@ -85,7 +85,7 @@ struct FeedArticleRow: View {
                     Spacer()
 
                     if !feedManager.isRead(article) {
-                        UnreadDotView(isRead: feedManager.isRead(article))
+                        UnreadDotView(isRead: false)
                     }
                 }
 
