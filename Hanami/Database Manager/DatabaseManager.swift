@@ -45,7 +45,7 @@ public nonisolated final class DatabaseManager: @unchecked Sendable {
     /// Version gates must read the same values in every process, and
     /// `UserDefaults.standard` is per-process for extensions. Existing values are
     /// seeded from `.standard` so upgrading users don't re-run the migrations.
-    static let versionGateDefaults: UserDefaults = {
+    nonisolated(unsafe) static let versionGateDefaults: UserDefaults = {
         guard let sharedDefaults = UserDefaults(suiteName: "group.com.tsubuzaki.SakuraRSS") else {
             return .standard
         }
