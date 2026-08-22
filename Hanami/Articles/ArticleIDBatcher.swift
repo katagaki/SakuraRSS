@@ -45,18 +45,27 @@ public nonisolated struct ArticleIDBatcher: Sendable {
             guard let newStart = calendar.date(byAdding: .day, value: -days, to: cursor) else {
                 return nil
             }
-            let hasOlder = entries.contains { entry in
-                guard let published = entry.publishedDate else { return false }
-                return published < cursor
-            }
-            guard hasOlder else { return nil }
-            let inWindow = entries.contains { entry in
-                guard let published = entry.publishedDate else { return false }
-                return published >= newStart && published < cursor
-            }
-            if inWindow { return newStart }
+            let index = firstIndexOlder(than: cursor)
+            guard index < entries.count else { return nil }
+            if (entries[index].publishedDate ?? .distantPast) >= newStart { return newStart }
             cursor = newStart
         }
         return nil
+    }
+
+    /// `entries` is preloaded in published-date-descending order, so the first
+    /// entry older than `date` bounds every remaining candidate.
+    private func firstIndexOlder(than date: Date) -> Int {
+        var low = 0
+        var high = entries.count
+        while low < high {
+            let middle = low + (high - low) / 2
+            if (entries[middle].publishedDate ?? .distantPast) < date {
+                high = middle
+            } else {
+                low = middle + 1
+            }
+        }
+        return low
     }
 }

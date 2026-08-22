@@ -11,16 +11,11 @@ func withBackgroundActivity<Value: Sendable>(
     _ operation: @escaping @Sendable () async throws -> Value
 ) async throws -> Value {
     let work = Task { try await operation() }
-    let finished = DispatchSemaphore(value: 0)
-    ProcessInfo.processInfo.performExpiringActivity(withReason: reason) { expired in
-        if expired {
-            work.cancel()
-        } else {
-            finished.wait()
-        }
+    let token = BackgroundActivityAssertion.shared.acquire(reason: reason) {
+        work.cancel()
     }
     return try await withTaskCancellationHandler {
-        defer { finished.signal() }
+        defer { BackgroundActivityAssertion.shared.relinquish(token) }
         return try await work.value
     } onCancel: {
         work.cancel()
