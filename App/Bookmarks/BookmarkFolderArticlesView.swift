@@ -111,11 +111,8 @@ struct BookmarkFolderArticlesView: View {
         .onChange(of: displayStyle) { _, newValue in
             feedManager.updateBookmarkFolderDisplayStyle(currentFolder, displayStyle: newValue.rawValue)
         }
-        .onAppear {
-            reloadArticles()
-        }
-        .onChange(of: feedManager.dataRevision) {
-            reloadArticles()
+        .task(id: feedManager.dataRevision) {
+            await reloadArticles()
         }
         .onChange(of: folderExists) { _, exists in
             if !exists { dismiss() }
@@ -147,7 +144,12 @@ struct BookmarkFolderArticlesView: View {
         #endif
     }
 
-    private func reloadArticles() {
-        articles = feedManager.bookmarkedArticles(in: currentFolder)
+    private func reloadArticles() async {
+        let folderID = folder.id
+        let loaded = await Task.detached {
+            (try? DatabaseManager.shared.bookmarkedArticles(inFolderID: folderID)) ?? []
+        }.value
+        if Task.isCancelled { return }
+        articles = loaded
     }
 }

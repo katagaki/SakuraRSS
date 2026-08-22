@@ -103,7 +103,7 @@ struct BookmarksContentView: View {
         .alert(String(localized: "Bookmarks.DeleteAllRead", table: "Articles"), isPresented: $showingDeleteReadAlert) {
             Button(String(localized: "Bookmarks.DeleteAllRead.Confirm", table: "Articles"), role: .destructive) {
                 try? DatabaseManager.shared.removeReadBookmarks()
-                reloadBookmarks()
+                Task { await reloadBookmarks() }
             }
             Button("Shared.Cancel", role: .cancel) { }
         } message: {
@@ -119,16 +119,17 @@ struct BookmarksContentView: View {
         .onChange(of: displayStyle) { _, newValue in
             UserDefaults.standard.set(newValue.rawValue, forKey: "Display.DefaultBookmarksStyle")
         }
-        .onAppear {
-            reloadBookmarks()
-        }
-        .onChange(of: feedManager.dataRevision) {
-            reloadBookmarks()
+        .task(id: feedManager.dataRevision) {
+            await reloadBookmarks()
         }
     }
 
-    private func reloadBookmarks() {
-        bookmarkedArticles = feedManager.unorganizedBookmarkedArticles()
+    private func reloadBookmarks() async {
+        let loaded = await Task.detached {
+            (try? DatabaseManager.shared.unorganizedBookmarkedArticles()) ?? []
+        }.value
+        if Task.isCancelled { return }
+        bookmarkedArticles = loaded
     }
 
     private var effectiveDisplayStyle: FeedDisplayStyle {
