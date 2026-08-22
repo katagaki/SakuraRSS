@@ -41,11 +41,11 @@ nonisolated private let rssInlineMarkupRules: [(regex: NSRegularExpression, temp
     specs.append((#"<sub(?:\s[^>]*)?>(.+?)</sub>"#, "{{SUB}}$1{{/SUB}}"))
     specs.append((#"<code(?:\s[^>]*)?>(.+?)</code>"#, "`$1`"))
 
-    return specs.compactMap { pattern, template in
+    return specs.compactMap { spec in
         guard let regex = try? NSRegularExpression(
-            pattern: pattern, options: .caseInsensitive
+            pattern: spec.0, options: .caseInsensitive
         ) else { return nil }
-        return (regex, template)
+        return (regex: regex, template: spec.1)
     }
 }()
 
