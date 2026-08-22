@@ -3,11 +3,54 @@ import Foundation
 public struct SponsorSegment: Codable, Identifiable {
     public let UUID: String
     public let category: String
-    public let segment: [Double]
+    public let startTime: Double
+    public let endTime: Double
 
     public var id: String { UUID }
-    public var startTime: Double { segment[0] }
-    public var endTime: Double { segment[1] }
+
+    public init(UUID: String, category: String, startTime: Double, endTime: Double) {
+        self.UUID = UUID
+        self.category = category
+        self.startTime = startTime
+        self.endTime = endTime
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case UUID
+        case category
+        case segment
+    }
+
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        UUID = try container.decode(String.self, forKey: .UUID)
+        category = try container.decode(String.self, forKey: .category)
+        let bounds = try container.decode([Double].self, forKey: .segment)
+        guard bounds.count >= 2, bounds[1] > bounds[0] else {
+            throw DecodingError.dataCorruptedError(
+                forKey: .segment,
+                in: container,
+                debugDescription: "Segment bounds are missing or out of order"
+            )
+        }
+        startTime = bounds[0]
+        endTime = bounds[1]
+    }
+
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(UUID, forKey: .UUID)
+        try container.encode(category, forKey: .category)
+        try container.encode([startTime, endTime], forKey: .segment)
+    }
+}
+
+private struct DecodableSponsorSegment: Decodable {
+    let segment: SponsorSegment?
+
+    init(from decoder: Decoder) throws {
+        segment = try? SponsorSegment(from: decoder)
+    }
 }
 
 public enum SponsorBlockCategory: String, CaseIterable {
@@ -89,7 +132,8 @@ public enum SponsorBlockClient {
                   httpResponse.statusCode == 200 else {
                 return []
             }
-            return (try? JSONDecoder().decode([SponsorSegment].self, from: data)) ?? []
+            let decoded = try? JSONDecoder().decode([DecodableSponsorSegment].self, from: data)
+            return decoded?.compactMap(\.segment) ?? []
         } catch {
             return []
         }
