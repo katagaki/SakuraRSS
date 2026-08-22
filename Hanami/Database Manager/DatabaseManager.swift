@@ -39,7 +39,8 @@ public nonisolated final class DatabaseManager: @unchecked Sendable {
     private static let versionGateKeys = [
         "App.DatabaseVersion",
         "App.ParserVersion.HTMLContentExtractor",
-        "Intelligence.SimilarContent.AlgorithmVersion"
+        "Intelligence.SimilarContent.AlgorithmVersion",
+        "SummaryHeadlines.PromptVersion"
     ]
 
     /// Version gates must read the same values in every process, and
