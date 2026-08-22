@@ -205,12 +205,16 @@ struct HomeSectionView: View {
                 latestArticleDate: latestArticleDate()
             )
             loadedCount = newMode.initialCount()
+            refreshWindowedArticles()
             visibility.capture(from: currentRawArticles(), isEnabled: hideViewedContent)
         }
         .onChange(of: doomscrollingMode) { _, _ in
             visibility.capture(from: currentRawArticles(), isEnabled: hideViewedContent)
         }
-        .onChange(of: slicedIDs) { _, _ in
+        .onChange(of: loadedCount) { _, _ in
+            refreshWindowedArticles()
+        }
+        .onChange(of: loadedSinceDate) { _, _ in
             refreshWindowedArticles()
         }
     }
