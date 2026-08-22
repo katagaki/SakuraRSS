@@ -54,6 +54,12 @@ extension YouTubePlayerWebView {
             }
         }
 
+        func reloadChapters(in webView: WKWebView) {
+            chaptersLoaded = false
+            chapterRetryCount = 0
+            extractChapters(from: webView)
+        }
+
         func beginAutoplayKick(in webView: WKWebView) {
             autoplayKickWebView = webView
             autoplayKickAttemptsRemaining = 180

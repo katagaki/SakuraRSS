@@ -95,6 +95,9 @@ struct YouTubePlayerWebView: UIViewRepresentable {
                 completionHandler: nil
             )
         }
+        // `didFinish` never fires on the reuse path, so the new coordinator
+        // would otherwise never populate the chapter menu.
+        coordinator.reloadChapters(in: existing)
         return existing
     }
 
