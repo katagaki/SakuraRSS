@@ -111,8 +111,9 @@ public extension FeedManager {
             let chunkStart = FeedManager.chunkStart(for: earlier)
             guard chunkStart < cursor else { return nil }
             let chunkEnd = FeedManager.chunkEnd(for: chunkStart)
-            let chunkArticles = (try? database.articlesList(forFeedID: feed.id, since: chunkStart)) ?? []
-            let inChunk = chunkArticles.filter { ($0.publishedDate ?? .distantPast) < chunkEnd }
+            let inChunk = (try? database.articlesList(
+                forFeedID: feed.id, from: chunkStart, to: chunkEnd, limit: 10000
+            )) ?? []
             if !applyRules(inChunk, feedID: feed.id).isEmpty {
                 return chunkStart
             }
@@ -322,20 +323,28 @@ public extension FeedManager {
     }
 
     func nextArticleChunk(for section: FeedSection, before date: Date) -> Date? {
-        let sectionFeedIDs = Set(feeds.filter { $0.feedSection == section }.map(\.id))
-        guard !sectionFeedIDs.isEmpty else { return nil }
+        _ = dataRevision
         let muted = mutedFeedIDs
+        let sectionFeedIDs = Set(
+            feeds
+                .filter { $0.feedSection == section && !muted.contains($0.id) }
+                .map(\.id)
+        )
+        guard !sectionFeedIDs.isEmpty else { return nil }
         var cursor = date
         var iterations = 0
         while iterations < FeedManager.chunkWalkLimit {
             iterations += 1
-            guard let chunkStart = nextArticleChunk(before: cursor) else { return nil }
+            guard let earlier = (try? database.earliestArticleDate(before: cursor)) ?? nil else {
+                return nil
+            }
+            let chunkStart = FeedManager.chunkStart(for: earlier)
             guard chunkStart < cursor else { return nil }
             let chunkEnd = FeedManager.chunkEnd(for: chunkStart)
-            let chunkArticles = (try? database.allArticlesList(from: chunkStart, to: chunkEnd, limit: 10000)) ?? []
-            var visible = muted.isEmpty ? chunkArticles : chunkArticles.filter { !muted.contains($0.feedID) }
-            visible = applyAllRules(visible).filter { sectionFeedIDs.contains($0.feedID) }
-            if !visible.isEmpty {
+            let chunkArticles = (try? database.articlesList(
+                forFeedIDs: sectionFeedIDs, from: chunkStart, to: chunkEnd, limit: 10000
+            )) ?? []
+            if !applyAllRules(chunkArticles).isEmpty {
                 return chunkStart
             }
             cursor = chunkStart
