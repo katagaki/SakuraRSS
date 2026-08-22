@@ -28,24 +28,6 @@ public extension HTMLContentExtractor {
 
     // MARK: - Utility
 
-    static func isLikelyContentImage(_ url: String) -> Bool {
-        if url.hasPrefix("data:") {
-            return false
-        }
-        let lowered = url.lowercased()
-        let skipPatterns = [
-            "gravatar.com", "pixel", "spacer", "blank",
-            "1x1", "transparent", "tracking", "beacon",
-            ".gif", ".svg", "feeds.feedburner.com", "badge",
-            "icon", "emoji", "smiley", "avatar",
-            "ad.", "ads.", "doubleclick", "googlesyndication"
-        ]
-        for pattern in skipPatterns where lowered.contains(pattern) {
-            return false
-        }
-        return true
-    }
-
     /// Removes sup/sub markers whose content contains an invalid URL.
     static func stripInvalidURLSupSub(_ text: String) -> String {
         let pattern = #"\{\{(SUP|SUB)\}\}(.+?)\{\{/(SUP|SUB)\}\}"#
