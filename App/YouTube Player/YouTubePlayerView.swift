@@ -208,11 +208,11 @@ struct YouTubePlayerView: View {
             wantsPlaybackInBackground = false
         }
         .onDisappear {
-            // On iPhone, keep the session alive so audio continues in the
-            // background and the tab bar bottom accessory acts as a stand-in.
-            // On iPad there's no accessory, so tear the session down (unless
-            // the player is in PiP).
-            if UIDevice.current.userInterfaceIdiom == .pad, !isPiP {
+            // Only platforms with the tab bar bottom accessory can keep the
+            // session alive after the player disappears; elsewhere (iPad,
+            // visionOS) there is no stand-in control, so tear it down unless
+            // the player is in PiP.
+            if !hasMiniPlayerAccessory, !isPiP {
                 pauseForOtherPlayer()
                 if session.isPrimary {
                     YouTubeAudioSession.deactivate()

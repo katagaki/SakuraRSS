@@ -4,6 +4,14 @@ import Hanami
 
 extension YouTubePlayerView {
 
+    var hasMiniPlayerAccessory: Bool {
+        #if os(visionOS)
+        return false
+        #else
+        return UIDevice.current.userInterfaceIdiom != .pad
+        #endif
+    }
+
     var isAppleIntelligenceAvailable: Bool {
         SystemLanguageModel.default.availability == .available
     }
