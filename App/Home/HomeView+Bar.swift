@@ -16,11 +16,7 @@ extension HomeView {
                 feedManager.markAllRead(for: list)
             }
         case .topic(let name):
-            let entries = feedManager.preloadedArticleEntries(forTopic: name)
-            let articles = feedManager.articles(withPreloadedIDs: entries.map(\.id))
-            for article in articles where !feedManager.isRead(article) {
-                feedManager.markRead(article)
-            }
+            feedManager.markAllRead(forTopic: name)
         }
     }
 

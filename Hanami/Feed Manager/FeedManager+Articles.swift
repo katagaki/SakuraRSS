@@ -352,6 +352,15 @@ public extension FeedManager {
         return nil
     }
 
+    func markAllRead(forTopic topic: String) {
+        stagedReadChanges.removeAll()
+        let ids = preloadedArticleEntries(forTopic: topic).map(\.id)
+        guard !ids.isEmpty else { return }
+        try? database.markArticlesRead(ids: ids, read: true)
+        Task { await loadFromDatabaseInBackground(animated: true) }
+        updateBadgeCount()
+    }
+
     func markAllRead(for section: FeedSection) {
         stagedReadChanges.removeAll()
         let sectionFeeds = feeds.filter { $0.feedSection == section }
