@@ -174,6 +174,7 @@ struct YouTubePlayerView: View {
             session.isPlaying = newValue
             if newValue {
                 activateAudioSessionForPlayback()
+                restorePlaybackPositionIfNeeded()
             }
             if newValue && !hasStartedPlaying {
                 withAnimation(.smooth.speed(2.0)) {

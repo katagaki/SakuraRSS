@@ -8,6 +8,7 @@ extension YouTubePlayerView {
         isBookmarked = feedManager.isBookmarked(article)
         session.adopt(article: article)
         isPlaying = session.isPlaying
+        loadResumePlaybackTime()
         if session.isPlaying || session.duration > 0 {
             hasStartedPlaying = true
         }
@@ -22,7 +23,6 @@ extension YouTubePlayerView {
             }
             icon = await Iconography.shared.icon(for: loadedFeed)
         }
-        loadResumePlaybackTime()
         session.videoTitle = article.title
         if let imageURL = article.imageURL.flatMap(URL.init(string:)) {
             session.artworkURL = imageURL
