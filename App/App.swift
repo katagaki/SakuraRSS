@@ -16,6 +16,7 @@ struct SakuraRSSApp: App {
     @State var pendingArticleID: Int64?
     @State var pendingOpenRequest: OpenArticleRequest?
     @State private var lastForegroundWorkAt: Date?
+    @State private var lastWidgetReloadAt: Date?
     @AppStorage("ForceWhileYouSlept") var forceWhileYouSlept: Bool = false
     @AppStorage("ForceAfternoonBrief") var forceAfternoonBrief: Bool = false
     @AppStorage("ForceTodaysSummary") var forceTodaysSummary: Bool = false
@@ -65,6 +66,7 @@ struct SakuraRSSApp: App {
                     NotificationCenter.default.publisher(for: UIApplication.willResignActiveNotification)
                 ) { _ in
                     feedManager.flushDebouncedReads()
+                    reloadWidgetsIfNeeded()
                 }
                 .onReceive(
                     NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)
@@ -72,12 +74,12 @@ struct SakuraRSSApp: App {
                     feedManager.updateBadgeCount()
                     feedManager.reloadRefreshTimestampsFromDefaults()
                     feedManager.reloadFocusFromDefaults()
+                    reloadWidgetsIfNeeded()
                     let now = Date()
                     if let last = lastForegroundWorkAt, now.timeIntervalSince(last) < 5 * 60 {
                         return
                     }
                     lastForegroundWorkAt = now
-                    WidgetCenter.shared.reloadAllTimelines()
                     Task {
                         await feedManager.loadFromDatabaseInBackground()
                         await feedManager.refreshUnfetchedFeeds()
@@ -201,6 +203,15 @@ struct SakuraRSSApp: App {
         defaults.set(defaults.integer(forKey: "App.LaunchCount") + 1, forKey: "App.LaunchCount")
         registerBackgroundTask()
         try? Tips.configure()
+    }
+
+    private func reloadWidgetsIfNeeded() {
+        let now = Date()
+        if let last = lastWidgetReloadAt, now.timeIntervalSince(last) < 60 {
+            return
+        }
+        lastWidgetReloadAt = now
+        WidgetCenter.shared.reloadAllTimelines()
     }
 
     private static func enableHomeTopicsByDefaultIfNeeded(defaults: UserDefaults) {

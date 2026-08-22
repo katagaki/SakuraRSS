@@ -1,5 +1,6 @@
 @preconcurrency import BackgroundTasks
 import UIKit
+import WidgetKit
 import Hanami
 
 extension SakuraRSSApp {
@@ -115,6 +116,7 @@ extension SakuraRSSApp {
             )
             if Task.isCancelled { return }
             manager.updateBadgeCount()
+            WidgetCenter.shared.reloadAllTimelines()
         }
 
         task.expirationHandler = {
