@@ -22,6 +22,7 @@ extension YouTubePlayerView {
             }
             icon = await Iconography.shared.icon(for: loadedFeed)
         }
+        loadResumePlaybackTime()
         session.videoTitle = article.title
         if let imageURL = article.imageURL.flatMap(URL.init(string:)) {
             session.artworkURL = imageURL
@@ -53,5 +54,18 @@ extension YouTubePlayerView {
            !cached.isEmpty {
             hasCachedSummary = true
         }
+    }
+
+    private func loadResumePlaybackTime() {
+        guard session.currentTime <= 0, !session.isPlaying,
+              let videoID = SponsorBlockClient.extractVideoID(from: article.url) else { return }
+        resumePlaybackTime = YouTubePlaybackPositionStore.position(forVideoID: videoID)
+    }
+
+    func restorePlaybackPositionIfNeeded() {
+        guard let resumePlaybackTime else { return }
+        self.resumePlaybackTime = nil
+        seek(to: resumePlaybackTime)
+        lastCheckedPlaybackTime = resumePlaybackTime
     }
 }

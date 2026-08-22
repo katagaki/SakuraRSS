@@ -43,6 +43,7 @@ struct YouTubePlayerView: View {
     @State var skippedSegmentMessage: String?
     @State var skippedSegmentMessageTask: Task<Void, Never>?
     @State var lastCheckedPlaybackTime: TimeInterval = 0
+    @State var resumePlaybackTime: TimeInterval?
 
     @State var translatedText: String?
     @State var translatedSummary: String?
@@ -189,6 +190,9 @@ struct YouTubePlayerView: View {
                 currentTime: { session.currentTime },
                 onTimeChange: { newTime in checkSponsorSegments(at: newTime) }
             )
+        }
+        .onChange(of: isPlayerReady) { _, ready in
+            if ready { restorePlaybackPositionIfNeeded() }
         }
         .onChange(of: hasStartedPlaying) { _, started in
             if started { forceOriginalAudio() }

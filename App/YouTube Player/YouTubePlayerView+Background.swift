@@ -19,6 +19,7 @@ extension YouTubePlayerView {
         switch newPhase {
         case .background, .inactive:
             wantsPlaybackInBackground = isPlaying
+            session.rememberPlaybackPosition()
         case .active:
             if wantsPlaybackInBackground && !isPlaying {
                 resumePlaybackIfNeeded()

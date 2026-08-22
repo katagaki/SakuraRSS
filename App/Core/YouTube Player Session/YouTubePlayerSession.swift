@@ -48,15 +48,27 @@ final class YouTubePlayerSession {
         if isPrimary, AudioPlayer.shared.currentArticleID != nil {
             AudioPlayer.shared.stop()
         }
-        if let current = currentArticle, current.id != article.id || current.url != article.url,
-           webViewArticleURL != article.url {
-            tearDownWebView()
+        if let current = currentArticle, current.id != article.id || current.url != article.url {
+            if webViewArticleURL != article.url {
+                tearDownWebView()
+            }
+            currentTime = 0
+            duration = 0
         }
         currentArticle = article
     }
 
+    func rememberPlaybackPosition() {
+        guard let article = currentArticle, currentTime > 0,
+              let videoID = SponsorBlockClient.extractVideoID(from: article.url) else { return }
+        YouTubePlaybackPositionStore.save(
+            position: currentTime, duration: duration, forVideoID: videoID
+        )
+    }
+
     func attach(webView newWebView: WKWebView, for articleURL: String) {
         if let existing = webView, existing !== newWebView {
+            rememberPlaybackPosition()
             Self.stopPlayback(in: existing)
         }
         webView = newWebView
@@ -153,6 +165,7 @@ final class YouTubePlayerSession {
     }
 
     private func tearDownWebView() {
+        rememberPlaybackPosition()
         if let webView {
             Self.stopPlayback(in: webView)
         }
