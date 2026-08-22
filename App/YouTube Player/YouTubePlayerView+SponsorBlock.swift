@@ -15,8 +15,10 @@ extension YouTubePlayerView {
                 skippedSegmentMessage = String(
                     localized: "YouTube.SponsorBlock.Skipped \(categoryName)", table: "Integrations"
                 )
-                Task {
+                skippedSegmentMessageTask?.cancel()
+                skippedSegmentMessageTask = Task {
                     try? await Task.sleep(for: .seconds(2))
+                    guard !Task.isCancelled else { return }
                     withAnimation {
                         skippedSegmentMessage = nil
                     }

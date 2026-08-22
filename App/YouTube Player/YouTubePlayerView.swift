@@ -41,6 +41,7 @@ struct YouTubePlayerView: View {
     @State var sponsorSegments: [SponsorSegment] = []
     @State var skippedSegmentIDs: Set<String> = []
     @State var skippedSegmentMessage: String?
+    @State var skippedSegmentMessageTask: Task<Void, Never>?
 
     @State var translatedText: String?
     @State var translatedSummary: String?
