@@ -118,10 +118,13 @@ public extension ContentResolver {
               let extractor = SiteContentExtractorRegistry.extractor(for: url),
               extractor.requiresWebView else { return false }
         let text = await extractViaWebView(from: url, excludeTitle: article.title)
-        result.text = text
-        if let text, !text.isEmpty {
-            persistCachedContent(text)
+        guard let text, !text.isEmpty else {
+            siteExtractorProducedNothing = true
+            log("Extract", "WebView extractor produced nothing, falling through: \(article.url)")
+            return false
         }
+        result.text = text
+        persistCachedContent(text)
         return true
     }
 }

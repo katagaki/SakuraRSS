@@ -13,6 +13,7 @@ public final class ContentResolver {
     public var result = ExtractionResult()
     public var contentURL: URL?
     public var isRedditLinkedArticle = false
+    public var siteExtractorProducedNothing = false
 
     /// Wrapped twice so the cache distinguishes "not yet looked up"
     /// (`nil`) from "looked up and not found" (`.some(.none)`).

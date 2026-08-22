@@ -82,6 +82,7 @@ public extension ContentResolver {
         let articleURL = URL(string: article.url)
         let isOneCushionedArticle = articleURL.map(OneCushionedDomains.isOneCushioned) ?? false
         let hasSiteExtractor = articleURL.flatMap(SiteContentExtractorRegistry.extractor(for:)) != nil
+            && !siteExtractorProducedNothing
 
         guard !isRedditLinkedArticle, !isOneCushionedArticle, !hasSiteExtractor,
               let content = article.content, !content.isEmpty else { return false }
