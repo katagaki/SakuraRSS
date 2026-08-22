@@ -9,6 +9,7 @@ struct BookmarksContentView: View {
     @Environment(\.zoomNamespace) private var zoomNamespace
 
     @State private var bookmarkedArticles: [Article] = []
+    @State private var bookmarkedArticleIDs: [Int64] = []
     @State private var displayStyle: FeedDisplayStyle
     @State private var showingDeleteReadAlert = false
     @State private var isCreatingFolder = false
@@ -99,7 +100,7 @@ struct BookmarksContentView: View {
             }
         }
         .animation(.smooth.speed(2.0), value: displayStyle)
-        .animation(.smooth.speed(2.0), value: bookmarkedArticles)
+        .animation(.smooth.speed(2.0), value: bookmarkedArticleIDs)
         .alert(String(localized: "Bookmarks.DeleteAllRead", table: "Articles"), isPresented: $showingDeleteReadAlert) {
             Button(String(localized: "Bookmarks.DeleteAllRead.Confirm", table: "Articles"), role: .destructive) {
                 try? DatabaseManager.shared.removeReadBookmarks()
@@ -130,6 +131,7 @@ struct BookmarksContentView: View {
         }.value
         if Task.isCancelled { return }
         bookmarkedArticles = loaded
+        bookmarkedArticleIDs = loaded.map(\.id)
     }
 
     private var effectiveDisplayStyle: FeedDisplayStyle {

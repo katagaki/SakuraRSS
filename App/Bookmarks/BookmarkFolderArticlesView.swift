@@ -8,6 +8,7 @@ struct BookmarkFolderArticlesView: View {
     let folder: BookmarkFolder
 
     @State private var articles: [Article] = []
+    @State private var articleIDs: [Int64] = []
     @State private var displayStyle: FeedDisplayStyle
     @State private var hasScrolledPastTitle: Bool = false
 
@@ -107,7 +108,7 @@ struct BookmarkFolderArticlesView: View {
             }
         }
         .animation(.smooth.speed(2.0), value: displayStyle)
-        .animation(.smooth.speed(2.0), value: articles)
+        .animation(.smooth.speed(2.0), value: articleIDs)
         .onChange(of: displayStyle) { _, newValue in
             feedManager.updateBookmarkFolderDisplayStyle(currentFolder, displayStyle: newValue.rawValue)
         }
@@ -151,5 +152,6 @@ struct BookmarkFolderArticlesView: View {
         }.value
         if Task.isCancelled { return }
         articles = loaded
+        articleIDs = loaded.map(\.id)
     }
 }
