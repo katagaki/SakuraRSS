@@ -132,6 +132,19 @@ public extension FeedManager {
     }
 
     func preloadedArticleEntriesAsync(
+        for feed: Feed,
+        requireUnread: Bool = false
+    ) async -> [ArticleIDEntry] {
+        let database = self.database
+        let feedID = feed.id
+        return await Task.detached {
+            FeedManager.computeFeedPreloadedEntries(
+                database: database, feedID: feedID, requireUnread: requireUnread
+            )
+        }.value
+    }
+
+    func preloadedArticleEntriesAsync(
         for section: FeedSection,
         requireUnread: Bool = false
     ) async -> [ArticleIDEntry] {
@@ -188,6 +201,22 @@ public extension FeedManager {
         if !muted.isEmpty {
             pool = pool.filter { !muted.contains($0.feedID) }
         }
+        if requireUnread {
+            pool = pool.filter { !$0.isRead }
+        }
+        return pool.compactMap { article in
+            guard let date = article.publishedDate else { return nil }
+            return ArticleIDEntry(id: article.id, publishedDate: date)
+        }
+    }
+
+    nonisolated static func computeFeedPreloadedEntries(
+        database: DatabaseManager,
+        feedID: Int64,
+        requireUnread: Bool
+    ) -> [ArticleIDEntry] {
+        let raw = (try? database.articlesList(forFeedID: feedID)) ?? []
+        var pool = applyRules(raw, feedID: feedID, database: database)
         if requireUnread {
             pool = pool.filter { !$0.isRead }
         }
