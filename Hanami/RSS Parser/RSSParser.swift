@@ -2,28 +2,28 @@ import Foundation
 
 public nonisolated final class RSSParser: NSObject, XMLParserDelegate, @unchecked Sendable {
 
-    private var currentElement = ""
-    private var currentTitle = ""
-    private var currentLink = ""
-    private var currentDescription = ""
-    private var currentAuthor = ""
-    private var currentContent = ""
-    private var currentDateStrings: [String: String] = [:]
-    private var currentImageURL = ""
-    private var currentAudioURL = ""
-    private var currentDuration = ""
+    var currentTitle = ""
+    var currentLink = ""
+    var currentDescription = ""
+    var currentAuthor = ""
+    var currentContent = ""
+    var currentDateStrings: [String: String] = [:]
+    var currentImageURL = ""
+    var currentAudioURL = ""
+    var currentDuration = ""
 
-    private var feedTitle = ""
-    private var feedLink = ""
-    private var feedDescription = ""
-    private var feedGenerator = ""
+    var feedTitle = ""
+    var feedLink = ""
+    var feedDescription = ""
+    var feedGenerator = ""
 
-    private var parsedArticles: [ParsedArticle] = []
-    private var isInsideItem = false
-    private var isInsideImage = false
-    private var isAtom = false
-    private var hasITunesNamespace = false
-    private var currentAttributes: [String: String] = [:]
+    var parsedArticles: [ParsedArticle] = []
+    var isInsideItem = false
+    var isInsideImage = false
+    var isAtom = false
+    var hasITunesNamespace = false
+    var elementDepth = 0
+    var captureStack: [RSSParserCaptureFrame] = []
 
     public func parse(data: Data) -> ParsedFeed? {
         let parser = XMLParser(data: data)
@@ -45,16 +45,7 @@ public nonisolated final class RSSParser: NSObject, XMLParserDelegate, @unchecke
     }
 
     private func resetState() {
-        currentElement = ""
-        currentTitle = ""
-        currentLink = ""
-        currentDescription = ""
-        currentAuthor = ""
-        currentContent = ""
-        currentDateStrings = [:]
-        currentImageURL = ""
-        currentAudioURL = ""
-        currentDuration = ""
+        resetItemState()
         feedTitle = ""
         feedLink = ""
         feedDescription = ""
@@ -64,6 +55,7 @@ public nonisolated final class RSSParser: NSObject, XMLParserDelegate, @unchecke
         isInsideImage = false
         isAtom = false
         hasITunesNamespace = false
+        elementDepth = 0
     }
 
     // MARK: - XMLParserDelegate
@@ -75,125 +67,26 @@ public nonisolated final class RSSParser: NSObject, XMLParserDelegate, @unchecke
         qualifiedName _: String?,
         attributes attributeDict: [String: String] = [:]
     ) {
-        currentElement = elementName
-        currentAttributes = attributeDict
+        elementDepth += 1
         handleStartElement(elementName, attributes: attributeDict)
-    }
-
-    private func handleStartElement(_ elementName: String, attributes attributeDict: [String: String]) {
-        switch elementName {
-        case "rss":
-            break
-        case "feed":
-            isAtom = true
-        case "image":
-            if !isInsideItem { isInsideImage = true }
-        case "item", "entry":
-            isInsideItem = true
-            resetItemState()
-        case "link" where isAtom:
-            handleAtomLink(attributeDict)
-        case "enclosure", "media:content":
-            handleMediaElement(elementName, attributes: attributeDict)
-        case "media:thumbnail":
-            if let url = attributeDict["url"] {
-                currentImageURL = url
-            }
-        default:
-            handleITunesElement(elementName, attributes: attributeDict)
-        }
-    }
-
-    private func handleITunesElement(_ elementName: String, attributes attributeDict: [String: String]) {
-        switch elementName {
-        case "itunes:type" where !isInsideItem,
-             "itunes:author" where !isInsideItem,
-             "itunes:owner" where !isInsideItem:
-            hasITunesNamespace = true
-        case "itunes:image" where isInsideItem:
-            if let url = attributeDict["href"], currentImageURL.isEmpty {
-                currentImageURL = url
-            }
-        default:
-            break
-        }
-    }
-
-    private func resetItemState() {
-        currentTitle = ""
-        currentLink = ""
-        currentDescription = ""
-        currentAuthor = ""
-        currentContent = ""
-        currentDateStrings = [:]
-        currentImageURL = ""
-        currentAudioURL = ""
-        currentDuration = ""
-    }
-
-    private func handleAtomLink(_ attributes: [String: String]) {
-        let rel = attributes["rel"] ?? "alternate"
-        guard let href = attributes["href"], rel == "alternate" else { return }
-        if isInsideItem {
-            currentLink = href
-        } else {
-            feedLink = href
-        }
-    }
-
-    private func handleMediaElement(_ elementName: String, attributes: [String: String]) {
-        guard let url = attributes["url"], !url.isEmpty else { return }
-
-        if let type = attributes["type"] {
-            if type.hasPrefix("audio/") {
-                currentAudioURL = url
-                return
-            }
-            if type.hasPrefix("image/") {
-                currentImageURL = url
-                return
-            }
-        }
-
-        if attributes["medium"] == "image" {
-            currentImageURL = url
-        } else if elementName == "media:content", currentImageURL.isEmpty {
-            currentImageURL = url
+        if let frame = captureStack.last, frame.isXHTML {
+            appendCharacters(
+                RSSParser.openingTagMarkup(elementName, attributes: attributeDict),
+                for: frame.elementName
+            )
+        } else if RSSParser.isCaptureBoundary(elementName) {
+            captureStack.append(RSSParserCaptureFrame(
+                elementName: elementName,
+                depth: elementDepth,
+                isXHTML: RSSParser.isXHTMLContainer(elementName, attributes: attributeDict)
+            ))
         }
     }
 
     public func parser(_: XMLParser, foundCharacters string: String) {
-        if isInsideItem {
-            appendItemCharacters(string)
-        } else {
-            appendFeedCharacters(string)
-        }
-    }
-
-    private func appendItemCharacters(_ string: String) {
-        switch currentElement {
-        case "title": currentTitle += string
-        case "link": if !isAtom { currentLink += string }
-        case "description", "summary", "subtitle", "media:description": currentDescription += string
-        case "dc:creator", "author", "name": currentAuthor += string
-        case "content:encoded", "content": currentContent += string
-        // Kept separate per element; feeds like PubMed provide several date elements per item
-        case "pubDate", "published", "dc:date", "updated":
-            currentDateStrings[currentElement, default: ""] += string
-        case "itunes:duration": currentDuration += string
-        default: break
-        }
-    }
-
-    private func appendFeedCharacters(_ string: String) {
-        guard !isInsideImage else { return }
-        switch currentElement {
-        case "title": feedTitle += string
-        case "link": if !isAtom { feedLink += string }
-        case "description", "subtitle": feedDescription += string
-        case "generator": feedGenerator += string
-        default: break
-        }
+        guard let frame = captureStack.last else { return }
+        let text = frame.isXHTML ? RSSParser.escapeXMLText(string) : string
+        appendCharacters(text, for: frame.elementName)
     }
 
     public func parser(
@@ -202,77 +95,50 @@ public nonisolated final class RSSParser: NSObject, XMLParserDelegate, @unchecke
         namespaceURI _: String?,
         qualifiedName _: String?
     ) {
+        if let frame = captureStack.last {
+            if frame.depth == elementDepth, frame.elementName == elementName {
+                captureStack.removeLast()
+            } else if frame.isXHTML {
+                appendCharacters("</\(elementName)>", for: frame.elementName)
+            }
+        }
+        elementDepth -= 1
+
         if elementName == "image" {
             isInsideImage = false
         } else if elementName == "item" || elementName == "entry" {
-            let trimmedAuthor = currentAuthor.trimmingCharacters(in: .whitespacesAndNewlines)
-            let trimmedContent = currentContent.trimmingCharacters(in: .whitespacesAndNewlines)
-            let trimmedAudioURL = currentAudioURL.trimmingCharacters(in: .whitespacesAndNewlines)
-            let trimmedLink = currentLink.trimmingCharacters(in: .whitespacesAndNewlines)
-            let articleURL = trimmedLink.isEmpty ? trimmedAudioURL : trimmedLink
-            let dateString = preferredItemDateString()
-            let article = ParsedArticle(
-                title: decodeHTMLEntities(currentTitle.trimmingCharacters(in: .whitespacesAndNewlines)),
-                url: articleURL,
-                author: trimmedAuthor.isEmpty ? nil : decodeHTMLEntities(trimmedAuthor),
-                summary: cleanHTMLPreservingStructure(
-                    currentDescription.trimmingCharacters(
-                        in: .whitespacesAndNewlines
-                    ),
-                    baseURL: URL(string: articleURL)
-                ),
-                content: trimmedContent.isEmpty ? nil : trimmedContent,
-                imageURL: resolveImageURL(),
-                publishedDate: parseDate(dateString),
-                audioURL: trimmedAudioURL.isEmpty ? nil : trimmedAudioURL,
-                duration: parseDuration(currentDuration.trimmingCharacters(in: .whitespacesAndNewlines))
-            )
-            if !article.url.isEmpty {
-                if article.title.isEmpty, let plainText = cleanHTML(currentDescription) {
-                    let titleFromDescription = String(plainText.prefix(100))
-                    let updatedArticle = ParsedArticle(
-                        title: titleFromDescription,
-                        url: article.url,
-                        author: article.author,
-                        summary: article.summary,
-                        content: article.content,
-                        imageURL: article.imageURL,
-                        publishedDate: article.publishedDate,
-                        audioURL: article.audioURL,
-                        duration: article.duration
-                    )
-                    parsedArticles.append(updatedArticle)
-                } else if !article.title.isEmpty {
-                    parsedArticles.append(article)
-                }
-            }
+            finishCurrentItem()
             isInsideItem = false
         }
-        currentElement = ""
     }
 
-    private func preferredItemDateString() -> String {
-        let elementPriority = ["pubDate", "published", "dc:date", "updated"]
-        for elementName in elementPriority {
-            guard let value = currentDateStrings[elementName] else { continue }
-            let trimmed = value.trimmingCharacters(in: .whitespacesAndNewlines)
-            if !trimmed.isEmpty { return trimmed }
-        }
-        return ""
-    }
+    private func finishCurrentItem() {
+        let trimmedAuthor = currentAuthor.trimmingCharacters(in: .whitespacesAndNewlines)
+        let trimmedContent = currentContent.trimmingCharacters(in: .whitespacesAndNewlines)
+        let trimmedAudioURL = currentAudioURL.trimmingCharacters(in: .whitespacesAndNewlines)
+        let trimmedLink = currentLink.trimmingCharacters(in: .whitespacesAndNewlines)
+        let articleURL = trimmedLink.isEmpty ? trimmedAudioURL : trimmedLink
+        guard !articleURL.isEmpty else { return }
 
-    // MARK: - Image Resolution
+        let title = decodeHTMLEntities(currentTitle.trimmingCharacters(in: .whitespacesAndNewlines))
+        let resolvedTitle = title.isEmpty
+            ? (cleanHTML(currentDescription).map { String($0.prefix(100)) } ?? "")
+            : title
+        guard !resolvedTitle.isEmpty else { return }
 
-    private func resolveImageURL() -> String? {
-        if !currentImageURL.isEmpty {
-            return currentImageURL
-        }
-        if !currentContent.isEmpty, let url = extractImageFromHTML(currentContent) {
-            return url
-        }
-        if !currentDescription.isEmpty, let url = extractImageFromHTML(currentDescription) {
-            return url
-        }
-        return nil
+        parsedArticles.append(ParsedArticle(
+            title: resolvedTitle,
+            url: articleURL,
+            author: trimmedAuthor.isEmpty ? nil : decodeHTMLEntities(trimmedAuthor),
+            summary: cleanHTMLPreservingStructure(
+                currentDescription.trimmingCharacters(in: .whitespacesAndNewlines),
+                baseURL: URL(string: articleURL)
+            ),
+            content: trimmedContent.isEmpty ? nil : trimmedContent,
+            imageURL: resolveImageURL(),
+            publishedDate: parseDate(preferredItemDateString()),
+            audioURL: trimmedAudioURL.isEmpty ? nil : trimmedAudioURL,
+            duration: parseDuration(currentDuration.trimmingCharacters(in: .whitespacesAndNewlines))
+        ))
     }
 }
