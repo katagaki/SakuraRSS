@@ -42,7 +42,7 @@ struct YouTubePlayerView: View {
     @State var skippedSegmentIDs: Set<String> = []
     @State var skippedSegmentMessage: String?
     @State var skippedSegmentMessageTask: Task<Void, Never>?
-    @State var lastCheckedPlaybackTime: TimeInterval = 0
+    @State var playbackTimeTracker = YouTubePlaybackTimeTracker()
     @State var resumePlaybackTime: TimeInterval?
 
     @State var translatedText: String?

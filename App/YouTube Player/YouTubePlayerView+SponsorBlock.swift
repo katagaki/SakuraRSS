@@ -23,8 +23,8 @@ extension YouTubePlayerView {
     }
 
     func checkSponsorSegments(at time: TimeInterval) {
-        let previousTime = lastCheckedPlaybackTime
-        lastCheckedPlaybackTime = time
+        let previousTime = playbackTimeTracker.lastCheckedTime
+        playbackTimeTracker.lastCheckedTime = time
         guard sponsorBlockEnabled, !isAd, !sponsorSegments.isEmpty else { return }
         for segment in sponsorSegments where !skippedSegmentIDs.contains(segment.id) {
             let isInsideSegment = time >= segment.startTime && time < segment.endTime
@@ -37,7 +37,7 @@ extension YouTubePlayerView {
             let resumeTime = segment.endTime + 0.1
             guard resumeTime > time else { return }
             seek(to: resumeTime)
-            lastCheckedPlaybackTime = resumeTime
+            playbackTimeTracker.lastCheckedTime = resumeTime
             showSkippedMessage(for: segment)
             return
         }

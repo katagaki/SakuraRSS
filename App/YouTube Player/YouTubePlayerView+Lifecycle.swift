@@ -66,6 +66,6 @@ extension YouTubePlayerView {
         guard let resumePlaybackTime else { return }
         self.resumePlaybackTime = nil
         seek(to: resumePlaybackTime)
-        lastCheckedPlaybackTime = resumePlaybackTime
+        playbackTimeTracker.lastCheckedTime = resumePlaybackTime
     }
 }
