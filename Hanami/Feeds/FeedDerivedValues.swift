@@ -3,7 +3,7 @@ import Foundation
 /// Memoizes the derived values that hot list paths read thousands of times per
 /// query. Keyed purely on the stored properties they are computed from, so the
 /// results stay consistent with `Feed`'s value semantics.
-final class FeedDerivedValues: @unchecked Sendable {
+nonisolated final class FeedDerivedValues: @unchecked Sendable {
 
     static let shared = FeedDerivedValues()
 
