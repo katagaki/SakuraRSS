@@ -112,26 +112,8 @@ struct FeedStyleView: View {
         #if targetEnvironment(macCatalyst)
         OpenInNewWindowButton(article: article)
         Divider()
-        Button {
-            feedManager.toggleRead(article)
-        } label: {
-            Label(
-                feedManager.isRead(article)
-                    ? String(localized: "Article.MarkUnread", table: "Articles")
-                    : String(localized: "Article.MarkRead", table: "Articles"),
-                systemImage: feedManager.isRead(article) ? "envelope" : "envelope.open"
-            )
-        }
-        Button {
-            feedManager.toggleBookmark(article)
-        } label: {
-            Label(
-                feedManager.isBookmarked(article)
-                    ? String(localized: "Article.RemoveBookmark", table: "Articles")
-                    : String(localized: "Article.Bookmark", table: "Articles"),
-                systemImage: feedManager.isBookmarked(article) ? "bookmark.fill" : "bookmark"
-            )
-        }
+        ArticleReadMenuButton(article: article)
+        ArticleBookmarkMenuButton(article: article)
         #endif
         MoveToFolderMenuItems(article: article)
     }

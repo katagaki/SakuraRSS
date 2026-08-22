@@ -105,26 +105,8 @@ struct InboxStyleView: View {
             OpenInNewWindowButton(article: article)
             Divider()
             #endif
-            Button {
-                feedManager.toggleRead(article)
-            } label: {
-                Label(
-                    feedManager.isRead(article)
-                        ? String(localized: "Article.MarkUnread", table: "Articles")
-                        : String(localized: "Article.MarkRead", table: "Articles"),
-                    systemImage: feedManager.isRead(article) ? "envelope" : "envelope.open"
-                )
-            }
-            Button {
-                feedManager.toggleBookmark(article)
-            } label: {
-                Label(
-                    feedManager.isBookmarked(article)
-                        ? String(localized: "Article.RemoveBookmark", table: "Articles")
-                        : String(localized: "Article.Bookmark", table: "Articles"),
-                    systemImage: feedManager.isBookmarked(article) ? "bookmark.fill" : "bookmark"
-                )
-            }
+            ArticleReadMenuButton(article: article)
+            ArticleBookmarkMenuButton(article: article)
             MoveToFolderMenuItems(article: article)
         }
     }

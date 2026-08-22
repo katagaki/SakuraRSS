@@ -146,16 +146,7 @@ struct TimelineStyleView: View {
         #if targetEnvironment(macCatalyst)
         OpenInNewWindowButton(article: article)
         Divider()
-        Button {
-            feedManager.toggleRead(article)
-        } label: {
-            Label(
-                feedManager.isRead(article)
-                    ? String(localized: "Article.MarkUnread", table: "Articles")
-                    : String(localized: "Article.MarkRead", table: "Articles"),
-                systemImage: feedManager.isRead(article) ? "envelope" : "envelope.open"
-            )
-        }
+        ArticleReadMenuButton(article: article)
         #endif
         MoveToFolderMenuItems(article: article)
     }

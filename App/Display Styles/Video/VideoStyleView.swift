@@ -28,40 +28,11 @@ struct VideoStyleView: View {
                         OpenInNewWindowButton(article: article)
                         Divider()
                         #endif
-                        Button {
-                            feedManager.toggleRead(article)
-                        } label: {
-                            Label(
-                                feedManager.isRead(article)
-                                    ? String(localized: "Article.MarkUnplayed", table: "Articles")
-                                    : String(localized: "Article.MarkPlayed", table: "Articles"),
-                                systemImage: feedManager.isRead(article) ? "arrow.uturn.backward" : "checkmark"
-                            )
-                        }
+                        ArticleReadMenuButton(article: article, labelStyle: .playedUnplayed)
                         Divider()
-                        Button {
-                            feedManager.toggleBookmark(article)
-                        } label: {
-                            Label(
-                                feedManager.isBookmarked(article)
-                                    ? String(localized: "Article.RemoveBookmark", table: "Articles")
-                                    : String(localized: "Article.Bookmark", table: "Articles"),
-                                systemImage: feedManager.isBookmarked(article) ? "bookmark.fill" : "bookmark"
-                            )
-                        }
-                        Button {
-                            UIPasteboard.general.string = article.url
-                        } label: {
-                            Label(String(localized: "Article.CopyLink", table: "Articles"), systemImage: "link")
-                        }
-                        if let shareURL = URL(string: article.url) {
-                            ShareLink(item: shareURL) {
-                                Label(
-                                    String(localized: "Article.Share", table: "Articles"),
-                                    systemImage: "square.and.arrow.up"
-                                )
-                            }
-                        }
+                        ArticleBookmarkMenuButton(article: article)
+                        ArticleCopyLinkMenuButton(article: article)
+                        ArticleShareMenuButton(article: article)
                         MoveToFolderMenuItems(article: article)
                     }
                     .padding(.bottom, 8)

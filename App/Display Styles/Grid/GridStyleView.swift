@@ -42,24 +42,9 @@ struct GridStyleView: View {
                             OpenInNewWindowButton(article: article)
                             Divider()
                             #endif
-                            Button {
-                                feedManager.toggleRead(article)
-                            } label: {
-                                Label(
-                                    feedManager.isRead(article)
-                                        ? String(localized: "Article.MarkUnread", table: "Articles")
-                                        : String(localized: "Article.MarkRead", table: "Articles"),
-                                    systemImage: feedManager.isRead(article)
-                                        ? "envelope" : "envelope.open"
-                                )
-                            }
+                            ArticleReadMenuButton(article: article)
                             Divider()
-                            if let shareURL = URL(string: article.url) {
-                                ShareLink(item: shareURL) {
-                                    Label(String(localized: "Article.Share", table: "Articles"),
-                                          systemImage: "square.and.arrow.up")
-                                }
-                            }
+                            ArticleShareMenuButton(article: article)
                             MoveToFolderMenuItems(article: article)
                         }
                     }
