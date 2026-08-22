@@ -60,7 +60,6 @@ struct FollowingFeedGridCell: View {
                     }
                 }
                 .frame(width: iconSize, height: iconSize)
-                .drawingGroup()
                 .matchedSource(id: feed.id, in: editTransitionNamespace)
                 .contentShape(
                     .hoverEffect,
