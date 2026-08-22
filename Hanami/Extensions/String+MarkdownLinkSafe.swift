@@ -8,8 +8,10 @@ public extension String {
         result.reserveCapacity(count)
         for character in self {
             switch character {
-            case " ", "\t":
+            case " ":
                 result.append("%20")
+            case "\t":
+                result.append("%09")
             case "\n":
                 result.append("%0A")
             case "\r":
