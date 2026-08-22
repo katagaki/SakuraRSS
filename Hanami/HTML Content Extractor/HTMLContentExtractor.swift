@@ -190,7 +190,7 @@ public final class HTMLContentExtractor {
         if WebViewExtractor.requiresWebView(for: url) {
             log("Extract", "Extracting text using WebView from \(url)")
             let extractor = WebViewExtractor()
-            if let text = await extractor.extractText(from: url) {
+            if let text = await extractor.extractText(from: url, excludeTitle: excludeTitle) {
                 return text
             }
         }
@@ -215,7 +215,7 @@ public final class HTMLContentExtractor {
     ) async -> ExtractionResult {
         if WebViewExtractor.requiresWebView(for: url) {
             let extractor = WebViewExtractor()
-            if let text = await extractor.extractText(from: url) {
+            if let text = await extractor.extractText(from: url, excludeTitle: excludeTitle) {
                 return ExtractionResult(text: text)
             }
         }
@@ -227,7 +227,9 @@ public final class HTMLContentExtractor {
                 return ExtractionResult()
             }
             if BotChallengeDetector.looksLikeChallenge(html) {
-                if let webText = await WebViewExtractor().extractText(from: url) {
+                if let webText = await WebViewExtractor().extractText(
+                    from: url, excludeTitle: excludeTitle
+                ) {
                     return ExtractionResult(text: webText)
                 }
                 return ExtractionResult()

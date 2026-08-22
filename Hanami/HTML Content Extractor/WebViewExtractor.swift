@@ -15,10 +15,12 @@ public final class WebViewExtractor: NSObject, WKNavigationDelegate {
     private var continuation: CheckedContinuation<String?, Never>?
     private var timeoutTask: Task<Void, Never>?
 
-    public func extractText(from url: URL) async -> String? {
+    public func extractText(from url: URL, excludeTitle: String? = nil) async -> String? {
         let html = await loadAndExtractHTML(from: url)
         guard let html, !html.isEmpty else { return nil }
-        return HTMLContentExtractor.extractText(fromHTML: html, baseURL: url)
+        return HTMLContentExtractor.extractText(
+            fromHTML: html, baseURL: url, excludeTitle: excludeTitle
+        )
     }
 
     private func loadAndExtractHTML(from url: URL) async -> String? {

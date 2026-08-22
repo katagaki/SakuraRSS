@@ -28,7 +28,7 @@ public extension ContentResolver {
 
     func extractViaWebView(from url: URL, excludeTitle: String?) async -> String? {
         let extractor = WebViewExtractor()
-        return await extractor.extractText(from: url)
+        return await extractor.extractText(from: url, excludeTitle: excludeTitle)
     }
 
     /// Merges newly-extracted metadata into `result.metadata`, only filling
@@ -45,7 +45,7 @@ public extension ContentResolver {
         if result.metadata.leadImageURL == nil, let lead = metadata.leadImageURL {
             result.metadata.leadImageURL = lead
         }
-        if let pageTitle = metadata.pageTitle {
+        if result.metadata.pageTitle == nil, let pageTitle = metadata.pageTitle {
             result.metadata.pageTitle = pageTitle
         }
     }
