@@ -114,7 +114,7 @@ public extension FeedManager {
         let allFeeds = feeds
         Task.detached(priority: .utility) {
             for feed in allFeeds {
-                if let articles = try? database.articles(forFeedID: feed.id) {
+                if let articles = try? database.articlesForSpotlight(forFeedID: feed.id) {
                     SpotlightIndexer.indexArticles(articles, feedTitle: feed.title)
                 }
             }

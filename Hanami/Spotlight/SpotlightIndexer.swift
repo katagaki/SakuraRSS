@@ -98,62 +98,22 @@ public nonisolated enum SpotlightIndexer {
 
     private static func stripMarkup(_ text: String) -> String? {
         var result = text
-        result = result.replacingOccurrences(
-            of: "\\{\\{IMG\\}\\}.*?\\{\\{/IMG\\}\\}",
-            with: "",
-            options: .regularExpression
-        )
-        result = result.replacingOccurrences(
-            of: "!\\[[^\\]]*\\]\\([^)]*\\)",
-            with: "",
-            options: .regularExpression
-        )
-        result = result.replacingOccurrences(
-            of: "\\[([^\\]]+)\\]\\([^)]*\\)",
-            with: "$1",
-            options: .regularExpression
-        )
-        result = result.replacingOccurrences(
-            of: "https?://\\S+",
-            with: "",
-            options: .regularExpression
-        )
-        result = result.replacingOccurrences(
-            of: "<[^>]+>",
-            with: " ",
-            options: .regularExpression
-        )
-        result = result.replacingOccurrences(of: "&amp;", with: "&")
-        result = result.replacingOccurrences(of: "&lt;", with: "<")
-        result = result.replacingOccurrences(of: "&gt;", with: ">")
-        result = result.replacingOccurrences(of: "&quot;", with: "\"")
-        result = result.replacingOccurrences(of: "&#39;", with: "'")
-        result = result.replacingOccurrences(of: "&nbsp;", with: " ")
-        result = result.replacingOccurrences(
-            of: "\\s+",
-            with: " ",
-            options: .regularExpression
-        ).trimmingCharacters(in: .whitespacesAndNewlines)
+        result = replacingMatches(result, imageMarkerExpression, with: "")
+        result = replacingMatches(result, markdownImageExpression, with: "")
+        result = replacingMatches(result, markdownLinkExpression, with: "$1")
+        result = replacingMatches(result, bareURLExpression, with: "")
+        result = replacingMatches(result, htmlTagExpression, with: " ")
+        result = decodingEntities(result)
+        result = replacingMatches(result, whitespaceRunExpression, with: " ")
+            .trimmingCharacters(in: .whitespacesAndNewlines)
         return result.isEmpty ? nil : String(result.prefix(300))
     }
 
     private static func stripHTML(_ html: String) -> String? {
-        var text = html.replacingOccurrences(
-            of: "<[^>]+>",
-            with: " ",
-            options: .regularExpression
-        )
-        text = text.replacingOccurrences(of: "&amp;", with: "&")
-        text = text.replacingOccurrences(of: "&lt;", with: "<")
-        text = text.replacingOccurrences(of: "&gt;", with: ">")
-        text = text.replacingOccurrences(of: "&quot;", with: "\"")
-        text = text.replacingOccurrences(of: "&#39;", with: "'")
-        text = text.replacingOccurrences(of: "&nbsp;", with: " ")
-        text = text.replacingOccurrences(
-            of: "\\s+",
-            with: " ",
-            options: .regularExpression
-        ).trimmingCharacters(in: .whitespacesAndNewlines)
+        var text = replacingMatches(html, htmlTagExpression, with: " ")
+        text = decodingEntities(text)
+        text = replacingMatches(text, whitespaceRunExpression, with: " ")
+            .trimmingCharacters(in: .whitespacesAndNewlines)
         return text.isEmpty ? nil : String(text.prefix(300))
     }
 }
