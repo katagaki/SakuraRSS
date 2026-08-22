@@ -5,12 +5,16 @@ import Foundation
 /// re-querying the database with growing limits.
 public extension FeedManager {
 
+    /// Upper bound for the "all articles" preload. Far beyond what the list can
+    /// be scrolled through, but keeps the whole articles table off the heap.
+    static var maximumPreloadedEntries: Int { 5000 }
+
     // MARK: - All Articles
 
     func preloadedArticleEntries(requireUnread: Bool = false) -> [ArticleIDEntry] {
         _ = dataRevision
         let muted = mutedFeedIDs
-        let raw = (try? database.allArticlesList(limit: Int.max)) ?? []
+        let raw = (try? database.allArticlesList(limit: FeedManager.maximumPreloadedEntries)) ?? []
         var pool = applyAllRules(raw)
         if !muted.isEmpty {
             pool = pool.filter { !muted.contains($0.feedID) }
@@ -196,7 +200,7 @@ public extension FeedManager {
         muted: Set<Int64>,
         requireUnread: Bool
     ) -> [ArticleIDEntry] {
-        let raw = (try? database.allArticlesList(limit: Int.max)) ?? []
+        let raw = (try? database.allArticlesList(limit: FeedManager.maximumPreloadedEntries)) ?? []
         var pool = applyAllRules(raw, database: database)
         if !muted.isEmpty {
             pool = pool.filter { !muted.contains($0.feedID) }
