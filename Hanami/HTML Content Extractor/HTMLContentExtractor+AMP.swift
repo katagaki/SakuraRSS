@@ -12,7 +12,7 @@ public extension HTMLContentExtractor {
               googleAMPHosts.contains(host) else {
             return url
         }
-        let path = url.path
+        let path = url.percentEncodedPath
         guard path.hasPrefix(googleAMPPathPrefix) else { return url }
         let trimmed = String(path.dropFirst(googleAMPPathPrefix.count))
         let candidate = "https://\(trimmed)"
