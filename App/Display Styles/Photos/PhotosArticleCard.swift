@@ -12,7 +12,6 @@ struct PhotosArticleCard: View {
     @State private var photoImage: UIImage?
     @State private var imageAspectRatio: CGFloat?
     @State private var feed: Feed?
-    @State private var currentPage: Int = 0
 
     private static let imageMaxPixelSize: CGFloat = 1600
 
@@ -41,151 +40,23 @@ struct PhotosArticleCard: View {
         return pixelWidth > 100 || pixelHeight > 100
     }
 
-    @ViewBuilder
-    private var feedAvatarView: some View {
-        if let icon = icon {
-            IconImage(icon, size: 32, circle: true, skipInset: skipIconInset)
-        } else if let acronymIcon {
-            IconImage(acronymIcon, size: 32, circle: true, skipInset: true)
-        } else if let feedName {
-            InitialsAvatarView(feedName, size: 32, circle: true)
-        } else {
-            Circle()
-                .fill(.secondary.opacity(0.2))
-                .frame(width: 32, height: 32)
-        }
-    }
-
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            HStack(spacing: 10) {
-                if let feed {
-                    NavigationLink(value: feed) {
-                        HStack(spacing: 10) {
-                            feedAvatarView
-                            if let feedName {
-                                Text(feedName)
-                                    .font(.subheadline)
-                                    .fontWeight(.semibold)
-                                    .foregroundStyle(.primary)
-                                    .lineLimit(1)
-                            }
-                        }
-                    }
-                    .buttonStyle(.plain)
-                } else {
-                    feedAvatarView
-                    if let feedName {
-                        Text(feedName)
-                            .font(.subheadline)
-                            .fontWeight(.semibold)
-                            .foregroundStyle(.primary)
-                            .lineLimit(1)
-                    }
-                }
+            PhotosArticleCardHeader(
+                article: article,
+                feed: feed,
+                feedName: feedName,
+                icon: icon,
+                acronymIcon: acronymIcon,
+                skipIconInset: skipIconInset
+            )
 
-                Spacer()
-
-                if !feedManager.isRead(article) {
-                    UnreadDotView(isRead: feedManager.isRead(article))
-                }
-
-                Menu {
-                    Button {
-                        log("PhotosCard", "Menu: toggle read for article \(article.id)")
-                        feedManager.toggleRead(article)
-                    } label: {
-                        Label(
-                            feedManager.isRead(article)
-                                ? String(localized: "Article.MarkUnread", table: "Articles")
-                                : String(localized: "Article.MarkRead", table: "Articles"),
-                            systemImage: feedManager.isRead(article)
-                                ? "envelope" : "envelope.open"
-                        )
-                    }
-                    MoveToFolderMenuItems(article: article)
-                } label: {
-                    Image(systemName: "ellipsis")
-                        .tint(.primary)
-                        .font(.subheadline)
-                        .fontWeight(.semibold)
-                        .foregroundStyle(.secondary)
-                        .frame(width: 32, height: 32)
-                        .contentShape(.rect)
-                }
-            }
-            .padding(.horizontal, 12)
-            .padding(.vertical, 10)
-
-            if article.carouselImageURLs.count > 1 {
-                let urls = article.carouselImageURLs.compactMap { URL(string: $0) }
-                if !urls.isEmpty {
-                    let effectiveRatio = max(imageAspectRatio ?? 4.0/5.0, 4.0/5.0)
-                    TabView(selection: $currentPage) {
-                        ForEach(Array(urls.enumerated()), id: \.offset) { index, url in
-                            CachedAsyncImage(url: url, maxPixelSize: 1600) {
-                                Rectangle()
-                                    .fill(.secondary.opacity(0.1))
-                            }
-                            .allowsHitTesting(false)
-                            .frame(maxWidth: .infinity, maxHeight: .infinity)
-                            .clipped()
-                            .tag(index)
-                        }
-                    }
-                    .tabViewStyle(.page(indexDisplayMode: .never))
-                    .aspectRatio(effectiveRatio, contentMode: .fit)
-                    .frame(maxWidth: .infinity)
-                    .clipped()
-                    .overlay(alignment: .bottom) {
-                        PageDotsView(count: urls.count, current: currentPage)
-                            .padding(.bottom, 8)
-                    }
-                    .task {
-                        let loaded = await CachedAsyncImage<EmptyView>.loadImage(
-                            from: urls[0], maxPixelSize: Self.imageMaxPixelSize
-                        )
-                        if photoImage !== loaded {
-                            photoImage = loaded
-                        }
-                        if let loaded, loaded.size.height > 0 {
-                            let ratio = loaded.size.width / loaded.size.height
-                            if imageAspectRatio != ratio {
-                                imageAspectRatio = ratio
-                            }
-                        }
-                    }
-                    .padding(.bottom, 10)
-                }
-            } else if let photoImage, article.imageURL != nil {
-                let effectiveRatio = max(imageAspectRatio ?? 4.0/5.0, 4.0/5.0)
-                Color.clear
-                    .aspectRatio(effectiveRatio, contentMode: .fit)
-                    .overlay {
-                        Image(uiImage: photoImage)
-                            .resizable()
-                            .aspectRatio(contentMode: .fill)
-                            .debugLayout()
-                    }
-                    .frame(maxWidth: .infinity)
-                    .clipped()
-                    .allowsHitTesting(false)
-                    .overlay {
-                        if article.url.contains("/reel/") {
-                            ArticleLink(article: article, label: {
-                                Image(systemName: "play.fill")
-                                    .font(.title)
-                                    .foregroundStyle(.primary)
-                                    .padding(16)
-                                    .background(.ultraThinMaterial, in: .circle)
-                                    .compatibleGlassEffect(in: .circle, interactive: true)
-                            })
-                            .buttonStyle(.plain)
-                        }
-                    }
-                    .padding(.bottom, 10)
-                    .transition(.opacity)
-            }
+            PhotosArticleCardMedia(
+                article: article,
+                maxPixelSize: Self.imageMaxPixelSize,
+                photoImage: $photoImage,
+                imageAspectRatio: $imageAspectRatio
+            )
 
             ArticleLink(article: article, label: {
                 let isPhotoFeed = feed?.isInstagramFeed == true || feed?.isPhotoViewDomain == true
@@ -208,47 +79,7 @@ struct PhotosArticleCard: View {
                     .padding(.bottom, 10)
             }
 
-            HStack(spacing: 16) {
-                Button {
-                    log("PhotosCard", "Copy tapped for article \(article.id), photoImage=\(photoImage != nil)")
-                    Haptics.impact(.light)
-                    if let photoImage {
-                        UIPasteboard.general.image = photoImage
-                    }
-                } label: {
-                    Label(String(localized: "Article.CopyPhoto", table: "Articles"),
-                          systemImage: "square.on.square")
-                }
-
-                ShareLink(item: URL(string: article.url) ?? URL(string: "https://")!) {
-                    Label(String(localized: "Article.Share", table: "Articles"),
-                          systemImage: "square.and.arrow.up")
-                }
-                .padding(.bottom, 1)
-                .disabled(URL(string: article.url) == nil)
-
-                Spacer()
-
-                let isBookmarked = feedManager.isBookmarked(article)
-                Button {
-                    log("PhotosCard", "Bookmark tapped for article \(article.id)")
-                    Haptics.impact(.light)
-                    feedManager.toggleBookmark(article)
-                } label: {
-                    Label(
-                        isBookmarked
-                            ? String(localized: "Article.RemoveBookmark", table: "Articles")
-                            : String(localized: "Article.Bookmark", table: "Articles"),
-                        systemImage: isBookmarked ? "bookmark.fill" : "bookmark"
-                    )
-                }
-            }
-            .labelStyle(.iconOnly)
-            .buttonStyle(.plain)
-            .font(.system(size: 20, weight: .medium))
-            .foregroundStyle(.primary)
-            .padding(.horizontal, 12)
-            .padding(.bottom, 10)
+            PhotosArticleCardActions(article: article, photoImage: photoImage)
 
             Divider()
                 .padding(.top, 4)
