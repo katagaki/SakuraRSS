@@ -82,7 +82,7 @@ public extension FeedManager {
         // swiftlint:disable:next line_length
         log("FeedRefresh.RSS", "fetch ok id=\(feed.id) bytes=\(data.count) status=\(statusCode) contentType=\(contentType)")
         let parser = RSSParser()
-        guard let parsed = parser.parse(data: data) else {
+        guard let parsed = parser.parse(data: utf8FeedData(data, response: response)) else {
             let bodyHint = bodyContentHint(data: data)
             // swiftlint:disable:next line_length
             log("FeedRefresh.RSS", "parse failed id=\(feed.id) status=\(statusCode) contentType=\(contentType) bytes=\(data.count) hint=\(bodyHint)")
@@ -91,6 +91,22 @@ public extension FeedManager {
         // swiftlint:disable:next line_length
         log("FeedRefresh.RSS", "parsed id=\(feed.id) articles=\(parsed.articles.count) title=\(parsed.title) isPodcast=\(parsed.isPodcast)")
         return parsed
+    }
+
+    // XMLParser assumes UTF-8 when the document carries no encoding declaration, so a feed
+    // that declares its charset only in the HTTP header would otherwise parse to nothing.
+    nonisolated private static func utf8FeedData(_ data: Data, response: URLResponse) -> Data {
+        let head = String(decoding: data.prefix(256), as: UTF8.self).lowercased()
+        if head.hasPrefix("<?xml"), let declarationEnd = head.range(of: "?>"),
+           head[..<declarationEnd.lowerBound].contains("encoding=") {
+            return data
+        }
+        if String(data: data, encoding: .utf8) != nil { return data }
+        guard let text = HTMLDataDecoder.decode(data, response: response),
+              let reencoded = text.data(using: .utf8) else {
+            return data
+        }
+        return reencoded
     }
 
     nonisolated private static func buildArticleInsertItems(
