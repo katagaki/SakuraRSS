@@ -211,8 +211,10 @@ struct YouTubePlayerView: View {
             // Only platforms with the tab bar bottom accessory can keep the
             // session alive after the player disappears; elsewhere (iPad,
             // visionOS) there is no stand-in control, so tear it down unless
-            // the player is in PiP.
-            if !hasMiniPlayerAccessory, !isPiP {
+            // the player is in PiP. `onDisappear` also fires when a
+            // destination is pushed on top of the player, so a live image
+            // viewer means the player is merely covered, not dismissed.
+            if !hasMiniPlayerAccessory, !isPiP, imageViewerURL == nil {
                 pauseForOtherPlayer()
                 if session.isPrimary {
                     YouTubeAudioSession.deactivate()
