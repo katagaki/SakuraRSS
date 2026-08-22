@@ -4,7 +4,7 @@ import Hanami
 extension YouTubePlayerView {
 
     func initializePlayerSession() async {
-        activateBackgroundAudioSession()
+        prepareBackgroundAudioSession()
         isBookmarked = feedManager.isBookmarked(article)
         session.adopt(article: article)
         isPlaying = session.isPlaying

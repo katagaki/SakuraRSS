@@ -5,8 +5,13 @@ import Hanami
 
 extension YouTubePlayerView {
 
-    func activateBackgroundAudioSession() {
+    func prepareBackgroundAudioSession() {
         YouTubeAudioSession.prepare()
+    }
+
+    /// Claiming the route interrupts other apps, so it waits until playback
+    /// actually starts instead of happening when the player appears.
+    func activateAudioSessionForPlayback() {
         YouTubeAudioSession.activate()
     }
 

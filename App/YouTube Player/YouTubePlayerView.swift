@@ -168,6 +168,9 @@ struct YouTubePlayerView: View {
         #endif
         .onChange(of: isPlaying) { _, newValue in
             session.isPlaying = newValue
+            if newValue {
+                activateAudioSessionForPlayback()
+            }
             if newValue && !hasStartedPlaying {
                 withAnimation(.smooth.speed(2.0)) {
                     hasStartedPlaying = true
