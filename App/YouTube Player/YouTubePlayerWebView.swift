@@ -66,10 +66,9 @@ struct YouTubePlayerWebView: UIViewRepresentable {
         if autoplay {
             context.coordinator.beginAutoplayKick(in: webView)
         }
-        let session = self.session
+        session.attach(webView: webView, for: urlString)
         DispatchQueue.main.async {
             self.webView = webView
-            session.webView = webView
         }
         return webView
     }

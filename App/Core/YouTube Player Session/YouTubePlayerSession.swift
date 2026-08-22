@@ -29,6 +29,12 @@ final class YouTubePlayerSession {
     @ObservationIgnored
     var webView: WKWebView?
 
+    /// The article URL the current `webView` was created for. Adoption uses
+    /// this to tell an outgoing webview from one that was already created for
+    /// the incoming article, since `makeUIView` can run before `adopt`.
+    @ObservationIgnored
+    var webViewArticleURL: String?
+
     /// Whether this is the app-wide shared session. Detached-window instances
     /// are not primary and skip mutual-exclusion with `AudioPlayer.shared`.
     @ObservationIgnored
@@ -42,10 +48,19 @@ final class YouTubePlayerSession {
         if isPrimary, AudioPlayer.shared.currentArticleID != nil {
             AudioPlayer.shared.stop()
         }
-        if let current = currentArticle, current.id != article.id || current.url != article.url {
+        if let current = currentArticle, current.id != article.id || current.url != article.url,
+           webViewArticleURL != article.url {
             tearDownWebView()
         }
         currentArticle = article
+    }
+
+    func attach(webView newWebView: WKWebView, for articleURL: String) {
+        if let existing = webView, existing !== newWebView {
+            Self.stopPlayback(in: existing)
+        }
+        webView = newWebView
+        webViewArticleURL = articleURL
     }
 
     func clear() {
@@ -149,15 +164,22 @@ final class YouTubePlayerSession {
     }
 
     private func tearDownWebView() {
+        if let webView {
+            Self.stopPlayback(in: webView)
+        }
+        webView = nil
+        webViewArticleURL = nil
+        videoAspectRatio = 16 / 9
+    }
+
+    private static func stopPlayback(in webView: WKWebView) {
         let pauseScript = """
         (function() {
             var v = document.querySelector('video');
             if (v) { v.pause(); v.src = ''; v.load(); }
         })();
         """
-        webView?.evaluateJavaScript(pauseScript, completionHandler: nil)
-        webView?.stopLoading()
-        webView = nil
-        videoAspectRatio = 16 / 9
+        webView.evaluateJavaScript(pauseScript, completionHandler: nil)
+        webView.stopLoading()
     }
 }
