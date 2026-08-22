@@ -19,7 +19,13 @@ public extension DomainDefaults {
     nonisolated static func matchedDomain(for feedDomain: String) -> String? {
         let host = feedDomain.lowercased()
         if exceptionDomains.contains(host) { return host }
-        return exceptionDomains.first { host.hasSuffix(".\($0)") }
+        var searchStart = host.startIndex
+        while let dot = host[searchStart...].firstIndex(of: ".") {
+            let candidate = String(host[host.index(after: dot)...])
+            if exceptionDomains.contains(candidate) { return candidate }
+            searchStart = host.index(after: dot)
+        }
+        return nil
     }
 
     nonisolated static func matchedDomain(for url: URL) -> String? {
