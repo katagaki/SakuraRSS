@@ -4,32 +4,28 @@ import Hanami
 enum RedditHelper {
 
     static var isAppInstalled: Bool {
-        guard let url = URL(string: "reddit://") else { return false }
-        return UIApplication.shared.canOpenURL(url)
+        InstalledAppProbe.isInstalled(scheme: "reddit://")
     }
 }
 
 enum XHelper {
 
     static var isAppInstalled: Bool {
-        guard let url = URL(string: "twitter://") else { return false }
-        return UIApplication.shared.canOpenURL(url)
+        InstalledAppProbe.isInstalled(scheme: "twitter://")
     }
 }
 
 enum InstagramHelper {
 
     static var isAppInstalled: Bool {
-        guard let url = URL(string: "instagram://") else { return false }
-        return UIApplication.shared.canOpenURL(url)
+        InstalledAppProbe.isInstalled(scheme: "instagram://")
     }
 }
 
 enum YouTubeHelper {
 
     static var isAppInstalled: Bool {
-        guard let url = URL(string: "youtube://") else { return false }
-        return UIApplication.shared.canOpenURL(url)
+        InstalledAppProbe.isInstalled(scheme: "youtube://")
     }
 
     /// Attempts to open a YouTube URL in the YouTube app.
