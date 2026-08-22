@@ -105,6 +105,12 @@ public extension HTMLContentExtractor {
 
     /// Collapses empty, formatting-only, or separator-only lines in extracted text.
     static func compactWhitespace(in text: String) -> String {
+        mapOutsideCodeSpans(in: text) { segment in
+            compactWhitespaceOutsideCode(in: segment)
+        }.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
+    private static func compactWhitespaceOutsideCode(in text: String) -> String {
         var result = text
         result = result.replacingOccurrences(
             of: #"(?m)^[ \t]*(?:-{3,}|={3,}|_{3,}|\*{3,})[ \t]*$"#,
@@ -126,7 +132,7 @@ public extension HTMLContentExtractor {
             with: "\n\n",
             options: .regularExpression
         )
-        return result.trimmingCharacters(in: .whitespacesAndNewlines)
+        return result
     }
 
     /// Link texts used by partial-feed CTAs at the end of an item
@@ -219,31 +225,48 @@ public extension HTMLContentExtractor {
         return trailingFeedCTATexts.contains(linkText)
     }
 
-    /// Strips any remaining HTML tags that may have leaked through parsing.
-    static func stripRemainingHTMLTags(_ text: String) -> String {
-        var result = text
-        result = result.replacingOccurrences(
-            of: "<[^>]+>",
+    /// Strips tags from *raw* HTML that bypassed the DOM parser, then decodes
+    /// entities. Only ever run before decoding: SwiftSoup's `text()` output is
+    /// already decoded, so stripping there would delete legitimately encoded
+    /// angle brackets such as `&lt;strong&gt;`.
+    static func stripRemainingHTMLTags(_ html: String) -> String {
+        let result = html.replacingOccurrences(
+            of: #"</?[A-Za-z][A-Za-z0-9:-]*(?:\s[^<>]*)?/?>"#,
             with: "",
             options: .regularExpression
         )
-        result = result.replacingOccurrences(of: "&amp;", with: "&")
+        return normalizeExtractedText(decodeHTMLEntities(result))
+    }
+
+    /// `&amp;` is decoded last so double-encoded text such as `&amp;lt;`
+    /// resolves to `&lt;` instead of collapsing all the way to `<`.
+    static func decodeHTMLEntities(_ text: String) -> String {
+        var result = text
         result = result.replacingOccurrences(of: "&lt;", with: "<")
         result = result.replacingOccurrences(of: "&gt;", with: ">")
         result = result.replacingOccurrences(of: "&quot;", with: "\"")
         result = result.replacingOccurrences(of: "&#39;", with: "'")
         result = result.replacingOccurrences(of: "&apos;", with: "'")
         result = result.replacingOccurrences(of: "&nbsp;", with: " ")
-        result = result.replacingOccurrences(
-            of: "[ \\t]+",
-            with: " ",
-            options: .regularExpression
-        )
-        result = result.replacingOccurrences(
-            of: "\\n{3,}",
-            with: "\n\n",
-            options: .regularExpression
-        )
-        return result.trimmingCharacters(in: .whitespacesAndNewlines)
+        result = result.replacingOccurrences(of: "&amp;", with: "&")
+        return result
+    }
+
+    /// Collapses runs of spaces and blank lines in already-decoded text,
+    /// leaving `{{CODE}}` spans untouched.
+    static func normalizeExtractedText(_ text: String) -> String {
+        mapOutsideCodeSpans(in: text) { segment in
+            var result = segment.replacingOccurrences(
+                of: "[ \\t]+",
+                with: " ",
+                options: .regularExpression
+            )
+            result = result.replacingOccurrences(
+                of: "\\n{3,}",
+                with: "\n\n",
+                options: .regularExpression
+            )
+            return result
+        }.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 }

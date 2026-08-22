@@ -65,7 +65,7 @@ public extension HTMLContentExtractor {
         text = ArticleMarker.escape(text)
         text = convertPlaceholdersToMarkdown(text)
         text = stripInvalidURLSupSub(text)
-        text = stripRemainingHTMLTags(text)
+        text = normalizeExtractedText(text)
         return text.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 

@@ -158,7 +158,7 @@ public final class HTMLContentExtractor {
             let nonAdParagraphs = rawParagraphs.filter { !isAdvertisementText($0) }
             let paragraphs = removeTrailingFeedCTAParagraphs(nonAdParagraphs)
             let result = paragraphs.joined(separator: "\n\n")
-            var cleaned = stripRemainingHTMLTags(result)
+            var cleaned = normalizeExtractedText(result)
             cleaned = resolveMarkdownLinks(in: cleaned, baseURL: baseURL)
             cleaned = compactWhitespace(in: cleaned)
             log("Extract", "extractText: SwiftSoup produced \(paragraphs.count) paragraphs (\(cleaned.count) chars)")
