@@ -41,10 +41,6 @@ public nonisolated extension DatabaseManager {
 
     // MARK: - Upload Bookkeeping
 
-    func setItemStatusSyncID(url: String, syncID: String) {
-        _ = try? database.run(articles.filter(articleURL == url).update(articleStatusSyncID <- syncID))
-    }
-
     func setItemStatusSyncIDs(_ pairs: [(url: String, syncID: String)]) {
         guard !pairs.isEmpty else { return }
         _ = try? database.transaction {
