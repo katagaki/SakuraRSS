@@ -23,6 +23,8 @@ struct FeedArticlesView: View {
     @State private var fetchedArticles: [Article] = []
     @State private var undatedTail: [Article] = []
     @State private var hasLoadedWindow = false
+    @State private var lastLoadedFeedID: Int64?
+    @State private var lastLoadedHideViewed: Bool?
 
     private var batchingMode: BatchingMode {
         DoomscrollingMode.effectiveBatchingMode(storedBatchingMode)
@@ -216,41 +218,36 @@ struct FeedArticlesView: View {
         .refreshPromptOverlay(isVisible: visibility.hasPendingRefresh) {
             acceptPendingRefresh()
         }
-        .onAppear {
-            // swiftlint:disable:next line_length
-            log("FeedArticlesView", "onAppear id=\(feed.id) title=\(feed.title) hasInitializedSinceDate=\(hasInitializedSinceDate)")
-            reloadPreloadedEntries()
-            if !hasInitializedSinceDate {
-                loadedSinceDate = batchingMode.initialSinceDate(
-                    latestArticleDate: latestArticleDateForFeed()
-                )
-                hasInitializedSinceDate = true
-            }
-        }
         .task(id: feed.id) {
             await loadProminentColors()
         }
         .onChange(of: feedManager.iconRevision) {
             Task { await loadProminentColors() }
         }
-        .onChange(of: feed.id) { _, _ in
-            reloadPreloadedEntries()
-            loadedSinceDate = batchingMode.initialSinceDate(
-                latestArticleDate: latestArticleDateForFeed()
-            )
-            loadedCount = batchingMode.initialCount()
-            visibility.capture(from: currentRawArticles(), isEnabled: hideViewedContent)
+        .task(id: FeedPreloadKey(
+            feedID: feed.id,
+            revision: feedManager.dataRevision,
+            hideViewed: hideViewedContent
+        )) {
+            let priorFeedID = lastLoadedFeedID
+            let priorHideViewed = lastLoadedHideViewed
+            await reloadPreloadedEntries()
+            if Task.isCancelled { return }
+            let feedChanged = priorFeedID != feed.id
+            let hideViewedChanged = priorHideViewed != hideViewedContent
+            if feedChanged || hideViewedChanged || !hasInitializedSinceDate {
+                loadedSinceDate = batchingMode.initialSinceDate(
+                    latestArticleDate: latestArticleDateForFeed()
+                )
+                loadedCount = batchingMode.initialCount()
+                visibility.capture(from: currentRawArticles(), isEnabled: hideViewedContent)
+                hasInitializedSinceDate = true
+            }
+            lastLoadedFeedID = feed.id
+            lastLoadedHideViewed = hideViewedContent
         }
         .onChange(of: slicedIDs) { _, _ in
             refreshWindowedArticles()
-        }
-        .onChange(of: feedManager.dataRevision) { _, _ in
-            reloadPreloadedEntries()
-            refreshWindowedArticles()
-            refreshUndatedTail()
-        }
-        .onChange(of: hideViewedContent) { _, _ in
-            reloadPreloadedEntries()
         }
         .onChange(of: batchingMode) { _, newMode in
             loadedSinceDate = newMode.initialSinceDate(
@@ -302,12 +299,13 @@ extension FeedArticlesView {
         }
     }
 
-    func reloadPreloadedEntries() {
-        let entries = feedManager.preloadedArticleEntries(
+    func reloadPreloadedEntries() async {
+        let entries = await feedManager.preloadedArticleEntriesAsync(
             for: feed,
             requireUnread: hideViewedContent
         )
-        if entries.isEmpty, !preloadedEntries.isEmpty {
+        if Task.isCancelled { return }
+        if entries.isEmpty, !preloadedEntries.isEmpty, lastLoadedFeedID == feed.id {
             return
         }
         preloadedEntries = entries
@@ -337,7 +335,7 @@ extension FeedArticlesView {
             skipImagePreload: false,
             runNLP: true
         )
-        reloadPreloadedEntries()
+        await reloadPreloadedEntries()
         withAnimation(.smooth.speed(2.0)) {
             visibility.endRefresh(from: rawArticles, isEnabled: hideViewedContent)
         }
@@ -360,4 +358,10 @@ extension FeedArticlesView {
         let source: UIImage? = image ?? currentFeed.acronymIcon.flatMap { UIImage(data: $0) }
         prominentColors = source?.prominentColors ?? []
     }
+}
+
+private struct FeedPreloadKey: Hashable {
+    let feedID: Int64
+    let revision: Int
+    let hideViewed: Bool
 }
