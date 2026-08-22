@@ -12,8 +12,9 @@ struct InboxArticleRow: View {
     @State private var isCircleIcon = false
 
     var body: some View {
-        HStack(alignment: .center, spacing: 8) {
-            UnreadDotView(isRead: feedManager.isRead(article))
+        let isRead = feedManager.isRead(article)
+        return HStack(alignment: .center, spacing: 8) {
+            UnreadDotView(isRead: isRead)
                 .padding(.leading, -4)
                 .padding(.top, 6)
 
@@ -62,9 +63,9 @@ struct InboxArticleRow: View {
                 if isSocialFeed, let feedName {
                     Text(feedName)
                         .font(.body)
-                        .fontWeight(feedManager.isRead(article) ? .regular : .semibold)
+                        .fontWeight(isRead ? .regular : .semibold)
                         .lineLimit(1)
-                        .foregroundStyle(feedManager.isRead(article) ? .secondary : .primary)
+                        .foregroundStyle(isRead ? .secondary : .primary)
 
                     Text(article.title)
                         .font(.subheadline)
@@ -73,9 +74,9 @@ struct InboxArticleRow: View {
                 } else {
                     Text(article.title)
                         .font(.body)
-                        .fontWeight(feedManager.isRead(article) ? .regular : .semibold)
+                        .fontWeight(isRead ? .regular : .semibold)
                         .lineLimit(1)
-                        .foregroundStyle(feedManager.isRead(article) ? .secondary : .primary)
+                        .foregroundStyle(isRead ? .secondary : .primary)
 
                     if article.hasMeaningfulSummary, let summary = article.summary {
                         SummaryText(summary: summary)

@@ -11,11 +11,12 @@ struct CompactStyleView: View {
     var usesStackLayout: Bool = false
 
     private func articleLabel(for article: Article) -> some View {
-        HStack(alignment: .top) {
+        let isRead = feedManager.isRead(article)
+        return HStack(alignment: .top) {
             Text(article.title)
                 .font(.caption)
-                .fontWeight(feedManager.isRead(article) ? .regular : .medium)
-                .foregroundStyle(feedManager.isRead(article) ? .secondary : .primary)
+                .fontWeight(isRead ? .regular : .medium)
+                .foregroundStyle(isRead ? .secondary : .primary)
                 .lineLimit(3)
                 .multilineTextAlignment(.leading)
                 .frame(maxWidth: .infinity, alignment: .leading)
