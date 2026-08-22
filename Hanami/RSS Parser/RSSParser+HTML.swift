@@ -1,41 +1,5 @@
 import Foundation
 
-// MARK: - HTML Entity Decoding
-
-nonisolated private let htmlNamedEntities: [String: String] = [
-    "amp": "&", "lt": "<", "gt": ">", "quot": "\"", "apos": "'",
-    "nbsp": "\u{00A0}", "iexcl": "\u{00A1}", "cent": "\u{00A2}",
-    "pound": "\u{00A3}", "curren": "\u{00A4}", "yen": "\u{00A5}",
-    "brvbar": "\u{00A6}", "sect": "\u{00A7}", "uml": "\u{00A8}",
-    "copy": "\u{00A9}", "ordf": "\u{00AA}", "laquo": "\u{00AB}",
-    "not": "\u{00AC}", "shy": "\u{00AD}", "reg": "\u{00AE}",
-    "macr": "\u{00AF}", "deg": "\u{00B0}", "plusmn": "\u{00B1}",
-    "sup2": "\u{00B2}", "sup3": "\u{00B3}", "acute": "\u{00B4}",
-    "micro": "\u{00B5}", "para": "\u{00B6}", "middot": "\u{00B7}",
-    "cedil": "\u{00B8}", "sup1": "\u{00B9}", "ordm": "\u{00BA}",
-    "raquo": "\u{00BB}", "frac14": "\u{00BC}", "frac12": "\u{00BD}",
-    "frac34": "\u{00BE}", "iquest": "\u{00BF}",
-    "times": "\u{00D7}", "divide": "\u{00F7}",
-    "ndash": "\u{2013}", "mdash": "\u{2014}",
-    "lsquo": "\u{2018}", "rsquo": "\u{2019}",
-    "sbquo": "\u{201A}", "ldquo": "\u{201C}", "rdquo": "\u{201D}",
-    "bdquo": "\u{201E}", "dagger": "\u{2020}", "Dagger": "\u{2021}",
-    "bull": "\u{2022}", "hellip": "\u{2026}",
-    "permil": "\u{2030}", "prime": "\u{2032}", "Prime": "\u{2033}",
-    "lsaquo": "\u{2039}", "rsaquo": "\u{203A}",
-    "oline": "\u{203E}", "frasl": "\u{2044}",
-    "euro": "\u{20AC}", "trade": "\u{2122}",
-    "larr": "\u{2190}", "uarr": "\u{2191}", "rarr": "\u{2192}", "darr": "\u{2193}",
-    "harr": "\u{2194}", "lArr": "\u{21D0}", "uArr": "\u{21D1}",
-    "rArr": "\u{21D2}", "dArr": "\u{21D3}", "hArr": "\u{21D4}",
-    "minus": "\u{2212}", "lowast": "\u{2217}",
-    "le": "\u{2264}", "ge": "\u{2265}", "ne": "\u{2260}",
-    "equiv": "\u{2261}", "sum": "\u{2211}", "prod": "\u{220F}",
-    "infin": "\u{221E}", "radic": "\u{221A}",
-    "spades": "\u{2660}", "clubs": "\u{2663}",
-    "hearts": "\u{2665}", "diams": "\u{2666}"
-]
-
 nonisolated private let rssLinkRegex = try? NSRegularExpression(
     pattern: #"<a\s[^>]*href=["']([^"']+)["'][^>]*>(.*?)</a>"#
 )
@@ -49,91 +13,66 @@ nonisolated private let rssPreTagRegex = try? NSRegularExpression(
     pattern: #"<pre(?:\s[^>]*)?>(?:\s*<code(?:\s[^>]*)?>)?(.*?)(?:</code>\s*)?</pre>"#,
     options: [.caseInsensitive, .dotMatchesLineSeparators]
 )
-nonisolated private let rssImgTagRegex = try? NSRegularExpression(
-    pattern: #"<img\s[^>]*src=["']([^"']+)["'][^>]*>"#,
-    options: .caseInsensitive
+nonisolated private let rssLineBreakRegex = try? NSRegularExpression(
+    pattern: #"<br\s*/?>"#, options: .caseInsensitive
 )
+nonisolated private let rssBlockTagRegex = try? NSRegularExpression(
+    pattern: #"</(?:p|div|li)>"#, options: .caseInsensitive
+)
+nonisolated private let rssBlankLineRegex = try? NSRegularExpression(pattern: #"\n{3,}"#)
+nonisolated private let rssWhitespaceRegex = try? NSRegularExpression(pattern: #"\s+"#)
+
+nonisolated private let rssInlineMarkupRules: [(regex: NSRegularExpression, template: String)] = {
+    var specs: [(String, String)] = [
+        (#"<h1(?:\s[^>]*)?>(.+?)</h1>"#, "\n# $1\n"),
+        (#"<h2(?:\s[^>]*)?>(.+?)</h2>"#, "\n## $1\n"),
+        (#"<h3(?:\s[^>]*)?>(.+?)</h3>"#, "\n### $1\n")
+    ]
+    for tag in ["h4", "h5", "h6"] {
+        specs.append(("<\(tag)(?:\\s[^>]*)?>(.+?)</\(tag)>", "\n**$1**\n"))
+    }
+    for tag in ["strong", "b"] {
+        specs.append(("<\(tag)(?:\\s[^>]*)?>(.+?)</\(tag)>", "**$1**"))
+    }
+    for tag in ["em", "i"] {
+        specs.append(("<\(tag)(?:\\s[^>]*)?>(.+?)</\(tag)>", "*$1*"))
+    }
+    specs.append((#"<sup(?:\s[^>]*)?>(.+?)</sup>"#, "{{SUP}}$1{{/SUP}}"))
+    specs.append((#"<sub(?:\s[^>]*)?>(.+?)</sub>"#, "{{SUB}}$1{{/SUB}}"))
+    specs.append((#"<code(?:\s[^>]*)?>(.+?)</code>"#, "`$1`"))
+
+    return specs.compactMap { pattern, template in
+        guard let regex = try? NSRegularExpression(
+            pattern: pattern, options: .caseInsensitive
+        ) else { return nil }
+        return (regex, template)
+    }
+}()
 
 public nonisolated extension RSSParser {
 
-    func decodeHTMLEntities(_ string: String) -> String {
-        guard string.contains("&") else { return string }
-
-        var result = ""
-        var index = string.startIndex
-
-        while index < string.endIndex {
-            if string[index] == "&",
-               let semiIndex = string[index...].firstIndex(of: ";"),
-               semiIndex > string.index(after: index) {
-                let entity = String(string[string.index(after: index)..<semiIndex])
-
-                if let decoded = decodeEntity(entity) {
-                    result.append(decoded)
-                    index = string.index(after: semiIndex)
-                    continue
-                }
-            }
-
-            result.append(string[index])
-            index = string.index(after: index)
-        }
-
-        return result
-    }
-
-    func decodeEntity(_ entity: String) -> String? {
-        if entity.hasPrefix("#x") || entity.hasPrefix("#X") {
-            let hex = String(entity.dropFirst(2))
-            if let code = UInt32(hex, radix: 16), let scalar = Unicode.Scalar(code) {
-                return String(Character(scalar))
-            }
-        } else if entity.hasPrefix("#") {
-            let decimal = String(entity.dropFirst())
-            if let code = UInt32(decimal), let scalar = Unicode.Scalar(code) {
-                return String(Character(scalar))
-            }
-        } else if let replacement = htmlNamedEntities[entity] {
-            return replacement
-        }
-        return nil
-    }
-
     func cleanHTML(_ html: String) -> String? {
-        let stripped = html.replacingOccurrences(of: "<[^>]+>", with: "", options: .regularExpression)
-        let decoded = decodeHTMLEntities(stripped)
+        let decoded = RSSParser.decodeHTMLEntities(RSSParser.stripHTMLTags(html))
             .trimmingCharacters(in: .whitespacesAndNewlines)
         return decoded.isEmpty ? nil : decoded
     }
 
     func cleanHTMLPreservingStructure(_ html: String, baseURL: URL? = nil) -> String? {
         guard html.contains("<") else {
-            let decoded = decodeHTMLEntities(html).trimmingCharacters(in: .whitespacesAndNewlines)
+            let decoded = RSSParser.decodeHTMLEntities(html)
+                .trimmingCharacters(in: .whitespacesAndNewlines)
             return decoded.isEmpty ? nil : decoded
         }
 
-        var result = html
-        result = result.replacingOccurrences(
-            of: #"<br\s*/?>"#, with: "\n", options: .regularExpression
-        )
+        var result = RSSParser.replaceMatches(rssLineBreakRegex, in: html, with: "\n")
         result = convertLinksToMarkdown(result, baseURL: baseURL)
         result = convertInlineMarkup(result)
         result = stripInvalidURLSupSub(result)
-
-        let blockTags = ["p", "div", "li"]
-        for tag in blockTags {
-            result = result.replacingOccurrences(
-                of: "</\(tag)>", with: "\n", options: .caseInsensitive
-            )
-        }
-
+        result = RSSParser.replaceMatches(rssBlockTagRegex, in: result, with: "\n")
         result = replacePreTagsWithMarkers(result)
         result = replaceImgTagsWithMarkers(result)
-        result = result.replacingOccurrences(of: "<[^>]+>", with: "", options: .regularExpression)
-        result = decodeHTMLEntities(result)
-        result = result.replacingOccurrences(
-            of: #"\n{3,}"#, with: "\n\n", options: .regularExpression
-        )
+        result = RSSParser.decodeHTMLEntities(RSSParser.stripHTMLTags(result))
+        result = RSSParser.replaceMatches(rssBlankLineRegex, in: result, with: "\n\n")
 
         result = result
             .components(separatedBy: "\n")
@@ -142,6 +81,16 @@ public nonisolated extension RSSParser {
 
         result = result.trimmingCharacters(in: .whitespacesAndNewlines)
         return result.isEmpty ? nil : result
+    }
+
+    internal static func replaceMatches(
+        _ regex: NSRegularExpression?, in text: String, with template: String
+    ) -> String {
+        guard let regex else { return text }
+        let nsText = text as NSString
+        return regex.stringByReplacingMatches(
+            in: text, range: NSRange(location: 0, length: nsText.length), withTemplate: template
+        )
     }
 
     private func convertLinksToMarkdown(_ text: String, baseURL: URL? = nil) -> String {
@@ -154,16 +103,16 @@ public nonisolated extension RSSParser {
         )
         for match in linkMatches.reversed() {
             var url = nsResult.substring(with: match.range(at: 1))
-            let linkText = nsResult.substring(with: match.range(at: 2))
-                .replacingOccurrences(of: "\\s+", with: " ", options: .regularExpression)
-                .trimmingCharacters(in: .whitespacesAndNewlines)
+            let linkText = RSSParser.replaceMatches(
+                rssWhitespaceRegex, in: nsResult.substring(with: match.range(at: 2)), with: " "
+            ).trimmingCharacters(in: .whitespacesAndNewlines)
             if linkText.isEmpty {
                 result = (result as NSString).replacingCharacters(in: match.range, with: "")
             } else {
                 url = url.markdownLinkSafeURL
                 if !url.hasPrefix("http://") && !url.hasPrefix("https://") {
-                    if url.hasPrefix("//"), let abs = URL(string: "https:\(url)") {
-                        url = abs.absoluteString
+                    if url.hasPrefix("//"), let absolute = URL(string: "https:\(url)") {
+                        url = absolute.absoluteString
                     } else if let baseURL, let resolved = URL(string: url, relativeTo: baseURL) {
                         url = resolved.absoluteString
                     }
@@ -180,85 +129,10 @@ public nonisolated extension RSSParser {
 
     private func convertInlineMarkup(_ text: String) -> String {
         var result = text
-
-        result = result.replacingOccurrences(
-            of: #"<h1(?:\s[^>]*)?>(.+?)</h1>"#, with: "\n# $1\n",
-            options: [.regularExpression, .caseInsensitive]
-        )
-        result = result.replacingOccurrences(
-            of: #"<h2(?:\s[^>]*)?>(.+?)</h2>"#, with: "\n## $1\n",
-            options: [.regularExpression, .caseInsensitive]
-        )
-        result = result.replacingOccurrences(
-            of: #"<h3(?:\s[^>]*)?>(.+?)</h3>"#, with: "\n### $1\n",
-            options: [.regularExpression, .caseInsensitive]
-        )
-        for tag in ["h4", "h5", "h6"] {
-            result = result.replacingOccurrences(
-                of: "<\(tag)(?:\\s[^>]*)?>(.+?)</\(tag)>", with: "\n**$1**\n",
-                options: [.regularExpression, .caseInsensitive]
-            )
+        for rule in rssInlineMarkupRules {
+            result = RSSParser.replaceMatches(rule.regex, in: result, with: rule.template)
         }
-        for tag in ["strong", "b"] {
-            result = result.replacingOccurrences(
-                of: "<\(tag)(?:\\s[^>]*)?>(.+?)</\(tag)>", with: "**$1**",
-                options: [.regularExpression, .caseInsensitive]
-            )
-        }
-        for tag in ["em"] {
-            result = result.replacingOccurrences(
-                of: "<\(tag)(?:\\s[^>]*)?>(.+?)</\(tag)>", with: "*$1*",
-                options: [.regularExpression, .caseInsensitive]
-            )
-        }
-        result = result.replacingOccurrences(
-            of: #"<i(?:\s[^>]*)?>(.+?)</i>"#, with: "*$1*",
-            options: [.regularExpression, .caseInsensitive]
-        )
-        result = result.replacingOccurrences(
-            of: #"<sup(?:\s[^>]*)?>(.+?)</sup>"#, with: "{{SUP}}$1{{/SUP}}",
-            options: [.regularExpression, .caseInsensitive]
-        )
-        result = result.replacingOccurrences(
-            of: #"<sub(?:\s[^>]*)?>(.+?)</sub>"#, with: "{{SUB}}$1{{/SUB}}",
-            options: [.regularExpression, .caseInsensitive]
-        )
-        result = result.replacingOccurrences(
-            of: #"<code(?:\s[^>]*)?>(.+?)</code>"#, with: "`$1`",
-            options: [.regularExpression, .caseInsensitive]
-        )
         return result
-    }
-
-    func extractImageFromHTML(_ html: String) -> String? {
-        let patterns = [
-            #"<img[^>]+src="([^"]+)""#,
-            #"<img[^>]+src='([^']+)'"#
-        ]
-        for pattern in patterns {
-            if let range = html.range(of: pattern, options: .regularExpression) {
-                let match = html[range]
-                if let srcRange = match.range(of: #"src=["']([^"']+)["']"#, options: .regularExpression) {
-                    let src = match[srcRange]
-                    let url = src.dropFirst(5).dropLast(1)
-                    let urlString = String(url)
-                    if isLikelyHeroImage(urlString) {
-                        return urlString
-                    }
-                }
-            }
-        }
-        for pattern in patterns {
-            if let range = html.range(of: pattern, options: .regularExpression) {
-                let match = html[range]
-                if let srcRange = match.range(of: #"src=["']([^"']+)["']"#, options: .regularExpression) {
-                    let src = match[srcRange]
-                    let url = src.dropFirst(5).dropLast(1)
-                    return String(url)
-                }
-            }
-        }
-        return nil
     }
 
     func stripInvalidURLSupSub(_ text: String) -> String {
@@ -293,7 +167,7 @@ public nonisolated extension RSSParser {
         let matches = regex.matches(in: result, range: NSRange(location: 0, length: nsResult.length))
         for match in matches.reversed() {
             var content = nsResult.substring(with: match.range(at: 1))
-            content = content.replacingOccurrences(of: "<[^>]+>", with: "", options: .regularExpression)
+            content = RSSParser.stripHTMLTags(content)
             content = content.trimmingCharacters(in: CharacterSet(charactersIn: "\n"))
             if !content.isEmpty {
                 let replacement = "\n{{CODE}}\(content){{/CODE}}\n"
@@ -303,40 +177,8 @@ public nonisolated extension RSSParser {
         return result
     }
 
-    private func replaceImgTagsWithMarkers(_ text: String) -> String {
-        guard let imgRegex = rssImgTagRegex else { return text }
-        var result = text
-        let nsResult = result as NSString
-        let matches = imgRegex.matches(in: result, range: NSRange(location: 0, length: nsResult.length))
-        for match in matches.reversed() {
-            let imgURL = nsResult.substring(with: match.range(at: 1))
-            if isLikelyHeroImage(imgURL) {
-                let replacement = "\n{{IMG}}\(imgURL){{/IMG}}\n"
-                result = (result as NSString).replacingCharacters(in: match.range, with: replacement)
-            } else {
-                result = (result as NSString).replacingCharacters(in: match.range, with: "")
-            }
-        }
-        return result
-    }
-
     private func isAdvertisementLabel(_ text: String) -> Bool {
         let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
         return trimmed == "advertisement" || trimmed == "advertising"
-    }
-
-    private func isLikelyHeroImage(_ url: String) -> Bool {
-        let lowered = url.lowercased()
-        let skipPatterns = [
-            "gravatar.com", "pixel", "spacer", "blank",
-            "1x1", "transparent", "tracking", "beacon",
-            ".gif", "feeds.feedburner.com", "badge",
-            "icon", "emoji", "smiley", "avatar",
-            "ad.", "ads.", "doubleclick", "googlesyndication"
-        ]
-        for pattern in skipPatterns where lowered.contains(pattern) {
-            return false
-        }
-        return true
     }
 }

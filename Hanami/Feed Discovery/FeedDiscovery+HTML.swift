@@ -31,7 +31,7 @@ public extension FeedDiscovery {
 
                 let href = extractAttribute("href", from: tag)
                 let rawTitle = extractAttribute("title", from: tag) ?? "RSS Feed"
-                let title = RSSParser().decodeHTMLEntities(rawTitle)
+                let title = RSSParser.decodeHTMLEntities(rawTitle)
 
                 if let href = href, let feedURL = resolveURL(href, base: baseURL) {
                     feeds.append(DiscoveredFeed(

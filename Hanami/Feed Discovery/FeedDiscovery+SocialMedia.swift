@@ -156,7 +156,7 @@ public extension FeedDiscovery {
                ) {
                 let raw = String(xml[start.upperBound..<end.lowerBound])
                     .trimmingCharacters(in: .whitespacesAndNewlines)
-                return raw.isEmpty ? nil : RSSParser().decodeHTMLEntities(raw)
+                return raw.isEmpty ? nil : RSSParser.decodeHTMLEntities(raw)
             }
         } catch {
             return nil

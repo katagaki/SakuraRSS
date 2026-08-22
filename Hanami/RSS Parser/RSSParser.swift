@@ -32,7 +32,7 @@ public nonisolated final class RSSParser: NSObject, XMLParserDelegate, @unchecke
         guard parser.parse() else { return nil }
         let trimmedGenerator = feedGenerator.trimmingCharacters(in: .whitespacesAndNewlines)
         return ParsedFeed(
-            title: decodeHTMLEntities(feedTitle.trimmingCharacters(in: .whitespacesAndNewlines)),
+            title: RSSParser.decodeHTMLEntities(feedTitle.trimmingCharacters(in: .whitespacesAndNewlines)),
             siteURL: feedLink.trimmingCharacters(in: .whitespacesAndNewlines),
             description: cleanHTMLPreservingStructure(
                 feedDescription.trimmingCharacters(in: .whitespacesAndNewlines),
@@ -120,7 +120,7 @@ public nonisolated final class RSSParser: NSObject, XMLParserDelegate, @unchecke
         let articleURL = trimmedLink.isEmpty ? trimmedAudioURL : trimmedLink
         guard !articleURL.isEmpty else { return }
 
-        let title = decodeHTMLEntities(currentTitle.trimmingCharacters(in: .whitespacesAndNewlines))
+        let title = RSSParser.decodeHTMLEntities(currentTitle.trimmingCharacters(in: .whitespacesAndNewlines))
         let resolvedTitle = title.isEmpty
             ? (cleanHTML(currentDescription).map { String($0.prefix(100)) } ?? "")
             : title
@@ -129,7 +129,7 @@ public nonisolated final class RSSParser: NSObject, XMLParserDelegate, @unchecke
         parsedArticles.append(ParsedArticle(
             title: resolvedTitle,
             url: articleURL,
-            author: trimmedAuthor.isEmpty ? nil : decodeHTMLEntities(trimmedAuthor),
+            author: trimmedAuthor.isEmpty ? nil : RSSParser.decodeHTMLEntities(trimmedAuthor),
             summary: cleanHTMLPreservingStructure(
                 currentDescription.trimmingCharacters(in: .whitespacesAndNewlines),
                 baseURL: URL(string: articleURL)
