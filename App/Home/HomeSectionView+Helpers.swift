@@ -39,6 +39,10 @@ extension HomeSectionView {
     }
 
     var scopeKey: String {
+        scopeKey(for: source)
+    }
+
+    func scopeKey(for source: HomeContentSource) -> String {
         switch source {
         case .section(let section):
             if let section { return "section.\(section.rawValue)" }
@@ -51,6 +55,10 @@ extension HomeSectionView {
     }
 
     var scopedFeeds: [Feed] {
+        scopedFeeds(for: source)
+    }
+
+    func scopedFeeds(for source: HomeContentSource) -> [Feed] {
         switch source {
         case .section(let section):
             guard let section else { return feedManager.feeds }

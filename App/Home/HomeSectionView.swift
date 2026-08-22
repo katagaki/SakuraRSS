@@ -69,12 +69,12 @@ struct HomeSectionView: View {
     @State private var loadedSinceDate: Date = Date(timeIntervalSince1970: 0)
     @State private var loadedCount: Int = BatchingMode.current().initialCount()
     @State private var hasInitializedSinceDate = false
-    @State private var preloadedEntries: [ArticleIDEntry] = []
+    @State var preloadedEntries: [ArticleIDEntry] = []
     @AppStorage("Instagram.HideReels") private var hideInstagramReels: Bool = false
     @AppStorage("Articles.HideViewedContent") private var storedHideViewedContent: Bool = false
-    @State private var visibility = ArticleVisibilityTracker()
+    @State var visibility = ArticleVisibilityTracker()
     @State private var scrollToTopTick: Int = 0
-    @State private var lastLoadedSource: HomeContentSource?
+    @State var lastLoadedSource: HomeContentSource?
     @State private var lastLoadedHideViewed: Bool?
     @State private var fetchedArticles: [Article] = []
     @State private var hasLoadedWindow = false
@@ -86,7 +86,7 @@ struct HomeSectionView: View {
         DoomscrollingMode.effectiveBatchingMode(storedBatchingMode)
     }
 
-    private var hideViewedContent: Bool {
+    var hideViewedContent: Bool {
         DoomscrollingMode.effectiveHideViewedContent(storedHideViewedContent)
     }
 
@@ -122,7 +122,7 @@ struct HomeSectionView: View {
 
     /// Live assembly that performs the database fetch; used for the initial
     /// frame and the visibility-capture sites that need a current snapshot.
-    private func currentRawArticles() -> [Article] {
+    func currentRawArticles() -> [Article] {
         assembleArticles(feedManager.articles(withPreloadedIDs: slicedIDs))
     }
 
@@ -133,91 +133,9 @@ struct HomeSectionView: View {
         return assembleArticles(fetchedArticles)
     }
 
-    private func refreshWindowedArticles() {
+    func refreshWindowedArticles() {
         fetchedArticles = feedManager.articles(withPreloadedIDs: slicedIDs)
         hasLoadedWindow = true
-    }
-
-    private func reloadPreloadedEntries() async {
-        let entries: [ArticleIDEntry]
-        switch source {
-        case .section(let section):
-            if let section {
-                entries = await feedManager.preloadedArticleEntriesAsync(
-                    for: section,
-                    requireUnread: hideViewedContent
-                )
-            } else {
-                entries = await feedManager.preloadedArticleEntriesAsync(
-                    requireUnread: hideViewedContent
-                )
-            }
-        case .list(let list):
-            entries = await feedManager.preloadedArticleEntriesAsync(
-                for: list,
-                requireUnread: hideViewedContent
-            )
-        case .topic(let name):
-            entries = await feedManager.preloadedArticleEntriesAsync(
-                forTopic: name,
-                requireUnread: hideViewedContent
-            )
-        }
-        if Task.isCancelled { return }
-        if entries.isEmpty,
-           !preloadedEntries.isEmpty,
-           lastLoadedSource == source {
-            return
-        }
-        preloadedEntries = entries
-        refreshWindowedArticles()
-        if hideViewedContent, visibility.visibleIDs == nil, !preloadedEntries.isEmpty {
-            visibility.capture(from: currentRawArticles(), isEnabled: hideViewedContent)
-        }
-    }
-
-    private func performRefresh() async {
-        guard !scopedRefreshState.hasActiveProgress,
-              !feedManager.hasActiveRefreshProgress else { return }
-        feedManager.flushDebouncedReads()
-        withAnimation(.smooth.speed(2.0)) {
-            visibility.beginRefresh(
-                from: currentRawArticles(),
-                isEnabled: hideViewedContent,
-                recaptureVisible: true
-            )
-        }
-        await feedManager.refreshFeeds(scope: scopeKey, feeds: scopedFeeds)
-        await reloadPreloadedEntries()
-        withAnimation(.smooth.speed(2.0)) {
-            visibility.endRefresh(from: rawArticles, isEnabled: hideViewedContent)
-        }
-    }
-
-    /// Kicks off a refresh and returns immediately so SwiftUI dismisses the
-    /// pull-to-refresh indicator; in-flight progress shows via the toolbar donut.
-    /// Scope and feeds are passed in rather than read from `self` so a stale
-    /// `.refreshable` closure captured before a section switch can't kick off
-    /// the previous section's refresh.
-    private func startRefreshWithoutBlocking(scope: String, feeds: [Feed]) {
-        let activeScopedState = feedManager.scopedRefreshes[scope] ?? ScopedRefreshState()
-        guard !activeScopedState.hasActiveProgress,
-              !feedManager.hasActiveRefreshProgress else { return }
-        feedManager.flushDebouncedReads()
-        withAnimation(.smooth.speed(2.0)) {
-            visibility.beginRefresh(
-                from: currentRawArticles(),
-                isEnabled: hideViewedContent,
-                recaptureVisible: true
-            )
-        }
-        Task { @MainActor in
-            await feedManager.refreshFeeds(scope: scope, feeds: feeds)
-            await reloadPreloadedEntries()
-            withAnimation(.smooth.speed(2.0)) {
-                visibility.endRefresh(from: rawArticles, isEnabled: hideViewedContent)
-            }
-        }
     }
 
     var body: some View {
@@ -236,8 +154,8 @@ struct HomeSectionView: View {
             effectiveStyleBinding: effectiveStyleBinding,
             onScrollOffsetChange: handleScrollOffsetChange
         )
-        .refreshable { [scope = scopeKey, feeds = scopedFeeds] in
-            startRefreshWithoutBlocking(scope: scope, feeds: feeds)
+        .refreshable { [source] in
+            startRefreshWithoutBlocking(source: source)
         }
         .environment(\.articleListBottomInset, markAllReadBottomInset)
         .overlay(alignment: .bottom) {
