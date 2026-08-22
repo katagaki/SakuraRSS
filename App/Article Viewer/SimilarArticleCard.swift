@@ -41,7 +41,7 @@ struct SimilarArticleCard: View {
     @ViewBuilder
     private var cardVisual: some View {
         if let imageURL = item.article.imageURL, let url = URL(string: imageURL) {
-            CachedAsyncImage(url: url, alignment: .top) {
+            CachedAsyncImage(url: url, maxPixelSize: 480, alignment: .top) {
                 thumbnailBackground
             }
         } else {
