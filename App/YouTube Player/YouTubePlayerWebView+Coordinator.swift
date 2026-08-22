@@ -133,14 +133,12 @@ extension YouTubePlayerWebView {
             if host.contains("youtube.com") || host.contains("youtu.be")
                 || host.contains("google.com") || host.contains("accounts.google.com")
                 || host.contains("consent.youtube.com") {
-                if url.path.hasPrefix("/shorts/") {
-                    let normalized = YouTubePlayerWebView.normalizedURL(url)
-                    if normalized != url {
-                        DispatchQueue.main.async {
-                            webView.load(URLRequest(url: normalized))
-                        }
-                        return .cancel
+                let normalized = YouTubePlayerWebView.normalizedURL(url)
+                if normalized != url {
+                    DispatchQueue.main.async {
+                        webView.load(URLRequest(url: normalized))
                     }
+                    return .cancel
                 }
                 return .allow
             }

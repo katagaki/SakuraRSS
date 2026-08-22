@@ -88,10 +88,12 @@ public enum SponsorBlockClient {
         let host = components.host?.lowercased() ?? ""
 
         if host.contains("youtube.com") {
-            if components.path.hasPrefix("/shorts/") {
-                let parts = components.path.split(separator: "/")
-                if parts.count >= 2 {
-                    return String(parts[1])
+            for prefix in ["/shorts/", "/live/", "/embed/"]
+            where components.path.hasPrefix(prefix) {
+                let identifier = String(components.path.dropFirst(prefix.count))
+                    .split(separator: "/").first.map(String.init)
+                if let identifier, !identifier.isEmpty {
+                    return identifier
                 }
             }
             return components.queryItems?.first(where: { $0.name == "v" })?.value

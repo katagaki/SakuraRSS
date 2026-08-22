@@ -154,11 +154,14 @@ struct YouTubePlayerWebView: UIViewRepresentable {
 
     func updateUIView(_ uiView: WKWebView, context: Context) {}
 
-    /// Rewrites Shorts URLs to the regular watch URL so the WebView uses the standard player.
+    /// Rewrites Shorts and live URLs to the regular watch URL so the WebView
+    /// uses the standard player.
     static func normalizedURL(_ url: URL) -> URL {
         let path = url.path
-        guard path.hasPrefix("/shorts/") else { return url }
-        let videoID = String(path.dropFirst("/shorts/".count))
+        guard let prefix = ["/shorts/", "/live/"].first(where: { path.hasPrefix($0) }) else {
+            return url
+        }
+        let videoID = String(path.dropFirst(prefix.count))
             .split(separator: "/").first.map(String.init) ?? ""
         guard !videoID.isEmpty,
               var components = URLComponents(url: url, resolvingAgainstBaseURL: false) else {
