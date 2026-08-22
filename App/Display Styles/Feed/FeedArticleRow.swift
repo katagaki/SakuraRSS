@@ -12,6 +12,10 @@ struct FeedArticleRow: View {
     @State private var feedName: String?
     @State private var acronymIcon: UIImage?
     @State private var skipIconInset = false
+    @State private var isCircleIcon = false
+    @State private var allowsUnlimitedTitleLines = false
+    @State private var showsPlayBadge = false
+    @State private var shouldCenterImage = false
     @State private var feed: Feed?
     @State private var showSafari = false
     @State private var imageAspectRatio: CGFloat?
@@ -95,7 +99,7 @@ struct FeedArticleRow: View {
                 }
                 .font(.subheadline)
                 .foregroundStyle(.primary)
-                .lineLimit(feed?.isXFeed == true || feed?.isInstagramFeed == true ? nil : 3)
+                .lineLimit(allowsUnlimitedTitleLines ? nil : 3)
                 .truncationMode(.tail)
 
                 if article.carouselImageURLs.count > 1 {
@@ -113,13 +117,10 @@ struct FeedArticleRow: View {
                         .padding(.top, 4)
                     }
                 } else if let loadedImage {
-                    let shouldCenter = feed.map {
-                        CenteredImageDomains.shouldCenterImage(feedDomain: $0.domain)
-                    } ?? false
                     Color.clear
                         .frame(maxWidth: imageAspectRatio ?? 0 > 1 ? nil : .infinity)
                         .frame(height: imageHeight)
-                        .overlay(alignment: shouldCenter ? .center : (imageAspectRatio ?? 0 > 1 ? .leading : .top)) {
+                        .overlay(alignment: imageOverlayAlignment) {
                             Image(uiImage: loadedImage)
                                 .resizable()
                                 .aspectRatio(contentMode: .fill)
@@ -132,7 +133,7 @@ struct FeedArticleRow: View {
                                 .strokeBorder(.primary.opacity(0.2), lineWidth: 0.5)
                         }
                         .overlay {
-                            if feed?.isVideoFeed == true || feed?.isPodcast == true || article.hasXVideoThumbnail {
+                            if showsPlayBadge || article.hasXVideoThumbnail {
                                 Image(systemName: "play.fill")
                                     .font(.title)
                                     .foregroundStyle(.primary)
@@ -211,10 +212,17 @@ struct FeedArticleRow: View {
         }
         .task {
             if let loadedFeed = feedManager.feed(forArticle: article) {
+                let isVideoFeed = loadedFeed.isVideoFeed
+                let isXFeed = loadedFeed.isXFeed
+                let isInstagramFeed = loadedFeed.isInstagramFeed
                 feed = loadedFeed
                 feedName = loadedFeed.title
                 acronymIcon = AcronymIconCache.shared.icon(for: loadedFeed)
-                skipIconInset = loadedFeed.isVideoFeed || loadedFeed.isXFeed || loadedFeed.isInstagramFeed
+                skipIconInset = isVideoFeed || isXFeed || isInstagramFeed
+                isCircleIcon = loadedFeed.isCircleIcon
+                allowsUnlimitedTitleLines = isXFeed || isInstagramFeed
+                showsPlayBadge = isVideoFeed || loadedFeed.isPodcast
+                shouldCenterImage = CenteredImageDomains.shouldCenterImage(feedDomain: loadedFeed.domain)
                 icon = await Iconography.shared.icon(for: loadedFeed)
             }
         }
@@ -267,9 +275,13 @@ private extension FeedArticleRow {
         return min(max(naturalHeight, 180), 420)
     }
 
+    var imageOverlayAlignment: Alignment {
+        if shouldCenterImage { return .center }
+        return imageAspectRatio ?? 0 > 1 ? .leading : .top
+    }
+
     @ViewBuilder
     var feedAvatarView: some View {
-        let isCircleIcon = feed?.isCircleIcon ?? false
         if let icon = icon {
             IconImage(icon, size: 40, cornerRadius: 8,
                       circle: isCircleIcon, skipInset: skipIconInset)
