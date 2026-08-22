@@ -43,13 +43,8 @@ struct ArticlesView: View {
     @AppStorage("Display.MarkAllReadPosition") private var markAllReadPosition: MarkAllReadPosition = .top
     private let viewStyleSwitcherTip = ViewStyleSwitcherTip()
 
-    private var hasImages: Bool {
-        articles.contains { $0.imageURL != nil }
-    }
-
-    private var hasAudioArticles: Bool {
-        articles.contains { $0.audioURL != nil }
-    }
+    let hasImages: Bool
+    let hasAudioArticles: Bool
 
     init(articles: [Article], title: String, subtitle: String? = nil, feedKey: String,
          isVideoFeed: Bool = false, isPodcastFeed: Bool = false,
@@ -66,6 +61,15 @@ struct ArticlesView: View {
          effectiveStyleBinding: Binding<FeedDisplayStyle?>? = nil,
          onScrollOffsetChange: ((CGFloat) -> Void)? = nil) {
         self.articles = articles
+        var foundImage = false
+        var foundAudio = false
+        for article in articles {
+            if !foundImage, article.imageURL != nil { foundImage = true }
+            if !foundAudio, article.audioURL != nil { foundAudio = true }
+            if foundImage, foundAudio { break }
+        }
+        self.hasImages = foundImage
+        self.hasAudioArticles = foundAudio
         self.title = title
         self.subtitle = subtitle
         self.feedKey = feedKey
@@ -84,25 +88,17 @@ struct ArticlesView: View {
         self.additionalLeadingToolbar = additionalLeadingToolbar
         self.effectiveStyleBinding = effectiveStyleBinding
         self.onScrollOffsetChange = onScrollOffsetChange
-        let raw = UserDefaults.standard.string(forKey: "Display.Style.\(feedKey)")
-        let defaultRaw = UserDefaults.standard.string(forKey: "Display.DefaultStyle") ?? FeedDisplayStyle.inbox.rawValue
-        let fallback: FeedDisplayStyle
-        if isPodcastFeed {
-            fallback = .podcast
-        } else if isVideoFeed {
-            fallback = .video
-        } else if isInstagramFeed {
-            fallback = .photos
-        } else if isTimelineViewDomain {
-            fallback = .timeline
-        } else if isFeedCompactViewDomain {
-            fallback = .feedCompact
-        } else if isFeedViewDomain {
-            fallback = .feed
-        } else {
-            fallback = FeedDisplayStyle(rawValue: defaultRaw) ?? .inbox
-        }
-        self._displayStyle = State(initialValue: raw.flatMap(FeedDisplayStyle.init(rawValue:)) ?? fallback)
+        let traits = FeedKindTraits(
+            isPodcastFeed: isPodcastFeed,
+            isVideoFeed: isVideoFeed,
+            isInstagramFeed: isInstagramFeed,
+            isTimelineViewDomain: isTimelineViewDomain,
+            isFeedCompactViewDomain: isFeedCompactViewDomain,
+            isFeedViewDomain: isFeedViewDomain
+        )
+        self._displayStyle = State(
+            initialValue: ArticlesView.storedStyle(feedKey: feedKey, traits: traits)
+        )
     }
 
     var body: some View {
@@ -237,27 +233,7 @@ struct ArticlesView: View {
             UserDefaults.standard.set(newValue.rawValue, forKey: "Display.Style.\(feedKey)")
         }
         .onChange(of: feedKey) { _, newFeedKey in
-            let raw = UserDefaults.standard.string(forKey: "Display.Style.\(newFeedKey)")
-            let defaultRaw = UserDefaults.standard.string(
-                forKey: "Display.DefaultStyle"
-            ) ?? FeedDisplayStyle.inbox.rawValue
-            let fallback: FeedDisplayStyle
-            if isPodcastFeed {
-                fallback = .podcast
-            } else if isVideoFeed {
-                fallback = .video
-            } else if isInstagramFeed {
-                fallback = .photos
-            } else if isTimelineViewDomain {
-                fallback = .timeline
-            } else if isFeedCompactViewDomain {
-                fallback = .feedCompact
-            } else if isFeedViewDomain {
-                fallback = .feed
-            } else {
-                fallback = FeedDisplayStyle(rawValue: defaultRaw) ?? .inbox
-            }
-            displayStyle = raw.flatMap(FeedDisplayStyle.init(rawValue:)) ?? fallback
+            displayStyle = ArticlesView.storedStyle(feedKey: newFeedKey, traits: traits)
         }
         .overlay {
             if effectiveStyle != .scroll, !showsInlineEmpty, articles.isEmpty {
@@ -273,7 +249,59 @@ struct ArticlesView: View {
 
 }
 
+struct FeedKindTraits {
+    let isPodcastFeed: Bool
+    let isVideoFeed: Bool
+    let isInstagramFeed: Bool
+    let isTimelineViewDomain: Bool
+    let isFeedCompactViewDomain: Bool
+    let isFeedViewDomain: Bool
+}
+
 extension ArticlesView {
+
+    var traits: FeedKindTraits {
+        FeedKindTraits(
+            isPodcastFeed: isPodcastFeed,
+            isVideoFeed: isVideoFeed,
+            isInstagramFeed: isInstagramFeed,
+            isTimelineViewDomain: isTimelineViewDomain,
+            isFeedCompactViewDomain: isFeedCompactViewDomain,
+            isFeedViewDomain: isFeedViewDomain
+        )
+    }
+
+    /// Resolves the persisted display style for a feed key, falling back to the
+    /// style implied by the feed kind and then the global default.
+    static func storedStyle(feedKey: String, traits: FeedKindTraits) -> FeedDisplayStyle {
+        let isPodcastFeed = traits.isPodcastFeed
+        let isVideoFeed = traits.isVideoFeed
+        let isInstagramFeed = traits.isInstagramFeed
+        let isTimelineViewDomain = traits.isTimelineViewDomain
+        let isFeedCompactViewDomain = traits.isFeedCompactViewDomain
+        let isFeedViewDomain = traits.isFeedViewDomain
+        let raw = UserDefaults.standard.string(forKey: "Display.Style.\(feedKey)")
+        let defaultRaw = UserDefaults.standard.string(
+            forKey: "Display.DefaultStyle"
+        ) ?? FeedDisplayStyle.inbox.rawValue
+        let fallback: FeedDisplayStyle
+        if isPodcastFeed {
+            fallback = .podcast
+        } else if isVideoFeed {
+            fallback = .video
+        } else if isInstagramFeed {
+            fallback = .photos
+        } else if isTimelineViewDomain {
+            fallback = .timeline
+        } else if isFeedCompactViewDomain {
+            fallback = .feedCompact
+        } else if isFeedViewDomain {
+            fallback = .feed
+        } else {
+            fallback = FeedDisplayStyle(rawValue: defaultRaw) ?? .inbox
+        }
+        return raw.flatMap(FeedDisplayStyle.init(rawValue:)) ?? fallback
+    }
 
     var homeMenuSignature: String {
         "\(feedKey)|\(displayStyle.rawValue)|\(hasImages)|\(hasAudioArticles)|\(isPodcastFeed)"
