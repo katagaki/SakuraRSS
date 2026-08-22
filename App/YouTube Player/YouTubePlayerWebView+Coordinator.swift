@@ -150,9 +150,8 @@ extension YouTubePlayerWebView {
             guard let url = navigationAction.request.url else { return .allow }
             let host = url.host?.lowercased() ?? ""
 
-            if host.contains("youtube.com") || host.contains("youtu.be")
-                || host.contains("google.com") || host.contains("accounts.google.com")
-                || host.contains("consent.youtube.com") {
+            let allowedDomains = ["youtube.com", "youtu.be", "google.com"]
+            if allowedDomains.contains(where: { host == $0 || host.hasSuffix(".\($0)") }) {
                 let normalized = YouTubePlayerWebView.normalizedURL(url)
                 if normalized != url {
                     DispatchQueue.main.async {
