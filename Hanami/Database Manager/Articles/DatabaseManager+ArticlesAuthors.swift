@@ -13,6 +13,6 @@ public nonisolated extension DatabaseManager {
             ORDER BY MAX(published_date) DESC
             """
         log("SQLite", "distinctAuthors(forFeedID:) - \(sql)")
-        return try database.prepare(sql, [fid]).compactMap { $0[0] as? String }
+        return try database.prepare(sql, [fid as Binding?]).compactMap { $0[0] as? String }
     }
 }

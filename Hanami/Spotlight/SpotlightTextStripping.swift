@@ -4,12 +4,14 @@ extension SpotlightIndexer {
 
     /// `NSRegularExpression` is documented as thread-safe once compiled, so these
     /// shared instances replace per-call pattern compilation on the indexing path.
-    nonisolated(unsafe) static let imageMarkerExpression = expression("\\{\\{IMG\\}\\}.*?\\{\\{/IMG\\}\\}")
-    nonisolated(unsafe) static let markdownImageExpression = expression("!\\[[^\\]]*\\]\\([^)]*\\)")
-    nonisolated(unsafe) static let markdownLinkExpression = expression("\\[([^\\]]+)\\]\\([^)]*\\)")
-    nonisolated(unsafe) static let bareURLExpression = expression("https?://\\S+")
-    nonisolated(unsafe) static let htmlTagExpression = expression("<[^>]+>")
-    nonisolated(unsafe) static let whitespaceRunExpression = expression("\\s+")
+    nonisolated(unsafe) static let imageMarkerExpression = SpotlightIndexer.expression(
+        "\\{\\{IMG\\}\\}.*?\\{\\{/IMG\\}\\}"
+    )
+    nonisolated(unsafe) static let markdownImageExpression = SpotlightIndexer.expression("!\\[[^\\]]*\\]\\([^)]*\\)")
+    nonisolated(unsafe) static let markdownLinkExpression = SpotlightIndexer.expression("\\[([^\\]]+)\\]\\([^)]*\\)")
+    nonisolated(unsafe) static let bareURLExpression = SpotlightIndexer.expression("https?://\\S+")
+    nonisolated(unsafe) static let htmlTagExpression = SpotlightIndexer.expression("<[^>]+>")
+    nonisolated(unsafe) static let whitespaceRunExpression = SpotlightIndexer.expression("\\s+")
 
     private static func expression(_ pattern: String) -> NSRegularExpression? {
         try? NSRegularExpression(pattern: pattern)
