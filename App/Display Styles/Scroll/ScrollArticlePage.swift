@@ -114,7 +114,7 @@ struct ScrollArticlePage: View {
             if let backgroundImage {
                 Image(uiImage: backgroundImage)
                     .resizable()
-                    .aspectRatio(contentMode: .fill)
+                    .scaledToFill()
                     .transition(.opacity)
                     .debugLayout()
             }
