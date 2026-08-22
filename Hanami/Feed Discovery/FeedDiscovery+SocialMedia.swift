@@ -170,7 +170,7 @@ public extension FeedDiscovery {
     func detectMastodonFeed(url: URL) async -> DiscoveredFeed? {
         guard let host = url.host?.lowercased() else { return nil }
 
-        let path = url.path
+        let path = URLComponents(url: url, resolvingAgainstBaseURL: true)?.percentEncodedPath ?? ""
         guard path.hasPrefix("/@") else { return nil }
 
         let afterAt = String(path.dropFirst(2))

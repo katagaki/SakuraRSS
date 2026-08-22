@@ -6,7 +6,10 @@ public extension FeedDiscovery {
 
     /// Tries appending `.rss` to non-root URL paths.
     func probeRSSSuffix(for url: URL) async -> DiscoveredFeed? {
-        let path = url.path
+        guard let components = URLComponents(url: url, resolvingAgainstBaseURL: true) else {
+            return nil
+        }
+        let path = components.percentEncodedPath
         guard !path.isEmpty,
               path != "/",
               !path.hasSuffix(".rss"),
@@ -16,7 +19,7 @@ public extension FeedDiscovery {
         }
 
         let trimmedPath = path.hasSuffix("/") ? String(path.dropLast()) : path
-        guard let domain = url.host else { return nil }
+        guard let domain = components.percentEncodedHost else { return nil }
 
         return await Self.probeFeedAt(domain: domain, path: "\(trimmedPath).rss")
     }
@@ -44,7 +47,7 @@ public extension FeedDiscovery {
     }
 
     nonisolated static func probeFeedAt(domain: String, path: String) async -> DiscoveredFeed? {
-        guard let url = URL(string: "https://\(domain)\(path)") else { return nil }
+        guard let url = Self.probeURL(domain: domain, path: path) else { return nil }
 
         do {
             var request = URLRequest.sakura(url: url, timeoutInterval: 10)
@@ -59,8 +62,8 @@ public extension FeedDiscovery {
 
             let looksLikeFeed: Bool = {
                 guard !isXML else { return false }
-                guard let prefix = String(data: data.prefix(500), encoding: .utf8) else { return false }
-                return prefix.contains("<rss") || prefix.contains("<feed")
+                let head = String(bytes: data.prefix(4096), encoding: .isoLatin1) ?? ""
+                return head.contains("<rss") || head.contains("<feed") || head.contains("<rdf:RDF")
             }()
 
             if isXML || looksLikeFeed {
@@ -77,5 +80,16 @@ public extension FeedDiscovery {
         }
 
         return nil
+    }
+
+    nonisolated static func probeURL(domain: String, path: String) -> URL? {
+        if let url = URL(string: "https://\(domain)\(path)") {
+            return url
+        }
+        var components = URLComponents()
+        components.scheme = "https"
+        components.host = domain
+        components.path = path
+        return components.url
     }
 }
