@@ -26,13 +26,39 @@ struct ListWidgetProvider: AppIntentTimelineProvider {
     }
 
     func snapshot(for configuration: ListWidgetIntent, in context: Context) async -> ListWidgetEntry {
-        await loadEntry(for: configuration, family: context.family)
+        if context.isPreview {
+            return previewEntry(for: configuration)
+        }
+        return await loadEntry(for: configuration, family: context.family)
     }
 
     func timeline(for configuration: ListWidgetIntent, in context: Context) async -> Timeline<ListWidgetEntry> {
         let entry = await loadEntry(for: configuration, family: context.family)
-        // 90-minute interval; widget reloads wake the app process.
         return Timeline(entries: [entry], policy: .after(Date().addingTimeInterval(90 * 60)))
+    }
+
+    private func previewEntry(for configuration: ListWidgetIntent) -> ListWidgetEntry {
+        let layout = configuration.layout ?? .thumbnails
+        let columns = (configuration.columns ?? .three).rawValue
+        let articleCount = layout == .text ? 9 : columns * columns
+        let previewArticles = (0..<articleCount).map { index in
+            ListWidgetArticle(
+                id: Int64(index),
+                title: String(localized: "Placeholder.Loading", table: "Widget"),
+                imageData: nil,
+                publishedDate: Date()
+            )
+        }
+        return ListWidgetEntry(
+            date: Date(),
+            listID: configuration.list?.listID ?? 0,
+            listTitle: configuration.list?.title ?? String(localized: "Placeholder.Feed", table: "Widget"),
+            articles: previewArticles,
+            layout: layout,
+            columns: columns,
+            currentPage: 0,
+            totalPages: 1
+        )
     }
 
     private func loadEntry(
@@ -96,6 +122,7 @@ struct ListWidgetProvider: AppIntentTimelineProvider {
 
         let widgetArticles = await loadWidgetArticles(
             pageArticles: pageArticles,
+            cachedArticleIDs: dbArticles.map(\.id),
             request: ListWidgetRequest(
                 listID: listID,
                 layout: params.layout,
@@ -136,16 +163,14 @@ struct ListWidgetProvider: AppIntentTimelineProvider {
 
     private func loadWidgetArticles(
         pageArticles: [Article],
+        cachedArticleIDs: [Int64],
         request: ListWidgetRequest,
         defaults: UserDefaults?,
         database: DatabaseManager
     ) async -> [ListWidgetArticle] {
-        // Skip network fetches when article set is unchanged, to avoid retrying failed downloads each wake.
-        let articleIDsMarker = pageArticles.map(\.id).map(String.init).joined(separator: ",")
-        let markerKey = request.markerKey
-        let previousMarker = defaults?.string(forKey: markerKey)
-        let articleSetUnchanged = previousMarker == articleIDsMarker
-        defaults?.set(articleIDsMarker, forKey: markerKey)
+        let articleIDsMarker = WidgetImageResolutionMarker.marker(for: pageArticles.map(\.id))
+        let resolutionMarker = WidgetImageResolutionMarker(defaults: defaults, markerKey: request.markerKey)
+        let articleSetUnchanged = resolutionMarker.isUnchanged(articleIDsMarker)
 
         let thumbnailCache = WidgetThumbnailCache(scope: request.cacheScope)
         let resolveContext = ThumbnailResolveContext(
@@ -156,12 +181,16 @@ struct ListWidgetProvider: AppIntentTimelineProvider {
         )
 
         var widgetArticles: [ListWidgetArticle] = []
+        var allImagesResolved = true
         for article in pageArticles {
             let imageData = await resolveImageData(
                 urlString: article.imageURL,
                 articleID: article.id,
                 context: resolveContext
             )
+            if imageData == nil, article.imageURL != nil {
+                allImagesResolved = false
+            }
             widgetArticles.append(ListWidgetArticle(
                 id: article.id,
                 title: article.title,
@@ -169,7 +198,10 @@ struct ListWidgetProvider: AppIntentTimelineProvider {
                 publishedDate: article.publishedDate
             ))
         }
-        thumbnailCache.prune(keeping: pageArticles.map(\.id))
+        resolutionMarker.record(articleIDsMarker, allImagesResolved: allImagesResolved)
+        thumbnailCache.prune(keeping: cachedArticleIDs)
+        thumbnailCache.touch()
+        WidgetThumbnailCache.pruneStaleScopes()
         return widgetArticles
     }
 
@@ -196,12 +228,13 @@ struct ListWidgetProvider: AppIntentTimelineProvider {
         if let cached = try? database.cachedImageData(for: urlString) {
             rawData = cached
         } else if !articleSetUnchanged {
-            if let (data, _) = try? await URLSession.shared.data(for: .sakuraImage(url: imageURL)) {
+            if let (data, _) = try? await URLSession.shared.data(for: .sakuraImage(url: imageURL)),
+               WidgetImageBudget.isWithinBudget(data) {
                 try? database.cacheImageData(data, for: urlString)
                 rawData = data
             }
         }
-        guard let rawData else { return nil }
+        guard let rawData, WidgetImageBudget.isWithinBudget(rawData) else { return nil }
         let imageData = await Self.downsampleImageData(rawData, maxDimension: context.maxPixelSize)
         if let imageData {
             thumbnailCache.storeThumbnail(imageData, for: articleID)
