@@ -122,20 +122,11 @@ public final class HTMLContentExtractor {
         // If the HTML is just a thin wrapper (e.g. <div>) around plain text
         // or Markdown, strip the wrapper and return the inner text directly.
         // This avoids SwiftSoup collapsing all newlines.
-        let stripped = html.replacingOccurrences(
-            of: "<[^>]+>", with: "", options: .regularExpression
-        ).trimmingCharacters(in: .whitespacesAndNewlines)
-        let tagCount = html.components(separatedBy: "<").count - 1
-        let hasMultipleNewlines = html.contains("\n\n")
-        if hasMultipleNewlines && tagCount <= 4 && !stripped.isEmpty {
-            // swiftlint:disable:next line_length
-            log("Extract", "extractText: wrapped plain text/Markdown (\(tagCount) tags, \(stripped.count) chars), using directly")
-            var cleaned = stripRemainingHTMLTags(html)
-            cleaned = resolveMarkdownLinks(in: cleaned, baseURL: baseURL)
-            return ArticleMarker.escape(cleaned)
+        if let wrapped = wrappedPlainText(in: html, baseURL: baseURL) {
+            return wrapped
         }
 
-        log("Extract", "extractText: full HTML (\(tagCount) tags, \(html.count) chars), parsing with SwiftSoup")
+        log("Extract", "extractText: full HTML (\(html.count) chars), parsing with SwiftSoup")
 
         do {
             let doc: Document
@@ -167,6 +158,29 @@ public final class HTMLContentExtractor {
             log("Extract", "extractText: SwiftSoup parse failed: \(error)")
             return nil
         }
+    }
+
+    private static func wrappedPlainText(in html: String, baseURL: URL?) -> String? {
+        let tagCount = tagOpenCount(in: html, upTo: 5)
+        guard html.contains("\n\n"), tagCount <= 4 else { return nil }
+        let stripped = html.replacingOccurrences(
+            of: "<[^>]+>", with: "", options: .regularExpression
+        ).trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !stripped.isEmpty else { return nil }
+        // swiftlint:disable:next line_length
+        log("Extract", "extractText: wrapped plain text/Markdown (\(tagCount) tags, \(stripped.count) chars), using directly")
+        var cleaned = stripRemainingHTMLTags(html)
+        cleaned = resolveMarkdownLinks(in: cleaned, baseURL: baseURL)
+        return ArticleMarker.escape(cleaned)
+    }
+
+    private static func tagOpenCount(in html: String, upTo limit: Int) -> Int {
+        var count = 0
+        for character in html where character == "<" {
+            count += 1
+            if count >= limit { return count }
+        }
+        return count
     }
 
     public static func extractText(
