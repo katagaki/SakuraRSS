@@ -23,7 +23,7 @@ public nonisolated struct Feed: Identifiable, Hashable, Sendable {
     public var syncID: String?
 
     public var domain: String {
-        URL(string: siteURL)?.host ?? URL(string: fetchURL)?.host ?? ""
+        FeedDerivedValues.shared.domain(siteURL: siteURL, fetchURL: fetchURL)
     }
 
     /// The URL to fetch RSS from, with any `substack-feed://` marker stripped.
@@ -111,23 +111,24 @@ public nonisolated struct Feed: Identifiable, Hashable, Sendable {
     public var isKnownFediverseHost: Bool {
         if hasMastodonFeedURL { return true }
         let host = domain.lowercased()
-        let knownHosts: Set<String> = [
-            "mastodon.social",
-            "mastodon.online",
-            "mastodon.world",
-            "mstdn.social",
-            "mstdn.jp",
-            "fosstodon.org",
-            "hachyderm.io",
-            "infosec.exchange",
-            "techhub.social",
-            "mas.to",
-            "pixelfed.social",
-            "pixelfed.tokyo",
-            "pixelfed.art"
-        ]
-        return knownHosts.contains(where: { host == $0 || host.hasSuffix(".\($0)") })
+        return Feed.knownFediverseHosts.contains(where: { host == $0 || host.hasSuffix(".\($0)") })
     }
+
+    private static let knownFediverseHosts: Set<String> = [
+        "mastodon.social",
+        "mastodon.online",
+        "mastodon.world",
+        "mstdn.social",
+        "mstdn.jp",
+        "fosstodon.org",
+        "hachyderm.io",
+        "infosec.exchange",
+        "techhub.social",
+        "mas.to",
+        "pixelfed.social",
+        "pixelfed.tokyo",
+        "pixelfed.art"
+    ]
 
     public var isFediverseFeed: Bool {
         if isKnownFediverseHost { return true }
@@ -171,6 +172,10 @@ public nonisolated struct Feed: Identifiable, Hashable, Sendable {
     }
 
     public var feedSection: FeedSection {
+        FeedDerivedValues.shared.section(for: self) { $0.computedFeedSection }
+    }
+
+    private var computedFeedSection: FeedSection {
         if isPodcast { return .podcasts }
         if isXFeed { return .x }
         if isYouTubeFeed { return .youtube }
