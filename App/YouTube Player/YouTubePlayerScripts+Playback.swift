@@ -126,7 +126,15 @@ extension YouTubePlayerScripts {
             // The skip button appears as a child after the ad-showing class
             // flips, so observe subtree mutations to refresh `adSkippable` and
             // the advertiser URL when the DOM updates.
-            var sub = new MutationObserver(function() { sendAd(false); });
+            var adSendScheduled = false;
+            var sub = new MutationObserver(function() {
+                if (adSendScheduled) return;
+                adSendScheduled = true;
+                setTimeout(function() {
+                    adSendScheduled = false;
+                    sendAd(false);
+                }, 250);
+            });
             sub.observe(p, { childList: true, subtree: true });
             sendAd(true);
         }
