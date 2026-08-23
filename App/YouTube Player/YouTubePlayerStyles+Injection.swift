@@ -16,6 +16,7 @@ extension YouTubePlayerStyles {
                 } catch (e) {}
             }
             try {
+                if (window.__ytEnsureStyle) { window.__ytEnsureStyle(); return; }
                 var cssText = `\(safeCSS)`;
                 log('inject script start, head=' + !!document.head + ' doc=' + !!document.documentElement);
                 function inject() {
@@ -28,6 +29,7 @@ extension YouTubePlayerStyles {
                     parent.appendChild(s);
                     log('inject: appended style len=' + cssText.length + ' parent=' + parent.tagName);
                 }
+                window.__ytEnsureStyle = inject;
                 inject();
                 var observer = new MutationObserver(inject);
                 if (document.documentElement) {
