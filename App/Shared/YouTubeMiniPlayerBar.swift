@@ -76,7 +76,7 @@ struct YouTubeMiniPlayerBar: View {
     @ViewBuilder
     private var artwork: some View {
         if let url = session.artworkURL {
-            CachedAsyncImage(url: url) {
+            CachedAsyncImage(url: url, maxPixelSize: 168) {
                 RoundedRectangle(cornerRadius: 6)
                     .fill(.secondary.opacity(0.15))
             }
