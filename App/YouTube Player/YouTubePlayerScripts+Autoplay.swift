@@ -85,6 +85,7 @@ extension YouTubePlayerScripts {
                 { childList: true, subtree: true });
         }
 
+        var tickActive = false;
         window.__yt.armAutoplay = function(durationMs) {
             var dur = (typeof durationMs === 'number' && durationMs > 0)
                 ? durationMs : 12000;
@@ -93,8 +94,10 @@ extension YouTubePlayerScripts {
             window.__yt.userPaused = false;
             window.__yt.exitedPiPRecently = false;
             scan();
+            if (tickActive) return;
+            tickActive = true;
             (function tick() {
-                if (!armed()) return;
+                if (!armed()) { tickActive = false; return; }
                 var videos = document.querySelectorAll('video');
                 if (videos.length > 0) {
                     videos.forEach(tryPlay);
