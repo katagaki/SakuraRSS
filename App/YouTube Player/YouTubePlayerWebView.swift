@@ -55,7 +55,7 @@ struct YouTubePlayerWebView: UIViewRepresentable {
         #endif
         webView.navigationDelegate = context.coordinator
         webView.scrollView.isScrollEnabled = false
-        webView.isOpaque = false
+        webView.isOpaque = true
         webView.backgroundColor = .black
         webView.scrollView.backgroundColor = .black
         webView.customUserAgent = Self.youTubeUserAgent
