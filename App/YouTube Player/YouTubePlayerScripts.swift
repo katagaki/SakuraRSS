@@ -14,7 +14,7 @@ nonisolated enum YouTubePlayerScripts {
     /// This replaces a more invasive approach that overrode `HTMLMediaElement.pause`.
     /// Blocking detection at the source means there is no pause attempt to undo,
     /// which is friendlier to YouTube's internal state machine and to ad transitions.
-    static let mediaIsolationBootstrap = """
+    static var mediaIsolationBootstrap: String { """
     (function() {
         if (window.__yt) return;
 
@@ -230,10 +230,16 @@ nonisolated enum YouTubePlayerScripts {
             }
         } catch (e) {}
 
-        // Attach passive listeners on every event we filter, plus key video
-        // events, so we can see exactly what fires on iOS during background
-        // transitions. Uses saved `origAdd` so listeners aren't filtered.
-        function watch(target, type, label) {
+        \(mediaIsolationDiagnostics)
+    })();
+    """ }
+
+    #if DEBUG
+    /// Attach passive listeners on every event we filter, plus key video
+    /// events, so we can see exactly what fires on iOS during background
+    /// transitions. Uses saved `origAdd` so listeners aren't filtered.
+    private static let mediaIsolationDiagnostics = """
+    function watch(target, type, label) {
             origAdd.call(target, type, function(e) {
                 window.__yt.log(label + ' (vis=' + document.visibilityState + ')');
             }, true);
@@ -270,8 +276,10 @@ nonisolated enum YouTubePlayerScripts {
             document.querySelectorAll('video').forEach(attachVideoLog);
         }
         window.__yt.onMutation(scanVideos);
-    })();
     """
+    #else
+    private static let mediaIsolationDiagnostics = ""
+    #endif
 
     /// Resumes the video when something pauses it that isn't the user. Defaults
     /// to "resume on any pause". Swift sets `__yt.userPaused = true` before
