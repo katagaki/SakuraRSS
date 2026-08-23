@@ -19,7 +19,15 @@ public extension FeedManager {
     }
 
     func importOPML(data: Data, overwrite: Bool) throws -> Int {
-        let opmlFeeds = OPMLManager.shared.parseOPML(data: data)
+        try importPortableFeeds(OPMLManager.shared.parseOPML(data: data), overwrite: overwrite)
+    }
+
+    func importGoogleTakeoutCSV(data: Data, overwrite: Bool) throws -> Int {
+        try importPortableFeeds(GoogleTakeoutCSVParser.parseSubscriptions(data: data), overwrite: overwrite)
+    }
+
+    private func importPortableFeeds(_ candidateFeeds: [OPMLFeed], overwrite: Bool) throws -> Int {
+        let opmlFeeds = candidateFeeds
             .filter { Feed.isOPMLPortableURL($0.xmlURL) }
         guard !opmlFeeds.isEmpty else { return 0 }
 

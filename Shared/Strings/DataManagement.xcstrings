@@ -3322,61 +3322,61 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Verwenden Sie OPML-Dateien, um Ihre Feeds zwischen RSS-Readern zu übertragen."
+            "value": "Verwenden Sie OPML-Dateien, um Ihre Feeds zwischen RSS-Readern zu übertragen. Sie können auch Ihre YouTube-Abos aus einer Google Takeout-CSV-Datei importieren."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Use OPML files to transfer your subscriptions between RSS readers."
+            "value": "Use OPML files to transfer your subscriptions between RSS readers. You can also import your YouTube subscriptions from a Google Takeout CSV file."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Utilisez des fichiers OPML pour transférer vos flux entre lecteurs RSS."
+            "value": "Utilisez des fichiers OPML pour transférer vos flux entre lecteurs RSS. Vous pouvez également importer vos abonnements YouTube depuis un fichier CSV Google Takeout."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Usa i file OPML per trasferire i tuoi feed tra lettori RSS."
+            "value": "Usa i file OPML per trasferire i tuoi feed tra lettori RSS. Puoi anche importare le tue iscrizioni YouTube da un file CSV di Google Takeout."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "OPMLファイルを使って、RSSリーダー間でフィードを移行できます。"
+            "value": "OPMLファイルを使って、RSSリーダー間でフィードを移行できます。Google TakeoutのCSVファイルからYouTubeの登録チャンネルを読み込むこともできます。"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "OPML 파일을 사용하여 RSS 리더 간에 피드를 전송합니다."
+            "value": "OPML 파일을 사용하여 RSS 리더 간에 피드를 전송합니다. Google Takeout CSV 파일에서 YouTube 구독을 가져올 수도 있습니다."
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Gebruik OPML-bestanden om je abonnementen over te zetten tussen RSS-lezers."
+            "value": "Gebruik OPML-bestanden om je abonnementen over te zetten tussen RSS-lezers. Je kunt ook je YouTube-abonnementen importeren uit een Google Takeout-CSV-bestand."
           }
         },
         "vi": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sử dụng tệp OPML để chuyển danh sách nguồn cấp giữa các trình đọc RSS."
+            "value": "Sử dụng tệp OPML để chuyển danh sách nguồn cấp giữa các trình đọc RSS. Bạn cũng có thể nhập các kênh YouTube đã đăng ký từ tệp CSV của Google Takeout."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "使用 OPML 文件在 RSS 阅读器之间转移订阅源。"
+            "value": "使用 OPML 文件在 RSS 阅读器之间转移订阅源。您还可以从 Google Takeout 的 CSV 文件导入 YouTube 订阅。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "使用 OPML 檔案在 RSS 閱讀器之間轉移訂閱源。"
+            "value": "使用 OPML 檔案在 RSS 閱讀器之間轉移訂閱源。您也可以從 Google Takeout 的 CSV 檔案匯入 YouTube 訂閱。"
           }
         }
       }

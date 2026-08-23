@@ -9,6 +9,7 @@ struct PortabilitySection: View {
     @State private var isImporting = false
     @State private var showImportModeChoice = false
     @State private var importedFileData: Data?
+    @State private var importedFileIsCSV = false
     @State private var alertMessage: String?
     @State private var showAlert = false
 
@@ -68,7 +69,7 @@ struct PortabilitySection: View {
         }
         .fileImporter(
             isPresented: $isImporting,
-            allowedContentTypes: [.opml, .xml],
+            allowedContentTypes: [.opml, .xml, .commaSeparatedText],
             allowsMultipleSelection: false
         ) { result in
             handleImport(result: result)
@@ -110,6 +111,7 @@ struct PortabilitySection: View {
             defer { url.stopAccessingSecurityScopedResource() }
             if let data = try? Data(contentsOf: url) {
                 importedFileData = data
+                importedFileIsCSV = url.pathExtension.lowercased() == "csv"
                 showImportModeChoice = true
             } else {
                 alertMessage = String(localized: "Import.Error", table: "DataManagement")
@@ -125,7 +127,9 @@ struct PortabilitySection: View {
         guard let data = importedFileData else { return }
         importedFileData = nil
         do {
-            let count = try feedManager.importOPML(data: data, overwrite: overwrite)
+            let count = importedFileIsCSV
+                ? try feedManager.importGoogleTakeoutCSV(data: data, overwrite: overwrite)
+                : try feedManager.importOPML(data: data, overwrite: overwrite)
             alertMessage = String(localized: "Import.Success \(count)", table: "DataManagement")
         } catch {
             alertMessage = String(localized: "Import.Error", table: "DataManagement")
