@@ -24,11 +24,15 @@ extension YouTubePlayerScripts {
             try { video.removeAttribute('disablePictureInPicture'); } catch (e) {}
         }
         function scan() { document.querySelectorAll('video').forEach(strip); }
-        scan();
-        var observer = new MutationObserver(scan);
+        if (window.__yt && window.__yt.onMutation) {
+            window.__yt.onMutation(scan);
+        } else {
+            scan();
+        }
+        var attributeObserver = new MutationObserver(scan);
         if (document.documentElement) {
-            observer.observe(document.documentElement, {
-                childList: true, subtree: true,
+            attributeObserver.observe(document.documentElement, {
+                subtree: true,
                 attributes: true,
                 attributeFilter: ['disablepictureinpicture', 'disablePictureInPicture']
             });

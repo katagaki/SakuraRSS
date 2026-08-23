@@ -154,11 +154,10 @@ extension YouTubePlayerScripts {
                 });
             }
         }
-        watchPlayer();
-        var rootObserver = new MutationObserver(watchPlayer);
-        if (document.documentElement) {
-            rootObserver.observe(document.documentElement,
-                { childList: true, subtree: true });
+        if (window.__yt && window.__yt.onMutation) {
+            window.__yt.onMutation(watchPlayer);
+        } else {
+            watchPlayer();
         }
         apply();
     })();
@@ -201,11 +200,7 @@ extension YouTubePlayerScripts {
             videos.forEach(attach);
             return videos.length > 0;
         }
-        tryAttach();
-        var observer = new MutationObserver(function() { tryAttach(); });
-        if (document.documentElement) {
-            observer.observe(document.documentElement, { childList: true, subtree: true });
-        }
+        window.__yt.onMutation(function() { tryAttach(); });
     })();
     """
 

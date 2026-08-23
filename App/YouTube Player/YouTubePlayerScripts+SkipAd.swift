@@ -18,11 +18,7 @@ extension YouTubePlayerScripts {
         function tryAttach() {
             document.querySelectorAll('video').forEach(attach);
         }
-        tryAttach();
-        var observer = new MutationObserver(tryAttach);
-        if (document.documentElement) {
-            observer.observe(document.documentElement, { childList: true, subtree: true });
-        }
+        window.__yt.onMutation(tryAttach);
     })();
     """
 

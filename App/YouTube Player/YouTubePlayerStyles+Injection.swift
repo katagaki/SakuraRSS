@@ -31,12 +31,17 @@ extension YouTubePlayerStyles {
                 }
                 window.__ytEnsureStyle = inject;
                 inject();
-                var observer = new MutationObserver(inject);
-                if (document.documentElement) {
-                    observer.observe(document.documentElement, { childList: true, subtree: true });
+                if (window.__yt && window.__yt.onMutation) {
+                    window.__yt.onMutation(inject);
                     log('observer attached');
                 } else {
-                    log('no documentElement for observer');
+                    var observer = new MutationObserver(inject);
+                    if (document.documentElement) {
+                        observer.observe(document.documentElement, { childList: true, subtree: true });
+                        log('observer attached');
+                    } else {
+                        log('no documentElement for observer');
+                    }
                 }
             } catch (e) {
                 log('inject error: ' + e.message + ' stack=' + (e.stack || ''));

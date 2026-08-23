@@ -116,12 +116,7 @@ extension YouTubePlayerScripts {
         function scan() {
             document.querySelectorAll('video').forEach(attachVideo);
         }
-        scan();
-        var videoObserver = new MutationObserver(scan);
-        if (document.documentElement) {
-            videoObserver.observe(document.documentElement,
-                { childList: true, subtree: true });
-        }
+        window.__yt.onMutation(scan);
         function attachAdObserver() {
             var p = document.querySelector('.html5-video-player');
             if (!p || p.__ytAdSignalObserved) return;
@@ -135,12 +130,7 @@ extension YouTubePlayerScripts {
             sub.observe(p, { childList: true, subtree: true });
             sendAd(true);
         }
-        attachAdObserver();
-        var rootObserver = new MutationObserver(attachAdObserver);
-        if (document.documentElement) {
-            rootObserver.observe(document.documentElement,
-                { childList: true, subtree: true });
-        }
+        window.__yt.onMutation(attachAdObserver);
     })();
     """
 }

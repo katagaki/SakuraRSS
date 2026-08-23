@@ -101,6 +101,35 @@ nonisolated enum YouTubePlayerScripts {
             }
         };
 
+        var mutationCallbacks = [];
+        var mutationPending = false;
+        var mutationLastRun = 0;
+        function runMutationCallbacks() {
+            mutationPending = false;
+            mutationLastRun = Date.now();
+            for (var index = 0; index < mutationCallbacks.length; index++) {
+                try { mutationCallbacks[index](); } catch (e) {}
+            }
+        }
+        window.__yt.onMutation = function(callback) {
+            mutationCallbacks.push(callback);
+            try { callback(); } catch (e) {}
+        };
+        var sharedMutationObserver = new MutationObserver(function() {
+            if (mutationPending) return;
+            var elapsed = Date.now() - mutationLastRun;
+            if (elapsed >= 250) {
+                runMutationCallbacks();
+            } else {
+                mutationPending = true;
+                setTimeout(runMutationCallbacks, 250 - elapsed);
+            }
+        });
+        if (document.documentElement) {
+            sharedMutationObserver.observe(document.documentElement,
+                { childList: true, subtree: true });
+        }
+
         var BLOCKED = {
             visibilitychange: 1, webkitvisibilitychange: 1,
             enterpictureinpicture: 1, leavepictureinpicture: 1,
@@ -240,12 +269,7 @@ nonisolated enum YouTubePlayerScripts {
         function scanVideos() {
             document.querySelectorAll('video').forEach(attachVideoLog);
         }
-        scanVideos();
-        var videoObserver = new MutationObserver(scanVideos);
-        if (document.documentElement) {
-            videoObserver.observe(document.documentElement,
-                { childList: true, subtree: true });
-        }
+        window.__yt.onMutation(scanVideos);
     })();
     """
 
@@ -277,11 +301,7 @@ nonisolated enum YouTubePlayerScripts {
             }, true);
         }
         function scan() { document.querySelectorAll('video').forEach(attach); }
-        scan();
-        var observer = new MutationObserver(scan);
-        if (document.documentElement) {
-            observer.observe(document.documentElement, { childList: true, subtree: true });
-        }
+        window.__yt.onMutation(scan);
     })();
     """
 

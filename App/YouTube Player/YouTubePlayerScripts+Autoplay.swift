@@ -78,12 +78,7 @@ extension YouTubePlayerScripts {
         }
 
         function scan() { document.querySelectorAll('video').forEach(attach); }
-        scan();
-        var observer = new MutationObserver(scan);
-        if (document.documentElement) {
-            observer.observe(document.documentElement,
-                { childList: true, subtree: true });
-        }
+        window.__yt.onMutation(scan);
 
         var tickActive = false;
         window.__yt.armAutoplay = function(durationMs) {
