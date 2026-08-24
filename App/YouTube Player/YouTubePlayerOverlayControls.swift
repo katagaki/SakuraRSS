@@ -10,6 +10,7 @@ struct YouTubePlayerOverlayControls: View {
     let isPlaying: Bool
     let isAd: Bool
     let isPlayerReady: Bool
+    let hasStartedPlaying: Bool
     let videoAspectRatio: CGFloat
     let segments: [(start: Double, end: Double)]
     let onTogglePiP: () -> Void
@@ -102,16 +103,24 @@ struct YouTubePlayerOverlayControls: View {
 
     @ViewBuilder
     private var centerControl: some View {
-        Button {
-            onTogglePlayPause()
-            scheduleAutoHide()
-        } label: {
-            Image(systemName: isPlaying ? "pause.fill" : "play.fill")
-                .font(.system(size: 30, weight: .semibold))
+        if hasStartedPlaying {
+            Button {
+                onTogglePlayPause()
+                scheduleAutoHide()
+            } label: {
+                Image(systemName: isPlaying ? "pause.fill" : "play.fill")
+                    .font(.system(size: 30, weight: .semibold))
+                    .frame(width: 72, height: 72)
+                    .contentTransition(.symbolEffect(.replace))
+            }
+            .compatibleGlassEffect(in: .circle, interactive: true, clear: true)
+        } else {
+            ProgressView()
+                .controlSize(.large)
+                .tint(.white)
                 .frame(width: 72, height: 72)
-                .contentTransition(.symbolEffect(.replace))
+                .compatibleGlassEffect(in: .circle, clear: true)
         }
-        .compatibleGlassEffect(in: .circle, interactive: true, clear: true)
     }
 
     @ViewBuilder

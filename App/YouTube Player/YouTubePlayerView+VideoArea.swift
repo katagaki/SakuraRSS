@@ -71,6 +71,7 @@ extension YouTubePlayerView {
                     isPlaying: isPlaying,
                     isAd: isAd,
                     isPlayerReady: isPlayerReady,
+                    hasStartedPlaying: hasStartedPlaying,
                     videoAspectRatio: videoAspectRatio,
                     segments: sponsorSegments.map { (start: $0.startTime, end: $0.endTime) },
                     onTogglePiP: togglePiP,
