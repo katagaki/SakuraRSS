@@ -8,7 +8,8 @@ struct BrowserRegularShell: View {
     @Environment(FeedManager.self) private var feedManager
     @Environment(BrowserTabStore.self) private var store
     @Environment(BrowserFavourites.self) private var favourites
-    @Binding var isShowingOmnibox: Bool
+    @Environment(\.browserBookmarksAction) private var openBookmarks
+    @Environment(\.browserOmniboxAction) private var openOmnibox
 
     var body: some View {
         VStack(spacing: 0) {
@@ -35,15 +36,24 @@ struct BrowserRegularShell: View {
             .accessibilityLabel(String(localized: "AddressBar.Back", table: "Browser"))
 
             BrowserAddressCapsule(tab: store.selectedTab) {
-                withAnimation(.smooth.speed(2.0)) {
-                    isShowingOmnibox = true
-                }
+                openOmnibox?()
             }
             .frame(maxWidth: 560)
             .compatibleGlassEffect(in: .capsule, interactive: true)
             .contextMenu {
                 BrowserPageMenu(store: store, favourites: favourites)
             }
+
+            Button {
+                openBookmarks?()
+            } label: {
+                Image(systemName: "bookmark")
+                    .font(.system(size: 15))
+                    .frame(width: 30, height: 30)
+                    .contentShape(.circle)
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel(String(localized: "Location.Bookmarks", table: "Browser"))
 
             Menu {
                 BrowserPageMenu(store: store, favourites: favourites)

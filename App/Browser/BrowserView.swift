@@ -10,7 +10,8 @@ struct BrowserView: View {
 
     @State private var store = BrowserTabStore.restored()
     @State private var favourites = BrowserFavourites()
-    @State private var isShowingOmnibox = false
+    @State private var omnibox = BrowserOmniboxModel()
+    @State private var presentedSheet: BrowserSheetKind?
     @State private var pendingAddFeedURL: String?
     @State private var addFeedSession = AddFeedSession()
 
@@ -21,28 +22,44 @@ struct BrowserView: View {
     }
 
     var body: some View {
-        ZStack {
-            shell
-            if isShowingOmnibox {
-                BrowserOmniboxView(
-                    store: store,
-                    isPresented: $isShowingOmnibox,
-                    pendingAddFeedURL: $pendingAddFeedURL
-                )
-                .transition(.opacity)
-            }
-        }
+        shell
         .environment(store)
         .environment(favourites)
         .environment(\.browserLayout, layout)
+        .environment(\.browserBookmarksAction) {
+            presentedSheet = .bookmarks
+        }
+        .environment(omnibox)
+        .environment(\.browserAddFeedAction) { url in
+            pendingAddFeedURL = url
+        }
         .environment(\.browserOmniboxAction) {
             withAnimation(.smooth.speed(2.0)) {
-                isShowingOmnibox = true
+                omnibox.activate()
             }
         }
-        .sheet(isPresented: addFeedBinding) {
-            AddFeedView(initialURL: pendingAddFeedURL ?? "", session: addFeedSession)
-                .environment(feedManager)
+        .environment(\.browserOmniboxSubmit) {
+            submitOmnibox()
+        }
+        .animation(.smooth.speed(2.0), value: omnibox.isActive)
+        .sheet(
+            item: $presentedSheet,
+            onDismiss: { pendingAddFeedURL = nil },
+            content: { sheet in
+                switch sheet {
+                case .bookmarks:
+                    BrowserBookmarksSheet()
+                        .environment(feedManager)
+                case .addFeed(let url):
+                    AddFeedView(initialURL: url, session: addFeedSession)
+                        .environment(feedManager)
+                }
+            }
+        )
+        .onChange(of: pendingAddFeedURL) {
+            if let url = pendingAddFeedURL {
+                presentedSheet = .addFeed(url: url)
+            }
         }
         .onChange(of: pendingFeedURL) {
             if let url = pendingFeedURL {
@@ -52,22 +69,25 @@ struct BrowserView: View {
         }
     }
 
+    private func submitOmnibox() {
+        let trimmed = omnibox.text.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return }
+        if let urlString = BrowserAddressInput.normalizedURLString(from: trimmed) {
+            pendingAddFeedURL = urlString
+        } else {
+            store.navigate(to: .search(trimmed))
+        }
+        omnibox.deactivate()
+    }
+
     @ViewBuilder
     private var shell: some View {
         switch layout {
         case .compact:
             BrowserCompactShell()
         case .regular:
-            BrowserRegularShell(isShowingOmnibox: $isShowingOmnibox)
+            BrowserRegularShell()
         }
     }
 
-    private var addFeedBinding: Binding<Bool> {
-        Binding(
-            get: { pendingAddFeedURL != nil },
-            set: { isPresented in
-                if !isPresented { pendingAddFeedURL = nil }
-            }
-        )
-    }
 }

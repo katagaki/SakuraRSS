@@ -3,25 +3,51 @@ import Hanami
 
 /// The compact chrome, as a real `.bottomBar` toolbar rather than a floating
 /// overlay, so it gets the system's glass, safe area and scroll behaviour.
+/// While editing it morphs into the address field and a Cancel button, the way
+/// Safari's bottom bar does.
 struct BrowserBottomToolbar: ToolbarContent {
 
     let store: BrowserTabStore
     let feedManager: FeedManager
     let favourites: BrowserFavourites
-    let onOpenOmnibox: () -> Void
-    /// Measured by the shell: toolbar items size to their content, so the
-    /// address item cannot stretch on its own.
+    let omnibox: BrowserOmniboxModel
+    /// Measured by the shell: toolbar items size to their content, so neither
+    /// the address item nor the field can stretch on its own.
     let addressWidth: CGFloat
+    let onOpenOmnibox: () -> Void
+    let onOpenBookmarks: () -> Void
+    let onSubmitOmnibox: () -> Void
 
     var body: some ToolbarContent {
+        if omnibox.isActive {
+            editingItems
+        } else {
+            browsingItems
+        }
+    }
+
+    private var editingItems: some ToolbarContent {
         ToolbarItemGroup(placement: .bottomBar) {
-            Button {
-                store.goBack()
-            } label: {
-                Image(systemName: "chevron.backward")
+            BrowserOmniboxField(
+                model: omnibox,
+                width: BrowserAddressMetrics.fieldWidth(forAddressWidth: addressWidth),
+                onSubmit: onSubmitOmnibox
+            )
+
+            Spacer()
+
+            Button(String(localized: "AddressField.Cancel", table: "Browser")) {
+                omnibox.deactivate()
             }
-            .disabled(!store.selectedTab.canGoBack)
-            .accessibilityLabel(String(localized: "AddressBar.Back", table: "Browser"))
+        }
+    }
+
+    private var browsingItems: some ToolbarContent {
+        ToolbarItemGroup(placement: .bottomBar) {
+            Button(action: onOpenBookmarks) {
+                Image(systemName: "bookmark")
+            }
+            .accessibilityLabel(String(localized: "Location.Bookmarks", table: "Browser"))
 
             Spacer()
 
@@ -31,13 +57,15 @@ struct BrowserBottomToolbar: ToolbarContent {
                         store.selectedTab,
                         feedManager: feedManager
                     ),
-                    iconSize: 16,
+                    iconSize: 18,
                     titleFont: .subheadline,
-                    showsSubtitle: false
+                    showsSubtitle: true
                 )
-                .frame(width: addressWidth > 0 ? addressWidth : nil)
+                .frame(
+                    width: addressWidth > 0 ? addressWidth : nil,
+                    alignment: .leading
+                )
             }
-            .layoutPriority(1)
             .contextMenu {
                 BrowserPageMenu(store: store, favourites: favourites)
             }

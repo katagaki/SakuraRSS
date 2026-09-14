@@ -16,8 +16,6 @@ struct BrowserLocationDescription {
             symbolic(key: "StartPage.Title", symbolName: "square.grid.2x2")
         case .allContent:
             symbolic(key: "Location.AllContent", symbolName: "tray.full")
-        case .bookmarks:
-            symbolic(key: "Location.Bookmarks", symbolName: "bookmark")
         case .search(let query):
             BrowserLocationDescription(
                 title: query,

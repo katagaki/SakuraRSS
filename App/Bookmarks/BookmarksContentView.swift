@@ -14,6 +14,9 @@ struct BookmarksContentView: View {
     @State private var showingDeleteReadAlert = false
     @State private var isCreatingFolder = false
 
+    /// Sheets want an inline title; the tab and sidebar hosts want the large one.
+    private let titleDisplayMode: ToolbarTitleDisplayMode
+
     @Namespace private var newFolderNamespace
     private let newFolderTransitionID = "NewFolder"
 
@@ -25,7 +28,8 @@ struct BookmarksContentView: View {
         !feedManager.bookmarkFolders.isEmpty
     }
 
-    init() {
+    init(titleDisplayMode: ToolbarTitleDisplayMode = .inlineLarge) {
+        self.titleDisplayMode = titleDisplayMode
         let raw = UserDefaults.standard.string(forKey: "Display.DefaultBookmarksStyle")
         let defaultRaw = UserDefaults.standard.string(forKey: "Display.DefaultStyle") ?? FeedDisplayStyle.inbox.rawValue
         let fallback = FeedDisplayStyle(rawValue: defaultRaw) ?? .inbox
@@ -55,7 +59,7 @@ struct BookmarksContentView: View {
         }
         .environment(\.allowsMovingBookmarksToFolders, true)
         .navigationTitle("Tabs.Bookmarks")
-        .toolbarTitleDisplayMode(.inlineLarge)
+        .toolbarTitleDisplayMode(titleDisplayMode)
         .sakuraBackground()
         .navigationDestination(for: BookmarkFolder.self) { folder in
             // Destinations don't inherit the environment applied around

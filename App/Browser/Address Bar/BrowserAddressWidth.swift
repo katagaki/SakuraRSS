@@ -30,4 +30,10 @@ enum BrowserAddressMetrics {
     static func addressWidth(forContainerWidth width: CGFloat) -> CGFloat {
         max(0, width - chromeWidth)
     }
+
+    /// The editing field sits beside Cancel rather than two round buttons,
+    /// so it can claim a little more room than the address item.
+    static func fieldWidth(forAddressWidth width: CGFloat) -> CGFloat {
+        max(0, width - 16)
+    }
 }

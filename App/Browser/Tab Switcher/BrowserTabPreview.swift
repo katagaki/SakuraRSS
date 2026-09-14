@@ -12,6 +12,18 @@ struct BrowserTabPreview: View {
     let tab: BrowserTab
 
     var body: some View {
+        // Navigating pushes rather than replacing the root, so the tab's
+        // location is no longer what it is showing: prefer the page it last
+        // reported.
+        if let feedID = tab.pageIdentity?.feedID, let feed = feedManager.feedsByID[feedID] {
+            headlines(feedManager.articles(for: feed, limit: BrowserTabPreview.headlineLimit))
+        } else {
+            rootPreview
+        }
+    }
+
+    @ViewBuilder
+    private var rootPreview: some View {
         switch tab.location {
         case .startPage:
             favouriteIcons
@@ -25,7 +37,7 @@ struct BrowserTabPreview: View {
             } ?? [])
         case .allContent:
             headlines(feedManager.articles(limit: BrowserTabPreview.headlineLimit))
-        case .bookmarks, .search:
+        case .search:
             symbolPlaceholder
         }
     }

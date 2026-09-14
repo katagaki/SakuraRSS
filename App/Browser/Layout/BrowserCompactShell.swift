@@ -9,9 +9,11 @@ struct BrowserCompactShell: View {
     @Environment(BrowserTabStore.self) private var store
     @Environment(BrowserFavourites.self) private var favourites
     @State private var containerWidth: CGFloat = 0
+    @Namespace private var tabZoom
 
     var body: some View {
         BrowserTabStack()
+            .matchedSource(id: store.selectedTabID, in: tabZoom)
             .background {
                 GeometryReader { proxy in
                     Color.clear.preference(
@@ -23,6 +25,7 @@ struct BrowserCompactShell: View {
             .onPreferenceChange(BrowserAddressWidthPreferenceKey.self) { width in
                 containerWidth = width
             }
+            .environment(\.isBrowserChromeActive, true)
             .environment(
                 \.browserAddressWidth,
                 BrowserAddressMetrics.addressWidth(forContainerWidth: containerWidth)
@@ -31,6 +34,7 @@ struct BrowserCompactShell: View {
                 BrowserTabSwitcher()
                     .environment(store)
                     .environment(favourites)
+                    .zoomTransition(sourceID: store.selectedTabID, in: tabZoom)
             }
     }
 

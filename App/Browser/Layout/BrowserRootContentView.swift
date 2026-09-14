@@ -26,14 +26,6 @@ struct BrowserRootContentView: View {
                     title: String(localized: "Location.AllContent", table: "Browser"),
                     symbolName: "tray.full"
                 )
-        case .bookmarks:
-            BookmarksContentView()
-                .navigationTitle(String(localized: "Location.Bookmarks", table: "Browser"))
-                .toolbarTitleDisplayMode(.inline)
-                .browserPage(
-                    title: String(localized: "Location.Bookmarks", table: "Browser"),
-                    symbolName: "bookmark"
-                )
         case .search(let query):
             BrowserSearchResultsView(query: query)
                 .browserPage(

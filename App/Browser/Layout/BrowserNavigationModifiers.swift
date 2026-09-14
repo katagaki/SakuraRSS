@@ -9,6 +9,9 @@ struct BrowserNavigationEnvironment: ViewModifier {
     @Environment(FeedManager.self) private var feedManager
     @Environment(\.browserLayout) private var layout
     @Environment(\.browserOmniboxAction) private var openOmnibox
+    @Environment(\.browserBookmarksAction) private var openBookmarks
+    @Environment(\.browserOmniboxSubmit) private var submitOmnibox
+    @Environment(BrowserOmniboxModel.self) private var omnibox
     @Environment(\.browserAddressWidth) private var addressWidth
     @Environment(BrowserTabStore.self) private var store
     @Environment(BrowserFavourites.self) private var favourites
@@ -21,14 +24,23 @@ struct BrowserNavigationEnvironment: ViewModifier {
             .environment(\.navigateToFeed) { path.append($0) }
             .environment(\.navigateToEphemeralArticle) { path.append($0) }
             .environment(\.navigateToSummaryHeadline) { path.append($0) }
+            .overlay {
+                if layout == .compact, omnibox.isActive {
+                    BrowserOmniboxView()
+                        .transition(.opacity)
+                }
+            }
             .toolbar {
                 if layout == .compact {
                     BrowserBottomToolbar(
                         store: store,
                         feedManager: feedManager,
                         favourites: favourites,
+                        omnibox: omnibox,
+                        addressWidth: addressWidth,
                         onOpenOmnibox: { openOmnibox?() },
-                        addressWidth: addressWidth
+                        onOpenBookmarks: { openBookmarks?() },
+                        onSubmitOmnibox: { submitOmnibox?() }
                     )
                 }
             }

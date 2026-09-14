@@ -8,7 +8,6 @@ enum BrowserLocation: Hashable {
     case feed(Int64)
     case list(Int64)
     case allContent
-    case bookmarks
     case search(String)
 }
 
@@ -17,7 +16,6 @@ extension BrowserLocation {
         switch self {
         case .startPage: "startPage"
         case .allContent: "allContent"
-        case .bookmarks: "bookmarks"
         case .feed(let feedID): "feed:\(feedID)"
         case .list(let listID): "list:\(listID)"
         case .search(let query): "search:\(query)"
@@ -28,7 +26,6 @@ extension BrowserLocation {
         switch token {
         case "startPage": return .startPage
         case "allContent": return .allContent
-        case "bookmarks": return .bookmarks
         default: break
         }
         let parts = token.split(separator: ":", maxSplits: 1, omittingEmptySubsequences: false)

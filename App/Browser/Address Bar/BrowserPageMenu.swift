@@ -42,12 +42,6 @@ struct BrowserPageMenu: View {
                     Label(String(localized: "Location.AllContent", table: "Browser"),
                           systemImage: "tray.full")
                 }
-                Button {
-                    store.navigate(to: .bookmarks)
-                } label: {
-                    Label(String(localized: "Location.Bookmarks", table: "Browser"),
-                          systemImage: "bookmark")
-                }
             }
 
             Section {

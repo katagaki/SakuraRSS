@@ -1,24 +1,20 @@
 import SwiftUI
 import Hanami
 
-/// The expanded address field. One field both searches what is already
-/// subscribed and offers to go find feeds at an address that is not.
+/// The suggestion overlay. The field itself lives in the bottom toolbar, so
+/// this view only dims the page and lists what the text matches.
 struct BrowserOmniboxView: View {
 
     private static let suggestionListMaxHeight: CGFloat = 340
 
     @Environment(FeedManager.self) private var feedManager
-    let store: BrowserTabStore
-    @Binding var isPresented: Bool
-    @Binding var pendingAddFeedURL: String?
-
-    @State private var text: String = ""
-    @State private var contentMatches: [Article] = []
-    @FocusState private var isFieldFocused: Bool
+    @Environment(BrowserTabStore.self) private var store
+    @Environment(BrowserOmniboxModel.self) private var omnibox
+    @Environment(\.browserAddFeedAction) private var addFeed
 
     private var suggestions: [BrowserSuggestion] {
         BrowserSuggestionResolver(feedManager: feedManager)
-            .suggestions(for: text, contentMatches: contentMatches)
+            .suggestions(for: omnibox.text, contentMatches: omnibox.contentMatches)
     }
 
     var body: some View {
@@ -27,7 +23,7 @@ struct BrowserOmniboxView: View {
                 .fill(.ultraThinMaterial)
                 .ignoresSafeArea()
                 .contentShape(.rect)
-                .onTapGesture { dismiss() }
+                .onTapGesture { omnibox.deactivate() }
 
             VStack(spacing: 0) {
                 // The list only claims the room it needs, so the dimmed page
@@ -35,13 +31,9 @@ struct BrowserOmniboxView: View {
                 Spacer(minLength: 0)
                 suggestionList
                     .frame(maxHeight: BrowserOmniboxView.suggestionListMaxHeight)
-                inputRow
             }
         }
-        .task {
-            isFieldFocused = true
-        }
-        .task(id: text) {
+        .task(id: omnibox.text) {
             await refreshContentMatches()
         }
     }
@@ -74,69 +66,17 @@ struct BrowserOmniboxView: View {
         .defaultScrollAnchor(.bottom)
     }
 
-    private var inputField: some View {
-        HStack(spacing: 10) {
-            Image(systemName: "magnifyingglass")
-                .foregroundStyle(.secondary)
-            TextField(
-                String(localized: "AddressField.Prompt", table: "Browser"),
-                text: $text
-            )
-            .textFieldStyle(.plain)
-            .textInputAutocapitalization(.never)
-            .autocorrectionDisabled()
-            .submitLabel(.go)
-            .focused($isFieldFocused)
-            .onSubmit { submit() }
-            if !text.isEmpty {
-                Button {
-                    text = ""
-                } label: {
-                    Image(systemName: "xmark.circle.fill")
-                        .foregroundStyle(.secondary)
-                }
-                .buttonStyle(.plain)
-            }
-        }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 12)
-        .compatibleGlassEffect(in: .capsule)
-    }
-
-    private var inputRow: some View {
-        HStack(spacing: 10) {
-            inputField
-            Button(String(localized: "AddressField.Cancel", table: "Browser")) {
-                dismiss()
-            }
-            .font(.subheadline)
-        }
-        .padding(.horizontal, 16)
-        .padding(.bottom, 8)
-    }
-
     private func refreshContentMatches() async {
-        let query = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        let query = omnibox.text.trimmingCharacters(in: .whitespacesAndNewlines)
         guard query.count >= 2 else {
-            contentMatches = []
+            omnibox.contentMatches = []
             return
         }
         try? await Task.sleep(for: .milliseconds(250))
         guard !Task.isCancelled else { return }
         let found = (try? DatabaseManager.shared.searchArticles(query: query)) ?? []
         guard !Task.isCancelled else { return }
-        contentMatches = Array(found.prefix(4))
-    }
-
-    private func submit() {
-        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmed.isEmpty else { return }
-        if let urlString = BrowserAddressInput.normalizedURLString(from: trimmed) {
-            pendingAddFeedURL = urlString
-        } else {
-            store.navigate(to: .search(trimmed))
-        }
-        dismiss()
+        omnibox.contentMatches = Array(found.prefix(4))
     }
 
     private func apply(_ suggestion: BrowserSuggestion) {
@@ -152,15 +92,8 @@ struct BrowserOmniboxView: View {
         case .searchContent(let query):
             store.navigate(to: .search(query))
         case .discoverFeeds(let host):
-            pendingAddFeedURL = "https://\(host)"
+            addFeed?("https://\(host)")
         }
-        dismiss()
-    }
-
-    private func dismiss() {
-        isFieldFocused = false
-        withAnimation(.smooth.speed(2.0)) {
-            isPresented = false
-        }
+        omnibox.deactivate()
     }
 }
