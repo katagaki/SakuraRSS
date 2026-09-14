@@ -5,9 +5,9 @@ import Hanami
 /// carousels, topics/people pills, bookmarks, and recently viewed.
 struct TodayView: View {
 
-    /// Optional content pinned above the greeting. The browser shell uses it
-    /// to keep Favourites on the start page.
-    var headerView: AnyView?
+    /// Optional content pinned directly below the greeting. The browser shell
+    /// uses it to keep Favourites on the start page.
+    var pinnedSection: AnyView?
 
     @Environment(FeedManager.self) var feedManager
     @Environment(TodayManager.self) var todayManager

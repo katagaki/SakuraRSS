@@ -10,10 +10,10 @@ extension TodayView {
         let showEmpty = todayManager.hasLoadedInitially && !anySummaryVisible && sections.isEmpty
         return ScrollView {
             VStack(alignment: .leading, spacing: 16) {
-                headerView
-
                 TodayGreetingView()
                     .padding(.horizontal)
+
+                pinnedSection
 
                 if isWeatherShowing {
                     sectionDivider

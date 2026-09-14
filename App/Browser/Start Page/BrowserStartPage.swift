@@ -9,10 +9,9 @@ struct BrowserStartPage: View {
         // visionOS has no Today, so the start page keeps its own sections there.
         BrowserFallbackStartPage()
         #else
-        TodayView(headerView: AnyView(
+        TodayView(pinnedSection: AnyView(
             BrowserFavouritesSection()
-                .padding(.horizontal, 20)
-                .padding(.top, 12)
+                .padding(.horizontal)
         ))
         #endif
     }
