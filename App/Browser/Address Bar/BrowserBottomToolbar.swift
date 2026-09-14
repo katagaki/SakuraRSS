@@ -57,10 +57,11 @@ struct BrowserBottomToolbar: ToolbarContent {
                         store.selectedTab,
                         feedManager: feedManager
                     ),
-                    iconSize: 18,
+                    iconSize: 24,
                     titleFont: .subheadline,
                     showsSubtitle: true
                 )
+                .padding(.leading, 8)
                 .frame(
                     width: addressWidth > 0 ? addressWidth : nil,
                     alignment: .leading
