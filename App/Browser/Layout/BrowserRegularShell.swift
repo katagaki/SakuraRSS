@@ -1,0 +1,61 @@
+import SwiftUI
+import Hanami
+
+/// iPad, Mac and Vision chrome: a tab strip and address field above the page,
+/// the way Safari lays itself out when there is room for both.
+struct BrowserRegularShell: View {
+
+    @Environment(FeedManager.self) private var feedManager
+    @Environment(BrowserTabStore.self) private var store
+    @Environment(BrowserFavourites.self) private var favourites
+    @Binding var isShowingOmnibox: Bool
+
+    var body: some View {
+        VStack(spacing: 0) {
+            BrowserTopTabBar()
+            addressRow
+            Divider()
+            BrowserTabStack()
+        }
+        .background(.background.secondary)
+    }
+
+    private var addressRow: some View {
+        HStack(spacing: 8) {
+            Button {
+                store.goBack()
+            } label: {
+                Image(systemName: "chevron.backward")
+                    .font(.system(size: 14, weight: .semibold))
+                    .frame(width: 30, height: 30)
+                    .contentShape(.circle)
+            }
+            .buttonStyle(.plain)
+            .disabled(!store.selectedTab.canGoBack)
+            .accessibilityLabel(String(localized: "AddressBar.Back", table: "Browser"))
+
+            BrowserAddressCapsule(tab: store.selectedTab) {
+                withAnimation(.smooth.speed(2.0)) {
+                    isShowingOmnibox = true
+                }
+            }
+            .frame(maxWidth: 560)
+            .compatibleGlassEffect(in: .capsule, interactive: true)
+            .contextMenu {
+                BrowserPageMenu(store: store, favourites: favourites)
+            }
+
+            Menu {
+                BrowserPageMenu(store: store, favourites: favourites)
+            } label: {
+                Image(systemName: "ellipsis.circle")
+                    .font(.system(size: 16))
+                    .frame(width: 30, height: 30)
+                    .contentShape(.circle)
+            }
+            .buttonStyle(.plain)
+        }
+        .padding(.horizontal, 12)
+        .padding(.bottom, 8)
+    }
+}

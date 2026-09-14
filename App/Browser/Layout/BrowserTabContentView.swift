@@ -1,0 +1,28 @@
+import SwiftUI
+import Hanami
+
+/// One tab's navigation stack. Kept alive only while the tab is recent; an
+/// evicted tab keeps its `NavigationPath` in the store and rebuilds from it.
+struct BrowserTabContentView: View {
+
+    let store: BrowserTabStore
+    let tabID: UUID
+    @Namespace private var cardZoom
+
+    private var location: BrowserLocation {
+        store.tabs.first { $0.id == tabID }?.location ?? .startPage
+    }
+
+    var body: some View {
+        let path = store.pathBinding(for: tabID)
+        NavigationStack(path: path) {
+            BrowserRootContentView(location: location)
+                .browserNavigationEnvironment(path: path, namespace: cardZoom)
+                .browserNavigationDestinations(path: path, namespace: cardZoom)
+        }
+        .environment(\.browserPageReporter) { identity in
+            store.setPageIdentity(identity, for: tabID)
+        }
+        .compatibleSoftScrollEdgeEffectStyle()
+    }
+}
