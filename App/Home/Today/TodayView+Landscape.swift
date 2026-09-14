@@ -52,6 +52,8 @@ extension TodayView {
     private var landscapeLeadingColumn: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
+                headerView
+
                 TodayGreetingView(isCompact: true)
                     .padding(.horizontal)
 

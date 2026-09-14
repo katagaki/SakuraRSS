@@ -5,6 +5,10 @@ import Hanami
 /// carousels, topics/people pills, bookmarks, and recently viewed.
 struct TodayView: View {
 
+    /// Optional content pinned above the greeting. The browser shell uses it
+    /// to keep Favourites on the start page.
+    var headerView: AnyView?
+
     @Environment(FeedManager.self) var feedManager
     @Environment(TodayManager.self) var todayManager
     @Environment(\.verticalSizeClass) var verticalSizeClass
@@ -53,51 +57,6 @@ struct TodayView: View {
     }
 
     // MARK: - Layouts
-
-    private var portraitLayout: some View {
-        let episodes = visibleEpisodes
-        let sections = contentSections(episodes: episodes)
-        let showEmpty = todayManager.hasLoadedInitially && !anySummaryVisible && sections.isEmpty
-        return ScrollView {
-            VStack(alignment: .leading, spacing: 16) {
-                TodayGreetingView()
-                    .padding(.horizontal)
-
-                if isWeatherShowing {
-                    sectionDivider
-                }
-
-                if !anySummaryVisible, !isWeatherShowing,
-                   !todayManager.hasLoadedInitially || !sections.isEmpty || showEmpty {
-                    sectionDivider
-                }
-
-                if anySummaryActive {
-                    summaryCardsStack
-                }
-
-                if anySummaryVisible,
-                   !todayManager.hasLoadedInitially || !sections.isEmpty || showEmpty {
-                    sectionDivider
-                }
-
-                if !todayManager.hasLoadedInitially {
-                    loadingIndicator
-                } else if showEmpty {
-                    emptyContentView
-                } else {
-                    contentSectionsStack(sections, episodes: episodes)
-                }
-
-                TodayAttributionFooter()
-            }
-            .padding(.top, 8)
-            .padding(.bottom, 24)
-        }
-        .refreshable {
-            startRefreshWithoutBlocking()
-        }
-    }
 
     var summaryCardsStack: some View {
         VStack(spacing: 0) {
