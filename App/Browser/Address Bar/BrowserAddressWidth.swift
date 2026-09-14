@@ -14,17 +14,6 @@ extension EnvironmentValues {
     }
 }
 
-/// The page's frame, in the shell's coordinate space, so the tab transition
-/// can be computed against card frames measured in that same space.
-struct BrowserContainerFramePreferenceKey: PreferenceKey {
-    static let defaultValue: CGRect = .zero
-
-    static func reduce(value: inout CGRect, nextValue: () -> CGRect) {
-        let next = nextValue()
-        if next.width > value.width { value = next }
-    }
-}
-
 enum BrowserAddressMetrics {
     /// Everything in the bottom bar that is not the address item: the back and
     /// tab buttons, the two dividing spacers, and the bar's own side margins.
