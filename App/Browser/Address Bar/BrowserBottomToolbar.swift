@@ -74,7 +74,7 @@ struct BrowserBottomToolbar: ToolbarContent {
             Spacer()
 
             Button {
-                withAnimation(.smooth.speed(1.5)) {
+                withAnimation(BrowserTabSwitcher.transitionAnimation) {
                     store.isShowingTabSwitcher = true
                 }
             } label: {

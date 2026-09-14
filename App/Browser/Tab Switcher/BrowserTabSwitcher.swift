@@ -5,6 +5,9 @@ import Hanami
 /// because only a handful of tabs are kept alive at a time.
 struct BrowserTabSwitcher: View {
 
+    /// Long enough for the scale to read; the default speed pops.
+    static let transitionAnimation: Animation = .smooth(duration: 0.34)
+
     @Environment(BrowserTabStore.self) private var store
 
     private let columns = [GridItem(.adaptive(minimum: 150), spacing: 16)]
@@ -75,7 +78,7 @@ struct BrowserTabSwitcher: View {
     }
 
     private func dismissSwitcher() {
-        withAnimation(.smooth.speed(1.5)) {
+        withAnimation(BrowserTabSwitcher.transitionAnimation) {
             store.isShowingTabSwitcher = false
         }
     }
