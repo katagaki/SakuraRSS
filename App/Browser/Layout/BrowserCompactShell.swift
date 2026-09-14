@@ -29,6 +29,12 @@ struct BrowserCompactShell: View {
                 // Scale and fade are animated apart so the page stays opaque
                 // while it collapses and only dissolves once it has landed.
                 tabStack(width: proxy.size.width)
+                    .clipShape(
+                        RoundedRectangle(
+                            cornerRadius: pageCornerRadius(in: proxy.size),
+                            style: .continuous
+                        )
+                    )
                     .scaleEffect(pageScale(in: proxy.size), anchor: .topLeading)
                     .offset(pageOffset)
                     .animation(BrowserTabSwitcher.transitionAnimation, value: store.isShowingTabSwitcher)
@@ -69,6 +75,16 @@ struct BrowserCompactShell: View {
         return CGSize(width: card.width / size.width, height: card.height / size.height)
     }
 
+    /// Clipping happens before the scale, so the radius has to be divided by
+    /// the scale to land on the card's actual corner radius.
+    private func pageCornerRadius(in size: CGSize) -> CGFloat {
+        let scale = pageScale(in: size).width
+        guard store.isShowingTabSwitcher, scale > 0 else {
+            return BrowserDeviceMetrics.displayCornerRadius
+        }
+        return BrowserTabCard.cornerRadius / scale
+    }
+
     /// Anchored top-leading, so landing on the card is just its origin.
     private var pageOffset: CGSize {
         guard let card = selectedCardFrame else { return .zero }
@@ -77,6 +93,10 @@ struct BrowserCompactShell: View {
 
     private func tabStack(width: CGFloat) -> some View {
         BrowserTabStack()
+            // The page is what gets scaled into the card, so it has to draw
+            // edge to edge: otherwise the snapshot carries blank status bar and
+            // home indicator bands into the card with it.
+            .ignoresSafeArea()
             .environment(\.isBrowserChromeActive, true)
             .environment(
                 \.browserAddressWidth,

@@ -3,6 +3,8 @@ import Hanami
 
 struct BrowserTabCard: View {
 
+    static let cornerRadius: CGFloat = 16
+
     @Environment(FeedManager.self) private var feedManager
     let tab: BrowserTab
     let isSelected: Bool
@@ -22,12 +24,12 @@ struct BrowserTabCard: View {
                     .frame(height: 132)
                     .clipped()
             }
-            .background(.background.secondary, in: .rect(cornerRadius: 16))
+            .background(.background.secondary, in: .rect(cornerRadius: BrowserTabCard.cornerRadius))
             .overlay {
-                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                RoundedRectangle(cornerRadius: BrowserTabCard.cornerRadius, style: .continuous)
                     .strokeBorder(isSelected ? Color.accentColor : Color.clear, lineWidth: 2.5)
             }
-            .contentShape(.rect(cornerRadius: 16))
+            .contentShape(.rect(cornerRadius: BrowserTabCard.cornerRadius))
             .reportsTabCardFrame(id: tab.id)
         }
         .buttonStyle(.plain)
