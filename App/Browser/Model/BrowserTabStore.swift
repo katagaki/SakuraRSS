@@ -9,9 +9,6 @@ final class BrowserTabStore {
     /// when revisited, so twenty open feeds do not mean twenty live article lists.
     static let liveTabLimit = 4
 
-    /// How far Back can walk through a tab's previous locations.
-    static let locationHistoryLimit = 20
-
     private(set) var tabs: [BrowserTab]
     private(set) var selectedTabID: UUID
     private(set) var liveTabIDs: [UUID]
@@ -92,22 +89,15 @@ final class BrowserTabStore {
 
     // MARK: - Navigation
 
-    /// Points the selected tab at a new root, the way typing an address in
-    /// Safari replaces the page rather than pushing onto it.
+    /// Pushes a location onto the selected tab, so moving between pages gets
+    /// the system's push animation and its interactive back gesture rather
+    /// than swapping the stack's root out from under itself.
     func navigate(to location: BrowserLocation) {
         let index = selectedIndex
-        guard tabs[index].location != location || !tabs[index].path.isEmpty else { return }
-        tabs[index].locationHistory.append(tabs[index].location)
-        if tabs[index].locationHistory.count > BrowserTabStore.locationHistoryLimit {
-            tabs[index].locationHistory.removeFirst()
-        }
-        tabs[index].location = location
-        tabs[index].path = NavigationPath()
-        tabs[index].pageIdentity = nil
+        tabs[index].path.append(location)
         tabs[index].lastVisited = .now
         recordVisit(location)
         markLive(tabs[index].id)
-        persistTabs()
     }
 
     func push<Value: Hashable>(_ value: Value) {
@@ -118,15 +108,9 @@ final class BrowserTabStore {
 
     func goBack() {
         let index = selectedIndex
-        if !tabs[index].path.isEmpty {
-            tabs[index].path.removeLast()
-            return
-        }
-        guard let previous = tabs[index].locationHistory.popLast() else { return }
-        tabs[index].location = previous
-        tabs[index].pageIdentity = nil
+        guard !tabs[index].path.isEmpty else { return }
+        tabs[index].path.removeLast()
         tabs[index].lastVisited = .now
-        persistTabs()
     }
 
     func popToRoot() {

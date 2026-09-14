@@ -11,6 +11,10 @@ struct BrowserNavigationDestinations: ViewModifier {
 
     func body(content: Content) -> some View {
         content
+            .navigationDestination(for: BrowserLocation.self) { location in
+                BrowserRootContentView(location: location)
+                    .browserNavigationEnvironment(path: $path, namespace: namespace)
+            }
             .navigationDestination(for: Feed.self) { feed in
                 FeedArticlesView(feed: feed)
                     .browserNavigationEnvironment(path: $path, namespace: namespace)
