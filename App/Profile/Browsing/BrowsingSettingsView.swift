@@ -8,6 +8,7 @@ struct BrowsingSettingsView: View {
     @AppStorage("Display.ScrollMarkAsRead") private var scrollMarkAsRead: Bool = false
     @AppStorage(LinkOpenMode.storageKey) private var linkOpenMode: LinkOpenMode = .inAppViewer
     @AppStorage(DoomscrollingMode.storageKey) private var doomscrollingMode: Bool = false
+    @AppStorage("Browser.Enabled") private var browserEnabled: Bool = false
 
     private var hideViewedContentBinding: Binding<Bool> {
         Binding(
@@ -97,6 +98,15 @@ struct BrowsingSettingsView: View {
                     .tint(.red)
             } header: {
                 Text(String(localized: "Section.Doomscrolling", table: "Settings"))
+            }
+
+            Section {
+                Toggle(String(localized: "Browser.Enable", table: "Settings"),
+                       isOn: $browserEnabled)
+            } header: {
+                Text(String(localized: "Section.Browser", table: "Settings"))
+            } footer: {
+                Text(String(localized: "Browser.Footer", table: "Settings"))
             }
 
             Section {

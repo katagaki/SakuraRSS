@@ -9687,6 +9687,201 @@
           }
         }
       }
+    },
+    "Browser.Enable" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Browser-Layout verwenden"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Use Browser Layout"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Utiliser la disposition navigateur"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Usa il layout browser"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ブラウザレイアウトを使用"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "브라우저 레이아웃 사용"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gebruik browserindeling"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dùng bố cục trình duyệt"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "使用浏览器布局"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "使用瀏覽器佈局"
+          }
+        }
+      }
+    },
+    "Browser.Footer" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ersetzt die Tableiste durch einen Browser: mehrere Tabs, ein Feld, das deine Feeds durchsucht oder neue findet, und eine Startseite. Dies ist ein Prototyp."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Replaces the tab bar with a browser: multiple tabs, one field that searches your feeds or finds new ones, and a start page. This is a prototype."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Remplace la barre d'onglets par un navigateur : plusieurs onglets, un champ unique pour rechercher dans vos flux ou en trouver de nouveaux, et une page de démarrage. Il s'agit d'un prototype."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sostituisce la barra schede con un browser: più schede, un unico campo che cerca nei tuoi feed o ne trova di nuovi e una pagina iniziale. Questo è un prototipo."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "タブバーをブラウザに置き換えます。複数のタブ、フィードを検索したり新しいフィードを見つけたりできる単一の入力欄、そしてスタートページを備えています。これはプロトタイプです。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "탭 막대를 브라우저로 대체합니다. 여러 개의 탭, 피드를 검색하거나 새 피드를 찾는 단일 입력란, 그리고 시작 페이지를 제공합니다. 프로토타입입니다."
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vervangt de tabbalk door een browser: meerdere tabbladen, één veld dat je feeds doorzoekt of nieuwe vindt, en een startpagina. Dit is een prototype."
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Thay thanh thẻ bằng một trình duyệt: nhiều thẻ, một ô duy nhất để tìm trong nguồn cấp của bạn hoặc tìm nguồn cấp mới, và một trang bắt đầu. Đây là bản thử nghiệm."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "将标签栏替换为浏览器：多个标签页、一个既能搜索你的订阅源也能查找新订阅源的输入框，以及一个起始页。这是原型功能。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "將標籤列替換為瀏覽器：多個標籤頁、一個既能搜尋你的訂閱源也能尋找新訂閱源的輸入框，以及一個開始頁面。這是原型功能。"
+          }
+        }
+      }
+    },
+    "Section.Browser" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Browser"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Browser"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Navigateur"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Browser"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ブラウザ"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "브라우저"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Browser"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trình duyệt"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "浏览器"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "瀏覽器"
+          }
+        }
+      }
     }
   },
   "version" : "1.1"
