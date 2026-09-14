@@ -28,6 +28,7 @@ struct BrowserTabCard: View {
                     .strokeBorder(isSelected ? Color.accentColor : Color.clear, lineWidth: 2.5)
             }
             .contentShape(.rect(cornerRadius: 16))
+            .reportsTabCardFrame(id: tab.id)
         }
         .buttonStyle(.plain)
     }

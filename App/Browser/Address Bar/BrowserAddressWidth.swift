@@ -14,11 +14,14 @@ extension EnvironmentValues {
     }
 }
 
-struct BrowserAddressWidthPreferenceKey: PreferenceKey {
-    static let defaultValue: CGFloat = 0
+/// The page's frame, in the shell's coordinate space, so the tab transition
+/// can be computed against card frames measured in that same space.
+struct BrowserContainerFramePreferenceKey: PreferenceKey {
+    static let defaultValue: CGRect = .zero
 
-    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
-        value = max(value, nextValue())
+    static func reduce(value: inout CGRect, nextValue: () -> CGRect) {
+        let next = nextValue()
+        if next.width > value.width { value = next }
     }
 }
 
