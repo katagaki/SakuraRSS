@@ -9,6 +9,8 @@ struct BrowserTabSwitcher: View {
     static let transitionAnimation: Animation = .smooth(duration: 0.34)
 
     @Environment(BrowserTabStore.self) private var store
+    @Environment(FeedManager.self) private var feedManager
+    @State private var isShowingProfile = false
 
     private let columns = [GridItem(.adaptive(minimum: 150), spacing: 16)]
 
@@ -30,6 +32,10 @@ struct BrowserTabSwitcher: View {
             .navigationTitle(String(localized: "Tabs.Count \(store.tabs.count)", table: "Browser"))
             .toolbarTitleDisplayMode(.inline)
             .toolbar { toolbarContent }
+            .sheet(isPresented: $isShowingProfile) {
+                ProfileView()
+                    .environment(feedManager)
+            }
             .sakuraBackground()
         }
     }
@@ -59,8 +65,21 @@ struct BrowserTabSwitcher: View {
             }
             .accessibilityLabel(String(localized: "Menu.NewTab", table: "Browser"))
         }
-        ToolbarItem(placement: .confirmationAction) {
-            Button(String(localized: "Tabs.Done", table: "Browser")) {
+        ToolbarItem(placement: .bottomBar) {
+            Button {
+                isShowingProfile = true
+            } label: {
+                Image(systemName: "person.crop.circle")
+            }
+            .accessibilityLabel(String(localized: "Tabs.Profile"))
+        }
+
+        #if !os(visionOS)
+        ToolbarSpacer(.flexible, placement: .bottomBar)
+        #endif
+
+        ToolbarItem(placement: .bottomBar) {
+            Button(role: .confirm) {
                 dismissSwitcher()
             }
         }
