@@ -32,12 +32,7 @@ struct BrowserCompactShell: View {
                 tabStack(width: proxy.size.width)
                     .scaleEffect(pageScale(in: proxy.size), anchor: .topLeading)
                     .offset(pageOffset)
-                    .clipShape(
-                        BrowserPageClipShape(
-                            rect: pageClipRect(in: proxy.size),
-                            cornerRadius: pageCornerRadius
-                        )
-                    )
+                    .clipShape(pageClipShape(in: proxy.size))
                     .animation(BrowserTabSwitcher.transitionAnimation, value: store.isPageCollapsed)
                     .opacity(store.isPageCollapsed ? 0 : 1)
                     .animation(pageFadeAnimation, value: store.isPageCollapsed)
@@ -84,19 +79,18 @@ struct BrowserCompactShell: View {
         return CGSize(width: card.minX, height: card.minY)
     }
 
-    /// The card's rect while collapsed, the whole screen otherwise.
-    private func pageClipRect(in size: CGSize) -> CGRect {
-        guard let card = selectedCardFrame else {
-            return CGRect(origin: .zero, size: size)
-        }
-        return card
-    }
-
-    /// Applied after the scale now, so it is the card's radius directly.
-    private var pageCornerRadius: CGFloat {
-        store.isPageCollapsed
-            ? BrowserTabCard.cornerRadius
-            : BrowserDeviceMetrics.displayCornerRadius
+    /// Reads the target straight off the store rather than `selectedCardFrame`:
+    /// only `progress` animates, so the rects it interpolates between have to
+    /// stay put for the whole transition, including the way back out.
+    private func pageClipShape(in size: CGSize) -> BrowserPageClipShape {
+        let screen = CGRect(origin: .zero, size: size)
+        return BrowserPageClipShape(
+            progress: store.isPageCollapsed ? 1 : 0,
+            expanded: screen,
+            collapsed: store.collapseTarget ?? screen,
+            expandedRadius: BrowserDeviceMetrics.displayCornerRadius,
+            collapsedRadius: BrowserTabCard.cornerRadius
+        )
     }
 
     private func tabStack(width: CGFloat) -> some View {
