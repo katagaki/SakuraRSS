@@ -13,7 +13,7 @@ struct BrowserRecentContentRow: View {
     var body: some View {
         HStack(spacing: 12) {
             if let feed {
-                FeedIcon(feed: feed, size: 34, cornerRadius: 8)
+                FeedIcon(feed: feed, size: 34, cornerRadius: BrowserIconMetrics.cornerRadius(for: 34))
             }
             VStack(alignment: .leading, spacing: 3) {
                 Text(article.title)

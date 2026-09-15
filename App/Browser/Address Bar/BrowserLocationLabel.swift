@@ -31,7 +31,11 @@ struct BrowserLocationLabel: View {
     @ViewBuilder
     private var icon: some View {
         if let feed = description.feed {
-            FeedIcon(feed: feed, size: iconSize, cornerRadius: iconSize / 4.5)
+            FeedIcon(
+                feed: feed,
+                size: iconSize,
+                cornerRadius: BrowserIconMetrics.cornerRadius(for: iconSize)
+            )
         } else {
             Image(systemName: description.symbolName)
                 .font(.system(size: iconSize * 0.75))

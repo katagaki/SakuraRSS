@@ -73,7 +73,7 @@ struct BrowserTabPreview: View {
     private var favouriteIcons: some View {
         LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 8), count: 4), spacing: 8) {
             ForEach(favourites.resolvedFeeds(feedManager: feedManager).prefix(8)) { feed in
-                FeedIcon(feed: feed, size: 26, cornerRadius: 7)
+                FeedIcon(feed: feed, size: 26, cornerRadius: BrowserIconMetrics.cornerRadius(for: 26))
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)

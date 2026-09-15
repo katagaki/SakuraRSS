@@ -35,7 +35,7 @@ struct BrowserFrequentlyVisitedSection: View {
             store.navigate(to: .feed(feed.id))
         } label: {
             HStack(spacing: 7) {
-                FeedIcon(feed: feed, size: 20, cornerRadius: 5)
+                FeedIcon(feed: feed, size: 20, cornerRadius: BrowserIconMetrics.cornerRadius(for: 20))
                 Text(feed.title)
                     .font(.subheadline)
                     .lineLimit(1)

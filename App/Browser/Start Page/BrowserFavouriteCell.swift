@@ -17,7 +17,7 @@ struct BrowserFavouriteCell: View {
             store.navigate(to: .feed(feed.id))
         } label: {
             VStack(spacing: 8) {
-                FeedIcon(feed: feed, size: 56, cornerRadius: 14)
+                FeedIcon(feed: feed, size: 56, cornerRadius: BrowserIconMetrics.cornerRadius(for: 56))
                     .overlay(alignment: .topTrailing) {
                         if unreadCount > 0 {
                             unreadBadge
