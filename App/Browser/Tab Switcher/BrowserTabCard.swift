@@ -22,11 +22,15 @@ struct BrowserTabCard: View {
                 header
                 // No padding here: a snapshot bleeds to the card's edges.
                 // The stand-in insets itself instead.
-                BrowserTabPreview(tab: tab)
-                    .frame(maxWidth: .infinity)
-                    // Top aligned: a snapshot is far taller than the card, and
-                    // a card should show the top of its page, not its middle.
-                    .frame(height: 132, alignment: .top)
+                // Shaped like the screen, so a card reads as the page it
+                // stands for. The ratio is driven off a flexible shape rather
+                // than the preview: a stand-in has no intrinsic size, so
+                // aspectRatio would collapse it to its content.
+                Color.clear
+                    .aspectRatio(BrowserDeviceMetrics.screenAspectRatio, contentMode: .fit)
+                    .overlay(alignment: .top) {
+                        BrowserTabPreview(tab: tab)
+                    }
                     .clipped()
             }
             .background(.background.secondary, in: .rect(cornerRadius: BrowserTabCard.cornerRadius))

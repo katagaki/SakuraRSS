@@ -15,14 +15,27 @@ struct BrowserTabPreview: View {
 
     var body: some View {
         if let snapshot = store.snapshots[tab.id] {
-            Image(uiImage: snapshot)
-                .resizable()
-                .scaledToFill()
-                .frame(maxWidth: .infinity, alignment: .top)
+            // Matched to the card's width with the overflow falling off the
+            // bottom. Filling would scale by height instead and crop the sides,
+            // because cropping the navigation bar leaves the snapshot shorter
+            // in ratio than the screen.
+            GeometryReader { proxy in
+                Image(uiImage: snapshot)
+                    .resizable()
+                    .frame(
+                        width: proxy.size.width,
+                        height: proxy.size.width / snapshotAspectRatio(snapshot)
+                    )
+            }
         } else {
             standIn
                 .padding(12)
         }
+    }
+
+    private func snapshotAspectRatio(_ snapshot: UIImage) -> CGFloat {
+        guard snapshot.size.height > 0 else { return 1 }
+        return snapshot.size.width / snapshot.size.height
     }
 
     @ViewBuilder
