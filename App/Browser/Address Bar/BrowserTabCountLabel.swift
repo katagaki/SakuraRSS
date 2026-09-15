@@ -10,7 +10,7 @@ struct BrowserTabCountLabel: View {
             RoundedRectangle(cornerRadius: 5, style: .continuous)
                 .strokeBorder(lineWidth: 1.5)
                 .frame(width: 19, height: 19)
-            Text(count > 99 ? "99+" : "\(count)")
+            Text(verbatim: count > 99 ? "99+" : "\(count)")
                 .font(.system(size: count > 99 ? 8 : 11, weight: .semibold))
                 .monospacedDigit()
         }

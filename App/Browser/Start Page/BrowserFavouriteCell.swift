@@ -51,7 +51,7 @@ struct BrowserFavouriteCell: View {
     }
 
     private var unreadBadge: some View {
-        Text(unreadCount > 99 ? "99+" : "\(unreadCount)")
+        Text(verbatim: unreadCount > 99 ? "99+" : "\(unreadCount)")
             .font(.system(size: 10, weight: .bold))
             .monospacedDigit()
             .foregroundStyle(.white)

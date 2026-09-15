@@ -13,9 +13,15 @@ struct BrowserLocationDescription {
     static func describe(_ location: BrowserLocation, feedManager: FeedManager) -> BrowserLocationDescription {
         switch location {
         case .startPage:
-            symbolic(key: "StartPage.Title", symbolName: "square.grid.2x2")
+            symbolic(
+                title: String(localized: "StartPage.Title", table: "Browser"),
+                symbolName: "square.grid.2x2"
+            )
         case .allContent:
-            symbolic(key: "Location.AllContent", symbolName: "tray.full")
+            symbolic(
+                title: String(localized: "Location.AllContent", table: "Browser"),
+                symbolName: "tray.full"
+            )
         case .feeds:
             BrowserLocationDescription(
                 title: String(localized: "Tabs.Feeds"),
@@ -37,9 +43,12 @@ struct BrowserLocationDescription {
         }
     }
 
-    private static func symbolic(key: String.LocalizationValue, symbolName: String) -> BrowserLocationDescription {
+    /// Takes a resolved title rather than a key: string extraction cannot see
+    /// through a variable, so a key passed in here lands in the default table
+    /// untranslated.
+    private static func symbolic(title: String, symbolName: String) -> BrowserLocationDescription {
         BrowserLocationDescription(
-            title: String(localized: key, table: "Browser"),
+            title: title,
             subtitle: nil,
             symbolName: symbolName,
             feed: nil
@@ -49,7 +58,10 @@ struct BrowserLocationDescription {
     @MainActor
     private static func describeFeed(_ feedID: Int64, feedManager: FeedManager) -> BrowserLocationDescription {
         guard let feed = feedManager.feedsByID[feedID] else {
-            return symbolic(key: "Location.MissingFeed", symbolName: "questionmark.circle")
+            return symbolic(
+                title: String(localized: "Location.MissingFeed", table: "Browser"),
+                symbolName: "questionmark.circle"
+            )
         }
         return BrowserLocationDescription(
             title: feed.title,
@@ -62,7 +74,10 @@ struct BrowserLocationDescription {
     @MainActor
     private static func describeList(_ listID: Int64, feedManager: FeedManager) -> BrowserLocationDescription {
         guard let list = feedManager.lists.first(where: { $0.id == listID }) else {
-            return symbolic(key: "Location.MissingList", symbolName: "questionmark.circle")
+            return symbolic(
+                title: String(localized: "Location.MissingList", table: "Browser"),
+                symbolName: "questionmark.circle"
+            )
         }
         return BrowserLocationDescription(
             title: list.name,
