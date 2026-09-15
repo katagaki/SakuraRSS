@@ -34,8 +34,6 @@ struct BrowserBottomToolbar: ToolbarContent {
                 onSubmit: onSubmitOmnibox
             )
 
-            Spacer()
-
             Button(role: .cancel) {
                 omnibox.deactivate()
             }
