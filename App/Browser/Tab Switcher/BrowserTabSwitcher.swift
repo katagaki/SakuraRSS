@@ -6,7 +6,9 @@ import Hanami
 struct BrowserTabSwitcher: View {
 
     /// Long enough for the scale to read; the default speed pops.
-    static let transitionAnimation: Animation = .smooth(duration: 0.34)
+    static let transitionDuration: Double = 0.34
+
+    static let transitionAnimation: Animation = .smooth(duration: transitionDuration)
 
     @Environment(BrowserTabStore.self) private var store
     @Environment(FeedManager.self) private var feedManager

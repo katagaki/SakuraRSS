@@ -49,14 +49,15 @@ struct BrowserCompactShell: View {
         .ignoresSafeArea()
     }
 
-    /// Leaving, the page holds its opacity so the collapse reads before it
-    /// dissolves. Returning, it goes opaque almost at once: a page that fades
-    /// in while it grows lets the grid show through it, and the card's content
-    /// and the page's are then both visible at the same spot.
+    /// Tied to the scale rather than set independently, so the swap always
+    /// lands where the page and the card's snapshot are the same size. Fading
+    /// earlier cross-dissolves a half-shrunk page against a full-size snapshot,
+    /// which reads as a snap.
     private var pageFadeAnimation: Animation {
-        store.isShowingTabSwitcher
-            ? .easeIn(duration: 0.14).delay(0.20)
-            : .easeOut(duration: 0.08)
+        let duration = BrowserTabSwitcher.transitionDuration
+        return store.isShowingTabSwitcher
+            ? .easeIn(duration: duration * 0.08).delay(duration * 0.92)
+            : .easeOut(duration: duration * 0.25)
     }
 
     private var selectedCardFrame: CGRect? {
