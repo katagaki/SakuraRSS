@@ -35,7 +35,9 @@ struct BrowserCompactShell: View {
             }
             .coordinateSpace(name: BrowserTabZoom.coordinateSpace)
         }
-        .ignoresSafeArea()
+        // Container only: swallowing the keyboard region too leaves the
+        // bottom bar, and so the address field, under the keyboard.
+        .ignoresSafeArea(.container)
     }
 
     /// Swaps page for snapshot only where the two are the same size: anywhere
@@ -82,7 +84,7 @@ struct BrowserCompactShell: View {
         BrowserTabStack()
             // Edge to edge, or the snapshot carries blank status bar and home
             // indicator bands into the card.
-            .ignoresSafeArea()
+            .ignoresSafeArea(.container)
             .environment(\.isBrowserChromeActive, true)
             .environment(
                 \.browserAddressWidth,
