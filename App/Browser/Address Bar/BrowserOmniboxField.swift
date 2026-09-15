@@ -25,7 +25,7 @@ struct BrowserOmniboxField: View {
             .focused($isFocused)
             .onSubmit(onSubmit)
         }
-        .padding(.horizontal, 8)
+        .padding(.horizontal, 6)
         .frame(width: width > 0 ? width : nil)
         .task {
             // The field is created as the toolbar morphs; focusing on the
