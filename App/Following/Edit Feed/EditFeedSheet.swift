@@ -35,6 +35,8 @@ struct EditFeedSheet: View {
                             .tag(FeedEditTab.about)
                         Text(String(localized: "FeedEditSheet.Tab.Content", table: "Feeds"))
                             .tag(FeedEditTab.content)
+                        Text(String(localized: "FeedEditSheet.Tab.Display", table: "Feeds"))
+                            .tag(FeedEditTab.display)
                         Text(String(localized: "FeedEditSheet.Tab.Rules", table: "Feeds"))
                             .tag(FeedEditTab.rules)
                         Text(String(localized: "FeedEditSheet.Tab.Lists", table: "Feeds"))
@@ -60,6 +62,8 @@ struct EditFeedSheet: View {
                 EditFeedMetadataTab(feed: $feed, feedID: feedID)
             case .content:
                 EditFeedContentTab(feed: $feed, feedID: feedID)
+            case .display:
+                EditFeedDisplayTab(feedID: feedID)
             case .rules:
                 EditFeedRulesTab(feed: $feed, feedID: feedID)
             case .lists:
