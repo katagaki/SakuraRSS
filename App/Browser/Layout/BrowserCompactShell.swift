@@ -61,7 +61,8 @@ struct BrowserCompactShell: View {
 
     private var selectedCardFrame: CGRect? {
         guard store.isShowingTabSwitcher else { return nil }
-        return store.cardFrames[store.selectedTabID]
+        // Prefer the snapshot's own rect; fall back to the whole card.
+        return store.previewFrames[store.selectedTabID] ?? store.cardFrames[store.selectedTabID]
     }
 
     /// Each axis scales independently so the page lands on the card's exact

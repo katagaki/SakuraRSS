@@ -28,6 +28,9 @@ final class BrowserTabStore {
     /// preferences out to the shell.
     private(set) var cardFrames: [UUID: CGRect] = [:]
 
+    /// The snapshot's rect within each card.
+    private(set) var previewFrames: [UUID: CGRect] = [:]
+
     /// What each tab has visited, indexed by depth in its path. A
     /// NavigationPath cannot be read back, so the browser keeps its own
     /// record to offer a back history.
@@ -105,6 +108,11 @@ final class BrowserTabStore {
         markAllReadActions[tabID] = action
     }
 
+    func setPreviewFrame(_ frame: CGRect, for tabID: UUID) {
+        guard previewFrames[tabID] != frame else { return }
+        previewFrames[tabID] = frame
+    }
+
     func setCardFrame(_ frame: CGRect, for tabID: UUID) {
         guard cardFrames[tabID] != frame else { return }
         cardFrames[tabID] = frame
@@ -145,6 +153,7 @@ final class BrowserTabStore {
         markAllReadActions[tabID] = nil
         articleActions[tabID] = nil
         pageHistories[tabID] = nil
+        previewFrames[tabID] = nil
         liveTabIDs.removeAll { $0 == tabID }
         if selectedTabID == tabID {
             let neighbour = tabs[min(index, tabs.count - 1)]
