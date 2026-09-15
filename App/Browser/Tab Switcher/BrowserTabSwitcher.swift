@@ -33,7 +33,7 @@ struct BrowserTabSwitcher: View {
             .toolbarTitleDisplayMode(.inline)
             .toolbar { toolbarContent }
             .sheet(isPresented: $isShowingProfile) {
-                ProfileView()
+                ProfileView(titleDisplayMode: .inline)
                     .environment(feedManager)
             }
             .sakuraBackground()
