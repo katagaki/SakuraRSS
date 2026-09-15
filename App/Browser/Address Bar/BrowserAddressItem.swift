@@ -17,6 +17,10 @@ struct BrowserAddressItem: View {
         store.markAllReadActions[store.selectedTabID]
     }
 
+    private var articleActions: BrowserArticleActions? {
+        store.articleActions[store.selectedTabID]
+    }
+
     var body: some View {
         HStack(spacing: 6) {
             Button(action: onOpenOmnibox) {
@@ -37,7 +41,9 @@ struct BrowserAddressItem: View {
                 BrowserPageMenu(store: store, favourites: favourites)
             }
 
-            if let markAllRead {
+            if let articleActions {
+                articleMenu(articleActions)
+            } else if let markAllRead {
                 markAllReadButton(markAllRead)
             }
         }
@@ -45,6 +51,58 @@ struct BrowserAddressItem: View {
         // against this padding, so neither side needs a fudge factor.
         .padding(.horizontal, 12)
         .frame(width: width > 0 ? width : nil)
+    }
+
+    /// The article viewer's trailing actions, in the slot mark as read uses
+    /// on a list. A page is one or the other, never both.
+    private func articleMenu(_ actions: BrowserArticleActions) -> some View {
+        Menu {
+            if let toggleBookmark = actions.toggleBookmark {
+                Button(action: toggleBookmark) {
+                    Label(
+                        String(localized: actions.isBookmarked
+                               ? "Article.RemoveBookmark" : "Article.Bookmark",
+                               table: "Articles"),
+                        systemImage: actions.isBookmarked ? "bookmark.fill" : "bookmark"
+                    )
+                }
+            }
+
+            if actions.translate != nil || actions.summarize != nil {
+                Divider()
+                if let translate = actions.translate {
+                    menuButton(translate)
+                }
+                if let summarize = actions.summarize {
+                    menuButton(summarize)
+                }
+            }
+
+            if let openInApp = actions.openInApp {
+                Divider()
+                menuButton(openInApp)
+            }
+
+            if let shareURL = actions.shareURL {
+                Divider()
+                ShareLink(item: shareURL) {
+                    Label(String(localized: "Article.Share", table: "Articles"),
+                          systemImage: "square.and.arrow.up")
+                }
+            }
+        } label: {
+            Image(systemName: "ellipsis")
+                .font(.system(size: 17))
+                .padding(.vertical, 8)
+                .contentShape(.rect)
+        }
+    }
+
+    private func menuButton(_ action: BrowserArticleActions.LabelledAction) -> some View {
+        Button(action: action.perform) {
+            Label(action.title, systemImage: action.systemImage)
+        }
+        .disabled(!action.isEnabled)
     }
 
     private func markAllReadButton(_ action: BrowserMarkAllReadAction) -> some View {

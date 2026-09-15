@@ -26,6 +26,9 @@ struct BrowserTabContentView: View {
         .environment(\.browserMarkAllReadReporter) { action in
             store.setMarkAllRead(action, for: tabID)
         }
+        .environment(\.browserArticleActionsReporter) { actions in
+            store.setArticleActions(actions, for: tabID)
+        }
         .compatibleSoftScrollEdgeEffectStyle()
     }
 }
