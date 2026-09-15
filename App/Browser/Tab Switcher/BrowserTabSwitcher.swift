@@ -61,7 +61,9 @@ struct BrowserTabSwitcher: View {
         ToolbarItem(placement: .topBarTrailing) {
             Button {
                 store.openTab()
-                dismissSwitcher()
+                // A tick late, so the card the new tab just added has been laid
+                // out and reported the rect the page grows from.
+                Task { @MainActor in dismissSwitcher() }
             } label: {
                 Image(systemName: "plus")
             }

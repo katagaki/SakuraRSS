@@ -153,7 +153,13 @@ final class BrowserTabStore {
     /// onto that sub-rect rather than the whole card. Derived from the card's
     /// own width so it cannot disagree with what the card lays out.
     private func freezeCollapseTarget() {
-        guard let card = cardFrames[selectedTabID] else { return }
+        // Cleared rather than left alone when the card has yet to report: a
+        // tab opened from the switcher has no frame yet, and keeping the last
+        // one animates the page out of whichever tab was selected before.
+        guard let card = cardFrames[selectedTabID] else {
+            collapseTarget = nil
+            return
+        }
         let previewHeight = card.width / BrowserTabCard.previewAspectRatio
         collapseTarget = CGRect(
             x: card.minX,
