@@ -126,11 +126,15 @@ final class BrowserTabStore {
         }
     }
 
+    /// The chrome is handed back only once the page has landed. Swapping it up
+    /// front leaves the page's own bar to fade in behind the switcher's while
+    /// the page is still growing, which reads as the bar changing mid-gesture.
     func hideTabSwitcher() {
         freezeCollapseTarget()
-        setShowingTabSwitcherWithoutAnimation(false)
         withAnimation(BrowserTabSwitcher.transitionAnimation) {
             isPageCollapsed = false
+        } completion: {
+            self.setShowingTabSwitcherWithoutAnimation(false)
         }
     }
 
