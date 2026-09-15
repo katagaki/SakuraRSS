@@ -70,7 +70,7 @@ struct BrowserTabCard: View {
                 dragOffset = min(0, value.translation.width)
             }
             .onEnded { value in
-                if value.translation.width < -BrowserTabCard.closeDistance {
+                if store.canCloseTabs, value.translation.width < -BrowserTabCard.closeDistance {
                     withAnimation(.smooth(duration: 0.2)) {
                         dragOffset = -BrowserTabCard.closeDistance * 2
                     }
@@ -92,17 +92,23 @@ struct BrowserTabCard: View {
                 showsSubtitle: false
             )
             Spacer(minLength: 0)
-            Button(action: onClose) {
-                Image(systemName: "xmark")
-                    .font(.system(size: 10, weight: .bold))
-                    .foregroundStyle(.secondary)
-                    .frame(width: 22, height: 22)
-                    .contentShape(.circle)
+            if store.canCloseTabs {
+                closeButton
             }
-            .buttonStyle(.plain)
-            .accessibilityLabel(String(localized: "Menu.CloseTab", table: "Browser"))
         }
         .padding(.horizontal, 10)
         .padding(.vertical, 8)
+    }
+
+    private var closeButton: some View {
+        Button(action: onClose) {
+            Image(systemName: "xmark")
+                .font(.system(size: 10, weight: .bold))
+                .foregroundStyle(.secondary)
+                .frame(width: 22, height: 22)
+                .contentShape(.circle)
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(String(localized: "Menu.CloseTab", table: "Browser"))
     }
 }

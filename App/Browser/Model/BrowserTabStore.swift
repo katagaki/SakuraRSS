@@ -28,6 +28,9 @@ final class BrowserTabStore {
     /// preferences out to the shell.
     private(set) var cardFrames: [UUID: CGRect] = [:]
 
+    /// Article actions offered by each tab's current page.
+    private(set) var articleActions: [UUID: BrowserArticleActions] = [:]
+
     /// Mark-all-read action offered by each tab's current page.
     private(set) var markAllReadActions: [UUID: BrowserMarkAllReadAction] = [:]
 
@@ -74,7 +77,9 @@ final class BrowserTabStore {
     }
 
     var selectedTab: BrowserTab {
-        tabs.first { $0.id == selectedTabID } ?? tabs[0]
+        // Never subscripts: a lookup against an empty array is what crashed
+        // while a tab was being removed.
+        tabs.first { $0.id == selectedTabID } ?? tabs.first ?? BrowserTab()
     }
 
     private var selectedIndex: Int {
@@ -85,6 +90,10 @@ final class BrowserTabStore {
     func captureSelectedTabSnapshot() {
         guard let image = BrowserTabSnapshotter.captureVisiblePage() else { return }
         snapshots[selectedTabID] = image
+    }
+
+    func setArticleActions(_ actions: BrowserArticleActions?, for tabID: UUID) {
+        articleActions[tabID] = actions
     }
 
     func setMarkAllRead(_ action: BrowserMarkAllReadAction?, for tabID: UUID) {
@@ -123,22 +132,24 @@ final class BrowserTabStore {
     }
 
     func close(_ tabID: UUID) {
-        guard let index = tabs.firstIndex(where: { $0.id == tabID }) else { return }
+        // The last tab stays: an empty stack has nothing to show, and emptying
+        // `tabs` even momentarily takes every reader of `selectedTab` with it.
+        guard tabs.count > 1, let index = tabs.firstIndex(where: { $0.id == tabID }) else { return }
         tabs.remove(at: index)
         snapshots[tabID] = nil
         markAllReadActions[tabID] = nil
+        articleActions[tabID] = nil
         liveTabIDs.removeAll { $0 == tabID }
-        if tabs.isEmpty {
-            let replacement = BrowserTab()
-            tabs = [replacement]
-            selectedTabID = replacement.id
-            liveTabIDs = [replacement.id]
-        } else if selectedTabID == tabID {
+        if selectedTabID == tabID {
             let neighbour = tabs[min(index, tabs.count - 1)]
             selectedTabID = neighbour.id
             markLive(neighbour.id)
         }
         persistTabs()
+    }
+
+    var canCloseTabs: Bool {
+        tabs.count > 1
     }
 
     func closeAll() {
