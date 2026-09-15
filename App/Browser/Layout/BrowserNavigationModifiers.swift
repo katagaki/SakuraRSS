@@ -24,6 +24,9 @@ struct BrowserNavigationEnvironment: ViewModifier {
             .environment(\.navigateToFeed) { path.append($0) }
             .environment(\.navigateToEphemeralArticle) { path.append($0) }
             .environment(\.navigateToSummaryHeadline) { path.append($0) }
+            // No top bar in the browser: the page's own chrome lives in the
+            // bottom bar instead.
+            .toolbarVisibility(layout == .compact ? .hidden : .automatic, for: .navigationBar)
             .overlay {
                 if layout == .compact, omnibox.isActive {
                     BrowserOmniboxView()

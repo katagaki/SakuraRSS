@@ -52,10 +52,22 @@ struct BrowserBottomToolbar: ToolbarContent {
 
     private var browsingItems: some ToolbarContent {
         ToolbarItemGroup(placement: .bottomBar) {
-            Button(action: onOpenBookmarks) {
-                Image(systemName: "bookmark")
+            // Bookmarks while the tab sits at its root; Back once it has
+            // somewhere to go back to. With no top bar there is nowhere else to
+            // put Back.
+            if store.selectedTab.canGoBack {
+                Button {
+                    store.goBack()
+                } label: {
+                    Image(systemName: "chevron.backward")
+                }
+                .accessibilityLabel(String(localized: "AddressBar.Back", table: "Browser"))
+            } else {
+                Button(action: onOpenBookmarks) {
+                    Image(systemName: "bookmark")
+                }
+                .accessibilityLabel(String(localized: "Location.Bookmarks", table: "Browser"))
             }
-            .accessibilityLabel(String(localized: "Location.Bookmarks", table: "Browser"))
 
             Spacer()
 
