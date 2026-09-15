@@ -36,7 +36,7 @@ struct BrowserView: View {
         }
         .environment(\.browserOmniboxAction) {
             withAnimation(BrowserOmniboxModel.transition) {
-                omnibox.activate()
+                omnibox.activate(with: store.displayedTab.pageIdentity?.searchQuery ?? "")
             }
         }
         .environment(\.browserOmniboxSubmit) {

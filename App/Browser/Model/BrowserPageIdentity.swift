@@ -8,6 +8,9 @@ struct BrowserPageIdentity: Equatable {
     var subtitle: String?
     var symbolName: String
     var feedID: Int64?
+    /// Set by a search page, so tapping the bar reopens with the same term
+    /// rather than an empty field.
+    var searchQuery: String?
 }
 
 private struct BrowserPageReporterKey: EnvironmentKey {
@@ -40,13 +43,15 @@ extension View {
         title: String,
         subtitle: String? = nil,
         symbolName: String,
-        feedID: Int64? = nil
+        feedID: Int64? = nil,
+        searchQuery: String? = nil
     ) -> some View {
         modifier(BrowserPageModifier(identity: BrowserPageIdentity(
             title: title,
             subtitle: subtitle,
             symbolName: symbolName,
-            feedID: feedID
+            feedID: feedID,
+            searchQuery: searchQuery
         )))
     }
 }

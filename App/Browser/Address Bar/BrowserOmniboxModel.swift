@@ -17,8 +17,8 @@ final class BrowserOmniboxModel {
     var contentMatches: [Article] = []
     private(set) var isActive: Bool = false
 
-    func activate() {
-        text = ""
+    func activate(with query: String = "") {
+        text = query
         contentMatches = []
         isActive = true
     }

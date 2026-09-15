@@ -40,7 +40,8 @@ struct BrowserRootContentView: View {
                 .browserPage(
                     title: query,
                     subtitle: String(localized: "Location.SearchSubtitle", table: "Browser"),
-                    symbolName: "magnifyingglass"
+                    symbolName: "magnifyingglass",
+                    searchQuery: query
                 )
         case .feed(let feedID):
             feedContent(feedID)
