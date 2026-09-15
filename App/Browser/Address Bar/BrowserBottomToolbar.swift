@@ -26,14 +26,24 @@ struct BrowserBottomToolbar: ToolbarContent {
         }
     }
 
+    @ToolbarContentBuilder
     private var editingItems: some ToolbarContent {
-        ToolbarItemGroup(placement: .bottomBar) {
+        // Separate items with a fixed spacer between them: a group would give
+        // the field and the cancel button one shared glass capsule, and a
+        // flexible spacer would push them to opposite ends of the bar.
+        ToolbarItem(placement: .bottomBar) {
             BrowserOmniboxField(
                 model: omnibox,
                 width: BrowserAddressMetrics.fieldWidth(forAddressWidth: addressWidth),
                 onSubmit: onSubmitOmnibox
             )
+        }
 
+        #if !os(visionOS)
+        ToolbarSpacer(.fixed, placement: .bottomBar)
+        #endif
+
+        ToolbarItem(placement: .bottomBar) {
             Button(role: .cancel) {
                 omnibox.deactivate()
             }
