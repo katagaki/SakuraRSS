@@ -64,6 +64,7 @@ final class BrowserTabStore {
         self.selectedTabID = resolved
         self.liveTabIDs = [resolved]
         self.visitCounts = BrowserTabStore.loadVisitCounts()
+        loadPersistedSnapshots()
     }
 
     /// What the bottom bar should show: the pre-gesture state while a swipe
@@ -104,9 +105,8 @@ final class BrowserTabStore {
     }
 
     /// Snapshots the visible page and files it against the selected tab.
-    func captureSelectedTabSnapshot() {
-        guard let image = BrowserTabSnapshotter.captureVisiblePage() else { return }
-        snapshots[selectedTabID] = image
+    func setSnapshot(_ image: UIImage?, for tabID: UUID) {
+        snapshots[tabID] = image
     }
 
     func setArticleActions(_ actions: BrowserArticleActions?, for tabID: UUID) {
@@ -205,7 +205,7 @@ final class BrowserTabStore {
         // `tabs` even momentarily takes every reader of `selectedTab` with it.
         guard tabs.count > 1, let index = tabs.firstIndex(where: { $0.id == tabID }) else { return }
         tabs.remove(at: index)
-        snapshots[tabID] = nil
+        discardSnapshot(for: tabID)
         markAllReadActions[tabID] = nil
         articleActions[tabID] = nil
         pageHistories[tabID] = nil

@@ -3,6 +3,7 @@ import Foundation
 extension BrowserTabStore {
 
     private static let tabTokensKey = "Browser.TabTokens"
+    private static let tabIDsKey = "Browser.TabIDs"
     private static let selectedTokenIndexKey = "Browser.SelectedTabIndex"
     private static let visitCountsKey = "Browser.VisitCounts"
     private static let frequentlyVisitedLimit = 8
@@ -11,9 +12,16 @@ extension BrowserTabStore {
     /// database rows, so they are rebuilt by revisiting rather than restored.
     static func restored() -> BrowserTabStore {
         let tokens = UserDefaults.standard.stringArray(forKey: tabTokensKey) ?? []
-        let restoredTabs = tokens
-            .compactMap(BrowserLocation.resolve(token:))
-            .map { BrowserTab(location: $0) }
+        // Identities are restored alongside the locations: the snapshot on
+        // disk is filed under the tab's id, so a fresh one would orphan it.
+        let identifiers = UserDefaults.standard.stringArray(forKey: tabIDsKey) ?? []
+        let restoredTabs = tokens.enumerated().compactMap { index, token -> BrowserTab? in
+            guard let location = BrowserLocation.resolve(token: token) else { return nil }
+            let identifier = identifiers.indices.contains(index)
+                ? UUID(uuidString: identifiers[index])
+                : nil
+            return BrowserTab(id: identifier ?? UUID(), location: location)
+        }
         let index = UserDefaults.standard.integer(forKey: selectedTokenIndexKey)
         let selected = restoredTabs.indices.contains(index) ? restoredTabs[index].id : nil
         return BrowserTabStore(tabs: restoredTabs, selectedTabID: selected)
@@ -22,6 +30,10 @@ extension BrowserTabStore {
     func persistTabs() {
         let tokens = tabs.map(\.location.persistenceToken)
         UserDefaults.standard.set(tokens, forKey: BrowserTabStore.tabTokensKey)
+        UserDefaults.standard.set(
+            tabs.map(\.id.uuidString),
+            forKey: BrowserTabStore.tabIDsKey
+        )
         let index = tabs.firstIndex { $0.id == selectedTabID } ?? 0
         UserDefaults.standard.set(index, forKey: BrowserTabStore.selectedTokenIndexKey)
     }
