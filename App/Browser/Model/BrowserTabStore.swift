@@ -117,16 +117,27 @@ final class BrowserTabStore {
 
     func showTabSwitcher() {
         captureSelectedTabSnapshot()
-        isShowingTabSwitcher = true
+        setShowingTabSwitcherWithoutAnimation(true)
         withAnimation(BrowserTabSwitcher.transitionAnimation) {
             isPageCollapsed = true
         }
     }
 
     func hideTabSwitcher() {
-        isShowingTabSwitcher = false
+        setShowingTabSwitcherWithoutAnimation(false)
         withAnimation(BrowserTabSwitcher.transitionAnimation) {
             isPageCollapsed = false
+        }
+    }
+
+    /// Explicitly outside the transition: changes flushed in the same cycle are
+    /// otherwise swept into it, and the toolbars cross-fade across the whole
+    /// animation rather than swapping at once.
+    private func setShowingTabSwitcherWithoutAnimation(_ isShowing: Bool) {
+        var transaction = Transaction()
+        transaction.disablesAnimations = true
+        withTransaction(transaction) {
+            isShowingTabSwitcher = isShowing
         }
     }
 

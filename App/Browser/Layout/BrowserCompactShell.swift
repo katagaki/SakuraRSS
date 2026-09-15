@@ -41,8 +41,12 @@ struct BrowserCompactShell: View {
                     .animation(BrowserTabSwitcher.transitionAnimation, value: store.isPageCollapsed)
                     .opacity(store.isPageCollapsed ? 0 : 1)
                     .animation(pageFadeAnimation, value: store.isPageCollapsed)
-                    .allowsHitTesting(!store.isPageCollapsed)
-                    .accessibilityHidden(store.isPageCollapsed)
+                    // Keyed on the unanimated flag: SwiftUI picks whose
+                    // toolbar to show from which view is interactive, so
+                    // tying this to the animated state swapped the bottom
+                    // bar partway through the transition.
+                    .allowsHitTesting(!store.isShowingTabSwitcher)
+                    .accessibilityHidden(store.isShowingTabSwitcher)
             }
             .coordinateSpace(name: BrowserTabZoom.coordinateSpace)
         }
