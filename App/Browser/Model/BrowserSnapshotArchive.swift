@@ -1,8 +1,7 @@
 import UIKit
 
-/// Tab snapshots on disk, so the switcher still has something to show for
-/// every tab after a relaunch. Kept in caches: they are worth keeping but
-/// cheap to rebuild, and they have no business in a backup.
+/// Tab snapshots on disk, so cards survive a relaunch. In caches: cheap to
+/// rebuild, and no business in a backup.
 nonisolated enum BrowserSnapshotArchive {
 
     private static let directoryName = "BrowserTabSnapshots"
@@ -30,8 +29,7 @@ nonisolated enum BrowserSnapshotArchive {
         try? FileManager.default.removeItem(at: url)
     }
 
-    /// Drops the files of tabs that are gone: a closed tab is forgotten while
-    /// the app runs, but one closed on a previous launch never was.
+    /// Drops files for tabs that no longer exist.
     static func removeAll(except tabIDs: Set<UUID>) {
         guard let directory = directory(),
               let files = try? FileManager.default.contentsOfDirectory(

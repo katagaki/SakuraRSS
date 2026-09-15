@@ -12,8 +12,8 @@ extension BrowserTabStore {
     /// database rows, so they are rebuilt by revisiting rather than restored.
     static func restored() -> BrowserTabStore {
         let tokens = UserDefaults.standard.stringArray(forKey: tabTokensKey) ?? []
-        // Identities are restored alongside the locations: the snapshot on
-        // disk is filed under the tab's id, so a fresh one would orphan it.
+        // Identities are restored too: snapshots are filed under the tab's id,
+        // so a fresh one would orphan them.
         let identifiers = UserDefaults.standard.stringArray(forKey: tabIDsKey) ?? []
         let restoredTabs = tokens.enumerated().compactMap { index, token -> BrowserTab? in
             guard let location = BrowserLocation.resolve(token: token) else { return nil }

@@ -1,8 +1,8 @@
 import SwiftUI
 import Hanami
 
-/// The tab's last snapshot, or — for a tab that has not been left yet, so has
-/// none — the app's own mark.
+/// The tab's last snapshot, or the app's own mark for a tab that has not been
+/// left yet, so has none.
 struct BrowserTabPreview: View {
 
     @Environment(BrowserTabStore.self) private var store

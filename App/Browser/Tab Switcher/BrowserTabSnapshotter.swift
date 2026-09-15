@@ -3,13 +3,10 @@ import SwiftUI
 @MainActor
 enum BrowserTabSnapshotter {
 
-    /// Points, not pixels: the renderer draws at the display's scale, so a
-    /// card gets a crisp image without storing a full screen's worth.
+    /// Points, not pixels: the renderer draws at the display's scale.
     private static let targetWidth: CGFloat = 200
 
-    /// Captures the safe area of what is on screen right now. Called as the
-    /// user leaves a page, which is the only moment that page is available to
-    /// snapshot.
+    /// Captures the safe area of what is on screen right now.
     static func captureVisiblePage() -> UIImage? {
         guard let window = UIApplication.shared.connectedScenes
             .compactMap({ ($0 as? UIWindowScene)?.keyWindow })

@@ -1,9 +1,8 @@
 import SwiftUI
 import Hanami
 
-/// Wires the app's navigation environment closures into a browser tab's path,
-/// and — in compact layout — hangs the browser chrome off every page's own
-/// `.bottomBar` so the system owns its glass, safe area and scroll behaviour.
+/// Wires the app's navigation closures into a tab's path, and in compact
+/// layout hangs the chrome off every page's own `.bottomBar`.
 struct BrowserNavigationEnvironment: ViewModifier {
 
     @Environment(FeedManager.self) private var feedManager

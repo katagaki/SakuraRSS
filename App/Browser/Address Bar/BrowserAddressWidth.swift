@@ -5,9 +5,8 @@ private struct BrowserAddressWidthKey: EnvironmentKey {
 }
 
 extension EnvironmentValues {
-    /// Width the address item should claim in the bottom bar. Toolbar items are
-    /// sized to their content, so `maxWidth: .infinity` does nothing there and
-    /// the shell has to measure the space and hand it down.
+    /// Toolbar items size to their content, so `maxWidth: .infinity` does
+    /// nothing there and the shell has to measure the space and hand it down.
     var browserAddressWidth: CGFloat {
         get { self[BrowserAddressWidthKey.self] }
         set { self[BrowserAddressWidthKey.self] = newValue }
@@ -15,16 +14,14 @@ extension EnvironmentValues {
 }
 
 enum BrowserAddressMetrics {
-    /// Everything in the bottom bar that is not the address item: the back and
-    /// tab buttons, the two dividing spacers, and the bar's own side margins.
+    /// Everything in the bar that is not the address item.
     static let chromeWidth: CGFloat = 190
 
     static func addressWidth(forContainerWidth width: CGFloat) -> CGFloat {
         max(0, width - chromeWidth)
     }
 
-    /// The editing field sits beside one compact cancel button rather than two
-    /// round buttons, so it reaches most of the way across the bar.
+    /// The field sits beside one cancel button rather than two round ones.
     static func fieldWidth(forAddressWidth width: CGFloat) -> CGFloat {
         max(0, width + 76)
     }

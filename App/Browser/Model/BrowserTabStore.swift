@@ -14,30 +14,26 @@ final class BrowserTabStore {
     private(set) var liveTabIDs: [UUID]
     var visitCounts: [String: Int]
 
-    /// Whether the switcher is up. Drives chrome, and is changed without an
-    /// animation so the toolbars swap at once rather than cross-fading
-    /// across the whole transition.
+    /// Drives the chrome. Changed without an animation, or the toolbars
+    /// cross-fade across the whole transition.
     private(set) var isShowingTabSwitcher = false
 
-    /// Whether the page is collapsed onto its card. Drives geometry, and is
-    /// what the transition animates.
+    /// Drives the geometry, and is what the transition animates.
     private(set) var isPageCollapsed = false
 
     /// While a swipe-back is in flight the path has already popped, so the
     /// bottom bar would flip to the previous page before the gesture is
-    /// committed — and stay wrong if the swipe is cancelled.
+    /// committed, and stay wrong if the swipe is cancelled.
     private(set) var isInteractivelyPopping = false
     private var frozenCanGoBack: Bool?
     private var frozenPageIdentity: BrowserPageIdentity?
 
-    /// Reported by the tab cards. Routed through the store rather than a
-    /// preference because the switcher's NavigationStack does not propagate
-    /// preferences out to the shell.
+    /// Routed through the store rather than a preference: the switcher's
+    /// NavigationStack does not propagate preferences out to the shell.
     private(set) var cardFrames: [UUID: CGRect] = [:]
 
-    /// Where the page collapses to, frozen when a transition starts: cards
-    /// keep reporting frames while the grid lays out, and a target that moves
-    /// mid-flight makes the page jump.
+    /// Frozen when a transition starts: cards keep reporting frames while the
+    /// grid lays out, and a target that moves mid-flight makes the page jump.
     private(set) var collapseTarget: CGRect?
 
     /// What each tab has visited, indexed by depth in its path. A
@@ -45,13 +41,10 @@ final class BrowserTabStore {
     /// record to offer a back history.
     private(set) var pageHistories: [UUID: [BrowserPageIdentity]] = [:]
 
-    /// Article actions offered by each tab's current page.
     private(set) var articleActions: [UUID: BrowserArticleActions] = [:]
 
-    /// Mark-all-read action offered by each tab's current page.
     private(set) var markAllReadActions: [UUID: BrowserMarkAllReadAction] = [:]
 
-    /// Last snapshot taken of each tab, shown on its card.
     private(set) var snapshots: [UUID: UIImage] = [:]
 
     init(tabs: [BrowserTab] = [], selectedTabID: UUID? = nil) {
@@ -126,9 +119,8 @@ final class BrowserTabStore {
         }
     }
 
-    /// The chrome is handed back only once the page has landed. Swapping it up
-    /// front leaves the page's own bar to fade in behind the switcher's while
-    /// the page is still growing, which reads as the bar changing mid-gesture.
+    /// The chrome is handed back only once the page has landed: any earlier
+    /// and the page's own bar fades in behind the switcher's.
     func hideTabSwitcher() {
         freezeCollapseTarget()
         withAnimation(BrowserTabSwitcher.transitionAnimation) {
@@ -138,9 +130,8 @@ final class BrowserTabStore {
         }
     }
 
-    /// Explicitly outside the transition: changes flushed in the same cycle are
-    /// otherwise swept into it, and the toolbars cross-fade across the whole
-    /// animation rather than swapping at once.
+    /// Outside the transition: changes flushed in the same cycle are otherwise
+    /// swept into it.
     private func setShowingTabSwitcherWithoutAnimation(_ isShowing: Bool) {
         var transaction = Transaction()
         transaction.disablesAnimations = true
@@ -149,13 +140,11 @@ final class BrowserTabStore {
         }
     }
 
-    /// The card's snapshot sits below its title row, so the page collapses
-    /// onto that sub-rect rather than the whole card. Derived from the card's
-    /// own width so it cannot disagree with what the card lays out.
+    /// The snapshot sits below the card's title row, so the page lands on that
+    /// sub-rect. Derived from the card's width so the two cannot disagree.
     private func freezeCollapseTarget() {
-        // Cleared rather than left alone when the card has yet to report: a
-        // tab opened from the switcher has no frame yet, and keeping the last
-        // one animates the page out of whichever tab was selected before.
+        // Cleared, not left alone: a tab opened from the switcher has no frame
+        // yet, and a stale one zooms out of the previously selected tab.
         guard let card = cardFrames[selectedTabID] else {
             collapseTarget = nil
             return

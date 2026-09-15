@@ -1,9 +1,8 @@
 import SwiftUI
 import Hanami
 
-/// The address item: the page's name, and — when the page offers one — a mark
-/// as read button sharing the same capsule. Tapping the name opens the omnibox;
-/// tapping the button asks to mark the page read instead.
+/// The page's name and, when it offers one, a mark as read button sharing the
+/// same capsule.
 struct BrowserAddressItem: View {
 
     @Environment(FeedManager.self) private var feedManager

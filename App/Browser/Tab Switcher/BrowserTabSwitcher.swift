@@ -1,8 +1,7 @@
 import SwiftUI
 import Hanami
 
-/// Safari's tab grid. Cards render a cheap preview rather than a live snapshot,
-/// because only a handful of tabs are kept alive at a time.
+/// Safari's tab grid.
 struct BrowserTabSwitcher: View {
 
     /// Long enough for the scale to read; the default speed pops.
@@ -61,8 +60,8 @@ struct BrowserTabSwitcher: View {
         ToolbarItem(placement: .topBarTrailing) {
             Button {
                 store.openTab()
-                // A tick late, so the card the new tab just added has been laid
-                // out and reported the rect the page grows from.
+                // A tick late, so the new tab's card has reported the rect the
+                // page grows from.
                 Task { @MainActor in dismissSwitcher() }
             } label: {
                 Image(systemName: "plus")

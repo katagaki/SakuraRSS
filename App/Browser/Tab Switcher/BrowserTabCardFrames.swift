@@ -5,8 +5,8 @@ enum BrowserTabZoom {
 }
 
 extension View {
-    /// Writes the card's frame into the store so the page knows what rect to
-    /// collapse into, before the switcher is ever shown.
+    /// Reports the rect the page collapses onto, before the switcher is ever
+    /// shown.
     func reportsTabCardFrame(id: UUID, to store: BrowserTabStore) -> some View {
         background {
             GeometryReader { proxy in

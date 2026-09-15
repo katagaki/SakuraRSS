@@ -12,8 +12,7 @@ extension BrowserTabStore {
         }
     }
 
-    /// Reads last session's snapshots back in off the main actor, so a switcher
-    /// opened straight after launch is not the only one with empty cards.
+    /// Reads last session's snapshots back in off the main actor.
     func loadPersistedSnapshots() {
         let tabIDs = tabs.map(\.id)
         Task {
