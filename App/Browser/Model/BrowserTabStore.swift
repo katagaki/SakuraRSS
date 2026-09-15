@@ -16,6 +16,11 @@ final class BrowserTabStore {
 
     var isShowingTabSwitcher = false
 
+    /// Reported by the tab cards. Routed through the store rather than a
+    /// preference because the switcher's NavigationStack does not propagate
+    /// preferences out to the shell.
+    private(set) var cardFrames: [UUID: CGRect] = [:]
+
     init(tabs: [BrowserTab] = [], selectedTabID: UUID? = nil) {
         let restored = tabs.isEmpty ? [BrowserTab()] : tabs
         self.tabs = restored
@@ -34,6 +39,11 @@ final class BrowserTabStore {
 
     private var selectedIndex: Int {
         tabs.firstIndex { $0.id == selectedTabID } ?? 0
+    }
+
+    func setCardFrame(_ frame: CGRect, for tabID: UUID) {
+        guard cardFrames[tabID] != frame else { return }
+        cardFrames[tabID] = frame
     }
 
     func isLive(_ tabID: UUID) -> Bool {

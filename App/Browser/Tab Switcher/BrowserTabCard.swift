@@ -6,6 +6,7 @@ struct BrowserTabCard: View {
     static let cornerRadius: CGFloat = 16
 
     @Environment(FeedManager.self) private var feedManager
+    @Environment(BrowserTabStore.self) private var store
     let tab: BrowserTab
     let isSelected: Bool
     let onSelect: () -> Void
@@ -30,7 +31,7 @@ struct BrowserTabCard: View {
                     .strokeBorder(isSelected ? Color.accentColor : Color.clear, lineWidth: 2.5)
             }
             .contentShape(.rect(cornerRadius: BrowserTabCard.cornerRadius))
-            .reportsTabCardFrame(id: tab.id)
+            .reportsTabCardFrame(id: tab.id, to: store)
         }
         .buttonStyle(.plain)
     }

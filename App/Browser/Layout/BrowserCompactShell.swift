@@ -8,7 +8,6 @@ struct BrowserCompactShell: View {
 
     @Environment(BrowserTabStore.self) private var store
     @Environment(BrowserFavourites.self) private var favourites
-    @State private var cardFrames: [UUID: CGRect] = [:]
 
     var body: some View {
         // One reader spanning the safe areas gives the page's true bounds, and
@@ -18,13 +17,15 @@ struct BrowserCompactShell: View {
             // first time the transition runs, and its background fills the
             // screen so the safe areas never flash empty.
             ZStack {
+                // Not hidden with opacity: a transparent subtree is not laid
+                // out, so the cards never reported their frames and the page
+                // had no target to collapse toward until after the flip. The
+                // opaque page covers the grid instead.
                 BrowserTabSwitcher()
                     .environment(store)
                     .environment(favourites)
-                    .opacity(store.isShowingTabSwitcher ? 1 : 0)
                     .allowsHitTesting(store.isShowingTabSwitcher)
                     .accessibilityHidden(!store.isShowingTabSwitcher)
-                    .animation(BrowserTabSwitcher.transitionAnimation, value: store.isShowingTabSwitcher)
 
                 // Scale and fade are animated apart so the page stays opaque
                 // while it collapses and only dissolves once it has landed.
@@ -44,9 +45,6 @@ struct BrowserCompactShell: View {
                     .accessibilityHidden(store.isShowingTabSwitcher)
             }
             .coordinateSpace(name: BrowserTabZoom.coordinateSpace)
-            .onPreferenceChange(BrowserTabCardFramePreferenceKey.self) { frames in
-                cardFrames = frames
-            }
         }
         .ignoresSafeArea()
     }
@@ -62,7 +60,7 @@ struct BrowserCompactShell: View {
 
     private var selectedCardFrame: CGRect? {
         guard store.isShowingTabSwitcher else { return nil }
-        return cardFrames[store.selectedTabID]
+        return store.cardFrames[store.selectedTabID]
     }
 
     /// Each axis scales independently so the page lands on the card's exact
