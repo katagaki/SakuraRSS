@@ -45,7 +45,9 @@ struct BrowserBottomToolbar: ToolbarContent {
 
         ToolbarItem(placement: .bottomBar) {
             Button(role: .cancel) {
-                omnibox.deactivate()
+                withAnimation(BrowserOmniboxModel.transition) {
+                    omnibox.deactivate()
+                }
             }
         }
     }

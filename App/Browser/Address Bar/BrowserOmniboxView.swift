@@ -25,7 +25,11 @@ struct BrowserOmniboxView: View {
                 .fill(.ultraThinMaterial)
                 .ignoresSafeArea()
                 .contentShape(.rect)
-                .onTapGesture { omnibox.deactivate() }
+                .onTapGesture {
+                    withAnimation(BrowserOmniboxModel.transition) {
+                        omnibox.deactivate()
+                    }
+                }
 
             VStack(spacing: 0) {
                 // The list only claims the room it needs, so the dimmed page
@@ -112,6 +116,8 @@ struct BrowserOmniboxView: View {
         case .discoverFeeds(let host):
             addFeed?("https://\(host)")
         }
-        omnibox.deactivate()
+        withAnimation(BrowserOmniboxModel.transition) {
+            omnibox.deactivate()
+        }
     }
 }

@@ -34,7 +34,7 @@ struct BrowserView: View {
             pendingAddFeedURL = url
         }
         .environment(\.browserOmniboxAction) {
-            withAnimation(.smooth.speed(2.0)) {
+            withAnimation(BrowserOmniboxModel.transition) {
                 omnibox.activate()
             }
         }
@@ -77,7 +77,9 @@ struct BrowserView: View {
         } else {
             store.navigate(to: .search(trimmed))
         }
-        omnibox.deactivate()
+        withAnimation(BrowserOmniboxModel.transition) {
+            omnibox.deactivate()
+        }
     }
 
     @ViewBuilder

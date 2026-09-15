@@ -1,4 +1,5 @@
 import Observation
+import SwiftUI
 import Hanami
 
 /// Editing state for the address field. The field itself lives in the bottom
@@ -7,6 +8,10 @@ import Hanami
 @MainActor
 @Observable
 final class BrowserOmniboxModel {
+
+    /// Used opening and closing alike: closing used to skip the animation,
+    /// so the overlay vanished instead of fading.
+    static let transition: Animation = .smooth(duration: 0.25)
 
     var text: String = ""
     var contentMatches: [Article] = []
