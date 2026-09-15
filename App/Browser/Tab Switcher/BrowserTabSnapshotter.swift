@@ -3,9 +3,9 @@ import SwiftUI
 @MainActor
 enum BrowserTabSnapshotter {
 
-    /// Rendered at card width rather than full size: a card is small, and full
-    /// resolution images for every tab are not worth the memory.
-    private static let targetWidth: CGFloat = 240
+    /// Points, not pixels: the renderer draws at the display's scale, so a
+    /// card gets a crisp image without storing a full screen's worth.
+    private static let targetWidth: CGFloat = 200
 
     /// Captures the safe area of what is on screen right now. Called as the
     /// user leaves a page, which is the only moment that page is available to
@@ -22,7 +22,8 @@ enum BrowserTabSnapshotter {
 
         let size = CGSize(width: targetWidth, height: height * scale)
         let format = UIGraphicsImageRendererFormat.default()
-        format.scale = 1
+        // traitCollection rather than screen: visionOS has no UIScreen.
+        format.scale = window.traitCollection.displayScale
         return UIGraphicsImageRenderer(size: size, format: format).image { _ in
             // Drawn shifted up so the status bar falls off the top of the
             // canvas; the home indicator runs off the bottom.
