@@ -14,7 +14,14 @@ final class BrowserTabStore {
     private(set) var liveTabIDs: [UUID]
     var visitCounts: [String: Int]
 
-    var isShowingTabSwitcher = false
+    /// Whether the switcher is up. Drives chrome, and is changed without an
+    /// animation so the toolbars swap at once rather than cross-fading
+    /// across the whole transition.
+    private(set) var isShowingTabSwitcher = false
+
+    /// Whether the page is collapsed onto its card. Drives geometry, and is
+    /// what the transition animates.
+    private(set) var isPageCollapsed = false
 
     /// While a swipe-back is in flight the path has already popped, so the
     /// bottom bar would flip to the previous page before the gesture is
@@ -106,6 +113,21 @@ final class BrowserTabStore {
 
     func setMarkAllRead(_ action: BrowserMarkAllReadAction?, for tabID: UUID) {
         markAllReadActions[tabID] = action
+    }
+
+    func showTabSwitcher() {
+        captureSelectedTabSnapshot()
+        isShowingTabSwitcher = true
+        withAnimation(BrowserTabSwitcher.transitionAnimation) {
+            isPageCollapsed = true
+        }
+    }
+
+    func hideTabSwitcher() {
+        isShowingTabSwitcher = false
+        withAnimation(BrowserTabSwitcher.transitionAnimation) {
+            isPageCollapsed = false
+        }
     }
 
     func setPreviewFrame(_ frame: CGRect, for tabID: UUID) {

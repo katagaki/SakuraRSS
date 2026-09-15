@@ -99,8 +99,6 @@ struct BrowserTabSwitcher: View {
     }
 
     private func dismissSwitcher() {
-        withAnimation(BrowserTabSwitcher.transitionAnimation) {
-            store.isShowingTabSwitcher = false
-        }
+        store.hideTabSwitcher()
     }
 }
