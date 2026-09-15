@@ -5,6 +5,11 @@ struct BrowserTabCard: View {
 
     static let cornerRadius: CGFloat = 16
 
+    /// Portrait, but nowhere near as tall as the screen: at the screen's own
+    /// ratio a card runs most of the height of the switcher, and narrowing
+    /// the columns to compensate truncates the titles.
+    static let previewAspectRatio: CGFloat = 0.75
+
     @Environment(FeedManager.self) private var feedManager
     @Environment(BrowserTabStore.self) private var store
     let tab: BrowserTab
@@ -22,12 +27,11 @@ struct BrowserTabCard: View {
                 header
                 // No padding here: a snapshot bleeds to the card's edges.
                 // The stand-in insets itself instead.
-                // Shaped like the screen's safe area, which is what a
-                // snapshot covers. The ratio is driven off a flexible shape
-                // rather than the preview: a stand-in has no intrinsic size, so
-                // aspectRatio would collapse it to its content.
+                // The ratio is driven off a flexible shape rather than the
+                // preview: a stand-in has no intrinsic size, so aspectRatio
+                // would collapse it to its content.
                 Color.clear
-                    .aspectRatio(BrowserDeviceMetrics.safeAreaAspectRatio, contentMode: .fit)
+                    .aspectRatio(BrowserTabCard.previewAspectRatio, contentMode: .fit)
                     .overlay(alignment: .top) {
                         BrowserTabPreview(tab: tab)
                     }
