@@ -37,7 +37,7 @@ struct BrowserCompactShell: View {
                         )
                     )
                     .scaleEffect(pageScale(in: proxy.size), anchor: .topLeading)
-                    .offset(pageOffset)
+                    .offset(pageOffset(in: proxy.size))
                     .animation(BrowserTabSwitcher.transitionAnimation, value: store.isShowingTabSwitcher)
                     .opacity(store.isShowingTabSwitcher ? 0 : 1)
                     .animation(pageFadeAnimation, value: store.isShowingTabSwitcher)
@@ -67,11 +67,28 @@ struct BrowserCompactShell: View {
     /// Each axis scales independently so the page lands on the card's exact
     /// rect; keeping it proportional leaves the page hanging below the card,
     /// because a page is far taller than a card is.
+    /// Scaled so the page's *safe area* lands on the card, because that is the
+    /// region the card's snapshot covers. Mapping the full frame instead leaves
+    /// the live page and the snapshot offset from each other, and they ghost
+    /// against one another as one fades into the other.
     private func pageScale(in size: CGSize) -> CGSize {
-        guard let card = selectedCardFrame, size.width > 0, size.height > 0 else {
+        guard let card = selectedCardFrame, size.width > 0 else {
             return CGSize(width: 1, height: 1)
         }
-        return CGSize(width: card.width / size.width, height: card.height / size.height)
+        let content = size.height - BrowserDeviceMetrics.safeAreaInsets.top
+            - BrowserDeviceMetrics.safeAreaInsets.bottom
+        guard content > 0 else { return CGSize(width: 1, height: 1) }
+        return CGSize(width: card.width / size.width, height: card.height / content)
+    }
+
+    /// Anchored top-leading, so the page's safe area top lands on the card's.
+    private func pageOffset(in size: CGSize) -> CGSize {
+        guard let card = selectedCardFrame else { return .zero }
+        let scaleY = pageScale(in: size).height
+        return CGSize(
+            width: card.minX,
+            height: card.minY - BrowserDeviceMetrics.safeAreaInsets.top * scaleY
+        )
     }
 
     /// Clipping happens before the scale, so the radius has to be divided by
@@ -82,12 +99,6 @@ struct BrowserCompactShell: View {
             return BrowserDeviceMetrics.displayCornerRadius
         }
         return BrowserTabCard.cornerRadius / scale
-    }
-
-    /// Anchored top-leading, so landing on the card is just its origin.
-    private var pageOffset: CGSize {
-        guard let card = selectedCardFrame else { return .zero }
-        return CGSize(width: card.minX, height: card.minY)
     }
 
     private func tabStack(width: CGFloat) -> some View {
