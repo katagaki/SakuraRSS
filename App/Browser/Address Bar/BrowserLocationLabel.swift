@@ -8,6 +8,7 @@ struct BrowserLocationLabel: View {
     let description: BrowserLocationDescription
     var iconSize: CGFloat = 18
     var titleFont: Font = .subheadline
+    var subtitleFont: Font = .caption2
     var showsSubtitle: Bool = true
 
     var body: some View {
@@ -19,7 +20,7 @@ struct BrowserLocationLabel: View {
                     .lineLimit(1)
                 if showsSubtitle, let subtitle = description.subtitle {
                     Text(subtitle)
-                        .font(.caption2)
+                        .font(subtitleFont)
                         .foregroundStyle(.secondary)
                         .lineLimit(1)
                 }

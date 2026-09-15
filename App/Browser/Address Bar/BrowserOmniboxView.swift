@@ -5,7 +5,9 @@ import Hanami
 /// this view only dims the page and lists what the text matches.
 struct BrowserOmniboxView: View {
 
-    private static let suggestionListMaxHeight: CGFloat = 340
+    /// Raised alongside the body-size rows: at the old height the first
+    /// section header was already scrolled out of view.
+    private static let suggestionListMaxHeight: CGFloat = 420
 
     @Environment(FeedManager.self) private var feedManager
     @Environment(BrowserTabStore.self) private var store
@@ -64,7 +66,7 @@ struct BrowserOmniboxView: View {
                 let sectionSuggestions = suggestions.filter { $0.section == section }
                 if !sectionSuggestions.isEmpty {
                     Text(section.title)
-                        .font(.caption.weight(.semibold))
+                        .font(.subheadline.weight(.semibold))
                         .foregroundStyle(.secondary)
                         .padding(.horizontal, 20)
                         .padding(.top, 16)
@@ -74,7 +76,7 @@ struct BrowserOmniboxView: View {
                             apply(suggestion)
                         }
                         .padding(.horizontal, 20)
-                        .padding(.vertical, 9)
+                        .padding(.vertical, 11)
                     }
                 }
             }

@@ -3,6 +3,8 @@ import Hanami
 
 struct BrowserSuggestionRow: View {
 
+    static let iconSize: CGFloat = 26
+
     @Environment(FeedManager.self) private var feedManager
     let suggestion: BrowserSuggestion
     let action: () -> Void
@@ -23,15 +25,24 @@ struct BrowserSuggestionRow: View {
         switch suggestion.kind {
         case .place(let location):
             BrowserLocationLabel(
-                description: BrowserLocationDescription.describe(location, feedManager: feedManager)
+                description: BrowserLocationDescription.describe(location, feedManager: feedManager),
+                iconSize: BrowserSuggestionRow.iconSize,
+                titleFont: .body,
+                subtitleFont: .caption
             )
         case .feed(let feed):
             BrowserLocationLabel(
-                description: BrowserLocationDescription.describe(.feed(feed.id), feedManager: feedManager)
+                description: BrowserLocationDescription.describe(.feed(feed.id), feedManager: feedManager),
+                iconSize: BrowserSuggestionRow.iconSize,
+                titleFont: .body,
+                subtitleFont: .caption
             )
         case .list(let list):
             BrowserLocationLabel(
-                description: BrowserLocationDescription.describe(.list(list.id), feedManager: feedManager)
+                description: BrowserLocationDescription.describe(.list(list.id), feedManager: feedManager),
+                iconSize: BrowserSuggestionRow.iconSize,
+                titleFont: .body,
+                subtitleFont: .caption
             )
         case .article(let article):
             articleLabel(article)
@@ -50,22 +61,30 @@ struct BrowserSuggestionRow: View {
 
     private func articleLabel(_ article: Article) -> some View {
         let feed = feedManager.feed(forArticle: article)
-        return BrowserLocationLabel(description: BrowserLocationDescription(
-            title: article.title,
-            subtitle: feed?.title,
-            symbolName: "doc.text",
-            feed: feed
-        ))
+        return BrowserLocationLabel(
+            description: BrowserLocationDescription(
+                title: article.title,
+                subtitle: feed?.title,
+                symbolName: "doc.text",
+                feed: feed
+            ),
+            iconSize: BrowserSuggestionRow.iconSize,
+            titleFont: .body,
+            subtitleFont: .caption
+        )
     }
 
     private func actionLabel(title: String, symbolName: String) -> some View {
-        HStack(spacing: 8) {
+        HStack(spacing: 10) {
             Image(systemName: symbolName)
-                .font(.system(size: 14))
+                .font(.body)
                 .foregroundStyle(.secondary)
-                .frame(width: 18, height: 18)
+                .frame(
+                    width: BrowserSuggestionRow.iconSize,
+                    height: BrowserSuggestionRow.iconSize
+                )
             Text(title)
-                .font(.subheadline)
+                .font(.body)
                 .lineLimit(1)
         }
     }
