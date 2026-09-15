@@ -10,12 +10,16 @@ struct BrowserTabCard: View {
     /// the columns to compensate truncates the titles.
     static let previewAspectRatio: CGFloat = 0.75
 
+    /// How far a card has to be pushed left before it closes.
+    static let closeDistance: CGFloat = 90
+
     @Environment(FeedManager.self) private var feedManager
     @Environment(BrowserTabStore.self) private var store
     let tab: BrowserTab
     let isSelected: Bool
     let onSelect: () -> Void
     let onClose: () -> Void
+    @State private var dragOffset: CGFloat = 0
 
     private var description: BrowserLocationDescription {
         BrowserLocationDescription.describe(tab, feedManager: feedManager)
@@ -45,7 +49,38 @@ struct BrowserTabCard: View {
             .contentShape(.rect(cornerRadius: BrowserTabCard.cornerRadius))
             .reportsTabCardFrame(id: tab.id, to: store)
         }
+        .offset(x: dragOffset)
+        .opacity(closeProgress)
+        // High priority: the card is a button, which otherwise swallows the drag.
+        .highPriorityGesture(closeDragGesture)
         .buttonStyle(.plain)
+    }
+
+    /// Fades the card out as it is pushed away, so the swipe reads as closing
+    /// rather than sliding.
+    private var closeProgress: Double {
+        1 - min(1, Double(-dragOffset / BrowserTabCard.closeDistance))
+    }
+
+    private var closeDragGesture: some Gesture {
+        DragGesture(minimumDistance: 16)
+            .onChanged { value in
+                // Vertical drags belong to the grid's scroll view.
+                guard abs(value.translation.width) > abs(value.translation.height) else { return }
+                dragOffset = min(0, value.translation.width)
+            }
+            .onEnded { value in
+                if value.translation.width < -BrowserTabCard.closeDistance {
+                    withAnimation(.smooth(duration: 0.2)) {
+                        dragOffset = -BrowserTabCard.closeDistance * 2
+                    }
+                    onClose()
+                } else {
+                    withAnimation(.smooth(duration: 0.2)) {
+                        dragOffset = 0
+                    }
+                }
+            }
     }
 
     private var header: some View {
