@@ -24,6 +24,10 @@ final class BrowserTabStore {
     /// Last snapshot taken of each tab, shown on its card.
     private(set) var snapshots: [UUID: UIImage] = [:]
 
+    /// Where each tab's content starts, reported by the page. Used to crop
+    /// its navigation bar out of the snapshot.
+    private(set) var contentTopInsets: [UUID: CGFloat] = [:]
+
     init(tabs: [BrowserTab] = [], selectedTabID: UUID? = nil) {
         let restored = tabs.isEmpty ? [BrowserTab()] : tabs
         self.tabs = restored
@@ -46,8 +50,14 @@ final class BrowserTabStore {
 
     /// Snapshots the visible page and files it against the selected tab.
     func captureSelectedTabSnapshot() {
-        guard let image = BrowserTabSnapshotter.captureVisiblePage() else { return }
+        let top = contentTopInsets[selectedTabID] ?? 0
+        guard let image = BrowserTabSnapshotter.captureVisiblePage(contentTop: top) else { return }
         snapshots[selectedTabID] = image
+    }
+
+    func setContentTopInset(_ inset: CGFloat, for tabID: UUID) {
+        guard contentTopInsets[tabID] != inset else { return }
+        contentTopInsets[tabID] = inset
     }
 
     func setCardFrame(_ frame: CGRect, for tabID: UUID) {
@@ -85,6 +95,7 @@ final class BrowserTabStore {
         guard let index = tabs.firstIndex(where: { $0.id == tabID }) else { return }
         tabs.remove(at: index)
         snapshots[tabID] = nil
+        contentTopInsets[tabID] = nil
         liveTabIDs.removeAll { $0 == tabID }
         if tabs.isEmpty {
             let replacement = BrowserTab()
