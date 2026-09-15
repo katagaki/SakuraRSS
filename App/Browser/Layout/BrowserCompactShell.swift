@@ -50,12 +50,13 @@ struct BrowserCompactShell: View {
     }
 
     /// Leaving, the page holds its opacity so the collapse reads before it
-    /// dissolves. Returning, it has to be visible immediately or it pops in
-    /// after the grid has already gone.
+    /// dissolves. Returning, it goes opaque almost at once: a page that fades
+    /// in while it grows lets the grid show through it, and the card's content
+    /// and the page's are then both visible at the same spot.
     private var pageFadeAnimation: Animation {
         store.isShowingTabSwitcher
             ? .easeIn(duration: 0.14).delay(0.20)
-            : .easeOut(duration: 0.18)
+            : .easeOut(duration: 0.08)
     }
 
     private var selectedCardFrame: CGRect? {
