@@ -39,9 +39,12 @@ struct BrowserTabCard: View {
                     .overlay(alignment: .top) {
                         BrowserTabPreview(tab: tab)
                     }
-                    .clipped()
             }
-            .background(.background.secondary, in: .rect(cornerRadius: BrowserTabCard.cornerRadius))
+            .background(.background.secondary)
+            // Clipped as a whole rather than per preview: `clipped()` trims the
+            // snapshot to the card's bounds but not to its rounded corners.
+            .clipShape(.rect(cornerRadius: BrowserTabCard.cornerRadius, style: .continuous))
+            .shadow(color: .black.opacity(0.12), radius: 5, y: 2)
             .overlay {
                 RoundedRectangle(cornerRadius: BrowserTabCard.cornerRadius, style: .continuous)
                     .strokeBorder(isSelected ? Color.accentColor : Color.clear, lineWidth: 2.5)
