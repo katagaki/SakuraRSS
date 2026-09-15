@@ -95,10 +95,6 @@ struct BrowserCompactShell: View {
 
     private func tabStack(width: CGFloat) -> some View {
         BrowserTabStack()
-            // Both subtrees stay mounted, so both offer a bottom bar: without
-            // this the page's own bar draws underneath the switcher's for the
-            // length of the transition.
-            .browserPageBarHidden(store.isShowingTabSwitcher)
             // The page is what gets scaled into the card, so it has to draw
             // edge to edge: otherwise the snapshot carries blank status bar and
             // home indicator bands into the card with it.
