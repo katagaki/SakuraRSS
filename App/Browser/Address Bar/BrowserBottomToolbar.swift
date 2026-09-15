@@ -57,7 +57,7 @@ struct BrowserBottomToolbar: ToolbarContent {
             // Bookmarks while the tab sits at its root; Back once it has
             // somewhere to go back to. With no top bar there is nowhere else to
             // put Back.
-            if store.selectedTab.canGoBack {
+            if store.displayedCanGoBack {
                 Button {
                     store.goBack()
                 } label: {

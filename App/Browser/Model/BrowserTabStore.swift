@@ -16,6 +16,13 @@ final class BrowserTabStore {
 
     var isShowingTabSwitcher = false
 
+    /// While a swipe-back is in flight the path has already popped, so the
+    /// bottom bar would flip to the previous page before the gesture is
+    /// committed — and stay wrong if the swipe is cancelled.
+    private(set) var isInteractivelyPopping = false
+    private var frozenCanGoBack: Bool?
+    private var frozenPageIdentity: BrowserPageIdentity?
+
     /// Reported by the tab cards. Routed through the store rather than a
     /// preference because the switcher's NavigationStack does not propagate
     /// preferences out to the shell.
@@ -37,6 +44,33 @@ final class BrowserTabStore {
         self.selectedTabID = resolved
         self.liveTabIDs = [resolved]
         self.visitCounts = BrowserTabStore.loadVisitCounts()
+    }
+
+    /// What the bottom bar should show: the pre-gesture state while a swipe
+    /// back is in flight, the live state otherwise.
+    var displayedTab: BrowserTab {
+        guard isInteractivelyPopping else { return selectedTab }
+        var tab = selectedTab
+        tab.pageIdentity = frozenPageIdentity
+        return tab
+    }
+
+    var displayedCanGoBack: Bool {
+        frozenCanGoBack ?? selectedTab.canGoBack
+    }
+
+    func beginInteractivePop() {
+        guard !isInteractivelyPopping else { return }
+        frozenCanGoBack = selectedTab.canGoBack
+        frozenPageIdentity = selectedTab.pageIdentity
+        isInteractivelyPopping = true
+    }
+
+    func endInteractivePop() {
+        guard isInteractivelyPopping else { return }
+        isInteractivelyPopping = false
+        frozenCanGoBack = nil
+        frozenPageIdentity = nil
     }
 
     var selectedTab: BrowserTab {

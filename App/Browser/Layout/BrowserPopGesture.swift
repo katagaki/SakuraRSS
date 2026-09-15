@@ -6,6 +6,8 @@ import SwiftUI
 /// so the browser takes the recogniser back over.
 struct BrowserPopGestureEnabler: UIViewRepresentable {
 
+    let store: BrowserTabStore
+
     func makeCoordinator() -> Coordinator {
         Coordinator()
     }
@@ -22,12 +24,33 @@ struct BrowserPopGestureEnabler: UIViewRepresentable {
             context.coordinator.navigationController = controller
             controller.interactivePopGestureRecognizer?.isEnabled = true
             controller.interactivePopGestureRecognizer?.delegate = context.coordinator
+            context.coordinator.observe(controller.interactivePopGestureRecognizer, store: store)
         }
     }
 
     final class Coordinator: NSObject, UIGestureRecognizerDelegate {
 
         weak var navigationController: UINavigationController?
+        private weak var observedRecognizer: UIGestureRecognizer?
+        private var store: BrowserTabStore?
+
+        func observe(_ recognizer: UIGestureRecognizer?, store: BrowserTabStore) {
+            self.store = store
+            guard let recognizer, observedRecognizer !== recognizer else { return }
+            observedRecognizer = recognizer
+            recognizer.addTarget(self, action: #selector(handlePop(_:)))
+        }
+
+        @objc private func handlePop(_ recognizer: UIGestureRecognizer) {
+            switch recognizer.state {
+            case .began:
+                store?.beginInteractivePop()
+            case .ended, .cancelled, .failed:
+                store?.endInteractivePop()
+            default:
+                break
+            }
+        }
 
         /// Without this the gesture also fires at the root, which leaves the
         /// stack wedged.
@@ -58,12 +81,12 @@ private extension UIView {
 
 extension View {
     @ViewBuilder
-    func browserPopGestureEnabled() -> some View {
+    func browserPopGestureEnabled(store: BrowserTabStore) -> some View {
         #if os(visionOS)
         self
         #else
         background {
-            BrowserPopGestureEnabler()
+            BrowserPopGestureEnabler(store: store)
                 .frame(width: 0, height: 0)
                 .accessibilityHidden(true)
         }

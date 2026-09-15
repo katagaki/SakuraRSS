@@ -22,7 +22,7 @@ struct BrowserAddressItem: View {
             Button(action: onOpenOmnibox) {
                 BrowserLocationLabel(
                     description: BrowserLocationDescription.describe(
-                        store.selectedTab,
+                        store.displayedTab,
                         feedManager: feedManager
                     ),
                     iconSize: 24,
