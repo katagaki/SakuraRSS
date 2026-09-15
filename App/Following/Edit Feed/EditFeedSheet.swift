@@ -41,8 +41,9 @@ struct EditFeedSheet: View {
                     } label: {
                         HStack(spacing: 4) {
                             Text(selectedTab.localizedTitle)
-                            Image(systemName: "chevron.down")
-                                .font(.caption2.weight(.semibold))
+                            Image(systemName: "chevron.down.circle.fill")
+                                .font(.footnote)
+                                .foregroundStyle(.secondary)
                         }
                         .font(.headline)
                     }
