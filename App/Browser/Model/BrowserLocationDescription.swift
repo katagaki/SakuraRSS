@@ -16,6 +16,13 @@ struct BrowserLocationDescription {
             symbolic(key: "StartPage.Title", symbolName: "square.grid.2x2")
         case .allContent:
             symbolic(key: "Location.AllContent", symbolName: "tray.full")
+        case .feeds:
+            BrowserLocationDescription(
+                title: String(localized: "Tabs.Feeds"),
+                subtitle: nil,
+                symbolName: "dot.radiowaves.up.forward",
+                feed: nil
+            )
         case .search(let query):
             BrowserLocationDescription(
                 title: query,

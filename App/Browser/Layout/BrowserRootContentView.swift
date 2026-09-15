@@ -7,6 +7,7 @@ import Hanami
 struct BrowserRootContentView: View {
 
     @Environment(FeedManager.self) private var feedManager
+    @Namespace private var followingZoom
     let location: BrowserLocation
 
     var body: some View {
@@ -25,6 +26,14 @@ struct BrowserRootContentView: View {
                 .browserPage(
                     title: String(localized: "Location.AllContent", table: "Browser"),
                     symbolName: "tray.full"
+                )
+        case .feeds:
+            FollowingPage(followingNavigationNamespace: followingZoom)
+                .navigationTitle(String(localized: "Tabs.Feeds"))
+                .toolbarTitleDisplayMode(.inline)
+                .browserPage(
+                    title: String(localized: "Tabs.Feeds"),
+                    symbolName: "dot.radiowaves.up.forward"
                 )
         case .search(let query):
             BrowserSearchResultsView(query: query)

@@ -42,7 +42,7 @@ struct BrowserSuggestionResolver {
     }
 
     private func emptyQuerySuggestions() -> [BrowserSuggestion] {
-        [BrowserLocation.startPage, .allContent].map {
+        [BrowserLocation.startPage, .allContent, .feeds].map {
             BrowserSuggestion(id: "place:\($0.persistenceToken)", kind: .place($0), section: .places)
         }
     }

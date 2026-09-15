@@ -65,7 +65,7 @@ struct BrowserTabPreview: View {
             } ?? [])
         case .allContent:
             headlines(feedManager.articles(limit: BrowserTabPreview.headlineLimit))
-        case .search:
+        case .feeds, .search:
             symbolPlaceholder
         }
     }
