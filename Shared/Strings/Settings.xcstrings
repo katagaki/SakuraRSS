@@ -8790,7 +8790,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "When a Focus is on, Home and Following show only the lists and sections you chose for it. No permission is needed — filters are set up in the Settings app."
+            "value" : "When a Focus is on, Home and Following show only the lists and sections you chose for it. No permission is needed, and filters are set up in the Settings app."
           }
         },
         "fr" : {
@@ -8826,7 +8826,7 @@
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Khi một chế độ Tập trung được bật, Trang chính và Đang theo dõi chỉ hiển thị các danh sách và mục bạn đã chọn. Không cần cấp quyền — bộ lọc được thiết lập trong ứng dụng Cài đặt."
+            "value" : "Khi một chế độ Tập trung được bật, Trang chính và Đang theo dõi chỉ hiển thị các danh sách và mục bạn đã chọn. Không cần cấp quyền, và bộ lọc được thiết lập trong ứng dụng Cài đặt."
           }
         },
         "zh-Hans" : {
