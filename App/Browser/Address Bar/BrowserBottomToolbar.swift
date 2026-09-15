@@ -36,7 +36,7 @@ struct BrowserBottomToolbar: ToolbarContent {
 
             Spacer()
 
-            Button(String(localized: "AddressField.Cancel", table: "Browser")) {
+            Button(role: .cancel) {
                 omnibox.deactivate()
             }
         }

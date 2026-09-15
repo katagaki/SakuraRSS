@@ -30,7 +30,13 @@ struct BrowserOmniboxView: View {
                 // above it stays tappable the way Safari's does.
                 Spacer(minLength: 0)
                 suggestionList
-                    .frame(maxHeight: BrowserOmniboxView.suggestionListMaxHeight)
+                    // Bottom aligned: a maxHeight frame centres its content,
+                    // which left the rows floating in the middle of the box
+                    // with a dead gap above the field.
+                    .frame(
+                        maxHeight: BrowserOmniboxView.suggestionListMaxHeight,
+                        alignment: .bottom
+                    )
             }
         }
         .task(id: omnibox.text) {
@@ -39,31 +45,41 @@ struct BrowserOmniboxView: View {
     }
 
     private var suggestionList: some View {
-        ScrollView {
-            LazyVStack(alignment: .leading, spacing: 0) {
-                ForEach(BrowserSuggestion.Section.allCases, id: \.rawValue) { section in
-                    let sectionSuggestions = suggestions.filter { $0.section == section }
-                    if !sectionSuggestions.isEmpty {
-                        Text(section.title)
-                            .font(.caption.weight(.semibold))
-                            .foregroundStyle(.secondary)
-                            .padding(.horizontal, 20)
-                            .padding(.top, 16)
-                            .padding(.bottom, 6)
-                        ForEach(sectionSuggestions) { suggestion in
-                            BrowserSuggestionRow(suggestion: suggestion) {
-                                apply(suggestion)
-                            }
-                            .padding(.horizontal, 20)
-                            .padding(.vertical, 9)
+        // Hugs its content when it is short, scrolls once it is not. A plain
+        // ScrollView always claims its full height, which left a dead gap
+        // between the last suggestion and the field.
+        ViewThatFits(in: .vertical) {
+            suggestionRows
+            ScrollView {
+                suggestionRows
+            }
+            .compatibleInteractiveKeyboardDismissal()
+            .defaultScrollAnchor(.bottom)
+        }
+    }
+
+    private var suggestionRows: some View {
+        LazyVStack(alignment: .leading, spacing: 0) {
+            ForEach(BrowserSuggestion.Section.allCases, id: \.rawValue) { section in
+                let sectionSuggestions = suggestions.filter { $0.section == section }
+                if !sectionSuggestions.isEmpty {
+                    Text(section.title)
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(.secondary)
+                        .padding(.horizontal, 20)
+                        .padding(.top, 16)
+                        .padding(.bottom, 6)
+                    ForEach(sectionSuggestions) { suggestion in
+                        BrowserSuggestionRow(suggestion: suggestion) {
+                            apply(suggestion)
                         }
+                        .padding(.horizontal, 20)
+                        .padding(.vertical, 9)
                     }
                 }
             }
-            .padding(.bottom, 12)
         }
-        .compatibleInteractiveKeyboardDismissal()
-        .defaultScrollAnchor(.bottom)
+        .padding(.bottom, 12)
     }
 
     private func refreshContentMatches() async {
