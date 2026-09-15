@@ -14,6 +14,7 @@ struct BrowserView: View {
     @State private var presentedSheet: BrowserSheetKind?
     @State private var pendingAddFeedURL: String?
     @State private var addFeedSession = AddFeedSession()
+    private let mediaPresenter = MediaPresenter.shared
 
     @Binding var pendingFeedURL: String?
 
@@ -61,6 +62,19 @@ struct BrowserView: View {
             if let url = pendingAddFeedURL {
                 presentedSheet = .addFeed(url: url)
             }
+        }
+        .onAppear {
+            // Players belong in the tab's stack here, not in a sheet over it:
+            // a sheet would cover the browser's own chrome.
+            mediaPresenter.detachedHandler = { item in
+                switch item {
+                case .youTube(let article), .podcast(let article):
+                    store.push(article)
+                }
+            }
+        }
+        .onDisappear {
+            mediaPresenter.detachedHandler = nil
         }
         .onChange(of: pendingFeedURL) {
             if let url = pendingFeedURL {
