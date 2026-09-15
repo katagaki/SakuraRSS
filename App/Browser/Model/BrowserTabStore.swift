@@ -28,6 +28,11 @@ final class BrowserTabStore {
     /// preferences out to the shell.
     private(set) var cardFrames: [UUID: CGRect] = [:]
 
+    /// What each tab has visited, indexed by depth in its path. A
+    /// NavigationPath cannot be read back, so the browser keeps its own
+    /// record to offer a back history.
+    private(set) var pageHistories: [UUID: [BrowserPageIdentity]] = [:]
+
     /// Article actions offered by each tab's current page.
     private(set) var articleActions: [UUID: BrowserArticleActions] = [:]
 
@@ -139,6 +144,7 @@ final class BrowserTabStore {
         snapshots[tabID] = nil
         markAllReadActions[tabID] = nil
         articleActions[tabID] = nil
+        pageHistories[tabID] = nil
         liveTabIDs.removeAll { $0 == tabID }
         if selectedTabID == tabID {
             let neighbour = tabs[min(index, tabs.count - 1)]
@@ -204,9 +210,48 @@ final class BrowserTabStore {
     }
 
     func setPageIdentity(_ identity: BrowserPageIdentity?, for tabID: UUID) {
-        guard let index = tabs.firstIndex(where: { $0.id == tabID }),
-              tabs[index].pageIdentity != identity else { return }
-        tabs[index].pageIdentity = identity
+        guard let index = tabs.firstIndex(where: { $0.id == tabID }) else { return }
+        if tabs[index].pageIdentity != identity {
+            tabs[index].pageIdentity = identity
+        }
+        guard let identity else { return }
+        recordHistory(identity, depth: tabs[index].path.count, for: tabID)
+    }
+
+    /// The entry at each depth is replaced rather than appended, so going back
+    /// and down a different branch does not leave the old branch behind.
+    private func recordHistory(_ identity: BrowserPageIdentity, depth: Int, for tabID: UUID) {
+        var history = pageHistories[tabID] ?? []
+        if history.count > depth {
+            history.removeSubrange(depth...)
+        }
+        while history.count < depth {
+            history.append(identity)
+        }
+        history.append(identity)
+        pageHistories[tabID] = history
+    }
+
+    /// Pages behind the current one, nearest first, paired with the depth to
+    /// pop back to.
+    var backHistory: [(depth: Int, identity: BrowserPageIdentity)] {
+        let tab = selectedTab
+        let history = pageHistories[tab.id] ?? []
+        let current = tab.path.count
+        guard current > 0 else { return [] }
+        return (0..<min(current, history.count))
+            .reversed()
+            .map { (depth: $0, identity: history[$0]) }
+    }
+
+    func popTo(depth: Int) {
+        let index = selectedIndex
+        let current = tabs[index].path.count
+        guard depth < current else { return }
+        tabs[index].path.removeLast(current - depth)
+        let history = pageHistories[tabs[index].id] ?? []
+        tabs[index].pageIdentity = history.indices.contains(depth) ? history[depth] : nil
+        tabs[index].lastVisited = .now
     }
 
     // MARK: - Liveness

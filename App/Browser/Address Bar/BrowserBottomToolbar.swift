@@ -64,6 +64,15 @@ struct BrowserBottomToolbar: ToolbarContent {
                     Image(systemName: "chevron.backward")
                 }
                 .accessibilityLabel(String(localized: "AddressBar.Back", table: "Browser"))
+                .contextMenu {
+                    ForEach(store.backHistory, id: \.depth) { entry in
+                        Button {
+                            store.popTo(depth: entry.depth)
+                        } label: {
+                            Label(entry.identity.title, systemImage: entry.identity.symbolName)
+                        }
+                    }
+                }
             } else {
                 Button(action: onOpenBookmarks) {
                     Image(systemName: "bookmark")

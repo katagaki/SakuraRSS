@@ -37,9 +37,6 @@ struct BrowserAddressItem: View {
                 .contentShape(.rect)
             }
             .buttonStyle(.plain)
-            .contextMenu {
-                BrowserPageMenu(store: store, favourites: favourites)
-            }
 
             if let articleActions {
                 articleMenu(articleActions)
