@@ -21,6 +21,9 @@ final class BrowserTabStore {
     /// preferences out to the shell.
     private(set) var cardFrames: [UUID: CGRect] = [:]
 
+    /// Mark-all-read action offered by each tab's current page.
+    private(set) var markAllReadActions: [UUID: BrowserMarkAllReadAction] = [:]
+
     /// Last snapshot taken of each tab, shown on its card.
     private(set) var snapshots: [UUID: UIImage] = [:]
 
@@ -48,6 +51,10 @@ final class BrowserTabStore {
     func captureSelectedTabSnapshot() {
         guard let image = BrowserTabSnapshotter.captureVisiblePage() else { return }
         snapshots[selectedTabID] = image
+    }
+
+    func setMarkAllRead(_ action: BrowserMarkAllReadAction?, for tabID: UUID) {
+        markAllReadActions[tabID] = action
     }
 
     func setCardFrame(_ frame: CGRect, for tabID: UUID) {
@@ -85,6 +92,7 @@ final class BrowserTabStore {
         guard let index = tabs.firstIndex(where: { $0.id == tabID }) else { return }
         tabs.remove(at: index)
         snapshots[tabID] = nil
+        markAllReadActions[tabID] = nil
         liveTabIDs.removeAll { $0 == tabID }
         if tabs.isEmpty {
             let replacement = BrowserTab()

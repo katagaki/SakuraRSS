@@ -37,6 +37,8 @@ struct ArticlesView: View {
     var onScrollOffsetChange: ((CGFloat) -> Void)?
 
     @Environment(\.hidesMarkAllReadToolbar) private var hidesMarkAllReadToolbar
+    @Environment(\.isBrowserChromeActive) private var isBrowserChromeActive
+    @Environment(\.browserMarkAllReadReporter) private var markAllReadReporter
     @Environment(\.homeSectionDisplayMenu) private var homeSectionDisplayMenu
     @State private var displayStyle: FeedDisplayStyle
     @State private var isShowingMarkAllReadConfirmation = false
@@ -145,8 +147,11 @@ struct ArticlesView: View {
         .navigationSubtitle(subtitle ?? "")
         #endif
         .toolbarTitleDisplayMode(titleDisplayMode)
+        .onAppear { reportMarkAllReadToBrowser() }
+        .onDisappear { markAllReadReporter?(nil) }
         .toolbar {
-            if !hidesMarkAllReadToolbar, markAllReadPosition == .top, let onMarkAllRead {
+            if !hidesMarkAllReadToolbar, !isBrowserChromeActive,
+               markAllReadPosition == .top, let onMarkAllRead {
                 ToolbarItemGroup(placement: .topBarLeading) {
                     Button {
                         isShowingMarkAllReadConfirmation = true
@@ -328,4 +333,14 @@ extension ArticlesView {
         }
         return displayStyle
     }
+    /// The browser has no top bar, so the page hands its action to the bottom
+    /// bar to render instead.
+    private func reportMarkAllReadToBrowser() {
+        guard isBrowserChromeActive, let onMarkAllRead else {
+            markAllReadReporter?(nil)
+            return
+        }
+        markAllReadReporter?(BrowserMarkAllReadAction(perform: onMarkAllRead))
+    }
+
 }

@@ -82,6 +82,7 @@ struct HomeSectionView: View {
     @AppStorage("Display.MarkAllReadPosition") private var markAllReadPosition: MarkAllReadPosition = .top
     @State private var isMarkReadPillVisible = false
     @State private var isShowingMarkAllReadConfirmation = false
+    @Environment(\.isBrowserChromeActive) private var isBrowserChromeActive
 
     private var batchingMode: BatchingMode {
         DoomscrollingMode.effectiveBatchingMode(storedBatchingMode)
@@ -254,12 +255,15 @@ extension HomeSectionView {
     }
 
     var markAllReadBottomInset: CGFloat {
-        HomeLayout.usesPhoneTopBar && markAllReadPosition == .top ? 64 : 0
+        !isBrowserChromeActive && HomeLayout.usesPhoneTopBar && markAllReadPosition == .top ? 64 : 0
     }
 
     @ViewBuilder
     var markAllReadPill: some View {
-        if HomeLayout.usesPhoneTopBar, markAllReadPosition == .top, isMarkReadPillVisible {
+        // The browser has a single mark as read button in its bottom bar,
+        // so the floating pill would be a second one.
+        if !isBrowserChromeActive, HomeLayout.usesPhoneTopBar,
+           markAllReadPosition == .top, isMarkReadPillVisible {
             MarkAllReadPill {
                 isShowingMarkAllReadConfirmation = true
             }

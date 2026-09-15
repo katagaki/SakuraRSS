@@ -71,25 +71,12 @@ struct BrowserBottomToolbar: ToolbarContent {
 
             Spacer()
 
-            Button(action: onOpenOmnibox) {
-                BrowserLocationLabel(
-                    description: BrowserLocationDescription.describe(
-                        store.selectedTab,
-                        feedManager: feedManager
-                    ),
-                    iconSize: 24,
-                    titleFont: .subheadline,
-                    showsSubtitle: true
-                )
-                .padding(.leading, 8)
-                .frame(
-                    width: addressWidth > 0 ? addressWidth : nil,
-                    alignment: .leading
-                )
-            }
-            .contextMenu {
-                BrowserPageMenu(store: store, favourites: favourites)
-            }
+            BrowserAddressItem(
+                store: store,
+                favourites: favourites,
+                width: addressWidth,
+                onOpenOmnibox: onOpenOmnibox
+            )
 
             Spacer()
 
