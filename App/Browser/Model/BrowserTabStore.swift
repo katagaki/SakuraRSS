@@ -35,8 +35,10 @@ final class BrowserTabStore {
     /// preferences out to the shell.
     private(set) var cardFrames: [UUID: CGRect] = [:]
 
-    /// The snapshot's rect within each card.
-    private(set) var previewFrames: [UUID: CGRect] = [:]
+    /// Where the page collapses to, frozen when a transition starts: cards
+    /// keep reporting frames while the grid lays out, and a target that moves
+    /// mid-flight makes the page jump.
+    private(set) var collapseTarget: CGRect?
 
     /// What each tab has visited, indexed by depth in its path. A
     /// NavigationPath cannot be read back, so the browser keeps its own
@@ -117,6 +119,7 @@ final class BrowserTabStore {
 
     func showTabSwitcher() {
         captureSelectedTabSnapshot()
+        freezeCollapseTarget()
         setShowingTabSwitcherWithoutAnimation(true)
         withAnimation(BrowserTabSwitcher.transitionAnimation) {
             isPageCollapsed = true
@@ -124,6 +127,7 @@ final class BrowserTabStore {
     }
 
     func hideTabSwitcher() {
+        freezeCollapseTarget()
         setShowingTabSwitcherWithoutAnimation(false)
         withAnimation(BrowserTabSwitcher.transitionAnimation) {
             isPageCollapsed = false
@@ -141,9 +145,18 @@ final class BrowserTabStore {
         }
     }
 
-    func setPreviewFrame(_ frame: CGRect, for tabID: UUID) {
-        guard previewFrames[tabID] != frame else { return }
-        previewFrames[tabID] = frame
+    /// The card's snapshot sits below its title row, so the page collapses
+    /// onto that sub-rect rather than the whole card. Derived from the card's
+    /// own width so it cannot disagree with what the card lays out.
+    private func freezeCollapseTarget() {
+        guard let card = cardFrames[selectedTabID] else { return }
+        let previewHeight = card.width / BrowserTabCard.previewAspectRatio
+        collapseTarget = CGRect(
+            x: card.minX,
+            y: card.maxY - previewHeight,
+            width: card.width,
+            height: previewHeight
+        )
     }
 
     func setCardFrame(_ frame: CGRect, for tabID: UUID) {
@@ -186,7 +199,6 @@ final class BrowserTabStore {
         markAllReadActions[tabID] = nil
         articleActions[tabID] = nil
         pageHistories[tabID] = nil
-        previewFrames[tabID] = nil
         liveTabIDs.removeAll { $0 == tabID }
         if selectedTabID == tabID {
             let neighbour = tabs[min(index, tabs.count - 1)]

@@ -31,7 +31,7 @@ struct BrowserCompactShell: View {
                 // while it collapses and only dissolves once it has landed.
                 tabStack(width: proxy.size.width)
                     .scaleEffect(pageScale(in: proxy.size), anchor: .topLeading)
-                    .offset(pageOffset(in: proxy.size))
+                    .offset(pageOffset)
                     .clipShape(
                         BrowserPageClipShape(
                             rect: pageClipRect(in: proxy.size),
@@ -65,14 +65,9 @@ struct BrowserCompactShell: View {
     }
 
     private var selectedCardFrame: CGRect? {
-        guard store.isPageCollapsed else { return nil }
-        // Prefer the snapshot's own rect; fall back to the whole card.
-        return store.previewFrames[store.selectedTabID] ?? store.cardFrames[store.selectedTabID]
+        store.isPageCollapsed ? store.collapseTarget : nil
     }
 
-    /// Each axis scales independently so the page lands on the card's exact
-    /// rect; keeping it proportional leaves the page hanging below the card,
-    /// because a page is far taller than a card is.
     /// One uniform scale, taken from the width. The card's snapshot is a top
     /// crop at that same scale, so scaling each axis to fit the card instead
     /// squashes the live page against it.
@@ -81,15 +76,12 @@ struct BrowserCompactShell: View {
         return card.width / size.width
     }
 
-    /// Anchored so the page's safe area top lands on the card's top edge; the
-    /// overflow below is cropped rather than squeezed.
-    private func pageOffset(in size: CGSize) -> CGSize {
+    /// The page's own origin is where the snapshot's crop starts, so the card's
+    /// origin is the whole offset: correcting for the safe area here lifts the
+    /// page a status bar's height clear of the snapshot underneath it.
+    private var pageOffset: CGSize {
         guard let card = selectedCardFrame else { return .zero }
-        let scale = pageScale(in: size)
-        return CGSize(
-            width: card.minX,
-            height: card.minY - BrowserDeviceMetrics.safeAreaInsets.top * scale
-        )
+        return CGSize(width: card.minX, height: card.minY)
     }
 
     /// The card's rect while collapsed, the whole screen otherwise.

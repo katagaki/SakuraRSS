@@ -21,21 +21,3 @@ extension View {
         }
     }
 }
-
-extension View {
-    /// The snapshot's own rect, which sits below the card's title row. The page
-    /// collapses onto this rather than the whole card.
-    func reportsTabPreviewFrame(id: UUID, to store: BrowserTabStore) -> some View {
-        background {
-            GeometryReader { proxy in
-                Color.clear
-                    .onChange(
-                        of: proxy.frame(in: .named(BrowserTabZoom.coordinateSpace)),
-                        initial: true
-                    ) { _, frame in
-                        store.setPreviewFrame(frame, for: id)
-                    }
-            }
-        }
-    }
-}

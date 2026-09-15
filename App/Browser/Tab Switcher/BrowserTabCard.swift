@@ -40,7 +40,6 @@ struct BrowserTabCard: View {
                         BrowserTabPreview(tab: tab)
                     }
                     .clipped()
-                    .reportsTabPreviewFrame(id: tab.id, to: store)
             }
             .background(.background.secondary, in: .rect(cornerRadius: BrowserTabCard.cornerRadius))
             .overlay {
