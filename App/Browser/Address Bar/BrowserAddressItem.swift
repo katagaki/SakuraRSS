@@ -29,7 +29,6 @@ struct BrowserAddressItem: View {
                     titleFont: .subheadline,
                     showsSubtitle: true
                 )
-                .padding(.leading, 8)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .contentShape(.rect)
             }
@@ -42,6 +41,9 @@ struct BrowserAddressItem: View {
                 markAllReadButton(markAllRead)
             }
         }
+        // Even by construction: both the icon and the glyph sit flush
+        // against this padding, so neither side needs a fudge factor.
+        .padding(.horizontal, 12)
         .frame(width: width > 0 ? width : nil)
     }
 
@@ -50,9 +52,9 @@ struct BrowserAddressItem: View {
             isConfirmingMarkAllRead = true
         } label: {
             Image(systemName: "envelope.open")
-                .font(.system(size: 15))
-                .frame(width: 30, height: 30)
-                .contentShape(.circle)
+                .font(.system(size: 17))
+                .padding(.vertical, 8)
+                .contentShape(.rect)
         }
         .buttonStyle(.plain)
         .accessibilityLabel(String(localized: "MarkAllRead", table: "Articles"))
