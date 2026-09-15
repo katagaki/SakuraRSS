@@ -20,9 +20,13 @@ struct BrowserTabCard: View {
         Button(action: onSelect) {
             VStack(spacing: 0) {
                 header
+                // No padding here: a snapshot bleeds to the card's edges.
+                // The stand-in insets itself instead.
                 BrowserTabPreview(tab: tab)
-                    .padding(12)
-                    .frame(height: 132)
+                    .frame(maxWidth: .infinity)
+                    // Top aligned: a snapshot is far taller than the card, and
+                    // a card should show the top of its page, not its middle.
+                    .frame(height: 132, alignment: .top)
                     .clipped()
             }
             .background(.background.secondary, in: .rect(cornerRadius: BrowserTabCard.cornerRadius))

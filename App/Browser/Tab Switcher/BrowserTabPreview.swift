@@ -1,17 +1,32 @@
 import SwiftUI
 import Hanami
 
-/// A cheap stand-in for a live page snapshot: the headlines a tab would show,
-/// or its label when the tab is not a list of content.
+/// The tab's last snapshot. Tabs that have not been left yet have none, so
+/// they fall back to a stand-in: the headlines the tab would show, or its
+/// label when it is not a list of content.
 struct BrowserTabPreview: View {
 
     private static let headlineLimit = 4
 
     @Environment(FeedManager.self) private var feedManager
+    @Environment(BrowserTabStore.self) private var store
     @Environment(BrowserFavourites.self) private var favourites
     let tab: BrowserTab
 
     var body: some View {
+        if let snapshot = store.snapshots[tab.id] {
+            Image(uiImage: snapshot)
+                .resizable()
+                .scaledToFill()
+                .frame(maxWidth: .infinity, alignment: .top)
+        } else {
+            standIn
+                .padding(12)
+        }
+    }
+
+    @ViewBuilder
+    private var standIn: some View {
         // Navigating pushes rather than replacing the root, so the tab's
         // location is no longer what it is showing: prefer the page it last
         // reported.

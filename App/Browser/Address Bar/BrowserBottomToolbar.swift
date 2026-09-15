@@ -82,6 +82,9 @@ struct BrowserBottomToolbar: ToolbarContent {
             Spacer()
 
             Button {
+                // Snapshot before the flip: once the transition starts the page
+                // is already collapsing.
+                store.captureSelectedTabSnapshot()
                 withAnimation(BrowserTabSwitcher.transitionAnimation) {
                     store.isShowingTabSwitcher = true
                 }

@@ -21,6 +21,9 @@ final class BrowserTabStore {
     /// preferences out to the shell.
     private(set) var cardFrames: [UUID: CGRect] = [:]
 
+    /// Last snapshot taken of each tab, shown on its card.
+    private(set) var snapshots: [UUID: UIImage] = [:]
+
     init(tabs: [BrowserTab] = [], selectedTabID: UUID? = nil) {
         let restored = tabs.isEmpty ? [BrowserTab()] : tabs
         self.tabs = restored
@@ -39,6 +42,12 @@ final class BrowserTabStore {
 
     private var selectedIndex: Int {
         tabs.firstIndex { $0.id == selectedTabID } ?? 0
+    }
+
+    /// Snapshots the visible page and files it against the selected tab.
+    func captureSelectedTabSnapshot() {
+        guard let image = BrowserTabSnapshotter.captureVisiblePage() else { return }
+        snapshots[selectedTabID] = image
     }
 
     func setCardFrame(_ frame: CGRect, for tabID: UUID) {
@@ -75,6 +84,7 @@ final class BrowserTabStore {
     func close(_ tabID: UUID) {
         guard let index = tabs.firstIndex(where: { $0.id == tabID }) else { return }
         tabs.remove(at: index)
+        snapshots[tabID] = nil
         liveTabIDs.removeAll { $0 == tabID }
         if tabs.isEmpty {
             let replacement = BrowserTab()
