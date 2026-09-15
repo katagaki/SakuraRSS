@@ -1248,43 +1248,43 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Recent Content"
+            "value" : "Latest Content"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Contenu récent"
+            "value" : "Contenu le plus récent"
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Contenuti recenti"
+            "value" : "Contenuti più recenti"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "最近のコンテンツ"
+            "value" : "最新コンテンツ"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "최근 콘텐츠"
+            "value" : "최신 콘텐츠"
           }
         },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Recente inhoud"
+            "value" : "Nieuwste inhoud"
           }
         },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Nội dung gần đây"
+            "value" : "Nội dung mới nhất"
           }
         },
         "zh-Hans" : {

@@ -16,10 +16,7 @@ struct BrowserFavouritesSection: View {
         if !feeds.isEmpty {
             VStack(alignment: .leading, spacing: 12) {
                 BrowserStartPageSectionHeader(
-                    title: String(localized: "StartPage.Favourites", table: "Browser"),
-                    caption: favourites.hasExplicitFavourites
-                        ? nil
-                        : String(localized: "StartPage.Favourites.Implied", table: "Browser")
+                    title: String(localized: "StartPage.Favourites", table: "Browser")
                 )
                 LazyVGrid(columns: columns, spacing: 18) {
                     ForEach(feeds) { feed in

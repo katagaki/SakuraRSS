@@ -10,7 +10,7 @@ struct BrowserStartPage: View {
         BrowserFallbackStartPage()
         #else
         TodayView(pinnedSection: AnyView(
-            BrowserFavouritesSection()
+            BrowserRecentContentSection()
                 .padding(.horizontal)
         ))
         #endif
