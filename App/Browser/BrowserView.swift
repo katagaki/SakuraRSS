@@ -23,6 +23,7 @@ struct BrowserView: View {
 
     var body: some View {
         shell
+        .environment(\.isBrowserModeActive, true)
         .environment(store)
         .environment(favourites)
         .environment(\.browserLayout, layout)
