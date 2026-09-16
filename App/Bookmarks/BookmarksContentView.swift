@@ -14,6 +14,9 @@ struct BookmarksContentView: View {
     @State private var showingDeleteReadAlert = false
     @State private var isCreatingFolder = false
     @State private var isExporting = false
+    @State private var searchText = ""
+    @State private var tagNamesByArticleID: [Int64: [String]] = [:]
+    @AppStorage(BookmarkSortOrder.storageKey) private var sortOrder: BookmarkSortOrder = .newest
 
     /// Sheets want an inline title; the tab and sidebar hosts want the large one.
     private let titleDisplayMode: ToolbarTitleDisplayMode
@@ -22,15 +25,33 @@ struct BookmarksContentView: View {
     private let newFolderTransitionID = "NewFolder"
 
     private var hasImages: Bool {
-        bookmarkedArticles.contains { $0.imageURL != nil }
+        visibleArticles.contains { $0.imageURL != nil }
+    }
+
+    private var isSearching: Bool {
+        !searchText.trimmingCharacters(in: .whitespaces).isEmpty
+    }
+
+    /// Search and sort are applied to the loaded page rather than re-queried,
+    /// so typing stays responsive on a large collection.
+    private var visibleArticles: [Article] {
+        let query = searchText.trimmingCharacters(in: .whitespaces)
+        let matched = query.isEmpty ? bookmarkedArticles : bookmarkedArticles.filter { article in
+            BookmarkSorting.matches(
+                article,
+                query: query,
+                tagNames: tagNamesByArticleID[article.id] ?? []
+            )
+        }
+        return BookmarkSorting.sorted(matched, by: sortOrder) { article in
+            feedManager.feed(forArticle: article)?.title
+                ?? URL(string: article.url)?.host()
+                ?? article.url
+        }
     }
 
     private var hasFolders: Bool {
         !feedManager.bookmarkFolders.isEmpty
-    }
-
-    private var hasHeaderSections: Bool {
-        hasFolders || !feedManager.bookmarkTagsInUse().isEmpty
     }
 
     init(titleDisplayMode: ToolbarTitleDisplayMode = .inlineLarge) {
@@ -44,7 +65,9 @@ struct BookmarksContentView: View {
     var body: some View {
         let effectiveStyle = effectiveDisplayStyle
         Group {
-            if bookmarkedArticles.isEmpty && !hasFolders {
+            if visibleArticles.isEmpty && isSearching {
+                ContentUnavailableView.search(text: searchText)
+            } else if bookmarkedArticles.isEmpty && !hasFolders {
                 ContentUnavailableView {
                     Label(String(localized: "Bookmarks.Empty.Title", table: "Articles"),
                           systemImage: "bookmark")
@@ -54,10 +77,8 @@ struct BookmarksContentView: View {
             } else {
                 DisplayStyleContentView(
                     style: effectiveStyle,
-                    articles: bookmarkedArticles,
-                    headerView: hasHeaderSections
-                        ? AnyView(BookmarksHeaderSections())
-                        : nil,
+                    articles: visibleArticles,
+                    headerView: isSearching ? nil : AnyView(BookmarksHeaderSections()),
                     usesStackLayout: true
                 )
             }
@@ -68,6 +89,12 @@ struct BookmarksContentView: View {
         .navigationTitle("Tabs.Bookmarks")
         .toolbarTitleDisplayMode(titleDisplayMode)
         .sakuraBackground()
+        .searchable(text: $searchText,
+                    prompt: String(localized: "Bookmarks.Search.Prompt", table: "Articles"))
+        .navigationDestination(for: BookmarkSmartGroup.self) { group in
+            BookmarkSmartGroupArticlesView(group: group)
+                .environment(\.zoomNamespace, zoomNamespace)
+        }
         .navigationDestination(for: BookmarkTag.self) { tag in
             BookmarkTagArticlesView(tag: tag)
                 .environment(\.zoomNamespace, zoomNamespace)
@@ -108,6 +135,8 @@ struct BookmarksContentView: View {
                                   systemImage: "square.and.arrow.up")
                         }
                         Divider()
+                        BookmarkSortMenu(sortOrder: $sortOrder)
+                        Divider()
                         DisplayStylePicker(
                             displayStyle: $displayStyle,
                             hasImages: hasImages,
@@ -123,6 +152,7 @@ struct BookmarksContentView: View {
         }
         .animation(.smooth.speed(2.0), value: displayStyle)
         .animation(.smooth.speed(2.0), value: bookmarkedArticleIDs)
+        .animation(.smooth.speed(2.0), value: sortOrder)
         .alert(String(localized: "Bookmarks.DeleteAllRead", table: "Articles"), isPresented: $showingDeleteReadAlert) {
             Button(String(localized: "Bookmarks.DeleteAllRead.Confirm", table: "Articles"), role: .destructive) {
                 try? DatabaseManager.shared.removeReadBookmarks()
@@ -151,12 +181,17 @@ struct BookmarksContentView: View {
     }
 
     private func reloadBookmarks() async {
-        let loaded = await Task.detached {
-            (try? DatabaseManager.shared.unorganizedBookmarkedArticles()) ?? []
+        let (loaded, tagNames) = await Task.detached {
+            let database = DatabaseManager.shared
+            return (
+                (try? database.unorganizedBookmarkedArticles()) ?? [],
+                (try? database.bookmarkTagNamesByArticleID()) ?? [:]
+            )
         }.value
         if Task.isCancelled { return }
         bookmarkedArticles = loaded
         bookmarkedArticleIDs = loaded.map(\.id)
+        tagNamesByArticleID = tagNames
     }
 
     private var effectiveDisplayStyle: FeedDisplayStyle {

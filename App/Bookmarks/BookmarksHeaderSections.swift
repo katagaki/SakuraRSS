@@ -9,6 +9,7 @@ struct BookmarksHeaderSections: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
+            BookmarkSmartGroupsRow()
             if !feedManager.bookmarkFolders.isEmpty {
                 BookmarkFoldersGridSection()
             }
