@@ -62,7 +62,10 @@ struct BrowserCompactShell: View {
     /// outlive the transition: hence the store's target rather than the
     /// nil-when-open `selectedCardFrame`.
     private func pageClipShape(in size: CGSize) -> BrowserPageClipShape {
-        let screen = CGRect(origin: .zero, size: size)
+        let screen = CGRect(
+            origin: .zero,
+            size: CGSize(width: size.width, height: max(size.height, BrowserDeviceMetrics.windowHeight))
+        )
         return BrowserPageClipShape(
             progress: store.isPageCollapsed ? 1 : 0,
             expanded: screen,
