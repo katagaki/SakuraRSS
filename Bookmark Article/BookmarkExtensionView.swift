@@ -13,6 +13,9 @@ struct BookmarkExtensionView: View {
     @State private var isLoading = true
     @State private var didSave = false
     @State private var isSaving = false
+    @State private var customTitle = ""
+    @State private var suggestedTags: [String] = []
+    @State private var acceptedTags: Set<String> = []
 
     var body: some View {
         NavigationStack {
@@ -54,6 +57,15 @@ struct BookmarkExtensionView: View {
                     }
                 }
                 Section {
+                    TextField(displayTitle(for: url), text: $customTitle, axis: .vertical)
+                        .lineLimit(1...3)
+                } header: {
+                    Text(String(localized: "BookmarkArticle.Title.Header", table: "Articles"))
+                } footer: {
+                    Text(String(localized: "BookmarkArticle.Title.Footer", table: "Articles"))
+                }
+
+                Section {
                     Picker(selection: $selectedFolderID) {
                         Text(String(localized: "BookmarkArticle.NoFolder", table: "Articles"))
                             .tag(Int64?.none)
@@ -66,6 +78,23 @@ struct BookmarkExtensionView: View {
                     }
                 } header: {
                     Text(String(localized: "BookmarkArticle.Folder.Header", table: "Articles"))
+                }
+
+                if !suggestedTags.isEmpty {
+                    Section {
+                        ForEach(suggestedTags, id: \.self) { tag in
+                            Toggle(tag, isOn: Binding(
+                                get: { acceptedTags.contains(tag) },
+                                set: { isOn in
+                                    if isOn { acceptedTags.insert(tag) } else { acceptedTags.remove(tag) }
+                                }
+                            ))
+                        }
+                    } header: {
+                        Text(String(localized: "BookmarkArticle.Tags.Header", table: "Articles"))
+                    } footer: {
+                        Text(String(localized: "BookmarkArticle.Tags.Footer", table: "Articles"))
+                    }
                 }
             }
         } else {
@@ -83,6 +112,13 @@ struct BookmarkExtensionView: View {
     private func load() async {
         folders = (try? DatabaseManager.shared.allBookmarkFolders()) ?? []
         await extractSharedURL()
+        if let url {
+            suggestedTags = BookmarkAutoTagger.suggestedTags(
+                title: displayTitle(for: url),
+                url: url.absoluteString
+            )
+            acceptedTags = Set(suggestedTags)
+        }
         isLoading = false
     }
 
@@ -113,11 +149,21 @@ struct BookmarkExtensionView: View {
     private func save() async {
         guard let url else { return }
         isSaving = true
-        let articleID = try? DatabaseManager.shared.insertExternalBookmark(
+        let database = DatabaseManager.shared
+        let articleID = try? database.insertExternalBookmark(
             url: url.absoluteString,
             title: displayTitle(for: url),
             folderID: selectedFolderID
         )
+        let trimmedTitle = customTitle.trimmingCharacters(in: .whitespacesAndNewlines)
+        if let articleID, !trimmedTitle.isEmpty, trimmedTitle != displayTitle(for: url) {
+            try? database.setCustomTitle(trimmedTitle, forArticleID: articleID)
+        }
+        if let articleID {
+            for tag in suggestedTags where acceptedTags.contains(tag) {
+                try? database.addBookmarkTag(named: tag, toArticleID: articleID, isAutomatic: true)
+            }
+        }
         didSave = true
         // The extension is the only chance to reach the page while it is still
         // in the share context; the app backfills anything missed here.
