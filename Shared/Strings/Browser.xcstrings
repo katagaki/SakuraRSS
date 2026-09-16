@@ -1372,61 +1372,61 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Startseite"
+            "value" : "Heute"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Start Page"
+            "value" : "Today"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Page de démarrage"
+            "value" : "Aujourd’hui"
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Pagina iniziale"
+            "value" : "Oggi"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "スタートページ"
+            "value" : "今日"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "시작 페이지"
+            "value" : "오늘"
           }
         },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Startpagina"
+            "value" : "Vandaag"
           }
         },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Trang bắt đầu"
+            "value" : "Hôm nay"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "起始页"
+            "value" : "今天"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "開始頁面"
+            "value" : "今天"
           }
         }
       }
