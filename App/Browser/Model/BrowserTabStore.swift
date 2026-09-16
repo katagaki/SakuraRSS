@@ -21,6 +21,12 @@ final class BrowserTabStore {
     /// Drives the geometry, and is what the transition animates.
     private(set) var isPageCollapsed = false
 
+    /// Hands the card's snapshot the collapsed page's place. Flipped only once
+    /// the spring has settled: swapping on a fraction of the duration leaves
+    /// the page a few points short of the snapshot, and the two cross-fade
+    /// visibly out of register.
+    private(set) var isPageSwappedForSnapshot = false
+
     /// While a swipe-back is in flight the path has already popped, so the
     /// bottom bar would flip to the previous page before the gesture is
     /// committed, and stay wrong if the swipe is cancelled.
@@ -80,8 +86,15 @@ final class BrowserTabStore {
         isInteractivelyPopping = true
     }
 
-    func endInteractivePop() {
+    /// A cancelled swipe leaves the revealed page's identity reported as the
+    /// tab's own: it appeared, and nothing re-reports the page that never
+    /// actually left. Put the frozen one back before unfreezing, or the bar
+    /// flips to the previous page the moment the gesture is let go.
+    func endInteractivePop(cancelled: Bool) {
         guard isInteractivelyPopping else { return }
+        if cancelled, let index = tabs.firstIndex(where: { $0.id == selectedTabID }) {
+            tabs[index].pageIdentity = frozenPageIdentity
+        }
         isInteractivelyPopping = false
         frozenCanGoBack = nil
         frozenPageIdentity = nil
@@ -114,8 +127,13 @@ final class BrowserTabStore {
         captureSelectedTabSnapshot()
         freezeCollapseTarget()
         setShowingTabSwitcherWithoutAnimation(true)
-        withAnimation(BrowserTabSwitcher.transitionAnimation) {
+        withAnimation(BrowserTabSwitcher.transitionAnimation, completionCriteria: .removed) {
             isPageCollapsed = true
+        } completion: {
+            // Not if the collapse was reversed while it ran: the completion
+            // still fires, and the page is back at full screen by then.
+            guard self.isPageCollapsed else { return }
+            self.setPageSwappedWithoutAnimation(true)
         }
     }
 
@@ -123,10 +141,19 @@ final class BrowserTabStore {
     /// and the page's own bar fades in behind the switcher's.
     func hideTabSwitcher() {
         freezeCollapseTarget()
+        setPageSwappedWithoutAnimation(false)
         withAnimation(BrowserTabSwitcher.transitionAnimation) {
             isPageCollapsed = false
         } completion: {
             self.setShowingTabSwitcherWithoutAnimation(false)
+        }
+    }
+
+    private func setPageSwappedWithoutAnimation(_ isSwapped: Bool) {
+        var transaction = Transaction()
+        transaction.disablesAnimations = true
+        withTransaction(transaction) {
+            isPageSwappedForSnapshot = isSwapped
         }
     }
 

@@ -25,8 +25,9 @@ struct BrowserCompactShell: View {
                     .offset(pageOffset)
                     .clipShape(pageClipShape(in: proxy.size))
                     .animation(BrowserTabSwitcher.transitionAnimation, value: store.isPageCollapsed)
-                    .opacity(store.isPageCollapsed ? 0 : 1)
-                    .animation(pageFadeAnimation, value: store.isPageCollapsed)
+                    // No cross-fade: the swap happens where page and
+                    // snapshot are pixel for pixel the same.
+                    .opacity(store.isPageSwappedForSnapshot ? 0 : 1)
                     // Keyed on the unanimated flag: SwiftUI picks which
                     // toolbar to show from what is interactive, so the
                     // animated one swaps the bar mid-transition.
@@ -38,15 +39,6 @@ struct BrowserCompactShell: View {
         // Container only: swallowing the keyboard region too leaves the
         // bottom bar, and so the address field, under the keyboard.
         .ignoresSafeArea(.container)
-    }
-
-    /// Swaps page for snapshot only where the two are the same size: anywhere
-    /// else puts two copies at different scales on top of each other.
-    private var pageFadeAnimation: Animation {
-        let duration = BrowserTabSwitcher.transitionDuration
-        return store.isPageCollapsed
-            ? .easeIn(duration: duration * 0.08).delay(duration * 0.92)
-            : .easeOut(duration: duration * 0.04)
     }
 
     private var selectedCardFrame: CGRect? {
