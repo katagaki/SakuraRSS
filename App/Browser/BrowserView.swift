@@ -29,7 +29,7 @@ struct BrowserView: View {
         .environment(favourites)
         .environment(\.browserLayout, layout)
         .environment(\.browserBookmarksAction) {
-            presentedSheet = .bookmarks
+            store.push(BrowserBookmarksDestination())
         }
         .environment(omnibox)
         .environment(\.browserAddFeedAction) { url in
@@ -49,9 +49,6 @@ struct BrowserView: View {
             onDismiss: { pendingAddFeedURL = nil },
             content: { sheet in
                 switch sheet {
-                case .bookmarks:
-                    BrowserBookmarksSheet()
-                        .environment(feedManager)
                 case .addFeed(let url):
                     AddFeedView(initialURL: url, session: addFeedSession)
                         .environment(feedManager)

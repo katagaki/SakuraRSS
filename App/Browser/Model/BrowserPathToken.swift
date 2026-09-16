@@ -11,6 +11,7 @@ enum BrowserPathToken: Codable, Hashable {
     case article(Int64)
     case entity(name: String, types: [String])
     case headline(title: String, articleIDs: [Int64])
+    case bookmarks
 
     /// Appends the destination this token stands for. Returns false when the
     /// row behind it is gone, which ends the rebuild: anything deeper was
@@ -31,6 +32,8 @@ enum BrowserPathToken: Codable, Hashable {
             path.append(EntityDestination(name: name, types: types))
         case .headline(let title, let articleIDs):
             path.append(SummaryHeadlineDestination(title: title, articleIDs: articleIDs))
+        case .bookmarks:
+            path.append(BrowserBookmarksDestination())
         }
         return true
     }

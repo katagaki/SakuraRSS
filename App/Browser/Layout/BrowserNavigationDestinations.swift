@@ -15,6 +15,15 @@ struct BrowserNavigationDestinations: ViewModifier {
                     .browserNavigationEnvironment(path: $path, namespace: namespace)
                     .environment(\.browserPathToken, .location(location.persistenceToken))
             }
+            .navigationDestination(for: BrowserBookmarksDestination.self) { _ in
+                BrowserBookmarksPage()
+                    .browserNavigationEnvironment(path: $path, namespace: namespace)
+                    .browserPage(
+                        title: String(localized: "Location.Bookmarks", table: "Browser"),
+                        symbolName: "bookmark"
+                    )
+                    .environment(\.browserPathToken, .bookmarks)
+            }
             .navigationDestination(for: Feed.self) { feed in
                 FeedArticlesView(feed: feed)
                     .browserNavigationEnvironment(path: $path, namespace: namespace)
