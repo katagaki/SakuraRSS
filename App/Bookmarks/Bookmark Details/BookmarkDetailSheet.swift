@@ -23,6 +23,7 @@ struct BookmarkDetailSheet: View {
         NavigationStack {
             List {
                 titleSection
+                BookmarkTagEditorSection(article: article)
                 linkSection
             }
             .listStyle(.insetGrouped)

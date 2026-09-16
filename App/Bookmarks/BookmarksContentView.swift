@@ -28,6 +28,10 @@ struct BookmarksContentView: View {
         !feedManager.bookmarkFolders.isEmpty
     }
 
+    private var hasHeaderSections: Bool {
+        hasFolders || !feedManager.bookmarkTagsInUse().isEmpty
+    }
+
     init(titleDisplayMode: ToolbarTitleDisplayMode = .inlineLarge) {
         self.titleDisplayMode = titleDisplayMode
         let raw = UserDefaults.standard.string(forKey: "Display.DefaultBookmarksStyle")
@@ -50,8 +54,8 @@ struct BookmarksContentView: View {
                 DisplayStyleContentView(
                     style: effectiveStyle,
                     articles: bookmarkedArticles,
-                    headerView: hasFolders
-                        ? AnyView(BookmarkFoldersGridSection())
+                    headerView: hasHeaderSections
+                        ? AnyView(BookmarksHeaderSections())
                         : nil,
                     usesStackLayout: true
                 )
@@ -62,6 +66,10 @@ struct BookmarksContentView: View {
         .navigationTitle("Tabs.Bookmarks")
         .toolbarTitleDisplayMode(titleDisplayMode)
         .sakuraBackground()
+        .navigationDestination(for: BookmarkTag.self) { tag in
+            BookmarkTagArticlesView(tag: tag)
+                .environment(\.zoomNamespace, zoomNamespace)
+        }
         .navigationDestination(for: BookmarkFolder.self) { folder in
             // Destinations don't inherit the environment applied around
             // this view, so the host's zoom namespace is forwarded manually.
