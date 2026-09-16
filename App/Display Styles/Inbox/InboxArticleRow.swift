@@ -36,6 +36,12 @@ struct InboxArticleRow: View {
                         RoundedRectangle(cornerRadius: 8)
                             .strokeBorder(.primary.opacity(0.2), lineWidth: 0.5)
                     }
+                } else if article.isExternalBookmark {
+                    BookmarkSiteIcon(article: article, size: 48, cornerRadius: 8)
+                        .overlay {
+                            RoundedRectangle(cornerRadius: 8)
+                                .strokeBorder(.primary.opacity(0.2), lineWidth: 0.5)
+                        }
                 } else {
                     FeedIconPlaceholder(
                         icon: icon,

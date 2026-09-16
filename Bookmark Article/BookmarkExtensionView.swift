@@ -12,6 +12,7 @@ struct BookmarkExtensionView: View {
     @State private var selectedFolderID: Int64?
     @State private var isLoading = true
     @State private var didSave = false
+    @State private var isSaving = false
 
     var body: some View {
         NavigationStack {
@@ -23,8 +24,10 @@ struct BookmarkExtensionView: View {
                         Button(role: .cancel) { complete() }
                     }
                     ToolbarItem(placement: .confirmationAction) {
-                        Button(role: .confirm) { save() }
-                            .disabled(url == nil || didSave)
+                        Button(role: .confirm) {
+                            Task { await save() }
+                        }
+                        .disabled(url == nil || didSave || isSaving)
                     }
                 }
         }
@@ -107,14 +110,23 @@ struct BookmarkExtensionView: View {
         }
     }
 
-    private func save() {
+    private func save() async {
         guard let url else { return }
-        try? DatabaseManager.shared.insertExternalBookmark(
+        isSaving = true
+        let articleID = try? DatabaseManager.shared.insertExternalBookmark(
             url: url.absoluteString,
             title: displayTitle(for: url),
             folderID: selectedFolderID
         )
         didSave = true
+        // The extension is the only chance to reach the page while it is still
+        // in the share context; the app backfills anything missed here.
+        if let articleID {
+            await BookmarkPreviewResolver.resolvePreview(
+                forArticleID: articleID,
+                url: url.absoluteString
+            )
+        }
         complete()
     }
 

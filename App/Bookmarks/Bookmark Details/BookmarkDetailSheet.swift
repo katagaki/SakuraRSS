@@ -24,7 +24,7 @@ struct BookmarkDetailSheet: View {
             List {
                 titleSection
                 BookmarkTagEditorSection(article: article)
-                linkSection
+                BookmarkPreviewSection(article: article)
             }
             .listStyle(.insetGrouped)
             .navigationTitle(String(localized: "BookmarkDetail.Title", table: "Articles"))
@@ -61,17 +61,6 @@ struct BookmarkDetailSheet: View {
             Text(isRenamed
                  ? String(localized: "BookmarkDetail.OriginalTitle.\(article.title)", table: "Articles")
                  : String(localized: "BookmarkDetail.TitleFooter", table: "Articles"))
-        }
-    }
-
-    private var linkSection: some View {
-        Section {
-            Text(article.url)
-                .font(.caption)
-                .foregroundStyle(.secondary)
-                .textSelection(.enabled)
-        } header: {
-            Text(String(localized: "BookmarkDetail.LinkHeader", table: "Articles"))
         }
     }
 
