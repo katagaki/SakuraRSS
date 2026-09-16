@@ -3,7 +3,7 @@ import SwiftUI
 /// What the visible page calls itself. Pages report this upward because a
 /// `NavigationPath` is opaque once the existing `NavigationLink(value:)` call
 /// sites elsewhere in the app have pushed into it.
-struct BrowserPageIdentity: Equatable {
+struct BrowserPageIdentity: Equatable, Codable {
     var title: String
     var subtitle: String?
     var symbolName: String
@@ -11,6 +11,9 @@ struct BrowserPageIdentity: Equatable {
     /// Set by a search page, so tapping the bar reopens with the same term
     /// rather than an empty field.
     var searchQuery: String?
+    /// How to push this page again after a relaunch. Nil for a tab's root,
+    /// which is restored from its location instead.
+    var pathToken: BrowserPathToken?
 }
 
 private struct BrowserPageReporterKey: EnvironmentKey {
@@ -27,12 +30,19 @@ extension EnvironmentValues {
 private struct BrowserPageModifier: ViewModifier {
 
     @Environment(\.browserPageReporter) private var reporter
+    @Environment(\.browserPathToken) private var pathToken
     let identity: BrowserPageIdentity
+
+    private var reported: BrowserPageIdentity {
+        var identity = self.identity
+        identity.pathToken = pathToken
+        return identity
+    }
 
     func body(content: Content) -> some View {
         content
-            .onAppear { reporter?(identity) }
-            .onChange(of: identity) { reporter?(identity) }
+            .onAppear { reporter?(reported) }
+            .onChange(of: reported) { reporter?(reported) }
     }
 }
 

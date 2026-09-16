@@ -5,6 +5,7 @@ import Hanami
 /// evicted tab keeps its `NavigationPath` in the store and rebuilds from it.
 struct BrowserTabContentView: View {
 
+    @Environment(FeedManager.self) private var feedManager
     let store: BrowserTabStore
     let tabID: UUID
     @Namespace private var cardZoom
@@ -30,5 +31,7 @@ struct BrowserTabContentView: View {
             store.setArticleActions(actions, for: tabID)
         }
         .compatibleSoftScrollEdgeEffectStyle()
+        // Last session's stack, rebuilt the first time the tab is mounted.
+        .onAppear { store.restorePathIfNeeded(for: tabID, in: feedManager) }
     }
 }

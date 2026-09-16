@@ -1,11 +1,10 @@
 import SwiftUI
 import Hanami
 
-/// Registers every destination type the app pushes. Applied once per tab, on
-/// the stack's root.
+/// Registers the destinations a tab is parked on or pushes from a list.
+/// Applied once per tab, on the stack's root.
 struct BrowserNavigationDestinations: ViewModifier {
 
-    @Environment(FeedManager.self) private var feedManager
     @Binding var path: NavigationPath
     let namespace: Namespace.ID
 
@@ -14,6 +13,7 @@ struct BrowserNavigationDestinations: ViewModifier {
             .navigationDestination(for: BrowserLocation.self) { location in
                 BrowserRootContentView(location: location)
                     .browserNavigationEnvironment(path: $path, namespace: namespace)
+                    .environment(\.browserPathToken, .location(location.persistenceToken))
             }
             .navigationDestination(for: Feed.self) { feed in
                 FeedArticlesView(feed: feed)
@@ -24,28 +24,16 @@ struct BrowserNavigationDestinations: ViewModifier {
                         symbolName: "dot.radiowaves.up.forward",
                         feedID: feed.id
                     )
-            }
-            .navigationDestination(for: Article.self) { article in
-                articleDestination(article)
-                    .zoomTransition(sourceID: article.id, in: namespace)
-            }
-            .navigationDestination(for: EphemeralArticleDestination.self) { destination in
-                ArticleDestinationView(
-                    article: destination.article,
-                    overrideMode: destination.mode,
-                    overrideTextMode: destination.textMode
-                )
-                .browserNavigationEnvironment(path: $path, namespace: namespace)
-                .browserPage(
-                    title: destination.article.title,
-                    subtitle: URL(string: destination.article.url)?.host,
-                    symbolName: "doc.text"
-                )
+                    .environment(\.browserPathToken, .feed(feed.id))
             }
             .navigationDestination(for: EntityDestination.self) { destination in
                 EntityArticlesView(destination: destination)
                     .browserNavigationEnvironment(path: $path, namespace: namespace)
                     .browserPage(title: destination.name, symbolName: "tag")
+                    .environment(
+                        \.browserPathToken,
+                        .entity(name: destination.name, types: destination.types)
+                    )
             }
             .navigationDestination(for: SummaryHeadlineDestination.self) { destination in
                 SummaryHeadlinesArticlesView(destination: destination)
@@ -55,20 +43,12 @@ struct BrowserNavigationDestinations: ViewModifier {
                         symbolName: "sparkles"
                     )
                     .zoomTransition(sourceID: destination.zoomTransitionID, in: namespace)
+                    .environment(
+                        \.browserPathToken,
+                        .headline(title: destination.title, articleIDs: destination.articleIDs)
+                    )
             }
-    }
-
-    @ViewBuilder
-    private func articleDestination(_ article: Article) -> some View {
-        let feed = feedManager.feed(forArticle: article)
-        ArticleDestinationView(article: article)
-            .browserNavigationEnvironment(path: $path, namespace: namespace)
-            .browserPage(
-                title: article.title,
-                subtitle: feed?.domain ?? URL(string: article.url)?.host,
-                symbolName: "doc.text",
-                feedID: feed?.id
-            )
+            .browserArticleDestinations(path: $path, namespace: namespace)
     }
 }
 
