@@ -5,6 +5,7 @@ nonisolated extension DatabaseManager {
 
     func createTables() throws {
         try createCoreTables()
+        try migrateBookmarkColumns()
         try createAuxiliaryTables()
         try createNLPTables()
         try createSyncTables()
