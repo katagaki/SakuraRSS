@@ -132,7 +132,7 @@ struct BookmarkFolderEditSheet: View {
                 }
                 .frame(width: 28, height: 28)
                 .clipShape(.rect(cornerRadius: 6))
-                Text(article.title)
+                Text(article.displayTitle)
                     .font(.body)
                     .lineLimit(1)
                     .foregroundStyle(.primary)

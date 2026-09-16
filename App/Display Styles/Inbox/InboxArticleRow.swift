@@ -67,12 +67,12 @@ struct InboxArticleRow: View {
                         .lineLimit(1)
                         .foregroundStyle(isRead ? .secondary : .primary)
 
-                    Text(article.title)
+                    Text(article.displayTitle)
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                         .lineLimit(2)
                 } else {
-                    Text(article.title)
+                    Text(article.displayTitle)
                         .font(.body)
                         .fontWeight(isRead ? .regular : .semibold)
                         .lineLimit(1)

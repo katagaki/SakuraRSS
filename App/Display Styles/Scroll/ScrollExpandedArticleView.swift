@@ -31,7 +31,7 @@ struct ScrollExpandedArticleView: View {
     }
 
     private var displayTitle: String {
-        article.title
+        article.displayTitle
     }
 
     var body: some View {

@@ -49,7 +49,7 @@ struct PhotosArticleCardHeader: View {
                         systemImage: isRead ? "envelope" : "envelope.open"
                     )
                 }
-                MoveToFolderMenuItems(article: article)
+                BookmarkMenuItems(article: article)
             } label: {
                 Image(systemName: "ellipsis")
                     .tint(.primary)

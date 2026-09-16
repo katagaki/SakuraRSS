@@ -33,7 +33,7 @@ struct VideoStyleView: View {
                         ArticleBookmarkMenuButton(article: article)
                         ArticleCopyLinkMenuButton(article: article)
                         ArticleShareMenuButton(article: article)
-                        MoveToFolderMenuItems(article: article)
+                        BookmarkMenuItems(article: article)
                     }
                     .padding(.bottom, 8)
                 }

@@ -57,7 +57,8 @@ struct BookmarksContentView: View {
                 )
             }
         }
-        .environment(\.allowsMovingBookmarksToFolders, true)
+        .environment(\.isBookmarksSurface, true)
+        .bookmarkDetailSheet()
         .navigationTitle("Tabs.Bookmarks")
         .toolbarTitleDisplayMode(titleDisplayMode)
         .sakuraBackground()

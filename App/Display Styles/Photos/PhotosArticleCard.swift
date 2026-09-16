@@ -60,7 +60,7 @@ struct PhotosArticleCard: View {
 
             ArticleLink(article: article, label: {
                 let isPhotoFeed = feed?.isInstagramFeed == true || feed?.isPhotoViewDomain == true
-                let captionText = isPhotoFeed ? (article.summary ?? article.title) : article.title
+                let captionText = isPhotoFeed ? (article.summary ?? article.displayTitle) : article.displayTitle
                 Text(captionText)
                     .font(.subheadline)
                     .foregroundStyle(.primary)

@@ -4,6 +4,9 @@ public nonisolated struct Article: Identifiable, Hashable, Sendable {
     public let id: Int64
     public let feedID: Int64
     public var title: String
+    /// A user-supplied replacement for `title`, set from Bookmarks. The original
+    /// stays in `title` so it can always be restored.
+    public var customTitle: String?
     public var url: String
     public var author: String?
     public var summary: String?
@@ -24,6 +27,7 @@ public nonisolated struct Article: Identifiable, Hashable, Sendable {
         id: Int64,
         feedID: Int64,
         title: String,
+        customTitle: String? = nil,
         url: String,
         author: String? = nil,
         summary: String? = nil,
@@ -40,6 +44,7 @@ public nonisolated struct Article: Identifiable, Hashable, Sendable {
         self.id = id
         self.feedID = feedID
         self.title = title
+        self.customTitle = customTitle
         self.url = url
         self.author = author
         self.summary = summary
@@ -52,6 +57,15 @@ public nonisolated struct Article: Identifiable, Hashable, Sendable {
         self.audioURL = audioURL
         self.duration = duration
         self.isExternalBookmark = isExternalBookmark
+    }
+
+    public var displayTitle: String {
+        guard let customTitle, !customTitle.isEmpty else { return title }
+        return customTitle
+    }
+
+    public var hasCustomTitle: Bool {
+        customTitle?.isEmpty == false
     }
 
     public var hasLink: Bool {

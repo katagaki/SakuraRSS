@@ -107,7 +107,7 @@ struct InboxStyleView: View {
             #endif
             ArticleReadMenuButton(article: article)
             ArticleBookmarkMenuButton(article: article)
-            MoveToFolderMenuItems(article: article)
+            BookmarkMenuItems(article: article)
         }
     }
 }
