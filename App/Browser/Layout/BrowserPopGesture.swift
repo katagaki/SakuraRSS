@@ -46,9 +46,23 @@ struct BrowserPopGestureEnabler: UIViewRepresentable {
             case .began:
                 store?.beginInteractivePop()
             case .ended, .cancelled, .failed:
-                store?.endInteractivePop()
+                finishPop(wasCancelled: recognizer.state != .ended)
             default:
                 break
+            }
+        }
+
+        /// The recogniser ends before the stack finishes moving, and its own
+        /// state does not say whether the pop was committed: only the
+        /// transition coordinator knows, and only once the snap back or
+        /// forward has played out.
+        private func finishPop(wasCancelled: Bool) {
+            guard let coordinator = navigationController?.transitionCoordinator else {
+                store?.endInteractivePop(cancelled: wasCancelled)
+                return
+            }
+            coordinator.animate(alongsideTransition: nil) { [weak self] context in
+                self?.store?.endInteractivePop(cancelled: context.isCancelled)
             }
         }
 
