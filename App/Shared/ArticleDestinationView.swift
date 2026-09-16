@@ -7,6 +7,7 @@ struct ArticleDestinationView: View {
     @Environment(FeedManager.self) private var feedManager
     @Environment(\.youTubePlayerSession) private var youTubeSession
     @Environment(\.podcastAudioPlayer) private var audioPlayer
+    @Environment(\.bookmarkReadingOptions) private var bookmarkReadingOptions
     let article: Article
     /// When non-nil, overrides the per-feed `FeedOpenMode` lookup (used for
     /// ephemeral articles opened via `sakura://open`).
@@ -39,6 +40,9 @@ struct ArticleDestinationView: View {
             case .readability: return .readability
             case .archiveToday: return .archivePh
             }
+        }
+        if let folderMode = bookmarkReadingOptions[article.id]?.openMode {
+            return folderMode
         }
         guard let feed = feedManager.feed(forArticle: article),
               let raw = UserDefaults.standard.string(forKey: "openMode-\(feed.id)"),

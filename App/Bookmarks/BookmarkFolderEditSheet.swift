@@ -10,6 +10,8 @@ struct BookmarkFolderEditSheet: View {
 
     @State private var name = ""
     @State private var selectedIcon = ListIcon.bookClosed.rawValue
+    @State private var openMode: FeedOpenMode?
+    @State private var marksReadOnOpen: Bool?
     @State private var allBookmarks: [Article] = []
     @State private var selectedArticleIDs: Set<Int64> = []
     @State private var hasInitialized = false
@@ -47,6 +49,8 @@ struct BookmarkFolderEditSheet: View {
                 Section(String(localized: "FolderEdit.Icon", table: "Articles")) {
                     iconPicker
                 }
+
+                BookmarkFolderReadingSection(openMode: $openMode, marksReadOnOpen: $marksReadOnOpen)
 
                 if isEditing {
                     Section(String(localized: "FolderEdit.Bookmarks", table: "Articles")) {
@@ -154,6 +158,8 @@ struct BookmarkFolderEditSheet: View {
             allBookmarks = (try? DatabaseManager.shared.bookmarkedArticles()) ?? []
             name = folder.name
             selectedIcon = folder.icon
+            openMode = folder.openMode
+            marksReadOnOpen = folder.marksReadOnOpen
             selectedArticleIDs = feedManager.bookmarkFolderArticleIDs(folder)
         } else {
             isNameFieldFocused = true
@@ -165,8 +171,20 @@ struct BookmarkFolderEditSheet: View {
         if let folder {
             feedManager.setBookmarkFolderMembership(folder, articleIDs: selectedArticleIDs)
             feedManager.updateBookmarkFolder(folder, name: trimmedName, icon: selectedIcon)
+            feedManager.updateBookmarkFolderReadingOptions(
+                folder,
+                openMode: openMode,
+                marksReadOnOpen: marksReadOnOpen
+            )
         } else {
-            try? feedManager.createBookmarkFolder(name: trimmedName, icon: selectedIcon)
+            let newID = try? feedManager.createBookmarkFolder(name: trimmedName, icon: selectedIcon)
+            if let newID, let created = feedManager.bookmarkFolders.first(where: { $0.id == newID }) {
+                feedManager.updateBookmarkFolderReadingOptions(
+                    created,
+                    openMode: openMode,
+                    marksReadOnOpen: marksReadOnOpen
+                )
+            }
         }
         dismiss()
     }

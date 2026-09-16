@@ -161,7 +161,6 @@ public nonisolated extension DatabaseManager {
         // bookmark_folders table
         _ = try? database.run(bookmarkFolders.addColumn(bookmarkFolderOpenMode))
         _ = try? database.run(bookmarkFolders.addColumn(bookmarkFolderMarksReadOnOpen))
-        _ = try? database.run(bookmarkFolders.addColumn(bookmarkFolderExtractsFullText))
 
         // bookmark_tags tables
         _ = try? database.run(bookmarkTags.create(ifNotExists: true) { table in

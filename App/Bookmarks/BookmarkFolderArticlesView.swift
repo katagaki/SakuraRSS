@@ -78,6 +78,7 @@ struct BookmarkFolderArticlesView: View {
         }
         .environment(\.isBookmarksSurface, true)
         .bookmarkDetailSheet()
+        .bookmarkReadingOptions()
         .sakuraBackground()
         // .automatic inherits .inlineLarge from the Bookmarks root and
         // reserves empty large title space above the header.

@@ -63,6 +63,7 @@ struct BookmarksContentView: View {
         }
         .environment(\.isBookmarksSurface, true)
         .bookmarkDetailSheet()
+        .bookmarkReadingOptions()
         .navigationTitle("Tabs.Bookmarks")
         .toolbarTitleDisplayMode(titleDisplayMode)
         .sakuraBackground()

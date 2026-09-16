@@ -45,6 +45,7 @@ struct BookmarkTagArticlesView: View {
         }
         .environment(\.isBookmarksSurface, true)
         .bookmarkDetailSheet()
+        .bookmarkReadingOptions()
         .sakuraBackground()
         .navigationTitle(tag.name)
         .toolbarTitleDisplayMode(.inline)

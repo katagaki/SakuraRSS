@@ -162,7 +162,6 @@ nonisolated extension DatabaseManager {
             table.column(bookmarkFolderParentID)
             table.column(bookmarkFolderOpenMode)
             table.column(bookmarkFolderMarksReadOnOpen)
-            table.column(bookmarkFolderExtractsFullText)
         })
         try database.run(bookmarkFolderItems.create(ifNotExists: true) { table in
             table.column(bookmarkFolderItemFolderID)

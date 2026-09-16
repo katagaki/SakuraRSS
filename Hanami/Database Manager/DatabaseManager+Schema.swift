@@ -152,7 +152,6 @@ public nonisolated extension DatabaseManager {
     var bookmarkFolderParentID: SQLite.Expression<Int64?> { SQLite.Expression<Int64?>("parent_folder_id") }
     var bookmarkFolderOpenMode: SQLite.Expression<String?> { SQLite.Expression<String?>("open_mode") }
     var bookmarkFolderMarksReadOnOpen: SQLite.Expression<Bool?> { SQLite.Expression<Bool?>("marks_read_on_open") }
-    var bookmarkFolderExtractsFullText: SQLite.Expression<Bool?> { SQLite.Expression<Bool?>("extracts_full_text") }
 
     var bookmarkFolderItems: Table { Table("bookmark_folder_items") }
     var bookmarkFolderItemFolderID: SQLite.Expression<Int64> { SQLite.Expression<Int64>("folder_id") }
