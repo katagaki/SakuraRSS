@@ -1,8 +1,8 @@
 import SwiftUI
 import Hanami
 
-/// Top-level Today tab content: greeting + weather, summary cards, topic
-/// carousels, topics/people pills, bookmarks, and recently viewed.
+/// Top-level Today tab content: greeting + weather, summary cards, bookmarks,
+/// and recently viewed. Topics live on their own page.
 struct TodayView: View {
 
     /// Optional content pinned directly below the greeting. The browser shell
@@ -99,8 +99,6 @@ struct TodayView: View {
     enum ContentSection: Hashable {
         case listenNow
         case watchNow
-        case topThree
-        case topicsAndPeople
         case bookmarks
         case recentlyViewed
     }
@@ -143,13 +141,6 @@ struct TodayView: View {
         if !episodes.videos.isEmpty {
             sections.append(.watchNow)
         }
-        if contentInsightsEnabled,
-           todayManager.entitySections.prefix(3).contains(where: { !$0.articles.isEmpty }) {
-            sections.append(.topThree)
-        }
-        if contentInsightsEnabled, !filteredTopics.isEmpty || !filteredPeople.isEmpty {
-            sections.append(.topicsAndPeople)
-        }
         if !todayManager.bookmarkedArticles.isEmpty {
             sections.append(.bookmarks)
         }
@@ -169,8 +160,6 @@ struct TodayView: View {
         switch section {
         case .listenNow: listenNowSection(episodes.podcasts)
         case .watchNow: watchNowSection(episodes.videos)
-        case .topThree: topThreeTopicsSection
-        case .topicsAndPeople: topicsAndPeopleSection
         case .bookmarks: bookmarksSection
         case .recentlyViewed: recentlyViewedSection
         }
@@ -194,37 +183,6 @@ struct TodayView: View {
             destination: nil,
             articles: episodes
         )
-    }
-
-    @ViewBuilder
-    private var topThreeTopicsSection: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            ForEach(todayManager.entitySections.prefix(3)) { section in
-                if !section.articles.isEmpty {
-                    TodayCardCarousel(
-                        title: section.name,
-                        destination: EntityDestination(name: section.name, types: section.types),
-                        articles: section.articles
-                    )
-                }
-            }
-        }
-    }
-
-    @ViewBuilder
-    private var topicsAndPeopleSection: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Text(String(localized: "Discover.TopicsAndPeople", table: "Feeds"))
-                .font(.title3)
-                .fontWeight(.bold)
-                .todayHorizontalContentPadding()
-
-            TodayChipsFlow(
-                topics: filteredTopics,
-                people: filteredPeople
-            )
-            .todayHorizontalContentPadding()
-        }
     }
 
     @ViewBuilder

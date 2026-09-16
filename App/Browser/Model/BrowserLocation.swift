@@ -9,6 +9,7 @@ enum BrowserLocation: Hashable {
     case list(Int64)
     case allContent
     case feeds
+    case topics
     case search(String)
 }
 
@@ -18,6 +19,7 @@ extension BrowserLocation {
         case .startPage: "startPage"
         case .allContent: "allContent"
         case .feeds: "feeds"
+        case .topics: "topics"
         case .feed(let feedID): "feed:\(feedID)"
         case .list(let listID): "list:\(listID)"
         case .search(let query): "search:\(query)"
@@ -29,6 +31,7 @@ extension BrowserLocation {
         case "startPage": return .startPage
         case "allContent": return .allContent
         case "feeds": return .feeds
+        case "topics": return .topics
         default: break
         }
         let parts = token.split(separator: ":", maxSplits: 1, omittingEmptySubsequences: false)

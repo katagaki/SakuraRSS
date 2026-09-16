@@ -35,6 +35,12 @@ struct BrowserRootContentView: View {
                     title: String(localized: "Tabs.Feeds"),
                     symbolName: "dot.radiowaves.up.forward"
                 )
+        case .topics:
+            TopicsPageView()
+                .browserPage(
+                    title: String(localized: "Location.Topics", table: "Browser"),
+                    symbolName: "number"
+                )
         case .search(let query):
             BrowserSearchResultsView(query: query)
                 .browserPage(

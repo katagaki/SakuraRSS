@@ -29,6 +29,11 @@ struct BrowserLocationDescription {
                 symbolName: "dot.radiowaves.up.forward",
                 feed: nil
             )
+        case .topics:
+            symbolic(
+                title: String(localized: "Location.Topics", table: "Browser"),
+                symbolName: "number"
+            )
         case .search(let query):
             BrowserLocationDescription(
                 title: query,
