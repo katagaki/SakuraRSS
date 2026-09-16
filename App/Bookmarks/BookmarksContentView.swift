@@ -19,16 +19,13 @@ struct BookmarksContentView: View {
     @State private var searchText = ""
     @State private var tagNamesByArticleID: [Int64: [String]] = [:]
     @AppStorage(BookmarkSortOrder.storageKey) var sortOrder: BookmarkSortOrder = .newest
+    @State var scope: BookmarkSmartGroup = .unsorted
 
     /// Sheets want an inline title; the tab and sidebar hosts want the large one.
     private let titleDisplayMode: ToolbarTitleDisplayMode
 
     @Namespace private var newFolderNamespace
     private let newFolderTransitionID = "NewFolder"
-
-    private var inlineSearchBinding: Binding<String>? {
-        isBrowserChromeActive ? $searchText : nil
-    }
 
     var hasImages: Bool {
         visibleArticles.contains { $0.imageURL != nil }
@@ -84,9 +81,7 @@ struct BookmarksContentView: View {
                 DisplayStyleContentView(
                     style: effectiveStyle,
                     articles: visibleArticles,
-                    headerView: isSearching && !isBrowserChromeActive
-                        ? nil
-                        : AnyView(BookmarksHeaderSections(inlineSearchText: inlineSearchBinding)),
+                    headerView: isSearching ? nil : AnyView(BookmarksHeaderSections()),
                     usesStackLayout: true
                 )
             }
@@ -97,11 +92,8 @@ struct BookmarksContentView: View {
         .navigationTitle("Tabs.Bookmarks")
         .toolbarTitleDisplayMode(titleDisplayMode)
         .sakuraBackground()
-        .bookmarksSearchable(text: $searchText, isEnabled: !isBrowserChromeActive)
-        .navigationDestination(for: BookmarkSmartGroup.self) { group in
-            BookmarkSmartGroupArticlesView(group: group)
-                .environment(\.zoomNamespace, zoomNamespace)
-        }
+        .searchable(text: $searchText,
+                    prompt: String(localized: "Bookmarks.Search.Prompt", table: "Articles"))
         .navigationDestination(for: BookmarkTag.self) { tag in
             BookmarkTagArticlesView(tag: tag)
                 .environment(\.zoomNamespace, zoomNamespace)
@@ -116,6 +108,7 @@ struct BookmarksContentView: View {
         .animation(.smooth.speed(2.0), value: displayStyle)
         .animation(.smooth.speed(2.0), value: bookmarkedArticleIDs)
         .animation(.smooth.speed(2.0), value: sortOrder)
+        .animation(.smooth.speed(2.0), value: scope)
         .alert(String(localized: "Bookmarks.DeleteAllRead", table: "Articles"), isPresented: $showingDeleteReadAlert) {
             Button(String(localized: "Bookmarks.DeleteAllRead.Confirm", table: "Articles"), role: .destructive) {
                 try? DatabaseManager.shared.removeReadBookmarks()
@@ -145,10 +138,14 @@ struct BookmarksContentView: View {
         .task(id: feedManager.dataRevision) {
             await reloadBookmarks()
         }
+        .task(id: scope) {
+            await reloadBookmarks()
+        }
         .onAppear { reportBrowserBookmarksActions() }
         .onDisappear { browserBookmarksActionsReporter?(nil) }
         .onChange(of: bookmarkedArticleIDs) { reportBrowserBookmarksActions() }
         .onChange(of: hasImages) { reportBrowserBookmarksActions() }
+        .onChange(of: scope) { reportBrowserBookmarksActions() }
     }
 
     /// Under browser chrome these same actions live in the bottom bar's
@@ -185,6 +182,8 @@ struct BookmarksContentView: View {
                                   systemImage: "square.and.arrow.up")
                         }
                         Divider()
+                        BookmarkScopeMenu(scope: $scope)
+                        Divider()
                         BookmarkSortMenu(sortOrder: $sortOrder)
                         Divider()
                         DisplayStylePicker(
@@ -203,12 +202,15 @@ struct BookmarksContentView: View {
     }
 
     private func reloadBookmarks() async {
+        let scope = scope
         let (loaded, tagNames) = await Task.detached {
             let database = DatabaseManager.shared
-            return (
-                (try? database.unorganizedBookmarkedArticles()) ?? [],
-                (try? database.bookmarkTagNamesByArticleID()) ?? [:]
-            )
+            let articles: [Article] = switch scope {
+            case .all: (try? database.bookmarkedArticles()) ?? []
+            case .unread: (try? database.unreadBookmarkedArticles()) ?? []
+            case .unsorted: (try? database.unorganizedBookmarkedArticles()) ?? []
+            }
+            return (articles, (try? database.bookmarkTagNamesByArticleID()) ?? [:])
         }.value
         if Task.isCancelled { return }
         bookmarkedArticles = loaded

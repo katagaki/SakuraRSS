@@ -21,6 +21,7 @@ extension BookmarksContentView {
             createFolder: { isCreatingFolder = true },
             export: hasBookmarks ? { isExporting = true } : nil,
             removeReadBookmarks: hasBookmarks ? { showingDeleteReadAlert = true } : nil,
+            scope: $scope,
             sortOrder: $sortOrder,
             displayStyle: $displayStyle,
             hasImages: hasImages

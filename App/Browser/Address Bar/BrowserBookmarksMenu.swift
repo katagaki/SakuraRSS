@@ -21,6 +21,10 @@ struct BrowserBookmarksMenu: View {
                 }
             }
 
+            Section {
+                BookmarkScopeMenu(scope: actions.scope)
+            }
+
             if actions.export != nil {
                 Section {
                     BookmarkSortMenu(sortOrder: actions.sortOrder)

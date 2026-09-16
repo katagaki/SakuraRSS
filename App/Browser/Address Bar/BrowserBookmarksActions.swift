@@ -8,6 +8,7 @@ struct BrowserBookmarksActions {
     var createFolder: () -> Void
     var export: (() -> Void)?
     var removeReadBookmarks: (() -> Void)?
+    var scope: Binding<BookmarkSmartGroup>
     var sortOrder: Binding<BookmarkSortOrder>
     var displayStyle: Binding<FeedDisplayStyle>
     var hasImages: Bool
