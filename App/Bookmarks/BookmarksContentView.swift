@@ -13,6 +13,7 @@ struct BookmarksContentView: View {
     @State private var displayStyle: FeedDisplayStyle
     @State private var showingDeleteReadAlert = false
     @State private var isCreatingFolder = false
+    @State private var isExporting = false
 
     /// Sheets want an inline title; the tab and sidebar hosts want the large one.
     private let titleDisplayMode: ToolbarTitleDisplayMode
@@ -100,6 +101,13 @@ struct BookmarksContentView: View {
                 #endif
                 ToolbarItemGroup(placement: .topBarTrailing) {
                     Menu {
+                        Button {
+                            isExporting = true
+                        } label: {
+                            Label(String(localized: "BookmarksExport.Title", table: "Articles"),
+                                  systemImage: "square.and.arrow.up")
+                        }
+                        Divider()
                         DisplayStylePicker(
                             displayStyle: $displayStyle,
                             hasImages: hasImages,
@@ -123,6 +131,9 @@ struct BookmarksContentView: View {
             Button("Shared.Cancel", role: .cancel) { }
         } message: {
             Text(String(localized: "Bookmarks.DeleteAllRead.Message", table: "Articles"))
+        }
+        .sheet(isPresented: $isExporting) {
+            BookmarkExportSheet()
         }
         .sheet(isPresented: $isCreatingFolder) {
             BookmarkFolderEditSheet(folder: nil)
