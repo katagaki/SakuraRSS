@@ -12,7 +12,7 @@ struct BookmarkSmartGroupsRow: View {
     }
 
     var body: some View {
-        Group {
+        VStack(alignment: .leading, spacing: 0) {
             if !populatedGroups.isEmpty {
                 ScrollView(.horizontal) {
                     HStack(spacing: 10) {

@@ -9,7 +9,7 @@ struct BookmarkTagsSection: View {
     @State private var tagBeingRenamed: BookmarkTag?
 
     var body: some View {
-        Group {
+        VStack(alignment: .leading, spacing: 0) {
             if !tagsInUse.isEmpty {
                 VStack(alignment: .leading, spacing: 10) {
                     Text(String(localized: "Tags.Header", table: "Articles"))
