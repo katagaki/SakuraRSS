@@ -7,16 +7,18 @@ struct BookmarksContentView: View {
 
     @Environment(FeedManager.self) var feedManager
     @Environment(\.zoomNamespace) private var zoomNamespace
+    @Environment(\.isBrowserChromeActive) var isBrowserChromeActive
+    @Environment(\.browserBookmarksActionsReporter) var browserBookmarksActionsReporter
 
-    @State private var bookmarkedArticles: [Article] = []
+    @State var bookmarkedArticles: [Article] = []
     @State private var bookmarkedArticleIDs: [Int64] = []
-    @State private var displayStyle: FeedDisplayStyle
-    @State private var showingDeleteReadAlert = false
-    @State private var isCreatingFolder = false
-    @State private var isExporting = false
+    @State var displayStyle: FeedDisplayStyle
+    @State var showingDeleteReadAlert = false
+    @State var isCreatingFolder = false
+    @State var isExporting = false
     @State private var searchText = ""
     @State private var tagNamesByArticleID: [Int64: [String]] = [:]
-    @AppStorage(BookmarkSortOrder.storageKey) private var sortOrder: BookmarkSortOrder = .newest
+    @AppStorage(BookmarkSortOrder.storageKey) var sortOrder: BookmarkSortOrder = .newest
 
     /// Sheets want an inline title; the tab and sidebar hosts want the large one.
     private let titleDisplayMode: ToolbarTitleDisplayMode
@@ -24,7 +26,11 @@ struct BookmarksContentView: View {
     @Namespace private var newFolderNamespace
     private let newFolderTransitionID = "NewFolder"
 
-    private var hasImages: Bool {
+    private var inlineSearchBinding: Binding<String>? {
+        isBrowserChromeActive ? $searchText : nil
+    }
+
+    var hasImages: Bool {
         visibleArticles.contains { $0.imageURL != nil }
     }
 
@@ -78,7 +84,9 @@ struct BookmarksContentView: View {
                 DisplayStyleContentView(
                     style: effectiveStyle,
                     articles: visibleArticles,
-                    headerView: isSearching ? nil : AnyView(BookmarksHeaderSections()),
+                    headerView: isSearching && !isBrowserChromeActive
+                        ? nil
+                        : AnyView(BookmarksHeaderSections(inlineSearchText: inlineSearchBinding)),
                     usesStackLayout: true
                 )
             }
@@ -89,8 +97,7 @@ struct BookmarksContentView: View {
         .navigationTitle("Tabs.Bookmarks")
         .toolbarTitleDisplayMode(titleDisplayMode)
         .sakuraBackground()
-        .searchable(text: $searchText,
-                    prompt: String(localized: "Bookmarks.Search.Prompt", table: "Articles"))
+        .bookmarksSearchable(text: $searchText, isEnabled: !isBrowserChromeActive)
         .navigationDestination(for: BookmarkSmartGroup.self) { group in
             BookmarkSmartGroupArticlesView(group: group)
                 .environment(\.zoomNamespace, zoomNamespace)
@@ -105,7 +112,50 @@ struct BookmarksContentView: View {
             BookmarkFolderArticlesView(folder: folder)
                 .environment(\.zoomNamespace, zoomNamespace)
         }
-        .toolbar {
+        .toolbar { topBarItems }
+        .animation(.smooth.speed(2.0), value: displayStyle)
+        .animation(.smooth.speed(2.0), value: bookmarkedArticleIDs)
+        .animation(.smooth.speed(2.0), value: sortOrder)
+        .alert(String(localized: "Bookmarks.DeleteAllRead", table: "Articles"), isPresented: $showingDeleteReadAlert) {
+            Button(String(localized: "Bookmarks.DeleteAllRead.Confirm", table: "Articles"), role: .destructive) {
+                try? DatabaseManager.shared.removeReadBookmarks()
+                Task { await reloadBookmarks() }
+            }
+            Button("Shared.Cancel", role: .cancel) { }
+        } message: {
+            Text(String(localized: "Bookmarks.DeleteAllRead.Message", table: "Articles"))
+        }
+        .sheet(isPresented: $isExporting) {
+            BookmarkExportSheet()
+        }
+        .sheet(isPresented: $isCreatingFolder) {
+            BookmarkFolderEditSheet(folder: nil)
+                .environment(feedManager)
+                .presentationDetents([.large])
+                .interactiveDismissDisabled()
+                .newFolderZoomTransition(
+                    isEnabled: !isBrowserChromeActive,
+                    sourceID: newFolderTransitionID,
+                    in: newFolderNamespace
+                )
+        }
+        .onChange(of: displayStyle) { _, newValue in
+            UserDefaults.standard.set(newValue.rawValue, forKey: "Display.DefaultBookmarksStyle")
+        }
+        .task(id: feedManager.dataRevision) {
+            await reloadBookmarks()
+        }
+        .onAppear { reportBrowserBookmarksActions() }
+        .onDisappear { browserBookmarksActionsReporter?(nil) }
+        .onChange(of: bookmarkedArticleIDs) { reportBrowserBookmarksActions() }
+        .onChange(of: hasImages) { reportBrowserBookmarksActions() }
+    }
+
+    /// Under browser chrome these same actions live in the bottom bar's
+    /// ellipsis menu instead, so the top bar contributes nothing.
+    @ToolbarContentBuilder
+    private var topBarItems: some ToolbarContent {
+        if !isBrowserChromeActive {
             ToolbarItemGroup(placement: .topBarTrailing) {
                 Button {
                     isCreatingFolder = true
@@ -149,34 +199,6 @@ struct BookmarksContentView: View {
                     .menuActionDismissBehavior(.disabled)
                 }
             }
-        }
-        .animation(.smooth.speed(2.0), value: displayStyle)
-        .animation(.smooth.speed(2.0), value: bookmarkedArticleIDs)
-        .animation(.smooth.speed(2.0), value: sortOrder)
-        .alert(String(localized: "Bookmarks.DeleteAllRead", table: "Articles"), isPresented: $showingDeleteReadAlert) {
-            Button(String(localized: "Bookmarks.DeleteAllRead.Confirm", table: "Articles"), role: .destructive) {
-                try? DatabaseManager.shared.removeReadBookmarks()
-                Task { await reloadBookmarks() }
-            }
-            Button("Shared.Cancel", role: .cancel) { }
-        } message: {
-            Text(String(localized: "Bookmarks.DeleteAllRead.Message", table: "Articles"))
-        }
-        .sheet(isPresented: $isExporting) {
-            BookmarkExportSheet()
-        }
-        .sheet(isPresented: $isCreatingFolder) {
-            BookmarkFolderEditSheet(folder: nil)
-                .environment(feedManager)
-                .presentationDetents([.large])
-                .interactiveDismissDisabled()
-                .navigationTransition(.zoom(sourceID: newFolderTransitionID, in: newFolderNamespace))
-        }
-        .onChange(of: displayStyle) { _, newValue in
-            UserDefaults.standard.set(newValue.rawValue, forKey: "Display.DefaultBookmarksStyle")
-        }
-        .task(id: feedManager.dataRevision) {
-            await reloadBookmarks()
         }
     }
 

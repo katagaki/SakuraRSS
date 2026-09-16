@@ -30,6 +30,9 @@ struct BrowserTabContentView: View {
         .environment(\.browserArticleActionsReporter) { actions in
             store.setArticleActions(actions, for: tabID)
         }
+        .environment(\.browserBookmarksActionsReporter) { actions in
+            store.setBookmarksActions(actions, for: tabID)
+        }
         .compatibleSoftScrollEdgeEffectStyle()
         // Last session's stack, rebuilt the first time the tab is mounted.
         .onAppear { store.restorePathIfNeeded(for: tabID, in: feedManager) }

@@ -53,6 +53,7 @@ final class BrowserTabStore {
     var tabsAwaitingPathRestore: Set<UUID> = []
 
     private(set) var articleActions: [UUID: BrowserArticleActions] = [:]
+    private(set) var bookmarksActions: [UUID: BrowserBookmarksActions] = [:]
 
     private(set) var markAllReadActions: [UUID: BrowserMarkAllReadAction] = [:]
 
@@ -131,6 +132,10 @@ final class BrowserTabStore {
 
     func setArticleActions(_ actions: BrowserArticleActions?, for tabID: UUID) {
         articleActions[tabID] = actions
+    }
+
+    func setBookmarksActions(_ actions: BrowserBookmarksActions?, for tabID: UUID) {
+        bookmarksActions[tabID] = actions
     }
 
     func setMarkAllRead(_ action: BrowserMarkAllReadAction?, for tabID: UUID) {
@@ -238,6 +243,7 @@ final class BrowserTabStore {
         discardSnapshot(for: tabID)
         markAllReadActions[tabID] = nil
         articleActions[tabID] = nil
+        bookmarksActions[tabID] = nil
         pageHistories[tabID] = nil
         liveTabIDs.removeAll { $0 == tabID }
         if selectedTabID == tabID {

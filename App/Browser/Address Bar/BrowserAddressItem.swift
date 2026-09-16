@@ -20,6 +20,10 @@ struct BrowserAddressItem: View {
         store.articleActions[store.selectedTabID]
     }
 
+    private var bookmarksActions: BrowserBookmarksActions? {
+        store.bookmarksActions[store.selectedTabID]
+    }
+
     var body: some View {
         HStack(spacing: 6) {
             Button(action: onOpenOmnibox) {
@@ -39,6 +43,8 @@ struct BrowserAddressItem: View {
 
             if let articleActions {
                 articleMenu(articleActions)
+            } else if let bookmarksActions {
+                BrowserBookmarksMenu(actions: bookmarksActions)
             } else if let markAllRead {
                 markAllReadButton(markAllRead)
             }
