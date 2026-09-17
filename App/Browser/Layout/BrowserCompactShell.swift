@@ -36,8 +36,9 @@ struct BrowserCompactShell: View {
             }
             .coordinateSpace(name: BrowserTabZoom.coordinateSpace)
         }
+        // Container only: swallowing the keyboard region too leaves the
+        // bottom bar, and so the address field, under the keyboard.
         .ignoresSafeArea(.container)
-        .browserKeyboardInset()
     }
 
     private var selectedCardFrame: CGRect? {
