@@ -25,7 +25,7 @@ struct BrowserOmniboxView: View {
         ZStack(alignment: .bottom) {
             Rectangle()
                 .fill(.ultraThinMaterial)
-                .ignoresSafeArea(.container)
+                .ignoresSafeArea([.container, .keyboard])
                 .contentShape(.rect)
                 .onTapGesture {
                     withAnimation(BrowserOmniboxModel.transition) {
