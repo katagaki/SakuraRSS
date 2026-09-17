@@ -21,6 +21,7 @@ struct BrowserTabContentView: View {
                 .browserNavigationEnvironment(path: path, namespace: cardZoom)
                 .browserNavigationDestinations(path: path, namespace: cardZoom)
         }
+        .environment(\.browserTabID, tabID)
         .environment(\.browserPageReporter) { identity in
             store.setPageIdentity(identity, for: tabID)
         }

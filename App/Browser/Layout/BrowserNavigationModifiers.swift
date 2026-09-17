@@ -13,8 +13,17 @@ struct BrowserNavigationEnvironment: ViewModifier {
     @Environment(\.browserAddressWidth) private var addressWidth
     @Environment(BrowserTabStore.self) private var store
     @Environment(BrowserFavourites.self) private var favourites
+    @Environment(\.browserTabID) private var tabID
+    @Environment(\.browserPathToken) private var pathToken
     @Binding var path: NavigationPath
     let namespace: Namespace.ID
+
+    /// Every page of every mounted tab carries this modifier: ungated, the
+    /// omnibox would mount a dimming overlay and a focused field per page.
+    private var isDisplayedPage: Bool {
+        tabID == store.selectedTabID
+            && pathToken == store.selectedTab.pageIdentity?.pathToken
+    }
 
     func body(content: Content) -> some View {
         content
@@ -27,7 +36,7 @@ struct BrowserNavigationEnvironment: ViewModifier {
             .toolbarVisibility(layout == .compact ? .hidden : .automatic, for: .navigationBar)
             .browserPopGestureEnabled(store: store)
             .overlay {
-                if layout == .compact, omnibox.isActive {
+                if layout == .compact, omnibox.isActive, isDisplayedPage {
                     BrowserOmniboxView()
                         .transition(.opacity)
                 }
@@ -40,6 +49,7 @@ struct BrowserNavigationEnvironment: ViewModifier {
                         favourites: favourites,
                         omnibox: omnibox,
                         addressWidth: addressWidth,
+                        isDisplayedPage: isDisplayedPage,
                         onOpenOmnibox: { openOmnibox?() },
                         onSubmitOmnibox: { submitOmnibox?() }
                     )

@@ -11,6 +11,7 @@ struct BrowserBottomToolbar: ToolbarContent {
     let omnibox: BrowserOmniboxModel
     /// Measured by the shell: toolbar items cannot stretch on their own.
     let addressWidth: CGFloat
+    let isDisplayedPage: Bool
     let onOpenOmnibox: () -> Void
     let onSubmitOmnibox: () -> Void
 
@@ -30,6 +31,7 @@ struct BrowserBottomToolbar: ToolbarContent {
             BrowserOmniboxField(
                 model: omnibox,
                 width: BrowserAddressMetrics.fieldWidth(forAddressWidth: addressWidth),
+                focusesOnAppear: isDisplayedPage,
                 onSubmit: onSubmitOmnibox
             )
         }

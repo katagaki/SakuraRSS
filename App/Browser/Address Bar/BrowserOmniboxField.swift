@@ -5,6 +5,9 @@ struct BrowserOmniboxField: View {
 
     let model: BrowserOmniboxModel
     let width: CGFloat
+    /// Only the page on screen takes the keyboard: the mounted-but-hidden
+    /// tabs build this field too, and the last one to focus would win.
+    let focusesOnAppear: Bool
     let onSubmit: () -> Void
     @FocusState private var isFocused: Bool
 
@@ -28,6 +31,7 @@ struct BrowserOmniboxField: View {
         .padding(.horizontal, 6)
         .frame(width: width > 0 ? width : nil)
         .task {
+            guard focusesOnAppear else { return }
             // The field is created as the toolbar morphs; focusing on the
             // same tick is dropped.
             try? await Task.sleep(for: .milliseconds(80))
