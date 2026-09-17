@@ -13,6 +13,7 @@ struct BrowserOmniboxView: View {
     @Environment(FeedManager.self) private var feedManager
     @Environment(BrowserTabStore.self) private var store
     @Environment(BrowserOmniboxModel.self) private var omnibox
+    @Environment(BrowserChromeMetrics.self) private var chromeMetrics
     @Environment(\.browserAddFeedAction) private var addFeed
     @Environment(\.browserOmniboxSubmit) private var submitOmnibox
 
@@ -58,6 +59,7 @@ struct BrowserOmniboxView: View {
             HStack(spacing: 8) {
                 BrowserOmniboxField(model: omnibox, onSubmit: { submitOmnibox?() })
                     .frame(maxWidth: .infinity)
+                    .frame(height: chromeMetrics.fieldHeight)
                     .compatibleGlassEffect(in: Capsule())
                 Button {
                     withAnimation(BrowserOmniboxModel.transition) {
@@ -68,12 +70,13 @@ struct BrowserOmniboxView: View {
                         .font(.system(size: 15, weight: .medium))
                         .frame(width: 22, height: 22)
                 }
+                .frame(height: chromeMetrics.fieldHeight)
                 .compatibleGlassButtonStyle()
                 .buttonBorderShape(.circle)
                 .accessibilityLabel(String(localized: "AddressField.Cancel", table: "Browser"))
             }
             .padding(.horizontal, 16)
-            .padding(.bottom, 8)
+            .padding(.bottom, chromeMetrics.fieldBottomGap)
         }
     }
 
