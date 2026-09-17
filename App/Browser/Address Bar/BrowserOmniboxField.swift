@@ -1,9 +1,13 @@
 import SwiftUI
 
-/// The address field as it appears while editing.
+/// The address field as it appears inside the bottom toolbar while editing.
 struct BrowserOmniboxField: View {
 
     let model: BrowserOmniboxModel
+    let width: CGFloat
+    /// Only the page on screen takes the keyboard: the mounted-but-hidden
+    /// tabs build this field too, and the last one to focus would win.
+    let focusesOnAppear: Bool
     let onSubmit: () -> Void
     @FocusState private var isFocused: Bool
 
@@ -24,11 +28,12 @@ struct BrowserOmniboxField: View {
             .focused($isFocused)
             .onSubmit(onSubmit)
         }
-        .padding(.horizontal, 14)
-        .padding(.vertical, 11)
+        .padding(.horizontal, 6)
+        .frame(width: width > 0 ? width : nil)
         .task {
-            // The field is created as the bar morphs; focusing on the same
-            // tick is dropped.
+            guard focusesOnAppear else { return }
+            // The field is created as the toolbar morphs; focusing on the
+            // same tick is dropped.
             try? await Task.sleep(for: .milliseconds(80))
             isFocused = true
         }

@@ -28,4 +28,9 @@ enum BrowserAddressMetrics {
     static func addressWidth(forContainerWidth width: CGFloat) -> CGFloat {
         max(0, width - chromeWidth)
     }
+
+    /// The field sits beside one cancel button rather than two round ones.
+    static func fieldWidth(forAddressWidth width: CGFloat) -> CGFloat {
+        max(0, width + 76)
+    }
 }

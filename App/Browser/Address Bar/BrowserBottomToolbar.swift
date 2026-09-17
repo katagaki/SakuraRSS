@@ -11,14 +11,41 @@ struct BrowserBottomToolbar: ToolbarContent {
     let omnibox: BrowserOmniboxModel
     /// Measured by the shell: toolbar items cannot stretch on their own.
     let addressWidth: CGFloat
+    let isDisplayedPage: Bool
     let onOpenOmnibox: () -> Void
+    let onSubmitOmnibox: () -> Void
 
-    // The editing field is not a toolbar item: a `.bottomBar` does not lift
-    // itself above the keyboard, so it would edit from under it.
-    @ToolbarContentBuilder
     var body: some ToolbarContent {
-        if !omnibox.isActive {
+        if omnibox.isActive {
+            editingItems
+        } else {
             browsingItems
+        }
+    }
+
+    @ToolbarContentBuilder
+    private var editingItems: some ToolbarContent {
+        // Separate items with a fixed spacer: a group shares one glass
+        // capsule, and a flexible spacer splits them to opposite ends.
+        ToolbarItem(placement: .bottomBar) {
+            BrowserOmniboxField(
+                model: omnibox,
+                width: BrowserAddressMetrics.fieldWidth(forAddressWidth: addressWidth),
+                focusesOnAppear: isDisplayedPage,
+                onSubmit: onSubmitOmnibox
+            )
+        }
+
+        #if !os(visionOS)
+        ToolbarSpacer(.fixed, placement: .bottomBar)
+        #endif
+
+        ToolbarItem(placement: .bottomBar) {
+            Button(role: .cancel) {
+                withAnimation(BrowserOmniboxModel.transition) {
+                    omnibox.deactivate()
+                }
+            }
         }
     }
 
