@@ -8,6 +8,15 @@ struct BrowserSearchResultsView: View {
     let query: String
     @State private var results: [Article] = []
 
+    /// Ranked, then cut to one row: the grid is a fixed four columns.
+    private var matchingFeeds: [Feed] {
+        feedManager.feeds
+            .compactMap { feed in feed.searchRank(for: query).map { (feed, $0) } }
+            .sorted { $0.1 < $1.1 }
+            .prefix(BrowserSearchFeedsSection.limit)
+            .map(\.0)
+    }
+
     private var hasImages: Bool {
         results.contains { $0.imageURL != nil }
     }
@@ -19,9 +28,14 @@ struct BrowserSearchResultsView: View {
     }
 
     var body: some View {
-        DisplayStyleContentView(style: effectiveStyle, articles: results)
+        let feeds = matchingFeeds
+        return DisplayStyleContentView(
+            style: effectiveStyle,
+            articles: results,
+            headerView: feeds.isEmpty ? nil : AnyView(BrowserSearchFeedsSection(feeds: feeds))
+        )
             .overlay {
-                if results.isEmpty {
+                if results.isEmpty && feeds.isEmpty {
                     ContentUnavailableView {
                         Label(String(localized: "NoResults.Title", table: "Search"),
                               systemImage: "magnifyingglass")

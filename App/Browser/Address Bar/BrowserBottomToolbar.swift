@@ -47,18 +47,13 @@ struct BrowserBottomToolbar: ToolbarContent {
                         }
                     }
                 } label: {
-                    // A menu hit tests its label only, so without a shape
-                    // the glass around the glyph swallows taps.
-                    Image(systemName: "chevron.backward")
-                        .frame(
-                            width: BrowserAddressMetrics.leadingButtonHeight,
-                            height: BrowserAddressMetrics.leadingButtonHeight
-                        )
-                        .contentShape(.rect)
+                    Label(
+                        String(localized: "AddressBar.Back", table: "Browser"),
+                        systemImage: "chevron.backward"
+                    )
                 } primaryAction: {
                     store.goBack()
                 }
-                .accessibilityLabel(String(localized: "AddressBar.Back", table: "Browser"))
             }
 
             #if !os(visionOS)
