@@ -60,6 +60,8 @@ final class BrowserTabStore {
 
     private(set) var displayStyleOptions: [UUID: BrowserPageSlot<BrowserDisplayStyleOptions>] = [:]
 
+    private(set) var pageProgress: [UUID: BrowserPageSlot<BrowserAddressProgress>] = [:]
+
     private(set) var snapshots: [UUID: UIImage] = [:]
 
     init(
@@ -99,6 +101,13 @@ final class BrowserTabStore {
 
     var displayedCanGoBack: Bool {
         frozenCanGoBack ?? selectedTab.canGoBack
+    }
+
+    /// The progress the address bar should draw: the visible page's own, and
+    /// nothing while another tab or a page deeper in the stack is the one
+    /// working.
+    var displayedProgress: BrowserAddressProgress? {
+        pageProgress[selectedTabID]?.value(forPageAt: displayedTab.pageIdentity?.pathToken)
     }
 
     func beginInteractivePop() {
@@ -145,6 +154,8 @@ final class BrowserTabStore {
             followingActions[tabID] = actions.map { BrowserPageSlot(token: token, value: $0) }
         case .displayStyle(let options):
             displayStyleOptions[tabID] = options.map { BrowserPageSlot(token: token, value: $0) }
+        case .progress(let progress):
+            pageProgress[tabID] = progress.map { BrowserPageSlot(token: token, value: $0) }
         }
     }
 
@@ -256,6 +267,7 @@ final class BrowserTabStore {
         discardSnapshot(for: tabID)
         markAllReadActions[tabID] = nil
         displayStyleOptions[tabID] = nil
+        pageProgress[tabID] = nil
         articleActions[tabID] = nil
         bookmarksActions[tabID] = nil
         followingActions[tabID] = nil

@@ -6,6 +6,7 @@ struct BrowserAddressCapsule: View {
 
     @Environment(FeedManager.self) private var feedManager
     let tab: BrowserTab
+    let progress: BrowserAddressProgress?
     let action: () -> Void
 
     var body: some View {
@@ -22,6 +23,8 @@ struct BrowserAddressCapsule: View {
             }
             .padding(.horizontal, 14)
             .padding(.vertical, 11)
+            .background { BrowserAddressProgressBackground(progress: progress) }
+            .animation(.smooth, value: progress == nil)
             .contentShape(.capsule)
         }
         .buttonStyle(.plain)

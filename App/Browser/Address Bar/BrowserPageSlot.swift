@@ -9,6 +9,7 @@ enum BrowserPageSlotReport {
     case bookmarks(BrowserBookmarksActions?)
     case following(BrowserFollowingActions?)
     case displayStyle(BrowserDisplayStyleOptions?)
+    case progress(BrowserAddressProgress?)
 }
 
 /// A slot's contents, alongside the path token of the page that filled it.

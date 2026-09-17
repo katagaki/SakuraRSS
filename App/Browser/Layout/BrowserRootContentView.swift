@@ -27,6 +27,7 @@ struct BrowserRootContentView: View {
                     title: String(localized: "Location.AllContent", table: "Browser"),
                     symbolName: "tray.full"
                 )
+                .browserRefreshScope("section.all")
         case .feeds:
             FollowingPage(followingNavigationNamespace: followingZoom)
                 .navigationTitle(String(localized: "Tabs.Feeds"))
@@ -66,6 +67,7 @@ struct BrowserRootContentView: View {
                     symbolName: "dot.radiowaves.up.forward",
                     feedID: feed.id
                 )
+                .browserRefreshScope("feed.\(feed.id)")
         } else {
             BrowserMissingLocationView(reason: .feed)
                 .browserPage(
@@ -80,6 +82,7 @@ struct BrowserRootContentView: View {
         if let list = feedManager.lists.first(where: { $0.id == listID }) {
             ListArticlesView(list: list)
                 .browserPage(title: list.name, symbolName: list.icon)
+                .browserRefreshScope("list.\(list.id)")
         } else {
             BrowserMissingLocationView(reason: .list)
                 .browserPage(

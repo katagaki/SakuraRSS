@@ -25,6 +25,11 @@ enum BrowserAddressMetrics {
     /// overflow menu, so it has to be rechecked if `chromeWidth` changes.
     static let leadingButtonWidth: CGFloat = 59
 
+    /// The height of the glass a `.bottomBar` item draws, which the address
+    /// item's own content stops short of. Only the progress fill needs it:
+    /// anything less leaves a bare strip above and below the bar.
+    static let glassHeight: CGFloat = 48
+
     /// The tappable square inside that button's glass.
     static let leadingButtonHeight: CGFloat = 44
 

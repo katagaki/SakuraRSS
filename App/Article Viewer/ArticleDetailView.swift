@@ -49,6 +49,7 @@ struct ArticleDetailView: View {
     @State var isBookmarked = false
     @Environment(\.isBrowserChromeActive) var isBrowserChromeActive
     @Environment(\.browserArticleActionsReporter) var browserArticleActionsReporter
+    @Environment(\.browserPageProgressReporter) var browserPageProgressReporter
     @State var summarizationError: String?
     @State var showYouTubeSafari = false
     @State var linkedArticleURL: URL?
@@ -175,13 +176,19 @@ struct ArticleDetailView: View {
         .sakuraBackground()
         .navigationTitle(displayTitle)
         .navigationBarTitleDisplayMode(.inline)
-        .onAppear { reportBrowserArticleActions() }
+        .onAppear {
+            reportBrowserArticleActions()
+            reportBrowserProgress()
+        }
         .onChange(of: isBookmarked) { reportBrowserArticleActions() }
         .onChange(of: showingTranslation) { reportBrowserArticleActions() }
         .onChange(of: showingSummary) { reportBrowserArticleActions() }
         .onChange(of: isTranslating) { reportBrowserArticleActions() }
         .onChange(of: isSummarizing) { reportBrowserArticleActions() }
-        .onChange(of: isExtracting) { reportBrowserArticleActions() }
+        .onChange(of: isExtracting) {
+            reportBrowserArticleActions()
+            reportBrowserProgress()
+        }
         .toolbar {
             articleToolbar
         }

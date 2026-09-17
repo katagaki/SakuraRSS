@@ -95,6 +95,14 @@ struct BrowserAddressItem: View {
         // Even by construction: both the icon and the glyph sit flush
         // against this padding, so neither side needs a fudge factor.
         .padding(.horizontal, 12)
+        // Behind the label rather than over the page: the browser has no
+        // room for Home's refresh pill, so the bar itself reports the work.
+        // Sized to the bar's glass, which the label alone does not fill.
+        .background {
+            BrowserAddressProgressBackground(progress: store.displayedProgress)
+                .frame(height: BrowserAddressMetrics.glassHeight)
+        }
+        .animation(.smooth, value: store.displayedProgress == nil)
         // A toolbar item is proposed its ideal size, so `maxWidth: .infinity`
         // resolves to the content width and the bar collapses around a short
         // page name. The measured width is what makes it fill.

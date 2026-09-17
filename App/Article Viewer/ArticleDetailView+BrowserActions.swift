@@ -14,6 +14,16 @@ extension ArticleDetailView {
         browserArticleActionsReporter?(actions.isEmpty ? nil : actions)
     }
 
+    /// Extraction has no count to report, so the bar marquees for as long
+    /// as it runs. The address bar is the only chrome the browser leaves.
+    func reportBrowserProgress() {
+        guard isBrowserChromeActive, isExtracting else {
+            browserPageProgressReporter?(nil)
+            return
+        }
+        browserPageProgressReporter?(.indeterminate)
+    }
+
     /// The browser hides the top bar, so the viewer's trailing actions are
     /// handed to the bottom bar to present instead.
     var browserArticleActions: BrowserArticleActions {

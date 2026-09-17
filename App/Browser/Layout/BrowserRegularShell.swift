@@ -35,7 +35,7 @@ struct BrowserRegularShell: View {
             .disabled(!store.selectedTab.canGoBack)
             .accessibilityLabel(String(localized: "AddressBar.Back", table: "Browser"))
 
-            BrowserAddressCapsule(tab: store.selectedTab) {
+            BrowserAddressCapsule(tab: store.selectedTab, progress: store.displayedProgress) {
                 openOmnibox?()
             }
             .frame(maxWidth: 560)

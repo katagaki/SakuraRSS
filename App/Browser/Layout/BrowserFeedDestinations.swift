@@ -19,6 +19,7 @@ struct BrowserFeedDestinations: ViewModifier {
                         symbolName: "dot.radiowaves.up.forward",
                         feedID: feed.id
                     )
+                    .browserRefreshScope("feed.\(feed.id)")
                     .environment(\.browserPathToken, .feed(feed.id))
             }
             .navigationDestination(for: FeedSection.self) { section in
@@ -28,12 +29,14 @@ struct BrowserFeedDestinations: ViewModifier {
                         title: section.localizedTitle,
                         symbolName: section.browserSymbolName
                     )
+                    .browserRefreshScope("section.\(section.rawValue)")
                     .environment(\.browserPathToken, .feedSection(section.rawValue))
             }
             .navigationDestination(for: FeedList.self) { list in
                 ListArticlesView(list: list)
                     .browserNavigationEnvironment(path: $path, namespace: namespace)
                     .browserPage(title: list.name, symbolName: list.icon)
+                    .browserRefreshScope("list.\(list.id)")
                     .environment(\.browserPathToken, .list(list.id))
             }
     }
