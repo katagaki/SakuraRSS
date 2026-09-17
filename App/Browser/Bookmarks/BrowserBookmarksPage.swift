@@ -10,6 +10,5 @@ struct BrowserBookmarksPage: View {
 
     var body: some View {
         BookmarksContentView(titleDisplayMode: .inline)
-            .environment(\.navigateToFeed, { _ in })
     }
 }
