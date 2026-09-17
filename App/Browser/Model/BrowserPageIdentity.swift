@@ -16,6 +16,18 @@ struct BrowserPageIdentity: Equatable, Codable {
     var pathToken: BrowserPathToken?
 }
 
+extension BrowserPageIdentity {
+    /// Whether two reports are the same page. A page on its way out re-reports
+    /// itself as the stack pops, by which point its path token has already
+    /// unwound to the root's, so the name is what tells the two apart.
+    func names(_ other: BrowserPageIdentity) -> Bool {
+        if let pathToken, let otherPathToken = other.pathToken {
+            return pathToken == otherPathToken
+        }
+        return title == other.title && symbolName == other.symbolName && feedID == other.feedID
+    }
+}
+
 private struct BrowserPageReporterKey: EnvironmentKey {
     static let defaultValue: ((BrowserPageIdentity) -> Void)? = nil
 }
@@ -47,6 +59,7 @@ private struct BrowserPageModifier: ViewModifier {
             .environment(\.browserBookmarksActionsReporter) { report(.bookmarks($0)) }
             .environment(\.browserFollowingActionsReporter) { report(.following($0)) }
             .environment(\.browserDisplayStyleReporter) { report(.displayStyle($0)) }
+            .environment(\.browserPageProgressReporter) { report(.progress($0)) }
             .onAppear { reporter?(reported) }
             .onChange(of: reported) { reporter?(reported) }
     }
