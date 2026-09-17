@@ -5,10 +5,11 @@ import Hanami
 /// subscribes, and a start page. Enabled from Browsing settings.
 struct BrowserView: View {
 
-    @Environment(FeedManager.self) private var feedManager
+    @Environment(FeedManager.self) var feedManager
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
 
-    @State private var store = BrowserTabStore.restored()
+    @AppStorage("YouTube.OpenMode") var youTubeOpenMode: YouTubeOpenMode = .inAppPlayer
+    @State var store = BrowserTabStore.restored()
     @State private var favourites = BrowserFavourites()
     @State private var omnibox = BrowserOmniboxModel()
     @State private var presentedSheet: BrowserSheetKind?
@@ -17,6 +18,8 @@ struct BrowserView: View {
     private let mediaPresenter = MediaPresenter.shared
 
     @Binding var pendingFeedURL: String?
+    @Binding var pendingArticleID: Int64?
+    @Binding var pendingOpenRequest: OpenArticleRequest?
 
     private var layout: BrowserLayout {
         BrowserLayout.resolve(horizontalSizeClass: horizontalSizeClass)
@@ -71,6 +74,16 @@ struct BrowserView: View {
         }
         .onDisappear {
             mediaPresenter.detachedHandler = nil
+        }
+        .onChange(of: pendingArticleID) {
+            handlePendingArticleIfNeeded()
+        }
+        .onChange(of: pendingOpenRequest) {
+            handlePendingOpenRequestIfNeeded()
+        }
+        .task {
+            handlePendingArticleIfNeeded()
+            handlePendingOpenRequestIfNeeded()
         }
         .onChange(of: pendingFeedURL) {
             if let url = pendingFeedURL {

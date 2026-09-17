@@ -23,6 +23,17 @@ extension BrowserTabStore {
         persistTabs()
     }
 
+    /// Deep links land in a tab of their own rather than displacing whatever
+    /// the selected tab was showing.
+    func openTab<Value: Hashable>(pushing value: Value) {
+        let tabID = openTab()
+        updateTab(tabID) { tab in
+            tab.path.append(value)
+            tab.lastVisited = .now
+        }
+        persistTabs()
+    }
+
     func goBack() {
         guard selectedTab.canGoBack else { return }
         updateSelectedTab { tab in

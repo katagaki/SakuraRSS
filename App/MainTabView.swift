@@ -48,7 +48,11 @@ struct MainTabView: View {
 
     @ViewBuilder
     private var browserView: some View {
-        BrowserView(pendingFeedURL: $pendingFeedURL)
+        BrowserView(
+            pendingFeedURL: $pendingFeedURL,
+            pendingArticleID: $pendingArticleID,
+            pendingOpenRequest: $pendingOpenRequest
+        )
             .miniPlayerAccessory(
                 audioPlayer: audioPlayer,
                 youTubeSession: youTubeSession,
