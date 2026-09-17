@@ -1,7 +1,8 @@
 import SwiftUI
 import Hanami
 
-/// The new-tab landing. Today carries the page, with Favourites pinned above it.
+/// The new-tab landing. Today carries the page, with the shortcut grid and
+/// recent content pinned directly below the greeting.
 struct BrowserStartPage: View {
 
     var body: some View {
@@ -10,8 +11,11 @@ struct BrowserStartPage: View {
         BrowserFallbackStartPage()
         #else
         TodayView(pinnedSection: AnyView(
-            BrowserRecentContentSection()
-                .padding(.horizontal)
+            VStack(alignment: .leading, spacing: 16) {
+                BrowserTodayShortcutsGrid()
+                BrowserRecentContentSection()
+            }
+            .padding(.horizontal)
         ))
         #endif
     }
