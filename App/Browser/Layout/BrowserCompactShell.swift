@@ -81,5 +81,9 @@ struct BrowserCompactShell: View {
             // indicator bands into the card.
             .ignoresSafeArea(.container)
             .environment(\.isBrowserChromeActive, true)
+            .environment(
+                \.browserAddressWidth,
+                BrowserAddressMetrics.addressWidth(forContainerWidth: width)
+            )
     }
 }

@@ -4,6 +4,7 @@ import SwiftUI
 struct BrowserOmniboxField: View {
 
     let model: BrowserOmniboxModel
+    let width: CGFloat
     /// Only the page on screen takes the keyboard: the mounted-but-hidden
     /// tabs build this field too, and the last one to focus would win.
     let focusesOnAppear: Bool
@@ -27,7 +28,8 @@ struct BrowserOmniboxField: View {
             .focused($isFocused)
             .onSubmit(onSubmit)
         }
-        .frame(maxWidth: .infinity)
+        .padding(.horizontal, 6)
+        .frame(width: width > 0 ? width : nil)
         .task {
             guard focusesOnAppear else { return }
             // The field is created as the toolbar morphs; focusing on the

@@ -9,6 +9,8 @@ struct BrowserBottomToolbar: ToolbarContent {
     let feedManager: FeedManager
     let favourites: BrowserFavourites
     let omnibox: BrowserOmniboxModel
+    /// Measured by the shell: toolbar items cannot stretch on their own.
+    let addressWidth: CGFloat
     let isDisplayedPage: Bool
     let onOpenOmnibox: () -> Void
     let onSubmitOmnibox: () -> Void
@@ -24,10 +26,11 @@ struct BrowserBottomToolbar: ToolbarContent {
     @ToolbarContentBuilder
     private var editingItems: some ToolbarContent {
         // Separate items with a fixed spacer: a group shares one glass
-        // capsule, and a flexible spacer would collapse the field's width.
+        // capsule, and a flexible spacer splits them to opposite ends.
         ToolbarItem(placement: .bottomBar) {
             BrowserOmniboxField(
                 model: omnibox,
+                width: BrowserAddressMetrics.fieldWidth(forAddressWidth: addressWidth),
                 focusesOnAppear: isDisplayedPage,
                 onSubmit: onSubmitOmnibox
             )
@@ -44,6 +47,12 @@ struct BrowserBottomToolbar: ToolbarContent {
                 }
             }
         }
+    }
+
+    private var browsingAddressWidth: CGFloat {
+        store.displayedCanGoBack
+            ? addressWidth
+            : addressWidth + BrowserAddressMetrics.leadingButtonWidth
     }
 
     @ToolbarContentBuilder
@@ -73,7 +82,7 @@ struct BrowserBottomToolbar: ToolbarContent {
             }
 
             #if !os(visionOS)
-            ToolbarSpacer(.fixed, placement: .bottomBar)
+            ToolbarSpacer(.flexible, placement: .bottomBar)
             #endif
         }
 
@@ -81,12 +90,13 @@ struct BrowserBottomToolbar: ToolbarContent {
             BrowserAddressItem(
                 store: store,
                 favourites: favourites,
+                width: browsingAddressWidth,
                 onOpenOmnibox: onOpenOmnibox
             )
         }
 
         #if !os(visionOS)
-        ToolbarSpacer(.fixed, placement: .bottomBar)
+        ToolbarSpacer(.flexible, placement: .bottomBar)
         #endif
 
         ToolbarItem(placement: .bottomBar) {
