@@ -53,12 +53,13 @@ struct BrowserBottomToolbar: ToolbarContent {
             : addressWidth + BrowserAddressMetrics.leadingButtonWidth
     }
 
+    @ToolbarContentBuilder
     private var browsingItems: some ToolbarContent {
-        ToolbarItemGroup(placement: .bottomBar) {
-            // With no top bar, Back lives here. At a tab's root there is
-            // nothing to go back to, and the address item starts at the
-            // leading edge rather than sitting behind an empty slot.
-            if store.displayedCanGoBack {
+        // With no top bar, Back lives here. At a tab's root there is nothing
+        // to go back to, and the address item starts at the leading edge
+        // rather than sitting behind an empty slot.
+        if store.displayedCanGoBack {
+            ToolbarItem(placement: .bottomBar) {
                 // A `Menu` with a primary action keeps tap = go back while
                 // long press opens the history on the button's own glass;
                 // `.contextMenu` would detach into its own dark sheet.
@@ -76,19 +77,27 @@ struct BrowserBottomToolbar: ToolbarContent {
                     store.goBack()
                 }
                 .accessibilityLabel(String(localized: "AddressBar.Back", table: "Browser"))
-
-                Spacer()
             }
 
+            #if !os(visionOS)
+            ToolbarSpacer(.flexible, placement: .bottomBar)
+            #endif
+        }
+
+        ToolbarItem(placement: .bottomBar) {
             BrowserAddressItem(
                 store: store,
                 favourites: favourites,
                 width: browsingAddressWidth,
                 onOpenOmnibox: onOpenOmnibox
             )
+        }
 
-            Spacer()
+        #if !os(visionOS)
+        ToolbarSpacer(.flexible, placement: .bottomBar)
+        #endif
 
+        ToolbarItem(placement: .bottomBar) {
             Button {
                 store.showTabSwitcher()
             } label: {
