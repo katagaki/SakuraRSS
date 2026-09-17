@@ -47,7 +47,14 @@ struct BrowserBottomToolbar: ToolbarContent {
                         }
                     }
                 } label: {
+                    // A menu hit tests its label only, so without a shape
+                    // the glass around the glyph swallows taps.
                     Image(systemName: "chevron.backward")
+                        .frame(
+                            width: BrowserAddressMetrics.leadingButtonHeight,
+                            height: BrowserAddressMetrics.leadingButtonHeight
+                        )
+                        .contentShape(.rect)
                 } primaryAction: {
                     store.goBack()
                 }

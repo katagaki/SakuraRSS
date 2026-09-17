@@ -25,6 +25,9 @@ enum BrowserAddressMetrics {
     /// overflow menu, so it has to be rechecked if `chromeWidth` changes.
     static let leadingButtonWidth: CGFloat = 59
 
+    /// The tappable square inside that button's glass.
+    static let leadingButtonHeight: CGFloat = 44
+
     static func addressWidth(forContainerWidth width: CGFloat) -> CGFloat {
         max(0, width - chromeWidth)
     }
