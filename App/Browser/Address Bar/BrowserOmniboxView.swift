@@ -1,8 +1,9 @@
 import SwiftUI
 import Hanami
 
-/// The suggestion overlay. The field itself lives in the bottom toolbar, so
-/// this view only dims the page and lists what the text matches.
+/// The editing surface: the dimmed page, the suggestions, and the field
+/// itself. The field lives here rather than in the bottom bar because only
+/// this overlay is laid out above the keyboard.
 struct BrowserOmniboxView: View {
 
     /// Raised alongside the body-size rows: at the old height the first
@@ -13,6 +14,7 @@ struct BrowserOmniboxView: View {
     @Environment(BrowserTabStore.self) private var store
     @Environment(BrowserOmniboxModel.self) private var omnibox
     @Environment(\.browserAddFeedAction) private var addFeed
+    @Environment(\.browserOmniboxSubmit) private var submitOmnibox
 
     private var suggestions: [BrowserSuggestion] {
         BrowserSuggestionResolver(feedManager: feedManager)
@@ -43,10 +45,35 @@ struct BrowserOmniboxView: View {
                         maxHeight: BrowserOmniboxView.suggestionListMaxHeight,
                         alignment: .bottom
                     )
+                fieldBar
             }
         }
         .task(id: omnibox.text) {
             await refreshContentMatches()
+        }
+    }
+
+    private var fieldBar: some View {
+        CompatibleGlassEffectContainer(spacing: 8) {
+            HStack(spacing: 8) {
+                BrowserOmniboxField(model: omnibox, onSubmit: { submitOmnibox?() })
+                    .frame(maxWidth: .infinity)
+                    .compatibleGlassEffect(in: Capsule())
+                Button {
+                    withAnimation(BrowserOmniboxModel.transition) {
+                        omnibox.deactivate()
+                    }
+                } label: {
+                    Image(systemName: "xmark")
+                        .font(.system(size: 15, weight: .medium))
+                        .frame(width: 22, height: 22)
+                }
+                .compatibleGlassButtonStyle()
+                .buttonBorderShape(.circle)
+                .accessibilityLabel(String(localized: "AddressField.Cancel", table: "Browser"))
+            }
+            .padding(.horizontal, 16)
+            .padding(.bottom, 8)
         }
     }
 
