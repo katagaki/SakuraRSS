@@ -10,11 +10,12 @@ struct BrowserOmniboxView: View {
     /// section header was already scrolled out of view.
     private static let suggestionListMaxHeight: CGFloat = 420
 
-    /// The bottom bar's capsule, measured against the rendered bar: 50pt
-    /// whatever the address item holds, and whatever the text size. The field
-    /// is not a toolbar item, so nothing else would give it the same size as
-    /// the bar it stands in for.
-    private static let fieldHeight: CGFloat = 50
+    /// The glass a `.bottomBar` item draws, read off the rendered view
+    /// hierarchy: 48pt on every device and at every content size, since the
+    /// bar clamps rather than growing with the text. The field is not a
+    /// toolbar item, so nothing else would give it the size of the bar it
+    /// stands in for.
+    private static let fieldHeight: CGFloat = 48
 
     @FocusState private var isFieldFocused: Bool
 
