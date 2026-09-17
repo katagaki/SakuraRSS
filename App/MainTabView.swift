@@ -54,6 +54,23 @@ struct MainTabView: View {
                 youTubeSession: youTubeSession,
                 mediaPresenter: mediaPresenter
             )
+            .sheet(isPresented: $showingOnboarding) {
+                onboardingSheet
+            }
+            .onAppear {
+                if !onboardingCompleted {
+                    showingOnboarding = true
+                }
+            }
+    }
+
+    private var onboardingSheet: some View {
+        OnboardingView {
+            onboardingCompleted = true
+            ViewStyleSwitcherTip.hasCompletedOnboarding = true
+            showingOnboarding = false
+        }
+        .environment(feedManager)
     }
 
     @ViewBuilder
@@ -126,12 +143,7 @@ struct MainTabView: View {
                     }
             }
             .sheet(isPresented: $showingOnboarding) {
-                OnboardingView {
-                    onboardingCompleted = true
-                    ViewStyleSwitcherTip.hasCompletedOnboarding = true
-                    showingOnboarding = false
-                }
-                .environment(feedManager)
+                onboardingSheet
             }
             .onChange(of: pendingFeedURL) {
                 if pendingFeedURL != nil {
