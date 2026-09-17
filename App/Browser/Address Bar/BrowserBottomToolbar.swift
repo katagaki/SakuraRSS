@@ -56,7 +56,8 @@ struct BrowserBottomToolbar: ToolbarContent {
     private var browsingItems: some ToolbarContent {
         ToolbarItemGroup(placement: .bottomBar) {
             // With no top bar, Back lives here. At a tab's root there is
-            // nothing to go back to, so the leading slot stays empty.
+            // nothing to go back to, and the address item starts at the
+            // leading edge rather than sitting behind an empty slot.
             if store.displayedCanGoBack {
                 // A `Menu` with a primary action keeps tap = go back while
                 // long press opens the history on the button's own glass;
@@ -75,9 +76,9 @@ struct BrowserBottomToolbar: ToolbarContent {
                     store.goBack()
                 }
                 .accessibilityLabel(String(localized: "AddressBar.Back", table: "Browser"))
-            }
 
-            Spacer()
+                Spacer()
+            }
 
             BrowserAddressItem(
                 store: store,
