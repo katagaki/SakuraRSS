@@ -24,17 +24,6 @@ struct BrowserNavigationDestinations: ViewModifier {
                     )
                     .environment(\.browserPathToken, .bookmarks)
             }
-            .navigationDestination(for: Feed.self) { feed in
-                FeedArticlesView(feed: feed)
-                    .browserNavigationEnvironment(path: $path, namespace: namespace)
-                    .browserPage(
-                        title: feed.title,
-                        subtitle: feed.domain,
-                        symbolName: "dot.radiowaves.up.forward",
-                        feedID: feed.id
-                    )
-                    .environment(\.browserPathToken, .feed(feed.id))
-            }
             .navigationDestination(for: EntityDestination.self) { destination in
                 EntityArticlesView(destination: destination)
                     .browserNavigationEnvironment(path: $path, namespace: namespace)
@@ -57,6 +46,7 @@ struct BrowserNavigationDestinations: ViewModifier {
                         .headline(title: destination.title, articleIDs: destination.articleIDs)
                     )
             }
+            .browserFeedDestinations(path: $path, namespace: namespace)
             .browserArticleDestinations(path: $path, namespace: namespace)
     }
 }
