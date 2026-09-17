@@ -11,6 +11,9 @@ struct BrowserTabCard: View {
 
     static let closeDistance: CGFloat = 90
 
+    /// How far the selection ring sits outside the card's edge.
+    static let selectionRingInset: CGFloat = 3
+
     @Environment(FeedManager.self) private var feedManager
     @Environment(BrowserTabStore.self) private var store
     let tab: BrowserTab
@@ -40,9 +43,16 @@ struct BrowserTabCard: View {
             // card's bounds but not to its rounded corners.
             .clipShape(.rect(cornerRadius: BrowserTabCard.cornerRadius, style: .continuous))
             .shadow(color: .black.opacity(0.12), radius: 5, y: 2)
-            .overlay {
-                RoundedRectangle(cornerRadius: BrowserTabCard.cornerRadius, style: .continuous)
-                    .strokeBorder(isSelected ? Color.accentColor : Color.clear, lineWidth: 2.5)
+            // Outside the card, not over it: the collapsing page lands on the
+            // card's own bounds, so an inset border spends the transition
+            // hidden under the page and snaps back the frame it is swapped out.
+            .background {
+                RoundedRectangle(
+                    cornerRadius: BrowserTabCard.cornerRadius + BrowserTabCard.selectionRingInset,
+                    style: .continuous
+                )
+                .stroke(isSelected ? Color.accentColor : Color.clear, lineWidth: 2.5)
+                .padding(-BrowserTabCard.selectionRingInset)
             }
             .contentShape(.rect(cornerRadius: BrowserTabCard.cornerRadius))
             .reportsTabCardFrame(id: tab.id, to: store)
