@@ -12,7 +12,6 @@ struct BrowserBottomToolbar: ToolbarContent {
     /// Measured by the shell: toolbar items cannot stretch on their own.
     let addressWidth: CGFloat
     let onOpenOmnibox: () -> Void
-    let onOpenBookmarks: () -> Void
     let onSubmitOmnibox: () -> Void
 
     var body: some ToolbarContent {
@@ -50,8 +49,8 @@ struct BrowserBottomToolbar: ToolbarContent {
 
     private var browsingItems: some ToolbarContent {
         ToolbarItemGroup(placement: .bottomBar) {
-            // With no top bar, Back lives here, and Bookmarks takes its
-            // place while the tab sits at its root.
+            // With no top bar, Back lives here. At a tab's root there is
+            // nothing to go back to, so the leading slot stays empty.
             if store.displayedCanGoBack {
                 Button {
                     store.goBack()
@@ -68,11 +67,6 @@ struct BrowserBottomToolbar: ToolbarContent {
                         }
                     }
                 }
-            } else {
-                Button(action: onOpenBookmarks) {
-                    Image(systemName: "bookmark")
-                }
-                .accessibilityLabel(String(localized: "Location.Bookmarks", table: "Browser"))
             }
 
             Spacer()

@@ -5,8 +5,8 @@ private struct BrowserBookmarksActionKey: EnvironmentKey {
 }
 
 extension EnvironmentValues {
-    /// Presents the bookmarks sheet. Provided by the shell so the bottom bar
-    /// can reach it from inside any tab's navigation stack.
+    /// Pushes Bookmarks onto the selected tab. Provided by the shell for the
+    /// regular layout's address row; compact reaches it from Today instead.
     var browserBookmarksAction: (() -> Void)? {
         get { self[BrowserBookmarksActionKey.self] }
         set { self[BrowserBookmarksActionKey.self] = newValue }

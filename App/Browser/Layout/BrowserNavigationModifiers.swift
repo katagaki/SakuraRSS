@@ -8,7 +8,6 @@ struct BrowserNavigationEnvironment: ViewModifier {
     @Environment(FeedManager.self) private var feedManager
     @Environment(\.browserLayout) private var layout
     @Environment(\.browserOmniboxAction) private var openOmnibox
-    @Environment(\.browserBookmarksAction) private var openBookmarks
     @Environment(\.browserOmniboxSubmit) private var submitOmnibox
     @Environment(BrowserOmniboxModel.self) private var omnibox
     @Environment(\.browserAddressWidth) private var addressWidth
@@ -42,7 +41,6 @@ struct BrowserNavigationEnvironment: ViewModifier {
                         omnibox: omnibox,
                         addressWidth: addressWidth,
                         onOpenOmnibox: { openOmnibox?() },
-                        onOpenBookmarks: { openBookmarks?() },
                         onSubmitOmnibox: { submitOmnibox?() }
                     )
                 }
