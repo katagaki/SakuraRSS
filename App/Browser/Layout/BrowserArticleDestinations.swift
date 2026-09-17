@@ -35,14 +35,19 @@ struct BrowserArticleDestinations: ViewModifier {
             }
     }
 
+    /// An article that came from a feed names the feed, with the article's own
+    /// title beneath it: the bar says where you are, and the page itself is
+    /// already headed by the title.
     @ViewBuilder
     private func articleDestination(_ article: Article) -> some View {
         let feed = feedManager.feed(forArticle: article)
         ArticleDestinationView(article: article)
             .browserNavigationEnvironment(path: $path, namespace: namespace)
             .browserPage(
-                title: article.title,
-                subtitle: feed?.domain ?? URL(string: article.url)?.host,
+                title: feed?.title ?? article.displayTitle,
+                subtitle: feed == nil
+                    ? URL(string: article.url)?.host
+                    : article.displayTitle,
                 symbolName: "doc.text",
                 feedID: feed?.id
             )
