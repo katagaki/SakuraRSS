@@ -156,15 +156,16 @@ final class BrowserTabStore {
         }
     }
 
-    /// The chrome is handed back only once the page has landed: any earlier
-    /// and the page's own bar fades in behind the switcher's.
+    /// The chrome is handed back up front, mirroring the collapse. Waiting for
+    /// the page to land leaves the switcher's own navigation bar blurring over
+    /// the growing page, and swaps the bars under it at the very end, which
+    /// nudges the page's content as it settles.
     func hideTabSwitcher() {
         freezeCollapseTarget()
         setPageSwappedWithoutAnimation(false)
+        setShowingTabSwitcherWithoutAnimation(false)
         withAnimation(BrowserTabSwitcher.transitionAnimation) {
             isPageCollapsed = false
-        } completion: {
-            self.setShowingTabSwitcherWithoutAnimation(false)
         }
     }
 
