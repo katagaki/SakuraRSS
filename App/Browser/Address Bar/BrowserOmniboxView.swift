@@ -11,9 +11,10 @@ struct BrowserOmniboxView: View {
     private static let suggestionListMaxHeight: CGFloat = 420
 
     /// The bottom bar's capsule, measured against the rendered bar: 50pt
-    /// whatever the address item holds. The field is not a toolbar item, so
-    /// nothing else would give it the same size as the bar it stands in for.
-    @ScaledMetric(relativeTo: .subheadline) private var fieldHeight: CGFloat = 50
+    /// whatever the address item holds, and whatever the text size. The field
+    /// is not a toolbar item, so nothing else would give it the same size as
+    /// the bar it stands in for.
+    private static let fieldHeight: CGFloat = 50
 
     @Environment(FeedManager.self) private var feedManager
     @Environment(BrowserTabStore.self) private var store
@@ -63,7 +64,7 @@ struct BrowserOmniboxView: View {
             HStack(spacing: 8) {
                 BrowserOmniboxField(model: omnibox, onSubmit: { submitOmnibox?() })
                     .frame(maxWidth: .infinity)
-                    .frame(height: fieldHeight)
+                    .frame(height: BrowserOmniboxView.fieldHeight)
                     .compatibleGlassEffect(in: Capsule(), interactive: true)
                 Button {
                     withAnimation(BrowserOmniboxModel.transition) {
@@ -75,7 +76,10 @@ struct BrowserOmniboxView: View {
                         // A glass button style pads the label, so the circle
                         // would outgrow the field. Sized here and given the
                         // glass directly, the way the field is.
-                        .frame(width: fieldHeight, height: fieldHeight)
+                        .frame(
+                            width: BrowserOmniboxView.fieldHeight,
+                            height: BrowserOmniboxView.fieldHeight
+                        )
                         .contentShape(.circle)
                 }
                 .buttonStyle(.plain)
@@ -84,6 +88,7 @@ struct BrowserOmniboxView: View {
                 .accessibilityLabel(String(localized: "AddressField.Cancel", table: "Browser"))
             }
             .padding(.horizontal, 16)
+            .padding(.bottom, 8)
         }
     }
 
