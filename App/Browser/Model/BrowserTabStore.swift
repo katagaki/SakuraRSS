@@ -58,6 +58,8 @@ final class BrowserTabStore {
 
     private(set) var markAllReadActions: [UUID: BrowserMarkAllReadAction] = [:]
 
+    private(set) var displayStyleOptions: [UUID: BrowserDisplayStyleOptions] = [:]
+
     private(set) var snapshots: [UUID: UIImage] = [:]
 
     init(
@@ -145,6 +147,10 @@ final class BrowserTabStore {
 
     func setMarkAllRead(_ action: BrowserMarkAllReadAction?, for tabID: UUID) {
         markAllReadActions[tabID] = action
+    }
+
+    func setDisplayStyleOptions(_ options: BrowserDisplayStyleOptions?, for tabID: UUID) {
+        displayStyleOptions[tabID] = options
     }
 
     func showTabSwitcher() {
@@ -254,6 +260,7 @@ final class BrowserTabStore {
         tabs.remove(at: index)
         discardSnapshot(for: tabID)
         markAllReadActions[tabID] = nil
+        displayStyleOptions[tabID] = nil
         articleActions[tabID] = nil
         bookmarksActions[tabID] = nil
         followingActions[tabID] = nil

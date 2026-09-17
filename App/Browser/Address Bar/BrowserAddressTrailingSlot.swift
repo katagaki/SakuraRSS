@@ -4,5 +4,6 @@ enum BrowserAddressTrailingSlot {
     case article
     case bookmarks
     case following
+    case displayStyle
     case markAllRead
 }

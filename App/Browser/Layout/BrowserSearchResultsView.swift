@@ -5,6 +5,8 @@ struct BrowserSearchResultsView: View {
 
     @Environment(FeedManager.self) private var feedManager
     @AppStorage("Search.DisplayStyle") private var searchDisplayStyle: FeedDisplayStyle = .inbox
+    @Environment(\.isBrowserChromeActive) private var isBrowserChromeActive
+    @Environment(\.browserDisplayStyleReporter) private var displayStyleReporter
     let query: String
     @State private var results: [Article] = []
 
@@ -47,6 +49,9 @@ struct BrowserSearchResultsView: View {
             .navigationTitle(query)
             .toolbarTitleDisplayMode(.inline)
             .sakuraBackground()
+            .onAppear { reportDisplayStyleToBrowser() }
+            .onDisappear { displayStyleReporter?(nil) }
+            .task(id: hasImages) { reportDisplayStyleToBrowser() }
             .task(id: query) {
                 let found = (try? DatabaseManager.shared.searchArticles(query: query)) ?? []
                 guard !Task.isCancelled else { return }
@@ -55,5 +60,17 @@ struct BrowserSearchResultsView: View {
                 }
                 feedManager.recordSearchTerm(query)
             }
+    }
+
+    private func reportDisplayStyleToBrowser() {
+        guard isBrowserChromeActive else {
+            displayStyleReporter?(nil)
+            return
+        }
+        displayStyleReporter?(BrowserDisplayStyleOptions(
+            displayStyle: $searchDisplayStyle,
+            hasImages: hasImages,
+            showsTimeline: false
+        ))
     }
 }

@@ -39,6 +39,7 @@ struct ArticlesView: View {
     @Environment(\.hidesMarkAllReadToolbar) private var hidesMarkAllReadToolbar
     @Environment(\.isBrowserChromeActive) private var isBrowserChromeActive
     @Environment(\.browserMarkAllReadReporter) private var markAllReadReporter
+    @Environment(\.browserDisplayStyleReporter) private var displayStyleReporter
     @Environment(\.homeSectionDisplayMenu) private var homeSectionDisplayMenu
     @State private var displayStyle: FeedDisplayStyle
     @State private var isShowingMarkAllReadConfirmation = false
@@ -147,8 +148,15 @@ struct ArticlesView: View {
         .navigationSubtitle(subtitle ?? "")
         #endif
         .toolbarTitleDisplayMode(titleDisplayMode)
-        .onAppear { reportMarkAllReadToBrowser() }
-        .onDisappear { markAllReadReporter?(nil) }
+        .onAppear {
+            reportMarkAllReadToBrowser()
+            reportDisplayStyleToBrowser()
+        }
+        .onDisappear {
+            markAllReadReporter?(nil)
+            displayStyleReporter?(nil)
+        }
+        .task(id: homeMenuSignature) { reportDisplayStyleToBrowser() }
         .toolbar {
             if !hidesMarkAllReadToolbar, !isBrowserChromeActive,
                markAllReadPosition == .top, let onMarkAllRead {
@@ -341,6 +349,19 @@ extension ArticlesView {
             return
         }
         markAllReadReporter?(BrowserMarkAllReadAction(perform: onMarkAllRead))
+    }
+
+    private func reportDisplayStyleToBrowser() {
+        guard isBrowserChromeActive else {
+            displayStyleReporter?(nil)
+            return
+        }
+        displayStyleReporter?(BrowserDisplayStyleOptions(
+            displayStyle: $displayStyle,
+            hasImages: hasImages,
+            showsTimeline: feedKey != "all",
+            showsPodcast: isPodcastFeed || hasAudioArticles
+        ))
     }
 
 }
