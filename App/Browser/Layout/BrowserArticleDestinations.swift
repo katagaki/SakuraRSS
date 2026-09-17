@@ -28,10 +28,7 @@ struct BrowserArticleDestinations: ViewModifier {
                     subtitle: URL(string: destination.article.url)?.host,
                     symbolName: "doc.text"
                 )
-                // Ephemeral articles are not in the database, so there is
-                // nothing to rebuild them from. Cleared rather than inherited
-                // from the page that pushed this one.
-                .environment(\.browserPathToken, nil)
+                .environment(\.browserPathToken, .ephemeralArticle(url: destination.article.url))
             }
     }
 

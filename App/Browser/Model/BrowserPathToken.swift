@@ -14,6 +14,10 @@ enum BrowserPathToken: Codable, Hashable {
     case entity(name: String, types: [String])
     case headline(title: String, articleIDs: [Int64])
     case bookmarks
+    /// Deep-linked content, which is not in the database: it names the page so
+    /// the address bar can tell it apart from a tab's root, but there is
+    /// nothing to rebuild it from.
+    case ephemeralArticle(url: String)
 
     /// Appends the destination this token stands for. Returns false when the
     /// row behind it is gone, which ends the rebuild: anything deeper was
@@ -30,6 +34,8 @@ enum BrowserPathToken: Codable, Hashable {
             path.append(SummaryHeadlineDestination(title: title, articleIDs: articleIDs))
         case .bookmarks:
             path.append(BrowserBookmarksDestination())
+        case .ephemeralArticle:
+            return false
         default:
             return appendRow(to: &path, in: feedManager)
         }

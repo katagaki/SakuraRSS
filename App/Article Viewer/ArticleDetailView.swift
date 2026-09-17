@@ -176,7 +176,6 @@ struct ArticleDetailView: View {
         .navigationTitle(displayTitle)
         .navigationBarTitleDisplayMode(.inline)
         .onAppear { reportBrowserArticleActions() }
-        .onDisappear { browserArticleActionsReporter?(nil) }
         .onChange(of: isBookmarked) { reportBrowserArticleActions() }
         .onChange(of: showingTranslation) { reportBrowserArticleActions() }
         .onChange(of: showingSummary) { reportBrowserArticleActions() }

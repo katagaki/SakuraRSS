@@ -58,7 +58,6 @@ struct FollowingPage: View {
             isShowingAllDespiteFocus = false
         }
         .onAppear { reportBrowserFollowingActions() }
-        .onDisappear { browserFollowingActionsReporter?(nil) }
         .onChange(of: browserActionsSignal) { reportBrowserFollowingActions() }
         .sheet(isPresented: $isPresentingAddFeedSheet) {
             AddFeedView(session: addFeedSession)

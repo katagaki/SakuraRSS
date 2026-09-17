@@ -152,10 +152,6 @@ struct ArticlesView: View {
             reportMarkAllReadToBrowser()
             reportDisplayStyleToBrowser()
         }
-        .onDisappear {
-            markAllReadReporter?(nil)
-            displayStyleReporter?(nil)
-        }
         .task(id: homeMenuSignature) { reportDisplayStyleToBrowser() }
         .toolbar {
             if !hidesMarkAllReadToolbar, !isBrowserChromeActive,

@@ -38,10 +38,8 @@ struct BrowserCompactShell: View {
             }
             .coordinateSpace(name: BrowserTabZoom.coordinateSpace)
         }
-        // One per shell, not one per page: pages are told apart by their
-        // path token, and two of them can share it (a tab's root and an
-        // ephemeral article both carry none), which mounted the overlay,
-        // and its focused field, twice.
+        // One per shell, not one per page: mounted per page, the overlay and
+        // its focused field can end up on screen twice.
         .overlay {
             if isEditing, !store.isShowingTabSwitcher {
                 BrowserOmniboxView()

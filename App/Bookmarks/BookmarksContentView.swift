@@ -142,7 +142,6 @@ struct BookmarksContentView: View {
             await reloadBookmarks()
         }
         .onAppear { reportBrowserBookmarksActions() }
-        .onDisappear { browserBookmarksActionsReporter?(nil) }
         .onChange(of: bookmarkedArticleIDs) { reportBrowserBookmarksActions() }
         .onChange(of: hasImages) { reportBrowserBookmarksActions() }
         .onChange(of: scope) { reportBrowserBookmarksActions() }
