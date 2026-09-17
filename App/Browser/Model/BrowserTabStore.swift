@@ -54,6 +54,7 @@ final class BrowserTabStore {
 
     private(set) var articleActions: [UUID: BrowserArticleActions] = [:]
     private(set) var bookmarksActions: [UUID: BrowserBookmarksActions] = [:]
+    private(set) var followingActions: [UUID: BrowserFollowingActions] = [:]
 
     private(set) var markAllReadActions: [UUID: BrowserMarkAllReadAction] = [:]
 
@@ -136,6 +137,10 @@ final class BrowserTabStore {
 
     func setBookmarksActions(_ actions: BrowserBookmarksActions?, for tabID: UUID) {
         bookmarksActions[tabID] = actions
+    }
+
+    func setFollowingActions(_ actions: BrowserFollowingActions?, for tabID: UUID) {
+        followingActions[tabID] = actions
     }
 
     func setMarkAllRead(_ action: BrowserMarkAllReadAction?, for tabID: UUID) {
@@ -251,6 +256,7 @@ final class BrowserTabStore {
         markAllReadActions[tabID] = nil
         articleActions[tabID] = nil
         bookmarksActions[tabID] = nil
+        followingActions[tabID] = nil
         pageHistories[tabID] = nil
         liveTabIDs.removeAll { $0 == tabID }
         if selectedTabID == tabID {

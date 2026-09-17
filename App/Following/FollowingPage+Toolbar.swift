@@ -3,8 +3,17 @@ import Hanami
 
 extension FollowingPage {
 
+    /// Under browser chrome these same controls live in the bottom bar's
+    /// menu instead, so the top bar contributes nothing.
     @ToolbarContentBuilder
     var toolbarContent: some ToolbarContent {
+        if !isBrowserChromeActive {
+            topBarContent
+        }
+    }
+
+    @ToolbarContentBuilder
+    private var topBarContent: some ToolbarContent {
         if !isEditingFeeds {
             ToolbarItemGroup(placement: .topBarTrailing) {
                 Button(String(localized: "FeedList.Edit", table: "Feeds"),

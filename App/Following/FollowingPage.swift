@@ -4,6 +4,8 @@ import Hanami
 struct FollowingPage: View {
 
     @Environment(FeedManager.self) var feedManager
+    @Environment(\.isBrowserChromeActive) var isBrowserChromeActive
+    @Environment(\.browserFollowingActionsReporter) var browserFollowingActionsReporter
     let followingNavigationNamespace: Namespace.ID
     @State var searchText = ""
     @State var isPresentingAddFeedSheet = false
@@ -55,11 +57,18 @@ struct FollowingPage: View {
         .onChange(of: feedManager.activeFocus) { _, _ in
             isShowingAllDespiteFocus = false
         }
+        .onAppear { reportBrowserFollowingActions() }
+        .onDisappear { browserFollowingActionsReporter?(nil) }
+        .onChange(of: browserActionsSignal) { reportBrowserFollowingActions() }
         .sheet(isPresented: $isPresentingAddFeedSheet) {
             AddFeedView(session: addFeedSession)
                 .environment(feedManager)
                 .presentationDetents([.large])
-                .navigationTransition(.zoom(sourceID: "addFeed", in: addFeedNamespace))
+                .optionalZoomTransition(
+                    isEnabled: !isBrowserChromeActive,
+                    sourceID: "addFeed",
+                    in: addFeedNamespace
+                )
         }
         .sheet(item: $feedToEdit) { feed in
             EditFeedSheet(feedID: feed.id)
@@ -80,7 +89,11 @@ struct FollowingPage: View {
                 .environment(feedManager)
                 .presentationDetents([.large])
                 .interactiveDismissDisabled()
-                .navigationTransition(.zoom(sourceID: "newList", in: newListNamespace))
+                .optionalZoomTransition(
+                    isEnabled: !isBrowserChromeActive,
+                    sourceID: "newList",
+                    in: newListNamespace
+                )
         }
         .alert(
             String(localized: "FeedMenu.Unfollow.Title", table: "Feeds"),

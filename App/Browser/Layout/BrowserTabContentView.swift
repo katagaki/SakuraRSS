@@ -34,6 +34,9 @@ struct BrowserTabContentView: View {
         .environment(\.browserBookmarksActionsReporter) { actions in
             store.setBookmarksActions(actions, for: tabID)
         }
+        .environment(\.browserFollowingActionsReporter) { actions in
+            store.setFollowingActions(actions, for: tabID)
+        }
         .compatibleSoftScrollEdgeEffectStyle()
         // Last session's stack, rebuilt the first time the tab is mounted.
         .onAppear { store.restorePathIfNeeded(for: tabID, in: feedManager) }

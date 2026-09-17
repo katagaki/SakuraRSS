@@ -24,6 +24,10 @@ struct BrowserAddressItem: View {
         store.bookmarksActions[store.selectedTabID]
     }
 
+    private var followingActions: BrowserFollowingActions? {
+        store.followingActions[store.selectedTabID]
+    }
+
     /// What the trailing slot holds. Animating on the actions themselves would
     /// restart the fade every time a page republishes an unchanged menu.
     private var trailingSlot: BrowserAddressTrailingSlot {
@@ -31,6 +35,8 @@ struct BrowserAddressItem: View {
             .article
         } else if bookmarksActions != nil {
             .bookmarks
+        } else if followingActions != nil {
+            .following
         } else if markAllRead != nil {
             .markAllRead
         } else {
@@ -60,6 +66,9 @@ struct BrowserAddressItem: View {
                     .transition(.opacity)
             } else if let bookmarksActions {
                 BrowserBookmarksMenu(actions: bookmarksActions)
+                    .transition(.opacity)
+            } else if let followingActions {
+                BrowserFollowingMenu(actions: followingActions)
                     .transition(.opacity)
             } else if let markAllRead {
                 markAllReadButton(markAllRead)
