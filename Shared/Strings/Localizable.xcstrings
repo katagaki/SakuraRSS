@@ -179,6 +179,77 @@
         }
       }
     },
+    "bookmarks.%@" : {
+      "shouldTranslate" : false
+    },
+    "CSV" : {
+      "shouldTranslate" : false
+    },
+    "Export bookmarks as ${format}" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lesezeichen als ${format} exportieren"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Export bookmarks as ${format}"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Exporter les favoris en ${format}"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Esporta i segnalibri come ${format}"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ブックマークを${format}としてエクスポート"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "북마크를 ${format}(으)로 내보내기"
+          }
+        },
+        "nl" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bladwijzers exporteren als ${format}"
+          }
+        },
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Xuất dấu trang dưới dạng ${format}"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "导出书签为${format}"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "匯出書籤為${format}"
+          }
+        }
+      }
+    },
     "Export feeds as OPML" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -442,6 +513,12 @@
         }
       }
     },
+    "HTML" : {
+      "shouldTranslate" : false
+    },
+    "JSON" : {
+      "shouldTranslate" : false
+    },
     "katagaki/SakuraRSS" : {
       "localizations" : {
         "en" : {
@@ -454,6 +531,9 @@
       "shouldTranslate" : false
     },
     "List ID" : {
+      "shouldTranslate" : false
+    },
+    "Markdown" : {
       "shouldTranslate" : false
     },
     "More.Attribution" : {
