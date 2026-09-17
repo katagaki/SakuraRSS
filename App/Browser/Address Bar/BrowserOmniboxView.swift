@@ -87,7 +87,7 @@ struct BrowserOmniboxView: View {
                 .accessibilityLabel(String(localized: "AddressField.Cancel", table: "Browser"))
             }
             .padding(.horizontal, 16)
-            .padding(.bottom, 8)
+            .browserOmniboxBarInset()
         }
     }
 
