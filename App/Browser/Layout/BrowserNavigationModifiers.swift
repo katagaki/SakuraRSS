@@ -12,18 +12,8 @@ struct BrowserNavigationEnvironment: ViewModifier {
     @Environment(\.browserAddressWidth) private var addressWidth
     @Environment(BrowserTabStore.self) private var store
     @Environment(BrowserFavourites.self) private var favourites
-    @Environment(BrowserChromeMetrics.self) private var chromeMetrics
-    @Environment(\.browserTabID) private var tabID
-    @Environment(\.browserPathToken) private var pathToken
     @Binding var path: NavigationPath
     let namespace: Namespace.ID
-
-    /// Every page of every mounted tab carries this modifier: ungated, the
-    /// omnibox would mount a dimming overlay and a focused field per page.
-    private var isDisplayedPage: Bool {
-        tabID == store.selectedTabID
-            && pathToken == store.selectedTab.pageIdentity?.pathToken
-    }
 
     func body(content: Content) -> some View {
         content
@@ -35,19 +25,6 @@ struct BrowserNavigationEnvironment: ViewModifier {
             // bottom bar instead.
             .toolbarVisibility(layout == .compact ? .hidden : .automatic, for: .navigationBar)
             .browserPopGestureEnabled(store: store)
-            // What the bar claims out of the page, read off the page itself:
-            // toolbar items cannot report the glass drawn around them.
-            .background {
-                if layout == .compact, isDisplayedPage, !omnibox.isActive {
-                    GeometryReader { proxy in
-                        Color.clear
-                            .onAppear { chromeMetrics.barInset = proxy.safeAreaInsets.bottom }
-                            .onChange(of: proxy.safeAreaInsets.bottom) {
-                                chromeMetrics.barInset = proxy.safeAreaInsets.bottom
-                            }
-                    }
-                }
-            }
             .toolbar {
                 if layout == .compact {
                     BrowserBottomToolbar(

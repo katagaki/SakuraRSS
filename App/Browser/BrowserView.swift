@@ -11,7 +11,6 @@ struct BrowserView: View {
     @State private var store = BrowserTabStore.restored()
     @State private var favourites = BrowserFavourites()
     @State private var omnibox = BrowserOmniboxModel()
-    @State private var chromeMetrics = BrowserChromeMetrics()
     @State private var presentedSheet: BrowserSheetKind?
     @State private var pendingAddFeedURL: String?
     @State private var addFeedSession = AddFeedSession()
@@ -33,7 +32,6 @@ struct BrowserView: View {
             store.push(BrowserBookmarksDestination())
         }
         .environment(omnibox)
-        .environment(chromeMetrics)
         .environment(\.browserAddFeedAction) { url in
             pendingAddFeedURL = url
         }

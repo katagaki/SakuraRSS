@@ -10,7 +10,8 @@ struct BrowserCompactShell: View {
     @Environment(BrowserOmniboxModel.self) private var omnibox
 
     var body: some View {
-        GeometryReader { proxy in
+        let isEditing = omnibox.isActive
+        return GeometryReader { proxy in
             ZStack {
                 // Kept opaque rather than hidden: a transparent subtree is not
                 // laid out, so the cards never report the frames the page
@@ -34,17 +35,18 @@ struct BrowserCompactShell: View {
                     // animated one swaps the bar mid-transition.
                     .allowsHitTesting(!store.isShowingTabSwitcher)
                     .accessibilityHidden(store.isShowingTabSwitcher)
-
-                // One per shell, not one per page: pages are told apart by
-                // their path token, and two of them can share it (a tab's
-                // root and an ephemeral article both carry none), which
-                // mounted the overlay, and its focused field, twice.
-                if omnibox.isActive, !store.isShowingTabSwitcher {
-                    BrowserOmniboxView()
-                        .transition(.opacity)
-                }
             }
             .coordinateSpace(name: BrowserTabZoom.coordinateSpace)
+        }
+        // One per shell, not one per page: pages are told apart by their
+        // path token, and two of them can share it (a tab's root and an
+        // ephemeral article both carry none), which mounted the overlay,
+        // and its focused field, twice.
+        .overlay {
+            if isEditing, !store.isShowingTabSwitcher {
+                BrowserOmniboxView()
+                    .transition(.opacity)
+            }
         }
         // Container only: swallowing the keyboard region too leaves the
         // bottom bar, and so the address field, under the keyboard.

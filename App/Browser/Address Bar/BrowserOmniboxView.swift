@@ -10,10 +10,14 @@ struct BrowserOmniboxView: View {
     /// section header was already scrolled out of view.
     private static let suggestionListMaxHeight: CGFloat = 420
 
+    /// The bottom bar's capsule, measured against the rendered bar: 50pt
+    /// whatever the address item holds. The field is not a toolbar item, so
+    /// nothing else would give it the same size as the bar it stands in for.
+    @ScaledMetric(relativeTo: .subheadline) private var fieldHeight: CGFloat = 50
+
     @Environment(FeedManager.self) private var feedManager
     @Environment(BrowserTabStore.self) private var store
     @Environment(BrowserOmniboxModel.self) private var omnibox
-    @Environment(BrowserChromeMetrics.self) private var chromeMetrics
     @Environment(\.browserAddFeedAction) private var addFeed
     @Environment(\.browserOmniboxSubmit) private var submitOmnibox
 
@@ -59,7 +63,7 @@ struct BrowserOmniboxView: View {
             HStack(spacing: 8) {
                 BrowserOmniboxField(model: omnibox, onSubmit: { submitOmnibox?() })
                     .frame(maxWidth: .infinity)
-                    .frame(height: chromeMetrics.fieldHeight)
+                    .frame(height: fieldHeight)
                     .compatibleGlassEffect(in: Capsule(), interactive: true)
                 Button {
                     withAnimation(BrowserOmniboxModel.transition) {
@@ -71,10 +75,7 @@ struct BrowserOmniboxView: View {
                         // A glass button style pads the label, so the circle
                         // would outgrow the field. Sized here and given the
                         // glass directly, the way the field is.
-                        .frame(
-                            width: chromeMetrics.fieldHeight ?? 44,
-                            height: chromeMetrics.fieldHeight ?? 44
-                        )
+                        .frame(width: fieldHeight, height: fieldHeight)
                         .contentShape(.circle)
                 }
                 .buttonStyle(.plain)

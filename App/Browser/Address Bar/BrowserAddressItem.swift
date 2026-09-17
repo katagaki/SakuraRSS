@@ -6,7 +6,6 @@ import Hanami
 struct BrowserAddressItem: View {
 
     @Environment(FeedManager.self) private var feedManager
-    @Environment(BrowserChromeMetrics.self) private var chromeMetrics
     let store: BrowserTabStore
     let favourites: BrowserFavourites
     let width: CGFloat
@@ -71,16 +70,6 @@ struct BrowserAddressItem: View {
         // Even by construction: both the icon and the glyph sit flush
         // against this padding, so neither side needs a fudge factor.
         .padding(.horizontal, 12)
-        // The editing field has no toolbar to size it, so it copies this.
-        .background {
-            GeometryReader { proxy in
-                Color.clear
-                    .onAppear { chromeMetrics.addressContentHeight = proxy.size.height }
-                    .onChange(of: proxy.size.height) {
-                        chromeMetrics.addressContentHeight = proxy.size.height
-                    }
-            }
-        }
         // A toolbar item is proposed its ideal size, so `maxWidth: .infinity`
         // resolves to the content width and the bar collapses around a short
         // page name. The measured width is what makes it fill.
