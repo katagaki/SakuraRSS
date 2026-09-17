@@ -18,7 +18,7 @@ struct BrowserSearchFeedsSection: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("Shared.Feeds")
-                .font(.title3.weight(.bold))
+                .font(.body.weight(.bold))
                 .padding(.horizontal, 16)
 
             LazyVGrid(columns: gridColumns, alignment: .leading, spacing: 16) {
