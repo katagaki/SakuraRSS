@@ -28,8 +28,4 @@ final class BrowserChromeMetrics {
     var fieldHeight: CGFloat? {
         padding > 0 ? addressContentHeight + padding * 2 : nil
     }
-
-    var fieldBottomGap: CGFloat {
-        padding > 0 ? padding : 8
-    }
 }

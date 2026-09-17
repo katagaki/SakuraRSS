@@ -60,14 +60,14 @@ struct BrowserOmniboxView: View {
                 BrowserOmniboxField(model: omnibox, onSubmit: { submitOmnibox?() })
                     .frame(maxWidth: .infinity)
                     .frame(height: chromeMetrics.fieldHeight)
-                    .compatibleGlassEffect(in: Capsule())
+                    .compatibleGlassEffect(in: Capsule(), interactive: true)
                 Button {
                     withAnimation(BrowserOmniboxModel.transition) {
                         omnibox.deactivate()
                     }
                 } label: {
                     Image(systemName: "xmark")
-                        .font(.system(size: 15, weight: .medium))
+                        .font(.system(size: 18, weight: .medium))
                         // A glass button style pads the label, so the circle
                         // would outgrow the field. Sized here and given the
                         // glass directly, the way the field is.
@@ -79,11 +79,10 @@ struct BrowserOmniboxView: View {
                 }
                 .buttonStyle(.plain)
                 .foregroundStyle(.primary)
-                .compatibleGlassEffect(in: Circle())
+                .compatibleGlassEffect(in: Circle(), interactive: true)
                 .accessibilityLabel(String(localized: "AddressField.Cancel", table: "Browser"))
             }
             .padding(.horizontal, 16)
-            .padding(.bottom, chromeMetrics.fieldBottomGap)
         }
     }
 
