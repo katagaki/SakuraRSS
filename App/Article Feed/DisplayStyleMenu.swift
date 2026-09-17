@@ -26,7 +26,7 @@ struct DisplayStyleMenu: View {
             )
         } label: {
             Label(String(localized: "DisplayStyle", table: "Articles"),
-                  systemImage: "square.grid.2x2")
+                  systemImage: "square.grid.3x1.below.line.grid.1x2")
         }
         .menuActionDismissBehavior(.disabled)
     }
