@@ -10,7 +10,6 @@ struct BrowserNavigationEnvironment: ViewModifier {
     @Environment(\.browserOmniboxAction) private var openOmnibox
     @Environment(\.browserOmniboxSubmit) private var submitOmnibox
     @Environment(BrowserOmniboxModel.self) private var omnibox
-    @Environment(\.browserAddressWidth) private var addressWidth
     @Environment(BrowserTabStore.self) private var store
     @Environment(BrowserFavourites.self) private var favourites
     @Environment(\.browserTabID) private var tabID
@@ -48,7 +47,6 @@ struct BrowserNavigationEnvironment: ViewModifier {
                         feedManager: feedManager,
                         favourites: favourites,
                         omnibox: omnibox,
-                        addressWidth: addressWidth,
                         isDisplayedPage: isDisplayedPage,
                         onOpenOmnibox: { openOmnibox?() },
                         onSubmitOmnibox: { submitOmnibox?() }

@@ -8,7 +8,6 @@ struct BrowserAddressItem: View {
     @Environment(FeedManager.self) private var feedManager
     let store: BrowserTabStore
     let favourites: BrowserFavourites
-    let width: CGFloat
     let onOpenOmnibox: () -> Void
     @State private var isConfirmingMarkAllRead = false
 
@@ -67,13 +66,7 @@ struct BrowserAddressItem: View {
             }
         }
         .animation(BrowserLocationLabel.contentChange, value: trailingSlot)
-        // Even by construction: both the icon and the glyph sit flush
-        // against this padding, so neither side needs a fudge factor.
-        .padding(.horizontal, 12)
         .frame(maxWidth: .infinity)
-        // The item widens by the back button's slot at a tab's root, and that
-        // lands on the same navigation as the label swap.
-        .animation(BrowserLocationLabel.contentChange, value: width)
     }
 
     /// The article viewer's trailing actions, in the slot mark as read uses
