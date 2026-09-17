@@ -5,10 +5,10 @@ struct BrowserTodayShortcutsGrid: View {
 
     @Environment(BrowserTabStore.self) private var store
 
-    private let columns = Array(repeating: GridItem(.flexible(), spacing: 10), count: 4)
+    private let columns = Array(repeating: GridItem(.flexible(), spacing: 16), count: 4)
 
     var body: some View {
-        LazyVGrid(columns: columns, spacing: 10) {
+        LazyVGrid(columns: columns, spacing: 12) {
             ForEach(BrowserTodayShortcut.allCases) { shortcut in
                 Button {
                     open(shortcut)
@@ -34,24 +34,34 @@ struct BrowserTodayShortcutCell: View {
 
     let shortcut: BrowserTodayShortcut
 
+    private let iconSize: CGFloat = 56
+    private let iconCornerRadius: CGFloat = 12
+
     var body: some View {
-        VStack(spacing: 6) {
+        VStack(alignment: .center, spacing: 6) {
             Image(systemName: shortcut.symbolName)
-                .font(.title3)
-                .foregroundStyle(.tint)
-                .frame(height: 26)
+                .font(.system(size: 24))
+                .foregroundStyle(shortcut.tint)
+                .frame(width: iconSize, height: iconSize)
+                .compatibleGlassEffect(
+                    in: RoundedRectangle(cornerRadius: iconCornerRadius),
+                    tint: shortcut.tint.opacity(0.3),
+                    clear: false
+                )
+                .contentShape(
+                    .hoverEffect,
+                    AnyShape(RoundedRectangle(cornerRadius: iconCornerRadius))
+                )
+                .hoverEffect(.highlight)
 
             Text(shortcut.title)
-                .font(.caption2.weight(.medium))
+                .font(.caption)
                 .foregroundStyle(.primary)
-                .lineLimit(2)
                 .multilineTextAlignment(.center)
-                .minimumScaleFactor(0.8)
+                .lineLimit(2, reservesSpace: true)
+                .truncationMode(.middle)
         }
         .frame(maxWidth: .infinity)
-        .padding(.vertical, 12)
-        .background(.quinary, in: .rect(cornerRadius: 14))
-        .contentShape(.rect(cornerRadius: 14))
-        .hoverEffect(.highlight)
+        .contentShape(.rect)
     }
 }

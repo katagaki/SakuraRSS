@@ -28,4 +28,14 @@ enum BrowserTodayShortcut: String, CaseIterable, Identifiable {
         case .topics: "number"
         }
     }
+
+    /// Tints the icon tile the way a list's icon tints its own in Following.
+    var tint: Color {
+        switch self {
+        case .following: .blue
+        case .allContent: .orange
+        case .bookmarks: .pink
+        case .topics: .purple
+        }
+    }
 }
