@@ -90,7 +90,11 @@ struct BrowserTabSwitcher: View {
 
     private func select(_ tabID: UUID) {
         store.select(tabID)
-        dismissSwitcher()
+        // A tick late, like a new tab: selecting a tab that is not already
+        // live mounts its whole navigation stack and rebuilds its path, and
+        // doing that in the same pass as the growth starts spends the
+        // transition's first frames on it. Behind the snapshot it is free.
+        Task { @MainActor in dismissSwitcher() }
     }
 
     private func close(_ tabID: UUID) {
