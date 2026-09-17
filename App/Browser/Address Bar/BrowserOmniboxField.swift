@@ -13,13 +13,13 @@ struct BrowserOmniboxField: View {
         @Bindable var model = model
         HStack(spacing: 8) {
             Image(systemName: "magnifyingglass")
-                .font(.system(size: 14))
-                .foregroundStyle(.secondary)
+                .font(.body)
             TextField(
                 String(localized: "AddressField.Prompt", table: "Browser"),
                 text: $model.text
             )
             .textFieldStyle(.plain)
+            .font(.body)
             .textInputAutocapitalization(.never)
             .autocorrectionDisabled()
             .submitLabel(.go)
