@@ -162,10 +162,16 @@ final class BrowserTabStore {
     /// nudges the page's content as it settles.
     func hideTabSwitcher() {
         freezeCollapseTarget()
-        setPageSwappedWithoutAnimation(false)
         setShowingTabSwitcherWithoutAnimation(false)
-        withAnimation(BrowserTabSwitcher.transitionAnimation) {
-            isPageCollapsed = false
+        // A tick later: the page re-lays itself out around its own bars the
+        // moment the chrome comes back, and doing that in the same pass as
+        // the swap drops its content by a bar's height in the first frame of
+        // the growth. Behind the snapshot it costs nothing.
+        Task { @MainActor in
+            self.setPageSwappedWithoutAnimation(false)
+            withAnimation(BrowserTabSwitcher.transitionAnimation) {
+                self.isPageCollapsed = false
+            }
         }
     }
 
