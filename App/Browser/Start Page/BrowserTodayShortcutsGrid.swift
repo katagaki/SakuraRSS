@@ -41,7 +41,7 @@ struct BrowserTodayShortcutCell: View {
         VStack(alignment: .center, spacing: 6) {
             Image(systemName: shortcut.symbolName)
                 .font(.system(size: 24))
-                .foregroundStyle(shortcut.tint)
+                .foregroundStyle(.white)
                 .frame(width: iconSize, height: iconSize)
                 .compatibleGlassEffect(
                     in: RoundedRectangle(cornerRadius: iconCornerRadius),
