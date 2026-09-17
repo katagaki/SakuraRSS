@@ -25,9 +25,11 @@ struct FeedHeaderView: View {
     }
 
     /// The browser hides the navigation bar and draws its pages edge to edge,
-    /// so the header puts back the inset the bar used to provide.
-    private var topPadding: CGFloat {
-        isBrowserChromeActive ? BrowserDeviceMetrics.safeAreaInsets.top + 4 : 4
+    /// so the header puts back part of the inset the bar used to provide, and
+    /// the same amount again below to keep it centred in its own space.
+    private var browserInset: CGFloat {
+        guard isBrowserChromeActive else { return 0 }
+        return max(BrowserDeviceMetrics.safeAreaInsets.top - 24, 0)
     }
 
     private var trimmedDescription: String {
@@ -71,8 +73,8 @@ struct FeedHeaderView: View {
         }
         .frame(maxWidth: .infinity)
         .padding(.horizontal, 16)
-        .padding(.top, topPadding)
-        .padding(.bottom, 16)
+        .padding(.top, 4 + browserInset)
+        .padding(.bottom, 16 + browserInset)
         .task(id: feed.id) {
             icon = await Iconography.shared.icon(for: feed)
         }
