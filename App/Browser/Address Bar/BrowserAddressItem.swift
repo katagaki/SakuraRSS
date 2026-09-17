@@ -24,6 +24,20 @@ struct BrowserAddressItem: View {
         store.bookmarksActions[store.selectedTabID]
     }
 
+    /// What the trailing slot holds. Animating on the actions themselves would
+    /// restart the fade every time a page republishes an unchanged menu.
+    private var trailingSlot: BrowserAddressTrailingSlot {
+        if articleActions != nil {
+            .article
+        } else if bookmarksActions != nil {
+            .bookmarks
+        } else if markAllRead != nil {
+            .markAllRead
+        } else {
+            .none
+        }
+    }
+
     var body: some View {
         HStack(spacing: 6) {
             Button(action: onOpenOmnibox) {
@@ -43,16 +57,23 @@ struct BrowserAddressItem: View {
 
             if let articleActions {
                 articleMenu(articleActions)
+                    .transition(.opacity)
             } else if let bookmarksActions {
                 BrowserBookmarksMenu(actions: bookmarksActions)
+                    .transition(.opacity)
             } else if let markAllRead {
                 markAllReadButton(markAllRead)
+                    .transition(.opacity)
             }
         }
+        .animation(BrowserLocationLabel.contentChange, value: trailingSlot)
         // Even by construction: both the icon and the glyph sit flush
         // against this padding, so neither side needs a fudge factor.
         .padding(.horizontal, 12)
-        .frame(width: width > 0 ? width : nil)
+        .frame(maxWidth: .infinity)
+        // The item widens by the back button's slot at a tab's root, and that
+        // lands on the same navigation as the label swap.
+        .animation(BrowserLocationLabel.contentChange, value: width)
     }
 
     /// The article viewer's trailing actions, in the slot mark as read uses
