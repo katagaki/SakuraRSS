@@ -48,12 +48,6 @@ struct BrowserNavigationEnvironment: ViewModifier {
                     }
                 }
             }
-            .overlay {
-                if layout == .compact, omnibox.isActive, isDisplayedPage {
-                    BrowserOmniboxView()
-                        .transition(.opacity)
-                }
-            }
             .toolbar {
                 if layout == .compact {
                     BrowserBottomToolbar(

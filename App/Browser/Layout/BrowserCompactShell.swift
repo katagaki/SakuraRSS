@@ -7,6 +7,7 @@ struct BrowserCompactShell: View {
 
     @Environment(BrowserTabStore.self) private var store
     @Environment(BrowserFavourites.self) private var favourites
+    @Environment(BrowserOmniboxModel.self) private var omnibox
 
     var body: some View {
         GeometryReader { proxy in
@@ -33,6 +34,15 @@ struct BrowserCompactShell: View {
                     // animated one swaps the bar mid-transition.
                     .allowsHitTesting(!store.isShowingTabSwitcher)
                     .accessibilityHidden(store.isShowingTabSwitcher)
+
+                // One per shell, not one per page: pages are told apart by
+                // their path token, and two of them can share it (a tab's
+                // root and an ephemeral article both carry none), which
+                // mounted the overlay, and its focused field, twice.
+                if omnibox.isActive, !store.isShowingTabSwitcher {
+                    BrowserOmniboxView()
+                        .transition(.opacity)
+                }
             }
             .coordinateSpace(name: BrowserTabZoom.coordinateSpace)
         }
