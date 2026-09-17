@@ -70,7 +70,10 @@ struct BrowserAddressItem: View {
         // Even by construction: both the icon and the glyph sit flush
         // against this padding, so neither side needs a fudge factor.
         .padding(.horizontal, 12)
-        .frame(maxWidth: .infinity)
+        // A toolbar item is proposed its ideal size, so `maxWidth: .infinity`
+        // resolves to the content width and the bar collapses around a short
+        // page name. The measured width is what makes it fill.
+        .frame(width: width > 0 ? width : nil)
         // The item widens by the back button's slot at a tab's root, and that
         // lands on the same navigation as the label swap.
         .animation(BrowserLocationLabel.contentChange, value: width)
