@@ -12,24 +12,31 @@ struct BrowserAddressItem: View {
     let onOpenOmnibox: () -> Void
     @State private var isConfirmingMarkAllRead = false
 
+    /// A page below the visible one re-reports itself as a pop reveals its
+    /// neighbour, so a slot only counts while it belongs to the page the bar
+    /// is naming.
+    private var pageToken: BrowserPathToken? {
+        store.displayedTab.pageIdentity?.pathToken
+    }
+
     private var markAllRead: BrowserMarkAllReadAction? {
-        store.markAllReadActions[store.selectedTabID]
+        store.markAllReadActions[store.selectedTabID]?.value(forPageAt: pageToken)
     }
 
     private var articleActions: BrowserArticleActions? {
-        store.articleActions[store.selectedTabID]
+        store.articleActions[store.selectedTabID]?.value(forPageAt: pageToken)
     }
 
     private var bookmarksActions: BrowserBookmarksActions? {
-        store.bookmarksActions[store.selectedTabID]
+        store.bookmarksActions[store.selectedTabID]?.value(forPageAt: pageToken)
     }
 
     private var followingActions: BrowserFollowingActions? {
-        store.followingActions[store.selectedTabID]
+        store.followingActions[store.selectedTabID]?.value(forPageAt: pageToken)
     }
 
     private var displayStyleOptions: BrowserDisplayStyleOptions? {
-        store.displayStyleOptions[store.selectedTabID]
+        store.displayStyleOptions[store.selectedTabID]?.value(forPageAt: pageToken)
     }
 
     /// What the trailing slot holds. Animating on the actions themselves would

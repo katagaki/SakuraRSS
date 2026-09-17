@@ -31,6 +31,7 @@ private struct BrowserPageModifier: ViewModifier {
 
     @Environment(\.browserPageReporter) private var reporter
     @Environment(\.browserPathToken) private var pathToken
+    @Environment(\.browserPageSlotReporter) private var slotReporter
     let identity: BrowserPageIdentity
 
     private var reported: BrowserPageIdentity {
@@ -41,8 +42,17 @@ private struct BrowserPageModifier: ViewModifier {
 
     func body(content: Content) -> some View {
         content
+            .environment(\.browserMarkAllReadReporter) { report(.markAllRead($0)) }
+            .environment(\.browserArticleActionsReporter) { report(.article($0)) }
+            .environment(\.browserBookmarksActionsReporter) { report(.bookmarks($0)) }
+            .environment(\.browserFollowingActionsReporter) { report(.following($0)) }
+            .environment(\.browserDisplayStyleReporter) { report(.displayStyle($0)) }
             .onAppear { reporter?(reported) }
             .onChange(of: reported) { reporter?(reported) }
+    }
+
+    private func report(_ slot: BrowserPageSlotReport) {
+        slotReporter?(slot, pathToken)
     }
 }
 

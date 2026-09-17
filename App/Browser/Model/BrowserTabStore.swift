@@ -52,13 +52,13 @@ final class BrowserTabStore {
     /// rebuilt: the rows behind it are looked up when the tab is first shown.
     var tabsAwaitingPathRestore: Set<UUID> = []
 
-    private(set) var articleActions: [UUID: BrowserArticleActions] = [:]
-    private(set) var bookmarksActions: [UUID: BrowserBookmarksActions] = [:]
-    private(set) var followingActions: [UUID: BrowserFollowingActions] = [:]
+    private(set) var articleActions: [UUID: BrowserPageSlot<BrowserArticleActions>] = [:]
+    private(set) var bookmarksActions: [UUID: BrowserPageSlot<BrowserBookmarksActions>] = [:]
+    private(set) var followingActions: [UUID: BrowserPageSlot<BrowserFollowingActions>] = [:]
 
-    private(set) var markAllReadActions: [UUID: BrowserMarkAllReadAction] = [:]
+    private(set) var markAllReadActions: [UUID: BrowserPageSlot<BrowserMarkAllReadAction>] = [:]
 
-    private(set) var displayStyleOptions: [UUID: BrowserDisplayStyleOptions] = [:]
+    private(set) var displayStyleOptions: [UUID: BrowserPageSlot<BrowserDisplayStyleOptions>] = [:]
 
     private(set) var snapshots: [UUID: UIImage] = [:]
 
@@ -133,24 +133,19 @@ final class BrowserTabStore {
         snapshots[tabID] = image
     }
 
-    func setArticleActions(_ actions: BrowserArticleActions?, for tabID: UUID) {
-        articleActions[tabID] = actions
-    }
-
-    func setBookmarksActions(_ actions: BrowserBookmarksActions?, for tabID: UUID) {
-        bookmarksActions[tabID] = actions
-    }
-
-    func setFollowingActions(_ actions: BrowserFollowingActions?, for tabID: UUID) {
-        followingActions[tabID] = actions
-    }
-
-    func setMarkAllRead(_ action: BrowserMarkAllReadAction?, for tabID: UUID) {
-        markAllReadActions[tabID] = action
-    }
-
-    func setDisplayStyleOptions(_ options: BrowserDisplayStyleOptions?, for tabID: UUID) {
-        displayStyleOptions[tabID] = options
+    func setSlot(_ report: BrowserPageSlotReport, token: BrowserPathToken?, for tabID: UUID) {
+        switch report {
+        case .markAllRead(let action):
+            markAllReadActions[tabID] = action.map { BrowserPageSlot(token: token, value: $0) }
+        case .article(let actions):
+            articleActions[tabID] = actions.map { BrowserPageSlot(token: token, value: $0) }
+        case .bookmarks(let actions):
+            bookmarksActions[tabID] = actions.map { BrowserPageSlot(token: token, value: $0) }
+        case .following(let actions):
+            followingActions[tabID] = actions.map { BrowserPageSlot(token: token, value: $0) }
+        case .displayStyle(let options):
+            displayStyleOptions[tabID] = options.map { BrowserPageSlot(token: token, value: $0) }
+        }
     }
 
     func showTabSwitcher() {

@@ -25,20 +25,8 @@ struct BrowserTabContentView: View {
         .environment(\.browserPageReporter) { identity in
             store.setPageIdentity(identity, for: tabID)
         }
-        .environment(\.browserMarkAllReadReporter) { action in
-            store.setMarkAllRead(action, for: tabID)
-        }
-        .environment(\.browserDisplayStyleReporter) { options in
-            store.setDisplayStyleOptions(options, for: tabID)
-        }
-        .environment(\.browserArticleActionsReporter) { actions in
-            store.setArticleActions(actions, for: tabID)
-        }
-        .environment(\.browserBookmarksActionsReporter) { actions in
-            store.setBookmarksActions(actions, for: tabID)
-        }
-        .environment(\.browserFollowingActionsReporter) { actions in
-            store.setFollowingActions(actions, for: tabID)
+        .environment(\.browserPageSlotReporter) { report, token in
+            store.setSlot(report, token: token, for: tabID)
         }
         .compatibleSoftScrollEdgeEffectStyle()
         // Last session's stack, rebuilt the first time the tab is mounted.

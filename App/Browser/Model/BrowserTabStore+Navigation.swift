@@ -66,12 +66,29 @@ extension BrowserTabStore {
 
     func setPageIdentity(_ identity: BrowserPageIdentity?, for tabID: UUID) {
         guard let tab = tabs.first(where: { $0.id == tabID }) else { return }
+        guard !isReportFromPageBelowTop(identity, in: tab) else { return }
         if tab.pageIdentity != identity {
             updateTab(tabID) { $0.pageIdentity = identity }
         }
         guard let identity else { return }
         recordHistory(identity, depth: tab.path.count, for: tabID)
         persistTabs()
+    }
+
+    /// A pop re-runs `onAppear` on the page below the one it reveals, and
+    /// restoring a stack re-runs it on every page in it, so the last report to
+    /// arrive is not always the visible page's. A report is refused when this
+    /// tab's own record puts that page underneath the depth it now sits at.
+    private func isReportFromPageBelowTop(
+        _ identity: BrowserPageIdentity?,
+        in tab: BrowserTab
+    ) -> Bool {
+        guard let identity, let history = pageHistories[tab.id] else { return false }
+        let depth = tab.path.count
+        guard history.count > depth, history[depth].pathToken != identity.pathToken else {
+            return false
+        }
+        return history.prefix(depth).contains { $0.pathToken == identity.pathToken }
     }
 
     /// The entry at each depth is replaced rather than appended, so going back
