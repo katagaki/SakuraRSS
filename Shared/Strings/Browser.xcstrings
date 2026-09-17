@@ -1372,7 +1372,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Heute"
+            "value" : "Today"
           }
         },
         "en" : {
@@ -1384,49 +1384,49 @@
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Aujourd’hui"
+            "value" : "Today"
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Oggi"
+            "value" : "Today"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "今日"
+            "value" : "Today"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "오늘"
+            "value" : "Today"
           }
         },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Vandaag"
+            "value" : "Today"
           }
         },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Hôm nay"
+            "value" : "Today"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "今天"
+            "value" : "Today"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "今天"
+            "value" : "Today"
           }
         }
       }
