@@ -71,7 +71,7 @@ struct BrowserOmniboxView: View {
                     }
                 } label: {
                     Image(systemName: "xmark")
-                        .font(.system(size: 18, weight: .medium))
+                        .font(.system(size: 22, weight: .medium))
                         // A glass button style pads the label, so the circle
                         // would outgrow the field. Sized here and given the
                         // glass directly, the way the field is.
