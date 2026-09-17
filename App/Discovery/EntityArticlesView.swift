@@ -42,7 +42,6 @@ struct EntityArticlesView: View {
         .navigationTitle(destination.name)
         .toolbarTitleDisplayMode(.inline)
         .onAppear { reportDisplayStyleToBrowser() }
-        .onDisappear { displayStyleReporter?(nil) }
         .task(id: hasImages) { reportDisplayStyleToBrowser() }
         .toolbar {
             ToolbarItemGroup(placement: .topBarTrailing) {
