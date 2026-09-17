@@ -126,7 +126,7 @@ struct BookmarksContentView: View {
                 .environment(feedManager)
                 .presentationDetents([.large])
                 .interactiveDismissDisabled()
-                .newFolderZoomTransition(
+                .optionalZoomTransition(
                     isEnabled: !isBrowserChromeActive,
                     sourceID: newFolderTransitionID,
                     in: newFolderNamespace
