@@ -19,7 +19,11 @@ enum BrowserAddressMetrics {
 
     /// The back button and the gap after it. At a tab's root there is no back
     /// button, and the address item takes the room rather than leaving a hole.
-    static let leadingButtonWidth: CGFloat = 44
+    ///
+    /// Measured against the rendered bar rather than derived: raising it much
+    /// further overflows the group and the system folds the tab count into an
+    /// overflow menu, so it has to be rechecked if `chromeWidth` changes.
+    static let leadingButtonWidth: CGFloat = 59
 
     static func addressWidth(forContainerWidth width: CGFloat) -> CGFloat {
         max(0, width - chromeWidth)
