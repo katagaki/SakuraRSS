@@ -145,17 +145,32 @@ final class BrowserTabStore {
     func setSlot(_ report: BrowserPageSlotReport, token: BrowserPathToken?, for tabID: UUID) {
         switch report {
         case .markAllRead(let action):
-            markAllReadActions[tabID] = action.map { BrowserPageSlot(token: token, value: $0) }
+            fill(&markAllReadActions[tabID], with: action, from: token)
         case .article(let actions):
-            articleActions[tabID] = actions.map { BrowserPageSlot(token: token, value: $0) }
+            fill(&articleActions[tabID], with: actions, from: token)
         case .bookmarks(let actions):
-            bookmarksActions[tabID] = actions.map { BrowserPageSlot(token: token, value: $0) }
+            fill(&bookmarksActions[tabID], with: actions, from: token)
         case .following(let actions):
-            followingActions[tabID] = actions.map { BrowserPageSlot(token: token, value: $0) }
+            fill(&followingActions[tabID], with: actions, from: token)
         case .displayStyle(let options):
-            displayStyleOptions[tabID] = options.map { BrowserPageSlot(token: token, value: $0) }
+            fill(&displayStyleOptions[tabID], with: options, from: token)
         case .progress(let progress):
-            pageProgress[tabID] = progress.map { BrowserPageSlot(token: token, value: $0) }
+            fill(&pageProgress[tabID], with: progress, from: token)
+        }
+    }
+
+    /// A page only empties the slot it filled itself: a page below the visible
+    /// one goes on reporting, and its nil would otherwise take the controls
+    /// away from the page the bar is naming.
+    private func fill<Value>(
+        _ slot: inout BrowserPageSlot<Value>?,
+        with value: Value?,
+        from token: BrowserPathToken?
+    ) {
+        if let value {
+            slot = BrowserPageSlot(token: token, value: value)
+        } else if slot?.token == token {
+            slot = nil
         }
     }
 
