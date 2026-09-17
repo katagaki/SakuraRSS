@@ -43,7 +43,6 @@ struct BrowserView: View {
         .environment(\.browserOmniboxSubmit) {
             submitOmnibox()
         }
-        .animation(.smooth.speed(2.0), value: omnibox.isActive)
         .sheet(
             item: $presentedSheet,
             onDismiss: { pendingAddFeedURL = nil },
