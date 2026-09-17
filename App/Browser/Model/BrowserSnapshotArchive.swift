@@ -16,11 +16,15 @@ nonisolated enum BrowserSnapshotArchive {
         try? data.write(to: url, options: .atomic)
     }
 
-    static func load(_ tabIDs: [UUID]) -> [UUID: Data] {
+    /// Decoded here rather than handed back as data: `UIImage(data:)` defers
+    /// the decode to the first draw, which would land on the main thread the
+    /// first time the grid lays a card out — mid-transition.
+    static func load(_ tabIDs: [UUID]) -> [UUID: UIImage] {
         tabIDs.reduce(into: [:]) { loaded, tabID in
             guard let url = fileURL(for: tabID),
-                  let data = try? Data(contentsOf: url) else { return }
-            loaded[tabID] = data
+                  let data = try? Data(contentsOf: url),
+                  let image = UIImage(data: data)?.preparingForDisplay() else { return }
+            loaded[tabID] = image
         }
     }
 
