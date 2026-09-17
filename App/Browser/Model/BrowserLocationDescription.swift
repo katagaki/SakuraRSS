@@ -3,7 +3,7 @@ import Hanami
 
 /// Everything the address bar and tab cards need to label a location, resolved
 /// once against the current feed list.
-struct BrowserLocationDescription {
+struct BrowserLocationDescription: Equatable {
     let title: String
     let subtitle: String?
     let symbolName: String
