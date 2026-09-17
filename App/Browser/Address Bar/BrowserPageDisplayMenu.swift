@@ -10,7 +10,7 @@ struct BrowserPageDisplayMenu: View {
 
     var body: some View {
         Menu {
-            DisplayStylePicker(
+            DisplayStyleMenu(
                 displayStyle: options.displayStyle,
                 hasImages: options.hasImages,
                 showTimeline: options.showsTimeline,

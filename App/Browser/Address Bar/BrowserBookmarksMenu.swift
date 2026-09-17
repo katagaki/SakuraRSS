@@ -30,7 +30,7 @@ struct BrowserBookmarksMenu: View {
                     BookmarkSortMenu(sortOrder: actions.sortOrder)
                 }
                 Section {
-                    DisplayStylePicker(
+                    DisplayStyleMenu(
                         displayStyle: actions.displayStyle,
                         hasImages: actions.hasImages,
                         showCards: false,
