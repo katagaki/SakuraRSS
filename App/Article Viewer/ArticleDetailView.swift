@@ -81,12 +81,16 @@ struct ArticleDetailView: View {
         self.marksReadOnAppear = marksReadOnAppear
     }
 
+    /// Hoisted out of the body: inline, a wrong text style is reported as
+    /// the whole expression timing out rather than as an unknown case.
+    private static let titleFont: UIFont = .preferredFont(forTextStyle: .title1).bold()
+
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
                 SelectableText(
                     displayTitle,
-                    font: .preferredFont(forTextStyle: .title).bold(),
+                    font: ArticleDetailView.titleFont,
                     textColor: .label
                 )
                 .id(showingTranslation ? translatedTitle : nil)
