@@ -86,7 +86,7 @@ struct ArticleDetailView: View {
             VStack(alignment: .leading, spacing: 16) {
                 SelectableText(
                     displayTitle,
-                    font: .preferredFont(forTextStyle: .title2).bold(),
+                    font: .preferredFont(forTextStyle: .title).bold(),
                     textColor: .label
                 )
                 .id(showingTranslation ? translatedTitle : nil)
