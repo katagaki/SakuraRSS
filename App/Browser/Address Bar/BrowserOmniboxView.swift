@@ -16,6 +16,8 @@ struct BrowserOmniboxView: View {
     /// the bar it stands in for.
     private static let fieldHeight: CGFloat = 50
 
+    @FocusState private var isFieldFocused: Bool
+
     @Environment(FeedManager.self) private var feedManager
     @Environment(BrowserTabStore.self) private var store
     @Environment(BrowserOmniboxModel.self) private var omnibox
@@ -33,11 +35,7 @@ struct BrowserOmniboxView: View {
                 .fill(.ultraThinMaterial)
                 .ignoresSafeArea([.container, .keyboard])
                 .contentShape(.rect)
-                .onTapGesture {
-                    withAnimation(BrowserOmniboxModel.transition) {
-                        omnibox.deactivate()
-                    }
-                }
+                .onTapGesture { dismiss() }
 
             VStack(spacing: 0) {
                 // The list only claims the room it needs, so the dimmed page
@@ -62,15 +60,15 @@ struct BrowserOmniboxView: View {
     private var fieldBar: some View {
         CompatibleGlassEffectContainer(spacing: 8) {
             HStack(spacing: 8) {
-                BrowserOmniboxField(model: omnibox, onSubmit: { submitOmnibox?() })
+                BrowserOmniboxField(
+                    model: omnibox,
+                    onSubmit: { submitOmnibox?() },
+                    isFocused: $isFieldFocused
+                )
                     .frame(maxWidth: .infinity)
                     .frame(height: BrowserOmniboxView.fieldHeight)
                     .compatibleGlassEffect(in: Capsule(), interactive: true)
-                Button {
-                    withAnimation(BrowserOmniboxModel.transition) {
-                        omnibox.deactivate()
-                    }
-                } label: {
+                Button(action: dismiss) {
                     Image(systemName: "xmark")
                         .font(.system(size: 22, weight: .medium))
                         // A glass button style pads the label, so the circle
@@ -89,6 +87,15 @@ struct BrowserOmniboxView: View {
             }
             .padding(.horizontal, 16)
             .padding(.bottom, 8)
+        }
+    }
+
+    /// Focus goes first and outside the animation: the keyboard then starts
+    /// on its way down as the bar fades, rather than after it.
+    private func dismiss() {
+        isFieldFocused = false
+        withAnimation(BrowserOmniboxModel.transition) {
+            omnibox.deactivate()
         }
     }
 
@@ -158,8 +165,6 @@ struct BrowserOmniboxView: View {
         case .discoverFeeds(let host):
             addFeed?("https://\(host)")
         }
-        withAnimation(BrowserOmniboxModel.transition) {
-            omnibox.deactivate()
-        }
+        dismiss()
     }
 }
