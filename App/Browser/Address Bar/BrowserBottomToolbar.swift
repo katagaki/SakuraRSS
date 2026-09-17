@@ -47,18 +47,21 @@ struct BrowserBottomToolbar: ToolbarContent {
         }
     }
 
+    private var browsingAddressWidth: CGFloat {
+        store.displayedCanGoBack
+            ? addressWidth
+            : addressWidth + BrowserAddressMetrics.leadingButtonWidth
+    }
+
     private var browsingItems: some ToolbarContent {
         ToolbarItemGroup(placement: .bottomBar) {
             // With no top bar, Back lives here. At a tab's root there is
             // nothing to go back to, so the leading slot stays empty.
             if store.displayedCanGoBack {
-                Button {
-                    store.goBack()
-                } label: {
-                    Image(systemName: "chevron.backward")
-                }
-                .accessibilityLabel(String(localized: "AddressBar.Back", table: "Browser"))
-                .contextMenu {
+                // A `Menu` with a primary action keeps tap = go back while
+                // long press opens the history on the button's own glass;
+                // `.contextMenu` would detach into its own dark sheet.
+                Menu {
                     ForEach(store.backHistory, id: \.depth) { entry in
                         Button {
                             store.popTo(depth: entry.depth)
@@ -66,7 +69,12 @@ struct BrowserBottomToolbar: ToolbarContent {
                             Label(entry.identity.title, systemImage: entry.identity.symbolName)
                         }
                     }
+                } label: {
+                    Image(systemName: "chevron.backward")
+                } primaryAction: {
+                    store.goBack()
                 }
+                .accessibilityLabel(String(localized: "AddressBar.Back", table: "Browser"))
             }
 
             Spacer()
@@ -74,7 +82,7 @@ struct BrowserBottomToolbar: ToolbarContent {
             BrowserAddressItem(
                 store: store,
                 favourites: favourites,
-                width: addressWidth,
+                width: browsingAddressWidth,
                 onOpenOmnibox: onOpenOmnibox
             )
 
