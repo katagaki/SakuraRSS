@@ -40,11 +40,13 @@ extension BrowserTabStore {
             tab.path.removeLast()
             tab.lastVisited = .now
         }
+        restoreIdentity(atDepth: selectedTab.path.count, for: selectedTabID)
         persistTabs()
     }
 
     func popToRoot() {
         updateSelectedTab { $0.path = NavigationPath() }
+        restoreIdentity(atDepth: 0, for: selectedTabID)
         persistTabs()
     }
 
@@ -55,9 +57,13 @@ extension BrowserTabStore {
             },
             set: { [weak self] newPath in
                 guard let self else { return }
+                let previousDepth = tabs.first { $0.id == tabID }?.path.count ?? 0
                 updateTab(tabID) { tab in
                     tab.path = newPath
                     tab.lastVisited = .now
+                }
+                if newPath.count < previousDepth {
+                    restoreIdentity(atDepth: newPath.count, for: tabID)
                 }
                 persistTabs()
             }
@@ -91,6 +97,19 @@ extension BrowserTabStore {
         return history.prefix(depth).contains { $0.pathToken == identity.pathToken }
     }
 
+    /// A page that was revealed once already, by a pop from deeper still, does
+    /// not run `onAppear` again when it finally becomes the top one, so a pop
+    /// takes the name from the tab's own record rather than waiting for a
+    /// report that never arrives.
+    func restoreIdentity(atDepth depth: Int, for tabID: UUID) {
+        let history = pageHistories[tabID] ?? []
+        let identity = history.indices.contains(depth) ? history[depth] : nil
+        updateTab(tabID) { tab in
+            guard tab.pageIdentity != identity else { return }
+            tab.pageIdentity = identity
+        }
+    }
+
     /// The entry at each depth is replaced rather than appended, so going back
     /// and down a different branch does not leave the old branch behind.
     func recordHistory(_ identity: BrowserPageIdentity, depth: Int, for tabID: UUID) {
@@ -120,12 +139,11 @@ extension BrowserTabStore {
     func popTo(depth: Int) {
         let current = selectedTab.path.count
         guard depth < current else { return }
-        let history = pageHistories[selectedTabID] ?? []
         updateSelectedTab { tab in
             tab.path.removeLast(current - depth)
-            tab.pageIdentity = history.indices.contains(depth) ? history[depth] : nil
             tab.lastVisited = .now
         }
+        restoreIdentity(atDepth: depth, for: selectedTabID)
         persistTabs()
     }
 }
