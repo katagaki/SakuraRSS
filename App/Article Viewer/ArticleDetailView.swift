@@ -216,6 +216,9 @@ struct ArticleDetailView: View {
         .navigationDestination(item: $arXivPDFReference) { reference in
             ArXivPDFViewerView(url: reference.url, title: reference.title)
         }
+        .browserOverlayPage(item: $arXivPDFReference) { reference in
+            BrowserPageIdentity(title: reference.title, symbolName: "doc.richtext")
+        }
         .sheet(isPresented: $showYouTubeSafari) {
             if let url = URL(string: article.url) {
                 SafariView(url: url)
@@ -225,6 +228,20 @@ struct ArticleDetailView: View {
         .navigationDestination(item: $imageViewerURL) { url in
             ImageViewerView(url: url)
                 .navigationTransition(.zoom(sourceID: url, in: imageViewerNamespace))
+        }
+        .browserOverlayPage(item: $imageViewerURL) { url in
+            BrowserPageIdentity(
+                title: String(localized: "Overlay.Image", table: "Browser"),
+                subtitle: url.host,
+                symbolName: "photo"
+            )
+        }
+        .browserOverlayPage(item: $inAppLinkURL) { url in
+            BrowserPageIdentity(
+                title: url.host ?? url.absoluteString,
+                subtitle: url.absoluteString,
+                symbolName: "doc.text"
+            )
         }
         .navigationDestination(item: $inAppLinkURL) { url in
             ArticleDestinationView(

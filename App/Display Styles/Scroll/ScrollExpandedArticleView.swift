@@ -96,6 +96,13 @@ struct ScrollExpandedArticleView: View {
             ImageViewerView(url: url)
                 .navigationTransition(.zoom(sourceID: url, in: imageViewerNamespace))
         }
+        .browserOverlayPage(item: $imageViewerURL) { url in
+            BrowserPageIdentity(
+                title: String(localized: "Overlay.Image", table: "Browser"),
+                subtitle: url.host,
+                symbolName: "photo"
+            )
+        }
         .task {
             await extractArticleContent()
         }

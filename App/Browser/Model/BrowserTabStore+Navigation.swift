@@ -35,6 +35,11 @@ extension BrowserTabStore {
     }
 
     func goBack() {
+        if let overlay = displayedOverlayPage {
+            setOverlayPage(nil, id: overlay.id, for: selectedTabID)
+            overlay.dismiss()
+            return
+        }
         guard selectedTab.canGoBack else { return }
         updateSelectedTab { tab in
             tab.path.removeLast()
@@ -62,6 +67,7 @@ extension BrowserTabStore {
                     tab.path = newPath
                     tab.lastVisited = .now
                 }
+                clearOverlayPages(for: tabID)
                 if newPath.count < previousDepth {
                     restoreIdentity(atDepth: newPath.count, for: tabID)
                 }

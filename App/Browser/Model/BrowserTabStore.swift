@@ -48,6 +48,9 @@ final class BrowserTabStore {
     /// record to offer a back history.
     private(set) var pageHistories: [UUID: [BrowserPageIdentity]] = [:]
 
+    /// Pages a tab is showing that never entered its path, newest last.
+    var overlayPages: [UUID: [BrowserOverlayPage]] = [:]
+
     /// Tabs whose stack has been read back from last session but not yet
     /// rebuilt: the rows behind it are looked up when the tab is first shown.
     var tabsAwaitingPathRestore: Set<UUID> = []
@@ -93,14 +96,15 @@ final class BrowserTabStore {
     /// What the bottom bar should show: the pre-gesture state while a swipe
     /// back is in flight, the live state otherwise.
     var displayedTab: BrowserTab {
-        guard isInteractivelyPopping else { return selectedTab }
+        guard isInteractivelyPopping || displayedOverlayPage != nil else { return selectedTab }
         var tab = selectedTab
-        tab.pageIdentity = frozenPageIdentity
+        tab.pageIdentity = displayedOverlayPage?.identity
+            ?? (isInteractivelyPopping ? frozenPageIdentity : tab.pageIdentity)
         return tab
     }
 
     var displayedCanGoBack: Bool {
-        frozenCanGoBack ?? selectedTab.canGoBack
+        displayedOverlayPage != nil || (frozenCanGoBack ?? selectedTab.canGoBack)
     }
 
     /// The progress the address bar should draw: the visible page's own, and
@@ -287,6 +291,7 @@ final class BrowserTabStore {
         bookmarksActions[tabID] = nil
         followingActions[tabID] = nil
         pageHistories[tabID] = nil
+        overlayPages[tabID] = nil
         liveTabIDs.removeAll { $0 == tabID }
         if selectedTabID == tabID {
             let neighbour = tabs[min(index, tabs.count - 1)]

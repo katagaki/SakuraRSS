@@ -25,6 +25,9 @@ struct BrowserTabContentView: View {
         .environment(\.browserPageReporter) { identity in
             store.setPageIdentity(identity, for: tabID)
         }
+        .environment(\.browserOverlayPageReporter) { overlayID, page in
+            store.setOverlayPage(page, id: overlayID, for: tabID)
+        }
         .environment(\.browserPageSlotReporter) { report, token in
             store.setSlot(report, token: token, for: tabID)
         }
