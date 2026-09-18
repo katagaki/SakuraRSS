@@ -19,6 +19,13 @@ struct BrowserAddressItem: View {
         store.displayedTab.pageIdentity?.pathToken
     }
 
+    private var demoProgress: BrowserAddressProgress? {
+        let arguments = ProcessInfo.processInfo.arguments
+        if arguments.contains("-BrowserProgressDemoDeterminate") { return .determinate(0.45) }
+        if arguments.contains("-BrowserProgressDemoIndeterminate") { return .indeterminate }
+        return nil
+    }
+
     private var markAllRead: BrowserMarkAllReadAction? {
         store.markAllReadActions[store.selectedTabID]?.value(forPageAt: pageToken)
     }
@@ -99,7 +106,7 @@ struct BrowserAddressItem: View {
         // room for Home's refresh pill, so the bar itself reports the work.
         // Sized to the bar's glass, which the label alone does not fill.
         .background {
-            BrowserAddressProgressBackground(progress: store.displayedProgress)
+            BrowserAddressProgressBackground(progress: demoProgress ?? store.displayedProgress)
                 .frame(height: BrowserAddressMetrics.glassHeight)
         }
         .animation(.smooth, value: store.displayedProgress == nil)
