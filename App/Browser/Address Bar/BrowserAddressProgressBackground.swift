@@ -5,10 +5,20 @@ import SwiftUI
 /// location field rather than floating a separate pill over the page.
 struct BrowserAddressProgressBackground: View {
 
-    private static let marqueeBandFraction: CGFloat = 0.45
+    private static let marqueeBandFraction: CGFloat = 0.6
 
     private static let marquee: Animation =
-        .linear(duration: 1.1).repeatForever(autoreverses: false)
+        .linear(duration: 1.6).repeatForever(autoreverses: false)
+
+    /// A three-stop ramp meets its own peak at an angle, and that crease is
+    /// what the eye follows across the bar. Smoothstepped samples flatten the
+    /// band's ends and its crown, leaving nothing to track but the light.
+    private static let falloffStops: [Gradient.Stop] = (0...16).map { step in
+        let position = Double(step) / 16
+        let distance = abs(position - 0.5) * 2
+        let eased = 1 - (distance * distance * (3 - 2 * distance))
+        return Gradient.Stop(color: .white.opacity(eased), location: position)
+    }
 
     let progress: BrowserAddressProgress?
     @State private var isMarqueeRunning = false
@@ -47,11 +57,7 @@ struct BrowserAddressProgressBackground: View {
     /// own gradient: the fill stays the bar's vertical one.
     private var marqueeFalloff: some View {
         LinearGradient(
-            stops: [
-                .init(color: .clear, location: 0),
-                .init(color: .white, location: 0.5),
-                .init(color: .clear, location: 1)
-            ],
+            stops: BrowserAddressProgressBackground.falloffStops,
             startPoint: .leading,
             endPoint: .trailing
         )
