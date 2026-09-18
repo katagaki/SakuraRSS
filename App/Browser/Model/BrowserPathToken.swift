@@ -14,6 +14,8 @@ enum BrowserPathToken: Codable, Hashable {
     case entity(name: String, types: [String])
     case headline(title: String, articleIDs: [Int64])
     case bookmarks
+    case bookmarkTag(Int64)
+    case bookmarkFolder(Int64)
     /// Deep-linked content, which is not in the database: it names the page so
     /// the address bar can tell it apart from a tab's root, but there is
     /// nothing to rebuild it from.
@@ -34,10 +36,28 @@ enum BrowserPathToken: Codable, Hashable {
             path.append(SummaryHeadlineDestination(title: title, articleIDs: articleIDs))
         case .bookmarks:
             path.append(BrowserBookmarksDestination())
+        case .bookmarkTag, .bookmarkFolder:
+            return appendBookmarkCollection(to: &path)
         case .ephemeralArticle:
             return false
         default:
             return appendRow(to: &path, in: feedManager)
+        }
+        return true
+    }
+
+    @MainActor
+    private func appendBookmarkCollection(to path: inout NavigationPath) -> Bool {
+        switch self {
+        case .bookmarkTag(let tagID):
+            guard let tag = try? DatabaseManager.shared.bookmarkTagsInUse()
+                .first(where: { $0.tag.id == tagID })?.tag else { return false }
+            path.append(tag)
+        case .bookmarkFolder(let folderID):
+            guard let folder = try? DatabaseManager.shared.bookmarkFolder(byID: folderID) else { return false }
+            path.append(folder)
+        default:
+            return false
         }
         return true
     }

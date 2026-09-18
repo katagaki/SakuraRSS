@@ -97,12 +97,16 @@ struct BookmarksContentView: View {
         .navigationDestination(for: BookmarkTag.self) { tag in
             BookmarkTagArticlesView(tag: tag)
                 .environment(\.zoomNamespace, zoomNamespace)
+                .browserPage(title: tag.name, symbolName: "tag")
+                .environment(\.browserPathToken, .bookmarkTag(tag.id))
         }
         .navigationDestination(for: BookmarkFolder.self) { folder in
             // Destinations don't inherit the environment applied around
             // this view, so the host's zoom namespace is forwarded manually.
             BookmarkFolderArticlesView(folder: folder)
                 .environment(\.zoomNamespace, zoomNamespace)
+                .browserPage(title: folder.name, symbolName: folder.icon)
+                .environment(\.browserPathToken, .bookmarkFolder(folder.id))
         }
         .toolbar { topBarItems }
         .animation(.smooth.speed(2.0), value: displayStyle)
