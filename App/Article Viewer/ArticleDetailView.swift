@@ -183,8 +183,14 @@ struct ArticleDetailView: View {
         .onChange(of: isBookmarked) { reportBrowserArticleActions() }
         .onChange(of: showingTranslation) { reportBrowserArticleActions() }
         .onChange(of: showingSummary) { reportBrowserArticleActions() }
-        .onChange(of: isTranslating) { reportBrowserArticleActions() }
-        .onChange(of: isSummarizing) { reportBrowserArticleActions() }
+        .onChange(of: isTranslating) {
+            reportBrowserArticleActions()
+            reportBrowserProgress()
+        }
+        .onChange(of: isSummarizing) {
+            reportBrowserArticleActions()
+            reportBrowserProgress()
+        }
         .onChange(of: isExtracting) {
             reportBrowserArticleActions()
             reportBrowserProgress()

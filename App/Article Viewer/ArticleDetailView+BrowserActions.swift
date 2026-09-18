@@ -14,10 +14,13 @@ extension ArticleDetailView {
         browserArticleActionsReporter?(actions.isEmpty ? nil : actions)
     }
 
-    /// Extraction has no count to report, so the bar marquees for as long
-    /// as it runs. The address bar is the only chrome the browser leaves.
+    /// None of the viewer's work reports a count, so the bar marquees for as
+    /// long as any of it runs. The address bar is the only chrome the browser
+    /// leaves, and the menu these actions live in closes on the tap that
+    /// starts them.
     func reportBrowserProgress() {
-        guard isBrowserChromeActive, isExtracting else {
+        let isWorking = isExtracting || isTranslating || isSummarizing
+        guard isBrowserChromeActive, isWorking else {
             browserPageProgressReporter?(nil)
             return
         }
