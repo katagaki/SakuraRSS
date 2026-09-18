@@ -6,10 +6,7 @@ public nonisolated final class DatabaseManager: @unchecked Sendable {
     public static let shared = DatabaseManager()
 
     public static let databasePath: String = {
-        let containerURL = FileManager.default.containerURL(
-            forSecurityApplicationGroupIdentifier: AppGroup.identifier
-        )!
-        return containerURL.appendingPathComponent("Sakura.feeds").path
+        AppGroup.storageURL.appendingPathComponent("Sakura.feeds").path
     }()
 
     public private(set) var database: Connection
