@@ -1,12 +1,16 @@
 import Foundation
-import Hanami
 
-nonisolated struct IdentifiedContentBlock: Identifiable {
-    let id: String
-    let block: ContentBlock
+public nonisolated struct IdentifiedContentBlock: Identifiable {
+    public let id: String
+    public let block: ContentBlock
+
+    public init(id: String, block: ContentBlock) {
+        self.id = id
+        self.block = block
+    }
 }
 
-enum ContentBlock: Identifiable {
+public enum ContentBlock: Identifiable {
     case text(String)
     case image(URL, link: URL? = nil)
     case code(String)
@@ -19,12 +23,17 @@ enum ContentBlock: Identifiable {
     case definitionList(items: [DefinitionListItem])
     case math(String)
 
-    nonisolated struct DefinitionListItem: Hashable, Sendable {
-        let term: String
-        let definitions: [String]
+    public nonisolated struct DefinitionListItem: Hashable, Sendable {
+        public let term: String
+        public let definitions: [String]
+
+        public init(term: String, definitions: [String]) {
+            self.term = term
+            self.definitions = definitions
+        }
     }
 
-    nonisolated var id: String {
+    public nonisolated var id: String {
         switch self {
         case .text(let text): return "text-\(text.hashValue)"
         case .image(let url, _): return "image-\(url.absoluteString)"
@@ -63,7 +72,7 @@ enum ContentBlock: Identifiable {
     /// Memoized `parse` paired with positional identities, for view bodies
     /// that re-evaluate with the same text. Two identical paragraphs, or the
     /// same image URL twice, would otherwise collide as one `ForEach` row.
-    nonisolated static func cachedIdentifiedBlocks(_ text: String) -> [IdentifiedContentBlock] {
+    public nonisolated static func cachedIdentifiedBlocks(_ text: String) -> [IdentifiedContentBlock] {
         let key = text as NSString
         if let box = parseCache.object(forKey: key) {
             return box.blocks
@@ -75,7 +84,7 @@ enum ContentBlock: Identifiable {
         return blocks
     }
 
-    nonisolated static func parse(_ text: String) -> [ContentBlock] {
+    public nonisolated static func parse(_ text: String) -> [ContentBlock] {
         guard let regex = blockRegex else {
             return [.text(ArticleMarker.unescape(text))]
         }
