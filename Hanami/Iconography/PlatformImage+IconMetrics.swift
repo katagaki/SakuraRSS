@@ -1,5 +1,10 @@
-import UIKit
+import Foundation
 import ObjectiveC
+#if canImport(UIKit)
+import UIKit
+#else
+import AppKit
+#endif
 
 public nonisolated struct IconDerivedMetrics: Codable, Sendable {
     public let cornerAlphas: [UInt8]
@@ -39,7 +44,7 @@ private nonisolated final class IconDerivedMetricsBox: NSObject, @unchecked Send
 
 private nonisolated(unsafe) var iconDerivedMetricsKey: UInt8 = 0
 
-public extension UIImage {
+public extension PlatformImage {
 
     nonisolated var iconDerivedMetrics: IconDerivedMetrics? {
         get {
@@ -85,7 +90,7 @@ public extension UIImage {
     }
 }
 
-public extension UIImage {
+public extension PlatformImage {
 
     var isSquare: Bool {
         guard let cgImage = cgImage else { return true }
@@ -145,7 +150,7 @@ public extension UIImage {
     }
 }
 
-public extension UIImage {
+public extension PlatformImage {
 
     var isDark: Bool {
         ensureIconDerivedMetrics().averageLuminance < 0.3

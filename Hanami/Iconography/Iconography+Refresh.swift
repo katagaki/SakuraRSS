@@ -1,4 +1,9 @@
+import Foundation
+#if canImport(UIKit)
 import UIKit
+#else
+import AppKit
+#endif
 
 public extension Iconography {
 
@@ -43,7 +48,7 @@ public extension Iconography {
 
     /// Removes the old icon first so stale derived-metrics sidecars are not
     /// attached to the replacement image.
-    private func replaceCustomIcon(with image: UIImage, feedID: Int64) {
+    private func replaceCustomIcon(with image: PlatformImage, feedID: Int64) {
         removeCustomIcon(feedID: feedID)
         setCustomIcon(image, feedID: feedID)
     }

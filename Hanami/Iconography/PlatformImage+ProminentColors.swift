@@ -1,8 +1,12 @@
+import Foundation
+#if canImport(UIKit)
 import UIKit
-
+#else
+import AppKit
+#endif
 // MARK: - Prominent Colors
 
-public extension UIImage {
+public extension PlatformImage {
 
     nonisolated func rawProminentColors() -> [[Double]]? {
         guard let cgImage = cgImage else { return nil }
