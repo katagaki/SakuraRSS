@@ -101,6 +101,7 @@ struct BrowserAddressItem: View {
         .background {
             BrowserAddressProgressBackground(progress: store.displayedProgress)
                 .frame(height: BrowserAddressMetrics.glassHeight)
+                .padding(.horizontal, -BrowserAddressMetrics.glassHorizontalOverhang)
         }
         .animation(.smooth, value: store.displayedProgress == nil)
         // A toolbar item is proposed its ideal size, so `maxWidth: .infinity`

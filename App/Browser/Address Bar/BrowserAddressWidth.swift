@@ -30,6 +30,11 @@ enum BrowserAddressMetrics {
     /// anything less leaves a bare strip above and below the bar.
     static let glassHeight: CGFloat = 48
 
+    /// How far that glass overhangs the item's content at each end, measured
+    /// off a rendered bar. The progress fill is outset by it, or the glass
+    /// keeps a bare strip at both ends however full the bar reads.
+    static let glassHorizontalOverhang: CGFloat = 5
+
     /// The tappable square inside that button's glass.
     static let leadingButtonHeight: CGFloat = 44
 
