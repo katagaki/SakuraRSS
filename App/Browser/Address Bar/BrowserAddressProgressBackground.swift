@@ -5,7 +5,7 @@ import SwiftUI
 /// location field rather than floating a separate pill over the page.
 struct BrowserAddressProgressBackground: View {
 
-    private static let marqueeBandFraction: CGFloat = 0.35
+    private static let marqueeBandFraction: CGFloat = 0.45
 
     private static let marquee: Animation =
         .linear(duration: 1.1).repeatForever(autoreverses: false)
@@ -26,6 +26,7 @@ struct BrowserAddressProgressBackground: View {
                         .marqueeBandFraction
                     fill
                         .frame(width: band)
+                        .mask { marqueeFalloff }
                         .offset(x: isMarqueeRunning ? proxy.size.width : -band)
                         .animation(BrowserAddressProgressBackground.marquee, value: isMarqueeRunning)
                         .onAppear { isMarqueeRunning = true }
@@ -39,6 +40,21 @@ struct BrowserAddressProgressBackground: View {
         .clipShape(.capsule)
         .allowsHitTesting(false)
         .accessibilityHidden(true)
+    }
+
+    /// Fades the travelling band in and out along its length, so it reads as
+    /// a sweep rather than a block sliding past. A mask rather than the fill's
+    /// own gradient: the fill stays the bar's vertical one.
+    private var marqueeFalloff: some View {
+        LinearGradient(
+            stops: [
+                .init(color: .clear, location: 0),
+                .init(color: .white, location: 0.5),
+                .init(color: .clear, location: 1)
+            ],
+            startPoint: .leading,
+            endPoint: .trailing
+        )
     }
 
     private var fill: some View {
