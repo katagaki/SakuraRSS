@@ -25,7 +25,7 @@ public actor Iconography {
 
     private init() {
         let containerURL = FileManager.default.containerURL(
-            forSecurityApplicationGroupIdentifier: "group.com.tsubuzaki.SakuraRSS"
+            forSecurityApplicationGroupIdentifier: AppGroup.identifier
         )!
         cacheDirectory = containerURL.appendingPathComponent("FaviconCache", isDirectory: true)
         try? FileManager.default.createDirectory(at: cacheDirectory, withIntermediateDirectories: true)

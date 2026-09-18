@@ -24,7 +24,7 @@ struct SingleFeedPageIntent: AppIntent {
     }
 
     func perform() async throws -> some IntentResult {
-        let defaults = UserDefaults(suiteName: "group.com.tsubuzaki.SakuraRSS")
+        let defaults = UserDefaults(suiteName: AppGroup.identifier)
         defaults?.set(page, forKey: "singleFeedPage_\(feedID)")
         WidgetCenter.shared.reloadTimelines(ofKind: "SingleFeedWidget")
         return .result()

@@ -1,4 +1,5 @@
 import Foundation
+import Hanami
 
 extension WidgetThumbnailCache {
 
@@ -7,7 +8,7 @@ extension WidgetThumbnailCache {
 
     static var scopesDirectory: URL? {
         guard let container = FileManager.default.containerURL(
-            forSecurityApplicationGroupIdentifier: "group.com.tsubuzaki.SakuraRSS"
+            forSecurityApplicationGroupIdentifier: AppGroup.identifier
         ) else { return nil }
         return container.appendingPathComponent("WidgetThumbnails", isDirectory: true)
     }

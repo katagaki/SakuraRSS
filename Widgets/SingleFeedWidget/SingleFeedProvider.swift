@@ -73,7 +73,7 @@ struct SingleFeedProvider: AppIntentTimelineProvider {
         }
 
         let feedID = feed.feedID
-        let defaults = UserDefaults(suiteName: "group.com.tsubuzaki.SakuraRSS")
+        let defaults = UserDefaults(suiteName: AppGroup.identifier)
         let storedPage = defaults?.integer(forKey: "singleFeedPage_\(feedID)") ?? 0
 
         do {

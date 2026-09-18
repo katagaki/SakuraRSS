@@ -6,7 +6,7 @@ public nonisolated final class LogManager: @unchecked Sendable {
 
     public static let maxBytesPerModule: Int64 = 128 * 1024
 
-    private static let appGroupIdentifier = "group.com.tsubuzaki.SakuraRSS"
+    private static let appGroupIdentifier = AppGroup.identifier
     private static let logsDirectoryName = "Logs"
     private static let truncationHeadroom: Int64 = 32 * 1024
 
