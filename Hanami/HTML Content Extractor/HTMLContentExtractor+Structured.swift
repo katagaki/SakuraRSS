@@ -1,7 +1,7 @@
 import Foundation
 import SwiftSoup
 
-public extension HTMLContentExtractor {
+public nonisolated extension HTMLContentExtractor {
 
     /// Builds a `{{TABLE}}…{{/TABLE}}` marker from a `<table>` element.
     /// Rows use `|` as the cell separator and `\n` as the row separator.

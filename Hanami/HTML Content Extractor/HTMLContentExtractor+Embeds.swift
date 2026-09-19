@@ -1,7 +1,7 @@
 import Foundation
 import SwiftSoup
 
-public extension HTMLContentExtractor {
+public nonisolated extension HTMLContentExtractor {
 
     /// Converts supported social embeds into marker paragraphs.
     /// Must run before `removeNoise` so embed elements aren't stripped.

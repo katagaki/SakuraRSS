@@ -1,4 +1,9 @@
+import Foundation
+#if canImport(UIKit)
 import UIKit
+#else
+import AppKit
+#endif
 
 public extension Iconography {
 
@@ -25,14 +30,14 @@ public extension Iconography {
     }
 
     /// Downloads an image at `url` via the icon cache's URL session.
-    nonisolated func downloadImage(from url: URL) async -> UIImage? {
+    nonisolated func downloadImage(from url: URL) async -> PlatformImage? {
         guard let (data, _) = try? await Self.urlSession.data(from: url) else { return nil }
-        return UIImage(data: data)
+        return PlatformImage(data: data)
     }
 
     /// Resolves a profile/publication avatar, falling back to a generic
     /// `og:image` scrape.
-    nonisolated func fetchProfileAvatar(from siteURL: String) async -> UIImage? {
+    nonisolated func fetchProfileAvatar(from siteURL: String) async -> PlatformImage? {
         guard let url = URL(string: siteURL) else {
             log("Icon", "profile avatar: bad siteURL \(siteURL)")
             return nil

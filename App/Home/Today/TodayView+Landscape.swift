@@ -55,6 +55,8 @@ extension TodayView {
                 TodayGreetingView(isCompact: true)
                     .padding(.horizontal)
 
+                pinnedSection
+
                 if isWeatherShowing || anySummaryActive {
                     sectionDivider
                 }

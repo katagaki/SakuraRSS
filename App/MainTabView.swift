@@ -12,6 +12,7 @@ struct MainTabView: View {
     @AppStorage("App.SelectedTab") private var selectedTab: AppTab = .home
     @AppStorage("Onboarding.Completed") private var onboardingCompleted: Bool = false
     @AppStorage("Display.UnreadBadgeMode") private var unreadBadgeMode: UnreadBadgeMode = .none
+    @AppStorage("Browser.Enabled") private var browserEnabled: Bool = false
     @Binding var pendingFeedURL: String?
     @Binding var pendingArticleID: Int64?
     @Binding var pendingOpenRequest: OpenArticleRequest?
@@ -23,6 +24,61 @@ struct MainTabView: View {
     private let mediaPresenter = MediaPresenter.shared
 
     var body: some View {
+        Group {
+            if browserEnabled {
+                browserView
+            } else {
+                standardView
+            }
+        }
+        .compatibleSoftScrollEdgeEffectStyle()
+        #if os(visionOS) || targetEnvironment(macCatalyst)
+        .onAppear {
+            mediaPresenter.detachedHandler = { item in
+                switch item {
+                case .youTube(let article):
+                    openWindow(id: "YouTubePlayerWindow", value: article.id)
+                case .podcast(let article):
+                    openWindow(id: "PodcastPlayerWindow", value: article.id)
+                }
+            }
+        }
+        #endif
+    }
+
+    @ViewBuilder
+    private var browserView: some View {
+        BrowserView(
+            pendingFeedURL: $pendingFeedURL,
+            pendingArticleID: $pendingArticleID,
+            pendingOpenRequest: $pendingOpenRequest
+        )
+            .miniPlayerAccessory(
+                audioPlayer: audioPlayer,
+                youTubeSession: youTubeSession,
+                mediaPresenter: mediaPresenter
+            )
+            .sheet(isPresented: $showingOnboarding) {
+                onboardingSheet
+            }
+            .onAppear {
+                if !onboardingCompleted {
+                    showingOnboarding = true
+                }
+            }
+    }
+
+    private var onboardingSheet: some View {
+        OnboardingView {
+            onboardingCompleted = true
+            ViewStyleSwitcherTip.hasCompletedOnboarding = true
+            showingOnboarding = false
+        }
+        .environment(feedManager)
+    }
+
+    @ViewBuilder
+    private var standardView: some View {
         Group {
             #if os(visionOS)
             iPadSidebarView(
@@ -42,19 +98,6 @@ struct MainTabView: View {
             }
             #endif
         }
-        .compatibleSoftScrollEdgeEffectStyle()
-        #if os(visionOS) || targetEnvironment(macCatalyst)
-        .onAppear {
-            mediaPresenter.detachedHandler = { item in
-                switch item {
-                case .youTube(let article):
-                    openWindow(id: "YouTubePlayerWindow", value: article.id)
-                case .podcast(let article):
-                    openWindow(id: "PodcastPlayerWindow", value: article.id)
-                }
-            }
-        }
-        #endif
     }
 
     private var tabView: some View {
@@ -104,12 +147,7 @@ struct MainTabView: View {
                     }
             }
             .sheet(isPresented: $showingOnboarding) {
-                OnboardingView {
-                    onboardingCompleted = true
-                    ViewStyleSwitcherTip.hasCompletedOnboarding = true
-                    showingOnboarding = false
-                }
-                .environment(feedManager)
+                onboardingSheet
             }
             .onChange(of: pendingFeedURL) {
                 if pendingFeedURL != nil {

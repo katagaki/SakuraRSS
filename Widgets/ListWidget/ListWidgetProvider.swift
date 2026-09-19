@@ -73,7 +73,7 @@ struct ListWidgetProvider: AppIntentTimelineProvider {
         }
 
         let listID = listEntity.listID
-        let defaults = UserDefaults(suiteName: "group.com.tsubuzaki.SakuraRSS")
+        let defaults = UserDefaults(suiteName: AppGroup.identifier)
         let storedPage = defaults?.integer(forKey: "listWidgetPage_\(listID)") ?? 0
 
         do {

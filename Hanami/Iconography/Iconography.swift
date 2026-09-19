@@ -1,5 +1,9 @@
 import Foundation
+#if canImport(UIKit)
 import UIKit
+#else
+import AppKit
+#endif
 
 public actor Iconography {
 
@@ -16,12 +20,12 @@ public actor Iconography {
     }()
 
     public let cacheDirectory: URL
-    public var memoryCache: [String: UIImage] = [:]
+    public var memoryCache: [String: PlatformImage] = [:]
     public var failedLookups: [String: Date] = [:]
 
     private init() {
         let containerURL = FileManager.default.containerURL(
-            forSecurityApplicationGroupIdentifier: "group.com.tsubuzaki.SakuraRSS"
+            forSecurityApplicationGroupIdentifier: AppGroup.identifier
         )!
         cacheDirectory = containerURL.appendingPathComponent("FaviconCache", isDirectory: true)
         try? FileManager.default.createDirectory(at: cacheDirectory, withIntermediateDirectories: true)
@@ -29,7 +33,7 @@ public actor Iconography {
         failedLookups = Self.loadFailedLookupsFromDisk(at: failedLookupsURL)
     }
 
-    public func icon(for domain: String, siteURL: String? = nil) async -> UIImage? {
+    public func icon(for domain: String, siteURL: String? = nil) async -> PlatformImage? {
         let cacheKey = Self.cacheKey(domain: domain, siteURL: siteURL)
 
         if isWithinFailureTTL(cacheKey) {
@@ -42,7 +46,7 @@ public actor Iconography {
 
         let filePath = cacheDirectory.appendingPathComponent(sanitizedFileName(cacheKey))
         if let data = try? Data(contentsOf: filePath),
-           let image = UIImage(data: data) {
+           let image = PlatformImage(data: data) {
             attachDerivedMetrics(cacheKey: cacheKey, to: image)
             memoryCache[cacheKey] = image
             return image
@@ -113,7 +117,7 @@ public actor Iconography {
     }
 
     /// Attaches cached metrics to the image, computing and persisting them if missing.
-    public func attachDerivedMetrics(cacheKey: String, to image: UIImage) {
+    public func attachDerivedMetrics(cacheKey: String, to image: PlatformImage) {
         let url = metricsSidecarURL(for: cacheKey)
         if let data = try? Data(contentsOf: url),
            let metrics = try? JSONDecoder().decode(IconDerivedMetrics.self, from: data) {

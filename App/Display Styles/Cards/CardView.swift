@@ -66,7 +66,7 @@ struct CardView: View {
                 VStack(alignment: .leading, spacing: 8) {
                     Spacer()
 
-                    Text(article.title)
+                    Text(article.displayTitle)
                         .font(.system(.title, weight: .bold))
                         .fontWidth(.condensed)
                         .foregroundStyle(cardTextColor)

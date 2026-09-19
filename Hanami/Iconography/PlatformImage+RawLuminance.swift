@@ -1,7 +1,12 @@
+import Foundation
 import SwiftUI
+#if canImport(UIKit)
 import UIKit
+#else
+import AppKit
+#endif
 
-public extension UIImage {
+public extension PlatformImage {
 
     nonisolated func rawHasAnyTransparentPixel() -> Bool {
         guard let cgImage = cgImage else { return false }

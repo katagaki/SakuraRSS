@@ -116,7 +116,7 @@ struct CompactFeedArticleRow: View {
 
             HStack(alignment: .top, spacing: 10) {
                 VStack(alignment: .leading, spacing: 8) {
-                    Text(article.title.trimmingCharacters(in: .whitespacesAndNewlines))
+                    Text(article.displayTitle.trimmingCharacters(in: .whitespacesAndNewlines))
                         .font(.subheadline)
                         .foregroundStyle(.primary)
                         .lineLimit(3)

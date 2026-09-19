@@ -1,6 +1,10 @@
 import Foundation
 import ImageIO
+#if canImport(UIKit)
 import UIKit
+#else
+import AppKit
+#endif
 
 /// ImageIO-backed thumbnail helpers that avoid full-resolution decoding.
 public nonisolated enum ImageDownsampler {
@@ -11,7 +15,7 @@ public nonisolated enum ImageDownsampler {
         _ data: Data,
         maxPixelSize: CGFloat,
         cacheImmediately: Bool = true
-    ) -> UIImage? {
+    ) -> PlatformImage? {
         guard let source = createSource(from: data) else { return nil }
         return downsample(source: source, maxPixelSize: maxPixelSize, cacheImmediately: cacheImmediately)
     }
@@ -40,7 +44,7 @@ public nonisolated enum ImageDownsampler {
         source: CGImageSource,
         maxPixelSize: CGFloat,
         cacheImmediately: Bool
-    ) -> UIImage? {
+    ) -> PlatformImage? {
         let options: [CFString: Any] = [
             kCGImageSourceCreateThumbnailFromImageAlways: true,
             kCGImageSourceShouldCacheImmediately: cacheImmediately,
@@ -50,6 +54,6 @@ public nonisolated enum ImageDownsampler {
         guard let cgImage = CGImageSourceCreateThumbnailAtIndex(
             source, 0, options as CFDictionary
         ) else { return nil }
-        return UIImage(cgImage: cgImage)
+        return PlatformImage(cgImage: cgImage)
     }
 }

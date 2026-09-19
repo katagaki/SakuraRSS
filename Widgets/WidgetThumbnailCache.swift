@@ -8,7 +8,7 @@ struct WidgetThumbnailCache {
 
     var directory: URL? {
         guard let container = FileManager.default.containerURL(
-            forSecurityApplicationGroupIdentifier: "group.com.tsubuzaki.SakuraRSS"
+            forSecurityApplicationGroupIdentifier: AppGroup.identifier
         ) else { return nil }
         let dir = container
             .appendingPathComponent("WidgetThumbnails", isDirectory: true)

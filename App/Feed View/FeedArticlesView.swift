@@ -4,6 +4,7 @@ import Hanami
 struct FeedArticlesView: View {
 
     @Environment(FeedManager.self) var feedManager
+    @Environment(\.isBrowserChromeActive) private var isBrowserChromeActive
     @Environment(\.dismiss) var dismiss
     let feed: Feed
 
@@ -130,7 +131,7 @@ struct FeedArticlesView: View {
     }
 
     var showsPrincipalTitle: Bool {
-        !styleSupportsRichHeader || hasScrolledPastTitle
+        !isBrowserChromeActive && (!styleSupportsRichHeader || hasScrolledPastTitle)
     }
 
     var body: some View {

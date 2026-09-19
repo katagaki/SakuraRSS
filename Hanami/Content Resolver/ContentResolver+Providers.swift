@@ -85,13 +85,17 @@ public extension ContentResolver {
               let url = URL(string: article.url),
               let tweetID = XProvider.extractTweetID(from: url),
               XProvider.hasSession() else { return false }
-        let fetcher = XProvider()
-        if let content = await fetcher.fetchTweetContent(tweetID: tweetID) {
+        if let content = await Self.fetchXTweetContent(tweetID: tweetID) {
             applyXTweetContent(content)
             return true
         }
         log("Extract", "X post fetch failed, falling through: \(article.url)")
         return false
+    }
+
+    @MainActor
+    private static func fetchXTweetContent(tweetID: String) async -> ParsedTweetContent? {
+        await XProvider().fetchTweetContent(tweetID: tweetID)
     }
 
     private func applyXTweetContent(_ content: ParsedTweetContent) {

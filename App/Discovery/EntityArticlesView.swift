@@ -7,6 +7,8 @@ struct EntityArticlesView: View {
     @Environment(FeedManager.self) var feedManager
     @Environment(\.navigateToEphemeralArticle) private var navigateToEphemeralArticle
     @AppStorage("Search.DisplayStyle") private var searchDisplayStyle: FeedDisplayStyle = .inbox
+    @Environment(\.isBrowserChromeActive) private var isBrowserChromeActive
+    @Environment(\.browserDisplayStyleReporter) private var displayStyleReporter
     @State private var articles: [Article] = []
 
     private var hasImages: Bool {
@@ -39,6 +41,8 @@ struct EntityArticlesView: View {
         .sakuraBackground()
         .navigationTitle(destination.name)
         .toolbarTitleDisplayMode(.inline)
+        .onAppear { reportDisplayStyleToBrowser() }
+        .task(id: hasImages) { reportDisplayStyleToBrowser() }
         .toolbar {
             ToolbarItemGroup(placement: .topBarTrailing) {
                 Menu {
@@ -61,6 +65,18 @@ struct EntityArticlesView: View {
         .onChange(of: feedManager.dataRevision) { _, _ in
             Task { await loadArticles() }
         }
+    }
+
+    private func reportDisplayStyleToBrowser() {
+        guard isBrowserChromeActive else {
+            displayStyleReporter?(nil)
+            return
+        }
+        displayStyleReporter?(BrowserDisplayStyleOptions(
+            displayStyle: $searchDisplayStyle,
+            hasImages: hasImages,
+            showsTimeline: false
+        ))
     }
 
     private func loadArticles() async {

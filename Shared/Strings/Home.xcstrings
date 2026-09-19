@@ -1571,61 +1571,61 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Hinweis nur zur Priorisierung — geben Sie diese Liste niemals als Überschrift aus. Wenn ein heutiges Ereignis eines dieser Themen oder Personen betrifft, bevorzugen Sie es:"
+            "value" : "Hinweis nur zur Priorisierung. Geben Sie diese Liste niemals als Überschrift aus. Wenn ein heutiges Ereignis eines dieser Themen oder Personen betrifft, bevorzugen Sie es:"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "new",
-            "value" : "Priority hint only — never output this list as a headline. If a today's event involves any of these topics or people, prefer it:"
+            "value" : "Priority hint only. Never output this list as a headline. If a today's event involves any of these topics or people, prefer it:"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Indication de priorité uniquement — ne reproduisez jamais cette liste comme titre. Si un événement du jour concerne l'un de ces sujets ou personnes, privilégiez-le :"
+            "value" : "Indication de priorité uniquement. Ne reproduisez jamais cette liste comme titre. Si un événement du jour concerne l'un de ces sujets ou personnes, privilégiez-le :"
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Solo indicazione di priorità — non restituire mai questo elenco come titolo. Se un evento di oggi riguarda uno di questi argomenti o persone, dagli priorità:"
+            "value" : "Solo indicazione di priorità. Non restituire mai questo elenco come titolo. Se un evento di oggi riguarda uno di questi argomenti o persone, dagli priorità:"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "優先順位のヒントのみ — このリストをそのまま見出しとして出力しないでください。本日の出来事がこれらのトピックや人物に関わる場合は、それを優先してください:"
+            "value" : "優先順位のヒントのみです。このリストをそのまま見出しとして出力しないでください。本日の出来事がこれらのトピックや人物に関わる場合は、それを優先してください:"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "우선순위 힌트일 뿐입니다 — 이 목록을 헤드라인으로 출력하지 마세요. 오늘의 사건이 이 주제나 인물과 관련된다면 우선 다루세요:"
+            "value" : "우선순위 힌트일 뿐입니다. 이 목록을 헤드라인으로 출력하지 마세요. 오늘의 사건이 이 주제나 인물과 관련된다면 우선 다루세요:"
           }
         },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Alleen een prioriteitshint — geef deze lijst nooit als kop weer. Als een gebeurtenis van vandaag een van deze onderwerpen of personen betreft, geef er dan de voorkeur aan:"
+            "value" : "Alleen een prioriteitshint. Geef deze lijst nooit als kop weer. Als een gebeurtenis van vandaag een van deze onderwerpen of personen betreft, geef er dan de voorkeur aan:"
           }
         },
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Chỉ là gợi ý ưu tiên — không bao giờ xuất danh sách này làm tiêu đề. Nếu một sự kiện hôm nay liên quan đến bất kỳ chủ đề hay người nào trong số này, hãy ưu tiên nó:"
+            "value" : "Chỉ là gợi ý ưu tiên. Không bao giờ xuất danh sách này làm tiêu đề. Nếu một sự kiện hôm nay liên quan đến bất kỳ chủ đề hay người nào trong số này, hãy ưu tiên nó:"
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "仅供优先参考——切勿将此列表作为标题输出。如果今天的某个事件涉及这些主题或人物，请优先处理："
+            "value" : "仅供优先参考，切勿将此列表作为标题输出。如果今天的某个事件涉及这些主题或人物，请优先处理："
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "僅供優先參考——切勿將此列表作為標題輸出。如果今天的某個事件涉及這些主題或人物，請優先處理："
+            "value" : "僅供優先參考，切勿將此列表作為標題輸出。如果今天的某個事件涉及這些主題或人物，請優先處理："
           }
         }
       }

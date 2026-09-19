@@ -1,9 +1,14 @@
+import Foundation
+#if canImport(UIKit)
 import UIKit
+#else
+import AppKit
+#endif
 
 public extension Iconography {
 
     /// Resolves the icon for a feed, checking custom icons first.
-    func icon(for feed: Feed) async -> UIImage? {
+    func icon(for feed: Feed) async -> PlatformImage? {
         if let customURL = feed.customIconURL {
             if customURL == "none" {
                 return nil
@@ -16,7 +21,7 @@ public extension Iconography {
             }
             if let url = URL(string: customURL),
                let (data, _) = try? await Self.urlSession.data(from: url),
-               let image = UIImage(data: data) {
+               let image = PlatformImage(data: data) {
                 setCustomIcon(image, feedID: feed.id)
                 return image
             }
@@ -35,7 +40,7 @@ public extension Iconography {
         return await icon(for: feed.domain, siteURL: feed.siteURL)
     }
 
-    func setCustomIcon(_ image: UIImage, feedID: Int64) {
+    func setCustomIcon(_ image: PlatformImage, feedID: Int64) {
         let key = "custom-feed-\(feedID)"
         memoryCache[key] = image
         let filePath = cacheDirectory.appendingPathComponent(sanitizedFileName(key))
@@ -45,14 +50,14 @@ public extension Iconography {
         attachDerivedMetrics(cacheKey: key, to: image)
     }
 
-    func customIcon(feedID: Int64) -> UIImage? {
+    func customIcon(feedID: Int64) -> PlatformImage? {
         let key = "custom-feed-\(feedID)"
         if let cached = memoryCache[key] {
             return cached
         }
         let filePath = cacheDirectory.appendingPathComponent(sanitizedFileName(key))
         if let data = try? Data(contentsOf: filePath),
-           let image = UIImage(data: data) {
+           let image = PlatformImage(data: data) {
             attachDerivedMetrics(cacheKey: key, to: image)
             memoryCache[key] = image
             return image

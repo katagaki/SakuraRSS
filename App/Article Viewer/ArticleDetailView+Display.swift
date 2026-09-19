@@ -238,6 +238,6 @@ extension ArticleDetailView {
             }
             return String(localized: "Article.LoadingContent", table: "Articles")
         }
-        return article.title
+        return article.displayTitle
     }
 }

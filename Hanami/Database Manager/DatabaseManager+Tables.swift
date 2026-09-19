@@ -6,6 +6,7 @@ nonisolated extension DatabaseManager {
     func createTables() throws {
         try createCoreTables()
         try createAuxiliaryTables()
+        try migrateBookmarkColumns()
         try createNLPTables()
         try createSyncTables()
     }
@@ -72,6 +73,9 @@ nonisolated extension DatabaseManager {
             table.column(articleTranscriptJSON)
             table.column(articleCommentsFetchedAt)
             table.column(articleExternalSource, defaultValue: false)
+            table.column(articleCustomTitle)
+            table.column(articlePreviewFetchState, defaultValue: 0)
+            table.column(articlePreviewFetchedAt)
         })
     }
 
@@ -157,6 +161,8 @@ nonisolated extension DatabaseManager {
             table.column(bookmarkFolderDisplayStyle)
             table.column(bookmarkFolderSortOrder, defaultValue: 0)
             table.column(bookmarkFolderParentID)
+            table.column(bookmarkFolderOpenMode)
+            table.column(bookmarkFolderMarksReadOnOpen)
         })
         try database.run(bookmarkFolderItems.create(ifNotExists: true) { table in
             table.column(bookmarkFolderItemFolderID)
@@ -164,6 +170,22 @@ nonisolated extension DatabaseManager {
             table.primaryKey(bookmarkFolderItemFolderID, bookmarkFolderItemArticleID)
         })
         try database.run(bookmarkFolderItems.createIndex(bookmarkFolderItemArticleID, ifNotExists: true))
+        try createBookmarkTagTables()
+    }
+
+    private func createBookmarkTagTables() throws {
+        try database.run(bookmarkTags.create(ifNotExists: true) { table in
+            table.column(bookmarkTagID, primaryKey: .autoincrement)
+            table.column(bookmarkTagName)
+            table.column(bookmarkTagNormalizedName, unique: true)
+            table.column(bookmarkTagIsAutomatic, defaultValue: false)
+        })
+        try database.run(bookmarkTagItems.create(ifNotExists: true) { table in
+            table.column(bookmarkTagItemTagID)
+            table.column(bookmarkTagItemArticleID)
+            table.primaryKey(bookmarkTagItemTagID, bookmarkTagItemArticleID)
+        })
+        try database.run(bookmarkTagItems.createIndex(bookmarkTagItemArticleID, ifNotExists: true))
     }
 
     private func createOverrideAndMetricsTables() throws {

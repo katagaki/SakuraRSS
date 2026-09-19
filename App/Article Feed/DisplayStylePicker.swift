@@ -14,49 +14,38 @@ struct DisplayStylePicker: View {
     var body: some View {
         Group {
             Picker(String(localized: "StyleSection.Classic", table: "Articles"), selection: $displayStyle) {
-                Label(String(localized: "Style.Inbox", table: "Articles"), systemImage: "tray")
-                    .tag(FeedDisplayStyle.inbox)
-                Label(String(localized: "Style.Compact", table: "Articles"), systemImage: "list.dash")
-                    .tag(FeedDisplayStyle.compact)
+                styleLabel(.inbox)
+                styleLabel(.compact)
                 if showTimeline {
-                    Label(String(localized: "Style.Timeline", table: "Articles"), systemImage: "clock")
-                        .tag(FeedDisplayStyle.timeline)
+                    styleLabel(.timeline)
                 }
             }
             .pickerStyle(.inline)
             .labelsVisibility(.visible)
             Picker(String(localized: "StyleSection.MediaFocused", table: "Articles"), selection: $displayStyle) {
-                Label(String(localized: "Style.Feed", table: "Articles"), systemImage: "text.rectangle.page")
-                    .tag(FeedDisplayStyle.feed)
-                Label(String(localized: "Style.FeedCompact", table: "Articles"), systemImage: "square.text.square")
-                    .tag(FeedDisplayStyle.feedCompact)
+                styleLabel(.feed)
+                styleLabel(.feedCompact)
                 if hasImages {
-                    Label(String(localized: "Style.Photos", table: "Articles"), systemImage: "photo.stack")
-                        .tag(FeedDisplayStyle.photos)
+                    styleLabel(.photos)
                 }
                 if showVideo {
-                    Label(String(localized: "Style.Video", table: "Articles"), systemImage: "play.rectangle")
-                        .tag(FeedDisplayStyle.video)
+                    styleLabel(.video)
                 }
                 if showPodcast {
-                    Label(String(localized: "Style.Podcast", table: "Articles"), systemImage: "headphones")
-                        .tag(FeedDisplayStyle.podcast)
+                    styleLabel(.podcast)
                 }
             }
             .pickerStyle(.inline)
             .labelsVisibility(.visible)
             Picker(String(localized: "StyleSection.Grids", table: "Articles"), selection: $displayStyle) {
                 if hasImages {
-                    Label(String(localized: "Style.Magazine", table: "Articles"), systemImage: "rectangle.grid.2x2")
-                        .tag(FeedDisplayStyle.magazine)
+                    styleLabel(.magazine)
                 }
                 if hasImages {
-                    Label(String(localized: "Style.Masonry", table: "Articles"), systemImage: "rectangle.3.group")
-                        .tag(FeedDisplayStyle.masonry)
+                    styleLabel(.masonry)
                 }
                 if hasImages {
-                    Label(String(localized: "Style.Grid", table: "Articles"), systemImage: "square.grid.3x3")
-                        .tag(FeedDisplayStyle.grid)
+                    styleLabel(.grid)
                 }
             }
             .pickerStyle(.inline)
@@ -64,12 +53,10 @@ struct DisplayStylePicker: View {
             if (hasImages && showCards) || showScroll {
                 Picker(String(localized: "StyleSection.Immersive", table: "Articles"), selection: $displayStyle) {
                     if hasImages && showCards {
-                        Label(String(localized: "Style.Cards", table: "Articles"), systemImage: "square.stack.3d.up")
-                            .tag(FeedDisplayStyle.cards)
+                        styleLabel(.cards)
                     }
                     if showScroll {
-                        Label(String(localized: "Style.Scroll", table: "Articles"), systemImage: "arrow.up.and.down")
-                            .tag(FeedDisplayStyle.scroll)
+                        styleLabel(.scroll)
                     }
                 }
                 .pickerStyle(.inline)
@@ -77,5 +64,10 @@ struct DisplayStylePicker: View {
             }
         }
         .menuActionDismissBehavior(.disabled)
+    }
+
+    private func styleLabel(_ style: FeedDisplayStyle) -> some View {
+        Label(style.localizedName, systemImage: style.symbol)
+            .tag(style)
     }
 }

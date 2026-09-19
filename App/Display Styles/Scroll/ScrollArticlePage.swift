@@ -192,7 +192,7 @@ struct ScrollArticlePage: View {
 
     private var compactTextBlock: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Text(article.title)
+            Text(article.displayTitle)
                 .font(.body.weight(.bold))
                 .foregroundStyle(.white)
                 .lineLimit(3)
