@@ -31,4 +31,16 @@ extension BrowserTabStore {
         }
         persistTabs()
     }
+
+    /// Rebuilds every waiting tab's stack up front, one tab per run loop pass.
+    /// Left to the tab's own `onAppear`, the rebuild lands in the frames the
+    /// switcher is growing the page over, and the transition stutters on the
+    /// row lookups it takes; done ahead of the tap it costs nothing visible.
+    func prewarmRestorablePaths(in feedManager: FeedManager) async {
+        for tabID in tabs.map(\.id) {
+            guard tabsAwaitingPathRestore.contains(tabID) else { continue }
+            restorePathIfNeeded(for: tabID, in: feedManager)
+            await Task.yield()
+        }
+    }
 }

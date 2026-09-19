@@ -39,6 +39,9 @@ struct BrowserTabSwitcher: View {
             }
             .sakuraBackground()
         }
+        // The grid stays mounted for the whole session, so this runs once,
+        // early, and every tab is rebuilt long before one is tapped.
+        .task { await store.prewarmRestorablePaths(in: feedManager) }
     }
 
     @ToolbarContentBuilder
@@ -89,11 +92,15 @@ struct BrowserTabSwitcher: View {
     }
 
     private func select(_ tabID: UUID) {
+        // Normally already done by the prewarm; here for the tab tapped
+        // before it got its turn, so the rebuild still happens before the
+        // growth rather than in the middle of it.
+        store.restorePathIfNeeded(for: tabID, in: feedManager)
         store.select(tabID)
         // A tick late, like a new tab: selecting a tab that is not already
-        // live mounts its whole navigation stack and rebuilds its path, and
-        // doing that in the same pass as the growth starts spends the
-        // transition's first frames on it. Behind the snapshot it is free.
+        // live mounts its whole navigation stack, and doing that in the same
+        // pass as the growth starts spends the transition's first frames on
+        // it. Behind the snapshot it is free.
         Task { @MainActor in dismissSwitcher() }
     }
 
