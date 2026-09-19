@@ -1,6 +1,6 @@
 import Foundation
 
-public struct NextPageURLCollector {
+public nonisolated struct NextPageURLCollector {
     public let baseURL: URL
     public private(set) var urls: [URL] = []
     private var seen: Set<String> = []

@@ -1,7 +1,7 @@
 import Foundation
 import SwiftSoup
 
-public extension HTMLContentExtractor {
+public nonisolated extension HTMLContentExtractor {
 
     /// Extracts author, publish date, and lead image. Call before `removeNoise`.
     static func extractMetadata(from doc: Document) -> ArticleMetadata {
@@ -255,7 +255,9 @@ public extension HTMLContentExtractor {
 
     // MARK: - Date parsing
 
-    private static let isoFormatters: [ISO8601DateFormatter] = {
+    // Formatters are only ever read, and Foundation date formatters are
+    // thread-safe for formatting/parsing once configured.
+    nonisolated(unsafe) private static let isoFormatters: [ISO8601DateFormatter] = {
         let withFractions = ISO8601DateFormatter()
         withFractions.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
         let plain = ISO8601DateFormatter()
@@ -263,7 +265,7 @@ public extension HTMLContentExtractor {
         return [withFractions, plain]
     }()
 
-    private static let fallbackFormatters: [DateFormatter] = {
+    nonisolated(unsafe) private static let fallbackFormatters: [DateFormatter] = {
         let locale = Locale(identifier: "en_US_POSIX")
         let formats: [(format: String, carriesZone: Bool)] = [
             ("yyyy-MM-dd'T'HH:mm:ssXXXXX", true),

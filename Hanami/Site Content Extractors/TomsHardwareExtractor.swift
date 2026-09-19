@@ -1,7 +1,7 @@
 import Foundation
 import SwiftSoup
 
-public struct TomsHardwareExtractor: SiteContentExtractor {
+public nonisolated struct TomsHardwareExtractor: SiteContentExtractor {
 
     public func canHandle(url: URL) -> Bool {
         matchesHost(url, ["tomshardware.com"])

@@ -1,7 +1,7 @@
 import Foundation
 import SwiftSoup
 
-public struct StackOverflowExtractor: SiteContentExtractor {
+public nonisolated struct StackOverflowExtractor: SiteContentExtractor {
 
     public func canHandle(url: URL) -> Bool {
         matchesHost(url, [

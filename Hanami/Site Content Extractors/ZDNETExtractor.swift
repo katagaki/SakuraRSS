@@ -1,7 +1,7 @@
 import Foundation
 import SwiftSoup
 
-public struct ZDNETExtractor: SiteContentExtractor {
+public nonisolated struct ZDNETExtractor: SiteContentExtractor {
 
     public func canHandle(url: URL) -> Bool {
         matchesHost(url, ["zdnet.com"])

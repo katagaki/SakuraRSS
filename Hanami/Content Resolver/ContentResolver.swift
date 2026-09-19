@@ -1,8 +1,8 @@
 import Foundation
 
 /// Higher-level orchestrator that turns an `Article` into body text.
-@MainActor
-public final class ContentResolver {
+/// An actor so the HTML parsing it drives never lands on the main thread.
+public actor ContentResolver {
 
     /// Bumped whenever extraction logic changes.
     public nonisolated static let parserVersion = 20260708_000000

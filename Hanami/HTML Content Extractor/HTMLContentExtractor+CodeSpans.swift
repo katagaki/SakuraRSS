@@ -1,6 +1,6 @@
 import Foundation
 
-public extension HTMLContentExtractor {
+public nonisolated extension HTMLContentExtractor {
 
     static let codeSpanOpenMarker = "{{CODE}}"
     static let codeSpanCloseMarker = "{{/CODE}}"

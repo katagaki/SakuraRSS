@@ -1,11 +1,12 @@
 import Foundation
 import WebKit
 
+@MainActor
 public final class WebViewExtractor: NSObject, WKNavigationDelegate {
 
     // MARK: - Domain Whitelist
 
-    public static func requiresWebView(for url: URL) -> Bool {
+    public nonisolated static func requiresWebView(for url: URL) -> Bool {
         SiteContentExtractorRegistry.extractor(for: url)?.requiresWebView ?? false
     }
 
@@ -15,12 +16,20 @@ public final class WebViewExtractor: NSObject, WKNavigationDelegate {
     private var continuation: CheckedContinuation<String?, Never>?
     private var timeoutTask: Task<Void, Never>?
 
-    public func extractText(from url: URL, excludeTitle: String? = nil) async -> String? {
-        let html = await loadAndExtractHTML(from: url)
+    /// Loads the page on the main actor, then parses the rendered HTML off it.
+    public nonisolated static func extractText(
+        from url: URL, excludeTitle: String? = nil
+    ) async -> String? {
+        let html = await loadRenderedHTML(from: url)
         guard let html, !html.isEmpty else { return nil }
-        return HTMLContentExtractor.extractText(
-            fromHTML: html, baseURL: url, excludeTitle: excludeTitle
+        return await HTMLContentExtractor.extractText(
+            offMainActorFromHTML: html, baseURL: url, excludeTitle: excludeTitle
         )
+    }
+
+    @MainActor
+    private static func loadRenderedHTML(from url: URL) async -> String? {
+        await WebViewExtractor().loadAndExtractHTML(from: url)
     }
 
     private func loadAndExtractHTML(from url: URL) async -> String? {
