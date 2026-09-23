@@ -58,6 +58,9 @@ extension ExtractsArticle {
         )
         let extracted = await extractor.extract()
 
+        if let text = extracted.text {
+            await ContentBlock.prepareIdentifiedBlocks(offMainActorFrom: text)
+        }
         applyExtractedMetadata(extracted.metadata)
         isPaywalled = extracted.paywalled
         extractedText = extracted.text
