@@ -44,7 +44,19 @@ extension BrowserTabStore {
         }
     }
 
+    /// Coalesced to one write per run loop pass: a restored stack reports
+    /// every page in it, and each report would otherwise encode every tab's
+    /// history and write it all out again.
     func persistTabs() {
+        guard !isPersistenceScheduled else { return }
+        isPersistenceScheduled = true
+        Task { @MainActor in
+            self.isPersistenceScheduled = false
+            self.writeTabs()
+        }
+    }
+
+    private func writeTabs() {
         let tokens = tabs.map(\.location.persistenceToken)
         UserDefaults.standard.set(tokens, forKey: BrowserTabStore.tabTokensKey)
         UserDefaults.standard.set(

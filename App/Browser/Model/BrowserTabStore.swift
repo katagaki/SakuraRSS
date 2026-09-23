@@ -67,6 +67,8 @@ final class BrowserTabStore {
 
     private(set) var snapshots: [UUID: UIImage] = [:]
 
+    @ObservationIgnored var isPersistenceScheduled = false
+
     init(
         tabs: [BrowserTab] = [],
         selectedTabID: UUID? = nil,
