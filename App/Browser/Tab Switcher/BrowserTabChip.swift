@@ -41,3 +41,15 @@ struct BrowserTabChip: View {
         }
     }
 }
+
+/// Compared on what the chip draws, not its actions: the strip hands in new
+/// closures every pass, so every chip would redraw whenever any tab changed.
+/// The actions only ever act on this chip's own tab.
+extension BrowserTabChip: Equatable {
+    static func == (lhs: BrowserTabChip, rhs: BrowserTabChip) -> Bool {
+        lhs.tab.id == rhs.tab.id
+            && lhs.tab.location == rhs.tab.location
+            && lhs.tab.pageIdentity == rhs.tab.pageIdentity
+            && lhs.isSelected == rhs.isSelected
+    }
+}

@@ -21,6 +21,7 @@ struct BrowserTopTabBar: View {
                                 }
                             }
                         )
+                        .equatable()
                     }
                 }
                 .padding(.horizontal, 4)
