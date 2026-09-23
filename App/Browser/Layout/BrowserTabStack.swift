@@ -11,7 +11,7 @@ struct BrowserTabStack: View {
             ForEach(store.tabs) { tab in
                 if store.isLive(tab.id) {
                     let isSelected = tab.id == store.selectedTabID
-                    BrowserTabContentView(store: store, tabID: tab.id)
+                    BrowserTabContentView(store: store, tabID: tab.id, location: tab.location)
                         .opacity(isSelected ? 1 : 0)
                         .allowsHitTesting(isSelected)
                         // A zero-opacity tab still publishes its accessibility

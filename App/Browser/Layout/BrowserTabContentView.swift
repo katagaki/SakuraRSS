@@ -8,10 +8,17 @@ struct BrowserTabContentView: View {
     @Environment(FeedManager.self) private var feedManager
     let store: BrowserTabStore
     let tabID: UUID
+    /// Handed in rather than looked up: reading `store.tabs` here re-runs
+    /// this body, and every page under it, whenever any tab changes.
+    let location: BrowserLocation
+    @State private var reporters: BrowserTabReporters
     @Namespace private var cardZoom
 
-    private var location: BrowserLocation {
-        store.tabs.first { $0.id == tabID }?.location ?? .startPage
+    init(store: BrowserTabStore, tabID: UUID, location: BrowserLocation) {
+        self.store = store
+        self.tabID = tabID
+        self.location = location
+        _reporters = State(initialValue: BrowserTabReporters(store: store, tabID: tabID))
     }
 
     var body: some View {
@@ -22,15 +29,9 @@ struct BrowserTabContentView: View {
                 .browserNavigationDestinations(path: path, namespace: cardZoom)
         }
         .environment(\.browserTabID, tabID)
-        .environment(\.browserPageReporter) { identity in
-            store.setPageIdentity(identity, for: tabID)
-        }
-        .environment(\.browserOverlayPageReporter) { overlayID, page in
-            store.setOverlayPage(page, id: overlayID, for: tabID)
-        }
-        .environment(\.browserPageSlotReporter) { report, token in
-            store.setSlot(report, token: token, for: tabID)
-        }
+        .environment(\.browserPageReporter, reporters.page)
+        .environment(\.browserOverlayPageReporter, reporters.overlayPage)
+        .environment(\.browserPageSlotReporter, reporters.slot)
         .compatibleSoftScrollEdgeEffectStyle()
         // Last session's stack, rebuilt the first time the tab is mounted.
         .onAppear { store.restorePathIfNeeded(for: tabID, in: feedManager) }
