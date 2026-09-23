@@ -348,6 +348,7 @@ final class BrowserTabStore {
     // MARK: - Liveness
 
     func markLive(_ tabID: UUID) {
+        guard liveTabIDs.last != tabID else { return }
         liveTabIDs.removeAll { $0 == tabID }
         liveTabIDs.append(tabID)
         while liveTabIDs.count > BrowserTabStore.liveTabLimit {
