@@ -6,20 +6,14 @@ extension BrowserTabStore {
     /// the system's push animation and its interactive back gesture rather
     /// than swapping the stack's root out from under itself.
     func navigate(to location: BrowserLocation) {
-        updateSelectedTab { tab in
-            tab.path.append(location)
-            tab.lastVisited = .now
-        }
+        updateSelectedTab { $0.path.append(location) }
         recordVisit(location)
         markLive(selectedTabID)
         persistTabs()
     }
 
     func push<Value: Hashable>(_ value: Value) {
-        updateSelectedTab { tab in
-            tab.path.append(value)
-            tab.lastVisited = .now
-        }
+        updateSelectedTab { $0.path.append(value) }
         persistTabs()
     }
 
@@ -27,10 +21,7 @@ extension BrowserTabStore {
     /// the selected tab was showing.
     func openTab<Value: Hashable>(pushing value: Value) {
         let tabID = openTab()
-        updateTab(tabID) { tab in
-            tab.path.append(value)
-            tab.lastVisited = .now
-        }
+        updateTab(tabID) { $0.path.append(value) }
         persistTabs()
     }
 
@@ -41,10 +32,7 @@ extension BrowserTabStore {
             return
         }
         guard selectedTab.canGoBack else { return }
-        updateSelectedTab { tab in
-            tab.path.removeLast()
-            tab.lastVisited = .now
-        }
+        updateSelectedTab { $0.path.removeLast() }
         restoreIdentity(atDepth: selectedTab.path.count, for: selectedTabID)
         persistTabs()
     }
@@ -63,10 +51,7 @@ extension BrowserTabStore {
             set: { [weak self] newPath in
                 guard let self else { return }
                 let previousDepth = tabs.first { $0.id == tabID }?.path.count ?? 0
-                updateTab(tabID) { tab in
-                    tab.path = newPath
-                    tab.lastVisited = .now
-                }
+                updateTab(tabID) { $0.path = newPath }
                 clearOverlayPages(for: tabID)
                 if newPath.count < previousDepth {
                     restoreIdentity(atDepth: newPath.count, for: tabID)
@@ -146,10 +131,7 @@ extension BrowserTabStore {
     func popTo(depth: Int) {
         let current = selectedTab.path.count
         guard depth < current else { return }
-        updateSelectedTab { tab in
-            tab.path.removeLast(current - depth)
-            tab.lastVisited = .now
-        }
+        updateSelectedTab { $0.path.removeLast(current - depth) }
         restoreIdentity(atDepth: depth, for: selectedTabID)
         persistTabs()
     }

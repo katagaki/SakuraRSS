@@ -263,7 +263,6 @@ final class BrowserTabStore {
     func select(_ tabID: UUID) {
         guard tabs.contains(where: { $0.id == tabID }) else { return }
         selectedTabID = tabID
-        touch(tabID)
         markLive(tabID)
     }
 
@@ -354,10 +353,5 @@ final class BrowserTabStore {
         while liveTabIDs.count > BrowserTabStore.liveTabLimit {
             liveTabIDs.removeFirst()
         }
-    }
-
-    private func touch(_ tabID: UUID) {
-        guard let index = tabs.firstIndex(where: { $0.id == tabID }) else { return }
-        tabs[index].lastVisited = .now
     }
 }
