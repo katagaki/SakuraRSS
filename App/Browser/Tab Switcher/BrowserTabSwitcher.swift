@@ -26,6 +26,7 @@ struct BrowserTabSwitcher: View {
                             onSelect: { select(tab.id) },
                             onClose: { close(tab.id) }
                         )
+                        .equatable()
                     }
                 }
                 .padding(16)

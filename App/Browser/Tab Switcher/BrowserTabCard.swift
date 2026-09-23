@@ -119,3 +119,15 @@ struct BrowserTabCard: View {
         .accessibilityLabel(String(localized: "Menu.CloseTab", table: "Browser"))
     }
 }
+
+/// Compared on what the card draws, not its actions: the switcher hands in new
+/// closures every pass, so every card would redraw whenever any tab changed.
+/// The actions only ever act on this card's own tab.
+extension BrowserTabCard: Equatable {
+    static func == (lhs: BrowserTabCard, rhs: BrowserTabCard) -> Bool {
+        lhs.tab.id == rhs.tab.id
+            && lhs.tab.location == rhs.tab.location
+            && lhs.tab.pageIdentity == rhs.tab.pageIdentity
+            && lhs.isSelected == rhs.isSelected
+    }
+}
