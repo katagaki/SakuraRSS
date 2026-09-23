@@ -14,6 +14,9 @@ struct BrowserRecentContentSection: View {
     }
 
     var body: some View {
+        // Read once: each read is a database query, and the rows below would
+        // otherwise run it again for every divider they place.
+        let articles = articles
         if !articles.isEmpty {
             VStack(alignment: .leading, spacing: 12) {
                 BrowserStartPageSectionHeader(
