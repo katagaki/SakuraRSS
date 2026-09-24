@@ -12,6 +12,7 @@ struct BrowserNavigationEnvironment: ViewModifier {
     @Environment(\.browserAddressWidth) private var addressWidth
     @Environment(BrowserTabStore.self) private var store
     @Environment(BrowserFavourites.self) private var favourites
+    @Environment(\.browserTabID) private var tabID
     @Binding var path: NavigationPath
     let namespace: Namespace.ID
 
@@ -29,6 +30,7 @@ struct BrowserNavigationEnvironment: ViewModifier {
                 if layout == .compact {
                     BrowserBottomToolbar(
                         store: store,
+                        tabID: tabID ?? store.selectedTabID,
                         feedManager: feedManager,
                         favourites: favourites,
                         omnibox: omnibox,

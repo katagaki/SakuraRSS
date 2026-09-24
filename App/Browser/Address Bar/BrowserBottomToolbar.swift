@@ -6,6 +6,9 @@ import Hanami
 struct BrowserBottomToolbar: ToolbarContent {
 
     let store: BrowserTabStore
+    /// The tab this page belongs to. The bar reads its own tab's state, not
+    /// the selection's, so switching tabs leaves the other tabs' bars alone.
+    let tabID: UUID
     let feedManager: FeedManager
     let favourites: BrowserFavourites
     let omnibox: BrowserOmniboxModel
@@ -31,7 +34,7 @@ struct BrowserBottomToolbar: ToolbarContent {
             // long press opens the history on the button's own glass;
             // `.contextMenu` would detach into its own dark sheet.
             Menu {
-                ForEach(store.backHistory, id: \.depth) { entry in
+                ForEach(store.backHistory(for: tabID), id: \.depth) { entry in
                     Button {
                         store.popTo(depth: entry.depth)
                     } label: {
@@ -46,7 +49,7 @@ struct BrowserBottomToolbar: ToolbarContent {
             } primaryAction: {
                 store.goBack()
             }
-            .disabled(!store.displayedCanGoBack)
+            .disabled(!store.displayedCanGoBack(for: tabID))
         }
 
         #if !os(visionOS)
@@ -56,6 +59,7 @@ struct BrowserBottomToolbar: ToolbarContent {
         ToolbarItem(placement: .bottomBar) {
             BrowserAddressItem(
                 store: store,
+                tabID: tabID,
                 favourites: favourites,
                 width: addressWidth,
                 onOpenOmnibox: onOpenOmnibox

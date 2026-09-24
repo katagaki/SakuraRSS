@@ -116,18 +116,6 @@ extension BrowserTabStore {
         setPageHistory(history, for: tabID)
     }
 
-    /// Pages behind the current one, nearest first, paired with the depth to
-    /// pop back to.
-    var backHistory: [(depth: Int, identity: BrowserPageIdentity)] {
-        let tab = selectedTab
-        let history = pageHistories[tab.id] ?? []
-        let current = tab.path.count
-        guard current > 0 else { return [] }
-        return (0..<min(current, history.count))
-            .reversed()
-            .map { (depth: $0, identity: history[$0]) }
-    }
-
     func popTo(depth: Int) {
         let current = selectedTab.path.count
         guard depth < current else { return }

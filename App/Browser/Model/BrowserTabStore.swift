@@ -32,8 +32,8 @@ final class BrowserTabStore {
     /// bottom bar would flip to the previous page before the gesture is
     /// committed, and stay wrong if the swipe is cancelled.
     private(set) var isInteractivelyPopping = false
-    private var frozenCanGoBack: Bool?
-    private var frozenPageIdentity: BrowserPageIdentity?
+    private(set) var frozenCanGoBack: Bool?
+    private(set) var frozenPageIdentity: BrowserPageIdentity?
 
     /// Routed through the store rather than a preference: the switcher's
     /// NavigationStack does not propagate preferences out to the shell.
@@ -95,25 +95,16 @@ final class BrowserTabStore {
         loadPersistedSnapshots()
     }
 
-    /// What the bottom bar should show: the pre-gesture state while a swipe
-    /// back is in flight, the live state otherwise.
     var displayedTab: BrowserTab {
-        guard isInteractivelyPopping || displayedOverlayPage != nil else { return selectedTab }
-        var tab = selectedTab
-        tab.pageIdentity = displayedOverlayPage?.identity
-            ?? (isInteractivelyPopping ? frozenPageIdentity : tab.pageIdentity)
-        return tab
+        displayedTab(for: selectedTabID)
     }
 
     var displayedCanGoBack: Bool {
-        displayedOverlayPage != nil || (frozenCanGoBack ?? selectedTab.canGoBack)
+        displayedCanGoBack(for: selectedTabID)
     }
 
-    /// The progress the address bar should draw: the visible page's own, and
-    /// nothing while another tab or a page deeper in the stack is the one
-    /// working.
     var displayedProgress: BrowserAddressProgress? {
-        pageProgress[selectedTabID]?.value(forPageAt: displayedTab.pageIdentity?.pathToken)
+        displayedProgress(for: selectedTabID)
     }
 
     func beginInteractivePop() {

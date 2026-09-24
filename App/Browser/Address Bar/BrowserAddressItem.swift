@@ -7,6 +7,7 @@ struct BrowserAddressItem: View {
 
     @Environment(FeedManager.self) private var feedManager
     let store: BrowserTabStore
+    let tabID: UUID
     let favourites: BrowserFavourites
     let width: CGFloat
     let onOpenOmnibox: () -> Void
@@ -16,27 +17,27 @@ struct BrowserAddressItem: View {
     /// neighbour, so a slot only counts while it belongs to the page the bar
     /// is naming.
     private var pageToken: BrowserPathToken? {
-        store.displayedTab.pageIdentity?.pathToken
+        store.displayedTab(for: tabID).pageIdentity?.pathToken
     }
 
     private var markAllRead: BrowserMarkAllReadAction? {
-        store.markAllReadActions[store.selectedTabID]?.value(forPageAt: pageToken)
+        store.markAllReadActions[tabID]?.value(forPageAt: pageToken)
     }
 
     private var articleActions: BrowserArticleActions? {
-        store.articleActions[store.selectedTabID]?.value(forPageAt: pageToken)
+        store.articleActions[tabID]?.value(forPageAt: pageToken)
     }
 
     private var bookmarksActions: BrowserBookmarksActions? {
-        store.bookmarksActions[store.selectedTabID]?.value(forPageAt: pageToken)
+        store.bookmarksActions[tabID]?.value(forPageAt: pageToken)
     }
 
     private var followingActions: BrowserFollowingActions? {
-        store.followingActions[store.selectedTabID]?.value(forPageAt: pageToken)
+        store.followingActions[tabID]?.value(forPageAt: pageToken)
     }
 
     private var displayStyleOptions: BrowserDisplayStyleOptions? {
-        store.displayStyleOptions[store.selectedTabID]?.value(forPageAt: pageToken)
+        store.displayStyleOptions[tabID]?.value(forPageAt: pageToken)
     }
 
     /// What the trailing slot holds. Animating on the actions themselves would
@@ -62,7 +63,7 @@ struct BrowserAddressItem: View {
             Button(action: onOpenOmnibox) {
                 BrowserLocationLabel(
                     description: BrowserLocationDescription.describe(
-                        store.displayedTab,
+                        store.displayedTab(for: tabID),
                         feedManager: feedManager
                     ),
                     iconSize: 24,
@@ -99,11 +100,11 @@ struct BrowserAddressItem: View {
         // room for Home's refresh pill, so the bar itself reports the work.
         // Sized to the bar's glass, which the label alone does not fill.
         .background {
-            BrowserAddressProgressBackground(progress: store.displayedProgress)
+            BrowserAddressProgressBackground(progress: store.displayedProgress(for: tabID))
                 .frame(height: BrowserAddressMetrics.glassHeight)
                 .padding(.horizontal, -BrowserAddressMetrics.glassHorizontalOverhang)
         }
-        .animation(.smooth, value: store.displayedProgress == nil)
+        .animation(.smooth, value: store.displayedProgress(for: tabID) == nil)
         // A toolbar item is proposed its ideal size, so `maxWidth: .infinity`
         // resolves to the content width and the bar collapses around a short
         // page name. The measured width is what makes it fill.
