@@ -3,9 +3,17 @@ import Hanami
 
 struct BrowserTodayShortcutsGrid: View {
 
+    @Environment(FeedManager.self) private var feedManager
     @Environment(BrowserTabStore.self) private var store
 
     private let columns = Array(repeating: GridItem(.flexible(), spacing: 16), count: 4)
+
+    private var lists: [FeedList] {
+        let base = feedManager.isFocusEffective
+            ? feedManager.lists.filter { feedManager.isListInFocus($0) }
+            : feedManager.lists
+        return base.sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
+    }
 
     var body: some View {
         LazyVGrid(columns: columns, spacing: 12) {
@@ -17,7 +25,24 @@ struct BrowserTodayShortcutsGrid: View {
                 }
                 .buttonStyle(.plain)
             }
+            ForEach(lists) { list in
+                Button {
+                    store.navigate(to: .list(list.id))
+                } label: {
+                    FollowingListGridCell(list: list)
+                }
+                .buttonStyle(.plain)
+                .contextMenu {
+                    Button {
+                        store.openTab(at: .list(list.id), inBackground: true)
+                    } label: {
+                        Label(String(localized: "Menu.OpenInNewTab", table: "Browser"),
+                              systemImage: "plus.square.on.square")
+                    }
+                }
+            }
         }
+        .animation(.smooth.speed(2.0), value: feedManager.lists)
     }
 
     private func open(_ shortcut: BrowserTodayShortcut) {
