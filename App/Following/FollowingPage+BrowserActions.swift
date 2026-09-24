@@ -11,8 +11,7 @@ extension FollowingPage {
             isEditingFeeds ? 1 : 0,
             isSelectingFeeds ? 1 : 0,
             selectedFeedIDs.count,
-            feedManager.feeds.count,
-            feedManager.lists.count
+            feedManager.feeds.count
         ]
     }
 
@@ -27,7 +26,7 @@ extension FollowingPage {
     }
 
     var browserFollowingActions: BrowserFollowingActions {
-        let hasSomethingToEdit = !feedManager.feeds.isEmpty || !feedManager.lists.isEmpty
+        let hasSomethingToEdit = !feedManager.feeds.isEmpty
         return BrowserFollowingActions(
             addFeed: { isPresentingAddFeedSheet = true },
             newList: { isPresentingNewListSheet = true },

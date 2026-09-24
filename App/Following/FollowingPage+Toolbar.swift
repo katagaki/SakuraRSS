@@ -21,7 +21,7 @@ extension FollowingPage {
                     isEditingFeeds = true
                 }
                 .labelStyle(.iconOnly)
-                .disabled(feedManager.feeds.isEmpty && feedManager.lists.isEmpty)
+                .disabled(feedManager.feeds.isEmpty)
                 Button {
                     isPresentingNewListSheet = true
                 } label: {
@@ -84,7 +84,7 @@ extension FollowingPage {
 
     @ViewBuilder
     var emptyStateOverlay: some View {
-        if feedManager.feeds.isEmpty && feedManager.lists.isEmpty {
+        if feedManager.feeds.isEmpty {
             ContentUnavailableView {
                 Label(String(localized: "FeedList.Empty.Title", table: "Feeds"),
                       systemImage: "newspaper")

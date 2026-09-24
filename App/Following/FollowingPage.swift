@@ -20,7 +20,6 @@ struct FollowingPage: View {
     @State var isPresentingBulkEditSheet = false
     @State var isPresentingBulkDeleteAlert = false
     @State var isPresentingNewListSheet = false
-    @State var listToDelete: FeedList?
     @Namespace var addFeedNamespace
     @Namespace var feedEditNamespace
     @Namespace var newListNamespace
@@ -41,7 +40,6 @@ struct FollowingPage: View {
                 feedSectionsContent
                     .padding()
                     .animation(.smooth.speed(2.0), value: feedManager.feeds)
-                    .animation(.smooth.speed(2.0), value: feedManager.lists)
                     .animation(.smooth.speed(2.0), value: searchText)
                     .animation(.smooth.speed(2.0), value: isEditingFeeds)
                     .animation(.smooth.speed(2.0), value: isSelectingFeeds)
@@ -115,29 +113,6 @@ struct FollowingPage: View {
         } message: {
             if let feed = feedToDelete {
                 Text(String(localized: "FeedMenu.Unfollow.Message.\(feed.title)", table: "Feeds"))
-            }
-        }
-        .alert(
-            String(localized: "ListMenu.Delete.Title", table: "Lists"),
-            isPresented: Binding(
-                get: { listToDelete != nil },
-                set: { if !$0 { listToDelete = nil } }
-            )
-        ) {
-            Button(String(localized: "ListMenu.Delete.Confirm", table: "Lists"), role: .destructive) {
-                if let list = listToDelete {
-                    withAnimation(.smooth.speed(2.0)) {
-                        feedManager.deleteList(list)
-                    }
-                    listToDelete = nil
-                }
-            }
-            Button("Shared.Cancel", role: .cancel) {
-                listToDelete = nil
-            }
-        } message: {
-            if let list = listToDelete {
-                Text(String(localized: "ListMenu.Delete.Message.\(list.name)", table: "Lists"))
             }
         }
         .alert(
