@@ -210,8 +210,8 @@ struct YouTubePlayerView: View {
         .onChange(of: videoAspectRatio) { _, newRatio in
             session.videoAspectRatio = newRatio
         }
-        .onChange(of: scenePhase) { _, newPhase in
-            handleScenePhaseChange(newPhase)
+        .onChange(of: scenePhase) { oldPhase, newPhase in
+            handleScenePhaseChange(from: oldPhase, to: newPhase)
         }
         .onReceive(NotificationCenter.default.publisher(for: .youTubePlayerDidStartPlaying)) { notification in
             guard let otherID = notification.object as? UUID, otherID != playerID else { return }

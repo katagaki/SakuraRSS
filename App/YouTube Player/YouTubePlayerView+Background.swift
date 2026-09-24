@@ -15,10 +15,15 @@ extension YouTubePlayerView {
         YouTubeAudioSession.activate()
     }
 
-    func handleScenePhaseChange(_ newPhase: ScenePhase) {
+    func handleScenePhaseChange(from oldPhase: ScenePhase, to newPhase: ScenePhase) {
         switch newPhase {
         case .background, .inactive:
-            wantsPlaybackInBackground = isPlaying
+            // Coming back passes through `.inactive` too, after the video may
+            // have been paused in the background; only leaving `.active` says
+            // whether it was playing.
+            if oldPhase == .active {
+                wantsPlaybackInBackground = isPlaying
+            }
             session.rememberPlaybackPosition()
         case .active:
             if wantsPlaybackInBackground && !isPlaying {
