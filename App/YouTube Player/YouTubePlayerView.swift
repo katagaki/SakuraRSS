@@ -230,12 +230,10 @@ struct YouTubePlayerView: View {
             // the player is in PiP. `onDisappear` also fires when a
             // destination is pushed on top of the player, so a live image
             // viewer means the player is merely covered, not dismissed.
-            if !hasMiniPlayerAccessory, !isPiP, imageViewerURL == nil {
+            if !hasMiniPlayerAccessory, !isPiP, imageViewerURL == nil,
+               session.holds(article) {
                 pauseForOtherPlayer()
-                if session.isPrimary {
-                    YouTubeAudioSession.deactivate()
-                }
-                session.clear()
+                session.stop()
             }
         }
         .task { await initializePlayerSession() }
