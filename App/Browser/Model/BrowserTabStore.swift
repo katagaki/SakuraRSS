@@ -225,22 +225,10 @@ final class BrowserTabStore {
         }
     }
 
-    /// The snapshot sits below the card's title row, so the page lands on that
-    /// sub-rect. Derived from the card's width so the two cannot disagree.
     private func freezeCollapseTarget() {
         // Cleared, not left alone: a tab opened from the switcher has no frame
         // yet, and a stale one zooms out of the previously selected tab.
-        guard let card = cardFrames[selectedTabID] else {
-            collapseTarget = nil
-            return
-        }
-        let previewHeight = card.width / BrowserTabCard.previewAspectRatio
-        collapseTarget = CGRect(
-            x: card.minX,
-            y: card.maxY - previewHeight,
-            width: card.width,
-            height: previewHeight
-        )
+        collapseTarget = cardFrames[selectedTabID]
     }
 
     func setCardFrame(_ frame: CGRect, for tabID: UUID) {

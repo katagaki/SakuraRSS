@@ -22,6 +22,14 @@ struct BrowserTabCard: View {
     let onClose: () -> Void
     @State private var dragOffset: CGFloat = 0
     @State private var isPastCloseDistance = false
+    @State private var isHeaderVisible = true
+
+    /// The collapsing page lands on the selected card, so its title row waits
+    /// for the page to hand over to the snapshot rather than sit on top of it
+    /// mid-morph.
+    private var isHeaderShown: Bool {
+        !isSelected || store.isPageSwappedForSnapshot
+    }
 
     private var description: BrowserLocationDescription {
         BrowserLocationDescription.describe(tab, feedManager: feedManager)
@@ -29,40 +37,56 @@ struct BrowserTabCard: View {
 
     var body: some View {
         Button(action: onSelect) {
-            VStack(spacing: 0) {
-                header
-                // Ratio driven off a flexible shape, not the preview: a
-                // stand-in has no intrinsic size for aspectRatio to work from.
-                Color.clear
-                    .aspectRatio(BrowserTabCard.previewAspectRatio, contentMode: .fit)
-                    .overlay(alignment: .top) {
-                        BrowserTabPreview(tab: tab)
-                    }
-            }
-            .background(.background.secondary)
-            // Clipped as a whole: `clipped()` on the preview trims to the
-            // card's bounds but not to its rounded corners.
-            .clipShape(.rect(cornerRadius: BrowserTabCard.cornerRadius, style: .continuous))
-            .shadow(color: .black.opacity(0.12), radius: 5, y: 2)
-            // Outside the card, not over it: the collapsing page lands on the
-            // card's own bounds, so an inset border spends the transition
-            // hidden under the page and snaps back the frame it is swapped out.
-            .background {
-                RoundedRectangle(
-                    cornerRadius: BrowserTabCard.cornerRadius + BrowserTabCard.selectionRingInset,
-                    style: .continuous
-                )
-                .stroke(isSelected ? Color.accentColor : Color.clear, lineWidth: 2.5)
-                .padding(-BrowserTabCard.selectionRingInset)
-            }
-            .contentShape(.rect(cornerRadius: BrowserTabCard.cornerRadius))
-            .reportsTabCardFrame(id: tab.id, to: store)
+            // Ratio driven off a flexible shape, not the preview: a stand-in
+            // has no intrinsic size for aspectRatio to work from.
+            Color.clear
+                .aspectRatio(BrowserTabCard.previewAspectRatio, contentMode: .fit)
+                .overlay(alignment: .top) {
+                    BrowserTabPreview(tab: tab)
+                }
+                .overlay(alignment: .top) {
+                    BrowserTabCardHeader(
+                        description: description,
+                        canClose: store.canCloseTabs,
+                        onClose: onClose
+                    )
+                    .opacity(isHeaderVisible ? 1 : 0)
+                }
+                .background(.background.secondary)
+                // Clipped as a whole: `clipped()` on the preview trims to the
+                // card's bounds but not to its rounded corners.
+                .clipShape(.rect(cornerRadius: BrowserTabCard.cornerRadius, style: .continuous))
+                .shadow(color: .black.opacity(0.12), radius: 5, y: 2)
+                // Outside the card, not over it: the collapsing page lands on the
+                // card's own bounds, so an inset border spends the transition
+                // hidden under the page and snaps back the frame it is swapped out.
+                .background {
+                    RoundedRectangle(
+                        cornerRadius: BrowserTabCard.cornerRadius + BrowserTabCard.selectionRingInset,
+                        style: .continuous
+                    )
+                    .stroke(isSelected ? Color.accentColor : Color.clear, lineWidth: 2.5)
+                    .padding(-BrowserTabCard.selectionRingInset)
+                }
+                .contentShape(.rect(cornerRadius: BrowserTabCard.cornerRadius))
+                .reportsTabCardFrame(id: tab.id, to: store)
         }
         .offset(x: dragOffset)
         .opacity(closeProgress)
         // High priority: the card is a button, which otherwise swallows the drag.
         .highPriorityGesture(closeDragGesture)
         .buttonStyle(.plain)
+        .onChange(of: isHeaderShown, initial: true) { _, isShown in
+            // Hidden at once: the growing page covers the card from its first
+            // frame, and the header would otherwise fade out on top of it.
+            if isShown {
+                withAnimation(.smooth(duration: 0.2)) {
+                    isHeaderVisible = true
+                }
+            } else {
+                isHeaderVisible = false
+            }
+        }
     }
 
     /// Fades the card as it is pushed away, so the swipe reads as closing.
@@ -96,35 +120,6 @@ struct BrowserTabCard: View {
                     }
                 }
             }
-    }
-
-    private var header: some View {
-        HStack(spacing: 6) {
-            BrowserLocationLabel(
-                description: description,
-                iconSize: 16,
-                titleFont: .caption.weight(.medium),
-                showsSubtitle: false
-            )
-            Spacer(minLength: 0)
-            if store.canCloseTabs {
-                closeButton
-            }
-        }
-        .padding(.horizontal, 10)
-        .padding(.vertical, 8)
-    }
-
-    private var closeButton: some View {
-        Button(action: onClose) {
-            Image(systemName: "xmark")
-                .font(.system(size: 10, weight: .bold))
-                .foregroundStyle(.secondary)
-                .frame(width: 22, height: 22)
-                .contentShape(.circle)
-        }
-        .buttonStyle(.plain)
-        .accessibilityLabel(String(localized: "Menu.CloseTab", table: "Browser"))
     }
 }
 
