@@ -21,6 +21,7 @@ struct BrowserTabCard: View {
     let onSelect: () -> Void
     let onClose: () -> Void
     @State private var dragOffset: CGFloat = 0
+    @State private var isPastCloseDistance = false
 
     private var description: BrowserLocationDescription {
         BrowserLocationDescription.describe(tab, feedManager: feedManager)
@@ -75,8 +76,15 @@ struct BrowserTabCard: View {
                 // Vertical drags belong to the grid's scroll view.
                 guard abs(value.translation.width) > abs(value.translation.height) else { return }
                 dragOffset = min(0, value.translation.width)
+                // Tapped on crossing either way, so the release point is felt.
+                let isPast = store.canCloseTabs && -dragOffset > BrowserTabCard.closeDistance
+                if isPast != isPastCloseDistance {
+                    isPastCloseDistance = isPast
+                    Haptics.impact(.light)
+                }
             }
             .onEnded { value in
+                isPastCloseDistance = false
                 if store.canCloseTabs, value.translation.width < -BrowserTabCard.closeDistance {
                     withAnimation(.smooth(duration: 0.2)) {
                         dragOffset = -BrowserTabCard.closeDistance * 2
