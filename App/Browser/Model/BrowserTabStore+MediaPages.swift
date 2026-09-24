@@ -16,6 +16,10 @@ extension BrowserTabStore {
         )
     }
 
+    func hasPlayingMedia(in tabID: UUID) -> Bool {
+        mediaPages[tabID]?.values.contains { $0.ownsMedia() } ?? false
+    }
+
     /// Held back while a swipe-back is in flight: the path has already popped
     /// by then, and a cancelled swipe puts the page back.
     func stopMediaLeftBehind(in tabID: UUID) {

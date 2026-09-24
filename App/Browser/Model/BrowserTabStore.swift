@@ -354,7 +354,10 @@ final class BrowserTabStore {
         liveTabIDs.removeAll { $0 == tabID }
         liveTabIDs.append(tabID)
         while liveTabIDs.count > BrowserTabStore.liveTabLimit {
-            liveTabIDs.removeFirst()
+            // A playing tab stays mounted, so its player keeps its place in
+            // the window and PiP can still restore into it.
+            let evicted = liveTabIDs.dropLast().firstIndex { !hasPlayingMedia(in: $0) } ?? 0
+            liveTabIDs.remove(at: evicted)
         }
     }
 }
