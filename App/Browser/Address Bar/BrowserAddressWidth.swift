@@ -17,14 +17,6 @@ enum BrowserAddressMetrics {
     /// Everything in the bar that is not the address item.
     static let chromeWidth: CGFloat = 190
 
-    /// The back button and the gap after it. At a tab's root there is no back
-    /// button, and the address item takes the room rather than leaving a hole.
-    ///
-    /// Measured against the rendered bar rather than derived: raising it much
-    /// further overflows the group and the system folds the tab count into an
-    /// overflow menu, so it has to be rechecked if `chromeWidth` changes.
-    static let leadingButtonWidth: CGFloat = 59
-
     /// The height of the glass a `.bottomBar` item draws, which the address
     /// item's own content stops short of. Only the progress fill needs it:
     /// anything less leaves a bare strip above and below the bar.

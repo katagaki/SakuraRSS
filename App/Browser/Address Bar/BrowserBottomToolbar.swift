@@ -22,50 +22,42 @@ struct BrowserBottomToolbar: ToolbarContent {
         }
     }
 
-    private var browsingAddressWidth: CGFloat {
-        store.displayedCanGoBack
-            ? addressWidth
-            : addressWidth + BrowserAddressMetrics.leadingButtonWidth
-    }
-
     @ToolbarContentBuilder
     private var browsingItems: some ToolbarContent {
-        // With no top bar, Back lives here. At a tab's root there is nothing
-        // to go back to, and the address item starts at the leading edge
-        // rather than sitting behind an empty slot.
-        if store.displayedCanGoBack {
-            ToolbarItem(placement: .bottomBar) {
-                // A `Menu` with a primary action keeps tap = go back while
-                // long press opens the history on the button's own glass;
-                // `.contextMenu` would detach into its own dark sheet.
-                Menu {
-                    ForEach(store.backHistory, id: \.depth) { entry in
-                        Button {
-                            store.popTo(depth: entry.depth)
-                        } label: {
-                            Label(entry.identity.title, systemImage: entry.identity.symbolName)
-                        }
+        // With no top bar, Back lives here. It stays put at a tab's root,
+        // disabled, so the address item doesn't jump as pages are pushed.
+        ToolbarItem(placement: .bottomBar) {
+            // A `Menu` with a primary action keeps tap = go back while
+            // long press opens the history on the button's own glass;
+            // `.contextMenu` would detach into its own dark sheet.
+            Menu {
+                ForEach(store.backHistory, id: \.depth) { entry in
+                    Button {
+                        store.popTo(depth: entry.depth)
+                    } label: {
+                        Label(entry.identity.title, systemImage: entry.identity.symbolName)
                     }
-                } label: {
-                    Label(
-                        String(localized: "AddressBar.Back", table: "Browser"),
-                        systemImage: "chevron.backward"
-                    )
-                } primaryAction: {
-                    store.goBack()
                 }
+            } label: {
+                Label(
+                    String(localized: "AddressBar.Back", table: "Browser"),
+                    systemImage: "chevron.backward"
+                )
+            } primaryAction: {
+                store.goBack()
             }
-
-            #if !os(visionOS)
-            ToolbarSpacer(.flexible, placement: .bottomBar)
-            #endif
+            .disabled(!store.displayedCanGoBack)
         }
+
+        #if !os(visionOS)
+        ToolbarSpacer(.flexible, placement: .bottomBar)
+        #endif
 
         ToolbarItem(placement: .bottomBar) {
             BrowserAddressItem(
                 store: store,
                 favourites: favourites,
-                width: browsingAddressWidth,
+                width: addressWidth,
                 onOpenOmnibox: onOpenOmnibox
             )
         }
