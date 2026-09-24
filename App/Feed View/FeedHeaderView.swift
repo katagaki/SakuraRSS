@@ -4,7 +4,6 @@ import Hanami
 struct FeedHeaderView: View {
 
     @Environment(FeedManager.self) var feedManager
-    @Environment(\.isBrowserChromeActive) private var isBrowserChromeActive
     let feed: Feed
 
     @State private var icon: UIImage?
@@ -22,14 +21,6 @@ struct FeedHeaderView: View {
     private var shareURL: URL? {
         let candidate = feed.siteURL.isEmpty ? feed.fetchURL : feed.siteURL
         return URL(string: candidate)
-    }
-
-    /// The browser hides the navigation bar and draws its pages edge to edge,
-    /// so the header puts back part of the inset the bar used to provide, and
-    /// the same amount again below to keep it centred in its own space.
-    private var browserInset: CGFloat {
-        guard isBrowserChromeActive else { return 0 }
-        return max(BrowserDeviceMetrics.safeAreaInsets.top - 24, 0)
     }
 
     private var trimmedDescription: String {
@@ -71,10 +62,7 @@ struct FeedHeaderView: View {
             actionButtons
                 .padding(.top, 8)
         }
-        .frame(maxWidth: .infinity)
-        .padding(.horizontal, 16)
-        .padding(.top, 4 + browserInset)
-        .padding(.bottom, 16 + browserInset)
+        .sourceHeaderPadding()
         .task(id: feed.id) {
             icon = await Iconography.shared.icon(for: feed)
         }
