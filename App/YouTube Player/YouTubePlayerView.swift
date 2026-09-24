@@ -213,6 +213,11 @@ struct YouTubePlayerView: View {
         .onChange(of: scenePhase) { oldPhase, newPhase in
             handleScenePhaseChange(from: oldPhase, to: newPhase)
         }
+        .onChange(of: webView) { _, newWebView in
+            // A player rebuilt around the session's webview, from the mini
+            // player or an evicted tab, starts out not knowing PiP is up.
+            if newWebView != nil { resyncPiPState() }
+        }
         .onReceive(NotificationCenter.default.publisher(for: .youTubePlayerDidStartPlaying)) { notification in
             guard let otherID = notification.object as? UUID, otherID != playerID else { return }
             pauseForOtherPlayer()
