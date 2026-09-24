@@ -19,6 +19,7 @@ struct BrowserRootContentView: View {
                     title: String(localized: "StartPage.Title", table: "Browser"),
                     symbolName: "square.grid.2x2"
                 )
+                .browserRefreshScope("section.today")
         case .allContent:
             HomeSectionView(source: .section(nil))
                 .navigationTitle(String(localized: "Location.AllContent", table: "Browser"))
