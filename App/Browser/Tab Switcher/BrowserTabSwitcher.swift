@@ -12,6 +12,7 @@ struct BrowserTabSwitcher: View {
     @Environment(BrowserTabStore.self) private var store
     @Environment(FeedManager.self) private var feedManager
     @State private var isShowingProfile = false
+    @State private var isDismissing = false
 
     private let columns = [GridItem(.adaptive(minimum: 150), spacing: 16)]
 
@@ -63,10 +64,11 @@ struct BrowserTabSwitcher: View {
         }
         ToolbarItem(placement: .topBarTrailing) {
             Button {
+                guard !isDismissing else { return }
                 store.openTab()
-                // A tick late, so the new tab's card has reported the rect the
-                // page grows from.
-                Task { @MainActor in dismissSwitcher() }
+                // Once drawn, so the new tab's card has reported the rect the
+                // page grows from and its stack is mounted before the growth.
+                dismissSwitcherOnceSettled()
             } label: {
                 Image(systemName: "plus")
             }
@@ -93,16 +95,26 @@ struct BrowserTabSwitcher: View {
     }
 
     private func select(_ tabID: UUID) {
+        guard !isDismissing else { return }
         // Normally already done by the prewarm; here for the tab tapped
         // before it got its turn, so the rebuild still happens before the
         // growth rather than in the middle of it.
         store.restorePathIfNeeded(for: tabID, in: feedManager)
         store.select(tabID)
-        // A tick late, like a new tab: selecting a tab that is not already
-        // live mounts its whole navigation stack, and doing that in the same
-        // pass as the growth starts spends the transition's first frames on
-        // it. Behind the snapshot it is free.
-        Task { @MainActor in dismissSwitcher() }
+        // Selecting a tab mounts its stack if it is not live, and hands the
+        // bottom bar over either way. A tick late was not enough: that work
+        // is drawn in the next frame, which was the growth's first, and the
+        // page froze on the card before it moved. Behind the grid it is free.
+        dismissSwitcherOnceSettled()
+    }
+
+    private func dismissSwitcherOnceSettled() {
+        isDismissing = true
+        Task { @MainActor in
+            await BrowserFrameClock.waitForSettledFrames()
+            dismissSwitcher()
+            isDismissing = false
+        }
     }
 
     private func close(_ tabID: UUID) {
