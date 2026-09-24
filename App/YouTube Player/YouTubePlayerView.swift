@@ -12,6 +12,7 @@ struct YouTubePlayerView: View {
     @Environment(\.openURL) var openURL
     @Environment(\.scenePhase) private var scenePhase
     @Environment(\.dismiss) var dismissSheet
+    @Environment(\.browserTabID) private var browserTabID
     let article: Article
     let showsDismissButton: Bool
     let session: YouTubePlayerSession
@@ -230,6 +231,9 @@ struct YouTubePlayerView: View {
             // the player is in PiP. `onDisappear` also fires when a
             // destination is pushed on top of the player, so a live image
             // viewer means the player is merely covered, not dismissed.
+            // Browser tabs have no mini player either, but also hide and
+            // evict pages, so the tab store decides when the player is gone.
+            guard browserTabID == nil else { return }
             if !hasMiniPlayerAccessory, !isPiP, imageViewerURL == nil,
                session.holds(article) {
                 pauseForOtherPlayer()

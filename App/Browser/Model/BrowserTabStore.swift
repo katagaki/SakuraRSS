@@ -69,6 +69,8 @@ final class BrowserTabStore {
 
     @ObservationIgnored var isPersistenceScheduled = false
 
+    @ObservationIgnored var mediaPages: [UUID: [BrowserPathToken: BrowserMediaPage]] = [:]
+
     init(
         tabs: [BrowserTab] = [],
         selectedTabID: UUID? = nil,
@@ -126,6 +128,7 @@ final class BrowserTabStore {
         isInteractivelyPopping = false
         frozenCanGoBack = nil
         frozenPageIdentity = nil
+        stopMediaLeftBehind(in: selectedTabID)
     }
 
     var selectedTab: BrowserTab {
@@ -275,6 +278,7 @@ final class BrowserTabStore {
         // `tabs` even momentarily takes every reader of `selectedTab` with it.
         guard tabs.count > 1, let index = tabs.firstIndex(where: { $0.id == tabID }) else { return }
         tabs.remove(at: index)
+        stopAllMedia(in: tabID)
         discardSnapshot(for: tabID)
         markAllReadActions[tabID] = nil
         displayStyleOptions[tabID] = nil
@@ -299,6 +303,9 @@ final class BrowserTabStore {
 
     func closeAll() {
         let replacement = BrowserTab()
+        for tabID in mediaPages.keys {
+            stopAllMedia(in: tabID)
+        }
         pageHistories = [:]
         tabsAwaitingPathRestore = []
         tabs = [replacement]
@@ -309,7 +316,11 @@ final class BrowserTabStore {
 
     func updateTab(_ tabID: UUID, _ change: (inout BrowserTab) -> Void) {
         guard let index = tabs.firstIndex(where: { $0.id == tabID }) else { return }
+        let previousDepth = tabs[index].path.count
         change(&tabs[index])
+        if tabs[index].path.count < previousDepth {
+            stopMediaLeftBehind(in: tabID)
+        }
     }
 
     func updateSelectedTab(_ change: (inout BrowserTab) -> Void) {

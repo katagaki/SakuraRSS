@@ -56,8 +56,16 @@ struct ArticleDestinationView: View {
         let article = rawArticle
         if article.isPodcastEpisode {
             PodcastEpisodeView(article: article, audioPlayer: audioPlayer)
+                .browserMediaPage(
+                    ownsMedia: { [audioPlayer] in audioPlayer.currentArticleID == article.id },
+                    stop: { [audioPlayer] in audioPlayer.stop() }
+                )
         } else if article.isYouTubeURL {
             YouTubePlayerView(article: article, session: youTubeSession)
+                .browserMediaPage(
+                    ownsMedia: { [youTubeSession] in youTubeSession.holds(article) },
+                    stop: { [youTubeSession] in youTubeSession.stop() }
+                )
         } else if effectiveOpenMode == .clearThisPage,
                   let url = URL(string: article.url) {
             ClearThisPageView(article: article, url: url)
