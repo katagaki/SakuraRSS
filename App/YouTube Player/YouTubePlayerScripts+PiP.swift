@@ -194,6 +194,22 @@ extension YouTubePlayerScripts {
                     window.__yt.expectingPiPExit = false;
                     send(nowInPiP ? 'enter' : 'leave');
                 });
+            // PiP's play button can start the element directly, bypassing both the
+            // media session and YouTube, so a pause made from PiP would stay
+            // flagged and YouTube would pause again to match its own state.
+            window.__yt.addListener(video, 'play', function() {
+                if (video.webkitPresentationMode !== 'picture-in-picture') return;
+                window.__yt.userPaused = false;
+                window.__yt.autoplayBlocked = false;
+                window.__yt.exitedPiPRecently = false;
+                var player = document.getElementById('movie_player');
+                if (!player || typeof player.getPlayerState !== 'function'
+                    || typeof player.playVideo !== 'function') return;
+                try {
+                    var state = player.getPlayerState();
+                    if (state !== 1 && state !== 3) { player.playVideo(); }
+                } catch (e) {}
+            }, true);
         }
         function tryAttach() {
             var videos = document.querySelectorAll('video');
