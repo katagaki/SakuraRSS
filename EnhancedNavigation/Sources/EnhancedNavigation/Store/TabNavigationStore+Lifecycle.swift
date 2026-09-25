@@ -46,16 +46,16 @@ public extension TabNavigationStore {
     }
 
     func closeAll() {
+        let closedTabIDs = tabs.map(\.id)
         let replacement = Tab()
-        for tabID in mediaPages.keys {
-            stopAllMedia(in: tabID)
+        for tabID in closedTabIDs {
+            discardState(for: tabID)
         }
-        pageHistories = [:]
-        tabsAwaitingPathRestore = []
         tabs = [replacement]
         selectedTabID = replacement.id
         liveTabIDs = [replacement.id]
         persistTabs()
+        onTabsClosed?(closedTabIDs)
     }
 
     func moveTab(_ tabID: UUID, to destinationTabID: UUID) {
@@ -99,5 +99,7 @@ extension TabNavigationStore {
         discardSnapshot(for: tabID)
         pageHistories[tabID] = nil
         overlayPages[tabID] = nil
+        cardFrames[tabID] = nil
+        tabsAwaitingPathRestore.remove(tabID)
     }
 }
