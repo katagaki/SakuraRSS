@@ -51,7 +51,8 @@ extension YouTubePlayerScripts {
         var pageHandlers = { play: null, pause: null };
 
         function wrapper(action) {
-            return function() {
+            return function(details) {
+                window.__yt.log('mediaSession action: ' + action);
                 if (action === 'pause') {
                     window.__yt.userPaused = true;
                 } else {
@@ -61,7 +62,7 @@ extension YouTubePlayerScripts {
                 }
                 var h = pageHandlers[action];
                 if (typeof h === 'function') {
-                    try { h(); return; } catch (e) {}
+                    try { h(details); return; } catch (e) {}
                 }
                 var v = document.querySelector('video');
                 if (!v) return;
