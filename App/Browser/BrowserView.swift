@@ -85,6 +85,7 @@ struct BrowserView: View {
             handlePendingOpenRequestIfNeeded()
         }
         .task {
+            store.loadPersistedSnapshots()
             store.onTabsClosed = { [slots] tabIDs in
                 slots.discard(tabIDs)
             }

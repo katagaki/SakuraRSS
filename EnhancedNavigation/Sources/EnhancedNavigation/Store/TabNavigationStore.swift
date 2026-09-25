@@ -65,8 +65,12 @@ public final class TabNavigationStore<Root: TabRoot, Identity: TabPageIdentity> 
     @ObservationIgnored public var onTabsClosed: (([UUID]) -> Void)?
 
     @ObservationIgnored var isPersistenceScheduled = false
+    @ObservationIgnored var hasLoadedPersistedSnapshots = false
     @ObservationIgnored var mediaPages: [UUID: [PathToken: MediaPage]] = [:]
 
+    /// Side-effect free, so a store made by a view's `@State` initialiser,
+    /// which runs on every init of the view, costs nothing when discarded.
+    /// Call `loadPersistedSnapshots()` once the store is the one in use.
     public init(
         configuration: TabStoreConfiguration,
         tabs: [Tab] = [],
@@ -92,7 +96,6 @@ public final class TabNavigationStore<Root: TabRoot, Identity: TabPageIdentity> 
         self.tabsAwaitingPathRestore = Set(
             pageHistories.filter { $0.value.count > 1 }.keys
         )
-        loadPersistedSnapshots()
     }
 
     public var selectedTab: Tab {

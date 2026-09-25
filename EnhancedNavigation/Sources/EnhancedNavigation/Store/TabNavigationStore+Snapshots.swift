@@ -20,8 +20,10 @@ public extension TabNavigationStore {
         }
     }
 
-    /// Reads last session's snapshots back in off the main actor.
-    internal func loadPersistedSnapshots() {
+    /// Reads last session's snapshots back in off the main actor, once.
+    func loadPersistedSnapshots() {
+        guard !hasLoadedPersistedSnapshots else { return }
+        hasLoadedPersistedSnapshots = true
         let tabIDs = tabs.map(\.id)
         let archive = snapshotArchive
         Task {
