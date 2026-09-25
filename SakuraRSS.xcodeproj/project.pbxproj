@@ -711,7 +711,7 @@
 				E47D10612F54986D006081EF /* XCRemoteSwiftPackageReference "FaviconFinder" */,
 				E47D13162F549F92006081EF /* XCRemoteSwiftPackageReference "SwiftSoup" */,
 				E41D98A62F8B3B6E00FB2880 /* XCRemoteSwiftPackageReference "FluidAudio" */,
-				EA0E4A032FC0A00E003FDAD4 /* XCLocalSwiftPackageReference "EnhancedNavigation" */,
+				EA0E4A032FC0A00E003FDAD4 /* XCLocalSwiftPackageReference "Enhanced Navigation" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = E47D101C2F549605006081EF /* Products */;
@@ -1594,9 +1594,9 @@
 /* End XCConfigurationList section */
 
 /* Begin XCLocalSwiftPackageReference section */
-		EA0E4A032FC0A00E003FDAD4 /* XCLocalSwiftPackageReference "EnhancedNavigation" */ = {
+		EA0E4A032FC0A00E003FDAD4 /* XCLocalSwiftPackageReference "Enhanced Navigation" */ = {
 			isa = XCLocalSwiftPackageReference;
-			relativePath = EnhancedNavigation;
+			relativePath = "Enhanced Navigation";
 		};
 /* End XCLocalSwiftPackageReference section */
 
@@ -1688,7 +1688,7 @@
 		};
 		EA0E4A022FC0A00E003FDAD4 /* EnhancedNavigation */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = EA0E4A032FC0A00E003FDAD4 /* XCLocalSwiftPackageReference "EnhancedNavigation" */;
+			package = EA0E4A032FC0A00E003FDAD4 /* XCLocalSwiftPackageReference "Enhanced Navigation" */;
 			productName = EnhancedNavigation;
 		};
 /* End XCSwiftPackageProductDependency section */
