@@ -26,17 +26,25 @@ struct BrowserTabCardHeader: View {
         .padding(.leading, 10)
         .padding(.trailing, 6)
         .padding(.top, 6)
-        .padding(.bottom, 16)
+        .padding(.bottom, 22)
         .background {
-            LinearGradient(
-                colors: [.clear, .black.opacity(0.55)],
-                startPoint: .bottom,
-                endPoint: .top
-            )
+            LinearGradient(stops: Self.scrimStops, startPoint: .bottom, endPoint: .top)
         }
         // Light glyphs and glass whatever the system appearance: the row
         // always sits on the dark end of the gradient.
         .environment(\.colorScheme, .dark)
+    }
+
+    static let scrimOpacity: Double = 0.4
+
+    /// Eased rather than two-stop: a linear ramp ends in a visible band where
+    /// it meets the preview.
+    static let scrimStops: [Gradient.Stop] = [
+        (0.0, 0.0), (0.018, 0.002), (0.048, 0.008), (0.09, 0.021),
+        (0.139, 0.042), (0.198, 0.075), (0.27, 0.126), (0.35, 0.194),
+        (0.435, 0.278), (0.53, 0.382), (0.66, 0.541), (0.81, 0.738), (1.0, 1.0)
+    ].map { location, opacity in
+        Gradient.Stop(color: .black.opacity(opacity * scrimOpacity), location: location)
     }
 
     private var closeButton: some View {
