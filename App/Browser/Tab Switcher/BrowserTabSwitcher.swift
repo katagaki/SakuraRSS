@@ -49,7 +49,7 @@ struct BrowserTabSwitcher: View {
                 ProfileView(titleDisplayMode: .inline)
                     .environment(feedManager)
             }
-            .sakuraBackground()
+            .background(Color(uiColor: .secondarySystemGroupedBackground).ignoresSafeArea())
         }
         // The grid stays mounted for the whole session, so this runs once,
         // early, and every tab is rebuilt long before one is tapped.
