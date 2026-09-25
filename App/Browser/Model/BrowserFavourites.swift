@@ -40,8 +40,6 @@ final class BrowserFavourites {
             .map { $0 }
     }
 
-    var hasExplicitFavourites: Bool { !feedIDs.isEmpty }
-
     private func persist() {
         UserDefaults.standard.set(feedIDs.map(Int.init), forKey: BrowserFavourites.storageKey)
     }

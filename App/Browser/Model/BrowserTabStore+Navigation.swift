@@ -37,12 +37,6 @@ extension BrowserTabStore {
         persistTabs()
     }
 
-    func popToRoot() {
-        updateSelectedTab { $0.path = NavigationPath() }
-        restoreIdentity(atDepth: 0, for: selectedTabID)
-        persistTabs()
-    }
-
     func pathBinding(for tabID: UUID) -> Binding<NavigationPath> {
         Binding(
             get: { [weak self] in

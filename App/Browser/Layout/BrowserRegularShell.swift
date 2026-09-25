@@ -5,7 +5,6 @@ import Hanami
 /// the way Safari lays itself out when there is room for both.
 struct BrowserRegularShell: View {
 
-    @Environment(FeedManager.self) private var feedManager
     @Environment(BrowserTabStore.self) private var store
     @Environment(BrowserFavourites.self) private var favourites
     @Environment(\.browserBookmarksAction) private var openBookmarks

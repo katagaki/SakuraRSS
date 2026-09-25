@@ -93,11 +93,6 @@ extension BrowserTabStore {
         UserDefaults.standard.set(visitCounts, forKey: BrowserTabStore.visitCountsKey)
     }
 
-    func clearVisitCounts() {
-        visitCounts = [:]
-        UserDefaults.standard.removeObject(forKey: BrowserTabStore.visitCountsKey)
-    }
-
     /// Feed identifiers ordered by how often this browser has opened them.
     var frequentlyVisitedFeedIDs: [Int64] {
         visitCounts

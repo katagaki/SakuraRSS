@@ -27,9 +27,6 @@ enum BrowserAddressMetrics {
     /// keeps a bare strip at both ends however full the bar reads.
     static let glassHorizontalOverhang: CGFloat = 5
 
-    /// The tappable square inside that button's glass.
-    static let leadingButtonHeight: CGFloat = 44
-
     static func addressWidth(forContainerWidth width: CGFloat) -> CGFloat {
         max(0, width - chromeWidth)
     }

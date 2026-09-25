@@ -44,9 +44,4 @@ extension BrowserLocation {
         default: return nil
         }
     }
-
-    var isStartPage: Bool {
-        if case .startPage = self { return true }
-        return false
-    }
 }
