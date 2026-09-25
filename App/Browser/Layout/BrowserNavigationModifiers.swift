@@ -25,6 +25,10 @@ struct BrowserNavigationEnvironment: ViewModifier {
             // No top bar in the browser: the page's own chrome lives in the
             // bottom bar instead.
             .toolbarVisibility(layout == .compact ? .hidden : .automatic, for: .navigationBar)
+            .toolbarVisibility(
+                store.isPageSwappedForSnapshot ? .hidden : .automatic,
+                for: .bottomBar
+            )
             .browserPopGestureEnabled(store: store)
             .toolbar {
                 if layout == .compact {
