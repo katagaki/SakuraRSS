@@ -1,9 +1,10 @@
+import EnhancedNavigation
 import SwiftUI
 
 /// What the visible page calls itself. Pages report this upward because a
 /// `NavigationPath` is opaque once the existing `NavigationLink(value:)` call
 /// sites elsewhere in the app have pushed into it.
-struct BrowserPageIdentity: Equatable, Codable {
+struct BrowserPageIdentity: @MainActor TabPageIdentity {
     var title: String
     var subtitle: String?
     var symbolName: String
@@ -17,9 +18,6 @@ struct BrowserPageIdentity: Equatable, Codable {
 }
 
 extension BrowserPageIdentity {
-    /// Whether two reports are the same page. A page on its way out re-reports
-    /// itself as the stack pops, by which point its path token has already
-    /// unwound to the root's, so the name is what tells the two apart.
     func names(_ other: BrowserPageIdentity) -> Bool {
         if let pathToken, let otherPathToken = other.pathToken {
             return pathToken == otherPathToken

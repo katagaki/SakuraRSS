@@ -1,3 +1,4 @@
+import EnhancedNavigation
 import Foundation
 
 /// Built once per tab: a closure made in `body` is new on every pass, and a
@@ -8,7 +9,7 @@ struct BrowserTabReporters {
     let overlayPage: (UUID, BrowserOverlayPage?) -> Void
     let slot: (BrowserPageSlotReport, BrowserPathToken?) -> Void
 
-    init(store: BrowserTabStore, tabID: UUID) {
+    init(store: BrowserTabStore, slots: BrowserPageSlots, tabID: UUID) {
         page = { identity in
             store.setPageIdentity(identity, for: tabID)
         }
@@ -16,7 +17,7 @@ struct BrowserTabReporters {
             store.setOverlayPage(page, id: overlayID, for: tabID)
         }
         slot = { report, token in
-            store.setSlot(report, token: token, for: tabID)
+            slots.setSlot(report, token: token, for: tabID)
         }
     }
 }

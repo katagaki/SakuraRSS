@@ -2,25 +2,23 @@ import QuartzCore
 
 /// Waits on the display, so work queued now has been laid out and drawn
 /// before whatever comes next starts.
-@MainActor
-enum BrowserFrameClock {
+public enum FrameClock {
 
     /// Two frames rather than one: a tab mounted by the selection runs its
     /// `onAppear` and first state changes in the frame after its own.
-    static func waitForSettledFrames() async {
+    public static func waitForSettledFrames() async {
         await nextFrame()
         await nextFrame()
     }
 
     private static func nextFrame() async {
         await withCheckedContinuation { continuation in
-            BrowserFrameWaiter(continuation: continuation).start()
+            FrameWaiter(continuation: continuation).start()
         }
     }
 }
 
-@MainActor
-private final class BrowserFrameWaiter: NSObject {
+private final class FrameWaiter: NSObject {
 
     private var continuation: CheckedContinuation<Void, Never>?
     private var displayLink: CADisplayLink?

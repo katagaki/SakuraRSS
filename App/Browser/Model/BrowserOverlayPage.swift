@@ -1,14 +1,5 @@
+import EnhancedNavigation
 import SwiftUI
-
-/// A page pushed by `navigationDestination(item:)` rather than onto the tab's
-/// path. The stack shows it, but the path never changes, so it cannot report
-/// itself the way a pushed page does: it is filed against the tab separately
-/// and the address bar prefers it for as long as its binding holds an item.
-struct BrowserOverlayPage: Identifiable {
-    let id: UUID
-    var identity: BrowserPageIdentity
-    var dismiss: () -> Void
-}
 
 private struct BrowserOverlayPageReporterKey: EnvironmentKey {
     static let defaultValue: ((UUID, BrowserOverlayPage?) -> Void)? = nil

@@ -1,3 +1,4 @@
+import EnhancedNavigation
 import SwiftUI
 import Hanami
 
@@ -10,6 +11,7 @@ struct BrowserView: View {
 
     @AppStorage("YouTube.OpenMode") var youTubeOpenMode: YouTubeOpenMode = .inAppPlayer
     @State var store = BrowserTabStore.restored()
+    @State private var slots = BrowserPageSlots()
     @State private var favourites = BrowserFavourites()
     @State private var omnibox = BrowserOmniboxModel()
     @State private var presentedSheet: BrowserSheetKind?
@@ -29,6 +31,7 @@ struct BrowserView: View {
         shell
         .environment(\.isBrowserModeActive, true)
         .environment(store)
+        .environment(slots)
         .environment(favourites)
         .environment(\.browserLayout, layout)
         .environment(\.browserBookmarksAction) {
@@ -82,6 +85,9 @@ struct BrowserView: View {
             handlePendingOpenRequestIfNeeded()
         }
         .task {
+            store.onTabsClosed = { [slots] tabIDs in
+                slots.discard(tabIDs)
+            }
             handlePendingArticleIfNeeded()
             handlePendingOpenRequestIfNeeded()
         }

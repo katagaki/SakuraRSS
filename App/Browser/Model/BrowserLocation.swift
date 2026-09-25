@@ -1,3 +1,4 @@
+import EnhancedNavigation
 import Foundation
 import Hanami
 
@@ -13,7 +14,19 @@ enum BrowserLocation: Hashable {
     case search(String)
 }
 
-extension BrowserLocation {
+extension BrowserLocation: @MainActor TabRoot {
+    static var newTabRoot: BrowserLocation { .startPage }
+
+    init?(persistenceToken: String) {
+        guard let location = BrowserLocation.resolve(token: persistenceToken) else { return nil }
+        self = location
+    }
+
+    var isRecordedAsVisit: Bool {
+        if case .feed = self { return true }
+        return false
+    }
+
     var persistenceToken: String {
         switch self {
         case .startPage: "startPage"

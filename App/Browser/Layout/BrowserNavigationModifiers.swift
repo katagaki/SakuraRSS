@@ -1,3 +1,4 @@
+import EnhancedNavigation
 import SwiftUI
 import Hanami
 
@@ -11,6 +12,7 @@ struct BrowserNavigationEnvironment: ViewModifier {
     @Environment(BrowserOmniboxModel.self) private var omnibox
     @Environment(\.browserAddressWidth) private var addressWidth
     @Environment(BrowserTabStore.self) private var store
+    @Environment(BrowserPageSlots.self) private var slots
     @Environment(BrowserFavourites.self) private var favourites
     @Environment(\.browserTabID) private var tabID
     @Binding var path: NavigationPath
@@ -29,11 +31,12 @@ struct BrowserNavigationEnvironment: ViewModifier {
                 store.isPageSwappedForSnapshot ? .hidden : .automatic,
                 for: .bottomBar
             )
-            .browserPopGestureEnabled(store: store)
+            .interactivePopGesture(for: store)
             .toolbar {
                 if layout == .compact {
                     BrowserBottomToolbar(
                         store: store,
+                        slots: slots,
                         tabID: tabID ?? store.selectedTabID,
                         feedManager: feedManager,
                         favourites: favourites,

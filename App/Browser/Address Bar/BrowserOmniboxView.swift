@@ -1,3 +1,4 @@
+import EnhancedNavigation
 import SwiftUI
 import Hanami
 

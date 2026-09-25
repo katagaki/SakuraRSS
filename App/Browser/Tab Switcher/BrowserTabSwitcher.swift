@@ -1,13 +1,9 @@
+import EnhancedNavigation
 import SwiftUI
 import Hanami
 
 /// Safari's tab grid.
 struct BrowserTabSwitcher: View {
-
-    /// Long enough for the scale to read; the default speed pops.
-    static let transitionDuration: Double = 0.34
-
-    static let transitionAnimation: Animation = .smooth(duration: transitionDuration)
 
     @Environment(BrowserTabStore.self) private var store
     @Environment(FeedManager.self) private var feedManager
@@ -28,16 +24,7 @@ struct BrowserTabSwitcher: View {
                             onClose: { close(tab.id) }
                         )
                         .equatable()
-                        .draggable(tab.id.uuidString)
-                        .dropDestination(for: String.self) { identifiers, _ in
-                            guard let identifier = identifiers.first,
-                                  let draggedTabID = UUID(uuidString: identifier),
-                                  store.tabs.contains(where: { $0.id == draggedTabID }) else { return false }
-                            withAnimation(.smooth) {
-                                store.moveTab(draggedTabID, to: tab.id)
-                            }
-                            return true
-                        }
+                        .reorderableTab(id: tab.id, in: store)
                     }
                 }
                 .padding(16)
@@ -121,7 +108,7 @@ struct BrowserTabSwitcher: View {
     private func dismissSwitcherOnceSettled() {
         isDismissing = true
         Task { @MainActor in
-            await BrowserFrameClock.waitForSettledFrames()
+            await FrameClock.waitForSettledFrames()
             dismissSwitcher()
             isDismissing = false
         }

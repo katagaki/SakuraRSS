@@ -1,3 +1,4 @@
+import EnhancedNavigation
 import SwiftUI
 import Hanami
 
@@ -14,11 +15,11 @@ struct BrowserTabContentView: View {
     @State private var reporters: BrowserTabReporters
     @Namespace private var cardZoom
 
-    init(store: BrowserTabStore, tabID: UUID, location: BrowserLocation) {
+    init(store: BrowserTabStore, slots: BrowserPageSlots, tabID: UUID, location: BrowserLocation) {
         self.store = store
         self.tabID = tabID
         self.location = location
-        _reporters = State(initialValue: BrowserTabReporters(store: store, tabID: tabID))
+        _reporters = State(initialValue: BrowserTabReporters(store: store, slots: slots, tabID: tabID))
     }
 
     var body: some View {

@@ -1,12 +1,12 @@
 import SwiftUI
 
-extension BrowserTabStore {
+public extension TabNavigationStore {
 
-    var displayedOverlayPage: BrowserOverlayPage? {
+    var displayedOverlayPage: OverlayPage<Identity>? {
         overlayPages[selectedTabID]?.last
     }
 
-    func setOverlayPage(_ page: BrowserOverlayPage?, id: UUID, for tabID: UUID) {
+    func setOverlayPage(_ page: OverlayPage<Identity>?, id: UUID, for tabID: UUID) {
         var pages = overlayPages[tabID] ?? []
         if let page {
             if let index = pages.firstIndex(where: { $0.id == id }) {

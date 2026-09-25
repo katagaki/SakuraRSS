@@ -1,8 +1,8 @@
 import SwiftUI
 
-/// Clips the page as it collapses. A shape rather than a frame: animating a
-/// frame re-lays the page out on every tick.
-nonisolated struct BrowserPageClipShape: Shape {
+/// Clips a page as it collapses onto a card. A shape rather than a frame:
+/// animating a frame re-lays the page out on every tick.
+nonisolated struct CollapsingPageClipShape: Shape {
 
     /// Where the window leaves the page's proportions for the card's. Cropping
     /// any earlier parks the bottom edge and leaves the top one sliding down
@@ -39,7 +39,7 @@ nonisolated struct BrowserPageClipShape: Shape {
     /// The page's proportions for most of the way, the card's by the end.
     private func height(atWidth width: CGFloat, zoom: CGFloat) -> CGFloat {
         guard expanded.width > 0, collapsed.width > 0 else { return expanded.height }
-        let start = BrowserPageClipShape.tuckingStart
+        let start = CollapsingPageClipShape.tuckingStart
         let tucking = min(max((zoom - start) / (1 - start), 0), 1)
         return interpolate(
             expanded.height * width / expanded.width,

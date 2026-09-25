@@ -1,3 +1,4 @@
+import EnhancedNavigation
 import Foundation
 import Hanami
 
@@ -97,7 +98,7 @@ struct BrowserLocationDescription: Equatable {
     @MainActor
     static func describe(_ tab: BrowserTab, feedManager: FeedManager) -> BrowserLocationDescription {
         guard let identity = tab.pageIdentity else {
-            return describe(tab.location, feedManager: feedManager)
+            return describe(tab.root, feedManager: feedManager)
         }
         return BrowserLocationDescription(
             title: identity.title,

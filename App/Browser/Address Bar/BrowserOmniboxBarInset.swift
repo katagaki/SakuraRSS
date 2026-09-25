@@ -1,3 +1,4 @@
+import EnhancedNavigation
 import SwiftUI
 
 /// Keeps the editing bar on the line the bottom bar's glass occupies: 8pt
@@ -30,7 +31,7 @@ struct BrowserOmniboxBarInset: ViewModifier {
     private var restingInset: CGFloat {
         min(
             BrowserOmniboxBarInset.gapAboveKeyboard,
-            BrowserOmniboxBarInset.gapAboveWindowBottom - BrowserDeviceMetrics.safeAreaInsets.bottom
+            BrowserOmniboxBarInset.gapAboveWindowBottom - DisplayMetrics.safeAreaInsets.bottom
         )
     }
 }

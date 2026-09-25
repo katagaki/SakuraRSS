@@ -1,3 +1,4 @@
+import EnhancedNavigation
 import SwiftUI
 import Hanami
 
@@ -6,6 +7,7 @@ import Hanami
 struct BrowserRegularShell: View {
 
     @Environment(BrowserTabStore.self) private var store
+    @Environment(BrowserPageSlots.self) private var slots
     @Environment(BrowserFavourites.self) private var favourites
     @Environment(\.browserBookmarksAction) private var openBookmarks
     @Environment(\.browserOmniboxAction) private var openOmnibox
@@ -34,7 +36,10 @@ struct BrowserRegularShell: View {
             .disabled(!store.selectedTab.canGoBack)
             .accessibilityLabel(String(localized: "AddressBar.Back", table: "Browser"))
 
-            BrowserAddressCapsule(tab: store.selectedTab, progress: store.displayedProgress) {
+            BrowserAddressCapsule(
+                tab: store.selectedTab,
+                progress: slots.displayedProgress(for: store.selectedTabID, in: store)
+            ) {
                 openOmnibox?()
             }
             .frame(maxWidth: 560)

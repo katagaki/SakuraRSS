@@ -1,3 +1,4 @@
+import EnhancedNavigation
 import SwiftUI
 
 /// What a page hands the address bar, tagged with the page that sent it.
@@ -13,16 +14,7 @@ enum BrowserPageSlotReport {
     case progress(BrowserAddressProgress?)
 }
 
-/// A slot's contents, alongside the path token of the page that filled it.
-struct BrowserPageSlot<Value> {
-    let token: BrowserPathToken?
-    let value: Value
-
-    /// The value, but only for the page the bar is currently naming.
-    func value(forPageAt token: BrowserPathToken?) -> Value? {
-        self.token == token ? value : nil
-    }
-}
+typealias BrowserPageSlot<Value> = PageSlot<BrowserPathToken, Value>
 
 private struct BrowserPageSlotReporterKey: EnvironmentKey {
     static let defaultValue: ((BrowserPageSlotReport, BrowserPathToken?) -> Void)? = nil

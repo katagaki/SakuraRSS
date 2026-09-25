@@ -1,16 +1,14 @@
-import SwiftUI
+import UIKit
 
-@MainActor
-enum BrowserTabSnapshotter {
+public enum WindowSnapshotter {
 
-    /// Points, not pixels: the renderer draws at the display's scale.
-    private static let targetWidth: CGFloat = 200
-
-    /// See `captureVisiblePage`.
+    /// Rasterising the window is software drawing on the main thread, and
+    /// its cost runs with the pixel count.
     private static let maximumScale: CGFloat = 2
 
-    /// Captures the safe area of what is on screen right now.
-    static func captureVisiblePage() -> UIImage? {
+    /// Captures the safe area of the key window as it is on screen right now,
+    /// scaled down to `width` points across.
+    public static func captureVisiblePage(width targetWidth: CGFloat) -> UIImage? {
         guard let window = UIApplication.shared.connectedScenes
             .compactMap({ ($0 as? UIWindowScene)?.keyWindow })
             .first, window.bounds.width > 0 else { return nil }
@@ -22,11 +20,10 @@ enum BrowserTabSnapshotter {
 
         let size = CGSize(width: targetWidth, height: height * scale)
         let format = UIGraphicsImageRendererFormat.default()
-        // Capped, not the display's own scale: `drawHierarchy` rasterises the
-        // whole window in software on the main thread, and its cost runs with
-        // the pixel count. A 3x card is invisibly sharper than a 2x one and
-        // costs more than twice as much to draw, right as the tap lands.
-        // traitCollection rather than screen: visionOS has no UIScreen.
+        // Capped, not the display's own scale: a 3x card is invisibly sharper
+        // than a 2x one and costs more than twice as much to draw, right as
+        // the tap lands. traitCollection rather than screen: visionOS has no
+        // UIScreen.
         format.scale = min(window.traitCollection.displayScale, maximumScale)
         // No alpha to blend or carry: the page behind is opaque anyway.
         format.opaque = true

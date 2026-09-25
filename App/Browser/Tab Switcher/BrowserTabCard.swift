@@ -1,3 +1,4 @@
+import EnhancedNavigation
 import SwiftUI
 import Hanami
 
@@ -42,11 +43,13 @@ struct BrowserTabCard: View {
             Color.clear
                 .aspectRatio(BrowserTabCard.previewAspectRatio, contentMode: .fit)
                 .overlay(alignment: .top) {
-                    BrowserTabPreview(tab: tab)
+                    TabSnapshotView(store: store, tabID: tab.id) {
+                        standIn
+                    }
                 }
                 .overlay(alignment: .top) {
                     ZStack(alignment: .top) {
-                        BrowserTabHeaderBlur(tab: tab)
+                        TabSnapshotHeaderBlur(store: store, tabID: tab.id)
                         BrowserTabCardHeader(
                             description: description,
                             canClose: store.canCloseTabs,
@@ -72,7 +75,7 @@ struct BrowserTabCard: View {
                     .padding(-BrowserTabCard.selectionRingInset)
                 }
                 .contentShape(.rect(cornerRadius: BrowserTabCard.cornerRadius))
-                .reportsTabCardFrame(id: tab.id, to: store)
+                .tabCardFrame(id: tab.id, in: store)
         }
         .offset(x: dragOffset)
         .opacity(closeProgress)
@@ -90,6 +93,17 @@ struct BrowserTabCard: View {
                 isHeaderVisible = false
             }
         }
+    }
+
+    /// The app's own mark, for a tab that has not been left yet, so has no
+    /// snapshot.
+    private var standIn: some View {
+        Image("SakuraIcon")
+            .resizable()
+            .scaledToFit()
+            .frame(width: 56)
+            .foregroundStyle(.tertiary)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
     /// Fades the card as it is pushed away, so the swipe reads as closing.
@@ -132,7 +146,7 @@ struct BrowserTabCard: View {
 extension BrowserTabCard: Equatable {
     static func == (lhs: BrowserTabCard, rhs: BrowserTabCard) -> Bool {
         lhs.tab.id == rhs.tab.id
-            && lhs.tab.location == rhs.tab.location
+            && lhs.tab.root == rhs.tab.root
             && lhs.tab.pageIdentity == rhs.tab.pageIdentity
             && lhs.isSelected == rhs.isSelected
     }

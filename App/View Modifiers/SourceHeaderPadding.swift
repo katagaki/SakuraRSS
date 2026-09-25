@@ -1,3 +1,4 @@
+import EnhancedNavigation
 import SwiftUI
 
 struct SourceHeaderPadding: ViewModifier {
@@ -9,7 +10,7 @@ struct SourceHeaderPadding: ViewModifier {
     /// the same amount again below to keep it centred in its own space.
     private var browserInset: CGFloat {
         guard isBrowserChromeActive else { return 0 }
-        return max(BrowserDeviceMetrics.safeAreaInsets.top - 24, 0)
+        return max(DisplayMetrics.safeAreaInsets.top - 24, 0)
     }
 
     func body(content: Content) -> some View {

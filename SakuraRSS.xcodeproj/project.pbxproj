@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		EA0E4A012FC0A00E003FDAD4 /* EnhancedNavigation in Frameworks */ = {isa = PBXBuildFile; productRef = EA0E4A022FC0A00E003FDAD4 /* EnhancedNavigation */; };
 		AA000001AABB0001006081EF /* SQLite in Frameworks */ = {isa = PBXBuildFile; productRef = AA000001AABB0002006081EF /* SQLite */; };
 		AA000001AABB0003006081EF /* SQLite in Frameworks */ = {isa = PBXBuildFile; productRef = AA000001AABB0004006081EF /* SQLite */; };
 		E41D98A82F8B3B6E00FB2880 /* FluidAudio in Frameworks */ = {isa = PBXBuildFile; platformFilters = (ios, maccatalyst, ); productRef = E41D98A72F8B3B6E00FB2880 /* FluidAudio */; };
@@ -280,6 +281,7 @@
 				E47D10632F54986D006081EF /* FaviconFinder in Frameworks */,
 				E41D98A82F8B3B6E00FB2880 /* FluidAudio in Frameworks */,
 				E47D13182F549F92006081EF /* SwiftSoup in Frameworks */,
+				EA0E4A012FC0A00E003FDAD4 /* EnhancedNavigation in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -462,6 +464,7 @@
 				E47D10622F54986D006081EF /* FaviconFinder */,
 				E47D13172F549F92006081EF /* SwiftSoup */,
 				E41D98A72F8B3B6E00FB2880 /* FluidAudio */,
+				EA0E4A022FC0A00E003FDAD4 /* EnhancedNavigation */,
 			);
 			productName = SakuraRSS;
 			productReference = E47D101B2F549605006081EF /* Sakura.app */;
@@ -570,6 +573,7 @@
 				E47D10612F54986D006081EF /* XCRemoteSwiftPackageReference "FaviconFinder" */,
 				E47D13162F549F92006081EF /* XCRemoteSwiftPackageReference "SwiftSoup" */,
 				E41D98A62F8B3B6E00FB2880 /* XCRemoteSwiftPackageReference "FluidAudio" */,
+				EA0E4A032FC0A00E003FDAD4 /* XCLocalSwiftPackageReference "EnhancedNavigation" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = E47D101C2F549605006081EF /* Products */;
@@ -1447,6 +1451,13 @@
 		};
 /* End XCConfigurationList section */
 
+/* Begin XCLocalSwiftPackageReference section */
+		EA0E4A032FC0A00E003FDAD4 /* XCLocalSwiftPackageReference "EnhancedNavigation" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = EnhancedNavigation;
+		};
+/* End XCLocalSwiftPackageReference section */
+
 /* Begin XCRemoteSwiftPackageReference section */
 		E41D98A62F8B3B6E00FB2880 /* XCRemoteSwiftPackageReference "FluidAudio" */ = {
 			isa = XCRemoteSwiftPackageReference;
@@ -1483,6 +1494,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		EA0E4A022FC0A00E003FDAD4 /* EnhancedNavigation */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = EA0E4A032FC0A00E003FDAD4 /* XCLocalSwiftPackageReference "EnhancedNavigation" */;
+			productName = EnhancedNavigation;
+		};
 		AA000001AABB0002006081EF /* SQLite */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = E47D102C2F5497AC006081EF /* XCRemoteSwiftPackageReference "SQLite.swift" */;

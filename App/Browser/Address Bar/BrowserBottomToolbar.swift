@@ -1,3 +1,4 @@
+import EnhancedNavigation
 import SwiftUI
 import Hanami
 
@@ -6,6 +7,7 @@ import Hanami
 struct BrowserBottomToolbar: ToolbarContent {
 
     let store: BrowserTabStore
+    let slots: BrowserPageSlots
     /// The tab this page belongs to. The bar reads its own tab's state, not
     /// the selection's, so switching tabs leaves the other tabs' bars alone.
     let tabID: UUID
@@ -59,6 +61,7 @@ struct BrowserBottomToolbar: ToolbarContent {
         ToolbarItem(placement: .bottomBar) {
             BrowserAddressItem(
                 store: store,
+                slots: slots,
                 tabID: tabID,
                 favourites: favourites,
                 width: addressWidth,

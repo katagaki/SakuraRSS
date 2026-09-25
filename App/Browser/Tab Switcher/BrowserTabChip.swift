@@ -1,3 +1,4 @@
+import EnhancedNavigation
 import SwiftUI
 import Hanami
 
@@ -48,7 +49,7 @@ struct BrowserTabChip: View {
 extension BrowserTabChip: Equatable {
     static func == (lhs: BrowserTabChip, rhs: BrowserTabChip) -> Bool {
         lhs.tab.id == rhs.tab.id
-            && lhs.tab.location == rhs.tab.location
+            && lhs.tab.root == rhs.tab.root
             && lhs.tab.pageIdentity == rhs.tab.pageIdentity
             && lhs.isSelected == rhs.isSelected
     }
