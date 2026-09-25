@@ -5,6 +5,8 @@ struct BookmarkTagArticlesView: View {
 
     @Environment(FeedManager.self) private var feedManager
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.isBrowserChromeActive) private var isBrowserChromeActive
+    @Environment(\.browserDisplayStyleReporter) private var displayStyleReporter
 
     let tag: BookmarkTag
 
@@ -50,21 +52,26 @@ struct BookmarkTagArticlesView: View {
         .navigationTitle(tag.name)
         .toolbarTitleDisplayMode(.inline)
         .toolbar {
-            ToolbarItemGroup(placement: .topBarTrailing) {
-                Menu {
-                    DisplayStylePicker(
-                        displayStyle: $displayStyle,
-                        hasImages: hasImages,
-                        showCards: false,
-                        showScroll: false
-                    )
-                } label: {
-                    Image(systemName: "line.3.horizontal.decrease")
+            if !isBrowserChromeActive {
+                ToolbarItemGroup(placement: .topBarTrailing) {
+                    Menu {
+                        DisplayStylePicker(
+                            displayStyle: $displayStyle,
+                            hasImages: hasImages,
+                            showCards: false,
+                            showScroll: false
+                        )
+                    } label: {
+                        Image(systemName: "line.3.horizontal.decrease")
+                    }
+                    .menuActionDismissBehavior(.disabled)
                 }
-                .menuActionDismissBehavior(.disabled)
             }
         }
         .animation(.smooth.speed(2.0), value: articleIDs)
+        .onAppear { reportDisplayStyleToBrowser() }
+        .onDisappear { displayStyleReporter?(nil) }
+        .task(id: hasImages) { reportDisplayStyleToBrowser() }
         .task(id: feedManager.dataRevision) {
             await reloadArticles()
         }
@@ -82,5 +89,19 @@ struct BookmarkTagArticlesView: View {
         }
         articles = loaded
         articleIDs = loaded.map(\.id)
+    }
+
+    private func reportDisplayStyleToBrowser() {
+        guard isBrowserChromeActive else {
+            displayStyleReporter?(nil)
+            return
+        }
+        displayStyleReporter?(BrowserDisplayStyleOptions(
+            displayStyle: $displayStyle,
+            hasImages: hasImages,
+            showsPodcast: false,
+            showsCards: false,
+            showsScroll: false
+        ))
     }
 }

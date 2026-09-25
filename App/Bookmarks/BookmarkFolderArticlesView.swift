@@ -5,6 +5,8 @@ struct BookmarkFolderArticlesView: View {
 
     @Environment(FeedManager.self) var feedManager
     @Environment(\.dismiss) var dismiss
+    @Environment(\.isBrowserChromeActive) private var isBrowserChromeActive
+    @Environment(\.browserDisplayStyleReporter) private var displayStyleReporter
     let folder: BookmarkFolder
 
     @State private var articles: [Article] = []
@@ -84,21 +86,23 @@ struct BookmarkFolderArticlesView: View {
         // reserves empty large title space above the header.
         .toolbarTitleDisplayMode(.inline)
         .toolbar {
-            ToolbarItem(placement: .principal) {
-                principalTitle
-            }
-            ToolbarItemGroup(placement: .topBarTrailing) {
-                Menu {
-                    DisplayStylePicker(
-                        displayStyle: $displayStyle,
-                        hasImages: hasImages,
-                        showCards: false,
-                        showScroll: false
-                    )
-                } label: {
-                    Image(systemName: "line.3.horizontal.decrease")
+            if !isBrowserChromeActive {
+                ToolbarItem(placement: .principal) {
+                    principalTitle
                 }
-                .menuActionDismissBehavior(.disabled)
+                ToolbarItemGroup(placement: .topBarTrailing) {
+                    Menu {
+                        DisplayStylePicker(
+                            displayStyle: $displayStyle,
+                            hasImages: hasImages,
+                            showCards: false,
+                            showScroll: false
+                        )
+                    } label: {
+                        Image(systemName: "line.3.horizontal.decrease")
+                    }
+                    .menuActionDismissBehavior(.disabled)
+                }
             }
         }
         .onScrollGeometryChange(for: Bool.self) { geometry in
@@ -114,6 +118,9 @@ struct BookmarkFolderArticlesView: View {
         .onChange(of: displayStyle) { _, newValue in
             feedManager.updateBookmarkFolderDisplayStyle(currentFolder, displayStyle: newValue.rawValue)
         }
+        .onAppear { reportDisplayStyleToBrowser() }
+        .onDisappear { displayStyleReporter?(nil) }
+        .task(id: hasImages) { reportDisplayStyleToBrowser() }
         .task(id: feedManager.dataRevision) {
             await reloadArticles()
         }
@@ -155,5 +162,19 @@ struct BookmarkFolderArticlesView: View {
         if Task.isCancelled { return }
         articles = loaded
         articleIDs = loaded.map(\.id)
+    }
+
+    private func reportDisplayStyleToBrowser() {
+        guard isBrowserChromeActive else {
+            displayStyleReporter?(nil)
+            return
+        }
+        displayStyleReporter?(BrowserDisplayStyleOptions(
+            displayStyle: $displayStyle,
+            hasImages: hasImages,
+            showsPodcast: false,
+            showsCards: false,
+            showsScroll: false
+        ))
     }
 }
