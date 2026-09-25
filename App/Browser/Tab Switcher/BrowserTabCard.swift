@@ -45,11 +45,14 @@ struct BrowserTabCard: View {
                     BrowserTabPreview(tab: tab)
                 }
                 .overlay(alignment: .top) {
-                    BrowserTabCardHeader(
-                        description: description,
-                        canClose: store.canCloseTabs,
-                        onClose: onClose
-                    )
+                    ZStack(alignment: .top) {
+                        BrowserTabHeaderBlur(tab: tab)
+                        BrowserTabCardHeader(
+                            description: description,
+                            canClose: store.canCloseTabs,
+                            onClose: onClose
+                        )
+                    }
                     .opacity(isHeaderVisible ? 1 : 0)
                 }
                 .background(.background.secondary)
