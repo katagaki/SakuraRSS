@@ -1007,7 +1007,7 @@
 				CURRENT_PROJECT_VERSION = 10;
 				DEVELOPMENT_TEAM = YYM4Z6MU8F;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = "Bookmark Article/Info.plist";
+				INFOPLIST_FILE = "Extensions/Bookmark Article/Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "Bookmark Page";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
@@ -1043,7 +1043,7 @@
 				CURRENT_PROJECT_VERSION = 10;
 				DEVELOPMENT_TEAM = YYM4Z6MU8F;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = "Bookmark Article/Info.plist";
+				INFOPLIST_FILE = "Extensions/Bookmark Article/Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "Bookmark Page";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
@@ -1078,7 +1078,7 @@
 				CURRENT_PROJECT_VERSION = 10;
 				DEVELOPMENT_TEAM = YYM4Z6MU8F;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = "Open Article/Info.plist";
+				INFOPLIST_FILE = "Extensions/Open Article/Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "Open in Sakura";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
@@ -1114,7 +1114,7 @@
 				CURRENT_PROJECT_VERSION = 10;
 				DEVELOPMENT_TEAM = YYM4Z6MU8F;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = "Open Article/Info.plist";
+				INFOPLIST_FILE = "Extensions/Open Article/Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "Open in Sakura";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
@@ -1384,7 +1384,7 @@
 				CURRENT_PROJECT_VERSION = 10;
 				DEVELOPMENT_TEAM = YYM4Z6MU8F;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = "Add Feed/Info.plist";
+				INFOPLIST_FILE = "Extensions/Add Feed/Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "Add Feed";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
@@ -1421,7 +1421,7 @@
 				CURRENT_PROJECT_VERSION = 10;
 				DEVELOPMENT_TEAM = YYM4Z6MU8F;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = "Add Feed/Info.plist";
+				INFOPLIST_FILE = "Extensions/Add Feed/Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "Add Feed";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
@@ -1459,7 +1459,7 @@
 				CURRENT_PROJECT_VERSION = 10;
 				DEVELOPMENT_TEAM = YYM4Z6MU8F;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = Widgets/Info.plist;
+				INFOPLIST_FILE = Extensions/Widgets/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Widgets;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
@@ -1497,7 +1497,7 @@
 				CURRENT_PROJECT_VERSION = 10;
 				DEVELOPMENT_TEAM = YYM4Z6MU8F;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = Widgets/Info.plist;
+				INFOPLIST_FILE = Extensions/Widgets/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Widgets;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				IPHONEOS_DEPLOYMENT_TARGET = 26.1;
