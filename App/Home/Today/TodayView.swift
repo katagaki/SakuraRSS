@@ -1,8 +1,7 @@
 import SwiftUI
 import Hanami
 
-/// Top-level Today tab content: greeting + weather, summary cards, bookmarks,
-/// and recently viewed. Topics live on their own page.
+/// Top-level Today tab content: greeting, weather, bookmarks, and recently viewed.
 struct TodayView: View {
 
     /// Optional content pinned directly below the greeting. The browser shell
@@ -14,17 +13,6 @@ struct TodayView: View {
     @Environment(\.verticalSizeClass) var verticalSizeClass
     @AppStorage("Intelligence.ContentInsights.Enabled") var contentInsightsEnabled: Bool = false
     @Bindable var weatherService: TodayWeatherService = .shared
-
-    @State var sleptHasSummary = false
-    @State var afternoonHasSummary = false
-    @State var todayHasSummary = false
-    @State var sleptVisible = false
-    @State var afternoonVisible = false
-    @State var todayVisible = false
-
-    @State var summaryRefreshTrigger: Int = 0
-    @State var anySummaryActive = false
-    @State var summaryArticleCounts: [SummaryCardKind: Int] = [:]
 
     var body: some View {
         Group {
@@ -52,34 +40,10 @@ struct TodayView: View {
                 dataRevision: feedManager.dataRevision,
                 loadEntities: contentInsightsEnabled
             )
-            updateAnySummaryActive()
         }
     }
 
     // MARK: - Layouts
-
-    var summaryCardsStack: some View {
-        VStack(spacing: 0) {
-            WhileYouSleptView(
-                hasSummary: $sleptHasSummary, flatStyle: true,
-                isVisible: $sleptVisible,
-                refreshTrigger: summaryRefreshTrigger,
-                articleCount: summaryArticleCount(for: .whileYouSlept)
-            )
-            AfternoonBriefView(
-                hasSummary: $afternoonHasSummary,
-                isVisible: $afternoonVisible,
-                refreshTrigger: summaryRefreshTrigger,
-                articleCount: summaryArticleCount(for: .afternoonBrief)
-            )
-            TodaysSummaryView(
-                hasSummary: $todayHasSummary, flatStyle: true,
-                isVisible: $todayVisible,
-                refreshTrigger: summaryRefreshTrigger,
-                articleCount: summaryArticleCount(for: .todaysSummary)
-            )
-        }
-    }
 
     @ViewBuilder
     func contentSectionsStack(

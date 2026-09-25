@@ -1,7 +1,7 @@
 import SwiftUI
 
 /// Two-column landscape layout: a fixed glass column with the greeting,
-/// weather, and headlines on the leading side, and the remaining Today
+/// weather on the leading side, and the remaining Today
 /// sections scrolling beside it. Section carousels span the full width so
 /// their cards flow beneath the glass column instead of clipping at its edge.
 extension TodayView {
@@ -57,12 +57,8 @@ extension TodayView {
 
                 pinnedSection
 
-                if isWeatherShowing || anySummaryActive {
+                if isWeatherShowing {
                     sectionDivider
-                }
-
-                if anySummaryActive {
-                    summaryCardsStack
                 }
 
                 TodayAttributionFooter()

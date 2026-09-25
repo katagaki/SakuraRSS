@@ -1,5 +1,4 @@
 import SwiftUI
-import FoundationModels
 import Hanami
 
 struct OnboardingView: View {
@@ -8,9 +7,6 @@ struct OnboardingView: View {
     @AppStorage("Display.DefaultStyle") var defaultDisplayStyle: FeedDisplayStyle = .inbox
     @AppStorage("Search.DisplayStyle") var searchDisplayStyle: FeedDisplayStyle = .inbox
     @AppStorage("BackgroundRefresh.Enabled") var backgroundRefreshEnabled: Bool = true
-    @AppStorage("TodaysSummary.Enabled") var todaysSummaryEnabled: Bool = false
-    @AppStorage("AfternoonBrief.Enabled") var afternoonBriefEnabled: Bool = false
-    @AppStorage("WhileYouSlept.Enabled") var whileYouSleptEnabled: Bool = false
 
     @State var currentStep: OnboardingStep = .welcome
     @State var urlInput = ""
@@ -27,20 +23,6 @@ struct OnboardingView: View {
 
     var appName: String {
         Bundle.main.object(forInfoDictionaryKey: "CFBundleName") as? String ?? "Sakura"
-    }
-
-    var isAppleIntelligenceAvailable: Bool {
-        SystemLanguageModel.default.availability == .available
-    }
-
-    /// The Apple Intelligence step only configures the summary cards, which
-    /// render inside Today and therefore have no visionOS counterpart.
-    var offersSummaryCards: Bool {
-        #if os(visionOS)
-        false
-        #else
-        isAppleIntelligenceAvailable
-        #endif
     }
 
     var body: some View {
@@ -77,8 +59,6 @@ struct OnboardingView: View {
             backgroundRefreshStep
         case .displayStyle:
             displayStyleStep
-        case .appleIntelligence:
-            appleIntelligenceStep
         case .addFeed:
             addFeedStep
         }
@@ -95,14 +75,8 @@ struct OnboardingView: View {
                 currentStep = .welcome
             case .displayStyle:
                 currentStep = .backgroundRefresh
-            case .appleIntelligence:
-                currentStep = .displayStyle
             case .addFeed:
-                if offersSummaryCards {
-                    currentStep = .appleIntelligence
-                } else {
-                    currentStep = .displayStyle
-                }
+                currentStep = .displayStyle
             }
         }
     }
@@ -115,14 +89,6 @@ struct OnboardingView: View {
             case .backgroundRefresh:
                 currentStep = .displayStyle
             case .displayStyle:
-                if offersSummaryCards {
-                    currentStep = .appleIntelligence
-                } else {
-                    todaysSummaryEnabled = false
-                    whileYouSleptEnabled = false
-                    currentStep = .addFeed
-                }
-            case .appleIntelligence:
                 currentStep = .addFeed
             case .addFeed:
                 onComplete()
