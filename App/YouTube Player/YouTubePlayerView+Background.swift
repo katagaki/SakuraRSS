@@ -20,9 +20,10 @@ extension YouTubePlayerView {
         case .background, .inactive:
             // Coming back passes through `.inactive` too, after the video may
             // have been paused in the background; only leaving `.active` says
-            // whether it was playing.
+            // whether it was playing. PiP carries playback on its own, and
+            // closing it in the background is a deliberate stop.
             if oldPhase == .active {
-                wantsPlaybackInBackground = isPlaying
+                wantsPlaybackInBackground = isPlaying && !isPiP
             }
             session.rememberPlaybackPosition()
         case .active:
@@ -65,6 +66,7 @@ extension YouTubePlayerView {
         let script = """
         (function() {
             if (window.__yt && window.__yt.userPaused === true) return;
+            if (window.__yt && window.__yt.exitedPiPRecently === true) return;
             var v = document.querySelector('video');
             if (v && v.paused && !v.ended) {
                 var p = v.play();
