@@ -203,12 +203,14 @@ extension YouTubePlayerScripts {
                 window.__yt.autoplayBlocked = false;
                 window.__yt.exitedPiPRecently = false;
                 var player = document.getElementById('movie_player');
-                if (!player || typeof player.getPlayerState !== 'function'
-                    || typeof player.playVideo !== 'function') return;
-                try {
-                    var state = player.getPlayerState();
-                    if (state !== 1 && state !== 3) { player.playVideo(); }
-                } catch (e) {}
+                if (!player || typeof player.playVideo !== 'function') return;
+                try { player.playVideo(); } catch (e) {}
+            }, true);
+            window.__yt.addListener(video, 'pause', function() {
+                if (video.webkitPresentationMode !== 'picture-in-picture') return;
+                var player = document.getElementById('movie_player');
+                if (!player || typeof player.pauseVideo !== 'function') return;
+                try { player.pauseVideo(); } catch (e) {}
             }, true);
         }
         function tryAttach() {

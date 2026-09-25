@@ -296,6 +296,10 @@ nonisolated enum YouTubePlayerScripts {
             if (!video || video.__ytPauseGuardAttached) return;
             video.__ytPauseGuardAttached = true;
             window.__yt.addListener(video, 'pause', function() {
+                if (video.webkitPresentationMode === 'picture-in-picture') {
+                    window.__yt.userPaused = true;
+                    return;
+                }
                 if (window.__yt.userPaused === true) return;
                 if (window.__yt.autoplayBlocked === true) return;
                 // System tore down PiP, don't resume audio "headlessly"
