@@ -12,7 +12,6 @@ struct MainTabView: View {
     @AppStorage("App.SelectedTab") private var selectedTab: AppTab = .home
     @AppStorage("Onboarding.Completed") private var onboardingCompleted: Bool = false
     @AppStorage("Display.UnreadBadgeMode") private var unreadBadgeMode: UnreadBadgeMode = .none
-    @AppStorage("Browser.Enabled") private var browserEnabled: Bool = false
     @Binding var pendingFeedURL: String?
     @Binding var pendingArticleID: Int64?
     @Binding var pendingOpenRequest: OpenArticleRequest?
@@ -25,11 +24,11 @@ struct MainTabView: View {
 
     var body: some View {
         Group {
-            if browserEnabled {
-                browserView
-            } else {
-                standardView
-            }
+            #if os(iOS) && !targetEnvironment(macCatalyst)
+            browserView
+            #else
+            standardView
+            #endif
         }
         .compatibleSoftScrollEdgeEffectStyle()
         #if os(visionOS) || targetEnvironment(macCatalyst)
