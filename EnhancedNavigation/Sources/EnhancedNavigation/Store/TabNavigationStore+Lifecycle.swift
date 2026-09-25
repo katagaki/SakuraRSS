@@ -6,6 +6,7 @@ public extension TabNavigationStore {
         guard tabs.contains(where: { $0.id == tabID }) else { return }
         selectedTabID = tabID
         markLive(tabID)
+        persistTabs()
     }
 
     @discardableResult
