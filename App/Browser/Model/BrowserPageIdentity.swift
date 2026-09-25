@@ -58,6 +58,7 @@ private struct BrowserPageModifier: ViewModifier {
             .environment(\.browserArticleActionsReporter) { report(.article($0)) }
             .environment(\.browserBookmarksActionsReporter) { report(.bookmarks($0)) }
             .environment(\.browserFollowingActionsReporter) { report(.following($0)) }
+            .environment(\.browserStartPageActionsReporter) { report(.startPage($0)) }
             .environment(\.browserDisplayStyleReporter) { report(.displayStyle($0)) }
             .environment(\.browserPageProgressReporter) { report(.progress($0)) }
             .onAppear { reporter?(reported) }

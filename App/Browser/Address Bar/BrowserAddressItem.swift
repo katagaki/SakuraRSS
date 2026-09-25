@@ -36,6 +36,10 @@ struct BrowserAddressItem: View {
         store.followingActions[tabID]?.value(forPageAt: pageToken)
     }
 
+    private var startPageActions: BrowserStartPageActions? {
+        store.startPageActions[tabID]?.value(forPageAt: pageToken)
+    }
+
     private var displayStyleOptions: BrowserDisplayStyleOptions? {
         store.displayStyleOptions[tabID]?.value(forPageAt: pageToken)
     }
@@ -49,6 +53,8 @@ struct BrowserAddressItem: View {
             .bookmarks
         } else if followingActions != nil {
             .following
+        } else if startPageActions != nil {
+            .startPage
         } else if displayStyleOptions != nil {
             .displayStyle
         } else if markAllRead != nil {
@@ -83,6 +89,9 @@ struct BrowserAddressItem: View {
                     .transition(.opacity)
             } else if let followingActions {
                 BrowserFollowingMenu(actions: followingActions)
+                    .transition(.opacity)
+            } else if let startPageActions {
+                BrowserStartPageMenu(actions: startPageActions)
                     .transition(.opacity)
             } else if let displayStyleOptions {
                 BrowserPageDisplayMenu(options: displayStyleOptions, markAllRead: markAllRead)

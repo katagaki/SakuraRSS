@@ -58,6 +58,7 @@ final class BrowserTabStore {
     private(set) var articleActions: [UUID: BrowserPageSlot<BrowserArticleActions>] = [:]
     private(set) var bookmarksActions: [UUID: BrowserPageSlot<BrowserBookmarksActions>] = [:]
     private(set) var followingActions: [UUID: BrowserPageSlot<BrowserFollowingActions>] = [:]
+    private(set) var startPageActions: [UUID: BrowserPageSlot<BrowserStartPageActions>] = [:]
 
     private(set) var markAllReadActions: [UUID: BrowserPageSlot<BrowserMarkAllReadAction>] = [:]
 
@@ -152,6 +153,8 @@ final class BrowserTabStore {
             fill(&bookmarksActions[tabID], with: actions, from: token)
         case .following(let actions):
             fill(&followingActions[tabID], with: actions, from: token)
+        case .startPage(let actions):
+            fill(&startPageActions[tabID], with: actions, from: token)
         case .displayStyle(let options):
             fill(&displayStyleOptions[tabID], with: options, from: token)
         case .progress(let progress):
@@ -274,6 +277,7 @@ final class BrowserTabStore {
         articleActions[tabID] = nil
         bookmarksActions[tabID] = nil
         followingActions[tabID] = nil
+        startPageActions[tabID] = nil
         pageHistories[tabID] = nil
         overlayPages[tabID] = nil
         liveTabIDs.removeAll { $0 == tabID }

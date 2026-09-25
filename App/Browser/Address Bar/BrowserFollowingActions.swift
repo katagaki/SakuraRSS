@@ -3,11 +3,10 @@ import Hanami
 
 /// The Following page's top bar controls, handed to the bottom bar. The
 /// browser hides the top bar in compact layout, so this is where adding a
-/// feed, making a list and the edit/select modes appear instead.
+/// feed and the edit/select modes appear instead.
 struct BrowserFollowingActions {
 
     var addFeed: () -> Void
-    var newList: () -> Void
     /// Nil while there is nothing to edit, which is also when the top bar
     /// disables its pencil.
     var beginEditing: (() -> Void)?

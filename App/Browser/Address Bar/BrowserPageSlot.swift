@@ -8,6 +8,7 @@ enum BrowserPageSlotReport {
     case article(BrowserArticleActions?)
     case bookmarks(BrowserBookmarksActions?)
     case following(BrowserFollowingActions?)
+    case startPage(BrowserStartPageActions?)
     case displayStyle(BrowserDisplayStyleOptions?)
     case progress(BrowserAddressProgress?)
 }

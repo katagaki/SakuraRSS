@@ -5,6 +5,11 @@ import Hanami
 /// recent content pinned directly below the greeting.
 struct BrowserStartPage: View {
 
+    @Environment(FeedManager.self) private var feedManager
+    @Environment(\.isBrowserChromeActive) private var isBrowserChromeActive
+    @Environment(\.browserStartPageActionsReporter) private var browserStartPageActionsReporter
+    @State private var isPresentingNewListSheet = false
+
     var body: some View {
         #if os(visionOS)
         // visionOS has no Today, so the start page keeps its own sections there.
@@ -17,6 +22,23 @@ struct BrowserStartPage: View {
             }
             .padding(.horizontal)
         ))
+        .onAppear { reportBrowserStartPageActions() }
+        .sheet(isPresented: $isPresentingNewListSheet) {
+            ListEditSheet(list: nil)
+                .environment(feedManager)
+                .presentationDetents([.large])
+                .interactiveDismissDisabled()
+        }
         #endif
+    }
+
+    private func reportBrowserStartPageActions() {
+        guard isBrowserChromeActive else {
+            browserStartPageActionsReporter?(nil)
+            return
+        }
+        browserStartPageActionsReporter?(BrowserStartPageActions(
+            newList: { isPresentingNewListSheet = true }
+        ))
     }
 }

@@ -29,7 +29,6 @@ extension FollowingPage {
         let hasSomethingToEdit = !feedManager.feeds.isEmpty
         return BrowserFollowingActions(
             addFeed: { isPresentingAddFeedSheet = true },
-            newList: { isPresentingNewListSheet = true },
             beginEditing: hasSomethingToEdit ? { isEditingFeeds = true } : nil,
             isEditing: isEditingFeeds,
             isSelecting: isSelectingFeeds,

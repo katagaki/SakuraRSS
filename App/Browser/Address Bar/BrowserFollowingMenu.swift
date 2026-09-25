@@ -28,10 +28,6 @@ struct BrowserFollowingMenu: View {
             Label(String(localized: "FeedList.Empty.AddFeed", table: "Feeds"),
                   systemImage: "plus")
         }
-        Button(action: actions.newList) {
-            Label(String(localized: "Section.Lists.NewList", table: "Settings"),
-                  systemImage: "text.badge.plus")
-        }
         if let beginEditing = actions.beginEditing {
             Section {
                 Button(action: beginEditing) {
