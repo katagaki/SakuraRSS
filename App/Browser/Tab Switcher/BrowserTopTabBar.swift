@@ -22,6 +22,16 @@ struct BrowserTopTabBar: View {
                             }
                         )
                         .equatable()
+                        .draggable(tab.id.uuidString)
+                        .dropDestination(for: String.self) { identifiers, _ in
+                            guard let identifier = identifiers.first,
+                                  let draggedTabID = UUID(uuidString: identifier),
+                                  store.tabs.contains(where: { $0.id == draggedTabID }) else { return false }
+                            withAnimation(.smooth) {
+                                store.moveTab(draggedTabID, to: tab.id)
+                            }
+                            return true
+                        }
                     }
                 }
                 .padding(.horizontal, 4)

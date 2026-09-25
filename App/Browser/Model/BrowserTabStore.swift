@@ -353,3 +353,14 @@ final class BrowserTabStore {
         }
     }
 }
+
+extension BrowserTabStore {
+    func moveTab(_ tabID: UUID, to destinationTabID: UUID) {
+        guard let sourceIndex = tabs.firstIndex(where: { $0.id == tabID }),
+              let destinationIndex = tabs.firstIndex(where: { $0.id == destinationTabID }),
+              sourceIndex != destinationIndex else { return }
+        let tab = tabs.remove(at: sourceIndex)
+        tabs.insert(tab, at: destinationIndex)
+        persistTabs()
+    }
+}
