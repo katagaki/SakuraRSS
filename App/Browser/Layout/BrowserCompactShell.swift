@@ -19,17 +19,19 @@ struct BrowserCompactShell: View {
         } page: { _ in
             tabStack
         }
+        // Container only: swallowing the keyboard region too leaves the
+        // bottom bar, and so the address field, under the keyboard.
+        .ignoresSafeArea(.container)
         // One per shell, not one per page: mounted per page, the overlay and
-        // its focused field can end up on screen twice.
+        // its focused field can end up on screen twice. Outside the safe area
+        // override, or with the keyboard down the editing bar rests against
+        // the screen's edge instead of above the home indicator.
         .overlay {
             if isEditing, !store.isShowingTabSwitcher {
                 BrowserOmniboxView()
                     .transition(.opacity)
             }
         }
-        // Container only: swallowing the keyboard region too leaves the
-        // bottom bar, and so the address field, under the keyboard.
-        .ignoresSafeArea(.container)
     }
 
     private var tabStack: some View {
