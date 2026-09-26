@@ -16,6 +16,7 @@ struct ScrollExpandedArticleView: View {
     @State var extractedText: String?
     @State var isExtracting = true
     @State var isPaywalled = false
+    @State var isChallenged = false
     @State var extractedAuthor: String?
     @State var extractedPublishedDate: Date?
     @State var extractedLeadImageURL: String?

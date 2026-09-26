@@ -10,6 +10,7 @@ protocol ExtractsArticle {
     var extractedText: String? { get nonmutating set }
     var isExtracting: Bool { get nonmutating set }
     var isPaywalled: Bool { get nonmutating set }
+    var isChallenged: Bool { get nonmutating set }
     var extractedAuthor: String? { get nonmutating set }
     var extractedPublishedDate: Date? { get nonmutating set }
     var extractedLeadImageURL: String? { get nonmutating set }
@@ -40,6 +41,7 @@ extension ExtractsArticle {
     func extractArticleContent() async {
         isExtracting = true
         isPaywalled = false
+        isChallenged = false
         defer { isExtracting = false }
         // Keep previously-extracted metadata in place; `applyExtractedMetadata`
         // only writes when the new run produces a value, so a transient fetch
@@ -63,6 +65,7 @@ extension ExtractsArticle {
         }
         applyExtractedMetadata(extracted.metadata)
         isPaywalled = extracted.paywalled
+        isChallenged = extracted.challenged
         extractedText = extracted.text
     }
 

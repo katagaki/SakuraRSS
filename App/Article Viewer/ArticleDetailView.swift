@@ -34,6 +34,8 @@ struct ArticleDetailView: View {
     @State var extractedLeadImageURL: String?
     @State var extractedPageTitle: String?
     @State var isPaywalled = false
+    @State var isChallenged = false
+    @State var showingChallengeVerification = false
     @State var translatedText: String?
     @State var translatedTitle: String?
     @State var translatedSummary: String?
@@ -171,6 +173,11 @@ struct ArticleDetailView: View {
                 PaywallBannerView(articleURL: article.url)
                     .padding()
                     .animation(.smooth.speed(2.0), value: isPaywalled)
+            } else if isChallenged {
+                BotChallengeBannerView {
+                    showingChallengeVerification = true
+                }
+                .padding()
             }
         }
         .sakuraBackground()
@@ -206,6 +213,13 @@ struct ArticleDetailView: View {
         }
         .browserOverlayPage(item: $arXivPDFReference) { reference in
             BrowserPageIdentity(title: reference.title, symbolName: "doc.richtext")
+        }
+        .sheet(isPresented: $showingChallengeVerification) {
+            if let url = URL(string: article.url) {
+                BotChallengeVerificationView(url: url) {
+                    Task { await extractArticleContent() }
+                }
+            }
         }
         .sheet(isPresented: $showYouTubeSafari) {
             if let url = URL(string: article.url) {
