@@ -15,10 +15,7 @@ struct BrowserFollowingMenu: View {
                 browsingItems
             }
         } label: {
-            Image(systemName: actions.isEditing ? "pencil.circle.fill" : "ellipsis")
-                .font(.system(size: 17))
-                .padding(.vertical, 8)
-                .contentShape(.rect)
+            Label(String(localized: actions.isEditing ? "FeedList.Edit" : "Tabs.More", table: actions.isEditing ? "Feeds" : nil), systemImage: actions.isEditing ? "pencil.circle.fill" : "ellipsis")
         }
     }
 

@@ -1,3 +1,4 @@
+import EnhancedNavigation
 import SwiftUI
 import Hanami
 
@@ -7,7 +8,6 @@ struct BrowserStartPage: View {
 
     @Environment(FeedManager.self) private var feedManager
     @Environment(\.isBrowserChromeActive) private var isBrowserChromeActive
-    @Environment(\.browserStartPageActionsReporter) private var browserStartPageActionsReporter
     @State private var isPresentingNewListSheet = false
 
     var body: some View {
@@ -22,7 +22,11 @@ struct BrowserStartPage: View {
             }
             .padding(.horizontal)
         ))
-        .onAppear { reportBrowserStartPageActions() }
+        .tabOmniboxAccessory(isEnabled: isBrowserChromeActive) {
+            BrowserStartPageMenu(actions: BrowserStartPageActions(
+                newList: { isPresentingNewListSheet = true }
+            ))
+        }
         .sheet(isPresented: $isPresentingNewListSheet) {
             ListEditSheet(list: nil)
                 .environment(feedManager)
@@ -30,15 +34,5 @@ struct BrowserStartPage: View {
                 .interactiveDismissDisabled()
         }
         #endif
-    }
-
-    private func reportBrowserStartPageActions() {
-        guard isBrowserChromeActive else {
-            browserStartPageActionsReporter?(nil)
-            return
-        }
-        browserStartPageActionsReporter?(BrowserStartPageActions(
-            newList: { isPresentingNewListSheet = true }
-        ))
     }
 }

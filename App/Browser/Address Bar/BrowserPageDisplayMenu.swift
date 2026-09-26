@@ -6,7 +6,7 @@ import Hanami
 struct BrowserPageDisplayMenu: View {
 
     let options: BrowserDisplayStyleOptions
-    let markAllRead: BrowserMarkAllReadAction?
+    var markAllRead: (() -> Void)?
 
     var body: some View {
         Menu {
@@ -22,7 +22,7 @@ struct BrowserPageDisplayMenu: View {
             if let markAllRead {
                 Section {
                     Button {
-                        Task { @MainActor in markAllRead.perform() }
+                        Task { @MainActor in markAllRead() }
                     } label: {
                         Label(String(localized: "MarkAllRead", table: "Articles"),
                               systemImage: "envelope.open")
@@ -30,10 +30,7 @@ struct BrowserPageDisplayMenu: View {
                 }
             }
         } label: {
-            Image(systemName: "ellipsis")
-                .font(.system(size: 17))
-                .padding(.vertical, 8)
-                .contentShape(.rect)
+            Label(String(localized: "Tabs.More"), systemImage: "ellipsis")
         }
     }
 }

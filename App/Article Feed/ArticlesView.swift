@@ -1,3 +1,4 @@
+import EnhancedNavigation
 import SwiftUI
 import TipKit
 import Hanami
@@ -38,8 +39,6 @@ struct ArticlesView: View {
 
     @Environment(\.hidesMarkAllReadToolbar) private var hidesMarkAllReadToolbar
     @Environment(\.isBrowserChromeActive) private var isBrowserChromeActive
-    @Environment(\.browserMarkAllReadReporter) private var markAllReadReporter
-    @Environment(\.browserDisplayStyleReporter) private var displayStyleReporter
     @Environment(\.homeSectionDisplayMenu) private var homeSectionDisplayMenu
     @State private var displayStyle: FeedDisplayStyle
     @State private var isShowingMarkAllReadConfirmation = false
@@ -148,11 +147,11 @@ struct ArticlesView: View {
         .navigationSubtitle(subtitle ?? "")
         #endif
         .toolbarTitleDisplayMode(titleDisplayMode)
-        .onAppear {
-            reportMarkAllReadToBrowser()
-            reportDisplayStyleToBrowser()
+        // The browser hides the top bar, so the list's own actions go in the
+        // omnibox's menu instead.
+        .tabOmniboxAccessory(isEnabled: isBrowserChromeActive) {
+            BrowserPageDisplayMenu(options: browserDisplayStyleOptions, markAllRead: onMarkAllRead)
         }
-        .task(id: homeMenuSignature) { reportDisplayStyleToBrowser() }
         .toolbar {
             if !hidesMarkAllReadToolbar, !isBrowserChromeActive,
                markAllReadPosition == .top, let onMarkAllRead {
@@ -337,27 +336,13 @@ extension ArticlesView {
         }
         return displayStyle
     }
-    /// The browser has no top bar, so the page hands its action to the bottom
-    /// bar to render instead.
-    private func reportMarkAllReadToBrowser() {
-        guard isBrowserChromeActive, let onMarkAllRead else {
-            markAllReadReporter?(nil)
-            return
-        }
-        markAllReadReporter?(BrowserMarkAllReadAction(perform: onMarkAllRead))
-    }
-
-    private func reportDisplayStyleToBrowser() {
-        guard isBrowserChromeActive else {
-            displayStyleReporter?(nil)
-            return
-        }
-        displayStyleReporter?(BrowserDisplayStyleOptions(
+    private var browserDisplayStyleOptions: BrowserDisplayStyleOptions {
+        BrowserDisplayStyleOptions(
             displayStyle: $displayStyle,
             hasImages: hasImages,
             showsTimeline: feedKey != "all",
             showsPodcast: isPodcastFeed || hasAudioArticles
-        ))
+        )
     }
 
 }

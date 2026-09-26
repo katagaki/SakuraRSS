@@ -1,3 +1,4 @@
+import EnhancedNavigation
 import SwiftUI
 import Hanami
 
@@ -8,7 +9,6 @@ struct BookmarksContentView: View {
     @Environment(FeedManager.self) var feedManager
     @Environment(\.zoomNamespace) private var zoomNamespace
     @Environment(\.isBrowserChromeActive) var isBrowserChromeActive
-    @Environment(\.browserBookmarksActionsReporter) var browserBookmarksActionsReporter
 
     @State var bookmarkedArticles: [Article] = []
     @State private var bookmarkedArticleIDs: [Int64] = []
@@ -133,10 +133,11 @@ struct BookmarksContentView: View {
         .task(id: scope) {
             await reloadBookmarks()
         }
-        .onAppear { reportBrowserBookmarksActions() }
-        .onChange(of: bookmarkedArticleIDs) { reportBrowserBookmarksActions() }
-        .onChange(of: hasImages) { reportBrowserBookmarksActions() }
-        .onChange(of: scope) { reportBrowserBookmarksActions() }
+        // The browser hides the top bar, so these controls go in the
+        // omnibox's menu instead.
+        .tabOmniboxAccessory(isEnabled: isBrowserChromeActive) {
+            BrowserBookmarksMenu(actions: browserBookmarksActions)
+        }
     }
 
     /// Under browser chrome these same actions live in the bottom bar's

@@ -52,11 +52,6 @@ private struct BrowserPageModifier: ViewModifier {
 
     func body(content: Content) -> some View {
         content
-            .environment(\.browserMarkAllReadReporter) { report(.markAllRead($0)) }
-            .environment(\.browserBookmarksActionsReporter) { report(.bookmarks($0)) }
-            .environment(\.browserFollowingActionsReporter) { report(.following($0)) }
-            .environment(\.browserStartPageActionsReporter) { report(.startPage($0)) }
-            .environment(\.browserDisplayStyleReporter) { report(.displayStyle($0)) }
             .environment(\.browserPageProgressReporter) { report(.progress($0)) }
             // Files what the page puts in the bottom bar against the page.
             .tabPage(pathToken: pathToken)

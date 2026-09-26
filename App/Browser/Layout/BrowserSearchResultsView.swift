@@ -1,3 +1,4 @@
+import EnhancedNavigation
 import SwiftUI
 import Hanami
 
@@ -6,7 +7,6 @@ struct BrowserSearchResultsView: View {
     @Environment(FeedManager.self) private var feedManager
     @AppStorage("Search.DisplayStyle") private var searchDisplayStyle: FeedDisplayStyle = .inbox
     @Environment(\.isBrowserChromeActive) private var isBrowserChromeActive
-    @Environment(\.browserDisplayStyleReporter) private var displayStyleReporter
     let query: String
     @State private var results: [Article] = []
 
@@ -49,9 +49,9 @@ struct BrowserSearchResultsView: View {
             .navigationTitle(query)
             .toolbarTitleDisplayMode(.inline)
             .sakuraBackground()
-            .onAppear { reportDisplayStyleToBrowser() }
-            .onDisappear { displayStyleReporter?(nil) }
-            .task(id: hasImages) { reportDisplayStyleToBrowser() }
+            .tabOmniboxAccessory(isEnabled: isBrowserChromeActive) {
+                BrowserPageDisplayMenu(options: browserDisplayStyleOptions)
+            }
             .task(id: query) {
                 let found = (try? DatabaseManager.shared.searchArticles(query: query)) ?? []
                 guard !Task.isCancelled else { return }
@@ -62,15 +62,13 @@ struct BrowserSearchResultsView: View {
             }
     }
 
-    private func reportDisplayStyleToBrowser() {
-        guard isBrowserChromeActive else {
-            displayStyleReporter?(nil)
-            return
-        }
-        displayStyleReporter?(BrowserDisplayStyleOptions(
+    /// The browser hides the top bar, so the display style goes in the
+    /// omnibox's menu instead.
+    private var browserDisplayStyleOptions: BrowserDisplayStyleOptions {
+        BrowserDisplayStyleOptions(
             displayStyle: $searchDisplayStyle,
             hasImages: hasImages,
             showsTimeline: false
-        ))
+        )
     }
 }

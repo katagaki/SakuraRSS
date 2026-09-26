@@ -1,3 +1,4 @@
+import EnhancedNavigation
 import SwiftUI
 import Hanami
 
@@ -5,7 +6,6 @@ struct FollowingPage: View {
 
     @Environment(FeedManager.self) var feedManager
     @Environment(\.isBrowserChromeActive) var isBrowserChromeActive
-    @Environment(\.browserFollowingActionsReporter) var browserFollowingActionsReporter
     let followingNavigationNamespace: Namespace.ID
     @State var searchText = ""
     @State var isPresentingAddFeedSheet = false
@@ -58,8 +58,11 @@ struct FollowingPage: View {
         .onChange(of: feedManager.activeFocus) { _, _ in
             isShowingAllDespiteFocus = false
         }
-        .onAppear { reportBrowserFollowingActions() }
-        .onChange(of: browserActionsSignal) { reportBrowserFollowingActions() }
+        // The browser hides the top bar, so these controls go in the
+        // omnibox's menu instead.
+        .tabOmniboxAccessory(isEnabled: isBrowserChromeActive) {
+            BrowserFollowingMenu(actions: browserFollowingActions)
+        }
         .sheet(isPresented: $isPresentingAddFeedSheet) {
             AddFeedView(session: addFeedSession)
                 .environment(feedManager)

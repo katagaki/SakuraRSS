@@ -48,10 +48,7 @@ struct BrowserBookmarksMenu: View {
                 }
             }
         } label: {
-            Image(systemName: "ellipsis")
-                .font(.system(size: 17))
-                .padding(.vertical, 8)
-                .contentShape(.rect)
+            Label(String(localized: "Tabs.More"), systemImage: "ellipsis")
         }
         .menuActionDismissBehavior(.disabled)
     }

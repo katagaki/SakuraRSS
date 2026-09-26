@@ -5,11 +5,6 @@ import SwiftUI
 /// SwiftUI re-runs `onAppear` on the page *below* the one a pop reveals, so an
 /// untagged report from a background page would take the bar over.
 enum BrowserPageSlotReport {
-    case markAllRead(BrowserMarkAllReadAction?)
-    case bookmarks(BrowserBookmarksActions?)
-    case following(BrowserFollowingActions?)
-    case startPage(BrowserStartPageActions?)
-    case displayStyle(BrowserDisplayStyleOptions?)
     case progress(BrowserAddressProgress?)
 }
 

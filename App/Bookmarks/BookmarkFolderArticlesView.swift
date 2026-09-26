@@ -1,3 +1,4 @@
+import EnhancedNavigation
 import SwiftUI
 import Hanami
 
@@ -6,7 +7,6 @@ struct BookmarkFolderArticlesView: View {
     @Environment(FeedManager.self) var feedManager
     @Environment(\.dismiss) var dismiss
     @Environment(\.isBrowserChromeActive) private var isBrowserChromeActive
-    @Environment(\.browserDisplayStyleReporter) private var displayStyleReporter
     let folder: BookmarkFolder
 
     @State private var articles: [Article] = []
@@ -118,9 +118,9 @@ struct BookmarkFolderArticlesView: View {
         .onChange(of: displayStyle) { _, newValue in
             feedManager.updateBookmarkFolderDisplayStyle(currentFolder, displayStyle: newValue.rawValue)
         }
-        .onAppear { reportDisplayStyleToBrowser() }
-        .onDisappear { displayStyleReporter?(nil) }
-        .task(id: hasImages) { reportDisplayStyleToBrowser() }
+        .tabOmniboxAccessory(isEnabled: isBrowserChromeActive) {
+            BrowserPageDisplayMenu(options: browserDisplayStyleOptions)
+        }
         .task(id: feedManager.dataRevision) {
             await reloadArticles()
         }
@@ -164,17 +164,15 @@ struct BookmarkFolderArticlesView: View {
         articleIDs = loaded.map(\.id)
     }
 
-    private func reportDisplayStyleToBrowser() {
-        guard isBrowserChromeActive else {
-            displayStyleReporter?(nil)
-            return
-        }
-        displayStyleReporter?(BrowserDisplayStyleOptions(
+    /// The browser hides the top bar, so the display style goes in the
+    /// omnibox's menu instead.
+    private var browserDisplayStyleOptions: BrowserDisplayStyleOptions {
+        BrowserDisplayStyleOptions(
             displayStyle: $displayStyle,
             hasImages: hasImages,
             showsPodcast: false,
             showsCards: false,
             showsScroll: false
-        ))
+        )
     }
 }

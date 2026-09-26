@@ -1,3 +1,4 @@
+import EnhancedNavigation
 import SwiftUI
 import Hanami
 
@@ -8,7 +9,6 @@ struct EntityArticlesView: View {
     @Environment(\.navigateToEphemeralArticle) private var navigateToEphemeralArticle
     @AppStorage("Search.DisplayStyle") private var searchDisplayStyle: FeedDisplayStyle = .inbox
     @Environment(\.isBrowserChromeActive) private var isBrowserChromeActive
-    @Environment(\.browserDisplayStyleReporter) private var displayStyleReporter
     @State private var articles: [Article] = []
 
     private var hasImages: Bool {
@@ -41,8 +41,9 @@ struct EntityArticlesView: View {
         .sakuraBackground()
         .navigationTitle(destination.name)
         .toolbarTitleDisplayMode(.inline)
-        .onAppear { reportDisplayStyleToBrowser() }
-        .task(id: hasImages) { reportDisplayStyleToBrowser() }
+        .tabOmniboxAccessory(isEnabled: isBrowserChromeActive) {
+            BrowserPageDisplayMenu(options: browserDisplayStyleOptions)
+        }
         .toolbar {
             ToolbarItemGroup(placement: .topBarTrailing) {
                 Menu {
@@ -67,16 +68,14 @@ struct EntityArticlesView: View {
         }
     }
 
-    private func reportDisplayStyleToBrowser() {
-        guard isBrowserChromeActive else {
-            displayStyleReporter?(nil)
-            return
-        }
-        displayStyleReporter?(BrowserDisplayStyleOptions(
+    /// The browser hides the top bar, so the display style goes in the
+    /// omnibox's menu instead.
+    private var browserDisplayStyleOptions: BrowserDisplayStyleOptions {
+        BrowserDisplayStyleOptions(
             displayStyle: $searchDisplayStyle,
             hasImages: hasImages,
             showsTimeline: false
-        ))
+        )
     }
 
     private func loadArticles() async {
